@@ -41,19 +41,19 @@ CLASS Consultingwerk.Windows.ProDatasetObjectMapping.TableMapping:
                  PropertyName|FieldName(ABL DataType) 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY FieldMapping AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY FieldMapping AS CHARACTER NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the TableMapping class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC TableMapping ():
-		SUPER ().
-		
-		THIS-OBJECT:ChildTableMappings = NEW ListChildTableMapping () . 
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC TableMapping ():
+        SUPER ().
+        
+        THIS-OBJECT:ChildTableMappings = NEW ListChildTableMapping () . 
+        
+    END CONSTRUCTOR.
 
 END CLASS.

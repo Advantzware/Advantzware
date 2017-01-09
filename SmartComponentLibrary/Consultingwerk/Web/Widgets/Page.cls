@@ -107,14 +107,14 @@ CLASS Consultingwerk.Web.Widgets.Page
         
     END CONSTRUCTOR.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Evaluates the custom libraries required by the Controls on the Page
-	    Notes:   Javascript and CSS
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID EvaluateControlCustomLibraries ():
+    /*------------------------------------------------------------------------------
+        Purpose: Evaluates the custom libraries required by the Controls on the Page
+        Notes:   Javascript and CSS
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID EvaluateControlCustomLibraries ():
 
         DEFINE VARIABLE cLibraries AS CHARACTER NO-UNDO.
-		
+        
         {Consultingwerk/foreachABL.i Control oControl in THIS-OBJECT:Controls}
             IF TYPE-OF (oControl, IControlWithCustomJavaScript) THEN DO:
                 
@@ -135,7 +135,7 @@ CLASS Consultingwerk.Web.Widgets.Page
             END.
         END.
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Processes the browser input

@@ -8,15 +8,15 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : WebViewerDesignerForm
     Purpose     : Designer form for a Dynamic Web Viewer Control
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sun Apr 08 15:51:29 CEST 2012
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -26,12 +26,12 @@ USING Consultingwerk.SmartComponents.Base.*.
 USING Consultingwerk.Design.SmartComponents.Viewer.* .
 USING Consultingwerk.Forms.BaseForm.
 USING Consultingwerk.SmartComponents.Implementation.* .
-USING Consultingwerk.Util.* . 
+USING Consultingwerk.Util.* .
 USING Progress.Lang.*.
 
-CLASS Consultingwerk.Web.Studio.Viewer.WebViewerDesignerForm 
-    INHERITS SmartWindowForm: 
-    
+CLASS Consultingwerk.Web.Studio.Viewer.WebViewerDesignerForm
+    INHERITS SmartWindowForm:
+
     DEFINE PRIVATE VARIABLE bindingSource1 AS Progress.Data.BindingSource NO-UNDO.
     DEFINE PRIVATE VARIABLE dockableWindow1 AS Infragistics.Win.UltraWinDock.DockableWindow NO-UNDO.
     DEFINE PRIVATE VARIABLE bindingSourceFieldsControl1 AS Consultingwerk.Design.SmartComponents.BindingSourceFieldsControl NO-UNDO.
@@ -53,30 +53,30 @@ CLASS Consultingwerk.Web.Studio.Viewer.WebViewerDesignerForm
     DEFINE PRIVATE VARIABLE windowDockingArea1 AS Infragistics.Win.UltraWinDock.WindowDockingArea NO-UNDO.
     DEFINE PRIVATE VARIABLE windowDockingArea2 AS Infragistics.Win.UltraWinDock.WindowDockingArea NO-UNDO.
 
-    {Consultingwerk/Framework/RepositoryServices/ttViewerDesign.i}       
-         
+    {Consultingwerk/Framework/RepositoryServices/ttViewerDesign.i}
+
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the WebViewerDesignerForm class                                                              
-        Notes:                                                                        
+        Purpose: Constructor for the WebViewerDesignerForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC WebViewerDesignerForm ():
-        
-        
+
+
         SUPER().
         InitializeComponent().
-        
-        THIS-OBJECT:smartViewerDesignerControl1:FieldCreated:Subscribe 
+
+        THIS-OBJECT:smartViewerDesignerControl1:FieldCreated:Subscribe
             (FieldCreatedHandler) .
-        
+
         /* Mike Fechner, Consultingwerk Ltd. 12.09.2011
            Initialize Visual Designer */
         smartViewerDesignerControl1:CreatePropertySheet = FALSE .
-        smartViewerDesignerControl1:CreateToolboxForm = FALSE .        
-        
-        smartViewerDesignerControl1:BindingSource = bindingSource1 . 
-        bindingSourceFieldsControl1:BindingSource = bindingSource1 . 
-        
-        
+        smartViewerDesignerControl1:CreateToolboxForm = FALSE .
+
+        smartViewerDesignerControl1:BindingSource = bindingSource1 .
+        bindingSourceFieldsControl1:BindingSource = bindingSource1 .
+
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
@@ -84,43 +84,44 @@ CLASS Consultingwerk.Web.Studio.Viewer.WebViewerDesignerForm
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Handles the creation of new fields on the Design canvas                                                                        
-        Notes:      
+        Purpose: Handles the creation of new fields on the Design canvas
+        Notes:
         @param sender The event sender
-        @param e The FieldCreatedEventArgs instance of the event                                                                  
+        @param e The FieldCreatedEventArgs instance of the event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID FieldCreatedHandler (sender AS Progress.Lang.Object,
                                                e AS FieldCreatedEventArgs):
-        
-        IF TYPE-OF (e:Control, System.Windows.Forms.TextBox) THEN 
-            CAST (e:Control, System.Windows.Forms.TextBox):MultiLine = TRUE .                     
-            
-                      
-        IF TYPE-OF (e:Control, System.Windows.Forms.CheckBox) THEN DO: 
-            
+
+        IF TYPE-OF (e:Control, System.Windows.Forms.TextBox) THEN
+            CAST (e:Control, System.Windows.Forms.TextBox):MultiLine = TRUE .
+
+
+        IF TYPE-OF (e:Control, System.Windows.Forms.CheckBox) THEN DO:
+
             {Consultingwerk/foreach.i Progress.Data.ColumnPropDesc oColumn in bindingSource1:TableSchema:Columns}
-                
-                IF oColumn:ColumnName = e:Control:Name THEN DO: 
-                    e:Control:Text = oColumn:ColumnLabel.   
+
+                IF oColumn:ColumnName = e:Control:Name THEN DO:
+                    e:Control:Text = oColumn:ColumnLabel.
 
                     LEAVE.
-                END.    
-            END.                    
+                END.
+            END.
         END.
-        
+
     END METHOD.
-    
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -891,25 +892,25 @@ CLASS Consultingwerk.Web.Studio.Viewer.WebViewerDesignerForm
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the Load event                                                                        
-        Notes:                  
-        @param e The default .NET System.EventArgs                                                      
+        Purpose: Raises the Load event
+        Notes:
+        @param e The default .NET System.EventArgs
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
-        
+
 /*        DEFINE VARIABLE oBPMViewer AS DynamicWorkflowItemViewerControl NO-UNDO .*/
         DEFINE VARIABLE oDesignAdapter AS SmartTempTableAdapter NO-UNDO .
-        
+
 /*        THIS-OBJECT:Text = SUBSTITUTE ("Design: &1 / &2",              */
 /*                                       THIS-OBJECT:ProcessTemplateName,*/
 /*                                       THIS-OBJECT:WorkStepName) .     */
-        
+
         SUPER:OnLoad (e) .
 
         smartViewerDesignerControl1:DesignerToolbar = smartToolbarController1 .
-        
+
         propertySheet1:Designer = smartViewerDesignerControl1 .
-            
+
 /*        IF NOT THIS-OBJECT:NewDesign THEN DO:                                                                */
 /*                                                                                                             */
 /*            oBPMViewer = NEW DynamicWorkflowItemViewerControl () .                                           */
@@ -929,24 +930,24 @@ CLASS Consultingwerk.Web.Studio.Viewer.WebViewerDesignerForm
 /*                                                                                                             */
 /*            smartViewerDesignerControl1:SourceControl = oBPMViewer  .                                        */
 /*        END.                                                                                                 */
-            
+
         smartViewerDesignerControl1:Initialize() .
 
         /* Mike Fechner, Consultingwerk Ltd. 16.09.2011
-           Set SourceControl after SmartViewerDesignerControl:Initialize() to 
+           Set SourceControl after SmartViewerDesignerControl:Initialize() to
            avoid copying the control from here */
-        smartViewerDesignerControl1:SourceControl = THIS-OBJECT . 
+        smartViewerDesignerControl1:SourceControl = THIS-OBJECT .
 
         smartViewerDesignerControl1:ServiceContainer:AddService(Progress.Util.TypeHelper:GetType("System.Drawing.Design.IToolboxService":U),
                                                                 bindingSourceFieldsControl1) .
-        bindingSourceFieldsControl1:DesignerHost = smartViewerDesignerControl1:DesignerHost .     
-            
+        bindingSourceFieldsControl1:DesignerHost = smartViewerDesignerControl1:DesignerHost .
+
         propertySheet1:SelectionService = CAST (smartViewerDesignerControl1:ServiceContainer:GetService(Progress.Util.TypeHelper:GetType("System.ComponentModel.Design.ISelectionService":U)),
                                                 System.ComponentModel.Design.ISelectionService) .
 
-        /* Hide Components Area */    
+        /* Hide Components Area */
         smartViewerDesignerControl1:Size = NEW System.Drawing.Size (THIS-OBJECT:smartViewerDesignerControl1:Width,
-                                                                    THIS-OBJECT:smartViewerDesignerControl1:Height + 80) . 
+                                                                    THIS-OBJECT:smartViewerDesignerControl1:Height + 80) .
 
 /*        bindingSourceFieldsControl1:InsertSeparator () .                                                                         */
 /*                                                                                                                                 */
@@ -959,64 +960,64 @@ CLASS Consultingwerk.Web.Studio.Viewer.WebViewerDesignerForm
 /*                                                          Progress.Util.TypeHelper:GetType ("System.Windows.Forms.TabControl")) .*/
 
         CATCH err AS Progress.Lang.Error :
-            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .    
+            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the Shown event                                                                         
-        Notes:                                                                        
+        Purpose: Raises the Shown event
+        Notes:
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
-        
+
         THIS-OBJECT:bindingSourceFieldsControl1:DesignerControl = smartViewerDesignerControl1.
 
         CATCH err AS Progress.Lang.Error :
-            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .    
+            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Saves the design to an XML file                                                                        
-        Notes:                                                                        
+        Purpose: Saves the design to an XML file
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID SaveDesign ():
-        
+
         THIS-OBJECT:smartViewerDesignerControl1:Serialize (OUTPUT TABLE ttViewerDesign) .
 
-        TEMP-TABLE ttViewerDesign:WRITE-XML ("file":U, 
+        TEMP-TABLE ttViewerDesign:WRITE-XML ("file":U,
                                              "Consultingwerk/SmartComponentsDemo/Web/customer.viewer":U,
                                              TRUE) .
-        
+
         THIS-OBJECT:smartViewerDesignerControl1:ShutDown () .
-        THIS-OBJECT:Close () . 
+        THIS-OBJECT:Close () .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the ToolClick event of the smartToolbarController1                                                                        
-        Notes:                                                                       
+        Purpose: Event handler for the ToolClick event of the smartToolbarController1
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The ToolClickEventArgs with the data for this event   
+        @param e The ToolClickEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID smartToolbarController1_ToolClick (sender AS System.Object, 
+    METHOD PRIVATE VOID smartToolbarController1_ToolClick (sender AS System.Object,
                                                            e AS Infragistics.Win.UltraWinToolbars.ToolClickEventArgs):
-        
+
         CASE e:Tool:Key:
-            
-            WHEN "Save Design":U THEN 
+
+            WHEN "Save Design":U THEN
                 SaveDesign () .
-            
+
          END CASE .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the WebViewerDesignerForm class                                                                        
-        Notes:                                                                        
+        Purpose: Destructor for the WebViewerDesignerForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC WebViewerDesignerForm ():
 

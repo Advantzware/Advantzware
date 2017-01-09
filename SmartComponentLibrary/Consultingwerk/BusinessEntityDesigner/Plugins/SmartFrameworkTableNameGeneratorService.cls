@@ -49,21 +49,21 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.SmartFrameworkTableNameGener
         @param dsBusinessEntity The Business Entity Designer Dataset
         @return The name for the new temp-table
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC CHARACTER GenerateTempTableName (pcDatabaseName AS CHARACTER, 
-	                                               pcTableName AS CHARACTER, 
-	                                               DATASET FOR dsBusinessEntity):
-		
-&IF DEFINED (SmartFramework) NE 0 &THEN 		
-		DEFINE VARIABLE oFetchDataRequest AS IFetchDataRequest NO-UNDO .
-		DEFINE VARIABLE cQueryString      AS CHARACTER         NO-UNDO .
+    METHOD PUBLIC CHARACTER GenerateTempTableName (pcDatabaseName AS CHARACTER, 
+                                                   pcTableName AS CHARACTER, 
+                                                   DATASET FOR dsBusinessEntity):
+        
+&IF DEFINED (SmartFramework) NE 0 &THEN         
+        DEFINE VARIABLE oFetchDataRequest AS IFetchDataRequest NO-UNDO .
+        DEFINE VARIABLE cQueryString      AS CHARACTER         NO-UNDO .
 
         ASSIGN cQueryString = SUBSTITUTE ("FOR EACH eSmartTable WHERE eSmartTable.DatabaseName = &1 AND eSmartTable.TableName = &2":U,
                                           QUOTER (pcDatabaseName), 
                                           QUOTER (pcTableName)) . 
 
-		oFetchDataRequest = NEW FetchDataRequest ("eSmartTable":U,
-		                                          cQueryString,
-		                                          1) .
+        oFetchDataRequest = NEW FetchDataRequest ("eSmartTable":U,
+                                                  cQueryString,
+                                                  1) .
 
         FrameworkSettings:ServiceAdapter:RetrieveData ("":U,
                                                        "Consultingwerk.SmartFramework.System.TableBusinessEntity":U,
@@ -91,9 +91,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.SmartFrameworkTableNameGener
 
 &IF DEFINED (SmartFramework) NE 0 &THEN         
         FINALLY:
-            DATASET dsTable:EMPTY-DATASET () .		
+            DATASET dsTable:EMPTY-DATASET () .        
         END FINALLY.
 &ENDIF
-	END METHOD .
+    END METHOD .
 
 END CLASS.

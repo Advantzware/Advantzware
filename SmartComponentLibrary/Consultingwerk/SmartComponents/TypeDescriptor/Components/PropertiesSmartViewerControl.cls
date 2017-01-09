@@ -34,11 +34,11 @@ CLASS Consultingwerk.SmartComponents.TypeDescriptor.Components.PropertiesSmartVi
         Purpose: Constructor for the PropertiesSmartViewerControl class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC PropertiesSmartViewerControl ():
-	    
-	    DEFINE VARIABLE oProperty AS IPropertyDescriptor NO-UNDO . 
-		
-		SUPER ().
+    CONSTRUCTOR PUBLIC PropertiesSmartViewerControl ():
+        
+        DEFINE VARIABLE oProperty AS IPropertyDescriptor NO-UNDO . 
+        
+        SUPER ().
 
         THIS-OBJECT:TypeName = "Consultingwerk.SmartComponents.Base.SmartViewerControl":U . 
 
@@ -70,6 +70,6 @@ CLASS Consultingwerk.SmartComponents.TypeDescriptor.Components.PropertiesSmartVi
         oProperty:Attributes:Add (NEW System.ComponentModel.BrowsableAttribute (FALSE)) .
         oProperty:Attributes:Add (NEW System.ComponentModel.DesignerSerializationVisibilityAttribute (DesignerSerializationVisibility:Hidden)) .
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
 END CLASS.

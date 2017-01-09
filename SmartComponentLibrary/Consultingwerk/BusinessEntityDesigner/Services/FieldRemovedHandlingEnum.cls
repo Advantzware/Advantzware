@@ -12,13 +12,13 @@
 /*------------------------------------------------------------------------
     File        : FieldRemovedHandlingEnum
     Purpose     : Enum with possible values how to deal with temp-table fields
-                  that are still part of the model, but the source database 
+                  that are still part of the model, but the source database
                   field is not longer existing
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Mon Sep 10 12:14:18 CEST 2012
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -33,42 +33,42 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.Enum                              FROM PROPATH .
 USING Consultingwerk.Framework.Collections.*           FROM PROPATH .
-USING Consultingwerk.BusinessEntityDesigner.Services.* FROM PROPATH .  
+USING Consultingwerk.BusinessEntityDesigner.Services.* FROM PROPATH .
 USING Progress.Lang.*                                  FROM PROPATH .
 
-{&CLASS} Consultingwerk.BusinessEntityDesigner.Services.FieldRemovedHandlingEnum 
+{&CLASS} Consultingwerk.BusinessEntityDesigner.Services.FieldRemovedHandlingEnum
     &IF "{&CLASS}" EQ "CLASS" &THEN
     INHERITS Enum
-    &ENDIF    
-        : 
+    &ENDIF
+        :
 
 &IF "{&CLASS}" EQ "ENUM" &THEN
     DEFINE ENUM
-&ENDIF    
+&ENDIF
 
     /*------------------------------------------------------------------------------
         Purpose: Clears the source column information of the temp-table field in the
-                 model                                       
-        Notes:          
+                 model
+        Notes:
     ------------------------------------------------------------------------------*/
     {Consultingwerk/EnumMember.i RemoveSourceColumn 0 FieldRemovedHandlingEnum}
-    
+
     /*------------------------------------------------------------------------------
-        Purpose: Removes the temp-table field from the model                                           
-        Notes:          
+        Purpose: Removes the temp-table field from the model
+        Notes:
     ------------------------------------------------------------------------------*/
     {Consultingwerk/EnumMember.i RemoveField 1 FieldRemovedHandlingEnum}
 
     /*------------------------------------------------------------------------------
-        Purpose: Do nothing, the temp-table field will not be deleted and the source 
-                 column information will not be cleared                                                                      
-        Notes:          
+        Purpose: Do nothing, the temp-table field will not be deleted and the source
+                 column information will not be cleared
+        Notes:
     ------------------------------------------------------------------------------*/
     {Consultingwerk/EnumMember.i DoNothing 2 FieldRemovedHandlingEnum}
 
 &IF "{&CLASS}" EQ "ENUM" &THEN
     .
-&ENDIF    
+&ENDIF
 
 &IF "{&CLASS}" EQ "CLASS" &THEN
 
@@ -80,27 +80,25 @@ USING Progress.Lang.*                                  FROM PROPATH .
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PRIVATE FieldRemovedHandlingEnum (piValue AS INTEGER, pcLabel AS CHARACTER):
         SUPER ().
- 
+
         ASSIGN THIS-OBJECT:Value = piValue
                THIS-OBJECT:Label = pcLabel .
- 
+
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns a CharacterList with the names of the Enum members 
-        Notes:   
+        Purpose: Returns a CharacterList with the names of the Enum members
+        Notes:
         @return The CharacterList with the names of the Enum members
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CharacterList GetNames ():
-        
-        DEFINE VARIABLE oReturn AS CharacterList NO-UNDO . 
-        
+
         RETURN NEW CharacterList ('{&EnumMembers}':U).
 
     END METHOD .
-    
+
     {Consultingwerk/EnumFromString.i Consultingwerk.BusinessEntityDesigner.Services.FieldRemovedHandlingEnum}
 
-&ENDIF 
+&ENDIF
 
 END {&CLASS} .

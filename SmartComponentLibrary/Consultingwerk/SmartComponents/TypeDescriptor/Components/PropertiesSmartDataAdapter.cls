@@ -32,10 +32,10 @@ CLASS Consultingwerk.SmartComponents.TypeDescriptor.Components.PropertiesSmartDa
         Purpose: Constructor for the PropertiesSmartDataAdapter class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC PropertiesSmartDataAdapter ():
-	    
-	    DEFINE VARIABLE oProperty  AS IPropertyDescriptor NO-UNDO . 
-		SUPER ().
+    CONSTRUCTOR PUBLIC PropertiesSmartDataAdapter ():
+        
+        DEFINE VARIABLE oProperty  AS IPropertyDescriptor NO-UNDO . 
+        SUPER ().
 
         THIS-OBJECT:TypeName = "Consultingwerk.SmartComponents.Base.SmartDataAdapter":U . 
 
@@ -87,6 +87,6 @@ CLASS Consultingwerk.SmartComponents.TypeDescriptor.Components.PropertiesSmartDa
         oProperty:Attributes:Add (NEW System.ComponentModel.BrowsableAttribute (FALSE)) . 
         oProperty:Attributes:Add (System.ComponentModel.DesignerSerializationVisibilityAttribute:Hidden).
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
 END CLASS.

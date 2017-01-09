@@ -11,12 +11,12 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : SmartMenuSecurityMaintenanceForm
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Marko Rüterbories / Consultingwerk Ltd.
     Created     : Thu May 22 13:20:21 CEST 2014
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -29,17 +29,17 @@ USING Consultingwerk.Framework.Session.*                  FROM PROPATH .
 USING Consultingwerk.OERA.*                               FROM PROPATH .
 USING Consultingwerk.SmartComponents.Base.SmartWindowForm FROM PROPATH .
 USING Consultingwerk.SmartFramework.Authorization.*       FROM PROPATH .
-USING Consultingwerk.Util.*                               FROM PROPATH . 
+USING Consultingwerk.Util.*                               FROM PROPATH .
 USING Consultingwerk.Windows.Framework.Authorization.*    FROM PROPATH .
-USING Consultingwerk.Windows.Util.*                       FROM PROPATH . 
-USING Infragistics.Win.UltraWinTree.*                     FROM ASSEMBLY .  
+USING Consultingwerk.Windows.Util.*                       FROM PROPATH .
+USING Infragistics.Win.UltraWinTree.*                     FROM ASSEMBLY .
 USING Progress.Lang.*                                     FROM PROPATH .
 
-{Consultingwerk/products.i} 
+{Consultingwerk/products.i}
 
-CLASS Consultingwerk.Windows.Framework.Authorization.SmartMenuSecurityMaintenanceForm 
-    INHERITS SmartWindowForm: 
-	
+CLASS Consultingwerk.Windows.Framework.Authorization.SmartMenuSecurityMaintenanceForm
+    INHERITS SmartWindowForm:
+
     DEFINE PRIVATE VARIABLE m_SmartMenuSecurityMaintenanceForm_Toolbars_Dock_Area_Top    AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea                  NO-UNDO.
     DEFINE PRIVATE VARIABLE m_SmartMenuSecurityMaintenanceForm_Toolbars_Dock_Area_Right  AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea                  NO-UNDO.
     DEFINE PRIVATE VARIABLE m_SmartMenuSecurityMaintenanceForm_Toolbars_Dock_Area_Left   AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea                  NO-UNDO.
@@ -50,15 +50,15 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartMenuSecurityMaintenanc
     DEFINE PRIVATE VARIABLE SmartMenuSecurityMaintenanceForm_Fill_Panel                  AS Infragistics.Win.Misc.UltraPanel                                         NO-UNDO.
 
     DEFINE VARIABLE oOwnerList AS CharacterDictionary NO-UNDO.
-    
+
     {Consultingwerk/SmartFramework/Authorization/dsAuthorizationMaintenance.i}
 
     /*------------------------------------------------------------------------------
         Purpose: Initializes a new instance of the SmartMenuSecurityMaintenanceForm
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC SmartMenuSecurityMaintenanceForm ():
-	    
+    CONSTRUCTOR PUBLIC SmartMenuSecurityMaintenanceForm ():
+
         SUPER ().
         InitializeComponent ().
 
@@ -68,43 +68,44 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartMenuSecurityMaintenanc
 
         THIS-OBJECT:smartMenuSecurityMaintenanceControl1:HasPendingChangesChanged:Subscribe (HasPendingChangesChangedHandler) .
 
-        THIS-OBJECT:HasPendingChangesChangedHandler (smartMenuSecurityMaintenanceControl1, 
+        THIS-OBJECT:HasPendingChangesChangedHandler (smartMenuSecurityMaintenanceControl1,
                                                      Consultingwerk.EventArgs:Empty) .
-    
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-        
-	END CONSTRUCTOR.
+
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the HasPendingChanges event of the 
+        Purpose: Event handler for the HasPendingChanges event of the
                  SmartMenuSecurityMaintenance user control
-        Notes:   Enables and disables the Cancel and Save button  
+        Notes:   Enables and disables the Cancel and Save button
         @param sender The reference to the object that raised the event
         @param e The Consultingwerk.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID HasPendingChangesChangedHandler (sender AS Progress.Lang.Object,
-	                                                       e AS Consultingwerk.EventArgs):
-		
-		ASSIGN smartToolbarController1:Tools["Save Settings":U]:SharedProps:Enabled = smartMenuSecurityMaintenanceControl1:HasPendingChanges
-		       smartToolbarController1:Tools["Cancel":U]:SharedProps:Enabled = smartMenuSecurityMaintenanceControl1:HasPendingChanges 
-               smartToolbarController1:Tools["Reload":U]:SharedProps:Enabled = NOT smartMenuSecurityMaintenanceControl1:HasPendingChanges 
+    METHOD PROTECTED VOID HasPendingChangesChangedHandler (sender AS Progress.Lang.Object,
+                                                           e AS Consultingwerk.EventArgs):
+
+        ASSIGN smartToolbarController1:Tools["Save Settings":U]:SharedProps:Enabled = smartMenuSecurityMaintenanceControl1:HasPendingChanges
+               smartToolbarController1:Tools["Cancel":U]:SharedProps:Enabled = smartMenuSecurityMaintenanceControl1:HasPendingChanges
+               smartToolbarController1:Tools["Reload":U]:SharedProps:Enabled = NOT smartMenuSecurityMaintenanceControl1:HasPendingChanges
                                                                                .
 
-	END METHOD .
+    END METHOD .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the components of the form instance
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -310,89 +311,92 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartMenuSecurityMaintenanc
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
-
-    /*------------------------------------------------------------------------------
-        Purpose: Override of the OnShown Method to first show the form and then 
-                 initiate reading data.
-        Notes:   
-        @param e An EventArgs that contains no event data
-    ------------------------------------------------------------------------------*/
-    METHOD OVERRIDE PROTECTED VOID OnShown (e AS System.EventArgs):
-        
-        SUPER:OnShown (e).
-
-        PROCESS EVENTS . 
-
-        IF NOT SelectUserAndGroups () THEN RETURN.
-
-        THIS-OBJECT:smartMenuSecurityMaintenanceControl1:OpenUserAndGroupAuthorization (oOwnerList) .
-        
-        CATCH ple AS Progress.Lang.Error :
-        	Consultingwerk.Util.ErrorHelper:ShowErrorMessage (ple).
-        END CATCH.
-        
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Display a dialog to select Users and Groups and make use of this 
+        Purpose: Override of the OnShown Method to first show the form and then
+                 initiate reading data.
+        Notes:
+        @param e An EventArgs that contains no event data
+    ------------------------------------------------------------------------------*/
+    METHOD OVERRIDE PROTECTED VOID OnShown (e AS System.EventArgs):
+
+        SUPER:OnShown (e).
+
+        PROCESS EVENTS .
+
+        IF NOT SelectUserAndGroups () THEN
+            RETURN.
+
+        THIS-OBJECT:smartMenuSecurityMaintenanceControl1:OpenUserAndGroupAuthorization (oOwnerList) .
+
+        CATCH ple AS Progress.Lang.Error :
+            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (ple).
+        END CATCH.
+
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Display a dialog to select Users and Groups and make use of this
                  selection to display security settings.
-        Notes:   
-        @return Indicator LOGICAL that shows if the selection was changed 
+        Notes:
+        @return Indicator LOGICAL that shows if the selection was changed
     ------------------------------------------------------------------------------*/
     METHOD PRIVATE LOGICAL SelectUserAndGroups ():
-        
+
         DEFINE VARIABLE oSelectionForm AS SmartUserAndGroupSelectionForm    NO-UNDO.
         DEFINE VARIABLE oDialogResult  AS System.Windows.Forms.DialogResult NO-UNDO.
-        
+
         oSelectionForm = NEW Consultingwerk.Windows.Framework.Authorization.SmartUserAndGroupSelectionForm ().
 
-        IF VALID-OBJECT (oOwnerList) THEN 
+        IF VALID-OBJECT (oOwnerList) THEN
             oSelectionForm:SelectedUserAndGroups = oOwnerList.
-        
+
         FormHelper:ShowDialog (oSelectionForm, OUTPUT oDialogResult) .
-        
-        IF NOT oDialogResult:Equals (System.Windows.Forms.DialogResult:OK) THEN RETURN FALSE.
-        
+
+        IF NOT oDialogResult:Equals (System.Windows.Forms.DialogResult:OK) THEN
+            RETURN FALSE.
+
         oOwnerList = oSelectionForm:SelectedUserAndGroups.
 
         RETURN TRUE.
-        
+
         FINALLY:
             Consultingwerk.Util.GarbageCollectorHelper:DeleteObject (oSelectionForm).
         END FINALLY.
-        
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Handles the ToolClick event of the ToolbarController
-        Notes:   
+        Notes:
         @param sender The source of the event
         @param e A CancelableEventArgs that contains the data for the event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID smartToolbarController1_ToolClick (sender AS System.Object, 
+    METHOD PRIVATE VOID smartToolbarController1_ToolClick (sender AS System.Object,
                                                            e AS Infragistics.Win.UltraWinToolbars.ToolClickEventArgs):
-        
-        DEFINE VARIABLE oResult AS DialogResultEnum NO-UNDO . 
+
+        DEFINE VARIABLE oResult AS DialogResultEnum NO-UNDO .
 
         CASE e:Tool:Key :
             WHEN "Save Settings":U THEN
                 THIS-OBJECT:smartMenuSecurityMaintenanceControl1:StoreAuthorizationData ().
 
             WHEN "Open Users and Groups":U THEN DO:
-                IF NOT THIS-OBJECT:SelectUserAndGroups () THEN RETURN.
+                IF NOT THIS-OBJECT:SelectUserAndGroups () THEN
+                    RETURN.
 
                 THIS-OBJECT:smartMenuSecurityMaintenanceControl1:OpenUserAndGroupAuthorization (oOwnerList) .
             END.
             WHEN "Cancel":U THEN DO:
                 oResult = MessageFormHelper:AskQuestion ("Are you sure that you want to cancel pending updates to the security settings?"{&TRAN},
                                                          THIS-OBJECT:Text) .
-        
-                IF oResult = DialogResultEnum:DialogResultNo THEN 
-                    RETURN . 
+
+                IF oResult = DialogResultEnum:DialogResultNo THEN
+                    RETURN .
 
                 THIS-OBJECT:smartMenuSecurityMaintenanceControl1:Cancel () .
-            END. 
+            END.
             WHEN "Reload":U THEN DO:
                 THIS-OBJECT:smartMenuSecurityMaintenanceControl1:Reload () .
             END.
@@ -401,12 +405,12 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartMenuSecurityMaintenanc
         CATCH ple AS Progress.Lang.Error :
             Consultingwerk.Util.ErrorHelper:ShowErrorMessage (ple).
         END CATCH.
-        
+
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the SmartMenuSecurityMaintenanceForm class 
-        Notes:   
+        Purpose: Destructor for the SmartMenuSecurityMaintenanceForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC SmartMenuSecurityMaintenanceForm ():
 

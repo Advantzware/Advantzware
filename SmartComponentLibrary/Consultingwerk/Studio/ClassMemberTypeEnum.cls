@@ -12,11 +12,11 @@
 /*------------------------------------------------------------------------
     File        : ClassMemberTypeEnum
     Purpose     : Enumeration of Class Member Types
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Wed Mar 20 21:10:49 CET 2013
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -31,28 +31,29 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.*                       FROM PROPATH .
 USING Consultingwerk.Framework.Collections.* FROM PROPATH .
-USING Consultingwerk.Studio.*                FROM PROPATH .  
+USING Consultingwerk.Studio.*                FROM PROPATH .
 USING Progress.Lang.*                        FROM PROPATH .
 
-{&CLASS} Consultingwerk.Studio.ClassMemberTypeEnum 
+{&CLASS} Consultingwerk.Studio.ClassMemberTypeEnum
     &IF "{&CLASS}" EQ "CLASS" &THEN
     INHERITS Enum
-    &ENDIF    
-        : 
+    &ENDIF
+        :
 
 &IF "{&CLASS}" EQ "ENUM" &THEN
     DEFINE ENUM
-&ENDIF     
+&ENDIF
 
     {Consultingwerk/EnumMember.i Constructor 0 ClassMemberTypeEnum}
     {Consultingwerk/EnumMember.i Destructor 1 ClassMemberTypeEnum}
     {Consultingwerk/EnumMember.i Method 2 ClassMemberTypeEnum}
     {Consultingwerk/EnumMember.i Event 3 ClassMemberTypeEnum}
     {Consultingwerk/EnumMember.i Property 4 ClassMemberTypeEnum}
+    {Consultingwerk/EnumMember.i TempTable 5 ClassMemberTypeEnum}
 
 &IF "{&CLASS}" EQ "ENUM" &THEN
     .
-&ENDIF    
+&ENDIF
 
 &IF "{&CLASS}" EQ "CLASS" &THEN
 
@@ -64,27 +65,25 @@ USING Progress.Lang.*                        FROM PROPATH .
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PRIVATE ClassMemberTypeEnum (piValue AS INTEGER, pcLabel AS CHARACTER):
         SUPER ().
- 
+
         ASSIGN THIS-OBJECT:Value = piValue
                THIS-OBJECT:Label = pcLabel .
- 
+
     END CONSTRUCTOR.
 
- 
+
     /*------------------------------------------------------------------------------
         Purpose: Returns a CharacterList with the names of the Enum members
-        Notes:   
+        Notes:
         @return The CharacterList with the names of the Enum members
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CharacterList GetNames ():
- 
-        DEFINE VARIABLE oReturn AS CharacterList NO-UNDO . 
- 
+
         RETURN NEW CharacterList ('{&EnumMembers}':U).
- 
+
     END METHOD .
 
-    {Consultingwerk/EnumFromString.i Consultingwerk.Studio.ClassMemberTypeEnum}    
+    {Consultingwerk/EnumFromString.i Consultingwerk.Studio.ClassMemberTypeEnum}
 
 &ENDIF
 

@@ -41,30 +41,30 @@ CLASS Consultingwerk.Windows.Util.Forms.SampleErrorMessageFormButtonProvider
         @param poError The error that is currently being processed
         @return The List the System.Windows.Forms.Button objects to be added to the ErrorMessageForm
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC OVERRIDE "System.Collections.Generic.List<System.Windows.Forms.Button>" GetButtonsForError (poError AS Error):
-		
-		DEFINE VARIABLE oList   AS "System.Collections.Generic.List<System.Windows.Forms.Button>" NO-UNDO . 
-		DEFINE VARIABLE oButton AS System.Windows.Forms.Button                                    NO-UNDO .                                   
-		
-		oList = SUPER:GetButtonsForError (poError) .
-		
-		IF FrameworkSettings:DebugMode THEN DO:
-		    oButton = NEW System.Windows.Forms.Button () .
-		    oButton:Name = "Kill":U .
-		    oButton:Text = "Kill session"{&TRAN} . 
+    METHOD PUBLIC OVERRIDE "System.Collections.Generic.List<System.Windows.Forms.Button>" GetButtonsForError (poError AS Error):
+        
+        DEFINE VARIABLE oList   AS "System.Collections.Generic.List<System.Windows.Forms.Button>" NO-UNDO . 
+        DEFINE VARIABLE oButton AS System.Windows.Forms.Button                                    NO-UNDO .                                   
+        
+        oList = SUPER:GetButtonsForError (poError) .
+        
+        IF FrameworkSettings:DebugMode THEN DO:
+            oButton = NEW System.Windows.Forms.Button () .
+            oButton:Name = "Kill":U .
+            oButton:Text = "Kill session"{&TRAN} . 
 
-		    oList:Add (oButton) .
-		END.
+            oList:Add (oButton) .
+        END.
 
         oButton = NEW System.Windows.Forms.Button () .
         oButton:Name = "Copy":U .
         oButton:Text = "Copy"{&TRAN} . 
-		
-		oList:Add (oButton) .
-		
-		RETURN oList . 
+        
+        oList:Add (oButton) .
+        
+        RETURN oList . 
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Handles the click event of a custom button
@@ -77,8 +77,8 @@ CLASS Consultingwerk.Windows.Util.Forms.SampleErrorMessageFormButtonProvider
                                                       poError AS Error):
                            
         SUPER:HandleButtonClick (poButton, poError) .                           
-                                             		
-		CASE poButton:Name:
+                                                     
+        CASE poButton:Name:
             WHEN "Kill":U THEN DO:
                 IF MessageFormHelper:AskQuestion ("Are you sure?"{&TRAN}) = DialogResultEnum:DialogResultYes THEN 
                     System.Diagnostics.Process:GetCurrentProcess():Kill () .
@@ -88,6 +88,6 @@ CLASS Consultingwerk.Windows.Util.Forms.SampleErrorMessageFormButtonProvider
                 CLIPBOARD:VALUE = ErrorHelper:FormattedErrorMessagesExt (poError) .
         END CASE.
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

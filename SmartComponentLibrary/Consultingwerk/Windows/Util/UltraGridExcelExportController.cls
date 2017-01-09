@@ -39,25 +39,25 @@ USING System.Windows.Forms.*                          FROM ASSEMBLY .
 
 CLASS Consultingwerk.Windows.Util.UltraGridExcelExportController 
     IMPLEMENTS IUltraGridExcelExportController: 
-	
+    
     /*------------------------------------------------------------------------------
         Purpose: Returns the reference to the UltraGridExcelExporter used by this service                                                                     
         Notes:                                                                        
     ------------------------------------------------------------------------------*/
     DEFINE PUBLIC PROPERTY Exporter AS UltraGridExcelExporter NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    GET.
+    PROTECTED SET. 
 
-	/*------------------------------------------------------------------------------
-		Purpose: Constructor for the UltraGridExcelExportController class  																	  
-		Notes:  																	  
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC UltraGridExcelExportController ():
-		SUPER ().
-		
-		THIS-OBJECT:Exporter = NEW UltraGridExcelExporter () .
-		
-	END CONSTRUCTOR.
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the UltraGridExcelExportController class                                                                        
+        Notes:                                                                        
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC UltraGridExcelExportController ():
+        SUPER ().
+        
+        THIS-OBJECT:Exporter = NEW UltraGridExcelExporter () .
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Exports an UltraGrid     
@@ -66,14 +66,14 @@ CLASS Consultingwerk.Windows.Util.UltraGridExcelExportController
         @return The filename of the exported document
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC CHARACTER Export (poGrid AS UltraGrid):
-	
-		DEFINE VARIABLE cFileName        AS CHARACTER                     NO-UNDO .
-		DEFINE VARIABLE oDialogResult    AS DialogResult                  NO-UNDO . 
-		DEFINE VARIABLE oSaveFileDialog  AS SaveFileDialog                NO-UNDO .
-		DEFINE VARIABLE oExportParameter AS UltraGridExcelExportParameter NO-UNDO . 
-		DEFINE VARIABLE oForm            AS System.Windows.Forms.Form     NO-UNDO .  
-		
-		Consultingwerk.Assertion.ObjectAssert:IsValid (poGrid) .
+    
+        DEFINE VARIABLE cFileName        AS CHARACTER                     NO-UNDO .
+        DEFINE VARIABLE oDialogResult    AS DialogResult                  NO-UNDO . 
+        DEFINE VARIABLE oSaveFileDialog  AS SaveFileDialog                NO-UNDO .
+        DEFINE VARIABLE oExportParameter AS UltraGridExcelExportParameter NO-UNDO . 
+        DEFINE VARIABLE oForm            AS System.Windows.Forms.Form     NO-UNDO .  
+        
+        Consultingwerk.Assertion.ObjectAssert:IsValid (poGrid) .
 
         &IF DEFINED (SmartComponentLibrary) &THEN
         IF TYPE-OF (poGrid, Consultingwerk.SmartComponents.Implementation.SmartDataBrowser) THEN DO: 
@@ -82,18 +82,18 @@ CLASS Consultingwerk.Windows.Util.UltraGridExcelExportController
         END.
         &ENDIF
 
-		ASSIGN oSaveFileDialog                  = NEW SaveFileDialog () 
-		       oSaveFileDialog:AddExtension     = TRUE 
-		       oSaveFileDialog:CheckPathExists  = TRUE 
-		       oSaveFileDialog:DefaultExt       = "xlsx":U
-		       oSaveFileDialog:DereferenceLinks = TRUE
-		       oSaveFileDialog:Filter           = "Excel Files (*.xlsx)|*.xlsx"{&TRAN}
-		       oSaveFileDialog:FilterIndex      = 0 
-		       oSaveFileDialog:OverwritePrompt  = TRUE
-		       oSaveFileDialog:RestoreDirectory = TRUE
-		       oSaveFileDialog:Title            = "Excel Export"{&TRAN}  
-		      
-		       oForm                            = poGrid:FindForm (). 
+        ASSIGN oSaveFileDialog                  = NEW SaveFileDialog () 
+               oSaveFileDialog:AddExtension     = TRUE 
+               oSaveFileDialog:CheckPathExists  = TRUE 
+               oSaveFileDialog:DefaultExt       = "xlsx":U
+               oSaveFileDialog:DereferenceLinks = TRUE
+               oSaveFileDialog:Filter           = "Excel Files (*.xlsx)|*.xlsx"{&TRAN}
+               oSaveFileDialog:FilterIndex      = 0 
+               oSaveFileDialog:OverwritePrompt  = TRUE
+               oSaveFileDialog:RestoreDirectory = TRUE
+               oSaveFileDialog:Title            = "Excel Export"{&TRAN}  
+              
+               oForm                            = poGrid:FindForm (). 
 
         THIS-OBJECT:PerformWaitFor (oSaveFileDialog, oForm, OUTPUT oDialogResult) .
 
@@ -110,10 +110,10 @@ CLASS Consultingwerk.Windows.Util.UltraGridExcelExportController
         RETURN THIS-OBJECT:Export (poGrid, oExportParameter) .
 
         FINALLY:
-            GarbageCollectorHelper:DeleteObject (oSaveFileDialog) .		
+            GarbageCollectorHelper:DeleteObject (oSaveFileDialog) .        
         END FINALLY.
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Exports an UltraGrid                                                                     
@@ -124,9 +124,9 @@ CLASS Consultingwerk.Windows.Util.UltraGridExcelExportController
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC CHARACTER Export (poGrid AS UltraGrid,
                                     poOptions AS IUltraGridExcelExportParameter):
-		
+        
         Consultingwerk.Assertion.ObjectAssert:IsValid (poGrid) .
-		
+        
         &IF DEFINED (SmartComponentLibrary) &THEN
         IF poOptions:PromptForAdditionalRows = TRUE THEN DO:
             IF TYPE-OF (poGrid, Consultingwerk.SmartComponents.Implementation.SmartDataBrowser) THEN DO: 
@@ -135,11 +135,11 @@ CLASS Consultingwerk.Windows.Util.UltraGridExcelExportController
             END.
         END.
         &ENDIF
-		
-		IF poOptions:PromptForOverwrite THEN DO:
-		    FILE-INFO:FILE-NAME = poOptions:FileName . 
-		      
-		    IF FILE-INFO:FULL-PATHNAME > "":U THEN DO:
+        
+        IF poOptions:PromptForOverwrite THEN DO:
+            FILE-INFORMATION:FILE-NAME = poOptions:FileName . 
+              
+            IF FILE-INFORMATION:FULL-PATHNAME > "":U THEN DO:
 
                 IF Consultingwerk.Util.MessageFormHelper:AskQuestion 
                     (SUBSTITUTE ("The file &1 does already exist. Overwrite?"{&TRAN}, 
@@ -147,14 +147,14 @@ CLASS Consultingwerk.Windows.Util.UltraGridExcelExportController
                      "Excel Export"{&TRAN}) = Consultingwerk.Framework.Enum.DialogResultEnum:DialogResultNo THEN 
                         
                     RETURN ?  .                     
-		    END .
-		END.
-		
+            END .
+        END.
+        
         THIS-OBJECT:Exporter:Export (poGrid, poOptions:FileName) .        
 
         RETURN poOptions:FileName . 
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Performs the WAIT-FOR ShowDialog ()
@@ -164,13 +164,13 @@ CLASS Consultingwerk.Windows.Util.UltraGridExcelExportController
         @param poForm The parent Form
         @param poDialogResult The OUTPUT DialogResult
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID PerformWaitFor (oDialog AS CommonDialog, 
+    METHOD PUBLIC VOID PerformWaitFor (oDialog AS CommonDialog, 
                                        poForm AS Form,
-	                                   OUTPUT poDialogResult AS DialogResult):
-		
+                                       OUTPUT poDialogResult AS DialogResult):
+        
         WAIT-FOR oDialog:ShowDialog (poForm) SET poDialogResult . 
 
-	END METHOD .
+    END METHOD .
 
     &IF DEFINED (SmartComponentLibrary) &THEN
     /*------------------------------------------------------------------------------
@@ -180,57 +180,57 @@ CLASS Consultingwerk.Windows.Util.UltraGridExcelExportController
         @param poGrid The SmartDataBrowser to load more rows for 
         @return Logical value indicating FALSE when the Excel Export should be cancelled
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED LOGICAL VerifyFetchMoreRows (poGrid AS Consultingwerk.SmartComponents.Implementation.SmartDataBrowser):
-		
-		DEFINE VARIABLE oRetrieveDataStatus AS RetrieveDataStatusEnum             NO-UNDO . 
-		DEFINE VARIABLE oAdapter            AS SmartBusinessEntityAdapter         NO-UNDO . 
+    METHOD PROTECTED LOGICAL VerifyFetchMoreRows (poGrid AS Consultingwerk.SmartComponents.Implementation.SmartDataBrowser):
+        
+        DEFINE VARIABLE oRetrieveDataStatus AS RetrieveDataStatusEnum             NO-UNDO . 
+        DEFINE VARIABLE oAdapter            AS SmartBusinessEntityAdapter         NO-UNDO . 
         DEFINE VARIABLE oDialogResultEnum   AS DialogResultEnum                   NO-UNDO .                  
-		DEFINE VARIABLE lRetrieveData       AS LOGICAL                            NO-UNDO INIT FALSE .
-		DEFINE VARIABLE oDialog             AS ExcelExportFetchMoreRowsPromptForm NO-UNDO . 
-		DEFINE VARIABLE iValue              AS INTEGER                            NO-UNDO .
-		DEFINE VARIABLE iBatchSize          AS INTEGER                            NO-UNDO .
-		
-		IF NOT VALID-OBJECT (poGrid:SmartDataSource) THEN 
-		    RETURN TRUE . 
-		    
+        DEFINE VARIABLE lRetrieveData       AS LOGICAL                            NO-UNDO INIT FALSE .
+        DEFINE VARIABLE oDialog             AS ExcelExportFetchMoreRowsPromptForm NO-UNDO . 
+        DEFINE VARIABLE iValue              AS INTEGER                            NO-UNDO .
+        DEFINE VARIABLE iBatchSize          AS INTEGER                            NO-UNDO .
+        
+        IF NOT VALID-OBJECT (poGrid:SmartDataSource) THEN 
+            RETURN TRUE . 
+            
         IF NOT TYPE-OF (poGrid:SmartDataSource,
                         Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter) THEN 
             RETURN TRUE . 
 
         ASSIGN oAdapter = CAST (poGrid:SmartDataSource,
                                 Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter) .
-		
-		oRetrieveDataStatus = oAdapter:GetRetrieveDataStatus() .
-		
-		IF oRetrieveDataStatus = RetrieveDataStatusEnum:NotBatching THEN 
-		    RETURN TRUE . 
-		
-		IF oRetrieveDataStatus = RetrieveDataStatusEnum:BackwardsBatching OR 
-		   oRetrieveDataStatus = RetrieveDataStatusEnum:ForwardAndBackwardsBatching THEN DO:
-		
-		    oDialogResultEnum = MessageFormHelper:ShowMessage ("You are not navigating the data from the beginning."{&TRAN} + System.Environment:NewLine + 
-		                                                       "Start from the beginning?"{&TRAN},
+        
+        oRetrieveDataStatus = oAdapter:GetRetrieveDataStatus() .
+        
+        IF oRetrieveDataStatus = RetrieveDataStatusEnum:NotBatching THEN 
+            RETURN TRUE . 
+        
+        IF oRetrieveDataStatus = RetrieveDataStatusEnum:BackwardsBatching OR 
+           oRetrieveDataStatus = RetrieveDataStatusEnum:ForwardAndBackwardsBatching THEN DO:
+        
+            oDialogResultEnum = MessageFormHelper:ShowMessage ("You are not navigating the data from the beginning."{&TRAN} + System.Environment:NewLine + 
+                                                               "Start from the beginning?"{&TRAN},
                                                                "Excel Export"{&TRAN}, "":U,
                                                                Consultingwerk.Windows.Util.Forms.MessageFormImages:ImageQuestion,
                                                                Consultingwerk.Util.Forms.MessageFormDefaults:LabelYesNoCancel,
                                                                Consultingwerk.Util.Forms.MessageFormDefaults:GetDialogResultYesNoCancel(),
                                                                DialogResultEnum:DialogResultYes) .
-		    
-		    IF oDialogResultEnum = DialogResultEnum:DialogResultCancel THEN 
-		        RETURN FALSE .
-		       
-		    IF oDialogResultEnum = DialogResultEnum:DialogResultYes THEN 
-		        ASSIGN lRetrieveData = TRUE . 
-		END.
-		
-        oDialog = NEW ExcelExportFetchMoreRowsPromptForm () .		
-		oDialog:Owner = poGrid:FindForm () . 
-		
-		Consultingwerk.Support.DialogSupport:ShowDialog (oDialog) . 
-		
-		{Consultingwerk/check-dialogresult-ok.i oDialog:DialogResult FALSE}
-		
-		iValue = oDialog:Value .
+            
+            IF oDialogResultEnum = DialogResultEnum:DialogResultCancel THEN 
+                RETURN FALSE .
+               
+            IF oDialogResultEnum = DialogResultEnum:DialogResultYes THEN 
+                ASSIGN lRetrieveData = TRUE . 
+        END.
+        
+        oDialog = NEW ExcelExportFetchMoreRowsPromptForm () .        
+        oDialog:Owner = poGrid:FindForm () . 
+        
+        Consultingwerk.Support.DialogSupport:ShowDialog (oDialog) . 
+        
+        {Consultingwerk/check-dialogresult-ok.i oDialog:DialogResult FALSE}
+        
+        iValue = oDialog:Value .
 
         IF iValue > 0 THEN DO:
             IF lRetrieveData = TRUE THEN DO ON ERROR UNDO, THROW:
@@ -241,7 +241,7 @@ CLASS Consultingwerk.Windows.Util.UltraGridExcelExportController
                 oAdapter:RetrieveData () .
                 
                 FINALLY:
-                    ASSIGN oAdapter:BatchSize = iBatchSize .                 		
+                    ASSIGN oAdapter:BatchSize = iBatchSize .                         
                 END FINALLY.
             END.
             ELSE
@@ -250,17 +250,17 @@ CLASS Consultingwerk.Windows.Util.UltraGridExcelExportController
         
         RETURN TRUE . 
 
-	END METHOD .
+    END METHOD .
     &ENDIF
     
-	/*------------------------------------------------------------------------------
-		Purpose: Destructor for the UltraGridExcelExportController class 																	  
-		Notes:  		
-	------------------------------------------------------------------------------*/
-	DESTRUCTOR PUBLIC UltraGridExcelExportController ():
+    /*------------------------------------------------------------------------------
+        Purpose: Destructor for the UltraGridExcelExportController class                                                                       
+        Notes:          
+    ------------------------------------------------------------------------------*/
+    DESTRUCTOR PUBLIC UltraGridExcelExportController ():
 
         GarbageCollectorHelper:DeleteObject (THIS-OBJECT:Exporter) . 
 
-	END DESTRUCTOR.
+    END DESTRUCTOR.
 
 END CLASS.

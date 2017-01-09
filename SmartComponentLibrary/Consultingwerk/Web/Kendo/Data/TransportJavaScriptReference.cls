@@ -35,19 +35,19 @@ CLASS Consultingwerk.Web.Kendo.Data.TransportJavaScriptReference
                  this node
         Notes:                                                                        
     ------------------------------------------------------------------------------*/
-    {Consultingwerk/JsonSerializableProperty.i source CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i source CHARACTER} .
     
     /*------------------------------------------------------------------------------
         Purpose: Not used by this type
         Notes:                                                                        
     ------------------------------------------------------------------------------*/
-    {Consultingwerk/JsonSerializableProperty.i read CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i read CHARACTER} .
 
     /*------------------------------------------------------------------------------
         Purpose: Not used by this type                                                                     
         Notes:                                                                        
     ------------------------------------------------------------------------------*/
-    {Consultingwerk/JsonSerializableProperty.i dataType CHARACTER "INIT 'json':U"} .
+    {Consultingwerk/JsonSerializableProperty11.i dataType CHARACTER "INIT 'json':U"} .
     
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the Transport class                                                                     

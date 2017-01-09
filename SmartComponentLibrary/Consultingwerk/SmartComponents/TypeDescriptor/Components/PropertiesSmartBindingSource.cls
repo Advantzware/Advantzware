@@ -34,11 +34,11 @@ CLASS Consultingwerk.SmartComponents.TypeDescriptor.Components.PropertiesSmartBi
         Purpose: Constructor for the PropertiesSmartBindingSource class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC PropertiesSmartBindingSource ():
-	    
-	    DEFINE VARIABLE oProperty  AS IPropertyDescriptor NO-UNDO . 
-		
-		SUPER ().
+    CONSTRUCTOR PUBLIC PropertiesSmartBindingSource ():
+        
+        DEFINE VARIABLE oProperty  AS IPropertyDescriptor NO-UNDO . 
+        
+        SUPER ().
 
         THIS-OBJECT:TypeName = "Consultingwerk.SmartComponents.Implementation.SmartBindingSource":U . 
 
@@ -64,6 +64,6 @@ CLASS Consultingwerk.SmartComponents.TypeDescriptor.Components.PropertiesSmartBi
         oProperty:Attributes:Add (NEW DefaultValueAttribute (FALSE)) .
         oProperty:Attributes:Add (NEW BrowsableAttribute (FALSE)) .
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
 END CLASS.

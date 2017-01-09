@@ -53,9 +53,9 @@ CLASS Consultingwerk.Windows.Ldap.UserAccountControl:
         Purpose: Disallow instance creation 
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PRIVATE UserAccountControl ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PRIVATE UserAccountControl ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
 END CLASS.

@@ -34,23 +34,23 @@ CLASS Consultingwerk.OERA.Exceptions.BusinessServiceNotRunning
         Purpose: Returns the name of the Business Service that is not running 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY BusinessServiceName AS CHARACTER NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    DEFINE PUBLIC PROPERTY BusinessServiceName AS CHARACTER NO-UNDO 
+    GET.
+    PROTECTED SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the BusinessServiceNotRunning class
         Notes:   
         @param pcServiceName The name of the Business Service that is not running
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC BusinessServiceNotRunning (pcServiceName AS CHARACTER):
-		
-		SUPER (SUBSTITUTE("BusinessService &1 is not running."{&TRAN},
+    CONSTRUCTOR PUBLIC BusinessServiceNotRunning (pcServiceName AS CHARACTER):
+        
+        SUPER (SUBSTITUTE("BusinessService &1 is not running."{&TRAN},
                           pcServiceName), 
                0).
-		
-		THIS-OBJECT:BusinessServiceName = pcServiceName .
-		
-	END CONSTRUCTOR.
+        
+        THIS-OBJECT:BusinessServiceName = pcServiceName .
+        
+    END CONSTRUCTOR.
 
 END CLASS.

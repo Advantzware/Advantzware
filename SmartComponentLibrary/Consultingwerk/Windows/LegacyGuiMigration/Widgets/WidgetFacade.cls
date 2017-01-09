@@ -44,9 +44,9 @@ CLASS Consultingwerk.Windows.LegacyGuiMigration.Widgets.WidgetFacade
         Purpose: Returns the reference to the Control this instance represents
         Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Control AS Control NO-UNDO 
-	GET.
-	PRIVATE SET.
+    DEFINE PUBLIC PROPERTY Control AS Control NO-UNDO 
+    GET.
+    PRIVATE SET.
 
     /*------------------------------------------------------------------------------
         Purpose: A character value that represents the data type of the field 
@@ -177,22 +177,22 @@ CLASS Consultingwerk.Windows.LegacyGuiMigration.Widgets.WidgetFacade
         THIS-OBJECT:SetVISIBLE (arg) . 
     END SET .   
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Constructor for the WidgetFacade class
-	    Notes:
-        @param poControl The reference to the UltraTextEditor this instance should represent	        
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PROTECTED WidgetFacade (poControl AS System.Windows.Forms.Control):
-		SUPER ().
-		
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the WidgetFacade class
+        Notes:
+        @param poControl The reference to the UltraTextEditor this instance should represent            
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PROTECTED WidgetFacade (poControl AS System.Windows.Forms.Control):
+        SUPER ().
+        
         ObjectAssert:IsValid (poControl, "poControl":U) .
-		
-		THIS-OBJECT:Control = poControl .
-		
-		/* Subscribe to the Enabled Changed event, to reset MODIFIED */
-		THIS-OBJECT:Control:EnabledChanged:Subscribe (EnabledChangedHandler) .
-		
-	END CONSTRUCTOR.
+        
+        THIS-OBJECT:Control = poControl .
+        
+        /* Subscribe to the Enabled Changed event, to reset MODIFIED */
+        THIS-OBJECT:Control:EnabledChanged:Subscribe (EnabledChangedHandler) .
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the EnabledChanged event of the .NET Control 
@@ -200,32 +200,32 @@ CLASS Consultingwerk.Windows.LegacyGuiMigration.Widgets.WidgetFacade
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID EnabledChangedHandler (sender AS System.Object,
-	                                           e AS System.EventArgs):
-		
-		/* When settings Enabled = TRUE, we reset the modified attribute */
-		IF THIS-OBJECT:Control:Enabled = TRUE THEN 
-		    THIS-OBJECT:MODIFIED = FALSE . 
+    METHOD PRIVATE VOID EnabledChangedHandler (sender AS System.Object,
+                                               e AS System.EventArgs):
+        
+        /* When settings Enabled = TRUE, we reset the modified attribute */
+        IF THIS-OBJECT:Control:Enabled = TRUE THEN 
+            THIS-OBJECT:MODIFIED = FALSE . 
 
-	END METHOD .
+    END METHOD .
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Returns the IWidget reference for a given .NET Control
-	    Notes:   Factory method. 
-	             Throws UnsupportedControlTypeException when Controls can not be mapped
-	             to an WidgetFacade instance 
-	    @param poControl The .NET Control to return the Widget reference for
-	    @return The reference to the IWidget representing the .NET Control
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC IWidgetFacade FromControl (poControl AS System.Windows.Forms.Control):
-		
-		DEFINE VARIABLE oWidget AS IWidgetFacade NO-UNDO . 
-		
-		ObjectAssert:IsValid (poControl, "poControl":U) .
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the IWidget reference for a given .NET Control
+        Notes:   Factory method. 
+                 Throws UnsupportedControlTypeException when Controls can not be mapped
+                 to an WidgetFacade instance 
+        @param poControl The .NET Control to return the Widget reference for
+        @return The reference to the IWidget representing the .NET Control
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC STATIC IWidgetFacade FromControl (poControl AS System.Windows.Forms.Control):
+        
+        DEFINE VARIABLE oWidget AS IWidgetFacade NO-UNDO . 
+        
+        ObjectAssert:IsValid (poControl, "poControl":U) .
 
-        /* Control library specific properties */		
-		IF NOT VALID-OBJECT (oWidget) AND poControl:GetType():FullName BEGINS "Infragistics.":U THEN 
-		    oWidget = {&InfragisticsNS}.InfragisticsWidgetFactory:FromControl (poControl) .
+        /* Control library specific properties */        
+        IF NOT VALID-OBJECT (oWidget) AND poControl:GetType():FullName BEGINS "Infragistics.":U THEN 
+            oWidget = {&InfragisticsNS}.InfragisticsWidgetFactory:FromControl (poControl) .
 
         IF NOT VALID-OBJECT (oWidget) AND poControl:GetType():FullName BEGINS "System.Windows.Forms.":U THEN 
             oWidget = {&MicrosoftNS}.MicrosoftWidgetFactory:FromControl (poControl) .
@@ -238,7 +238,7 @@ CLASS Consultingwerk.Windows.LegacyGuiMigration.Widgets.WidgetFacade
                                                              poControl) .
         RETURN oWidget . 
         
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: GET method for the FORMAT property
@@ -251,38 +251,38 @@ CLASS Consultingwerk.Windows.LegacyGuiMigration.Widgets.WidgetFacade
     
     END METHOD . 
     
-	/*------------------------------------------------------------------------------
+    /*------------------------------------------------------------------------------
         Purpose: GET method for the HIDDEN property
         Notes:
         @return Logical value indicating the HIDDEN Value
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED LOGICAL GetHIDDEN ():
-		
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED LOGICAL GetHIDDEN ():
+        
         RETURN lHidden .
         
-	END METHOD.
+    END METHOD.
 
-	/*------------------------------------------------------------------------------
+    /*------------------------------------------------------------------------------
         Purpose: GET method for the SCREEN-VALUE property
         Notes:
         @return Character value indicating the SCREEN-VALUE Value
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED CHARACTER GetSCREEN-VALUE ():
-	    
-	    RETURN THIS-OBJECT:Control:Text .
-	
-	END METHOD . 
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED CHARACTER GetSCREEN-VALUE ():
+        
+        RETURN THIS-OBJECT:Control:Text .
+    
+    END METHOD . 
 
-	/*------------------------------------------------------------------------------
-	    Purpose: GET method for the SENSITIVE property
-	    Notes:
-	    @return Logical value indicating the SENSITIVE Value
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED LOGICAL GetSENSITIVE ():
-		
-		RETURN THIS-OBJECT:Control:Enabled .
+    /*------------------------------------------------------------------------------
+        Purpose: GET method for the SENSITIVE property
+        Notes:
+        @return Logical value indicating the SENSITIVE Value
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED LOGICAL GetSENSITIVE ():
+        
+        RETURN THIS-OBJECT:Control:Enabled .
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: GET method for the VISIBLE property
@@ -306,54 +306,54 @@ CLASS Consultingwerk.Windows.LegacyGuiMigration.Widgets.WidgetFacade
 
     END METHOD.
 
-	/*------------------------------------------------------------------------------
+    /*------------------------------------------------------------------------------
         Purpose: SET method for the HIDDEN property
         Notes:
         @param plValue The new value for the the HIDDEN property
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID SetHIDDEN (plValue AS LOGICAL):
-		
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID SetHIDDEN (plValue AS LOGICAL):
+        
         IF plValue = TRUE THEN 
             ASSIGN THIS-OBJECT:VISIBLE = FALSE . 
             
         ASSIGN lHidden = plValue .             
         
-	END METHOD.
+    END METHOD.
 
-	/*------------------------------------------------------------------------------
+    /*------------------------------------------------------------------------------
         Purpose: SET method for the SCREEN-VALUE property
         Notes:
         @param pcValue The new value for the the SCREEN-VALUE property
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID SetSCREEN-VALUE (pcValue AS CHARACTER):
-		
-		ASSIGN THIS-OBJECT:Control:Text = pcValue .
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID SetSCREEN-VALUE (pcValue AS CHARACTER):
+        
+        ASSIGN THIS-OBJECT:Control:Text = pcValue .
 
-	END METHOD.
+    END METHOD.
 
-	/*------------------------------------------------------------------------------
+    /*------------------------------------------------------------------------------
         Purpose: SET method for the SENSITIVE property
         Notes:
         @param plValue The new value for the the SENSITIVE property
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID SetSENSITIVE (plValue AS LOGICAL):
-		
-		ASSIGN THIS-OBJECT:Control:Enabled = plValue . 
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID SetSENSITIVE (plValue AS LOGICAL):
+        
+        ASSIGN THIS-OBJECT:Control:Enabled = plValue . 
 
-	END METHOD.
+    END METHOD.
 
-	/*------------------------------------------------------------------------------
+    /*------------------------------------------------------------------------------
         Purpose: SET method for the VISIBLE property
         Notes:
         @param plValue The new value for the the VISIBLE property
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID SetVISIBLE (plValue AS LOGICAL):
-		
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID SetVISIBLE (plValue AS LOGICAL):
+        
         IF plValue = TRUE THEN 
             ASSIGN THIS-OBJECT:HIDDEN = FALSE .          
                        
         ASSIGN THIS-OBJECT:Control:Visible = plValue .  
             
-	END METHOD.
+    END METHOD.
 
 END CLASS.

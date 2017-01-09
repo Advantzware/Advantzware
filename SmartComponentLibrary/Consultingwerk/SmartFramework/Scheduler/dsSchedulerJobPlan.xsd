@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="" xmlns:prodata="urn:schemas-progress-com:xml-prodata:0001">
+  <xsd:element name="dsSmartSchedulerJobPlan" prodata:proDataSet="true">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="eSmartSchedulerJobPlan" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eSmartSchedulerJobPlanBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="SchedulerJobPlanGuid" type="xsd:string" nillable="true" prodata:format="x(36)" prodata:label="Job Status ID"/>
+              <xsd:element name="SchedulerJobGuid" type="xsd:string" nillable="true" prodata:format="x(36)" prodata:label="Job Guid"/>
+              <xsd:element name="MaxRuntime" type="xsd:int" nillable="true" prodata:format="zzzz9"/>
+              <xsd:element name="MaxExecutionDelay" type="xsd:int" nillable="true" prodata:format="zzzz9" prodata:label="Max. Delay"/>
+              <xsd:element name="JobParamter" type="xsd:string" nillable="true" prodata:dataType="prodata:clob"/>
+              <xsd:element name="PlanningType" type="xsd:string" nillable="true" prodata:format="x(15)" prodata:label="Plan Type"/>
+              <xsd:element name="ScheduleDateTime" type="xsd:dateTime" nillable="true" prodata:label="Once Now/Scheduled"/>
+              <xsd:element name="RecurringMonday" type="xsd:boolean" nillable="true" prodata:label="Recurring Monday"/>
+              <xsd:element name="RecurringTuesday" type="xsd:boolean" nillable="true" prodata:label="Recurring Tuesday"/>
+              <xsd:element name="RecurringWednesday" type="xsd:boolean" nillable="true" prodata:label="Recurring Wendesday"/>
+              <xsd:element name="RecurringThursday" type="xsd:boolean" nillable="true" prodata:label="Recurring Thursday"/>
+              <xsd:element name="RecurringFriday" type="xsd:boolean" nillable="true" prodata:label="Recurring Friday"/>
+              <xsd:element name="RecurringSaturday" type="xsd:boolean" nillable="true" prodata:label="Recurring Saturday"/>
+              <xsd:element name="RecurringSunday" type="xsd:boolean" nillable="true" prodata:label="Recurring Sunday"/>
+              <xsd:element name="WeekInterval" type="xsd:int" nillable="true" default="1" prodata:format="z9" prodata:label="Week Interval"/>
+              <xsd:element name="RecurringJanuary" type="xsd:boolean" nillable="true" prodata:label="Recurring January"/>
+              <xsd:element name="RecurringFebruary" type="xsd:boolean" nillable="true" prodata:label="Recurring February"/>
+              <xsd:element name="RecurringMarch" type="xsd:boolean" nillable="true" prodata:label="Recurring March"/>
+              <xsd:element name="RecurringApril" type="xsd:boolean" nillable="true" prodata:label="Recurring April"/>
+              <xsd:element name="RecurringMay" type="xsd:boolean" nillable="true" prodata:label="Recurring May"/>
+              <xsd:element name="RecurringJune" type="xsd:boolean" nillable="true" prodata:label="Recurring June"/>
+              <xsd:element name="RecurringJuly" type="xsd:boolean" nillable="true" prodata:label="Recurring July"/>
+              <xsd:element name="RecurringAugust" type="xsd:boolean" nillable="true" prodata:label="Recurring August"/>
+              <xsd:element name="RecurringSeptember" type="xsd:boolean" nillable="true" prodata:label="Recurring September"/>
+              <xsd:element name="RecurringOctober" type="xsd:boolean" nillable="true" prodata:label="Recurring October"/>
+              <xsd:element name="RecurringNovember" type="xsd:boolean" nillable="true" prodata:label="Recurring November"/>
+              <xsd:element name="RecurringDecember" type="xsd:boolean" nillable="true" prodata:label="Recurring December"/>
+              <xsd:element name="RecurringDaylist" type="xsd:string" nillable="true" prodata:format="x(30)" prodata:label="Recurring Daylist"/>
+              <xsd:element name="RecurringExecutionTimes" type="xsd:string" nillable="true" prodata:format="x(30)" prodata:label="Recurring Execution Times"/>
+              <xsd:element name="ValidFrom" type="xsd:dateTime" nillable="true" prodata:label="JobPlan valid from"/>
+              <xsd:element name="ValidTo" type="xsd:dateTime" nillable="true" prodata:label="JobPlan valid to"/>
+              <xsd:element name="Active" type="xsd:boolean" nillable="true" default="true" prodata:label="JobPlan is active"/>
+              <xsd:element name="ContextDataSet" type="xsd:string" nillable="true" prodata:dataType="prodata:clob"/>
+              <xsd:element name="UserGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="DataBaseConnections" type="xsd:string" nillable="true" prodata:format="x(120)"/>
+              <xsd:element name="ClientPrincipal" type="xsd:base64Binary" nillable="true"/>
+              <xsd:element name="SchedulerJobName" type="xsd:string" nillable="true" prodata:format="x(40)" prodata:label="JobName"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+    <xsd:unique name="JobPlan" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eSmartSchedulerJobPlan"/>
+      <xsd:field xpath="SchedulerJobPlanGuid"/>
+    </xsd:unique>
+  </xsd:element>
+  <xsd:annotation>
+    <xsd:appinfo>
+      <prodata:index name="Job">
+        <prodata:table name="eSmartSchedulerJobPlan"/>
+        <prodata:field name="SchedulerJobGuid"/>
+      </prodata:index>
+    </xsd:appinfo>
+  </xsd:annotation>
+</xsd:schema>

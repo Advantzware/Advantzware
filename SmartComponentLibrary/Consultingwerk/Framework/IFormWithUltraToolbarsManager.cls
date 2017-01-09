@@ -12,53 +12,53 @@
 /*------------------------------------------------------------------------
     File        : IFormWithUltraToolbarsManager
     Purpose     : Interface defining properties required to render ABL
-                  MENU-BAR strcutures as UltraToolbarsManager menus using 
+                  MENU-BAR strcutures as UltraToolbarsManager menus using
                   the Consultingwerk.Util.UltraToolbarsManager
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Mon Aug 24 15:13:18 CEST 2009
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 { Consultingwerk/products.i }
 
-&IF DEFINED (DotNetAccessible) NE 0 &THEN   
+&IF DEFINED (DotNetAccessible) NE 0 &THEN
 USING Infragistics.Win.UltraWinToolbars.* FROM ASSEMBLY .
 &ENDIF
 
-INTERFACE Consultingwerk.Framework.IFormWithUltraToolbarsManager:  
-  
+INTERFACE Consultingwerk.Framework.IFormWithUltraToolbarsManager:
+
     /*------------------------------------------------------------------------------
         Purpose: Returns the HANDLE of the ABL MENU-BAR widget associated with this
                  Form / the owned UltraToolbarsManager
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/    
-    DEFINE PUBLIC PROPERTY MENU-BAR AS WIDGET-HANDLE NO-UNDO 
-    GET .  
-    
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY MENU-BAR AS WIDGET-HANDLE NO-UNDO
+    GET .
+
     /*------------------------------------------------------------------------------
         Purpose: Returns if the MENU-BAR should be rendered should be rendered
                  as a Toolbar
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/    
-    DEFINE PUBLIC PROPERTY MenuBarAsToolbar AS LOGICAL NO-UNDO 
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY MenuBarAsToolbar AS LOGICAL NO-UNDO
     GET.
-    
+
     /*------------------------------------------------------------------------------
         Purpose: Returns if MENU-ITEM widgets should be rendered should be rendered
                  as a Toolbar
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/    
-    DEFINE PUBLIC PROPERTY MenuItemsAsToolbar AS LOGICAL NO-UNDO 
-    GET . 
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY MenuItemsAsToolbar AS LOGICAL NO-UNDO
+    GET .
 
-&IF DEFINED (DotNetAccessible) NE 0 &THEN   
+&IF DEFINED (DotNetAccessible) NE 0 &THEN
     /*------------------------------------------------------------------------------
         Purpose: Returns the Reference to the UltraToolbarsManager owned by the Form
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/    
-    DEFINE PUBLIC PROPERTY ToolbarsManager AS UltraToolbarsManager
-    GET .  
-&ENDIF  
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY ToolbarsManager AS UltraToolbarsManager NO-UNDO
+    GET .
+&ENDIF
 END INTERFACE.

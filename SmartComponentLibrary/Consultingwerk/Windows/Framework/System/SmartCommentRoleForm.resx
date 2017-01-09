@@ -119,13 +119,234 @@
   <metadata name="smartToolbarController1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
+  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"/>
+  <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing">
+    <value>646, 479</value>
+  </data>
+  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="smartCommentRoleViewerControl1.AutoScroll" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="smartCommentRoleViewerControl1.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Fill</value>
+  </data>
   <metadata name="smartBusinessEntityAdapter1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>485, 17</value>
   </metadata>
+  <data name="smartCommentRoleViewerControl1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>313, 0</value>
+  </data>
+  <data name="smartCommentRoleViewerControl1.SecurityKey" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="smartCommentRoleViewerControl1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>317, 320</value>
+  </data>
+  <data name="smartCommentRoleViewerControl1.SmartTableIOState" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="smartCommentRoleViewerControl1.TabIndex" type="System.Int32, mscorlib">
+    <value>5</value>
+  </data>
+  <data name="smartCommentRoleViewerControl1.ViewerLogicClass" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="&gt;&gt;smartCommentRoleViewerControl1.Name" xml:space="preserve">
+    <value>smartCommentRoleViewerControl1</value>
+  </data>
+  <data name="&gt;&gt;smartCommentRoleViewerControl1.Type" xml:space="preserve">
+    <value>Consultingwerk.Windows.Framework.System.SmartCommentRoleViewerControl, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;smartCommentRoleViewerControl1.Parent" xml:space="preserve">
+    <value>SmartCommentRoleForm_Fill_Panel.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;smartCommentRoleViewerControl1.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="ultraSplitter1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>307, 0</value>
+  </data>
+  <data name="ultraSplitter1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>6, 320</value>
+  </data>
+  <data name="ultraSplitter1.TabIndex" type="System.Int32, mscorlib">
+    <value>6</value>
+  </data>
+  <data name="&gt;&gt;ultraSplitter1.Name" xml:space="preserve">
+    <value>ultraSplitter1</value>
+  </data>
+  <data name="&gt;&gt;ultraSplitter1.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraSplitter, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraSplitter1.Parent" xml:space="preserve">
+    <value>SmartCommentRoleForm_Fill_Panel.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;ultraSplitter1.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
   <metadata name="smartBusinessEntityBindingSource1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>251, 17</value>
   </metadata>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"/>
+  <data name="ultraGridColumn1.Header.Caption" xml:space="preserve">
+    <value>CommentRoleGUID </value>
+  </data>
+  <data name="ultraGridColumn2.Header.Caption" xml:space="preserve">
+    <value>Comment Role </value>
+  </data>
+  <data name="ultraGridColumn3.Header.Caption" xml:space="preserve">
+    <value>Description </value>
+  </data>
+  <data name="ultraGridColumn4.Header.Caption" xml:space="preserve">
+    <value>CommentRoleImageSmall </value>
+  </data>
+  <data name="ultraGridColumn5.Header.Caption" xml:space="preserve">
+    <value>CommentRoleImageLarge </value>
+  </data>
+  <data name="appearance10.TextHAlignAsString" xml:space="preserve">
+    <value>Left</value>
+  </data>
+  <data name="smartDataBrowser1.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Left</value>
+  </data>
+  <data name="smartDataBrowser1.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 8.25pt</value>
+  </data>
+  <data name="smartDataBrowser1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="smartDataBrowser1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>307, 320</value>
+  </data>
+  <data name="smartDataBrowser1.TabIndex" type="System.Int32, mscorlib">
+    <value>5</value>
+  </data>
+  <data name="smartDataBrowser1.Text" xml:space="preserve">
+    <value>smartDataBrowser1</value>
+  </data>
+  <data name="&gt;&gt;smartDataBrowser1.Name" xml:space="preserve">
+    <value>smartDataBrowser1</value>
+  </data>
+  <data name="&gt;&gt;smartDataBrowser1.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartDataBrowser, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;smartDataBrowser1.Parent" xml:space="preserve">
+    <value>SmartCommentRoleForm_Fill_Panel.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;smartDataBrowser1.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="&gt;&gt;SmartCommentRoleForm_Fill_Panel.ClientArea.Name" xml:space="preserve">
+    <value>SmartCommentRoleForm_Fill_Panel.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;SmartCommentRoleForm_Fill_Panel.ClientArea.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraPanelClientAreaUnsafe, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;SmartCommentRoleForm_Fill_Panel.ClientArea.Parent" xml:space="preserve">
+    <value>SmartCommentRoleForm_Fill_Panel</value>
+  </data>
+  <data name="&gt;&gt;SmartCommentRoleForm_Fill_Panel.ClientArea.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="SmartCommentRoleForm_Fill_Panel.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Fill</value>
+  </data>
+  <data name="SmartCommentRoleForm_Fill_Panel.Location" type="System.Drawing.Point, System.Drawing">
+    <value>8, 151</value>
+  </data>
+  <data name="SmartCommentRoleForm_Fill_Panel.Size" type="System.Drawing.Size, System.Drawing">
+    <value>630, 320</value>
+  </data>
+  <data name="SmartCommentRoleForm_Fill_Panel.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="&gt;&gt;SmartCommentRoleForm_Fill_Panel.Name" xml:space="preserve">
+    <value>SmartCommentRoleForm_Fill_Panel</value>
+  </data>
+  <data name="&gt;&gt;SmartCommentRoleForm_Fill_Panel.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraPanel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;SmartCommentRoleForm_Fill_Panel.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;SmartCommentRoleForm_Fill_Panel.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="m_SmartCommentRoleForm_Toolbars_Dock_Area_Left.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 151</value>
+  </data>
+  <data name="m_SmartCommentRoleForm_Toolbars_Dock_Area_Left.Size" type="System.Drawing.Size, System.Drawing">
+    <value>8, 320</value>
+  </data>
+  <data name="&gt;&gt;m_SmartCommentRoleForm_Toolbars_Dock_Area_Left.Name" xml:space="preserve">
+    <value>m_SmartCommentRoleForm_Toolbars_Dock_Area_Left</value>
+  </data>
+  <data name="&gt;&gt;m_SmartCommentRoleForm_Toolbars_Dock_Area_Left.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;m_SmartCommentRoleForm_Toolbars_Dock_Area_Left.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;m_SmartCommentRoleForm_Toolbars_Dock_Area_Left.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="m_SmartCommentRoleForm_Toolbars_Dock_Area_Right.Location" type="System.Drawing.Point, System.Drawing">
+    <value>638, 151</value>
+  </data>
+  <data name="m_SmartCommentRoleForm_Toolbars_Dock_Area_Right.Size" type="System.Drawing.Size, System.Drawing">
+    <value>8, 320</value>
+  </data>
+  <data name="&gt;&gt;m_SmartCommentRoleForm_Toolbars_Dock_Area_Right.Name" xml:space="preserve">
+    <value>m_SmartCommentRoleForm_Toolbars_Dock_Area_Right</value>
+  </data>
+  <data name="&gt;&gt;m_SmartCommentRoleForm_Toolbars_Dock_Area_Right.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;m_SmartCommentRoleForm_Toolbars_Dock_Area_Right.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;m_SmartCommentRoleForm_Toolbars_Dock_Area_Right.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="m_SmartCommentRoleForm_Toolbars_Dock_Area_Bottom.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 471</value>
+  </data>
+  <data name="m_SmartCommentRoleForm_Toolbars_Dock_Area_Bottom.Size" type="System.Drawing.Size, System.Drawing">
+    <value>646, 8</value>
+  </data>
+  <data name="&gt;&gt;m_SmartCommentRoleForm_Toolbars_Dock_Area_Bottom.Name" xml:space="preserve">
+    <value>m_SmartCommentRoleForm_Toolbars_Dock_Area_Bottom</value>
+  </data>
+  <data name="&gt;&gt;m_SmartCommentRoleForm_Toolbars_Dock_Area_Bottom.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;m_SmartCommentRoleForm_Toolbars_Dock_Area_Bottom.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;m_SmartCommentRoleForm_Toolbars_Dock_Area_Bottom.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="m_SmartCommentRoleForm_Toolbars_Dock_Area_Top.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="m_SmartCommentRoleForm_Toolbars_Dock_Area_Top.Size" type="System.Drawing.Size, System.Drawing">
+    <value>646, 151</value>
+  </data>
+  <data name="&gt;&gt;m_SmartCommentRoleForm_Toolbars_Dock_Area_Top.Name" xml:space="preserve">
+    <value>m_SmartCommentRoleForm_Toolbars_Dock_Area_Top</value>
+  </data>
+  <data name="&gt;&gt;m_SmartCommentRoleForm_Toolbars_Dock_Area_Top.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;m_SmartCommentRoleForm_Toolbars_Dock_Area_Top.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;m_SmartCommentRoleForm_Toolbars_Dock_Area_Top.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="$this.Icon" type="System.Drawing.Icon, System.Drawing">
     <value>
         AAABAA8AAAAAAAEABABiMQAA9gAAADAwAAABAAQAaAYAAFgyAAAgIAAAAQAEAOgCAADAOAAAGBgAAAEA
@@ -1808,12 +2029,69 @@
         AwAAAAcAAIAHAACAPwAA4H8AAA==
 </value>
   </data>
+  <data name="$this.Text" xml:space="preserve">
+    <value>Comment Role Maintenance</value>
+  </data>
+  <data name="$this.WindowPositionRegistryKey" xml:space="preserve">
+    <value>SmartCommentRoleForm</value>
+  </data>
+  <data name="&gt;&gt;smartToolbarController1.Name" xml:space="preserve">
+    <value>smartToolbarController1</value>
+  </data>
+  <data name="&gt;&gt;smartToolbarController1.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartToolbarController, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityAdapter1.Name" xml:space="preserve">
+    <value>smartBusinessEntityAdapter1</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityAdapter1.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1.Name" xml:space="preserve">
+    <value>smartBusinessEntityBindingSource1</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;$this.Name" xml:space="preserve">
+    <value>SmartCommentRoleForm</value>
+  </data>
+  <data name="&gt;&gt;$this.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Base.SmartWindowForm, OEProxyAssembly, Version=11.6.0.2, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="ribbonTab1.Caption" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="ribbonGroup1.Caption" xml:space="preserve">
+    <value>Navigation</value>
+  </data>
+  <data name="ribbonGroup2.Caption" xml:space="preserve">
+    <value>Maintenance</value>
+  </data>
+  <data name="ultraToolbar1.Text" xml:space="preserve">
+    <value>Navigation Toolbar</value>
+  </data>
+  <data name="ultraToolbar2.Text" xml:space="preserve">
+    <value>TableIO Toolbar</value>
+  </data>
+  <data name="ultraToolbar3.Text" xml:space="preserve">
+    <value>Transaction Toolbar</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance13.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         R0lGODlhEAAQAIMAAACAgMDAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
         ACH/C05FVFNDQVBFMi4wAwEBAAAh+QQBAAABACwAAAAAEAAQAAAIRgADCBxIsKDBgwgTFhRwkKFBhwQF
         QIy4EMDEgRMFALAoUSJGjBtDboToUKPIkCRBnrT4UWVHjwIvarwY8yHNADdvKtyZMCAAOw==
 </value>
+  </data>
+  <data name="buttonTool35.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>First record</value>
+  </data>
+  <data name="buttonTool35.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>First</value>
+  </data>
+  <data name="buttonTool35.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>First record</value>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance14.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
@@ -1822,6 +2100,15 @@
         CgAQUeFEihAhHrwIoGPHig89iqS4ceRHhBczakRJ0iFDkAthupx5MCAAOw==
 </value>
   </data>
+  <data name="buttonTool36.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Previous record</value>
+  </data>
+  <data name="buttonTool36.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Previous</value>
+  </data>
+  <data name="buttonTool36.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Previous record</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance15.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         R0lGODlhEAAQAIMAAACAgMDAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -1829,12 +2116,30 @@
         CgAA8eDDiwAoIpyYsaNGgxw9Zqw4MKRHkiUvckRp8WPDhxElxpwZMyAAOw==
 </value>
   </data>
+  <data name="buttonTool37.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Next record</value>
+  </data>
+  <data name="buttonTool37.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="buttonTool37.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Next record</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance16.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         R0lGODlhEAAQAIMAAACAgMDAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
         ACH/C05FVFNDQVBFMi4wAwEBAAAh+QQBAAABACwAAAAAEAAQAAAIRAADCBxIsKDBgwgTIhRwkKFBAQ4J
         RpQIYGKAiBAzAqgocaCAjSA3YvQYMqRDjCVFevSY8SPHlQ9fwiwI8WHDmwpz6gwIADs=
 </value>
+  </data>
+  <data name="buttonTool38.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Last record</value>
+  </data>
+  <data name="buttonTool38.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Last</value>
+  </data>
+  <data name="buttonTool38.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Last record</value>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance17.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
@@ -1844,12 +2149,30 @@
         hgEBADs=
 </value>
   </data>
+  <data name="buttonTool39.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Add record</value>
+  </data>
+  <data name="buttonTool39.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="buttonTool39.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Add record</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance18.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         R0lGODlhEAAQAIMAAP///8DAwICAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
         ACH/C05FVFNDQVBFMi4wAwEBAAAh+QQBAAABACwAAAAAEAAQAAAIRQADCBxIsKDBgwgTKkwooKHDhw0H
         DBQAoCJFixUBSBR4EUDHjhsDCBhAsqRJkhEnquQ4MKSAlSJbTjxJM+TCmzhz6rwZEAA7
 </value>
+  </data>
+  <data name="buttonTool40.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Copy record</value>
+  </data>
+  <data name="buttonTool40.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="buttonTool40.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Copy record</value>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance19.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
@@ -1871,13 +2194,31 @@
         jTJtKlUaMWJAADs=
 </value>
   </data>
+  <data name="buttonTool41.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Update record</value>
+  </data>
+  <data name="buttonTool41.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Update</value>
+  </data>
+  <data name="buttonTool41.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Update record</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance20.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAADrwAAA68AZW8ckkAAAB1SURBVDhPvVOLCsAgCPTT+3ObgeF7rrEJEdl1nMcFEBde
-        7e4KGXCMTRABiJyKd4fpELDCMwU3CmEpECDlh7lTCvZsDKp26YFzvFJAD+0I1tVsBJabEihA4MF/BByS
-        ThrrRCVRf9X28UVRS3t9/oDgwdd1H2gCP6ngPQpL2LcAAAAASUVORK5CYII=
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        vAAADrwBlbxySQAAAF9JREFUOE/FjQEOwCAIA3m6P2dzWCMq4GLcLmlEuVQy4BeZwim5At63Crx9XBDs
+        RWgklW6nwEOVvGRPdBlUOmnIrECdRgEwC8D/BRkIUR7q8AXjZ9ywcD9QcIPFagpEFz+p4D10Jz80AAAA
+        AElFTkSuQmCC
 </value>
+  </data>
+  <data name="buttonTool42.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Save changes</value>
+  </data>
+  <data name="buttonTool42.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="buttonTool42.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Save changes</value>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance21.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
@@ -1898,6 +2239,15 @@
         CpCY8GFDhRMvKrQIsWJDigs1gsR4cIDJkyhNEhg4IIDLli9dBlgpEGYAmzZpCiDAs6fPniQNBgQAOw==
 </value>
   </data>
+  <data name="buttonTool43.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Cancel update</value>
+  </data>
+  <data name="buttonTool43.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="buttonTool43.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Cancel update</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance22.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         R0lGODlhEAAQAIMAAACAgP///8DAwICAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -1905,117 +2255,145 @@
         OnQYUQCBixEnNqwYsaJFjCAFelQokiTBkSRRIhzAsqVLlh4HBJgpk+bMADFv1gywMybInxhNHgwIADs=
 </value>
   </data>
+  <data name="buttonTool44.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Delete record</value>
+  </data>
+  <data name="buttonTool44.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="buttonTool44.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Delete record</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance23.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAADrwAAA68AZW8ckkAAABwSURBVDhP5ZNBFoAgCETn6NycAuUZgSa1bMFGx+8DZsDM
-        uBYAXlXQ5wBSCBG5krM9gKgQITVAAqkDFDJa+SWge8LWWZ/BZ8DOFnLbniYyyz1Y2+VgvJE8dEhiX5ed
-        u7cD5C2gtd+SOftENatLg6w0BwPfcVGrtUdpAAAAAElFTkSuQmCC
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        vAAADrwBlbxySQAAAGVJREFUOE/ljEEOwCAIBH06P6csNBUKktpLDzUZg8s6g5kDcnAtSf0UaJG0TESB
+        5wIdsmRPoI8o2RdY8G8B5m8FFvQC/ZCQ8mz0eNv8g+Upkdnv7pQhuCRvBcAkGOs9KENPL+BxAAPfcVEC
+        +fywAAAAAElFTkSuQmCC
 </value>
+  </data>
+  <data name="buttonTool45.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>&amp;Exit</value>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance24.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         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
-        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
-        tAAAAABJRU5ErkJggg==
+        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
 </value>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance25.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         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
-        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
+        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
 </value>
+  </data>
+  <data name="buttonTool46.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Commit</value>
+  </data>
+  <data name="buttonTool46.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Commit</value>
+  </data>
+  <data name="buttonTool46.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Commit transaction</value>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance26.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         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
-        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
+        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
 </value>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance27.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         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
-        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
+        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
 </value>
+  </data>
+  <data name="buttonTool47.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Revert</value>
+  </data>
+  <data name="buttonTool47.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Revert</value>
+  </data>
+  <data name="buttonTool47.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Revert transaction</value>
   </data>
 </root>

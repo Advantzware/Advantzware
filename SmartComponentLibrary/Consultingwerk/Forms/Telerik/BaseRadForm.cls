@@ -186,8 +186,8 @@ CLASS Consultingwerk.Forms.Telerik.BaseRadForm
         Purpose: Constructor for the BaseRadForm class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC BaseRadForm ():
-		
+    CONSTRUCTOR PUBLIC BaseRadForm ():
+        
         SUPER ().
     
         THIS-OBJECT:DesignTime = Progress.Util.EnumHelper:AreEqual(System.ComponentModel.LicenseManager:UsageMode,
@@ -214,7 +214,7 @@ CLASS Consultingwerk.Forms.Telerik.BaseRadForm
         END.         
 &ENDIF
  
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
 &IF DEFINED (DelayFormDeletionOnFormClosed) NE 0 &THEN
     /*------------------------------------------------------------------------------
@@ -818,6 +818,6 @@ CLASS Consultingwerk.Forms.Telerik.BaseRadForm
 {{&CustomBaseFormDestructorInclude}}
 &ENDIF
 
-	END DESTRUCTOR.
+    END DESTRUCTOR.
 &ENDIF
 END CLASS.

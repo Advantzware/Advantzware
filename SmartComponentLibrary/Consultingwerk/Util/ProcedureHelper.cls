@@ -46,7 +46,7 @@ CLASS Consultingwerk.Util.ProcedureHelper:
         @param pcFileName The file name of the persistent procedure to search for
         @return The handle of the persistent procedure instance of ? when no instance is found
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC HANDLE FindPersistentProcedure (pcFileName AS CHARACTER):
+    METHOD PUBLIC STATIC HANDLE FindPersistentProcedure (pcFileName AS CHARACTER):
 
         DEFINE VARIABLE hProcedure AS HANDLE NO-UNDO.
 
@@ -61,7 +61,7 @@ CLASS Consultingwerk.Util.ProcedureHelper:
         
         RETURN ? . 
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Returns true if the procedure or it's super-procedures contains the

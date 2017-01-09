@@ -54,10 +54,10 @@ CLASS Consultingwerk.CanDoQueryExpression
         Purpose: Constructor for the CanDoQueryExpression class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC CanDoQueryExpression ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC CanDoQueryExpression ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the CanDoQueryExpression class

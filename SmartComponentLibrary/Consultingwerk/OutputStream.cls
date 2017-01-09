@@ -30,23 +30,23 @@ CLASS Consultingwerk.OutputStream IMPLEMENTS IOutputStream:
         Purpose: Returns the handle to the stream used for the output                                                                        
         Notes:                                                                        
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY StreamHandle AS HANDLE NO-UNDO 
-	GET.
-	PRIVATE SET. 
+    DEFINE PUBLIC PROPERTY StreamHandle AS HANDLE NO-UNDO 
+    GET.
+    PRIVATE SET. 
 
-	/*------------------------------------------------------------------------------
-		Purpose: Constructor for the OutputStream class  																	  
-		Notes:  		
-		@param phStreamHandle The handle of the stream to use as the output destination															  
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC OutputStream (phStreamHandle AS HANDLE):
-		SUPER ().
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the OutputStream class                                                                        
+        Notes:          
+        @param phStreamHandle The handle of the stream to use as the output destination                                                              
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC OutputStream (phStreamHandle AS HANDLE):
+        SUPER ().
 
         {Consultingwerk/Assertion/HandleAssert/WidgetType.i phStreamHandle Consultingwerk.WidgetTypeEnum:Stream} .
-		
-		ASSIGN THIS-OBJECT:StreamHandle = phStreamHandle . 
-		
-	END CONSTRUCTOR.
+        
+        ASSIGN THIS-OBJECT:StreamHandle = phStreamHandle . 
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Writes text to the output destination                                                                        
@@ -69,6 +69,6 @@ CLASS Consultingwerk.OutputStream IMPLEMENTS IOutputStream:
 
         PUT STREAM-HANDLE THIS-OBJECT:StreamHandle pcText SKIP .    
 
-	END METHOD.
+    END METHOD.
 
 END CLASS.

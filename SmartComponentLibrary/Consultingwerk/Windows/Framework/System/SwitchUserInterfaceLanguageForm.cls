@@ -32,8 +32,8 @@ USING Consultingwerk.Windows.Framework.System.* FROM PROPATH .
 USING Progress.Lang.*                           FROM PROPATH .
 
 CLASS Consultingwerk.Windows.Framework.System.SwitchUserInterfaceLanguageForm INHERITS BaseForm: 
-	
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraLabel1 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraComboEditor1 AS Infragistics.Win.UltraWinEditors.UltraComboEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraButtonOK AS Infragistics.Win.Misc.UltraButton NO-UNDO.
@@ -46,22 +46,23 @@ CLASS Consultingwerk.Windows.Framework.System.SwitchUserInterfaceLanguageForm IN
         Purpose: Constructor for the SwitchUserInterfaceLanguageForm class 
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC SwitchUserInterfaceLanguageForm ():
-		
+    CONSTRUCTOR PUBLIC SwitchUserInterfaceLanguageForm ():
+        
         SUPER().
         InitializeComponent().
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+        
         /* NOTE: The following method is automatically generated.
         
         We strongly suggest that the contents of this method only be modified using the
@@ -224,19 +225,19 @@ CLASS Consultingwerk.Windows.Framework.System.SwitchUserInterfaceLanguageForm IN
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Raises the Load event 
         Notes:   
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
-		
+    METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
+        
         DEFINE VARIABLE oValueListItem   AS Infragistics.Win.ValueListItem NO-UNDO . 
-		
-		SUPER:OnLoad (e) .
-		
+        
+        SUPER:OnLoad (e) .
+        
         &IF DEFINED (SmartFramework) NE 0 &THEN
         
         DEFINE VARIABLE oImageProvider    AS IImageProvider    NO-UNDO .
@@ -264,9 +265,9 @@ CLASS Consultingwerk.Windows.Framework.System.SwitchUserInterfaceLanguageForm IN
             
         ultraComboEditor1:Value = SessionManager:LanguageKey .            
             
-        &ENDIF		
+        &ENDIF        
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the Click event of the OK Button
@@ -274,11 +275,11 @@ CLASS Consultingwerk.Windows.Framework.System.SwitchUserInterfaceLanguageForm IN
         @param sender The reference to hte object that raised the event
         @param e The System.EventArgs with the data for this event 
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraButtonOK_Click (sender AS System.Object, 
-	                                         e AS System.EventArgs):
-		
-		DEFINE VARIABLE oTranslationProvider AS Consultingwerk.SmartFramework.ITranslationProvider NO-UNDO . 
-		
+    METHOD PRIVATE VOID ultraButtonOK_Click (sender AS System.Object, 
+                                             e AS System.EventArgs):
+        
+        DEFINE VARIABLE oTranslationProvider AS Consultingwerk.SmartFramework.ITranslationProvider NO-UNDO . 
+        
         SessionManager:LanguageKey = UNBOX (THIS-OBJECT:ultraComboEditor1:Value) .
         
         oTranslationProvider = {Consultingwerk/get-service.i Consultingwerk.SmartFramework.ITranslationProvider} .
@@ -290,10 +291,10 @@ CLASS Consultingwerk.Windows.Framework.System.SwitchUserInterfaceLanguageForm IN
         SessionManager:LanguageIsoCode = UNBOX (THIS-OBJECT:ultraComboEditor1:SelectedItem:Tag) .
 
         CATCH err AS Progress.Lang.Error :
-        	ErrorHelper:ShowErrorMessage (err) .	
+            ErrorHelper:ShowErrorMessage (err) .    
         END CATCH.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the ValueChanged event of the language combo box
@@ -301,16 +302,16 @@ CLASS Consultingwerk.Windows.Framework.System.SwitchUserInterfaceLanguageForm IN
         @param sender The reference to hte object that raised the event
         @param e The System.EventArgs with the data for this event 
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraComboEditor1_ValueChanged (sender AS System.Object, 
-	                                                    e AS System.EventArgs):
-		
-		ultraButtonOK:Enabled = (UNBOX (ultraComboEditor1:Value) > "":U) .  
+    METHOD PRIVATE VOID ultraComboEditor1_ValueChanged (sender AS System.Object, 
+                                                        e AS System.EventArgs):
+        
+        ultraButtonOK:Enabled = (UNBOX (ultraComboEditor1:Value) > "":U) .  
 
         CATCH err AS Progress.Lang.Error :
             ErrorHelper:ShowErrorMessage (err) .    
         END CATCH.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Destructor for the SwitchUserInterfaceLanguageForm class 

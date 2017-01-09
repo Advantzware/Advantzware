@@ -37,9 +37,9 @@ CLASS Consultingwerk.OERA.FetchDataException
         Purpose: Returns the QueryString send from the client when the error was caused
         Notes:                          
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY ClientQueryString AS CHARACTER NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    DEFINE PUBLIC PROPERTY ClientQueryString AS CHARACTER NO-UNDO 
+    GET.
+    PROTECTED SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the SourceDefaultQuery used when the error was caused

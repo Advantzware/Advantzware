@@ -8,15 +8,15 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : InvalidValueException
     Purpose     : An error object thrown to signal invalid (parameter) values
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Mon Apr 25 23:20:48 CEST 2011
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -26,90 +26,90 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 USING Consultingwerk.Exceptions.* FROM PROPATH .
 USING Progress.Lang.*             FROM PROPATH .
 
-CLASS Consultingwerk.Exceptions.InvalidValueException 
+CLASS Consultingwerk.Exceptions.InvalidValueException
     INHERITS Exception
-    {&SERIALIZABLE}:  
+    {&SERIALIZABLE}:
 
-    /*------------------------------------------------------------------------------
-        Purpose: Returns the Descriotion for the Value that caused this InvalidValueException                                                                     
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY Description AS CHARACTER NO-UNDO 
+    /**
+     * Purpose: Returns the Descriotion for the Value that caused this InvalidValueException
+     * Notes:
+     */
+    DEFINE PUBLIC PROPERTY Description AS CHARACTER NO-UNDO
     GET.
-    PROTECTED SET. 
+    PROTECTED SET.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Returns the Value that caused this InvalidValueException                                                                     
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY Value AS CHARACTER NO-UNDO 
+    /**
+     * Purpose: Returns the Value that caused this InvalidValueException
+     * Notes:
+     */
+    DEFINE PUBLIC PROPERTY Value AS CHARACTER NO-UNDO
     GET.
-    PROTECTED SET. 
+    PROTECTED SET.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Constructor for the InvalidValueException class                                                                        
-        Notes:          
-        @param pcValue The invalid value                                                              
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Constructor for the InvalidValueException class
+     * Notes:
+     * @param pcValue The invalid value
+     */
     CONSTRUCTOR PUBLIC InvalidValueException (pcValue AS CHARACTER):
-        
-        SUPER (SUBSTITUTE ("Invalid value ~"&1~".", pcValue), 0).
 
-        THIS-OBJECT:Value = pcValue . 
-        
-    END CONSTRUCTOR.
-
-    /*------------------------------------------------------------------------------
-        Purpose: Constructor for the InvalidValueException class                                                                      
-        Notes:          
-        @param pcValue The invalid value    
-        @param pcDescription The description of the invalid value                                                          
-    ------------------------------------------------------------------------------*/
-    CONSTRUCTOR PUBLIC InvalidValueException (pcValue AS CHARACTER,
-                                              pcDescription AS CHARACTER):
-        
-        SUPER (SUBSTITUTE ("Invalid value ~"&1~" for &2.", pcValue, pcDescription), 0).
+        SUPER (SUBSTITUTE ("Invalid value ~"&1~".":U, pcValue), 0).
 
         THIS-OBJECT:Value = pcValue .
-        THIS-OBJECT:Description = pcDescription . 
-        
+
     END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Constructor for the InvalidValueException class                                                                      
-        Notes:          
-        @param poInnerException The reference to the original error
-        @param pcValue The invalid value  
-    ------------------------------------------------------------------------------*/
-    CONSTRUCTOR PUBLIC InvalidValueException (poInnerException AS Error, 
+    /**
+     * Purpose: Constructor for the InvalidValueException class
+     * Notes:
+     * @param pcValue The invalid value
+     * @param pcDescription The description of the invalid value
+     */
+    CONSTRUCTOR PUBLIC InvalidValueException (pcValue AS CHARACTER,
+                                              pcDescription AS CHARACTER):
+
+        SUPER (SUBSTITUTE ("Invalid value ~"&1~" for &2.":U, pcValue, pcDescription), 0).
+
+        THIS-OBJECT:Value = pcValue .
+        THIS-OBJECT:Description = pcDescription .
+
+    END CONSTRUCTOR.
+
+    /**
+     * Purpose: Constructor for the InvalidValueException class
+     * Notes:
+     * @param poInnerException The reference to the original error
+     * @param pcValue The invalid value
+     */
+    CONSTRUCTOR PUBLIC InvalidValueException (poInnerException AS Error,
                                               pcValue AS CHARACTER):
-        
+
         SUPER (poInnerException,
-               SUBSTITUTE ("Invalid value ~"&1~".", pcValue), 
+               SUBSTITUTE ("Invalid value ~"&1~".":U, pcValue),
                0).
 
-        THIS-OBJECT:Value = pcValue . 
-        
+        THIS-OBJECT:Value = pcValue .
+
     END CONSTRUCTOR.
-    
-    /*------------------------------------------------------------------------------
-        Purpose: Constructor for the InvalidValueException class                                                                      
-        Notes:          
-        @param poInnerException The reference to the original error
-        @param pcValue The invalid value  
-        @param pcDescription The description of the invalid value                                                          
-    ------------------------------------------------------------------------------*/
-    CONSTRUCTOR PUBLIC InvalidValueException (poInnerException AS Error, 
+
+    /**
+     * Purpose: Constructor for the InvalidValueException class
+     * Notes:
+     * @param poInnerException The reference to the original error
+     * @param pcValue The invalid value
+     * @param pcDescription The description of the invalid value
+     */
+    CONSTRUCTOR PUBLIC InvalidValueException (poInnerException AS Error,
                                               pcValue AS CHARACTER,
                                               pcDescription AS CHARACTER):
-        
+
         SUPER (poInnerException,
-               SUBSTITUTE ("Invalid value ~"&1~" for &2.", pcValue, pcDescription), 
+               SUBSTITUTE ("Invalid value ~"&1~" for &2.":U, pcValue, pcDescription),
                0).
 
-        THIS-OBJECT:Value = pcValue . 
-        THIS-OBJECT:Description = pcDescription . 
-        
-    END CONSTRUCTOR.    
-    
+        THIS-OBJECT:Value = pcValue .
+        THIS-OBJECT:Description = pcDescription .
+
+    END CONSTRUCTOR.
+
 END CLASS.

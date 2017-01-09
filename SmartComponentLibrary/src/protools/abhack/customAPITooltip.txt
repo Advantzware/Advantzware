@@ -1,0 +1,81 @@
+# protools/abhack/customTabCompletion.txt is a list of aliases to use on TAB in Seb's AppBuilder Hack
+# Do not forget to put a carriage return at the end of the file
+# Lines that begins with '#' are ignored
+# This file is reloaded each time you recheck its corresponding toggle-box
+# One can define alaises for the matches operator
+# ~n => insert carriage return
+#
+# A4GBL reminders
+LOOKUP LOOKUP( expression , list [ , character ] )
+ENTRY ENTRY( iEntry , list [ , character ] )
+NUM-ENTRIES NUM-ENTRIES( list [ , character ] )
+CAN-DO CAN-DO( id-list [ , string ] = user )  ~nexample: CAN-DO("elle,moi,lui", "elle")
+INDEX INDEX( source , target [ , starting] )
+R-INDEX R-INDEX( source , target [ , starting] ) ~nReturns an integer that indicates the position of the target string within the source string. In contrast to the INDEX function, R-INDEX performs the search from right to left.
+CAST CAST( object-reference, type-name ). 
+COMPARE COMPARE( operand1, relational-operator , operand2 , strength  [ , collation ] )
+BUFFER-COPY hBufferBUFFER-COPY( source-buffer-handle [ , except-list [ , pairs-list ] ] )
+BUFFER-COMPARE hBuffer:BUFFER-COMPARE( source-buffer-handle [ , mode-exp [ , except-list [ , pairs-list ] ] ] )
+FILL FILL( expression , repeats )
+SUBSTR SUBSTRING( source , position [ , length [ , type ] ] )
+SUBSTRING SUBSTRING( source , position [ , length [ , type ] ] )
+REPLACE REPLACE( source-string , from-string , to-string )
+FIND-LAST hBuffer:FIND-LAST( predicate-expression [ , lockmode [ , wait-mode ] ] )
+FIND-FIRST hBuffer:FIND-FIRST( predicate-expression [ , lockmode [ , wait-mode ] ] )
+FIND-UNIQUE hBuffer:FIND-UNIQUE( predicate-expression [ , lockmode [ , wait-mode ] ] )
+TRUNCATE TRUNCATE( expression , decimal-places )
+ROUND ROUND( expression , precision )
+CAN-FIND CAN-FIND([ FIRST | LAST ] record [ constant ]  [ OF table ] [ WHERE expression ] [ USE-INDEX index ]  [ USING [ FRAME frame ] field  [ AND [ FRAME frame ] field ] ...    ] [ SHARE-LOCK | NO-LOCK ] [ NO-WAIT ] [ NO-PREFETCH ]  )
+CAN-QUERY CAN-QUERY( handle , attribute-name )
+CAN-SET CAN-SET( handle , attribute-name ) 
+ADD-CALC-COLUMN hBrowse:ADD-CALC-COLUMN( datatype-exp , format-exp , initial-value-exp , label-exp  [ , pos ] )
+ADD-COLUMNS-FROM ADD-COLUMNS-FROM( buffer-hndl | table-name-exp [ , except-list ] )~nApplies To: Browse
+ADD-FIELDS-FROM hTemptTable:ADD-FIELDS-FROM( { source-table-hndl-exp | source-table-name-exp }   [ , except-list-exp ] )
+ADD-FIRST ADD-FIRST( { item-list | label , value } )~nApplies To: Combo-box, Selection-list
+ADD-LAST ADD-LAST( { item-list | label , value } )~nApplies To: Combo-box, Selection-list
+ADD-INDEX-FIELD hTemptTable:ADD-INDEX-FIELD( index-name-exp , field-name-exp [ , mode-exp ] )
+ADD-LIKE-COLUMN hBrowse:ADD-LIKE-COLUMN( field-name-exp | buffer-field-hndl [ , pos ] )
+ADD-LIKE-FIELD hTemptTable:ADD-LIKE-FIELD( field-name-exp , source-buffer-field-hndl-exp | source-db-field-name-exp )
+ADD-LIKE-INDEX hTemptTable:ADD-LIKE-INDEX( index-name-exp , source-index-name-exp     { , source-buffer-hndl-exp | source-db-table-name-exp } )
+ADD-NEW-FIELD hTemptTable:ADD-NEW-FIELD( field-name-exp , datatype-exp [ , extent-exp [ , format-exp   [ , initial-exp [ , label-exp [ , column-label-exp ] ] ] ] ] )
+ADD-NEW-INDEX hTemptTable:ADD-NEW-INDEX( index-name-exp [ , unique-exp [ , primary-exp    [ , wordix-exp ] ] ] )
+ADD-SUPER-PROCEDURE ADD-SUPER-PROCEDURE( super-proc-hdl [ , proc-search ] )~nHint: In modern Apps, we all use SEARCH-TARGET for proc-search
+CREATE-LIKE hTemptTable:CREATE-LIKE( { source-table-hndl-exp | source-table-name-exp }   [ , source-index-name-exp ] )
+CREATE-NODE hXmlDoc:CREATE-NODE( x-node-handle , name , type )
+CREATE-NODE-NAMESPACE hXmlDoc:CREATE-NODE-NAMESPACE( x-node-handle , namespace-uri , qualified-name , type )
+GET-CHILD hXmlDoc/hXmlNode:GET-CHILD( x-node-handle , index )
+GET-CURRENT hQuery:GET-CURRENT( NO-LOCK | SHARE-LOCK [ , NO-WAIT ]  | EXCLUSIVE-LOCK [ , NO-WAIT ]  )
+GET-FIRST hQuery:GET-FIRST( NO-LOCK | SHARE-LOCK [ , NO-WAIT ]  | EXCLUSIVE-LOCK [ , NO-WAIT ]  )
+GET-LAST hQuery:GET-LAST( NO-LOCK | SHARE-LOCK [ , NO-WAIT ]  | EXCLUSIVE-LOCK [ , NO-WAIT ]  )
+GET-NEXT hQuery:GET-NEXT( NO-LOCK | SHARE-LOCK [ , NO-WAIT ]  | EXCLUSIVE-LOCK [ , NO-WAIT ]  )
+GET-PREV hQuery:GET-PREV( NO-LOCK | SHARE-LOCK [ , NO-WAIT ]  | EXCLUSIVE-LOCK [ , NO-WAIT ]  )
+GET-TEXT-WIDTH-PIXELS FONT-TABLE:GET-TEXT-WIDTH-PIXELS( string [ , font ] )
+INSERT INSERT({ new-item-list | new-label , new-value }  ,  { list-item | list-index }  )~nApplies To: Combo-box, Selection-list
+LOAD-IMAGE LOAD-IMAGE( filename [ , x-offset , y-offset , width , height ])~nApplies To: Button, Image
+LOAD-MOUSE-POINTER LOAD-MOUSE-POINTER( pointer-name )~nAPPSTARTING	Arrow with an hourglass beside it~nARROW	Standard arrow cursor~nCROSS	Cross hairs~nHELP	Arrow with a question mark beside it~nIBEAM	I-beam text cursor~nNO	Circle with a slash through it~nRECTANGLE	(NT 3.51 only) White  rectangle~nSIZE	Sizing rectangle~nSIZE-E	Size to right~nSIZE-N	Size to top~nSIZE-NE	Size to top right~nSIZE-NW	Size to top left~nSIZE-S	Size to bottom~nSIZE-SE	Size to bottom right~nSIZE-SW	Size to bottom left~nSIZE-W	Size to left~nUPARROW	Up arrow~nWAIT	System busy~nGLOVE	Glove/finger~nCOMPILER-WAIT	Compiler busy
+READ-XMLSCHEMA READ-XMLSCHEMA ( source-type~n ,{ file | memptr | handle | longchar }~n ,override-default-mapping~n [, field-type-mapping~n [, verify-schema-mode ] ] ) 
+REPOSITION-TO-ROWID hQuery:REPOSITION-TO-ROWID({     rowid1 [ , rowid2 ] ...   |  rowid-array  })
+SEARCH hEditor:SEARCH( string , flag )~nPossible flags: FIND-NEXT-OCCURRENCE  FIND-PREV-OCCURRENCE  FIND-CASE-SENSITIVE  FIND-WRAP-AROUND  FIND-SELECT
+SET-CALLBACK-PROCEDURE SET-CALLBACK-PROCEDURE(callback-name,internal-procedure [ , procedure-context ])
+SET-CALLBACK SET-CALLBACK( callback-name, routine-name [ , routine-context ] ) 
+SET-REPOSITIONED-ROW hBrowse:SET-REPOSITIONED-ROW( n , "ALWAYS" | "CONDITIONAL" )
+SET-WAIT-STATE SESSION:SET-WAIT-STATE( state-string )~nThe value of state-string determines the state and the type of wait message displayed. The valid values are "GENERAL", "COMPILER", or the null string ( "" ). The null string cancels the wait state. The other values cause Progress to display a message in a box similar to an alert box while blocking user input. "GENERAL" displays a general working message and "COMPILER" displays a message that Progress is compiling. Input is blocked and the message is displayed until the wait state is cancelled.
+TEMP-TABLE-PREPARE hTempTable:TEMP-TABLE-PREPARE( temp-table-name-exp )
+READ-XML READ-XML( source-type~n ,{ file | memptr | handle | longchar }~n ,read-mode~n ,schema-location~n ,override-default-mapping~n [, field-type-mapping~n  [,verify-schema-mode ] ] ) 
+WRITE-XML WRITE-XML( target-type~n ,{ file | stream | memptr | handle | longchar }~n [, formatted~n [, encoding~n [, schema-location~n [, write-xmlschema~n [, min-xmlschema~n [, write-before-image ] ] ] ] ] ] ) 
+WRITE-XMLSCHEMA WRITE-XMLSCHEMA( target-type~n ,{ file | stream | memptr | handle | longchar }~n [, formatted [, encoding [, min-xmlschema ] ] ] ) 
+INTERVAL INTERVAL (datetime1, datetime2, {'years' | 'months' | 'weeks'| 'days' | 'hours', 'minutes' | 'seconds' | 'milliseconds'}) 
+COPY-LOB COPY-LOB   [ FROM ] { [ OBJECT ] source-lob | FILE source-filename }      [ STARTING AT n ] [ FOR length ]  TO { [ OBJECT ] target-lob [OVERLAY AT n [TRIM ] ] |      FILE target-filename [ APPEND ] }  [ NO-CONVERT | CONVERT convert-phrase ]   [ NO-ERROR ].
+
+#
+# ADM2/Dynamics
+aferrortxt {aferrortxt.i 'AD' '69' 'table' 'field' [optionalArg1] [optionalArg2]}~n   {5-13} = Extra insertion arguements for error message, 9 supported ~n   The include file will result in a quoted string as follows:~n   "group^number^prog1:prog2^insert1|insert2|insert3,etcCHR(4)fieldnameCHR(4)tablenameCHR(4)prog1CHR(4)prog2"~n ~nArguments must be passed as unquoted variables or single quoted literals, e.g. 'text'~nIf literal contains spaces, then it must also be in dounble quotes, e.g. "'test space'".  If double quotes are used, these are dropped automatically.  If an arguement in the middle needs to be ommitted, a placeholder of '?' must be used.~nThe simplest use for an error with no insertion codes would be:~n  {af/sup2/aferrortxt.i 'AF' '1'}~nThe simplest use for a hard coded message would be:~n  {af/sup2/aferrortxt.i '?' "'message text'"}~nA message code with insertion parameters but no table or field would be:~n  {af/sup2/aferrortxt.i 'AF' '1' '?' '?' 'insert1' 'insert2' 'insert3'}
+#
+# Al@din constructs
+adPrGet This function will use the PR Process Date to retrieve the value of one or multiple Al@din Parameters.  Note a cache is implemented with 5 min for thin client and one min in DB-Bound sessions (AppServer or Batches)
+adVnGet This function will use the VN Process Date to retrieve the value of one or multiple Al@din Parameters.  Note a cache is implemented with 5 min for thin client and one min in DB-Bound sessions (AppServer or Batches)
+adAddEntry adAddEntry( cEntry, cList , cSeparator )
+adFormatMessage adFormatMessage( ipcAdditionalDescription )
+adSearch adSearch( pcfileName)
+adUseSequence adUseSequence( iphFieldHandle , ipcEntity , ipcSeqTLA)
+removeEntryI removeEntryI( iEntry, cList , cSeparator )

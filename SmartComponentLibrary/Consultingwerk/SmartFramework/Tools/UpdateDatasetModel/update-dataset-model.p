@@ -11,17 +11,17 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : update-dataset-model.p
-    Purpose     : Regenerates the Dataset Model source code for all 
-                  Business Entities of the SmartFramework 
+    Purpose     : Regenerates the Dataset Model source code for all
+                  Business Entities of the SmartFramework
 
     Syntax      :
 
-    Description : 
+    Description :
 
-    Author(s)   : 
+    Author(s)   :
     Created     : Fri Mar 06 11:25:08 CET 2015
-    Notes       : Due to dependency on the Business Entity Designer, this 
-                  file is not suited for Linux builds 
+    Notes       : Due to dependency on the Business Entity Designer, this
+                  file is not suited for Linux builds
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
@@ -45,31 +45,31 @@ FileHelper:GetFileList ("Consultingwerk/SmartFramework":U,
                         "*.bedgm":U,
                         OUTPUT TABLE ttFileNames) .
 
-DEFAULT-WINDOW:WIDTH = 220 . 
+DEFAULT-WINDOW:WIDTH = 220 .
 
-oGenerator = NEW Consultingwerk.BusinessEntityDesigner.Plugins.ModelClassGeneratorPlugin () . 
+oGenerator = NEW Consultingwerk.BusinessEntityDesigner.Plugins.ModelClassGeneratorPlugin () .
 oGenerator:Startup (DATASET dsBusinessEntity BIND, ?, ?, ?) .
 
-FOR EACH ttFileNames 
+FOR EACH ttFileNames
     ON ERROR UNDO, THROW:
-        
+
     DATASET dsBusinessEntity:EMPTY-DATASET () .
     DATASET dsBusinessEntity:READ-XML ("FILE":U, ttFileNames.FileName, ?, ?, ?) .
-    
+
     FIND FIRST eBusinessEntity .
-    
-    DISPL ttFileNames.FileName                  FORMAT "x(80)":U COLUMN-LABEL "File":U
-          eBusinessEntity.BusinessEntityPackage FORMAT "x(50)":U COLUMN-LABEL "Package":U
-          eBusinessEntity.BusinessEntityName    FORMAT "x(50)":U COLUMN-LABEL "Entity":U
-          WITH WIDTH 210 .
-    
-    
+
+    DISPLAY ttFileNames.FileName                  FORMAT "x(80)":U COLUMN-LABEL "File":U
+            eBusinessEntity.BusinessEntityPackage FORMAT "x(50)":U COLUMN-LABEL "Package":U
+            eBusinessEntity.BusinessEntityName    FORMAT "x(50)":U COLUMN-LABEL "Entity":U
+            WITH WIDTH 210 .
+
+
     oGenerator:GenerateModelClasses (DATASET dsBusinessEntity) .
-    
-END.    
+
+END.
 
 CATCH err AS Progress.Lang.Error :
-	ErrorHelper:ShowErrorMessage (err) . 	
+    ErrorHelper:ShowErrorMessage (err) .
 END CATCH.
 
 &ENDIF

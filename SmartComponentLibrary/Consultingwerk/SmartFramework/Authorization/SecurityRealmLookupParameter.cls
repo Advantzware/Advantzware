@@ -55,11 +55,11 @@ CLASS Consultingwerk.SmartFramework.Authorization.SecurityRealmLookupParameter
         Purpose: Constructor for the SecurityRealmLookupParameter class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC SecurityRealmLookupParameter ():
-		SUPER ().
-		
+    CONSTRUCTOR PUBLIC SecurityRealmLookupParameter ():
+        SUPER ().
+        
         THIS-OBJECT:AddSerializableProperties ("{&SerializableProperties}":U) .
-		
-	END CONSTRUCTOR.
+        
+    END CONSTRUCTOR.
 
 END CLASS.

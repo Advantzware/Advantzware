@@ -11,25 +11,25 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : IEnumerable
-    Purpose     : Interface definition for classes supporting the Enumerator 
+    Purpose     : Interface definition for classes supporting the Enumerator
                   pattern, typically implemented by Lists or Collections
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Fri Jan 20 20:43:32 CET 2012
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 USING Consultingwerk.Framework.Base.* FROM PROPATH .
 USING Progress.Lang.*                 FROM PROPATH .
 
-INTERFACE Consultingwerk.Framework.Base.IEnumerable:  
-  
-    /*------------------------------------------------------------------------------
-        Purpose: Returns a new IEnumerator instance for this object instance                                                                      
-        Notes:                                                                        
-        @return The IEnumerator instance for this object
-    ------------------------------------------------------------------------------*/
+INTERFACE Consultingwerk.Framework.Base.IEnumerable:
+
+    /**
+     * Purpose: Returns a new IEnumerator instance for this object instance
+     * Notes:
+     * @return The IEnumerator instance for this object
+     */
     METHOD PUBLIC IEnumerator GetEnumerator ().
 
 END INTERFACE.

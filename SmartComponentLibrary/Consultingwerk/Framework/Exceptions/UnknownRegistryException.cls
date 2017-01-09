@@ -35,9 +35,9 @@ CLASS Consultingwerk.Framework.Exceptions.UnknownRegistryException
         Purpose: Returns the RegistryName of the UnknownRegistryException class
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY RegistryName AS CHARACTER NO-UNDO 
-	GET.
-	PRIVATE SET. 
+    DEFINE PUBLIC PROPERTY RegistryName AS CHARACTER NO-UNDO 
+    GET.
+    PRIVATE SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the UnknownRegistryException class

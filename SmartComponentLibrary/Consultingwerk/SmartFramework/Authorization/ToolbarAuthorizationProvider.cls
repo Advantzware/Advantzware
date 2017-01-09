@@ -38,20 +38,20 @@ CLASS Consultingwerk.SmartFramework.Authorization.ToolbarAuthorizationProvider
         @param pcLinkedObjectSecurityKey The security key of the linked object
         @return Logical value indicating if the Form startup is restricted                        
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL IsToolbarActionRestricted (poRequestor AS Progress.Lang.Object,
+    METHOD PUBLIC LOGICAL IsToolbarActionRestricted (poRequestor AS Progress.Lang.Object,
                                                      pcToolbarActionKey AS CHARACTER, 
-	                                                 pcFormClassName AS CHARACTER, 
-	                                                 pcLinkedObjectSecurityKey AS CHARACTER):
-		
-		DEFINE VARIABLE oToolbarItemSecurityService AS IToolbarItemSecurityService NO-UNDO . 
-	
-		oToolbarItemSecurityService = {Consultingwerk/get-service.i Consultingwerk.SmartFramework.Authorization.IToolbarItemSecurityService} .
-		
-		IF NOT VALID-OBJECT (oToolbarItemSecurityService) THEN 
-		    RETURN FALSE .  
-		
-		RETURN oToolbarItemSecurityService:IsToolbarItemRestricted (pcLinkedObjectSecurityKey, pcToolbarActionKey) .
-		
-	END METHOD .
+                                                     pcFormClassName AS CHARACTER, 
+                                                     pcLinkedObjectSecurityKey AS CHARACTER):
+        
+        DEFINE VARIABLE oToolbarItemSecurityService AS IToolbarItemSecurityService NO-UNDO . 
+    
+        oToolbarItemSecurityService = {Consultingwerk/get-service.i Consultingwerk.SmartFramework.Authorization.IToolbarItemSecurityService} .
+        
+        IF NOT VALID-OBJECT (oToolbarItemSecurityService) THEN 
+            RETURN FALSE .  
+        
+        RETURN oToolbarItemSecurityService:IsToolbarItemRestricted (pcLinkedObjectSecurityKey, pcToolbarActionKey) .
+        
+    END METHOD .
 
 END CLASS.

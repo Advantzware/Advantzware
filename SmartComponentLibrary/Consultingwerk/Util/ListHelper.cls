@@ -8,54 +8,54 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : ListHelper
     Purpose     : Provides support for Character delimited lists
-    Syntax      : Static methods only, Protected constructor to disallow 
+    Syntax      : Static methods only, Protected constructor to disallow
                   instance creation
-    Description : 
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sun Jan 10 21:19:01 CET 2010
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 { Consultingwerk/products.i }
 
-USING Consultingwerk.Framework.Collections.* FROM PROPATH . 
-USING Consultingwerk.Util.*                  FROM PROPATH . 
+USING Consultingwerk.Framework.Collections.* FROM PROPATH .
+USING Consultingwerk.Util.*                  FROM PROPATH .
 USING Consultingwerk.Util.Support.*          FROM PROPATH .
 USING Progress.Lang.*                        FROM PROPATH .
 
-CLASS Consultingwerk.Util.ListHelper: 
+CLASS Consultingwerk.Util.ListHelper:
 
     /*------------------------------------------------------------------------------
-        Purpose: Private default constructor. 
-        Notes:   There's no need to create instances of the helper classes                                                                        
+        Purpose: Private default constructor.
+        Notes:   There's no need to create instances of the helper classes
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PROTECTED ListHelper ():
         SUPER ().
-        
+
     END CONSTRUCTOR.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Adds an entry to the list (at the end)
-	    Notes:
+    /*------------------------------------------------------------------------------
+        Purpose: Adds an entry to the list (at the end)
+        Notes:
         @param pcList The list to add the entry to
         @param pcEntry The entry to add to the list
-        @return The new list	       
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC CHARACTER AddEntry (pcList AS CHARACTER,
-	                                         pcEntry AS CHARACTER):
+        @return The new list
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC STATIC CHARACTER AddEntry (pcList AS CHARACTER,
+                                             pcEntry AS CHARACTER):
 
-        IF pcList = "":U THEN 
-            RETURN pcEntry . 
-        ELSE 
+        IF pcList = "":U THEN
+            RETURN pcEntry .
+        ELSE
             RETURN pcList + ",":U + pcEntry .
-    		
-	END METHOD.
+
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Adds an entry to the list (at the end)
@@ -63,15 +63,15 @@ CLASS Consultingwerk.Util.ListHelper:
         @param pcList The list to add the entry to
         @param pcEntry The entry to add to the list
         @param pcDelimiter The list delimiter
-        @return The new list           
+        @return The new list
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CHARACTER AddEntry (pcList AS CHARACTER,
                                              pcEntry AS CHARACTER,
                                              pcDelimiter AS CHARACTER):
-        
-        IF pcList = "":U THEN 
-            RETURN pcEntry . 
-        ELSE 
+
+        IF pcList = "":U THEN
+            RETURN pcEntry .
+        ELSE
             RETURN pcList + pcDelimiter + pcEntry .
 
     END METHOD.
@@ -81,14 +81,14 @@ CLASS Consultingwerk.Util.ListHelper:
         Notes:
         @param pcList The list to add the entry to
         @param pcEntry The entry to add to the list
-        @return The new list           
+        @return The new list
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC LONGCHAR AddEntry (pcList AS LONGCHAR,
                                             pcEntry AS LONGCHAR):
-        
-        IF pcList = "":U THEN 
-            RETURN pcEntry . 
-        ELSE 
+
+        IF pcList = "":U THEN
+            RETURN pcEntry .
+        ELSE
             RETURN pcList + ",":U + pcEntry .
 
     END METHOD.
@@ -99,15 +99,15 @@ CLASS Consultingwerk.Util.ListHelper:
         @param pcList The list to add the entry to
         @param pcEntry The entry to add to the list
         @param pcDelimiter The list delimiter
-        @return The new list           
+        @return The new list
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC LONGCHAR AddEntry (pcList AS LONGCHAR,
                                             pcEntry AS LONGCHAR,
                                             pcDelimiter AS CHARACTER):
-        
-        IF pcList = "":U THEN 
-            RETURN pcEntry . 
-        ELSE 
+
+        IF pcList = "":U THEN
+            RETURN pcEntry .
+        ELSE
             RETURN pcList + pcDelimiter + pcEntry .
 
     END METHOD.
@@ -116,47 +116,47 @@ CLASS Consultingwerk.Util.ListHelper:
        Purpose: Adds those entries from the new entries list to the target list that
                 are not yet part of the list
        Notes:   Defaults to , as the list delimiter
-       @param pcTargetList The target list to add entries to 
+       @param pcTargetList The target list to add entries to
        @param pcNewEntries The list with the entries to add to the target list
        @return The list of resulting items
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CHARACTER AddUniqueEntries (pcTargetList AS CHARACTER,
                                                      pcNewEntries AS CHARACTER):
-        
+
         RETURN ListHelper:AddUniqueEntries (pcTargetList, pcNewEntries, ",":U) .
-        
-    END METHOD . 
-            
-	/*------------------------------------------------------------------------------
-	   Purpose: Adds those entries from the new entries list to the target list that
-	            are not yet part of the list
-	   Notes:
-	   @param pcTargetList The target list to add entries to 
-	   @param pcNewEntries The list with the entries to add to the target list
-	   @param pcDelimiter The list delimiter (for both lists)
-	   @return The list of resulting items
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC CHARACTER AddUniqueEntries (pcTargetList AS CHARACTER,
-    	                                             pcNewEntries AS CHARACTER,
-    	                                             pcDelimiter AS CHARACTER):
-		
+
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
+       Purpose: Adds those entries from the new entries list to the target list that
+                are not yet part of the list
+       Notes:
+       @param pcTargetList The target list to add entries to
+       @param pcNewEntries The list with the entries to add to the target list
+       @param pcDelimiter The list delimiter (for both lists)
+       @return The list of resulting items
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC STATIC CHARACTER AddUniqueEntries (pcTargetList AS CHARACTER,
+                                                     pcNewEntries AS CHARACTER,
+                                                     pcDelimiter AS CHARACTER):
+
         DEFINE VARIABLE i      AS INTEGER   NO-UNDO .
         DEFINE VARIABLE iCount AS INTEGER   NO-UNDO .
         DEFINE VARIABLE cEntry AS CHARACTER NO-UNDO .
-        
+
         ASSIGN iCount = NUM-ENTRIES (pcNewEntries, pcDelimiter) .
-        
+
         DO i = 1 TO iCount:
-            
-            ASSIGN cEntry = ENTRY (i, pcNewEntries, pcDelimiter) .   
-            
-            IF LOOKUP (cEntry, pcTargetList, pcDelimiter) = 0 THEN 
+
+            ASSIGN cEntry = ENTRY (i, pcNewEntries, pcDelimiter) .
+
+            IF LOOKUP (cEntry, pcTargetList, pcDelimiter) = 0 THEN
                 ASSIGN pcTargetList = SUBSTITUTE ("&1&2&3":U, pcTargetList, pcDelimiter, cEntry) .
         END.
-    
+
         RETURN TRIM (pcTargetList, pcDelimiter) .
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Converts a list of Name Value Pairs into a Character Dictionary for
@@ -170,7 +170,7 @@ CLASS Consultingwerk.Util.ListHelper:
     METHOD PUBLIC STATIC CharacterDictionary AlternatingListToDictionary (pcList AS CHARACTER,
                                                                           pcPairDelimiter AS CHARACTER,
                                                                           pcItemDelimiter AS CHARACTER):
-        
+
         DEFINE VARIABLE oDictionary AS CharacterDictionary NO-UNDO.
 
         DEFINE VARIABLE cItem  AS CHARACTER NO-UNDO.
@@ -180,70 +180,68 @@ CLASS Consultingwerk.Util.ListHelper:
 
         {Consultingwerk/Assertion/Assert/NotNullOrEmpty.i pcPairDelimiter "'Pair Delimiter'{&TRAN}"} .
         {Consultingwerk/Assertion/Assert/NotNullOrEmpty.i pcPairDelimiter "'Item Delimiter'{&TRAN}"} .
-        
+
         ASSIGN oDictionary = NEW CharacterDictionary ("":U, CHR(1), "":U, CHR(1)) .
 
         DO i = 1 TO NUM-ENTRIES (pcList, pcPairDelimiter):
 
-            ASSIGN cItem  = ENTRY (i, pcList, pcPairDelimiter) 
+            ASSIGN cItem  = ENTRY (i, pcList, pcPairDelimiter)
                    cName  = ENTRY (1, cItem, pcItemDelimiter)
                    cValue = "?":U .
-            
-            IF NUM-ENTRIES (cItem, pcItemDelimiter) > 1 THEN 
+
+            IF NUM-ENTRIES (cItem, pcItemDelimiter) > 1 THEN
                 ASSIGN cValue = ENTRY (2, cItem, pcItemDelimiter) .
-            
+
             oDictionary:Add (TRIM(cName), cValue) .
         END.
 
         RETURN oDictionary .
-    
+
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Checks a string against a list of one or more string matching patterns 
-        Notes:   ABL CAN-DO like function, restoring the pre OE11.0 behaviour. In OE11.0    
-                 CAN-DO has changed it's behaviour due to the support for multi-tenancy  
-                 Currently the support for negative matches (! character) is not implemented 
+        Purpose: Checks a string against a list of one or more string matching patterns
+        Notes:   ABL CAN-DO like function, restoring the pre OE11.0 behaviour. In OE11.0
+                 CAN-DO has changed it's behaviour due to the support for multi-tenancy
+                 Currently the support for negative matches (! character) is not implemented
         @param pcMatchesList The list of matching patterns
         @param pcString The string to verify
-        @return The function returns TRUE if the specified string matches an entry from the list 
+        @return The function returns TRUE if the specified string matches an entry from the list
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC LOGICAL CanDo (pcMatchesList AS CHARACTER,
-	                                    pcString AS CHARACTER):
+    METHOD PUBLIC STATIC LOGICAL CanDo (pcMatchesList AS CHARACTER,
+                                        pcString AS CHARACTER):
 
         DEFINE VARIABLE i        AS INTEGER   NO-UNDO .
-		DEFINE VARIABLE cPattern AS CHARACTER NO-UNDO .
-		
-		IF INDEX (pcMatchesList, "*":U) = 0 THEN 
-		    RETURN ListHelper:EntryIsInList (pcString, pcMatchesList) .
-		
-        DO i = 1 TO NUM-ENTRIES (pcMatchesList):
-            
-            ASSIGN cPattern = ENTRY (i, pcMatchesList) .
-            
-            IF pcString MATCHES cPattern THEN 
-                RETURN TRUE .  
-        END.
-        
-        RETURN FALSE . 
+        DEFINE VARIABLE cPattern AS CHARACTER NO-UNDO .
 
-	END METHOD .
+        IF INDEX (pcMatchesList, "*":U) = 0 THEN
+            RETURN ListHelper:EntryIsInList (pcString, pcMatchesList) .
+
+        DO i = 1 TO NUM-ENTRIES (pcMatchesList):
+
+            ASSIGN cPattern = ENTRY (i, pcMatchesList) .
+
+            IF pcString MATCHES cPattern THEN
+                RETURN TRUE .
+        END.
+
+        RETURN FALSE .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Converts a list that contains alternating pairs of names and 
+        Purpose: Converts a list that contains alternating pairs of names and
                  values in the form: key1,value1,key2,value2,key3,value3
-        Notes:   
+        Notes:
         @param pcList The charcater list to convert
-        @param pcDelimiter The delimiter between the Names and the Values 
+        @param pcDelimiter The delimiter between the Names and the Values
         @return The CharacterDictionary containing the Name and Value pairs
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC CharacterDictionary DelimitedListToDictionary (pcList AS CHARACTER,
                                                                  pcDelimiter AS CHARACTER):
-        
+
         DEFINE VARIABLE oDictionary AS CharacterDictionary NO-UNDO.
 
-        DEFINE VARIABLE cName  AS CHARACTER NO-UNDO.
-        DEFINE VARIABLE cValue AS CHARACTER NO-UNDO.
         DEFINE VARIABLE i      AS INTEGER   NO-UNDO.
 
         {Consultingwerk/Assertion/Assert/NotNullOrEmpty.i pcDelimiter "'Delimiter'{&TRAN}"} .
@@ -251,9 +249,9 @@ CLASS Consultingwerk.Util.ListHelper:
         ASSIGN oDictionary = NEW CharacterDictionary () .
 
         DO i = 1 TO NUM-ENTRIES (pcList, pcDelimiter) BY 2:
-            
+
             oDictionary:Add (ENTRY (i, pcList, pcDelimiter),
-                             ENTRY (i + 1, pcList, pcDelimiter)) . 
+                             ENTRY (i + 1, pcList, pcDelimiter)) .
         END.
 
         RETURN oDictionary .
@@ -262,7 +260,7 @@ CLASS Consultingwerk.Util.ListHelper:
 
     /*------------------------------------------------------------------------------
         Purpose: Returns if a String is contained in a comma delimited list
-        Notes:   As the ABL CAN-DO function is reserved for checking an ID against a 
+        Notes:   As the ABL CAN-DO function is reserved for checking an ID against a
                  list of ID patterns and was never intended for string/list matching
                  this method shoudl be used in many functiony, where the CAN-DO function
                  was falsely used. In OE11.0 the CAN-DO function has changed it's behaviour
@@ -272,21 +270,21 @@ CLASS Consultingwerk.Util.ListHelper:
         @param pcList The comma delimited list
         @return Logical value indicating if the String is contained in the comma delimited list
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC LOGICAL EntryIsInList (pcString AS CHARACTER,
-	                                            pcList AS CHARACTER):
-		
-		RETURN (LOOKUP (pcString, pcList) > 0 ).
+    METHOD PUBLIC STATIC LOGICAL EntryIsInList (pcString AS CHARACTER,
+                                                pcList AS CHARACTER):
 
-	END METHOD .
+        RETURN (LOOKUP (pcString, pcList) > 0 ).
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Returns if a String is contained in a delimited list
-        Notes:   As the ABL CAN-DO function is reserved for checking an ID against a 
+        Notes:   As the ABL CAN-DO function is reserved for checking an ID against a
                  list of ID patterns and was never intended for string/list matching
                  this method shoudl be used in many functiony, where the CAN-DO function
                  was falsely used. In OE11.0 the CAN-DO function has changed it's behaviour
                  when using the @ character in one of the arguments
-                 See: http://communities.progress.com/pcom/message/173455 
+                 See: http://communities.progress.com/pcom/message/173455
         @param pcString The String to locate in the list
         @param pcList The comma delimited list
         @param pcDelimiter The list delimited
@@ -295,7 +293,7 @@ CLASS Consultingwerk.Util.ListHelper:
     METHOD PUBLIC STATIC LOGICAL EntryIsInList (pcString AS CHARACTER,
                                                 pcList AS CHARACTER,
                                                 pcDelimiter AS CHARACTER):
-        
+
         RETURN (LOOKUP (pcString, pcList, pcDelimiter) > 0 ).
 
     END METHOD .
@@ -307,12 +305,13 @@ CLASS Consultingwerk.Util.ListHelper:
         @param pcList The delimited list
         @return The entry or ? when the index is not member of the list
     ------------------------------------------------------------------------------*/
-    METHOD PUBLIC STATIC CHARACTER EntryWhenAvailable (piEntry AS INTEGER, 
+    METHOD PUBLIC STATIC CHARACTER EntryWhenAvailable (piEntry AS INTEGER,
                                                        pcList AS CHARACTER):
 
-        RETURN ListHelper:EntryWhenAvailable (piEntry, pcList, ",":U) .                                                       
-    END.
-                                                           
+        RETURN ListHelper:EntryWhenAvailable (piEntry, pcList, ",":U) .
+
+    END METHOD .
+
     /*------------------------------------------------------------------------------
         Purpose: Returns the nth entry of the list, when that entry is availale
         Notes:   Returns ? when it's not a valid list index
@@ -321,111 +320,111 @@ CLASS Consultingwerk.Util.ListHelper:
         @param pcDelimiter The list delimiter
         @return The entry or ? when the index is not member of the list
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC CHARACTER EntryWhenAvailable (piEntry AS INTEGER, 
-	                                                   pcList AS CHARACTER,
-	                                                   pcDelimiter AS CHARACTER):
-		
-		IF pcList = "":U THEN 
-		    RETURN ? .
-		
-        IF piEntry > NUM-ENTRIES (pcList, pcDelimiter) THEN 
-            RETURN ? . 
-            
-        RETURN ENTRY (piEntry, pcList, pcDelimiter) .             
+    METHOD PUBLIC STATIC CHARACTER EntryWhenAvailable (piEntry AS INTEGER,
+                                                       pcList AS CHARACTER,
+                                                       pcDelimiter AS CHARACTER):
 
-	END METHOD .
+        IF pcList = "":U THEN
+            RETURN ? .
+
+        IF piEntry > NUM-ENTRIES (pcList, pcDelimiter) THEN
+            RETURN ? .
+
+        RETURN ENTRY (piEntry, pcList, pcDelimiter) .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Expands a List pattern  
+        Purpose: Expands a List pattern
         Notes:   Every entry in the pattern list that contains a "*" wild-card character
                  will be expanded with all matching entries from the source list
         @param pcPatternList The list with the pattern
         @param pcSourceList The list with all possible entries
-        @return The expanded pattern list 
+        @return The expanded pattern list
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CHARACTER ExpandListEntries (pcPatternList AS CHARACTER,
                                                       pcSourceList AS CHARACTER):
 
-        RETURN ListHelper:ExpandListEntries (pcPatternList, 
-                                             pcSourceList, 
-                                             ",":U) .        
+        RETURN ListHelper:ExpandListEntries (pcPatternList,
+                                             pcSourceList,
+                                             ",":U) .
 
     END METHOD .
-    
+
     /*------------------------------------------------------------------------------
-        Purpose: Expands a List pattern  
+        Purpose: Expands a List pattern
         Notes:   Every entry in the pattern list that contains a "*" wild-card character
                  will be expanded with all matching entries from the source list
         @param pcPatternList The list with the pattern
         @param pcSourceList The list with all possible entries
         @param pcDelimiter The delimiter for both lists
-        @return The expanded pattern list 
+        @return The expanded pattern list
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC CHARACTER ExpandListEntries (pcPatternList AS CHARACTER,
+    METHOD PUBLIC STATIC CHARACTER ExpandListEntries (pcPatternList AS CHARACTER,
                                                       pcSourceList AS CHARACTER,
                                                       pcDelimiter AS CHARACTER):
-		
+
         DEFINE VARIABLE cReturn      AS CHARACTER NO-UNDO .
         DEFINE VARIABLE cEntry       AS CHARACTER NO-UNDO .
         DEFINE VARIABLE cSourceEntry AS CHARACTER NO-UNDO .
         DEFINE VARIABLE i            AS INTEGER   NO-UNDO .
         DEFINE VARIABLE j            AS INTEGER   NO-UNDO .
-        
+
         DO i = 1 TO NUM-ENTRIES (pcPatternList, pcDelimiter) ON ERROR UNDO, THROW:
 
             ASSIGN cEntry = ENTRY (i, pcPatternList, pcDelimiter) .
 
             IF INDEX (cEntry, "*":U) > 0 THEN DO ON ERROR UNDO, THROW:
-            
+
                 DO j = 1 TO NUM-ENTRIES (pcSourceList, pcDelimiter) ON ERROR UNDO, THROW:
-                
+
                     ASSIGN cSourceEntry = ENTRY (j, pcSourceList, pcDelimiter) .
-                    
-                    IF cSourceEntry MATCHES cEntry THEN         
+
+                    IF cSourceEntry MATCHES cEntry THEN
                         ASSIGN cReturn = cReturn + (IF cReturn > "":U THEN pcDelimiter ELSE "":U) + cSourceEntry  .
                 END.
             END.
-            ELSE 
-                IF LOOKUP (cEntry, pcSourceList) > 0 THEN 
+            ELSE
+                IF LOOKUP (cEntry, pcSourceList) > 0 THEN
                     ASSIGN cReturn = cReturn + (IF cReturn > "":U THEN pcDelimiter ELSE "":U) + cEntry .
         END.
 
         RETURN cReturn .
 
-	END METHOD .
-
-	/*------------------------------------------------------------------------------
-	    Purpose: Returns the first list entry
-	    Notes:
-	    @param pcList The list to return the first entry of
-	    @param pcDelimiter The list delimiter
-	    @return The first entry
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC CHARACTER FirstEntry (pcList AS CHARACTER, 
-	                                           pcDelimiter AS CHARACTER):
-		
-		RETURN ENTRY (1, pcList, pcDelimiter).
-
-	END METHOD.
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns the first entry of a comma delimited list 
+        Purpose: Returns the first list entry
+        Notes:
+        @param pcList The list to return the first entry of
+        @param pcDelimiter The list delimiter
+        @return The first entry
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC STATIC CHARACTER FirstEntry (pcList AS CHARACTER,
+                                               pcDelimiter AS CHARACTER):
+
+        RETURN ENTRY (1, pcList, pcDelimiter).
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the first entry of a comma delimited list
         Notes:
         @param pcList The list to return the first entry of
         @return The first entry
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CHARACTER FirstEntry (pcList AS CHARACTER):
-        
+
         RETURN ENTRY (1, pcList).
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Inserts an Entry (or a list of Entries) into a List at position                                                                      
-        Notes:  
-        @param pcSourceList The source list 
+        Purpose: Inserts an Entry (or a list of Entries) into a List at position
+        Notes:
+        @param pcSourceList The source list
         @param piPosition The position the pcNewEntry should be inserted at
-        @param pcNewEntry The entry to insert at piPositon                                                                
+        @param pcNewEntry The entry to insert at piPositon
         @param pcSeparator The list-separator to for other lists
         @return The new LONGCHAR List
     ------------------------------------------------------------------------------*/
@@ -433,29 +432,60 @@ CLASS Consultingwerk.Util.ListHelper:
                                                piPosition AS INTEGER,
                                                pcNewEntry AS CHARACTER,
                                                pcSeparator AS CHARACTER):
-        
+
         DEFINE VARIABLE cBefore AS LONGCHAR NO-UNDO.
         DEFINE VARIABLE cAfter  AS LONGCHAR NO-UNDO.
 
-        IF piPosition > 1 THEN 
+        IF piPosition > 1 THEN
             ASSIGN cBefore = ListHelper:ListToEntry (pcSourceList, piPosition - 1, pcSeparator) .
 
-        IF piPosition <= NUM-ENTRIES (pcSourceList, pcSeparator) THEN 
+        IF piPosition <= NUM-ENTRIES (pcSourceList, pcSeparator) THEN
             ASSIGN cAfter = ListHelper:ListStartingEntry (pcSourceList, piPosition, pcSeparator) .
 
-        RETURN cBefore + 
+        RETURN cBefore +
                (IF cBefore > "":U THEN pcSeparator ELSE "":U) +
                pcNewEntry +
                (IF cAfter > "":U THEN pcSeparator ELSE "":U) +
                cAfter.
     END METHOD.
-    
+
     /*------------------------------------------------------------------------------
-        Purpose: Inserts an Entry (or a list of Entries) into a List at position                                                                        
-        Notes:  
-        @param pcSourceList The source list    
+        Purpose: Inserts an Entry (or a list of Entries) into a List at position
+        Notes:
+        @param pcSourceList The source list
         @param piPosition The position the pcNewEntry should be inserted at
-        @param pcNewEntry The entry to insert at piPositon                                                                  
+        @param pcNewEntry The entry to insert at piPositon
+        @param pcSeparator The list-separator to for other lists
+        @return The new LONGCHAR List
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC STATIC LONGCHAR InsertEntry (pcSourceList AS LONGCHAR,
+                                               piPosition AS INTEGER,
+                                               pcNewEntry AS LONGCHAR,
+                                               pcSeparator AS CHARACTER):
+
+        DEFINE VARIABLE cBefore AS LONGCHAR NO-UNDO.
+        DEFINE VARIABLE cAfter  AS LONGCHAR NO-UNDO.
+
+        IF piPosition > 1 THEN
+            ASSIGN cBefore = ListHelper:ListToEntry (pcSourceList, piPosition - 1, pcSeparator) .
+
+        IF piPosition <= NUM-ENTRIES (pcSourceList, pcSeparator) THEN
+            ASSIGN cAfter = ListHelper:ListStartingEntry (pcSourceList, piPosition, pcSeparator) .
+
+        RETURN cBefore +
+               (IF cBefore > "":U THEN pcSeparator ELSE "":U) +
+               pcNewEntry +
+               (IF cAfter > "":U THEN pcSeparator ELSE "":U) +
+               cAfter.
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Inserts an Entry (or a list of Entries) into a List at position
+        Notes:
+        @param pcSourceList The source list
+        @param piPosition The position the pcNewEntry should be inserted at
+        @param pcNewEntry The entry to insert at piPositon
         @param pcSeparator The list-separator to for other lists
         @return The new CHARACTER List
     ------------------------------------------------------------------------------*/
@@ -463,14 +493,14 @@ CLASS Consultingwerk.Util.ListHelper:
                                                 piPosition AS INTEGER,
                                                 pcNewEntry AS CHARACTER,
                                                 pcSeparator AS CHARACTER):
-        
+
         DEFINE VARIABLE cBefore AS CHARACTER NO-UNDO.
         DEFINE VARIABLE cAfter  AS CHARACTER NO-UNDO.
 
-        IF piPosition > 1 THEN 
+        IF piPosition > 1 THEN
             ASSIGN cBefore = ListHelper:ListToEntry (pcSourceList, piPosition - 1, pcSeparator) .
 
-        IF piPosition <= NUM-ENTRIES (pcSourceList, pcSeparator) THEN 
+        IF piPosition <= NUM-ENTRIES (pcSourceList, pcSeparator) THEN
             ASSIGN cAfter = ListHelper:ListStartingEntry (pcSourceList, piPosition, pcSeparator) .
 
         RETURN SUBSTITUTE ("&1&2&3&4&5":U,
@@ -482,35 +512,35 @@ CLASS Consultingwerk.Util.ListHelper:
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Inserts an Entry (or a list of Entries) into a List at position                                                                      
+        Purpose: Inserts an Entry (or a list of Entries) into a List at position
         Notes:   Defaults to "," as the list delimiter
-        @param pcSourceList The source list 
+        @param pcSourceList The source list
         @param piPosition The position the pcNewEntry should be inserted at
-        @param pcNewEntry The entry to insert at piPositon                                                                
+        @param pcNewEntry The entry to insert at piPositon
         @return The new LONGCHAR List
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC LONGCHAR InsertEntry (pcSourceList AS LONGCHAR,
                                                piPosition AS INTEGER,
                                                pcNewEntry AS CHARACTER):
-        
+
         RETURN ListHelper:InsertEntry (pcSourceList,
                                        piPosition,
                                        pcNewEntry,
                                        ",":U) .
     END METHOD .
-    
+
     /*------------------------------------------------------------------------------
-        Purpose: Inserts an Entry (or a list of Entries) into a List at position                                                                      
+        Purpose: Inserts an Entry (or a list of Entries) into a List at position
         Notes:   Defaults to "," as the list delimiter
-        @param pcSourceList The source list 
+        @param pcSourceList The source list
         @param piPosition The position the pcNewEntry should be inserted at
         @param pcNewEntry The entry to insert at piPositon
-        @return The new CHARACTER list                                                                
+        @return The new CHARACTER list
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CHARACTER InsertEntry (pcSourceList AS CHARACTER,
                                                 piPosition AS INTEGER,
                                                 pcNewEntry AS CHARACTER):
-        
+
         RETURN ListHelper:InsertEntry (pcSourceList,
                                        piPosition,
                                        pcNewEntry,
@@ -524,82 +554,82 @@ CLASS Consultingwerk.Util.ListHelper:
         @param pcDelimiter The list delimiter
         @return The last entry
     ------------------------------------------------------------------------------*/
-    METHOD PUBLIC STATIC CHARACTER LastEntry (pcList AS CHARACTER, 
+    METHOD PUBLIC STATIC CHARACTER LastEntry (pcList AS CHARACTER,
                                               pcDelimiter AS CHARACTER):
-        
+
         RETURN ENTRY (NUM-ENTRIES (pcList, pcDelimiter), pcList, pcDelimiter).
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns the last entry of a comma delimited list 
+        Purpose: Returns the last entry of a comma delimited list
         Notes:
         @param pcList The list to return the last entry of
         @return The last entry
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CHARACTER LastEntry (pcList AS CHARACTER):
-        
+
         RETURN ENTRY (NUM-ENTRIES (pcList), pcList).
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns a List of those Entries from the total list that are NOT 
-                 contained in the matching list 
-        Notes:   
+        Purpose: Returns a List of those Entries from the total list that are NOT
+                 contained in the matching list
+        Notes:
         @param pcTotalList The total list of entries
         @param pcMatchingList The list of match with the total list
         @return The list of entries of the total list that are not contained in the matching list
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CHARACTER ListEntriesNotContainedInList (pcTotalList AS CHARACTER,
                                                                   pcMatchingList AS CHARACTER):
-        
+
         RETURN ListEntriesNotContainedInList (pcTotalList,
                                               pcMatchingList,
                                               ?) .
-                                              
-    END.                                                                      
-                                                                      
+
+    END METHOD .
+
     /*------------------------------------------------------------------------------
-        Purpose: Returns a List of those Entries from the total list that are NOT 
-                 contained in the matching list 
-        Notes:   
+        Purpose: Returns a List of those Entries from the total list that are NOT
+                 contained in the matching list
+        Notes:
         @param pcTotalList The total list of entries
         @param pcMatchingList The list of match with the total list
         @param pcDelimiter The delimiters used in both lists
         @return The list of entries of the total list that are not contained in the matching list
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC CHARACTER ListEntriesNotContainedInList (pcTotalList AS CHARACTER,
-	                                                              pcMatchingList AS CHARACTER,
-	                                                              pcDelimiter AS CHARACTER):
-		
-		DEFINE VARIABLE cResult AS CHARACTER NO-UNDO .
+    METHOD PUBLIC STATIC CHARACTER ListEntriesNotContainedInList (pcTotalList AS CHARACTER,
+                                                                  pcMatchingList AS CHARACTER,
+                                                                  pcDelimiter AS CHARACTER):
+
+        DEFINE VARIABLE cResult AS CHARACTER NO-UNDO .
         DEFINE VARIABLE cEntry  AS CHARACTER NO-UNDO .
         DEFINE VARIABLE i       AS INTEGER   NO-UNDO .
-        
-        IF pcDelimiter > "":U THEN . 
-        ELSE pcDelimiter = ",":U . 
-        
 
-		DO i = 1 TO NUM-ENTRIES (pcTotalList, pcDelimiter) ON ERROR UNDO, THROW:
-		    ASSIGN cEntry = ENTRY (i, pcTotalList, pcDelimiter) .
-		    
-		    IF LOOKUP (cEntry, pcMatchingList, pcDelimiter) > 0 THEN . 
+        IF pcDelimiter > "":U THEN .
+        ELSE pcDelimiter = ",":U .
+
+
+        DO i = 1 TO NUM-ENTRIES (pcTotalList, pcDelimiter) ON ERROR UNDO, THROW:
+            ASSIGN cEntry = ENTRY (i, pcTotalList, pcDelimiter) .
+
+            IF LOOKUP (cEntry, pcMatchingList, pcDelimiter) > 0 THEN .
             ELSE
-		        cResult = SUBSTITUTE ("&1&2&3":U,
-		                              cResult,
-		                              pcDelimiter,
-		                              cEntry) .    
-		END.
-		
-		RETURN  TRIM (cResult, pcDelimiter) .
+                cResult = SUBSTITUTE ("&1&2&3":U,
+                                      cResult,
+                                      pcDelimiter,
+                                      cEntry) .
+        END.
 
-	END METHOD .
+        RETURN  TRIM (cResult, pcDelimiter) .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns a list with all entries of the source list starting from the 
-                 piStart Entry                                                                        
-        Notes:                  
+        Purpose: Returns a list with all entries of the source list starting from the
+                 piStart Entry
+        Notes:
         @param pcList The source list
         @param piStart The starting index form the source list for entries getting into the target list
         @param pcSeparator The list-separator to for other lists
@@ -608,30 +638,32 @@ CLASS Consultingwerk.Util.ListHelper:
     METHOD PUBLIC STATIC LONGCHAR ListStartingEntry (pcList AS LONGCHAR,
                                                      piStart AS INTEGER,
                                                      pcSeparator AS CHARACTER):
-        
+
         DEFINE VARIABLE cRet   AS LONGCHAR NO-UNDO.
         DEFINE VARIABLE i      AS INTEGER  NO-UNDO.
         DEFINE VARIABLE iCount AS INTEGER  NO-UNDO.
-        
-        IF NUM-ENTRIES (pcList, pcSeparator) < piStart THEN RETURN "":U .
-        
+
+        IF NUM-ENTRIES (pcList, pcSeparator) < piStart THEN
+            RETURN "":U .
+
         ASSIGN iCount = NUM-ENTRIES (pcList, pcSeparator) .
-        
+
         DO i = piStart TO iCount:
-            
-            IF i > piStart THEN ASSIGN cRet = cRet + pcSeparator .
-            
-            ASSIGN cRet = cRet + ENTRY (i, pcList, pcSeparator) .               
+
+            IF i > piStart THEN
+                ASSIGN cRet = cRet + pcSeparator .
+
+            ASSIGN cRet = cRet + ENTRY (i, pcList, pcSeparator) .
         END.
-        
+
         RETURN cRet.
 
     END METHOD.
-    
+
     /*------------------------------------------------------------------------------
-        Purpose: Returns a list with all entries of the source list starting from the 
-                 piStart Entry                                                                        
-        Notes:                  
+        Purpose: Returns a list with all entries of the source list starting from the
+                 piStart Entry
+        Notes:
         @param pcList The source list
         @param piStart The starting index form the source list for entries getting into the target list
         @param pcSeparator The list-separator to for other lists
@@ -640,58 +672,62 @@ CLASS Consultingwerk.Util.ListHelper:
     METHOD PUBLIC STATIC CHARACTER ListStartingEntry (pcList AS CHARACTER,
                                                       piStart AS INTEGER,
                                                       pcSeparator AS CHARACTER):
-        
+
         DEFINE VARIABLE cRet   AS CHARACTER NO-UNDO.
         DEFINE VARIABLE i      AS INTEGER   NO-UNDO.
         DEFINE VARIABLE iCount AS INTEGER   NO-UNDO.
-        
-        IF NUM-ENTRIES (pcList, pcSeparator) < piStart THEN RETURN "":U .
-        
+
+        IF NUM-ENTRIES (pcList, pcSeparator) < piStart THEN
+            RETURN "":U .
+
         ASSIGN iCount = NUM-ENTRIES (pcList, pcSeparator) .
-        
+
         DO i = piStart TO iCount:
-            
-            IF i > piStart THEN ASSIGN cRet = cRet + pcSeparator .
-            
-            ASSIGN cRet = cRet + ENTRY (i, pcList, pcSeparator) .                
+
+            IF i > piStart THEN
+                ASSIGN cRet = cRet + pcSeparator .
+
+            ASSIGN cRet = cRet + ENTRY (i, pcList, pcSeparator) .
         END.
-        
+
         RETURN cRet.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns a list with all entries of the source list starting from the 
-                 piStart Entry                                                                        
-        Notes:   Defaults to "," as the list delimiter                  
+        Purpose: Returns a list with all entries of the source list starting from the
+                 piStart Entry
+        Notes:   Defaults to comma as the list delimiter
         @param pcList The source list
         @param piStart The starting index form the source list for entries getting into the target list
         @return The target list
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC LONGCHAR ListStartingEntry (pcList AS LONGCHAR,
                                                      piStart AS INTEGER):
-        
-        RETURN ListHelper:ListStartingEntry (pcList, piStart, ",":U) .                                                  
-    END.  
-    
+
+        RETURN ListHelper:ListStartingEntry (pcList, piStart, ",":U) .
+
+    END METHOD .
+
     /*------------------------------------------------------------------------------
-        Purpose: Returns a list with all entries of the source list starting from the 
-                 piStart Entry                                                                        
-        Notes:   Defaults to "," as the list delimiter                  
+        Purpose: Returns a list with all entries of the source list starting from the
+                 piStart Entry
+        Notes:   Defaults to comma as the list delimiter
         @param pcList The source list
         @param piStart The starting index form the source list for entries getting into the target list
         @return The target list
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CHARACTER ListStartingEntry (pcList AS CHARACTER,
                                                       piStart AS INTEGER):
-        
-        RETURN ListHelper:ListStartingEntry (pcList, piStart, ",":U) .                                                  
-    END.                                                          
+
+        RETURN ListHelper:ListStartingEntry (pcList, piStart, ",":U) .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns a list with all entries of the source list up to the 
-                 piTo Entry                                                                        
-        Notes:                  
+        Purpose: Returns a list with all entries of the source list up to the
+                 piTo Entry
+        Notes:
         @param pcList The source list
         @param piTo The last index form the source list for entries getting into the target list
         @param pcSeparator The list-separator to for other lists
@@ -700,28 +736,29 @@ CLASS Consultingwerk.Util.ListHelper:
     METHOD PUBLIC STATIC LONGCHAR ListToEntry (pcList AS LONGCHAR,
                                                piTo AS INTEGER,
                                                pcSeparator AS CHARACTER):
-        
+
         DEFINE VARIABLE cRet   AS LONGCHAR NO-UNDO.
         DEFINE VARIABLE i      AS INTEGER  NO-UNDO.
         DEFINE VARIABLE iCount AS INTEGER  NO-UNDO.
-        
-        ASSIGN iCount = MIN (NUM-ENTRIES (pcList, pcSeparator), piTo) .
-        
+
+        ASSIGN iCount = MINIMUM (NUM-ENTRIES (pcList, pcSeparator), piTo) .
+
         DO i = 1 TO iCount:
-            
-            IF i > 1 THEN ASSIGN cRet = cRet + pcSeparator .
-            
-            ASSIGN cRet = cRet + ENTRY (i, pcList, pcSeparator) .               
+
+            IF i > 1 THEN
+                ASSIGN cRet = cRet + pcSeparator .
+
+            ASSIGN cRet = cRet + ENTRY (i, pcList, pcSeparator) .
         END.
-        
+
         RETURN cRet.
-        
+
     END METHOD.
-    
+
     /*------------------------------------------------------------------------------
-        Purpose: Returns a list with all entries of the source list up to the 
-                 piTo Entry                                                                        
-        Notes:                  
+        Purpose: Returns a list with all entries of the source list up to the
+                 piTo Entry
+        Notes:
         @param pcList The source list
         @param piTo The last index form the source list for entries getting into the target list
         @param pcSeparator The list-separator to for other lists
@@ -730,91 +767,129 @@ CLASS Consultingwerk.Util.ListHelper:
     METHOD PUBLIC STATIC CHARACTER ListToEntry (pcList AS CHARACTER,
                                                 piTo AS INTEGER,
                                                 pcSeparator AS CHARACTER):
-        
+
         DEFINE VARIABLE cRet   AS CHARACTER NO-UNDO.
         DEFINE VARIABLE i      AS INTEGER   NO-UNDO.
         DEFINE VARIABLE iCount AS INTEGER   NO-UNDO.
-        
-        ASSIGN iCount = MIN (NUM-ENTRIES (pcList, pcSeparator), piTo) .
-        
+
+        ASSIGN iCount = MINIMUM (NUM-ENTRIES (pcList, pcSeparator), piTo) .
+
         DO i = 1 TO iCount:
-            
-            IF i > 1 THEN ASSIGN cRet = cRet + pcSeparator .
-            
-            ASSIGN cRet = cRet + ENTRY (i, pcList, pcSeparator) .               
+
+            IF i > 1 THEN
+                ASSIGN cRet = cRet + pcSeparator .
+
+            ASSIGN cRet = cRet + ENTRY (i, pcList, pcSeparator) .
         END.
-        
+
         RETURN cRet.
-        
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns a list with all entries of the source list up to the 
-                 piTo Entry                                                                        
-        Notes:   Defaults to "," as the list delimiter                  
+        Purpose: Returns a list with all entries of the source list up to the
+                 piTo Entry
+        Notes:   Defaults to "," as the list delimiter
         @param pcList The source list
         @param piTo The last index form the source list for entries getting into the target list
         @return The target list
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC LONGCHAR ListToEntry (pcList AS LONGCHAR,
                                                piTo AS INTEGER):
-        
+
         RETURN ListHelper:ListToEntry (pcList,
                                        piTo,
                                        " ":U) .
 
     END METHOD.
-    
+
     /*------------------------------------------------------------------------------
-        Purpose: Returns a list with all entries of the source list up to the 
-                 piTo Entry                                                                        
-        Notes:   Defaults to "," as the list delimiter                  
+        Purpose: Returns a list with all entries of the source list up to the
+                 piTo Entry
+        Notes:   Defaults to "," as the list delimiter
         @param pcList The source list
         @param piTo The last index form the source list for entries getting into the target list
         @return The target list
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CHARACTER ListToEntry (pcList AS CHARACTER,
                                                 piTo AS INTEGER):
-        
+
         RETURN ListHelper:ListToEntry (pcList,
                                        piTo,
                                        " ":U) .
 
     END METHOD.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Merges two lists, effectively adding those entries of the second list
-	             to the first list that are not yet contained
-	    Notes:   Both lists are expected to use the same separator
+    /**
+     * Purpose: Returns the LENGTH of the longest list entry
+     * Notes:
+     * @param pcList The list to return the longest entry of
+     * @return The length of the longest list entry
+     */
+    METHOD PUBLIC STATIC INTEGER LongestEntry (pcList AS CHARACTER):
+
+        RETURN ListHelper:LongestEntry (pcList, ",":U).
+
+    END METHOD.
+
+    /**
+     * Purpose: Returns the LENGTH of the longest list entry
+     * Notes:
+     * @param pcList The list to return the longest entry of
+     * @param pcDelimiter The list delimiter
+     * @return The length of the longest list entry
+     */
+    METHOD PUBLIC STATIC INTEGER LongestEntry (pcList AS CHARACTER, pcDelimiter AS CHARACTER):
+
+        DEFINE VARIABLE iEntries AS INTEGER NO-UNDO .
+        DEFINE VARIABLE i        AS INTEGER NO-UNDO .
+        DEFINE VARIABLE iReturn  AS INTEGER NO-UNDO INITIAL 0 .
+
+        ASSIGN iEntries = NUM-ENTRIES (pcList, pcDelimiter) .
+
+        DO i = 1 TO iEntries:
+
+            ASSIGN iReturn = MAXIMUM (iReturn, LENGTH (ENTRY (i, pcList, pcDelimiter), "CHARACTER":U)) .
+
+        END.
+
+        RETURN iReturn .
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Merges two lists, effectively adding those entries of the second list
+                 to the first list that are not yet contained
+        Notes:   Both lists are expected to use the same separator
         @param pcFirstList The first list
         @param pcSecondList The second list
         @param pcSeparator The optional separator for the list
-        @return The list that contains the unique entries from both lists                                
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC CHARACTER MergeLists (pcFirstList AS CHARACTER, 
-	                                           pcSecondList AS CHARACTER,
-	                                           pcSeparator AS CHARACTER):
-		
-		DEFINE VARIABLE i      AS INTEGER   NO-UNDO .
+        @return The list that contains the unique entries from both lists
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC STATIC CHARACTER MergeLists (pcFirstList AS CHARACTER,
+                                               pcSecondList AS CHARACTER,
+                                               pcSeparator AS CHARACTER):
+
+        DEFINE VARIABLE i      AS INTEGER   NO-UNDO .
         DEFINE VARIABLE iCount AS INTEGER   NO-UNDO .
         DEFINE VARIABLE cEntry AS CHARACTER NO-UNDO .
-		
-		ASSIGN iCount = NUM-ENTRIES (pcSecondList, pcSeparator) .
-		
+
+        ASSIGN iCount = NUM-ENTRIES (pcSecondList, pcSeparator) .
+
         DO i = 1 TO iCount:
 
             ASSIGN cEntry = ENTRY (i, pcSecondList, pcSeparator) .
 
-            IF NOT ListHelper:EntryIsInList (cEntry, pcFirstList, pcSeparator) THEN 
+            IF NOT ListHelper:EntryIsInList (cEntry, pcFirstList, pcSeparator) THEN
                 ASSIGN pcFirstList = SUBSTITUTE ("&1&2&3":U,
                                                  pcFirstList,
                                                  (IF pcFirstList > "":U THEN pcSeparator ELSE "":U),
                                                  cEntry) .
         END.
 
-		RETURN pcFirstList .
+        RETURN pcFirstList .
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Merges two lists, effectively adding those entries of the second list
@@ -822,24 +897,65 @@ CLASS Consultingwerk.Util.ListHelper:
         Notes:   Both lists are expected to use the comma as the seperator
         @param pcFirstList The first list
         @param pcSecondList The second list
-        @return The list that contains the unique entries from both lists                                
+        @return The list that contains the unique entries from both lists
     ------------------------------------------------------------------------------*/
-    METHOD PUBLIC STATIC CHARACTER MergeLists (pcFirstList AS CHARACTER, 
+    METHOD PUBLIC STATIC CHARACTER MergeLists (pcFirstList AS CHARACTER,
                                                pcSecondList AS CHARACTER):
-        
+
         RETURN ListHelper:MergeLists (pcFirstList, pcSecondList, ",":U).
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Removes emptry entries from the list 
-        Notes:   
-        @param pcList The list to remove entries from 
+        Purpose: Removes all occurences of the entry from the List
+        Notes:
+        @param pcList The list to remove entries from
+        @param pcEntry The entry to remove
+        @return The list without the entry
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC STATIC CHARACTER Remove (pcList AS CHARACTER,
+                                           pcEntry AS CHARACTER):
+
+        RETURN ListHelper:Remove (pcList, pcEntry, ",":U) .
+
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Removes all occurences of the entry from the List
+        Notes:
+        @param pcList The list to remove entries from
+        @param pcEntry The entry to remove
+        @param pcDelimiter The list delimiter
+        @return The list without the entry
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC STATIC CHARACTER Remove (pcList AS CHARACTER,
+                                           pcEntry AS CHARACTER,
+                                           pcDelimiter AS CHARACTER):
+
+        DEFINE VARIABLE iPos AS INTEGER NO-UNDO.
+
+        iPos = LOOKUP (pcEntry, pcList, pcDelimiter) .
+
+        DO WHILE iPos > 0:
+
+            ASSIGN pcList = ListHelper:RemoveEntry (pcList, iPos, pcDelimiter)
+                   iPos   = LOOKUP (pcEntry, pcList, pcDelimiter) .
+
+        END.
+
+        RETURN pcList  .
+
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Removes emptry entries from the list
+        Notes:
+        @param pcList The list to remove entries from
         @return The list without empty entries
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CHARACTER RemoveEmptyEntries (pcList AS CHARACTER):
 
-        IF pcList = "":U OR pcList = ? THEN 
+        IF pcList = "":U OR pcList = ? THEN
             RETURN "":U.
 
         RETURN ListHelper:RemoveEmptyEntries (pcList, ",":U) .
@@ -847,62 +963,63 @@ CLASS Consultingwerk.Util.ListHelper:
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Removes emptry entries from the list 
-        Notes:   
-        @param pcList The list to remove entries from 
-        @param pcListDelimiter The list delimiter 
+        Purpose: Removes emptry entries from the list
+        Notes:
+        @param pcList The list to remove entries from
+        @param pcListDelimiter The list delimiter
         @return The list without empty entries
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC CHARACTER RemoveEmptyEntries (pcList AS CHARACTER,
-	                                                   pcListDelimiter AS CHARACTER):
-	
-	    DEFINE VARIABLE iEntry AS INTEGER NO-UNDO INIT 1.
-	
-	    IF pcList = "":U OR pcList = ? THEN 
-	        RETURN "":U.
-		
-		REPEAT:
-		    DO WHILE pcList > "":U AND ENTRY (iEntry, pcList, pcListDelimiter) = "":U:
-		        ASSIGN pcList = ListHelper:RemoveEntry (pcList, iEntry, pcListDelimiter) .
-		    END.
-		    
-		    iEntry = iEntry + 1.
-		    
-		    IF iEntry > NUM-ENTRIES (pcList, pcListDelimiter) THEN 
-		        LEAVE . 
-		END .
-		
-		RETURN pcList .
+    METHOD PUBLIC STATIC CHARACTER RemoveEmptyEntries (pcList AS CHARACTER,
+                                                       pcListDelimiter AS CHARACTER):
 
-	END METHOD .
+        DEFINE VARIABLE iEntry AS INTEGER NO-UNDO INITIAL 1.
+
+        IF pcList = "":U OR pcList = ? THEN
+            RETURN "":U.
+
+        REPEAT:
+            DO WHILE pcList > "":U AND ENTRY (iEntry, pcList, pcListDelimiter) = "":U:
+                ASSIGN pcList = ListHelper:RemoveEntry (pcList, iEntry, pcListDelimiter) .
+            END.
+
+            iEntry = iEntry + 1.
+
+            IF iEntry > NUM-ENTRIES (pcList, pcListDelimiter) THEN
+                LEAVE .
+        END .
+
+        RETURN pcList .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Removes an Entry from the List                                                                       
-        Notes:                                  
+        Purpose: Removes an Entry from the List
+        Notes:
         @param pcList The source list
         @param piEntry the list index to be removed
         @param pcSeparator The optional separator for the list
-        @return The list without the given entry                                      
+        @return The list without the given entry
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC LONGCHAR RemoveEntry  (pcList      AS LONGCHAR,
                                                 piEntry     AS INTEGER,
                                                 pcSeparator AS CHARACTER):
-        
+
         DEFINE VARIABLE cReturn AS LONGCHAR NO-UNDO.
         DEFINE VARIABLE iCount  AS INTEGER  NO-UNDO.
         DEFINE VARIABLE i       AS INTEGER  NO-UNDO.
 
         ASSIGN iCount = NUM-ENTRIES (pcList, pcSeparator) .
-        
+
         /* When the list is shorter then piEntry entries, return the list */
-        IF iCount < piEntry THEN 
+        IF iCount < piEntry THEN
             RETURN pcList .
 
         DO i = 1 TO NUM-ENTRIES (pcList, pcSeparator):
-            
-            IF i = piEntry THEN NEXT . 
-            
-            ASSIGN cReturn = cReturn + 
+
+            IF i = piEntry THEN
+                NEXT .
+
+            ASSIGN cReturn = cReturn +
                              (IF cReturn > "":U THEN pcSeparator ELSE "":U) +
                              ENTRY (i, pcList, pcSeparator) .
         END.
@@ -912,32 +1029,33 @@ CLASS Consultingwerk.Util.ListHelper:
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Removes an Entry from the List                                                                        
-        Notes:                                  
+        Purpose: Removes an Entry from the List
+        Notes:
         @param pcList The source list
         @param piEntry the list index to be removed
         @param pcSeparator The optional separator for the list
-        @return The list without the given entry                                       
+        @return The list without the given entry
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CHARACTER RemoveEntry  (pcList      AS CHARACTER,
                                                  piEntry     AS INTEGER,
                                                  pcSeparator AS CHARACTER):
-        
+
         DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
         DEFINE VARIABLE iCount  AS INTEGER   NO-UNDO.
         DEFINE VARIABLE i       AS INTEGER   NO-UNDO.
 
         ASSIGN iCount = NUM-ENTRIES (pcList, pcSeparator) .
-        
+
         /* When the list is shorter then piEntry entries, return the list */
-        IF iCount < piEntry THEN 
+        IF iCount < piEntry THEN
             RETURN pcList .
 
         DO i = 1 TO NUM-ENTRIES (pcList, pcSeparator):
-            
-            IF i = piEntry THEN NEXT . 
-            
-            ASSIGN cReturn = cReturn + 
+
+            IF i = piEntry THEN
+                NEXT .
+
+            ASSIGN cReturn = cReturn +
                              (IF cReturn > "":U THEN pcSeparator ELSE "":U) +
                              ENTRY (i, pcList, pcSeparator) .
         END.
@@ -947,145 +1065,145 @@ CLASS Consultingwerk.Util.ListHelper:
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Removes an Entry from the List                                                                       
-        Notes:   Defaults to "," as the list delimiter                  
+        Purpose: Removes an Entry from the List
+        Notes:   Defaults to "," as the list delimiter
         @param pcList The source list
         @param piEntry the list index to be removed
-        @return The list without the given entry                                      
+        @return The list without the given entry
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC LONGCHAR RemoveEntry  (pcList AS LONGCHAR,
                                                 piEntry AS INTEGER):
-        
+
         RETURN ListHelper:RemoveEntry (pcList, piEntry, ",":U) .
 
     END METHOD.
-    
+
     /*------------------------------------------------------------------------------
-        Purpose: Removes an Entry from the List                                                                       
-        Notes:   Defaults to "," as the list delimiter                  
+        Purpose: Removes an Entry from the List
+        Notes:   Defaults to "," as the list delimiter
         @param pcList The source list
         @param piEntry the list index to be removed
-        @return The list without the given entry                                      
+        @return The list without the given entry
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CHARACTER RemoveEntry  (pcList AS CHARACTER,
                                                  piEntry AS INTEGER):
-        
+
         RETURN ListHelper:RemoveEntry (pcList, piEntry, ",":U) .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns the delimited list sorted  
-        Notes:   
+        Purpose: Returns the delimited list sorted
+        Notes:
         @param pcList The list to sort
         @return The sorted list
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CHARACTER SortList (pcList AS CHARACTER):
-        
-        DEFINE VARIABLE oSortHelper AS SortHelper NO-UNDO . 
-        
-        oSortHelper = NEW SortHelper () . 
-        
+
+        DEFINE VARIABLE oSortHelper AS SortHelper NO-UNDO .
+
+        oSortHelper = NEW SortHelper () .
+
         RETURN oSortHelper:SortList (pcList, ",":U) .
-        
+
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns the delimited list sorted  
-        Notes:   
+        Purpose: Returns the delimited list sorted
+        Notes:
         @param pcList The list to sort
         @param pcDelimiter The list delimiter
         @return The sorted list
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC CHARACTER SortList (pcList AS CHARACTER,
-	                                         pcDelimiter AS CHARACTER):
-        
-        DEFINE VARIABLE oSortHelper AS SortHelper NO-UNDO . 
-        
-        oSortHelper = NEW SortHelper () . 
-        
+    METHOD PUBLIC STATIC CHARACTER SortList (pcList AS CHARACTER,
+                                             pcDelimiter AS CHARACTER):
+
+        DEFINE VARIABLE oSortHelper AS SortHelper NO-UNDO .
+
+        oSortHelper = NEW SortHelper () .
+
         RETURN oSortHelper:SortList (pcList, pcDelimiter) .
-		
-	END METHOD .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns the delimited list sorted  
-        Notes:   
+        Purpose: Returns the delimited list sorted
+        Notes:
         @param pcList The list to sort
         @return The sorted list
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC LONGCHAR SortList (pcList AS LONGCHAR):
-        
-        DEFINE VARIABLE oSortHelper AS SortHelper NO-UNDO . 
-        
-        oSortHelper = NEW SortHelper () . 
-        
+
+        DEFINE VARIABLE oSortHelper AS SortHelper NO-UNDO .
+
+        oSortHelper = NEW SortHelper () .
+
         RETURN oSortHelper:SortList (pcList, ",":U) .
-        
+
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns the delimited list sorted  
-        Notes:   
+        Purpose: Returns the delimited list sorted
+        Notes:
         @param pcList The list to sort
         @param pcDelimiter The list delimiter
         @return The sorted list
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC LONGCHAR SortList (pcList AS LONGCHAR,
                                             pcDelimiter AS CHARACTER):
-        
-        DEFINE VARIABLE oSortHelper AS SortHelper NO-UNDO . 
-        
-        oSortHelper = NEW SortHelper () . 
-        
+
+        DEFINE VARIABLE oSortHelper AS SortHelper NO-UNDO .
+
+        oSortHelper = NEW SortHelper () .
+
         RETURN oSortHelper:SortList (pcList, pcDelimiter) .
-        
+
     END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: TRIM's every individual entry from a delimited list
-        Notes:   
+        Notes:
         @param pcList The List to TRIM all entries in
         @param pcDelimiter The List delimiter
-        @return The list which all entries TRIM'ed 
+        @return The list which all entries TRIM'ed
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC CHARACTER TrimEntries (pcList AS CHARACTER,
-	                                            pcDelimiter AS CHARACTER):
-		
+    METHOD PUBLIC STATIC CHARACTER TrimEntries (pcList AS CHARACTER,
+                                                pcDelimiter AS CHARACTER):
+
         DEFINE VARIABLE i AS INTEGER NO-UNDO.
-        
+
         DO i = 1 TO NUM-ENTRIES (pcList, pcDelimiter):
             ASSIGN ENTRY (i, pcList, pcDelimiter) = TRIM (ENTRY (i, pcList, pcDelimiter)) .
         END.
 
         RETURN pcList .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: TRIM's every individual entry from a delimited list
         Notes:   Uses the default delimiter of ,
         @param pcList The List to TRIM all entries in
-        @return The list which all entries TRIM'ed 
+        @return The list which all entries TRIM'ed
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CHARACTER TrimEntries (pcList AS CHARACTER):
-        
+
         RETURN ListHelper:TrimEntries (pcList, ",":U).
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: TRIM's every individual entry from a delimited list
-        Notes:   
+        Notes:
         @param pcList The List to TRIM all entries in
         @param pcDelimiter The List delimiter
-        @return The list which all entries TRIM'ed 
+        @return The list which all entries TRIM'ed
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC LONGCHAR TrimEntries (pcList AS LONGCHAR,
                                                pcDelimiter AS CHARACTER):
-        
+
         DEFINE VARIABLE i AS INTEGER NO-UNDO.
-        
+
         DO i = 1 TO NUM-ENTRIES (pcList, pcDelimiter):
             ASSIGN ENTRY (i, pcList, pcDelimiter) = TRIM (ENTRY (i, pcList, pcDelimiter)) .
         END.
@@ -1098,63 +1216,63 @@ CLASS Consultingwerk.Util.ListHelper:
         Purpose: TRIM's every individual entry from a delimited list
         Notes:   Uses the default delimiter of ,
         @param pcList The List to TRIM all entries in
-        @return The list which all entries TRIM'ed 
+        @return The list which all entries TRIM'ed
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC LONGCHAR TrimEntries (pcList AS LONGCHAR):
-        
+
         RETURN ListHelper:TrimEntries (pcList, ",":U).
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Verifies if a delimited list has only unique entries  
+        Purpose: Verifies if a delimited list has only unique entries
         Notes:   Defaults to the comma as the list delimiter
         @param pcList The delimited list
         @return Logical value indicating if the list has only unique entries
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC LOGICAL VerifyUniqueEntries (pcList AS CHARACTER):
-        
+
         RETURN ListHelper:VerifyUniqueEntries (pcList, ",":U) .
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Verifies if a delimited list has only unique entries  
+        Purpose: Verifies if a delimited list has only unique entries
         Notes:   The empty list is considered to only has unique entries
         @param pcList The delimited list
         @param pcDelimiter The list delimiter
         @return Logical value indicating if the list has only unique entries
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC LOGICAL VerifyUniqueEntries (pcList AS CHARACTER,
-	                                                  pcDelimiter AS CHARACTER):
-		
+    METHOD PUBLIC STATIC LOGICAL VerifyUniqueEntries (pcList AS CHARACTER,
+                                                      pcDelimiter AS CHARACTER):
+
         DEFINE VARIABLE iEntries AS INTEGER   NO-UNDO .
         DEFINE VARIABLE iStart   AS INTEGER   NO-UNDO .
         DEFINE VARIABLE iEntry   AS INTEGER   NO-UNDO .
         DEFINE VARIABLE cEntry   AS CHARACTER NO-UNDO .
-		
-		/* Empty list has only unique entries */
-		IF pcList = "":U THEN 
-		    RETURN TRUE . 
-		
-		IF NUM-ENTRIES (pcList, pcDelimiter) = 1 THEN 
-		    RETURN TRUE . 
-		
-		ASSIGN iEntries = NUM-ENTRIES (pcList, pcDelimiter) .
-		
-		DO iStart = 1 TO iEntries - 1:
-            
-            ASSIGN cEntry = ENTRY (iStart, pcList, pcDelimiter) .
-		    
-		    DO iEntry = iStart + 1 TO iEntries:
-		        
-		        IF cEntry = ENTRY (iEntry, pcList, pcDelimiter) THEN 
-		            RETURN FALSE . 
-		    END .
-		END.    
-		
-		RETURN TRUE .
 
-	END METHOD .
-            
+        /* Empty list has only unique entries */
+        IF pcList = "":U THEN
+            RETURN TRUE .
+
+        IF NUM-ENTRIES (pcList, pcDelimiter) = 1 THEN
+            RETURN TRUE .
+
+        ASSIGN iEntries = NUM-ENTRIES (pcList, pcDelimiter) .
+
+        DO iStart = 1 TO iEntries - 1:
+
+            ASSIGN cEntry = ENTRY (iStart, pcList, pcDelimiter) .
+
+            DO iEntry = iStart + 1 TO iEntries:
+
+                IF cEntry = ENTRY (iEntry, pcList, pcDelimiter) THEN
+                    RETURN FALSE .
+            END .
+        END.
+
+        RETURN TRUE .
+
+    END METHOD .
+
 END CLASS.

@@ -116,7 +116,96 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="ultraButton1.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Bottom, Right</value>
+  </data>
+  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="ultraButton1.Enabled" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"/>
+  <data name="ultraButton1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>491, 523</value>
+  </data>
+  <data name="ultraButton1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>75, 23</value>
+  </data>
+  <data name="ultraButton1.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="ultraButton1.Text" xml:space="preserve">
+    <value>&amp;OK</value>
+  </data>
+  <data name="&gt;&gt;ultraButton1.Name" xml:space="preserve">
+    <value>ultraButton1</value>
+  </data>
+  <data name="&gt;&gt;ultraButton1.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraButton, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraButton1.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraButton1.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="ultraButton2.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Bottom, Right</value>
+  </data>
+  <data name="ultraButton2.Location" type="System.Drawing.Point, System.Drawing">
+    <value>572, 523</value>
+  </data>
+  <data name="ultraButton2.Size" type="System.Drawing.Size, System.Drawing">
+    <value>75, 23</value>
+  </data>
+  <data name="ultraButton2.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="ultraButton2.Text" xml:space="preserve">
+    <value>&amp;Cancel</value>
+  </data>
+  <data name="&gt;&gt;ultraButton2.Name" xml:space="preserve">
+    <value>ultraButton2</value>
+  </data>
+  <data name="&gt;&gt;ultraButton2.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraButton, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraButton2.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraButton2.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="ultraTree1.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Bottom, Left, Right</value>
+  </data>
+  <data name="ultraTree1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>12, 12</value>
+  </data>
+  <data name="ultraTree1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>635, 505</value>
+  </data>
+  <data name="ultraTree1.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="&gt;&gt;ultraTree1.Name" xml:space="preserve">
+    <value>ultraTree1</value>
+  </data>
+  <data name="&gt;&gt;ultraTree1.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinTree.UltraTree, Infragistics4.Win.UltraWinTree.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraTree1.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraTree1.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing">
+    <value>659, 558</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="$this.Icon" type="System.Drawing.Icon, System.Drawing">
     <value>
         AAABAA8AAAAAAAEABADJMAAA9gAAADAwAAABAAQAaAYAAL8xAAAgIAAAAQAEAOgCAAAnOAAAGBgAAAEA
@@ -1583,5 +1672,17 @@
         AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD8AAAA/AAAAPwAAAD8AAAA4AAA
         AMAAAADAAAAAgAAAAIAAAAAAAAAAAAAAAAAAAADwAQAA8B8AAPA/AAD//wAA
 </value>
+  </data>
+  <data name="$this.Text" xml:space="preserve">
+    <value>Lookup Toolbar Item Container</value>
+  </data>
+  <data name="$this.WindowPositionRegistryKey" xml:space="preserve">
+    <value>ToolbarContainerLookupDialog</value>
+  </data>
+  <data name="&gt;&gt;$this.Name" xml:space="preserve">
+    <value>ToolbarContainerLookupDialog</value>
+  </data>
+  <data name="&gt;&gt;$this.Type" xml:space="preserve">
+    <value>Consultingwerk.Forms.BaseForm, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
   </data>
 </root>

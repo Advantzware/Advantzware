@@ -155,8 +155,8 @@ CLASS Consultingwerk.Windows.ListAndLabel.LlHelper:
             ASSIGN pcTitle = "Select Report Design"{&TRAN} . 
 
         IF Consultingwerk.CharacterType:IsNotNullOrEmpty (pcFileName) THEN DO:
-            FILE-INFO:FILE-NAME = pcFileName .
-            pcFileName = FILE-INFO:FULL-PATHNAME .
+            FILE-INFORMATION:FILE-NAME = pcFileName .
+            pcFileName = FILE-INFORMATION:FULL-PATHNAME .
         END.
             
         SET-SIZE(psFilename) = 255.

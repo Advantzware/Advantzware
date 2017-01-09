@@ -8,32 +8,33 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/  
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : IErrorMessageForm
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Fri Jul 23 21:59:03 CEST 2010
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 USING Progress.Lang.*.
 
-INTERFACE Consultingwerk.Util.Forms.IErrorMessageForm:  
-  
-    DEFINE PUBLIC PROPERTY MessageText AS CHARACTER NO-UNDO 
-    GET.
-    SET. 
+INTERFACE Consultingwerk.Util.Forms.IErrorMessageForm:
 
-    DEFINE PUBLIC PROPERTY StackTraceText AS CHARACTER NO-UNDO 
+    DEFINE PUBLIC PROPERTY MessageText AS CHARACTER NO-UNDO
     GET.
-    SET. 
+    SET.
 
-    DEFINE PUBLIC PROPERTY Text AS CHARACTER  
+    DEFINE PUBLIC PROPERTY StackTraceText AS CHARACTER NO-UNDO
     GET.
-    SET. 
+    SET.
+
+    {&_proparse_ prolint-nowarn(noundo)}
+    DEFINE PUBLIC PROPERTY Text AS CHARACTER /* Cannot be no-undo as implemented by .NET */
+    GET.
+    SET.
 
 
 

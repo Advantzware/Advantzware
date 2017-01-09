@@ -59,9 +59,9 @@ CLASS Consultingwerk.Web.Widgets.LinkGridColumn
         Purpose: Gets and sets the column display type
         Notes:   Use Text, Image or ImageAndText  
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY ColumnDisplayType AS ColumnDisplayTypeEnum NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY ColumnDisplayType AS ColumnDisplayTypeEnum NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the hyperlink used by this LinkGridColumn                                                                      
@@ -83,9 +83,9 @@ CLASS Consultingwerk.Web.Widgets.LinkGridColumn
         Purpose: Gets and sets additional link attributes used by this LinkGridColumn           
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY LinkAttributes AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY LinkAttributes AS CHARACTER NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the href display text                                                                      

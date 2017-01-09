@@ -32,13 +32,13 @@ INTERFACE Consultingwerk.SmartFramework.IAttachmentRoleProvider:
         Notes:   
         @param ttAttachmentRole OUTPUT Temp-Table with the list of available attachment roles
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID GetAttachmentRoles (OUTPUT TABLE ttAttachmentRole).
+    METHOD PUBLIC VOID GetAttachmentRoles (OUTPUT TABLE ttAttachmentRole).
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the Count of Attachment Roles
         Notes:   
         @return The count of attachment roles
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC INTEGER GetCount ().
+    METHOD PUBLIC INTEGER GetCount ().
 
 END INTERFACE.

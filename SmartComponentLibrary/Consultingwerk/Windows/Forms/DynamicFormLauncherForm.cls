@@ -8,26 +8,27 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : DynamicFormLauncherForm
     Purpose     : Provides an user interface to launch Forms
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sun Jan 08 16:25:47 CET 2012
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.Forms.BaseForm  FROM PROPATH .
-USING Consultingwerk.Framework.*     FROM PROPATH . 
+USING Consultingwerk.Framework.*     FROM PROPATH .
+USING Consultingwerk.Util.*          FROM PROPATH .
 USING Progress.Lang.*                FROM PROPATH .
 
 
-CLASS Consultingwerk.Windows.Forms.DynamicFormLauncherForm INHERITS BaseForm: 
-    
+CLASS Consultingwerk.Windows.Forms.DynamicFormLauncherForm INHERITS BaseForm:
+
     DEFINE PRIVATE VARIABLE bindingSource1 AS Progress.Data.BindingSource NO-UNDO.
     DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE toMdiChild AS Infragistics.Win.UltraWinEditors.UltraCheckEditor NO-UNDO.
@@ -36,72 +37,73 @@ CLASS Consultingwerk.Windows.Forms.DynamicFormLauncherForm INHERITS BaseForm:
     DEFINE PRIVATE VARIABLE ultraLabel1 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraButton2 AS Infragistics.Win.Misc.UltraButton NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraButton1 AS Infragistics.Win.Misc.UltraButton NO-UNDO.
-    
-    DEFINE VARIABLE lFirstTime AS LOGICAL NO-UNDO INIT TRUE .   
-        
+
+    DEFINE VARIABLE lFirstTime AS LOGICAL NO-UNDO INIT TRUE .
+
     {Consultingwerk/Util/TempTables/ttClassNames.i}
 
     DEFINE QUERY qry FOR ttClassNames SCROLLING .
-        
-    /*------------------------------------------------------------------------------
-        Purpose: Returns the selected ClassName
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY ClassName AS CHARACTER NO-UNDO 
-    GET:
-        IF AVAILABLE ttClassNames THEN 
-            RETURN ttClassNames.ClassName . 
-        ELSE 
-            RETURN ? . 
-    END GET . 
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the selected ClassName
-        Notes:                                                                        
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY MdiChild AS LOGICAL NO-UNDO 
+    DEFINE PUBLIC PROPERTY ClassName AS CHARACTER NO-UNDO
+    GET:
+        IF AVAILABLE ttClassNames THEN
+            RETURN ttClassNames.ClassName .
+        ELSE
+            RETURN ? .
+    END GET .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the selected ClassName
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY MdiChild AS LOGICAL NO-UNDO
     GET:
         RETURN toMdiChild:Checked .
-    END GET . 
-    
+    END GET .
+
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the DynamicFormLauncherForm class
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/        
+        Notes:
+    ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC DynamicFormLauncherForm ():
-        
+
         SUPER().
         InitializeComponent().
 
-        Consultingwerk.Util.ClassHelper:UseExternalRuntimeForGetClassNames = TRUE . 
-        
+        Consultingwerk.Util.ClassHelper:UseExternalRuntimeForGetClassNames = TRUE .
+
         Consultingwerk.Util.ClassHelper:GetClassNames ("System.Windows.Forms.Form":U,
                                                        OUTPUT TABLE ttClassNames) .
-        
-        OPEN QUERY qry PRESELECT EACH ttClassNames . 
-        
+
+        OPEN QUERY qry PRESELECT EACH ttClassNames .
+
         bindingSource1:Handle = QUERY qry:HANDLE .
-        
-        IF NOT VALID-OBJECT (FrameworkSettings:MdiContainer) THEN 
-            toMdiChild:Enabled = FALSE . 
-        
+
+        IF NOT VALID-OBJECT (FrameworkSettings:MdiContainer) THEN
+            toMdiChild:Enabled = FALSE .
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
     END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -344,78 +346,90 @@ CLASS Consultingwerk.Windows.Forms.DynamicFormLauncherForm INHERITS BaseForm:
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the Shown event                                                                         
-        Notes:                                                                        
+        Purpose: Raises the Shown event
+        Notes:
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
-        
+
         SUPER:OnShown (e) .
-        
+
         IF lFirstTime THEN DO:
-            ASSIGN lFirstTime = FALSE . 
-            
+            ASSIGN lFirstTime = FALSE .
+
             ultraTextEditor1:Focus () .
         END.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the DoubleClickRow event of the ultraGrid1                                                                        
-        Notes:                                                               
+        Purpose: Event handler for the DoubleClickRow event of the ultraGrid1
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The DoubleClickRowEventArgs with the data for this event          
+        @param e The DoubleClickRowEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraGrid1_DoubleClickRow (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraGrid1_DoubleClickRow (sender AS System.Object,
                                                    e AS Infragistics.Win.UltraWinGrid.DoubleClickRowEventArgs):
-        
-        THIS-OBJECT:DialogResult = System.Windows.Forms.DialogResult:OK . 
-        
+
+        THIS-OBJECT:DialogResult = System.Windows.Forms.DialogResult:OK .
+
         THIS-OBJECT:Close () .
-        
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the KeyDown event of the ultraTextEditor1                                                                        
-        Notes:   Handles the Cursor Down key                                                                
+        Purpose: Event handler for the KeyDown event of the ultraTextEditor1
+        Notes:   Handles the Cursor Down key
         @param sender The reference to the object that raised the event
-        @param e The KeyEventArgs with the data for this event          
+        @param e The KeyEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraTextEditor1_KeyDown (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraTextEditor1_KeyDown (sender AS System.Object,
                                                   e AS System.Windows.Forms.KeyEventArgs ):
-        
+
         IF Progress.Util.EnumHelper:AreEqual (e:KeyCode,
                                               System.Windows.Forms.Keys:Down) THEN
-                                               
-            THIS-OBJECT:ultraGrid1:Focus () .         
-            
+
+            THIS-OBJECT:ultraGrid1:Focus () .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the TextChanged event of the ultraTextEditor1                                                                        
-        Notes:                                                             
+        Purpose: Event handler for the TextChanged event of the ultraTextEditor1
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event          
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraTextEditor1_TextChanged (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraTextEditor1_TextChanged (sender AS System.Object,
                                                       e AS System.EventArgs):
-        
+
         DEFINE VARIABLE cFilter AS CHARACTER NO-UNDO.
 
         ASSIGN cFilter = ultraTextEditor1:Text .
 
-        IF cFilter > "":U THEN 
-            OPEN QUERY qry PRESELECT EACH ttClassNames WHERE ttClassNames.ClassName 
+        IF cFilter > "":U THEN
+            OPEN QUERY qry PRESELECT EACH ttClassNames WHERE ttClassNames.ClassName
                         MATCHES SUBSTITUTE ("*&1*":U, cFilter).
         ELSE
-            OPEN QUERY qry PRESELECT EACH ttClassNames . 
+            OPEN QUERY qry PRESELECT EACH ttClassNames .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Destructor of the DynamicFormLauncherForm class
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/        
+        Notes:
+    ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC DynamicFormLauncherForm ():
 
         IF VALID-OBJECT(components) THEN DO:

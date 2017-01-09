@@ -46,17 +46,17 @@ CLASS Consultingwerk.Web2.Views.SerializableTabFolderElement
         @param pcTemplate The value for the Template 
         @return The created SerializableTabElement
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC SerializableTabElement CreateTab (pcTabLabel AS CHARACTER,
+    METHOD PUBLIC SerializableTabElement CreateTab (pcTabLabel AS CHARACTER,
                                                     pcTemplate AS CHARACTER):
-		
-		DEFINE VARIABLE oTab AS SerializableTabElement NO-UNDO . 
-		
-		oTab = NEW SerializableTabElement (pcTabLabel, pcTemplate) .
-		
-		THIS-OBJECT:Elements:Add (oTab) .
+        
+        DEFINE VARIABLE oTab AS SerializableTabElement NO-UNDO . 
+        
+        oTab = NEW SerializableTabElement (pcTabLabel, pcTemplate) .
+        
+        THIS-OBJECT:Elements:Add (oTab) .
 
         RETURN oTab .
         
-	END METHOD .
+    END METHOD .
 
 END CLASS.

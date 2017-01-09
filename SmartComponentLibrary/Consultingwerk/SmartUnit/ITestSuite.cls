@@ -53,11 +53,11 @@ INTERFACE Consultingwerk.SmartUnit.ITestSuite:
 
     /*------------------------------------------------------------------------------
         Purpose: Returns if the current job should be stopped after an error has
-                 occured 
+                 occurred 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY HaltOnError AS LOGICAL NO-UNDO 
-	GET.
+    DEFINE PUBLIC PROPERTY HaltOnError AS LOGICAL NO-UNDO 
+    GET.
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the name of the output file
@@ -71,9 +71,9 @@ INTERFACE Consultingwerk.SmartUnit.ITestSuite:
                  loaded prior to the test run 
         Notes:   comma delimited list of relative XML file names
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Services AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY Services AS CHARACTER NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the pattern for the test classes to execute
@@ -86,7 +86,7 @@ INTERFACE Consultingwerk.SmartUnit.ITestSuite:
         Purpose: Returns the Name of the Test Suite as it will appear in the JUnit output 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY TestSuite AS CHARACTER NO-UNDO 
-	GET.
+    DEFINE PUBLIC PROPERTY TestSuite AS CHARACTER NO-UNDO 
+    GET.
 
 END INTERFACE.

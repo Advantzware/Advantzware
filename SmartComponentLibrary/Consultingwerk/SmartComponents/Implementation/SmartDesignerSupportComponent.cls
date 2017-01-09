@@ -110,7 +110,7 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartDesignerSupportComponen
         END CASE.
 
         FINALLY:
-            Consultingwerk.Util.ErrorHelper:ErrorMessageDialogAllowed = TRUE .    		
+            Consultingwerk.Util.ErrorHelper:ErrorMessageDialogAllowed = TRUE .            
         END FINALLY.
         
     END METHOD .    

@@ -1,0 +1,47 @@
+{
+  "SerializedType": "Consultingwerk.Framework.TypeDescriptor.ClassAnnotationContainer",
+  "ClassName": "Consultingwerk.SmartFramework.Menu.ModuleBusinessEntity",
+  "TimeStamp": "2016-12-31T14:03:14.743+01:00",
+  "Annotations": [
+    {
+      "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableAnnotation",
+      "Name": "@BusinessEntityTable",
+      "Parameters": [
+        {
+          "SerializedType": "Consultingwerk.NameValuePair",
+          "Name": "name",
+          "Value": "eSmartModule"
+        },
+        {
+          "SerializedType": "Consultingwerk.NameValuePair",
+          "Name": "MandatoryColumns",
+          "Value": "ModuleName"
+        },
+        {
+          "SerializedType": "Consultingwerk.NameValuePair",
+          "Name": "DefaultSort",
+          "Value": "BY eSmartModule.ModuleName"
+        }
+      ]
+    }
+  ],
+  "TempTables": [
+    {
+      "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableClassMemberAnnotation",
+      "Name": "eSmartModule",
+      "Annotations": [
+        {
+          "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableAnnotation",
+          "Name": "@openapi.openedge.entity.primarykey",
+          "Parameters": [
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "fields",
+              "Value": "ModuleGuid"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

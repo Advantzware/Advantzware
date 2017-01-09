@@ -75,7 +75,7 @@ INTERFACE Consultingwerk.Studio.ClassDocumentation.ICommentBuilder:
         Purpose: Get the purpose comment form the unit                                                                        
         Notes:
         @param pcComment A longcharvalue with the purpose comment.
-		@return A longchar value                                                                
+        @return A longchar value                                                                
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC LONGCHAR GetUnitPurpose (pcComment AS LONGCHAR).
     

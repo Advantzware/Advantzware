@@ -116,4 +116,241 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="CharacterParameterValueTextEditor.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"/>
+  <data name="CharacterParameterValueTextEditor.Location" type="System.Drawing.Point, System.Drawing">
+    <value>173, 9</value>
+  </data>
+  <data name="CharacterParameterValueTextEditor.Size" type="System.Drawing.Size, System.Drawing">
+    <value>193, 21</value>
+  </data>
+  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="CharacterParameterValueTextEditor.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="&gt;&gt;CharacterParameterValueTextEditor.Name" xml:space="preserve">
+    <value>CharacterParameterValueTextEditor</value>
+  </data>
+  <data name="&gt;&gt;CharacterParameterValueTextEditor.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;CharacterParameterValueTextEditor.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;CharacterParameterValueTextEditor.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="ClassNameTextEditor.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="editorButton1.Text" xml:space="preserve">
+    <value>...</value>
+  </data>
+  <data name="ClassNameTextEditor.Location" type="System.Drawing.Point, System.Drawing">
+    <value>173, 63</value>
+  </data>
+  <data name="ClassNameTextEditor.Size" type="System.Drawing.Size, System.Drawing">
+    <value>192, 21</value>
+  </data>
+  <data name="ClassNameTextEditor.TabIndex" type="System.Int32, mscorlib">
+    <value>5</value>
+  </data>
+  <data name="&gt;&gt;ClassNameTextEditor.Name" xml:space="preserve">
+    <value>ClassNameTextEditor</value>
+  </data>
+  <data name="&gt;&gt;ClassNameTextEditor.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ClassNameTextEditor.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ClassNameTextEditor.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="InterfaceNameTextEditor.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="InterfaceNameTextEditor.Location" type="System.Drawing.Point, System.Drawing">
+    <value>173, 36</value>
+  </data>
+  <data name="InterfaceNameTextEditor.Size" type="System.Drawing.Size, System.Drawing">
+    <value>192, 21</value>
+  </data>
+  <data name="InterfaceNameTextEditor.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="&gt;&gt;InterfaceNameTextEditor.Name" xml:space="preserve">
+    <value>InterfaceNameTextEditor</value>
+  </data>
+  <data name="&gt;&gt;InterfaceNameTextEditor.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;InterfaceNameTextEditor.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;InterfaceNameTextEditor.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="MethodNameTextEditor.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="MethodNameTextEditor.Location" type="System.Drawing.Point, System.Drawing">
+    <value>173, 90</value>
+  </data>
+  <data name="MethodNameTextEditor.Size" type="System.Drawing.Size, System.Drawing">
+    <value>193, 21</value>
+  </data>
+  <data name="MethodNameTextEditor.TabIndex" type="System.Int32, mscorlib">
+    <value>7</value>
+  </data>
+  <data name="&gt;&gt;MethodNameTextEditor.Name" xml:space="preserve">
+    <value>MethodNameTextEditor</value>
+  </data>
+  <data name="&gt;&gt;MethodNameTextEditor.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;MethodNameTextEditor.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;MethodNameTextEditor.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="UseCharacterParameterValueCheckEditor.Location" type="System.Drawing.Point, System.Drawing">
+    <value>173, 117</value>
+  </data>
+  <data name="UseCharacterParameterValueCheckEditor.Size" type="System.Drawing.Size, System.Drawing">
+    <value>192, 20</value>
+  </data>
+  <data name="UseCharacterParameterValueCheckEditor.TabIndex" type="System.Int32, mscorlib">
+    <value>8</value>
+  </data>
+  <data name="UseCharacterParameterValueCheckEditor.Text" xml:space="preserve">
+    <value>Use character parameter value</value>
+  </data>
+  <data name="&gt;&gt;UseCharacterParameterValueCheckEditor.Name" xml:space="preserve">
+    <value>UseCharacterParameterValueCheckEditor</value>
+  </data>
+  <data name="&gt;&gt;UseCharacterParameterValueCheckEditor.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraCheckEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;UseCharacterParameterValueCheckEditor.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;UseCharacterParameterValueCheckEditor.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="ultraLabel2.Location" type="System.Drawing.Point, System.Drawing">
+    <value>13, 13</value>
+  </data>
+  <data name="ultraLabel2.Size" type="System.Drawing.Size, System.Drawing">
+    <value>154, 23</value>
+  </data>
+  <data name="ultraLabel2.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="ultraLabel2.Text" xml:space="preserve">
+    <value>Character Parameter Value:</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel2.Name" xml:space="preserve">
+    <value>ultraLabel2</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel2.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel2.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel2.ZOrder" xml:space="preserve">
+    <value>8</value>
+  </data>
+  <data name="ultraLabel3.Location" type="System.Drawing.Point, System.Drawing">
+    <value>13, 40</value>
+  </data>
+  <data name="ultraLabel3.Size" type="System.Drawing.Size, System.Drawing">
+    <value>154, 23</value>
+  </data>
+  <data name="ultraLabel3.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="ultraLabel3.Text" xml:space="preserve">
+    <value>Interface Name:</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel3.Name" xml:space="preserve">
+    <value>ultraLabel3</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel3.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel3.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel3.ZOrder" xml:space="preserve">
+    <value>7</value>
+  </data>
+  <data name="ultraLabel4.Location" type="System.Drawing.Point, System.Drawing">
+    <value>13, 67</value>
+  </data>
+  <data name="ultraLabel4.Size" type="System.Drawing.Size, System.Drawing">
+    <value>154, 23</value>
+  </data>
+  <data name="ultraLabel4.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="ultraLabel4.Text" xml:space="preserve">
+    <value>Class Name:</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel4.Name" xml:space="preserve">
+    <value>ultraLabel4</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel4.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel4.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel4.ZOrder" xml:space="preserve">
+    <value>6</value>
+  </data>
+  <data name="ultraLabel5.Location" type="System.Drawing.Point, System.Drawing">
+    <value>13, 94</value>
+  </data>
+  <data name="ultraLabel5.Size" type="System.Drawing.Size, System.Drawing">
+    <value>154, 23</value>
+  </data>
+  <data name="ultraLabel5.TabIndex" type="System.Int32, mscorlib">
+    <value>6</value>
+  </data>
+  <data name="ultraLabel5.Text" xml:space="preserve">
+    <value>Method Name:</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel5.Name" xml:space="preserve">
+    <value>ultraLabel5</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel5.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel5.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel5.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing">
+    <value>6, 13</value>
+  </data>
+  <data name="$this.Size" type="System.Drawing.Size, System.Drawing">
+    <value>380, 146</value>
+  </data>
+  <data name="&gt;&gt;$this.Name" xml:space="preserve">
+    <value>InvokeServiceMethodCallParameterControl</value>
+  </data>
+  <data name="&gt;&gt;$this.Type" xml:space="preserve">
+    <value>Consultingwerk.Windows.Framework.Menu.CallParameterBaseControl, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
 </root>

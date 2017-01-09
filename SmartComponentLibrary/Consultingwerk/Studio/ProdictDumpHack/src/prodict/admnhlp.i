@@ -14,8 +14,8 @@
 
    The form used in this file is:
 
-	   <Name of the Help Topic>
-	   &Global-Define <context-string> <context-number>
+       <Name of the Help Topic>
+       &Global-Define <context-string> <context-number>
 
    Please contact Documentation to make changes to this file. 
    Thanks. 
@@ -376,13 +376,13 @@
 &Global-define Verify_Report_Dlg_Box 49243
 
 /* Migration from Progress DB to an ODBC Data Source */
-&Global-define PROGRESS_DB_to_ODBC_Dlg_Box	650
+&Global-define PROGRESS_DB_to_ODBC_Dlg_Box    650
 
 /* Create a SQL script and a df for the schema holder from a Progress delta.df */
-&Global-define Incremental_Schema_Migration_Dlg_Box	651
+&Global-define Incremental_Schema_Migration_Dlg_Box    651
 
 /* Migration from Progress DB to an Oracle Database */
-&Global-define PROGRESS_DB_to_ORACLE_Dlg_Box	652
+&Global-define PROGRESS_DB_to_ORACLE_Dlg_Box    652
 
 /* Migration from Progress DB to a SQL Server Database */
 &Global-define Progress_DB_To_SQL_Dlg_Box  2511111

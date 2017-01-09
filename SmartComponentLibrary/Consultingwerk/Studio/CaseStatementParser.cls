@@ -44,14 +44,14 @@ CLASS Consultingwerk.Studio.CaseStatementParser:
         Notes:   
         @param poNode The reference to the JPNode to parse
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC CaseStatementParser (poNode AS JPNode):
-		SUPER ().
-		
-		Consultingwerk.Assertion.ProparseAssert:NodeType (poNode, "CASE":U) .
-		
-		ASSIGN oCaseNode = poNode . 
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC CaseStatementParser (poNode AS JPNode):
+        SUPER ().
+        
+        Consultingwerk.Assertion.ProparseAssert:NodeType (poNode, "CASE":U) .
+        
+        ASSIGN oCaseNode = poNode . 
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the reference to the JPNode representing the END or END CASE
@@ -59,26 +59,26 @@ CLASS Consultingwerk.Studio.CaseStatementParser:
         Notes:   
         @return The reference to the JPNode representing the END or END CASE Statement 
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC JPNode GetEndCaseNode ():
-		
-		RETURN ProparseHelper:FindChildNodeOfNodeType (oCaseNode, "END":U) .
+    METHOD PUBLIC JPNode GetEndCaseNode ():
+        
+        RETURN ProparseHelper:FindChildNodeOfNodeType (oCaseNode, "END":U) .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the List of the CaseWhen optins for the CASE Statement 
         Notes:   
         @return The List of the CaseWhen options of the CASE Statement
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC ListCaseWhen GetListCaseWhen ():
-		
-		DEFINE VARIABLE oCodeBlock AS JPNode       NO-UNDO . 
+    METHOD PUBLIC ListCaseWhen GetListCaseWhen ():
+        
+        DEFINE VARIABLE oCodeBlock AS JPNode       NO-UNDO . 
         DEFINE VARIABLE oWhenBlock AS JPNode       NO-UNDO . 
-		DEFINE VARIABLE oList      AS ListCaseWhen NO-UNDO .
-		
-		ASSIGN oList = NEW ListCaseWhen () .
-		
-		oCodeBlock = ProparseHelper:FindChildNodeOfNodeType (oCaseNode, "Code_block":U) .
+        DEFINE VARIABLE oList      AS ListCaseWhen NO-UNDO .
+        
+        ASSIGN oList = NEW ListCaseWhen () .
+        
+        oCodeBlock = ProparseHelper:FindChildNodeOfNodeType (oCaseNode, "Code_block":U) .
 
         /* Now loop through the WHEN Nodes */
         ASSIGN oWhenBlock = oCodeBlock:firstChild() . 
@@ -92,7 +92,7 @@ CLASS Consultingwerk.Studio.CaseStatementParser:
         
         RETURN oList . 
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the reference to the JPNode representing the OTHERWISE keyword
@@ -112,19 +112,19 @@ CLASS Consultingwerk.Studio.CaseStatementParser:
         @param poWhenNode The JPNode representing the WHEN key word
         @param poList The List of CaseWhen options 
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID ParseWhenBlock (poWhenNode AS JPNode,
-	                                      poList AS ListCaseWhen):
-		
-		DEFINE VARIABLE oQStringNode AS JPNode NO-UNDO . 
-		
-		oQStringNode = ProparseHelper:FindChildNodeOfNodeType (poWhenNode, "QSTRING":U) .
-		
-		poList:Add (StringHelper:Unquote(oQStringNode:getText ()), 
+    METHOD PROTECTED VOID ParseWhenBlock (poWhenNode AS JPNode,
+                                          poList AS ListCaseWhen):
+        
+        DEFINE VARIABLE oQStringNode AS JPNode NO-UNDO . 
+        
+        oQStringNode = ProparseHelper:FindChildNodeOfNodeType (poWhenNode, "QSTRING":U) .
+        
+        poList:Add (StringHelper:Unquote(oQStringNode:getText ()), 
                     poWhenNode:getFilename (),
                     poWhenNode:getLine (),
                     poWhenNode:getColumn (),
                     poWhenNode) .
 
-	END METHOD .
+    END METHOD .
 &ENDIF
 END CLASS.

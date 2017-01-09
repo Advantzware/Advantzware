@@ -44,8 +44,8 @@ CLASS Consultingwerk.SmartFramework.Authorization.FieldSecurityItemSecurityServi
         Notes:   
         @param poLookupDescriptor The reference to the SmartBusinessEntityLookupDescriptor to assign the properties to 
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID AssignLookupDescriptorProperties (poLookupDescriptor AS SmartBusinessEntityLookupDescriptor):
-		
+    METHOD PUBLIC VOID AssignLookupDescriptorProperties (poLookupDescriptor AS SmartBusinessEntityLookupDescriptor):
+        
         ASSIGN poLookupDescriptor:AppServerPartition          = "":U
                poLookupDescriptor:LookupBrowserFields         = "FieldName,SecurityKey,ObjectName":U
                poLookupDescriptor:LookupControls              = "":U
@@ -65,7 +65,7 @@ CLASS Consultingwerk.SmartFramework.Authorization.FieldSecurityItemSecurityServi
                poLookupDescriptor:LookupQueryString           = "FOR EACH eSmartFieldSecurityItem WHERE eSmartFieldSecurityItem.FieldName BEGINS ~"&1~"":U
                .
                
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the Description for the security item 
@@ -73,27 +73,27 @@ CLASS Consultingwerk.SmartFramework.Authorization.FieldSecurityItemSecurityServi
         @param pcItemKey The unique key of the security item
         @return The description of the security item
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC CHARACTER GetDescription (pcItemKey AS CHARACTER):
-		
-		DEFINE VARIABLE oModel AS FieldSecurityItemDatasetModel NO-UNDO .
-		
-		IF pcItemKey = "":U THEN 
-		    RETURN "<unknown>":U .
-		
-		oModel = NEW FieldSecurityItemDatasetModel (pcItemKey) .
-		
-		IF oModel:SmartFieldSecurityItem:Available THEN DO:
-		    RETURN TRIM (SUBSTITUTE ("&1 / &2 / &3":U, 
-		                             oModel:SmartFieldSecurityItem:FieldName,
-		                             oModel:SmartFieldSecurityItem:SecurityKey,
-		                             oModel:SmartFieldSecurityItem:ObjectName)) . 
-		END .
-		ELSE 
-		    RETURN "<unknown>":U . 
-		
-		RETURN pcItemKey .
+    METHOD PUBLIC CHARACTER GetDescription (pcItemKey AS CHARACTER):
+        
+        DEFINE VARIABLE oModel AS FieldSecurityItemDatasetModel NO-UNDO .
+        
+        IF pcItemKey = "":U THEN 
+            RETURN "<unknown>":U .
+        
+        oModel = NEW FieldSecurityItemDatasetModel (pcItemKey) .
+        
+        IF oModel:SmartFieldSecurityItem:Available THEN DO:
+            RETURN TRIM (SUBSTITUTE ("&1 / &2 / &3":U, 
+                                     oModel:SmartFieldSecurityItem:FieldName,
+                                     oModel:SmartFieldSecurityItem:SecurityKey,
+                                     oModel:SmartFieldSecurityItem:ObjectName)) . 
+        END .
+        ELSE 
+            RETURN "<unknown>":U . 
+        
+        RETURN pcItemKey .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Validates the security item key  
@@ -101,7 +101,7 @@ CLASS Consultingwerk.SmartFramework.Authorization.FieldSecurityItemSecurityServi
         @param pcItemKey The unique key of the security item
         @return Logical value indicating if the security item key is valid
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL ValidateKey (pcItemKey AS CHARACTER):
+    METHOD PUBLIC LOGICAL ValidateKey (pcItemKey AS CHARACTER):
 
         DEFINE VARIABLE oModel AS FieldSecurityItemDatasetModel NO-UNDO .
         
@@ -109,9 +109,9 @@ CLASS Consultingwerk.SmartFramework.Authorization.FieldSecurityItemSecurityServi
             RETURN FALSE .
         
         oModel = NEW FieldSecurityItemDatasetModel (pcItemKey) .
-        		
-		RETURN oModel:SmartFieldSecurityItem:Available .
+                
+        RETURN oModel:SmartFieldSecurityItem:Available .
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

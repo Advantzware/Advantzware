@@ -8,15 +8,15 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : MemberTableViewerControl
     Purpose     : Viewer Control for the eTable Table
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Wed Oct 13 12:25:42 CEST 2010
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -34,8 +34,8 @@ USING System.Windows.Forms.*                           FROM ASSEMBLY .
 
 {Consultingwerk/products.i}
 
-CLASS Consultingwerk.BusinessEntityDesigner.UI.MemberTableViewerControl INHERITS SmartViewerControl: 
-    
+CLASS Consultingwerk.BusinessEntityDesigner.UI.MemberTableViewerControl INHERITS SmartViewerControl:
+
     DEFINE PRIVATE VARIABLE m_MemberTableViewerControl_Toolbars_Dock_Area_Top AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_MemberTableViewerControl_Toolbars_Dock_Area_Right AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_MemberTableViewerControl_Toolbars_Dock_Area_Left AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
@@ -79,35 +79,36 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.MemberTableViewerControl INHERITS
     DEFINE PRIVATE VARIABLE ultraTabPageControl1 AS Infragistics.Win.UltraWinTabControl.UltraTabPageControl NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraTabControl1 AS Infragistics.Win.UltraWinTabControl.UltraTabControl NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraToolbarsManager1 AS Infragistics.Win.UltraWinToolbars.UltraToolbarsManager NO-UNDO.
-    
+
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the MemberTableViewerControl class                                                                         
-        Notes:                                                                        
+        Purpose: Constructor for the MemberTableViewerControl class
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC MemberTableViewerControl ():
-        
+
         SUPER().
         InitializeComponent().
-        
+
         THIS-OBJECT:SetControlEnabled (THIS-OBJECT:ultraTabControl1, Consultingwerk.SmartComponents.Enum.ControlEnabledEnum:Always) .
-        
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
     END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -161,6 +162,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.MemberTableViewerControl INHERITS
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance18 AS Infragistics.Win.Appearance NO-UNDO.
         appearance18 = NEW Infragistics.Win.Appearance().
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE appearance19 AS Infragistics.Win.Appearance NO-UNDO.
+        appearance19 = NEW Infragistics.Win.Appearance().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE ultraTab1 AS Infragistics.Win.UltraWinTabControl.UltraTab NO-UNDO.
         ultraTab1 = NEW Infragistics.Win.UltraWinTabControl.UltraTab().
@@ -417,7 +421,15 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.MemberTableViewerControl INHERITS
         /*  */
         DEFINE VARIABLE nestedvar3 AS System.Windows.Forms.AnchorStyles NO-UNDO.
         nestedvar3 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_SourceDefaultQuery:AlwaysInEditMode = TRUE.
+        appearance19:BackColor = System.Drawing.Color:White.
+        appearance19:BackColor2 = System.Drawing.Color:White.
+        appearance19:FontData:Name = "Courier New":U.
+        appearance19:FontData:SizeInPoints = Progress.Util.CastUtil:ToSingle(11).
+        appearance19:ForeColor = System.Drawing.Color:Black.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_SourceDefaultQuery:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar3, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_SourceDefaultQuery:Appearance = appearance19.
+        THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_SourceDefaultQuery:BackColor = System.Drawing.Color:White.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_SourceDefaultQuery:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "SourceDefaultQuery":U, TRUE)).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_SourceDefaultQuery:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2007.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_SourceDefaultQuery:Location = NEW System.Drawing.Point(150, 165).
@@ -868,49 +880,49 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.MemberTableViewerControl INHERITS
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the KeyDown handler of the Text boxes with an 
+        Purpose: Event handler for the KeyDown handler of the Text boxes with an
                  EditorButton (Lookup)
         Notes:   Maps F3 to EditorButtonClick
         @param sender The reference to the object that raised the event
         @param e The KeyEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID LookupKeyDownHandler (sender AS System.Object, 
+    METHOD PRIVATE VOID LookupKeyDownHandler (sender AS System.Object,
                                               e AS System.Windows.Forms.KeyEventArgs):
 
         DEFINE VARIABLE cControlName AS CHARACTER NO-UNDO.
-        
-        IF e:Handled = FALSE AND Progress.Util.EnumHelper:AreEqual (e:KeyCode, SmartLookupSettings:ShortcutKey) 
+
+        IF e:Handled = FALSE AND Progress.Util.EnumHelper:AreEqual (e:KeyCode, SmartLookupSettings:ShortcutKey)
             AND THIS-OBJECT:Enabled THEN DO:
 
 &IF NOT PROVERSION BEGINS "10" &THEN
             ASSIGN cControlName = CAST (sender, System.Windows.Forms.Control):Name .
 
-            DYNAMIC-INVOKE (THIS-OBJECT, 
-                            SUBSTITUTE ("&1_EditorButtonClick":U, cControlName), 
-                            sender, 
+            DYNAMIC-INVOKE (THIS-OBJECT,
+                            SUBSTITUTE ("&1_EditorButtonClick":U, cControlName),
+                            sender,
                             NEW EditorButtonEventArgs (?, ?)) .
-&ELSE 
+&ELSE
             /* Mike Fechner, Consultingwerk Ltd. 17.08.2015
                DYNAMIC-INVOKE seems to crash here on 10.2B */
             CASE sender:
-                WHEN smartBusinessEntityBindingSource1_eTable_TempTablePath 
+                WHEN smartBusinessEntityBindingSource1_eTable_TempTablePath
                     THEN THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_TempTablePath_EditorButtonClick (sender, NEW EditorButtonEventArgs (?, ?)) .
-            END CASE . 
+            END CASE .
 &ENDIF
         END.
 
         CATCH err AS Progress.Lang.Error:
-            ErrorHelper:ShowErrorMessage (err) .                
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
     END METHOD .
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Sets the Source Buffer Key phrase to Buffer Fields
-	    Notes:
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID SetKeysFields ():
-		
+    /*------------------------------------------------------------------------------
+        Purpose: Sets the Source Buffer Key phrase to Buffer Fields
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID SetKeysFields ():
+
         DEFINE VARIABLE cKeys    AS CHARACTER NO-UNDO .
         DEFINE VARIABLE cBuffers AS CHARACTER NO-UNDO .
         DEFINE VARIABLE cTables  AS CHARACTER NO-UNDO .
@@ -918,74 +930,74 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.MemberTableViewerControl INHERITS
         DEFINE VARIABLE cFields  AS CHARACTER NO-UNDO .
 
         DEFINE VARIABLE hBuffer  AS HANDLE    NO-UNDO .
-        
-        IF NOT THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_SourceBufferKeys:Enabled OR 
-           THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_SourceBufferKeys:ReadOnly THEN 
-            RETURN . 
-        
-        ASSIGN cBuffers = THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_SourceBufferNames:Text 
+
+        IF NOT THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_SourceBufferKeys:Enabled OR
+           THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_SourceBufferKeys:ReadOnly THEN
+            RETURN .
+
+        ASSIGN cBuffers = THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_SourceBufferNames:Text
                cTables  = THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_SourceTableNames:Text .
-        
-        IF cBuffers > "":U THEN . 
+
+        IF cBuffers > "":U THEN .
         ELSE DO:
             MessageFormHelper:ShowMessage ("Can only assign Keys when temp-table has source buffers.":U,
                                            "Business Entity Designer":U,
                                            MessageFormImages:ImageWarning) .
-            RETURN . 
-        END. 
-            
+            RETURN .
+        END.
+
         IF NUM-ENTRIES (cBuffers) <> NUM-ENTRIES (cTables) THEN DO:
             MessageFormHelper:ShowMessage ("Buffer and Table settings do not match.":U,
                                            "Business Entity Designer":U,
                                            MessageFormImages:ImageWarning) .
-            RETURN . 
-        END.            
-            
+            RETURN .
+        END.
+
         IF NUM-ENTRIES (cBuffers) = 1 THEN DO:
             DO ON ERROR UNDO, THROW:
-                
+
                 CREATE BUFFER hBuffer FOR TABLE ENTRY (1, cTables) .
-            
+
                 ASSIGN cFields = BufferHelper:UniqueKeyFields (hBuffer, FALSE, FALSE) .
 
                 FINALLY:
-                    GarbageCollectorHelper:DeleteObject (hBuffer) .		
+                    GarbageCollectorHelper:DeleteObject (hBuffer) .
                 END FINALLY.
             END.
-    
-            IF cFields > "":U THEN              
+
+            IF cFields > "":U THEN
                 cKeys = SUBSTITUTE ("KEYS (&1)":U, cFields) .
             ELSE
-                cKeys = "KEYS (<PLEASE SPECIFY>)":U .  
+                cKeys = "KEYS (<PLEASE SPECIFY>)":U .
         END.
         ELSE
             DO i = 1 TO NUM-ENTRIES (cBuffers):
                 DO ON ERROR UNDO, THROW:
-                    
+
                     CREATE BUFFER hBuffer FOR TABLE ENTRY (i, cTables) .
-                
+
                     ASSIGN cFields = BufferHelper:UniqueKeyFields (hBuffer, FALSE, FALSE) .
-    
+
                     FINALLY:
-                        GarbageCollectorHelper:DeleteObject (hBuffer) .     
+                        GarbageCollectorHelper:DeleteObject (hBuffer) .
                     END FINALLY.
                 END.
-        
-                IF cFields > "":U THEN              
-                    cKeys = cKeys + SUBSTITUTE ("&1 KEYS (&2), ":U, 
+
+                IF cFields > "":U THEN
+                    cKeys = cKeys + SUBSTITUTE ("&1 KEYS (&2), ":U,
                                                 ENTRY (i, cBuffers),
                                                 cFields) .
                 ELSE
-                    cKeys = cKeys + SUBSTITUTE ("&1 KEYS (<PLEASE SPECIFY>), ":U, 
+                    cKeys = cKeys + SUBSTITUTE ("&1 KEYS (<PLEASE SPECIFY>), ":U,
                                                 ENTRY (i, cBuffers)) .
             END.
-        
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_SourceBufferKeys:Text = TRIM (cKeys, ", ":U) .
-         
-        IF THIS-OBJECT:SmartTableIOState = TableIOStateEnum:FieldsEnabled THEN 
-            THIS-OBJECT:SmartTableIOState = TableIOStateEnum:ModifyingData . 
 
-	END METHOD.
+        THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_SourceBufferKeys:Text = TRIM (cKeys, ", ":U) .
+
+        IF THIS-OBJECT:SmartTableIOState = TableIOStateEnum:FieldsEnabled THEN
+            THIS-OBJECT:SmartTableIOState = TableIOStateEnum:ModifyingData .
+
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Sets the Source Buffer Key phrase to ROWID
@@ -996,96 +1008,96 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.MemberTableViewerControl INHERITS
         DEFINE VARIABLE cKeys    AS CHARACTER NO-UNDO .
         DEFINE VARIABLE cBuffers AS CHARACTER NO-UNDO .
         DEFINE VARIABLE i        AS INTEGER   NO-UNDO .
-        
-        IF NOT THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_SourceBufferKeys:Enabled OR 
-           THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_SourceBufferKeys:ReadOnly THEN 
-            RETURN . 
-        
+
+        IF NOT THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_SourceBufferKeys:Enabled OR
+           THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_SourceBufferKeys:ReadOnly THEN
+            RETURN .
+
         ASSIGN cBuffers = THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_SourceBufferNames:Text .
-        
-        IF cBuffers > "":U THEN . 
+
+        IF cBuffers > "":U THEN .
         ELSE DO:
             MessageFormHelper:ShowMessage ("Can only assign Keys when temp-table has source buffers.":U,
                                            "Business Entity Designer":U,
                                            MessageFormImages:ImageWarning) .
-            RETURN . 
-        END. 
-            
-        IF NUM-ENTRIES (cBuffers) = 1 THEN 
-            cKeys = "KEYS (ROWID)":U . 
+            RETURN .
+        END.
+
+        IF NUM-ENTRIES (cBuffers) = 1 THEN
+            cKeys = "KEYS (ROWID)":U .
         ELSE
             DO i = 1 TO NUM-ENTRIES (cBuffers):
-                cKeys = cKeys + SUBSTITUTE ("&1 KEYS (ROWID), ":U, 
+                cKeys = cKeys + SUBSTITUTE ("&1 KEYS (ROWID), ":U,
                                             ENTRY (i, cBuffers)) .
             END.
-        
+
         THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_SourceBufferKeys:Text = TRIM (cKeys, ", ":U) .
-         
-        IF THIS-OBJECT:SmartTableIOState = TableIOStateEnum:FieldsEnabled THEN 
-            THIS-OBJECT:SmartTableIOState = TableIOStateEnum:ModifyingData . 
+
+        IF THIS-OBJECT:SmartTableIOState = TableIOStateEnum:FieldsEnabled THEN
+            THIS-OBJECT:SmartTableIOState = TableIOStateEnum:ModifyingData .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the EditorButtonClick event of the 
-                 smartBusinessEntityBindingSource1_eTable_TempTablePath instance                                                                        
-        Notes:                                                                  
+        Purpose: Event handler for the EditorButtonClick event of the
+                 smartBusinessEntityBindingSource1_eTable_TempTablePath instance
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The EditorButtonEventArgs with the data for this event       
+        @param e The EditorButtonEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PRIVATE VOID smartBusinessEntityBindingSource1_eTable_TempTablePath_EditorButtonClick
-                (sender AS System.Object, 
+                (sender AS System.Object,
                  e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
-        
+
         DEFINE VARIABLE oDialogResult AS System.Windows.Forms.DialogResult NO-UNDO .
-        
-        DEFINE VARIABLE oFolderBrowserDialog AS Consultingwerk.Windows.Util.Forms.FolderBrowserForm NO-UNDO . 
 
-        FILE-INFO:FILE-NAME = ".":U .
+        DEFINE VARIABLE oFolderBrowserDialog AS Consultingwerk.Windows.Util.Forms.FolderBrowserForm NO-UNDO .
 
-        oFolderBrowserDialog = NEW Consultingwerk.Windows.Util.Forms.FolderBrowserForm () . 
-        oFolderBrowserDialog:RootFolder = FILE-INFO:FULL-PATHNAME .         
-        
+        FILE-INFORMATION:FILE-NAME = ".":U .
+
+        oFolderBrowserDialog = NEW Consultingwerk.Windows.Util.Forms.FolderBrowserForm () .
+        oFolderBrowserDialog:RootFolder = FILE-INFORMATION:FULL-PATHNAME .
+
         WAIT-FOR oFolderBrowserDialog:ShowDialog() SET oDialogResult .
-        
+
         IF Progress.Util.EnumHelper:AreEqual (oDialogResult, System.Windows.Forms.DialogResult:Ok) THEN DO:
-            FILE-INFO:FILE-NAME = ".":U .
-            
-            IF oFolderBrowserDialog:SelectedFolder BEGINS FILE-INFO:FULL-PATHNAME THEN 
-                ASSIGN THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_TempTablePath:Text = 
-                        REPLACE (SUBSTRING (oFolderBrowserDialog:SelectedFolder, LENGTH (FILE-INFO:FULL-PATHNAME) + 2), "~\":U, "/":U)  
-                       THIS-OBJECT:SmartTableIOState = TableIOStateEnum:ModifyingData .   
-            ELSE 
-                Consultingwerk.Util.MessageFormHelper:ShowMessage 
+            FILE-INFORMATION:FILE-NAME = ".":U .
+
+            IF oFolderBrowserDialog:SelectedFolder BEGINS FILE-INFORMATION:FULL-PATHNAME THEN
+                ASSIGN THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_TempTablePath:Text =
+                        REPLACE (SUBSTRING (oFolderBrowserDialog:SelectedFolder, LENGTH (FILE-INFORMATION:FULL-PATHNAME, "CHARACTER":U) + 2, -1, "CHARACTER":U), "~\":U, "/":U)
+                       THIS-OBJECT:SmartTableIOState = TableIOStateEnum:ModifyingData .
+            ELSE
+                Consultingwerk.Util.MessageFormHelper:ShowMessage
                               ("Unable to translate path into relative path."{&TRAN},
                                "Business Entity Designer"{&TRAN},
                                "Path needs to be relative to working directory."{&TRAN},
                                MessageFormImages:ImageWarning) .
         END.
-        
+
     END METHOD.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Event handler for the Validating event of the TempTableName field
-	    Notes:
-	    @param sender The reference to the object that raised the event
-	    @param e The CancelEventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID TempTableNameValidatingHandler (sender AS System.Object,
-	                                                    e AS System.ComponentModel.CancelEventArgs):
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the Validating event of the TempTableName field
+        Notes:
+        @param sender The reference to the object that raised the event
+        @param e The CancelEventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID TempTableNameValidatingHandler (sender AS System.Object,
+                                                        e AS System.ComponentModel.CancelEventArgs):
 
         DEFINE VARIABLE cBeforeTableName AS CHARACTER NO-UNDO.
-		
-		IF NOT THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_TempTableName:Focused OR 
-		   NOT THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_TempTableName:Enabled THEN 
-		    RETURN . 
-		
-		IF THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_TempTableName:Text = 
-		   THIS-OBJECT:smartDataSource:GetFieldValues ("TempTableName":U) THEN 
-		      RETURN . 
-		      
-        ASSIGN cBeforeTableName = CAST (CAST (THIS-OBJECT:SmartDataSource, SmartDatasetChildAdapter):DatasetController, 
-                                        BusinessEntityDatasetController):BeforeTableName 
+
+        IF NOT THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_TempTableName:Focused OR
+           NOT THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_TempTableName:Enabled THEN
+            RETURN .
+
+        IF THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_TempTableName:Text =
+           THIS-OBJECT:smartDataSource:GetFieldValues ("TempTableName":U) THEN
+              RETURN .
+
+        ASSIGN cBeforeTableName = CAST (CAST (THIS-OBJECT:SmartDataSource, SmartDatasetChildAdapter):DatasetController,
+                                        BusinessEntityDatasetController):BeforeTableName
                             (THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_TempTableName:Text) .
 
         IF cBeforeTableName <> THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_TempTableBeforeName:Text THEN DO:
@@ -1095,59 +1107,59 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.MemberTableViewerControl INHERITS
 
         END.
 
-	END METHOD.
-
-	/*------------------------------------------------------------------------------
-	    Purpose: Event handler for the ToolClick event of the ultraToolbarsManager1
-	    Notes:
-	    @param sender The reference to the object that raised the event
-	    @param e The ToolClickEventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraToolbarsManager1_ToolClick (sender AS System.Object, 
-	                                                     e AS Infragistics.Win.UltraWinToolbars.ToolClickEventArgs):
-		
-		CASE e:Tool:Key:
-		    WHEN "Clear":U THEN DO:
-                IF NOT THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_SourceBufferKeys:Enabled OR 
-                   THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_SourceBufferKeys:ReadOnly THEN 
-                    RETURN . 
-                
-		        THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_SourceBufferKeys:Text = "":U .
-		         
-		        IF THIS-OBJECT:SmartTableIOState = TableIOStateEnum:FieldsEnabled THEN 
-		            THIS-OBJECT:SmartTableIOState = TableIOStateEnum:ModifyingData . 
-		    END.
-		    WHEN "Key Fields":U THEN DO:
-		        THIS-OBJECT:SetKeysFields () .
-		    END.
-		    WHEN "ROWID":U THEN DO:
-		        THIS-OBJECT:SetKeysRowid () .
-		    END.
-        END CASE . 
-
-        CATCH err AS Progress.Lang.Error:
-        	ErrorHelper:ShowErrorMessage (err) .	
-        END CATCH.
-
-	END METHOD.
-
-	/*------------------------------------------------------------------------------
-	    Purpose: Validates the values
-	    Notes:
-	------------------------------------------------------------------------------*/
-	METHOD OVERRIDE PUBLIC VOID VisualValidate ():
-		
-        IF THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_SourceBufferKeys:Text > "":U AND NOT 
-           THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_SourceBufferKeys:Text MATCHES "*KEYS*":U THEN 
-            
-            UNDO, THROW NEW ClientValidationError ("Source Buffer Keys phrase must contain ~"KEYS~" keyword!", 0, 
-                                                   THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_SourceBufferKeys) . 
-
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the MemberTableViewerControl class                                                                         
-        Notes:                                                                        
+        Purpose: Event handler for the ToolClick event of the ultraToolbarsManager1
+        Notes:
+        @param sender The reference to the object that raised the event
+        @param e The ToolClickEventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID ultraToolbarsManager1_ToolClick (sender AS System.Object,
+                                                         e AS Infragistics.Win.UltraWinToolbars.ToolClickEventArgs):
+
+        CASE e:Tool:Key:
+            WHEN "Clear":U THEN DO:
+                IF NOT THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_SourceBufferKeys:Enabled OR
+                   THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_SourceBufferKeys:ReadOnly THEN
+                    RETURN .
+
+                THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_SourceBufferKeys:Text = "":U .
+
+                IF THIS-OBJECT:SmartTableIOState = TableIOStateEnum:FieldsEnabled THEN
+                    THIS-OBJECT:SmartTableIOState = TableIOStateEnum:ModifyingData .
+            END.
+            WHEN "Key Fields":U THEN DO:
+                THIS-OBJECT:SetKeysFields () .
+            END.
+            WHEN "ROWID":U THEN DO:
+                THIS-OBJECT:SetKeysRowid () .
+            END.
+        END CASE .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Validates the values
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD OVERRIDE PUBLIC VOID VisualValidate ():
+
+        IF THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_SourceBufferKeys:Text > "":U AND NOT
+           THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_SourceBufferKeys:Text MATCHES "*KEYS*":U THEN
+
+            UNDO, THROW NEW ClientValidationError ("Source Buffer Keys phrase must contain ~"KEYS~" keyword!"{&TRAN}, 0,
+                                                   THIS-OBJECT:smartBusinessEntityBindingSource1_eTable_SourceBufferKeys) .
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Destructor for the MemberTableViewerControl class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC MemberTableViewerControl ():
 

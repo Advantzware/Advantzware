@@ -67,13 +67,13 @@ CLASS Consultingwerk.Point
         Notes:   Useful for debugging purposes
         @return The string representation of the Point  
     ------------------------------------------------------------------------------*/
-	METHOD OVERRIDE PUBLIC CHARACTER ToString ():
-		
-		RETURN SUBSTITUTE ("Point X: &1 - Y: &2":U,
-		                   THIS-OBJECT:X, 
-		                   THIS-OBJECT:Y).
+    METHOD OVERRIDE PUBLIC CHARACTER ToString ():
+        
+        RETURN SUBSTITUTE ("Point X: &1 - Y: &2":U,
+                           THIS-OBJECT:X, 
+                           THIS-OBJECT:Y).
 
-	END METHOD .
+    END METHOD .
 
 &IF DEFINED (DotNetAccessible) NE 0 &THEN 
     /*------------------------------------------------------------------------------
@@ -82,10 +82,10 @@ CLASS Consultingwerk.Point
         Notes:   
         @return The System.Drawing.Point with the same coordinates 
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC System.Drawing.Point ToSystemDrawingPoint ():
-		
-		RETURN NEW System.Drawing.Point (THIS-OBJECT:X, THIS-OBJECT:Y).
+    METHOD PUBLIC System.Drawing.Point ToSystemDrawingPoint ():
+        
+        RETURN NEW System.Drawing.Point (THIS-OBJECT:X, THIS-OBJECT:Y).
 
-	END METHOD .
+    END METHOD .
 &ENDIF
 END CLASS.

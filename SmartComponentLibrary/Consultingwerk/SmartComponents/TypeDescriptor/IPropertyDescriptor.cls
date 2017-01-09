@@ -35,7 +35,7 @@ INTERFACE Consultingwerk.SmartComponents.TypeDescriptor.IPropertyDescriptor:
         Purpose: Returns the Name of the Property 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY PropertyName AS CHARACTER NO-UNDO 
-	GET.
+    DEFINE PUBLIC PROPERTY PropertyName AS CHARACTER NO-UNDO 
+    GET.
 
 END INTERFACE.

@@ -32,9 +32,9 @@ CLASS Consultingwerk.Windows.TempTableObjectMapping.UnmappedUniqueIndexFieldExce
        Purpose: Returns the name of the index field that caused the issue
        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY FieldName AS CHARACTER NO-UNDO 
-	GET.
-	PRIVATE SET. 
+    DEFINE PUBLIC PROPERTY FieldName AS CHARACTER NO-UNDO 
+    GET.
+    PRIVATE SET. 
 
     /*------------------------------------------------------------------------------
        Purpose: Returns the name of the System.Type that caused the issue
@@ -51,15 +51,15 @@ CLASS Consultingwerk.Windows.TempTableObjectMapping.UnmappedUniqueIndexFieldExce
        @param pcFieldName The field name for the exception
        @param pcTypeName The type name for the exception
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC UnmappedUniqueIndexFieldException (pcErrorMessage AS CHARACTER,
-	                                                      pcFieldName AS CHARACTER,
-	                                                      pcTypeName AS CHARACTER):
-		
-		SUPER (pcErrorMessage, 0).
-		
-		ASSIGN THIS-OBJECT:FieldName = pcFieldName
-		       THIS-OBJECT:TypeName  = pcTypeName .
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC UnmappedUniqueIndexFieldException (pcErrorMessage AS CHARACTER,
+                                                          pcFieldName AS CHARACTER,
+                                                          pcTypeName AS CHARACTER):
+        
+        SUPER (pcErrorMessage, 0).
+        
+        ASSIGN THIS-OBJECT:FieldName = pcFieldName
+               THIS-OBJECT:TypeName  = pcTypeName .
+        
+    END CONSTRUCTOR.
 
 END CLASS.

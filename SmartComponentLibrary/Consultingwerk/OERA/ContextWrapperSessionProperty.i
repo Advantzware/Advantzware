@@ -11,11 +11,11 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : ContextWrapperSessionProperty.i
-    Purpose     : 
+    Purpose     :
 
     Syntax      :
 
-    Description : 
+    Description :
 
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Wed Jul 20 01:09:21 CEST 2011
@@ -25,37 +25,41 @@
 /* ***************************  Main Block  *************************** */
 
     /*------------------------------------------------------------------------------
-        Purpose: Wrapps access to eSessionContext.{1}                                                                       
-        Notes:                                                                        
+        Purpose: Wrapps access to eSessionContext.{1}
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC STATIC PROPERTY {1} AS {2} NO-UNDO 
+    DEFINE PUBLIC STATIC PROPERTY {1} AS {2} NO-UNDO
     GET ():
         DEFINE VARIABLE hBuffer AS HANDLE NO-UNDO.
-        
+
+        {Consultingwerk/Assertion/HandleAssert/ValidHandle.i SessionManager:ContextDataset "'Context Dataset'{&TRAN}"} .
+
         DatasetAssert:HasBuffer (SessionManager:ContextDataset,
-                                 "eSessionContext":U) . 
-                                 
+                                 "eSessionContext":U) .
+
         ASSIGN hBuffer = SessionManager:ContextDataset::eSessionContext .
-        
-        hBuffer:FIND-FIRST () NO-ERROR . 
-        
-        IF NOT hBuffer:AVAILABLE THEN 
+
+        hBuffer:FIND-FIRST () NO-ERROR .
+
+        IF NOT hBuffer:AVAILABLE THEN
             RETURN ?  .
-        
-        RETURN GetSessionContextField ("{1}":U):BUFFER-VALUE . 
+
+        RETURN GetSessionContextField ("{1}":U):BUFFER-VALUE .
     END GET.
     SET (INPUT arg AS {2}):
         DEFINE VARIABLE hBuffer AS HANDLE NO-UNDO.
-        
+
+        {Consultingwerk/Assertion/HandleAssert/ValidHandle.i SessionManager:ContextDataset "'Context Dataset'{&TRAN}"} .
+
         DatasetAssert:HasBuffer (SessionManager:ContextDataset,
-                                 "eSessionContext":U) . 
-                                 
+                                 "eSessionContext":U) .
+
         ASSIGN hBuffer = SessionManager:ContextDataset::eSessionContext .
-        
-        hBuffer:FIND-FIRST () NO-ERROR . 
-        
-        IF NOT hBuffer:AVAILABLE THEN 
+
+        hBuffer:FIND-FIRST () NO-ERROR .
+
+        IF NOT hBuffer:AVAILABLE THEN
             hBuffer:BUFFER-CREATE () .
-        
-        GetSessionContextField ("{1}":U):BUFFER-VALUE = arg .               
+
+        GetSessionContextField ("{1}":U):BUFFER-VALUE = arg .
     END SET.

@@ -51,10 +51,11 @@ CLASS Consultingwerk.Windows.Framework.System.SmartValueListViewerControl
         
     END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design
-        Notes:   
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
         
         /* NOTE: The following method is automatically generated.
@@ -70,6 +71,9 @@ CLASS Consultingwerk.Windows.Framework.System.SmartValueListViewerControl
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance1 AS Infragistics.Win.Appearance NO-UNDO.
         appearance1 = NEW Infragistics.Win.Appearance().
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE resources AS Progress.Util.ResourceManager NO-UNDO.
+        resources = NEW Progress.Util.ResourceManager("Consultingwerk.Windows.Framework.System.SmartValueListViewerControl":U).
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance2 AS Infragistics.Win.Appearance NO-UNDO.
         appearance2 = NEW Infragistics.Win.Appearance().
@@ -92,13 +96,10 @@ CLASS Consultingwerk.Windows.Framework.System.SmartValueListViewerControl
         /*  */
         /* smartBusinessEntityBindingSource1 */
         /*  */
-        THIS-OBJECT:smartBusinessEntityBindingSource1:AddFields = FALSE.
         THIS-OBJECT:smartBusinessEntityBindingSource1:BindTo = "QUERY":U.
-        THIS-OBJECT:smartBusinessEntityBindingSource1:ClearSchema = FALSE.
         THIS-OBJECT:smartBusinessEntityBindingSource1:EntityJoin = "YES":U.
         THIS-OBJECT:smartBusinessEntityBindingSource1:EntityName = "Consultingwerk.SmartFramework.System.ValueListBusinessEntity":U.
         THIS-OBJECT:smartBusinessEntityBindingSource1:EntityTable = "eSmartValueList":U.
-        THIS-OBJECT:smartBusinessEntityBindingSource1:ImportSchema = FALSE.
         THIS-OBJECT:smartBusinessEntityBindingSource1:MaxDataGuess = 0.
         THIS-OBJECT:smartBusinessEntityBindingSource1:NoLOBs = FALSE.
         tableDesc1:ChildTables = ?.
@@ -115,81 +116,49 @@ CLASS Consultingwerk.Windows.Framework.System.SmartValueListViewerControl
         /*  */
         appearance1:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:tbModuleGuid_Label:Appearance = appearance1.
-        THIS-OBJECT:tbModuleGuid_Label:AutoSize = TRUE.
-        THIS-OBJECT:tbModuleGuid_Label:Location = NEW System.Drawing.Point(4, 7).
+        resources:ApplyResources(THIS-OBJECT:tbModuleGuid_Label, "tbModuleGuid_Label":U).
         THIS-OBJECT:tbModuleGuid_Label:Name = "tbModuleGuid_Label":U.
-        THIS-OBJECT:tbModuleGuid_Label:Size = NEW System.Drawing.Size(45, 14).
-        THIS-OBJECT:tbModuleGuid_Label:TabIndex = 0.
-        THIS-OBJECT:tbModuleGuid_Label:Text = "Module:":U.
         /*  */
         /* tbValueListKey_Label */
         /*  */
         appearance2:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:tbValueListKey_Label:Appearance = appearance2.
-        THIS-OBJECT:tbValueListKey_Label:AutoSize = TRUE.
-        THIS-OBJECT:tbValueListKey_Label:Location = NEW System.Drawing.Point(4, 33).
+        resources:ApplyResources(THIS-OBJECT:tbValueListKey_Label, "tbValueListKey_Label":U).
         THIS-OBJECT:tbValueListKey_Label:Name = "tbValueListKey_Label":U.
-        THIS-OBJECT:tbValueListKey_Label:Size = NEW System.Drawing.Size(80, 14).
-        THIS-OBJECT:tbValueListKey_Label:TabIndex = 2.
-        THIS-OBJECT:tbValueListKey_Label:Text = "Value List Key:":U.
         /*  */
         /* tbValueListKey */
         /*  */
-        DEFINE VARIABLE nestedvar0 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar0 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:tbValueListKey:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar0, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:tbValueListKey, "tbValueListKey":U).
         THIS-OBJECT:tbValueListKey:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "ValueListKey":U, TRUE)).
         THIS-OBJECT:tbValueListKey:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:tbValueListKey:Location = NEW System.Drawing.Point(114, 29).
         THIS-OBJECT:tbValueListKey:Name = "tbValueListKey":U.
-        THIS-OBJECT:tbValueListKey:Size = NEW System.Drawing.Size(183, 21).
-        THIS-OBJECT:tbValueListKey:TabIndex = 3.
         /*  */
         /* tbValueListDescription_Label */
         /*  */
         appearance3:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:tbValueListDescription_Label:Appearance = appearance3.
-        THIS-OBJECT:tbValueListDescription_Label:AutoSize = TRUE.
-        THIS-OBJECT:tbValueListDescription_Label:Location = NEW System.Drawing.Point(4, 59).
+        resources:ApplyResources(THIS-OBJECT:tbValueListDescription_Label, "tbValueListDescription_Label":U).
         THIS-OBJECT:tbValueListDescription_Label:Name = "tbValueListDescription_Label":U.
-        THIS-OBJECT:tbValueListDescription_Label:Size = NEW System.Drawing.Size(64, 14).
-        THIS-OBJECT:tbValueListDescription_Label:TabIndex = 4.
-        THIS-OBJECT:tbValueListDescription_Label:Text = "Description:":U.
         /*  */
         /* tbValueListDescription */
         /*  */
-        DEFINE VARIABLE nestedvar1 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar1 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:tbValueListDescription:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar1, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:tbValueListDescription, "tbValueListDescription":U).
         THIS-OBJECT:tbValueListDescription:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "ValueListDescription":U, TRUE)).
         THIS-OBJECT:tbValueListDescription:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:tbValueListDescription:Location = NEW System.Drawing.Point(114, 55).
         THIS-OBJECT:tbValueListDescription:Name = "tbValueListDescription":U.
-        THIS-OBJECT:tbValueListDescription:Size = NEW System.Drawing.Size(183, 21).
-        THIS-OBJECT:tbValueListDescription:TabIndex = 5.
         /*  */
         /* smartComboEditor1 */
         /*  */
-        DEFINE VARIABLE nestedvar2 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar2 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:smartComboEditor1:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar2, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:smartComboEditor1, "smartComboEditor1":U).
         THIS-OBJECT:smartComboEditor1:DataBindings:Add(NEW System.Windows.Forms.Binding("Value":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "ModuleGuid":U, TRUE)).
-        THIS-OBJECT:smartComboEditor1:DisplayFields = "ModuleName,ModuleDescription":U.
         THIS-OBJECT:smartComboEditor1:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:smartComboEditor1:DisplaySubstitute = "&1 - &2":U.
         THIS-OBJECT:smartComboEditor1:DropDownStyle = Infragistics.Win.DropDownStyle:DropDownList.
-        THIS-OBJECT:smartComboEditor1:EntityName = "Consultingwerk.SmartFramework.Menu.ModuleBusinessEntity":U.
-        THIS-OBJECT:smartComboEditor1:EntityTable = "eSmartModule":U.
-        THIS-OBJECT:smartComboEditor1:KeyField = "ModuleGuid":U.
         THIS-OBJECT:smartComboEditor1:LimitToList = TRUE.
-        THIS-OBJECT:smartComboEditor1:Location = NEW System.Drawing.Point(114, 3).
         THIS-OBJECT:smartComboEditor1:Name = "smartComboEditor1":U.
-        THIS-OBJECT:smartComboEditor1:Size = NEW System.Drawing.Size(183, 21).
-        THIS-OBJECT:smartComboEditor1:TabIndex = 1.
         /*  */
         /* SmartValueListViewerControl */
         /*  */
-        THIS-OBJECT:AutoScaleDimensions = NEW System.Drawing.SizeF(Progress.Util.CastUtil:ToSingle(6), Progress.Util.CastUtil:ToSingle(13)).
+        resources:ApplyResources(THIS-OBJECT, "$this":U).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:smartComboEditor1).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:tbModuleGuid_Label).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:tbValueListKey_Label).
@@ -197,7 +166,6 @@ CLASS Consultingwerk.Windows.Framework.System.SmartValueListViewerControl
         THIS-OBJECT:Controls:Add(THIS-OBJECT:tbValueListDescription_Label).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:tbValueListDescription).
         THIS-OBJECT:Name = "SmartValueListViewerControl":U.
-        THIS-OBJECT:Size = NEW System.Drawing.Size(300, 143).
         CAST(THIS-OBJECT:smartBusinessEntityBindingSource1, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:tbValueListKey, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:tbValueListDescription, System.ComponentModel.ISupportInitialize):EndInit().

@@ -32,18 +32,18 @@ CLASS Consultingwerk.Windows.Controls.PropertyChangedEventArgs
         Purpose: Gets and sets the name of the property that has changesd
         Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY PropertyName AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY PropertyName AS CHARACTER NO-UNDO 
+    GET.
+    SET. 
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Constructor for the PropertyChangedEventArgs class 
-	    Notes:
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC PropertyChangedEventArgs ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the PropertyChangedEventArgs class 
+        Notes:
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC PropertyChangedEventArgs ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the PropertyChangedEventArgs class 

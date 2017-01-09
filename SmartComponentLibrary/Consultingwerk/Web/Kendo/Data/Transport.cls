@@ -33,19 +33,19 @@ CLASS Consultingwerk.Web.Kendo.Data.Transport
     INHERITS JsonSerializable
     IMPLEMENTS ITransport: 
 
-    {Consultingwerk/JsonSerializableProperty.i read CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i dataType CHARACTER} .
-	
-	/*------------------------------------------------------------------------------
+    {Consultingwerk/JsonSerializableProperty11.i read CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i dataType CHARACTER} .
+    
+    /*------------------------------------------------------------------------------
         Purpose: Constructor for the Transport class                                                                     
         Notes:                                                                        
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC Transport ():
-		SUPER ().
-		
-		THIS-OBJECT:UseSerializedTypeInformation = FALSE . 
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC Transport ():
+        SUPER ().
+        
+        THIS-OBJECT:UseSerializedTypeInformation = FALSE . 
         THIS-OBJECT:AddSerializableProperties ("{&SerializableProperties}":U) .
-                		
-	END CONSTRUCTOR.
+                        
+    END CONSTRUCTOR.
 
 END CLASS.

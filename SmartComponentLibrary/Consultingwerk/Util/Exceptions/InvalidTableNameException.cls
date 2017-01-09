@@ -44,13 +44,13 @@ CLASS Consultingwerk.Util.Exceptions.InvalidTableNameException
        @param pcErrorMessage The error message for the exception
        @param pcTableName The name of the table that caused the exception
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC InvalidTableNameException (pcErrorMessage AS CHARACTER,
-	                                              pcTableName AS CHARACTER):
+    CONSTRUCTOR PUBLIC InvalidTableNameException (pcErrorMessage AS CHARACTER,
+                                                  pcTableName AS CHARACTER):
 
-		SUPER (SUBSTITUTE (pcErrorMessage, pcTableName), 0).
-	
-	   ASSIGN THIS-OBJECT:TableName = pcTableName . 
-		
-	END CONSTRUCTOR.
-		
+        SUPER (SUBSTITUTE (pcErrorMessage, pcTableName), 0).
+    
+       ASSIGN THIS-OBJECT:TableName = pcTableName . 
+        
+    END CONSTRUCTOR.
+        
 END CLASS.

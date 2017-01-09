@@ -81,13 +81,13 @@ CLASS Consultingwerk.Util.PropathHelper:
         DEFINE VARIABLE i          AS INTEGER   NO-UNDO.
         DEFINE VARIABLE cEntry     AS CHARACTER NO-UNDO.
         
-        FILE-INFO:FILE-NAME = pcBasePath . 
+        FILE-INFORMATION:FILE-NAME = pcBasePath . 
         
-        IF FILE-INFO:FULL-PATHNAME > "":U THEN . 
+        IF FILE-INFORMATION:FULL-PATHNAME > "":U THEN . 
         ELSE 
             UNDO, THROW NEW AppError ("Invalid base path for method MakeAbsolute."{&TRAN}, 0) .
         
-        ASSIGN pcBasePath = FILE-INFO:FULL-PATHNAME 
+        ASSIGN pcBasePath = FILE-INFORMATION:FULL-PATHNAME 
                cDelimiter = ",":U . 
         
         DO i = 1 TO NUM-ENTRIES (pcPropath, cDelimiter):
@@ -102,10 +102,10 @@ CLASS Consultingwerk.Util.PropathHelper:
                     
                     ASSIGN cEntry = pcBasePath + "~\":U + cEntry . 
             
-                    FILE-INFO:FILE-NAME = cEntry . 
+                    FILE-INFORMATION:FILE-NAME = cEntry . 
                     
-                    IF FILE-INFO:FULL-PATHNAME > "":U THEN 
-                        ASSIGN cEntry = FILE-INFO:FULL-PATHNAME .
+                    IF FILE-INFORMATION:FULL-PATHNAME > "":U THEN 
+                        ASSIGN cEntry = FILE-INFORMATION:FULL-PATHNAME .
                 END.
                                       
                 ENTRY (i, pcPropath, cDelimiter) = cEntry .

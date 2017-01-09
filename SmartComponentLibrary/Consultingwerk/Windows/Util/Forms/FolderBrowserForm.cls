@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2006-2014 by Consultingwerk Ltd. ("CW") -            *
+ * Copyright (C) 2006-2016 by Consultingwerk Ltd. ("CW") -            *
  * www.consultingwerk.de and other contributors as listed             *
  * below.  All Rights Reserved.                                       *
  *                                                                    *
@@ -13,11 +13,11 @@
     File        : FolderBrowserForm
     Purpose     : Allows selection of a folder under a given (custom)
                   root folder
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Thu May 15 14:08:19 CEST 2014
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -27,71 +27,71 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 USING Consultingwerk.Forms.*              FROM PROPATH .
 USING Consultingwerk.Util.*               FROM PROPATH .
 USING Consultingwerk.Windows.Util.*       FROM PROPATH .
-USING Consultingwerk.Windows.Util.Forms.* FROM PROPATH .  
-USING Infragistics.Win.UltraWinTree.*     FROM ASSEMBLY . 
+USING Consultingwerk.Windows.Util.Forms.* FROM PROPATH .
+USING Infragistics.Win.UltraWinTree.*     FROM ASSEMBLY .
 USING Progress.Lang.*                     FROM PROPATH .
 USING Progress.Util.*                     FROM ASSEMBLY .
-USING System.IO.*                         FROM ASSEMBLY . 
+USING System.IO.*                         FROM ASSEMBLY .
 USING System.Windows.Forms.*              FROM ASSEMBLY .
 
-CLASS Consultingwerk.Windows.Util.Forms.FolderBrowserForm INHERITS BaseForm: 
+CLASS Consultingwerk.Windows.Util.Forms.FolderBrowserForm INHERITS BaseForm:
 
     DEFINE PRIVATE VARIABLE button2 AS System.Windows.Forms.Button NO-UNDO.
     DEFINE PRIVATE VARIABLE button1 AS System.Windows.Forms.Button NO-UNDO.
     DEFINE PRIVATE VARIABLE button3 AS System.Windows.Forms.Button NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE timer1 AS System.Windows.Forms.Timer NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraTextEditor1 AS Infragistics.Win.UltraWinEditors.UltraTextEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraTree1 AS Infragistics.Win.UltraWinTree.UltraTree NO-UNDO.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the RootFolder this Dialog should be navigation on 
-                 subfolders of 
-        Notes:   
+        Purpose: Gets and sets the RootFolder this Dialog should be navigation on
+                 subfolders of
+        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY RootFolder AS CHARACTER NO-UNDO INIT ".":U 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY RootFolder AS CHARACTER NO-UNDO INIT ".":U
+    GET.
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns the name of the selected folder 
-        Notes:   
+        Purpose: Returns the name of the selected folder
+        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY SelectedFolder AS CHARACTER NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    DEFINE PUBLIC PROPERTY SelectedFolder AS CHARACTER NO-UNDO
+    GET.
+    PROTECTED SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the FolderBrowserForm class 
-        Notes:   
+        Purpose: Constructor for the FolderBrowserForm class
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC FolderBrowserForm ():
-		
+    CONSTRUCTOR PUBLIC FolderBrowserForm ():
+
         SUPER().
         InitializeComponent().
-        
+
         &IF NOT PROVERSION BEGINS "10.2":U AND NOT PROVERSION BEGINS "11.0" &THEN
         THIS-OBJECT:ComponentsCollection:Add (THIS-OBJECT:components).
-        &ENDIF        
-        
+        &ENDIF
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the Click event of the button3 
-        Notes:   
+        Purpose: Event handler for the Click event of the button3
+        Notes:
         @param sender The reference to the object that raised this event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID button3_Click (sender AS System.Object, 
-	                                   e AS System.EventArgs):
-		
-		DEFINE VARIABLE cFolderName AS CHARACTER     NO-UNDO .
-        DEFINE VARIABLE oDirectory  AS DirectoryInfo NO-UNDO . 
-        DEFINE VARIABLE oDirectory2 AS DirectoryInfo NO-UNDO . 
+    METHOD PRIVATE VOID button3_Click (sender AS System.Object,
+                                       e AS System.EventArgs):
+
+        DEFINE VARIABLE cFolderName AS CHARACTER     NO-UNDO .
+        DEFINE VARIABLE oDirectory  AS DirectoryInfo NO-UNDO .
+        DEFINE VARIABLE oDirectory2 AS DirectoryInfo NO-UNDO .
         DEFINE VARIABLE oNode       AS UltraTreeNode NO-UNDO .
         DEFINE VARIABLE oParent     AS UltraTreeNode NO-UNDO .
         DEFINE VARIABLE oTempNode   AS UltraTreeNode NO-UNDO .
@@ -102,69 +102,70 @@ CLASS Consultingwerk.Windows.Util.Forms.FolderBrowserForm INHERITS BaseForm:
         IF NOT InputPromptHelper:PromptForCharacterValue ({Consultingwerk/translate.i &string="'Create folder':U"},
                                                           {Consultingwerk/translate.i &string="'Please enter the name for the new folder to create':U"},
                                                           NEW Consultingwerk.Framework.NotEmptyInputValidator (),
-                                                          INPUT-OUTPUT cFolderName) THEN RETURN . 
+                                                          INPUT-OUTPUT cFolderName) THEN RETURN .
 
-        IF NOT ultraTree1:SelectedNodes[0]:Expanded = TRUE THEN DO: 
-            ultraTree1:SelectedNodes[0]:Expanded = TRUE .  
+        IF NOT ultraTree1:SelectedNodes[0]:Expanded = TRUE THEN DO:
+            ultraTree1:SelectedNodes[0]:Expanded = TRUE .
         END.
-        
+
         oDirectory = NEW DirectoryInfo (ultraTree1:SelectedNodes[0]:Key) .
 
-        FILE-INFO:FILE-NAME = oDirectory:FullName + "\":U + cFolderName .
-        
-        IF FILE-INFO:FULL-PATHNAME > "":U THEN  
-            UNDO, THROW NEW AppError ({Consultingwerk/translate.i &string="'A file or folder with that name does already exists!':U"}, 0) .            
+        FILE-INFORMATION:FILE-NAME = oDirectory:FullName + "~\":U + cFolderName .
+
+        IF FILE-INFORMATION:FULL-PATHNAME > "":U THEN
+            UNDO, THROW NEW AppError ({Consultingwerk/translate.i &string="'A file or folder with that name does already exists!':U"}, 0) .
 
         ASSIGN cFolderName = TRIM (REPLACE (cFolderName,  "/":U, "~\":U), "~\":U) .
 
         oDirectory2 = oDirectory:CreateSubdirectory (cFolderName) .
 
-        ASSIGN oParent = ultraTree1:SelectedNodes[0] . 
+        ASSIGN oParent = ultraTree1:SelectedNodes[0] .
 
         DO i = 1 TO NUM-ENTRIES (cFolderName, "~\":U):
-            ASSIGN cEntry  = ENTRY (i, cFolderName, "~\":U) 
+            ASSIGN cEntry  = ENTRY (i, cFolderName, "~\":U)
                    cFolder = oParent:Key + "~\":U + cEntry .
 
-            IF NOT oParent:Expanded THEN 
-                oParent:Expanded = TRUE . 
-                
+            IF NOT oParent:Expanded THEN
+                oParent:Expanded = TRUE .
+
             IF NOT oParent:Nodes:Exists (cFolder) THEN DO:
                 oNode = oParent:Nodes:Add (cFolder, cEntry) .
                 oNode:LeftImages:Add (ImageHelper:Load ("Consultingwerk/Windows/Images/folder_16.png":U)) .
-                
-                IF i < NUM-ENTRIES (cFolderName, "~\":U) THEN DO: 
+
+                IF i < NUM-ENTRIES (cFolderName, "~\":U) THEN DO:
                     oTempNode = oNode:Nodes:Add (GUID) .
                     oTempNode:Tag = "temp":U .
-                END.                
+                END.
             END.
-            ELSE 
+            ELSE
                 oNode = oParent:Nodes [cFolder] .
 
-            oParent = oNode . 
+            oParent = oNode .
         END.
 
         ultraTree1:SelectedNodes:Clear () .
-        UserInterfaceHelper:ProcessEvents() . 
-        ultraTree1:ActiveNode = oNode . 
-        oNode:Selected = TRUE . 
+        UserInterfaceHelper:ProcessEvents() .
+        ultraTree1:ActiveNode = oNode .
+        oNode:Selected = TRUE .
 
         CATCH err AS Progress.Lang.Error:
-        	ErrorHelper:ShowErrorMessage (err) .	
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
-	END METHOD .
+    END METHOD .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design 
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -266,268 +267,290 @@ CLASS Consultingwerk.Windows.Util.Forms.FolderBrowserForm INHERITS BaseForm:
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Inserts the Root Node 
-        Notes:   
+        Purpose: Inserts the Root Node
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID InsertRootNode ():
-		
-        DEFINE VARIABLE oRootNode AS UltraTreeNode  NO-UNDO . 
-        DEFINE VARIABLE oTempNode AS UltraTreeNode  NO-UNDO . 
+    METHOD PROTECTED VOID InsertRootNode ():
 
-        DEFINE VARIABLE oDirectory AS DirectoryInfo NO-UNDO . 
+        DEFINE VARIABLE oRootNode AS UltraTreeNode  NO-UNDO .
+        DEFINE VARIABLE oTempNode AS UltraTreeNode  NO-UNDO .
+
+        DEFINE VARIABLE oDirectory AS DirectoryInfo NO-UNDO .
         DEFINE VARIABLE cDirectory AS CHARACTER     NO-UNDO .
 
-        FILE-INFO:FILE-NAME = THIS-OBJECT:RootFolder . 
-        
-        IF FILE-INFO:FULL-PATHNAME > "":U THEN DO:
+        FILE-INFORMATION:FILE-NAME = THIS-OBJECT:RootFolder .
 
-            ASSIGN cDirectory = TRIM (FILE-INFO:FULL-PATHNAME, "~\":U) .
+        IF FILE-INFORMATION:FULL-PATHNAME > "":U THEN DO:
 
-            oRootNode = ultraTree1:Nodes:Add (FILE-INFO:FULL-PATHNAME) .
+            ASSIGN cDirectory = TRIM (FILE-INFORMATION:FULL-PATHNAME, "~\":U) .
+
+            oRootNode = ultraTree1:Nodes:Add (FILE-INFORMATION:FULL-PATHNAME) .
             oRootNode:LeftImages:Add (ImageHelper:Load ("Consultingwerk/Windows/Images/workplace_16.png":U)) .
-            
+
             oDirectory = NEW DirectoryInfo (cDirectory) .
-            
-            IF oDirectory:GetDirectories():Length > 0 THEN DO: 
+
+            IF oDirectory:GetDirectories():Length > 0 THEN DO:
                 oTempNode = oRootNode:Nodes:Add (GUID) .
                 oTempNode:Tag = "temp":U .
-            END.                
+            END.
         END.
-        ELSE 
-            MessageFormHelper:ShowMessage (SUBSTITUTE ("Root Folder &1 not found."{&TRAN}, QUOTER (THIS-OBJECT:RootFolder)), 
+        ELSE
+            MessageFormHelper:ShowMessage (SUBSTITUTE ("Root Folder &1 not found."{&TRAN}, QUOTER (THIS-OBJECT:RootFolder)),
                                            MessageFormImages:ImageWarning) .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the Shown event 
-        Notes:   
+        Purpose: Raises the Shown event
+        Notes:
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
-		
-		SUPER:OnShown (e) .
-		
-	    UserInterfaceHelper:ProcessEvents() . 
-	    
-	    THIS-OBJECT:InsertRootNode () . 	 
+    METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
 
-        UserInterfaceHelper:ProcessEvents() . 
+        SUPER:OnShown (e) .
+
+        UserInterfaceHelper:ProcessEvents() .
+
+        THIS-OBJECT:InsertRootNode () .
+
+        UserInterfaceHelper:ProcessEvents() .
 
         {Consultingwerk/foreach.i UltraTreeNode oNode in ultraTree1:Nodes}
-            oNode:Expanded = TRUE . 
+            oNode:Expanded = TRUE .
         END.
-        
-        IF ultraTree1:Nodes:Count > 0 THEN  
-            ultraTree1:Nodes[0]:Selected = TRUE . 
 
-        THIS-OBJECT:ultraTextEditor1:Focus () . 
+        IF ultraTree1:Nodes:Count > 0 THEN
+            ultraTree1:Nodes[0]:Selected = TRUE .
+
+        THIS-OBJECT:ultraTextEditor1:Focus () .
 
         CATCH err AS Progress.Lang.Error:
-        	ErrorHelper:ShowErrorMessage (err) .	
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
-	END METHOD .
+    END METHOD .
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Performs the search based on the search text
-	    Notes:
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID PerformSearch ():
-		
-		DEFINE VARIABLE cSearch AS CHARACTER                                        NO-UNDO .
-        DEFINE VARIABLE oList   AS "System.Collections.Generic.List<UltraTreeNode>" NO-UNDO . 
-        DEFINE VARIABLE oParent AS UltraTreeNode                                    NO-UNDO .        	
+    /*------------------------------------------------------------------------------
+        Purpose: Performs the search based on the search text
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID PerformSearch ():
 
-		ASSIGN cSearch = ultraTextEditor1:Text .
-		
-		IF cSearch > "":U THEN DO:
-		    ASSIGN cSearch = SUBSTITUTE ("*&1*":U, cSearch) .
-		    
-		    ultraTree1:ExpandAll (ExpandAllType:Always) .
-		    THIS-OBJECT:ViewHideAllNodes (FALSE) .
+        DEFINE VARIABLE cSearch AS CHARACTER                                        NO-UNDO .
+        DEFINE VARIABLE oList   AS "System.Collections.Generic.List<UltraTreeNode>" NO-UNDO .
+        DEFINE VARIABLE oParent AS UltraTreeNode                                    NO-UNDO .
+
+        ASSIGN cSearch = ultraTextEditor1:Text .
+
+        IF cSearch > "":U THEN DO:
+            ASSIGN cSearch = SUBSTITUTE ("*&1*":U, cSearch) .
+
+            ultraTree1:ExpandAll (ExpandAllType:Always) .
+            THIS-OBJECT:ViewHideAllNodes (FALSE) .
 
             oList = UltraTreeHelper:GetAllNodes (ultraTree1) .
-    
+
             {Consultingwerk/foreach.i UltraTreeNode oNode in oList}
-    
-                IF oNode:Text MATCHES cSearch THEN DO: 
+
+                IF oNode:Text MATCHES cSearch THEN DO:
                     oNode:Visible = TRUE .
-                    
+
                     oParent = oNode:Parent .
-                    
+
                     DO WHILE VALID-OBJECT (oParent):
-                        oParent:Visible = TRUE . 
+                        oParent:Visible = TRUE .
                         oParent = oParent:Parent .
-                    END. 
-                    
+                    END.
+
                 END.
-            END.    
+            END.
 
             UserInterfaceHelper:ProcessEvents() .
 
-            ultraTree1:SelectedNodes:Clear () . 
+            ultraTree1:SelectedNodes:Clear () .
 
-            IF ultraTree1:Nodes:Count > 0 THEN DO:  
+            IF ultraTree1:Nodes:Count > 0 THEN DO:
                 ultraTree1:Nodes[0]:Selected = TRUE .
-                ultraTree1:ActiveNode = ultraTree1:Nodes[0] . 
-            END. 
-		END.
-        ELSE DO:		
-		    ultraTree1:CollapseAll() .
-		    THIS-OBJECT:ViewHideAllNodes (TRUE) .
+                ultraTree1:ActiveNode = ultraTree1:Nodes[0] .
+            END.
+        END.
+        ELSE DO:
+            ultraTree1:CollapseAll() .
+            THIS-OBJECT:ViewHideAllNodes (TRUE) .
 
             {Consultingwerk/foreach.i UltraTreeNode oNode in ultraTree1:Nodes nodefine}
-                oNode:Expanded = TRUE . 
+                oNode:Expanded = TRUE .
             END.
-            
-            IF ultraTree1:Nodes:Count > 0 THEN  
-                ultraTree1:Nodes[0]:Selected = TRUE . 
+
+            IF ultraTree1:Nodes:Count > 0 THEN
+                ultraTree1:Nodes[0]:Selected = TRUE .
         END.
 
-	END METHOD.
+    END METHOD.
 
-	/*------------------------------------------------------------------------------
-        Purpose: Event handler for the Tick event of the timer1 
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the Tick event of the timer1
         Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID timer1_Tick (sender AS System.Object, e AS System.EventArgs):
-		
-		timer1:Enabled = FALSE . 
-		
-		THIS-OBJECT:PerformSearch () .
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID timer1_Tick (sender AS System.Object, e AS System.EventArgs):
 
-	END METHOD.
+        timer1:Enabled = FALSE .
 
-	/*------------------------------------------------------------------------------
+        THIS-OBJECT:PerformSearch () .
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
         Purpose: Event handler for the KeyDown event of the ultraTextEditor1
         Notes:
         @param sender The reference to the object that raised the event
         @param e The KeyEventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraTextEditor1_KeyDown (sender AS System.Object, 
-	                                              e AS System.Windows.Forms.KeyEventArgs):
-		
-		IF EnumHelper:AreEqual (e:KeyCode, Keys:Down) THEN 
-		    ultraTree1:Focus () .
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID ultraTextEditor1_KeyDown (sender AS System.Object,
+                                                  e AS System.Windows.Forms.KeyEventArgs):
 
-	END METHOD.
+        IF EnumHelper:AreEqual (e:KeyCode, Keys:Down) THEN
+            ultraTree1:Focus () .
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Event handler for the TextChanged of the ultraTextEditor1
-	    Notes:
-	    @param sender The reference to the object that raised the event
-	    @param e The System.EventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraTextEditor1_TextChanged (sender AS System.Object, 
-	                                                  e AS System.EventArgs):
-		
-		timer1:Enabled = FALSE . 
-        timer1:Enabled = TRUE . 
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the AfterSelect event of the ultraTree1 
-        Notes:   
+        Purpose: Event handler for the TextChanged of the ultraTextEditor1
+        Notes:
+        @param sender The reference to the object that raised the event
+        @param e The System.EventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID ultraTextEditor1_TextChanged (sender AS System.Object,
+                                                      e AS System.EventArgs):
+
+        timer1:Enabled = FALSE .
+        timer1:Enabled = TRUE .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the AfterSelect event of the ultraTree1
+        Notes:
         @param sender The reference to the object that raised this event
         @param e The SelectEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraTree1_AfterSelect (sender AS System.Object, 
-	                                            e AS Infragistics.Win.UltraWinTree.SelectEventArgs):
-		
-		IF e:NewSelections:Count = 1 THEN 
-		    ASSIGN button1:Enabled            = TRUE 
-		           button3:Enabled            = TRUE
-		           THIS-OBJECT:SelectedFolder = e:NewSelections[0]:Key . 
-        		           
-		ELSE
-		    ASSIGN button1:Enabled            = FALSE 
-		           button3:Enabled            = FALSE 
-		           THIS-OBJECT:SelectedFolder = "":U . 
+    METHOD PRIVATE VOID ultraTree1_AfterSelect (sender AS System.Object,
+                                                e AS Infragistics.Win.UltraWinTree.SelectEventArgs):
 
-	END METHOD .
+        IF e:NewSelections:Count = 1 THEN
+            ASSIGN button1:Enabled            = TRUE
+                   button3:Enabled            = TRUE
+                   THIS-OBJECT:SelectedFolder = e:NewSelections[0]:Key .
+
+        ELSE
+            ASSIGN button1:Enabled            = FALSE
+                   button3:Enabled            = FALSE
+                   THIS-OBJECT:SelectedFolder = "":U .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the BeforeExport event of the ultraTree1 
+        Purpose: Event handler for the BeforeExport event of the ultraTree1
         Notes:   Creates sub-nodes if required
         @param sender The reference to the object that raised this event
         @param e The CancelableNodeEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraTree1_BeforeExpand (sender AS System.Object, 
-	                                             e AS Infragistics.Win.UltraWinTree.CancelableNodeEventArgs):
-		
+    METHOD PRIVATE VOID ultraTree1_BeforeExpand (sender AS System.Object,
+                                                 e AS Infragistics.Win.UltraWinTree.CancelableNodeEventArgs):
+
         DEFINE VARIABLE oCurrentDirectory AS DirectoryInfo NO-UNDO .
-		
-        DEFINE VARIABLE oNode             AS UltraTreeNode NO-UNDO . 
-        DEFINE VARIABLE oTempNode         AS UltraTreeNode NO-UNDO . 
-		
-		IF e:TreeNode:Nodes:Count <> 1 OR 
-		   UNBOX (e:TreeNode:Nodes[0]:Tag) <> "temp":U THEN 
-		      RETURN . 
-		      
+
+        DEFINE VARIABLE oNode             AS UltraTreeNode NO-UNDO .
+        DEFINE VARIABLE oTempNode         AS UltraTreeNode NO-UNDO .
+
+        IF e:TreeNode:Nodes:Count <> 1 OR
+           UNBOX (e:TreeNode:Nodes[0]:Tag) <> "temp":U THEN
+              RETURN .
+
         GarbageCollectorHelper:ClearUltraTreeNodes (e:TreeNode:Nodes) .
 
-        oCurrentDirectory = NEW DirectoryInfo (e:TreeNode:Key) NO-ERROR . 
-        
-        IF NOT VALID-OBJECT (oCurrentDirectory) THEN 
-            RETURN . 
-                		      
-        {Consultingwerk/foreach.i DirectoryInfo oDirectory in oCurrentDirectory:GetDirectories()}        		      
+        oCurrentDirectory = NEW DirectoryInfo (e:TreeNode:Key) NO-ERROR .
 
-            oNode = e:TreeNode:Nodes:Add (oDirectory:FullName, oDirectory:Name) .
-            oNode:LeftImages:Add (ImageHelper:Load ("Consultingwerk/Windows/Images/folder_16.png":U)) .
-            
-            IF oDirectory:GetDirectories():Length > 0 THEN DO: 
-                oTempNode = oNode:Nodes:Add (GUID) .
-                oTempNode:Tag = "temp":U .
-            END.                
-        END.        		      
+        IF NOT VALID-OBJECT (oCurrentDirectory) THEN
+            RETURN .
 
-	END METHOD .
+        {Consultingwerk/foreach.i DirectoryInfo oDirectory in oCurrentDirectory:GetDirectories()}
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Event handler for the MouseDoubleClick event of the ultraTree1
-	    Notes:
-	    @param sender The reference to the object that raised the event
-	    @param e The MouseEventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraTree1_MouseDoubleClick (sender AS System.Object,
-	                                                 e AS MouseEventArgs):
-		
-		DEFINE VARIABLE oNode AS UltraTreeNode NO-UNDO . 
-		
-		oNode = ultraTree1:GetNodeFromPoint (e:Location) .
+            IF NOT oDirectory:Name BEGINS ".":U THEN DO:
+                oNode = e:TreeNode:Nodes:Add (oDirectory:FullName, oDirectory:Name) .
+                oNode:LeftImages:Add (ImageHelper:Load ("Consultingwerk/Windows/Images/folder_16.png":U)) .
+
+                IF oDirectory:GetDirectories():Length > 0 THEN DO:
+                    oTempNode = oNode:Nodes:Add (GUID) .
+                    oTempNode:Tag = "temp":U .
+                END.
+            END.
+        END.
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the MouseDoubleClick event of the ultraTree1
+        Notes:
+        @param sender The reference to the object that raised the event
+        @param e The MouseEventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID ultraTree1_MouseDoubleClick (sender AS System.Object,
+                                                     e AS MouseEventArgs):
+
+        DEFINE VARIABLE oNode AS UltraTreeNode NO-UNDO .
+
+        oNode = ultraTree1:GetNodeFromPoint (e:Location) .
 
         IF VALID-OBJECT (oNode) AND NOT oNode:HasNodes THEN DO:
-            THIS-OBJECT:DialogResult = DialogResult:OK . 
+            THIS-OBJECT:DialogResult = DialogResult:OK .
             THIS-OBJECT:Close ().
         END.
 
-	END METHOD.
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Views or hides all tree nodes
-	    Notes:
-	    @param plView Logical value indicating if the nodes should be shown
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID ViewHideAllNodes (plView AS LOGICAL):
-		
-        DEFINE VARIABLE oList AS "System.Collections.Generic.List<UltraTreeNode>" NO-UNDO . 
-		
-		oList = UltraTreeHelper:GetAllNodes (ultraTree1) .
-	
-	    {Consultingwerk/foreach.i UltraTreeNode oNode in oList}
-	
-	       ASSIGN oNode:Visible = plView . 
-	       
-	    END.
+    END METHOD.
 
-	END METHOD.
+    /*------------------------------------------------------------------------------
+        Purpose: Views or hides all tree nodes
+        Notes:
+        @param plView Logical value indicating if the nodes should be shown
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID ViewHideAllNodes (plView AS LOGICAL):
+
+        DEFINE VARIABLE oList AS "System.Collections.Generic.List<UltraTreeNode>" NO-UNDO .
+
+        oList = UltraTreeHelper:GetAllNodes (ultraTree1) .
+
+        {Consultingwerk/foreach.i UltraTreeNode oNode in oList}
+
+           ASSIGN oNode:Visible = plView .
+
+        END.
+
+    END METHOD.
 
 END CLASS.

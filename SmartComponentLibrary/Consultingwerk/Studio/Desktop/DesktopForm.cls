@@ -11,14 +11,14 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : DesktopForm
-    Purpose     : Desktop form to launch various SmartComponent Library 
+    Purpose     : Desktop form to launch various SmartComponent Library
                   tools
-    Syntax      : 
-    Description : Loads items from Consultingwerk\Studio\Desktop\items.xml 
-                  or a file name referenced using the -icfparam parameter 
+    Syntax      :
+    Description : Loads items from Consultingwerk/Studio/Desktop/items.xml
+                  or a file name referenced using the -icfparam parameter
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sun May 17 15:05:14 CEST 2015
-    Notes       : DesktopForm is based on the UltraCarousel Control which 
+    Notes       : DesktopForm is based on the UltraCarousel Control which
                   is available from OpenEdge 11.5 on only
   ----------------------------------------------------------------------*/
 
@@ -26,12 +26,12 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.*                        FROM PROPATH .
 USING Consultingwerk.Forms.*                  FROM PROPATH .
-USING Consultingwerk.Studio.Desktop.*         FROM PROPATH .  
+USING Consultingwerk.Studio.Desktop.*         FROM PROPATH .
 USING Consultingwerk.Util.*                   FROM PROPATH .
 USING Consultingwerk.Windows.API.*            FROM PROPATH .
 USING Progress.Lang.*                         FROM PROPATH .
 USING System.Diagnostics.*                    FROM ASSEMBLY.
-&IF NOT PROVERSION BEGINS "10" AND 
+&IF NOT PROVERSION BEGINS "10" AND
     NOT PROVERSION BEGINS "11.0" AND
     NOT PROVERSION BEGINS "11.1" AND
     NOT PROVERSION BEGINS "11.2" AND
@@ -42,16 +42,16 @@ USING Infragistics.Win.UltraWinCarousel.*     FROM ASSEMBLY .
 
 &ENDIF
 
-CLASS Consultingwerk.Studio.Desktop.DesktopForm INHERITS BaseForm: 
-	
-&IF NOT PROVERSION BEGINS "10" AND 
+CLASS Consultingwerk.Studio.Desktop.DesktopForm INHERITS BaseForm:
+
+&IF NOT PROVERSION BEGINS "10" AND
     NOT PROVERSION BEGINS "11.0" AND
     NOT PROVERSION BEGINS "11.1" AND
     NOT PROVERSION BEGINS "11.2" AND
     NOT PROVERSION BEGINS "11.3" AND
     NOT PROVERSION BEGINS "11.4" &THEN
-	
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE imageList1 AS System.Windows.Forms.ImageList NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraCarousel1 AS Infragistics.Win.UltraWinCarousel.UltraCarousel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraStatusBar1 AS Infragistics.Win.UltraWinStatusBar.UltraStatusBar NO-UNDO.
@@ -59,89 +59,90 @@ CLASS Consultingwerk.Studio.Desktop.DesktopForm INHERITS BaseForm:
     {Consultingwerk/Studio/Desktop/ttDesktopItems.i}
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the DesktopForm class 
-        Notes:   
+        Purpose: Constructor for the DesktopForm class
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC DesktopForm ():
-		
+    CONSTRUCTOR PUBLIC DesktopForm ():
+
         SUPER().
-        
+
         InitializeComponent().
-        
+
         THIS-OBJECT:ComponentsCollection:ADD(THIS-OBJECT:components).
-        
-        THIS-OBJECT:ultraStatusBar1:Panels["proversion":U]:Text       = SessionHelper:FullVersionString() . 
-        THIS-OBJECT:ultraStatusBar1:Panels["frameworkversion":U]:Text = (NEW FrameworkVersion()):GetVersionString (). 
-        THIS-OBJECT:ultraStatusBar1:Panels["bitness":U]:Text          = SUBSTITUTE ("&1 bit":U, SessionHelper:ProcessBitness()) . 
-        
+
+        THIS-OBJECT:ultraStatusBar1:Panels["proversion":U]:Text       = SessionHelper:FullVersionString() .
+        THIS-OBJECT:ultraStatusBar1:Panels["frameworkversion":U]:Text = (NEW FrameworkVersion()):GetVersionString ().
+        THIS-OBJECT:ultraStatusBar1:Panels["bitness":U]:Text          = SUBSTITUTE ("&1 bit":U, SessionHelper:ProcessBitness()) .
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Creates the items in the UltraCarousel 
-        Notes:   
+        Purpose: Creates the items in the UltraCarousel
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID CreateCarouselItems ():
-		
-		DEFINE VARIABLE oItem AS CarouselItem NO-UNDO . 
-		
-		IF SESSION:ICFPARAMETER > "":U THEN DO:
-		    FILE-INFO:FILE-NAME = SESSION:ICFPARAMETER .  
-		
-		    IF FILE-INFO:FULL-PATHNAME > "":U THEN 
-		        TEMP-TABLE ttDesktopItems:READ-XML ("file":U, FILE-INFO:FULL-PATHNAME, ?, ?, ?) .
-		    ELSE DO:
-		        FILE-INFO:FILE-NAME = "Consultingwerk/Studio/Desktop/items.xml":U .
-		        
-                TEMP-TABLE ttDesktopItems:READ-XML ("file":U, FILE-INFO:FULL-PATHNAME, ?, ?, ?) .
+    METHOD PROTECTED VOID CreateCarouselItems ():
+
+        DEFINE VARIABLE oItem AS CarouselItem NO-UNDO .
+
+        IF SESSION:ICFPARAMETER > "":U THEN DO:
+            FILE-INFORMATION:FILE-NAME = SESSION:ICFPARAMETER .
+
+            IF FILE-INFORMATION:FULL-PATHNAME > "":U THEN
+                TEMP-TABLE ttDesktopItems:READ-XML ("file":U, FILE-INFORMATION:FULL-PATHNAME, ?, ?, ?) .
+            ELSE DO:
+                FILE-INFORMATION:FILE-NAME = "Consultingwerk/Studio/Desktop/items.xml":U .
+
+                TEMP-TABLE ttDesktopItems:READ-XML ("file":U, FILE-INFORMATION:FULL-PATHNAME, ?, ?, ?) .
             END.
-		END.    
-        ELSE DO:
-            FILE-INFO:FILE-NAME = "Consultingwerk/Studio/Desktop/items.xml":U .
-            
-            TEMP-TABLE ttDesktopItems:READ-XML ("file":U, FILE-INFO:FULL-PATHNAME, ?, ?, ?) .
         END.
-		
-		THIS-OBJECT:ultraCarousel1:Items:Clear () . 
-		
+        ELSE DO:
+            FILE-INFORMATION:FILE-NAME = "Consultingwerk/Studio/Desktop/items.xml":U .
+
+            TEMP-TABLE ttDesktopItems:READ-XML ("file":U, FILE-INFORMATION:FULL-PATHNAME, ?, ?, ?) .
+        END.
+
+        THIS-OBJECT:ultraCarousel1:Items:Clear () .
+
         FOR EACH ttDesktopItems ON ERROR UNDO, THROW:
             oItem = NEW CarouselItem (STRING (ROWID (ttDesktopItems))) .
-    		oItem:Text = ttDesktopItems.ItemText .
-    		oItem:Settings:Appearance:Image = ImageHelper:Load (ttDesktopItems.ItemImage) .
+            oItem:Text = ttDesktopItems.ItemText .
+            oItem:Settings:Appearance:Image = ImageHelper:Load (ttDesktopItems.ItemImage) .
             THIS-OBJECT:ultraCarousel1:Items:Add (oItem) .
         END.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Displays the text of the current item (slot 2) in the status bar 
-        Notes:   
+        Purpose: Displays the text of the current item (slot 2) in the status bar
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID DisplayCurrentItemText ():
-		
-		DEFINE VARIABLE oItem AS CarouselItem NO-UNDO . 
-		
-		oItem = ultraCarousel1:GetItemFromItemSlot (2) . 
-		
-		IF VALID-OBJECT (oItem) THEN 
-	       ultraStatusBar1:Panels ["activeitem":U]:Text = oItem:Text .	
+    METHOD PROTECTED VOID DisplayCurrentItemText ():
 
-	END METHOD .
+        DEFINE VARIABLE oItem AS CarouselItem NO-UNDO .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design 
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+        oItem = ultraCarousel1:GetItemFromItemSlot (2) .
+
+        IF VALID-OBJECT (oItem) THEN
+           ultraStatusBar1:Panels ["activeitem":U]:Text = oItem:Text .
+
+    END METHOD .
+
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -304,12 +305,16 @@ CLASS Consultingwerk.Studio.Desktop.DesktopForm INHERITS BaseForm:
         THIS-OBJECT:ultraStatusBar1:Name = "ultraStatusBar1":U.
         ultraStatusPanel1:Key = "activeitem":U.
         ultraStatusPanel1:SizingMode = Infragistics.Win.UltraWinStatusBar.PanelSizingMode:Spring.
+        ultraStatusPanel1:WrapText = Infragistics.Win.DefaultableBoolean:False.
         ultraStatusPanel2:Key = "frameworkversion":U.
         ultraStatusPanel2:SizingMode = Infragistics.Win.UltraWinStatusBar.PanelSizingMode:Automatic.
+        ultraStatusPanel2:WrapText = Infragistics.Win.DefaultableBoolean:False.
         ultraStatusPanel3:Key = "proversion":U.
         ultraStatusPanel3:SizingMode = Infragistics.Win.UltraWinStatusBar.PanelSizingMode:Automatic.
+        ultraStatusPanel3:WrapText = Infragistics.Win.DefaultableBoolean:False.
         ultraStatusPanel4:Key = "bitness":U.
         ultraStatusPanel4:SizingMode = Infragistics.Win.UltraWinStatusBar.PanelSizingMode:Automatic.
+        ultraStatusPanel4:WrapText = Infragistics.Win.DefaultableBoolean:False.
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
         DEFINE VARIABLE arrayvar5 AS Infragistics.Win.UltraWinStatusBar.UltraStatusPanel EXTENT 4 NO-UNDO.
         arrayvar5[1] = ultraStatusPanel1.
@@ -339,160 +344,160 @@ CLASS Consultingwerk.Studio.Desktop.DesktopForm INHERITS BaseForm:
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Launches the given special action
-        Notes:   
+        Notes:
         @param pcAction The action to launch
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID LaunchSpecialAction (pcAction AS CHARACTER):
-		
-        DEFINE VARIABLE cPath      AS CHARACTER                  NO-UNDO.
-        DEFINE VARIABLE oProcess   AS System.Diagnostics.Process NO-UNDO . 
-        DEFINE VARIABLE oStartInfo AS ProcessStartInfo           NO-UNDO . 
-		
-		IF pcAction BEGINS "explorer":U THEN DO: 
-		    IF INDEX (pcAction, ":":U) > 0 THEN  
-		        ASSIGN cPath = SUBSTRING (pcAction, INDEX (pcAction, ":":U) + 1) .
-		    ELSE cPath = ".":U  .
-		  
-		    FILE-INFO:FILE-NAME = cPath . 
-		  
-		    IF FILE-INFO:FULL-PATHNAME > "":U THEN 
-		        WindowsExplorerHelper:ShowFolder (FILE-INFO:FULL-PATHNAME) .
-		END.
-		ELSE IF pcAction BEGINS "proenv":U THEN DO:  
-		
-            oStartInfo = NEW ProcessStartInfo () . 
-            oStartInfo:FileName = "cmd.exe":U . 
-            oStartInfo:Arguments = SUBSTITUTE ("/K &1\bin\proenv.bat":U,
-                                               SessionHelper:DLC) . 
+    METHOD PROTECTED VOID LaunchSpecialAction (pcAction AS CHARACTER):
 
-            IF INDEX (pcAction, ":":U) > 0 THEN  
+        DEFINE VARIABLE cPath      AS CHARACTER                  NO-UNDO.
+        DEFINE VARIABLE oProcess   AS System.Diagnostics.Process NO-UNDO .
+        DEFINE VARIABLE oStartInfo AS ProcessStartInfo           NO-UNDO .
+
+        IF pcAction BEGINS "explorer":U THEN DO:
+            IF INDEX (pcAction, ":":U) > 0 THEN
                 ASSIGN cPath = SUBSTRING (pcAction, INDEX (pcAction, ":":U) + 1) .
             ELSE cPath = ".":U  .
-          
-            FILE-INFO:FILE-NAME = cPath . 
-          
-            IF FILE-INFO:FULL-PATHNAME > "":U THEN 
-                oStartInfo:WorkingDirectory = FILE-INFO:FULL-PATHNAME . 
+
+            FILE-INFORMATION:FILE-NAME = cPath .
+
+            IF FILE-INFORMATION:FULL-PATHNAME > "":U THEN
+                WindowsExplorerHelper:ShowFolder (FILE-INFORMATION:FULL-PATHNAME) .
+        END.
+        ELSE IF pcAction BEGINS "proenv":U THEN DO:
+
+            oStartInfo = NEW ProcessStartInfo () .
+            oStartInfo:FileName = "cmd.exe":U .
+            oStartInfo:Arguments = SUBSTITUTE ("/K &1~\bin~\proenv.bat":U,
+                                               SessionHelper:DLC) .
+
+            IF INDEX (pcAction, ":":U) > 0 THEN
+                ASSIGN cPath = SUBSTRING (pcAction, INDEX (pcAction, ":":U) + 1) .
+            ELSE cPath = ".":U  .
+
+            FILE-INFORMATION:FILE-NAME = cPath .
+
+            IF FILE-INFORMATION:FULL-PATHNAME > "":U THEN
+                oStartInfo:WorkingDirectory = FILE-INFORMATION:FULL-PATHNAME .
 
             oProcess = System.Diagnostics.Process:Start (oStartInfo) .
-		END.
-		
-	END METHOD .
+        END.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Raises the Load event
-        Notes:   
+        Notes:
         @param e The System.EventArgs with the data for the event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
-		
-		SUPER:OnLoad (e) .
+    METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
+
+        SUPER:OnLoad (e) .
 
         THIS-OBJECT:CreateCarouselItems () .
 
-        THIS-OBJECT:Text = SUBSTITUTE ("&1 - &2":U, 
+        THIS-OBJECT:Text = SUBSTITUTE ("&1 - &2":U,
                                        THIS-OBJECT:Text,
                                        SessionHelper:CurrentDirectory()) .
 
         CATCH err AS Progress.Lang.Error :
-            ErrorHelper:ShowErrorMessage (err) .    
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
-    
-	END METHOD .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the Shown event 
-        Notes:   
+        Purpose: Raises the Shown event
+        Notes:
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
-		
-		SUPER:OnShown (e) .
-		
-		THIS-OBJECT:DisplayCurrentItemText() .
+    METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
 
-	END METHOD .
+        SUPER:OnShown (e) .
+
+        THIS-OBJECT:DisplayCurrentItemText() .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Launches a new AVM with the given startup parameters 
-        Notes:   
-        @param pcProcedureName The name of the startup procedure 
+        Purpose: Launches a new AVM with the given startup parameters
+        Notes:
+        @param pcProcedureName The name of the startup procedure
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID RunProcedure (pcProcedureName AS CHARACTER):
-		
+    METHOD PROTECTED VOID RunProcedure (pcProcedureName AS CHARACTER):
+
         DEFINE VARIABLE oStartInfo AS System.Diagnostics.ProcessStartInfo NO-UNDO .
 
         oStartInfo                  = NEW System.Diagnostics.ProcessStartInfo () .
         oStartInfo:FileName         = Consultingwerk.Util.SessionHelper:ExecutablePath() .
-        oStartInfo:Arguments        = Consultingwerk.Util.SessionHelper:StartupParameters() + 
+        oStartInfo:Arguments        = Consultingwerk.Util.SessionHelper:StartupParameters() +
                                        SUBSTITUTE (" -p ~"&1~"":U, pcProcedureName).
         oStartInfo:WorkingDirectory = Consultingwerk.Util.SessionHelper:CurrentDirectory() .
-        
+
         System.Diagnostics.Process:Start (oStartInfo) .
-		
-	END METHOD .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the AnimationCompleted event of the ultraCarousel1 
-        Notes:   
+        Purpose: Event handler for the AnimationCompleted event of the ultraCarousel1
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The AnimationCompletedEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraCarousel1_AnimationCompleted (sender AS System.Object, 
-	                                                       e AS AnimationCompletedEventArgs):
-		
+    METHOD PRIVATE VOID ultraCarousel1_AnimationCompleted (sender AS System.Object,
+                                                           e AS AnimationCompletedEventArgs):
+
         THIS-OBJECT:DisplayCurrentItemText() .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the DoubleClick event of the ultraCarousel1
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraCarousel1_DoubleClick (INPUT sender AS System.Object, INPUT e AS System.EventArgs):
-		
-		FIND ttDesktopItems WHERE ROWID (ttDesktopItems) = TO-ROWID (THIS-OBJECT:ultraCarousel1:ActiveItem:Key) NO-ERROR .
+    METHOD PRIVATE VOID ultraCarousel1_DoubleClick (INPUT sender AS System.Object, INPUT e AS System.EventArgs):
+
+        FIND ttDesktopItems WHERE ROWID (ttDesktopItems) = TO-ROWID (THIS-OBJECT:ultraCarousel1:ActiveItem:Key) NO-ERROR .
 
         IF NOT AVAILABLE ttDesktopItems THEN DO:
             ErrorHelper:ResetErrorStatus() .
             RETURN .
         END.
 
-        IF ttDesktopItems.RunProcedure > "":U THEN 
-		    THIS-OBJECT:RunProcedure (ttDesktopItems.RunProcedure) .
- 		IF ttDesktopItems.OpenWebSite > "":U THEN 
- 		    Win32:ShellExecute ("open":U, ttDesktopItems.OpenWebSite) .
-        ELSE IF ttDesktopItems.SpecialAction > "":U THEN 
-            THIS-OBJECT:LaunchSpecialAction (ttDesktopItems.SpecialAction) . 
+        IF ttDesktopItems.RunProcedure > "":U THEN
+            THIS-OBJECT:RunProcedure (ttDesktopItems.RunProcedure) .
+         IF ttDesktopItems.OpenWebSite > "":U THEN
+             Win32:ShellExecute ("open":U, ttDesktopItems.OpenWebSite) .
+        ELSE IF ttDesktopItems.SpecialAction > "":U THEN
+            THIS-OBJECT:LaunchSpecialAction (ttDesktopItems.SpecialAction) .
 
         CATCH err AS Progress.Lang.Error:
-        	ErrorHelper:ShowErrorMessage (err) .	
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the ItemClick event of the ultraCarousel1  
-        Notes:   
-        @param sender The reference to the object that raised the event 
-        @param e The CarouselItemClickEventArgs with the data for this event 
+        Purpose: Event handler for the ItemClick event of the ultraCarousel1
+        Notes:
+        @param sender The reference to the object that raised the event
+        @param e The CarouselItemClickEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraCarousel1_ItemClick (sender AS System.Object, 
-	                                              e AS CarouselItemClickEventArgs):
-		
-		e:ScrollItemToForefront = TRUE . 
-		
-	END METHOD .
+    METHOD PRIVATE VOID ultraCarousel1_ItemClick (sender AS System.Object,
+                                                  e AS CarouselItemClickEventArgs):
+
+        e:ScrollItemToForefront = TRUE .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the DesktopForm class 
-        Notes:   
+        Purpose: Destructor for the DesktopForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC DesktopForm ():
 

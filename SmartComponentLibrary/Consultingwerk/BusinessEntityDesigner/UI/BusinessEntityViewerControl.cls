@@ -8,35 +8,35 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : BusinessEntityViewerControl
     Purpose     : Viewer Control for the eBusinessEntity table
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Wed Oct 13 12:23:19 CEST 2010
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Consultingwerk.BusinessEntityDesigner.*                        FROM PROPATH . 
-USING Consultingwerk.BusinessEntityDesigner.Plugins.CustomServices.* FROM PROPATH . 
+USING Consultingwerk.BusinessEntityDesigner.*                        FROM PROPATH .
+USING Consultingwerk.BusinessEntityDesigner.Plugins.CustomServices.* FROM PROPATH .
 USING Consultingwerk.SmartComponents.Base.*                          FROM PROPATH .
 USING Consultingwerk.SmartComponents.Enum.*                          FROM PROPATH .
 USING Consultingwerk.SmartComponents.Implementation.*                FROM PROPATH .
-USING Consultingwerk.Util.*                                          FROM PROPATH .  
+USING Consultingwerk.Util.*                                          FROM PROPATH .
 USING Consultingwerk.Windows.Util.Forms.*                            FROM PROPATH .
-USING Infragistics.Win.UltraWinEditors.*                             FROM ASSEMBLY . 
+USING Infragistics.Win.UltraWinEditors.*                             FROM ASSEMBLY .
 USING Infragistics.Win.UltraWinTabControl.*                          FROM ASSEMBLY .
 USING Progress.Lang.*                                                FROM PROPATH .
 USING System.Windows.Forms.*                                         FROM ASSEMBLY .
 
 {Consultingwerk/products.i}
 
-CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityViewerControl INHERITS SmartViewerControl: 
-    
+CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityViewerControl INHERITS SmartViewerControl:
+
     DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE eBusinessEntity_DistinctTempTableIncludeFiles AS Infragistics.Win.UltraWinEditors.UltraCheckEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE eBusinessEntity_GenerateDatasetController AS Infragistics.Win.UltraWinEditors.UltraCheckEditor NO-UNDO.
@@ -81,41 +81,42 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityViewerControl INHER
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the reference to the UltraTabControl
-        Notes:      
+        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY TabControl AS UltraTabControl NO-UNDO 
-	GET:
-		RETURN ultraTabControl1 .
-	END GET.
+    DEFINE PUBLIC PROPERTY TabControl AS UltraTabControl NO-UNDO
+    GET:
+        RETURN ultraTabControl1 .
+    END GET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the BusinessEntityViewerControl class                                                                        
-        Notes:      
+        Purpose: Constructor for the BusinessEntityViewerControl class
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC BusinessEntityViewerControl ():
-        
+
         SUPER().
         InitializeComponent().
-        
+
         THIS-OBJECT:SetControlEnabled (THIS-OBJECT:ultraTabControl1, Consultingwerk.SmartComponents.Enum.ControlEnabledEnum:Always) .
-        
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
     END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -852,18 +853,18 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityViewerControl INHER
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the KeyDown handler of the Text boxes with an 
+        Purpose: Event handler for the KeyDown handler of the Text boxes with an
                  EditorButton (Lookup)
         Notes:   Maps F3 to EditorButtonClick
         @param sender The reference to the object that raised the event
         @param e The KeyEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID LookupKeyDownHandler (sender AS System.Object, 
-	                                          e AS System.Windows.Forms.KeyEventArgs):
+    METHOD PRIVATE VOID LookupKeyDownHandler (sender AS System.Object,
+                                              e AS System.Windows.Forms.KeyEventArgs):
 
         DEFINE VARIABLE cControlName AS CHARACTER NO-UNDO.
-		
-        IF e:Handled = FALSE AND Progress.Util.EnumHelper:AreEqual (e:KeyCode, SmartLookupSettings:ShortcutKey) 
+
+        IF e:Handled = FALSE AND Progress.Util.EnumHelper:AreEqual (e:KeyCode, SmartLookupSettings:ShortcutKey)
             AND THIS-OBJECT:Enabled THEN DO:
 
 &IF NOT PROVERSION BEGINS "10" &THEN
@@ -873,389 +874,418 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityViewerControl INHER
                             SUBSTITUTE ("&1_EditorButtonClick":U, cControlName),
                             sender,
                             NEW EditorButtonEventArgs (?, ?)) .
-&ELSE 
+&ELSE
             /* Mike Fechner, Consultingwerk Ltd. 17.08.2015
                DYNAMIC-INVOKE seems to crash here on 10.2B */
             CASE sender:
-                WHEN smartBusinessEntityBindingSource1_eBusinessEntity_DataAccessPackage 
+                WHEN smartBusinessEntityBindingSource1_eBusinessEntity_DataAccessPackage
                     THEN THIS-OBJECT:smartBusinessEntityBindingSource1_eBusinessEntity_DataAccessPackage_EditorButtonClick (sender, NEW EditorButtonEventArgs (?, ?)) .
 
-                WHEN smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityPackage 
+                WHEN smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityPackage
                     THEN THIS-OBJECT:smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityPackage_EditorButtonClick (sender, NEW EditorButtonEventArgs (?, ?)) .
 
-                WHEN smartBusinessEntityBindingSource1_eBusinessEntity_DatasetPath 
+                WHEN smartBusinessEntityBindingSource1_eBusinessEntity_DatasetPath
                     THEN THIS-OBJECT:smartBusinessEntityBindingSource1_eBusinessEntity_DatasetPath_EditorButtonClick (sender, NEW EditorButtonEventArgs (?, ?)) .
 
-                WHEN smartBusinessEntityBindingSource1_eBusinessEntity_DatasetControllerPackage 
+                WHEN smartBusinessEntityBindingSource1_eBusinessEntity_DatasetControllerPackage
                     THEN THIS-OBJECT:smartBusinessEntityBindingSource1_eBusinessEntity_DatasetControllerPackage_EditorButtonClick (sender, NEW EditorButtonEventArgs (?, ?)) .
 
-                WHEN smartBusinessEntityBindingSource1_eBusinessEntity_DefaultTablePath 
+                WHEN smartBusinessEntityBindingSource1_eBusinessEntity_DefaultTablePath
                     THEN THIS-OBJECT:smartBusinessEntityBindingSource1_eBusinessEntity_DefaultTablePath_EditorButtonClick (sender, NEW EditorButtonEventArgs (?, ?)) .
-            END CASE . 
-&ENDIF 
+            END CASE .
+&ENDIF
         END.
 
         CATCH err AS Progress.Lang.Error:
-            ErrorHelper:ShowErrorMessage (err) .                
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Raises the VisualValidating event
-        Notes:   
+        Notes:
         @param e The System.EventArgs with the data for the event
     ------------------------------------------------------------------------------*/
-	METHOD OVERRIDE PROTECTED VOID OnVisualValidating (INPUT e AS System.EventArgs):
-		
-		SUPER:OnVisualValidating(INPUT e).
+    METHOD OVERRIDE PROTECTED VOID OnVisualValidating (INPUT e AS System.EventArgs):
 
-        IF smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityName:Focused THEN 
+        SUPER:OnVisualValidating(INPUT e).
+
+        IF smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityName:Focused THEN
             smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityName_Leave (smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityName,
                                                                                         System.EventArgs:Empty) .
-                                                                                        
-        IF smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityPackage:Focused THEN                                                                                         
+
+        IF smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityPackage:Focused THEN
             smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityPackage_Leave (smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityPackage,
-                                                                                           System.EventArgs:Empty) .                                                                                        
-	END METHOD .
+                                                                                           System.EventArgs:Empty) .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the Leave event of the smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityName 
-                 Control                                                                         
-        Notes:     
+        Purpose: Event handler for the Leave event of the smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityName
+                 Control
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event                                                                   
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityName_Leave (sender AS System.Object, 
+    METHOD PRIVATE VOID smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityName_Leave (sender AS System.Object,
                                                                                                     e AS System.EventArgs):
-        
+
         DEFINE VARIABLE oNameHandler           AS ICustomBusinessEntityNameHandler NO-UNDO .
-        
+
         DEFINE VARIABLE cBusinessEntityName    AS CHARACTER                        NO-UNDO .
         DEFINE VARIABLE cDatasetControllerType AS CHARACTER                        NO-UNDO .
         DEFINE VARIABLE cBusinessEntityPurpose AS CHARACTER                        NO-UNDO .
         DEFINE VARIABLE cDatasetName           AS CHARACTER                        NO-UNDO .
         DEFINE VARIABLE cDataAccessName        AS CHARACTER                        NO-UNDO.
-        
-        IF THIS-OBJECT:CancellingUpdate THEN 
-            RETURN . 
+
+        IF THIS-OBJECT:CancellingUpdate THEN
+            RETURN .
 
         oNameHandler = {Consultingwerk/get-service.i Consultingwerk.BusinessEntityDesigner.Plugins.CustomServices.ICustomBusinessEntityNameHandler
-                                                     "NEW CustomBusinessEntityNameHandler ()"} .  
+                                                     "NEW CustomBusinessEntityNameHandler ()"} .
 
-        ASSIGN cBusinessEntityName    = smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityName:Text 
-               cDatasetControllerType = smartBusinessEntityBindingSource1_eBusinessEntity_DatasetControllerName:Text 
-               cBusinessEntityPurpose = smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityPurpose:Text 
-               cDatasetName           = smartBusinessEntityBindingSource1_eBusinessEntity_DatasetName:Text 
-               cDataAccessName        = smartBusinessEntityBindingSource1_eBusinessEntity_DataAccessName:Text 
-            . 
+        ASSIGN cBusinessEntityName    = smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityName:Text
+               cDatasetControllerType = smartBusinessEntityBindingSource1_eBusinessEntity_DatasetControllerName:Text
+               cBusinessEntityPurpose = smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityPurpose:Text
+               cDatasetName           = smartBusinessEntityBindingSource1_eBusinessEntity_DatasetName:Text
+               cDataAccessName        = smartBusinessEntityBindingSource1_eBusinessEntity_DataAccessName:Text
+            .
 
         IF NOT oNameHandler:DetermineBusinessEntityNameFields (INPUT-OUTPUT cBusinessEntityName,
                                                                INPUT-OUTPUT cDatasetControllerType,
                                                                INPUT-OUTPUT cBusinessEntityPurpose,
                                                                INPUT-OUTPUT cDatasetName,
-                                                               INPUT-OUTPUT cDataAccessName) THEN 
-            RETURN .  
-             
-        ASSIGN smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityName:Text    = cBusinessEntityName    
-               smartBusinessEntityBindingSource1_eBusinessEntity_DatasetControllerName:Text = cDatasetControllerType   
-               smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityPurpose:Text = cBusinessEntityPurpose  
-               smartBusinessEntityBindingSource1_eBusinessEntity_DatasetName:Text           = cDatasetName         
-               smartBusinessEntityBindingSource1_eBusinessEntity_DataAccessName:Text        = cDataAccessName .       
-             
-        IF NOT THIS-OBJECT:SavingChanges THEN 
-            THIS-OBJECT:SmartTableIOState = TableIOStateEnum:ModifyingData . 
+                                                               INPUT-OUTPUT cDataAccessName) THEN
+            RETURN .
+
+        ASSIGN smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityName:Text    = cBusinessEntityName
+               smartBusinessEntityBindingSource1_eBusinessEntity_DatasetControllerName:Text = cDatasetControllerType
+               smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityPurpose:Text = cBusinessEntityPurpose
+               smartBusinessEntityBindingSource1_eBusinessEntity_DatasetName:Text           = cDatasetName
+               smartBusinessEntityBindingSource1_eBusinessEntity_DataAccessName:Text        = cDataAccessName .
+
+        IF NOT THIS-OBJECT:SavingChanges THEN
+            THIS-OBJECT:SmartTableIOState = TableIOStateEnum:ModifyingData .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the EditorButtonClick event of the smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityPackage 
-                 Control                                                                         
-        Notes:     
+        Purpose: Event handler for the EditorButtonClick event of the smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityPackage
+                 Control
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The EditorButtonEventArgs with the data for this event                                                                   
+        @param e The EditorButtonEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityPackage_EditorButtonClick 
-                    (sender AS System.Object, 
+    METHOD PRIVATE VOID smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityPackage_EditorButtonClick
+                    (sender AS System.Object,
                      e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
-        
+
         DEFINE VARIABLE oDialogResult AS System.Windows.Forms.DialogResult NO-UNDO .
         DEFINE VARIABLE cRelative     AS CHARACTER                         NO-UNDO .
 
-        DEFINE VARIABLE oFolderBrowserDialog AS Consultingwerk.Windows.Util.Forms.FolderBrowserForm NO-UNDO . 
+        DEFINE VARIABLE oFolderBrowserDialog AS Consultingwerk.Windows.Util.Forms.FolderBrowserForm NO-UNDO .
 
-        FILE-INFO:FILE-NAME = ".":U .
+        FILE-INFORMATION:FILE-NAME = ".":U .
 
-        oFolderBrowserDialog = NEW Consultingwerk.Windows.Util.Forms.FolderBrowserForm () . 
-        oFolderBrowserDialog:RootFolder = FILE-INFO:FULL-PATHNAME . 
-        
+        oFolderBrowserDialog = NEW Consultingwerk.Windows.Util.Forms.FolderBrowserForm () .
+        oFolderBrowserDialog:RootFolder = FILE-INFORMATION:FULL-PATHNAME .
+
         WAIT-FOR oFolderBrowserDialog:ShowDialog() SET oDialogResult .
-        
+
         IF Progress.Util.EnumHelper:AreEqual (oDialogResult, System.Windows.Forms.DialogResult:Ok) THEN DO:
-            FILE-INFO:FILE-NAME = ".":U .
+            FILE-INFORMATION:FILE-NAME = ".":U .
 
-            ASSIGN cRelative = FileHelper:RelativeFileName(oFolderBrowserDialog:SelectedFolder) . 
+            ASSIGN cRelative = FileHelper:RelativeFileName(oFolderBrowserDialog:SelectedFolder) .
 
-            IF SUBSTRING (cRelative, 2, 1) = ":":U OR cRelative BEGINS "~\~\":U OR cRelative BEGINS "/":U OR cRelative BEGINS ".":U THEN 
-                Consultingwerk.Util.MessageFormHelper:ShowMessage 
+            IF SUBSTRING (cRelative, 2, 1, "CHARACTER":U) = ":":U OR cRelative BEGINS "~\~\":U OR cRelative BEGINS "/":U OR cRelative BEGINS ".":U THEN
+                Consultingwerk.Util.MessageFormHelper:ShowMessage
                               ("Unable to translate path into package."{&TRAN},
                                "Business Entity Designer"{&TRAN},
                                "Path needs to be relative to working directory."{&TRAN},
                                MessageFormImages:ImageWarning) .
             ELSE DO:
-                THIS-OBJECT:smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityPackage:Text = 
+                THIS-OBJECT:smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityPackage:Text =
                   REPLACE (cRelative, "~\":U, ".":U) .
-                  
-                smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityPackage_Leave 
-                  (smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityPackage, System.EventArgs:Empty) .  
 
-                IF NOT THIS-OBJECT:SavingChanges THEN 
-                    THIS-OBJECT:SmartTableIOState = TableIOStateEnum:ModifyingData . 
+                smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityPackage_Leave
+                  (smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityPackage, System.EventArgs:Empty) .
+
+                IF NOT THIS-OBJECT:SavingChanges THEN
+                    THIS-OBJECT:SmartTableIOState = TableIOStateEnum:ModifyingData .
             END.
         END.
- 
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the Leave event of the smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityPackage 
-                 Control                                                                         
-        Notes:     
+        Purpose: Event handler for the Leave event of the smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityPackage
+                 Control
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event                                                                   
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityPackage_Leave (sender AS System.Object, 
+    METHOD PRIVATE VOID smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityPackage_Leave (sender AS System.Object,
                                                                                                        e AS System.EventArgs ):
-        
+
         DEFINE VARIABLE oPackageHandler           AS ICustomBusinessEntityPackageNameHandler NO-UNDO .
-        
+
         DEFINE VARIABLE cBusinessEntityPackage    AS CHARACTER                               NO-UNDO .
         DEFINE VARIABLE cDatasetControllerPackage AS CHARACTER                               NO-UNDO .
         DEFINE VARIABLE cDatasetPath              AS CHARACTER                               NO-UNDO .
         DEFINE VARIABLE cDefaultTablePath         AS CHARACTER                               NO-UNDO .
         DEFINE VARIABLE cDataAccessPackage        AS CHARACTER                               NO-UNDO .
 
-        IF THIS-OBJECT:CancellingUpdate THEN 
-            RETURN . 
+        IF THIS-OBJECT:CancellingUpdate THEN
+            RETURN .
 
         oPackageHandler = {Consultingwerk/get-service.i Consultingwerk.BusinessEntityDesigner.Plugins.CustomServices.ICustomBusinessEntityPackageNameHandler
-                                                        "NEW CustomBusinessEntityPackageNameHandler ()"} .  
+                                                        "NEW CustomBusinessEntityPackageNameHandler ()"} .
 
-        ASSIGN cBusinessEntityPackage    = smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityPackage:Text 
-               cDatasetControllerPackage = smartBusinessEntityBindingSource1_eBusinessEntity_DatasetControllerPackage:Text       
+        ASSIGN cBusinessEntityPackage    = smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityPackage:Text
+               cDatasetControllerPackage = smartBusinessEntityBindingSource1_eBusinessEntity_DatasetControllerPackage:Text
                cDatasetPath              = smartBusinessEntityBindingSource1_eBusinessEntity_DatasetPath:Text
                cDefaultTablePath         = smartBusinessEntityBindingSource1_eBusinessEntity_DefaultTablePath:Text
                cDataAccessPackage        = smartBusinessEntityBindingSource1_eBusinessEntity_DataAccessPackage:Text
-                . 
+                .
 
         IF NOT oPackageHandler:DetermineBusinessEntityPackageFields (INPUT-OUTPUT cBusinessEntityPackage,
                                                                      INPUT-OUTPUT cDatasetControllerPackage,
                                                                      INPUT-OUTPUT cDatasetPath,
                                                                      INPUT-OUTPUT cDefaultTablePath,
-                                                                     INPUT-OUTPUT cDataAccessPackage) THEN 
-            RETURN . 
-            
-        ASSIGN  smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityPackage:Text    = cBusinessEntityPackage      
-                smartBusinessEntityBindingSource1_eBusinessEntity_DatasetControllerPackage:Text = cDatasetControllerPackage         
-                smartBusinessEntityBindingSource1_eBusinessEntity_DatasetPath:Text              = cDatasetPath              
-                smartBusinessEntityBindingSource1_eBusinessEntity_DefaultTablePath:Text         = cDefaultTablePath          
-                smartBusinessEntityBindingSource1_eBusinessEntity_DataAccessPackage:Text        = cDataAccessPackage .         
+                                                                     INPUT-OUTPUT cDataAccessPackage) THEN
+            RETURN .
 
-        IF NOT THIS-OBJECT:SavingChanges THEN 
-            THIS-OBJECT:SmartTableIOState = TableIOStateEnum:ModifyingData . 
-                . 
-            
+        ASSIGN  smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityPackage:Text    = cBusinessEntityPackage
+                smartBusinessEntityBindingSource1_eBusinessEntity_DatasetControllerPackage:Text = cDatasetControllerPackage
+                smartBusinessEntityBindingSource1_eBusinessEntity_DatasetPath:Text              = cDatasetPath
+                smartBusinessEntityBindingSource1_eBusinessEntity_DefaultTablePath:Text         = cDefaultTablePath
+                smartBusinessEntityBindingSource1_eBusinessEntity_DataAccessPackage:Text        = cDataAccessPackage .
+
+        IF NOT THIS-OBJECT:SavingChanges THEN
+            THIS-OBJECT:SmartTableIOState = TableIOStateEnum:ModifyingData .
+                .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the EditorButtonClick event of the smartBusinessEntityBindingSource1_eBusinessEntity_DataAccessPackage 
-                 Control                                                                         
-        Notes:     
+        Purpose: Event handler for the EditorButtonClick event of the smartBusinessEntityBindingSource1_eBusinessEntity_DataAccessPackage
+                 Control
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The EditorButtonEventArgs with the data for this event                                                                   
+        @param e The EditorButtonEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID smartBusinessEntityBindingSource1_eBusinessEntity_DataAccessPackage_EditorButtonClick 
-                (sender AS System.Object, 
+    METHOD PRIVATE VOID smartBusinessEntityBindingSource1_eBusinessEntity_DataAccessPackage_EditorButtonClick
+                (sender AS System.Object,
                  e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
-        
+
         DEFINE VARIABLE oDialogResult AS System.Windows.Forms.DialogResult NO-UNDO .
 
-        DEFINE VARIABLE oFolderBrowserDialog AS Consultingwerk.Windows.Util.Forms.FolderBrowserForm NO-UNDO . 
+        DEFINE VARIABLE oFolderBrowserDialog AS Consultingwerk.Windows.Util.Forms.FolderBrowserForm NO-UNDO .
 
-        FILE-INFO:FILE-NAME = ".":U .
+        FILE-INFORMATION:FILE-NAME = ".":U .
 
-        oFolderBrowserDialog = NEW Consultingwerk.Windows.Util.Forms.FolderBrowserForm () . 
-        oFolderBrowserDialog:RootFolder = FILE-INFO:FULL-PATHNAME . 
+        oFolderBrowserDialog = NEW Consultingwerk.Windows.Util.Forms.FolderBrowserForm () .
+        oFolderBrowserDialog:RootFolder = FILE-INFORMATION:FULL-PATHNAME .
 
         WAIT-FOR oFolderBrowserDialog:ShowDialog() SET oDialogResult .
-        
+
         IF Progress.Util.EnumHelper:AreEqual (oDialogResult, System.Windows.Forms.DialogResult:Ok) THEN DO:
-            FILE-INFO:FILE-NAME = ".":U .
-            
-            IF oFolderBrowserDialog:SelectedFolder BEGINS FILE-INFO:FULL-PATHNAME THEN 
-                ASSIGN THIS-OBJECT:smartBusinessEntityBindingSource1_eBusinessEntity_DataAccessPackage:Text = 
-                        REPLACE (SUBSTRING (oFolderBrowserDialog:SelectedFolder, LENGTH (FILE-INFO:FULL-PATHNAME) + 2), "\":U, ".":U) 
-                       THIS-OBJECT:SmartTableIOState = TableIOStateEnum:ModifyingData .   
-            ELSE 
-                Consultingwerk.Util.MessageFormHelper:ShowMessage 
+            FILE-INFORMATION:FILE-NAME = ".":U .
+
+            IF oFolderBrowserDialog:SelectedFolder BEGINS FILE-INFORMATION:FULL-PATHNAME THEN
+                ASSIGN THIS-OBJECT:smartBusinessEntityBindingSource1_eBusinessEntity_DataAccessPackage:Text =
+                        REPLACE (SUBSTRING (oFolderBrowserDialog:SelectedFolder, LENGTH (FILE-INFORMATION:FULL-PATHNAME, "CHARACTER":U) + 2, -1, "CHARACTER":U), "~\":U, ".":U)
+                       THIS-OBJECT:SmartTableIOState = TableIOStateEnum:ModifyingData .
+            ELSE
+                Consultingwerk.Util.MessageFormHelper:ShowMessage
                               ("Unable to translate path into package."{&TRAN},
                                "Business Entity Designer"{&TRAN},
                                "Path needs to be relative to working directory."{&TRAN},
                                MessageFormImages:ImageWarning) .
         END.
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the EditorButtonClick event of the smartBusinessEntityBindingSource1_eBusinessEntity_DatasetControllerPackage 
-                 Control                                                                         
-        Notes:     
+        Purpose: Event handler for the EditorButtonClick event of the smartBusinessEntityBindingSource1_eBusinessEntity_DatasetControllerPackage
+                 Control
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The EditorButtonEventArgs with the data for this event                                                                   
+        @param e The EditorButtonEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PRIVATE VOID smartBusinessEntityBindingSource1_eBusinessEntity_DatasetControllerPackage_EditorButtonClick
-                (sender AS System.Object, 
+                (sender AS System.Object,
                  e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
-        
+
         DEFINE VARIABLE oDialogResult AS System.Windows.Forms.DialogResult NO-UNDO .
-        
-        DEFINE VARIABLE oFolderBrowserDialog AS Consultingwerk.Windows.Util.Forms.FolderBrowserForm NO-UNDO . 
 
-        FILE-INFO:FILE-NAME = ".":U .
+        DEFINE VARIABLE oFolderBrowserDialog AS Consultingwerk.Windows.Util.Forms.FolderBrowserForm NO-UNDO .
 
-        oFolderBrowserDialog = NEW Consultingwerk.Windows.Util.Forms.FolderBrowserForm () . 
-        oFolderBrowserDialog:RootFolder = FILE-INFO:FULL-PATHNAME . 
-                
+        FILE-INFORMATION:FILE-NAME = ".":U .
+
+        oFolderBrowserDialog = NEW Consultingwerk.Windows.Util.Forms.FolderBrowserForm () .
+        oFolderBrowserDialog:RootFolder = FILE-INFORMATION:FULL-PATHNAME .
+
         WAIT-FOR oFolderBrowserDialog:ShowDialog() SET oDialogResult .
-        
+
         IF Progress.Util.EnumHelper:AreEqual (oDialogResult, System.Windows.Forms.DialogResult:Ok) THEN DO:
-            FILE-INFO:FILE-NAME = ".":U .
-            
-            IF oFolderBrowserDialog:SelectedFolder BEGINS FILE-INFO:FULL-PATHNAME THEN 
-                ASSIGN THIS-OBJECT:smartBusinessEntityBindingSource1_eBusinessEntity_DatasetControllerPackage:Text = 
-                        REPLACE (SUBSTRING (oFolderBrowserDialog:SelectedFolder, LENGTH (FILE-INFO:FULL-PATHNAME) + 2), "\":U, ".":U) 
-                       THIS-OBJECT:SmartTableIOState = TableIOStateEnum:ModifyingData .   
-            ELSE 
-                Consultingwerk.Util.MessageFormHelper:ShowMessage 
+            FILE-INFORMATION:FILE-NAME = ".":U .
+
+            IF oFolderBrowserDialog:SelectedFolder BEGINS FILE-INFORMATION:FULL-PATHNAME THEN
+                ASSIGN THIS-OBJECT:smartBusinessEntityBindingSource1_eBusinessEntity_DatasetControllerPackage:Text =
+                        REPLACE (SUBSTRING (oFolderBrowserDialog:SelectedFolder, LENGTH (FILE-INFORMATION:FULL-PATHNAME, "CHARACTER":U) + 2, -1, "CHARACTER":U), "~\":U, ".":U)
+                       THIS-OBJECT:SmartTableIOState = TableIOStateEnum:ModifyingData .
+            ELSE
+                Consultingwerk.Util.MessageFormHelper:ShowMessage
                               ("Unable to translate path into package."{&TRAN},
                                "Business Entity Designer"{&TRAN},
                                "Path needs to be relative to working directory."{&TRAN},
                                MessageFormImages:ImageWarning) .
         END.
-        
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the EditorButtonClick event of the smartBusinessEntityBindingSource1_eBusinessEntity_DatasetPath 
-                 Control                                                                         
-        Notes:     
+        Purpose: Event handler for the EditorButtonClick event of the smartBusinessEntityBindingSource1_eBusinessEntity_DatasetPath
+                 Control
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The EditorButtonEventArgs with the data for this event                                                                   
+        @param e The EditorButtonEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PRIVATE VOID smartBusinessEntityBindingSource1_eBusinessEntity_DatasetPath_EditorButtonClick
-                (sender AS System.Object, 
+                (sender AS System.Object,
                  e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
-        
+
         DEFINE VARIABLE oDialogResult AS System.Windows.Forms.DialogResult NO-UNDO .
 
-        DEFINE VARIABLE oFolderBrowserDialog AS Consultingwerk.Windows.Util.Forms.FolderBrowserForm NO-UNDO . 
+        DEFINE VARIABLE oFolderBrowserDialog AS Consultingwerk.Windows.Util.Forms.FolderBrowserForm NO-UNDO .
 
-        FILE-INFO:FILE-NAME = ".":U .
+        FILE-INFORMATION:FILE-NAME = ".":U .
 
-        oFolderBrowserDialog = NEW Consultingwerk.Windows.Util.Forms.FolderBrowserForm () . 
-        oFolderBrowserDialog:RootFolder = FILE-INFO:FULL-PATHNAME .         
-        
+        oFolderBrowserDialog = NEW Consultingwerk.Windows.Util.Forms.FolderBrowserForm () .
+        oFolderBrowserDialog:RootFolder = FILE-INFORMATION:FULL-PATHNAME .
+
         WAIT-FOR oFolderBrowserDialog:ShowDialog() SET oDialogResult .
-        
+
         IF Progress.Util.EnumHelper:AreEqual (oDialogResult, System.Windows.Forms.DialogResult:Ok) THEN DO:
-            FILE-INFO:FILE-NAME = ".":U .
-            
-            IF oFolderBrowserDialog:SelectedFolder BEGINS FILE-INFO:FULL-PATHNAME THEN 
-                ASSIGN THIS-OBJECT:smartBusinessEntityBindingSource1_eBusinessEntity_DatasetPath:Text = 
-                        REPLACE (SUBSTRING (oFolderBrowserDialog:SelectedFolder, LENGTH (FILE-INFO:FULL-PATHNAME) + 2), "~\":U, "/":U)  
-                       THIS-OBJECT:SmartTableIOState = TableIOStateEnum:ModifyingData .   
-            ELSE 
-                Consultingwerk.Util.MessageFormHelper:ShowMessage 
+            FILE-INFORMATION:FILE-NAME = ".":U .
+
+            IF oFolderBrowserDialog:SelectedFolder BEGINS FILE-INFORMATION:FULL-PATHNAME THEN
+                ASSIGN THIS-OBJECT:smartBusinessEntityBindingSource1_eBusinessEntity_DatasetPath:Text =
+                        REPLACE (SUBSTRING (oFolderBrowserDialog:SelectedFolder, LENGTH (FILE-INFORMATION:FULL-PATHNAME, "CHARACTER":U) + 2, -1, "CHARACTER":U), "~\":U, "/":U)
+                       THIS-OBJECT:SmartTableIOState = TableIOStateEnum:ModifyingData .
+            ELSE
+                Consultingwerk.Util.MessageFormHelper:ShowMessage
                               ("Unable to translate path into relative path."{&TRAN},
                                "Business Entity Designer"{&TRAN},
                                "Path needs to be relative to working directory."{&TRAN},
                                MessageFormImages:ImageWarning) .
         END.
-        
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the EditorButtonClick event of the smartBusinessEntityBindingSource1_eBusinessEntity_DefaultTablePath 
-                 Control                                                                         
-        Notes:     
+        Purpose: Event handler for the EditorButtonClick event of the smartBusinessEntityBindingSource1_eBusinessEntity_DefaultTablePath
+                 Control
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The EditorButtonEventArgs with the data for this event                                                                   
+        @param e The EditorButtonEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PRIVATE VOID smartBusinessEntityBindingSource1_eBusinessEntity_DefaultTablePath_EditorButtonClick
-                (sender AS System.Object, 
+                (sender AS System.Object,
                  e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
-        
+
         DEFINE VARIABLE oDialogResult AS System.Windows.Forms.DialogResult NO-UNDO .
-        
-        DEFINE VARIABLE oFolderBrowserDialog AS Consultingwerk.Windows.Util.Forms.FolderBrowserForm NO-UNDO . 
 
-        FILE-INFO:FILE-NAME = ".":U .
+        DEFINE VARIABLE oFolderBrowserDialog AS Consultingwerk.Windows.Util.Forms.FolderBrowserForm NO-UNDO .
 
-        oFolderBrowserDialog = NEW Consultingwerk.Windows.Util.Forms.FolderBrowserForm () . 
-        oFolderBrowserDialog:RootFolder = FILE-INFO:FULL-PATHNAME .         
-        
+        FILE-INFORMATION:FILE-NAME = ".":U .
+
+        oFolderBrowserDialog = NEW Consultingwerk.Windows.Util.Forms.FolderBrowserForm () .
+        oFolderBrowserDialog:RootFolder = FILE-INFORMATION:FULL-PATHNAME .
+
         WAIT-FOR oFolderBrowserDialog:ShowDialog() SET oDialogResult .
-        
+
         IF Progress.Util.EnumHelper:AreEqual (oDialogResult, System.Windows.Forms.DialogResult:Ok) THEN DO:
-            FILE-INFO:FILE-NAME = ".":U .
-            
-            IF oFolderBrowserDialog:SelectedFolder BEGINS FILE-INFO:FULL-PATHNAME THEN 
-                ASSIGN THIS-OBJECT:smartBusinessEntityBindingSource1_eBusinessEntity_DefaultTablePath:Text = 
-                        SUBSTRING (oFolderBrowserDialog:SelectedFolder, LENGTH (FILE-INFO:FULL-PATHNAME) + 2) 
-                       THIS-OBJECT:SmartTableIOState = TableIOStateEnum:ModifyingData .   
-            ELSE 
-                Consultingwerk.Util.MessageFormHelper:ShowMessage 
+            FILE-INFORMATION:FILE-NAME = ".":U .
+
+            IF oFolderBrowserDialog:SelectedFolder BEGINS FILE-INFORMATION:FULL-PATHNAME THEN
+                ASSIGN THIS-OBJECT:smartBusinessEntityBindingSource1_eBusinessEntity_DefaultTablePath:Text =
+                        SUBSTRING (oFolderBrowserDialog:SelectedFolder, LENGTH (FILE-INFORMATION:FULL-PATHNAME, "CHARACTER":U) + 2, -1, "CHARACTER":U)
+                       THIS-OBJECT:SmartTableIOState = TableIOStateEnum:ModifyingData .
+            ELSE
+                Consultingwerk.Util.MessageFormHelper:ShowMessage
                               ("Unable to translate path into relative path."{&TRAN},
                                "Business Entity Designer"{&TRAN},
                                "Path needs to be relative to working directory."{&TRAN},
                                MessageFormImages:ImageWarning) .
         END.
 
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Validates a Package Label                                                                       
+        Purpose: Validates a Package Label
         Notes:   Used by the VisualValidate Method
         @param poControl The UltraTextEditor to validate the value from
-        @param pcPackageLabel The label of the package for the validation message                                                                        
+        @param pcPackageLabel The label of the package for the validation message
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID ValidatePackageName (poControl AS UltraTextEditor,
                                                pcPackageLabel AS CHARACTER):
-        
+
         DEFINE VARIABLE cPackage AS CHARACTER NO-UNDO.
-        
+
         ASSIGN cPackage = poControl:Text .
-        
-        IF cPackage > "":U THEN . 
-        ELSE 
-            UNDO, THROW NEW ClientValidationError (SUBSTITUTE ("&1 may not be empty."{&TRAN}, pcPackageLabel), 0, poControl) . 
 
-        IF INDEX (cPackage, " ":U) > 0 THEN 
-            UNDO, THROW NEW ClientValidationError (SUBSTITUTE ("&1 may not contain spaces."{&TRAN}, pcPackageLabel), 0, poControl) . 
+        IF cPackage > "":U THEN .
+        ELSE
+            UNDO, THROW NEW ClientValidationError (SUBSTITUTE ("&1 may not be empty."{&TRAN}, pcPackageLabel), 0, poControl) .
 
-        IF INDEX (cPackage, "/":U) > 0 THEN 
-            UNDO, THROW NEW ClientValidationError (SUBSTITUTE ("&1 may not contain slashes."{&TRAN}, pcPackageLabel), 0, poControl) . 
+        IF INDEX (cPackage, " ":U) > 0 THEN
+            UNDO, THROW NEW ClientValidationError (SUBSTITUTE ("&1 may not contain spaces."{&TRAN}, pcPackageLabel), 0, poControl) .
+
+        IF INDEX (cPackage, "/":U) > 0 THEN
+            UNDO, THROW NEW ClientValidationError (SUBSTITUTE ("&1 may not contain slashes."{&TRAN}, pcPackageLabel), 0, poControl) .
 
         IF INDEX (cPackage, "~\":U) > 0 THEN
-            UNDO, THROW NEW ClientValidationError (SUBSTITUTE ("&1 may not contain back slashes."{&TRAN}, pcPackageLabel), 0, poControl) . 
+            UNDO, THROW NEW ClientValidationError (SUBSTITUTE ("&1 may not contain back slashes."{&TRAN}, pcPackageLabel), 0, poControl) .
 
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Validates the values                                                                         
-        Notes:                                                                        
+        Purpose: Validates the values
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD OVERRIDE PUBLIC VOID VisualValidate ():
-        
+
         ValidatePackageName (THIS-OBJECT:smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityPackage, "Business Entity Package"{&TRAN}) .
         ValidatePackageName (THIS-OBJECT:smartBusinessEntityBindingSource1_eBusinessEntity_DataAccessPackage, "Data Access Object Package"{&TRAN}) .
         ValidatePackageName (THIS-OBJECT:smartBusinessEntityBindingSource1_eBusinessEntity_DatasetControllerPackage, "Dataset Controller Package"{&TRAN}) .
@@ -1263,8 +1293,8 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityViewerControl INHER
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the BusinessEntityViewerControl class                                                                         
-        Notes:                                                                        
+        Purpose: Destructor for the BusinessEntityViewerControl class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC BusinessEntityViewerControl ():
 

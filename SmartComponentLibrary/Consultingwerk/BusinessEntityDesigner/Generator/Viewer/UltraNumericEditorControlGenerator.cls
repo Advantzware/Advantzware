@@ -54,7 +54,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.UltraNumericEditorC
         Purpose: Retusn the TypeName for to be used for this UltraEditorControl
         Notes:   
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY ControlTypeName AS CHARACTER NO-UNDO INIT "Infragistics.Win.UltraWinEditors.UltraNumericEditor":U
+    DEFINE PUBLIC PROPERTY ControlTypeName AS CHARACTER NO-UNDO INITIAL "Infragistics.Win.UltraWinEditors.UltraNumericEditor":U
     GET.
     PROTECTED SET. 
 
@@ -73,7 +73,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.UltraNumericEditorC
         Purpose: The Height of the Control
         Notes:   
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY Height AS INTEGER NO-UNDO INIT 21
+    DEFINE PUBLIC PROPERTY Height AS INTEGER NO-UNDO INITIAL 21
     GET.
     SET. 
 
@@ -108,7 +108,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.UltraNumericEditorC
                  interface
         Notes:   Used for generating the BeginInit and EndInit method calls
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY SupportInitialize AS LOGICAL NO-UNDO INIT TRUE 
+    DEFINE PUBLIC PROPERTY SupportInitialize AS LOGICAL NO-UNDO INITIAL TRUE
     GET.
 
     /*------------------------------------------------------------------------------
@@ -131,7 +131,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.UltraNumericEditorC
         Purpose: Gets and sets the Name of the Template File to be used by this class
         Notes:   
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC STATIC PROPERTY TemplateFileName AS CHARACTER NO-UNDO INIT "UI/ultranumericeditor.template":U
+    DEFINE PUBLIC STATIC PROPERTY TemplateFileName AS CHARACTER NO-UNDO INITIAL "UI/ultranumericeditor.template":U
     GET.
     SET. 
 
@@ -139,7 +139,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.UltraNumericEditorC
         Purpose: Gets and sets the Name of the Template File to be used by this class
         Notes:   
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC STATIC PROPERTY TemplateFileNameUnbound AS CHARACTER NO-UNDO INIT "UI/ultranumericeditor_unbound.template":U
+    DEFINE PUBLIC STATIC PROPERTY TemplateFileNameUnbound AS CHARACTER NO-UNDO INITIAL "UI/ultranumericeditor_unbound.template":U
     GET.
     SET. 
 
@@ -163,7 +163,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.UltraNumericEditorC
         Purpose: The Width of the Control
         Notes:   
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY Width AS INTEGER NO-UNDO INIT 80 
+    DEFINE PUBLIC PROPERTY Width AS INTEGER NO-UNDO INITIAL 80
     GET.
     SET. 
 
@@ -197,11 +197,11 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.UltraNumericEditorC
         DEFINE VARIABLE cProperties AS CHARACTER NO-UNDO .
 
         IF THIS-OBJECT:DataBindings > "":U THEN 
-            FILE-INFO:FILE-NAME = TemplateHelper:Find (UltraNumericEditorControlGenerator:TemplateFileName) .
+            FILE-INFORMATION:FILE-NAME = TemplateHelper:Find (UltraNumericEditorControlGenerator:TemplateFileName) .
         ELSE 
-            FILE-INFO:FILE-NAME = TemplateHelper:Find (UltraNumericEditorControlGenerator:TemplateFileNameUnbound) .
+            FILE-INFORMATION:FILE-NAME = TemplateHelper:Find (UltraNumericEditorControlGenerator:TemplateFileNameUnbound) .
 
-        COPY-LOB FROM FILE FILE-INFO:FULL-PATHNAME TO lcCode . 
+        COPY-LOB FROM FILE FILE-INFORMATION:FULL-PATHNAME TO lcCode . 
         
         IF EnumHelper:AreEqual (THIS-OBJECT:NumericType,
                                 Infragistics.Win.UltraWinEditors.NumericType:Double) OR 

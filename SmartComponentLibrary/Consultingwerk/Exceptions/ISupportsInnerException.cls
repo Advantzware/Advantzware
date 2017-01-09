@@ -12,24 +12,24 @@
 /*------------------------------------------------------------------------
     File        : ISupportsInnerException
     Purpose     : Supports the InnerException pattern for error objects
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sat Feb 11 00:17:25 CET 2012
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 USING Progress.Lang.*.
 
 {Consultingwerk/products.i}
 
-INTERFACE Consultingwerk.Exceptions.ISupportsInnerException:  
-  
-    /*------------------------------------------------------------------------------
-        Purpose: Returns the Error instance that caused the current exception.
-        Notes:                          
-    ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY InnerException AS Error
-    GET.  
-  
+INTERFACE Consultingwerk.Exceptions.ISupportsInnerException:
+
+    /**
+     * Purpose: Returns the Error instance that caused the current exception.
+     * Notes:
+     */
+    DEFINE PUBLIC PROPERTY InnerException AS Error NO-UNDO
+    GET.
+
 END INTERFACE.

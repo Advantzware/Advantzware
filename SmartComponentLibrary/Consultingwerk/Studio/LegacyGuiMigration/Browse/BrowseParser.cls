@@ -42,31 +42,31 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Browse.BrowseParser
     {Consultingwerk/Studio/LegacyGuiMigration/Browse/ttBrowseColumn.i}
     {Consultingwerk/Studio/LegacyGuiMigration/Browse/ttWidget.i}
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Constructor for the BrowseParser class
-	    Notes:
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC BrowseParser ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the BrowseParser class
+        Notes:
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC BrowseParser ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Extracts the Query String from the OPEN QUERY Statement
-	    Notes:
+    /*------------------------------------------------------------------------------
+        Purpose: Extracts the Query String from the OPEN QUERY Statement
+        Notes:
         @param pcOpenQueryStatement The full text of the OPEN QUERY Statement
         @param pcQueryName The name of the query
         @return The extraced query string
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED CHARACTER ExtractQueryString (pcOpenQueryStatement AS CHARACTER,
-	                                               pcQueryName AS CHARACTER):
-		
-		/* Remove OPEN */
-		ASSIGN pcOpenQueryStatement = SUBSTRING (LEFT-TRIM (pcOpenQueryStatement), 5) . 
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED CHARACTER ExtractQueryString (pcOpenQueryStatement AS CHARACTER,
+                                                   pcQueryName AS CHARACTER):
+        
+        /* Remove OPEN */
+        ASSIGN pcOpenQueryStatement = SUBSTRING (LEFT-TRIM (pcOpenQueryStatement), 5) . 
 
-        /* Remove QUERY */                		
+        /* Remove QUERY */                        
         ASSIGN pcOpenQueryStatement = SUBSTRING (LEFT-TRIM (pcOpenQueryStatement), 6) . 
-		
+        
         /* Remove Query name */                      
         ASSIGN pcOpenQueryStatement = SUBSTRING (LEFT-TRIM (pcOpenQueryStatement), LENGTH (pcQueryName) + 1) . 
 
@@ -77,26 +77,26 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Browse.BrowseParser
          
         RETURN TRIM (pcOpenQueryStatement) .
 
-	END METHOD.
+    END METHOD.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Locates all OPEN QUERY Stamements in the given parse unit and adds 
-	             them to the BrowseWidgetQueryInformation  
-	    Notes:
-	    @param poParseUnit The ParseUnit for the current source
-	    @param poQueryInfo The BrowseWidgetQueryInformation to add the query strings to, must contain QueryName   
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID FindOpenQueryStatements (poParseUnit AS ParseUnit,
-	                                               poQueryInfo AS BrowseWidgetQueryInformation):
-		
-		ObjectAssert:IsValid (poParseUnit, "poParseUnit":U) .
-		ObjectAssert:IsValid (poQueryInfo , "poQueryInfo":U) .
+    /*------------------------------------------------------------------------------
+        Purpose: Locates all OPEN QUERY Stamements in the given parse unit and adds 
+                 them to the BrowseWidgetQueryInformation  
+        Notes:
+        @param poParseUnit The ParseUnit for the current source
+        @param poQueryInfo The BrowseWidgetQueryInformation to add the query strings to, must contain QueryName   
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID FindOpenQueryStatements (poParseUnit AS ParseUnit,
+                                                   poQueryInfo AS BrowseWidgetQueryInformation):
+        
+        ObjectAssert:IsValid (poParseUnit, "poParseUnit":U) .
+        ObjectAssert:IsValid (poQueryInfo , "poQueryInfo":U) .
         Assert:NotNullOrEmpty (poQueryInfo:QueryName, "poQueryInfo:QueryName":U) .
 
         THIS-OBJECT:FindOpenQueryStatements (poParseUnit:getTopNode (),
                                              poQueryInfo) .
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Recursivly locates all OPEN QUERY Stamements in the given JPNode and 
@@ -299,7 +299,7 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Browse.BrowseParser
 
     END METHOD .
 
-	/*------------------------------------------------------------------------------
+    /*------------------------------------------------------------------------------
         Purpose: Parses the given file for the given browse name and returns a the 
                  BrowseWidgetQueryInformation with the name of the browse query and
                  all OPEN QUERY Statements found in source code 
@@ -307,10 +307,10 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Browse.BrowseParser
         @param pcFileName The name of the file to parse
         @param pcBrowseName The name of the browse to return the columns for
         @return The BrowseWidgetQueryInformation with the name of the browse query and all OPEN QUERY Statements found in source code  
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC BrowseWidgetQueryInformation GetBrowseQueryInformation (pcFileName AS CHARACTER,
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC BrowseWidgetQueryInformation GetBrowseQueryInformation (pcFileName AS CHARACTER,
                                                                           pcBrowseName AS CHARACTER):
-		
+        
         DEFINE VARIABLE oParseUnit        AS ParseUnit                    NO-UNDO .
         DEFINE VARIABLE oNodeWrapper      AS JPNodesWrapper               NO-UNDO .
         DEFINE VARIABLE oQueryNode        AS JPNode                       NO-UNDO .
@@ -366,15 +366,15 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Browse.BrowseParser
 
             EMPTY TEMP-TABLE ttWidget .
         END FINALLY.
-	END METHOD.
+    END METHOD.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Parses a DEFINE BROWSE Statement
-	    Notes:
-	    @param poNode The Node to process
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID ProcessBrowseColumns (poNode AS JPNode):
-		
+    /*------------------------------------------------------------------------------
+        Purpose: Parses a DEFINE BROWSE Statement
+        Notes:
+        @param poNode The Node to process
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID ProcessBrowseColumns (poNode AS JPNode):
+        
         DEFINE VARIABLE oFrameNodeWrapper AS JPNodesWrapper            NO-UNDO .
         DEFINE VARIABLE oDisplayNode      AS JPNode                    NO-UNDO .  
         
@@ -535,6 +535,6 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Browse.BrowseParser
             RELEASE ttBrowseColumn .
         END.
 
-	END METHOD.
+    END METHOD.
 
 END CLASS.

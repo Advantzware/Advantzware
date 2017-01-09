@@ -8,15 +8,15 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : InvalidHandleException
     Purpose     : An error object thrown to signal an invalid widget handle
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Thu Apr 28 13:09:05 CEST 2011
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -26,68 +26,68 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 USING Consultingwerk.Exceptions.* FROM PROPATH .
 USING Progress.Lang.*             FROM PROPATH .
 
-CLASS Consultingwerk.Exceptions.InvalidHandleException 
+CLASS Consultingwerk.Exceptions.InvalidHandleException
     INHERITS Exception
-    {&SERIALIZABLE}: 
+    {&SERIALIZABLE}:
 
-    /*------------------------------------------------------------------------------
-        Purpose: Returns the optional description of the invalid handle                                                                       
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY HandleDescription AS CHARACTER NO-UNDO INIT ?
+    /**
+     * Purpose: Returns the optional description of the invalid handle
+     * Notes:
+     */
+    DEFINE PUBLIC PROPERTY HandleDescription AS CHARACTER NO-UNDO INITIAL ?
     GET.
-    PROTECTED SET. 
+    PROTECTED SET.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Default constructor of the InvalidHandleException class                                                                       
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Default constructor of the InvalidHandleException class
+     * Notes:
+     */
     CONSTRUCTOR PUBLIC InvalidHandleException ():
-        
+
         SUPER ("Invalid handle."{&TRAN}, 0) .
-        
+
     END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Constructor of the InvalidHandleException class                                                                      
-        Notes:                                                                        
-        @param pcDescription The Description of the invalid handle to be used in the error message
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Constructor of the InvalidHandleException class
+     * Notes:
+     * @param pcDescription The Description of the invalid handle to be used in the error message
+     */
     CONSTRUCTOR PUBLIC InvalidHandleException (pcDescription AS CHARACTER):
-        
+
         SUPER (SUBSTITUTE ("Invalid &1 handle."{&TRAN}, pcDescription), 0) .
-        
+
         THIS-OBJECT:HandleDescription = pcDescription .
-        
+
     END CONSTRUCTOR.
-    
-    /*------------------------------------------------------------------------------
-        Purpose: Default constructor of the InvalidHandleException class                                                                      
-        Notes:                                                                        
-        @param poInnerException The reference to the original error
-    ------------------------------------------------------------------------------*/
+
+    /**
+     * Purpose: Default constructor of the InvalidHandleException class
+     * Notes:
+     * @param poInnerException The reference to the original error
+     */
     CONSTRUCTOR PUBLIC InvalidHandleException (poInnerException AS Error):
-        
-        SUPER (poInnerException, 
+
+        SUPER (poInnerException,
                "Invalid handle."{&TRAN}, 0) .
-        
+
     END CONSTRUCTOR.
-        
-    /*------------------------------------------------------------------------------
-        Purpose: Constructor of the InvalidHandleException class                                                                      
-        Notes:                                                                        
-        @param poInnerException The reference to the original error
-        @param pcDescription The Description of the invalid handle to be used in the error message
-    ------------------------------------------------------------------------------*/
+
+    /**
+     * Purpose: Constructor of the InvalidHandleException class
+     * Notes:
+     * @param poInnerException The reference to the original error
+     * @param pcDescription The Description of the invalid handle to be used in the error message
+     */
     CONSTRUCTOR PUBLIC InvalidHandleException (poInnerException AS Error,
                                                pcDescription AS CHARACTER):
-        
-        SUPER (poInnerException, 
-               SUBSTITUTE ("Invalid &1 handle."{&TRAN}, pcDescription), 
+
+        SUPER (poInnerException,
+               SUBSTITUTE ("Invalid &1 handle."{&TRAN}, pcDescription),
                0) .
-        
+
         THIS-OBJECT:HandleDescription = pcDescription .
-        
+
     END CONSTRUCTOR.
 
 END CLASS.

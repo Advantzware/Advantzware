@@ -28,17 +28,17 @@ INTERFACE Consultingwerk.Web.Kendo.Data.ITransport:
                  "json" and "jsonp".                                                                         
         Notes:                                                                        
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY dataType AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY dataType AS CHARACTER NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: The configuration used when the data source loads data items from a 
                  remote service.                                     
         Notes:                                                                        
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY read AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY read AS CHARACTER NO-UNDO 
+    GET.
+    SET. 
 
 END INTERFACE.

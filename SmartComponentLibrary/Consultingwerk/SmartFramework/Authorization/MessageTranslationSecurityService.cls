@@ -45,8 +45,8 @@ CLASS Consultingwerk.SmartFramework.Authorization.MessageTranslationSecurityServ
         Notes:   
         @param poLookupDescriptor The reference to the SmartBusinessEntityLookupDescriptor to assign the properties to 
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID AssignLookupDescriptorProperties (poLookupDescriptor AS SmartBusinessEntityLookupDescriptor):
-		
+    METHOD PUBLIC VOID AssignLookupDescriptorProperties (poLookupDescriptor AS SmartBusinessEntityLookupDescriptor):
+        
         ASSIGN poLookupDescriptor:AppServerPartition          = "":U
                poLookupDescriptor:LookupBrowserFields         = "LanguageIsoCode,LanguageName":U
                poLookupDescriptor:LookupControls              = "":U
@@ -66,7 +66,7 @@ CLASS Consultingwerk.SmartFramework.Authorization.MessageTranslationSecurityServ
                poLookupDescriptor:LookupQueryString           = "FOR EACH eSmartLanguage WHERE eSmartLanguage.LanguageIsoCode BEGINS ~"&1~"":U
                .
                
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the Description for the security item 
@@ -74,22 +74,22 @@ CLASS Consultingwerk.SmartFramework.Authorization.MessageTranslationSecurityServ
         @param pcItemKey The unique key of the security item
         @return The description of the security item
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC CHARACTER GetDescription (pcItemKey AS CHARACTER):
-		
-		DEFINE VARIABLE oLanguageModel AS LanguageDatasetModel NO-UNDO .
-		
-		IF pcItemKey = "":U THEN 
-		    RETURN "<default>":U .
-		
-		oLanguageModel = NEW LanguageDatasetModel (pcItemKey) .
-		
-		IF oLanguageModel:SmartLanguage:Available THEN 
-		    RETURN SUBSTITUTE ("&1":U, 
-		                       oLanguageModel:SmartLanguage:LanguageIsoCode) . 
-		
-		RETURN pcItemKey .
+    METHOD PUBLIC CHARACTER GetDescription (pcItemKey AS CHARACTER):
+        
+        DEFINE VARIABLE oLanguageModel AS LanguageDatasetModel NO-UNDO .
+        
+        IF pcItemKey = "":U THEN 
+            RETURN "<default>":U .
+        
+        oLanguageModel = NEW LanguageDatasetModel (pcItemKey) .
+        
+        IF oLanguageModel:SmartLanguage:Available THEN 
+            RETURN SUBSTITUTE ("&1":U, 
+                               oLanguageModel:SmartLanguage:LanguageIsoCode) . 
+        
+        RETURN pcItemKey .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Validates the security item key  
@@ -97,10 +97,10 @@ CLASS Consultingwerk.SmartFramework.Authorization.MessageTranslationSecurityServ
         @param pcItemKey The unique key of the security item
         @return Logical value indicating if the security item key is valid
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL ValidateKey (pcItemKey AS CHARACTER):
-		
-		RETURN pcItemKey = "":U OR CAN-FIND (SmartLanguage WHERE SmartLanguage.LanguageGuid = pcItemKey) .
+    METHOD PUBLIC LOGICAL ValidateKey (pcItemKey AS CHARACTER):
+        
+        RETURN pcItemKey = "":U OR CAN-FIND (SmartLanguage WHERE SmartLanguage.LanguageGuid = pcItemKey) .
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

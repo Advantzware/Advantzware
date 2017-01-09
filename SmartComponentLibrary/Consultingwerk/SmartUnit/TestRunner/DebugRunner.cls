@@ -29,17 +29,17 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 CLASS Consultingwerk.SmartUnit.TestRunner.DebugRunner
     INHERITS TestRunner: 
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Constructor for the DebugRunner class
-	    Notes:
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC DebugRunner ():
-		SUPER ().
-		
-		ASSIGN 
-		  THIS-OBJECT:LogMessages  = FALSE 
-		  THIS-OBJECT:DialogOutput = TRUE .
-		
-	END CONSTRUCTOR.
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the DebugRunner class
+        Notes:
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC DebugRunner ():
+        SUPER ().
+        
+        ASSIGN 
+          THIS-OBJECT:LogMessages  = FALSE 
+          THIS-OBJECT:DialogOutput = TRUE .
+        
+    END CONSTRUCTOR.
 
 END CLASS.

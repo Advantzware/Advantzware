@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2006-2014 by Consultingwerk Ltd. ("CW") -            *
+ * Copyright (C) 2006-2016 by Consultingwerk Ltd. ("CW") -            *
  * www.consultingwerk.de and other contributors as listed             *
  * below.  All Rights Reserved.                                       *
  *                                                                    *
@@ -15,7 +15,7 @@
     Syntax      : 
     Description : 
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
-    Created     : 06/03/2015 12:52:24,558+01:00
+    Created     : 31/12/2016 14:03:11,490+01:00
     Notes       : 
   ----------------------------------------------------------------------*/
 
@@ -30,7 +30,7 @@ USING Progress.Lang.* FROM PROPATH .
 CLASS Consultingwerk.SmartFramework.Menu.ModuleDatasetModel_Generated 
     INHERITS DatasetModel ABSTRACT: 
 
-    { Consultingwerk/SmartFramework/Menu/dsModule.i }
+    { Consultingwerk/SmartFramework/Menu/dsModule.i &ACCESS=PROTECTED }
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the reference to the SmartModule table model

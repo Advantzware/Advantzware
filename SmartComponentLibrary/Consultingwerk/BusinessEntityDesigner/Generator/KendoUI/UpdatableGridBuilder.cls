@@ -35,8 +35,8 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.KendoUI.UpdatableGridBuild
         Notes:   
         @return The json string describing the Grid layout 
     ------------------------------------------------------------------------------*/
-	METHOD OVERRIDE LONGCHAR GetGrid ():
-		
+    METHOD OVERRIDE LONGCHAR GetGrid ():
+        
         DEFINE VARIABLE oCommandColumn AS Column   NO-UNDO . 
         DEFINE VARIABLE lcJson         AS LONGCHAR NO-UNDO . 
 
@@ -75,6 +75,6 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.KendoUI.UpdatableGridBuild
 
         RETURN lcJson .
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

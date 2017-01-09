@@ -32,10 +32,10 @@ CLASS Consultingwerk.SmartComponents.TypeDescriptor.Components.PropertiesSmartDa
         Purpose: Constructor for the PropertiesSmartDatasetAdapter class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC PropertiesSmartDatasetAdapter ():
-	    
-	    DEFINE VARIABLE oProperty  AS IPropertyDescriptor NO-UNDO . 
-		SUPER ().
+    CONSTRUCTOR PUBLIC PropertiesSmartDatasetAdapter ():
+        
+        DEFINE VARIABLE oProperty  AS IPropertyDescriptor NO-UNDO . 
+        SUPER ().
 
         THIS-OBJECT:TypeName = "Consultingwerk.SmartComponents.Base.SmartDatasetAdapter":U . 
 
@@ -115,6 +115,6 @@ CLASS Consultingwerk.SmartComponents.TypeDescriptor.Components.PropertiesSmartDa
         oProperty:Attributes:Add (NEW System.ComponentModel.DescriptionAttribute ("Gets/Sets if errors from RetrieveData (in childs of this abstract base class) should be THROWN or Shown from the DataAdapter class (Using ErrorHelper)  ")) .
         oProperty:Attributes:Add (NEW System.ComponentModel.LocalizableAttribute (FALSE)) .
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
 END CLASS.

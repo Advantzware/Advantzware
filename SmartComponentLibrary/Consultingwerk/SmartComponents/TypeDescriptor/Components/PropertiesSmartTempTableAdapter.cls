@@ -34,11 +34,11 @@ CLASS Consultingwerk.SmartComponents.TypeDescriptor.Components.PropertiesSmartTe
         Purpose: Constructor for the PropertiesSmartTempTableAdapter class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC PropertiesSmartTempTableAdapter ():
-	    
-	    DEFINE VARIABLE oProperty AS IPropertyDescriptor NO-UNDO . 
-		
-		SUPER ().
+    CONSTRUCTOR PUBLIC PropertiesSmartTempTableAdapter ():
+        
+        DEFINE VARIABLE oProperty AS IPropertyDescriptor NO-UNDO . 
+        
+        SUPER ().
 
         THIS-OBJECT:TypeName = "Consultingwerk.SmartComponents.Implementation.SmartTempTableAdapter":U . 
 
@@ -78,6 +78,6 @@ CLASS Consultingwerk.SmartComponents.TypeDescriptor.Components.PropertiesSmartTe
         oProperty:Attributes:Add (NEW System.ComponentModel.BrowsableAttribute (FALSE)) .
         oProperty:Attributes:Add (NEW System.ComponentModel.DesignerSerializationVisibilityAttribute (DesignerSerializationVisibility:Hidden)) .
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
 END CLASS.

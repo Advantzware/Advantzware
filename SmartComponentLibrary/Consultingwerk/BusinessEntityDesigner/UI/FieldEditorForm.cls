@@ -11,53 +11,57 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : FieldEditorForm
-    Purpose     : Form that enables the user to maintain the fields of a 
-                  Business Entity Table 
-    Syntax      : 
-    Description : 
+    Purpose     : Form that enables the user to maintain the fields of a
+                  Business Entity Table
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Fri Dec 27 21:47:52 CET 2013
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Consultingwerk.BusinessEntityDesigner.UI.*      FROM PROPATH .  
+USING Consultingwerk.BusinessEntityDesigner.UI.*      FROM PROPATH .
 USING Consultingwerk.SmartComponents.Base.*           FROM PROPATH .
 USING Consultingwerk.SmartComponents.Enum.*           FROM PROPATH .
 USING Consultingwerk.SmartComponents.Implementation.* FROM PROPATH .
-USING Consultingwerk.Util.*                           FROM PROPATH . 
+USING Consultingwerk.Util.*                           FROM PROPATH .
 USING Progress.Lang.*                                 FROM PROPATH .
 USING Infragistics.Win.UltraWinGrid.*                 FROM ASSEMBLY .
 
-CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldEditorForm INHERITS SmartWindowForm: 
+CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldEditorForm INHERITS SmartWindowForm:
 
     DEFINE PRIVATE VARIABLE bindingSource1 AS Progress.Data.BindingSource NO-UNDO.
     DEFINE PRIVATE VARIABLE m_FieldEditorForm_Toolbars_Dock_Area_Top AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_FieldEditorForm_Toolbars_Dock_Area_Right AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_FieldEditorForm_Toolbars_Dock_Area_Left AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_FieldEditorForm_Toolbars_Dock_Area_Bottom AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE smartTempTableAdapter1 AS Consultingwerk.SmartComponents.Implementation.SmartTempTableAdapter NO-UNDO.
     DEFINE PRIVATE VARIABLE smartToolbarController1 AS Consultingwerk.SmartComponents.Implementation.SmartToolbarController NO-UNDO.
     DEFINE PRIVATE VARIABLE FieldEditorForm_Fill_Panel AS Infragistics.Win.Misc.UltraPanel NO-UNDO.
     DEFINE PRIVATE VARIABLE smartUpdatableBrowser1 AS Consultingwerk.SmartComponents.Implementation.SmartUpdatableBrowser NO-UNDO.
-	
-	{Consultingwerk/BusinessEntityDesigner/Services/eField.i &REFERENCE-ONLY=REFERENCE-ONLY &NO-BEFORE}
-	
+
+    {Consultingwerk/BusinessEntityDesigner/Services/eField.i &PREFIX=p_ &REFERENCE-ONLY=REFERENCE-ONLY &NO-BEFORE}
+
+    DEFINE TEMP-TABLE eField NO-UNDO REFERENCE-ONLY
+        LIKE p_eField
+        FIELD OriginalFieldName AS CHARACTER .
+
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the FieldEditorForm class 
-        Notes:   
+        Purpose: Constructor for the FieldEditorForm class
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC FieldEditorForm ():
-		
+    CONSTRUCTOR PUBLIC FieldEditorForm ():
+
         SUPER().
 
         InitializeComponent().
 
-        &IF NOT PROVERSION BEGINS "10.":U &THEN          
+        &IF NOT PROVERSION BEGINS "10.":U &THEN
         smartToolbarController1:Style = Infragistics.Win.UltraWinToolbars.ToolbarStyle:Office2010 .
-        smartToolbarController1:Ribbon:ApplicationMenuButtonImage = ? . 
+        smartToolbarController1:Ribbon:ApplicationMenuButtonImage = ? .
         &ENDIF
 
         &IF NOT PROVERSION BEGINS "10.2":U AND NOT PROVERSION BEGINS "11.0" &THEN
@@ -68,74 +72,79 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldEditorForm INHERITS SmartWin
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Event handler for the BeforeAssignRecord event of the smartTempTableAdapter1
-	             instance
-	    Notes:   Validates uniqueness of the field name
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the BeforeAssignRecord event of the smartTempTableAdapter1
+                 instance
+        Notes:   Validates uniqueness of the field name
         @param sender The reference to the object that raised the event
         @param e The BeforeAssignRecordEventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID BeforeAssignRecordHandler (sender AS System.Object, 
-                                                   e AS BeforeAssignRecordEventArgs) . 
-    
-        DEFINE BUFFER b_eField FOR eField . 
-           
-        DEFINE VARIABLE cFieldName AS CHARACTER NO-UNDO.           
-           
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID BeforeAssignRecordHandler (sender AS System.Object,
+                                                   e AS BeforeAssignRecordEventArgs) .
+
+        DEFINE BUFFER b_eField FOR eField .
+
+        DEFINE VARIABLE cFieldName AS CHARACTER NO-UNDO.
+
         ASSIGN cFieldName =  UNBOX (smartTempTableAdapter1:BindingSource:InputValue ["FieldName":U]) .
-           
+
         FOR EACH b_eField WHERE b_eField.FieldName = cFieldName
             ON ERROR UNDO, THROW:
-            
-            IF ROWID (b_eField) <> smartTempTableAdapter1:BufferHandle:ROWID THEN 
+
+            IF ROWID (b_eField) <> smartTempTableAdapter1:BufferHandle:ROWID THEN
                 UNDO, THROW NEW AppError ("Field Name must be unique.":U, 0) .
-          
-        END.  
-                                                   
-	END METHOD.
+
+        END.
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Creates a unqiue field name in a temp-table
-        Notes:   
+        Notes:
         @param pcFieldName The base name of the Field
         @return The Unique field name
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED CHARACTER EnsureUniqueFieldName (pcFieldName AS CHARACTER):
-        
+
         DEFINE VARIABLE cFieldName AS CHARACTER NO-UNDO .
         DEFINE VARIABLE i          AS INTEGER   NO-UNDO INIT 2.
 
-        DEFINE BUFFER eField FOR eField . 
+        DEFINE BUFFER eField FOR eField .
 
-        IF NOT CAN-FIND (eField WHERE eField.FieldName = pcFieldName) THEN 
-            RETURN pcFieldName . 
-            
+        IF NOT CAN-FIND (eField WHERE eField.FieldName = pcFieldName) THEN
+            RETURN pcFieldName .
+
         REPEAT:
             ASSIGN cFieldName = SUBSTITUTE ("&1&2":U,
                                             pcFieldName,
                                             i) .
 
-            IF NOT CAN-FIND (eField WHERE eField.FieldName = cFieldName) THEN 
-                RETURN cFieldName . 
-            
-            i = i + 1 . 
+            IF NOT CAN-FIND (eField WHERE eField.FieldName = cFieldName) THEN
+                RETURN cFieldName .
+
+            i = i + 1 .
         END.
 
     END METHOD .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design 
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -430,6 +439,15 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldEditorForm INHERITS SmartWin
         DEFINE VARIABLE ultraGridColumn23 AS Infragistics.Win.UltraWinGrid.UltraGridColumn NO-UNDO.
         ultraGridColumn23 = NEW Infragistics.Win.UltraWinGrid.UltraGridColumn("FieldValidationInstance":U).
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE ultraGridColumn24 AS Infragistics.Win.UltraWinGrid.UltraGridColumn NO-UNDO.
+        ultraGridColumn24 = NEW Infragistics.Win.UltraWinGrid.UltraGridColumn("FieldSemanticType":U).
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE ultraGridColumn25 AS Infragistics.Win.UltraWinGrid.UltraGridColumn NO-UNDO.
+        ultraGridColumn25 = NEW Infragistics.Win.UltraWinGrid.UltraGridColumn("OriginalFieldName":U).
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE ultraGridColumn26 AS Infragistics.Win.UltraWinGrid.UltraGridColumn NO-UNDO.
+        ultraGridColumn26 = NEW Infragistics.Win.UltraWinGrid.UltraGridColumn("FieldSkipAssignment":U).
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance2 AS Infragistics.Win.Appearance NO-UNDO.
         appearance2 = NEW Infragistics.Win.Appearance().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -717,34 +735,36 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldEditorForm INHERITS SmartWin
         THIS-OBJECT:FieldEditorForm_Fill_Panel:ClientArea:Controls:Add(THIS-OBJECT:smartUpdatableBrowser1).
         THIS-OBJECT:FieldEditorForm_Fill_Panel:Cursor = System.Windows.Forms.Cursors:Default.
         THIS-OBJECT:FieldEditorForm_Fill_Panel:Dock = System.Windows.Forms.DockStyle:Fill.
-        THIS-OBJECT:FieldEditorForm_Fill_Panel:Location = NEW System.Drawing.Point(11, 171).
+        THIS-OBJECT:FieldEditorForm_Fill_Panel:Location = NEW System.Drawing.Point(8, 164).
         THIS-OBJECT:FieldEditorForm_Fill_Panel:Name = "FieldEditorForm_Fill_Panel":U.
-        THIS-OBJECT:FieldEditorForm_Fill_Panel:Size = NEW System.Drawing.Size(704, 288).
+        THIS-OBJECT:FieldEditorForm_Fill_Panel:Size = NEW System.Drawing.Size(710, 298).
         THIS-OBJECT:FieldEditorForm_Fill_Panel:TabIndex = 0.
         /*  */
         /* smartUpdatableBrowser1 */
         /*  */
+        THIS-OBJECT:smartUpdatableBrowser1:AllowAddNew = Infragistics.Win.UltraWinGrid.AllowAddNew:No.
         THIS-OBJECT:smartUpdatableBrowser1:DataSource = THIS-OBJECT:bindingSource1.
         THIS-OBJECT:smartUpdatableBrowser1:DisabledColumnsForAdd = "FieldOrder":U.
-        THIS-OBJECT:smartUpdatableBrowser1:DisabledColumnsForUpdate = "FIeldOrder":U.
+        THIS-OBJECT:smartUpdatableBrowser1:DisabledColumnsForUpdate = "FieldOrder":U.
         appearance1:BackColor = System.Drawing.SystemColors:Window.
         appearance1:BorderColor = System.Drawing.SystemColors:InactiveCaption.
         THIS-OBJECT:smartUpdatableBrowser1:DisplayLayout:Appearance = appearance1.
         ultraGridColumn1:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
-        ultraGridColumn1:Header:VisiblePosition = 0.
+        ultraGridColumn1:Header:Caption = " ":U.
+        ultraGridColumn1:Header:VisiblePosition = 1.
         ultraGridColumn1:Hidden = TRUE.
         ultraGridColumn2:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        ultraGridColumn2:Header:Caption = " ":U.
         ultraGridColumn2:Header:VisiblePosition = 2.
         ultraGridColumn2:Hidden = TRUE.
         ultraGridColumn3:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
         ultraGridColumn3:Header:Caption = "Name":U.
         ultraGridColumn3:Header:VisiblePosition = 3.
         ultraGridColumn4:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
-        ultraGridColumn4:ExcludeFromColumnChooser = Infragistics.Win.UltraWinGrid.ExcludeFromColumnChooser:True.
+        ultraGridColumn4:ExcludeFromColumnChooser = Infragistics.Win.UltraWinGrid.ExcludeFromColumnChooser:False.
         ultraGridColumn4:FilterOperatorDefaultValue = Infragistics.Win.UltraWinGrid.FilterOperatorDefaultValue:GreaterThanOrEqualTo.
         ultraGridColumn4:Header:Caption = "Order":U.
-        ultraGridColumn4:Header:VisiblePosition = 1.
-        ultraGridColumn4:Hidden = TRUE.
+        ultraGridColumn4:Header:VisiblePosition = 0.
         ultraGridColumn5:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
         ultraGridColumn5:Header:Caption = "Data Type":U.
         ultraGridColumn5:Header:VisiblePosition = 4.
@@ -756,52 +776,65 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldEditorForm INHERITS SmartWin
         ultraGridColumn7:Header:VisiblePosition = 6.
         ultraGridColumn8:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
         ultraGridColumn8:Header:Caption = "Label":U.
-        ultraGridColumn8:Header:VisiblePosition = 8.
+        ultraGridColumn8:Header:VisiblePosition = 7.
         ultraGridColumn9:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
         ultraGridColumn9:Header:Caption = "Format":U.
-        ultraGridColumn9:Header:VisiblePosition = 9.
+        ultraGridColumn9:Header:VisiblePosition = 8.
         ultraGridColumn10:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
         ultraGridColumn10:Header:Caption = "Serialize Hidden":U.
-        ultraGridColumn10:Header:VisiblePosition = 10.
+        ultraGridColumn10:Header:VisiblePosition = 9.
         ultraGridColumn11:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
         ultraGridColumn11:Header:Caption = "Serialize Name":U.
-        ultraGridColumn11:Header:VisiblePosition = 11.
+        ultraGridColumn11:Header:VisiblePosition = 10.
         ultraGridColumn12:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
         ultraGridColumn12:Header:Caption = "XML Data Type":U.
-        ultraGridColumn12:Header:VisiblePosition = 12.
+        ultraGridColumn12:Header:VisiblePosition = 11.
         ultraGridColumn13:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
         ultraGridColumn13:Header:Caption = "XML Node Type":U.
-        ultraGridColumn13:Header:VisiblePosition = 13.
+        ultraGridColumn13:Header:VisiblePosition = 12.
         ultraGridColumn14:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
         ultraGridColumn14:Header:Caption = "XML Node Name":U.
-        ultraGridColumn14:Header:VisiblePosition = 14.
+        ultraGridColumn14:Header:VisiblePosition = 13.
         ultraGridColumn15:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
         ultraGridColumn15:Header:Caption = "Source":U.
-        ultraGridColumn15:Header:VisiblePosition = 15.
+        ultraGridColumn15:Header:VisiblePosition = 14.
         ultraGridColumn16:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
         ultraGridColumn16:FilterOperatorDefaultValue = Infragistics.Win.UltraWinGrid.FilterOperatorDefaultValue:GreaterThanOrEqualTo.
         ultraGridColumn16:Header:Caption = "Extent":U.
-        ultraGridColumn16:Header:VisiblePosition = 16.
+        ultraGridColumn16:Header:VisiblePosition = 15.
         ultraGridColumn17:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
         ultraGridColumn17:Header:Caption = "GET Access":U.
-        ultraGridColumn17:Header:VisiblePosition = 17.
+        ultraGridColumn17:Header:VisiblePosition = 16.
         ultraGridColumn18:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
         ultraGridColumn18:Header:Caption = "SET Access":U.
-        ultraGridColumn18:Header:VisiblePosition = 18.
+        ultraGridColumn18:Header:VisiblePosition = 17.
         ultraGridColumn19:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
-        ultraGridColumn19:Header:VisiblePosition = 19.
+        ultraGridColumn19:Header:Caption = "Calc Expression ":U.
+        ultraGridColumn19:Header:VisiblePosition = 18.
         ultraGridColumn20:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
-        ultraGridColumn20:Header:VisiblePosition = 20.
+        ultraGridColumn20:Header:Caption = "Case Sensitive ":U.
+        ultraGridColumn20:Header:VisiblePosition = 19.
         ultraGridColumn21:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
-        ultraGridColumn21:Header:VisiblePosition = 21.
+        ultraGridColumn21:Header:Caption = "Custom Control Name ":U.
+        ultraGridColumn21:Header:VisiblePosition = 20.
         ultraGridColumn22:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
-        ultraGridColumn22:Header:VisiblePosition = 7.
-        ultraGridColumn22:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
-        ultraGridColumn22:ExcludeFromColumnChooser = Infragistics.Win.UltraWinGrid.ExcludeFromColumnChooser:True. 
-        ultraGridColumn22:Header:VisiblePosition = 22.
+        ultraGridColumn22:ExcludeFromColumnChooser = Infragistics.Win.UltraWinGrid.ExcludeFromColumnChooser:True.
+        ultraGridColumn22:Header:Caption = "Initial ? ":U.
+        ultraGridColumn22:Header:VisiblePosition = 21.
         ultraGridColumn22:Hidden = TRUE.
+        ultraGridColumn23:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        ultraGridColumn23:Header:Caption = "Validation Instance ":U.
+        ultraGridColumn23:Header:VisiblePosition = 22.
+        ultraGridColumn23:SortIndicator = Infragistics.Win.UltraWinGrid.SortIndicator:Disabled.
+        ultraGridColumn24:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        ultraGridColumn24:Header:Caption = "Semantic Type ":U.
+        ultraGridColumn24:Header:VisiblePosition = 23.
+        ultraGridColumn25:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        ultraGridColumn25:Header:Caption = " ":U.
+        ultraGridColumn25:Header:VisiblePosition = 24.
+        ultraGridColumn26:Header:VisiblePosition = 25.
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
-        DEFINE VARIABLE arrayvar13 AS System.Object EXTENT 23 NO-UNDO.
+        DEFINE VARIABLE arrayvar13 AS System.Object EXTENT 26 NO-UNDO.
         arrayvar13[1] = ultraGridColumn1.
         arrayvar13[2] = ultraGridColumn2.
         arrayvar13[3] = ultraGridColumn3.
@@ -825,6 +858,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldEditorForm INHERITS SmartWin
         arrayvar13[21] = ultraGridColumn21.
         arrayvar13[22] = ultraGridColumn22.
         arrayvar13[23] = ultraGridColumn23.
+        arrayvar13[24] = ultraGridColumn24.
+        arrayvar13[25] = ultraGridColumn25.
+        arrayvar13[26] = ultraGridColumn26.
         ultraGridBand1:Columns:AddRange(arrayvar13).
         ultraGridBand1:Override:AllowDelete = Infragistics.Win.DefaultableBoolean:False.
         ultraGridBand1:Override:SelectTypeCell = Infragistics.Win.UltraWinGrid.SelectType:None.
@@ -893,9 +929,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldEditorForm INHERITS SmartWin
         THIS-OBJECT:smartUpdatableBrowser1:Location = NEW System.Drawing.Point(0, 0).
         THIS-OBJECT:smartUpdatableBrowser1:Name = "smartUpdatableBrowser1":U.
         THIS-OBJECT:smartUpdatableBrowser1:PromptForSaveValuesOnRowDeactivate = FALSE.
-        THIS-OBJECT:smartUpdatableBrowser1:SettingsKey = "d9659361-1cf0-e3b1-da13-fe2c88e1c814":U.
+        THIS-OBJECT:smartUpdatableBrowser1:SettingsKey = "d9651234-1cf0-e3b1-da13-fe2c88e1c814":U.
         THIS-OBJECT:smartUpdatableBrowser1:SimpleKeyboardNavigationDuringUpdate = TRUE.
-        THIS-OBJECT:smartUpdatableBrowser1:Size = NEW System.Drawing.Size(704, 288).
+        THIS-OBJECT:smartUpdatableBrowser1:Size = NEW System.Drawing.Size(710, 298).
         THIS-OBJECT:smartUpdatableBrowser1:TabIndex = 5.
         THIS-OBJECT:smartUpdatableBrowser1:Text = "smartUpdatableBrowser1":U.
         THIS-OBJECT:smartUpdatableBrowser1:AfterCopyRecord:Subscribe(THIS-OBJECT:smartUpdatableBrowser1_AfterCopyRecord).
@@ -910,7 +946,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldEditorForm INHERITS SmartWin
         arrayvar14 = NEW "Progress.Data.TableDesc[]"(0).
         tableDesc1:ChildTables = arrayvar14.
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
-        DEFINE VARIABLE arrayvar15 AS Progress.Data.ColumnPropDesc EXTENT 23 NO-UNDO.
+        DEFINE VARIABLE arrayvar15 AS Progress.Data.ColumnPropDesc EXTENT 26 NO-UNDO.
         arrayvar15[1] = NEW Progress.Data.ColumnPropDesc("BusinessEntityName":U, "":U, Progress.Data.DataType:CHARACTER).
         arrayvar15[2] = NEW Progress.Data.ColumnPropDesc("TempTableName":U, "":U, Progress.Data.DataType:CHARACTER).
         arrayvar15[3] = NEW Progress.Data.ColumnPropDesc("FieldName":U, "":U, Progress.Data.DataType:CHARACTER).
@@ -934,6 +970,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldEditorForm INHERITS SmartWin
         arrayvar15[21] = NEW Progress.Data.ColumnPropDesc("FieldCustomControlName":U, "Custom Control Name":U, Progress.Data.DataType:CHARACTER).
         arrayvar15[22] = NEW Progress.Data.ColumnPropDesc("FieldInitialUnknownValue":U, "Initial ?":U, Progress.Data.DataType:LOGICAL).
         arrayvar15[23] = NEW Progress.Data.ColumnPropDesc("FieldValidationInstance":U, "Validation Instance":U, Progress.Data.DataType:CLOB).
+        arrayvar15[24] = NEW Progress.Data.ColumnPropDesc("FieldSemanticType":U, "Semantic Type":U, Progress.Data.DataType:CHARACTER).
+        arrayvar15[25] = NEW Progress.Data.ColumnPropDesc("OriginalFieldName":U, "":U, Progress.Data.DataType:CHARACTER).
+        arrayvar15[26] = NEW Progress.Data.ColumnPropDesc("FieldSkipAssignment":U, "Add field to AssignSkipDictionary":U, Progress.Data.DataType:LOGICAL).
         tableDesc1:Columns = arrayvar15.
         THIS-OBJECT:bindingSource1:TableSchema = tableDesc1.
         /*  */
@@ -952,10 +991,10 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldEditorForm INHERITS SmartWin
         THIS-OBJECT:m_FieldEditorForm_Toolbars_Dock_Area_Left:BackColor = System.Drawing.Color:FromArgb(System.Convert:ToInt32(System.Convert:ToByte(191)), System.Convert:ToInt32(System.Convert:ToByte(219)), System.Convert:ToInt32(System.Convert:ToByte(255))).
         THIS-OBJECT:m_FieldEditorForm_Toolbars_Dock_Area_Left:DockedPosition = Infragistics.Win.UltraWinToolbars.DockedPosition:Left.
         THIS-OBJECT:m_FieldEditorForm_Toolbars_Dock_Area_Left:ForeColor = System.Drawing.SystemColors:ControlText.
-        THIS-OBJECT:m_FieldEditorForm_Toolbars_Dock_Area_Left:InitialResizeAreaExtent = 11.
-        THIS-OBJECT:m_FieldEditorForm_Toolbars_Dock_Area_Left:Location = NEW System.Drawing.Point(0, 171).
+        THIS-OBJECT:m_FieldEditorForm_Toolbars_Dock_Area_Left:InitialResizeAreaExtent = 8.
+        THIS-OBJECT:m_FieldEditorForm_Toolbars_Dock_Area_Left:Location = NEW System.Drawing.Point(0, 164).
         THIS-OBJECT:m_FieldEditorForm_Toolbars_Dock_Area_Left:Name = "m_FieldEditorForm_Toolbars_Dock_Area_Left":U.
-        THIS-OBJECT:m_FieldEditorForm_Toolbars_Dock_Area_Left:Size = NEW System.Drawing.Size(11, 288).
+        THIS-OBJECT:m_FieldEditorForm_Toolbars_Dock_Area_Left:Size = NEW System.Drawing.Size(8, 298).
         THIS-OBJECT:m_FieldEditorForm_Toolbars_Dock_Area_Left:ToolbarsManager = THIS-OBJECT:smartToolbarController1.
         /*  */
         /* m_FieldEditorForm_Toolbars_Dock_Area_Right */
@@ -964,10 +1003,10 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldEditorForm INHERITS SmartWin
         THIS-OBJECT:m_FieldEditorForm_Toolbars_Dock_Area_Right:BackColor = System.Drawing.Color:FromArgb(System.Convert:ToInt32(System.Convert:ToByte(191)), System.Convert:ToInt32(System.Convert:ToByte(219)), System.Convert:ToInt32(System.Convert:ToByte(255))).
         THIS-OBJECT:m_FieldEditorForm_Toolbars_Dock_Area_Right:DockedPosition = Infragistics.Win.UltraWinToolbars.DockedPosition:Right.
         THIS-OBJECT:m_FieldEditorForm_Toolbars_Dock_Area_Right:ForeColor = System.Drawing.SystemColors:ControlText.
-        THIS-OBJECT:m_FieldEditorForm_Toolbars_Dock_Area_Right:InitialResizeAreaExtent = 11.
-        THIS-OBJECT:m_FieldEditorForm_Toolbars_Dock_Area_Right:Location = NEW System.Drawing.Point(715, 171).
+        THIS-OBJECT:m_FieldEditorForm_Toolbars_Dock_Area_Right:InitialResizeAreaExtent = 8.
+        THIS-OBJECT:m_FieldEditorForm_Toolbars_Dock_Area_Right:Location = NEW System.Drawing.Point(718, 164).
         THIS-OBJECT:m_FieldEditorForm_Toolbars_Dock_Area_Right:Name = "m_FieldEditorForm_Toolbars_Dock_Area_Right":U.
-        THIS-OBJECT:m_FieldEditorForm_Toolbars_Dock_Area_Right:Size = NEW System.Drawing.Size(11, 288).
+        THIS-OBJECT:m_FieldEditorForm_Toolbars_Dock_Area_Right:Size = NEW System.Drawing.Size(8, 298).
         THIS-OBJECT:m_FieldEditorForm_Toolbars_Dock_Area_Right:ToolbarsManager = THIS-OBJECT:smartToolbarController1.
         /*  */
         /* m_FieldEditorForm_Toolbars_Dock_Area_Top */
@@ -978,7 +1017,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldEditorForm INHERITS SmartWin
         THIS-OBJECT:m_FieldEditorForm_Toolbars_Dock_Area_Top:ForeColor = System.Drawing.SystemColors:ControlText.
         THIS-OBJECT:m_FieldEditorForm_Toolbars_Dock_Area_Top:Location = NEW System.Drawing.Point(0, 0).
         THIS-OBJECT:m_FieldEditorForm_Toolbars_Dock_Area_Top:Name = "m_FieldEditorForm_Toolbars_Dock_Area_Top":U.
-        THIS-OBJECT:m_FieldEditorForm_Toolbars_Dock_Area_Top:Size = NEW System.Drawing.Size(726, 171).
+        THIS-OBJECT:m_FieldEditorForm_Toolbars_Dock_Area_Top:Size = NEW System.Drawing.Size(726, 164).
         THIS-OBJECT:m_FieldEditorForm_Toolbars_Dock_Area_Top:ToolbarsManager = THIS-OBJECT:smartToolbarController1.
         /*  */
         /* m_FieldEditorForm_Toolbars_Dock_Area_Bottom */
@@ -987,10 +1026,10 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldEditorForm INHERITS SmartWin
         THIS-OBJECT:m_FieldEditorForm_Toolbars_Dock_Area_Bottom:BackColor = System.Drawing.Color:FromArgb(System.Convert:ToInt32(System.Convert:ToByte(191)), System.Convert:ToInt32(System.Convert:ToByte(219)), System.Convert:ToInt32(System.Convert:ToByte(255))).
         THIS-OBJECT:m_FieldEditorForm_Toolbars_Dock_Area_Bottom:DockedPosition = Infragistics.Win.UltraWinToolbars.DockedPosition:Bottom.
         THIS-OBJECT:m_FieldEditorForm_Toolbars_Dock_Area_Bottom:ForeColor = System.Drawing.SystemColors:ControlText.
-        THIS-OBJECT:m_FieldEditorForm_Toolbars_Dock_Area_Bottom:InitialResizeAreaExtent = 11.
-        THIS-OBJECT:m_FieldEditorForm_Toolbars_Dock_Area_Bottom:Location = NEW System.Drawing.Point(0, 459).
+        THIS-OBJECT:m_FieldEditorForm_Toolbars_Dock_Area_Bottom:InitialResizeAreaExtent = 8.
+        THIS-OBJECT:m_FieldEditorForm_Toolbars_Dock_Area_Bottom:Location = NEW System.Drawing.Point(0, 462).
         THIS-OBJECT:m_FieldEditorForm_Toolbars_Dock_Area_Bottom:Name = "m_FieldEditorForm_Toolbars_Dock_Area_Bottom":U.
-        THIS-OBJECT:m_FieldEditorForm_Toolbars_Dock_Area_Bottom:Size = NEW System.Drawing.Size(726, 11).
+        THIS-OBJECT:m_FieldEditorForm_Toolbars_Dock_Area_Bottom:Size = NEW System.Drawing.Size(726, 8).
         THIS-OBJECT:m_FieldEditorForm_Toolbars_Dock_Area_Bottom:ToolbarsManager = THIS-OBJECT:smartToolbarController1.
         /*  */
         /* FieldEditorForm */
@@ -1015,49 +1054,52 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldEditorForm INHERITS SmartWin
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the Shown event 
-        Notes:   
+        Purpose: Raises the Shown event
+        Notes:
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
-		
-		DEFINE VARIABLE oValueList AS Infragistics.Win.ValueList NO-UNDO . 
-		
-		SUPER:OnShown (e) .
-		
-		PROCESS EVENTS . 
-		
+    METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
+
+        DEFINE VARIABLE oValueList AS Infragistics.Win.ValueList NO-UNDO .
+
+        SUPER:OnShown (e) .
+
+        PROCESS EVENTS .
+
         smartUpdatableBrowser1:EnableFields (EnableFieldsEnum:Update) .
-        
+
         oValueList = NEW Infragistics.Win.ValueList () .
         oValueList:ValueListItems:Add ("PUBLIC":U) .
         oValueList:ValueListItems:Add ("PROTECTED":U) .
         oValueList:ValueListItems:Add ("PRIVATE":U) .
-        
-        smartUpdatableBrowser1:DisplayLayout:Bands[0]:Columns["FieldGetAccess":U]:ValueList = oValueList .  
+
+        smartUpdatableBrowser1:DisplayLayout:Bands[0]:Columns["FieldGetAccess":U]:ValueList = oValueList .
         smartUpdatableBrowser1:DisplayLayout:Bands[0]:Columns["FieldSetAccess":U]:ValueList = CAST (oValueList:Clone(),
-                                                                                                    Infragistics.Win.ValueList) .  
-        
-	END METHOD .
+                                                                                                    Infragistics.Win.ValueList) .
 
-	/*------------------------------------------------------------------------------
-		Purpose: Performs the WAIT-FOR Operation for this Form  																	  
-		Notes:   Seperate method, to work around compile error with WAIT-FOR in non
-		         void method ShowEditor
-		@param poResult OUTPUT The DialogResult of the wait for operation  																	  
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID PerformWaitFor (OUTPUT poResult AS System.Windows.Forms.DialogResult):
-		
-        WAIT-FOR THIS-OBJECT:ShowDialog () SET poResult . 
+        smartUpdatableBrowser1:DisplayLayout:Bands[0]:Columns["OriginalFieldName":U]:Hidden = TRUE .
+        smartUpdatableBrowser1:DisplayLayout:Bands[0]:Columns["OriginalFieldName":U]:ExcludeFromColumnChooser = ExcludeFromColumnChooser:True .
 
-	END METHOD.
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Performs the WAIT-FOR Operation for this Form
+        Notes:   Seperate method, to work around compile error with WAIT-FOR in non
+                 void method ShowEditor
+        @param poResult OUTPUT The DialogResult of the wait for operation
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID PerformWaitFor (OUTPUT poResult AS System.Windows.Forms.DialogResult):
+
+        WAIT-FOR THIS-OBJECT:ShowDialog () SET poResult .
+
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Shows the Form as a modal dialog
-        Notes:   
+        Notes:
         @param pcTableName The name of the table (for the heading of the Form)
         @param eField INPUT-OUTPUT TABLE The temp-table with the fields to update
         @param poValueList The ValueList with the data types
@@ -1066,21 +1108,21 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldEditorForm INHERITS SmartWin
     METHOD PUBLIC LOGICAL ShowEditor (pcTableName AS CHARACTER,
                                       INPUT-OUTPUT TABLE FOR eField BIND,
                                       poValueList AS Infragistics.Win.ValueList):
-        
-        DEFINE VARIABLE oResult AS System.Windows.Forms.DialogResult NO-UNDO . 
-        
+
+        DEFINE VARIABLE oResult AS System.Windows.Forms.DialogResult NO-UNDO .
+
         THIS-OBJECT:Text = SUBSTITUTE ("&1 - &2":U,
                                        THIS-OBJECT:Text,
-                                       pcTableName) . 
+                                       pcTableName) .
 
-        smartTempTableAdapter1:TempTableHandle = TEMP-TABLE eField:HANDLE . 
-        smartTempTableAdapter1:QuerySort = "BY FieldOrder":U . 
-        smartTempTableAdapter1:RetrieveData() .    
-    
-        smartUpdatableBrowser1:DeselectRowsOnActivate = FALSE . 
+        smartTempTableAdapter1:TempTableHandle = TEMP-TABLE eField:HANDLE .
+        smartTempTableAdapter1:QuerySort = "BY FieldOrder":U .
+        smartTempTableAdapter1:RetrieveData() .
+
+        smartUpdatableBrowser1:DeselectRowsOnActivate = FALSE .
         smartUpdatableBrowser1:EnableMultiSelection () .
-    
-        smartUpdatableBrowser1:DisplayLayout:Bands[0]:Columns ["FieldDataType":U]:ValueList = poValueList . 
+
+        smartUpdatableBrowser1:DisplayLayout:Bands[0]:Columns ["FieldDataType":U]:ValueList = poValueList .
 
         THIS-OBJECT:PerformWaitFor (OUTPUT oResult) .
 
@@ -1090,149 +1132,165 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldEditorForm INHERITS SmartWin
     END METHOD .
 
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Event handler for the AfterUpdateRecord event of the smartTempTableAdapter1
-	    Notes:   Ensures property ordering (by Field Order) of the records
-	    @param sender The reference to the object that raised the event
-	    @param e The AfterUpdateRecordEventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID smartTempTableAdapter1_AfterUpdateRecord (sender AS System.Object, 
-	                                                              e AS AfterUpdateRecordEventArgs):
-		
-        DEFINE BUFFER b_eField FOR eField . 
-        
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the AfterUpdateRecord event of the smartTempTableAdapter1
+        Notes:   Ensures property ordering (by Field Order) of the records
+        @param sender The reference to the object that raised the event
+        @param e The AfterUpdateRecordEventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID smartTempTableAdapter1_AfterUpdateRecord (sender AS System.Object,
+                                                                  e AS AfterUpdateRecordEventArgs):
+
+        DEFINE BUFFER b_eField FOR eField .
+
         DEFINE VARIABLE i AS INTEGER NO-UNDO.
-        
-        DEFINE QUERY bQuery FOR b_eField . 
-        
+
+        DEFINE QUERY bQuery FOR b_eField .
+
         OPEN QUERY bQuery PRESELECT EACH b_eField BY b_eField.FieldOrder .
-        
-        GET FIRST bQuery . 
+
+        GET FIRST bQuery .
 
         DO WHILE NOT QUERY bQuery:QUERY-OFF-END:
             i = i + 1 .
-               
-            ASSIGN b_eField.FieldOrder = i . 
-                
-            GET NEXT bQuery . 
+
+            ASSIGN b_eField.FieldOrder = i .
+
+            GET NEXT bQuery .
         END .
 
-        ASSIGN i = smartTempTableAdapter1:BindingSource:Position . 
+        ASSIGN i = smartTempTableAdapter1:BindingSource:Position .
 
         smartTempTableAdapter1:RetrieveData () .
 
-        ASSIGN smartTempTableAdapter1:BindingSource:Position = i . 
+        ASSIGN smartTempTableAdapter1:BindingSource:Position = i .
 
-	END METHOD.
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Event handle of the BeforeCreateRecord event of the smartTempTableAdapter1
-	    Notes:   Assigns FieldOrder and FieldName
-	    @param sender The reference to the object that raised the event
-	    @param e The BeforeCreateRecordEventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID smartTempTableAdapter1_BeforeCreateRecord (sender AS System.Object,
-	                                                               e AS BeforeCreateRecordEventArgs):
-		
-		DEFINE BUFFER b_eField FOR eField . 
-		
-		IF VALID-OBJECT (smartUpdatableBrowser1:ActiveRow) THEN 
-		   e:BufferHandle::FieldOrder = UNBOX (smartUpdatableBrowser1:ActiveRow:Cells["FieldOrder":U]:Value) + 1.
-		ELSE DO:
-	       FIND LAST b_eField USE-INDEX Order. 
-	
-	       IF AVAILABLE b_eField THEN 
-	           e:BufferHandle::FieldOrder = b_eField.FieldOrder + 1 . 
-	       ELSE 
-	           e:BufferHandle::FieldOrder = 1 . 
-		END.
-		
-		e:BufferHandle::FieldName = THIS-OBJECT:EnsureUniqueFieldName ("Field":U) .
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler of the BeforeCreateRecord event of the smartTempTableAdapter1
+        Notes:   Assigns FieldOrder and FieldName
+        @param sender The reference to the object that raised the event
+        @param e The BeforeCreateRecordEventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID smartTempTableAdapter1_BeforeCreateRecord (sender AS System.Object,
+                                                                   e AS BeforeCreateRecordEventArgs):
+
+        DEFINE BUFFER b_eField FOR eField .
+
+        IF VALID-OBJECT (smartUpdatableBrowser1:ActiveRow) THEN
+            e:BufferHandle::FieldOrder = UNBOX (smartUpdatableBrowser1:ActiveRow:Cells["FieldOrder":U]:Value) + 1.
+        ELSE DO:
+            FIND LAST b_eField USE-INDEX Order.
+
+            IF AVAILABLE b_eField THEN
+                e:BufferHandle::FieldOrder = b_eField.FieldOrder + 1 .
+            ELSE
+                e:BufferHandle::FieldOrder = 1 .
+        END.
+
+        e:BufferHandle::FieldName = THIS-OBJECT:EnsureUniqueFieldName ("Field":U) .
         e:BufferHandle::FieldDataType = "CHARACTER":U .
 
-	END METHOD.
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Event handler for the BeforeDeleteRecord event of the 
-	    Notes:   Implements multi-selection deletion
-	    @param sender The reference to the object that raised the event
-	    @param e The BeforeDeleteRecordEventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID smartTempTableAdapter1_BeforeDeleteRecord (sender AS System.Object, 
-	                                                               e AS BeforeDeleteRecordEventArgs):
-	
-	    DEFINE VARIABLE cFieldName AS CHARACTER NO-UNDO.
+    END METHOD.
 
-		smartUpdatableBrowser1:ActiveRow:Selected = TRUE . 
-		
-        e:Cancel = TRUE . 
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the BeforeDeleteRecord event of the
+        Notes:   Implements multi-selection deletion
+        @param sender The reference to the object that raised the event
+        @param e The BeforeDeleteRecordEventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID smartTempTableAdapter1_BeforeDeleteRecord (sender AS System.Object,
+                                                                   e AS BeforeDeleteRecordEventArgs):
+
+        DEFINE VARIABLE cFieldName AS CHARACTER NO-UNDO.
+
+        smartUpdatableBrowser1:ActiveRow:Selected = TRUE .
+
+        e:Cancel = TRUE .
 
         {Consultingwerk/foreach.i UltraGridRow oRow in smartUpdatableBrowser1:Selected:Rows}
             cFieldName = UNBOX (oRow:Cells["FieldName":U]:Value) .
-            
-            FIND eField WHERE eField.FieldName = cFieldName . 
+
+            FIND eField WHERE eField.FieldName = cFieldName .
 
             DELETE eField .
         END.
 
         CATCH err AS Progress.Lang.Error :
-        	ErrorHelper:ShowErrorMessage (err) .	
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
         FINALLY:
             smartUpdatableBrowser1:Selected:Rows:Clear() .
-            smartTempTableAdapter1:RetrieveData() . 		
+            smartTempTableAdapter1:RetrieveData() .
         END FINALLY.
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the ToolClick event of the smartToolbarController1 
-        Notes:   
+        Purpose: Event handler for the ToolClick event of the smartToolbarController1
+        Notes:
         @param sender The System.Object that raised the event
         @param e The ToolClickEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID smartToolbarController1_ToolClick (sender AS System.Object, 
-	                                                       e AS Infragistics.Win.UltraWinToolbars.ToolClickEventArgs):
-		
-		CASE e:Tool:Key:
-		    
-		    WHEN "OK":U THEN DO:
-		        THIS-OBJECT:DialogResult = System.Windows.Forms.DialogResult:OK .
-		        THIS-OBJECT:Close () .
-		    END.
+    METHOD PRIVATE VOID smartToolbarController1_ToolClick (sender AS System.Object,
+                                                           e AS Infragistics.Win.UltraWinToolbars.ToolClickEventArgs):
+
+        CASE e:Tool:Key:
+
+            WHEN "OK":U THEN DO:
+                THIS-OBJECT:DialogResult = System.Windows.Forms.DialogResult:OK .
+                THIS-OBJECT:Close () .
+            END.
             WHEN "Cancel":U THEN DO:
                 THIS-OBJECT:DialogResult = System.Windows.Forms.DialogResult:Cancel .
                 THIS-OBJECT:Close () .
             END.
-		    
-		END CASE . 
 
-	END METHOD .
+        END CASE .
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Event handler for the AfterCopyRecord event of the smartUpdatableBrowser1
-	    Notes:   Assigns unique FieldName
-	    @param sender The reference to the object that raised the event
-	    @param e The System.EventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID smartUpdatableBrowser1_AfterCopyRecord (sender AS System.Object, 
-	                                                            e AS System.EventArgs):
-		
-		DEFINE VARIABLE cFieldName AS CHARACTER NO-UNDO.
-		
-		IF NOT VALID-OBJECT (smartUpdatableBrowser1:ActiveRow) THEN 
-		    RETURN . 
-		    
-	    ASSIGN cFieldName = smartUpdatableBrowser1:ActiveRow:Cells["FieldName":U]:Value .
-	    
-	    smartUpdatableBrowser1:ActiveRow:Cells["FieldName":U]:Value = THIS-OBJECT:EnsureUniqueFieldName (cFieldName) .
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
 
-	END METHOD.
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the FieldEditorForm class 
-        Notes:   
+        Purpose: Event handler for the AfterCopyRecord event of the smartUpdatableBrowser1
+        Notes:   Assigns unique FieldName
+        @param sender The reference to the object that raised the event
+        @param e The System.EventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID smartUpdatableBrowser1_AfterCopyRecord (sender AS System.Object,
+                                                                e AS System.EventArgs):
+
+        DEFINE VARIABLE cFieldName AS CHARACTER NO-UNDO.
+
+        IF NOT VALID-OBJECT (smartUpdatableBrowser1:ActiveRow) THEN
+            RETURN .
+
+        ASSIGN cFieldName = smartUpdatableBrowser1:ActiveRow:Cells["FieldName":U]:Value .
+
+        smartUpdatableBrowser1:ActiveRow:Cells["FieldName":U]:Value = THIS-OBJECT:EnsureUniqueFieldName (cFieldName) .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Destructor for the FieldEditorForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC FieldEditorForm ():
 

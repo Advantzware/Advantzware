@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2006-2014 by Consultingwerk Ltd. ("CW") -            *
+ * Copyright (C) 2006-2015 by Consultingwerk Ltd. ("CW") -            *
  * www.consultingwerk.de and other contributors as listed             *
  * below.  All Rights Reserved.                                       *
  *                                                                    *
@@ -15,7 +15,7 @@
     Syntax      : 
     Description : 
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
-    Created     : 06/03/2015 12:52:29,493+01:00
+    Created     : 24/03/2016 13:07:26,891+01:00
     Notes       : 
   ----------------------------------------------------------------------*/
 
@@ -43,6 +43,19 @@ CLASS Consultingwerk.SmartFramework.System.SmartRelationTableModel_Generated
     END SET .
 
     /*------------------------------------------------------------------------------
+        Purpose: Returns the value of the RelationGuid field when a record is available
+        Notes:   Returns the default value, when no record
+        @param pDefaultValue The default value to return when no record is available
+        @return The field value or the default value when no record is available
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC CHARACTER RelationGuidWhenAvailable (pDefaultValue AS CHARACTER):
+        IF THIS-OBJECT:BufferHandle:AVAILABLE THEN 
+            RETURN THIS-OBJECT:BufferHandle:BUFFER-FIELD ("RelationGuid":U):BUFFER-VALUE .
+        ELSE 
+            RETURN pDefaultValue .
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
         Purpose: Gets and sets the current ParentTableGUID value
         Notes:   
     ------------------------------------------------------------------------------*/
@@ -53,6 +66,19 @@ CLASS Consultingwerk.SmartFramework.System.SmartRelationTableModel_Generated
     PUBLIC SET (arg AS CHARACTER):
         THIS-OBJECT:SetCharacterFieldValue ("ParentTableGUID":U, arg) .
     END SET .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the value of the ParentTableGUID field when a record is available
+        Notes:   Returns the default value, when no record
+        @param pDefaultValue The default value to return when no record is available
+        @return The field value or the default value when no record is available
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC CHARACTER ParentTableGUIDWhenAvailable (pDefaultValue AS CHARACTER):
+        IF THIS-OBJECT:BufferHandle:AVAILABLE THEN 
+            RETURN THIS-OBJECT:BufferHandle:BUFFER-FIELD ("ParentTableGUID":U):BUFFER-VALUE .
+        ELSE 
+            RETURN pDefaultValue .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the current ParentTableName value
@@ -67,6 +93,19 @@ CLASS Consultingwerk.SmartFramework.System.SmartRelationTableModel_Generated
     END SET .
 
     /*------------------------------------------------------------------------------
+        Purpose: Returns the value of the ParentTableName field when a record is available
+        Notes:   Returns the default value, when no record
+        @param pDefaultValue The default value to return when no record is available
+        @return The field value or the default value when no record is available
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC CHARACTER ParentTableNameWhenAvailable (pDefaultValue AS CHARACTER):
+        IF THIS-OBJECT:BufferHandle:AVAILABLE THEN 
+            RETURN THIS-OBJECT:BufferHandle:BUFFER-FIELD ("ParentTableName":U):BUFFER-VALUE .
+        ELSE 
+            RETURN pDefaultValue .
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
         Purpose: Gets and sets the current ChildTableGUID value
         Notes:   
     ------------------------------------------------------------------------------*/
@@ -77,6 +116,19 @@ CLASS Consultingwerk.SmartFramework.System.SmartRelationTableModel_Generated
     PUBLIC SET (arg AS CHARACTER):
         THIS-OBJECT:SetCharacterFieldValue ("ChildTableGUID":U, arg) .
     END SET .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the value of the ChildTableGUID field when a record is available
+        Notes:   Returns the default value, when no record
+        @param pDefaultValue The default value to return when no record is available
+        @return The field value or the default value when no record is available
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC CHARACTER ChildTableGUIDWhenAvailable (pDefaultValue AS CHARACTER):
+        IF THIS-OBJECT:BufferHandle:AVAILABLE THEN 
+            RETURN THIS-OBJECT:BufferHandle:BUFFER-FIELD ("ChildTableGUID":U):BUFFER-VALUE .
+        ELSE 
+            RETURN pDefaultValue .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the current ChildTableName value
@@ -91,6 +143,19 @@ CLASS Consultingwerk.SmartFramework.System.SmartRelationTableModel_Generated
     END SET .
 
     /*------------------------------------------------------------------------------
+        Purpose: Returns the value of the ChildTableName field when a record is available
+        Notes:   Returns the default value, when no record
+        @param pDefaultValue The default value to return when no record is available
+        @return The field value or the default value when no record is available
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC CHARACTER ChildTableNameWhenAvailable (pDefaultValue AS CHARACTER):
+        IF THIS-OBJECT:BufferHandle:AVAILABLE THEN 
+            RETURN THIS-OBJECT:BufferHandle:BUFFER-FIELD ("ChildTableName":U):BUFFER-VALUE .
+        ELSE 
+            RETURN pDefaultValue .
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
         Purpose: Gets and sets the current RelationName value
         Notes:   
     ------------------------------------------------------------------------------*/
@@ -101,6 +166,19 @@ CLASS Consultingwerk.SmartFramework.System.SmartRelationTableModel_Generated
     PUBLIC SET (arg AS CHARACTER):
         THIS-OBJECT:SetCharacterFieldValue ("RelationName":U, arg) .
     END SET .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the value of the RelationName field when a record is available
+        Notes:   Returns the default value, when no record
+        @param pDefaultValue The default value to return when no record is available
+        @return The field value or the default value when no record is available
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC CHARACTER RelationNameWhenAvailable (pDefaultValue AS CHARACTER):
+        IF THIS-OBJECT:BufferHandle:AVAILABLE THEN 
+            RETURN THIS-OBJECT:BufferHandle:BUFFER-FIELD ("RelationName":U):BUFFER-VALUE .
+        ELSE 
+            RETURN pDefaultValue .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the current RelationDescription value
@@ -115,6 +193,19 @@ CLASS Consultingwerk.SmartFramework.System.SmartRelationTableModel_Generated
     END SET .
 
     /*------------------------------------------------------------------------------
+        Purpose: Returns the value of the RelationDescription field when a record is available
+        Notes:   Returns the default value, when no record
+        @param pDefaultValue The default value to return when no record is available
+        @return The field value or the default value when no record is available
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC CHARACTER RelationDescriptionWhenAvailable (pDefaultValue AS CHARACTER):
+        IF THIS-OBJECT:BufferHandle:AVAILABLE THEN 
+            RETURN THIS-OBJECT:BufferHandle:BUFFER-FIELD ("RelationDescription":U):BUFFER-VALUE .
+        ELSE 
+            RETURN pDefaultValue .
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
         Purpose: Gets and sets the current RelationFieldPair value
         Notes:   
     ------------------------------------------------------------------------------*/
@@ -125,6 +216,19 @@ CLASS Consultingwerk.SmartFramework.System.SmartRelationTableModel_Generated
     PUBLIC SET (arg AS CHARACTER):
         THIS-OBJECT:SetCharacterFieldValue ("RelationFieldPair":U, arg) .
     END SET .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the value of the RelationFieldPair field when a record is available
+        Notes:   Returns the default value, when no record
+        @param pDefaultValue The default value to return when no record is available
+        @return The field value or the default value when no record is available
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC CHARACTER RelationFieldPairWhenAvailable (pDefaultValue AS CHARACTER):
+        IF THIS-OBJECT:BufferHandle:AVAILABLE THEN 
+            RETURN THIS-OBJECT:BufferHandle:BUFFER-FIELD ("RelationFieldPair":U):BUFFER-VALUE .
+        ELSE 
+            RETURN pDefaultValue .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the current ParentRoleDescription value
@@ -139,6 +243,19 @@ CLASS Consultingwerk.SmartFramework.System.SmartRelationTableModel_Generated
     END SET .
 
     /*------------------------------------------------------------------------------
+        Purpose: Returns the value of the ParentRoleDescription field when a record is available
+        Notes:   Returns the default value, when no record
+        @param pDefaultValue The default value to return when no record is available
+        @return The field value or the default value when no record is available
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC CHARACTER ParentRoleDescriptionWhenAvailable (pDefaultValue AS CHARACTER):
+        IF THIS-OBJECT:BufferHandle:AVAILABLE THEN 
+            RETURN THIS-OBJECT:BufferHandle:BUFFER-FIELD ("ParentRoleDescription":U):BUFFER-VALUE .
+        ELSE 
+            RETURN pDefaultValue .
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
         Purpose: Gets and sets the current ChildRoleDescription value
         Notes:   
     ------------------------------------------------------------------------------*/
@@ -149,6 +266,19 @@ CLASS Consultingwerk.SmartFramework.System.SmartRelationTableModel_Generated
     PUBLIC SET (arg AS CHARACTER):
         THIS-OBJECT:SetCharacterFieldValue ("ChildRoleDescription":U, arg) .
     END SET .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the value of the ChildRoleDescription field when a record is available
+        Notes:   Returns the default value, when no record
+        @param pDefaultValue The default value to return when no record is available
+        @return The field value or the default value when no record is available
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC CHARACTER ChildRoleDescriptionWhenAvailable (pDefaultValue AS CHARACTER):
+        IF THIS-OBJECT:BufferHandle:AVAILABLE THEN 
+            RETURN THIS-OBJECT:BufferHandle:BUFFER-FIELD ("ChildRoleDescription":U):BUFFER-VALUE .
+        ELSE 
+            RETURN pDefaultValue .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the current ParentCardinality value
@@ -163,6 +293,19 @@ CLASS Consultingwerk.SmartFramework.System.SmartRelationTableModel_Generated
     END SET .
 
     /*------------------------------------------------------------------------------
+        Purpose: Returns the value of the ParentCardinality field when a record is available
+        Notes:   Returns the default value, when no record
+        @param pDefaultValue The default value to return when no record is available
+        @return The field value or the default value when no record is available
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC CHARACTER ParentCardinalityWhenAvailable (pDefaultValue AS CHARACTER):
+        IF THIS-OBJECT:BufferHandle:AVAILABLE THEN 
+            RETURN THIS-OBJECT:BufferHandle:BUFFER-FIELD ("ParentCardinality":U):BUFFER-VALUE .
+        ELSE 
+            RETURN pDefaultValue .
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
         Purpose: Gets and sets the current ChildCardinality value
         Notes:   
     ------------------------------------------------------------------------------*/
@@ -173,6 +316,19 @@ CLASS Consultingwerk.SmartFramework.System.SmartRelationTableModel_Generated
     PUBLIC SET (arg AS CHARACTER):
         THIS-OBJECT:SetCharacterFieldValue ("ChildCardinality":U, arg) .
     END SET .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the value of the ChildCardinality field when a record is available
+        Notes:   Returns the default value, when no record
+        @param pDefaultValue The default value to return when no record is available
+        @return The field value or the default value when no record is available
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC CHARACTER ChildCardinalityWhenAvailable (pDefaultValue AS CHARACTER):
+        IF THIS-OBJECT:BufferHandle:AVAILABLE THEN 
+            RETURN THIS-OBJECT:BufferHandle:BUFFER-FIELD ("ChildCardinality":U):BUFFER-VALUE .
+        ELSE 
+            RETURN pDefaultValue .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the current OnParentDelete value
@@ -187,6 +343,19 @@ CLASS Consultingwerk.SmartFramework.System.SmartRelationTableModel_Generated
     END SET .
 
     /*------------------------------------------------------------------------------
+        Purpose: Returns the value of the OnParentDelete field when a record is available
+        Notes:   Returns the default value, when no record
+        @param pDefaultValue The default value to return when no record is available
+        @return The field value or the default value when no record is available
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC CHARACTER OnParentDeleteWhenAvailable (pDefaultValue AS CHARACTER):
+        IF THIS-OBJECT:BufferHandle:AVAILABLE THEN 
+            RETURN THIS-OBJECT:BufferHandle:BUFFER-FIELD ("OnParentDelete":U):BUFFER-VALUE .
+        ELSE 
+            RETURN pDefaultValue .
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
         Purpose: Gets and sets the current DefaultParentRelation value
         Notes:   
     ------------------------------------------------------------------------------*/
@@ -197,6 +366,19 @@ CLASS Consultingwerk.SmartFramework.System.SmartRelationTableModel_Generated
     PUBLIC SET (arg AS LOGICAL):
         THIS-OBJECT:SetLogicalFieldValue ("DefaultParentRelation":U, arg) .
     END SET .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the value of the DefaultParentRelation field when a record is available
+        Notes:   Returns the default value, when no record
+        @param pDefaultValue The default value to return when no record is available
+        @return The field value or the default value when no record is available
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC LOGICAL DefaultParentRelationWhenAvailable (pDefaultValue AS LOGICAL):
+        IF THIS-OBJECT:BufferHandle:AVAILABLE THEN 
+            RETURN THIS-OBJECT:BufferHandle:BUFFER-FIELD ("DefaultParentRelation":U):BUFFER-VALUE .
+        ELSE 
+            RETURN pDefaultValue .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the current SmartAttachments value
@@ -211,6 +393,19 @@ CLASS Consultingwerk.SmartFramework.System.SmartRelationTableModel_Generated
     END SET .
 
     /*------------------------------------------------------------------------------
+        Purpose: Returns the value of the SmartAttachments field when a record is available
+        Notes:   Returns the default value, when no record
+        @param pDefaultValue The default value to return when no record is available
+        @return The field value or the default value when no record is available
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC LOGICAL SmartAttachmentsWhenAvailable (pDefaultValue AS LOGICAL):
+        IF THIS-OBJECT:BufferHandle:AVAILABLE THEN 
+            RETURN THIS-OBJECT:BufferHandle:BUFFER-FIELD ("SmartAttachments":U):BUFFER-VALUE .
+        ELSE 
+            RETURN pDefaultValue .
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
         Purpose: Gets and sets the current SmartComments value
         Notes:   
     ------------------------------------------------------------------------------*/
@@ -221,6 +416,19 @@ CLASS Consultingwerk.SmartFramework.System.SmartRelationTableModel_Generated
     PUBLIC SET (arg AS LOGICAL):
         THIS-OBJECT:SetLogicalFieldValue ("SmartComments":U, arg) .
     END SET .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the value of the SmartComments field when a record is available
+        Notes:   Returns the default value, when no record
+        @param pDefaultValue The default value to return when no record is available
+        @return The field value or the default value when no record is available
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC LOGICAL SmartCommentsWhenAvailable (pDefaultValue AS LOGICAL):
+        IF THIS-OBJECT:BufferHandle:AVAILABLE THEN 
+            RETURN THIS-OBJECT:BufferHandle:BUFFER-FIELD ("SmartComments":U):BUFFER-VALUE .
+        ELSE 
+            RETURN pDefaultValue .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the current SmartRecordKey value
@@ -235,6 +443,19 @@ CLASS Consultingwerk.SmartFramework.System.SmartRelationTableModel_Generated
     END SET .
 
     /*------------------------------------------------------------------------------
+        Purpose: Returns the value of the SmartRecordKey field when a record is available
+        Notes:   Returns the default value, when no record
+        @param pDefaultValue The default value to return when no record is available
+        @return The field value or the default value when no record is available
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC CHARACTER SmartRecordKeyWhenAvailable (pDefaultValue AS CHARACTER):
+        IF THIS-OBJECT:BufferHandle:AVAILABLE THEN 
+            RETURN THIS-OBJECT:BufferHandle:BUFFER-FIELD ("SmartRecordKey":U):BUFFER-VALUE .
+        ELSE 
+            RETURN pDefaultValue .
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
         Purpose: Gets and sets the current Inactive value
         Notes:   
     ------------------------------------------------------------------------------*/
@@ -245,6 +466,19 @@ CLASS Consultingwerk.SmartFramework.System.SmartRelationTableModel_Generated
     PUBLIC SET (arg AS LOGICAL):
         THIS-OBJECT:SetLogicalFieldValue ("Inactive":U, arg) .
     END SET .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the value of the Inactive field when a record is available
+        Notes:   Returns the default value, when no record
+        @param pDefaultValue The default value to return when no record is available
+        @return The field value or the default value when no record is available
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC LOGICAL InactiveWhenAvailable (pDefaultValue AS LOGICAL):
+        IF THIS-OBJECT:BufferHandle:AVAILABLE THEN 
+            RETURN THIS-OBJECT:BufferHandle:BUFFER-FIELD ("Inactive":U):BUFFER-VALUE .
+        ELSE 
+            RETURN pDefaultValue .
+    END METHOD .
 
 
 

@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2006-2013 by Consultingwerk Ltd. ("CW") -            *
+ * Copyright (C) 2006-2016 by Consultingwerk Ltd. ("CW") -            *
  * www.consultingwerk.de and other contributors as listed             *
  * below.  All Rights Reserved.                                       *
  *                                                                    *
@@ -8,15 +8,15 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : BusinessEntityDesignerSettingsForm
     Purpose     : Dialog to main settings of the Business Entity Designer
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Thu Oct 21 23:01:24 CEST 2010
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -32,16 +32,18 @@ USING System.Windows.Forms.*                          FROM ASSEMBLY .
 
 {Consultingwerk/products.i}
 
-CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsForm 
-    INHERITS SmartWindowForm: 
-    
+CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsForm
+    INHERITS SmartWindowForm:
+
     DEFINE PRIVATE VARIABLE btn_use_current_commandline AS Infragistics.Win.Misc.UltraButton NO-UNDO.
+    DEFINE PRIVATE VARIABLE cb_launcher_proversion AS Infragistics.Win.UltraWinEditors.UltraComboEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE cbReplaceUnderscore AS Infragistics.Win.UltraWinEditors.UltraCheckEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE cbReplaceHyphens AS Infragistics.Win.UltraWinEditors.UltraCheckEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE cbSplitArrayFields AS Infragistics.Win.UltraWinEditors.UltraCheckEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE coKeywordCasing AS Infragistics.Win.UltraWinEditors.UltraComboEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE gb_launcher AS Infragistics.Win.Misc.UltraGroupBox NO-UNDO.
     DEFINE PRIVATE VARIABLE openFileDialog1 AS System.Windows.Forms.OpenFileDialog NO-UNDO.
+    DEFINE PRIVATE VARIABLE openFileDialog2 AS System.Windows.Forms.OpenFileDialog NO-UNDO.
     DEFINE PRIVATE VARIABLE tb_CustomServices AS Infragistics.Win.UltraWinEditors.UltraTextEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE to_DistinctTempTableIncludes AS Infragistics.Win.UltraWinEditors.UltraCheckEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE tb_launch_parameter AS Infragistics.Win.UltraWinEditors.UltraTextEditor NO-UNDO.
@@ -69,6 +71,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
     DEFINE PRIVATE VARIABLE to_GenerateDatasetController AS Infragistics.Win.UltraWinEditors.UltraCheckEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE to_OpenFilesInIDE AS Infragistics.Win.UltraWinEditors.UltraCheckEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE to_PromptSave AS Infragistics.Win.UltraWinEditors.UltraCheckEditor NO-UNDO.
+    DEFINE PRIVATE VARIABLE toShowConfirmation AS Infragistics.Win.UltraWinEditors.UltraCheckEditor NO-UNDO.
+    DEFINE PRIVATE VARIABLE toSyncTTsOnOpen AS Infragistics.Win.UltraWinEditors.UltraCheckEditor NO-UNDO.
+    DEFINE PRIVATE VARIABLE toShowUnderscoreTables AS Infragistics.Win.UltraWinEditors.UltraCheckEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE toUseLocalFileHistory AS Infragistics.Win.UltraWinEditors.UltraCheckEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraButton2 AS Infragistics.Win.Misc.UltraButton NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraButton1 AS Infragistics.Win.Misc.UltraButton NO-UNDO.
@@ -94,6 +99,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
     DEFINE PRIVATE VARIABLE ultraLabel25 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraLabel26 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraLabel27 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
+    DEFINE PRIVATE VARIABLE ultraLabel28 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
+    DEFINE PRIVATE VARIABLE ultraLabel29 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
+    DEFINE PRIVATE VARIABLE ultraLabel30 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraLabel34 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraLabel33 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraLabel9 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
@@ -107,68 +115,74 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
     DEFINE PRIVATE VARIABLE tb_RCodeFolder AS Infragistics.Win.UltraWinEditors.UltraTextEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE tb_SourceFolder AS Infragistics.Win.UltraWinEditors.UltraTextEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraStatusBar1 AS Infragistics.Win.UltraWinStatusBar.UltraStatusBar NO-UNDO.
+    DEFINE PRIVATE VARIABLE tb_ApacheAntCommand AS Infragistics.Win.UltraWinEditors.UltraTextEditor NO-UNDO.
 
     {Consultingwerk/Util/TempTables/ttClassNames.i &ACCESS="PRIVATE STATIC"}
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the BusinessEntityDesignerSettingsForm  class                                                            
-        Notes:                                                                        
+        Purpose: Constructor for the BusinessEntityDesignerSettingsForm  class
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC BusinessEntityDesignerSettingsForm ():
-        
+
         SUPER().
         InitializeComponent().
-        
-        ASSIGN 
+
+        ASSIGN
             THIS-OBJECT:tb_generator:Text                     = BusinessEntityDesignerSettings:BusinessEntityGenerator
             THIS-OBJECT:tb_fieldnamegenerator:Text            = BusinessEntityDesignerSettings:FieldNameGeneratorService
             THIS-OBJECT:tb_RelationFieldsGenerator:Text       = BusinessEntityDesignerSettings:DataRelationFieldsService
             THIS-OBJECT:tb_templatefolder:Text                = BusinessEntityDesignerSettings:TemplateFolder
             THIS-OBJECT:tb_datarelationnamesubstitute:Text    = BusinessEntityDesignerSettings:RelationNameSubstitute
             THIS-OBJECT:tb_nameprefix:Text                    = BusinessEntityDesignerSettings:DefaultTablePrefix
+            THIS-OBJECT:toShowConfirmation:Checked            = BusinessEntityDesignerSettings:ShowConfirmation
             THIS-OBJECT:tb_namesuffix:Text                    = BusinessEntityDesignerSettings:DefaultTableSuffix
             THIS-OBJECT:tb_beforeprefix:Text                  = BusinessEntityDesignerSettings:DefaultBeforeTablePrefix
             THIS-OBJECT:tb_beforesuffix:Text                  = BusinessEntityDesignerSettings:DefaultBeforeTableSuffix
             THIS-OBJECT:tb_plugins:Text                       = REPLACE (BusinessEntityDesignerSettings:BusinessEntityDesignerPlugins,
-                                                                         "|":U, System.Environment:NewLine) 
+                                                                         "|":U, System.Environment:NewLine)
             THIS-OBJECT:tb_SourceFolder:Text                  = BusinessEntityDesignerSettings:SourceCodeBaseFolder
             THIS-OBJECT:tb_RCodeFolder:Text                   = BusinessEntityDesignerSettings:RCodeBaseFolder
-                                                             
+
             THIS-OBJECT:tb_SourceFolder_Gui:Text              = BusinessEntityDesignerSettings:SourceCodeBaseFolderGui
             THIS-OBJECT:tb_RCodeFolder_Gui:Text               = BusinessEntityDesignerSettings:RCodeBaseFolderGui
-                                                             
+
             THIS-OBJECT:tb_IncludeFiles:Text                  = BusinessEntityDesignerSettings:IncludeFilesBaseFolder
-                                                             
+
             THIS-OBJECT:tb_tablenamegenerator:Text            = BusinessEntityDesignerSettings:TableNameGeneratorService
-                                                             
+
             THIS-OBJECT:to_OpenFilesInIDE:Checked             = BusinessEntityDesignerSettings:OpenFilesInIDE
             THIS-OBJECT:to_CompileDatasetController:Checked   = BusinessEntityDesignerSettings:CompileDatasetController
             THIS-OBJECT:to_GenerateDatasetController:Checked  = BusinessEntityDesignerSettings:GenerateDatasetController
-            
+
             THIS-OBJECT:to_PromptSave:Checked                 = BusinessEntityDesignerSettings:PromptForSaveBeforeGenerate
+            THIS-OBJECT:toSyncTTsOnOpen:Checked               = BusinessEntityDesignerSettings:SynchronizeTempTablesOnOpen
+            THIS-OBJECT:toShowUnderscoreTables:Checked        = BusinessEntityDesignerSettings:ViewUnderscoreTables
             THIS-OBJECT:to_DistinctTempTableIncludes:Checked  = BusinessEntityDesignerSettings:DistinctTempTableIncludeFiles
-                                                              
+
             THIS-OBJECT:cbReplaceUnderscore:Checked           = BusinessEntityDesignerSettings:ReplaceUnderScoreInTableName
             THIS-OBJECT:cbReplaceHyphens:Checked              = BusinessEntityDesignerSettings:ReplaceHyphenInTableName
-                                                              
+
             THIS-OBJECT:cbSplitArrayFields:Checked            = BusinessEntityDesignerSettings:SplitArrayFields
-                                                              
-            THIS-OBJECT:tb_CustomServices:Text                = BusinessEntityDesignerSettings:CustomServices  
-                                                              
+
+            THIS-OBJECT:tb_CustomServices:Text                = BusinessEntityDesignerSettings:CustomServices
+            THIS-OBJECT:tb_ApacheAntCommand:Text              = BusinessEntityDesignerSettings:ApacheAntCommandLine
+
             THIS-OBJECT:tb_launch_parameter:Text              = BusinessEntityDesignerSettings:LauncherCommandLine
-                                                              
+            THIS-OBJECT:cb_launcher_proversion:Text           = BusinessEntityDesignerSettings:LauncherProversion
+
             THIS-OBJECT:gb_generator:VISIBLE                  = TRUE
-            THIS-OBJECT:gb_designer:VISIBLE                   = FALSE  
-            THIS-OBJECT:gb_designer2:VISIBLE                  = FALSE  
+            THIS-OBJECT:gb_designer:VISIBLE                   = FALSE
+            THIS-OBJECT:gb_designer2:VISIBLE                  = FALSE
             THIS-OBJECT:gb_plugins:VISIBLE                    = FALSE
             THIS-OBJECT:gb_launcher:VISIBLE                   = FALSE
-                                                              
-            THIS-OBJECT:toUseLocalFileHistory:Checked         = BusinessEntityDesignerSettings:UseLocalFileHistory 
-                                                              
-            THIS-OBJECT:ultraStatusBar1:Text                  = BusinessEntityDesignerSettings:SettingsFile . 
-            .       
 
-        IF BusinessEntityDesignerSettings:KeywordCasing = "UPPER":U OR BusinessEntityDesignerSettings:KeywordCasing = "LOWER":U THEN  
+            THIS-OBJECT:toUseLocalFileHistory:Checked         = BusinessEntityDesignerSettings:UseLocalFileHistory
+
+            THIS-OBJECT:ultraStatusBar1:Text                  = BusinessEntityDesignerSettings:SettingsFile .
+            .
+
+        IF BusinessEntityDesignerSettings:KeywordCasing = "UPPER":U OR BusinessEntityDesignerSettings:KeywordCasing = "LOWER":U THEN
             THIS-OBJECT:coKeywordCasing:Value = BOX (BusinessEntityDesignerSettings:KeywordCasing) .
 
         CATCH e AS Progress.Lang.Error:
@@ -178,38 +192,43 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the Click event of the btn_use_current_commandline 
-        Notes:   
+        Purpose: Event handler for the Click event of the btn_use_current_commandline
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID btn_use_current_commandline_Click (sender AS System.Object, 
-	                                                       e AS System.EventArgs):
-		
-		DEFINE VARIABLE oDialogResultEnum AS DialogResultEnum NO-UNDO . 
-		
-		oDialogResultEnum = Consultingwerk.Util.MessageFormHelper:AskQuestion 
-		                      ("Append -param open=%filename% ?"{&TRAN},
-		                       "Business Entity Designer"{&TRAN}) .
-		
-		IF oDialogResultEnum = DialogResultEnum:DialogResultYes THEN 
-		    tb_launch_parameter:Text = System.Environment:CommandLine + " -param open=%filename%":U .
-		ELSE   
-		    tb_launch_parameter:Text = System.Environment:CommandLine . 
+    METHOD PRIVATE VOID btn_use_current_commandline_Click (sender AS System.Object,
+                                                           e AS System.EventArgs):
 
-	END METHOD .
+        DEFINE VARIABLE oDialogResultEnum AS DialogResultEnum NO-UNDO .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/
+        oDialogResultEnum = Consultingwerk.Util.MessageFormHelper:AskQuestion
+                              ("Append -param open=%filename% ?"{&TRAN},
+                               "Business Entity Designer"{&TRAN}) .
+
+        IF oDialogResultEnum = DialogResultEnum:DialogResultYes THEN
+            tb_launch_parameter:Text = System.Environment:CommandLine + " -param open=%filename%":U .
+        ELSE
+            tb_launch_parameter:Text = System.Environment:CommandLine .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
+    END METHOD .
+
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE ultraExplorerBarGroup1 AS Infragistics.Win.UltraWinExplorerBar.UltraExplorerBarGroup NO-UNDO.
@@ -251,11 +270,68 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
         DEFINE VARIABLE appearance6 AS Infragistics.Win.Appearance NO-UNDO.
         appearance6 = NEW Infragistics.Win.Appearance().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE appearance10 AS Infragistics.Win.Appearance NO-UNDO.
+        appearance10 = NEW Infragistics.Win.Appearance().
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE appearance11 AS Infragistics.Win.Appearance NO-UNDO.
+        appearance11 = NEW Infragistics.Win.Appearance().
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE valueListItem1 AS Infragistics.Win.ValueListItem NO-UNDO.
+        valueListItem1 = NEW Infragistics.Win.ValueListItem().
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE valueListItem2 AS Infragistics.Win.ValueListItem NO-UNDO.
+        valueListItem2 = NEW Infragistics.Win.ValueListItem().
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE editorButton1 AS Infragistics.Win.UltraWinEditors.EditorButton NO-UNDO.
         editorButton1 = NEW Infragistics.Win.UltraWinEditors.EditorButton("LookupFolder":U).
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE valueListItem3 AS Infragistics.Win.ValueListItem NO-UNDO.
+        valueListItem3 = NEW Infragistics.Win.ValueListItem().
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE valueListItem4 AS Infragistics.Win.ValueListItem NO-UNDO.
+        valueListItem4 = NEW Infragistics.Win.ValueListItem().
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE valueListItem5 AS Infragistics.Win.ValueListItem NO-UNDO.
+        valueListItem5 = NEW Infragistics.Win.ValueListItem().
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE valueListItem6 AS Infragistics.Win.ValueListItem NO-UNDO.
+        valueListItem6 = NEW Infragistics.Win.ValueListItem().
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE valueListItem7 AS Infragistics.Win.ValueListItem NO-UNDO.
+        valueListItem7 = NEW Infragistics.Win.ValueListItem().
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE valueListItem8 AS Infragistics.Win.ValueListItem NO-UNDO.
+        valueListItem8 = NEW Infragistics.Win.ValueListItem().
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE valueListItem13 AS Infragistics.Win.ValueListItem NO-UNDO.
+        valueListItem13 = NEW Infragistics.Win.ValueListItem().
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE valueListItem12 AS Infragistics.Win.ValueListItem NO-UNDO.
+        valueListItem12 = NEW Infragistics.Win.ValueListItem().
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE valueListItem9 AS Infragistics.Win.ValueListItem NO-UNDO.
+        valueListItem9 = NEW Infragistics.Win.ValueListItem().
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE valueListItem10 AS Infragistics.Win.ValueListItem NO-UNDO.
+        valueListItem10 = NEW Infragistics.Win.ValueListItem().
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE valueListItem11 AS Infragistics.Win.ValueListItem NO-UNDO.
+        valueListItem11 = NEW Infragistics.Win.ValueListItem().
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE valueListItem14 AS Infragistics.Win.ValueListItem NO-UNDO.
+        valueListItem14 = NEW Infragistics.Win.ValueListItem().
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE valueListItem15 AS Infragistics.Win.ValueListItem NO-UNDO.
+        valueListItem15 = NEW Infragistics.Win.ValueListItem().
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE valueListItem16 AS Infragistics.Win.ValueListItem NO-UNDO.
+        valueListItem16 = NEW Infragistics.Win.ValueListItem().
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE editorButton2 AS Infragistics.Win.UltraWinEditors.EditorButton NO-UNDO.
-        editorButton2 = NEW Infragistics.Win.UltraWinEditors.EditorButton("LookupFolder":U).
+        editorButton2 = NEW Infragistics.Win.UltraWinEditors.EditorButton("LookupFile":U).
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE editorButton3 AS Infragistics.Win.UltraWinEditors.EditorButton NO-UNDO.
+        editorButton3 = NEW Infragistics.Win.UltraWinEditors.EditorButton("LookupFolder":U).
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance7 AS Infragistics.Win.Appearance NO-UNDO.
         appearance7 = NEW Infragistics.Win.Appearance().
@@ -265,18 +341,20 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance9 AS Infragistics.Win.Appearance NO-UNDO.
         appearance9 = NEW Infragistics.Win.Appearance().
-        @VisualDesigner.FormMember (NeedsInitialize="true":U).
-        DEFINE VARIABLE appearance10 AS Infragistics.Win.Appearance NO-UNDO.
-        appearance10 = NEW Infragistics.Win.Appearance().
-        @VisualDesigner.FormMember (NeedsInitialize="true":U).
-        DEFINE VARIABLE valueListItem1 AS Infragistics.Win.ValueListItem NO-UNDO.
-        valueListItem1 = NEW Infragistics.Win.ValueListItem().
-        @VisualDesigner.FormMember (NeedsInitialize="true":U).
-        DEFINE VARIABLE valueListItem2 AS Infragistics.Win.ValueListItem NO-UNDO.
-        valueListItem2 = NEW Infragistics.Win.ValueListItem().
         THIS-OBJECT:ultraExplorerBar1 = NEW Infragistics.Win.UltraWinExplorerBar.UltraExplorerBar().
         THIS-OBJECT:ultraPanel1 = NEW Infragistics.Win.Misc.UltraPanel().
+        THIS-OBJECT:gb_designer2 = NEW Infragistics.Win.Misc.UltraGroupBox().
+        THIS-OBJECT:toShowUnderscoreTables = NEW Infragistics.Win.UltraWinEditors.UltraCheckEditor().
+        THIS-OBJECT:toSyncTTsOnOpen = NEW Infragistics.Win.UltraWinEditors.UltraCheckEditor().
+        THIS-OBJECT:ultraLabel30 = NEW Infragistics.Win.Misc.UltraLabel().
+        THIS-OBJECT:cbSplitArrayFields = NEW Infragistics.Win.UltraWinEditors.UltraCheckEditor().
+        THIS-OBJECT:ultraLabel17 = NEW Infragistics.Win.Misc.UltraLabel().
+        THIS-OBJECT:ultraLabel18 = NEW Infragistics.Win.Misc.UltraLabel().
+        THIS-OBJECT:ultraLabel19 = NEW Infragistics.Win.Misc.UltraLabel().
+        THIS-OBJECT:tb_fieldnamegenerator = NEW Infragistics.Win.UltraWinEditors.UltraTextEditor().
         THIS-OBJECT:gb_generator = NEW Infragistics.Win.Misc.UltraGroupBox().
+        THIS-OBJECT:coKeywordCasing = NEW Infragistics.Win.UltraWinEditors.UltraComboEditor().
+        THIS-OBJECT:ultraLabel27 = NEW Infragistics.Win.Misc.UltraLabel().
         THIS-OBJECT:to_GenerateDatasetController = NEW Infragistics.Win.UltraWinEditors.UltraCheckEditor().
         THIS-OBJECT:to_DistinctTempTableIncludes = NEW Infragistics.Win.UltraWinEditors.UltraCheckEditor().
         THIS-OBJECT:to_PromptSave = NEW Infragistics.Win.UltraWinEditors.UltraCheckEditor().
@@ -299,12 +377,16 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
         THIS-OBJECT:tb_templatefolder = NEW Infragistics.Win.UltraWinEditors.UltraTextEditor().
         THIS-OBJECT:ultraLabel23 = NEW Infragistics.Win.Misc.UltraLabel().
         THIS-OBJECT:gb_launcher = NEW Infragistics.Win.Misc.UltraGroupBox().
+        THIS-OBJECT:cb_launcher_proversion = NEW Infragistics.Win.UltraWinEditors.UltraComboEditor().
+        THIS-OBJECT:ultraLabel29 = NEW Infragistics.Win.Misc.UltraLabel().
         THIS-OBJECT:toUseLocalFileHistory = NEW Infragistics.Win.UltraWinEditors.UltraCheckEditor().
         THIS-OBJECT:btn_use_current_commandline = NEW Infragistics.Win.Misc.UltraButton().
         THIS-OBJECT:tb_launch_parameter = NEW Infragistics.Win.UltraWinEditors.UltraTextEditor().
         THIS-OBJECT:ultraLabel33 = NEW Infragistics.Win.Misc.UltraLabel().
         THIS-OBJECT:ultraLabel34 = NEW Infragistics.Win.Misc.UltraLabel().
         THIS-OBJECT:gb_plugins = NEW Infragistics.Win.Misc.UltraGroupBox().
+        THIS-OBJECT:ultraLabel28 = NEW Infragistics.Win.Misc.UltraLabel().
+        THIS-OBJECT:tb_ApacheAntCommand = NEW Infragistics.Win.UltraWinEditors.UltraTextEditor().
         THIS-OBJECT:ultraLabel25 = NEW Infragistics.Win.Misc.UltraLabel().
         THIS-OBJECT:tb_CustomServices = NEW Infragistics.Win.UltraWinEditors.UltraTextEditor().
         THIS-OBJECT:ultraButton3 = NEW Infragistics.Win.Misc.UltraButton().
@@ -332,24 +414,25 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
         THIS-OBJECT:tb_namesuffix = NEW Infragistics.Win.UltraWinEditors.UltraTextEditor().
         THIS-OBJECT:tb_nameprefix = NEW Infragistics.Win.UltraWinEditors.UltraTextEditor().
         THIS-OBJECT:tb_datarelationnamesubstitute = NEW Infragistics.Win.UltraWinEditors.UltraTextEditor().
-        THIS-OBJECT:gb_designer2 = NEW Infragistics.Win.Misc.UltraGroupBox().
-        THIS-OBJECT:cbSplitArrayFields = NEW Infragistics.Win.UltraWinEditors.UltraCheckEditor().
-        THIS-OBJECT:ultraLabel17 = NEW Infragistics.Win.Misc.UltraLabel().
-        THIS-OBJECT:ultraLabel18 = NEW Infragistics.Win.Misc.UltraLabel().
-        THIS-OBJECT:ultraLabel19 = NEW Infragistics.Win.Misc.UltraLabel().
-        THIS-OBJECT:tb_fieldnamegenerator = NEW Infragistics.Win.UltraWinEditors.UltraTextEditor().
         THIS-OBJECT:ultraButton1 = NEW Infragistics.Win.Misc.UltraButton().
         THIS-OBJECT:ultraButton2 = NEW Infragistics.Win.Misc.UltraButton().
         THIS-OBJECT:folderBrowserDialog1 = NEW System.Windows.Forms.FolderBrowserDialog().
         THIS-OBJECT:openFileDialog1 = NEW System.Windows.Forms.OpenFileDialog().
         THIS-OBJECT:ultraStatusBar1 = NEW Infragistics.Win.UltraWinStatusBar.UltraStatusBar().
-        THIS-OBJECT:ultraLabel27 = NEW Infragistics.Win.Misc.UltraLabel().
-        THIS-OBJECT:coKeywordCasing = NEW Infragistics.Win.UltraWinEditors.UltraComboEditor().
+        THIS-OBJECT:openFileDialog2 = NEW System.Windows.Forms.OpenFileDialog().
+        THIS-OBJECT:toShowConfirmation = NEW Infragistics.Win.UltraWinEditors.UltraCheckEditor().
         CAST(THIS-OBJECT:ultraExplorerBar1, System.ComponentModel.ISupportInitialize):BeginInit().
         THIS-OBJECT:ultraPanel1:ClientArea:SuspendLayout().
         THIS-OBJECT:ultraPanel1:SuspendLayout().
+        CAST(THIS-OBJECT:gb_designer2, System.ComponentModel.ISupportInitialize):BeginInit().
+        THIS-OBJECT:gb_designer2:SuspendLayout().
+        CAST(THIS-OBJECT:toShowUnderscoreTables, System.ComponentModel.ISupportInitialize):BeginInit().
+        CAST(THIS-OBJECT:toSyncTTsOnOpen, System.ComponentModel.ISupportInitialize):BeginInit().
+        CAST(THIS-OBJECT:cbSplitArrayFields, System.ComponentModel.ISupportInitialize):BeginInit().
+        CAST(THIS-OBJECT:tb_fieldnamegenerator, System.ComponentModel.ISupportInitialize):BeginInit().
         CAST(THIS-OBJECT:gb_generator, System.ComponentModel.ISupportInitialize):BeginInit().
         THIS-OBJECT:gb_generator:SuspendLayout().
+        CAST(THIS-OBJECT:coKeywordCasing, System.ComponentModel.ISupportInitialize):BeginInit().
         CAST(THIS-OBJECT:to_GenerateDatasetController, System.ComponentModel.ISupportInitialize):BeginInit().
         CAST(THIS-OBJECT:to_DistinctTempTableIncludes, System.ComponentModel.ISupportInitialize):BeginInit().
         CAST(THIS-OBJECT:to_PromptSave, System.ComponentModel.ISupportInitialize):BeginInit().
@@ -364,10 +447,12 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
         CAST(THIS-OBJECT:tb_templatefolder, System.ComponentModel.ISupportInitialize):BeginInit().
         CAST(THIS-OBJECT:gb_launcher, System.ComponentModel.ISupportInitialize):BeginInit().
         THIS-OBJECT:gb_launcher:SuspendLayout().
+        CAST(THIS-OBJECT:cb_launcher_proversion, System.ComponentModel.ISupportInitialize):BeginInit().
         CAST(THIS-OBJECT:toUseLocalFileHistory, System.ComponentModel.ISupportInitialize):BeginInit().
         CAST(THIS-OBJECT:tb_launch_parameter, System.ComponentModel.ISupportInitialize):BeginInit().
         CAST(THIS-OBJECT:gb_plugins, System.ComponentModel.ISupportInitialize):BeginInit().
         THIS-OBJECT:gb_plugins:SuspendLayout().
+        CAST(THIS-OBJECT:tb_ApacheAntCommand, System.ComponentModel.ISupportInitialize):BeginInit().
         CAST(THIS-OBJECT:tb_CustomServices, System.ComponentModel.ISupportInitialize):BeginInit().
         CAST(THIS-OBJECT:tb_plugins, System.ComponentModel.ISupportInitialize):BeginInit().
         CAST(THIS-OBJECT:gb_designer, System.ComponentModel.ISupportInitialize):BeginInit().
@@ -381,12 +466,8 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
         CAST(THIS-OBJECT:tb_namesuffix, System.ComponentModel.ISupportInitialize):BeginInit().
         CAST(THIS-OBJECT:tb_nameprefix, System.ComponentModel.ISupportInitialize):BeginInit().
         CAST(THIS-OBJECT:tb_datarelationnamesubstitute, System.ComponentModel.ISupportInitialize):BeginInit().
-        CAST(THIS-OBJECT:gb_designer2, System.ComponentModel.ISupportInitialize):BeginInit().
-        THIS-OBJECT:gb_designer2:SuspendLayout().
-        CAST(THIS-OBJECT:cbSplitArrayFields, System.ComponentModel.ISupportInitialize):BeginInit().
-        CAST(THIS-OBJECT:tb_fieldnamegenerator, System.ComponentModel.ISupportInitialize):BeginInit().
         CAST(THIS-OBJECT:ultraStatusBar1, System.ComponentModel.ISupportInitialize):BeginInit().
-        CAST(THIS-OBJECT:coKeywordCasing, System.ComponentModel.ISupportInitialize):BeginInit().
+        CAST(THIS-OBJECT:toShowConfirmation, System.ComponentModel.ISupportInitialize):BeginInit().
         THIS-OBJECT:SuspendLayout().
         /*  */
         /* ultraExplorerBar1 */
@@ -462,9 +543,113 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
         THIS-OBJECT:ultraPanel1:Size = NEW System.Drawing.Size(464, 376).
         THIS-OBJECT:ultraPanel1:TabIndex = 2.
         /*  */
+        /* gb_designer2 */
+        /*  */
+        THIS-OBJECT:gb_designer2:Controls:Add(THIS-OBJECT:toShowUnderscoreTables).
+        THIS-OBJECT:gb_designer2:Controls:Add(THIS-OBJECT:toSyncTTsOnOpen).
+        THIS-OBJECT:gb_designer2:Controls:Add(THIS-OBJECT:ultraLabel30).
+        THIS-OBJECT:gb_designer2:Controls:Add(THIS-OBJECT:cbSplitArrayFields).
+        THIS-OBJECT:gb_designer2:Controls:Add(THIS-OBJECT:ultraLabel17).
+        THIS-OBJECT:gb_designer2:Controls:Add(THIS-OBJECT:ultraLabel18).
+        THIS-OBJECT:gb_designer2:Controls:Add(THIS-OBJECT:ultraLabel19).
+        THIS-OBJECT:gb_designer2:Controls:Add(THIS-OBJECT:tb_fieldnamegenerator).
+        THIS-OBJECT:gb_designer2:Dock = System.Windows.Forms.DockStyle:Fill.
+        THIS-OBJECT:gb_designer2:Location = NEW System.Drawing.Point(0, 0).
+        THIS-OBJECT:gb_designer2:Name = "gb_designer2":U.
+        THIS-OBJECT:gb_designer2:Size = NEW System.Drawing.Size(462, 374).
+        THIS-OBJECT:gb_designer2:TabIndex = 20.
+        THIS-OBJECT:gb_designer2:Text = "Design Settings, cont.":U.
+        THIS-OBJECT:gb_designer2:ViewStyle = Infragistics.Win.Misc.GroupBoxViewStyle:Office2000.
+        /*  */
+        /* toShowUnderscoreTables */
+        /*  */
+        DEFINE VARIABLE nestedvar2 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar2 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:toShowUnderscoreTables:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar2, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:toShowUnderscoreTables:AutoSize = TRUE.
+        THIS-OBJECT:toShowUnderscoreTables:Location = NEW System.Drawing.Point(12, 184).
+        THIS-OBJECT:toShowUnderscoreTables:Name = "toShowUnderscoreTables":U.
+        THIS-OBJECT:toShowUnderscoreTables:Size = NEW System.Drawing.Size(339, 17).
+        THIS-OBJECT:toShowUnderscoreTables:TabIndex = 20.
+        THIS-OBJECT:toShowUnderscoreTables:Text = "Show Underscore Tables in Toolbox (meta schema and VST's')":U.
+        /*  */
+        /* toSyncTTsOnOpen */
+        /*  */
+        DEFINE VARIABLE nestedvar3 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar3 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:toSyncTTsOnOpen:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar3, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:toSyncTTsOnOpen:AutoSize = TRUE.
+        THIS-OBJECT:toSyncTTsOnOpen:Location = NEW System.Drawing.Point(12, 163).
+        THIS-OBJECT:toSyncTTsOnOpen:Name = "toSyncTTsOnOpen":U.
+        THIS-OBJECT:toSyncTTsOnOpen:Size = NEW System.Drawing.Size(299, 17).
+        THIS-OBJECT:toSyncTTsOnOpen:TabIndex = 19.
+        THIS-OBJECT:toSyncTTsOnOpen:Text = "Synchronize all Temp-Tables with source code on open":U.
+        /*  */
+        /* ultraLabel30 */
+        /*  */
+        appearance10:FontData:BoldAsString = "True":U.
+        THIS-OBJECT:ultraLabel30:Appearance = appearance10.
+        THIS-OBJECT:ultraLabel30:Location = NEW System.Drawing.Point(9, 135).
+        THIS-OBJECT:ultraLabel30:Name = "ultraLabel30":U.
+        THIS-OBJECT:ultraLabel30:Size = NEW System.Drawing.Size(100, 23).
+        THIS-OBJECT:ultraLabel30:TabIndex = 18.
+        THIS-OBJECT:ultraLabel30:Text = "Designer":U.
+        /*  */
+        /* cbSplitArrayFields */
+        /*  */
+        DEFINE VARIABLE nestedvar4 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar4 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:cbSplitArrayFields:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar4, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:cbSplitArrayFields:AutoSize = TRUE.
+        THIS-OBJECT:cbSplitArrayFields:Location = NEW System.Drawing.Point(114, 100).
+        THIS-OBJECT:cbSplitArrayFields:Name = "cbSplitArrayFields":U.
+        THIS-OBJECT:cbSplitArrayFields:Size = NEW System.Drawing.Size(209, 17).
+        THIS-OBJECT:cbSplitArrayFields:TabIndex = 17.
+        THIS-OBJECT:cbSplitArrayFields:Text = "Split Array Fields into seperate Fields":U.
+        /*  */
+        /* ultraLabel17 */
+        /*  */
+        THIS-OBJECT:ultraLabel17:Location = NEW System.Drawing.Point(114, 63).
+        THIS-OBJECT:ultraLabel17:Name = "ultraLabel17":U.
+        THIS-OBJECT:ultraLabel17:Size = NEW System.Drawing.Size(307, 23).
+        THIS-OBJECT:ultraLabel17:TabIndex = 16.
+        THIS-OBJECT:ultraLabel17:Text = "(restart business entity designer after making a change)":U.
+        /*  */
+        /* ultraLabel18 */
+        /*  */
+        appearance11:FontData:BoldAsString = "True":U.
+        THIS-OBJECT:ultraLabel18:Appearance = appearance11.
+        THIS-OBJECT:ultraLabel18:Location = NEW System.Drawing.Point(8, 20).
+        THIS-OBJECT:ultraLabel18:Name = "ultraLabel18":U.
+        THIS-OBJECT:ultraLabel18:Size = NEW System.Drawing.Size(100, 23).
+        THIS-OBJECT:ultraLabel18:TabIndex = 15.
+        THIS-OBJECT:ultraLabel18:Text = "Fields":U.
+        /*  */
+        /* ultraLabel19 */
+        /*  */
+        THIS-OBJECT:ultraLabel19:Location = NEW System.Drawing.Point(8, 42).
+        THIS-OBJECT:ultraLabel19:Name = "ultraLabel19":U.
+        THIS-OBJECT:ultraLabel19:Size = NEW System.Drawing.Size(100, 23).
+        THIS-OBJECT:ultraLabel19:TabIndex = 13.
+        THIS-OBJECT:ultraLabel19:Text = "Name Generator:":U.
+        /*  */
+        /* tb_fieldnamegenerator */
+        /*  */
+        DEFINE VARIABLE nestedvar5 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar5 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:tb_fieldnamegenerator:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar5, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:tb_fieldnamegenerator:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2007.
+        THIS-OBJECT:tb_fieldnamegenerator:Location = NEW System.Drawing.Point(114, 38).
+        THIS-OBJECT:tb_fieldnamegenerator:Name = "tb_fieldnamegenerator":U.
+        THIS-OBJECT:tb_fieldnamegenerator:ShowOverflowIndicator = TRUE.
+        THIS-OBJECT:tb_fieldnamegenerator:Size = NEW System.Drawing.Size(341, 21).
+        THIS-OBJECT:tb_fieldnamegenerator:TabIndex = 14.
+        THIS-OBJECT:tb_fieldnamegenerator:Text = "ultraTextEditor2":U.
+        /*  */
         /* gb_generator */
         /*  */
         THIS-OBJECT:gb_generator:CaptionAlignment = Infragistics.Win.Misc.GroupBoxCaptionAlignment:Near.
+        THIS-OBJECT:gb_generator:Controls:Add(THIS-OBJECT:toShowConfirmation).
         THIS-OBJECT:gb_generator:Controls:Add(THIS-OBJECT:coKeywordCasing).
         THIS-OBJECT:gb_generator:Controls:Add(THIS-OBJECT:ultraLabel27).
         THIS-OBJECT:gb_generator:Controls:Add(THIS-OBJECT:to_GenerateDatasetController).
@@ -496,6 +681,36 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
         THIS-OBJECT:gb_generator:Text = "Generator Settings":U.
         THIS-OBJECT:gb_generator:ViewStyle = Infragistics.Win.Misc.GroupBoxViewStyle:Office2000.
         /*  */
+        /* coKeywordCasing */
+        /*  */
+        DEFINE VARIABLE nestedvar6 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar6 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:coKeywordCasing:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar6, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:coKeywordCasing:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2007.
+        THIS-OBJECT:coKeywordCasing:DropDownStyle = Infragistics.Win.DropDownStyle:DropDownList.
+        valueListItem1:DataValue = "UPPER":U.
+        valueListItem1:DisplayText = "UPPER case":U.
+        valueListItem2:DataValue = "LOWER":U.
+        valueListItem2:DisplayText = "lower case":U.
+        @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
+        DEFINE VARIABLE arrayvar2 AS Infragistics.Win.ValueListItem EXTENT 2 NO-UNDO.
+        arrayvar2[1] = valueListItem1.
+        arrayvar2[2] = valueListItem2.
+        THIS-OBJECT:coKeywordCasing:Items:AddRange(arrayvar2).
+        THIS-OBJECT:coKeywordCasing:Location = NEW System.Drawing.Point(388, 116).
+        THIS-OBJECT:coKeywordCasing:Name = "coKeywordCasing":U.
+        THIS-OBJECT:coKeywordCasing:Size = NEW System.Drawing.Size(66, 21).
+        THIS-OBJECT:coKeywordCasing:TabIndex = 26.
+        /*  */
+        /* ultraLabel27 */
+        /*  */
+        THIS-OBJECT:ultraLabel27:AutoSize = TRUE.
+        THIS-OBJECT:ultraLabel27:Location = NEW System.Drawing.Point(297, 120).
+        THIS-OBJECT:ultraLabel27:Name = "ultraLabel27":U.
+        THIS-OBJECT:ultraLabel27:Size = NEW System.Drawing.Size(90, 14).
+        THIS-OBJECT:ultraLabel27:TabIndex = 25.
+        THIS-OBJECT:ultraLabel27:Text = "Keyword Casing:":U.
+        /*  */
         /* to_GenerateDatasetController */
         /*  */
         THIS-OBJECT:to_GenerateDatasetController:AutoSize = TRUE.
@@ -516,11 +731,11 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
         /*  */
         /* to_PromptSave */
         /*  */
-        DEFINE VARIABLE nestedvar2 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar2 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:to_PromptSave:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar2, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        DEFINE VARIABLE nestedvar7 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar7 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:to_PromptSave:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar7, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
         THIS-OBJECT:to_PromptSave:AutoSize = TRUE.
-        THIS-OBJECT:to_PromptSave:Location = NEW System.Drawing.Point(199, 73).
+        THIS-OBJECT:to_PromptSave:Location = NEW System.Drawing.Point(176, 73).
         THIS-OBJECT:to_PromptSave:Name = "to_PromptSave":U.
         THIS-OBJECT:to_PromptSave:Size = NEW System.Drawing.Size(193, 17).
         THIS-OBJECT:to_PromptSave:TabIndex = 22.
@@ -529,7 +744,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
         /* to_CompileDatasetController */
         /*  */
         THIS-OBJECT:to_CompileDatasetController:AutoSize = TRUE.
-        THIS-OBJECT:to_CompileDatasetController:Location = NEW System.Drawing.Point(199, 96).
+        THIS-OBJECT:to_CompileDatasetController:Location = NEW System.Drawing.Point(176, 96).
         THIS-OBJECT:to_CompileDatasetController:Name = "to_CompileDatasetController":U.
         THIS-OBJECT:to_CompileDatasetController:Size = NEW System.Drawing.Size(157, 17).
         THIS-OBJECT:to_CompileDatasetController:TabIndex = 21.
@@ -545,9 +760,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
         /*  */
         /* tb_IncludeFiles */
         /*  */
-        DEFINE VARIABLE nestedvar3 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar3 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:tb_IncludeFiles:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar3, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        DEFINE VARIABLE nestedvar8 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar8 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:tb_IncludeFiles:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar8, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
         THIS-OBJECT:tb_IncludeFiles:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2007.
         THIS-OBJECT:tb_IncludeFiles:Location = NEW System.Drawing.Point(115, 334).
         THIS-OBJECT:tb_IncludeFiles:Name = "tb_IncludeFiles":U.
@@ -574,9 +789,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
         /*  */
         /* tb_SourceFolder_Gui */
         /*  */
-        DEFINE VARIABLE nestedvar4 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar4 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:tb_SourceFolder_Gui:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar4, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        DEFINE VARIABLE nestedvar9 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar9 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:tb_SourceFolder_Gui:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar9, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
         THIS-OBJECT:tb_SourceFolder_Gui:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2007.
         THIS-OBJECT:tb_SourceFolder_Gui:Location = NEW System.Drawing.Point(114, 262).
         THIS-OBJECT:tb_SourceFolder_Gui:Name = "tb_SourceFolder_Gui":U.
@@ -595,9 +810,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
         /*  */
         /* tb_RCodeFolder_Gui */
         /*  */
-        DEFINE VARIABLE nestedvar5 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar5 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:tb_RCodeFolder_Gui:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar5, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        DEFINE VARIABLE nestedvar10 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar10 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:tb_RCodeFolder_Gui:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar10, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
         THIS-OBJECT:tb_RCodeFolder_Gui:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2007.
         THIS-OBJECT:tb_RCodeFolder_Gui:Location = NEW System.Drawing.Point(114, 289).
         THIS-OBJECT:tb_RCodeFolder_Gui:Name = "tb_RCodeFolder_Gui":U.
@@ -616,9 +831,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
         /*  */
         /* tb_SourceFolder */
         /*  */
-        DEFINE VARIABLE nestedvar6 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar6 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:tb_SourceFolder:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar6, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        DEFINE VARIABLE nestedvar11 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar11 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:tb_SourceFolder:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar11, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
         THIS-OBJECT:tb_SourceFolder:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2007.
         THIS-OBJECT:tb_SourceFolder:Location = NEW System.Drawing.Point(114, 167).
         THIS-OBJECT:tb_SourceFolder:Name = "tb_SourceFolder":U.
@@ -637,9 +852,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
         /*  */
         /* tb_RCodeFolder */
         /*  */
-        DEFINE VARIABLE nestedvar7 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar7 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:tb_RCodeFolder:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar7, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        DEFINE VARIABLE nestedvar12 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar12 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:tb_RCodeFolder:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar12, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
         THIS-OBJECT:tb_RCodeFolder:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2007.
         THIS-OBJECT:tb_RCodeFolder:Location = NEW System.Drawing.Point(114, 194).
         THIS-OBJECT:tb_RCodeFolder:Name = "tb_RCodeFolder":U.
@@ -650,9 +865,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
         /*  */
         /* to_OpenFilesInIDE */
         /*  */
-        DEFINE VARIABLE nestedvar8 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar8 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:to_OpenFilesInIDE:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar8, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        DEFINE VARIABLE nestedvar13 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar13 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:to_OpenFilesInIDE:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar13, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
         THIS-OBJECT:to_OpenFilesInIDE:AutoSize = TRUE.
         THIS-OBJECT:to_OpenFilesInIDE:Location = NEW System.Drawing.Point(12, 73).
         THIS-OBJECT:to_OpenFilesInIDE:Name = "to_OpenFilesInIDE":U.
@@ -670,9 +885,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
         /*  */
         /* tb_generator */
         /*  */
-        DEFINE VARIABLE nestedvar9 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar9 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:tb_generator:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar9, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        DEFINE VARIABLE nestedvar14 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar14 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:tb_generator:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar14, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
         THIS-OBJECT:tb_generator:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2007.
         THIS-OBJECT:tb_generator:Location = NEW System.Drawing.Point(115, 19).
         THIS-OBJECT:tb_generator:Name = "tb_generator":U.
@@ -691,9 +906,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
         /*  */
         /* tb_templatefolder */
         /*  */
-        DEFINE VARIABLE nestedvar10 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar10 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:tb_templatefolder:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar10, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        DEFINE VARIABLE nestedvar15 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar15 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:tb_templatefolder:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar15, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
         editorButton1:Key = "LookupFolder":U.
         editorButton1:Text = "...":U.
         THIS-OBJECT:tb_templatefolder:ButtonsRight:Add(editorButton1).
@@ -718,6 +933,8 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
         /* gb_launcher */
         /*  */
         THIS-OBJECT:gb_launcher:CaptionAlignment = Infragistics.Win.Misc.GroupBoxCaptionAlignment:Near.
+        THIS-OBJECT:gb_launcher:Controls:Add(THIS-OBJECT:cb_launcher_proversion).
+        THIS-OBJECT:gb_launcher:Controls:Add(THIS-OBJECT:ultraLabel29).
         THIS-OBJECT:gb_launcher:Controls:Add(THIS-OBJECT:toUseLocalFileHistory).
         THIS-OBJECT:gb_launcher:Controls:Add(THIS-OBJECT:btn_use_current_commandline).
         THIS-OBJECT:gb_launcher:Controls:Add(THIS-OBJECT:tb_launch_parameter).
@@ -731,9 +948,74 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
         THIS-OBJECT:gb_launcher:Text = "Launcher Settings":U.
         THIS-OBJECT:gb_launcher:ViewStyle = Infragistics.Win.Misc.GroupBoxViewStyle:Office2000.
         /*  */
+        /* cb_launcher_proversion */
+        /*  */
+        DEFINE VARIABLE nestedvar16 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar16 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:cb_launcher_proversion:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar16, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:cb_launcher_proversion:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2007.
+        valueListItem3:DataValue = "10.2B":U.
+        valueListItem3:DisplayText = "10.2B":U.
+        valueListItem4:DataValue = "11.3":U.
+        valueListItem4:DisplayText = "11.3":U.
+        valueListItem5:DataValue = "11.4":U.
+        valueListItem5:DisplayText = "11.4":U.
+        valueListItem6:DataValue = "11.4/32":U.
+        valueListItem6:DisplayText = "11.4/32":U.
+        valueListItem7:DataValue = "11.4/64":U.
+        valueListItem7:DisplayText = "11.4/64":U.
+        valueListItem8:DataValue = "11.5":U.
+        valueListItem8:DisplayText = "11.5":U.
+        valueListItem13:DataValue = "11.5/32":U.
+        valueListItem13:DisplayText = "11.5/32":U.
+        valueListItem12:DataValue = "11.5/64":U.
+        valueListItem12:DisplayText = "11.5/64":U.
+        valueListItem9:DataValue = "11.6":U.
+        valueListItem9:DisplayText = "11.6":U.
+        valueListItem10:DataValue = "11.6/32":U.
+        valueListItem10:DisplayText = "11.6/32":U.
+        valueListItem11:DataValue = "11.6/64":U.
+        valueListItem11:DisplayText = "11.6/64":U.
+        valueListItem14:DataValue = "11.7":U.
+        valueListItem14:DisplayText = "11.7":U.
+        valueListItem15:DataValue = "11.7/32":U.
+        valueListItem15:DisplayText = "11.7/32":U.
+        valueListItem16:DataValue = "11.7/64":U.
+        valueListItem16:DisplayText = "11.7/64":U.
+        @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
+        DEFINE VARIABLE arrayvar3 AS Infragistics.Win.ValueListItem EXTENT 14 NO-UNDO.
+        arrayvar3[1] = valueListItem3.
+        arrayvar3[2] = valueListItem4.
+        arrayvar3[3] = valueListItem5.
+        arrayvar3[4] = valueListItem6.
+        arrayvar3[5] = valueListItem7.
+        arrayvar3[6] = valueListItem8.
+        arrayvar3[7] = valueListItem13.
+        arrayvar3[8] = valueListItem12.
+        arrayvar3[9] = valueListItem9.
+        arrayvar3[10] = valueListItem10.
+        arrayvar3[11] = valueListItem11.
+        arrayvar3[12] = valueListItem14.
+        arrayvar3[13] = valueListItem15.
+        arrayvar3[14] = valueListItem16.
+        THIS-OBJECT:cb_launcher_proversion:Items:AddRange(arrayvar3).
+        THIS-OBJECT:cb_launcher_proversion:Location = NEW System.Drawing.Point(134, 75).
+        THIS-OBJECT:cb_launcher_proversion:Name = "cb_launcher_proversion":U.
+        THIS-OBJECT:cb_launcher_proversion:Size = NEW System.Drawing.Size(320, 21).
+        THIS-OBJECT:cb_launcher_proversion:TabIndex = 19.
+        /*  */
+        /* ultraLabel29 */
+        /*  */
+        THIS-OBJECT:ultraLabel29:Location = NEW System.Drawing.Point(9, 79).
+        THIS-OBJECT:ultraLabel29:Name = "ultraLabel29":U.
+        THIS-OBJECT:ultraLabel29:Size = NEW System.Drawing.Size(119, 23).
+        THIS-OBJECT:ultraLabel29:TabIndex = 18.
+        THIS-OBJECT:ultraLabel29:Text = "Progress Version:":U.
+        THIS-OBJECT:ultraLabel29:WrapText = FALSE.
+        /*  */
         /* toUseLocalFileHistory */
         /*  */
-        THIS-OBJECT:toUseLocalFileHistory:Location = NEW System.Drawing.Point(12, 171).
+        THIS-OBJECT:toUseLocalFileHistory:Location = NEW System.Drawing.Point(12, 236).
         THIS-OBJECT:toUseLocalFileHistory:Name = "toUseLocalFileHistory":U.
         THIS-OBJECT:toUseLocalFileHistory:Size = NEW System.Drawing.Size(442, 20).
         THIS-OBJECT:toUseLocalFileHistory:TabIndex = 16.
@@ -741,9 +1023,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
         /*  */
         /* btn_use_current_commandline */
         /*  */
-        DEFINE VARIABLE nestedvar11 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar11 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:btn_use_current_commandline:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar11, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        DEFINE VARIABLE nestedvar17 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar17 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:btn_use_current_commandline:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar17, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
         THIS-OBJECT:btn_use_current_commandline:Location = NEW System.Drawing.Point(134, 46).
         THIS-OBJECT:btn_use_current_commandline:Name = "btn_use_current_commandline":U.
         THIS-OBJECT:btn_use_current_commandline:Size = NEW System.Drawing.Size(320, 23).
@@ -753,9 +1035,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
         /*  */
         /* tb_launch_parameter */
         /*  */
-        DEFINE VARIABLE nestedvar12 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar12 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:tb_launch_parameter:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar12, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        DEFINE VARIABLE nestedvar18 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar18 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:tb_launch_parameter:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar18, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
         THIS-OBJECT:tb_launch_parameter:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2007.
         THIS-OBJECT:tb_launch_parameter:Location = NEW System.Drawing.Point(134, 19).
         THIS-OBJECT:tb_launch_parameter:Name = "tb_launch_parameter":U.
@@ -775,7 +1057,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
         /*  */
         /* ultraLabel34 */
         /*  */
-        THIS-OBJECT:ultraLabel34:Location = NEW System.Drawing.Point(11, 78).
+        THIS-OBJECT:ultraLabel34:Location = NEW System.Drawing.Point(11, 112).
         THIS-OBJECT:ultraLabel34:Name = "ultraLabel34":U.
         THIS-OBJECT:ultraLabel34:Size = NEW System.Drawing.Size(411, 115).
         THIS-OBJECT:ultraLabel34:TabIndex = 14.
@@ -783,6 +1065,8 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
         /*  */
         /* gb_plugins */
         /*  */
+        THIS-OBJECT:gb_plugins:Controls:Add(THIS-OBJECT:ultraLabel28).
+        THIS-OBJECT:gb_plugins:Controls:Add(THIS-OBJECT:tb_ApacheAntCommand).
         THIS-OBJECT:gb_plugins:Controls:Add(THIS-OBJECT:ultraLabel25).
         THIS-OBJECT:gb_plugins:Controls:Add(THIS-OBJECT:tb_CustomServices).
         THIS-OBJECT:gb_plugins:Controls:Add(THIS-OBJECT:ultraButton3).
@@ -796,27 +1080,54 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
         THIS-OBJECT:gb_plugins:Text = "Plugins":U.
         THIS-OBJECT:gb_plugins:ViewStyle = Infragistics.Win.Misc.GroupBoxViewStyle:Office2000.
         /*  */
+        /* ultraLabel28 */
+        /*  */
+        DEFINE VARIABLE nestedvar19 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar19 = System.Windows.Forms.AnchorStyles:Bottom.
+        THIS-OBJECT:ultraLabel28:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar19, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:ultraLabel28:Location = NEW System.Drawing.Point(7, 351).
+        THIS-OBJECT:ultraLabel28:Name = "ultraLabel28":U.
+        THIS-OBJECT:ultraLabel28:Size = NEW System.Drawing.Size(121, 19).
+        THIS-OBJECT:ultraLabel28:TabIndex = 7.
+        THIS-OBJECT:ultraLabel28:Text = "Apache ANT Command line:":U.
+        /*  */
+        /* tb_ApacheAntCommand */
+        /*  */
+        DEFINE VARIABLE nestedvar20 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar20 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Bottom, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:tb_ApacheAntCommand:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar20, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        editorButton2:Key = "LookupFile":U.
+        editorButton2:Text = "...":U.
+        THIS-OBJECT:tb_ApacheAntCommand:ButtonsRight:Add(editorButton2).
+        THIS-OBJECT:tb_ApacheAntCommand:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2007.
+        THIS-OBJECT:tb_ApacheAntCommand:Location = NEW System.Drawing.Point(134, 347).
+        THIS-OBJECT:tb_ApacheAntCommand:Name = "tb_ApacheAntCommand":U.
+        THIS-OBJECT:tb_ApacheAntCommand:ShowOverflowIndicator = TRUE.
+        THIS-OBJECT:tb_ApacheAntCommand:Size = NEW System.Drawing.Size(320, 21).
+        THIS-OBJECT:tb_ApacheAntCommand:TabIndex = 6.
+        THIS-OBJECT:tb_ApacheAntCommand:EditorButtonClick:Subscribe(THIS-OBJECT:tb_ApacheAntCommand_EditorButtonClick).
+        /*  */
         /* ultraLabel25 */
         /*  */
-        DEFINE VARIABLE nestedvar13 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar13 = System.Windows.Forms.AnchorStyles:Bottom.
-        THIS-OBJECT:ultraLabel25:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar13, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:ultraLabel25:Location = NEW System.Drawing.Point(8, 349).
+        DEFINE VARIABLE nestedvar21 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar21 = System.Windows.Forms.AnchorStyles:Bottom.
+        THIS-OBJECT:ultraLabel25:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar21, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:ultraLabel25:Location = NEW System.Drawing.Point(7, 324).
         THIS-OBJECT:ultraLabel25:Name = "ultraLabel25":U.
         THIS-OBJECT:ultraLabel25:Size = NEW System.Drawing.Size(121, 19).
         THIS-OBJECT:ultraLabel25:TabIndex = 5.
-        THIS-OBJECT:ultraLabel25:Text = "Custom Services .xml:":U.
+        THIS-OBJECT:ultraLabel25:Text = "Custom Services .xml (comma delimited):":U.
         /*  */
         /* tb_CustomServices */
         /*  */
-        DEFINE VARIABLE nestedvar14 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar14 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Bottom, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:tb_CustomServices:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar14, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
-        editorButton2:Key = "LookupFolder":U.
-        editorButton2:Text = "...":U.
-        THIS-OBJECT:tb_CustomServices:ButtonsRight:Add(editorButton2).
+        DEFINE VARIABLE nestedvar22 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar22 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Bottom, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:tb_CustomServices:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar22, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        editorButton3:Key = "LookupFolder":U.
+        editorButton3:Text = "...":U.
+        THIS-OBJECT:tb_CustomServices:ButtonsRight:Add(editorButton3).
         THIS-OBJECT:tb_CustomServices:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2007.
-        THIS-OBJECT:tb_CustomServices:Location = NEW System.Drawing.Point(135, 345).
+        THIS-OBJECT:tb_CustomServices:Location = NEW System.Drawing.Point(134, 320).
         THIS-OBJECT:tb_CustomServices:Name = "tb_CustomServices":U.
         THIS-OBJECT:tb_CustomServices:ShowOverflowIndicator = TRUE.
         THIS-OBJECT:tb_CustomServices:Size = NEW System.Drawing.Size(320, 21).
@@ -826,9 +1137,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
         /*  */
         /* ultraButton3 */
         /*  */
-        DEFINE VARIABLE nestedvar15 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar15 = System.Windows.Forms.AnchorStyles:Top.
-        THIS-OBJECT:ultraButton3:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar15, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        DEFINE VARIABLE nestedvar23 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar23 = System.Windows.Forms.AnchorStyles:Top.
+        THIS-OBJECT:ultraButton3:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar23, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
         appearance7:Image = CAST(resources:GetObject("appearance7.Image":U), System.Object).
         THIS-OBJECT:ultraButton3:Appearance = appearance7.
         THIS-OBJECT:ultraButton3:Location = NEW System.Drawing.Point(341, 24).
@@ -840,15 +1151,15 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
         /*  */
         /* tb_plugins */
         /*  */
-        DEFINE VARIABLE nestedvar16 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar16 = CAST(Progress.Util.EnumHelper:Or(CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Bottom), System.Windows.Forms.AnchorStyles), System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:tb_plugins:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar16, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        DEFINE VARIABLE nestedvar24 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar24 = CAST(Progress.Util.EnumHelper:Or(CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Bottom), System.Windows.Forms.AnchorStyles), System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:tb_plugins:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar24, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
         THIS-OBJECT:tb_plugins:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2007.
         THIS-OBJECT:tb_plugins:Location = NEW System.Drawing.Point(9, 52).
         THIS-OBJECT:tb_plugins:Multiline = TRUE.
         THIS-OBJECT:tb_plugins:Name = "tb_plugins":U.
         THIS-OBJECT:tb_plugins:ShowOverflowIndicator = TRUE.
-        THIS-OBJECT:tb_plugins:Size = NEW System.Drawing.Size(447, 283).
+        THIS-OBJECT:tb_plugins:Size = NEW System.Drawing.Size(447, 262).
         THIS-OBJECT:tb_plugins:TabIndex = 1.
         /*  */
         /* ultraLabel15 */
@@ -896,7 +1207,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
         THIS-OBJECT:ultraLabel26:Name = "ultraLabel26":U.
         THIS-OBJECT:ultraLabel26:Size = NEW System.Drawing.Size(100, 23).
         THIS-OBJECT:ultraLabel26:TabIndex = 21.
-        THIS-OBJECT:ultraLabel26:Text = "CamcelCase:":U.
+        THIS-OBJECT:ultraLabel26:Text = "CamelCase:":U.
         /*  */
         /* cbReplaceUnderscore */
         /*  */
@@ -924,16 +1235,16 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
         /*  */
         /* tb_RelationFieldsGenerator */
         /*  */
-        DEFINE VARIABLE nestedvar17 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar17 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:tb_RelationFieldsGenerator:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar17, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        DEFINE VARIABLE nestedvar25 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar25 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:tb_RelationFieldsGenerator:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar25, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
         THIS-OBJECT:tb_RelationFieldsGenerator:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2007.
         THIS-OBJECT:tb_RelationFieldsGenerator:Location = NEW System.Drawing.Point(156, 100).
         THIS-OBJECT:tb_RelationFieldsGenerator:Name = "tb_RelationFieldsGenerator":U.
         THIS-OBJECT:tb_RelationFieldsGenerator:ShowOverflowIndicator = TRUE.
         THIS-OBJECT:tb_RelationFieldsGenerator:Size = NEW System.Drawing.Size(300, 21).
         THIS-OBJECT:tb_RelationFieldsGenerator:TabIndex = 17.
-        THIS-OBJECT:tb_RelationFieldsGenerator:Text = "ultraTextEditor1":U.
+        THIS-OBJECT:tb_RelationFieldsGenerator:Text = "tb_ApacheAntCommand":U.
         /*  */
         /* ultraLabel13 */
         /*  */
@@ -953,9 +1264,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
         /*  */
         /* tb_tablenamegenerator */
         /*  */
-        DEFINE VARIABLE nestedvar18 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar18 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:tb_tablenamegenerator:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar18, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        DEFINE VARIABLE nestedvar26 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar26 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:tb_tablenamegenerator:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar26, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
         THIS-OBJECT:tb_tablenamegenerator:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2007.
         THIS-OBJECT:tb_tablenamegenerator:Location = NEW System.Drawing.Point(115, 292).
         THIS-OBJECT:tb_tablenamegenerator:Name = "tb_tablenamegenerator":U.
@@ -1035,9 +1346,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
         /*  */
         /* tb_beforesuffix */
         /*  */
-        DEFINE VARIABLE nestedvar19 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar19 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:tb_beforesuffix:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar19, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        DEFINE VARIABLE nestedvar27 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar27 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:tb_beforesuffix:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar27, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
         THIS-OBJECT:tb_beforesuffix:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2007.
         THIS-OBJECT:tb_beforesuffix:Location = NEW System.Drawing.Point(115, 241).
         THIS-OBJECT:tb_beforesuffix:Name = "tb_beforesuffix":U.
@@ -1048,9 +1359,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
         /*  */
         /* tb_beforeprefix */
         /*  */
-        DEFINE VARIABLE nestedvar20 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar20 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:tb_beforeprefix:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar20, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        DEFINE VARIABLE nestedvar28 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar28 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:tb_beforeprefix:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar28, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
         THIS-OBJECT:tb_beforeprefix:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2007.
         THIS-OBJECT:tb_beforeprefix:Location = NEW System.Drawing.Point(115, 214).
         THIS-OBJECT:tb_beforeprefix:Name = "tb_beforeprefix":U.
@@ -1061,9 +1372,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
         /*  */
         /* tb_namesuffix */
         /*  */
-        DEFINE VARIABLE nestedvar21 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar21 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:tb_namesuffix:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar21, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        DEFINE VARIABLE nestedvar29 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar29 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:tb_namesuffix:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar29, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
         THIS-OBJECT:tb_namesuffix:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2007.
         THIS-OBJECT:tb_namesuffix:Location = NEW System.Drawing.Point(115, 187).
         THIS-OBJECT:tb_namesuffix:Name = "tb_namesuffix":U.
@@ -1074,9 +1385,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
         /*  */
         /* tb_nameprefix */
         /*  */
-        DEFINE VARIABLE nestedvar22 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar22 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:tb_nameprefix:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar22, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        DEFINE VARIABLE nestedvar30 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar30 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:tb_nameprefix:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar30, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
         THIS-OBJECT:tb_nameprefix:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2007.
         THIS-OBJECT:tb_nameprefix:Location = NEW System.Drawing.Point(115, 160).
         THIS-OBJECT:tb_nameprefix:Name = "tb_nameprefix":U.
@@ -1087,88 +1398,22 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
         /*  */
         /* tb_datarelationnamesubstitute */
         /*  */
-        DEFINE VARIABLE nestedvar23 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar23 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:tb_datarelationnamesubstitute:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar23, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        DEFINE VARIABLE nestedvar31 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar31 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:tb_datarelationnamesubstitute:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar31, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
         THIS-OBJECT:tb_datarelationnamesubstitute:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2007.
         THIS-OBJECT:tb_datarelationnamesubstitute:Location = NEW System.Drawing.Point(156, 40).
         THIS-OBJECT:tb_datarelationnamesubstitute:Name = "tb_datarelationnamesubstitute":U.
         THIS-OBJECT:tb_datarelationnamesubstitute:ShowOverflowIndicator = TRUE.
         THIS-OBJECT:tb_datarelationnamesubstitute:Size = NEW System.Drawing.Size(300, 21).
         THIS-OBJECT:tb_datarelationnamesubstitute:TabIndex = 1.
-        THIS-OBJECT:tb_datarelationnamesubstitute:Text = "ultraTextEditor1":U.
-        /*  */
-        /* gb_designer2 */
-        /*  */
-        THIS-OBJECT:gb_designer2:Controls:Add(THIS-OBJECT:cbSplitArrayFields).
-        THIS-OBJECT:gb_designer2:Controls:Add(THIS-OBJECT:ultraLabel17).
-        THIS-OBJECT:gb_designer2:Controls:Add(THIS-OBJECT:ultraLabel18).
-        THIS-OBJECT:gb_designer2:Controls:Add(THIS-OBJECT:ultraLabel19).
-        THIS-OBJECT:gb_designer2:Controls:Add(THIS-OBJECT:tb_fieldnamegenerator).
-        THIS-OBJECT:gb_designer2:Dock = System.Windows.Forms.DockStyle:Fill.
-        THIS-OBJECT:gb_designer2:Location = NEW System.Drawing.Point(0, 0).
-        THIS-OBJECT:gb_designer2:Name = "gb_designer2":U.
-        THIS-OBJECT:gb_designer2:Size = NEW System.Drawing.Size(462, 374).
-        THIS-OBJECT:gb_designer2:TabIndex = 20.
-        THIS-OBJECT:gb_designer2:Text = "Design Settings, cont.":U.
-        THIS-OBJECT:gb_designer2:ViewStyle = Infragistics.Win.Misc.GroupBoxViewStyle:Office2000.
-        /*  */
-        /* cbSplitArrayFields */
-        /*  */
-        DEFINE VARIABLE nestedvar24 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar24 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:cbSplitArrayFields:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar24, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:cbSplitArrayFields:AutoSize = TRUE.
-        THIS-OBJECT:cbSplitArrayFields:Location = NEW System.Drawing.Point(114, 100).
-        THIS-OBJECT:cbSplitArrayFields:Name = "cbSplitArrayFields":U.
-        THIS-OBJECT:cbSplitArrayFields:Size = NEW System.Drawing.Size(209, 17).
-        THIS-OBJECT:cbSplitArrayFields:TabIndex = 17.
-        THIS-OBJECT:cbSplitArrayFields:Text = "Split Array Fields into seperate Fields":U.
-        /*  */
-        /* ultraLabel17 */
-        /*  */
-        THIS-OBJECT:ultraLabel17:Location = NEW System.Drawing.Point(114, 63).
-        THIS-OBJECT:ultraLabel17:Name = "ultraLabel17":U.
-        THIS-OBJECT:ultraLabel17:Size = NEW System.Drawing.Size(307, 23).
-        THIS-OBJECT:ultraLabel17:TabIndex = 16.
-        THIS-OBJECT:ultraLabel17:Text = "(restart business entity designer after making a change)":U.
-        /*  */
-        /* ultraLabel18 */
-        /*  */
-        appearance10:FontData:BoldAsString = "True":U.
-        THIS-OBJECT:ultraLabel18:Appearance = appearance10.
-        THIS-OBJECT:ultraLabel18:Location = NEW System.Drawing.Point(8, 20).
-        THIS-OBJECT:ultraLabel18:Name = "ultraLabel18":U.
-        THIS-OBJECT:ultraLabel18:Size = NEW System.Drawing.Size(100, 23).
-        THIS-OBJECT:ultraLabel18:TabIndex = 15.
-        THIS-OBJECT:ultraLabel18:Text = "Fields":U.
-        /*  */
-        /* ultraLabel19 */
-        /*  */
-        THIS-OBJECT:ultraLabel19:Location = NEW System.Drawing.Point(8, 42).
-        THIS-OBJECT:ultraLabel19:Name = "ultraLabel19":U.
-        THIS-OBJECT:ultraLabel19:Size = NEW System.Drawing.Size(100, 23).
-        THIS-OBJECT:ultraLabel19:TabIndex = 13.
-        THIS-OBJECT:ultraLabel19:Text = "Name Generator:":U.
-        /*  */
-        /* tb_fieldnamegenerator */
-        /*  */
-        DEFINE VARIABLE nestedvar25 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar25 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:tb_fieldnamegenerator:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar25, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:tb_fieldnamegenerator:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2007.
-        THIS-OBJECT:tb_fieldnamegenerator:Location = NEW System.Drawing.Point(114, 38).
-        THIS-OBJECT:tb_fieldnamegenerator:Name = "tb_fieldnamegenerator":U.
-        THIS-OBJECT:tb_fieldnamegenerator:ShowOverflowIndicator = TRUE.
-        THIS-OBJECT:tb_fieldnamegenerator:Size = NEW System.Drawing.Size(341, 21).
-        THIS-OBJECT:tb_fieldnamegenerator:TabIndex = 14.
-        THIS-OBJECT:tb_fieldnamegenerator:Text = "ultraTextEditor2":U.
+        THIS-OBJECT:tb_datarelationnamesubstitute:Text = "tb_ApacheAntCommand":U.
         /*  */
         /* ultraButton1 */
         /*  */
-        DEFINE VARIABLE nestedvar26 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar26 = System.Windows.Forms.AnchorStyles:Bottom.
-        THIS-OBJECT:ultraButton1:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar26, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        DEFINE VARIABLE nestedvar32 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar32 = System.Windows.Forms.AnchorStyles:Bottom.
+        THIS-OBJECT:ultraButton1:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar32, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
         THIS-OBJECT:ultraButton1:DialogResult = System.Windows.Forms.DialogResult:OK.
         THIS-OBJECT:ultraButton1:Location = NEW System.Drawing.Point(449, 394).
         THIS-OBJECT:ultraButton1:Name = "ultraButton1":U.
@@ -1179,9 +1424,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
         /*  */
         /* ultraButton2 */
         /*  */
-        DEFINE VARIABLE nestedvar27 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar27 = System.Windows.Forms.AnchorStyles:Bottom.
-        THIS-OBJECT:ultraButton2:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar27, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        DEFINE VARIABLE nestedvar33 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar33 = System.Windows.Forms.AnchorStyles:Bottom.
+        THIS-OBJECT:ultraButton2:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar33, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
         THIS-OBJECT:ultraButton2:DialogResult = System.Windows.Forms.DialogResult:Cancel.
         THIS-OBJECT:ultraButton2:Location = NEW System.Drawing.Point(530, 394).
         THIS-OBJECT:ultraButton2:Name = "ultraButton2":U.
@@ -1211,35 +1456,24 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
         THIS-OBJECT:ultraStatusBar1:ViewStyle = Infragistics.Win.UltraWinStatusBar.ViewStyle:Office2007.
         THIS-OBJECT:ultraStatusBar1:Click:Subscribe(THIS-OBJECT:ultraStatusBar1_Click).
         /*  */
-        /* ultraLabel27 */
+        /* openFileDialog2 */
         /*  */
-        THIS-OBJECT:ultraLabel27:AutoSize = TRUE.
-        THIS-OBJECT:ultraLabel27:Location = NEW System.Drawing.Point(297, 120).
-        THIS-OBJECT:ultraLabel27:Name = "ultraLabel27":U.
-        THIS-OBJECT:ultraLabel27:Size = NEW System.Drawing.Size(90, 14).
-        THIS-OBJECT:ultraLabel27:TabIndex = 25.
-        THIS-OBJECT:ultraLabel27:Text = "Keyword Casing:":U.
+        THIS-OBJECT:openFileDialog2:DefaultExt = "bat":U.
+        THIS-OBJECT:openFileDialog2:Filter = "ant.bat-Files|ant.bat|All Files|*.*":U.
+        THIS-OBJECT:openFileDialog2:RestoreDirectory = TRUE.
+        THIS-OBJECT:openFileDialog2:Title = "Locate Apache ANT Executable":U.
         /*  */
-        /* coKeywordCasing */
+        /* toShowConfirmation */
         /*  */
-        DEFINE VARIABLE nestedvar28 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar28 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:coKeywordCasing:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar28, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:coKeywordCasing:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2007.
-        THIS-OBJECT:coKeywordCasing:DropDownStyle = Infragistics.Win.DropDownStyle:DropDownList.
-        valueListItem1:DataValue = "UPPER":U.
-        valueListItem1:DisplayText = "UPPER case":U.
-        valueListItem2:DataValue = "LOWER":U.
-        valueListItem2:DisplayText = "lower case":U.
-        @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
-        DEFINE VARIABLE arrayvar2 AS Infragistics.Win.ValueListItem EXTENT 2 NO-UNDO.
-        arrayvar2[1] = valueListItem1.
-        arrayvar2[2] = valueListItem2.
-        THIS-OBJECT:coKeywordCasing:Items:AddRange(arrayvar2).
-        THIS-OBJECT:coKeywordCasing:Location = NEW System.Drawing.Point(388, 116).
-        THIS-OBJECT:coKeywordCasing:Name = "coKeywordCasing":U.
-        THIS-OBJECT:coKeywordCasing:Size = NEW System.Drawing.Size(66, 21).
-        THIS-OBJECT:coKeywordCasing:TabIndex = 26.
+        DEFINE VARIABLE nestedvar34 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar34 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:toShowConfirmation:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar34, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:toShowConfirmation:AutoSize = TRUE.
+        THIS-OBJECT:toShowConfirmation:Location = NEW System.Drawing.Point(375, 73).
+        THIS-OBJECT:toShowConfirmation:Name = "toShowConfirmation":U.
+        THIS-OBJECT:toShowConfirmation:Size = NEW System.Drawing.Size(117, 17).
+        THIS-OBJECT:toShowConfirmation:TabIndex = 27.
+        THIS-OBJECT:toShowConfirmation:Text = "Show Confirmation":U.
         /*  */
         /* BusinessEntityDesignerSettingsForm */
         /*  */
@@ -1264,9 +1498,17 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
         CAST(THIS-OBJECT:ultraExplorerBar1, System.ComponentModel.ISupportInitialize):EndInit().
         THIS-OBJECT:ultraPanel1:ClientArea:ResumeLayout(FALSE).
         THIS-OBJECT:ultraPanel1:ResumeLayout(FALSE).
+        CAST(THIS-OBJECT:gb_designer2, System.ComponentModel.ISupportInitialize):EndInit().
+        THIS-OBJECT:gb_designer2:ResumeLayout(FALSE).
+        THIS-OBJECT:gb_designer2:PerformLayout().
+        CAST(THIS-OBJECT:toShowUnderscoreTables, System.ComponentModel.ISupportInitialize):EndInit().
+        CAST(THIS-OBJECT:toSyncTTsOnOpen, System.ComponentModel.ISupportInitialize):EndInit().
+        CAST(THIS-OBJECT:cbSplitArrayFields, System.ComponentModel.ISupportInitialize):EndInit().
+        CAST(THIS-OBJECT:tb_fieldnamegenerator, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:gb_generator, System.ComponentModel.ISupportInitialize):EndInit().
         THIS-OBJECT:gb_generator:ResumeLayout(FALSE).
         THIS-OBJECT:gb_generator:PerformLayout().
+        CAST(THIS-OBJECT:coKeywordCasing, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:to_GenerateDatasetController, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:to_DistinctTempTableIncludes, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:to_PromptSave, System.ComponentModel.ISupportInitialize):EndInit().
@@ -1282,11 +1524,13 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
         CAST(THIS-OBJECT:gb_launcher, System.ComponentModel.ISupportInitialize):EndInit().
         THIS-OBJECT:gb_launcher:ResumeLayout(FALSE).
         THIS-OBJECT:gb_launcher:PerformLayout().
+        CAST(THIS-OBJECT:cb_launcher_proversion, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:toUseLocalFileHistory, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:tb_launch_parameter, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:gb_plugins, System.ComponentModel.ISupportInitialize):EndInit().
         THIS-OBJECT:gb_plugins:ResumeLayout(FALSE).
         THIS-OBJECT:gb_plugins:PerformLayout().
+        CAST(THIS-OBJECT:tb_ApacheAntCommand, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:tb_CustomServices, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:tb_plugins, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:gb_designer, System.ComponentModel.ISupportInitialize):EndInit().
@@ -1301,13 +1545,8 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
         CAST(THIS-OBJECT:tb_namesuffix, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:tb_nameprefix, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:tb_datarelationnamesubstitute, System.ComponentModel.ISupportInitialize):EndInit().
-        CAST(THIS-OBJECT:gb_designer2, System.ComponentModel.ISupportInitialize):EndInit().
-        THIS-OBJECT:gb_designer2:ResumeLayout(FALSE).
-        THIS-OBJECT:gb_designer2:PerformLayout().
-        CAST(THIS-OBJECT:cbSplitArrayFields, System.ComponentModel.ISupportInitialize):EndInit().
-        CAST(THIS-OBJECT:tb_fieldnamegenerator, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:ultraStatusBar1, System.ComponentModel.ISupportInitialize):EndInit().
-        CAST(THIS-OBJECT:coKeywordCasing, System.ComponentModel.ISupportInitialize):EndInit().
+        CAST(THIS-OBJECT:toShowConfirmation, System.ComponentModel.ISupportInitialize):EndInit().
         THIS-OBJECT:ResumeLayout(FALSE).
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
@@ -1315,261 +1554,318 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerSettingsFor
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the KeyDown handler of the Text boxes with an 
+        Purpose: Event handler for the KeyDown handler of the Text boxes with an
                  EditorButton (Lookup)
         Notes:   Maps F3 to EditorButtonClick
         @param sender The reference to the object that raised the event
         @param e The KeyEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID LookupKeyDownHandler (sender AS System.Object, 
+    METHOD PRIVATE VOID LookupKeyDownHandler (sender AS System.Object,
                                               e AS System.Windows.Forms.KeyEventArgs):
 
         DEFINE VARIABLE cControlName AS CHARACTER NO-UNDO.
-        
-        IF e:Handled = FALSE AND Progress.Util.EnumHelper:AreEqual (e:KeyCode, SmartLookupSettings:ShortcutKey) 
+
+        IF e:Handled = FALSE AND Progress.Util.EnumHelper:AreEqual (e:KeyCode, SmartLookupSettings:ShortcutKey)
             AND THIS-OBJECT:Enabled THEN DO:
 
             ASSIGN cControlName = CAST (sender, System.Windows.Forms.Control):Name .
 
-            DYNAMIC-INVOKE (THIS-OBJECT, 
-                            SUBSTITUTE ("&1_EditorButtonClick":U, cControlName), 
-                            sender, 
+            DYNAMIC-INVOKE (THIS-OBJECT,
+                            SUBSTITUTE ("&1_EditorButtonClick":U, cControlName),
+                            sender,
                             NEW EditorButtonEventArgs (?, ?)) .
         END.
 
         CATCH err AS Progress.Lang.Error:
-            ErrorHelper:ShowErrorMessage (err) .                
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the EditorButtonClick  event of the tb_CustomServices
+        Purpose: Event handler for the EditorButtonClick event of the tb_CustomServices
                  control
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The EditorButtonEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID tb_CustomServices_EditorButtonClick (sender AS System.Object, 
-	                                                         e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
-		
-		DEFINE VARIABLE oDialogResult AS System.Windows.Forms.DialogResult NO-UNDO . 
+    METHOD PRIVATE VOID tb_ApacheAntCommand_EditorButtonClick (sender AS System.Object,
+                                                               e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
+
+        DEFINE VARIABLE oDialogResult AS System.Windows.Forms.DialogResult NO-UNDO .
         DEFINE VARIABLE cFileName     AS CHARACTER                         NO-UNDO .
-		
-		IF THIS-OBJECT:tb_CustomServices:Text > "":U THEN DO: 
-		    ASSIGN cFileName = Consultingwerk.Util.FileHelper:FindFile (THIS-OBJECT:tb_CustomServices:Text) . 
-		    
-		    IF cFileName > "":U THEN 
-		        openFileDialog1:FileName = cFileName . 
-		END.
+
+        IF THIS-OBJECT:tb_ApacheAntCommand:Text > "":U THEN DO:
+            ASSIGN cFileName = Consultingwerk.Util.FileHelper:FindFile (tb_ApacheAntCommand:Text) .
+
+            IF cFileName > "":U THEN
+                openFileDialog2:FileName = cFileName .
+        END.
+
+        WAIT-FOR openFileDialog2:ShowDialog (THIS-OBJECT) SET oDialogResult .
+
+        {Consultingwerk/check-dialogresult-ok.i oDialogResult}
+
+        THIS-OBJECT:tb_ApacheAntCommand:Text = openFileDialog2:FileName  .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the EditorButtonClick event of the tb_CustomServices
+                 control
+        Notes:
+        @param sender The reference to the object that raised the event
+        @param e The EditorButtonEventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID tb_CustomServices_EditorButtonClick (sender AS System.Object,
+                                                             e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
+
+        DEFINE VARIABLE oDialogResult AS System.Windows.Forms.DialogResult NO-UNDO .
+        DEFINE VARIABLE cFileName     AS CHARACTER                         NO-UNDO .
+
+        IF THIS-OBJECT:tb_CustomServices:Text > "":U THEN DO:
+            ASSIGN cFileName = Consultingwerk.Util.FileHelper:FindFile (THIS-OBJECT:tb_CustomServices:Text) .
+
+            IF cFileName > "":U THEN
+                openFileDialog1:FileName = cFileName .
+        END.
 
         WAIT-FOR openFileDialog1:ShowDialog (THIS-OBJECT) SET oDialogResult .
 
         {Consultingwerk/check-dialogresult-ok.i oDialogResult}
 
         ASSIGN cFileName = Consultingwerk.Util.FileHelper:RelativeFileName (openFileDialog1:FileName) .
-        
-        THIS-OBJECT:tb_CustomServices:Text = cFileName . 
 
-	END METHOD .
+        THIS-OBJECT:tb_CustomServices:Text = cFileName .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the Click event of the ultraButton1                                                                        
-        Notes:                                                        
+        Purpose: Event handler for the Click event of the ultraButton1
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event                 
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraButton1_Click (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraButton1_Click (sender AS System.Object,
                                             e AS System.EventArgs):
-        
+
         BusinessEntityDesignerSettings:BeginChangeSettings() .
 
-        ASSIGN 
+        ASSIGN
             BusinessEntityDesignerSettings:BusinessEntityGenerator       = THIS-OBJECT:tb_generator:Text
             BusinessEntityDesignerSettings:FieldNameGeneratorService     = THIS-OBJECT:tb_fieldnamegenerator:Text
             BusinessEntityDesignerSettings:DataRelationFieldsService     = THIS-OBJECT:tb_RelationFieldsGenerator:Text
-            BusinessEntityDesignerSettings:TemplateFolder                = THIS-OBJECT:tb_templatefolder:Text              
-            BusinessEntityDesignerSettings:RelationNameSubstitute        = THIS-OBJECT:tb_datarelationnamesubstitute:Text  
-            BusinessEntityDesignerSettings:DefaultTablePrefix            = THIS-OBJECT:tb_nameprefix:Text        
+            BusinessEntityDesignerSettings:TemplateFolder                = THIS-OBJECT:tb_templatefolder:Text
+            BusinessEntityDesignerSettings:RelationNameSubstitute        = THIS-OBJECT:tb_datarelationnamesubstitute:Text
+            BusinessEntityDesignerSettings:ShowConfirmation              = THIS-OBJECT:toShowConfirmation:Checked
+            BusinessEntityDesignerSettings:DefaultTablePrefix            = THIS-OBJECT:tb_nameprefix:Text
             BusinessEntityDesignerSettings:DefaultTableSuffix            = THIS-OBJECT:tb_namesuffix:Text
             BusinessEntityDesignerSettings:DefaultBeforeTablePrefix      = THIS-OBJECT:tb_beforeprefix:Text
-            BusinessEntityDesignerSettings:DefaultBeforeTableSuffix      = THIS-OBJECT:tb_beforesuffix:Text 
+            BusinessEntityDesignerSettings:DefaultBeforeTableSuffix      = THIS-OBJECT:tb_beforesuffix:Text
             BusinessEntityDesignerSettings:BusinessEntityDesignerPlugins = REPLACE (THIS-OBJECT:tb_plugins:Text,
-                                                                                    System.Environment:NewLine, 
+                                                                                    System.Environment:NewLine,
                                                                                     "|":U)
-            BusinessEntityDesignerSettings:OpenFilesInIDE                = THIS-OBJECT:to_OpenFilesInIDE:Checked 
+            BusinessEntityDesignerSettings:OpenFilesInIDE                = THIS-OBJECT:to_OpenFilesInIDE:Checked
             BusinessEntityDesignerSettings:SourceCodeBaseFolder          = THIS-OBJECT:tb_SourceFolder:Text
             BusinessEntityDesignerSettings:RCodeBaseFolder               = THIS-OBJECT:tb_RCodeFolder:Text
-            
-            BusinessEntityDesignerSettings:SourceCodeBaseFolderGui       = THIS-OBJECT:tb_SourceFolder_Gui:Text           
-            BusinessEntityDesignerSettings:RCodeBaseFolderGui            = THIS-OBJECT:tb_RCodeFolder_Gui:Text            
-            
-            BusinessEntityDesignerSettings:IncludeFilesBaseFolder        = THIS-OBJECT:tb_IncludeFiles:Text               
-            
+
+            BusinessEntityDesignerSettings:SourceCodeBaseFolderGui       = THIS-OBJECT:tb_SourceFolder_Gui:Text
+            BusinessEntityDesignerSettings:RCodeBaseFolderGui            = THIS-OBJECT:tb_RCodeFolder_Gui:Text
+
+            BusinessEntityDesignerSettings:IncludeFilesBaseFolder        = THIS-OBJECT:tb_IncludeFiles:Text
+
             BusinessEntityDesignerSettings:TableNameGeneratorService     = THIS-OBJECT:tb_tablenamegenerator:Text
             BusinessEntityDesignerSettings:CompileDatasetController      = THIS-OBJECT:to_CompileDatasetController:Checked
-            BusinessEntityDesignerSettings:GenerateDatasetController     = THIS-OBJECT:to_GenerateDatasetController:Checked  
+            BusinessEntityDesignerSettings:GenerateDatasetController     = THIS-OBJECT:to_GenerateDatasetController:Checked
             BusinessEntityDesignerSettings:PromptForSaveBeforeGenerate   = THIS-OBJECT:to_PromptSave:Checked
+            BusinessEntityDesignerSettings:ViewUnderscoreTables          = THIS-OBJECT:toShowUnderscoreTables:Checked
             BusinessEntityDesignerSettings:DistinctTempTableIncludeFiles = THIS-OBJECT:to_DistinctTempTableIncludes:Checked
-            
-            BusinessEntityDesignerSettings:ReplaceUnderScoreInTableName  = THIS-OBJECT:cbReplaceUnderscore:Checked          
-            BusinessEntityDesignerSettings:ReplaceHyphenInTableName      = THIS-OBJECT:cbReplaceHyphens:Checked                         
-            
-            BusinessEntityDesignerSettings:SplitArrayFields              = THIS-OBJECT:cbSplitArrayFields:Checked
-            
-            BusinessEntityDesignerSettings:CustomServices                = THIS-OBJECT:tb_CustomServices:Text
-            
-            BusinessEntityDesignerSettings:LauncherCommandLine           = THIS-OBJECT:tb_launch_parameter:Text        
-            
-            BusinessEntityDesignerSettings:UseLocalFileHistory           = THIS-OBJECT:toUseLocalFileHistory:Checked     
-            
-            BusinessEntityDesignerSettings:KeywordCasing                 = UNBOX (THIS-OBJECT:coKeywordCasing:Value)
-                   
-              .
-        
-        BusinessEntityDesignerSettings:EndChangeSettings() .        
 
-        BusinessEntityDesignerSettings:SaveSettings() . 
+            BusinessEntityDesignerSettings:ReplaceUnderScoreInTableName  = THIS-OBJECT:cbReplaceUnderscore:Checked
+            BusinessEntityDesignerSettings:ReplaceHyphenInTableName      = THIS-OBJECT:cbReplaceHyphens:Checked
+
+            BusinessEntityDesignerSettings:SplitArrayFields              = THIS-OBJECT:cbSplitArrayFields:Checked
+
+            BusinessEntityDesignerSettings:CustomServices                = THIS-OBJECT:tb_CustomServices:Text
+            BusinessEntityDesignerSettings:ApacheAntCommandLine          = THIS-OBJECT:tb_ApacheAntCommand:Text
+
+            BusinessEntityDesignerSettings:LauncherCommandLine           = THIS-OBJECT:tb_launch_parameter:Text
+            BusinessEntityDesignerSettings:LauncherProversion            = THIS-OBJECT:cb_launcher_proversion:Text
+
+            BusinessEntityDesignerSettings:UseLocalFileHistory           = THIS-OBJECT:toUseLocalFileHistory:Checked
+
+            BusinessEntityDesignerSettings:KeywordCasing                 = UNBOX (THIS-OBJECT:coKeywordCasing:Value)
+
+              .
+
+        BusinessEntityDesignerSettings:EndChangeSettings() .
+
+        BusinessEntityDesignerSettings:SaveSettings() .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the Click event of the ultarButton3 instance
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraButton3_Click (sender AS System.Object,
-	                                        e AS System.EventArgs):
-		
+    METHOD PRIVATE VOID ultraButton3_Click (sender AS System.Object,
+                                            e AS System.EventArgs):
+
         DEFINE VARIABLE oForm         AS Consultingwerk.SmartComponents.Support.BusinessEntityPickerForm NO-UNDO .
         DEFINE VARIABLE oDialogResult AS System.Windows.Forms.DialogResult                               NO-UNDO .
         DEFINE VARIABLE cClassName    AS CHARACTER                                                       NO-UNDO .
-        DEFINE VARIABLE oType         AS System.Type                                                     NO-UNDO .
-        DEFINE VARIABLE oInstance     AS Progress.Windows.UserControl                                    NO-UNDO .  
-        DEFINE VARIABLE oContainer    AS System.Windows.Forms.Control                                    NO-UNDO .
 
-        DEFINE VARIABLE oInfo         AS Infragistics.Win.Misc.UltraDesktopAlertWindowInfo               NO-UNDO . 
+        DEFINE VARIABLE oInfo         AS Infragistics.Win.Misc.UltraDesktopAlertWindowInfo               NO-UNDO .
 
         oInfo = Consultingwerk.SmartComponents.Support.DesktopAlertHelper:Show ("Business Entity Designer"{&TRAN},
                                                                                 "Searching Plugin Classes."{&TRAN}) .
 
-        Consultingwerk.Util.ClassHelper:GetClassNamesInClassPath ("Consultingwerk.BusinessEntityDesigner.IBusinessEntityDesignerPlugin":U, 
-                                                                  FALSE, 
+        Consultingwerk.Util.ClassHelper:GetClassNamesInClassPath ("Consultingwerk.BusinessEntityDesigner.IBusinessEntityDesignerPlugin":U,
+                                                                  FALSE,
                                                                   OUTPUT TABLE ttClassNames BY-REFERENCE) .
 
-        oInfo:Close () . 
+        oInfo:Close () .
 
         oForm = NEW Consultingwerk.SmartComponents.Support.BusinessEntityPickerForm () .
         oForm:Text = "Select Plugin"{&TRAN} .
-        
+
         oForm:ReceiveBusinessEntityNames (TABLE ttClassNames) .
-        
+
         ASSIGN oDialogResult = Consultingwerk.SmartComponents.FormHelper:ShowDialog (oForm) .
-        
+
         {Consultingwerk/check-dialogresult-ok.i oDialogResult}
-        
+
         ASSIGN cClassName = oForm:GetSelectedBusinessEntityName () .
 
-        IF cClassName > "":U THEN 
-            ASSIGN THIS-OBJECT:tb_plugins:Text = TRIM (TRIM (THIS-OBJECT:tb_plugins:Text, CHR (10)), CHR (13)) + 
-                                                 Consultingwerk.Environment:NewLine + 
-                                                 cClassName .  
+        IF cClassName > "":U THEN
+            ASSIGN THIS-OBJECT:tb_plugins:Text = TRIM (TRIM (THIS-OBJECT:tb_plugins:Text, CHR (10)), CHR (13)) +
+                                                 Consultingwerk.Environment:NewLine +
+                                                 cClassName .
 
-	END METHOD .
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the ItemClick event of the ultraExplorerBar1                                                                        
-        Notes:   Controls the view of the settings form                                                              
-        @param sender The reference to the object that raised the event       
+        Purpose: Event handler for the ItemClick event of the ultraExplorerBar1
+        Notes:   Controls the view of the settings form
+        @param sender The reference to the object that raised the event
         @param e The ItemEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraExplorerBar1_ItemClick (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraExplorerBar1_ItemClick (sender AS System.Object,
                                                      e AS Infragistics.Win.UltraWinExplorerBar.ItemEventArgs):
-        
+
         CASE e:Item:Key:
-            WHEN "generator":U THEN 
+            WHEN "generator":U THEN
                 ASSIGN gb_generator:VISIBLE = TRUE
-                       gb_designer:VISIBLE  = FALSE 
+                       gb_designer:VISIBLE  = FALSE
                        gb_designer2:VISIBLE = FALSE
-                       gb_plugins:VISIBLE   = FALSE 
-                       gb_launcher:VISIBLE  = FALSE . 
-                       
-            WHEN "design":U THEN 
+                       gb_plugins:VISIBLE   = FALSE
+                       gb_launcher:VISIBLE  = FALSE .
+
+            WHEN "design":U THEN
                 ASSIGN gb_generator:VISIBLE = FALSE
                        gb_designer:VISIBLE  = TRUE
                        gb_designer2:VISIBLE = FALSE
-                       gb_plugins:VISIBLE   = FALSE   
+                       gb_plugins:VISIBLE   = FALSE
                        gb_launcher:VISIBLE  = FALSE .
-                        
-            WHEN "design2":U THEN 
+
+            WHEN "design2":U THEN
                 ASSIGN gb_generator:VISIBLE = FALSE
                        gb_designer:VISIBLE  = FALSE
                        gb_designer2:VISIBLE = TRUE
-                       gb_plugins:VISIBLE   = FALSE  
-                       gb_launcher:VISIBLE  = FALSE . 
-                        
+                       gb_plugins:VISIBLE   = FALSE
+                       gb_launcher:VISIBLE  = FALSE .
+
             WHEN "plugins":U THEN
                 ASSIGN gb_generator:VISIBLE = FALSE
-                       gb_designer:VISIBLE  = FALSE 
+                       gb_designer:VISIBLE  = FALSE
                        gb_designer2:VISIBLE = FALSE
-                       gb_plugins:VISIBLE   = TRUE 
+                       gb_plugins:VISIBLE   = TRUE
                        gb_launcher:VISIBLE  = FALSE .
-                        
-            WHEN "launcher":U THEN                        
+
+            WHEN "launcher":U THEN
                 ASSIGN gb_generator:VISIBLE = FALSE
-                       gb_designer:VISIBLE  = FALSE 
+                       gb_designer:VISIBLE  = FALSE
                        gb_designer2:VISIBLE = FALSE
-                       gb_plugins:VISIBLE   = FALSE 
-                       gb_launcher:VISIBLE  = TRUE . 
+                       gb_plugins:VISIBLE   = FALSE
+                       gb_launcher:VISIBLE  = TRUE .
         END CASE .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the Click event of the UltraStatusBar
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event 
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraStatusBar1_Click (sender AS System.Object, 
-	                                           e AS System.EventArgs):
-		
-		IF BusinessEntityDesignerSettings:SettingsFileLoaded THEN 
-		     
-		    Consultingwerk.Util.WindowsExplorerHelper:ShowFileInExplorer (BusinessEntityDesignerSettings:SettingsFile) .   
+    METHOD PRIVATE VOID ultraStatusBar1_Click (sender AS System.Object,
+                                               e AS System.EventArgs):
 
-	END METHOD .
+        IF BusinessEntityDesignerSettings:SettingsFileLoaded THEN
+
+            Consultingwerk.Util.WindowsExplorerHelper:ShowFileInExplorer (BusinessEntityDesignerSettings:SettingsFile) .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the EditorButtonClick event of the ultraTextEditor2
-        Notes:                                                                        
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The EditorButtonEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID tb_templatefolder_EditorButtonClick (sender AS System.Object, 
+    METHOD PRIVATE VOID tb_templatefolder_EditorButtonClick (sender AS System.Object,
                                                              e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
 
         DEFINE VARIABLE oDialogResult AS System.Windows.Forms.DialogResult NO-UNDO .
-        
-        FILE-INFO:FILE-NAME = Consultingwerk.BusinessEntityDesigner.BusinessEntityDesignerSettings:TemplateFolder .
-        
-        IF FILE-INFO:FULL-PATHNAME = ? THEN
-            FILE-INFO:FILE-NAME = ".":U . 
-        
-        folderBrowserDialog1:SelectedPath = FILE-INFO:FULL-PATHNAME . 
+
+        FILE-INFORMATION:FILE-NAME = Consultingwerk.BusinessEntityDesigner.BusinessEntityDesignerSettings:TemplateFolder .
+
+        IF FILE-INFORMATION:FULL-PATHNAME = ? THEN
+            FILE-INFORMATION:FILE-NAME = ".":U .
+
+        folderBrowserDialog1:SelectedPath = FILE-INFORMATION:FULL-PATHNAME .
 
         WAIT-FOR folderBrowserDialog1:ShowDialog() SET oDialogResult .
 
         IF Progress.Util.EnumHelper:AreEqual (oDialogResult, System.Windows.Forms.DialogResult:OK) THEN
-            ASSIGN Consultingwerk.BusinessEntityDesigner.BusinessEntityDesignerSettings:TemplateFolder = folderBrowserDialog1:SelectedPath 
+            ASSIGN Consultingwerk.BusinessEntityDesigner.BusinessEntityDesignerSettings:TemplateFolder = folderBrowserDialog1:SelectedPath
                    THIS-OBJECT:tb_templatefolder:Text = folderBrowserDialog1:SelectedPath .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the BusinessEntityDesignerSettingsForm  class                                                            
-        Notes:                                                                        
+        Purpose: Destructor for the BusinessEntityDesignerSettingsForm  class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC BusinessEntityDesignerSettingsForm ():
 

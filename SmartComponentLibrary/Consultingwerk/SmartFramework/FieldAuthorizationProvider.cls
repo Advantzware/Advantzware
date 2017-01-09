@@ -53,6 +53,6 @@ CLASS Consultingwerk.SmartFramework.FieldAuthorizationProvider
                 
         RETURN FieldRestrictionEnum:None .
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

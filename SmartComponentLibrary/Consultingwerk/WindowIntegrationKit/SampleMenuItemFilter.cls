@@ -37,11 +37,11 @@ CLASS Consultingwerk.WindowIntegrationKit.SampleMenuItemFilter
     METHOD PUBLIC LOGICAL FilterMenuItem (poForm   AS IFormWithUltraToolbarsManager,
                                           phWidget AS HANDLE):
                                     
-/*		IF phWidget:LABEL = "~&Test":U THEN*/
-/*		  RETURN FALSE .                   */
-		  
-		RETURN TRUE . 
+/*        IF phWidget:LABEL = "~&Test":U THEN*/
+/*          RETURN FALSE .                   */
+          
+        RETURN TRUE . 
 
-	END METHOD.
+    END METHOD.
 
 END CLASS.

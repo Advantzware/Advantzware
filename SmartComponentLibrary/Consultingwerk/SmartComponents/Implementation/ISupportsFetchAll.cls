@@ -30,6 +30,6 @@ INTERFACE Consultingwerk.SmartComponents.Implementation.ISupportsFetchAll:
         Notes:   
         @return Logical value indicating if more rows have been fetched
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL FetchAll ().
+    METHOD PUBLIC LOGICAL FetchAll ().
 
 END INTERFACE.

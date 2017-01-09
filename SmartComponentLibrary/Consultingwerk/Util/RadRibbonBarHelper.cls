@@ -33,27 +33,27 @@ USING Telerik.WinControls.UI.*               FROM ASSEMBLY.
 
 CLASS Consultingwerk.Util.RadRibbonBarHelper: 
     
-	/*------------------------------------------------------------------------------
-	    Purpose: Constructor for the RadRibbonBarHelper class
-	    Notes:   Disallow instance creation
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC RadRibbonBarHelper ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the RadRibbonBarHelper class
+        Notes:   Disallow instance creation
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC RadRibbonBarHelper ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
 &IF DEFINED (DotNetAccessible) NE 0 AND  DEFINED (TelerikRadControls) NE 0 &THEN
-	/*------------------------------------------------------------------------------
-	    Purpose: Returns a List of all RadItems in the RadRibbonBar with the given Tag
-	    Notes:
-	    @param poRibbonBar The reference to the RadRibbonBar
-	    @param pcTag The Tag value to search for
-	    @return The List of RadItems with the given Tag
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC "System.Collections.Generic.List<RadItem>" GetAllItemsWithTag (poRibbonBar AS RadRibbonBar,
-	                                                                                    pcTag AS CHARACTER):
-		
-		DEFINE VARIABLE oList AS "System.Collections.Generic.List<RadItem>" NO-UNDO . 
+    /*------------------------------------------------------------------------------
+        Purpose: Returns a List of all RadItems in the RadRibbonBar with the given Tag
+        Notes:
+        @param poRibbonBar The reference to the RadRibbonBar
+        @param pcTag The Tag value to search for
+        @return The List of RadItems with the given Tag
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC STATIC "System.Collections.Generic.List<RadItem>" GetAllItemsWithTag (poRibbonBar AS RadRibbonBar,
+                                                                                        pcTag AS CHARACTER):
+        
+        DEFINE VARIABLE oList AS "System.Collections.Generic.List<RadItem>" NO-UNDO . 
 
         oList = NEW "System.Collections.Generic.List<RadItem>" () .
         
@@ -66,7 +66,7 @@ CLASS Consultingwerk.Util.RadRibbonBarHelper:
         
         RETURN oList . 
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Adds all RadItems in the RibbonTab with the given Tag to the list
@@ -186,26 +186,26 @@ CLASS Consultingwerk.Util.RadRibbonBarHelper:
 
     END METHOD .
     
-	/*------------------------------------------------------------------------------
-	    Purpose: Returns if the provided Tag (System.Object) is in the given 
-	             list of tags
-	    Notes:
-	    @param poTag The reference to the current Tag value
-	    @param pcTag The CHARACTER value to compare
-	    @return Logical value indicating if the two values are equal
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC LOGICAL TagIsInList (poTag AS System.Object,
-	                                          pcTag AS CHARACTER):
-		
-		IF NOT VALID-OBJECT (poTag) THEN 
-		    RETURN FALSE . 
-		    
-		IF NOT TYPE-OF (poTag, System.String) THEN 
-		    RETURN FALSE . 
-		
-		RETURN LOOKUP (UNBOX (poTag), pcTag) > 0 .
+    /*------------------------------------------------------------------------------
+        Purpose: Returns if the provided Tag (System.Object) is in the given 
+                 list of tags
+        Notes:
+        @param poTag The reference to the current Tag value
+        @param pcTag The CHARACTER value to compare
+        @return Logical value indicating if the two values are equal
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC STATIC LOGICAL TagIsInList (poTag AS System.Object,
+                                              pcTag AS CHARACTER):
+        
+        IF NOT VALID-OBJECT (poTag) THEN 
+            RETURN FALSE . 
+            
+        IF NOT TYPE-OF (poTag, System.String) THEN 
+            RETURN FALSE . 
+        
+        RETURN LOOKUP (UNBOX (poTag), pcTag) > 0 .
 
-	END METHOD.
+    END METHOD.
 &ENDIF
 
 END CLASS.

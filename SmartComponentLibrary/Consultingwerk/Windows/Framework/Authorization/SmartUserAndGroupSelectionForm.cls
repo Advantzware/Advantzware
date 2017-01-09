@@ -11,12 +11,12 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : SmartUserAndGroupSelectionForm
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Marko Rüterbories / Consultingwerk Ltd.
     Created     : Wed Jul 30 10:56:27 CEST 2014
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -27,107 +27,112 @@ USING Consultingwerk.Framework.Session.*                  FROM PROPATH.
 USING Consultingwerk.OERA.*                               FROM PROPATH .
 USING Consultingwerk.SmartComponents.Base.SmartWindowForm FROM PROPATH .
 USING Consultingwerk.Util.*                               FROM PROPATH .
-USING Consultingwerk.Windows.Framework.Authorization.*    FROM PROPATH .  
+USING Consultingwerk.Windows.Framework.Authorization.*    FROM PROPATH .
 USING Progress.Lang.*                                     FROM PROPATH .
 
-CLASS Consultingwerk.Windows.Framework.Authorization.SmartUserAndGroupSelectionForm 
-    INHERITS SmartWindowForm: 
-	
+CLASS Consultingwerk.Windows.Framework.Authorization.SmartUserAndGroupSelectionForm
+    INHERITS SmartWindowForm:
+
     DEFINE PRIVATE VARIABLE ButtonOk AS System.Windows.Forms.Button NO-UNDO.
     DEFINE PRIVATE VARIABLE ButtonCancel AS System.Windows.Forms.Button NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE multipleItemPickerControl1 AS Consultingwerk.Windows.Controls.MultipleItemPickerControl NO-UNDO.
     DEFINE PRIVATE VARIABLE panel1 AS System.Windows.Forms.Panel NO-UNDO.
-	
-    {Consultingwerk/SmartFramework/Authentication/dsUser.i}     
+
+    {Consultingwerk/SmartFramework/Authentication/dsUser.i}
     {Consultingwerk/SmartFramework/Authorization/dsGroup.i}
 
-    DEFINE TEMP-TABLE ttUserAndGroups NO-UNDO 
-        LIKE eSmartUser 
-        FIELD ImageKey AS CHARACTER . 
-        
+    DEFINE TEMP-TABLE ttUserAndGroups NO-UNDO
+        LIKE eSmartUser
+        FIELD ImageKey AS CHARACTER .
+
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the list of the selected Users and Groups
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY SelectedUserAndGroups AS CharacterDictionary NO-UNDO 
-	GET.
-	SET.
-	 
+    DEFINE PUBLIC PROPERTY SelectedUserAndGroups AS CharacterDictionary NO-UNDO
+    GET.
+    SET.
+
     /*------------------------------------------------------------------------------
         Purpose: Initializes a new instance of the SmartUserAndGroupSelectionForm
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC SmartUserAndGroupSelectionForm ():
+    CONSTRUCTOR PUBLIC SmartUserAndGroupSelectionForm ():
         SUPER ().
         InitializeComponent ().
-        
+
         &IF NOT PROVERSION BEGINS "10.2":U AND NOT PROVERSION BEGINS "11.0" &THEN
         THIS-OBJECT:ComponentsCollection:ADD(THIS-OBJECT:components).
         &ENDIF
-        
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Assign the list of selected items (Users/Groups) to the 
+        Purpose: Assign the list of selected items (Users/Groups) to the
                  SelectedUsersAndGroups property to have it available even after the
                  dialog was closed.
-        Notes:   
+        Notes:
         @param sender The source of the event
         @param e An EventArgs that contains no event data
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ButtonOk_Click (sender AS System.Object, 
-	                                    e AS System.EventArgs):
-		DEFINE VARIABLE oSelectedUserAndGroups AS CharacterList NO-UNDO.
-		
+    METHOD PRIVATE VOID ButtonOk_Click (sender AS System.Object,
+                                        e AS System.EventArgs):
+        DEFINE VARIABLE oSelectedUserAndGroups AS CharacterList NO-UNDO.
+
         oSelectedUserAndGroups = multipleItemPickerControl1:GetSelectedItems () .
-        IF NOT VALID-OBJECT (SelectedUserAndGroups) THEN 
-            ASSIGN 
+        IF NOT VALID-OBJECT (SelectedUserAndGroups) THEN
+            ASSIGN
                 SelectedUserAndGroups = NEW CharacterDictionary ("":U, ",":U, "":U, CHR (1))
                 .
-        
+
         SelectedUserAndGroups:Clear ().
-        
+
         {Consultingwerk/foreachPrimitiveList.i Character cValue in oSelectedUserAndGroups}
-        
+
             SelectedUserAndGroups:Add (cValue, GetNameOfItemKey (cValue)).
 
         END.
-    
+
         CATCH ple AS Progress.Lang.Error :
-        	Consultingwerk.Util.ErrorHelper:ShowErrorMessage (ple).
+            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (ple).
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Gets the Name of a SecurityItem identified by it's key
-        Notes:   
+        Notes:
         @param pcKeyValue The key of the SecurityItem to return the Name for
         @return The Name of the SecurityItem
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE CHARACTER GetNameOfItemKey (pcKeyValue AS CHARACTER):
-		
+    METHOD PRIVATE CHARACTER GetNameOfItemKey (pcKeyValue AS CHARACTER):
+
         FIND FIRST ttUserAndGroups WHERE ttUserAndGroups.UserGuid = pcKeyValue NO-ERROR.
 
-        IF AVAILABLE ttUserAndGroups THEN 
+        IF AVAILABLE ttUserAndGroups THEN
             RETURN ttUserAndGroups.UserFullName.
-        ELSE 
+        ELSE
             UNDO, THROW NEW AppError ("No User / Group record available!":U, 0).
-        
-		RETURN "":U.
 
-	END METHOD .
+        RETURN "":U.
 
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    END METHOD .
+
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE resources AS Progress.Util.ResourceManager NO-UNDO.
@@ -141,125 +146,96 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartUserAndGroupSelectionF
         /*  */
         /* ButtonOk */
         /*  */
-        DEFINE VARIABLE nestedvar0 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar0 = System.Windows.Forms.AnchorStyles:Bottom.
-        THIS-OBJECT:ButtonOk:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar0, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:ButtonOk, "ButtonOk":U).
         THIS-OBJECT:ButtonOk:DialogResult = System.Windows.Forms.DialogResult:OK.
-        THIS-OBJECT:ButtonOk:ImeMode = System.Windows.Forms.ImeMode:NoControl.
-        THIS-OBJECT:ButtonOk:Location = NEW System.Drawing.Point(468, 358).
         THIS-OBJECT:ButtonOk:Name = "ButtonOk":U.
-        THIS-OBJECT:ButtonOk:Size = NEW System.Drawing.Size(75, 23).
-        THIS-OBJECT:ButtonOk:TabIndex = 2.
-        THIS-OBJECT:ButtonOk:Text = "&OK":U.
         THIS-OBJECT:ButtonOk:UseCompatibleTextRendering = TRUE.
         THIS-OBJECT:ButtonOk:UseVisualStyleBackColor = TRUE.
         THIS-OBJECT:ButtonOk:Click:Subscribe(THIS-OBJECT:ButtonOk_Click).
         /*  */
         /* ButtonCancel */
         /*  */
-        DEFINE VARIABLE nestedvar1 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar1 = System.Windows.Forms.AnchorStyles:Bottom.
-        THIS-OBJECT:ButtonCancel:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar1, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:ButtonCancel, "ButtonCancel":U).
         THIS-OBJECT:ButtonCancel:DialogResult = System.Windows.Forms.DialogResult:Cancel.
-        THIS-OBJECT:ButtonCancel:ImeMode = System.Windows.Forms.ImeMode:NoControl.
-        THIS-OBJECT:ButtonCancel:Location = NEW System.Drawing.Point(549, 358).
         THIS-OBJECT:ButtonCancel:Name = "ButtonCancel":U.
-        THIS-OBJECT:ButtonCancel:Size = NEW System.Drawing.Size(75, 23).
-        THIS-OBJECT:ButtonCancel:TabIndex = 1.
-        THIS-OBJECT:ButtonCancel:Text = "&Cancel":U.
         THIS-OBJECT:ButtonCancel:UseCompatibleTextRendering = TRUE.
         THIS-OBJECT:ButtonCancel:UseVisualStyleBackColor = TRUE.
         /*  */
         /* multipleItemPickerControl1 */
         /*  */
-        THIS-OBJECT:multipleItemPickerControl1:DisplayFields = "UserFullName":U.
-        THIS-OBJECT:multipleItemPickerControl1:Dock = System.Windows.Forms.DockStyle:Fill.
-        THIS-OBJECT:multipleItemPickerControl1:ImageKeyField = "ImageKey":U.
-        THIS-OBJECT:multipleItemPickerControl1:KeyField = "UserGuid":U.
-        THIS-OBJECT:multipleItemPickerControl1:Location = NEW System.Drawing.Point(0, 0).
+        resources:ApplyResources(THIS-OBJECT:multipleItemPickerControl1, "multipleItemPickerControl1":U).
         THIS-OBJECT:multipleItemPickerControl1:Name = "multipleItemPickerControl1":U.
-        THIS-OBJECT:multipleItemPickerControl1:Size = NEW System.Drawing.Size(636, 352).
-        THIS-OBJECT:multipleItemPickerControl1:TabIndex = 0.
         /*  */
         /* panel1 */
         /*  */
-        DEFINE VARIABLE nestedvar2 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar2 = CAST(Progress.Util.EnumHelper:Or(CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Bottom), System.Windows.Forms.AnchorStyles), System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:panel1:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar2, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:panel1, "panel1":U).
         THIS-OBJECT:panel1:BackColor = System.Drawing.Color:White.
         THIS-OBJECT:panel1:Controls:Add(THIS-OBJECT:multipleItemPickerControl1).
-        THIS-OBJECT:panel1:Location = NEW System.Drawing.Point(0, 0).
         THIS-OBJECT:panel1:Name = "panel1":U.
-        THIS-OBJECT:panel1:Size = NEW System.Drawing.Size(636, 352).
-        THIS-OBJECT:panel1:TabIndex = 3.
         /*  */
         /* SmartUserAndGroupSelectionForm */
         /*  */
         THIS-OBJECT:AcceptButton = THIS-OBJECT:ButtonOk.
         THIS-OBJECT:CancelButton = THIS-OBJECT:ButtonCancel.
-        THIS-OBJECT:ClientSize = NEW System.Drawing.Size(636, 393).
+        resources:ApplyResources(THIS-OBJECT, "$this":U).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:ButtonOk).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:ButtonCancel).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:panel1).
-        THIS-OBJECT:Icon = CAST(resources:GetObject("$this.Icon":U), System.Drawing.Icon).
         THIS-OBJECT:MinimizeBox = FALSE.
         THIS-OBJECT:Name = "SmartUserAndGroupSelectionForm":U.
         THIS-OBJECT:SizeGripStyle = System.Windows.Forms.SizeGripStyle:Show.
-        THIS-OBJECT:StartPosition = System.Windows.Forms.FormStartPosition:CenterParent.
-        THIS-OBJECT:Text = "User and Group selection":U.
-        THIS-OBJECT:WindowPositionRegistryKey = "SmartUserAndGroupSelectionForm":U.
         THIS-OBJECT:panel1:ResumeLayout(FALSE).
         THIS-OBJECT:ResumeLayout(FALSE).
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Populate the Selection Control 
-        Notes:   
+        Purpose: Populate the Selection Control
+        Notes:
         @param e An EventArgs that contains no event data
     ------------------------------------------------------------------------------*/
     METHOD OVERRIDE PROTECTED VOID OnShown (e AS System.EventArgs):
-        
-        DEFINE VARIABLE oRequest AS FetchDataRequest NO-UNDO. 
-        DEFINE VARIABLE oItems   AS CharacterList    NO-UNDO . 
-        
+
+        DEFINE VARIABLE oRequest AS FetchDataRequest NO-UNDO.
+        DEFINE VARIABLE oItems   AS CharacterList    NO-UNDO .
+
         SUPER:OnShown (INPUT e).
 
-        PROCESS EVENTS . 
-        
-        IF SessionManager:LoginCompanyKey > "":U THEN 
+        PROCESS EVENTS .
+
+        IF SessionManager:LoginCompanyKey > "":U THEN
             oRequest = NEW FetchDataRequest ("eSmartUser":U,
                                              SUBSTITUTE ("for each eSmartUser where eSmartUser.LoginCompanyGuid = &1 or eSmartUser.LoginCompanyGuid = &2":U,
                                                          QUOTER (SessionManager:LoginCompanyKey),
-                                                         QUOTER ("":U))) .                    
-        ELSE         
+                                                         QUOTER ("":U))) .
+        ELSE
             oRequest = NEW FetchDataRequest ("eSmartUser":U) .
-        
+
         FrameworkSettings:ServiceAdapter:RetrieveData ("":U,
                                                        "Consultingwerk.SmartFramework.Authentication.UserBusinessEntity":U,
                                                        oRequest,
                                                        OUTPUT DATASET dsUser) .
 
         oRequest = NEW FetchDataRequest ("eSmartGroup":U) .
-        
+
         FrameworkSettings:ServiceAdapter:RetrieveData ("":U,
                                                        "Consultingwerk.SmartFramework.Authorization.GroupBusinessEntity":U,
                                                        oRequest,
                                                        OUTPUT DATASET dsGroup) .
 
-        IF VALID-OBJECT (THIS-OBJECT:SelectedUserAndGroups) THEN 
+        IF VALID-OBJECT (THIS-OBJECT:SelectedUserAndGroups) THEN
             oItems = NEW CharacterList (THIS-OBJECT:SelectedUserAndGroups:Keys,
-                                        THIS-OBJECT:SelectedUserAndGroups:KeyDelimiter) . 
-        ELSE 
+                                        THIS-OBJECT:SelectedUserAndGroups:KeyDelimiter) .
+        ELSE
             oItems = NEW CharacterList () .
 
         FOR EACH eSmartUser:
             CREATE ttUserAndGroups.
-            BUFFER-COPY eSmartUser TO ttUserAndGroups  
+            BUFFER-COPY eSmartUser TO ttUserAndGroups
                 ASSIGN ttUserAndGroups.ImageKey = "Consultingwerk/Windows/Framework/Images/user_16.png":U .
-                
+
         END.
 
         FOR EACH eSmartGroup:
@@ -270,18 +246,22 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartUserAndGroupSelectionF
                    ttUserAndGroups.ImageKey = "Consultingwerk/Windows/Framework/Images/users_16.png":U .
         END.
 
-        multipleItemPickerControl1:SetListItems (TEMP-TABLE ttUserAndGroups:HANDLE, 
+        FOR EACH ttUserAndGroups WHERE ttUserAndGroups.UserFullName = ? OR ttUserAndGroups.UserFullName = "":U:
+            ASSIGN ttUserAndGroups.UserFullName = ttUserAndGroups.UserName .
+        END.
+
+        multipleItemPickerControl1:SetListItems (TEMP-TABLE ttUserAndGroups:HANDLE,
                                                  oItems) .
 
         CATCH err AS Progress.Lang.Error :
-            ErrorHelper:ShowErrorMessage (err) .    
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the SmartUserAndGroupSelectionForm class 
-        Notes:   
+        Purpose: Destructor for the SmartUserAndGroupSelectionForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC SmartUserAndGroupSelectionForm ():
 

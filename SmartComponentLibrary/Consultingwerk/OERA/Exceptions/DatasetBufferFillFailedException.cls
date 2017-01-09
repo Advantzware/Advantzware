@@ -39,13 +39,13 @@ CLASS Consultingwerk.OERA.Exceptions.DatasetBufferFillFailedException
         @param poInnerException The reference to the original error
         @param pcErrorString The error message associated with this Exception object
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC DatasetBufferFillFailedException (poInnerException AS Progress.Lang.Error, 
-	                                                     pcErrorString AS CHARACTER):
-	                                            
-		SUPER (poInnerException, pcErrorString).
-		
-	END CONSTRUCTOR.
-	
+    CONSTRUCTOR PUBLIC DatasetBufferFillFailedException (poInnerException AS Progress.Lang.Error, 
+                                                         pcErrorString AS CHARACTER):
+                                                
+        SUPER (poInnerException, pcErrorString).
+        
+    END CONSTRUCTOR.
+    
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the DatasetBufferFillFailedException class
         Notes:                          
@@ -53,56 +53,56 @@ CLASS Consultingwerk.OERA.Exceptions.DatasetBufferFillFailedException
         @param pcErrorString The error message associated with this Exception object
         @param piMessageNumber The error message number associated with this Exception object
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC DatasetBufferFillFailedException (poInnerException AS Progress.Lang.Error, 
-            	                                         pcErrorString AS CHARACTER, 
-            	                                         piMessageNumber AS INTEGER):
-	                                            
-		SUPER (poInnerException, pcErrorString, piMessageNumber).
-		
-	END CONSTRUCTOR.
-	
+    CONSTRUCTOR PUBLIC DatasetBufferFillFailedException (poInnerException AS Progress.Lang.Error, 
+                                                         pcErrorString AS CHARACTER, 
+                                                         piMessageNumber AS INTEGER):
+                                                
+        SUPER (poInnerException, pcErrorString, piMessageNumber).
+        
+    END CONSTRUCTOR.
+    
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the DatasetBufferFillFailedException class
         Notes:                          
         @param poInnerException The reference to the original error
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC DatasetBufferFillFailedException (poInnerException AS Progress.Lang.Error):
-	    
-		SUPER (poInnerException).
-		
-	END CONSTRUCTOR.
-	
+    CONSTRUCTOR PUBLIC DatasetBufferFillFailedException (poInnerException AS Progress.Lang.Error):
+        
+        SUPER (poInnerException).
+        
+    END CONSTRUCTOR.
+    
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the DatasetBufferFillFailedException class
         Notes:                          
         @param pcErrorString The error message associated with this Exception object
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC DatasetBufferFillFailedException (pcErrorString AS CHARACTER):
-	    
-		SUPER (pcErrorString).
-		
-	END CONSTRUCTOR.
-	
+    CONSTRUCTOR PUBLIC DatasetBufferFillFailedException (pcErrorString AS CHARACTER):
+        
+        SUPER (pcErrorString).
+        
+    END CONSTRUCTOR.
+    
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the DatasetBufferFillFailedException class
         Notes:                          
         @param pcErrorString The error message associated with this Exception object
         @param piMessageNumber The error message number associated with this Exception object
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC DatasetBufferFillFailedException (pcErrorString AS CHARACTER, 
-	                                                     piMessageNumber AS INTEGER):
-	    
-		SUPER (pcErrorString, piMessageNumber).
-		
-	END CONSTRUCTOR.
-	
+    CONSTRUCTOR PUBLIC DatasetBufferFillFailedException (pcErrorString AS CHARACTER, 
+                                                         piMessageNumber AS INTEGER):
+        
+        SUPER (pcErrorString, piMessageNumber).
+        
+    END CONSTRUCTOR.
+    
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the DatasetBufferFillFailedException class
         Notes:                          
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC DatasetBufferFillFailedException ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC DatasetBufferFillFailedException ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
 END CLASS.

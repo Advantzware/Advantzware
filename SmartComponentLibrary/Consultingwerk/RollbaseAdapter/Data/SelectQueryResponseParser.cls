@@ -33,8 +33,8 @@ CLASS Consultingwerk.RollbaseAdapter.Data.SelectQueryResponseParser:
         @param plcResponse The response to the REST SelectQuery method
         @param phBuffer The buffer handle to create records into
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID ParseJsonResponse (plcResponse AS LONGCHAR,
-	                                      phBuffer AS HANDLE):
+    METHOD PUBLIC VOID ParseJsonResponse (plcResponse AS LONGCHAR,
+                                          phBuffer AS HANDLE):
         DEFINE VARIABLE oArray   AS Progress.Json.ObjectModel.JsonArray             NO-UNDO . 
         DEFINE VARIABLE oParser  AS Progress.Json.ObjectModel.ObjectModelParser     NO-UNDO . 
         DEFINE VARIABLE oAdapter AS Consultingwerk.RollbaseAdapter.IRollbaseAdapter NO-UNDO .
@@ -97,6 +97,6 @@ CLASS Consultingwerk.RollbaseAdapter.Data.SelectQueryResponseParser:
             phBuffer:BUFFER-RELEASE () . 
         END.
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

@@ -39,21 +39,30 @@ CLASS Consultingwerk.Studio.AnnotationParser:
     DEFINE VARIABLE oParseUnit AS ParseUnit NO-UNDO . 
 
     /*------------------------------------------------------------------------------
+        Purpose: Returns the reference to the ParseUnit 
+        Notes:   
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY ParseUnit AS ParseUnit NO-UNDO 
+    GET:
+        RETURN oParseUnit . 
+    END GET. 
+
+    /*------------------------------------------------------------------------------
         Purpose: Constructor for the AnnotationParser class
         Notes:   
         @param pcFileName The file name to parse
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC AnnotationParser (pcFileName AS CHARACTER):
-		SUPER ().
-		
+    CONSTRUCTOR PUBLIC AnnotationParser (pcFileName AS CHARACTER):
+        SUPER ().
+        
         ProparseHelper:SetProparseEnvironment() . 
         ProparseHelper:ExportDatabaseSchema () .
         
-        ProparseHelper:Initialize() .		
-        		
-        oParseUnit = ProparseHelper:ParseFile (pcFileName) .        		
-        		
-	END CONSTRUCTOR.
+        ProparseHelper:Initialize() .        
+                
+        oParseUnit = ProparseHelper:ParseFile (pcFileName) .                
+                
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Locates Annotations with the specified name
@@ -61,9 +70,9 @@ CLASS Consultingwerk.Studio.AnnotationParser:
         @param pcName The name of the Annotation to locate
         @return The ListAnnotation with the list of the annotations
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC ListAnnotation FindAnnotations (pcName AS CHARACTER):
-		
-		DEFINE VARIABLE oList AS ListAnnotation NO-UNDO.
+    METHOD PUBLIC ListAnnotation FindAnnotations (pcName AS CHARACTER):
+        
+        DEFINE VARIABLE oList AS ListAnnotation NO-UNDO.
 
         oList = NEW ListAnnotation () .
 
@@ -75,9 +84,9 @@ CLASS Consultingwerk.Studio.AnnotationParser:
                              pcName,
                              oList) . 
 
-		RETURN oList .
+        RETURN oList .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Walks the AST of the ParseUnit and searchs for Annotations with the 
@@ -87,10 +96,10 @@ CLASS Consultingwerk.Studio.AnnotationParser:
         @param pcName The name of the annotation to locate
         @param poList The ListAnnotation with the list to add the annotations to 
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID WalkAst (poASTNode AS JPNode,
-	                               pcName AS CHARACTER,
-	                               poList AS ListAnnotation):
-		
+    METHOD PROTECTED VOID WalkAst (poASTNode AS JPNode,
+                                   pcName AS CHARACTER,
+                                   poList AS ListAnnotation):
+        
         DO WHILE VALID-OBJECT (poASTNode):
     
             IF NodeTypes:getTypeName(poASTNode:getType()) = "ANNOTATION":U AND 
@@ -110,6 +119,6 @@ CLASS Consultingwerk.Studio.AnnotationParser:
         END.
 
 
-	END METHOD .
+    END METHOD .
 &ENDIF
 END CLASS.

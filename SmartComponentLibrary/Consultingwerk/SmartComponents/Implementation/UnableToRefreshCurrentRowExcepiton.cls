@@ -11,7 +11,7 @@
  **********************************************************************/ 
  /*------------------------------------------------------------------------
     File        : UnableToRefreshCurrentRowExcepiton
-    Purpose     : 
+    Purpose     : Depricated (typo in class name). Please use UnableToRefreshCurrentRowException
     Syntax      : 
     Description : 
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
@@ -25,7 +25,7 @@ USING Consultingwerk.Exceptions.* FROM PROPATH .
 USING Progress.Lang.*             FROM PROPATH .
 
 CLASS Consultingwerk.SmartComponents.Implementation.UnableToRefreshCurrentRowExcepiton 
-    INHERITS Exception: 
+    INHERITS Exception ABSTRACT: 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the UnableToRefreshCurrentRowExceptionclass
@@ -33,11 +33,11 @@ CLASS Consultingwerk.SmartComponents.Implementation.UnableToRefreshCurrentRowExc
         @param poInnerException The reference to the original error
         @param pcErrorString The error message associated with this UnableToRefreshCurrentRowExceptionobject
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC UnableToRefreshCurrentRowExcepiton (poInnerException AS Progress.Lang.Error, 
-	                                                       pcErrorString AS CHARACTER):
-		SUPER (poInnerException, pcErrorString).
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC UnableToRefreshCurrentRowExcepiton (poInnerException AS Progress.Lang.Error, 
+                                                           pcErrorString AS CHARACTER):
+        SUPER (poInnerException, pcErrorString).
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the UnableToRefreshCurrentRowException class
@@ -46,52 +46,52 @@ CLASS Consultingwerk.SmartComponents.Implementation.UnableToRefreshCurrentRowExc
         @param pcErrorString The error message associated with this UnableToRefreshCurrentRowException object
         @param piMessageNumber The error message number associated with this UnableToRefreshCurrentRowException object
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC UnableToRefreshCurrentRowExcepiton (poInnerException AS Progress.Lang.Error, 
-	                                                       pcErrorString AS CHARACTER, 
-	                                                       piMessageNumber AS INTEGER):
-		SUPER (poInnerException, pcErrorString, piMessageNumber).
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC UnableToRefreshCurrentRowExcepiton (poInnerException AS Progress.Lang.Error, 
+                                                           pcErrorString AS CHARACTER, 
+                                                           piMessageNumber AS INTEGER):
+        SUPER (poInnerException, pcErrorString, piMessageNumber).
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the UnableToRefreshCurrentRowException class
         Notes:                          
         @param poInnerException The reference to the original error
-    ------------------------------------------------------------------------------*/		
-	CONSTRUCTOR PUBLIC UnableToRefreshCurrentRowExcepiton (poInnerException AS Progress.Lang.Error):
-		SUPER (poInnerException).
-		
-	END CONSTRUCTOR.
+    ------------------------------------------------------------------------------*/        
+    CONSTRUCTOR PUBLIC UnableToRefreshCurrentRowExcepiton (poInnerException AS Progress.Lang.Error):
+        SUPER (poInnerException).
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the UnableToRefreshCurrentRowException class
         Notes:                          
         @param pcErrorString The error message associated with this UnableToRefreshCurrentRowException object
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC UnableToRefreshCurrentRowExcepiton (pcErrorString AS CHARACTER):
-		SUPER (pcErrorString).
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC UnableToRefreshCurrentRowExcepiton (pcErrorString AS CHARACTER):
+        SUPER (pcErrorString).
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the UnableToRefreshCurrentRowException class
         Notes:                          
         @param pcErrorString The error message associated with this UnableToRefreshCurrentRowException object
         @param piMessageNumber The error message number associated with this UnableToRefreshCurrentRowException object
-    ------------------------------------------------------------------------------*/		
-	CONSTRUCTOR PUBLIC UnableToRefreshCurrentRowExcepiton (pcErrorString AS CHARACTER, 
-	                                                       piMessageNumber AS INTEGER):
-		SUPER (pcErrorString, piMessageNumber).
-		
-	END CONSTRUCTOR.
+    ------------------------------------------------------------------------------*/        
+    CONSTRUCTOR PUBLIC UnableToRefreshCurrentRowExcepiton (pcErrorString AS CHARACTER, 
+                                                           piMessageNumber AS INTEGER):
+        SUPER (pcErrorString, piMessageNumber).
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the UnableToRefreshCurrentRowException class
         Notes:                          
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC UnableToRefreshCurrentRowExcepiton ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC UnableToRefreshCurrentRowExcepiton ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
 END CLASS.

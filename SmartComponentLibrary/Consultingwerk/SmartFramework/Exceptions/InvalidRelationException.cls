@@ -37,12 +37,12 @@ CLASS Consultingwerk.SmartFramework.Exceptions.InvalidRelationException
         @param poInnerException The reference to the original error
         @param pcErrorString The error message associated with this Exception object
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC InvalidRelationException (poInnerException AS Progress.Lang.Error, 
-	                                             pcErrorString AS CHARACTER):
-		SUPER (poInnerException, pcErrorString).
-		
-	END CONSTRUCTOR.
-	
+    CONSTRUCTOR PUBLIC InvalidRelationException (poInnerException AS Progress.Lang.Error, 
+                                                 pcErrorString AS CHARACTER):
+        SUPER (poInnerException, pcErrorString).
+        
+    END CONSTRUCTOR.
+    
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the Exception class
         Notes:                          
@@ -50,55 +50,55 @@ CLASS Consultingwerk.SmartFramework.Exceptions.InvalidRelationException
         @param pcErrorMessage The error message associated with this Exception object
         @param piMessageNumber The error message number associated with this Exception object
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC InvalidRelationException (poInnerException AS Progress.Lang.Error, 
-	                                             pcErrorMessage AS CHARACTER, 
-	                                             piMessageNumber AS INTEGER):
-	                                                 
-		SUPER (poInnerException, pcErrorMessage, piMessageNumber).
-		
-	END CONSTRUCTOR.
-	
+    CONSTRUCTOR PUBLIC InvalidRelationException (poInnerException AS Progress.Lang.Error, 
+                                                 pcErrorMessage AS CHARACTER, 
+                                                 piMessageNumber AS INTEGER):
+                                                     
+        SUPER (poInnerException, pcErrorMessage, piMessageNumber).
+        
+    END CONSTRUCTOR.
+    
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the Exception class
         Notes:                          
         @param poInnerException The reference to the original error
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC InvalidRelationException (poInnerException AS Progress.Lang.Error):
-		SUPER (poInnerException).
-		
-	END CONSTRUCTOR.
-	
+    CONSTRUCTOR PUBLIC InvalidRelationException (poInnerException AS Progress.Lang.Error):
+        SUPER (poInnerException).
+        
+    END CONSTRUCTOR.
+    
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the Exception class
         Notes:                          
         @param pcErrorString The error message associated with this Exception object
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC InvalidRelationException (pcErrorString AS CHARACTER):
-		SUPER (pcErrorString).
-		
-	END CONSTRUCTOR.
-	
-	
+    CONSTRUCTOR PUBLIC InvalidRelationException (pcErrorString AS CHARACTER):
+        SUPER (pcErrorString).
+        
+    END CONSTRUCTOR.
+    
+    
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the Exception class
         Notes:                          
         @param pcErrorMessage The error message associated with this Exception object
         @param piMessageNumber The error message number associated with this Exception object
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC InvalidRelationException (pcErrorMessage AS CHARACTER, 
-	                                             piMessageNumber AS INTEGER):
-	                                                 
-		SUPER (pcErrorMessage, piMessageNumber).
-		
-	END CONSTRUCTOR.
-	
+    CONSTRUCTOR PUBLIC InvalidRelationException (pcErrorMessage AS CHARACTER, 
+                                                 piMessageNumber AS INTEGER):
+                                                     
+        SUPER (pcErrorMessage, piMessageNumber).
+        
+    END CONSTRUCTOR.
+    
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the Exception class
         Notes:                          
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC InvalidRelationException ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC InvalidRelationException ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
 END CLASS.

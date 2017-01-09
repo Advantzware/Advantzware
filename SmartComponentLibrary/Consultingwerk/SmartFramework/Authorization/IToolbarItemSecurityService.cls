@@ -31,7 +31,7 @@ INTERFACE Consultingwerk.SmartFramework.Authorization.IToolbarItemSecurityServic
         @param pcToolbarItemKey The name of the toolbar item 
         @return Logical value indicating if the given toolbar item is restricted for the current user, TRUE means the user does not have access to the toolbar item
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL IsToolbarItemRestricted (pcObjectName AS CHARACTER,
-	                                               pcToolbarItemKey AS CHARACTER).
+    METHOD PUBLIC LOGICAL IsToolbarItemRestricted (pcObjectName AS CHARACTER,
+                                                   pcToolbarItemKey AS CHARACTER).
 
 END INTERFACE.

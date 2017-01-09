@@ -34,7 +34,7 @@ INTERFACE Consultingwerk.Windows.IFormToolbarCustomizer:
         @param poToolbarsManager The UltraToolbarsManager instance to customizer
         @param poOwningForm The owning Form 
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID CustomizeToolbar (poToolbarsManager AS UltraToolbarsManager,
-	                                     poOwningForm AS System.Windows.Forms.Form).
+    METHOD PUBLIC VOID CustomizeToolbar (poToolbarsManager AS UltraToolbarsManager,
+                                         poOwningForm AS System.Windows.Forms.Form).
 
 END INTERFACE.

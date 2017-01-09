@@ -37,7 +37,7 @@ CLASS Consultingwerk.OERA.CanFindParameter
     {&SERIALIZABLE}:
 
     {Consultingwerk/JsonSerializableProperty.i FindString CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i Result LOGICAL "INIT FALSE"} .
+    {Consultingwerk/JsonSerializableProperty.i Result LOGICAL "INITIAL FALSE"} .
     {Consultingwerk/JsonSerializableProperty.i TableName CHARACTER} .
 
     /*------------------------------------------------------------------------------
@@ -45,12 +45,12 @@ CLASS Consultingwerk.OERA.CanFindParameter
         Notes:   
         @param pcFindString The value for the FindString
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC CanFindParameter (pcFindString AS CHARACTER):
-		THIS-OBJECT ().
+    CONSTRUCTOR PUBLIC CanFindParameter (pcFindString AS CHARACTER):
+        THIS-OBJECT ().
 
         ASSIGN THIS-OBJECT:FindString = pcFindString . 
-		
-	END CONSTRUCTOR.
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the CanFindParameter class

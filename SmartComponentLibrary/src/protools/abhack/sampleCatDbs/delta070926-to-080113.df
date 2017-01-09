@@ -1,0 +1,75 @@
+ADD TABLE "ahpreproc"
+  LABEL "ahpreproc (preprocessors)"
+  DUMP-NAME "ahpreproc"
+
+ADD FIELD "srcId" OF "ahpreproc" AS integer 
+  FORMAT ">,>>>,>>>,>>9"
+  INITIAL "0"
+  POSITION 2
+  HELP "Source Unique ID.  Limited to 2,4 billions before 10.1B"
+  ORDER 10
+
+ADD FIELD "cName" OF "ahpreproc" AS character 
+  FORMAT "x(16)"
+  INITIAL ""
+  POSITION 3
+  HELP "Procedure Name"
+  ORDER 30
+
+ADD FIELD "cType" OF "ahpreproc" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 4
+  HELP "scoped global or undefine"
+  ORDER 40
+
+ADD FIELD "iLineNum" OF "ahpreproc" AS integer 
+  FORMAT ">,>>>,>>9"
+  INITIAL "0"
+  POSITION 5
+  ORDER 20
+
+ADD FIELD "cValue" OF "ahpreproc" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  POSITION 6
+  ORDER 50
+
+ADD FIELD "iIncludeLevel" OF "ahpreproc" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  POSITION 7
+  ORDER 60
+
+ADD INDEX "srcIdLineNum" ON "ahpreproc" 
+  PRIMARY
+  INDEX-FIELD "srcId" ASCENDING 
+  INDEX-FIELD "iLineNum" ASCENDING 
+
+ADD INDEX "cName" ON "ahpreproc" 
+  DESCRIPTION "Anticipating the need of querying preprocs"
+  INDEX-FIELD "cName" ASCENDING 
+
+ADD INDEX "cValue" ON "ahpreproc" 
+  WORD
+  DESCRIPTION "Anticipating the need of querying preprocs"
+  INDEX-FIELD "cValue" ASCENDING 
+
+ADD INDEX "srcIdName" ON "ahpreproc" 
+  INDEX-FIELD "srcId" ASCENDING 
+  INDEX-FIELD "cName" ASCENDING 
+
+UPDATE FIELD "abhackVersion" OF "ahdbversion"
+  INITIAL "13-JAN-2008"
+
+UPDATE FIELD "cAccessMode" OF "ahgvar"
+  POSITION 8
+
+UPDATE FIELD "cClassFile" OF "ahgvar"
+  POSITION 9
+
+.
+PSC
+cpstream=ISO8859-15
+.
+0000001838

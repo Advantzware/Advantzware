@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2006-2013 by Consultingwerk Ltd. ("CW") -            *
+ * Copyright (C) 2006-2016 by Consultingwerk Ltd. ("CW") -            *
  * www.consultingwerk.de and other contributors as listed             *
  * below.  All Rights Reserved.                                       *
  *                                                                    *
@@ -11,39 +11,43 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : SessionInfoForm
-    Purpose     : Display AVM and SmartComponent Library related session 
+    Purpose     : Display AVM and SmartComponent Library related session
                   information for trouble shooting purposes
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Wed Jun 05 13:50:44 CEST 2013
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Consultingwerk.*                    FROM PROPATH . 
-USING Consultingwerk.Assertion.*          FROM PROPATH .
-USING Consultingwerk.Framework.*          FROM PROPATH . 
-USING Consultingwerk.Forms.*              FROM PROPATH .
-USING Consultingwerk.Util.*               FROM PROPATH . 
-USING Consultingwerk.Windows.Session.*    FROM PROPATH .  
-USING Consultingwerk.Windows.WebClient.*  FROM PROPATH .
-USING Progress.Lang.*                     FROM PROPATH .
-USING Infragistics.Win.UltraWinListView.* FROM ASSEMBLY . 
+USING Consultingwerk.*                       FROM PROPATH .
+USING Consultingwerk.Assertion.*             FROM PROPATH .
+USING Consultingwerk.Framework.*             FROM PROPATH .
+USING Consultingwerk.Framework.Session.*     FROM PROPATH .
+USING Consultingwerk.Forms.*                 FROM PROPATH .
+USING Consultingwerk.Util.*                  FROM PROPATH .
+USING Consultingwerk.Windows.Session.*       FROM PROPATH .
+USING Consultingwerk.Windows.Util.Controls.* FROM PROPATH.
+USING Consultingwerk.Windows.WebClient.*     FROM PROPATH .
+USING Progress.Lang.*                        FROM PROPATH .
+USING Infragistics.Win.UltraWinListView.*    FROM ASSEMBLY .
 
-CLASS Consultingwerk.Windows.Session.SessionInfoForm 
+CLASS Consultingwerk.Windows.Session.SessionInfoForm
     INHERITS BaseForm
-    USE-WIDGET-POOL: 
+    USE-WIDGET-POOL:
 
     DEFINE PRIVATE VARIABLE button2 AS System.Windows.Forms.Button NO-UNDO.
+    DEFINE PRIVATE VARIABLE button3 AS System.Windows.Forms.Button NO-UNDO.
     DEFINE PRIVATE VARIABLE fileLookupControl1 AS Consultingwerk.Windows.Session.FileLookupControl NO-UNDO.
+    DEFINE PRIVATE VARIABLE lvAssemblies AS Infragistics.Win.UltraWinListView.UltraListView NO-UNDO.
     DEFINE PRIVATE VARIABLE m_SessionInfoForm_Toolbars_Dock_Area_Top AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_SessionInfoForm_Toolbars_Dock_Area_Right AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_SessionInfoForm_Toolbars_Dock_Area_Left AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_SessionInfoForm_Toolbars_Dock_Area_Bottom AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE button1 AS System.Windows.Forms.Button NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE lvDatabases AS Infragistics.Win.UltraWinListView.UltraListView NO-UNDO.
     DEFINE PRIVATE VARIABLE lvInternationalization AS Infragistics.Win.UltraWinListView.UltraListView NO-UNDO.
     DEFINE PRIVATE VARIABLE lvProcess AS Infragistics.Win.UltraWinListView.UltraListView NO-UNDO.
@@ -56,6 +60,7 @@ CLASS Consultingwerk.Windows.Session.SessionInfoForm
     DEFINE PRIVATE VARIABLE lvPropath AS Infragistics.Win.UltraWinListView.UltraListView NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraTile10 AS Infragistics.Win.Misc.UltraTile NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraTile11 AS Infragistics.Win.Misc.UltraTile NO-UNDO.
+    DEFINE PRIVATE VARIABLE ultraTile12 AS Infragistics.Win.Misc.UltraTile NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraTile2 AS Infragistics.Win.Misc.UltraTile NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraTile3 AS Infragistics.Win.Misc.UltraTile NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraTile4 AS Infragistics.Win.Misc.UltraTile NO-UNDO.
@@ -65,44 +70,47 @@ CLASS Consultingwerk.Windows.Session.SessionInfoForm
     DEFINE PRIVATE VARIABLE ultraTile8 AS Infragistics.Win.Misc.UltraTile NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraTile9 AS Infragistics.Win.Misc.UltraTile NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraTilePanel1 AS Infragistics.Win.Misc.UltraTilePanel NO-UNDO.
-    
-    { Consultingwerk/Framework/ttServiceTable.i }  
-    
-    DEFINE VARIABLE oFullWindowDragManager1 AS Consultingwerk.Windows.Util.Forms.FullWindowDragManager NO-UNDO . 
+
+    { Consultingwerk/Framework/ttServiceTable.i }
+
+    DEFINE VARIABLE oFullWindowDragManager1 AS Consultingwerk.Windows.Util.Forms.FullWindowDragManager NO-UNDO .
     DEFINE PRIVATE VARIABLE ultraToolbarsManager1 AS Infragistics.Win.UltraWinToolbars.UltraToolbarsManager NO-UNDO.
-    
+
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the SessionInfoForm class 
-        Notes:   
+        Purpose: Constructor for the SessionInfoForm class
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC SessionInfoForm ():
-		
+    CONSTRUCTOR PUBLIC SessionInfoForm ():
+
         SUPER().
         InitializeComponent().
-        
+
         &IF NOT PROVERSION BEGINS "10.2":U AND NOT PROVERSION BEGINS "11.0" &THEN
         THIS-OBJECT:ComponentsCollection:Add (THIS-OBJECT:components).
         &ENDIF
-                        
+
         oFullWindowDragManager1 = NEW Consultingwerk.Windows.Util.Forms.FullWindowDragManager (THIS-OBJECT) .
-                                
+
+        IF NOT VALID-HANDLE (SessionManager:ContextDataset) THEN
+            button3:Enabled = FALSE .
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the Click event of the button2 
-        Notes:   
+        Purpose: Event handler for the Click event of the button2
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event 
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID button2_Click (sender AS System.Object, 
-	                                   e AS System.EventArgs):
+    METHOD PRIVATE VOID button2_Click (sender AS System.Object,
+                                       e AS System.EventArgs):
 
 &IF DEFINED (SmartComponentLibrary) NE 0 &THEN
-        DEFINE VARIABLE oForm     AS ProWcAppPropertiesForm NO-UNDO . 
+        DEFINE VARIABLE oForm     AS ProWcAppPropertiesForm NO-UNDO .
         DEFINE VARIABLE cFileName AS CHARACTER              NO-UNDO .
 
         ASSIGN cFileName = StartupParameterHelper:GetStartupParameterValue ("prowcapp":U) .
@@ -110,27 +118,49 @@ CLASS Consultingwerk.Windows.Session.SessionInfoForm
         FileAssert:Exists (cFileName) .
 
         oForm = NEW ProWcAppPropertiesForm () .
-        oForm:LoadFrom (FileHelper:FindFile (cFileName)) .     
-    
+        oForm:LoadFrom (FileHelper:FindFile (cFileName)) .
+
+        WAIT-FOR oForm:ShowDialog () .
+&ENDIF
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the Click event of the button3
+        Notes:
+        @param sender The reference to the object that raised the event
+        @param e The System.EventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID button3_Click (sender AS System.Object,
+                                       e AS System.EventArgs):
+
+        DEFINE VARIABLE oForm AS ContextDatasetViewerForm NO-UNDO .
+
+        oForm = NEW ContextDatasetViewerForm () .
+
         WAIT-FOR oForm:ShowDialog () .
 
         CATCH err AS Progress.Lang.Error:
-        	ErrorHelper:ShowErrorMessage (err) .	
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
-&ENDIF
-	END METHOD .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design 
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    END METHOD .
+
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -187,6 +217,9 @@ CLASS Consultingwerk.Windows.Session.SessionInfoForm
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE buttonTool4 AS Infragistics.Win.UltraWinToolbars.ButtonTool NO-UNDO.
         buttonTool4 = NEW Infragistics.Win.UltraWinToolbars.ButtonTool("Windows Explorer":U).
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE ultraListViewSubItemColumn10 AS Infragistics.Win.UltraWinListView.UltraListViewSubItemColumn NO-UNDO.
+        ultraListViewSubItemColumn10 = NEW Infragistics.Win.UltraWinListView.UltraListViewSubItemColumn("Location":U).
         THIS-OBJECT:button1 = NEW System.Windows.Forms.Button().
         THIS-OBJECT:ultraTilePanel1 = NEW Infragistics.Win.Misc.UltraTilePanel().
         THIS-OBJECT:ultraTile1 = NEW Infragistics.Win.Misc.UltraTile().
@@ -216,6 +249,9 @@ CLASS Consultingwerk.Windows.Session.SessionInfoForm
         THIS-OBJECT:m_SessionInfoForm_Toolbars_Dock_Area_Top = NEW Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea().
         THIS-OBJECT:m_SessionInfoForm_Toolbars_Dock_Area_Bottom = NEW Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea().
         THIS-OBJECT:button2 = NEW System.Windows.Forms.Button().
+        THIS-OBJECT:button3 = NEW System.Windows.Forms.Button().
+        THIS-OBJECT:ultraTile12 = NEW Infragistics.Win.Misc.UltraTile().
+        THIS-OBJECT:lvAssemblies = NEW Infragistics.Win.UltraWinListView.UltraListView().
         CAST(THIS-OBJECT:ultraTilePanel1, System.ComponentModel.ISupportInitialize):BeginInit().
         THIS-OBJECT:ultraTilePanel1:SuspendLayout().
         THIS-OBJECT:ultraTile1:SuspendLayout().
@@ -238,6 +274,8 @@ CLASS Consultingwerk.Windows.Session.SessionInfoForm
         CAST(THIS-OBJECT:lvServiceDefinitions, System.ComponentModel.ISupportInitialize):BeginInit().
         THIS-OBJECT:ultraTile11:SuspendLayout().
         CAST(THIS-OBJECT:ultraToolbarsManager1, System.ComponentModel.ISupportInitialize):BeginInit().
+        THIS-OBJECT:ultraTile12:SuspendLayout().
+        CAST(THIS-OBJECT:lvAssemblies, System.ComponentModel.ISupportInitialize):BeginInit().
         THIS-OBJECT:SuspendLayout().
         /*  */
         /* button1 */
@@ -267,6 +305,7 @@ CLASS Consultingwerk.Windows.Session.SessionInfoForm
         THIS-OBJECT:ultraTilePanel1:Tiles:Add(THIS-OBJECT:ultraTile8).
         THIS-OBJECT:ultraTilePanel1:Tiles:Add(THIS-OBJECT:ultraTile9).
         THIS-OBJECT:ultraTilePanel1:Tiles:Add(THIS-OBJECT:ultraTile11).
+        THIS-OBJECT:ultraTilePanel1:Tiles:Add(THIS-OBJECT:ultraTile12).
         /*  */
         /* ultraTile1 */
         /*  */
@@ -572,9 +611,40 @@ CLASS Consultingwerk.Windows.Session.SessionInfoForm
         THIS-OBJECT:button2:UseVisualStyleBackColor = TRUE.
         THIS-OBJECT:button2:Click:Subscribe(THIS-OBJECT:button2_Click).
         /*  */
+        /* button3 */
+        /*  */
+        resources:ApplyResources(THIS-OBJECT:button3, "button3":U).
+        THIS-OBJECT:button3:Name = "button3":U.
+        THIS-OBJECT:button3:UseCompatibleTextRendering = TRUE.
+        THIS-OBJECT:button3:UseVisualStyleBackColor = TRUE.
+        THIS-OBJECT:button3:Click:Subscribe(THIS-OBJECT:button3_Click).
+        /*  */
+        /* ultraTile12 */
+        /*  */
+        resources:ApplyResources(THIS-OBJECT:ultraTile12, "ultraTile12":U).
+        THIS-OBJECT:ultraTile12:Control = THIS-OBJECT:lvAssemblies.
+        THIS-OBJECT:ultraTile12:Controls:Add(THIS-OBJECT:lvAssemblies).
+        THIS-OBJECT:ultraTile12:Name = "ultraTile12":U.
+        /*  */
+        /* lvAssemblies */
+        /*  */
+        resources:ApplyResources(THIS-OBJECT:lvAssemblies, "lvAssemblies":U).
+        THIS-OBJECT:lvAssemblies:MainColumn:Text = resources:GetString("ultraListView1.MainColumn.Text":U).
+        THIS-OBJECT:lvAssemblies:MainColumn:Width = 150.
+        THIS-OBJECT:lvAssemblies:Name = "lvAssemblies":U.
+        ultraListViewSubItemColumn10:Key = "Location":U.
+        resources:ApplyResources(ultraListViewSubItemColumn10, "ultraListViewSubItemColumn10":U).
+        @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
+        DEFINE VARIABLE arrayvar11 AS Infragistics.Win.UltraWinListView.UltraListViewSubItemColumn EXTENT 1 NO-UNDO.
+        arrayvar11[1] = ultraListViewSubItemColumn10.
+        THIS-OBJECT:lvAssemblies:SubItemColumns:AddRange(arrayvar11).
+        THIS-OBJECT:lvAssemblies:View = Infragistics.Win.UltraWinListView.UltraListViewStyle:Details.
+        THIS-OBJECT:lvAssemblies:ViewSettingsDetails:AutoFitColumns = Infragistics.Win.UltraWinListView.AutoFitColumns:ResizeAllColumns.
+        /*  */
         /* SessionInfoForm */
         /*  */
         resources:ApplyResources(THIS-OBJECT, "$this":U).
+        THIS-OBJECT:Controls:Add(THIS-OBJECT:button3).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:button2).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:ultraTilePanel1).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:button1).
@@ -605,561 +675,600 @@ CLASS Consultingwerk.Windows.Session.SessionInfoForm
         CAST(THIS-OBJECT:lvServiceDefinitions, System.ComponentModel.ISupportInitialize):EndInit().
         THIS-OBJECT:ultraTile11:ResumeLayout(FALSE).
         CAST(THIS-OBJECT:ultraToolbarsManager1, System.ComponentModel.ISupportInitialize):EndInit().
+        THIS-OBJECT:ultraTile12:ResumeLayout(FALSE).
+        CAST(THIS-OBJECT:lvAssemblies, System.ComponentModel.ISupportInitialize):EndInit().
         THIS-OBJECT:ResumeLayout(FALSE).
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
-
-	/*------------------------------------------------------------------------------
-	    Purpose: Event handler for the MouseDoubleClick event of the lvPropath
-	    Notes:
-	    @param sender The reference to the object that raised the event
-	    @param e The MouseEventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID lvPropath_MouseDoubleClick (sender AS System.Object,
-	                                                e AS System.Windows.Forms.MouseEventArgs):
-		
-		DEFINE VARIABLE cAbsolutePath AS CHARACTER NO-UNDO.
-		
-		ASSIGN cAbsolutePath = lvPropath:ActiveItem:SubItems["absolute":U]:Value .
-
-        IF cAbsolutePath > "":U THEN 
-            WindowsExplorerHelper:ShowFileInExplorer (cAbsolutePath) .
-
-	END METHOD.
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the Load event 
-        Notes:   
+        Purpose: Event handler for the MouseDoubleClick event of the lvPropath
+        Notes:
+        @param sender The reference to the object that raised the event
+        @param e The MouseEventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID lvPropath_MouseDoubleClick (sender AS System.Object,
+                                                    e AS System.Windows.Forms.MouseEventArgs):
+
+        DEFINE VARIABLE cAbsolutePath AS CHARACTER NO-UNDO.
+
+        ASSIGN cAbsolutePath = lvPropath:ActiveItem:SubItems["absolute":U]:Value .
+
+        IF cAbsolutePath > "":U THEN
+            WindowsExplorerHelper:ShowFileInExplorer (cAbsolutePath) .
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Raises the Load event
+        Notes:
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
-    
-        IF StartupParameterHelper:GetStartupParameterValue ("prowcapp":U) > "":U THEN 
+
+        IF StartupParameterHelper:GetStartupParameterValue ("prowcapp":U) > "":U THEN
             button2:Visible = TRUE .
-        ELSE   
-            button2:Visible = FALSE .        
-        
+        ELSE
+            button2:Visible = FALSE .
+
         SUPER:OnLoad (e) .
 
-    END METHOD . 
-    
+    END METHOD .
+
     /*------------------------------------------------------------------------------
-        Purpose: Raises the Shown event 
-        Notes:   
+        Purpose: Raises the Shown event
+        Notes:
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
-		
-		SUPER:OnShown (e) .
-		
-		Consultingwerk.Util.UserInterfaceHelper:ProcessEvents() . 
+    METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
+
+        SUPER:OnShown (e) .
+
+        Consultingwerk.Util.UserInterfaceHelper:ProcessEvents() .
 
         THIS-OBJECT:PopulatePropath () .
         THIS-OBJECT:PopulateDatabases () .
         THIS-OBJECT:PopulateSession () .
         THIS-OBJECT:PopulateStartupParameters () .
-        THIS-OBJECT:PopulateInternationalization () . 
+        THIS-OBJECT:PopulateInternationalization () .
         THIS-OBJECT:PopulateProcess () .
         THIS-OBJECT:PopulateServices () .
         THIS-OBJECT:PopulateServiceDefinitions () .
-        THIS-OBJECT:PopulateServers () . 
+        THIS-OBJECT:PopulateServers () .
+        THIS-OBJECT:PopulateAssemblies () .
 
         CATCH err AS Progress.Lang.Error :
-        	ErrorHelper:ShowErrorMessage (err) .	
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Populates the Databases ListView 
-        Notes:   
+        Purpose: Populates the Databases ListView
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID PopulateDatabases ():
 
         DEFINE VARIABLE iEntry AS INTEGER              NO-UNDO .
-        DEFINE VARIABLE oEntry AS UltraListViewItem    NO-UNDO . 
-        DEFINE VARIABLE oImage AS System.Drawing.Image NO-UNDO . 
+        DEFINE VARIABLE oEntry AS UltraListViewItem    NO-UNDO .
+        DEFINE VARIABLE oImage AS System.Drawing.Image NO-UNDO .
 
-        ASSIGN oImage      = ImageHelper:Load ("Consultingwerk\Windows\Session\Images\data.png":U) .
+        ASSIGN oImage      = ImageHelper:Load ("Consultingwerk/Windows/Session/Images/data.png":U) .
 
         DO iEntry = 1 TO NUM-DBS:
 
             oEntry = lvDatabases:Items:Add (STRING (iEntry), LDBNAME (iEntry)) .
-            oEntry:Appearance:Image = oImage . 
+            oEntry:Appearance:Image = oImage .
             oEntry:SubItems["Parameters":U]:Value = DBPARAM (iEntry) .
         END.
 
     END METHOD .
-    
+
+    /**
+     * Purpose:
+     * Notes:
+     *
+     */
+    METHOD PROTECTED VOID PopulateAssemblies():
+
+        DEFINE VARIABLE oAppDomain  AS System.AppDomain                  NO-UNDO .
+        DEFINE VARIABLE oAssemblies AS System.Reflection.Assembly EXTENT NO-UNDO .
+        DEFINE VARIABLE iEntry      AS INTEGER                           NO-UNDO .
+        DEFINE VARIABLE oEntry      AS UltraListViewItem                 NO-UNDO .
+        DEFINE VARIABLE oImage      AS System.Drawing.Image              NO-UNDO .
+
+        ASSIGN oImage      = ImageHelper:Load ("Consultingwerk/Windows/Session/Images/cubes.png":U) .
+               oAppDomain  = System.AppDomain:CurrentDomain.
+               oAssemblies = oAppDomain:GetAssemblies().
+
+        DO iEntry = 1 TO EXTENT(oAssemblies) ON ERROR UNDO, THROW:
+            oEntry = lvAssemblies:Items:Add (oAssemblies[iEntry]:FullName, oAssemblies[iEntry]:FullName) .
+            oEntry:Appearance:Image = oImage .
+            oEntry:SubItems["Location":U]:Value = oAssemblies[iEntry]:Location  .
+
+            @SuppressUnusedWarnings.
+            CATCH ex AS System.NotSupportedException:
+                /* ignore */
+            END CATCH.
+        END.
+
+    END METHOD.
+
     /*------------------------------------------------------------------------------
-        Purpose: Populates the Internationalization ListView 
-        Notes:   
+        Purpose: Populates the Internationalization ListView
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID PopulateInternationalization ():
-		
+    METHOD PROTECTED VOID PopulateInternationalization ():
+
         DEFINE VARIABLE iEntry      AS INTEGER              NO-UNDO .
-        DEFINE VARIABLE oEntry      AS UltraListViewItem    NO-UNDO . 
+        DEFINE VARIABLE oEntry      AS UltraListViewItem    NO-UNDO .
         DEFINE VARIABLE cProperties AS CHARACTER            NO-UNDO.
         DEFINE VARIABLE cProperty   AS CHARACTER            NO-UNDO .
         DEFINE VARIABLE cValue      AS CHARACTER            NO-UNDO .
         DEFINE VARIABLE hCall       AS HANDLE               NO-UNDO .
-        DEFINE VARIABLE oImage      AS System.Drawing.Image NO-UNDO . 
+        DEFINE VARIABLE oImage      AS System.Drawing.Image NO-UNDO .
 
         oEntry = lvInternationalization:Items:Add ("1":U, ".NET UI Culture":U) .
-        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk\Windows\Session\Images\earth.png":U) . 
+        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk/Windows/Session/Images/earth.png":U) .
         oEntry:SubItems["Value":U]:Value = System.Threading.Thread:CurrentThread:CurrentUICulture:Name .
 
         oEntry = lvInternationalization:Items:Add ("2":U, ".NET Culture":U) .
-        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk\Windows\Session\Images\earth.png":U) . 
+        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk/Windows/Session/Images/earth.png":U) .
         oEntry:SubItems["Value":U]:Value = System.Threading.Thread:CurrentThread:CurrentCulture:Name .
 
         oEntry = lvInternationalization:Items:Add ("3":U, ".NET Decimal Separator":U) .
-        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk\Windows\Session\Images\symbol_hash.png":U) . 
+        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk/Windows/Session/Images/symbol_hash.png":U) .
         oEntry:SubItems["Value":U]:Value = SUBSTITUTE ("&1 (&2)":U,
                                                        System.Threading.Thread:CurrentThread:CurrentUICulture:NumberFormat:NumberDecimalSeparator,
                                                        ASC (System.Threading.Thread:CurrentThread:CurrentCulture:NumberFormat:NumberDecimalSeparator)) .
 
         oEntry = lvInternationalization:Items:Add ("4":U, ".NET 1000 Separator":U) .
-        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk\Windows\Session\Images\symbol_hash.png":U) . 
+        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk/Windows/Session/Images/symbol_hash.png":U) .
         oEntry:SubItems["Value":U]:Value = SUBSTITUTE ("&1 (&2)":U,
                                                        System.Threading.Thread:CurrentThread:CurrentUICulture:NumberFormat:NumberDecimalSeparator,
                                                        ASC (System.Threading.Thread:CurrentThread:CurrentCulture:NumberFormat:NumberGroupSeparator)) .
 
         oEntry = lvInternationalization:Items:Add ("5":U, ".NET Short Date Pattern":U) .
-        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk\Windows\Session\Images\calendar_31.png":U) . 
+        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk/Windows/Session/Images/calendar_31.png":U) .
         oEntry:SubItems["Value":U]:Value = System.Threading.Thread:CurrentThread:CurrentUICulture:DateTimeFormat:ShortDatePattern .
 
         oEntry = lvInternationalization:Items:Add ("6":U, "ABL Decimal Separator":U) .
-        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk\Windows\Session\Images\symbol_hash.png":U) . 
+        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk/Windows/Session/Images/symbol_hash.png":U) .
         oEntry:SubItems["Value":U]:Value = SUBSTITUTE ("&1 (&2)":U,
                                                        SESSION:NUMERIC-DECIMAL-POINT,
                                                        ASC (SESSION:NUMERIC-DECIMAL-POINT)) .
 
         oEntry = lvInternationalization:Items:Add ("7":U, "ABL 1000 Separator":U) .
-        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk\Windows\Session\Images\symbol_hash.png":U) . 
+        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk/Windows/Session/Images/symbol_hash.png":U) .
         oEntry:SubItems["Value":U]:Value = SUBSTITUTE ("&1 (&2)":U,
                                                        SESSION:NUMERIC-SEPARATOR,
                                                        ASC (SESSION:NUMERIC-SEPARATOR)) .
 
         oEntry = lvInternationalization:Items:Add ("8":U, "ABL Date Format":U) .
-        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk\Windows\Session\Images\calendar_31.png":U) . 
+        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk/Windows/Session/Images/calendar_31.png":U) .
         oEntry:SubItems["Value":U]:Value = SESSION:DATE-FORMAT .
 
         /* and now repeat the CP session properties */
         ASSIGN cProperties = LIST-QUERY-ATTRS (SESSION:HANDLE)
-               oImage      = ImageHelper:Load ("Consultingwerk\Windows\Session\Images\font.png":U) .
+               oImage      = ImageHelper:Load ("Consultingwerk/Windows/Session/Images/font.png":U) .
 
         loop:
         DO iEntry = 1 TO NUM-ENTRIES (cProperties) ON ERROR UNDO, THROW:
 
             ASSIGN cProperty = ENTRY (iEntry, cProperties) .
 
-            IF NOT cProperty BEGINS "CP":U THEN NEXT . 
-    
-            IF NOT CAN-QUERY (SESSION:HANDLE, cProperty) THEN 
-                NEXT . 
+            IF NOT cProperty BEGINS "CP":U THEN
+                NEXT .
+
+            IF NOT CAN-QUERY (SESSION:HANDLE, cProperty) THEN
+                NEXT .
 
             DO ON ERROR UNDO, THROW:
 
                 CREATE CALL hCall.
-                
-                ASSIGN hCall:IN-HANDLE = SESSION:HANDLE 
-                       hCall:CALL-TYPE = GET-ATTR-CALL-TYPE  
-                       hCall:CALL-NAME = cProperty . 
-            
-                hCall:INVOKE () NO-ERROR . 
 
-                IF ERROR-STATUS:NUM-MESSAGES > 0 THEN 
-                    NEXT loop . 
+                ASSIGN hCall:IN-HANDLE = SESSION:HANDLE
+                       hCall:CALL-TYPE = GET-ATTR-CALL-TYPE
+                       hCall:CALL-NAME = cProperty .
+
+                hCall:INVOKE () NO-ERROR .
+
+                IF ERROR-STATUS:NUM-MESSAGES > 0 THEN
+                    NEXT loop .
 
                 ASSIGN cValue = hCall:RETURN-VALUE .
-                
+
+                @SuppressUnusedWarnings.
                 CATCH err AS Progress.Lang.Error:
-                    NEXT loop .     
+                    NEXT loop .
                 END CATCH.
-            END. 
+            END.
 
             oEntry = lvInternationalization:Items:Add (STRING (iEntry), cProperty) .
-            oEntry:Appearance:Image = oImage . 
-            
-            IF FILE-INFO:FULL-PATHNAME > "":U THEN 
+            oEntry:Appearance:Image = oImage .
+
+            IF FILE-INFORMATION:FULL-PATHNAME > "":U THEN
                 oEntry:SubItems["Value":U]:Value = BOX (cValue) .
 
             FINALLY:
-                Consultingwerk.Util.GarbageCollectorHelper:DeleteObject (hCall) .       
+                Consultingwerk.Util.GarbageCollectorHelper:DeleteObject (hCall) .
             END FINALLY.
         END.
-        
-	END METHOD .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Populates the Process ListView 
-        Notes:   
+        Purpose: Populates the Process ListView
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID PopulateProcess ():
-		
-        DEFINE VARIABLE oEntry      AS UltraListViewItem    NO-UNDO . 
+    METHOD PROTECTED VOID PopulateProcess ():
+
+        DEFINE VARIABLE oEntry      AS UltraListViewItem    NO-UNDO .
 
         oEntry = lvProcess:Items:Add ("1":U, "PID":U) .
-        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk\Windows\Session\Images\cpu.png":U) . 
+        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk/Windows/Session/Images/cpu.png":U) .
         oEntry:SubItems["Value":U]:Value = System.Diagnostics.Process:GetCurrentProcess():Id .
 
         oEntry = lvProcess:Items:Add ("2":U, "Start Time":U) .
-        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk\Windows\Session\Images\cpu.png":U) . 
+        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk/Windows/Session/Images/cpu.png":U) .
         oEntry:SubItems["Value":U]:Value = STRING (System.Diagnostics.Process:GetCurrentProcess():StartTime, "99.99.9999 hh:mm:ss":U) .
 
         oEntry = lvProcess:Items:Add ("3":U, "Executable":U) .
-        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk\Windows\Session\Images\window.png":U) . 
-        oEntry:SubItems["Value":U]:Value = SessionHelper:ExecutablePath() .		
+        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk/Windows/Session/Images/window.png":U) .
+        oEntry:SubItems["Value":U]:Value = SessionHelper:ExecutablePath() .
 
         oEntry = lvProcess:Items:Add ("4":U, "Command Line":U) .
-        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk\Windows\Session\Images\window.png":U) . 
-        oEntry:SubItems["Value":U]:Value = System.Environment:CommandLine .     
-		
+        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk/Windows/Session/Images/window.png":U) .
+        oEntry:SubItems["Value":U]:Value = System.Environment:CommandLine .
+
         oEntry = lvProcess:Items:Add ("5":U, "Working Directory":U) .
-        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk\Windows\Session\Images\folder_document.png":U) . 
-        oEntry:SubItems["Value":U]:Value = System.IO.Directory:GetCurrentDirectory() .     
+        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk/Windows/Session/Images/folder_document.png":U) .
+        oEntry:SubItems["Value":U]:Value = System.IO.Directory:GetCurrentDirectory() .
 
         oEntry = lvProcess:Items:Add ("6":U, "Assemblies":U) .
-        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk\Windows\Session\Images\cubes.png":U) . 
-        oEntry:SubItems["Value":U]:Value = SessionHelper:AssembliesDirectory .     
+        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk/Windows/Session/Images/cubes.png":U) .
+        oEntry:SubItems["Value":U]:Value = SessionHelper:AssembliesDirectory .
 
         oEntry = lvProcess:Items:Add ("7":U, "Assemblies (full path)":U) .
-        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk\Windows\Session\Images\cubes.png":U) . 
-        oEntry:SubItems["Value":U]:Value = SessionHelper:AssembliesFullPath .     
+        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk/Windows/Session/Images/cubes.png":U) .
+        oEntry:SubItems["Value":U]:Value = SessionHelper:AssembliesFullPath .
 
         oEntry = lvProcess:Items:Add ("10":U, "OpenEdge Version":U) .
-        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk\Windows\Session\Images\dlc.png":U) . 
-        oEntry:SubItems["Value":U]:Value = SessionHelper:FullVersionString() .     
+        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk/Windows/Session/Images/dlc.png":U) .
+        oEntry:SubItems["Value":U]:Value = SessionHelper:FullVersionString() .
 
         oEntry = lvProcess:Items:Add ("11":U, "DLC":U) .
-        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk\Windows\Session\Images\dlc.png":U) . 
-        oEntry:SubItems["Value":U]:Value = SessionHelper:DLC .     
+        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk/Windows/Session/Images/dlc.png":U) .
+        oEntry:SubItems["Value":U]:Value = SessionHelper:DLC .
 
         oEntry = lvProcess:Items:Add ("12":U, "PROMSGS":U) .
-        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk\Windows\Session\Images\earth.png":U) . 
-        oEntry:SubItems["Value":U]:Value = SessionHelper:PROMSGS .     
+        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk/Windows/Session/Images/earth.png":U) .
+        oEntry:SubItems["Value":U]:Value = SessionHelper:PROMSGS .
 
         oEntry = lvProcess:Items:Add ("13":U, "Compiler available":U) .
-        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk\Windows\Session\Images\dlc.png":U) . 
-        oEntry:SubItems["Value":U]:Value = SessionHelper:AllowsCompile() .     
+        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk/Windows/Session/Images/dlc.png":U) .
+        oEntry:SubItems["Value":U]:Value = SessionHelper:AllowsCompile() .
 
         oEntry = lvProcess:Items:Add ("14":U, "Framework Version":U) .
-        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk\Windows\Session\Images\cubes.png":U) . 
-        oEntry:SubItems["Value":U]:Value = (NEW FrameworkVersion()):GetVersionString () .     
+        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk/Windows/Session/Images/cubes.png":U) .
+        oEntry:SubItems["Value":U]:Value = (NEW FrameworkVersion()):GetVersionString () .
 
         oEntry = lvProcess:Items:Add ("15":U, "32/64 bit Process":U) .
-        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk\Windows\Session\Images\cpu.png":U) . 
-        oEntry:SubItems["Value":U]:Value = SUBSTITUTE ("&1 bit":U, SessionHelper:ProcessBitness()) .     
+        oEntry:Appearance:Image = ImageHelper:Load ("Consultingwerk/Windows/Session/Images/cpu.png":U) .
+        oEntry:SubItems["Value":U]:Value = SUBSTITUTE ("&1 bit":U, SessionHelper:ProcessBitness()) .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Populates the Propath ListView 
-        Notes:   
+        Purpose: Populates the Propath ListView
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID PopulatePropath ():
-		
+    METHOD PROTECTED VOID PopulatePropath ():
+
         DEFINE VARIABLE cPropathOrig AS CHARACTER            NO-UNDO.
         DEFINE VARIABLE cPropath     AS CHARACTER            NO-UNDO .
         DEFINE VARIABLE cEntry       AS CHARACTER            NO-UNDO .
         DEFINE VARIABLE iEntry       AS INTEGER              NO-UNDO .
-        DEFINE VARIABLE oEntry       AS UltraListViewItem    NO-UNDO . 
-        DEFINE VARIABLE oImage1      AS System.Drawing.Image NO-UNDO . 
-        DEFINE VARIABLE oImage2      AS System.Drawing.Image NO-UNDO . 
-        DEFINE VARIABLE oImage3      AS System.Drawing.Image NO-UNDO . 
+        DEFINE VARIABLE oEntry       AS UltraListViewItem    NO-UNDO .
+        DEFINE VARIABLE oImage1      AS System.Drawing.Image NO-UNDO .
+        DEFINE VARIABLE oImage2      AS System.Drawing.Image NO-UNDO .
+        DEFINE VARIABLE oImage3      AS System.Drawing.Image NO-UNDO .
 
-        ASSIGN oImage1      = ImageHelper:Load ("Consultingwerk\Windows\Session\Images\folder_document.png":U) 
-               oImage2      = ImageHelper:Load ("Consultingwerk\Windows\Session\Images\books_blue.png":U) 
-               oImage3      = ImageHelper:Load ("Consultingwerk\Windows\Session\Images\error.png":U) 
-        
-               cPropathOrig = PROPATH 
+        ASSIGN oImage1      = ImageHelper:Load ("Consultingwerk/Windows/Session/Images/folder_document.png":U)
+               oImage2      = ImageHelper:Load ("Consultingwerk/Windows/Session/Images/books_blue.png":U)
+               oImage3      = ImageHelper:Load ("Consultingwerk/Windows/Session/Images/error.png":U)
+
+               cPropathOrig = PROPATH
                cPropath     = REPLACE (PROPATH, "/":U, "~\":U) .
-               
-        DO ON ERROR UNDO, THROW: 
+
+        DO ON ERROR UNDO, THROW:
             PROPATH      = ".":U .
-            
+
             CATCH err AS Progress.Lang.SysError:
-            	/* Ignore error 2311 */
-            	IF err:GetMessageNum (1) <> 2311 THEN 
-            	    UNDO, THROW err . 	
+                /* Ignore error 2311 */
+                IF err:GetMessageNum (1) <> 2311 THEN
+                    UNDO, THROW err .
             END CATCH.
         END.
-    
+
         DO iEntry = 1 TO NUM-ENTRIES (cPropath):
 
-            ASSIGN cEntry              = ENTRY (iEntry, cPropath) 
-                   FILE-INFO:FILE-NAME = cEntry .
+            ASSIGN cEntry              = ENTRY (iEntry, cPropath)
+                   FILE-INFORMATION:FILE-NAME = cEntry .
 
             oEntry = lvPropath:Items:Add (STRING (iEntry), cEntry) .
-            
-            IF FILE-INFO:FILE-TYPE MATCHES "*D*":U THEN 
+
+            IF FILE-INFORMATION:FILE-TYPE MATCHES "*D*":U THEN
                 oEntry:Appearance:Image = oImage1 .
-            ELSE IF FILE-INFO:FILE-TYPE MATCHES "*F*":U THEN 
+            ELSE IF FILE-INFORMATION:FILE-TYPE MATCHES "*F*":U THEN
                 oEntry:Appearance:Image = oImage2 .
-            ELSE 
+            ELSE
                 oEntry:Appearance:Image = oImage3 .
-            
-            IF FILE-INFO:FULL-PATHNAME > "":U THEN 
-                oEntry:SubItems["absolute":U]:Value = FILE-INFO:FULL-PATHNAME .
+
+            IF FILE-INFORMATION:FULL-PATHNAME > "":U THEN
+                oEntry:SubItems["absolute":U]:Value = FILE-INFORMATION:FULL-PATHNAME .
         END.
 
         FINALLY:
-            PROPATH = cPropathOrig .    
-            
+            PROPATH = cPropathOrig .
+
             CATCH err AS Progress.Lang.SysError:
                 /* Ignore error 2311 */
-                IF err:GetMessageNum (1) <> 2311 THEN 
-                    UNDO, THROW err .   
+                IF err:GetMessageNum (1) <> 2311 THEN
+                    UNDO, THROW err .
             END CATCH.
         END FINALLY.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Populates the Servers List View  
-        Notes:   
+        Purpose: Populates the Servers List View
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID PopulateServers ():
-		
-        DEFINE VARIABLE hServer AS HANDLE               NO-UNDO .
-        DEFINE VARIABLE oEntry  AS UltraListViewItem    NO-UNDO . 
-        DEFINE VARIABLE oImage  AS System.Drawing.Image NO-UNDO . 
+    METHOD PROTECTED VOID PopulateServers ():
 
-        ASSIGN oImage  = ImageHelper:Load ("Consultingwerk\Windows\Session\Images\server.png":U) 
+        DEFINE VARIABLE hServer AS HANDLE               NO-UNDO .
+        DEFINE VARIABLE oEntry  AS UltraListViewItem    NO-UNDO .
+        DEFINE VARIABLE oImage  AS System.Drawing.Image NO-UNDO .
+
+        ASSIGN oImage  = ImageHelper:Load ("Consultingwerk/Windows/Session/Images/server.png":U)
                hServer = SESSION:FIRST-SERVER .
 
         DO WHILE VALID-HANDLE (hServer) ON ERROR UNDO, THROW:
 
             oEntry = lvServers:Items:Add (STRING (hServer), hServer:SUBTYPE) .
-            oEntry:Appearance:Image = oImage . 
+            oEntry:Appearance:Image = oImage .
             oEntry:SubItems["Name":U]:Value = hServer:NAME .
-            
+
             FINALLY:
-                IF VALID-HANDLE (hServer) THEN 
-                    hServer = hServer:NEXT-SIBLING .		
+                IF VALID-HANDLE (hServer) THEN
+                    hServer = hServer:NEXT-SIBLING .
             END FINALLY.
         END.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Populates the Service Definitions List View
-        Notes:   The List View is populated by Querying the IServiceDefinitions 
+        Notes:   The List View is populated by Querying the IServiceDefinitions
                  implementation (ServiceContainer, which is in fact an extension
-                 fo the CharacterList type) 
+                 fo the CharacterList type)
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID PopulateServiceDefinitions ():
-		
-        DEFINE VARIABLE oImage       AS System.Drawing.Image NO-UNDO . 
-        DEFINE VARIABLE oEntry       AS UltraListViewItem    NO-UNDO . 
+    METHOD PROTECTED VOID PopulateServiceDefinitions ():
+
+        DEFINE VARIABLE oImage       AS System.Drawing.Image NO-UNDO .
+        DEFINE VARIABLE oEntry       AS UltraListViewItem    NO-UNDO .
         DEFINE VARIABLE oDefinitions AS IServiceDefinitions  NO-UNDO .
 
         oDefinitions = {Consultingwerk/get-service.i Consultingwerk.Framework.IServiceDefinitions} .
 
-        IF NOT VALID-OBJECT (oDefinitions) THEN 
-            RETURN . 
+        IF NOT VALID-OBJECT (oDefinitions) THEN
+            RETURN .
 
-        ASSIGN oImage      = ImageHelper:Load ("Consultingwerk\Windows\Session\Images\document_gear.png":U) .
+        ASSIGN oImage = ImageHelper:Load ("Consultingwerk/Windows/Session/Images/document_gear.png":U) .
 
         {Consultingwerk/foreachPrimitiveList.i Character cFileName in oDefinitions}
 
-            FILE-INFO:FILE-NAME = cFileName . 
-            
-            oEntry = lvServiceDefinitions:Items:Add (cFileName, cFileName) .
-            oEntry:Appearance:Image = oImage . 
-            oEntry:SubItems ["Absolute":U]:Value = FILE-INFO:FULL-PATHNAME .
+            FILE-INFORMATION:FILE-NAME = cFileName .
+
+            oEntry = lvServiceDefinitions:Items:Add (GUID, cFileName) .
+            oEntry:Appearance:Image = oImage .
+            oEntry:SubItems ["Absolute":U]:Value = FILE-INFORMATION:FULL-PATHNAME .
 
         END.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Populates the Services List View 
-        Notes:   Relies on the IServiceContainerDebugging interface which must be 
-                 implemented by the active ServiceContainer. This interface allows 
+        Purpose: Populates the Services List View
+        Notes:   Relies on the IServiceContainerDebugging interface which must be
+                 implemented by the active ServiceContainer. This interface allows
                  to request a temp-table with all the registered services
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID PopulateServices ():
-		
-        DEFINE VARIABLE oServiceContainer AS IServiceContainerDebugging NO-UNDO .
-        DEFINE VARIABLE oEntry            AS UltraListViewItem          NO-UNDO . 
-        DEFINE VARIABLE oImage            AS System.Drawing.Image       NO-UNDO . 
+    METHOD PROTECTED VOID PopulateServices ():
 
-        IF NOT VALID-OBJECT (FrameworkSettings:ServiceContainer) THEN 
-            RETURN . 
-            
+        DEFINE VARIABLE oServiceContainer AS IServiceContainerDebugging NO-UNDO .
+        DEFINE VARIABLE oEntry            AS UltraListViewItem          NO-UNDO .
+        DEFINE VARIABLE oImage            AS System.Drawing.Image       NO-UNDO .
+
+        IF NOT VALID-OBJECT (FrameworkSettings:ServiceContainer) THEN
+            RETURN .
+
         IF NOT TYPE-OF (FrameworkSettings:ServiceContainer, IServiceContainerDebugging) THEN
-            RETURN .  
+            RETURN .
 
         oServiceContainer = CAST (FrameworkSettings:ServiceContainer, IServiceContainerDebugging) .
 
         oServiceContainer:GetServiceTable (OUTPUT TABLE ttServiceTable) .
 
-        ASSIGN oImage      = ImageHelper:Load ("Consultingwerk\Windows\Session\Images\wrench.png":U) .
+        ASSIGN oImage      = ImageHelper:Load ("Consultingwerk/Windows/Session/Images/wrench.png":U) .
 
         FOR EACH ttServiceTable:
             oEntry = lvServices:Items:Add (ttServiceTable.ServiceType, ttServiceTable.ServiceType) .
-            oEntry:Appearance:Image = oImage . 
+            oEntry:Appearance:Image = oImage .
             oEntry:SubItems ["Instance":U]:Value = ttServiceTable.ServiceInstance .
         END.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Populates the Session Properties ListView 
-        Notes:   
+        Purpose: Populates the Session Properties ListView
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID PopulateSession ():
-		
+    METHOD PROTECTED VOID PopulateSession ():
+
         DEFINE VARIABLE cProperties AS CHARACTER         NO-UNDO.
         DEFINE VARIABLE cProperty   AS CHARACTER         NO-UNDO .
         DEFINE VARIABLE iEntry      AS INTEGER           NO-UNDO .
-        DEFINE VARIABLE oEntry      AS UltraListViewItem NO-UNDO . 
+        DEFINE VARIABLE oEntry      AS UltraListViewItem NO-UNDO .
         DEFINE VARIABLE cValue      AS CHARACTER         NO-UNDO .
         DEFINE VARIABLE hCall       AS HANDLE            NO-UNDO .
-        DEFINE VARIABLE oImage      AS System.Drawing.Image NO-UNDO . 
+        DEFINE VARIABLE oImage      AS System.Drawing.Image NO-UNDO .
 
         ASSIGN cProperties = LIST-QUERY-ATTRS (SESSION:HANDLE)
-               oImage      = ImageHelper:Load ("Consultingwerk\Windows\Session\Images\workstation.png":U) .
+               oImage      = ImageHelper:Load ("Consultingwerk/Windows/Session/Images/workstation.png":U) .
 
         loop:
         DO iEntry = 1 TO NUM-ENTRIES (cProperties) ON ERROR UNDO, THROW:
 
             ASSIGN cProperty = ENTRY (iEntry, cProperties) .
 
-            IF NOT CAN-QUERY (SESSION:HANDLE, cProperty) THEN 
-                NEXT . 
+            IF NOT CAN-QUERY (SESSION:HANDLE, cProperty) THEN
+                NEXT .
 
             DO ON ERROR UNDO, THROW:
                 CREATE CALL hCall.
-                
-                ASSIGN hCall:IN-HANDLE = SESSION:HANDLE 
-                       hCall:CALL-TYPE = GET-ATTR-CALL-TYPE  
-                       hCall:CALL-NAME = cProperty . 
-            
-                hCall:INVOKE () NO-ERROR . 
 
-                IF ERROR-STATUS:NUM-MESSAGES > 0 THEN 
-                    NEXT loop . 
+                ASSIGN hCall:IN-HANDLE = SESSION:HANDLE
+                       hCall:CALL-TYPE = GET-ATTR-CALL-TYPE
+                       hCall:CALL-NAME = cProperty .
+
+                hCall:INVOKE () NO-ERROR .
+
+                IF ERROR-STATUS:NUM-MESSAGES > 0 THEN
+                    NEXT loop .
 
                 ASSIGN cValue = hCall:RETURN-VALUE .
-                
+
+                @SuppressUnusedWarnings.
                 CATCH err AS Progress.Lang.Error:
-                	NEXT loop . 	
+                    NEXT loop .
                 END CATCH.
-                
+
                 FINALLY:
-                    Consultingwerk.Util.GarbageCollectorHelper:DeleteObject (hCall) . 		
+                    Consultingwerk.Util.GarbageCollectorHelper:DeleteObject (hCall) .
                 END FINALLY.
-            END. 
+            END.
 
             oEntry = lvSessionProperties:Items:Add (STRING (iEntry), cProperty) .
-            oEntry:Appearance:Image = oImage . 
-            
-            IF FILE-INFO:FULL-PATHNAME > "":U THEN 
+            oEntry:Appearance:Image = oImage .
+
+            IF FILE-INFORMATION:FULL-PATHNAME > "":U THEN
                 oEntry:SubItems["Value":U]:Value = BOX (cValue) .
         END.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Populates the Startup Parameters ListView 
-        Notes:   
+        Purpose: Populates the Startup Parameters ListView
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID PopulateStartupParameters ():
-		
-        DEFINE VARIABLE cParameters AS CHARACTER            NO-UNDO EXTENT .
+    METHOD PROTECTED VOID PopulateStartupParameters ():
+
         DEFINE VARIABLE cParameter  AS CHARACTER            NO-UNDO.
-        DEFINE VARIABLE cValue      AS CHARACTER            NO-UNDO.
+        DEFINE VARIABLE cParameters AS CHARACTER            NO-UNDO EXTENT .
         DEFINE VARIABLE iEntry      AS INTEGER              NO-UNDO .
-        DEFINE VARIABLE oEntry      AS UltraListViewItem    NO-UNDO . 
-        DEFINE VARIABLE oImage      AS System.Drawing.Image NO-UNDO . 
+        DEFINE VARIABLE oEntry      AS UltraListViewItem    NO-UNDO .
+        DEFINE VARIABLE oImage      AS System.Drawing.Image NO-UNDO .
 
         ASSIGN cParameters = StartupParameterHelper:StartupParameterList
-               oImage      = ImageHelper:Load ("Consultingwerk\Windows\Session\Images\gear.png":U) .
+               oImage      = ImageHelper:Load ("Consultingwerk/Windows/Session/Images/gear.png":U) .
 
         DO iEntry = 1 TO EXTENT (cParameters):
 
             ASSIGN cParameter = cParameters [iEntry] .
             oEntry = lvStartupParameter:Items:Add (STRING (iEntry), cParameter) .
-            oEntry:Appearance:Image = oImage . 
+            oEntry:Appearance:Image = oImage .
             oEntry:SubItems["Value":U]:Value = StartupParameterHelper:GetStartupParameterValue (cParameter) .
         END.
-        
-	END METHOD .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Opens the selected service definition file using the default application 
-        Notes:   
+        Purpose: Opens the selected service definition file using the default application
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID ServiceDefinitionsOpenFile ():
-		
+    METHOD PROTECTED VOID ServiceDefinitionsOpenFile ():
+
         DEFINE VARIABLE cFile AS CHARACTER NO-UNDO.
 
         IF lvServiceDefinitions:SelectedItems:Count > 0 THEN DO:
-            cFile = lvServiceDefinitions:SelectedItems[0]:SubItems["Absolute":U]:Text . 
+            cFile = lvServiceDefinitions:SelectedItems[0]:SubItems["Absolute":U]:Text .
 
-            Consultingwerk.Windows.API.Win32:ShellExecute ("open":U, cFile) .            
+            Consultingwerk.Windows.API.Win32:ShellExecute ("open":U, cFile) .
         END.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Shows the selected service definition file in the Windows Explorer 
-        Notes:   
+        Purpose: Shows the selected service definition file in the Windows Explorer
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID ServiceDefinitionsShowInExplorer ():
-		
-		DEFINE VARIABLE cFile AS CHARACTER NO-UNDO.
+    METHOD PROTECTED VOID ServiceDefinitionsShowInExplorer ():
+
+        DEFINE VARIABLE cFile AS CHARACTER NO-UNDO.
 
         IF lvServiceDefinitions:SelectedItems:Count > 0 THEN DO:
-            cFile = lvServiceDefinitions:SelectedItems[0]:SubItems["Absolute":U]:Text . 
-            
+            cFile = lvServiceDefinitions:SelectedItems[0]:SubItems["Absolute":U]:Text .
+
             Consultingwerk.Util.WindowsExplorerHelper:ShowFileInExplorer (cFile) .
         END.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Creates a new instance of the SessionInfoForm an Shows it as an Dialog 
-        Notes:   
+        Purpose: Creates a new instance of the SessionInfoForm an Shows it as an Dialog
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC VOID ShowSessionInformation ():
-		
-		DEFINE VARIABLE oForm AS System.Windows.Forms.Form NO-UNDO . 
-		
-		oForm = NEW SessionInfoForm () .
-		
-		WAIT-FOR oForm:ShowDialog () .
+    METHOD PUBLIC STATIC VOID ShowSessionInformation ():
 
-	END METHOD .
+        DEFINE VARIABLE oForm AS System.Windows.Forms.Form NO-UNDO .
+
+        oForm = NEW SessionInfoForm () .
+
+        WAIT-FOR oForm:ShowDialog () .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the ToolClick event of the UltraToolbarsManager 
-        Notes:   
+        Purpose: Event handler for the ToolClick event of the UltraToolbarsManager
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The ToolClickEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraToolbarsManager1_ToolClick (sender AS System.Object, 
-	                                                     e AS Infragistics.Win.UltraWinToolbars.ToolClickEventArgs):
-		
-		CASE e:Tool:Key:
-		    
-		    WHEN "Windows Explorer":U THEN 
-		        THIS-OBJECT:ServiceDefinitionsShowInExplorer () . 
-		    WHEN "Open File":U THEN 
-		        THIS-OBJECT:ServiceDefinitionsOpenFile () . 
-		    
-		END CASE . 
+    METHOD PRIVATE VOID ultraToolbarsManager1_ToolClick (sender AS System.Object,
+                                                         e AS Infragistics.Win.UltraWinToolbars.ToolClickEventArgs):
 
-	END METHOD .
+        CASE e:Tool:Key:
+
+            WHEN "Windows Explorer":U THEN
+                THIS-OBJECT:ServiceDefinitionsShowInExplorer () .
+            WHEN "Open File":U THEN
+                THIS-OBJECT:ServiceDefinitionsOpenFile () .
+
+        END CASE .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the SessionInfoForm class 
-        Notes:   
+        Purpose: Destructor for the SessionInfoForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC SessionInfoForm ():
 

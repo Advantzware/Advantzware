@@ -36,21 +36,21 @@ CLASS Consultingwerk.OERA.Exceptions.InvalidNamedQueryException
         Purpose: Returns the name of the query that raised this exception 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY QueryName AS CHARACTER NO-UNDO 
-	GET.
-	PRIVATE SET. 
+    DEFINE PUBLIC PROPERTY QueryName AS CHARACTER NO-UNDO 
+    GET.
+    PRIVATE SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the InvalidNamedQueryException class
         Notes:   
         @param pcQueryName The named query name associated with this exception
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC InvalidNamedQueryException (pcQueryName AS CHARACTER):
+    CONSTRUCTOR PUBLIC InvalidNamedQueryException (pcQueryName AS CHARACTER):
 
-		SUPER (SUBSTITUTE ("Invalid named query: ~"&1~".":U, pcQueryName), 0).
-		
-		THIS-OBJECT:QueryName = pcQueryName . 
-		
-	END CONSTRUCTOR.
+        SUPER (SUBSTITUTE ("Invalid named query: ~"&1~".":U, pcQueryName), 0).
+        
+        THIS-OBJECT:QueryName = pcQueryName . 
+        
+    END CONSTRUCTOR.
 
 END CLASS.

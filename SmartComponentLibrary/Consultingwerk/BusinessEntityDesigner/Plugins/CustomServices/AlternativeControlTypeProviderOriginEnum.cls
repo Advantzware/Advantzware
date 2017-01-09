@@ -11,13 +11,13 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : AlternativeControlTypeProviderOriginEnum
-    Purpose     : Values for the Origin parameter of the ISmartViewerBuilderAlternativeControlTypeProvider:AddCustomControlTypes method 
-    Syntax      : 
-    Description : Describes from where ISmartViewerBuilderAlternativeControlTypeProvider:AddCustomControlTypes 
+    Purpose     : Values for the Origin parameter of the ISmartViewerBuilderAlternativeControlTypeProvider:AddCustomControlTypes method
+    Syntax      :
+    Description : Describes from where ISmartViewerBuilderAlternativeControlTypeProvider:AddCustomControlTypes
                   is called
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Thu Apr 16 22:44:22 CEST 2015
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -32,25 +32,25 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.*                                               FROM PROPATH .
 USING Consultingwerk.Framework.Collections.*                         FROM PROPATH .
-USING Consultingwerk.BusinessEntityDesigner.Plugins.CustomServices.* FROM PROPATH .  
+USING Consultingwerk.BusinessEntityDesigner.Plugins.CustomServices.* FROM PROPATH .
 USING Progress.Lang.*                                                FROM PROPATH .
 
-{&CLASS} Consultingwerk.BusinessEntityDesigner.Plugins.CustomServices.AlternativeControlTypeProviderOriginEnum 
+{&CLASS} Consultingwerk.BusinessEntityDesigner.Plugins.CustomServices.AlternativeControlTypeProviderOriginEnum
     &IF "{&CLASS}" EQ "CLASS" &THEN
     INHERITS Enum
-    &ENDIF    
-        : 
+    &ENDIF
+        :
 
 &IF "{&CLASS}" EQ "ENUM" &THEN
     DEFINE ENUM
-&ENDIF    
+&ENDIF
 
     {Consultingwerk/EnumMember.i BusinessEntityDesigner 0 AlternativeControlTypeProviderOriginEnum}
     {Consultingwerk/EnumMember.i AblFrameMigrationForm 1 AlternativeControlTypeProviderOriginEnum}
 
 &IF "{&CLASS}" EQ "ENUM" &THEN
     .
-&ENDIF    
+&ENDIF
 
 &IF "{&CLASS}" EQ "CLASS" &THEN
 
@@ -62,26 +62,24 @@ USING Progress.Lang.*                                                FROM PROPAT
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PRIVATE AlternativeControlTypeProviderOriginEnum (piValue AS INTEGER, pcLabel AS CHARACTER):
         SUPER ().
- 
+
         ASSIGN THIS-OBJECT:Value = piValue
                THIS-OBJECT:Label = pcLabel .
- 
+
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Returns a CharacterList with the names of the Enum members
-        Notes:   
+        Notes:
         @return The CharacterList with the names of the Enum members
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CharacterList GetNames ():
- 
-        DEFINE VARIABLE oReturn AS CharacterList NO-UNDO . 
- 
+
         RETURN NEW CharacterList ('{&EnumMembers}':U).
- 
+
     END METHOD .
-	
-    {Consultingwerk/EnumFromString.i Consultingwerk.BusinessEntityDesigner.Plugins.CustomServices.AlternativeControlTypeProviderOriginEnum} 
+
+    {Consultingwerk/EnumFromString.i Consultingwerk.BusinessEntityDesigner.Plugins.CustomServices.AlternativeControlTypeProviderOriginEnum}
 
 &ENDIF
 

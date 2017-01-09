@@ -11,17 +11,17 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : SmartAuthorizationAssignmentVerificationForm
-    Purpose     : 
-    Syntax      : 
+    Purpose     :
+    Syntax      :
     Description : Form that allows to verify security assignment
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Tue May 12 23:42:34 CEST 2015
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-{Consultingwerk/products.i} 
+{Consultingwerk/products.i}
 
 USING Consultingwerk.Framework.*                       FROM PROPATH .
 USING Consultingwerk.Framework.Session.*               FROM PROPATH .
@@ -29,15 +29,15 @@ USING Consultingwerk.SmartComponents.Base.*            FROM PROPATH .
 USING Consultingwerk.SmartFramework.Authorization.*    FROM PROPATH .
 USING Consultingwerk.OERA.*                            FROM PROPATH .
 USING Consultingwerk.Util.*                            FROM PROPATH .
-USING Consultingwerk.Windows.Framework.Authorization.* FROM PROPATH .  
+USING Consultingwerk.Windows.Framework.Authorization.* FROM PROPATH .
 USING Consultingwerk.Windows.Util.Forms.*              FROM PROPATH .
 USING Progress.Lang.*                                  FROM PROPATH .
 
 &SCOPED-DEFINE ToolKey "Verify Security Assignment":U
 
-CLASS Consultingwerk.Windows.Framework.Authorization.SmartAuthorizationAssignmentVerificationForm 
-    INHERITS SmartWindowForm: 
-	
+CLASS Consultingwerk.Windows.Framework.Authorization.SmartAuthorizationAssignmentVerificationForm
+    INHERITS SmartWindowForm:
+
     DEFINE PRIVATE VARIABLE bindingSource1 AS Progress.Data.BindingSource NO-UNDO.
     DEFINE PRIVATE VARIABLE cbRestricted AS Infragistics.Win.UltraWinEditors.UltraCheckEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE loSecurityItem AS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityLookup NO-UNDO.
@@ -47,7 +47,7 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartAuthorizationAssignmen
     DEFINE PRIVATE VARIABLE m_SmartAuthorizationAssignmentVerificationForm_Toolbars_Dock_Area_Right AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_SmartAuthorizationAssignmentVerificationForm_Toolbars_Dock_Area_Left AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_SmartAuthorizationAssignmentVerificationForm_Toolbars_Dock_Area_Bottom AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE panel1 AS System.Windows.Forms.Panel NO-UNDO.
     DEFINE PRIVATE VARIABLE panel2 AS System.Windows.Forms.Panel NO-UNDO.
     DEFINE PRIVATE VARIABLE pbRestricted AS System.Windows.Forms.PictureBox NO-UNDO.
@@ -68,14 +68,14 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartAuthorizationAssignmen
 
     {Consultingwerk/SmartFramework/Authorization/ttUserGoups.i}
 
-    DEFINE DATASET dsUserGroups FOR ttUserGroups . 
-    
+    DEFINE DATASET dsUserGroups FOR ttUserGroups .
+
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the SmartAuthorizationAssignmentVerificationForm class
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC SmartAuthorizationAssignmentVerificationForm ():
-				
+    CONSTRUCTOR PUBLIC SmartAuthorizationAssignmentVerificationForm ():
+
         SUPER().
 
         InitializeComponent().
@@ -83,48 +83,49 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartAuthorizationAssignmen
         &IF NOT PROVERSION BEGINS "10.2":U AND NOT PROVERSION BEGINS "11.0" &THEN
         THIS-OBJECT:ComponentsCollection:Add (THIS-OBJECT:components).
         &ENDIF
-        
-        smartTempTableAdapter1:TempTableHandle = TEMP-TABLE ttUserGroups:HANDLE . 
-        
+
+        smartTempTableAdapter1:TempTableHandle = TEMP-TABLE ttUserGroups:HANDLE .
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Assigns the properties of the Lookup Control based on the selected 
-                 security realm 
-        Notes:   
+        Purpose: Assigns the properties of the Lookup Control based on the selected
+                 security realm
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID AssignLookupProperties ():
-        
-        DEFINE VARIABLE oParameter AS SecurityRealmLookupParameter NO-UNDO . 
-         
+
+        DEFINE VARIABLE oParameter AS SecurityRealmLookupParameter NO-UNDO .
+
         ASSIGN oParameter                   = NEW SecurityRealmLookupParameter ()
-               oParameter:SecurityRealmGuid = UNBOX (coSecurityRealm:Value) . 
-         
+               oParameter:SecurityRealmGuid = UNBOX (coSecurityRealm:Value) .
+
         FrameworkSettings:ServiceAdapter:InvokeTask ("":U,
                                                      "Consultingwerk.SmartFramework.Authorization.SecurityRealmInfoService":U,
                                                      "GetSecurityRealmLookupParameter":U,
                                                      oParameter,
                                                      SessionManager:ContextDataset) .
-        
+
         oParameter:LookupDescriptor:AssignToSmartBusinessEntityLookup (loSecurityItem) .
 
     END METHOD .
-    
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visaul Design 
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -971,24 +972,24 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartAuthorizationAssignmen
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the BeforePerformLookup event of the loSecurityItem 
-        Notes:   
+        Purpose: Event handler for the BeforePerformLookup event of the loSecurityItem
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The CancelEventHandler with the data for this event 
+        @param e The CancelEventHandler with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID loSecurityItem_BeforePerformLookup (sender AS System.Object, 
+    METHOD PRIVATE VOID loSecurityItem_BeforePerformLookup (sender AS System.Object,
                                                             e AS System.ComponentModel.CancelEventArgs):
-        
-        IF NOT VALID-OBJECT (coSecurityRealm:SelectedItem) THEN DO: 
+
+        IF NOT VALID-OBJECT (coSecurityRealm:SelectedItem) THEN DO:
             MessageFormHelper:ShowMessage ("Please select a security realm first."{&TRAN},
                                            THIS-OBJECT:FindForm ():Text,
                                            Consultingwerk.Windows.Util.Forms.MessageFormImages:ImageError) .
-            e:Cancel = TRUE . 
-            RETURN . 
-        END . 
+            e:Cancel = TRUE .
+            RETURN .
+        END .
 
         THIS-OBJECT:AssignLookupProperties () .
 
@@ -1000,31 +1001,31 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartAuthorizationAssignmen
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID loSecurityItem_LookupKeyValueChanged (sender AS System.Object, e AS System.EventArgs):
-		
-        smartToolbarController1:Tools[{&ToolKey}]:SharedProps:Enabled = 
-                
-                (smartBusinessEntityLookup1:LookupKeyValue > "":U AND 
-                 loSecurityItem:LookupKeyValue             > "":U) . 
+    METHOD PRIVATE VOID loSecurityItem_LookupKeyValueChanged (sender AS System.Object, e AS System.EventArgs):
 
-	END METHOD .
+        smartToolbarController1:Tools[{&ToolKey}]:SharedProps:Enabled =
+
+                (smartBusinessEntityLookup1:LookupKeyValue > "":U AND
+                 loSecurityItem:LookupKeyValue             > "":U) .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the ShowLookupDialog event of the loSecurityItem 
-        Notes:   
+        Purpose: Event handler for the ShowLookupDialog event of the loSecurityItem
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The CancelEventHandler with the data for this event 
+        @param e The CancelEventHandler with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID loSecurityItem_ShowLookupDialog (sender AS System.Object, 
+    METHOD PRIVATE VOID loSecurityItem_ShowLookupDialog (sender AS System.Object,
                                                          e AS System.ComponentModel.CancelEventArgs):
-        
-        IF NOT VALID-OBJECT (coSecurityRealm:SelectedItem) THEN DO: 
+
+        IF NOT VALID-OBJECT (coSecurityRealm:SelectedItem) THEN DO:
             MessageFormHelper:ShowMessage ("Please select a security realm first."{&TRAN},
                                            THIS-OBJECT:FindForm ():Text,
                                            Consultingwerk.Windows.Util.Forms.MessageFormImages:ImageError) .
-            e:Cancel = TRUE . 
-            RETURN . 
-        END . 
+            e:Cancel = TRUE .
+            RETURN .
+        END .
 
         THIS-OBJECT:AssignLookupProperties () .
 
@@ -1032,97 +1033,97 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartAuthorizationAssignmen
 
     /*------------------------------------------------------------------------------
         Purpose: Raises the Load event
-        Notes:   
+        Notes:
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
-		
-		SUPER:OnLoad (e) .
-	
-	    smartToolbarController1:Tools[{&ToolKey}]:SharedProps:Enabled = FALSE .  
-		
-		IF SessionManager:LoginCompanyKey > "":U THEN DO:
+    METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
 
-            ASSIGN smartBusinessEntityLookup1:LookupQueryString = SUBSTITUTE 
+        SUPER:OnLoad (e) .
+
+        smartToolbarController1:Tools[{&ToolKey}]:SharedProps:Enabled = FALSE .
+
+        IF SessionManager:LoginCompanyKey > "":U THEN DO:
+
+            ASSIGN smartBusinessEntityLookup1:LookupQueryString = SUBSTITUTE
                 ("for each eSmartUser where eSmartUser.UserName begins ~"&&1~" and eSmartUser.LoginCompanyGuid = &1 ~
                                          or eSmartUser.UserName begins ~"&&1~" and eSmartUser.LoginCompanyGuid = &2":U,
                   QUOTER (SessionManager:LoginCompanyKey),
-                  QUOTER ("":U)) .                    
-                                                                   
-            ASSIGN smartBusinessEntityLookup1:LookupDialogQueryString = SUBSTITUTE 
+                  QUOTER ("":U)) .
+
+            ASSIGN smartBusinessEntityLookup1:LookupDialogQueryString = SUBSTITUTE
                 ("for each eSmartUser where eSmartUser.LoginCompanyGuid = &1 ~
                                          or eSmartUser.LoginCompanyGuid = &2":U,
                   QUOTER (SessionManager:LoginCompanyKey),
-                  QUOTER ("":U)) .                    
+                  QUOTER ("":U)) .
         END.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Performs an Authorization check at the backend 
-        Notes:   
+        Purpose: Performs an Authorization check at the backend
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID PerformIsRestrictedCheck ():
-		
-		DEFINE VARIABLE oParameter AS IsRestrictedCheckParameter NO-UNDO .
-		
-		oParameter = NEW IsRestrictedCheckParameter () . 
+    METHOD PROTECTED VOID PerformIsRestrictedCheck ():
 
-        ASSIGN oParameter:RealmCode        = (NEW SecurityRealmDatasetModel (UNBOX (THIS-OBJECT:coSecurityRealm:SelectedItem:DataValue))):SmartSecurityRealm:SecurityRealmCode  
-               oParameter:SecurityItemGuid = THIS-OBJECT:loSecurityItem:LookupKeyValue   
+        DEFINE VARIABLE oParameter AS IsRestrictedCheckParameter NO-UNDO .
+
+        oParameter = NEW IsRestrictedCheckParameter () .
+
+        ASSIGN oParameter:RealmCode        = (NEW SecurityRealmDatasetModel (UNBOX (THIS-OBJECT:coSecurityRealm:SelectedItem:DataValue))):SmartSecurityRealm:SecurityRealmCode
+               oParameter:SecurityItemGuid = THIS-OBJECT:loSecurityItem:LookupKeyValue
                oParameter:UserGuid         = THIS-OBJECT:smartBusinessEntityLookup1:LookupKeyValue
-               oParameter:LoginCompanyGuid = SessionManager:LoginCompanyKey  
-               oParameter:ReturnGroups     = TRUE .      
+               oParameter:LoginCompanyGuid = SessionManager:LoginCompanyKey
+               oParameter:ReturnGroups     = TRUE .
 
-        FrameworkSettings:ServiceAdapter:InvokeTask ("":U, 
+        FrameworkSettings:ServiceAdapter:InvokeTask ("":U,
                                                      "Consultingwerk.SmartFramework.Authorization.SecurityService":U,
                                                      "IsRestrictedCheck":U,
                                                      INPUT-OUTPUT DATASET dsUserGroups,
                                                      oParameter,
                                                      SessionManager:ContextDataset) .
-    
-        THIS-OBJECT:cbRestricted:Checked  = oParameter:IsRestricted . 
-        
+
+        THIS-OBJECT:cbRestricted:Checked  = oParameter:IsRestricted .
+
         IF oParameter:Reason BEGINS "Group:":U THEN DO:
-            FIND ttUserGroups WHERE 
+            FIND ttUserGroups WHERE
                 ttUserGroups.GroupGuid = ENTRY (2, oParameter:Reason, ":":U) NO-ERROR .
-               
-            IF AVAILABLE ttUserGroups THEN 
+
+            IF AVAILABLE ttUserGroups THEN
                 THIS-OBJECT:ultraTextEditor1:Text = SUBSTITUTE ("User group: &1"{&TRAN}, ttUserGroups.GroupName) .
-            ELSE                                 
+            ELSE
                 THIS-OBJECT:ultraTextEditor1:Text = oParameter:Reason .
-                    
+
             ErrorHelper:ResetErrorStatus() .
         END.
-        ELSE 
+        ELSE
             THIS-OBJECT:ultraTextEditor1:Text = oParameter:Reason .
-        
+
         THIS-OBJECT:ultraTextEditor2:Text = SUBSTITUTE ("&1 msec"{&TRAN}, oParameter:Runtime) .
 
         smartTempTableAdapter1:RetrieveData() .
 
         CASE oParameter:IsRestricted:
-            WHEN TRUE THEN 
-                ASSIGN THIS-OBJECT:pbRestricted:Visible    = TRUE 
-                       THIS-OBJECT:pbNotRestricted:Visible = FALSE 
+            WHEN TRUE THEN
+                ASSIGN THIS-OBJECT:pbRestricted:Visible    = TRUE
+                       THIS-OBJECT:pbNotRestricted:Visible = FALSE
                        THIS-OBJECT:pbUnknown:Visible       = FALSE .
-            WHEN FALSE THEN  
-                ASSIGN THIS-OBJECT:pbRestricted:Visible    = FALSE 
-                       THIS-OBJECT:pbNotRestricted:Visible = TRUE 
+            WHEN FALSE THEN
+                ASSIGN THIS-OBJECT:pbRestricted:Visible    = FALSE
+                       THIS-OBJECT:pbNotRestricted:Visible = TRUE
                        THIS-OBJECT:pbUnknown:Visible       = FALSE .
             OTHERWISE DO:
-                ASSIGN THIS-OBJECT:pbRestricted:Visible    = FALSE 
-                       THIS-OBJECT:pbNotRestricted:Visible = FALSE 
+                ASSIGN THIS-OBJECT:pbRestricted:Visible    = FALSE
+                       THIS-OBJECT:pbNotRestricted:Visible = FALSE
                        THIS-OBJECT:pbUnknown:Visible       = TRUE .
-                       
+
                 MessageFormHelper:ShowMessage ("Is Restricted returned the unknown value!"{&TRAN},
                                                THIS-OBJECT:Text,
-                                               MessageFormImages:ImageWarning) .                       
-            END.                       
-                        
-        END CASE.                            
-                           
-	END METHOD .
+                                               MessageFormImages:ImageWarning) .
+            END.
+
+        END CASE.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the LookupKeyValueChanged event of the smartBusinessEntityLookup1
@@ -1130,38 +1131,38 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartAuthorizationAssignmen
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID smartBusinessEntityLookup1_LookupKeyValueChanged (INPUT sender AS System.Object, INPUT e AS System.EventArgs):
-        
-        smartToolbarController1:Tools[{&ToolKey}]:SharedProps:Enabled = 
-                
-                (smartBusinessEntityLookup1:LookupKeyValue > "":U AND 
-                 loSecurityItem:LookupKeyValue             > "":U) . 
+    METHOD PRIVATE VOID smartBusinessEntityLookup1_LookupKeyValueChanged (INPUT sender AS System.Object, INPUT e AS System.EventArgs):
 
-	END METHOD .
+        smartToolbarController1:Tools[{&ToolKey}]:SharedProps:Enabled =
+
+                (smartBusinessEntityLookup1:LookupKeyValue > "":U AND
+                 loSecurityItem:LookupKeyValue             > "":U) .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the ToolClick event of the smartToolbarController1 
-        Notes:   
+        Purpose: Event handler for the ToolClick event of the smartToolbarController1
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The ToolClickEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID smartToolbarController1_ToolClick (sender AS System.Object, 
-	                                                       e AS Infragistics.Win.UltraWinToolbars.ToolClickEventArgs):
-		
-		CASE e:Tool:Key:
-		    WHEN {&ToolKey} THEN 
-		        THIS-OBJECT:PerformIsRestrictedCheck () .
-		END CASE . 
+    METHOD PRIVATE VOID smartToolbarController1_ToolClick (sender AS System.Object,
+                                                           e AS Infragistics.Win.UltraWinToolbars.ToolClickEventArgs):
+
+        CASE e:Tool:Key:
+            WHEN {&ToolKey} THEN
+                THIS-OBJECT:PerformIsRestrictedCheck () .
+        END CASE .
 
         CATCH err AS Progress.Lang.Error :
-        	ErrorHelper:ShowErrorMessage (err) .	
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the SmartAuthorizationAssignmentVerificationForm class 
-        Notes:   
+        Purpose: Destructor for the SmartAuthorizationAssignmentVerificationForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC SmartAuthorizationAssignmentVerificationForm ():
 

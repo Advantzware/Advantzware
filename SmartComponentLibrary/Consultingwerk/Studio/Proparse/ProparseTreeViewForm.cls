@@ -8,22 +8,22 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : ProparseTreeViewForm
-    Purpose     : Vsualizes the Proparse AST of progress source code 
-    Syntax      : 
-    Description : 
+    Purpose     : Vsualizes the Proparse AST of progress source code
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Tue Jun 28 20:25:50 CEST 2011
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 {Consultingwerk/products.i}
 
-&IF DEFINED (DotNetAccessible) NE 0 &THEN 
+&IF DEFINED (DotNetAccessible) NE 0 &THEN
 USING Consultingwerk.Forms.BaseForm    FROM PROPATH .
 USING Consultingwerk.Studio.Proparse.* FROM PROPATH .
 USING org.prorefactor.core.JPNode      FROM ASSEMBLY .
@@ -32,13 +32,13 @@ USING Progress.Lang.*                  FROM PROPATH .
 USING System.Windows.Forms.*           FROM ASSEMBLY .
 &ENDIF
 
-CLASS Consultingwerk.Studio.Proparse.ProparseTreeViewForm 
-&IF DEFINED (DotNetAccessible) NE 0 &THEN 
+CLASS Consultingwerk.Studio.Proparse.ProparseTreeViewForm
+&IF DEFINED (DotNetAccessible) NE 0 &THEN
     INHERITS BaseForm
 &ENDIF
-    : 
-    
-&IF DEFINED (DotNetAccessible) NE 0 &THEN 
+    :
+
+&IF DEFINED (DotNetAccessible) NE 0 &THEN
     DEFINE PRIVATE VARIABLE dockableWindow1 AS Infragistics.Win.UltraWinDock.DockableWindow NO-UNDO.
     DEFINE PRIVATE VARIABLE m_ProparseTreeViewFormUnpinnedTabAreaTop AS Infragistics.Win.UltraWinDock.UnpinnedTabArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_ProparseTreeViewFormUnpinnedTabAreaRight AS Infragistics.Win.UltraWinDock.UnpinnedTabArea NO-UNDO.
@@ -57,45 +57,45 @@ CLASS Consultingwerk.Studio.Proparse.ProparseTreeViewForm
     DEFINE PRIVATE VARIABLE ultraToolbarsManager1 AS Infragistics.Win.UltraWinToolbars.UltraToolbarsManager NO-UNDO.
     DEFINE PRIVATE VARIABLE proparseTreeViewControl1 AS Consultingwerk.Studio.Proparse.ProparseTreeViewControl NO-UNDO.
     DEFINE PRIVATE VARIABLE windowDockingArea1 AS Infragistics.Win.UltraWinDock.WindowDockingArea NO-UNDO.
-        
+
     DEFINE VARIABLE oEditors AS "System.Collections.Generic.Dictionary<System.String, System.Windows.Forms.Form>" NO-UNDO .
     DEFINE VARIABLE lFirstTime AS LOGICAL NO-UNDO INIT TRUE .
-        
+
     DEFINE VARIABLE oLruController AS Consultingwerk.Windows.Controls.UltraRibbonLruController NO-UNDO  .
-        
+
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the ProparseTreeViewForm class                                                                        
-        Notes:                                                                        
+        Purpose: Constructor for the ProparseTreeViewForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC ProparseTreeViewForm ():
-        
+
         SUPER().
         InitializeComponent().
-        
-        Consultingwerk.Framework.FrameworkSettings:MdiContainer = THIS-OBJECT . 
-        Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive = TRUE . 
-        
-        oEditors = NEW "System.Collections.Generic.Dictionary<System.String, System.Windows.Forms.Form>" () . 
+
+        Consultingwerk.Framework.FrameworkSettings:MdiContainer = THIS-OBJECT .
+        Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive = TRUE .
+
+        oEditors = NEW "System.Collections.Generic.Dictionary<System.String, System.Windows.Forms.Form>" () .
 
         /* Mike Fechner, Consultingwerk Ltd. 07.08.2014
            Setup registry profile when launched from PDSOE directly */
         IF Consultingwerk.Framework.FrameworkSettings:BaseRegistryKey MATCHES "*Sample Applications*":U THEN DO:
-        
+
             Consultingwerk.Framework.FrameworkSettings:BaseRegistryKey = "Software~\Consultingwerk Ltd.~\Proparse TreeView Form~\":U .
-            Consultingwerk.Framework.FrameworkSettings:StoreWindowPosition = TRUE . 
-            Consultingwerk.Framework.FrameworkSettings:StoreRibbonQuickAccessToolbar = TRUE . 
+            Consultingwerk.Framework.FrameworkSettings:StoreWindowPosition = TRUE .
+            Consultingwerk.Framework.FrameworkSettings:StoreRibbonQuickAccessToolbar = TRUE .
         END.
-        
+
         oLruController = NEW Consultingwerk.Windows.Controls.UltraRibbonLruController (THIS-OBJECT:ultraToolbarsManager1,
                                                                                        "LRU":U,
                                                                                        "&1":U,
                                                                                        10) .
-        
+
         IF NOT PROVERSION BEGINS "10":U THEN DO:
-            ultraToolbarsManager1:Style = Infragistics.Win.UltraWinToolbars.ToolbarStyle:Office2010 . 
+            ultraToolbarsManager1:Style = Infragistics.Win.UltraWinToolbars.ToolbarStyle:Office2010 .
             ultraToolbarsManager1:Ribbon:ApplicationMenuButtonImage = ? .
         END.
-        
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
@@ -103,58 +103,59 @@ CLASS Consultingwerk.Studio.Proparse.ProparseTreeViewForm
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Displays status in the status bar                                                                       
-        Notes:                                    
-        @param pcStatus The status to display                                    
+        Purpose: Displays status in the status bar
+        Notes:
+        @param pcStatus The status to display
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID DisplayStatus (pcStatus AS CHARACTER):
-        
-        THIS-OBJECT:ultraStatusBar1:Panels["status":U]:Text = pcStatus . 
-        
-        PROCESS EVENTS . 
+
+        THIS-OBJECT:ultraStatusBar1:Panels["status":U]:Text = pcStatus .
+
+        PROCESS EVENTS .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handle for the FormClosedHandler event of the Procedure Editor 
-                 Forms                                                                        
-        Notes:        
+        Purpose: Event handle for the FormClosedHandler event of the Procedure Editor
+                 Forms
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The FormClosedEventArgs with the data for this event                                                                
+        @param e The FormClosedEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID EditorFormClosedHandler (sender AS System.Object,
                                                    e AS System.Windows.Forms.FormClosedEventArgs):
-        
+
         DEFINE VARIABLE oForm AS System.Windows.Forms.Form NO-UNDO .
-        
-        oForm = CAST (sender, System.Windows.Forms.Form) . 
-        
-        IF oEditors:ContainsValue (oForm) THEN DO: 
+
+        oForm = CAST (sender, System.Windows.Forms.Form) .
+
+        IF oEditors:ContainsValue (oForm) THEN DO:
             {Consultingwerk/foreach.i '"System.Collections.Generic.KeyValuePair<System.String, System.Windows.Forms.Form>"' oPair in oEditors}
-            
+
                 IF oPair:Value = oForm THEN DO:
-                    oEditors:Remove (oPair:Key) . 
-                    
-                    LEAVE .                   
-                END. 
+                    oEditors:Remove (oPair:Key) .
+
+                    LEAVE .
+                END.
             END.
-        END . 
+        END .
 
         oForm:FormClosed:Unsubscribe (EditorFormClosedHandler) .
 
     END METHOD.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -551,247 +552,249 @@ CLASS Consultingwerk.Studio.Proparse.ProparseTreeViewForm
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Initializes Proparse                                                                        
-        Notes:                                                                        
+        Purpose: Initializes Proparse
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID InitializeProparse ():
-    
-        THIS-OBJECT:DisplayStatus ("Initializing Proparse environment.":U) . 
-        
-        Consultingwerk.Studio.Proparse.ProparseHelper:SetProparseEnvironment() . 
 
-        THIS-OBJECT:DisplayStatus ("Processing database schema.":U) . 
+        THIS-OBJECT:DisplayStatus ("Initializing Proparse environment.":U) .
+
+        Consultingwerk.Studio.Proparse.ProparseHelper:SetProparseEnvironment() .
+
+        THIS-OBJECT:DisplayStatus ("Processing database schema.":U) .
 
         Consultingwerk.Studio.Proparse.ProparseHelper:ExportDatabaseSchema () .
-        
-        THIS-OBJECT:DisplayStatus ("Initializing Proparse.":U) . 
-        
-        Consultingwerk.Studio.Proparse.ProparseHelper:Initialize() .     
 
-        THIS-OBJECT:DisplayStatus ("":U) . 
+        THIS-OBJECT:DisplayStatus ("Initializing Proparse.":U) .
+
+        Consultingwerk.Studio.Proparse.ProparseHelper:Initialize() .
+
+        THIS-OBJECT:DisplayStatus ("":U) .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the FormClosing event 
-        Notes:   
+        Purpose: Raises the FormClosing event
+        Notes:
         @param e The FormClosingEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED OVERRIDE VOID OnFormClosing (e AS System.Windows.Forms.FormClosingEventArgs):
-        
+
         DEFINE VARIABLE oChildForm AS System.Windows.Forms.Form NO-UNDO .
-        
+
         SUPER:OnFormClosing (e) .
 
         IF NOT e:Cancel THEN DO:
-            
+
             DO WHILE THIS-OBJECT:MdiChildren:Length > 0:
 
                 oChildForm = CAST (THIS-OBJECT:MdiChildren:GetValue (0),
-                                   System.Windows.Forms.Form) .  
-    
+                                   System.Windows.Forms.Form) .
+
                 oChildForm:Close () .
 
-                IF VALID-OBJECT (oChildForm) AND oChildForm:Visible THEN DO: 
+                IF VALID-OBJECT (oChildForm) AND oChildForm:Visible THEN DO:
                     e:Cancel = TRUE .
-                    
+
                     RETURN .
                 END.
-            END.        
+            END.
 
-            oLruController:StoreLru () .          
+            oLruController:StoreLru () .
         END.
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the Load event 
-        Notes:   
+        Purpose: Raises the Load event
+        Notes:
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
-        
+
         DEFINE VARIABLE cValue AS CHARACTER NO-UNDO.
-        
+
         SUPER:OnLoad (e) .
-        
+
         oLruController:LoadLru() .
-        
+
     END METHOD .
-    
+
     /*------------------------------------------------------------------------------
-        Purpose: Raises the Shown event                                                                         
-        Notes:                                                                        
+        Purpose: Raises the Shown event
+        Notes:
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
-        
+
         SUPER:OnShown (e) .
-        
+
         PROCESS EVENTS .
-        
-        IF lFirstTime THEN 
+
+        IF lFirstTime THEN
             InitializeProparse () .
-            
+
         FINALLY:
-            ASSIGN lFirstTime = FALSE .        
+            ASSIGN lFirstTime = FALSE .
         END FINALLY.
     END METHOD.
-    
+
     /*------------------------------------------------------------------------------
-        Purpose: Opens a file in the embedded ABL procedure editor                                                                        
-        Notes:                                                                        
+        Purpose: Opens a file in the embedded ABL procedure editor
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID OpenFile ():
-        
-        DEFINE VARIABLE oNode         AS JPNode                                                    NO-UNDO . 
+
+        DEFINE VARIABLE oNode         AS JPNode                                                    NO-UNDO .
         DEFINE VARIABLE cKey          AS CHARACTER                                                 NO-UNDO.
         DEFINE VARIABLE cFileName     AS CHARACTER                                                 NO-UNDO.
-        DEFINE VARIABLE oEditorForm   AS Consultingwerk.Studio.ProcedureEditor.ProcedureEditorForm NO-UNDO . 
+        DEFINE VARIABLE oEditorForm   AS Consultingwerk.Studio.ProcedureEditor.ProcedureEditorForm NO-UNDO .
 
         DEFINE VARIABLE pw_Window     AS HANDLE                                                    NO-UNDO.
         DEFINE VARIABLE pw_Editor     AS HANDLE                                                    NO-UNDO.
         DEFINE VARIABLE p_Cursor_Line AS INTEGER                                                   NO-UNDO.
-        
+
         ASSIGN cKey = proparseTreeViewControl1:GetCurrentNodeKey () .
 
         oNode = proparseTreeViewControl1:GetJPNode (INTEGER (cKey)) .
 
-        ASSIGN cFileName = oNode:getFileName() . 
-        
+        ASSIGN cFileName = oNode:getFileName() .
+
         IF oEditors:ContainsKey (cFileName) THEN DO:
-            
-            oEditorForm = CAST (oEditors[cFileName], 
+
+            oEditorForm = CAST (oEditors[cFileName],
                                 Consultingwerk.Studio.ProcedureEditor.ProcedureEditorForm) NO-ERROR .
-                                
-            oEditorForm:Activate () .                                   
+
+            oEditorForm:Activate () .
         END.
 
-        IF NOT VALID-OBJECT (oEditorForm) THEN         
-            RUN adecommx/_pwmain.p ("":U, 
+        IF NOT VALID-OBJECT (oEditorForm) THEN
+            RUN adecommx/_pwmain.p ("":U,
                                     cFileName,
-                                    "READ-ONLY":U, 
-                                    OUTPUT oEditorForm) .   
-        
+                                    "READ-ONLY":U,
+                                    OUTPUT oEditorForm) .
+
         IF NOT oEditors:ContainsValue (oEditorForm) THEN DO:
             oEditors:Add (cFileName, oEditorForm) .
             oEditorForm:FormClosed:Subscribe (EditorFormClosedHandler) .
         END.
-        
+
         RUN adecomm/_pwgetwh.p (oEditorForm:EmbeddedWindow, OUTPUT pw_Window).
         RUN adecomm/_pwgeteh.p (INPUT pw_Window , OUTPUT pw_Editor).
-        
-        ASSIGN p_Cursor_Line = oNode:getLine() . 
 
-        IF VALID-HANDLE (pw_Editor) THEN DO: 
-            IF pw_Editor:EMPTY THEN RETURN.
+        ASSIGN p_Cursor_Line = oNode:getLine() .
+
+        IF VALID-HANDLE (pw_Editor) THEN DO:
+            IF pw_Editor:EMPTY THEN
+                RETURN.
             /* If entered line is greater than number of lines in buffer, then
                move to EOF. */
             IF p_Cursor_Line > pw_Editor:NUM-LINES
                 THEN pw_Editor:MOVE-TO-EOF().
             ELSE DO:
             /* If entered line 0, goto line 1. */
-                IF ( p_Cursor_Line < 1 ) THEN ASSIGN p_Cursor_Line = 1.
-        
+                IF ( p_Cursor_Line < 1 ) THEN
+                    ASSIGN p_Cursor_Line = 1.
+
                 ASSIGN pw_Editor:CURSOR-LINE = p_Cursor_Line.
-                
-                IF oNode:getColumn () > 0 THEN 
-                    pw_Editor:CURSOR-CHAR = oNode:getColumn () . 
-            END.          
-            
-            APPLY "ENTRY":U TO pw_Editor .   
+
+                IF oNode:getColumn () > 0 THEN
+                    pw_Editor:CURSOR-CHAR = oNode:getColumn () .
+            END.
+
+            APPLY "ENTRY":U TO pw_Editor .
         END.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Opens a file for parsing                                                                       
-        Notes:                                                                        
+        Purpose: Opens a file for parsing
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID OpenFileForParsing ():
-    
-        DEFINE VARIABLE oDialogResult AS System.Windows.Forms.DialogResult NO-UNDO .  
-        
-        WAIT-FOR openFileDialog1:ShowDialog () SET oDialogResult . 
-        
-        IF Progress.Util.EnumHelper:AreEqual (oDialogResult, 
-                                              System.Windows.Forms.DialogResult:Ok) THEN . 
-        ELSE 
+
+        DEFINE VARIABLE oDialogResult AS System.Windows.Forms.DialogResult NO-UNDO .
+
+        WAIT-FOR openFileDialog1:ShowDialog () SET oDialogResult .
+
+        IF Progress.Util.EnumHelper:AreEqual (oDialogResult,
+                                              System.Windows.Forms.DialogResult:Ok) THEN .
+        ELSE
             RETURN .
-            
-        THIS-OBJECT:OpenFileForParsing (openFileDialog1:FileName) .            
-                                                          
-    END METHOD .     
-        
+
+        THIS-OBJECT:OpenFileForParsing (openFileDialog1:FileName) .
+
+    END METHOD .
+
     /*------------------------------------------------------------------------------
-        Purpose: Opens a file for parsing                                                                       
-        Notes:                                                       
+        Purpose: Opens a file for parsing
+        Notes:
         @param pcFileName The name of the file of open
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID OpenFileForParsing (pcFileName AS CHARACTER):
-        
-        DEFINE VARIABLE oParseUnit    AS ParseUnit                         NO-UNDO . 
 
-        oLruController:AddItemToLru (pcFileName, pcFileName) .      
+        DEFINE VARIABLE oParseUnit    AS ParseUnit                         NO-UNDO .
 
-        THIS-OBJECT:DisplayStatus ("Initializing Proparse.":U) . 
-        
+        oLruController:AddItemToLru (pcFileName, pcFileName) .
+
+        THIS-OBJECT:DisplayStatus ("Initializing Proparse.":U) .
+
         Consultingwerk.Studio.Proparse.ProparseHelper:Initialize() .
 
-        THIS-OBJECT:DisplayStatus ("Parsing source code.":U) . 
-        
+        THIS-OBJECT:DisplayStatus ("Parsing source code.":U) .
+
         oParseUnit = Consultingwerk.Studio.Proparse.ProparseHelper:ParseFile (pcFileName) .
 
-        THIS-OBJECT:DisplayStatus ("Populating treeview.":U) . 
+        THIS-OBJECT:DisplayStatus ("Populating treeview.":U) .
 
         proparseTreeViewControl1:LoadTree (oParseUnit) .
 
         CATCH err AS Progress.Lang.Error :
-            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .                
+            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
         FINALLY:
-            THIS-OBJECT:DisplayStatus ("":U) . 
+            THIS-OBJECT:DisplayStatus ("":U) .
         END FINALLY.
-    
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Parses the current clipboard value 
-        Notes:   
+        Purpose: Parses the current clipboard value
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID ParseFromClipboard ():
 
-        DEFINE VARIABLE oParseUnit    AS ParseUnit                         NO-UNDO . 
+        DEFINE VARIABLE oParseUnit    AS ParseUnit                         NO-UNDO .
         DEFINE VARIABLE lcText        AS CHARACTER                         NO-UNDO .
-        
-        IF NOT System.Windows.Forms.Clipboard:ContainsText (TextDataFormat:Text) THEN 
+
+        IF NOT System.Windows.Forms.Clipboard:ContainsText (TextDataFormat:Text) THEN
             UNDO, THROW NEW AppError ("The clipboard does not contain any text."{&TRAN}, 0) .
 
         ASSIGN lcText = System.Windows.Forms.Clipboard:GetText (TextDataFormat:Text) .
-    
-        THIS-OBJECT:DisplayStatus ("Initializing Proparse.":U) . 
-        
+
+        THIS-OBJECT:DisplayStatus ("Initializing Proparse.":U) .
+
         Consultingwerk.Studio.Proparse.ProparseHelper:Initialize() .
 
-        THIS-OBJECT:DisplayStatus ("Parsing source code.":U) . 
-        
+        THIS-OBJECT:DisplayStatus ("Parsing source code.":U) .
+
         oParseUnit = ProparseHelper:ParseString (lcText) .
 
-        THIS-OBJECT:DisplayStatus ("Populating treeview.":U) . 
+        THIS-OBJECT:DisplayStatus ("Populating treeview.":U) .
 
         proparseTreeViewControl1:LoadTree (oParseUnit) .
 
-        DELETE OBJECT oParseUnit . 
+        DELETE OBJECT oParseUnit .
 
         CATCH err AS Progress.Lang.Error :
-            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .                
+            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
         FINALLY:
-            THIS-OBJECT:DisplayStatus ("":U) . 
+            THIS-OBJECT:DisplayStatus ("":U) .
         END FINALLY.
-        
+
 
     END METHOD .
 
@@ -799,31 +802,31 @@ CLASS Consultingwerk.Studio.Proparse.ProparseTreeViewForm
         Purpose: Event handler for the ToolClick event of the ultraToolbarsManager1
         Notes:
         @param sender The reference to the object that raised the event
-        @param e The ToolClickEventArgs with the data for this event                                                                        
+        @param e The ToolClickEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraToolbarsManager1_ToolClick (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraToolbarsManager1_ToolClick (sender AS System.Object,
                                                          e AS Infragistics.Win.UltraWinToolbars.ToolClickEventArgs):
-        
+
         CASE e:Tool:Key:
-            WHEN "Open":U THEN 
+            WHEN "Open":U THEN
                 OpenFileForParsing () .
-            WHEN "ParseFromClipboard":U THEN 
+            WHEN "ParseFromClipboard":U THEN
                 ParseFromClipboard () .
-            WHEN "OpenFile":U THEN 
+            WHEN "OpenFile":U THEN
                 OpenFile () .
         END CASE .
 
-        IF e:Tool:Key BEGINS "lru_":U THEN 
+        IF e:Tool:Key BEGINS "lru_":U THEN
             OpenFileForParsing (UNBOX (e:Tool:SharedProps:RootTool:Tag)) .
 
         CATCH err AS Progress.Lang.Error :
-            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .                
+            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
-        
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the ProparseTreeViewForm class 
+        Purpose: Destructor for the ProparseTreeViewForm class
         Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC ProparseTreeViewForm ():

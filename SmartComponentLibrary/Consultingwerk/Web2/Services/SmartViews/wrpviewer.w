@@ -12,30 +12,30 @@
 /*------------------------------------------------------------------------
 
     File: wrpviewer.w
-    Purpose: 
-    
-    Description: 
-    
+    Purpose:
+
+    Description:
+
     Input Parameters:
     <none>
-    
+
     Output Parameters:
     <none>
-    
-    Author: 
-    
+
+    Author:
+
     Created: Sun Jul 19 14:48:48 CEST 2015
 
 ------------------------------------------------------------------------*/
 
-/* Create an unnamed pool to store all the widgets created 
+/* Create an unnamed pool to store all the widgets created
    by this procedure. This is a good default which assures
    that this procedure's triggers and internal procedures
    will execute in this procedure's storage, and that proper
    cleanup will occur on deletion of the procedure. */
 
-USING Consultingwerk.Web.* FROM PROPATH.
-USING Consultingwerk.Web2.Services.SmartViews.* FROM PROPATH.
+USING Consultingwerk.Web.*                      FROM PROPATH .
+USING Consultingwerk.Web2.Services.SmartViews.* FROM PROPATH .
 
 CREATE WIDGET-POOL.
 
@@ -86,8 +86,8 @@ RUN process-web-request.
 
 PROCEDURE outputHeader :
 /*------------------------------------------------------------------------------
-  Purpose:     Output the MIME header, and any "cookie" information needed 
-               by this procedure.  
+  Purpose:     Output the MIME header, and any "cookie" information needed
+               by this procedure.
   Parameters:  <none>
   Notes:       In the event that this Web object is state-aware, this is
                a good place to set the webState and webTimeout attributes.
@@ -102,37 +102,38 @@ END PROCEDURE.
 
 
 &IF DEFINED(EXCLUDE-process-web-request) = 0 &THEN
- 
+
 PROCEDURE process-web-request :
 /*------------------------------------------------------------------------------
   Purpose:     Process the web request.
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
 
   DEFINE VARIABLE cViewer AS CHARACTER NO-UNDO .
-  DEFINE VARIABLE oViewer AS Viewer    NO-UNDO .  
+  DEFINE VARIABLE oViewer AS Viewer    NO-UNDO .
   DEFINE VARIABLE cScope  AS CHARACTER NO-UNDO .
-  DEFINE VARIABLE lcJson  AS LONGCHAR  NO-UNDO . 
-    
-  oViewer = NEW Viewer () . 
-  
+  DEFINE VARIABLE lcJson  AS LONGCHAR  NO-UNDO .
+
+  oViewer = NEW Viewer () .
+
   ASSIGN cViewer = WebUtilities:GetUserField ("SmartWeb.SmartViewer":U)
          cScope  = WebUtilities:GetField ("scope":U) .
 
   oViewer:GetFragment (ENTRY (2, cViewer, "/":U),
                        ENTRY (3, cViewer, "/":U),
                        cScope,
+                       ViewerBindingStyleEnum:AngularJS,
                        OUTPUT lcJson)  .
 
-  /* 
-   * Output the MIME header and set up the object as state-less or state-aware. 
+  /*
+   * Output the MIME header and set up the object as state-less or state-aware.
    * This is required if any HTML is to be returned to the browser.
    */
   RUN outputHeader.
 
   {&OUT} STRING (lcJson) .
- 
+
 END PROCEDURE.
 
 

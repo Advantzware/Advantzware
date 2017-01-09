@@ -32,7 +32,7 @@ INTERFACE Consultingwerk.WindowIntegrationKit.IRibbonButtonCustomizer:
         Notes:   
         @param poButtonTool The ButtonTool instance
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID CustomizeRibbonButton (poButtonTool AS ButtonTool).
+    METHOD PUBLIC VOID CustomizeRibbonButton (poButtonTool AS ButtonTool).
 
     /*------------------------------------------------------------------------------
         Purpose: Refreshes a single Ribbon Button (instance tool) during the 

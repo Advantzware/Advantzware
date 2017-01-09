@@ -39,13 +39,13 @@ CLASS Consultingwerk.Windows.TreeNodeFromDatasetStructureFactory:
         @param phDataset The handle of the ProDataset
         @return Logical value indicating if Treenodes have been created or not
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL CreateTreeNodes (poTreeView AS TreeView,
-	                                       phDataset AS HANDLE):
-		
+    METHOD PUBLIC LOGICAL CreateTreeNodes (poTreeView AS TreeView,
+                                           phDataset AS HANDLE):
+        
         DEFINE VARIABLE i         AS INTEGER  NO-UNDO.
 
-		ObjectAssert:IsValid (poTreeView, "poTreeView":U) .
-		{Consultingwerk/Assertion/HandleAssert/WidgetType.i phDataset WidgetTypeEnum:Dataset} .
+        ObjectAssert:IsValid (poTreeView, "poTreeView":U) .
+        {Consultingwerk/Assertion/HandleAssert/WidgetType.i phDataset WidgetTypeEnum:Dataset} .
 
         DO i = 1 TO phDataset:NUM-TOP-BUFFERS:
                 THIS-OBJECT:RecurseDatasetRelations (poTreeView, phDataset:GET-TOP-BUFFER (i), ?).

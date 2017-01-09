@@ -8,48 +8,50 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : SmartNavigationTargetStateChangedEventArgs
-    Purpose     : Event Argument for the UpdateSmartNavigationTargetState event 
+    Purpose     : Event Argument for the UpdateSmartNavigationTargetState event
                   method of the ISmartNavigationSource classes
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Fri Aug 21 23:33:54 CEST 2009
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
-
-USING Consultingwerk.SmartComponents.Enum.* FROM PROPATH .
-USING Progress.Lang.*                       FROM PROPATH .
-USING System.EventArgs                      FROM ASSEMBLY . 
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-CLASS Consultingwerk.SmartComponents.Base.SmartNavigationTargetStateChangedEventArgs 
-    INHERITS System.EventArgs: 
+USING Consultingwerk.SmartComponents.Enum.* FROM PROPATH .
+USING Progress.Lang.*                       FROM PROPATH .
+USING System.EventArgs                      FROM ASSEMBLY .
+
+{Consultingwerk/products.i}
+
+CLASS Consultingwerk.SmartComponents.Base.SmartNavigationTargetStateChangedEventArgs
+    INHERITS System.EventArgs:
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns the SmartNavigationTargetState that raised this event                                                                       
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/        
-    DEFINE PUBLIC PROPERTY SmartNavigationTargetState AS CHARACTER NO-UNDO 
+        Purpose: Returns the SmartNavigationTargetState that raised this event
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY SmartNavigationTargetState AS CHARACTER NO-UNDO
     GET.
-    PRIVATE SET.    
+    PRIVATE SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constrcutor for the SmartNavigationTargetStateChangedEventArgs class                                                                        
-        Notes:            
-        @param pcState The value for the SmartNavigationTargetState property                                                            
-    ------------------------------------------------------------------------------*/        
+        Purpose: Constrcutor for the SmartNavigationTargetStateChangedEventArgs class
+        Notes:
+        @param pcState The value for the SmartNavigationTargetState property
+    ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC SmartNavigationTargetStateChangedEventArgs (pcState AS CHARACTER):
         SUPER ().
-        
-        IF NOT DataSourceStateEnum:IsValid (pcState) THEN 
-            UNDO, THROW NEW AppError (SUBSTITUTE("Invalid DataSourceStateEnum value &1.", pcState), 0) . 
-    
-        THIS-OBJECT:SmartNavigationTargetState = pcState .    
-        
+
+        IF NOT DataSourceStateEnum:IsValid (pcState) THEN
+            UNDO, THROW NEW AppError (SUBSTITUTE("Invalid DataSourceStateEnum value &1."{&TRAN}, pcState), 0) .
+
+        THIS-OBJECT:SmartNavigationTargetState = pcState .
+
     END CONSTRUCTOR.
 
 END CLASS.

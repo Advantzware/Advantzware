@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="" xmlns:prodata="urn:schemas-progress-com:xml-prodata:0001">
+  <xsd:element name="dsEntityFieldMapping" prodata:proDataSet="true">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="eSmartEntityFieldMapping" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eSmartEntityFieldMappingBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="EntityFieldMappingGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="EntityName" type="xsd:string" nillable="true" default="*" prodata:format="x(40)" prodata:label="Entity Name"/>
+              <xsd:element name="EntityTable" type="xsd:string" nillable="true" default="*" prodata:format="x(40)" prodata:label="Table Name"/>
+              <xsd:element name="FieldName" type="xsd:string" nillable="true" prodata:format="x(40)" prodata:label="Field Name"/>
+              <xsd:element name="Environments" type="xsd:string" nillable="true" default="*" prodata:format="x(40)"/>
+              <xsd:element name="FieldObjectName" type="xsd:string" nillable="true" prodata:format="x(40)" prodata:label="Object Name"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+    <xsd:unique name="EntityFieldMappingGuid" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eSmartEntityFieldMapping"/>
+      <xsd:field xpath="EntityFieldMappingGuid"/>
+    </xsd:unique>
+  </xsd:element>
+  <xsd:annotation>
+    <xsd:appinfo>
+      <prodata:index name="FieldName">
+        <prodata:table name="eSmartEntityFieldMapping"/>
+        <prodata:field name="FieldName"/>
+        <prodata:field name="EntityName"/>
+        <prodata:field name="EntityTable"/>
+      </prodata:index>
+      <prodata:index name="FieldObjectName">
+        <prodata:table name="eSmartEntityFieldMapping"/>
+        <prodata:field name="FieldObjectName"/>
+      </prodata:index>
+    </xsd:appinfo>
+  </xsd:annotation>
+</xsd:schema>

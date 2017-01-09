@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2006-2015 by Consultingwerk Ltd. ("CW") -            *
+ * Copyright (C) 2006-2016 by Consultingwerk Ltd. ("CW") -            *
  * www.consultingwerk.de and other contributors as listed             *
  * below.  All Rights Reserved.                                       *
  *                                                                    *
@@ -8,17 +8,17 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : dsAttributeValue.i
     Purpose     : Business Entity for SmartAttributeValue
 
     Syntax      :
 
-    Description : 
+    Description :
 
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
-    Created     : 20.10.2015 20:22:29
+    Created     : 29.04.2016 07:13:35
     Notes       :
   ----------------------------------------------------------------------*/
 
@@ -31,13 +31,13 @@
 &GLOBAL-DEFINE DATASET-NAME dsAttributeValue
 
 { Consultingwerk/SmartFramework/Repository/Class/eSmartAttributeValue.i }
-{ Consultingwerk/SmartFramework/Repository/Class/eSmartAttribute.i }
+{ Consultingwerk/SmartFramework/Repository/Class/eSmartAttribute.i &NO-BEFORE=YES }
 
 
 @BusinessEntityGenerator (entityname="Consultingwerk.SmartFramework.Repository.Class.AttributeValueBusinessEntity", type="Dataset") .
 
-DEFINE {&ACCESS} DATASET dsAttributeValue{&SUFFIX} {&REFERENCE-ONLY} FOR eSmartAttributeValue{&SUFFIX}, eSmartAttribute{&SUFFIX} 
-    DATA-RELATION eSmartAttributeValueeSmartAttributeRelation FOR eSmartAttributeValue{&SUFFIX}, eSmartAttribute{&SUFFIX} 
+DEFINE {&ACCESS} DATASET dsAttributeValue{&SUFFIX} {&REFERENCE-ONLY} FOR eSmartAttributeValue{&SUFFIX}, eSmartAttribute{&SUFFIX}
+    DATA-RELATION eSmartAttributeValueeSmartAttributeRelation FOR eSmartAttributeValue{&SUFFIX}, eSmartAttribute{&SUFFIX}
         RELATION-FIELDS (AttributeLabel,AttributeLabel)
 
-    .    
+    .

@@ -29,14 +29,14 @@ INTERFACE Consultingwerk.Windows.Framework.IMenuStructureProvider:
   
     {Consultingwerk/Windows/Framework/ttMenuStructure.i}
   
-	/*------------------------------------------------------------------------------
-	    Purpose: Returns the Menu Items referenced by the givens keys
-	    Notes:   Used by the Menu Function LRU
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the Menu Items referenced by the givens keys
+        Notes:   Used by the Menu Function LRU
         @param pcKeys The CHARACTER Array with the menu item keys 
         @param ttMenuStructure OUTOUT Temp-Table with the Menu Structure data 
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID GetMenuItems (pcKeys AS CHARACTER EXTENT,
-	                                 OUTPUT TABLE ttMenuStructure).
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC VOID GetMenuItems (pcKeys AS CHARACTER EXTENT,
+                                     OUTPUT TABLE ttMenuStructure).
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the Menu Structure for a given root key
@@ -44,7 +44,7 @@ INTERFACE Consultingwerk.Windows.Framework.IMenuStructureProvider:
         @param oGetMenuStructureParameter The IGetMenuStructureParameter with the data for the request 
         @param ttMenuStructure OUTOUT Temp-Table with the Menu Structure data 
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID GetMenuStructure (oGetMenuStructureParameter AS IGetMenuStructureParameter,
-	                                     OUTPUT TABLE ttMenuStructure).
+    METHOD PUBLIC VOID GetMenuStructure (oGetMenuStructureParameter AS IGetMenuStructureParameter,
+                                         OUTPUT TABLE ttMenuStructure).
 
 END INTERFACE.

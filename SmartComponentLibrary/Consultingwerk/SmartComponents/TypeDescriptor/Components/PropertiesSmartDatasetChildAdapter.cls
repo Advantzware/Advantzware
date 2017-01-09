@@ -32,10 +32,10 @@ CLASS Consultingwerk.SmartComponents.TypeDescriptor.Components.PropertiesSmartDa
         Purpose: Constructor for the PropertiesSmartDatasetAdapter class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC PropertiesSmartDatasetChildAdapter ():
-	    
-	    DEFINE VARIABLE oProperty  AS IPropertyDescriptor NO-UNDO . 
-		SUPER ().
+    CONSTRUCTOR PUBLIC PropertiesSmartDatasetChildAdapter ():
+        
+        DEFINE VARIABLE oProperty  AS IPropertyDescriptor NO-UNDO . 
+        SUPER ().
 
         THIS-OBJECT:TypeName = "Consultingwerk.SmartComponents.Implementation.SmartDatasetChildAdapter":U . 
 
@@ -89,6 +89,6 @@ CLASS Consultingwerk.SmartComponents.TypeDescriptor.Components.PropertiesSmartDa
         oProperty:Attributes:Add (NEW System.ComponentModel.DescriptionAttribute ("This is a base query string.")) .
         oProperty:Attributes:Add (NEW System.ComponentModel.LocalizableAttribute (FALSE)) .
         
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
 END CLASS.

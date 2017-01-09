@@ -11,32 +11,31 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : GenericConnectionProfileForm
-    Purpose     : Provides a generic user interface for working with 
+    Purpose     : Provides a generic user interface for working with
                   the Consultingwerk.Framework.ConfigurationSettingsManager
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sat Aug 11 20:30:45 CEST 2012
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Consultingwerk.*                    FROM PROPATH . 
-USING Consultingwerk.Framework.*          FROM PROPATH .
-USING Consultingwerk.Framework.Enum.*     FROM PROPATH . 
+USING Consultingwerk.*                    FROM PROPATH .
 USING Consultingwerk.Forms.BaseForm       FROM PROPATH .
-USING Consultingwerk.AWSManager.*         FROM PROPATH .  
-USING Consultingwerk.AWSManager.Forms.*   FROM PROPATH .  
-USING Consultingwerk.Windows.*            FROM PROPATH . 
+USING Consultingwerk.Framework.*          FROM PROPATH .
+USING Consultingwerk.Framework.Enum.*     FROM PROPATH .
+USING Consultingwerk.Util.*               FROM PROPATH .
+USING Consultingwerk.Windows.*            FROM PROPATH .
 USING Infragistics.Win.UltraWinListView.* FROM ASSEMBLY .
 USING Progress.Lang.*                     FROM PROPATH .
-USING System.Windows.Forms.*              FROM ASSEMBLY . 
+USING System.Windows.Forms.*              FROM ASSEMBLY .
 
 {Consultingwerk/products.i}
 
-CLASS Consultingwerk.Windows.Forms.GenericConnectionProfileForm INHERITS BaseForm: 
-    
+CLASS Consultingwerk.Windows.Forms.GenericConnectionProfileForm INHERITS BaseForm:
+
     DEFINE PRIVATE VARIABLE m_ConnectionProfileForm_Toolbars_Dock_Area_Top AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_ConnectionProfileForm_Toolbars_Dock_Area_Right AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_ConnectionProfileForm_Toolbars_Dock_Area_Left AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
@@ -45,14 +44,14 @@ CLASS Consultingwerk.Windows.Forms.GenericConnectionProfileForm INHERITS BaseFor
     DEFINE PRIVATE VARIABLE ultraToolbarsManager1 AS Infragistics.Win.UltraWinToolbars.UltraToolbarsManager NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraListView1 AS Infragistics.Win.UltraWinListView.UltraListView NO-UNDO.
     DEFINE PRIVATE VARIABLE ConnectionProfileForm_Fill_Panel AS Infragistics.Win.Misc.UltraPanel NO-UNDO.
-    
+
     DEFINE VARIABLE lOpenConnectionMode AS LOGICAL NO-UNDO INIT FALSE .
 
     /*------------------------------------------------------------------------------
         Purpose: Event raised to assign the settings form a Form to the Settings instance
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The AssignSettingFromFormEventArgs with the data for this event              
+        @param e The AssignSettingFromFormEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     DEFINE PUBLIC EVENT AssignSettingFromForm SIGNATURE VOID (sender AS Progress.Lang.Object,
                                                               e AS AssignSettingFromFormEventArgs).
@@ -61,48 +60,48 @@ CLASS Consultingwerk.Windows.Forms.GenericConnectionProfileForm INHERITS BaseFor
         Purpose: Event raised when a new List View Item has been created
         Notes:
         @param sender The reference to the object that raised the event
-        @param e The SettingListViewItemCreatedEventArgs with the data for this event   
+        @param e The SettingListViewItemCreatedEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     DEFINE PUBLIC EVENT SettingListViewItemCreated SIGNATURE VOID (sender AS Progress.Lang.Object,
                                                                    e AS SettingListViewItemCreatedEventArgs).
 
     /*------------------------------------------------------------------------------
         Purpose: Event raised when to create the Edit Dialog
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The ShowEditDialogEventArgs with the data for this event   
+        @param e The ShowEditDialogEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     DEFINE PUBLIC EVENT ShowEditDialog SIGNATURE VOID (sender AS Progress.Lang.Object,
                                                        e AS ShowEditDialogEventArgs).
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns the GUID of the selected connection profile 
-        Notes:   
+        Purpose: Returns the GUID of the selected connection profile
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY SelectedProfileGuid AS CHARACTER NO-UNDO 
+    DEFINE PUBLIC PROPERTY SelectedProfileGuid AS CHARACTER NO-UNDO
     GET.
-    PRIVATE SET. 
+    PRIVATE SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns the reference to the Sub Item Columns collection  
-        Notes:   
+        Purpose: Returns the reference to the Sub Item Columns collection
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY SubItemColumns AS UltraListViewSubItemColumnsCollection NO-UNDO 
+    DEFINE PUBLIC PROPERTY SubItemColumns AS UltraListViewSubItemColumnsCollection NO-UNDO
     GET.
-    PRIVATE SET. 
+    PRIVATE SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the ConnectionProfileForm 
-        Notes:   
+        Purpose: Constructor for the ConnectionProfileForm
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC GenericConnectionProfileForm ():
-        
+
         SUPER().
         InitializeComponent().
-        
-        THIS-OBJECT:StoreFormPosition = FALSE . 
+
+        THIS-OBJECT:StoreFormPosition = FALSE .
         THIS-OBJECT:SubItemColumns = ultraListView1:SubItemColumns .
-        
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
@@ -110,102 +109,103 @@ CLASS Consultingwerk.Windows.Forms.GenericConnectionProfileForm INHERITS BaseFor
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Edits the current profile 
-        Notes:   
+        Purpose: Edits the current profile
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID EditProfile ():
-        
-        DEFINE VARIABLE oForm          AS System.Windows.Forms.Form    NO-UNDO .
-        DEFINE VARIABLE oConfigManager AS ConfigurationSettingsManager NO-UNDO .  
-        DEFINE VARIABLE oSetting       AS Progress.Lang.Object         NO-UNDO . 
-        DEFINE VARIABLE oDialogResult  AS DialogResult                 NO-UNDO .                
-        DEFINE VARIABLE eShowEditDialogEventArgs AS ShowEditDialogEventArgs NO-UNDO .                 
-        DEFINE VARIABLE eAssignSettingFromFormEventArgs AS AssignSettingFromFormEventArgs NO-UNDO . 
-                
+
+        DEFINE VARIABLE oConfigManager AS ConfigurationSettingsManager NO-UNDO .
+        DEFINE VARIABLE oSetting       AS Progress.Lang.Object         NO-UNDO .
+        DEFINE VARIABLE oDialogResult  AS DialogResult                 NO-UNDO .
+        DEFINE VARIABLE eShowEditDialogEventArgs AS ShowEditDialogEventArgs NO-UNDO .
+        DEFINE VARIABLE eAssignSettingFromFormEventArgs AS AssignSettingFromFormEventArgs NO-UNDO .
+
         oConfigManager = {Consultingwerk/get-service.i Consultingwerk.Framework.ConfigurationSettingsManager} .
-    
-        IF ultraListView1:SelectedItems:Count > 0 THEN 
-            oSetting = oConfigManager:GetSettingByGUID (ultraListView1:SelectedItems[0]:Key)  . 
+
+        IF ultraListView1:SelectedItems:Count > 0 THEN
+            oSetting = oConfigManager:GetSettingByGUID (ultraListView1:SelectedItems[0]:Key)  .
         ELSE
             RETURN .
-                    
+
         eShowEditDialogEventArgs = NEW ShowEditDialogEventArgs (oSetting) .
-        
+
         OnShowEditDialog (eShowEditDialogEventArgs) .
 
-        IF eShowEditDialogEventArgs:Cancel OR NOT VALID-OBJECT (eShowEditDialogEventArgs:Form) THEN RETURN . 
-                    
-        WAIT-FOR eShowEditDialogEventArgs:Form:ShowDialog (THIS-OBJECT) SET oDialogResult . 
-                        
+        IF eShowEditDialogEventArgs:Cancel OR NOT VALID-OBJECT (eShowEditDialogEventArgs:Form) THEN
+            RETURN .
+
+        WAIT-FOR eShowEditDialogEventArgs:Form:ShowDialog (THIS-OBJECT) SET oDialogResult .
+
         {Consultingwerk/check-dialogresult-ok.i oDialogResult}
-         
-        ASSIGN eAssignSettingFromFormEventArgs = NEW AssignSettingFromFormEventArgs (eShowEditDialogEventArgs:Form, 
+
+        ASSIGN eAssignSettingFromFormEventArgs = NEW AssignSettingFromFormEventArgs (eShowEditDialogEventArgs:Form,
                                                                                      oSetting) .
-         
-        OnAssignSettingFromForm (eAssignSettingFromFormEventArgs) . 
-        
-        IF eAssignSettingFromFormEventArgs:Cancel THEN RETURN . 
-        
-        OnSettingListViewItemCreated (NEW SettingListViewItemCreatedEventArgs (ultraListView1:SelectedItems[0], 
-                                                                               oSetting)) . 
-         
+
+        OnAssignSettingFromForm (eAssignSettingFromFormEventArgs) .
+
+        IF eAssignSettingFromFormEventArgs:Cancel THEN
+            RETURN .
+
+        OnSettingListViewItemCreated (NEW SettingListViewItemCreatedEventArgs (ultraListView1:SelectedItems[0],
+                                                                               oSetting)) .
+
         oConfigManager:StoreToSettingsService () .
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Raises the AssignSettingFromForm event
-        Notes:   
-        @param e The AssignSettingFromFormEventArgs with the data for this event              
+        Notes:
+        @param e The AssignSettingFromFormEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID OnAssignSettingFromForm (e AS AssignSettingFromFormEventArgs):
-        
+
         Consultingwerk.Assertion.EventArgsAssert:IsValid (e, "AssignSettingFromForm":U) .
-        
+
         THIS-OBJECT:AssignSettingFromForm:Publish (THIS-OBJECT, e) .
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Raises the FormClosing event
-        Notes:   
-        @param e The FormClosingEventArgs with th edata for this event 
+        Notes:
+        @param e The FormClosingEventArgs with th edata for this event
     ------------------------------------------------------------------------------*/
     METHOD OVERRIDE PROTECTED VOID OnFormClosing (e AS System.Windows.Forms.FormClosingEventArgs):
 
-        DEFINE VARIABLE oConfigManager AS ConfigurationSettingsManager NO-UNDO .  
-        
-        oConfigManager = {Consultingwerk/get-service.i Consultingwerk.Framework.ConfigurationSettingsManager} .
-    
-        IF ultraListView1:SelectedItems:Count > 0 THEN 
-            THIS-OBJECT:SelectedProfileGuid = ultraListView1:SelectedItems[0]:Key . 
-        ELSE 
-            THIS-OBJECT:SelectedProfileGuid = "":U . 
+        DEFINE VARIABLE oConfigManager AS ConfigurationSettingsManager NO-UNDO .
 
-        IF lOpenConnectionMode = FALSE THEN 
+        oConfigManager = {Consultingwerk/get-service.i Consultingwerk.Framework.ConfigurationSettingsManager} .
+
+        IF ultraListView1:SelectedItems:Count > 0 THEN
+            THIS-OBJECT:SelectedProfileGuid = ultraListView1:SelectedItems[0]:Key .
+        ELSE
+            THIS-OBJECT:SelectedProfileGuid = "":U .
+
+        IF lOpenConnectionMode = FALSE THEN
             oConfigManager:StoreToSettingsService () .
-                
+
         SUPER:OnFormClosing (INPUT e).
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the Load event 
-        Notes:   
+        Purpose: Raises the Load event
+        Notes:
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
-        
+
         DEFINE VARIABLE oDictionary      AS Consultingwerk.Framework.Collections.CharacterDictionary NO-UNDO.
-        DEFINE VARIABLE oConfigManager   AS ConfigurationSettingsManager                             NO-UNDO .  
-        DEFINE VARIABLE oItem            AS Infragistics.Win.UltraWinListView.UltraListViewItem      NO-UNDO .                 
-    
+        DEFINE VARIABLE oConfigManager   AS ConfigurationSettingsManager                             NO-UNDO .
+        DEFINE VARIABLE oItem            AS Infragistics.Win.UltraWinListView.UltraListViewItem      NO-UNDO .
+
         DEFINE VARIABLE oSettingsService AS ISettingsService                                         NO-UNDO .
-        DEFINE VARIABLE oSetting         AS Progress.Lang.Object                                     NO-UNDO . 
+        DEFINE VARIABLE oSetting         AS Progress.Lang.Object                                     NO-UNDO .
 
         DEFINE VARIABLE cView            AS CHARACTER                                                NO-UNDO .
-        DEFINE VARIABLE i                AS INTEGER                                                  NO-UNDO .                
-                
+        DEFINE VARIABLE i                AS INTEGER                                                  NO-UNDO .
+
         SUPER:OnLoad (e) .
 
         oSettingsService = {Consultingwerk/get-service.i Consultingwerk.Framework.ISettingsService} .
@@ -213,12 +213,12 @@ CLASS Consultingwerk.Windows.Forms.GenericConnectionProfileForm INHERITS BaseFor
         DO ON ERROR UNDO, THROW:
             ASSIGN cView = oSettingsService:GetSetting (THIS-OBJECT:WindowPositionRegistryKey,
                                                         "View":U) .
-            
-            IF cView > "":U THEN 
-                ultraListView1:View = {Consultingwerk/parse-enum.i Infragistics.Win.UltraWinListView.UltraListViewStyle cView} .   
-                                   
+
+            IF cView > "":U THEN
+                ultraListView1:View = {Consultingwerk/parse-enum.i Infragistics.Win.UltraWinListView.UltraListViewStyle cView} .
+
             CATCH err AS Progress.Lang.Error :
-                /* noop */    
+                /* noop */
             END CATCH.
         END.
 
@@ -227,10 +227,10 @@ CLASS Consultingwerk.Windows.Forms.GenericConnectionProfileForm INHERITS BaseFor
         oDictionary = oConfigManager:GetSettings() .
 
         DO i = 1 TO oDictionary:Count:
-            
+
             oItem = NEW Infragistics.Win.UltraWinListView.UltraListViewItem (ENTRY (i, oDictionary:Keys, oDictionary:KeyDelimiter)) .
             oItem:Value = oDictionary:GetValue (oItem:Key) .
-            
+
             oSetting = oConfigManager:GetSettingByGUID (oItem:Key) .
 
             THIS-OBJECT:ultraListView1:Items:Add (oItem) .
@@ -241,32 +241,32 @@ CLASS Consultingwerk.Windows.Forms.GenericConnectionProfileForm INHERITS BaseFor
         ultraListView1_ItemSelectionChanged (ultraListView1, ?) .
 
         CATCH err AS Progress.Lang.Error :
-            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .     
+            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Raises the SettingListViewItemCreated event
-        Notes:   
+        Notes:
         @param e The SettingListViewItemCreatedEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID OnSettingListViewItemCreated (e AS SettingListViewItemCreatedEventArgs):
-        
+
         Consultingwerk.Assertion.EventArgsAssert:IsValid (e, "SettingListViewItemCreated":U) .
-        
-        THIS-OBJECT:SettingListViewItemCreated:Publish (THIS-OBJECT,  
+
+        THIS-OBJECT:SettingListViewItemCreated:Publish (THIS-OBJECT,
                                                         e) .
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the OnShowEditDialog event 
-        Notes:   
+        Purpose: Raises the OnShowEditDialog event
+        Notes:
         @param e The ShowEditDialogEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID OnShowEditDialog (e AS ShowEditDialogEventArgs):
-        
+
         Consultingwerk.Assertion.EventArgsAssert:IsValid (e, "ShowEditDialog":U) .
 
         THIS-OBJECT:ShowEditDialog:Publish (THIS-OBJECT, e) .
@@ -274,56 +274,57 @@ CLASS Consultingwerk.Windows.Forms.GenericConnectionProfileForm INHERITS BaseFor
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: 
-        Notes:   
+        Purpose:
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID OpenConnectionShowDialog ():
-        
+
         DEFINE VARIABLE oDialogResult AS DialogResult NO-UNDO .
-        
+
         lOpenConnectionMode = TRUE .
-        
-        THIS-OBJECT:Text = "Open Connection"{&TRAN} . 
-        
-        ultraToolbarsManager1:Tools["Edit Profile":U]:SharedProps:Visible = FALSE . 
-        ultraToolbarsManager1:Tools["Remove Profile":U]:SharedProps:Visible = FALSE . 
-        ultraToolbarsManager1:Tools["Cancel":U]:SharedProps:Visible = TRUE . 
-        
+
+        THIS-OBJECT:Text = "Open Connection"{&TRAN} .
+
+        ultraToolbarsManager1:Tools["Edit Profile":U]:SharedProps:Visible = FALSE .
+        ultraToolbarsManager1:Tools["Remove Profile":U]:SharedProps:Visible = FALSE .
+        ultraToolbarsManager1:Tools["Cancel":U]:SharedProps:Visible = TRUE .
+
         WAIT-FOR THIS-OBJECT:ShowDialog () SET oDialogResult .
-        
+
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: 
-        Notes:   
+        Purpose:
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID OpenMaintenanceShowDialog ():
-        
+
         DEFINE VARIABLE oDialogResult AS DialogResult NO-UNDO .
-    
-        lOpenConnectionMode = FALSE . 
-        
-        THIS-OBJECT:Text = "Manage Connections"{&TRAN} . 
-        
-        ultraToolbarsManager1:Tools["Edit Profile":U]:SharedProps:Visible = TRUE . 
-        ultraToolbarsManager1:Tools["Remove Profile":U]:SharedProps:Visible = TRUE . 
+
+        lOpenConnectionMode = FALSE .
+
+        THIS-OBJECT:Text = "Manage Connections"{&TRAN} .
+
+        ultraToolbarsManager1:Tools["Edit Profile":U]:SharedProps:Visible = TRUE .
+        ultraToolbarsManager1:Tools["Remove Profile":U]:SharedProps:Visible = TRUE .
         ultraToolbarsManager1:Tools["Cancel":U]:SharedProps:Visible = FALSE .
-        
+
         WAIT-FOR THIS-OBJECT:ShowDialog () SET oDialogResult .
-        
+
     END METHOD .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -588,26 +589,26 @@ CLASS Consultingwerk.Windows.Forms.GenericConnectionProfileForm INHERITS BaseFor
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Removes the selected profile 
-        Notes:   
+        Purpose: Removes the selected profile
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID RemoveProfile ():
-        
+
         DEFINE VARIABLE oConfigManager AS ConfigurationSettingsManager NO-UNDO .
         DEFINE VARIABLE oDialogResult  AS DialogResultEnum             NO-UNDO .
-        
-        IF ultraListView1:SelectedItems:Count = 0 THEN 
-            RETURN . 
-    
-        oDialogResult = Consultingwerk.Util.MessageFormHelper:AskQuestion ("Are you sure that you want to remove the selected profile?"{&TRAN}, 
+
+        IF ultraListView1:SelectedItems:Count = 0 THEN
+            RETURN .
+
+        oDialogResult = Consultingwerk.Util.MessageFormHelper:AskQuestion ("Are you sure that you want to remove the selected profile?"{&TRAN},
                                                                            "Remove Profile"{&TRAN}) .
-               
-        IF oDialogResult = DialogResultEnum:DialogResultYes THEN . 
-        ELSE 
-            RETURN .                
-               
+
+        IF oDialogResult = DialogResultEnum:DialogResultYes THEN .
+        ELSE
+            RETURN .
+
         oConfigManager = {Consultingwerk/get-service.i Consultingwerk.Framework.ConfigurationSettingsManager} .
-            
+
         oConfigManager:RemoveInstance (ultraListView1:SelectedItems[0]:Key) .
 
         ultraListView1:Items:Remove (ultraListView1:SelectedItems[0]) .
@@ -615,110 +616,126 @@ CLASS Consultingwerk.Windows.Forms.GenericConnectionProfileForm INHERITS BaseFor
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the ItemDoubleClick event of the ultraListView1  
-        Notes:   
+        Purpose: Event handler for the ItemDoubleClick event of the ultraListView1
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The ItemDoubleClickEventArgs with the data for this event 
+        @param e The ItemDoubleClickEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraListView1_ItemDoubleClick (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraListView1_ItemDoubleClick (sender AS System.Object,
                                                         e AS Infragistics.Win.UltraWinListView.ItemDoubleClickEventArgs):
-        
-        IF lOpenConnectionMode = FALSE THEN 
+
+        IF lOpenConnectionMode = FALSE THEN
             THIS-OBJECT:EditProfile () .
         ELSE DO:
             THIS-OBJECT:DialogResult = DialogResult:OK .
             THIS-OBJECT:Close () .
         END.
 
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the ItemSelectionChanged event of the ultraListView1  
-        Notes:   
+        Purpose: Event handler for the ItemSelectionChanged event of the ultraListView1
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The ItemSelectionChangedEventArgs with the data for this event 
+        @param e The ItemSelectionChangedEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraListView1_ItemSelectionChanged (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraListView1_ItemSelectionChanged (sender AS System.Object,
                                                              e AS Infragistics.Win.UltraWinListView.ItemSelectionChangedEventArgs):
-        
-        IF lOpenConnectionMode = TRUE THEN 
-            ultraToolbarsManager1:Tools["Ok":U]:SharedProps:Enabled = ultraListView1:SelectedItems:Count > 0 . 
 
-        ultraToolbarsManager1:Tools["Edit Profile":U]:SharedProps:Enabled = ultraListView1:SelectedItems:Count > 0 . 
-        ultraToolbarsManager1:Tools["Remove Profile":U]:SharedProps:Enabled = ultraListView1:SelectedItems:Count > 0 . 
+        IF lOpenConnectionMode = TRUE THEN
+            ultraToolbarsManager1:Tools["Ok":U]:SharedProps:Enabled = ultraListView1:SelectedItems:Count > 0 .
+
+        ultraToolbarsManager1:Tools["Edit Profile":U]:SharedProps:Enabled = ultraListView1:SelectedItems:Count > 0 .
+        ultraToolbarsManager1:Tools["Remove Profile":U]:SharedProps:Enabled = ultraListView1:SelectedItems:Count > 0 .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the KeyDown event of the ultraListView1  
-        Notes:   
+        Purpose: Event handler for the KeyDown event of the ultraListView1
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The KeyEventArgs with the data for this event 
+        @param e The KeyEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PRIVATE VOID ultraListView1_KeyDown (sender AS System.Object, e AS System.Windows.Forms.KeyEventArgs):
-        
-        IF ultraListView1:SelectedItems:Count > 0 AND 
+
+        IF ultraListView1:SelectedItems:Count > 0 AND
            (Progress.Util.EnumHelper:AreEqual (e:KeyCode, System.Windows.Forms.Keys:Enter) OR
-            Progress.Util.EnumHelper:AreEqual (e:KeyCode, System.Windows.Forms.Keys:Return)) THEN DO: 
-             
-            IF lOpenConnectionMode = FALSE THEN 
+            Progress.Util.EnumHelper:AreEqual (e:KeyCode, System.Windows.Forms.Keys:Return)) THEN DO:
+
+            IF lOpenConnectionMode = FALSE THEN
                 THIS-OBJECT:EditProfile () .
-            ELSE DO: 
+            ELSE DO:
                 THIS-OBJECT:DialogResult = DialogResult:OK .
                 THIS-OBJECT:Close () .
-            END. 
-        END . 
-        
+            END.
+        END .
+
         IF Progress.Util.EnumHelper:AreEqual (e:KeyCode, System.Windows.Forms.Keys:Escape) THEN DO:
             THIS-OBJECT:DialogResult = DialogResult:Cancel .
             THIS-OBJECT:Close () .
-        END. 
-        
+        END.
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
     END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the ToolClick event of the ultraToolbarsManager1
         Notes:
         @param sender The reference to the object that raised the event
-        @param e The ToolClickEventArgs with the data for this event                                                                        
+        @param e The ToolClickEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraToolbarsManager1_ToolClick (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraToolbarsManager1_ToolClick (sender AS System.Object,
                                                          e AS Infragistics.Win.UltraWinToolbars.ToolClickEventArgs):
-        
+
         DEFINE VARIABLE oSettingsService AS ISettingsService NO-UNDO .
-        
+
         oSettingsService = {Consultingwerk/get-service.i Consultingwerk.Framework.ISettingsService} .
-        
+
         CASE e:Tool:Key:
             WHEN "Cancel":U THEN DO:
                 THIS-OBJECT:DialogResult = DialogResult:Cancel .
                 THIS-OBJECT:Close () .
             END.
-            
+
             WHEN "Ok":U THEN DO:
                 THIS-OBJECT:DialogResult = DialogResult:Ok .
                 THIS-OBJECT:Close () .
             END.
-            
-            WHEN "Edit Profile":U THEN 
+
+            WHEN "Edit Profile":U THEN
                 EditProfile () .
-                
-            WHEN "Remove Profile":U THEN 
+
+            WHEN "Remove Profile":U THEN
                 RemoveProfile () .
-            
-            WHEN "List":U THEN 
+
+            WHEN "List":U THEN
                 ultraListView1:View = Infragistics.Win.UltraWinListView.UltraListViewStyle:List .
 
-            WHEN "Details":U THEN 
+            WHEN "Details":U THEN
                 ultraListView1:View = Infragistics.Win.UltraWinListView.UltraListViewStyle:Details .
 
-            WHEN "Tiles":U THEN 
+            WHEN "Tiles":U THEN
                 ultraListView1:View = Infragistics.Win.UltraWinListView.UltraListViewStyle:Tiles .
-        END CASE . 
+        END CASE .
 
         oSettingsService:StoreSetting (THIS-OBJECT:WindowPositionRegistryKey,
-                                       "View":U, 
+                                       "View":U,
                                        ultraListView1:View:ToString()) .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
 
     END METHOD .
 

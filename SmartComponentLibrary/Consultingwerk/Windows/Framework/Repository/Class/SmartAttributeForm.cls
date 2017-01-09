@@ -11,23 +11,24 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : SmartAttributeForm
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Marko Rüterbories / Consultingwerk Ltd.
     Created     : 21.05.2014 11:43:34
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Consultingwerk.Windows.Framework.Repository.Class.* FROM PROPATH .  
-USING Consultingwerk.SmartComponents.Base.* FROM PROPATH .
-USING Consultingwerk.Util.*                 FROM PROPATH .
-USING Progress.Lang.*                       FROM PROPATH .
+USING Consultingwerk.SmartComponents.Base.*               FROM PROPATH .
+USING Consultingwerk.Util.*                               FROM PROPATH .
+USING Consultingwerk.Windows.Framework.Repository.*       FROM PROPATH .
+USING Consultingwerk.Windows.Framework.Repository.Class.* FROM PROPATH .
+USING Progress.Lang.*                                     FROM PROPATH .
 
-CLASS Consultingwerk.Windows.Framework.Repository.Class.SmartAttributeForm 
-    INHERITS SmartWindowForm: 
+CLASS Consultingwerk.Windows.Framework.Repository.Class.SmartAttributeForm
+    INHERITS SmartWindowForm:
 
     DEFINE PRIVATE VARIABLE smartAttributeViewerControl1                   AS Consultingwerk.Windows.Framework.Repository.Class.SmartAttributeViewerControl  NO-UNDO.
     DEFINE PRIVATE VARIABLE m_SmartAttributeForm_Toolbars_Dock_Area_Top    AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea                        NO-UNDO.
@@ -41,37 +42,38 @@ CLASS Consultingwerk.Windows.Framework.Repository.Class.SmartAttributeForm
     DEFINE PRIVATE VARIABLE smartToolbarController1                        AS Consultingwerk.SmartComponents.Implementation.SmartToolbarController           NO-UNDO.
     DEFINE PRIVATE VARIABLE SmartAttributeForm_Fill_Panel                  AS Infragistics.Win.Misc.UltraPanel                                               NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraSplitter1                                 AS Infragistics.Win.Misc.UltraSplitter                                            NO-UNDO.
-    
+
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the SmartAttributeForm class                                                                        
-        Notes:                                                                        
+        Purpose: Constructor for the SmartAttributeForm class
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC SmartAttributeForm ():
-		
+    CONSTRUCTOR PUBLIC SmartAttributeForm ():
+
         SUPER().
         InitializeComponent().
-        
+
         &IF NOT PROVERSION BEGINS "10.2":U AND NOT PROVERSION BEGINS "11.0" &THEN
         THIS-OBJECT:ComponentsCollection:Add (THIS-OBJECT:components).
         &ENDIF
-        
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
-	
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    END CONSTRUCTOR.
+
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -763,8 +765,9 @@ CLASS Consultingwerk.Windows.Framework.Repository.Class.SmartAttributeForm
         ultraGridColumn13:Header:VisiblePosition = 13.
         ultraGridColumn13:Hidden = TRUE.
         ultraGridColumn14:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        ultraGridColumn14:Header:Caption = "Property or Event":U.
         ultraGridColumn14:Header:VisiblePosition = 14.
-        ultraGridColumn14:Hidden = TRUE.
+        ultraGridColumn14:Hidden = FALSE.
         ultraGridColumn15:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
         ultraGridColumn15:Header:VisiblePosition = 2.
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
@@ -877,6 +880,8 @@ CLASS Consultingwerk.Windows.Framework.Repository.Class.SmartAttributeForm
         THIS-OBJECT:smartDataBrowser1:RightToLeft = CAST(resources:GetObject("smartDataBrowser1.RightToLeft":U), System.Windows.Forms.RightToLeft).
         THIS-OBJECT:smartDataBrowser1:SettingsKey = resources:GetString("smartDataBrowser1.SettingsKey":U).
         THIS-OBJECT:smartDataBrowser1:Size = CAST(resources:GetObject("smartDataBrowser1.Size":U), System.Drawing.Size).
+        THIS-OBJECT:smartDataBrowser1:SmartFilterActive = TRUE.
+        THIS-OBJECT:smartDataBrowser1:SmartFilterUseMatches = TRUE.
         THIS-OBJECT:smartDataBrowser1:TabIndex = System.Convert:ToInt32(resources:GetObject("smartDataBrowser1.TabIndex":U)).
         THIS-OBJECT:smartDataBrowser1:Text = resources:GetString("smartDataBrowser1.Text":U).
         THIS-OBJECT:smartDataBrowser1:VisibleGridColumns = resources:GetString("smartDataBrowser1.VisibleGridColumns":U).
@@ -1033,26 +1038,28 @@ CLASS Consultingwerk.Windows.Framework.Repository.Class.SmartAttributeForm
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Raises the Shown Event
-        Notes:   
+        Notes:
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
-		
-		SUPER:OnShown (e) .
+    METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
+
+        SUPER:OnShown (e) .
 
         Consultingwerk.Util.UserInterfaceHelper:ProcessEvents() .
 
+        smartDataBrowser1:DisplayLayout:Bands[0]:Columns["PropertyOrEvent":U]:ValueList = RepositoryValueLists:GetPropertyOrEventValueList() .
+
         THIS-OBJECT:smartBusinessEntityAdapter1:RetrieveData () .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the SmartAttributeForm class 
-        Notes:   
+        Purpose: Destructor for the SmartAttributeForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC SmartAttributeForm ():
 

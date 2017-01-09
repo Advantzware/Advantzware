@@ -36,14 +36,14 @@ CLASS Consultingwerk.Windows.Framework.ImageProvider IMPLEMENTS IImageProvider:
         Purpose: Constructor for the ImageProvider class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ImageProvider ():
-		SUPER ().
-		
-		/* Mike Fechner, Consultingwerk Ltd. 08.01.2013
+    CONSTRUCTOR PUBLIC ImageProvider ():
+        SUPER ().
+        
+        /* Mike Fechner, Consultingwerk Ltd. 08.01.2013
            no :U here to avoid crash of Compiler on OpenEdge 10.2B */
-		ASSIGN oImages = NEW "System.Collections.Generic.Dictionary<System.String,System.Drawing.Bitmap>" /*:U*/ () .
-		
-	END CONSTRUCTOR.
+        ASSIGN oImages = NEW "System.Collections.Generic.Dictionary<System.String,System.Drawing.Bitmap>" /*:U*/ () .
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the Image object for the specified key
@@ -52,9 +52,9 @@ CLASS Consultingwerk.Windows.Framework.ImageProvider IMPLEMENTS IImageProvider:
         @param pcKey The key to return the Image for
         @return The Image object for the specified key or ?
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC System.Drawing.Bitmap ImageForKey (pcKey AS CHARACTER):
-		
-		DEFINE VARIABLE oImage AS System.Drawing.Bitmap NO-UNDO.
+    METHOD PUBLIC System.Drawing.Bitmap ImageForKey (pcKey AS CHARACTER):
+        
+        DEFINE VARIABLE oImage AS System.Drawing.Bitmap NO-UNDO.
 
         IF oImages:ContainsKey (pcKey) THEN 
             RETURN oImages [pcKey] .
@@ -63,7 +63,7 @@ CLASS Consultingwerk.Windows.Framework.ImageProvider IMPLEMENTS IImageProvider:
             oImage = Consultingwerk.Util.ImageHelper:Load (pcKey) .
 
             CATCH err AS Progress.Lang.Error :
-            	RETURN ? .	
+                RETURN ? .    
             END CATCH.
         END.
 
@@ -72,8 +72,8 @@ CLASS Consultingwerk.Windows.Framework.ImageProvider IMPLEMENTS IImageProvider:
 
         oImages:Add (pcKey, oImage) .
 
-		RETURN oImage .
-		
-	END METHOD .
+        RETURN oImage .
+        
+    END METHOD .
 
 END CLASS.

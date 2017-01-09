@@ -1,5 +1,6 @@
 /* ***************************  &1  ************************** */
 
+@STARNOVAANNOTATIONS@
 DEFINE {&&ACCESS} TEMP-TABLE &1{&&SUFFIX} NO-UNDO &9{&&REFERENCE-ONLY} 
 &4
 &5

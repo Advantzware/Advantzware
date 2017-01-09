@@ -44,8 +44,8 @@ CLASS Consultingwerk.SmartFramework.Authorization.ToolbarItemSecurityService
         Notes:   
         @param poLookupDescriptor The reference to the SmartBusinessEntityLookupDescriptor to assign the properties to 
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID AssignLookupDescriptorProperties (poLookupDescriptor AS SmartBusinessEntityLookupDescriptor):
-		
+    METHOD PUBLIC VOID AssignLookupDescriptorProperties (poLookupDescriptor AS SmartBusinessEntityLookupDescriptor):
+        
         ASSIGN poLookupDescriptor:AppServerPartition          = "":U
                poLookupDescriptor:LookupBrowserFields         = "ObjectName,ToolbarItemKey":U
                poLookupDescriptor:LookupControls              = "":U
@@ -65,7 +65,7 @@ CLASS Consultingwerk.SmartFramework.Authorization.ToolbarItemSecurityService
                poLookupDescriptor:LookupQueryString           = "FOR EACH eSmartToolbarSecurityItem WHERE eSmartToolbarSecurityItem.ToolbarItemKey BEGINS ~"&1~"":U
                .
                
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the Description for the security item 
@@ -73,26 +73,26 @@ CLASS Consultingwerk.SmartFramework.Authorization.ToolbarItemSecurityService
         @param pcItemKey The unique key of the security item
         @return The description of the security item
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC CHARACTER GetDescription (pcItemKey AS CHARACTER):
-		
-		DEFINE VARIABLE oToolbarSecurityItemDatasetModel AS ToolbarSecurityItemDatasetModel NO-UNDO .
-		
-		IF pcItemKey = "":U THEN 
-		    RETURN "<unknown>":U .
-		
-		oToolbarSecurityItemDatasetModel = NEW ToolbarSecurityItemDatasetModel (pcItemKey) .
-		
-		IF oToolbarSecurityItemDatasetModel:SmartToolbarSecurityItem:Available THEN DO:
-		    RETURN TRIM (SUBSTITUTE ("&1 &2":U, 
-		                             oToolbarSecurityItemDatasetModel:SmartToolbarSecurityItem:ObjectName,
-		                             oToolbarSecurityItemDatasetModel:SmartToolbarSecurityItem:ToolbarItemKey)) . 
-		END .
-		ELSE 
-		    RETURN "<unknown>":U . 
-		
-		RETURN pcItemKey .
+    METHOD PUBLIC CHARACTER GetDescription (pcItemKey AS CHARACTER):
+        
+        DEFINE VARIABLE oToolbarSecurityItemDatasetModel AS ToolbarSecurityItemDatasetModel NO-UNDO .
+        
+        IF pcItemKey = "":U THEN 
+            RETURN "<unknown>":U .
+        
+        oToolbarSecurityItemDatasetModel = NEW ToolbarSecurityItemDatasetModel (pcItemKey) .
+        
+        IF oToolbarSecurityItemDatasetModel:SmartToolbarSecurityItem:Available THEN DO:
+            RETURN TRIM (SUBSTITUTE ("&1 &2":U, 
+                                     oToolbarSecurityItemDatasetModel:SmartToolbarSecurityItem:ObjectName,
+                                     oToolbarSecurityItemDatasetModel:SmartToolbarSecurityItem:ToolbarItemKey)) . 
+        END .
+        ELSE 
+            RETURN "<unknown>":U . 
+        
+        RETURN pcItemKey .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Validates the security item key  
@@ -100,7 +100,7 @@ CLASS Consultingwerk.SmartFramework.Authorization.ToolbarItemSecurityService
         @param pcItemKey The unique key of the security item
         @return Logical value indicating if the security item key is valid
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL ValidateKey (pcItemKey AS CHARACTER):
+    METHOD PUBLIC LOGICAL ValidateKey (pcItemKey AS CHARACTER):
 
         DEFINE VARIABLE oToolbarSecurityItemDatasetModel AS ToolbarSecurityItemDatasetModel NO-UNDO .
         
@@ -108,9 +108,9 @@ CLASS Consultingwerk.SmartFramework.Authorization.ToolbarItemSecurityService
             RETURN FALSE .
         
         oToolbarSecurityItemDatasetModel = NEW ToolbarSecurityItemDatasetModel (pcItemKey) .
-        		
-		RETURN oToolbarSecurityItemDatasetModel:SmartToolbarSecurityItem:Available .
+                
+        RETURN oToolbarSecurityItemDatasetModel:SmartToolbarSecurityItem:Available .
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

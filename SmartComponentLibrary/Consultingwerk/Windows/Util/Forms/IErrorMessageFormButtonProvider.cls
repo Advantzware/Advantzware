@@ -32,7 +32,7 @@ INTERFACE Consultingwerk.Windows.Util.Forms.IErrorMessageFormButtonProvider:
         @param poError The error that is currently being processed
         @return The List the System.Windows.Forms.Button objects to be added to the ErrorMessageForm
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC "System.Collections.Generic.List<System.Windows.Forms.Button>" GetButtonsForError (poError AS Error).
+    METHOD PUBLIC "System.Collections.Generic.List<System.Windows.Forms.Button>" GetButtonsForError (poError AS Error).
 
     /*------------------------------------------------------------------------------
         Purpose: Handles the click event of a custom button
@@ -41,7 +41,7 @@ INTERFACE Consultingwerk.Windows.Util.Forms.IErrorMessageFormButtonProvider:
         @param poError The reference to the error that is currently shown
         @return Logical value indicating if the Error Message Form should be closed (True = Close)
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL HandleButtonClick (poButton AS System.Windows.Forms.Button,
-	                                         poError AS Error).
+    METHOD PUBLIC LOGICAL HandleButtonClick (poButton AS System.Windows.Forms.Button,
+                                             poError AS Error).
 
 END INTERFACE.

@@ -11,24 +11,24 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : ILookupCompleteCallback
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Thu Apr 09 15:22:48 CEST 2009
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 USING Consultingwerk.SmartComponents.Base.* FROM PROPATH .
 USING Progress.Lang.* FROM ASSEMBLY .
 
-INTERFACE Consultingwerk.SmartComponents.Interfaces.ILookupCompleteCallback:  
-  
-    /*------------------------------------------------------------------------------
-        Purpose: Callback method for the LookupComplete event of the SmartLookup
-        Notes:   
-        @param sender The reference to an SmartLookup instance which has invoked the method
-    ------------------------------------------------------------------------------*/
-    METHOD PUBLIC VOID LookupCompleteCallback (sender AS SmartLookup) . 
-  
+INTERFACE Consultingwerk.SmartComponents.Interfaces.ILookupCompleteCallback:
+
+    /**
+     * Purpose: Callback method for the LookupComplete event of the SmartLookup
+     * Notes:
+     * @param sender The reference to an SmartLookup instance which has invoked the method
+     */
+    METHOD PUBLIC VOID LookupCompleteCallback (sender AS SmartLookup) .
+
 END INTERFACE.

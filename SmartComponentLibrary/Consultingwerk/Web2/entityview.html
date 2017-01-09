@@ -8,7 +8,9 @@
 		    <smart-data-source 
 		        smart-object-name='<!--WSE get-field ("View") -->DataSource' 
 		        smart-business-entity-name="<!--WSE get-field ("EntityName") -->"
-		        smart-entity-table="<!--WSE get-field ("EntityTable") -->"></smart-data-source>
+		        smart-entity-table='<!--WSE get-field ("EntityTable") -->'
+                smart-entity-view='<!--WSE get-field ("EntityView") -->'>
+		        </smart-data-source>
 		    <smart-grid 
 		        smart-object-name='<!--WSE get-field ("View") -->Grid' 
 		        smart-data-source='<!--WSE get-field ("View") -->DataSource' 

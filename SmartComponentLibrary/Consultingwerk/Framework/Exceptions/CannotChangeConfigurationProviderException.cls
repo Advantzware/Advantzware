@@ -31,13 +31,13 @@ CLASS Consultingwerk.Framework.Exceptions.CannotChangeConfigurationProviderExcep
     INHERITS Exception
     {&SERIALIZABLE}:  
 
-	/*------------------------------------------------------------------------------
-		Purpose: Constructor for the CannotChangeConfigurationProviderException class  																	  
-		Notes:  																	  
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC CannotChangeConfigurationProviderException ():
-		SUPER ("Cannot modify the ConfigurationProvider settings once it has been set."{&TRAN}, 0).
-		
-	END CONSTRUCTOR.
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the CannotChangeConfigurationProviderException class                                                                        
+        Notes:                                                                        
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC CannotChangeConfigurationProviderException ():
+        SUPER ("Cannot modify the ConfigurationProvider settings once it has been set."{&TRAN}, 0).
+        
+    END CONSTRUCTOR.
 
 END CLASS.

@@ -32,14 +32,14 @@ CLASS Consultingwerk.Web.WebUtilities:
         Purpose: Static constructor for the WebUtilities class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR STATIC WebUtilities ():
+    CONSTRUCTOR STATIC WebUtilities ():
 
         IF SESSION:CLIENT-TYPE <> ClientType:WEBCLIENT AND NOT VALID-HANDLE (WebContext:web-utilities-hdl) THEN DO:
             
             RUN Consultingwerk/Web/init-web-utilities.p . 
-        END.		
-		
-	END CONSTRUCTOR.
+        END.        
+        
+    END CONSTRUCTOR.
 
 
     /*------------------------------------------------------------------------------
@@ -109,11 +109,11 @@ CLASS Consultingwerk.Web.WebUtilities:
         Notes:   
         @param pmObject The MEMPTR for the WebStream to export
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID OutLong (pmObject AS MEMPTR):
-		
-		EXPORT STREAM-HANDLE WebContext:WebStream pmObject . 
+    METHOD PUBLIC VOID OutLong (pmObject AS MEMPTR):
+        
+        EXPORT STREAM-HANDLE WebContext:WebStream pmObject . 
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Outputs a single meta http-equiv tag (usually in the html header)                                                                      

@@ -43,10 +43,10 @@ CLASS Consultingwerk.SmartComponents.Enum.EnableFieldsEnum :
         Purpose: Constructor for the EnableFieldsEnum class
         Notes:   Disable instance creation   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PRIVATE EnableFieldsEnum ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PRIVATE EnableFieldsEnum ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
 
 END CLASS.

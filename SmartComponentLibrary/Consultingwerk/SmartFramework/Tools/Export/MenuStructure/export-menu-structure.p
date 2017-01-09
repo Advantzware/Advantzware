@@ -45,6 +45,6 @@ oExporter = NEW MenuStructureExporter () .
 oExporter:ExportMenuStructure (cParentGuids, cFileName) .
 
 CATCH err AS Progress.Lang.Error:
-	Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .	
+    Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .    
 END CATCH.       
        

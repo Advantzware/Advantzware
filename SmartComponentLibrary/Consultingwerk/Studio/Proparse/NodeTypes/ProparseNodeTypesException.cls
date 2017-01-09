@@ -38,13 +38,13 @@ CLASS Consultingwerk.Studio.Proparse.NodeTypes.ProparseNodeTypesException
         @param pcErrorString The error message associated with this Exception object
         @param piMessageNumber The error message number associated with this Exception object
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ProparseNodeTypesException (poInnerException AS Progress.Lang.Error, 
-	                                               pcErrorString AS CHARACTER, 
-	                                               piMessageNumber AS INTEGER):
-	                                           
-		SUPER (poInnerException, pcErrorString, piMessageNumber).
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC ProparseNodeTypesException (poInnerException AS Progress.Lang.Error, 
+                                                   pcErrorString AS CHARACTER, 
+                                                   piMessageNumber AS INTEGER):
+                                               
+        SUPER (poInnerException, pcErrorString, piMessageNumber).
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the ProparseNodeTypesException  class
@@ -52,20 +52,20 @@ CLASS Consultingwerk.Studio.Proparse.NodeTypes.ProparseNodeTypesException
         @param pcErrorString The error message associated with this Exception object
         @param piMessageNumber The error message number associated with this Exception object
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ProparseNodeTypesException (pcErrorString AS CHARACTER, 
-	                                               piMessageNumber AS INTEGER):
-	                                           
-		SUPER (pcErrorString, piMessageNumber).
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC ProparseNodeTypesException (pcErrorString AS CHARACTER, 
+                                                   piMessageNumber AS INTEGER):
+                                               
+        SUPER (pcErrorString, piMessageNumber).
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the ProparseNodeTypesException  class
         Notes:                          
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ProparseNodeTypesException ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC ProparseNodeTypesException ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
 END CLASS.

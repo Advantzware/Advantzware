@@ -49,32 +49,32 @@ CLASS Consultingwerk.Windows.LegacyGuiMigration.Widgets.Infragistics.UltraDateTi
         Notes:   The value for the INPUT-VALUE attribute is the unformatted 
                  SCREEN-VALUE of a widget                          
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY INPUT-VALUE AS DATETIME NO-UNDO 
-	GET:
-	    RETURN oControl:DateTime . 
-	END GET .
-	SET (arg AS DATETIME):
-	    ASSIGN oControl:DateTime = arg . 
-	END SET . 
+    DEFINE PUBLIC PROPERTY INPUT-VALUE AS DATETIME NO-UNDO 
+    GET:
+        RETURN oControl:DateTime . 
+    END GET .
+    SET (arg AS DATETIME):
+        ASSIGN oControl:DateTime = arg . 
+    END SET . 
 
-	/*------------------------------------------------------------------------------
+    /*------------------------------------------------------------------------------
         Purpose: The type of a handle
-	    Notes:   FILL-IN
-	------------------------------------------------------------------------------*/
-	DEFINE PUBLIC OVERRIDE PROPERTY TYPE AS CHARACTER NO-UNDO INIT "FILL-IN":U 
-	GET .
-	PROTECTED SET . 
+        Notes:   FILL-IN
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC OVERRIDE PROPERTY TYPE AS CHARACTER NO-UNDO INIT "FILL-IN":U 
+    GET .
+    PROTECTED SET . 
 
-	/*------------------------------------------------------------------------------
-	   Purpose: Constructor for the UltraDateTimeEditorWidget class
-	   Notes:
-	   @param poEditor The reference to the UltraTextEditor this instance should represent
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC UltraDateTimeEditorWidget (poEditor AS UltraDateTimeEditor):
-		SUPER (poEditor).
+    /*------------------------------------------------------------------------------
+       Purpose: Constructor for the UltraDateTimeEditorWidget class
+       Notes:
+       @param poEditor The reference to the UltraTextEditor this instance should represent
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC UltraDateTimeEditorWidget (poEditor AS UltraDateTimeEditor):
+        SUPER (poEditor).
 
         ASSIGN oControl = poEditor .
         
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
 END CLASS.

@@ -33,19 +33,19 @@ CLASS Consultingwerk.Windows.Framework.Localization.LocalizationHelper:
         @param pcClassName The name of the class
         @return The file name of the resource file
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC CHARACTER ClassNameToResourceFileName (pcClassName AS CHARACTER):
-		
-		DEFINE VARIABLE cResourceFileName AS CHARACTER NO-UNDO .
-		DEFINE VARIABLE iIndex            AS INTEGER   NO-UNDO .
-		
+    METHOD PUBLIC STATIC CHARACTER ClassNameToResourceFileName (pcClassName AS CHARACTER):
+        
+        DEFINE VARIABLE cResourceFileName AS CHARACTER NO-UNDO .
+        DEFINE VARIABLE iIndex            AS INTEGER   NO-UNDO .
+        
         ASSIGN cResourceFileName = ClassHelper:ClassNameToFile (pcClassName) 
                iIndex            = R-INDEX (cResourceFileName, ".":U) 
                cResourceFileName = SUBSTRING (cResourceFileName, 1, iIndex) + "resx":U .
         
-        FILE-INFO:FILE-NAME = cResourceFileName .
+        FILE-INFORMATION:FILE-NAME = cResourceFileName .
         
-        RETURN FILE-INFO:FULL-PATHNAME . 
+        RETURN FILE-INFORMATION:FULL-PATHNAME . 
         
-	END METHOD .
+    END METHOD .
 
 END CLASS.

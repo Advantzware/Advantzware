@@ -11,11 +11,11 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : ttServiceLoader.i
-    Purpose     : 
+    Purpose     :
 
     Syntax      :
 
-    Description : 
+    Description :
 
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Mon Nov 07 23:29:46 CET 2011
@@ -24,10 +24,10 @@
 
 /* ***************************  Definitions  ************************** */
 
-DEFINE {&ACCESS} TEMP-TABLE ttServiceLoader NO-UNDO {&REFERENCE-ONLY} 
-    FIELD Order AS INTEGER 
-    FIELD ServiceTypeName   AS CHARACTER 
+DEFINE {&ACCESS} TEMP-TABLE ttServiceLoader NO-UNDO {&REFERENCE-ONLY}
+    FIELD Order AS INTEGER
+    FIELD ServiceTypeName   AS CHARACTER
     FIELD ServiceClassName  AS CHARACTER
-    FIELD Disabled          AS LOGICAL INIT FALSE 
+    FIELD Disabled          AS LOGICAL INITIAL FALSE
     FIELD RequiredDatabases AS CHARACTER
     INDEX Order Order .

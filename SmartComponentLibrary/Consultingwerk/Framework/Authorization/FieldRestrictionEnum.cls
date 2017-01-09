@@ -11,75 +11,64 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : FieldRestrictionEnum
-    Purpose     : Enum with possible values for the field level security 
+    Purpose     : Enum with possible values for the field level security
                   on the user interface
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Fri Nov 09 00:10:19 CET 2012
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 {Consultingwerk/products.i}
 
-&IF DEFINED (NativeEnums) NE 0 &THEN
-&GLOBAL-DEFINE CLASS ENUM
-&ELSE
-&GLOBAL-DEFINE CLASS CLASS
-&ENDIF
-
 USING Consultingwerk.*                         FROM PROPATH .
-USING Consultingwerk.Framework.Authorization.* FROM PROPATH .  
+USING Consultingwerk.Framework.Authorization.* FROM PROPATH .
 USING Consultingwerk.Framework.Collections.*   FROM PROPATH .
 USING Progress.Lang.*                          FROM PROPATH .
 
-{&CLASS} Consultingwerk.Framework.Authorization.FieldRestrictionEnum 
-    &IF "{&CLASS}" EQ "CLASS" &THEN
-    INHERITS Enum
-    &ENDIF    
-        : 
+&IF DEFINED (NativeEnums) NE 0 &THEN
+ENUM Consultingwerk.Framework.Authorization.FieldRestrictionEnum:
 
-&IF "{&CLASS}" EQ "ENUM" &THEN
-    DEFINE ENUM
-&ENDIF    
+    DEFINE ENUM None Disabled Hidden AddOnly UpdateOnly .
+
+END ENUM .
+&ELSE
+CLASS Consultingwerk.Framework.Authorization.FieldRestrictionEnum
+    INHERITS Consultingwerk.Enum:
 
     /*------------------------------------------------------------------------------
-        Purpose: The field has no restrictions                                    
-        Notes:          
+        Purpose: The field has no restrictions
+        Notes:
     ------------------------------------------------------------------------------*/
     {Consultingwerk/EnumMember.i None 0 FieldRestrictionEnum}
 
     /*------------------------------------------------------------------------------
-        Purpose: The user may view the field but not edit it's value               
-        Notes:          
+        Purpose: The user may view the field but not edit it's value
+        Notes:
     ------------------------------------------------------------------------------*/
     {Consultingwerk/EnumMember.i Disabled 1 FieldRestrictionEnum}
 
     /*------------------------------------------------------------------------------
-        Purpose: The user has no privilegues to view the field                                       
-        Notes:          
+        Purpose: The user has no privilegues to view the field
+        Notes:
     ------------------------------------------------------------------------------*/
     {Consultingwerk/EnumMember.i Hidden 2 FieldRestrictionEnum}
 
     /*------------------------------------------------------------------------------
-        Purpose: The user may view the field but only edit for new records               
-        Notes:          
+        Purpose: The user may view the field but only edit for new records
+        Notes:
     ------------------------------------------------------------------------------*/
     {Consultingwerk/EnumMember.i AddOnly 3 FieldRestrictionEnum}
 
     /*------------------------------------------------------------------------------
-        Purpose: The user may view the field but only edit for existing records               
-        Notes:          
+        Purpose: The user may view the field but only edit for existing records
+        Notes:
     ------------------------------------------------------------------------------*/
     {Consultingwerk/EnumMember.i UpdateOnly 4 FieldRestrictionEnum}
 
-&IF "{&CLASS}" EQ "ENUM" &THEN
-    .
-&ENDIF    
-
-&IF "{&CLASS}" EQ "CLASS" &THEN
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the FieldRestrictionEnum members
         Notes:
@@ -88,27 +77,24 @@ USING Progress.Lang.*                          FROM PROPATH .
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PRIVATE FieldRestrictionEnum (piValue AS INTEGER, pcLabel AS CHARACTER):
         SUPER ().
- 
+
         ASSIGN THIS-OBJECT:Value = piValue
                THIS-OBJECT:Label = pcLabel .
- 
+
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns a CharacterList with the names of the Enum members 
-        Notes:   
+        Purpose: Returns a CharacterList with the names of the Enum members
+        Notes:
         @return The CharacterList with the names of the Enum members
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CharacterList GetNames ():
-        
-        DEFINE VARIABLE oReturn AS CharacterList NO-UNDO . 
-        
+
         RETURN NEW CharacterList ('{&EnumMembers}':U).
 
     END METHOD .
-    
+
     {Consultingwerk/EnumFromString.i Consultingwerk.Framework.Authorization.FieldRestrictionEnum}
 
+END CLASS .
 &ENDIF
-    
-END {&CLASS} .

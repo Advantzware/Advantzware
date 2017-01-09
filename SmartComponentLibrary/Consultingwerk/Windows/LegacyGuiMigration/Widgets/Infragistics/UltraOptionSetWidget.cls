@@ -110,36 +110,36 @@ CLASS Consultingwerk.Windows.LegacyGuiMigration.Widgets.Infragistics.UltraOption
         END.
     END.
         
-	/*------------------------------------------------------------------------------
+    /*------------------------------------------------------------------------------
         Purpose: The type of a handle
-	    Notes:   RADIO-SET
-	------------------------------------------------------------------------------*/
-	DEFINE PUBLIC OVERRIDE PROPERTY TYPE AS CHARACTER NO-UNDO INIT "RADIO-SET":U 
-	GET .
-	PROTECTED SET . 
+        Notes:   RADIO-SET
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC OVERRIDE PROPERTY TYPE AS CHARACTER NO-UNDO INIT "RADIO-SET":U 
+    GET .
+    PROTECTED SET . 
 
-	/*------------------------------------------------------------------------------
-	   Purpose: Constructor for the UltraOptionSetWidget class
-	   Notes:
-	   @param poEditor The reference to the UltraOptionSet this instance should represent
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC UltraOptionSetWidget (poEditor AS UltraOptionSet):
-		SUPER (poEditor).
-		
-		ASSIGN oControl = poEditor . 
-		
-		{Consultingwerk/foreach.i ValueListItem oItem in oControl:Items}
-		    IF cRadioButtons > "":U THEN 
-		        ASSIGN cRadioButtons = cRadioButtons + THIS-OBJECT:DELIMITER.
-		
-		    ASSIGN cRadioButtons = cRadioButtons + 
-		                           SUBSTITUTE ("&1&2&3":U,
-		                                       oItem:DisplayText,
-		                                       THIS-OBJECT:DELIMITER,
-		                                       STRING (UNBOX (oItem:DataValue))) .  
-		END.
-	
-	END CONSTRUCTOR.
+    /*------------------------------------------------------------------------------
+       Purpose: Constructor for the UltraOptionSetWidget class
+       Notes:
+       @param poEditor The reference to the UltraOptionSet this instance should represent
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC UltraOptionSetWidget (poEditor AS UltraOptionSet):
+        SUPER (poEditor).
+        
+        ASSIGN oControl = poEditor . 
+        
+        {Consultingwerk/foreach.i ValueListItem oItem in oControl:Items}
+            IF cRadioButtons > "":U THEN 
+                ASSIGN cRadioButtons = cRadioButtons + THIS-OBJECT:DELIMITER.
+        
+            ASSIGN cRadioButtons = cRadioButtons + 
+                                   SUBSTITUTE ("&1&2&3":U,
+                                               oItem:DisplayText,
+                                               THIS-OBJECT:DELIMITER,
+                                               STRING (UNBOX (oItem:DataValue))) .  
+        END.
+    
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: GET method for the SCREEN-VALUE property

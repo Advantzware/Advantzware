@@ -40,12 +40,12 @@ IF VALID-OBJECT(oForm) THEN DO:
        Load custom toolbar design */
     DEFINE VARIABLE cWinKitTooblarFileName AS CHARACTER NO-UNDO.
     
-    ASSIGN FILE-INFO:FILE-NAME    = TARGET-PROCEDURE:FILE-NAME 
-           cWinKitTooblarFileName = FILE-INFO:FULL-PATHNAME          
+    ASSIGN FILE-INFORMATION:FILE-NAME    = TARGET-PROCEDURE:FILE-NAME 
+           cWinKitTooblarFileName = FILE-INFORMATION:FULL-PATHNAME          
            cWinKitTooblarFileName = SUBSTRING (cWinKitTooblarFileName, 1, R-INDEX (cWinKitTooblarFileName, ".":U) - 1) + "_toolbar.xml":U .
 
-    FILE-INFO:FILE-NAME = cWinKitTooblarFileName . 
-    IF FILE-INFO:FULL-PATHNAME > "":U THEN 
+    FILE-INFORMATION:FILE-NAME = cWinKitTooblarFileName . 
+    IF FILE-INFORMATION:FULL-PATHNAME > "":U THEN 
         oForm:ToolbarsManager:LoadFromXml (cWinKitTooblarFileName) .        
 
     IF VALID-HANDLE (hMenuBar) THEN DO:

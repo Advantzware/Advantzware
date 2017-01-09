@@ -32,5 +32,12 @@
     <ServiceClassName>Consultingwerk.BusinessEntityDesigner.Plugins.CustomServices.SampleNewFieldHandler</ServiceClassName>
     <Disabled>true</Disabled>
   </ttServiceLoaderRow>
-      
+
+  <ttServiceLoaderRow>
+    <Order>6</Order>
+    <ServiceTypeName>Consultingwerk.Studio.ProcedureEditor.IAbhackSupportService</ServiceTypeName>
+    <ServiceClassName>Consultingwerk.Studio.ProcedureEditor.AbhackSupportService</ServiceClassName>
+    <Disabled>false</Disabled>
+  </ttServiceLoaderRow>
+
 </ttServiceLoader>

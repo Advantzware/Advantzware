@@ -11,38 +11,39 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : ErrorMessageDetailForm
-    Purpose     : Displays detials about OpenEdge Runtime Errors 
+    Purpose     : Displays detials about OpenEdge Runtime Errors
                   (Progress.Lang.SysError)
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sun Aug 17 21:31:16 CEST 2014
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.SmartFramework.*     FROM PROPATH .
-USING Consultingwerk.Windows.Util.Forms.* FROM PROPATH .  
+USING Consultingwerk.Util.*               FROM PROPATH .
+USING Consultingwerk.Windows.Util.Forms.* FROM PROPATH .
 USING Progress.Lang.*                     FROM PROPATH .
 USING Progress.Windows.*                  FROM ASSEMBLY .
 
-CLASS Consultingwerk.Windows.Util.Forms.ErrorMessageDetailForm 
-    INHERITS Form: 
+CLASS Consultingwerk.Windows.Util.Forms.ErrorMessageDetailForm
+    INHERITS Form:
 
     DEFINE PRIVATE VARIABLE button1 AS System.Windows.Forms.Button NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE textBox1 AS System.Windows.Forms.TextBox NO-UNDO.
     DEFINE PRIVATE VARIABLE pictureBox1 AS System.Windows.Forms.PictureBox NO-UNDO.
     DEFINE PRIVATE VARIABLE panel1 AS System.Windows.Forms.Panel NO-UNDO.
-	
-    DEFINE VARIABLE oFullWindowDragManager AS FullWindowDragManager           NO-UNDO EXTENT 3 .              
-	
+
+    DEFINE VARIABLE oFullWindowDragManager AS FullWindowDragManager           NO-UNDO EXTENT 3 .
+
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the ErrorMessageDetailForm class
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ErrorMessageDetailForm ():
+    CONSTRUCTOR PUBLIC ErrorMessageDetailForm ():
 
         SUPER().
 
@@ -52,60 +53,69 @@ CLASS Consultingwerk.Windows.Util.Forms.ErrorMessageDetailForm
         THIS-OBJECT:ComponentsCollection:Add (THIS-OBJECT:components).
         &ENDIF
 
-        ASSIGN oFullWindowDragManager[1] = NEW FullWindowDragManager (THIS-OBJECT) 
-               oFullWindowDragManager[2] = NEW FullWindowDragManager (THIS-OBJECT:panel1) 
+        ASSIGN oFullWindowDragManager[1] = NEW FullWindowDragManager (THIS-OBJECT)
+               oFullWindowDragManager[2] = NEW FullWindowDragManager (THIS-OBJECT:panel1)
                oFullWindowDragManager[3] = NEW FullWindowDragManager (THIS-OBJECT:pictureBox1) .
 
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the Click event of the button1
         Notes:   Closes the Form
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event 
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID button1_Click (sender AS System.Object, 
-	                                   e AS System.EventArgs):
-		
-		THIS-OBJECT:Close () .
- 
-	END METHOD .
+    METHOD PRIVATE VOID button1_Click (sender AS System.Object,
+                                       e AS System.EventArgs):
+
+        THIS-OBJECT:Close () .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Shows the details about a Progress.Lang.SysError instance
         Notes:   Displays the Form
         @param poError The SysError to be shown
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID DisplayErrorDetails (poError AS Progress.Lang.SysError):
-		
-        DEFINE VARIABLE oMessageProvider AS IMessageProvider NO-UNDO . 		
-		DEFINE VARIABLE i AS INTEGER NO-UNDO.
+    METHOD PUBLIC VOID DisplayErrorDetails (poError AS Progress.Lang.SysError):
+
+        DEFINE VARIABLE oMessageProvider AS IMessageProvider NO-UNDO .
+        DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
         oMessageProvider = {Consultingwerk/get-service.i Consultingwerk.SmartFramework.IMessageProvider} .
-		
-		DO i = 1 TO poError:NumMessages:
-		
-		    THIS-OBJECT:textBox1:Text = THIS-OBJECT:textBox1:Text +  
-		                                (IF i > 1 THEN System.Environment:NewLine + System.Environment:NewLine ELSE "":U) + 
-		                                oMessageProvider:GetMessageDetail ("OpenEdge":U, 
-		                                                                   poError:GetMessageNum (i)) .   
-		END.
-		
-		THIS-OBJECT:Show () .
 
-	END METHOD .
+        DO i = 1 TO poError:NumMessages:
 
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+            THIS-OBJECT:textBox1:Text = THIS-OBJECT:textBox1:Text +
+                                        (IF i > 1 THEN System.Environment:NewLine + System.Environment:NewLine ELSE "":U) +
+                                        oMessageProvider:GetMessageDetail ("OpenEdge":U,
+                                                                           poError:GetMessageNum (i)) .
+        END.
+
+        THIS-OBJECT:Show () .
+
+    END METHOD .
+
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE resources AS Progress.Util.ResourceManager NO-UNDO.
@@ -189,11 +199,11 @@ CLASS Consultingwerk.Windows.Util.Forms.ErrorMessageDetailForm
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the ErrorMessageDetailForm class 
-        Notes:   
+        Purpose: Destructor for the ErrorMessageDetailForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC ErrorMessageDetailForm ():
 

@@ -59,9 +59,9 @@ CLASS Consultingwerk.SmartFramework.Authorization.UserGroupDatasetController
         @param pcSelectedUserGroupGuid Unique identifier of the ePossibleAssignments
                row to be transfered to eSmartUserGroup
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID AssignUserToGroup (pcSelectedUserGroupGuid AS CHARACTER):
-		
-		FIND FIRST ePossibleAssignments WHERE ePossibleAssignments.UserGroupGuid = pcSelectedUserGroupGuid NO-LOCK NO-ERROR.
+    METHOD PUBLIC VOID AssignUserToGroup (pcSelectedUserGroupGuid AS CHARACTER):
+        
+        FIND FIRST ePossibleAssignments WHERE ePossibleAssignments.UserGroupGuid = pcSelectedUserGroupGuid NO-LOCK NO-ERROR.
 
         CREATE eSmartUserGroup.
         
@@ -71,7 +71,7 @@ CLASS Consultingwerk.SmartFramework.Authorization.UserGroupDatasetController
         
         DELETE ePossibleAssignments.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Invoked by SmartBusinessEntityAdapter and SmartDatasetChildAdapter
@@ -99,8 +99,8 @@ CLASS Consultingwerk.SmartFramework.Authorization.UserGroupDatasetController
         Purpose: Unassignes a user from a group
         Notes:   
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID UnAssignUserFromGroup ():
-		
+    METHOD PUBLIC VOID UnAssignUserFromGroup ():
+        
         CREATE ePossibleAssignments.
         
         BUFFER-COPY eSmartUserGroup TO ePossibleAssignments.
@@ -109,6 +109,6 @@ CLASS Consultingwerk.SmartFramework.Authorization.UserGroupDatasetController
         
         DELETE eSmartUserGroup.
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

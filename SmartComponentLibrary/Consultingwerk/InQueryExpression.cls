@@ -54,10 +54,10 @@ CLASS Consultingwerk.InQueryExpression
         Purpose: Constructor for the InQueryExpression class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC InQueryExpression ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC InQueryExpression ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the InQueryExpression class

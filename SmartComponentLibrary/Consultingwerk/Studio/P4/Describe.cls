@@ -32,16 +32,16 @@ CLASS Consultingwerk.Studio.P4.Describe:
         @param pcChange The number of the Changelist
         @param pcFileName The name of the file to export to  
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID ToFile (pcChange AS CHARACTER, 
-	                           pcFileName AS CHARACTER):
-		
+    METHOD PUBLIC VOID ToFile (pcChange AS CHARACTER, 
+                               pcFileName AS CHARACTER):
+        
         DEFINE VARIABLE cDescription AS LONGCHAR  NO-UNDO .
     
         cDescription = THIS-OBJECT:ToLongchar (pcChange) . 
         
         COPY-LOB FROM cDescription TO FILE pcFileName .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Returns a changelist description 
@@ -49,22 +49,22 @@ CLASS Consultingwerk.Studio.P4.Describe:
         @param pcChange The number of the Changelist
         @return The LONGCHAR with the change list description
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LONGCHAR ToLongchar (pcChange AS CHARACTER):
+    METHOD PUBLIC LONGCHAR ToLongchar (pcChange AS CHARACTER):
 
         DEFINE VARIABLE cDescription AS LONGCHAR  NO-UNDO .
         DEFINE VARIABLE cLine        AS CHARACTER NO-UNDO .
 
         INPUT THROUGH VALUE(SUBSTITUTE ("p4 describe -s &1":U, pcChange)) .
-		
-		REPEAT:
+        
+        REPEAT:
             IMPORT UNFORMATTED cLine . 
-		
-		    ASSIGN cDescription = cDescription + cLine + "~n":U .
-		
-		END.
-		
-		RETURN cDescription.
+        
+            ASSIGN cDescription = cDescription + cLine + "~n":U .
+        
+        END.
+        
+        RETURN cDescription.
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

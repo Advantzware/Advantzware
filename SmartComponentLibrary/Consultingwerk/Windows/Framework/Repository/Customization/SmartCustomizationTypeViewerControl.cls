@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2006-2014 by Consultingwerk Ltd. ("CW") -            *
+ * Copyright (C) 2006-2016 by Consultingwerk Ltd. ("CW") -            *
  * www.consultingwerk.de and other contributors as listed             *
  * below.  All Rights Reserved.                                       *
  *                                                                    *
@@ -8,30 +8,38 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/   
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : SmartCustomizationTypeViewerControl
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Marko Rüterbories / Consultingwerk Ltd.
     Created     : 21.05.2014 11:04:23
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Consultingwerk.SmartComponents.Base.*           FROM PROPATH .
-USING Consultingwerk.SmartComponents.Enum.*           FROM PROPATH .
-USING Consultingwerk.SmartComponents.Implementation.* FROM PROPATH .
-USING Consultingwerk.Util.*                           FROM PROPATH .
-USING Progress.Lang.*                                 FROM PROPATH .
+{Consultingwerk/products.i}
 
-CLASS Consultingwerk.Windows.Framework.Repository.Customization.SmartCustomizationTypeViewerControl 
-    INHERITS SmartViewerControl: 
-    
+USING Consultingwerk.Assertion.*                                  FROM PROPATH.
+USING Consultingwerk.Framework.*                                  FROM PROPATH.
+USING Consultingwerk.SmartComponents.Base.*                       FROM PROPATH .
+USING Consultingwerk.SmartComponents.Enum.*                       FROM PROPATH .
+USING Consultingwerk.SmartComponents.Implementation.*             FROM PROPATH .
+USING Consultingwerk.SmartComponents.Support.*                    FROM PROPATH .
+USING Consultingwerk.Util.*                                       FROM PROPATH .
+USING Consultingwerk.Windows.Framework.Repository.Customization.* FROM PROPATH .
+USING Infragistics.Win.*                                          FROM ASSEMBLY .
+USING Infragistics.Win.Misc.*                                     FROM ASSEMBLY .
+USING Progress.Lang.*                                             FROM PROPATH .
+USING Progress.Reflect.*                                          FROM PROPATH .
+
+CLASS Consultingwerk.Windows.Framework.Repository.Customization.SmartCustomizationTypeViewerControl
+    INHERITS SmartViewerControl:
+
     DEFINE PRIVATE VARIABLE components                                                 AS System.ComponentModel.IContainer                                               NO-UNDO.
-
     DEFINE PRIVATE VARIABLE smartBusinessEntityBindingSource1                          AS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource NO-UNDO.
     DEFINE PRIVATE VARIABLE eSmartCustomizationType_CustomizationTypeCode_Label        AS Infragistics.Win.Misc.UltraLabel                                               NO-UNDO.
     DEFINE PRIVATE VARIABLE eSmartCustomizationType_CustomizationTypeCode              AS Infragistics.Win.UltraWinEditors.UltraTextEditor                               NO-UNDO.
@@ -40,35 +48,100 @@ CLASS Consultingwerk.Windows.Framework.Repository.Customization.SmartCustomizati
     DEFINE PRIVATE VARIABLE eSmartCustomizationType_ServiceTypeName_Label              AS Infragistics.Win.Misc.UltraLabel                                               NO-UNDO.
     DEFINE PRIVATE VARIABLE eSmartCustomizationType_ServiceTypeName                    AS Infragistics.Win.UltraWinEditors.UltraTextEditor                               NO-UNDO.
     DEFINE PRIVATE VARIABLE eSmartCustomizationType_ServiceMethodName_Label            AS Infragistics.Win.Misc.UltraLabel                                               NO-UNDO.
-    DEFINE PRIVATE VARIABLE eSmartCustomizationType_ServiceMethodName                  AS Infragistics.Win.UltraWinEditors.UltraTextEditor                               NO-UNDO.
+    DEFINE PRIVATE VARIABLE ultraComboEditor1                                          AS Infragistics.Win.UltraWinEditors.UltraComboEditor                              NO-UNDO.
+
+    DEFINE VARIABLE oMethodValueList AS ValueList            NO-UNDO.
+
+    {Consultingwerk/Util/TempTables/ttClassNames.i}
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the SmartCustomizationTypeViewerControl class
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC SmartCustomizationTypeViewerControl ():
-                
-        SUPER().
-        InitializeComponent().
-        
+
+        SUPER ().
+        InitializeComponent ().
+
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design
-        Notes:   
+        Purpose: Display Dialog to select a Class or Interface from the project as the
+                 ServiceType
+        Notes:
+        @param sender The control invoking the event
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID eSmartCustomizationType_ServiceTypeName_EditorButtonClick (sender AS System.Object,
+                                                                                   e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
+
+        DEFINE VARIABLE oForm         AS BusinessEntityPickerForm          NO-UNDO .
+        DEFINE VARIABLE oDialogResult AS System.Windows.Forms.DialogResult NO-UNDO .
+        DEFINE VARIABLE oInfo         AS UltraDesktopAlertWindowInfo       NO-UNDO .
+
+        oInfo = Consultingwerk.SmartComponents.Support.DesktopAlertHelper:Show ("SmartFramework"{&TRAN},
+                                                                                "Scanning Project Folder(s) for Service Types."{&TRAN}) .
+
+        Consultingwerk.Util.ClassHelper:GetClassNamesInClassPath ("Progress.Lang.Object"{&TRAN},
+                                                                  TRUE,
+                                                                  OUTPUT TABLE ttClassNames BY-REFERENCE) .
+
+        oInfo:Close () .
+
+        oForm = NEW BusinessEntityPickerForm () .
+        oForm:Text = "Select Service Type Name"{&TRAN} .
+
+        oForm:ReceiveBusinessEntityNames (TABLE ttClassNames) .
+
+        ASSIGN oDialogResult = Consultingwerk.SmartComponents.FormHelper:ShowDialog(oForm) .
+
+        IF Progress.Util.EnumHelper:AreEqual(oDialogResult,
+                                             System.Windows.Forms.DialogResult:Ok) THEN
+
+            ASSIGN THIS-OBJECT:eSmartCustomizationType_ServiceTypeName:Text = oForm:GetSelectedBusinessEntityName () .
+
+        CATCH ple AS Progress.Lang.Error :
+            ErrorHelper:ShowErrorMessage (ple).
+        END CATCH.
+
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Returns a Progress.Lang.Class object identified by ClassName
+        Notes:
+        @param pcClassName Name of the requested Service Type
+        @return The Progress.Lang.Class object
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE Progress.Lang.Class GetClassOfType (pcClassName AS CHARACTER):
+
+        DEFINE VARIABLE oClass AS Progress.Lang.Class NO-UNDO.
+
+        IF pcClassName = "":U THEN
+            UNDO, THROW NEW AppError ("Please provide a Service Type Name!"{&TRAN}, 0).
+
+        oClass = Progress.Lang.Class:GetClass (pcClassName) NO-ERROR.
+
+        IF NOT VALID-OBJECT (oClass) THEN
+            UNDO, THROW NEW AppError ("Please provide a valid Service Type Name!"{&TRAN}, 0).
+
+        RETURN oClass.
+
+    END METHOD .
+
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
-        @VisualDesigner.FormMember (NeedsInitialize="true":U).
-        DEFINE VARIABLE resources AS Progress.Util.ResourceManager NO-UNDO.
-        resources = NEW Progress.Util.ResourceManager("Consultingwerk.Windows.Framework.Repository.Customization.SmartCustomizationTypeViewerControl":U).
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE tableDesc1 AS Progress.Data.TableDesc NO-UNDO.
         tableDesc1 = NEW Progress.Data.TableDesc("eSmartCustomizationType":U).
@@ -76,11 +149,17 @@ CLASS Consultingwerk.Windows.Framework.Repository.Customization.SmartCustomizati
         DEFINE VARIABLE appearance1 AS Infragistics.Win.Appearance NO-UNDO.
         appearance1 = NEW Infragistics.Win.Appearance().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE resources AS Progress.Util.ResourceManager NO-UNDO.
+        resources = NEW Progress.Util.ResourceManager("Consultingwerk.Windows.Framework.Repository.Customization.SmartCustomizationTypeViewerControl":U).
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance2 AS Infragistics.Win.Appearance NO-UNDO.
         appearance2 = NEW Infragistics.Win.Appearance().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance3 AS Infragistics.Win.Appearance NO-UNDO.
         appearance3 = NEW Infragistics.Win.Appearance().
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE editorButton1 AS Infragistics.Win.UltraWinEditors.EditorButton NO-UNDO.
+        editorButton1 = NEW Infragistics.Win.UltraWinEditors.EditorButton("LookupServices":U).
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance4 AS Infragistics.Win.Appearance NO-UNDO.
         appearance4 = NEW Infragistics.Win.Appearance().
@@ -92,25 +171,20 @@ CLASS Consultingwerk.Windows.Framework.Repository.Customization.SmartCustomizati
         THIS-OBJECT:eSmartCustomizationType_ServiceTypeName_Label = NEW Infragistics.Win.Misc.UltraLabel().
         THIS-OBJECT:eSmartCustomizationType_ServiceTypeName = NEW Infragistics.Win.UltraWinEditors.UltraTextEditor().
         THIS-OBJECT:eSmartCustomizationType_ServiceMethodName_Label = NEW Infragistics.Win.Misc.UltraLabel().
-        THIS-OBJECT:eSmartCustomizationType_ServiceMethodName = NEW Infragistics.Win.UltraWinEditors.UltraTextEditor().
+        THIS-OBJECT:ultraComboEditor1 = NEW Infragistics.Win.UltraWinEditors.UltraComboEditor().
         CAST(THIS-OBJECT:smartBusinessEntityBindingSource1, System.ComponentModel.ISupportInitialize):BeginInit().
         CAST(THIS-OBJECT:eSmartCustomizationType_CustomizationTypeCode, System.ComponentModel.ISupportInitialize):BeginInit().
         CAST(THIS-OBJECT:eSmartCustomizationType_CustomizationTypeDescription, System.ComponentModel.ISupportInitialize):BeginInit().
         CAST(THIS-OBJECT:eSmartCustomizationType_ServiceTypeName, System.ComponentModel.ISupportInitialize):BeginInit().
-        CAST(THIS-OBJECT:eSmartCustomizationType_ServiceMethodName, System.ComponentModel.ISupportInitialize):BeginInit().
+        CAST(THIS-OBJECT:ultraComboEditor1, System.ComponentModel.ISupportInitialize):BeginInit().
         CAST(THIS-OBJECT, System.ComponentModel.ISupportInitialize):BeginInit().
         THIS-OBJECT:SuspendLayout().
         /*  */
         /* smartBusinessEntityBindingSource1 */
         /*  */
-        THIS-OBJECT:smartBusinessEntityBindingSource1:AddFields = FALSE.
-        THIS-OBJECT:smartBusinessEntityBindingSource1:BindTo = resources:GetString("smartBusinessEntityBindingSource1.BindTo":U).
-        THIS-OBJECT:smartBusinessEntityBindingSource1:ClearSchema = FALSE.
-        THIS-OBJECT:smartBusinessEntityBindingSource1:EntityJoin = resources:GetString("smartBusinessEntityBindingSource1.EntityJoin":U).
-        THIS-OBJECT:smartBusinessEntityBindingSource1:EntityName = resources:GetString("smartBusinessEntityBindingSource1.EntityName":U).
-        THIS-OBJECT:smartBusinessEntityBindingSource1:EntityTable = resources:GetString("smartBusinessEntityBindingSource1.EntityTable":U).
-        THIS-OBJECT:smartBusinessEntityBindingSource1:EntityView = resources:GetString("smartBusinessEntityBindingSource1.EntityView":U).
-        THIS-OBJECT:smartBusinessEntityBindingSource1:ImportSchema = FALSE.
+        THIS-OBJECT:smartBusinessEntityBindingSource1:BindTo = "QUERY":U.
+        THIS-OBJECT:smartBusinessEntityBindingSource1:EntityName = "Consultingwerk.SmartFramework.Repository.Customization.CustomizationTypeBusinessEntity":U.
+        THIS-OBJECT:smartBusinessEntityBindingSource1:EntityTable = "eSmartCustomizationType":U.
         THIS-OBJECT:smartBusinessEntityBindingSource1:MaxDataGuess = 0.
         THIS-OBJECT:smartBusinessEntityBindingSource1:NoLOBs = FALSE.
         tableDesc1:ChildTables = ?.
@@ -126,187 +200,69 @@ CLASS Consultingwerk.Windows.Framework.Repository.Customization.SmartCustomizati
         /*  */
         /* eSmartCustomizationType_CustomizationTypeCode_Label */
         /*  */
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeCode_Label:AccessibleDescription = resources:GetString("eSmartCustomizationType_CustomizationTypeCode_Label.AccessibleDescription":U).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeCode_Label:AccessibleName = resources:GetString("eSmartCustomizationType_CustomizationTypeCode_Label.AccessibleName":U).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeCode_Label:Anchor = CAST(resources:GetObject("eSmartCustomizationType_CustomizationTypeCode_Label.Anchor":U), System.Windows.Forms.AnchorStyles).
         appearance1:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
-        appearance1:TextHAlignAsString = resources:GetString("appearance1.TextHAlignAsString":U).
-        appearance1:TextVAlignAsString = resources:GetString("appearance1.TextVAlignAsString":U).
         THIS-OBJECT:eSmartCustomizationType_CustomizationTypeCode_Label:Appearance = appearance1.
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeCode_Label:AutoSize = System.Convert:ToBoolean(resources:GetObject("eSmartCustomizationType_CustomizationTypeCode_Label.AutoSize":U)).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeCode_Label:BackgroundImage = CAST(resources:GetObject("eSmartCustomizationType_CustomizationTypeCode_Label.BackgroundImage":U), System.Drawing.Image).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeCode_Label:BackgroundImageLayout = CAST(resources:GetObject("eSmartCustomizationType_CustomizationTypeCode_Label.BackgroundImageLayout":U), System.Windows.Forms.ImageLayout).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeCode_Label:Dock = CAST(resources:GetObject("eSmartCustomizationType_CustomizationTypeCode_Label.Dock":U), System.Windows.Forms.DockStyle).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeCode_Label:Font = CAST(resources:GetObject("eSmartCustomizationType_CustomizationTypeCode_Label.Font":U), System.Drawing.Font).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeCode_Label:ImeMode = CAST(resources:GetObject("eSmartCustomizationType_CustomizationTypeCode_Label.ImeMode":U), System.Windows.Forms.ImeMode).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeCode_Label:Location = CAST(resources:GetObject("eSmartCustomizationType_CustomizationTypeCode_Label.Location":U), System.Drawing.Point).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeCode_Label:MaximumSize = CAST(resources:GetObject("eSmartCustomizationType_CustomizationTypeCode_Label.MaximumSize":U), System.Drawing.Size).
+        resources:ApplyResources(THIS-OBJECT:eSmartCustomizationType_CustomizationTypeCode_Label, "eSmartCustomizationType_CustomizationTypeCode_Label":U).
         THIS-OBJECT:eSmartCustomizationType_CustomizationTypeCode_Label:Name = "eSmartCustomizationType_CustomizationTypeCode_Label":U.
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeCode_Label:RightToLeft = CAST(resources:GetObject("eSmartCustomizationType_CustomizationTypeCode_Label.RightToLeft":U), System.Windows.Forms.RightToLeft).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeCode_Label:Size = CAST(resources:GetObject("eSmartCustomizationType_CustomizationTypeCode_Label.Size":U), System.Drawing.Size).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeCode_Label:TabIndex = System.Convert:ToInt32(resources:GetObject("eSmartCustomizationType_CustomizationTypeCode_Label.TabIndex":U)).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeCode_Label:Text = resources:GetString("eSmartCustomizationType_CustomizationTypeCode_Label.Text":U).
         /*  */
         /* eSmartCustomizationType_CustomizationTypeCode */
         /*  */
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeCode:AccessibleDescription = resources:GetString("eSmartCustomizationType_CustomizationTypeCode.AccessibleDescription":U).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeCode:AccessibleName = resources:GetString("eSmartCustomizationType_CustomizationTypeCode.AccessibleName":U).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeCode:Anchor = CAST(resources:GetObject("eSmartCustomizationType_CustomizationTypeCode.Anchor":U), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeCode:AutoSize = System.Convert:ToBoolean(resources:GetObject("eSmartCustomizationType_CustomizationTypeCode.AutoSize":U)).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeCode:BackgroundImage = CAST(resources:GetObject("eSmartCustomizationType_CustomizationTypeCode.BackgroundImage":U), System.Drawing.Image).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeCode:BackgroundImageLayout = CAST(resources:GetObject("eSmartCustomizationType_CustomizationTypeCode.BackgroundImageLayout":U), System.Windows.Forms.ImageLayout).
+        resources:ApplyResources(THIS-OBJECT:eSmartCustomizationType_CustomizationTypeCode, "eSmartCustomizationType_CustomizationTypeCode":U).
         THIS-OBJECT:eSmartCustomizationType_CustomizationTypeCode:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "CustomizationTypeCode":U, TRUE)).
         THIS-OBJECT:eSmartCustomizationType_CustomizationTypeCode:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeCode:Dock = CAST(resources:GetObject("eSmartCustomizationType_CustomizationTypeCode.Dock":U), System.Windows.Forms.DockStyle).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeCode:Font = CAST(resources:GetObject("eSmartCustomizationType_CustomizationTypeCode.Font":U), System.Drawing.Font).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeCode:ImeMode = CAST(resources:GetObject("eSmartCustomizationType_CustomizationTypeCode.ImeMode":U), System.Windows.Forms.ImeMode).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeCode:Location = CAST(resources:GetObject("eSmartCustomizationType_CustomizationTypeCode.Location":U), System.Drawing.Point).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeCode:MaximumSize = CAST(resources:GetObject("eSmartCustomizationType_CustomizationTypeCode.MaximumSize":U), System.Drawing.Size).
         THIS-OBJECT:eSmartCustomizationType_CustomizationTypeCode:Name = "eSmartCustomizationType_CustomizationTypeCode":U.
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeCode:RightToLeft = CAST(resources:GetObject("eSmartCustomizationType_CustomizationTypeCode.RightToLeft":U), System.Windows.Forms.RightToLeft).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeCode:Size = CAST(resources:GetObject("eSmartCustomizationType_CustomizationTypeCode.Size":U), System.Drawing.Size).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeCode:TabIndex = System.Convert:ToInt32(resources:GetObject("eSmartCustomizationType_CustomizationTypeCode.TabIndex":U)).
         /*  */
         /* eSmartCustomizationType_CustomizationTypeDescription_Label */
         /*  */
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeDescription_Label:AccessibleDescription = resources:GetString("eSmartCustomizationType_CustomizationTypeDescription_Label.AccessibleDescription":U).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeDescription_Label:AccessibleName = resources:GetString("eSmartCustomizationType_CustomizationTypeDescription_Label.AccessibleName":U).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeDescription_Label:Anchor = CAST(resources:GetObject("eSmartCustomizationType_CustomizationTypeDescription_Label.Anchor":U), System.Windows.Forms.AnchorStyles).
         appearance2:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
-        appearance2:TextHAlignAsString = resources:GetString("appearance2.TextHAlignAsString":U).
-        appearance2:TextVAlignAsString = resources:GetString("appearance2.TextVAlignAsString":U).
         THIS-OBJECT:eSmartCustomizationType_CustomizationTypeDescription_Label:Appearance = appearance2.
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeDescription_Label:AutoSize = System.Convert:ToBoolean(resources:GetObject("eSmartCustomizationType_CustomizationTypeDescription_Label.AutoSize":U)).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeDescription_Label:BackgroundImage = CAST(resources:GetObject("eSmartCustomizationType_CustomizationTypeDescription_Label.BackgroundImage":U), System.Drawing.Image).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeDescription_Label:BackgroundImageLayout = CAST(resources:GetObject("eSmartCustomizationType_CustomizationTypeDescription_Label.BackgroundImageLayout":U), System.Windows.Forms.ImageLayout).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeDescription_Label:Dock = CAST(resources:GetObject("eSmartCustomizationType_CustomizationTypeDescription_Label.Dock":U), System.Windows.Forms.DockStyle).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeDescription_Label:Font = CAST(resources:GetObject("eSmartCustomizationType_CustomizationTypeDescription_Label.Font":U), System.Drawing.Font).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeDescription_Label:ImeMode = CAST(resources:GetObject("eSmartCustomizationType_CustomizationTypeDescription_Label.ImeMode":U), System.Windows.Forms.ImeMode).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeDescription_Label:Location = CAST(resources:GetObject("eSmartCustomizationType_CustomizationTypeDescription_Label.Location":U), System.Drawing.Point).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeDescription_Label:MaximumSize = CAST(resources:GetObject("eSmartCustomizationType_CustomizationTypeDescription_Label.MaximumSize":U), System.Drawing.Size).
+        resources:ApplyResources(THIS-OBJECT:eSmartCustomizationType_CustomizationTypeDescription_Label, "eSmartCustomizationType_CustomizationTypeDescription_Label":U).
         THIS-OBJECT:eSmartCustomizationType_CustomizationTypeDescription_Label:Name = "eSmartCustomizationType_CustomizationTypeDescription_Label":U.
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeDescription_Label:RightToLeft = CAST(resources:GetObject("eSmartCustomizationType_CustomizationTypeDescription_Label.RightToLeft":U), System.Windows.Forms.RightToLeft).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeDescription_Label:Size = CAST(resources:GetObject("eSmartCustomizationType_CustomizationTypeDescription_Label.Size":U), System.Drawing.Size).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeDescription_Label:TabIndex = System.Convert:ToInt32(resources:GetObject("eSmartCustomizationType_CustomizationTypeDescription_Label.TabIndex":U)).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeDescription_Label:Text = resources:GetString("eSmartCustomizationType_CustomizationTypeDescription_Label.Text":U).
         /*  */
         /* eSmartCustomizationType_CustomizationTypeDescription */
         /*  */
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeDescription:AccessibleDescription = resources:GetString("eSmartCustomizationType_CustomizationTypeDescription.AccessibleDescription":U).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeDescription:AccessibleName = resources:GetString("eSmartCustomizationType_CustomizationTypeDescription.AccessibleName":U).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeDescription:Anchor = CAST(resources:GetObject("eSmartCustomizationType_CustomizationTypeDescription.Anchor":U), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeDescription:AutoSize = System.Convert:ToBoolean(resources:GetObject("eSmartCustomizationType_CustomizationTypeDescription.AutoSize":U)).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeDescription:BackgroundImage = CAST(resources:GetObject("eSmartCustomizationType_CustomizationTypeDescription.BackgroundImage":U), System.Drawing.Image).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeDescription:BackgroundImageLayout = CAST(resources:GetObject("eSmartCustomizationType_CustomizationTypeDescription.BackgroundImageLayout":U), System.Windows.Forms.ImageLayout).
+        resources:ApplyResources(THIS-OBJECT:eSmartCustomizationType_CustomizationTypeDescription, "eSmartCustomizationType_CustomizationTypeDescription":U).
         THIS-OBJECT:eSmartCustomizationType_CustomizationTypeDescription:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "CustomizationTypeDescription":U, TRUE)).
         THIS-OBJECT:eSmartCustomizationType_CustomizationTypeDescription:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeDescription:Dock = CAST(resources:GetObject("eSmartCustomizationType_CustomizationTypeDescription.Dock":U), System.Windows.Forms.DockStyle).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeDescription:Font = CAST(resources:GetObject("eSmartCustomizationType_CustomizationTypeDescription.Font":U), System.Drawing.Font).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeDescription:ImeMode = CAST(resources:GetObject("eSmartCustomizationType_CustomizationTypeDescription.ImeMode":U), System.Windows.Forms.ImeMode).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeDescription:Location = CAST(resources:GetObject("eSmartCustomizationType_CustomizationTypeDescription.Location":U), System.Drawing.Point).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeDescription:MaximumSize = CAST(resources:GetObject("eSmartCustomizationType_CustomizationTypeDescription.MaximumSize":U), System.Drawing.Size).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeDescription:Multiline = System.Convert:ToBoolean(resources:GetObject("eSmartCustomizationType_CustomizationTypeDescription.Multiline":U)).
         THIS-OBJECT:eSmartCustomizationType_CustomizationTypeDescription:Name = "eSmartCustomizationType_CustomizationTypeDescription":U.
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeDescription:RightToLeft = CAST(resources:GetObject("eSmartCustomizationType_CustomizationTypeDescription.RightToLeft":U), System.Windows.Forms.RightToLeft).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeDescription:Size = CAST(resources:GetObject("eSmartCustomizationType_CustomizationTypeDescription.Size":U), System.Drawing.Size).
-        THIS-OBJECT:eSmartCustomizationType_CustomizationTypeDescription:TabIndex = System.Convert:ToInt32(resources:GetObject("eSmartCustomizationType_CustomizationTypeDescription.TabIndex":U)).
         /*  */
         /* eSmartCustomizationType_ServiceTypeName_Label */
         /*  */
-        THIS-OBJECT:eSmartCustomizationType_ServiceTypeName_Label:AccessibleDescription = resources:GetString("eSmartCustomizationType_ServiceTypeName_Label.AccessibleDescription":U).
-        THIS-OBJECT:eSmartCustomizationType_ServiceTypeName_Label:AccessibleName = resources:GetString("eSmartCustomizationType_ServiceTypeName_Label.AccessibleName":U).
-        THIS-OBJECT:eSmartCustomizationType_ServiceTypeName_Label:Anchor = CAST(resources:GetObject("eSmartCustomizationType_ServiceTypeName_Label.Anchor":U), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:eSmartCustomizationType_ServiceTypeName_Label, "eSmartCustomizationType_ServiceTypeName_Label":U).
         appearance3:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
-        appearance3:TextHAlignAsString = resources:GetString("appearance3.TextHAlignAsString":U).
-        appearance3:TextVAlignAsString = resources:GetString("appearance3.TextVAlignAsString":U).
         THIS-OBJECT:eSmartCustomizationType_ServiceTypeName_Label:Appearance = appearance3.
-        THIS-OBJECT:eSmartCustomizationType_ServiceTypeName_Label:AutoSize = System.Convert:ToBoolean(resources:GetObject("eSmartCustomizationType_ServiceTypeName_Label.AutoSize":U)).
-        THIS-OBJECT:eSmartCustomizationType_ServiceTypeName_Label:BackgroundImage = CAST(resources:GetObject("eSmartCustomizationType_ServiceTypeName_Label.BackgroundImage":U), System.Drawing.Image).
-        THIS-OBJECT:eSmartCustomizationType_ServiceTypeName_Label:BackgroundImageLayout = CAST(resources:GetObject("eSmartCustomizationType_ServiceTypeName_Label.BackgroundImageLayout":U), System.Windows.Forms.ImageLayout).
-        THIS-OBJECT:eSmartCustomizationType_ServiceTypeName_Label:Dock = CAST(resources:GetObject("eSmartCustomizationType_ServiceTypeName_Label.Dock":U), System.Windows.Forms.DockStyle).
-        THIS-OBJECT:eSmartCustomizationType_ServiceTypeName_Label:Font = CAST(resources:GetObject("eSmartCustomizationType_ServiceTypeName_Label.Font":U), System.Drawing.Font).
-        THIS-OBJECT:eSmartCustomizationType_ServiceTypeName_Label:ImeMode = CAST(resources:GetObject("eSmartCustomizationType_ServiceTypeName_Label.ImeMode":U), System.Windows.Forms.ImeMode).
-        THIS-OBJECT:eSmartCustomizationType_ServiceTypeName_Label:Location = CAST(resources:GetObject("eSmartCustomizationType_ServiceTypeName_Label.Location":U), System.Drawing.Point).
-        THIS-OBJECT:eSmartCustomizationType_ServiceTypeName_Label:MaximumSize = CAST(resources:GetObject("eSmartCustomizationType_ServiceTypeName_Label.MaximumSize":U), System.Drawing.Size).
         THIS-OBJECT:eSmartCustomizationType_ServiceTypeName_Label:Name = "eSmartCustomizationType_ServiceTypeName_Label":U.
-        THIS-OBJECT:eSmartCustomizationType_ServiceTypeName_Label:RightToLeft = CAST(resources:GetObject("eSmartCustomizationType_ServiceTypeName_Label.RightToLeft":U), System.Windows.Forms.RightToLeft).
-        THIS-OBJECT:eSmartCustomizationType_ServiceTypeName_Label:Size = CAST(resources:GetObject("eSmartCustomizationType_ServiceTypeName_Label.Size":U), System.Drawing.Size).
-        THIS-OBJECT:eSmartCustomizationType_ServiceTypeName_Label:TabIndex = System.Convert:ToInt32(resources:GetObject("eSmartCustomizationType_ServiceTypeName_Label.TabIndex":U)).
-        THIS-OBJECT:eSmartCustomizationType_ServiceTypeName_Label:Text = resources:GetString("eSmartCustomizationType_ServiceTypeName_Label.Text":U).
         /*  */
         /* eSmartCustomizationType_ServiceTypeName */
         /*  */
-        THIS-OBJECT:eSmartCustomizationType_ServiceTypeName:AccessibleDescription = resources:GetString("eSmartCustomizationType_ServiceTypeName.AccessibleDescription":U).
-        THIS-OBJECT:eSmartCustomizationType_ServiceTypeName:AccessibleName = resources:GetString("eSmartCustomizationType_ServiceTypeName.AccessibleName":U).
-        THIS-OBJECT:eSmartCustomizationType_ServiceTypeName:Anchor = CAST(resources:GetObject("eSmartCustomizationType_ServiceTypeName.Anchor":U), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:eSmartCustomizationType_ServiceTypeName:AutoSize = System.Convert:ToBoolean(resources:GetObject("eSmartCustomizationType_ServiceTypeName.AutoSize":U)).
-        THIS-OBJECT:eSmartCustomizationType_ServiceTypeName:BackgroundImage = CAST(resources:GetObject("eSmartCustomizationType_ServiceTypeName.BackgroundImage":U), System.Drawing.Image).
-        THIS-OBJECT:eSmartCustomizationType_ServiceTypeName:BackgroundImageLayout = CAST(resources:GetObject("eSmartCustomizationType_ServiceTypeName.BackgroundImageLayout":U), System.Windows.Forms.ImageLayout).
+        resources:ApplyResources(THIS-OBJECT:eSmartCustomizationType_ServiceTypeName, "eSmartCustomizationType_ServiceTypeName":U).
+        editorButton1:Key = "LookupServices":U.
+        resources:ApplyResources(editorButton1, "editorButton1":U).
+        THIS-OBJECT:eSmartCustomizationType_ServiceTypeName:ButtonsRight:Add(editorButton1).
         THIS-OBJECT:eSmartCustomizationType_ServiceTypeName:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "ServiceTypeName":U, TRUE)).
         THIS-OBJECT:eSmartCustomizationType_ServiceTypeName:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:eSmartCustomizationType_ServiceTypeName:Dock = CAST(resources:GetObject("eSmartCustomizationType_ServiceTypeName.Dock":U), System.Windows.Forms.DockStyle).
-        THIS-OBJECT:eSmartCustomizationType_ServiceTypeName:Font = CAST(resources:GetObject("eSmartCustomizationType_ServiceTypeName.Font":U), System.Drawing.Font).
-        THIS-OBJECT:eSmartCustomizationType_ServiceTypeName:ImeMode = CAST(resources:GetObject("eSmartCustomizationType_ServiceTypeName.ImeMode":U), System.Windows.Forms.ImeMode).
-        THIS-OBJECT:eSmartCustomizationType_ServiceTypeName:Location = CAST(resources:GetObject("eSmartCustomizationType_ServiceTypeName.Location":U), System.Drawing.Point).
-        THIS-OBJECT:eSmartCustomizationType_ServiceTypeName:MaximumSize = CAST(resources:GetObject("eSmartCustomizationType_ServiceTypeName.MaximumSize":U), System.Drawing.Size).
         THIS-OBJECT:eSmartCustomizationType_ServiceTypeName:Name = "eSmartCustomizationType_ServiceTypeName":U.
-        THIS-OBJECT:eSmartCustomizationType_ServiceTypeName:RightToLeft = CAST(resources:GetObject("eSmartCustomizationType_ServiceTypeName.RightToLeft":U), System.Windows.Forms.RightToLeft).
-        THIS-OBJECT:eSmartCustomizationType_ServiceTypeName:Size = CAST(resources:GetObject("eSmartCustomizationType_ServiceTypeName.Size":U), System.Drawing.Size).
-        THIS-OBJECT:eSmartCustomizationType_ServiceTypeName:TabIndex = System.Convert:ToInt32(resources:GetObject("eSmartCustomizationType_ServiceTypeName.TabIndex":U)).
+        THIS-OBJECT:eSmartCustomizationType_ServiceTypeName:EditorButtonClick:Subscribe(THIS-OBJECT:eSmartCustomizationType_ServiceTypeName_EditorButtonClick).
         /*  */
         /* eSmartCustomizationType_ServiceMethodName_Label */
         /*  */
-        THIS-OBJECT:eSmartCustomizationType_ServiceMethodName_Label:AccessibleDescription = resources:GetString("eSmartCustomizationType_ServiceMethodName_Label.AccessibleDescription":U).
-        THIS-OBJECT:eSmartCustomizationType_ServiceMethodName_Label:AccessibleName = resources:GetString("eSmartCustomizationType_ServiceMethodName_Label.AccessibleName":U).
-        THIS-OBJECT:eSmartCustomizationType_ServiceMethodName_Label:Anchor = CAST(resources:GetObject("eSmartCustomizationType_ServiceMethodName_Label.Anchor":U), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:eSmartCustomizationType_ServiceMethodName_Label, "eSmartCustomizationType_ServiceMethodName_Label":U).
         appearance4:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
-        appearance4:TextHAlignAsString = resources:GetString("appearance4.TextHAlignAsString":U).
-        appearance4:TextVAlignAsString = resources:GetString("appearance4.TextVAlignAsString":U).
         THIS-OBJECT:eSmartCustomizationType_ServiceMethodName_Label:Appearance = appearance4.
-        THIS-OBJECT:eSmartCustomizationType_ServiceMethodName_Label:AutoSize = System.Convert:ToBoolean(resources:GetObject("eSmartCustomizationType_ServiceMethodName_Label.AutoSize":U)).
-        THIS-OBJECT:eSmartCustomizationType_ServiceMethodName_Label:BackgroundImage = CAST(resources:GetObject("eSmartCustomizationType_ServiceMethodName_Label.BackgroundImage":U), System.Drawing.Image).
-        THIS-OBJECT:eSmartCustomizationType_ServiceMethodName_Label:BackgroundImageLayout = CAST(resources:GetObject("eSmartCustomizationType_ServiceMethodName_Label.BackgroundImageLayout":U), System.Windows.Forms.ImageLayout).
-        THIS-OBJECT:eSmartCustomizationType_ServiceMethodName_Label:Dock = CAST(resources:GetObject("eSmartCustomizationType_ServiceMethodName_Label.Dock":U), System.Windows.Forms.DockStyle).
-        THIS-OBJECT:eSmartCustomizationType_ServiceMethodName_Label:Font = CAST(resources:GetObject("eSmartCustomizationType_ServiceMethodName_Label.Font":U), System.Drawing.Font).
-        THIS-OBJECT:eSmartCustomizationType_ServiceMethodName_Label:ImeMode = CAST(resources:GetObject("eSmartCustomizationType_ServiceMethodName_Label.ImeMode":U), System.Windows.Forms.ImeMode).
-        THIS-OBJECT:eSmartCustomizationType_ServiceMethodName_Label:Location = CAST(resources:GetObject("eSmartCustomizationType_ServiceMethodName_Label.Location":U), System.Drawing.Point).
-        THIS-OBJECT:eSmartCustomizationType_ServiceMethodName_Label:MaximumSize = CAST(resources:GetObject("eSmartCustomizationType_ServiceMethodName_Label.MaximumSize":U), System.Drawing.Size).
         THIS-OBJECT:eSmartCustomizationType_ServiceMethodName_Label:Name = "eSmartCustomizationType_ServiceMethodName_Label":U.
-        THIS-OBJECT:eSmartCustomizationType_ServiceMethodName_Label:RightToLeft = CAST(resources:GetObject("eSmartCustomizationType_ServiceMethodName_Label.RightToLeft":U), System.Windows.Forms.RightToLeft).
-        THIS-OBJECT:eSmartCustomizationType_ServiceMethodName_Label:Size = CAST(resources:GetObject("eSmartCustomizationType_ServiceMethodName_Label.Size":U), System.Drawing.Size).
-        THIS-OBJECT:eSmartCustomizationType_ServiceMethodName_Label:TabIndex = System.Convert:ToInt32(resources:GetObject("eSmartCustomizationType_ServiceMethodName_Label.TabIndex":U)).
-        THIS-OBJECT:eSmartCustomizationType_ServiceMethodName_Label:Text = resources:GetString("eSmartCustomizationType_ServiceMethodName_Label.Text":U).
         /*  */
-        /* eSmartCustomizationType_ServiceMethodName */
+        /* ultraComboEditor1 */
         /*  */
-        THIS-OBJECT:eSmartCustomizationType_ServiceMethodName:AccessibleDescription = resources:GetString("eSmartCustomizationType_ServiceMethodName.AccessibleDescription":U).
-        THIS-OBJECT:eSmartCustomizationType_ServiceMethodName:AccessibleName = resources:GetString("eSmartCustomizationType_ServiceMethodName.AccessibleName":U).
-        THIS-OBJECT:eSmartCustomizationType_ServiceMethodName:Anchor = CAST(resources:GetObject("eSmartCustomizationType_ServiceMethodName.Anchor":U), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:eSmartCustomizationType_ServiceMethodName:AutoSize = System.Convert:ToBoolean(resources:GetObject("eSmartCustomizationType_ServiceMethodName.AutoSize":U)).
-        THIS-OBJECT:eSmartCustomizationType_ServiceMethodName:BackgroundImage = CAST(resources:GetObject("eSmartCustomizationType_ServiceMethodName.BackgroundImage":U), System.Drawing.Image).
-        THIS-OBJECT:eSmartCustomizationType_ServiceMethodName:BackgroundImageLayout = CAST(resources:GetObject("eSmartCustomizationType_ServiceMethodName.BackgroundImageLayout":U), System.Windows.Forms.ImageLayout).
-        THIS-OBJECT:eSmartCustomizationType_ServiceMethodName:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "ServiceMethodName":U, TRUE)).
-        THIS-OBJECT:eSmartCustomizationType_ServiceMethodName:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:eSmartCustomizationType_ServiceMethodName:Dock = CAST(resources:GetObject("eSmartCustomizationType_ServiceMethodName.Dock":U), System.Windows.Forms.DockStyle).
-        THIS-OBJECT:eSmartCustomizationType_ServiceMethodName:Font = CAST(resources:GetObject("eSmartCustomizationType_ServiceMethodName.Font":U), System.Drawing.Font).
-        THIS-OBJECT:eSmartCustomizationType_ServiceMethodName:ImeMode = CAST(resources:GetObject("eSmartCustomizationType_ServiceMethodName.ImeMode":U), System.Windows.Forms.ImeMode).
-        THIS-OBJECT:eSmartCustomizationType_ServiceMethodName:Location = CAST(resources:GetObject("eSmartCustomizationType_ServiceMethodName.Location":U), System.Drawing.Point).
-        THIS-OBJECT:eSmartCustomizationType_ServiceMethodName:MaximumSize = CAST(resources:GetObject("eSmartCustomizationType_ServiceMethodName.MaximumSize":U), System.Drawing.Size).
-        THIS-OBJECT:eSmartCustomizationType_ServiceMethodName:Name = "eSmartCustomizationType_ServiceMethodName":U.
-        THIS-OBJECT:eSmartCustomizationType_ServiceMethodName:RightToLeft = CAST(resources:GetObject("eSmartCustomizationType_ServiceMethodName.RightToLeft":U), System.Windows.Forms.RightToLeft).
-        THIS-OBJECT:eSmartCustomizationType_ServiceMethodName:Size = CAST(resources:GetObject("eSmartCustomizationType_ServiceMethodName.Size":U), System.Drawing.Size).
-        THIS-OBJECT:eSmartCustomizationType_ServiceMethodName:TabIndex = System.Convert:ToInt32(resources:GetObject("eSmartCustomizationType_ServiceMethodName.TabIndex":U)).
+        resources:ApplyResources(THIS-OBJECT:ultraComboEditor1, "ultraComboEditor1":U).
+        THIS-OBJECT:ultraComboEditor1:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "ServiceMethodName":U, TRUE)).
+        THIS-OBJECT:ultraComboEditor1:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
+        THIS-OBJECT:ultraComboEditor1:Name = "ultraComboEditor1":U.
+        THIS-OBJECT:ultraComboEditor1:BeforeDropDown:Subscribe(THIS-OBJECT:ultraComboEditor1_BeforeDropDown).
         /*  */
         /* SmartCustomizationTypeViewerControl */
         /*  */
-        THIS-OBJECT:AccessibleDescription = resources:GetString("$this.AccessibleDescription":U).
-        THIS-OBJECT:AccessibleName = resources:GetString("$this.AccessibleName":U).
-        THIS-OBJECT:AutoScaleDimensions = CAST(resources:GetObject("$this.AutoScaleDimensions":U), System.Drawing.SizeF).
-        THIS-OBJECT:AutoScroll = System.Convert:ToBoolean(resources:GetObject("$this.AutoScroll":U)).
-        THIS-OBJECT:AutoSize = System.Convert:ToBoolean(resources:GetObject("$this.AutoSize":U)).
-        THIS-OBJECT:AutoSizeMode = CAST(resources:GetObject("$this.AutoSizeMode":U), System.Windows.Forms.AutoSizeMode).
-        THIS-OBJECT:BackgroundImage = CAST(resources:GetObject("$this.BackgroundImage":U), System.Drawing.Image).
-        THIS-OBJECT:BackgroundImageLayout = CAST(resources:GetObject("$this.BackgroundImageLayout":U), System.Windows.Forms.ImageLayout).
+        resources:ApplyResources(THIS-OBJECT, "$this":U).
+        THIS-OBJECT:Controls:Add(THIS-OBJECT:ultraComboEditor1).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:eSmartCustomizationType_CustomizationTypeCode_Label).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:eSmartCustomizationType_CustomizationTypeCode).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:eSmartCustomizationType_CustomizationTypeDescription_Label).
@@ -314,22 +270,12 @@ CLASS Consultingwerk.Windows.Framework.Repository.Customization.SmartCustomizati
         THIS-OBJECT:Controls:Add(THIS-OBJECT:eSmartCustomizationType_ServiceTypeName_Label).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:eSmartCustomizationType_ServiceTypeName).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:eSmartCustomizationType_ServiceMethodName_Label).
-        THIS-OBJECT:Controls:Add(THIS-OBJECT:eSmartCustomizationType_ServiceMethodName).
-        THIS-OBJECT:Font = CAST(resources:GetObject("$this.Font":U), System.Drawing.Font).
-        THIS-OBJECT:ImeMode = CAST(resources:GetObject("$this.ImeMode":U), System.Windows.Forms.ImeMode).
-        THIS-OBJECT:Location = CAST(resources:GetObject("$this.Location":U), System.Drawing.Point).
-        THIS-OBJECT:MaximumSize = CAST(resources:GetObject("$this.MaximumSize":U), System.Drawing.Size).
         THIS-OBJECT:Name = "SmartCustomizationTypeViewerControl":U.
-        THIS-OBJECT:RightToLeft = CAST(resources:GetObject("$this.RightToLeft":U), System.Windows.Forms.RightToLeft).
-        THIS-OBJECT:SecurityKey = resources:GetString("$this.SecurityKey":U).
-        THIS-OBJECT:Size = CAST(resources:GetObject("$this.Size":U), System.Drawing.Size).
-        THIS-OBJECT:SmartTableIOState = resources:GetString("$this.SmartTableIOState":U).
-        THIS-OBJECT:ViewerLogicClass = resources:GetString("$this.ViewerLogicClass":U).
         CAST(THIS-OBJECT:smartBusinessEntityBindingSource1, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:eSmartCustomizationType_CustomizationTypeCode, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:eSmartCustomizationType_CustomizationTypeDescription, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:eSmartCustomizationType_ServiceTypeName, System.ComponentModel.ISupportInitialize):EndInit().
-        CAST(THIS-OBJECT:eSmartCustomizationType_ServiceMethodName, System.ComponentModel.ISupportInitialize):EndInit().
+        CAST(THIS-OBJECT:ultraComboEditor1, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT, System.ComponentModel.ISupportInitialize):EndInit().
         THIS-OBJECT:ResumeLayout(FALSE).
         THIS-OBJECT:PerformLayout().
@@ -339,13 +285,119 @@ CLASS Consultingwerk.Windows.Framework.Repository.Customization.SmartCustomizati
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the SmartCustomizationTypeViewerControl class
-        Notes:   
+        Purpose: Instantiates the Service and run the defined method of the currently
+                 selected CustomizationType record. The Result gets displayed.
+        Notes:
     ------------------------------------------------------------------------------*/
-    DESTRUCTOR PUBLIC SmartCustomizationTypeViewerControl ( ):
+    METHOD PUBLIC VOID PerformTestService ():
 
-        IF VALID-OBJECT(components) THEN DO:
-            CAST(components, System.IDisposable):Dispose().
+        DEFINE VARIABLE cClassName  AS CHARACTER            NO-UNDO.
+        DEFINE VARIABLE cMethodName AS CHARACTER            NO-UNDO.
+        DEFINE VARIABLE cResult     AS CHARACTER            NO-UNDO.
+        DEFINE VARIABLE oService    AS Progress.Lang.Object NO-UNDO.
+        DEFINE VARIABLE lLocalNew   AS LOGICAL              NO-UNDO.
+
+        ASSIGN
+            cClassName  = TRIM (THIS-OBJECT:eSmartCustomizationType_ServiceTypeName:Text)
+            cMethodName = TRIM (THIS-OBJECT:ultraComboEditor1:Text)
+            .
+
+        IF cMethodName = "":U THEN
+            UNDO, THROW NEW AppError ("Please provide a Method Name!"{&TRAN}, 0).
+
+        oService = FrameworkSettings:ServiceContainer:GetService (THIS-OBJECT:GetClassOfType (cClassName)) .
+
+        IF NOT VALID-OBJECT (oService) THEN DO:
+            lLocalNew = TRUE.
+            oService  = DYNAMIC-NEW (cClassName) () NO-ERROR.
+        END.
+
+        IF NOT VALID-OBJECT (oService) THEN
+            UNDO, THROW NEW AppError (SUBSTITUTE ("Unable to get or create Service (&1)! &2Please provide a valid Service Type Name!"{&TRAN},
+                                                  cClassName, Consultingwerk.Environment:NewLine), 0).
+
+        DO ON ERROR UNDO, THROW:
+            cResult = DYNAMIC-INVOKE (oService, cMethodName).
+
+            MessageFormHelper:ShowMessage (SUBSTITUTE ("&1:&2 returned: &3"{&TRAN}, cClassName, cMethodName, cResult),
+                                           "Service Method Test Result"{&TRAN}).
+
+            CATCH ple AS Progress.Lang.Error :
+                ErrorHelper:ShowErrorMessage (ple).
+            END CATCH.
+        END.
+
+        FINALLY:
+            IF lLocalNew THEN
+                GarbageCollectorHelper:DeleteObject (oService).
+        END FINALLY.
+
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Populates the MethodCombobox
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC VOID PopulateMethodCombobox ():
+
+&IF DEFINED (AblReflection) NE 0 &THEN
+        DEFINE VARIABLE oClass       AS Progress.Lang.Class NO-UNDO.
+        DEFINE VARIABLE cMethodNames AS CHARACTER           NO-UNDO.
+
+        IF VALID-OBJECT (oMethodValueList) THEN DO:
+
+            THIS-OBJECT:ultraComboEditor1:ValueList = ?.
+            GarbageCollectorHelper:DeleteObject (oMethodValueList).
+
+        END.
+
+        oClass = THIS-OBJECT:GetClassOfType (THIS-OBJECT:eSmartCustomizationType_ServiceTypeName:Text).
+
+        IF NOT VALID-OBJECT (oClass) THEN
+            UNDO, THROW NEW AppError (SUBSTITUTE ("Unable to get or create Service (&1)! &2Please select a valid Service Type Name before selecting the Method!"{&TRAN},
+                                                  THIS-OBJECT:eSmartCustomizationType_ServiceTypeName:Text,
+                                                  Consultingwerk.Environment:NewLine), 0).
+
+        cMethodNames = AblReflectionHelper:GetMethodNamesByParameterCount (oClass,
+                                                                           0,
+                                                                           Progress.Reflect.Flags:Public OR Progress.Reflect.Flags:Instance).
+
+        oMethodValueList = ValueListHelper:FromList(cMethodNames).
+
+        THIS-OBJECT:ultraComboEditor1:ValueList = oMethodValueList.
+
+        THIS-OBJECT:ultraComboEditor1:SelectedIndex = THIS-OBJECT:ultraComboEditor1:FindString
+                                (THIS-OBJECT:SmartDataSource:GetFieldValues ("ServiceMethodName":U)).
+
+&ENDIF
+
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Populate Method Combobox before displaying the DropDown list
+        Notes:
+        @param sender The control invoking the event
+        @param e The System.EventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID ultraComboEditor1_BeforeDropDown (sender AS System.Object,
+                                                          e AS System.ComponentModel.CancelEventArgs):
+
+        PopulateMethodCombobox ().
+
+        CATCH ple AS Progress.Lang.Error :
+            ErrorHelper:ShowErrorMessage (ple).
+        END CATCH.
+
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Destructor for the SmartCustomizationTypeViewerControl class
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DESTRUCTOR PUBLIC SmartCustomizationTypeViewerControl ():
+
+        IF VALID-OBJECT (components) THEN DO:
+            CAST (components, System.IDisposable):Dispose ().
         END.
 
     END DESTRUCTOR.

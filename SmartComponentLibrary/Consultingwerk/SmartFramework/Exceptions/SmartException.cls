@@ -241,9 +241,9 @@ CLASS Consultingwerk.SmartFramework.Exceptions.SmartException
         
     END CONSTRUCTOR .
         
-	/*------------------------------------------------------------------------------
-	    Purpose: Constructor for the SmartException class
-	    Notes:
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the SmartException class
+        Notes:
         @param pcMessageGroup The message group
         @param piMessageNumber The message number
         @param pcParameter1 The first message parameter
@@ -254,9 +254,9 @@ CLASS Consultingwerk.SmartFramework.Exceptions.SmartException
         @param pcParameter6 The sixth message parameter
         @param pcParameter7 The seventh message parameter
         @param pcParameter8 The eigth message parameter
-        @param pcParameter9 The nineth message parameter	        
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC SmartException (pcMessageGroup AS CHARACTER,
+        @param pcParameter9 The nineth message parameter            
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC SmartException (pcMessageGroup AS CHARACTER,
                                        piMessageNumber AS INTEGER,
                                        pcParameter1 AS CHARACTER,
                                        pcParameter2 AS CHARACTER,
@@ -267,8 +267,8 @@ CLASS Consultingwerk.SmartFramework.Exceptions.SmartException
                                        pcParameter7 AS CHARACTER,
                                        pcParameter8 AS CHARACTER,
                                        pcParameter9 AS CHARACTER):
-		
-		SUPER () .
+        
+        SUPER () .
 
         DEFINE VARIABLE oMessageProvider AS IMessageProvider NO-UNDO .
         
@@ -287,8 +287,8 @@ CLASS Consultingwerk.SmartFramework.Exceptions.SmartException
             THIS-OBJECT:AddMessage (oMessageProvider:GetMessageText (pcMessageGroup, piMessageNumber,
                                                                      pcParameter1, pcParameter2, pcParameter3, pcParameter4, pcParameter5,
                                                                      pcParameter6, pcParameter7, pcParameter8, pcParameter9), piMessageNumber) .
-		
-	END CONSTRUCTOR.
+        
+    END CONSTRUCTOR.
 
 
 END CLASS.

@@ -37,9 +37,9 @@ CLASS Consultingwerk.OERA.Exceptions.ServiceInterfaceException
                  error 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY BusinessService AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY BusinessService AS CHARACTER NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the ServiceInterfaceException class

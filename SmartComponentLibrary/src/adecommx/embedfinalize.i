@@ -45,7 +45,7 @@ IF VALID-OBJECT (oForm) AND NOT oForm:Finalized THEN DO:
         RUN finalizeEmbedding . 
         
         CATCH err AS Progress.Lang.Error :
-        	Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .	
+            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .    
         END CATCH.
     END.
     
@@ -64,7 +64,7 @@ IF VALID-OBJECT (oForm) AND NOT oForm:Finalized THEN DO:
        for dynamic menus */
     IF VALID-HANDLE (oForm:MENU-BAR) THEN 
         IF TYPE-OF (oForm, Consultingwerk.Framework.IFormWithUltraToolbarsManager) THEN 
-            Consultingwerk.Util.UltratoolbarsHelper:BuildUltraToolbarMenu (CAST(oForm, Consultingwerk.Framework.IFormWithUltraToolbarsManager)) .
+            Consultingwerk.Util.UltraToolbarsHelper:BuildUltraToolbarMenu (CAST(oForm, Consultingwerk.Framework.IFormWithUltraToolbarsManager)) .
 
     /* Mike Fechner, Consultingwerk Ltd. 28.02.2012
        Hook to refine toolbar before the Form is shown */

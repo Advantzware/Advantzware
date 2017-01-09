@@ -37,11 +37,11 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.ModelClassGenerator.CustomPr
         Purpose: Constructor for the CustomPropertyTypeProvider class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC CustomPropertyTypeProvider ():
-		SUPER ().
-		
-		IF VALID-OBJECT (FrameworkSettings:WaitStateManager) THEN 
-		    FrameworkSettings:WaitStateManager:SetWaitState() .
+    CONSTRUCTOR PUBLIC CustomPropertyTypeProvider ():
+        SUPER ().
+        
+        IF VALID-OBJECT (FrameworkSettings:WaitStateManager) THEN 
+            FrameworkSettings:WaitStateManager:SetWaitState() .
 
         ClassHelper:GetClassNames ("Consultingwerk.Enum":U, OUTPUT TABLE ttClassNames) .
 
@@ -52,21 +52,21 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.ModelClassGenerator.CustomPr
         IF VALID-OBJECT (FrameworkSettings:WaitStateManager) THEN 
             FrameworkSettings:WaitStateManager:ClearWaitState() .
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Adds the Enum types to the provided CharacterList 
         Notes:   
         @param poList The CharacterList to add property values to
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID AddPropertyValues (poList AS CharacterList):
-		
-		FOR EACH ttClassNames ON ERROR UNDO, THROW:
+    METHOD PUBLIC VOID AddPropertyValues (poList AS CharacterList):
+        
+        FOR EACH ttClassNames ON ERROR UNDO, THROW:
 
             poList:Add (ttClassNames.ClassName) .
 
         END.
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

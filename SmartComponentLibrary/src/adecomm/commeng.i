@@ -19,8 +19,8 @@
 /*
    The form used in this file is:
 
-	   <Name of the Help Topic>
-	   &Global-define <context-string> <context-number>
+       <Name of the Help Topic>
+       &Global-define <context-string> <context-number>
 
 */
 
@@ -88,15 +88,15 @@
 /* ON HELP in the Color dialog box */
 &Global-define Color_Dlg_Box 49172
 
-	/* Moved to UIB Help */
-	/* ON HELP in the Query Properties dialog box */
-	/* &Global-define Query_Properties 49173 */
+    /* Moved to UIB Help */
+    /* ON HELP in the Query Properties dialog box */
+    /* &Global-define Query_Properties 49173 */
 
-	/* ON HELP in the Build WHERE Clause dialog box */
-	/* &Global-define Build_WHERE_Clause 49174 */
+    /* ON HELP in the Build WHERE Clause dialog box */
+    /* &Global-define Build_WHERE_Clause 49174 */
 
-	/* ON HELP in the Join Builder dialog box */
-	/* &Global-define Join_Builder 49175 */
+    /* ON HELP in the Join Builder dialog box */
+    /* &Global-define Join_Builder 49175 */
 
 /* ON HELP in the Enter Constant Range dialog box */
 &Global-define Enter_Constant_Range 49176

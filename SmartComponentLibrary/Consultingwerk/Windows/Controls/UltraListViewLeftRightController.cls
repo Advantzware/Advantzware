@@ -49,11 +49,11 @@ CLASS Consultingwerk.Windows.Controls.UltraListViewLeftRightController
         @param poAddButton The button to add items to the right
         @param poRemoveButton The button to remove items from the right
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC UltraListViewLeftRightController (poLeftListView AS UltraListView,
-	                                                     poRightListView AS UltraListView,
-	                                                     poAddButton AS UltraButton,
-	                                                     poRemoveButton AS UltraButton):
-		SUPER ().
+    CONSTRUCTOR PUBLIC UltraListViewLeftRightController (poLeftListView AS UltraListView,
+                                                         poRightListView AS UltraListView,
+                                                         poAddButton AS UltraButton,
+                                                         poRemoveButton AS UltraButton):
+        SUPER ().
 
         ObjectAssert:IsValid (poLeftListView, "poLeftListView":U) .
         ObjectAssert:IsValid (poRightListView, "poRightListView":U) .
@@ -64,16 +64,16 @@ CLASS Consultingwerk.Windows.Controls.UltraListViewLeftRightController
                oRightListView = poRightListView
                oAddButton     = poAddButton
                oRemoveButton  = poRemoveButton .
-		
-		oLeftListView:ItemSelectionChanged:Subscribe (LeftItemSelectionChangedHandler) .
+        
+        oLeftListView:ItemSelectionChanged:Subscribe (LeftItemSelectionChangedHandler) .
         oRightListView:ItemSelectionChanged:Subscribe (RightItemSelectionChangedHandler) .
-		
-		oAddButton:Click:Subscribe (AddButtonClickHandler) .
-		oRemoveButton:Click:Subscribe (RemoveButtonClickHandler) .
-		
-		THIS-OBJECT:EvaluateButtons () . 
-		
-	END CONSTRUCTOR.
+        
+        oAddButton:Click:Subscribe (AddButtonClickHandler) .
+        oRemoveButton:Click:Subscribe (RemoveButtonClickHandler) .
+        
+        THIS-OBJECT:EvaluateButtons () . 
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the Click event of the Add button 
@@ -81,9 +81,9 @@ CLASS Consultingwerk.Windows.Controls.UltraListViewLeftRightController
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID AddButtonClickHandler (sender AS System.Object, 
-	                                          e AS System.EventArgs):
-		
+    METHOD PUBLIC VOID AddButtonClickHandler (sender AS System.Object, 
+                                              e AS System.EventArgs):
+        
         DEFINE VARIABLE oItemsToRemove AS "System.Collections.Generic.List<Infragistics.Win.UltraWinListView.UltraListViewItem>":U NO-UNDO .
 
         oItemsToRemove = NEW "System.Collections.Generic.List<Infragistics.Win.UltraWinListView.UltraListViewItem>":U () .
@@ -101,18 +101,18 @@ CLASS Consultingwerk.Windows.Controls.UltraListViewLeftRightController
         
         THIS-OBJECT:EvaluateButtons () .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Evaluates the Add/Remove Button state 
         Notes:   
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID EvaluateButtons ():
-		
-		ASSIGN oAddButton:Enabled    = oLeftListView:SelectedItems:Count > 0 
-		       oRemoveButton:Enabled = oRightListView:SelectedItems:Count > 0 .
+    METHOD PROTECTED VOID EvaluateButtons ():
+        
+        ASSIGN oAddButton:Enabled    = oLeftListView:SelectedItems:Count > 0 
+               oRemoveButton:Enabled = oRightListView:SelectedItems:Count > 0 .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the ItemSelectionChanged event of the left selection 
@@ -121,12 +121,12 @@ CLASS Consultingwerk.Windows.Controls.UltraListViewLeftRightController
         @param sender The reference to the object that raised the event
         @param e The ItemSelectionChangedEventArgs with data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID LeftItemSelectionChangedHandler (sender AS System.Object,
-	                                                       e AS ItemSelectionChangedEventArgs):
-		
+    METHOD PROTECTED VOID LeftItemSelectionChangedHandler (sender AS System.Object,
+                                                           e AS ItemSelectionChangedEventArgs):
+        
         THIS-OBJECT:EvaluateButtons () .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Raises the ItemsChanged

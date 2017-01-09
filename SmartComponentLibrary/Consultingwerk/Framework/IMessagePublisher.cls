@@ -24,13 +24,13 @@ USING Consultingwerk.Framework.* FROM PROPATH.
 
 INTERFACE Consultingwerk.Framework.IMessagePublisher:  
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Publishes a Message to all subscriber that are subscribed to messages
-	             of that type
-	    Notes:   Subscription is for the actual message type and child classes
-	    @param poMessage The Message to publish
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID Publish (poMessage AS Progress.Lang.Object).
+    /*------------------------------------------------------------------------------
+        Purpose: Publishes a Message to all subscriber that are subscribed to messages
+                 of that type
+        Notes:   Subscription is for the actual message type and child classes
+        @param poMessage The Message to publish
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC VOID Publish (poMessage AS Progress.Lang.Object).
 
     /*------------------------------------------------------------------------------
         Purpose: Subscribes an Message handler call back to the given Message type 

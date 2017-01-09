@@ -11,17 +11,17 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : InsertClientCallableMethodWizard
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sun Jun 30 14:57:16 CEST 2013
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Consultingwerk.BusinessEntityDesigner.UI.*      FROM PROPATH .  
+USING Consultingwerk.BusinessEntityDesigner.UI.*      FROM PROPATH .
 USING Consultingwerk.Forms.*                          FROM PROPATH .
 USING Consultingwerk.SmartComponents.Base.*           FROM PROPATH .
 USING Consultingwerk.Util.*                           FROM PROPATH .
@@ -31,12 +31,12 @@ USING System.Windows.Forms.*                          FROM ASSEMBLY .
 
 {Consultingwerk/products.i}
 
-CLASS Consultingwerk.BusinessEntityDesigner.UI.InsertClientCallableMethodWizard 
-    INHERITS BaseForm: 
+CLASS Consultingwerk.BusinessEntityDesigner.UI.InsertClientCallableMethodWizard
+    INHERITS BaseForm:
 
     DEFINE PRIVATE VARIABLE btnOk AS Infragistics.Win.Misc.UltraButton NO-UNDO.
     DEFINE PRIVATE VARIABLE btnCancel AS Infragistics.Win.Misc.UltraButton NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE panel1 AS System.Windows.Forms.Panel NO-UNDO.
     DEFINE PRIVATE VARIABLE tbParameterType AS Infragistics.Win.UltraWinEditors.UltraTextEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE tbMethodName AS Infragistics.Win.UltraWinEditors.UltraTextEditor NO-UNDO.
@@ -48,64 +48,65 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.InsertClientCallableMethodWizard
     {Consultingwerk/Util/TempTables/ttClassNames.i}
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns the Method Name  
-        Notes:   
+        Purpose: Returns the Method Name
+        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY MethodName AS CHARACTER NO-UNDO 
-	GET:
-		RETURN tbMethodName:Text.
-	END GET.
-	 
+    DEFINE PUBLIC PROPERTY MethodName AS CHARACTER NO-UNDO
+    GET:
+        RETURN tbMethodName:Text.
+    END GET.
+
     /*------------------------------------------------------------------------------
-        Purpose: Returns the Parameter Type   
-        Notes:   
+        Purpose: Returns the Parameter Type
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY ParameterType AS CHARACTER NO-UNDO 
+    DEFINE PUBLIC PROPERTY ParameterType AS CHARACTER NO-UNDO
     GET:
         RETURN tbParameterType:Text.
     END GET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns if the class annotations should be updated 
-        Notes:   
+        Purpose: Returns if the class annotations should be updated
+        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY UpdateAnnotations AS LOGICAL NO-UNDO 
-	GET:
-		RETURN toUpdateAnnotations:Checked .
-	END GET.
+    DEFINE PUBLIC PROPERTY UpdateAnnotations AS LOGICAL NO-UNDO
+    GET:
+        RETURN toUpdateAnnotations:Checked .
+    END GET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the InsertClientCallableMethodWizard class  
-        Notes:   
+        Purpose: Constructor for the InsertClientCallableMethodWizard class
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC InsertClientCallableMethodWizard ():
-		
+    CONSTRUCTOR PUBLIC InsertClientCallableMethodWizard ():
+
         SUPER().
         InitializeComponent().
-        
+
         &IF NOT PROVERSION BEGINS "10.2":U AND NOT PROVERSION BEGINS "11.0" &THEN
         THIS-OBJECT:ComponentsCollection:Add (THIS-OBJECT:components).
         &ENDIF
-        
-        THIS-OBJECT:StoreFormPosition = FALSE . 
-        
+
+        THIS-OBJECT:StoreFormPosition = FALSE .
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design  
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE editorButton1 AS Infragistics.Win.UltraWinEditors.EditorButton NO-UNDO.
@@ -255,82 +256,83 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.InsertClientCallableMethodWizard
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the KeyDown handler of the Text boxes with an 
+        Purpose: Event handler for the KeyDown handler of the Text boxes with an
                  EditorButton (Lookup)
         Notes:   Maps F3 to EditorButtonClick
         @param sender The reference to the object that raised the event
         @param e The KeyEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID LookupKeyDownHandler (sender AS System.Object, 
+    METHOD PRIVATE VOID LookupKeyDownHandler (sender AS System.Object,
                                               e AS System.Windows.Forms.KeyEventArgs):
 
         DEFINE VARIABLE cControlName AS CHARACTER NO-UNDO.
-        
-        IF e:Handled = FALSE AND Progress.Util.EnumHelper:AreEqual (e:KeyCode, SmartLookupSettings:ShortcutKey) 
+
+        IF e:Handled = FALSE AND Progress.Util.EnumHelper:AreEqual (e:KeyCode, SmartLookupSettings:ShortcutKey)
             AND THIS-OBJECT:Enabled THEN DO:
 
 &IF NOT PROVERSION BEGINS "10" &THEN
             ASSIGN cControlName = CAST (sender, System.Windows.Forms.Control):Name .
 
-            DYNAMIC-INVOKE (THIS-OBJECT, 
-                            SUBSTITUTE ("&1_EditorButtonClick":U, cControlName), 
-                            sender, 
+            DYNAMIC-INVOKE (THIS-OBJECT,
+                            SUBSTITUTE ("&1_EditorButtonClick":U, cControlName),
+                            sender,
                             NEW EditorButtonEventArgs (?, ?)) .
-&ELSE 
+&ELSE
             /* Mike Fechner, Consultingwerk Ltd. 17.08.2015
                DYNAMIC-INVOKE seems to crash here on 10.2B */
             CASE sender:
-                WHEN tbParameterType 
+                WHEN tbParameterType
                     THEN THIS-OBJECT:tbParameterType_EditorButtonClick (sender, NEW EditorButtonEventArgs (?, ?)) .
-            END CASE . 
+            END CASE .
 &ENDIF
         END.
 
         CATCH err AS Progress.Lang.Error:
-            ErrorHelper:ShowErrorMessage (err) .                
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the Shown event 
-        Notes:   
+        Purpose: Raises the Shown event
+        Notes:
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
-	
-	    DEFINE VARIABLE cSettings AS CHARACTER NO-UNDO.
-		
-		SUPER:OnShown (e) . 
+    METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
+
+        DEFINE VARIABLE cSettings AS CHARACTER NO-UNDO.
+
+        SUPER:OnShown (e) .
 
         ASSIGN cSettings = THIS-OBJECT:LoadSettings ("UpdateAnnotations":U) .
 
-        IF cSettings > "":U THEN DO ON ERROR UNDO, THROW: 
+        IF cSettings > "":U THEN DO ON ERROR UNDO, THROW:
             ASSIGN toUpdateAnnotations:Checked = DataTypeHelper:ToLogical (cSettings) .
-            
+
+            @SuppressUnusedWarnings.
             CATCH err AS Progress.Lang.Error:
-            	/* ignore */	
-            END CATCH. 
+                /* ignore */
+            END CATCH.
         END.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the EditorButtonClick event of the tbParameterType
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The EditorButtonEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID tbParameterType_EditorButtonClick (sender AS System.Object, 
-	                                                       e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
-		
+    METHOD PRIVATE VOID tbParameterType_EditorButtonClick (sender AS System.Object,
+                                                           e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
+
         DEFINE VARIABLE oForm            AS Consultingwerk.SmartComponents.Support.BusinessEntityPickerForm NO-UNDO .
         DEFINE VARIABLE oDialogResult    AS System.Windows.Forms.DialogResult                               NO-UNDO .
 
-        DEFINE VARIABLE oInfo            AS Infragistics.Win.Misc.UltraDesktopAlertWindowInfo               NO-UNDO . 
+        DEFINE VARIABLE oInfo            AS Infragistics.Win.Misc.UltraDesktopAlertWindowInfo               NO-UNDO .
 
         DEFINE VARIABLE lExternalRuntime AS LOGICAL                                                         NO-UNDO .
         DEFINE VARIABLE cShortClassName  AS CHARACTER                                                       NO-UNDO .
@@ -338,85 +340,85 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.InsertClientCallableMethodWizard
         oInfo = Consultingwerk.SmartComponents.Support.DesktopAlertHelper:Show ("SmartComponent Library":U,
                                                                                 "Scanning Project Folder(s) for Smart Viewer Control."{&TRAN}) .
 
-        ASSIGN lExternalRuntime = Consultingwerk.Util.ClassHelper:UseExternalRuntimeForGetClassNames .  
+        ASSIGN lExternalRuntime = Consultingwerk.Util.ClassHelper:UseExternalRuntimeForGetClassNames .
 
-        Consultingwerk.Util.ClassHelper:UseExternalRuntimeForGetClassNames = TRUE . 
+        Consultingwerk.Util.ClassHelper:UseExternalRuntimeForGetClassNames = TRUE .
 
-        IF VALID-OBJECT (Consultingwerk.Framework.FrameworkSettings:WaitStateManager) THEN 
+        IF VALID-OBJECT (Consultingwerk.Framework.FrameworkSettings:WaitStateManager) THEN
             Consultingwerk.Framework.FrameworkSettings:WaitStateManager:SetWaitState ("Searching class names"{&TRAN}) .
 
-        Consultingwerk.Util.ClassHelper:GetClassNamesInClassPath ("Consultingwerk.ISerializable":U, 
-                                                                  FALSE, 
+        Consultingwerk.Util.ClassHelper:GetClassNamesInClassPath ("Consultingwerk.ISerializable":U,
+                                                                  FALSE,
                                                                   OUTPUT TABLE ttClassNames BY-REFERENCE) .
 
-        IF VALID-OBJECT (Consultingwerk.Framework.FrameworkSettings:WaitStateManager) THEN 
+        IF VALID-OBJECT (Consultingwerk.Framework.FrameworkSettings:WaitStateManager) THEN
             Consultingwerk.Framework.FrameworkSettings:WaitStateManager:ClearWaitState ("Searching class names"{&TRAN}) .
 
         oInfo:Close () .
 
         oForm = NEW Consultingwerk.SmartComponents.Support.BusinessEntityPickerForm () .
         oForm:Text = "Select Parameter Type"{&TRAN} .
-        
+
         oForm:ReceiveBusinessEntityNames (TABLE ttClassNames) .
-        
+
 /*        WAIT-FOR oForm:ShowDialog () SET oDialogResult .*/
 
         /* Mike Fechner, Consultingwerk Ltd. 14.07.2010
            WAIT-FOR Workaround */
         ASSIGN oDialogResult = Consultingwerk.SmartComponents.FormHelper:ShowDialog(oForm) .
-        
-        IF Progress.Util.EnumHelper:AreEqual(oDialogResult, 
-                                             System.Windows.Forms.DialogResult:Ok) THEN DO: 
-                                    
+
+        IF Progress.Util.EnumHelper:AreEqual(oDialogResult,
+                                             System.Windows.Forms.DialogResult:Ok) THEN DO:
+
             ASSIGN THIS-OBJECT:tbParameterType:Text = oForm:GetSelectedBusinessEntityName () .
-        
+
             IF THIS-OBJECT:tbMethodName:Text = "":U THEN DO:
                 ASSIGN cShortClassName = ENTRY (NUM-ENTRIES (THIS-OBJECT:tbParameterType:Text, ".":U), THIS-OBJECT:tbParameterType:Text, ".":U) .
 
-                IF cShortClassName MATCHES "*Parameter":U THEN 
-                    ASSIGN THIS-OBJECT:tbMethodName:Text = SUBSTRING (cShortClassName, 1, LENGTH (cShortClassName) - 9) .
-                
-                THIS-OBJECT:tbMethodName:Focus () . 
-            END.    
+                IF cShortClassName MATCHES "*Parameter":U THEN
+                    ASSIGN THIS-OBJECT:tbMethodName:Text = SUBSTRING (cShortClassName, 1, LENGTH (cShortClassName, "CHARACTER":U) - 9, "CHARACTER":U) .
+
+                THIS-OBJECT:tbMethodName:Focus () .
+            END.
         END.
-        
+
         FINALLY:
-            ASSIGN Consultingwerk.Util.ClassHelper:UseExternalRuntimeForGetClassNames = lExternalRuntime .		
+            ASSIGN Consultingwerk.Util.ClassHelper:UseExternalRuntimeForGetClassNames = lExternalRuntime .
         END FINALLY.
-        
-	END METHOD .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the CheckedChanged event of the toUpdateAnnotations
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID toUpdateAnnotations_CheckedChanged (sender AS System.Object, 
-	                                                        e AS System.EventArgs):
-		
+    METHOD PRIVATE VOID toUpdateAnnotations_CheckedChanged (sender AS System.Object,
+                                                            e AS System.EventArgs):
+
         THIS-OBJECT:StoreSettings (STRING (toUpdateAnnotations:Checked),
                                    "UpdateAnnotations":U) .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the TextChanged event of the UltraTextEditor Controls 
-        Notes:   
+        Purpose: Event handler for the TextChanged event of the UltraTextEditor Controls
+        Notes:
         @param sender The reference to the object that raised this event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraTextEditor1_TextChanged (sender AS System.Object, 
-	                                                  e AS System.EventArgs):
-		
-		THIS-OBJECT:btnOK:Enabled = (THIS-OBJECT:tbMethodName:Text > "":U AND 
-		                             THIS-OBJECT:tbParameterType:Text > "":U) .
+    METHOD PRIVATE VOID ultraTextEditor1_TextChanged (sender AS System.Object,
+                                                      e AS System.EventArgs):
 
-	END METHOD .
+        THIS-OBJECT:btnOK:Enabled = (THIS-OBJECT:tbMethodName:Text > "":U AND
+                                     THIS-OBJECT:tbParameterType:Text > "":U) .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the InsertClientCallableMethodWizard class 
-        Notes:   
+        Purpose: Destructor for the InsertClientCallableMethodWizard class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC InsertClientCallableMethodWizard ():
 

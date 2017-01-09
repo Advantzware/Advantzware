@@ -39,15 +39,15 @@ CLASS Consultingwerk.Windows.Framework.LaunchFormCallParameter
     INHERITS JsonSerializable
 &ENDIF    
     IMPLEMENTS IFunctionCallParameter: 
-	
+    
     {Consultingwerk/JsonSerializableProperty.i AllowMultiple LOGICAL} .
     {Consultingwerk/JsonSerializableProperty.i CharacterParameterValue CHARACTER} .
     {Consultingwerk/JsonSerializableProperty.i ClassName CHARACTER} .
     {Consultingwerk/JsonSerializableProperty.i FormStartType Consultingwerk.Windows.Framework.FormStartTypeEnum} .
     {Consultingwerk/JsonSerializableProperty.i UseCharacterParameterValue LOGICAL} .
-	
-    DEFINE VARIABLE lRetrying AS LOGICAL NO-UNDO INIT FALSE .	
-	
+    
+    DEFINE VARIABLE lRetrying AS LOGICAL NO-UNDO INIT FALSE .    
+    
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the Default FormStartType
         Notes:   
@@ -69,24 +69,24 @@ CLASS Consultingwerk.Windows.Framework.LaunchFormCallParameter
     ------------------------------------------------------------------------------*/
     DEFINE PUBLIC STATIC PROPERTY EditorControl AS CHARACTER NO-UNDO INIT "Consultingwerk.Windows.Framework.Menu.LaunchFormCallParameterControl":U 
     GET.
-    	
+        
     /*------------------------------------------------------------------------------
         Purpose: Returns the image representing this Function Call Parameter
         Notes:   
     ------------------------------------------------------------------------------*/
     DEFINE PUBLIC STATIC PROPERTY ImageKey AS CHARACTER INITIAL "Consultingwerk/Windows/Framework/Images/FunctionCallParameter/window.png":U NO-UNDO 
     GET.
-        	
+            
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the InvokeStaticMethodCallParameter class                                                                     
         Notes:                                                                        
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC LaunchFormCallParameter ():
-		SUPER ().
-		
+    CONSTRUCTOR PUBLIC LaunchFormCallParameter ():
+        SUPER ().
+        
         THIS-OBJECT:AddSerializableProperties ("{&SerializableProperties}":U) .
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the LaunchFormCallParameter class
@@ -98,16 +98,16 @@ CLASS Consultingwerk.Windows.Framework.LaunchFormCallParameter
         
     END CONSTRUCTOR.
     
-	/*------------------------------------------------------------------------------
-		Purpose: Locates the reference to a running Form instance 																	  
-		Notes:
-		@return The reference to the running Form instance   																	  
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED Progress.Windows.Form FindFormInstance ():
-		
+    /*------------------------------------------------------------------------------
+        Purpose: Locates the reference to a running Form instance                                                                       
+        Notes:
+        @return The reference to the running Form instance                                                                         
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED Progress.Windows.Form FindFormInstance ():
+        
         RETURN FormHelper:FindRunningFormInstance (THIS-OBJECT:ClassName) .
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Invokes/Starts the function associated with the IFunctionCallParameter 
@@ -138,10 +138,10 @@ CLASS Consultingwerk.Windows.Framework.LaunchFormCallParameter
                 RETURN oForm .
             END .
         END .
-		
-		IF THIS-OBJECT:UseCharacterParameterValue THEN 
-		    oForm = DYNAMIC-NEW (THIS-OBJECT:ClassName)
-		                        (THIS-OBJECT:CharacterParameterValue) .
+        
+        IF THIS-OBJECT:UseCharacterParameterValue THEN 
+            oForm = DYNAMIC-NEW (THIS-OBJECT:ClassName)
+                                (THIS-OBJECT:CharacterParameterValue) .
         ELSE 
             oForm = DYNAMIC-NEW (THIS-OBJECT:ClassName) () .
 
@@ -216,35 +216,35 @@ CLASS Consultingwerk.Windows.Framework.LaunchFormCallParameter
             ELSE
                 UNDO, THROW syserr .
         END CATCH.
-&ENDIF		
+&ENDIF        
         FINALLY:
             IF VALID-OBJECT (FrameworkSettings:WaitStateManager) THEN 
                 FrameworkSettings:WaitStateManager:ClearWaitState ("Launching Form"{&TRAN}) .
         END FINALLY.
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Returns true when the function is currently active (runninng) 
         Notes:   
         @return True when the function is currently active (runninng)
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL IsActive ():
-		
+    METHOD PUBLIC LOGICAL IsActive ():
+        
         RETURN VALID-OBJECT (THIS-OBJECT:FindFormInstance ()) .
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: ReActivates the function 
         Notes:   
         @return True when the function was successfully reactivated
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL ReActivate ():
-		
-		DEFINE VARIABLE oForm AS Progress.Windows.Form NO-UNDO . 
-		
-		oForm = FindFormInstance () .
+    METHOD PUBLIC LOGICAL ReActivate ():
+        
+        DEFINE VARIABLE oForm AS Progress.Windows.Form NO-UNDO . 
+        
+        oForm = FindFormInstance () .
  
         IF VALID-OBJECT (oForm) THEN DO:
             oForm:Activate () .
@@ -253,7 +253,7 @@ CLASS Consultingwerk.Windows.Framework.LaunchFormCallParameter
 
         RETURN FALSE . 
  
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Executes the WAIT-FOR ShowDialog for a DialogForm
@@ -262,11 +262,11 @@ CLASS Consultingwerk.Windows.Framework.LaunchFormCallParameter
         @param poForm The DialogForm to show
         @param poDialogResult OUTPUT The DialogResult member that is the result of the ShowDialog method 
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID WaitForShowDialog (poForm AS System.Windows.Forms.Form,
-	                                         OUTPUT poDialogResult AS DialogResult):
-		
-		WAIT-FOR poForm:ShowDialog () SET poDialogResult . 
+    METHOD PROTECTED VOID WaitForShowDialog (poForm AS System.Windows.Forms.Form,
+                                             OUTPUT poDialogResult AS DialogResult):
+        
+        WAIT-FOR poForm:ShowDialog () SET poDialogResult . 
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

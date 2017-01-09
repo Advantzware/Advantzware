@@ -52,12 +52,13 @@ ASSIGN cBusinessEntity = DYNAMIC-FUNCTION ("getParameter":U IN SOURCE-PROCEDURE,
 
 Consultingwerk.Assertion.FileAssert:Exists (cFileName) .
 
-FILE-INFO:FILE-NAME = cFileName . 
-cFileName = FILE-INFO:FULL-PATHNAME . 
+FILE-INFORMATION:FILE-NAME = cFileName . 
+cFileName = FILE-INFORMATION:FULL-PATHNAME . 
 
 PUT UNFORMATTED "Importing data: "{&TRAN} cBusinessEntity SKIP (0). 
 PUT UNFORMATTED "Importing from: "{&TRAN} cFileName SKIP (0).
-PUT UNFORMATTED "Skipping Fields: "{&TRAN} cSkipFields SKIP (0).
+IF cSkipFields > "":U THEN 
+    PUT UNFORMATTED "Skipping Fields: "{&TRAN} cSkipFields SKIP (0).
 
 oImporter = NEW GenericDataImporter () . 
 oResult   = oImporter:ImportBusinessEntityData (cBusinessEntity, 
@@ -65,9 +66,14 @@ oResult   = oImporter:ImportBusinessEntityData (cBusinessEntity,
                                                 cSkipFields) .
 
 IF VALID-OBJECT (oResult) THEN DO:
-    PUT UNFORMATTED oResult:CreatedRecords " rows created."{&TRAN} SKIP (1).
+    PUT UNFORMATTED oResult:CreatedRecords " rows created."{&TRAN} SKIP (0).
     PUT UNFORMATTED oResult:ModifiedRecords " rows updated."{&TRAN} SKIP (1).
 END.
+
+Consultingwerk.OERA.ServiceManager:StopAllBusinessServices () . 
+
+oImporter = ? . 
+oResult = ? .
 
 RETURN "0":U .
 

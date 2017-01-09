@@ -30,9 +30,9 @@ INTERFACE Consultingwerk.RollbaseAdapter.IRollbaseAdapter:
         Purpose: Gets and sets the Credentials to be used for Rollbase
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Credentials AS IRollbaseCredentials NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY Credentials AS IRollbaseCredentials NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Performs an create2 request to create a record with given field 
@@ -51,7 +51,7 @@ INTERFACE Consultingwerk.RollbaseAdapter.IRollbaseAdapter:
         @param pcDateString The String containing a DATE
         @return The DATE value
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC DATE DateValue (pcDateString AS CHARACTER).
+    METHOD PUBLIC DATE DateValue (pcDateString AS CHARACTER).
 
     /*------------------------------------------------------------------------------
         Purpose: Returns a DATETIME from a Rollbase Returned DateTime String 
@@ -67,7 +67,7 @@ INTERFACE Consultingwerk.RollbaseAdapter.IRollbaseAdapter:
         @param piId The Id of the record to delete
         @return Logical value indicating if the record was deleted
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL Delete (piId AS INT64).
+    METHOD PUBLIC LOGICAL Delete (piId AS INT64).
 
     /*------------------------------------------------------------------------------
         Purpose: Returns an Character Array of available object definitions
@@ -75,7 +75,7 @@ INTERFACE Consultingwerk.RollbaseAdapter.IRollbaseAdapter:
         @param poPermission The optional PermissionEnum value controlling if the output should be limited to certain objects 
         @return The Character Array of available object definitions 
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC CHARACTER EXTENT GetObjectDefNames (poPermission AS PermissionEnum).
+    METHOD PUBLIC CHARACTER EXTENT GetObjectDefNames (poPermission AS PermissionEnum).
 
     /*------------------------------------------------------------------------------
         Purpose: Retrieves Rollbase Object Definition at a dsObjectDef Dataset 
@@ -90,7 +90,7 @@ INTERFACE Consultingwerk.RollbaseAdapter.IRollbaseAdapter:
         Purpose: Authenticates with Rollbase 
         Notes:   
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID Login ().
+    METHOD PUBLIC VOID Login ().
 
     /*------------------------------------------------------------------------------
         Purpose: Closes a Rollbase session 
@@ -104,7 +104,7 @@ INTERFACE Consultingwerk.RollbaseAdapter.IRollbaseAdapter:
         @param pcRollbaseType The Rollbase DataType
         @return The ABL Data Type
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC CHARACTER RollbaseDataTypeToAbl (pcRollbaseType AS CHARACTER).
+    METHOD PUBLIC CHARACTER RollbaseDataTypeToAbl (pcRollbaseType AS CHARACTER).
 
     /*------------------------------------------------------------------------------
         Purpose: Performs an selectQuery Request and populates the results to an 
@@ -116,11 +116,11 @@ INTERFACE Consultingwerk.RollbaseAdapter.IRollbaseAdapter:
         @param piNumRows The number of rows to return
         @param phTable INPUT-OUTPUT TABLE-HANLDLE The name of the temp-table to select into
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID SelectToTempTable (pcObjectName AS CHARACTER, 
-	                                      pcQuery AS CHARACTER,
+    METHOD PUBLIC VOID SelectToTempTable (pcObjectName AS CHARACTER, 
+                                          pcQuery AS CHARACTER,
                                           piStartRow AS INTEGER, 
                                           piNumRows AS INTEGER, 
-	                                      INPUT-OUTPUT TABLE-HANDLE phTable).
+                                          INPUT-OUTPUT TABLE-HANDLE phTable).
 
     /*------------------------------------------------------------------------------
         Purpose: Performs an update2 request to update field values of a Rollbase 

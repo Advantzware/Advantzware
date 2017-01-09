@@ -48,7 +48,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.SmartBusinessEntity
         Purpose: Retusn the TypeName for to be used for this UltraEditorControl
         Notes:   
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY ControlTypeName AS CHARACTER NO-UNDO INIT "Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityLookup":U
+    DEFINE PUBLIC PROPERTY ControlTypeName AS CHARACTER NO-UNDO INITIAL "Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityLookup":U
     GET.
     PROTECTED SET. 
 
@@ -67,7 +67,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.SmartBusinessEntity
         Purpose: The Height of the Control
         Notes:   
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY Height AS INTEGER NO-UNDO INIT 21
+    DEFINE PUBLIC PROPERTY Height AS INTEGER NO-UNDO INITIAL 21
     GET.
     SET. 
 
@@ -84,7 +84,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.SmartBusinessEntity
                  will be retrieved by the lookup operations  
         Notes:   
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY LookupAdditionalFields AS CHARACTER NO-UNDO INIT "":U 
+    DEFINE PUBLIC PROPERTY LookupAdditionalFields AS CHARACTER NO-UNDO INITIAL "":U
     GET.
     SET. 
 
@@ -93,7 +93,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.SmartBusinessEntity
                  LookupBrowser.
         Notes:   The value of this Property is defined during DesignTime.
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY LookupBrowserExcludeFields AS CHARACTER NO-UNDO INIT "":U
+    DEFINE PUBLIC PROPERTY LookupBrowserExcludeFields AS CHARACTER NO-UNDO INITIAL "":U
     GET.
     SET.
     
@@ -102,7 +102,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.SmartBusinessEntity
                  LookupBrowser.
         Notes:   The value of this Property is defined during DesignTime.
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY LookupBrowserFields AS CHARACTER NO-UNDO INIT "":U
+    DEFINE PUBLIC PROPERTY LookupBrowserFields AS CHARACTER NO-UNDO INITIAL "":U
     GET.
     SET.    
         
@@ -112,7 +112,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.SmartBusinessEntity
                  The value of this Property is defined during DesignTime. 
         Notes:   Corresponding to the LookupFields
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY LookupControls AS CHARACTER NO-UNDO INIT "":U 
+    DEFINE PUBLIC PROPERTY LookupControls AS CHARACTER NO-UNDO INITIAL "":U
     GET.
     SET.    
 
@@ -121,7 +121,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.SmartBusinessEntity
         Notes:   The class needs to implement IBusinessEntityLookupDialogForm and 
                  inherits System.Windows.Forms.Form      
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY LookupDialogClassName AS CHARACTER NO-UNDO INIT "":U
+    DEFINE PUBLIC PROPERTY LookupDialogClassName AS CHARACTER NO-UNDO INITIAL "":U
     GET.
     SET. 
 
@@ -129,7 +129,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.SmartBusinessEntity
         Purpose: Fields that allow to Filter on the Lookup Browser Dialog
         Notes:   Comma-Delimited, first entry is default                                                                        
     ------------------------------------------------------------------------------*/    
-    DEFINE PUBLIC PROPERTY LookupDialogFilterFields AS CHARACTER NO-UNDO INIT "":U
+    DEFINE PUBLIC PROPERTY LookupDialogFilterFields AS CHARACTER NO-UNDO INITIAL "":U
     GET.
     SET.
 
@@ -137,7 +137,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.SmartBusinessEntity
         Purpose: Operators for the LookupDialogFilterFields 
         Notes:   Comma-Delimited, first entry is default                                                                        
     ------------------------------------------------------------------------------*/    
-    DEFINE PUBLIC PROPERTY LookupDialogFilterOperators AS CHARACTER NO-UNDO INIT "":U 
+    DEFINE PUBLIC PROPERTY LookupDialogFilterOperators AS CHARACTER NO-UNDO INITIAL "":U
     GET.
     SET.
     
@@ -145,7 +145,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.SmartBusinessEntity
         Purpose: QuerySort used when opening the Lookup Browser Dialog
         Notes:                                                                        
     ------------------------------------------------------------------------------*/    
-    DEFINE PUBLIC PROPERTY LookupDialogQuerySort AS CHARACTER NO-UNDO INIT "":U
+    DEFINE PUBLIC PROPERTY LookupDialogQuerySort AS CHARACTER NO-UNDO INITIAL "":U
     GET.
     SET. 
 
@@ -153,7 +153,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.SmartBusinessEntity
         Purpose: QueryString used when opening the Lookup Browser Dialog
         Notes:                                                                        
     ------------------------------------------------------------------------------*/    
-    DEFINE PUBLIC PROPERTY LookupDialogQueryString AS CHARACTER NO-UNDO INIT "":U 
+    DEFINE PUBLIC PROPERTY LookupDialogQueryString AS CHARACTER NO-UNDO INITIAL "":U
     GET.
     SET.
     
@@ -171,7 +171,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.SmartBusinessEntity
                  This Property is set by the Developer during DesignTime.
         Notes:   
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY LookupEntityName AS CHARACTER NO-UNDO INIT "":U 
+    DEFINE PUBLIC PROPERTY LookupEntityName AS CHARACTER NO-UNDO INITIAL "":U
     GET.
     SET.    
 
@@ -180,7 +180,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.SmartBusinessEntity
                  This Property is set by the Developer during DesignTime.
         Notes:   
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY LookupEntityTable AS CHARACTER NO-UNDO INIT "":U 
+    DEFINE PUBLIC PROPERTY LookupEntityTable AS CHARACTER NO-UNDO INITIAL "":U
     GET.
     SET.    
         
@@ -189,7 +189,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.SmartBusinessEntity
                  This Property is set by the Developer during DesignTime.
         Notes:   
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY LookupEntityView AS CHARACTER NO-UNDO INIT "":U 
+    DEFINE PUBLIC PROPERTY LookupEntityView AS CHARACTER NO-UNDO INITIAL "":U
     GET.
     SET.    
 
@@ -200,7 +200,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.SmartBusinessEntity
                  The value of this Property is defined during DesignTime.
         Notes:   Corresponding to the LookupControls
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY LookupFields AS CHARACTER NO-UNDO INIT "":U 
+    DEFINE PUBLIC PROPERTY LookupFields AS CHARACTER NO-UNDO INITIAL "":U
     GET.
     SET.    
 
@@ -209,7 +209,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.SmartBusinessEntity
                  The value of this Property is defined during DesignTime.
         Notes:   
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY LookupKeyField AS CHARACTER NO-UNDO INIT "":U
+    DEFINE PUBLIC PROPERTY LookupKeyField AS CHARACTER NO-UNDO INITIAL "":U
     GET.
     SET.    
 
@@ -218,7 +218,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.SmartBusinessEntity
                  retrieving the LookupKeyValue property 
         Notes:   Data-Bindable Property   
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY LookupKeyValueColumn AS CHARACTER NO-UNDO INIT "":U
+    DEFINE PUBLIC PROPERTY LookupKeyValueColumn AS CHARACTER NO-UNDO INITIAL "":U
     GET.
     SET. 
     
@@ -226,7 +226,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.SmartBusinessEntity
         Purpose: QuerySort used in PerformLookup method                                                                     
         Notes:                                                                        
     ------------------------------------------------------------------------------*/    
-    DEFINE PUBLIC PROPERTY LookupQuerySort AS CHARACTER NO-UNDO INIT "":U 
+    DEFINE PUBLIC PROPERTY LookupQuerySort AS CHARACTER NO-UNDO INITIAL "":U
     GET.
     SET. 
 
@@ -234,7 +234,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.SmartBusinessEntity
         Purpose: QueryString used in PerformLookup method                                                                     
         Notes:                                                                        
     ------------------------------------------------------------------------------*/    
-    DEFINE PUBLIC PROPERTY LookupQueryString AS CHARACTER NO-UNDO INIT "":U 
+    DEFINE PUBLIC PROPERTY LookupQueryString AS CHARACTER NO-UNDO INITIAL "":U
     GET.
     SET.
 
@@ -253,7 +253,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.SmartBusinessEntity
                  interface
         Notes:   Used for generating the BeginInit and EndInit method calls
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY SupportInitialize AS LOGICAL NO-UNDO INIT TRUE 
+    DEFINE PUBLIC PROPERTY SupportInitialize AS LOGICAL NO-UNDO INITIAL TRUE
     GET.
 
     /*------------------------------------------------------------------------------
@@ -276,7 +276,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.SmartBusinessEntity
         Purpose: Gets and sets the Name of the Template File to be used by this class
         Notes:   
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC STATIC PROPERTY TemplateFileName AS CHARACTER NO-UNDO INIT "UI/smartbusinessentitylookup.template":U
+    DEFINE PUBLIC STATIC PROPERTY TemplateFileName AS CHARACTER NO-UNDO INITIAL "UI/smartbusinessentitylookup.template":U
     GET.
     SET. 
 
@@ -284,7 +284,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.SmartBusinessEntity
         Purpose: Gets and sets the Name of the Template File to be used by this class
         Notes:   
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC STATIC PROPERTY TemplateFileNameUnbound AS CHARACTER NO-UNDO INIT "UI/smartbusinessentitylookup_unbound.template":U
+    DEFINE PUBLIC STATIC PROPERTY TemplateFileNameUnbound AS CHARACTER NO-UNDO INITIAL "UI/smartbusinessentitylookup_unbound.template":U
     GET.
     SET. 
 
@@ -316,7 +316,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.SmartBusinessEntity
         Purpose: The Width of the Control
         Notes:   
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY Width AS INTEGER NO-UNDO INIT 150 
+    DEFINE PUBLIC PROPERTY Width AS INTEGER NO-UNDO INITIAL 150
     GET.
     SET. 
 
@@ -330,11 +330,11 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.SmartBusinessEntity
         DEFINE VARIABLE lcCode      AS LONGCHAR  NO-UNDO .
 
         IF THIS-OBJECT:DataBindings > "":U THEN 
-            FILE-INFO:FILE-NAME = TemplateHelper:Find (SmartBusinessEntityLookupControlGenerator:TemplateFileName) .
+            FILE-INFORMATION:FILE-NAME = TemplateHelper:Find (SmartBusinessEntityLookupControlGenerator:TemplateFileName) .
         ELSE 
-            FILE-INFO:FILE-NAME = TemplateHelper:Find (SmartBusinessEntityLookupControlGenerator:TemplateFileNameUnbound) .
+            FILE-INFORMATION:FILE-NAME = TemplateHelper:Find (SmartBusinessEntityLookupControlGenerator:TemplateFileNameUnbound) .
 
-        COPY-LOB FROM FILE FILE-INFO:FULL-PATHNAME TO lcCode . 
+        COPY-LOB FROM FILE FILE-INFORMATION:FULL-PATHNAME TO lcCode . 
         
         ASSIGN lcCode = SUBSTITUTE (lcCode, 
                                     THIS-OBJECT:Name,

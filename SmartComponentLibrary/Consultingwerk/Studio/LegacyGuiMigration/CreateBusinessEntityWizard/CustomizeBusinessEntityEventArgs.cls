@@ -34,17 +34,17 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.CreateBusinessEntityWizard.Custom
         Purpose: Returns the reference to the Business Entity Dataset controller
         Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Controller AS BusinessEntityDatasetController NO-UNDO 
-	GET.
-	PRIVATE SET. 
+    DEFINE PUBLIC PROPERTY Controller AS BusinessEntityDatasetController NO-UNDO 
+    GET.
+    PRIVATE SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the handle of the Business Entity design dataset
         Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Dataset AS HANDLE NO-UNDO 
-	GET.
-	PRIVATE SET. 
+    DEFINE PUBLIC PROPERTY Dataset AS HANDLE NO-UNDO 
+    GET.
+    PRIVATE SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the CustomizeBusinessEntityEventArgs class
@@ -52,14 +52,14 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.CreateBusinessEntityWizard.Custom
         @param phDataset The handle of the Business Entity design dataset
         @param poController The reference to the BusinessEntityDatasetController instance
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC CustomizeBusinessEntityEventArgs (phDataset AS HANDLE,
-	                                                     poController AS BusinessEntityDatasetController):
-		SUPER ().
-		
-		ASSIGN THIS-OBJECT:Dataset    = phDataset 
-		       THIS-OBJECT:Controller = poController . 
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC CustomizeBusinessEntityEventArgs (phDataset AS HANDLE,
+                                                         poController AS BusinessEntityDatasetController):
+        SUPER ().
+        
+        ASSIGN THIS-OBJECT:Dataset    = phDataset 
+               THIS-OBJECT:Controller = poController . 
+        
+    END CONSTRUCTOR.
 
 END CLASS.
 

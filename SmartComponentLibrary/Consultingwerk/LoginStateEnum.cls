@@ -23,7 +23,7 @@
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.* FROM PROPATH .
-USING Progress.Lang.*.
+USING Progress.Lang.*  FROM PROPATH .
 
 CLASS Consultingwerk.LoginStateEnum: 
 
@@ -34,7 +34,7 @@ CLASS Consultingwerk.LoginStateEnum:
                  client-principal object in any state                                                                   
         Notes:   Default value                                                                     
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC STATIC PROPERTY Initial AS CHARACTER NO-UNDO INIT "INITIAL":U 
+    DEFINE PUBLIC STATIC PROPERTY Initial AS CHARACTER NO-UNDO INITIAL "INITIAL":U
     GET. 
     
     /*------------------------------------------------------------------------------
@@ -44,7 +44,7 @@ CLASS Consultingwerk.LoginStateEnum:
                  SET-DB-CLIENT function                                                                    
         Notes:                                                                        
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC STATIC PROPERTY Login AS CHARACTER NO-UNDO INIT "LOGIN":U 
+    DEFINE PUBLIC STATIC PROPERTY Login AS CHARACTER NO-UNDO INITIAL "LOGIN":U
     GET. 
 
     /*------------------------------------------------------------------------------
@@ -52,7 +52,7 @@ CLASS Consultingwerk.LoginStateEnum:
                  object in the LOGIN state                                                                      
         Notes:                                                                           
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC STATIC PROPERTY Logout AS CHARACTER NO-UNDO INIT "LOGOUT":U
+    DEFINE PUBLIC STATIC PROPERTY Logout AS CHARACTER NO-UNDO INITIAL "LOGOUT":U
     GET. 
 
     /*------------------------------------------------------------------------------
@@ -62,7 +62,7 @@ CLASS Consultingwerk.LoginStateEnum:
                  has expired                                                                     
         Notes:                                                                        
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC STATIC PROPERTY Expired AS CHARACTER NO-UNDO INIT "EXPIRED":U 
+    DEFINE PUBLIC STATIC PROPERTY Expired AS CHARACTER NO-UNDO INITIAL "EXPIRED":U
     GET. 
 
     /*------------------------------------------------------------------------------
@@ -72,7 +72,7 @@ CLASS Consultingwerk.LoginStateEnum:
                  SET-CLIENT() method or SET-DB-CLIENT function.                                                                     
         Notes:                                                                           
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC STATIC PROPERTY Failed AS CHARACTER NO-UNDO INIT "FAILED":U
+    DEFINE PUBLIC STATIC PROPERTY Failed AS CHARACTER NO-UNDO INITIAL "FAILED":U
     GET. 
 
     /*------------------------------------------------------------------------------

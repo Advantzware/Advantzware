@@ -48,10 +48,10 @@ CLASS Consultingwerk.OERA.Resources.OERACustomizer:
         Notes:   Could not get lock for  record during save-row-changes. (12300)
                  &1 in message text will be replaced with the table name
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC STATIC PROPERTY DataAccess_RecordLocked AS CHARACTER 
-	   INITIAL "Unable to update &1 record because it is locked by another user! (12300)":T NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC STATIC PROPERTY DataAccess_RecordLocked AS CHARACTER 
+       INITIAL "Unable to update &1 record because it is locked by another user! (12300)":T NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Customization of the error message for ABL error 11914 raised

@@ -11,25 +11,25 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : IErrorTitle
-    Purpose     : Interface for Errors that support a Title property to 
+    Purpose     : Interface for Errors that support a Title property to
                   be used for error dialogs
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Thu Jun 20 00:15:09 CEST 2013
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
-USING Consultingwerk.Exceptions.* FROM PROPATH .  
+USING Consultingwerk.Exceptions.* FROM PROPATH .
 USING Progress.Lang.*             FROM PROPATH.
 
-INTERFACE Consultingwerk.Exceptions.IErrorTitle:  
-  
-    /*------------------------------------------------------------------------------
-        Purpose: Returns the Title to be used in the Error Dialog or Message Box 
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Title AS CHARACTER NO-UNDO 
-	GET.
+INTERFACE Consultingwerk.Exceptions.IErrorTitle:
+
+    /**
+     * Purpose: Returns the Title to be used in the Error Dialog or Message Box
+     * Notes:
+     */
+    DEFINE PUBLIC PROPERTY Title AS CHARACTER NO-UNDO
+    GET.
 
 END INTERFACE.

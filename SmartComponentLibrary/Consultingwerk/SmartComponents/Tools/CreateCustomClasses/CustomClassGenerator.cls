@@ -8,39 +8,39 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
  /*------------------------------------------------------------------------
     File        : CustomClassGenerator
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sun Aug 07 21:19:22 CEST 2011
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Consultingwerk.Util.* FROM PROPATH . 
+USING Consultingwerk.Util.* FROM PROPATH .
 USING Progress.Lang.*       FROM PROPATH .
 
-CLASS Consultingwerk.SmartComponents.Tools.CreateCustomClasses.CustomClassGenerator: 
-    
-    DEFINE PUBLIC PROPERTY OERA_CLASSES AS CHARACTER INIT
-            "BusinessEntity,DataAccess,ServiceAdapter":U    
+CLASS Consultingwerk.SmartComponents.Tools.CreateCustomClasses.CustomClassGenerator:
+
+    DEFINE PUBLIC PROPERTY OERA_CLASSES AS CHARACTER NO-UNDO INIT
+            "BusinessEntity,DataAccess,ServiceAdapter":U
     GET.
     PRIVATE SET.
 
-    DEFINE PUBLIC PROPERTY SMARTCOMPONENT_CLASSES AS CHARACTER INIT
+    DEFINE PUBLIC PROPERTY SMARTCOMPONENT_CLASSES AS CHARACTER NO-UNDO INIT
             "BusinessEntityAdapter,BusinessEntityBindingSource,BusinessEntityLookup,ComboEditor,~
 DataBrowser,DataCombo,DataObjectAdapter,DataObjectBindingSource,DataObjectLookup,DatasetChildAdapter,~
 DynamicBrowser,DynamicUpdatableBrowser,NavigationPanel,PanelController,TempTableAdapter,~
 ToolbarController,UpdatableBrowser,UserControl,ViewerControl,WindowForm":U
     GET.
     PRIVATE SET.
-    
+
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the CustomClassGenerator class                                                                       
+        Purpose: Constructor for the CustomClassGenerator class
         Notes:
         @param pcBaseFolder The base folder to generate the files in
         @param pcOERAPackage The package for the custom OERA classes
@@ -49,63 +49,63 @@ ToolbarController,UpdatableBrowser,UserControl,ViewerControl,WindowForm":U
         @param pcSmartComponentsPrefix The prefix for the custom SmartComponent Library classes
         @param pcAuthor The author name for the classes comments
     ------------------------------------------------------------------------------*/
-    CONSTRUCTOR PUBLIC CustomClassGenerator (pcBaseFolder             AS CHARACTER, 
-                                             pcOERAPackage            AS CHARACTER, 
-                                             pcOERAPrefix             AS CHARACTER, 
-                                             pcSmartComponentsPackage AS CHARACTER, 
-                                             pcSmartComponentsPrefix  AS CHARACTER, 
+    CONSTRUCTOR PUBLIC CustomClassGenerator (pcBaseFolder             AS CHARACTER,
+                                             pcOERAPackage            AS CHARACTER,
+                                             pcOERAPrefix             AS CHARACTER,
+                                             pcSmartComponentsPackage AS CHARACTER,
+                                             pcSmartComponentsPrefix  AS CHARACTER,
                                              pcAuthor                 AS CHARACTER):
-                                                 
+
         SUPER ().
-        
+
         DEFINE VARIABLE i          AS INTEGER  NO-UNDO.
-        DEFINE VARIABLE lcTemplate AS LONGCHAR NO-UNDO . 
+        DEFINE VARIABLE lcTemplate AS LONGCHAR NO-UNDO .
 
         DO i = 1 TO NUM-ENTRIES (OERA_CLASSES) ON ERROR UNDO, THROW:
-            
-            COPY-LOB FROM FILE FileHelper:FindFile (SUBSTITUTE ("&1\Sample&2.template",
-                                                    "Consultingwerk/SmartComponents/Tools/CreateCustomClasses/Templates/OERA",
-                                                    ENTRY (i, OERA_CLASSES))) 
-                     TO lcTemplate . 
 
-            lcTemplate = SUBSTITUTE (lcTemplate, 
+            COPY-LOB FROM FILE FileHelper:FindFile (SUBSTITUTE ("&1/Sample&2.template",
+                                                    "Consultingwerk/SmartComponents/Tools/CreateCustomClasses/Templates/OERA",
+                                                    ENTRY (i, OERA_CLASSES)))
+                     TO lcTemplate .
+
+            lcTemplate = SUBSTITUTE (lcTemplate,
                                      pcOERAPackage,
                                      pcOERAPrefix,
-                                     pcAuthor) . 
+                                     pcAuthor) .
 
-            COPY-LOB FROM lcTemplate 
+            COPY-LOB FROM lcTemplate
                      TO FILE SUBSTITUTE ("&1/&2/&3&4.cls":U,
                                          pcBaseFolder,
                                          REPLACE (pcOERAPackage, ".":U, "/":U),
                                          pcOERAPrefix,
-                                         ENTRY (i, OERA_CLASSES)) . 
-            
-        END.               
-            
-        DO i = 1 TO NUM-ENTRIES (SMARTCOMPONENT_CLASSES) ON ERROR UNDO, THROW:
-            
-            COPY-LOB FROM FILE FileHelper:FindFile (SUBSTITUTE ("&1\Sample&2.template",
-                                                                "Consultingwerk/SmartComponents/Tools/CreateCustomClasses/Templates/SmartComponents",
-                                                                ENTRY (i, SMARTCOMPONENT_CLASSES)))  
-                     TO lcTemplate . 
+                                         ENTRY (i, OERA_CLASSES)) .
 
-            lcTemplate = SUBSTITUTE (lcTemplate, 
+        END.
+
+        DO i = 1 TO NUM-ENTRIES (SMARTCOMPONENT_CLASSES) ON ERROR UNDO, THROW:
+
+            COPY-LOB FROM FILE FileHelper:FindFile (SUBSTITUTE ("&1/Sample&2.template",
+                                                                "Consultingwerk/SmartComponents/Tools/CreateCustomClasses/Templates/SmartComponents",
+                                                                ENTRY (i, SMARTCOMPONENT_CLASSES)))
+                     TO lcTemplate .
+
+            lcTemplate = SUBSTITUTE (lcTemplate,
                                      pcSmartComponentsPackage,
                                      pcSmartComponentsPrefix,
-                                     pcAuthor) . 
+                                     pcAuthor) .
 
-            COPY-LOB FROM lcTemplate 
+            COPY-LOB FROM lcTemplate
                      TO FILE SUBSTITUTE ("&1/&2/&3&4.cls":U,
                                          pcBaseFolder,
                                          REPLACE (pcSmartComponentsPackage, ".":U, "/":U),
                                          pcSmartComponentsPrefix,
-                                         ENTRY (i, SMARTCOMPONENT_CLASSES)) . 
-        END.               
-            
+                                         ENTRY (i, SMARTCOMPONENT_CLASSES)) .
+        END.
+
         CATCH err AS Progress.Lang.Error :
-            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .    
-        END CATCH.                
-        
+            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
     END CONSTRUCTOR.
 
 END CLASS.

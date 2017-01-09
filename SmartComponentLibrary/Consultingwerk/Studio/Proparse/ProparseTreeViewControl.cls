@@ -8,24 +8,24 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : ProparseTreeViewControl
     Purpose     : Visualizes the propaser AST in a tree view
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Tue Jun 28 20:27:18 CEST 2011
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 {Consultingwerk/products.i}
 
-&IF DEFINED (DotNetAccessible) NE 0 &THEN 
+&IF DEFINED (DotNetAccessible) NE 0 &THEN
 USING Consultingwerk.Windows.Util.*   FROM PROPATH.
-USING Infragistics.Win.UltraWinTree.* FROM ASSEMBLY . 
+USING Infragistics.Win.UltraWinTree.* FROM ASSEMBLY .
 USING org.prorefactor.refactor.*      FROM ASSEMBLY.
 USING org.prorefactor.treeparser.*    FROM ASSEMBLY.
 USING org.prorefactor.core.*          FROM ASSEMBLY.
@@ -34,41 +34,41 @@ USING Progress.Lang.*                 FROM PROPATH .
 USING Progress.Windows.*              FROM ASSEMBLY .
 &ENDIF
 
-CLASS Consultingwerk.Studio.Proparse.ProparseTreeViewControl 
-&IF DEFINED (DotNetAccessible) NE 0 &THEN 
+CLASS Consultingwerk.Studio.Proparse.ProparseTreeViewControl
+&IF DEFINED (DotNetAccessible) NE 0 &THEN
     INHERITS UserControl
 &ENDIF
-    : 
-    
-&IF DEFINED (DotNetAccessible) NE 0 &THEN 
+    :
+
+&IF DEFINED (DotNetAccessible) NE 0 &THEN
     DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraTree1 AS Infragistics.Win.UltraWinTree.UltraTree NO-UNDO.
-    
+
     DEFINE PRIVATE VARIABLE oUltraTreeColumnResizeHelper AS UltraTreeColumnResizeHelper NO-UNDO.
-        
-        
-    /*------------------------------------------------------------------------------
-        Purpose: Returns the Reference to the Dictionary of TreeNodes                                                                        
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY Nodes AS "System.Collections.Generic.Dictionary<System.Int32, org.prorefactor.core.JPNode>" NO-UNDO 
-    GET.
-    PRIVATE SET. 
+
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor of the ProparseTreeViewControl class                                                                        
-        Notes:                                                                        
+        Purpose: Returns the Reference to the Dictionary of TreeNodes
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY Nodes AS "System.Collections.Generic.Dictionary<System.Int32, org.prorefactor.core.JPNode>" NO-UNDO
+    GET.
+    PRIVATE SET.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor of the ProparseTreeViewControl class
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC ProparseTreeViewControl ():
 
         DEFINE VARIABLE oColumnSet      AS UltraTreeColumnSet  NO-UNDO.
         DEFINE VARIABLE oTreeNodeColumn AS UltraTreeNodeColumn NO-UNDO.
-        
+
         SUPER().
         InitializeComponent().
-        
-        THIS-OBJECT:Nodes = NEW "System.Collections.Generic.Dictionary<System.Int32, org.prorefactor.core.JPNode>" (). 
-        
+
+        THIS-OBJECT:Nodes = NEW "System.Collections.Generic.Dictionary<System.Int32, org.prorefactor.core.JPNode>" ().
+
         Consultingwerk.Util.GarbageCollectorHelper:ClearUltraTreeNodes (THIS-OBJECT:ultraTree1) .
 
         THIS-OBJECT:ultraTree1:Nodes:Clear () .
@@ -77,7 +77,7 @@ CLASS Consultingwerk.Studio.Proparse.ProparseTreeViewControl
         oUltraTreeColumnResizeHelper = NEW UltraTreeColumnResizeHelper (THIS-OBJECT:ultraTree1,
                                                                         175,
                                                                         "TYPE":U).
-        
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
@@ -85,13 +85,13 @@ CLASS Consultingwerk.Studio.Proparse.ProparseTreeViewControl
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns the Key of the currently selected tree node                                                                        
-        Notes:                                                      
-        @return The Key of the currently selected tree node                  
+        Purpose: Returns the Key of the currently selected tree node
+        Notes:
+        @return The Key of the currently selected tree node
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC CHARACTER GetCurrentNodeKey ():
-        
-        IF THIS-OBJECT:ultraTree1:SelectedNodes:Count > 0 THEN 
+
+        IF THIS-OBJECT:ultraTree1:SelectedNodes:Count > 0 THEN
             RETURN THIS-OBJECT:ultraTree1:SelectedNodes[0]:Key .
 
         UNDO, THROW NEW AppError ("No node is currently selected."{&TRAN}, 0) .
@@ -99,28 +99,29 @@ CLASS Consultingwerk.Studio.Proparse.ProparseTreeViewControl
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns a JPNode by a node number                                                                       
-        Notes:                                    
+        Purpose: Returns a JPNode by a node number
+        Notes:
         @param piNodeNum The node number to return
-        @return The refernce to the specified JPNode                                    
+        @return The refernce to the specified JPNode
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC JPNode GetJPNode (piNodeNum AS INTEGER):
-        
+
         RETURN THIS-OBJECT:Nodes[piNodeNum] .
-        
+
     END METHOD.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE ultraTreeColumnSet1 AS Infragistics.Win.UltraWinTree.UltraTreeColumnSet NO-UNDO.
@@ -252,67 +253,67 @@ CLASS Consultingwerk.Studio.Proparse.ProparseTreeViewControl
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Loads the tree from a ParseUnit                                                                       
-        Notes:                                  
-        @param poParseUnit The ParseUnit to populate the tree from                                     
+        Purpose: Loads the tree from a ParseUnit
+        Notes:
+        @param poParseUnit The ParseUnit to populate the tree from
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID LoadTree (poParseUnit AS ParseUnit):
-        
+
         THIS-OBJECT:ultraTree1:BeginUpdate() .
         THIS-OBJECT:ultraTree1:SuspendLayout() .
-        
+
         THIS-OBJECT:Nodes:Clear () .
-        
+
         Consultingwerk.Util.GarbageCollectorHelper:ClearUltraTreeNodes (THIS-OBJECT:ultraTree1) .
         THIS-OBJECT:ultraTree1:Nodes:Clear() .
 
-        WalkAST (poParseUnit:getTopNode():firstchild(), 
+        WalkAST (poParseUnit:getTopNode():firstchild(),
                  THIS-OBJECT:ultraTree1:Nodes).
 
         FINALLY:
             THIS-OBJECT:ultraTree1:EndUpdate () .
-            THIS-OBJECT:ultraTree1:ResumeLayout (TRUE) .            
+            THIS-OBJECT:ultraTree1:ResumeLayout (TRUE) .
         END FINALLY.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Walks a level of the AST                                                                       
-        Notes:                              
+        Purpose: Walks a level of the AST
+        Notes:
         @param poASTNode The current parent AST node reference
-        @param poTreeNodes The current TreeNodesCollection to add the nodes to                                          
+        @param poTreeNodes The current TreeNodesCollection to add the nodes to
     ------------------------------------------------------------------------------*/
-    METHOD PROTECTED VOID WalkAST (poASTNode AS JPNode, 
+    METHOD PROTECTED VOID WalkAST (poASTNode AS JPNode,
                                    poTreeNodes AS TreeNodesCollection):
-    
+
         DEFINE VARIABLE oTreeNode AS UltraTreeNode NO-UNDO .
 
-        IF VALID-OBJECT (poTreeNodes:ParentNode) THEN 
+        IF VALID-OBJECT (poTreeNodes:ParentNode) THEN
             oUltraTreeColumnResizeHelper:InitializeColumnResizing (poTreeNodes:ParentNode:Level + 1).
-        
+
         DO WHILE VALID-OBJECT (poASTNode):
-            oTreeNode = poTreeNodes:Add (STRING (poASTNode:getNodeNum ())) . 
-            
+            oTreeNode = poTreeNodes:Add (STRING (poASTNode:getNodeNum ())) .
+
             THIS-OBJECT:Nodes:Add (poASTNode:getNodeNum (), poASTNode) .
-            
+
             oTreeNode:Cells ["TYPE":U]:Value = NodeTypes:getTypeName(poASTNode:getType()) .
             oTreeNode:Cells ["SUBTYPE":U]:Value = Consultingwerk.Studio.Proparse.ProparseHelper:GetSubtypeName (poASTNode:getSubTypeIndex()) .
             oTreeNode:Cells ["ToString":U]:Value = poASTNode:ToString() .
             oTreeNode:Cells ["Statement":U]:Value = poASTNode:getText() .
             oTreeNode:Cells ["Row":U]:Value = BOX(poASTNode:getLine ()) .
             oTreeNode:Cells ["Column":U]:Value = BOX (poASTNode:getColumn()) .
-    
-            IF VALID-OBJECT (poASTNode:firstChild()) THEN 
+
+            IF VALID-OBJECT (poASTNode:firstChild()) THEN
                 WalkAST (poASTNode:firstChild(), oTreeNode:Nodes).
-        
+
             poASTNode = poASTNode:nextSibling () .
         END.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the ProparseTreeViewControl class                                                                       
-        Notes:                                                                        
+        Purpose: Destructor for the ProparseTreeViewControl class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC ProparseTreeViewControl ():
 

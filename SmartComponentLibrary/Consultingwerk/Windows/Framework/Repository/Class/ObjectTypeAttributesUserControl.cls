@@ -11,80 +11,98 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : ObjectTypeAttributesUserControl
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     : Maintenance of attributes of the current object type
+                  (Property Grid style updatable browser)
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Tue Oct 20 21:26:43 CEST 2015
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 {Consultingwerk/products.i}
 
-USING Consultingwerk.Framework.*                          FROM PROPATH .
-USING Consultingwerk.SmartComponents.Base.*               FROM PROPATH .
-USING Consultingwerk.SmartFramework.Repository.Class.*    FROM PROPATH .
-USING Consultingwerk.Util.*                               FROM PROPATH .
-USING Consultingwerk.Windows.Framework.Repository.Class.* FROM PROPATH .  
-USING Infragistics.Win.UltraWinGrid.*                     FROM ASSEMBLY .
-USING Progress.Lang.*                                     FROM PROPATH .
-USING Infragistics.Win.* FROM ASSEMBLY.
-USING Consultingwerk.Windows.Util.Forms.* FROM PROPATH.
+USING Consultingwerk.Framework.*                           FROM PROPATH .
+USING Consultingwerk.SmartComponents.Base.*                FROM PROPATH .
+USING Consultingwerk.SmartComponents.Enum.*                FROM PROPATH.
+USING Consultingwerk.SmartComponents.Support.*             FROM PROPATH.
+USING Consultingwerk.SmartFramework.Repository.Class.*     FROM PROPATH .
+USING Consultingwerk.Util.*                                FROM PROPATH .
+USING Consultingwerk.Windows.Framework.Repository.*        FROM PROPATH .
+USING Consultingwerk.Windows.Framework.Repository.Class.*  FROM PROPATH .
+USING Consultingwerk.Windows.Util.Forms.*                  FROM PROPATH .
+USING Infragistics.Win.*                                   FROM ASSEMBLY .
+USING Infragistics.Win.UltraWinGrid.*                      FROM ASSEMBLY .
+USING Progress.Data.*                                      FROM ASSEMBLY .
+USING Progress.Lang.*                                      FROM PROPATH .
+USING System.ComponentModel.*                              FROM ASSEMBLY.
+USING System.Windows.Forms.*                               FROM ASSEMBLY.
 
-CLASS Consultingwerk.Windows.Framework.Repository.Class.ObjectTypeAttributesUserControl     
-    INHERITS SmartUserControl: 
-	
+CLASS Consultingwerk.Windows.Framework.Repository.Class.ObjectTypeAttributesUserControl
+    INHERITS AttributeValueBaseControl:
+
     DEFINE PRIVATE VARIABLE bindingSource1 AS Progress.Data.BindingSource NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE headerControl1 AS Consultingwerk.Windows.Controls.HeaderControl NO-UNDO.
     DEFINE PRIVATE VARIABLE smartTempTableAdapter1 AS Consultingwerk.SmartComponents.Implementation.SmartTempTableAdapter NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraTextEditor1 AS Infragistics.Win.UltraWinEditors.UltraTextEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE smartUpdatableBrowser1 AS Consultingwerk.SmartComponents.Implementation.SmartUpdatableBrowser NO-UNDO.
     DEFINE PRIVATE VARIABLE smartPanelController1 AS Consultingwerk.SmartComponents.Implementation.SmartPanelController NO-UNDO.
-	
-    { Consultingwerk/SmartFramework/Repository/Class/dsDesignAttributeValue.i }
-	
+
+    { Consultingwerk/SmartFramework/Repository/Class/dsDesignAttributeValue.i &ACCESS=PROTECTED}
+
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the Object Type Guid this Control is displaying attributes
+                 for
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY ObjectTypeId AS CHARACTER NO-UNDO
+    GET.
+    PROTECTED SET.
+
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the ObjectTypeAttributesUserControl class
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ObjectTypeAttributesUserControl ():
-		
-		DEFINE VARIABLE oValueList AS ValueList NO-UNDO . 
-		
+    CONSTRUCTOR PUBLIC ObjectTypeAttributesUserControl ():
+
+        DEFINE VARIABLE oValueList AS ValueList NO-UNDO .
+
         SUPER().
 
         InitializeComponent().
 
-        smartTempTableAdapter1:TempTableHandle = TEMP-TABLE eDesignAttributeValue:HANDLE . 
-        smartTempTableAdapter1:RetrieveData () . 
+        THIS-OBJECT:SetUpdatabelBrowser (smartUpdatableBrowser1) .
 
-        oValueList = NEW ValueList () . 
-        oValueList:ValueListItems:Add (BOX (TRUE), "Property":U) .
-        oValueList:ValueListItems:Add (BOX (FALSE), "Event":U) .
-        
+        smartTempTableAdapter1:TempTableHandle = TEMP-TABLE eDesignAttributeValue:HANDLE .
+        smartTempTableAdapter1:RetrieveData () .
+
+        oValueList = RepositoryValueLists:GetPropertyOrEventValueList() .
+
         smartUpdatableBrowser1:DisplayLayout:Bands[0]:Columns["PropertyOrEvent":U]:ValueList = oValueList .
-        
-        IF VALID-OBJECT (smartTempTableAdapter1:BindingSource) THEN 
+
+        IF VALID-OBJECT (smartTempTableAdapter1:BindingSource) THEN
             ultraTextEditor1:DataBindings:Add (NEW System.Windows.Forms.Binding ("Value":U,
-                                                                                 smartTempTableAdapter1:BindingSource, 
-                                                                                 "AttributeDesription":U, 
+                                                                                 smartTempTableAdapter1:BindingSource,
+                                                                                 "AttributeDesription":U,
                                                                                  TRUE)).
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design 
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -215,6 +233,7 @@ CLASS Consultingwerk.Windows.Framework.Repository.Class.ObjectTypeAttributesUser
         THIS-OBJECT:ultraTextEditor1 = NEW Infragistics.Win.UltraWinEditors.UltraTextEditor().
         THIS-OBJECT:smartUpdatableBrowser1 = NEW Consultingwerk.SmartComponents.Implementation.SmartUpdatableBrowser().
         THIS-OBJECT:smartTempTableAdapter1 = NEW Consultingwerk.SmartComponents.Implementation.SmartTempTableAdapter(THIS-OBJECT:components).
+        THIS-OBJECT:headerControl1 = NEW Consultingwerk.Windows.Controls.HeaderControl().
         CAST(THIS-OBJECT:bindingSource1, System.ComponentModel.ISupportInitialize):BeginInit().
         CAST(THIS-OBJECT:ultraTextEditor1, System.ComponentModel.ISupportInitialize):BeginInit().
         CAST(THIS-OBJECT:smartUpdatableBrowser1, System.ComponentModel.ISupportInitialize):BeginInit().
@@ -262,29 +281,22 @@ CLASS Consultingwerk.Windows.Framework.Repository.Class.ObjectTypeAttributesUser
         /*  */
         /* smartPanelController1 */
         /*  */
-        THIS-OBJECT:smartPanelController1:Dock = System.Windows.Forms.DockStyle:Top.
-        THIS-OBJECT:smartPanelController1:Location = NEW System.Drawing.Point(5, 5).
-        THIS-OBJECT:smartPanelController1:MaximumSize = NEW System.Drawing.Size(5000, 27).
-        THIS-OBJECT:smartPanelController1:MinimumSize = NEW System.Drawing.Size(100, 27).
+        resources:ApplyResources(THIS-OBJECT:smartPanelController1, "smartPanelController1":U).
         THIS-OBJECT:smartPanelController1:Name = "smartPanelController1":U.
-        THIS-OBJECT:smartPanelController1:Size = NEW System.Drawing.Size(571, 27).
-        THIS-OBJECT:smartPanelController1:TabIndex = 0.
         /*  */
         /* ultraTextEditor1 */
         /*  */
         THIS-OBJECT:ultraTextEditor1:AlwaysInEditMode = TRUE.
-        THIS-OBJECT:ultraTextEditor1:Dock = System.Windows.Forms.DockStyle:Bottom.
-        THIS-OBJECT:ultraTextEditor1:Location = NEW System.Drawing.Point(5, 321).
-        THIS-OBJECT:ultraTextEditor1:Multiline = TRUE.
+        resources:ApplyResources(THIS-OBJECT:ultraTextEditor1, "ultraTextEditor1":U).
         THIS-OBJECT:ultraTextEditor1:Name = "ultraTextEditor1":U.
         THIS-OBJECT:ultraTextEditor1:ReadOnly = TRUE.
         THIS-OBJECT:ultraTextEditor1:Scrollbars = System.Windows.Forms.ScrollBars:Vertical.
-        THIS-OBJECT:ultraTextEditor1:Size = NEW System.Drawing.Size(571, 59).
-        THIS-OBJECT:ultraTextEditor1:TabIndex = 1.
         /*  */
         /* smartUpdatableBrowser1 */
         /*  */
+        THIS-OBJECT:smartUpdatableBrowser1:AllowAddNew = Infragistics.Win.UltraWinGrid.AllowAddNew:No.
         THIS-OBJECT:smartUpdatableBrowser1:DataSource = THIS-OBJECT:bindingSource1.
+        THIS-OBJECT:smartUpdatableBrowser1:DeselectRowsOnActivate = TRUE.
         THIS-OBJECT:smartUpdatableBrowser1:DisabledColumnsForAdd = resources:GetString("smartUpdatableBrowser1.DisabledColumnsForAdd":U).
         THIS-OBJECT:smartUpdatableBrowser1:DisabledColumnsForUpdate = resources:GetString("smartUpdatableBrowser1.DisabledColumnsForUpdate":U).
         appearance1:BackColor = System.Drawing.SystemColors:Window.
@@ -292,100 +304,148 @@ CLASS Consultingwerk.Windows.Framework.Repository.Class.ObjectTypeAttributesUser
         THIS-OBJECT:smartUpdatableBrowser1:DisplayLayout:Appearance = appearance1.
         ultraGridColumn1:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
         ultraGridColumn1:ExcludeFromColumnChooser = Infragistics.Win.UltraWinGrid.ExcludeFromColumnChooser:True.
+        resources:ApplyResources(ultraGridColumn1:Header, "ultraGridColumn1.Header":U).
         ultraGridColumn1:Header:VisiblePosition = 0.
         ultraGridColumn1:Hidden = TRUE.
+        ultraGridColumn1:ForceApplyResources = "Header":U.
         ultraGridColumn2:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
         ultraGridColumn2:ExcludeFromColumnChooser = Infragistics.Win.UltraWinGrid.ExcludeFromColumnChooser:True.
+        resources:ApplyResources(ultraGridColumn2:Header, "ultraGridColumn2.Header":U).
         ultraGridColumn2:Header:VisiblePosition = 1.
         ultraGridColumn2:Hidden = TRUE.
+        ultraGridColumn2:ForceApplyResources = "Header":U.
         ultraGridColumn3:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
         ultraGridColumn3:ExcludeFromColumnChooser = Infragistics.Win.UltraWinGrid.ExcludeFromColumnChooser:True.
+        resources:ApplyResources(ultraGridColumn3:Header, "ultraGridColumn3.Header":U).
         ultraGridColumn3:Header:VisiblePosition = 2.
         ultraGridColumn3:Hidden = TRUE.
+        ultraGridColumn3:ForceApplyResources = "Header":U.
         ultraGridColumn4:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
         ultraGridColumn4:ExcludeFromColumnChooser = Infragistics.Win.UltraWinGrid.ExcludeFromColumnChooser:True.
+        resources:ApplyResources(ultraGridColumn4:Header, "ultraGridColumn4.Header":U).
         ultraGridColumn4:Header:VisiblePosition = 3.
         ultraGridColumn4:Hidden = TRUE.
+        ultraGridColumn4:ForceApplyResources = "Header":U.
         ultraGridColumn5:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
         ultraGridColumn5:ExcludeFromColumnChooser = Infragistics.Win.UltraWinGrid.ExcludeFromColumnChooser:True.
+        resources:ApplyResources(ultraGridColumn5:Header, "ultraGridColumn5.Header":U).
         ultraGridColumn5:Header:VisiblePosition = 4.
         ultraGridColumn5:Hidden = TRUE.
+        ultraGridColumn5:ForceApplyResources = "Header":U.
         ultraGridColumn6:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn6:Header, "ultraGridColumn6.Header":U).
         ultraGridColumn6:Header:VisiblePosition = 9.
+        ultraGridColumn6:ForceApplyResources = "Header":U.
         ultraGridColumn7:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn7:Header, "ultraGridColumn7.Header":U).
         ultraGridColumn7:Header:VisiblePosition = 5.
+        ultraGridColumn7:ForceApplyResources = "Header":U.
         ultraGridColumn8:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
         ultraGridColumn8:ExcludeFromColumnChooser = Infragistics.Win.UltraWinGrid.ExcludeFromColumnChooser:True.
+        resources:ApplyResources(ultraGridColumn8:Header, "ultraGridColumn8.Header":U).
         ultraGridColumn8:Header:VisiblePosition = 10.
         ultraGridColumn8:Hidden = TRUE.
+        ultraGridColumn8:ForceApplyResources = "Header":U.
         ultraGridColumn9:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
         ultraGridColumn9:ExcludeFromColumnChooser = Infragistics.Win.UltraWinGrid.ExcludeFromColumnChooser:True.
         ultraGridColumn9:FilterOperatorDefaultValue = Infragistics.Win.UltraWinGrid.FilterOperatorDefaultValue:GreaterThanOrEqualTo.
+        resources:ApplyResources(ultraGridColumn9:Header, "ultraGridColumn9.Header":U).
         ultraGridColumn9:Header:VisiblePosition = 11.
         ultraGridColumn9:Hidden = TRUE.
+        ultraGridColumn9:ForceApplyResources = "Header":U.
         ultraGridColumn10:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
         ultraGridColumn10:ExcludeFromColumnChooser = Infragistics.Win.UltraWinGrid.ExcludeFromColumnChooser:True.
         ultraGridColumn10:FilterOperatorDefaultValue = Infragistics.Win.UltraWinGrid.FilterOperatorDefaultValue:GreaterThanOrEqualTo.
+        resources:ApplyResources(ultraGridColumn10:Header, "ultraGridColumn10.Header":U).
         ultraGridColumn10:Header:VisiblePosition = 12.
         ultraGridColumn10:Hidden = TRUE.
+        ultraGridColumn10:ForceApplyResources = "Header":U.
         ultraGridColumn11:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
         ultraGridColumn11:ExcludeFromColumnChooser = Infragistics.Win.UltraWinGrid.ExcludeFromColumnChooser:True.
         ultraGridColumn11:FilterOperatorDefaultValue = Infragistics.Win.UltraWinGrid.FilterOperatorDefaultValue:GreaterThanOrEqualTo.
+        resources:ApplyResources(ultraGridColumn11:Header, "ultraGridColumn11.Header":U).
         ultraGridColumn11:Header:VisiblePosition = 13.
         ultraGridColumn11:Hidden = TRUE.
+        ultraGridColumn11:ForceApplyResources = "Header":U.
         ultraGridColumn12:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
         ultraGridColumn12:ExcludeFromColumnChooser = Infragistics.Win.UltraWinGrid.ExcludeFromColumnChooser:True.
         ultraGridColumn12:FilterOperatorDefaultValue = Infragistics.Win.UltraWinGrid.FilterOperatorDefaultValue:GreaterThanOrEqualTo.
+        resources:ApplyResources(ultraGridColumn12:Header, "ultraGridColumn12.Header":U).
         ultraGridColumn12:Header:VisiblePosition = 14.
         ultraGridColumn12:Hidden = TRUE.
+        ultraGridColumn12:ForceApplyResources = "Header":U.
         ultraGridColumn13:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
         ultraGridColumn13:ExcludeFromColumnChooser = Infragistics.Win.UltraWinGrid.ExcludeFromColumnChooser:True.
         ultraGridColumn13:FilterOperatorDefaultValue = Infragistics.Win.UltraWinGrid.FilterOperatorDefaultValue:GreaterThanOrEqualTo.
+        resources:ApplyResources(ultraGridColumn13:Header, "ultraGridColumn13.Header":U).
         ultraGridColumn13:Header:VisiblePosition = 15.
         ultraGridColumn13:Hidden = TRUE.
+        ultraGridColumn13:ForceApplyResources = "Header":U.
         ultraGridColumn14:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
         ultraGridColumn14:ExcludeFromColumnChooser = Infragistics.Win.UltraWinGrid.ExcludeFromColumnChooser:True.
         ultraGridColumn14:FilterOperatorDefaultValue = Infragistics.Win.UltraWinGrid.FilterOperatorDefaultValue:GreaterThanOrEqualTo.
+        resources:ApplyResources(ultraGridColumn14:Header, "ultraGridColumn14.Header":U).
         ultraGridColumn14:Header:VisiblePosition = 16.
         ultraGridColumn14:Hidden = TRUE.
+        ultraGridColumn14:ForceApplyResources = "Header":U.
         ultraGridColumn15:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
         ultraGridColumn15:ExcludeFromColumnChooser = Infragistics.Win.UltraWinGrid.ExcludeFromColumnChooser:True.
+        resources:ApplyResources(ultraGridColumn15:Header, "ultraGridColumn15.Header":U).
         ultraGridColumn15:Header:VisiblePosition = 17.
         ultraGridColumn15:Hidden = TRUE.
+        ultraGridColumn15:ForceApplyResources = "Header":U.
         ultraGridColumn17:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
-        ultraGridColumn17:Header:Caption = "Applies At Runtime":U.
+        resources:ApplyResources(ultraGridColumn17:Header, "ultraGridColumn17.Header":U).
         ultraGridColumn17:Header:VisiblePosition = 18.
+        ultraGridColumn17:ForceApplyResources = "Header":U.
         ultraGridColumn18:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
-        ultraGridColumn18:Header:Caption = "Inherited":U.
+        resources:ApplyResources(ultraGridColumn18:Header, "ultraGridColumn18.Header":U).
         ultraGridColumn18:Header:VisiblePosition = 7.
+        ultraGridColumn18:ForceApplyResources = "Header":U.
         ultraGridColumn19:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
-        ultraGridColumn19:Header:Caption = "Inherited From":U.
+        resources:ApplyResources(ultraGridColumn19:Header, "ultraGridColumn19.Header":U).
         ultraGridColumn19:Header:VisiblePosition = 8.
+        ultraGridColumn19:ForceApplyResources = "Header":U.
         ultraGridColumn20:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn20:Header, "ultraGridColumn20.Header":U).
         ultraGridColumn20:Header:VisiblePosition = 19.
+        ultraGridColumn20:ForceApplyResources = "Header":U.
         ultraGridColumn21:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
         ultraGridColumn21:ExcludeFromColumnChooser = Infragistics.Win.UltraWinGrid.ExcludeFromColumnChooser:True.
+        resources:ApplyResources(ultraGridColumn21:Header, "ultraGridColumn21.Header":U).
         ultraGridColumn21:Header:VisiblePosition = 20.
         ultraGridColumn21:Hidden = TRUE.
+        ultraGridColumn21:ForceApplyResources = "Header":U.
         ultraGridColumn22:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
         ultraGridColumn22:ExcludeFromColumnChooser = Infragistics.Win.UltraWinGrid.ExcludeFromColumnChooser:True.
+        resources:ApplyResources(ultraGridColumn22:Header, "ultraGridColumn22.Header":U).
         ultraGridColumn22:Header:VisiblePosition = 21.
         ultraGridColumn22:Hidden = TRUE.
+        ultraGridColumn22:ForceApplyResources = "Header":U.
         ultraGridColumn23:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
         ultraGridColumn23:ExcludeFromColumnChooser = Infragistics.Win.UltraWinGrid.ExcludeFromColumnChooser:True.
+        resources:ApplyResources(ultraGridColumn23:Header, "ultraGridColumn23.Header":U).
         ultraGridColumn23:Header:VisiblePosition = 22.
         ultraGridColumn23:Hidden = TRUE.
+        ultraGridColumn23:ForceApplyResources = "Header":U.
         ultraGridColumn24:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn24:Header, "ultraGridColumn24.Header":U).
         ultraGridColumn24:Header:VisiblePosition = 23.
+        ultraGridColumn24:ForceApplyResources = "Header":U.
         ultraGridColumn25:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn25:Header, "ultraGridColumn25.Header":U).
         ultraGridColumn25:Header:VisiblePosition = 24.
+        ultraGridColumn25:ForceApplyResources = "Header":U.
         ultraGridColumn26:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
-        ultraGridColumn26:Header:Caption = "Property Or Event":U.
+        resources:ApplyResources(ultraGridColumn26:Header, "ultraGridColumn26.Header":U).
         ultraGridColumn26:Header:VisiblePosition = 25.
+        ultraGridColumn26:ForceApplyResources = "Header":U.
         ultraGridColumn16:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
-        ultraGridColumn16:Header:Caption = "Attribute Value":U.
+        resources:ApplyResources(ultraGridColumn16:Header, "ultraGridColumn16.Header":U).
         ultraGridColumn16:Header:VisiblePosition = 6.
+        ultraGridColumn16:SortIndicator = Infragistics.Win.UltraWinGrid.SortIndicator:Disabled.
         ultraGridColumn16:Width = 211.
+        ultraGridColumn16:ForceApplyResources = "Header":U.
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
         DEFINE VARIABLE arrayvar2 AS System.Object EXTENT 26 NO-UNDO.
         arrayvar2[1] = ultraGridColumn1.
@@ -461,7 +521,7 @@ CLASS Consultingwerk.Windows.Framework.Repository.Class.ObjectTypeAttributesUser
         appearance9:BackGradientStyle = Infragistics.Win.GradientStyle:Horizontal.
         appearance9:BorderColor = System.Drawing.SystemColors:Window.
         THIS-OBJECT:smartUpdatableBrowser1:DisplayLayout:Override:GroupByRowAppearance = appearance9.
-        appearance10:TextHAlignAsString = "Left":U.
+        resources:ApplyResources(appearance10, "appearance10":U).
         THIS-OBJECT:smartUpdatableBrowser1:DisplayLayout:Override:HeaderAppearance = appearance10.
         THIS-OBJECT:smartUpdatableBrowser1:DisplayLayout:Override:HeaderClickAction = Infragistics.Win.UltraWinGrid.HeaderClickAction:ExternalSortMulti.
         THIS-OBJECT:smartUpdatableBrowser1:DisplayLayout:Override:HeaderStyle = Infragistics.Win.HeaderStyle:WindowsXPCommand.
@@ -475,42 +535,51 @@ CLASS Consultingwerk.Windows.Framework.Repository.Class.ObjectTypeAttributesUser
         THIS-OBJECT:smartUpdatableBrowser1:DisplayLayout:ScrollBounds = Infragistics.Win.UltraWinGrid.ScrollBounds:ScrollToFill.
         THIS-OBJECT:smartUpdatableBrowser1:DisplayLayout:ScrollStyle = Infragistics.Win.UltraWinGrid.ScrollStyle:Immediate.
         THIS-OBJECT:smartUpdatableBrowser1:DisplayLayout:ViewStyleBand = Infragistics.Win.UltraWinGrid.ViewStyleBand:OutlookGroupBy.
-        THIS-OBJECT:smartUpdatableBrowser1:Dock = System.Windows.Forms.DockStyle:Fill.
-        THIS-OBJECT:smartUpdatableBrowser1:Font = NEW System.Drawing.Font("Microsoft Sans Serif":U, Progress.Util.CastUtil:ToSingle(8.25), System.Drawing.FontStyle:Regular, System.Drawing.GraphicsUnit:Point, System.Convert:ToByte(0)).
+        resources:ApplyResources(THIS-OBJECT:smartUpdatableBrowser1, "smartUpdatableBrowser1":U).
+        THIS-OBJECT:smartUpdatableBrowser1:EditInViewerOnDefaultAction = FALSE.
+        THIS-OBJECT:smartUpdatableBrowser1:FetchAllRecordsOnGroupBy = FALSE.
         THIS-OBJECT:smartUpdatableBrowser1:LinkDataSource = THIS-OBJECT:smartTempTableAdapter1.
         THIS-OBJECT:smartUpdatableBrowser1:LinkTableIOSource = THIS-OBJECT:smartPanelController1.
-        THIS-OBJECT:smartUpdatableBrowser1:Location = NEW System.Drawing.Point(5, 32).
         THIS-OBJECT:smartUpdatableBrowser1:Name = "smartUpdatableBrowser1":U.
         THIS-OBJECT:smartUpdatableBrowser1:PromptForSaveValuesOnRowDeactivate = FALSE.
+        THIS-OBJECT:smartUpdatableBrowser1:RepositionedRow = 0.
         THIS-OBJECT:smartUpdatableBrowser1:SaveChangesOnLeave = TRUE.
         THIS-OBJECT:smartUpdatableBrowser1:SaveMode = TRUE.
         THIS-OBJECT:smartUpdatableBrowser1:SettingsKey = "e636bd67-986c-53be-0214-04d0acf49331":U.
         THIS-OBJECT:smartUpdatableBrowser1:SimpleKeyboardNavigationDuringUpdate = TRUE.
         THIS-OBJECT:smartUpdatableBrowser1:SimpleKeyboardNavigationDuringUpdateForLeftRight = FALSE.
-        THIS-OBJECT:smartUpdatableBrowser1:Size = NEW System.Drawing.Size(571, 289).
-        THIS-OBJECT:smartUpdatableBrowser1:TabIndex = 2.
-        THIS-OBJECT:smartUpdatableBrowser1:Text = "smartUpdatableBrowser1":U.
+        THIS-OBJECT:smartUpdatableBrowser1:SmartFilterActive = FALSE.
+        THIS-OBJECT:smartUpdatableBrowser1:SmartFilterUseMatches = FALSE.
+        THIS-OBJECT:smartUpdatableBrowser1:SmartFilterUseOperators = FALSE.
+        THIS-OBJECT:smartUpdatableBrowser1:BeforeAddRecord:Subscribe(THIS-OBJECT:smartUpdatableBrowser1_BeforeAddRecord).
         THIS-OBJECT:smartUpdatableBrowser1:InitializeRow:Subscribe(THIS-OBJECT:smartUpdatableBrowser1_InitializeRow).
         THIS-OBJECT:smartUpdatableBrowser1:CellChange:Subscribe(THIS-OBJECT:smartUpdatableBrowser1_CellChange).
         THIS-OBJECT:smartUpdatableBrowser1:ClickCellButton:Subscribe(THIS-OBJECT:smartUpdatableBrowser1_ClickCellButton).
+        THIS-OBJECT:smartUpdatableBrowser1:BeforeCellActivate:Subscribe(THIS-OBJECT:smartUpdatableBrowser1_BeforeCellActivate).
         /*  */
         /* smartTempTableAdapter1 */
         /*  */
-        THIS-OBJECT:smartTempTableAdapter1:BindingSourceExcludeFields = "RawValue":U.
+        resources:ApplyResources(THIS-OBJECT:smartTempTableAdapter1, "smartTempTableAdapter1":U).
         THIS-OBJECT:smartTempTableAdapter1:LinkDataSource = ?.
         THIS-OBJECT:smartTempTableAdapter1:LinkNavigationSource = THIS-OBJECT:smartPanelController1.
         THIS-OBJECT:smartTempTableAdapter1:BeforeDeleteRecord:Subscribe(THIS-OBJECT:smartTempTableAdapter1_BeforeDeleteRecord).
         THIS-OBJECT:smartTempTableAdapter1:AfterRetrieveData:Subscribe(THIS-OBJECT:smartTempTableAdapter1_AfterRetrieveData).
+        THIS-OBJECT:smartTempTableAdapter1:CurrentChanged:Subscribe(THIS-OBJECT:smartTempTableAdapter1_CurrentChanged).
+        /*  */
+        /* headerControl1 */
+        /*  */
+        THIS-OBJECT:headerControl1:BackColor = System.Drawing.SystemColors:ActiveCaption.
+        resources:ApplyResources(THIS-OBJECT:headerControl1, "headerControl1":U).
+        THIS-OBJECT:headerControl1:Name = "headerControl1":U.
         /*  */
         /* ObjectTypeAttributesUserControl */
         /*  */
-        THIS-OBJECT:AutoScaleDimensions = NEW System.Drawing.SizeF(Progress.Util.CastUtil:ToSingle(6), Progress.Util.CastUtil:ToSingle(13)).
+        resources:ApplyResources(THIS-OBJECT, "$this":U).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:smartUpdatableBrowser1).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:ultraTextEditor1).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:smartPanelController1).
+        THIS-OBJECT:Controls:Add(THIS-OBJECT:headerControl1).
         THIS-OBJECT:Name = "ObjectTypeAttributesUserControl":U.
-        THIS-OBJECT:Padding = NEW System.Windows.Forms.Padding(5).
-        THIS-OBJECT:Size = NEW System.Drawing.Size(581, 385).
         CAST(THIS-OBJECT:bindingSource1, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:ultraTextEditor1, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:smartUpdatableBrowser1, System.ComponentModel.ISupportInitialize):EndInit().
@@ -520,325 +589,475 @@ CLASS Consultingwerk.Windows.Framework.Repository.Class.ObjectTypeAttributesUser
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
+
+    /**
+     * Purpose: Event handler for the InitalizeLayout event of the LookupBrowser
+     * Notes:
+     * @param sender The reference to the object that raised the event
+     * @param e The
+     */
+    METHOD PRIVATE VOID LookupBrowser_InitializeLayout (sender AS System.Object,
+                                                        e AS InitializeLayoutEventArgs):
+
+
+        CAST (sender, UltraGrid):DisplayLayout:Bands[0]:Columns["PropertyOrEvent":U]:ValueList = RepositoryValueLists:GetPropertyOrEventValueList().
+        CAST (sender, UltraGrid):DisplayLayout:Bands[0]:Columns["PropertyOrEvent":U]:Header:Caption = "Property or Event":U .
+
+    END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Initializes the Attribute Value cell in the given UltraGridRow
-        Notes:   
-        @param poRow The UltraGridRow to initialize
+        Purpose: Resets the changes in this uer control
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID InitializeRow (poRow AS UltraGridRow):
-		
-        DEFINE VARIABLE cDataType     AS CHARACTER     NO-UNDO .
-        DEFINE VARIABLE oCell         AS UltraGridCell NO-UNDO . 
-        DEFINE VARIABLE cLookupType   AS CHARACTER NO-UNDO.
-        DEFINE VARIABLE cLookupValues AS CHARACTER NO-UNDO.
+    METHOD PUBLIC VOID ResetChanges():
 
-        IF NOT poRow:IsDataRow THEN 
-            RETURN .
-        
-        oCell = poRow:Cells ["AttributeValue":U] .
-        oCell:Style = ColumnStyle:Default . 
-        
-        ASSIGN cDataType = UNBOX (poRow:Cells ["RepositoryType":U]:Value) . 
-        
-        CASE cDataType:
-        
-            WHEN "CHARACTER":U THEN 
-                ASSIGN oCell:Value = poRow:Cells["CharacterValue":U]:Value 
-                       oCell:Style = ColumnStyle:Default .
-            WHEN "INTEGER":U THEN 
-                ASSIGN oCell:Value = poRow:Cells["IntegerValue":U]:Value 
-                       oCell:Style = ColumnStyle:IntegerWithSpin .
-            WHEN "INT64":U THEN 
-                ASSIGN oCell:Value = poRow:Cells["Int64Value":U]:Value 
-                       oCell:Style = ColumnStyle:IntegerWithSpin .
-            WHEN "DATE":U THEN 
-                ASSIGN oCell:Value = poRow:Cells["DateValue":U]:Value 
-                       oCell:Style = ColumnStyle:Date .
-            WHEN "DATETIME":U THEN 
-                ASSIGN oCell:Value = poRow:Cells["DateTimeValue":U]:Value 
-                       oCell:Style = ColumnStyle:DateTime .                
-            WHEN "DATETIME-TZ":U THEN 
-                ASSIGN oCell:Value = poRow:Cells["DateTimeTzValue":U]:Value 
-                       oCell:Style = ColumnStyle:DateTime .                
-            WHEN "DECIMAL":U THEN 
-                ASSIGN oCell:Value = poRow:Cells["DecimalValue":U]:Value 
-                       oCell:Style = ColumnStyle:DoubleWithSpin .                    
-            WHEN "LOGICAL":U THEN 
-                ASSIGN oCell:Value = poRow:Cells["LogicalValue":U]:Value 
-                       oCell:Style = ColumnStyle:CheckBox .           
-        END CASE .
+        IF smartUpdatableBrowser1:SmartTableIOState = TableIOStateEnum:ModifyingData THEN
+            smartUpdatableBrowser1:CancelUpdate() .
 
-        ASSIGN cLookupType   = UNBOX (poRow:Cells["LookupType":U]:Value) 
-               cLookupValues = UNBOX (poRow:Cells["LookupValues":U]:Value) . 
-         
-        CASE cLookupType:
-            WHEN "LIST":U THEN 
-                ASSIGN oCell:ValueList  = ValueListHelper:FromListItemPairs (cLookupValues, CHR(3)) 
-                       oCell:Style      = ColumnStyle:DropDownList
-                       oCell:Activation = Infragistics.Win.UltraWinGrid.Activation:AllowEdit .
-            WHEN "DIALOG":U THEN 
-                ASSIGN oCell:Style                  = ColumnStyle:EditButton 
-                       oCell:ButtonAppearance:Image = ImageHelper:Load ("Consultingwerk/Windows/Images/folder_16.png":U)
-                       oCell:Activation             = Activation:AllowEdit .
-            WHEN "DIALOG-R":U THEN 
-                ASSIGN oCell:Style                  = ColumnStyle:EditButton 
-                       oCell:ButtonAppearance:Image = ImageHelper:Load ("Consultingwerk/Windows/Images/folder_16.png":U)
-                       oCell:Activation             = Activation:NoEdit .
-                       
-            OTHERWISE 
-                ASSIGN oCell:Activation = Activation:AllowEdit .
-        END CASE . 
+        DatasetHelper:SetTrackingChanges(DATASET dsDesignAttributeValue:HANDLE, FALSE) .
 
-        /* Read only row - when inherited and constant*/
-        IF UNBOX (poRow:Cells["IsInherited":U]:Value) = TRUE AND 
-           UNBOX (poRow:Cells["ConstantValue":U]:Value) = TRUE THEN DO: 
-           
-            ASSIGN poRow:Cells["IsInherited":U]:Activation    = Activation:NoEdit 
-                   poRow:Cells["ConstantValue":U]:Activation  = Activation:NoEdit
-                   poRow:Cells["AttributeValue":U]:Activation = Activation:NoEdit .
-        END.    
-        /* Can't change IsInherited (to reset to base class value) on un-inherited
-           property */
-        ELSE IF UNBOX (poRow:Cells["InheritedFrom":U]:Value) = "":U THEN DO:
-            ASSIGN poRow:Cells["IsInherited":U]:Activation    = Activation:NoEdit 
-                   poRow:Cells["ConstantValue":U]:Activation  = Activation:AllowEdit 
-                   poRow:Cells["AttributeValue":U]:Activation = Activation:AllowEdit .
+        DATASET dsDesignAttributeValue:EMPTY-DATASET () .
 
-        END.
-        ELSE 
-            ASSIGN poRow:Cells["IsInherited":U]:Activation    = Activation:AllowEdit 
-                   poRow:Cells["ConstantValue":U]:Activation  = Activation:AllowEdit
-                   poRow:Cells["AttributeValue":U]:Activation = Activation:AllowEdit .
+        THIS-OBJECT:HasChanges = FALSE .
 
-	END METHOD .
+        THIS-OBJECT:ShowObjectTypeAttributes (THIS-OBJECT:ObjectTypeId) .
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Saves the changes in this user control
+        Notes:
+        @param pcObjectTypeId The Object Type Id (for new records)
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC VOID SaveChanges (pcObjectTypeId AS CHARACTER):
+
+        ASSIGN THIS-OBJECT:ObjectTypeId = pcObjectTypeId .
+
+        IF smartUpdatableBrowser1:SmartTableIOState = TableIOStateEnum:ModifyingData THEN
+            smartUpdatableBrowser1:SaveChanges () .
+
+        FrameworkSettings:ServiceAdapter:InvokeMethod ("":U,
+                                                       "Consultingwerk.SmartFramework.Repository.Class.AttributeValueBusinessEntity":U,
+                                                       "StoreObjectTypeDesignAttributes":U,
+                                                       INPUT-OUTPUT DATASET dsDesignAttributeValue BY-REFERENCE,
+                                                       NEW StoreObjectTypeDesignAttributeParameter (THIS-OBJECT:ObjectTypeId)) .
+
+        DatasetHelper:ThrowDatasetErrors(DATASET dsDesignAttributeValue:HANDLE) .
+
+        THIS-OBJECT:HasChanges = FALSE .
+
+        THIS-OBJECT:ShowObjectTypeAttributes (pcObjectTypeId) .
+
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Retrieves the SmartObejctType Attributes for design time
-        Notes:   
+        Notes:
         @param pcObjectTypeId the ID of the object type to retrieve
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID ShowObjectTypeAttributes (pcObjectTypeId AS CHARACTER):
-		
-		FrameworkSettings:ServiceAdapter:InvokeMethod ("":U,
-		                                               "Consultingwerk.SmartFramework.Repository.Class.AttributeValueBusinessEntity":U,
-		                                               "GetObjectTypeDesignAttributes":U,
-		                                               INPUT-OUTPUT DATASET dsDesignAttributeValue BY-REFERENCE,
-		                                               NEW GetObjectTypeDesignAttributesParameter (pcObjectTypeId)) .
-		
+    METHOD PUBLIC VOID ShowObjectTypeAttributes (pcObjectTypeId AS CHARACTER):
+
+        ASSIGN THIS-OBJECT:ObjectTypeId = pcObjectTypeId .
+
+        DatasetHelper:SetTrackingChanges(DATASET dsDesignAttributeValue:HANDLE, FALSE) .
+
+        DATASET dsDesignAttributeValue:EMPTY-DATASET () .
+
+        FrameworkSettings:ServiceAdapter:InvokeMethod ("":U,
+                                                       "Consultingwerk.SmartFramework.Repository.Class.AttributeValueBusinessEntity":U,
+                                                       "GetObjectTypeDesignAttributes":U,
+                                                       INPUT-OUTPUT DATASET dsDesignAttributeValue BY-REFERENCE,
+                                                       NEW GetObjectTypeDesignAttributesParameter (pcObjectTypeId)) .
+
+        DatasetHelper:SetTrackingChanges(DATASET dsDesignAttributeValue:HANDLE, TRUE) .
+
         smartTempTableAdapter1:RetrieveData () .
-        smartTempTableAdapter1:BindingSource:RefreshAll () . 
+        smartTempTableAdapter1:BindingSource:RefreshAll () .
 
         {Consultingwerk/foreach.i Infragistics.Win.UltraWinGrid.UltraGridColumn oColumn in smartUpdatableBrowser1:DisplayLayout:Bands[0]:SortedColumns}
-        
+
             IF oColumn:IsGroupByColumn THEN DO:
                 smartUpdatableBrowser1:DisplayLayout:Bands[0]:SortedColumns:RefreshSort (TRUE) .
-                LEAVE . 
+                LEAVE .
             END.
         END.
-        
+
         {Consultingwerk/foreach.i UltraGridRow oRow in smartUpdatableBrowser1:Rows}
             THIS-OBJECT:InitializeRow (oRow) .
         END.
-        
-	END METHOD .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the AfterRetrieveData event of the smartTempTableAdapter1
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID smartTempTableAdapter1_AfterRetrieveData (sender AS System.Object, 
-	                                                              e AS System.EventArgs):
-		
+    METHOD PRIVATE VOID smartTempTableAdapter1_AfterRetrieveData (sender AS System.Object,
+                                                                  e AS System.EventArgs):
+
         {Consultingwerk/foreach.i UltraGridRow oRow in smartUpdatableBrowser1:Rows}
             THIS-OBJECT:InitializeRow (oRow) .
         END.
 
         CATCH err AS Progress.Lang.Error:
-            ErrorHelper:ShowErrorMessage (err) .    
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the BeforeDeleteRecord event of the smartTempTableAdpater1 
-        Notes:   
+        Purpose: Event handler for the BeforeDeleteRecord event of the smartTempTableAdpater1
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The AfterDeleteRecordEventArgs with the data for this event 
+        @param e The AfterDeleteRecordEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID smartTempTableAdapter1_BeforeDeleteRecord (sender AS System.Object, 
-	                                                               e AS Consultingwerk.SmartComponents.Implementation.BeforeDeleteRecordEventArgs):
-		
+    METHOD PRIVATE VOID smartTempTableAdapter1_BeforeDeleteRecord (sender AS System.Object,
+                                                                   e AS Consultingwerk.SmartComponents.Implementation.BeforeDeleteRecordEventArgs):
+
         IF e:BufferHandle::InheritedFrom > "":U THEN DO:
-            
+
             e:Cancel = TRUE .
-            
+
             MessageFormHelper:ShowMessage ("Cannot delete inherited attribute."{&TRAN},
                                            THIS-OBJECT:FindForm():Text,
                                            MessageFormImages:ImageWarning) .
-            
+
         END.
+        ELSE
+            THIS-OBJECT:HasChanges = TRUE .
 
         CATCH err AS Progress.Lang.Error:
-            ErrorHelper:ShowErrorMessage (err) .    
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the CellChange event of the smartUpdatableBrowser1 
-        Notes:   
+        Purpose: Event handler for the CurrentChanged event of the smartTempTableAdpater1
+        Notes:
+        @param sender The reference to the object that raised the event
+        @param e The System.EventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID smartTempTableAdapter1_CurrentChanged (sender AS System.Object,
+                                                               e AS System.EventArgs):
+
+        IF VALID-OBJECT (smartUpdatableBrowser1:ActiveRow) THEN
+            THIS-OBJECT:InitializeRow (smartUpdatableBrowser1:ActiveRow) .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the BeforeAddRecord event of the smartUpdatableBrowser1
+        Notes:
+        @param sender The reference to the object that raised the event
+        @param e The CancelEventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID smartUpdatableBrowser1_BeforeAddRecord (sender AS System.Object,
+                                                                e AS CancelEventArgs):
+
+        DEFINE VARIABLE oLookupDialog AS SmartBusinessEntityLookupDialog NO-UNDO .
+        DEFINE VARIABLE oResult       AS DialogResult                    NO-UNDO .
+        DEFINE VARIABLE rRowid        AS ROWID                           NO-UNDO .
+
+        /* Cancel default Add behavior */
+        e:Cancel = TRUE .
+
+        /* Prompt for the Attribute */
+        oLookupDialog = NEW SmartBusinessEntityLookupDialog ().
+
+        ASSIGN oLookupDialog:AdapterType                      = "":U
+               oLookupDialog:LookupSmartBusinessEntityAdapter = ?
+               .
+
+        oLookupDialog:InitializeDataAdapter() .
+        oLookupDialog:LookupBrowser:InitializeLayout:Subscribe (LookupBrowser_InitializeLayout) .
+
+        /* Set the title of the Dialog */
+        oLookupDialog:SetText ("Lookup Attribute Name"{&TRAN}) .
+
+        /* Set the usual properties for accessing a BusinessEntity on the backend */
+        ASSIGN
+            oLookupDialog:AppServerPartition          = "":U
+            oLookupDialog:LookupBrowserFields         = "PropertyOrEvent,AttributeLabel,TechnicalName,AttributeDesription,RepositoryType,AttributeGroupName":U
+            oLookupDialog:LookupDialogQueryString     = "FOR EACH eSmartAttribute":U
+            oLookupDialog:LookupDialogQuerySort       = "BY eSmartAttribute.AttributeLabel":U
+            oLookupDialog:LookupDialogFilterFields    = "AttributeLabel,TechnicalName,AttributeDesription,RepositoryType,AttributeGroupName":U
+            oLookupDialog:LookupDialogFilterOperators = "BEGINSMATCHES,BEGINSMATCHES,BEGINSMATCHES,BEGINSMATCHES,BEGINSMATCHES":U
+            oLookupDialog:LookupEntityName            = "Consultingwerk.SmartFramework.Repository.Class.AttributeValueBusinessEntity":U
+            oLookupDialog:LookupEntityTable           = "eSmartAttribute":U
+            oLookupDialog:LookupEntityView            = "":U
+            oLookupDialog:LookupKeyField              = "AttributeLabel":U
+            .
+
+        /* Show the Dialog, WAIT-FOR Ok or Cancel */
+        WAIT-FOR oLookupDialog:ShowDialog () SET oResult.
+
+        /* Compare the DialogResult to Ok, exit when Cancel was pressed */
+        {Consultingwerk/check-dialogresult-ok.i oResult}
+
+        ASSIGN THIS-OBJECT:HasChanges = TRUE .
+
+        IF CAN-FIND (FIRST eDesignAttributeValue WHERE eDesignAttributeValue.AttributeLabel = oLookupDialog:GetLookupFieldValue("AttributeLabel":U)) THEN DO:
+            FIND FIRST eDesignAttributeValue WHERE eDesignAttributeValue.AttributeLabel = oLookupDialog:GetLookupFieldValue("AttributeLabel":U)
+                NO-LOCK NO-ERROR .
+
+            ASSIGN rRowid = ROWID (eDesignAttributeValue).
+        END.
+        ELSE DO:
+            CREATE eDesignAttributeValue .
+            ASSIGN eDesignAttributeValue.AttributeLabel     = oLookupDialog:GetLookupFieldValue("AttributeLabel":U)
+                   eDesignAttributeValue.AttributeValueGuid = GUID
+                   eDesignAttributeValue.ObjectTypeGuid     = THIS-OBJECT:ObjectTypeId
+                   eDesignAttributeValue.IsInherited        = FALSE
+
+                   eDesignAttributeValue.AttributeDesription = oLookupDialog:GetLookupFieldValue("AttributeDesription":U)
+                   eDesignAttributeValue.LookupType          = oLookupDialog:GetLookupFieldValue("LookupType":U)
+                   eDesignAttributeValue.LookupValues        = oLookupDialog:GetLookupFieldValue("LookupValues":U)
+                   eDesignAttributeValue.PropertyOrEvent     = DataTypeHelper:ToLogical(oLookupDialog:GetLookupFieldValue("PropertyOrEvent":U))
+                   eDesignAttributeValue.PropertyType        = oLookupDialog:GetLookupFieldValue("PropertyType":U)
+                   eDesignAttributeValue.RepositoryType      = oLookupDialog:GetLookupFieldValue("RepositoryType":U)
+                   eDesignAttributeValue.TechnicalName       = oLookupDialog:GetLookupFieldValue("TechnicaName":U)
+
+                   rRowid                                   = ROWID (eDesignAttributeValue).
+
+            RELEASE eDesignAttributeValue .
+
+            smartTempTableAdapter1:QueryHandle:QUERY-OPEN() .
+            smartTempTableAdapter1:RetrieveData().
+        END.
+
+        smartTempTableAdapter1:RepositionToRowid(rRowid) .
+
+        UserInterfaceHelper:ProcessEvents().
+
+        smartUpdatableBrowser1:ActiveCell = smartUpdatableBrowser1:ActiveRow:Cells["AttributeValue":U] .
+        smartUpdatableBrowser1:Focus().
+        smartUpdatableBrowser1:PerformAction(UltraGridAction:EnterEditMode, FALSE, FALSE).
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the BeforeCellActivate event of the smartUpdatableBrowser1
+        Notes:
+        @param sender The reference to the object that raised the event
+        @param e The CancelableCellEventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID smartUpdatableBrowser1_BeforeCellActivate (sender AS System.Object,
+                                                                   e AS CancelableCellEventArgs):
+
+        IF e:Cell:Column:Key = "AttributeValue":U AND
+           UNBOX (e:Cell:Row:Cells["RepositoryType":U]:Value) = "HANDLE":U THEN
+            e:Cancel = TRUE .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the CellChange event of the smartUpdatableBrowser1
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The CellEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID smartUpdatableBrowser1_CellChange (sender AS System.Object, 
-	                                                       e AS CellEventArgs):
-		
-		DEFINE VARIABLE oEditor                                AS EmbeddableEditorBase                  NO-UNDO .
-		DEFINE VARIABLE oRow                                   AS UltraGridRow                          NO-UNDO .  
+    METHOD PRIVATE VOID smartUpdatableBrowser1_CellChange (sender AS System.Object,
+                                                           e AS CellEventArgs):
+
+        DEFINE VARIABLE oEditor                                AS EmbeddableEditorBase                  NO-UNDO .
+        DEFINE VARIABLE oRow                                   AS UltraGridRow                          NO-UNDO .
         DEFINE VARIABLE cDataType                              AS CHARACTER                             NO-UNDO .
-		DEFINE VARIABLE oGetObjectTypeDesignAttributeParameter AS GetObjectTypeDesignAttributeParameter NO-UNDO . 
-		DEFINE VARIABLE hDataset                               AS HANDLE                                NO-UNDO .
-		
-		CASE e:Cell:Column:Key:
-		    WHEN "AttributeValue":U THEN DO:
-		
-                ASSIGN oRow      = e:Cell:Row 
-                	   cDataType = UNBOX (oRow:Cells ["RepositoryType":U]:Value) 
+        DEFINE VARIABLE oGetObjectTypeDesignAttributeParameter AS GetObjectTypeDesignAttributeParameter NO-UNDO .
+        DEFINE VARIABLE hDataset                               AS HANDLE                                NO-UNDO .
+
+        CASE e:Cell:Column:Key:
+            WHEN "AttributeValue":U THEN DO:
+
+                ASSIGN oRow      = e:Cell:Row
+                       cDataType = UNBOX (oRow:Cells ["RepositoryType":U]:Value)
                        oEditor   = e:Cell:EditorResolved .
-                
+
                 CASE cDataType:
-                
-                    WHEN "CHARACTER":U THEN 
-                        ASSIGN oRow:Cells ["CharacterValue":U]:Value  = oEditor:Value . 
-                    WHEN "INTEGER":U THEN                             
+
+                    WHEN "CHARACTER":U THEN
+                        ASSIGN oRow:Cells ["CharacterValue":U]:Value  = oEditor:Value .
+                    WHEN "INTEGER":U THEN
                         ASSIGN oRow:Cells ["IntegerValue":U]:Value    = oEditor:Value .
-                    WHEN "INT64":U THEN                               
+                    WHEN "INT64":U THEN
                         ASSIGN oRow:Cells ["Int64Value":U]:Value      = oEditor:Value .
-                    WHEN "DATE":U THEN                                
+                    WHEN "DATE":U THEN
                         ASSIGN oRow:Cells ["DateValue":U]:Value       = oEditor:Value .
-                    WHEN "DATETIME":U THEN                            
+                    WHEN "DATETIME":U THEN
                         ASSIGN oRow:Cells ["DateTimeValue":U]:Value   = oEditor:Value .
-                    WHEN "DATETIME-TZ":U THEN  
-                        ASSIGN oRow:Cells ["DateTimeTzValue":U]:Value = oEditor:Value . 
-                    WHEN "DECIMAL":U THEN 
-                        ASSIGN oRow:Cells ["DecimalValue":U]:Value    = oEditor:Value . 
-                    WHEN "LOGICAL":U THEN 
+                    WHEN "DATETIME-TZ":U THEN
+                        ASSIGN oRow:Cells ["DateTimeTzValue":U]:Value = oEditor:Value .
+                    WHEN "DECIMAL":U THEN
+                        ASSIGN oRow:Cells ["DecimalValue":U]:Value    = oEditor:Value .
+                    WHEN "LOGICAL":U THEN
                         ASSIGN oRow:Cells ["LogicalValue":U]:Value    = oEditor:Value .
                 END CASE .
-        
-                /* When value was changes, it will be stored on the current class, 
+
+                /* When value was changes, it will be stored on the current class,
                    not on the parent */
-                IF e:Cell:IsInEditMode THEN 
+                IF e:Cell:IsInEditMode THEN
                     oRow:Cells["IsInherited":U]:Value = BOX (FALSE) .
             END.
             WHEN "IsInherited":U THEN DO:
-                
+
                 IF e:Cell:IsInEditMode THEN DO:
-                    
-                    ASSIGN oRow = e:Cell:Row .  
-                            
-                    IF DataTypeHelper:ToLogical (e:Cell:Text) = TRUE THEN DO ON ERROR UNDO, THROW: 
-    
+
+                    ASSIGN oRow = e:Cell:Row .
+
+                    IF DataTypeHelper:ToLogical (e:Cell:Text) = TRUE THEN DO ON ERROR UNDO, THROW:
+
                         oGetObjectTypeDesignAttributeParameter = NEW GetObjectTypeDesignAttributeParameter (UNBOX (oRow:Cells["InheritedFrom":U]:Value),
-                                                                                                            UNBOX (oRow:Cells["AttributeLabel":U]:Value)) .                     
-    
+                                                                                                            UNBOX (oRow:Cells["AttributeLabel":U]:Value)) .
+
                         FrameworkSettings:ServiceAdapter:InvokeMethod ("":U,
                                                                        "Consultingwerk.SmartFramework.Repository.Class.AttributeValueBusinessEntity":U,
                                                                        "GetObjectTypeDesignAttribute":U,
                                                                        INPUT-OUTPUT DATASET-HANDLE hDataset,
                                                                        oGetObjectTypeDesignAttributeParameter) .
-    
-                        hDataset:GET-BUFFER-HANDLE (1):FIND-FIRST () . 
+
+                        hDataset:GET-BUFFER-HANDLE (1):FIND-FIRST () .
 
                         IF hDataset:GET-BUFFER-HANDLE (1):AVAILABLE THEN DO:
 
                             CASE STRING (UNBOX (oRow:Cells["RepositoryType":U]:Value)):
-                                WHEN "CHARACTER":U THEN 
+                                WHEN "CHARACTER":U THEN
                                     ASSIGN oRow:Cells["CharacterValue":U]:Value  = BOX (hDataset:GET-BUFFER-HANDLE (1)::CharacterValue) .
-                                WHEN "INTEGER":U THEN 
+                                WHEN "INTEGER":U THEN
                                     ASSIGN oRow:Cells["IntegerValue":U]:Value    = BOX (hDataset:GET-BUFFER-HANDLE (1)::IntegerValue) .
-                                WHEN "INT64":U THEN 
+                                WHEN "INT64":U THEN
                                     ASSIGN oRow:Cells["Int64Value":U]:Value      = BOX (hDataset:GET-BUFFER-HANDLE (1)::Int64Value) .
-                                WHEN "DATE":U THEN 
+                                WHEN "DATE":U THEN
                                     ASSIGN oRow:Cells["DateValue":U]:Value       = BOX (hDataset:GET-BUFFER-HANDLE (1)::DateValue) .
-                                WHEN "DATETIME":U THEN 
+                                WHEN "DATETIME":U THEN
                                     ASSIGN oRow:Cells["DateTimeValue":U]:Value   = BOX (hDataset:GET-BUFFER-HANDLE (1)::DateTimeValue) .
-                                WHEN "DATETIME-TZ":U THEN 
+                                WHEN "DATETIME-TZ":U THEN
                                     ASSIGN oRow:Cells["DateTimeTzValue":U]:Value = BOX (hDataset:GET-BUFFER-HANDLE (1)::DateTimeTzValue) .
-                                WHEN "DECIMAL":U THEN 
+                                WHEN "DECIMAL":U THEN
                                     ASSIGN oRow:Cells["DecimalValue":U]:Value    = BOX (hDataset:GET-BUFFER-HANDLE (1)::DecimalValue) .
-                                WHEN "LOGICAL":U THEN 
+                                WHEN "LOGICAL":U THEN
                                     ASSIGN oRow:Cells["LogicalValue":U]:Value    = BOX (hDataset:GET-BUFFER-HANDLE (1)::LogicalValue) .
-                            END CASE . 
-                                    
+                            END CASE .
+
                             THIS-OBJECT:InitializeRow (oRow) .
                         END.
-                        
+
                         FINALLY:
-                            IF VALID-HANDLE (hDataset) THEN 
-                                DELETE OBJECT (hDataset) . 		
+                            IF VALID-HANDLE (hDataset) THEN
+                                DELETE OBJECT (hDataset) .
                         END FINALLY.
-                    END .                 
+                    END .
                 END .
             END.
 
         END CASE.
 
+        THIS-OBJECT:HasChanges = TRUE .
+
         CATCH err AS Progress.Lang.Error:
-        	ErrorHelper:ShowErrorMessage (err) .	
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
-            
-	END METHOD .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the ClickCellButton event of the smartUpdatableBrowser1
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The CellEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID smartUpdatableBrowser1_ClickCellButton (sender AS System.Object, 
-	                                                            e AS Infragistics.Win.UltraWinGrid.CellEventArgs):
-		
-		MESSAGE e:Cell:Row:Cells["LookupValues":U]:VAlue
-            VIEW-AS ALERT-BOX.
+    METHOD PRIVATE VOID smartUpdatableBrowser1_ClickCellButton (sender AS System.Object,
+                                                                e AS Infragistics.Win.UltraWinGrid.CellEventArgs):
+
+        DEFINE VARIABLE oLookupService AS IRepositoryAttributeLookupService NO-UNDO .
+        DEFINE VARIABLE cService       AS CHARACTER                         NO-UNDO .
+        DEFINE VARIABLE lOk            AS LOGICAL                           NO-UNDO .
+        DEFINE VARIABLE oValue         AS System.Object                     NO-UNDO .
+        DEFINE VARIABLE iPosition      AS INTEGER                           NO-UNDO .
+        DEFINE VARIABLE oBindingSource AS Progress.Data.BindingSource       NO-UNDO .
+
+        ASSIGN cService = e:Cell:Row:Cells["LookupValues":U]:Value
+               oValue   = e:Cell:Value.
+
+        oLookupService = CAST (FrameworkSettings:ServiceContainer:GetMandatoryService(Progress.Lang.Class:GetClass (cService)),
+                               IRepositoryAttributeLookupService) .
+
+        lOk = oLookupService:ShowPropertyDialog (UNBOX (e:Cell:Row:Cells["AttributeLabel":U]:Value),
+                                                 THIS-OBJECT:ObjectTypeId,
+                                                 ?,
+                                                 ?,
+                                                 TEMP-TABLE eDesignAttributeValue:HANDLE,
+                                                 THIS-OBJECT:FindForm(),
+                                                 INPUT-OUTPUT oValue) .
+
+        IF lOk = TRUE THEN
+            .
+        ELSE
+            RETURN .
+
+        oBindingSource = CAST (smartUpdatableBrowser1:DataSource,
+                               Progress.Data.BindingSource) .
+
+        iPosition = oBindingSource:Position .
+
+        oBindingSource:RefreshAll() .
+
+        oBindingSource:Position = iPosition .
+
+        e:Cell:EditorResolved:Value = oValue .
+        e:Cell:Value                = oValue .
+
+        smartUpdatableBrowser1:SetModifyingState() .
+
+        THIS-OBJECT:HasChanges = TRUE .
 
         CATCH err AS Progress.Lang.Error:
-            ErrorHelper:ShowErrorMessage (err) .    
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the InitializeRow event of the smartUpdatableBrowser1  
-        Notes:   
+        Purpose: Event handler for the InitializeRow event of the smartUpdatableBrowser1
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The InitializeRowEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID smartUpdatableBrowser1_InitializeRow (sender AS System.Object, 
-	                                                          e AS InitializeRowEventArgs):
-		
-		THIS-OBJECT:InitializeRow (e:Row) .
+    METHOD PRIVATE VOID smartUpdatableBrowser1_InitializeRow (sender AS System.Object,
+                                                              e AS InitializeRowEventArgs):
+
+        THIS-OBJECT:InitializeRow (e:Row) .
 
         CATCH err AS Progress.Lang.Error:
-            ErrorHelper:ShowErrorMessage (err) .    
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
-		
-	END METHOD .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the ObjectTypeAttributesUserControl class 
-        Notes:   
+        Purpose: Destructor for the ObjectTypeAttributesUserControl class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC ObjectTypeAttributesUserControl ():
 
         smartUpdatableBrowser1:SmartDataSource = ? .
-        
+
         GarbageCollectorHelper:DeleteObject (smartTempTableAdapter1) .
-                
+
     END DESTRUCTOR .
 
 END CLASS.

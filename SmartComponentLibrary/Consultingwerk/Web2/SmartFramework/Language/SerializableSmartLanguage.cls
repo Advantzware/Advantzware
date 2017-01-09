@@ -37,9 +37,9 @@ CLASS Consultingwerk.Web2.SmartFramework.Language.SerializableSmartLanguage
 &ENDIF
     {&SERIALIZABLE}:
 
-    {Consultingwerk/JsonSerializableProperty.i LanguageName CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i LanguageImage CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i LanguageIsoCode CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i LanguageName CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i LanguageImage CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i LanguageIsoCode CHARACTER} .
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the SerializableSmartLanguage class
@@ -59,8 +59,8 @@ CLASS Consultingwerk.Web2.SmartFramework.Language.SerializableSmartLanguage
         @param pcLanguageGuid The guid of the language to return 
         @return The SerializableSmartLanguage instance for the specified Guid
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC SerializableSmartLanguage FromLanguageGuid (pcLanguageGuid AS CHARACTER):
-		
+    METHOD PUBLIC STATIC SerializableSmartLanguage FromLanguageGuid (pcLanguageGuid AS CHARACTER):
+        
         DEFINE VARIABLE oLanguageDataset AS LanguageDatasetModel      NO-UNDO . 
         DEFINE VARIABLE oLanguage        AS SerializableSmartLanguage NO-UNDO . 
         
@@ -78,6 +78,6 @@ CLASS Consultingwerk.Web2.SmartFramework.Language.SerializableSmartLanguage
 
         RETURN oLanguage .
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

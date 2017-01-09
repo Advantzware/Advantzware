@@ -35,8 +35,8 @@ CLASS Consultingwerk.RollbaseAdapter.MetaData.ObjectDefNamesResponseParser:
         @param plcResponse The longchar with the response data from the ObjectDefNames request
         @return The Character array with the Object Definition Names
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC CHARACTER EXTENT ParseResponse (plcResponse AS LONGCHAR):
-		
+    METHOD PUBLIC CHARACTER EXTENT ParseResponse (plcResponse AS LONGCHAR):
+        
         DEFINE VARIABLE cNames       AS CHARACTER         NO-UNDO EXTENT.
         DEFINE VARIABLE oObjectModel AS ObjectModelParser NO-UNDO . 
         DEFINE VARIABLE oArray       AS JsonArray         NO-UNDO . 
@@ -55,8 +55,8 @@ CLASS Consultingwerk.RollbaseAdapter.MetaData.ObjectDefNamesResponseParser:
             cNames[i] = oArray:GetCharacter (i) .
         END.
         
-		RETURN cNames .
+        RETURN cNames .
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

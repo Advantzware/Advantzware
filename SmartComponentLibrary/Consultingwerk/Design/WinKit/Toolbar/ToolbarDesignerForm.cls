@@ -11,13 +11,13 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : ToolbarDesignerForm
-    Purpose     : Provides a user interface to customize an Infragistics 
+    Purpose     : Provides a user interface to customize an Infragistics
                   Toolbar or Ribbon
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Thu Jul 08 21:20:50 CEST 2010
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -38,13 +38,13 @@ USING System.Windows.Forms.* .
 
 {Consultingwerk/products.i}
 
-CLASS Consultingwerk.Design.WinKit.Toolbar.ToolbarDesignerForm INHERITS Form: 
-	
+CLASS Consultingwerk.Design.WinKit.Toolbar.ToolbarDesignerForm INHERITS Form:
+
     DEFINE PRIVATE VARIABLE m_ToolbarDesignerForm_Toolbars_Dock_Area_Top AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_ToolbarDesignerForm_Toolbars_Dock_Area_Right AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_ToolbarDesignerForm_Toolbars_Dock_Area_Left AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_ToolbarDesignerForm_Toolbars_Dock_Area_Bottom AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE saveFileDialog1 AS System.Windows.Forms.SaveFileDialog NO-UNDO.
     DEFINE PRIVATE VARIABLE openFileDialog1 AS System.Windows.Forms.OpenFileDialog NO-UNDO.
     DEFINE PRIVATE VARIABLE splitContainer1 AS System.Windows.Forms.SplitContainer NO-UNDO.
@@ -52,126 +52,128 @@ CLASS Consultingwerk.Design.WinKit.Toolbar.ToolbarDesignerForm INHERITS Form:
     DEFINE PRIVATE VARIABLE ultraToolbarsManager1 AS Infragistics.Win.UltraWinToolbars.UltraToolbarsManager NO-UNDO.
     DEFINE PRIVATE VARIABLE ToolbarDesignerForm_Fill_Panel AS System.Windows.Forms.Panel NO-UNDO.
 
-    DEFINE VARIABLE oDesignSurface             AS System.ComponentModel.Design.DesignSurface             NO-UNDO . 
+    DEFINE VARIABLE oDesignSurface             AS System.ComponentModel.Design.DesignSurface             NO-UNDO .
     DEFINE VARIABLE oDesignView                AS System.Windows.Forms.Control                           NO-UNDO .
     DEFINE VARIABLE oDesignerHost              AS System.ComponentModel.Design.IDesignerHost             NO-UNDO .
     DEFINE VARIABLE oSelectionService          AS System.ComponentModel.Design.ISelectionService         NO-UNDO .
     DEFINE VARIABLE oTemplateForm              AS Progress.Windows.Form                                  NO-UNDO .
-    DEFINE VARIABLE oToolbar                   AS Infragistics.Win.UltraWinToolbars.UltraToolbarsManager NO-UNDO . 
-    DEFINE VARIABLE oToolbarDesigner           AS System.ComponentModel.Design.ComponentDesigner         NO-UNDO .  
-    DEFINE VARIABLE oCustomizeVerb             AS System.ComponentModel.Design.DesignerVerb              NO-UNDO .     
-    DEFINE VARIABLE oCustomPropertiesPagesVerb AS System.ComponentModel.Design.DesignerVerb              NO-UNDO .    
-    DEFINE VARIABLE oCurrentLicenseContext     AS System.ComponentModel.LicenseContext                   NO-UNDO .	
-		
-    /*------------------------------------------------------------------------------
-        Purpose: Event raised when the user presses Save                                                                      
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC EVENT AfterSaveLayout DELEGATE System.EventHandler.
+    DEFINE VARIABLE oToolbar                   AS Infragistics.Win.UltraWinToolbars.UltraToolbarsManager NO-UNDO .
+    DEFINE VARIABLE oToolbarDesigner           AS System.ComponentModel.Design.ComponentDesigner         NO-UNDO .
+    DEFINE VARIABLE oCustomizeVerb             AS System.ComponentModel.Design.DesignerVerb              NO-UNDO .
+    DEFINE VARIABLE oCustomPropertiesPagesVerb AS System.ComponentModel.Design.DesignerVerb              NO-UNDO .
+    DEFINE VARIABLE oCurrentLicenseContext     AS System.ComponentModel.LicenseContext                   NO-UNDO .
 
     /*------------------------------------------------------------------------------
-        Purpose: Cancelable event that raised when the user presses Save                                                                      
-        Notes:                                                                        
+        Purpose: Event raised when the user presses Save
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC EVENT AfterSaveLayout DELEGATE System.EventHandler.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Cancelable event that raised when the user presses Save
+        Notes:
     ------------------------------------------------------------------------------*/
     DEFINE PUBLIC EVENT BeforeSaveLayout DELEGATE System.ComponentModel.CancelEventHandler.
 
     /*------------------------------------------------------------------------------
-        Purpose: Retruns the reference to the UltraToolbarsManager instance used 
-                 on the design canvas.                                                                       
-        Notes:                                                                        
+        Purpose: Returns the reference to the UltraToolbarsManager instance used
+                 on the design canvas.
+        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY DesignToolbar AS Infragistics.Win.UltraWinToolbars.UltraToolbarsManager NO-UNDO 
-	GET.
-	PRIVATE SET. 
+    DEFINE PUBLIC PROPERTY DesignToolbar AS Infragistics.Win.UltraWinToolbars.UltraToolbarsManager NO-UNDO
+    GET.
+    PRIVATE SET.
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and Sets the reference to the UltraToolbarsManager that was
-                 used as the starting point (the toolbar used in the actual application)                                                                      
-        Notes:                                                                        
+                 used as the starting point (the toolbar used in the actual application)
+        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY LoadFromToolbar AS Infragistics.Win.UltraWinToolbars.UltraToolbarsManager NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY LoadFromToolbar AS Infragistics.Win.UltraWinToolbars.UltraToolbarsManager NO-UNDO
+    GET.
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the procedure handle used to build the default file 
-                 name for saving the toolbar design                                                                      
-        Notes:   Can be unknown at runtime                                                                        
+        Purpose: Gets and sets the procedure handle used to build the default file
+                 name for saving the toolbar design
+        Notes:   Can be unknown at runtime
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY ProcedureHandle AS HANDLE NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY ProcedureHandle AS HANDLE NO-UNDO
+    GET.
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the ToolbarDesignerForm class                                                                      
-        Notes:                                                                        
+        Purpose: Constructor for the ToolbarDesignerForm class
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ToolbarDesignerForm ():
-		
+    CONSTRUCTOR PUBLIC ToolbarDesignerForm ():
+
         SUPER().
         InitializeComponent().
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
-
-	/*------------------------------------------------------------------------------
-		Purpose: Builds the name for the toolbar XML file
-		Notes:  																	  
-        @return The proposed file name for the toolbar definition
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED CHARACTER BuildToolbarFileName ():
-		
-		DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO.
-		
-		IF VALID-HANDLE (THIS-OBJECT:ProcedureHandle) THEN DO:
-		    
-		    FILE-INFO:FILE-NAME = THIS-OBJECT:ProcedureHandle:FileName .
-		    
-		    cFileName = FILE-INFO:FULL-PATHNAME .  
-	   
-	        cFileName = SUBSTRING (cFileName, 1, R-INDEX (cFileName, ".":U) - 1) + "_toolbar.xml":U .
-		END. 
-		ELSE 
-		    cFileName = "_toolbar.xml":U .  
-		  
-		RETURN cFileName .   
-		  
-	END METHOD.
-
-	/*------------------------------------------------------------------------------
-		Purpose: Closes the Form  																	  
-		Notes:  																	  
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID CloseForm ():
-		
-		DEFINE VARIABLE lOk AS LOGICAL NO-UNDO INIT TRUE .
-		
-		MESSAGE "Do you want to save the current toolbar design?"{&TRAN}
-            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO-CANCEL 
-            TITLE THIS-OBJECT:Text
-            UPDATE lOk .
-            
-        IF lOk THEN SaveLayout () .
-        
-        IF lOk = ? THEN RETURN . 
-        
-        THIS-OBJECT:Close() .    
-
-	END METHOD.
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
+        Purpose: Builds the name for the toolbar XML file
+        Notes:
+        @return The proposed file name for the toolbar definition
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent(  ):
-		
+    METHOD PROTECTED CHARACTER BuildToolbarFileName ():
+
+        DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO.
+
+        IF VALID-HANDLE (THIS-OBJECT:ProcedureHandle) THEN DO:
+
+            FILE-INFORMATION:FILE-NAME = THIS-OBJECT:ProcedureHandle:FileName .
+
+            cFileName = FILE-INFORMATION:FULL-PATHNAME .
+
+            cFileName = SUBSTRING (cFileName, 1, R-INDEX (cFileName, ".":U) - 1, "CHARACTER":U) + "_toolbar.xml":U .
+        END.
+        ELSE
+            cFileName = "_toolbar.xml":U .
+
+        RETURN cFileName .
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Closes the Form
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID CloseForm ():
+
+        DEFINE VARIABLE lOk AS LOGICAL NO-UNDO INIT TRUE .
+
+        MESSAGE "Do you want to save the current toolbar design?"{&TRAN}
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO-CANCEL
+            TITLE THIS-OBJECT:Text
+            UPDATE lOk .
+
+        IF lOk THEN SaveLayout () .
+
+        IF lOk = ? THEN
+            RETURN .
+
+        THIS-OBJECT:Close() .
+
+    END METHOD.
+
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -446,41 +448,41 @@ CLASS Consultingwerk.Design.WinKit.Toolbar.ToolbarDesignerForm INHERITS Form:
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD.
+    END METHOD.
 
-	/*------------------------------------------------------------------------------
-		Purpose: Initializes the Design Environment 																	  
-		Notes:  																	  
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID InitializeDesignEnvironment(  ):
-		
+    /*------------------------------------------------------------------------------
+        Purpose: Initializes the Design Environment
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID InitializeDesignEnvironment(  ):
+
 
         oCurrentLicenseContext = System.ComponentModel.LicenseManager:CurrentContext .
-        		
-        System.ComponentModel.LicenseManager:CurrentContext = NEW Consultingwerk.Design.LicenseContext () . 
-		
-		oDesignSurface = NEW System.ComponentModel.Design.DesignSurface (Progress.Util.TypeHelper:GetType("Progress.Windows.Form":U)).
-		
+
+        System.ComponentModel.LicenseManager:CurrentContext = NEW Consultingwerk.Design.LicenseContext () .
+
+        oDesignSurface = NEW System.ComponentModel.Design.DesignSurface (Progress.Util.TypeHelper:GetType("Progress.Windows.Form":U)).
+
         /* Get the service container */
         DEFINE VARIABLE oServiceContainer AS System.ComponentModel.Design.IServiceContainer NO-UNDO .
-        
-        oServiceContainer = CAST (oDesignSurface:GetService(Progress.Util.TypeHelper:GetType ("System.ComponentModel.Design.IServiceContainer":U)), 
+
+        oServiceContainer = CAST (oDesignSurface:GetService(Progress.Util.TypeHelper:GetType ("System.ComponentModel.Design.IServiceContainer":U)),
                                   System.ComponentModel.Design.IServiceContainer).
 
         oDesignerHost = CAST (oDesignSurface:GetService(Progress.Util.TypeHelper:GetType("System.ComponentModel.Design.IDesignerHost":U)),
                              System.ComponentModel.Design.IDesignerHost) .
-        
-        oServiceContainer:AddService(Progress.Util.TypeHelper:GetType ("System.Windows.Forms.PropertyGrid":U), 
+
+        oServiceContainer:AddService(Progress.Util.TypeHelper:GetType ("System.Windows.Forms.PropertyGrid":U),
                                      THIS-OBJECT:propertyGrid1) .
 
         /* Mike Fechner, Consultingwerk Ltd. 28.09.2012
-           Use Consultingwerk's selection service in 10.2A/10.2B */		
-		IF PROVERSION BEGINS "10.2":U THEN DO:
-            oSelectionService = NEW Consultingwerk.Design.SelectionService (oDesignerHost).  
+           Use Consultingwerk's selection service in 10.2A/10.2B */
+        IF PROVERSION BEGINS "10.2":U THEN DO:
+            oSelectionService = NEW Consultingwerk.Design.SelectionService (oDesignerHost).
             oSelectionService:SelectionChanged:Subscribe (SelectionChangedHandler) .
-                         
+
             oServiceContainer:RemoveService(Progress.Util.TypeHelper:GetType("System.ComponentModel.Design.ISelectionService":U)).
-                
+
             oServiceContainer:AddService(Progress.Util.TypeHelper:GetType("System.ComponentModel.Design.ISelectionService":U),
                                          oSelectionService).
         END.
@@ -489,253 +491,253 @@ CLASS Consultingwerk.Design.WinKit.Toolbar.ToolbarDesignerForm INHERITS Form:
                In OpenEdge 11 the UltraWinToolbar Designer seems to have issues with our own ABL based Selection Service
                So we are going to keep using the .NET Default */
             oSelectionService = CAST (oServiceContainer:GetService(Progress.Util.TypeHelper:GetType("System.ComponentModel.Design.ISelectionService":U)),
-                                      System.ComponentModel.Design.ISelectionService) .             
+                                      System.ComponentModel.Design.ISelectionService) .
             oSelectionService:SelectionChanged:Subscribe (SelectionChangedHandler) .
         END.
-		
-		oServiceContainer:AddService(Progress.Util.TypeHelper:GetType("System.ComponentModel.Design.IDesignerEventService":U),
-		                             NEW Consultingwerk.Design.DesignerEventService(oDesignerHost)) .
-		
+
+        oServiceContainer:AddService(Progress.Util.TypeHelper:GetType("System.ComponentModel.Design.IDesignerEventService":U),
+                                     NEW Consultingwerk.Design.DesignerEventService(oDesignerHost)) .
+
         oTemplateForm = CAST (oDesignerHost:RootComponent, Progress.Windows.Form) .
         /* Set the default properties of our base template form */
         oTemplateForm:Text = "Toolbar Design Form"{&TRAN}.
-		oTemplateForm:Dock = System.Windows.Forms.DockStyle:Fill . 
-		oTemplateForm:IsMdiContainer = TRUE . 
-        
+        oTemplateForm:Dock = System.Windows.Forms.DockStyle:Fill .
+        oTemplateForm:IsMdiContainer = TRUE .
+
         oDesignView = CAST (oDesignSurface:View, Control).
         oDesignView:Dock = DockStyle:Fill.
-        splitContainer1:Panel1:Controls:Add(oDesignView).		
-		
+        splitContainer1:Panel1:Controls:Add(oDesignView).
 
-	END METHOD.
 
-	/*------------------------------------------------------------------------------
-		Purpose: Begins designing the Toolbar  																	  
-			Notes:  																	  
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID InitializeToolbarDesign ():
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Begins designing the Toolbar
+            Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC VOID InitializeToolbarDesign ():
 
         DEFINE VARIABLE i AS INTEGER NO-UNDO.
-		
-		oToolbar = CAST (oDesignerHost:CreateComponent(Progress.Util.TypeHelper:GetType ("Infragistics.Win.UltraWinToolbars.UltraToolbarsManager":U), 
-		                                               "ultraToolbarsManager1":U),
+
+        oToolbar = CAST (oDesignerHost:CreateComponent(Progress.Util.TypeHelper:GetType ("Infragistics.Win.UltraWinToolbars.UltraToolbarsManager":U),
+                                                       "ultraToolbarsManager1":U),
                          Infragistics.Win.UltraWinToolbars.UltraToolbarsManager)  .
 
-        THIS-OBJECT:DesignToolbar = oToolbar . 
+        THIS-OBJECT:DesignToolbar = oToolbar .
 
-        oToolbar:DockWithinContainer = oTemplateForm . 
+        oToolbar:DockWithinContainer = oTemplateForm .
 
         oToolbarDesigner = CAST (oDesignerHost:GetDesigner (oToolbar),
                                  System.ComponentModel.Design.ComponentDesigner) .
 
         DO i = 0 TO oToolbarDesigner:Verbs:Count - 1:
-            
-            IF oToolbarDesigner:Verbs[i]:Text BEGINS "Customize":U THEN 
+
+            IF oToolbarDesigner:Verbs[i]:Text BEGINS "Customize":U THEN
                 oCustomizeVerb = oToolbarDesigner:Verbs[i] .
-            ELSE IF oToolbarDesigner:Verbs[i]:Text BEGINS "Custom Pro":U THEN 
-                oCustomPropertiesPagesVerb = oToolbarDesigner:Verbs[i] . 
+            ELSE IF oToolbarDesigner:Verbs[i]:Text BEGINS "Custom Pro":U THEN
+                oCustomPropertiesPagesVerb = oToolbarDesigner:Verbs[i] .
         END.
-    
-	END METHOD.
 
-	/*------------------------------------------------------------------------------
-		Purpose: Invokes the Infragistics "Customize" Dialog by invoking the 
-		         Designer verb 																	  
-		Notes:  																	  
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID InvokeCustomize ():
-		
-		oCustomizeVerb:Invoke () .
-
-	END METHOD.
-
-	/*------------------------------------------------------------------------------
-		Purpose: Invokes the Infragistics "Custom Properties" Dialog by invoking the 
-                 Designer verb  																	  
-		Notes:  																	  
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID InvokeCustomProperties ():
-		
-		oCustomPropertiesPagesVerb:Invoke () .
-
-	END METHOD.
-
-	/*------------------------------------------------------------------------------
-		Purpose: Prompts for a file name and loads a Toolbar Dialog  																	  
-		Notes:  																	  
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID LoadLayout ():
-		
-		DEFINE VARIABLE oDialogResult AS DialogResult NO-UNDO . 
-		
-		WAIT-FOR openFileDialog1:ShowDialog() SET oDialogResult . 
-
-        IF Progress.Util.EnumHelper:AreNotEqual (oDialogResult, DialogResult:Ok) THEN 
-            RETURN . 
-            
-        oToolbar:LoadFromXml(openFileDialog1:FileName) .
-        
-        CATCH err AS Progress.Lang.Error :
-        	Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .	
-        END CATCH.
-
-	END METHOD.
-
-	/*------------------------------------------------------------------------------
-		Purpose: Loads a Toolbar from the EmbeddedWindowForm 																	  
-		Notes:  																	  
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID LoadToolbarDesign ():
-		
-		DEFINE VARIABLE oStream AS System.IO.MemoryStream NO-UNDO . 
-		
-		oStream = NEW System.IO.MemoryStream () .
-		
-		THIS-OBJECT:LoadFromToolbar:SaveAsXml(oStream, FALSE) .
-		
-		oStream:Seek(0, System.IO.SeekOrigin:Begin) .
-		
-		oToolbar:LoadFromXml(oStream) .
-		oStream:Close().
-		
-		DELETE OBJECT oStream .
-
-	END METHOD.
-
-	/*------------------------------------------------------------------------------
-		Purpose: Creates a new RibbonGroup 																	  
-		Notes:  																	  
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID NewRibbonGroup ():
-		
-		DEFINE VARIABLE oForm AS Consultingwerk.Design.WinKit.Toolbar.NewRibbonGroupForm NO-UNDO . 
-		DEFINE VARIABLE oDialogResult AS System.Windows.Forms.DialogResult NO-UNDO .
-		DEFINE VARIABLE oGroup AS Infragistics.Win.UltraWinToolbars.RibbonGroup NO-UNDO . 
-		
-		DEFINE VARIABLE cKey AS CHARACTER NO-UNDO.
-		DEFINE VARIABLE cText AS CHARACTER NO-UNDO.
-		
-		IF NOT VALID-OBJECT (oToolbar:Ribbon:SelectedTab) THEN
-		    RETURN .
-		
-		oForm = NEW Consultingwerk.Design.WinKit.Toolbar.NewRibbonGroupForm () .
-		
-		oForm:ParentTab = oToolbar:Ribbon:SelectedTab .
-		
-		WAIT-FOR oForm:ShowDialog () SET oDialogResult . 		
-		
-		IF Progress.Util.EnumHelper:AreEqual (oDialogResult,
-		                                      System.Windows.Forms.DialogResult:OK) THEN DO:
-	
-	        oForm:GetValues (OUTPUT cKey, OUTPUT cText) .
-	      
-	        oGroup = oToolbar:Ribbon:SelectedTab:Groups:Add (cKey) .   
-	      
-            IF cText > "":U THEN 
-	           oGroup:Caption = cText .   
-        END. 
-        
-        CATCH err AS Progress.Lang.Error :
-        	Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .	
-        END CATCH.
-
-	END METHOD.
-
-	/*------------------------------------------------------------------------------
-		Purpose: Raises the AfterSaveLayout event  																	  
-		Notes:  																	  
-		@param e The System.EventArgs with the data for this event																  
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID OnAfterSaveLayout (e AS System.EventArgs):
-		
-		IF NOT VALID-OBJECT (e) THEN 
-		    e = System.EventArgs:Empty .  
-		
-		THIS-OBJECT:AfterSaveLayout:Publish (THIS-OBJECT, e) .
-
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the AfterSaveLayout event                                                                     
-        Notes:                                                                        
-        @param e The CAncelEventArgs with the data for this event                                                                
+        Purpose: Invokes the Infragistics "Customize" Dialog by invoking the
+                 Designer verb
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID InvokeCustomize ():
+
+        oCustomizeVerb:Invoke () .
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Invokes the Infragistics "Custom Properties" Dialog by invoking the
+                 Designer verb
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID InvokeCustomProperties ():
+
+        oCustomPropertiesPagesVerb:Invoke () .
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Prompts for a file name and loads a Toolbar Dialog
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID LoadLayout ():
+
+        DEFINE VARIABLE oDialogResult AS DialogResult NO-UNDO .
+
+        WAIT-FOR openFileDialog1:ShowDialog() SET oDialogResult .
+
+        IF Progress.Util.EnumHelper:AreNotEqual (oDialogResult, DialogResult:Ok) THEN
+            RETURN .
+
+        oToolbar:LoadFromXml(openFileDialog1:FileName) .
+
+        CATCH err AS Progress.Lang.Error :
+            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Loads a Toolbar from the EmbeddedWindowForm
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID LoadToolbarDesign ():
+
+        DEFINE VARIABLE oStream AS System.IO.MemoryStream NO-UNDO .
+
+        oStream = NEW System.IO.MemoryStream () .
+
+        THIS-OBJECT:LoadFromToolbar:SaveAsXml(oStream, FALSE) .
+
+        oStream:Seek(0, System.IO.SeekOrigin:Begin) .
+
+        oToolbar:LoadFromXml(oStream) .
+        oStream:Close().
+
+        DELETE OBJECT oStream .
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Creates a new RibbonGroup
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID NewRibbonGroup ():
+
+        DEFINE VARIABLE oForm AS Consultingwerk.Design.WinKit.Toolbar.NewRibbonGroupForm NO-UNDO .
+        DEFINE VARIABLE oDialogResult AS System.Windows.Forms.DialogResult NO-UNDO .
+        DEFINE VARIABLE oGroup AS Infragistics.Win.UltraWinToolbars.RibbonGroup NO-UNDO .
+
+        DEFINE VARIABLE cKey AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE cText AS CHARACTER NO-UNDO.
+
+        IF NOT VALID-OBJECT (oToolbar:Ribbon:SelectedTab) THEN
+            RETURN .
+
+        oForm = NEW Consultingwerk.Design.WinKit.Toolbar.NewRibbonGroupForm () .
+
+        oForm:ParentTab = oToolbar:Ribbon:SelectedTab .
+
+        WAIT-FOR oForm:ShowDialog () SET oDialogResult .
+
+        IF Progress.Util.EnumHelper:AreEqual (oDialogResult,
+                                              System.Windows.Forms.DialogResult:OK) THEN DO:
+
+            oForm:GetValues (OUTPUT cKey, OUTPUT cText) .
+
+            oGroup = oToolbar:Ribbon:SelectedTab:Groups:Add (cKey) .
+
+            IF cText > "":U THEN
+               oGroup:Caption = cText .
+        END.
+
+        CATCH err AS Progress.Lang.Error :
+            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Raises the AfterSaveLayout event
+        Notes:
+        @param e The System.EventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID OnAfterSaveLayout (e AS System.EventArgs):
+
+        IF NOT VALID-OBJECT (e) THEN
+            e = System.EventArgs:Empty .
+
+        THIS-OBJECT:AfterSaveLayout:Publish (THIS-OBJECT, e) .
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Raises the AfterSaveLayout event
+        Notes:
+        @param e The CAncelEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID OnBeforeSaveLayout (e AS System.ComponentModel.CancelEventArgs):
-        
-        IF NOT VALID-OBJECT (e) THEN 
-            UNDO, THROW NEW AppError ("The Event BeforeSaveLayout must be raised with a valid CancelEventArgs instance."{&TRAN}, 0) .  
-        
+
+        IF NOT VALID-OBJECT (e) THEN
+            UNDO, THROW NEW AppError ("The Event BeforeSaveLayout must be raised with a valid CancelEventArgs instance."{&TRAN}, 0) .
+
         THIS-OBJECT:BeforeSaveLayout:Publish (THIS-OBJECT, e) .
 
     END METHOD.
 
-	/*------------------------------------------------------------------------------
-        Purpose: Raises the Load event                                                                        
-		Notes:  																	  
+    /*------------------------------------------------------------------------------
+        Purpose: Raises the Load event
+        Notes:
         @param e The System.EventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD OVERRIDE PROTECTED VOID OnLoad (e AS System.EventArgs):
-		
-		SUPER:OnLoad(INPUT e).
+    ------------------------------------------------------------------------------*/
+    METHOD OVERRIDE PROTECTED VOID OnLoad (e AS System.EventArgs):
+
+        SUPER:OnLoad(INPUT e).
 
         InitializeDesignEnvironment () .
         InitializeToolbarDesign () .
 
-        IF VALID-OBJECT (THIS-OBJECT:LoadFromToolbar) THEN 
+        IF VALID-OBJECT (THIS-OBJECT:LoadFromToolbar) THEN
             LoadToolbarDesign () .
 
-	END METHOD.
+    END METHOD.
 
-	/*------------------------------------------------------------------------------
-		Purpose: Prompts for a file name and saves the Layout  																	  
-		Notes:  																	  
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID SaveLayout ():
-		
-        DEFINE VARIABLE oDialogResult AS DialogResult NO-UNDO . 
-        DEFINE VARIABLE e  AS System.ComponentModel.CancelEventArgs NO-UNDO . 
-        
+    /*------------------------------------------------------------------------------
+        Purpose: Prompts for a file name and saves the Layout
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID SaveLayout ():
+
+        DEFINE VARIABLE oDialogResult AS DialogResult NO-UNDO .
+        DEFINE VARIABLE e  AS System.ComponentModel.CancelEventArgs NO-UNDO .
+
         e = NEW System.ComponentModel.CancelEventArgs () .
-        
-        OnBeforeSaveLayout (e) .
-        
-        IF VALID-OBJECT (e) AND e:Cancel THEN 
-            RETURN . 
-        
-        saveFileDialog1:FileName = BuildToolbarFileName () .
-        
-        WAIT-FOR saveFileDialog1:ShowDialog() SET oDialogResult . 
 
-        IF Progress.Util.EnumHelper:AreNotEqual (oDialogResult, DialogResult:Ok) THEN 
-            RETURN . 
-            
+        OnBeforeSaveLayout (e) .
+
+        IF VALID-OBJECT (e) AND e:Cancel THEN
+            RETURN .
+
+        saveFileDialog1:FileName = BuildToolbarFileName () .
+
+        WAIT-FOR saveFileDialog1:ShowDialog() SET oDialogResult .
+
+        IF Progress.Util.EnumHelper:AreNotEqual (oDialogResult, DialogResult:Ok) THEN
+            RETURN .
+
         oToolbar:SaveAsXml(saveFileDialog1:FileName, FALSE) .
 
         OnAfterSaveLayout (System.EventArgs:Empty) .
-        
+
         CATCH err AS Progress.Lang.Error :
-            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .    
+            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the SelectionChanged event                                                                      
-        Notes:                                                                        
+        Purpose: Event handler for the SelectionChanged event
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event                                                                    
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID SelectionChangedHandler (sender AS System.Object,
                                                    e AS System.EventArgs):
-        
-            DEFINE VARIABLE selectedComponents AS ICollection NO-UNDO .
-            DEFINE VARIABLE oObjects AS System.Object EXTENT .
-            DEFINE VARIABLE i AS INTEGER NO-UNDO.
-            DEFINE VARIABLE oEnumerator AS System.Collections.IEnumerator NO-UNDO .
 
-            IF propertyGrid1:SelectedObjects:Length > 0 AND 
-               propertyGrid1:SelectedObjects:GetValue(0) = oToolbar THEN 
-                RETURN . 
+            DEFINE VARIABLE selectedComponents AS ICollection                    NO-UNDO .
+            DEFINE VARIABLE oObjects           AS System.Object EXTENT           NO-UNDO .
+            DEFINE VARIABLE i                  AS INTEGER                        NO-UNDO .
+            DEFINE VARIABLE oEnumerator        AS System.Collections.IEnumerator NO-UNDO .
+
+            IF propertyGrid1:SelectedObjects:Length > 0 AND
+               propertyGrid1:SelectedObjects:GetValue(0) = oToolbar THEN
+                RETURN .
 
             IF VALID-OBJECT (oSelectionService) THEN DO:
                 selectedComponents = oSelectionService:GetSelectedComponents()  .
@@ -746,10 +748,10 @@ CLASS Consultingwerk.Design.WinKit.Toolbar.ToolbarDesignerForm INHERITS Form:
 
                     oEnumerator = selectedComponents:GetEnumerator () .
                     oEnumerator:Reset() .
-                    
+
                     DO i = 1 TO EXTENT (oObjects):
                         oEnumerator:MoveNext() .
-                        
+
                         oObjects[i] = oEnumerator:Current .
                     END.
 
@@ -761,88 +763,88 @@ CLASS Consultingwerk.Design.WinKit.Toolbar.ToolbarDesignerForm INHERITS Form:
 
     END METHOD.
 
-	/*------------------------------------------------------------------------------
-		Purpose: Launches the ToolbarDesignerForm 																	  
-		Notes:  																	  
-		@param poToolbarsManager The source UltraToolbarsManager instance (from the IEmbeddedWindowForm)
-		@param phProcedure The handle of the ABL source procedure									  
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC VOID ShowDesigner (poToolbarsManager AS Infragistics.Win.UltraWinToolbars.UltraToolbarsManager,
-	                                        phProcedure AS HANDLE):
-		
-        DEFINE VARIABLE oInstance AS ToolbarDesignerForm NO-UNDO . 
-        
-        oInstance = NEW Consultingwerk.Design.WinKit.Toolbar.ToolbarDesignerForm () . 
-        oInstance:ProcedureHandle = phProcedure . 
+    /*------------------------------------------------------------------------------
+        Purpose: Launches the ToolbarDesignerForm
+        Notes:
+        @param poToolbarsManager The source UltraToolbarsManager instance (from the IEmbeddedWindowForm)
+        @param phProcedure The handle of the ABL source procedure
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC STATIC VOID ShowDesigner (poToolbarsManager AS Infragistics.Win.UltraWinToolbars.UltraToolbarsManager,
+                                            phProcedure AS HANDLE):
+
+        DEFINE VARIABLE oInstance AS ToolbarDesignerForm NO-UNDO .
+
+        oInstance = NEW Consultingwerk.Design.WinKit.Toolbar.ToolbarDesignerForm () .
+        oInstance:ProcedureHandle = phProcedure .
         oInstance:LoadFromToolbar = poToolbarsManager .
-		WAIT-FOR oInstance:ShowDialog() .
-		
-		oInstance:Dispose () NO-ERROR .
-		
-	END METHOD.
+        WAIT-FOR oInstance:ShowDialog() .
 
-	/*------------------------------------------------------------------------------
-		Purpose: Toggles the visibility of the Ribbon  																	  
-			Notes:  																	  
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID ToggleRibbon ():
-		
-		DEFINE VARIABLE oStateButton AS Infragistics.Win.UltraWinToolbars.StateButtonTool NO-UNDO . 
-		
-		oStateButton = CAST (ultraToolbarsManager1:Tools["Ribbon":U], 
-		                     Infragistics.Win.UltraWinToolbars.StateButtonTool) .
-		                     
-        oToolbar:Ribbon:Visible = oStateButton:CHECKED .		                     
+        oInstance:Dispose () NO-ERROR .
 
-	END METHOD.
+    END METHOD.
 
-	/*------------------------------------------------------------------------------
+    /*------------------------------------------------------------------------------
+        Purpose: Toggles the visibility of the Ribbon
+            Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID ToggleRibbon ():
+
+        DEFINE VARIABLE oStateButton AS Infragistics.Win.UltraWinToolbars.StateButtonTool NO-UNDO .
+
+        oStateButton = CAST (ultraToolbarsManager1:Tools["Ribbon":U],
+                             Infragistics.Win.UltraWinToolbars.StateButtonTool) .
+
+        oToolbar:Ribbon:Visible = oStateButton:CHECKED .
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
         Purpose: Event handler for the ToolClick event of the ultraToolbarsManager1
-			Notes:  																	  
+            Notes:
         @param sender The reference to the object that raised the event
-        @param e The ToolClickEventArgs with the data for this event                                                                        
-	------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraToolbarsManager1_ToolClick (sender AS System.Object, 
+        @param e The ToolClickEventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID ultraToolbarsManager1_ToolClick (sender AS System.Object,
                                                          e AS Infragistics.Win.UltraWinToolbars.ToolClickEventArgs):
-		
-		CASE e:Tool:Key:
-		    
-		    WHEN "Ribbon":U THEN 
-		        ToggleRibbon () .
-		    WHEN "New Group":U THEN
-		        NewRibbonGroup () .
-		    WHEN "Custom Properties Pages":U THEN 
-		        InvokeCustomProperties() .
-            WHEN "Customize Tools":U THEN 
-                InvokeCustomize() . 
-            WHEN "Load Layout":U THEN 
+
+        CASE e:Tool:Key:
+
+            WHEN "Ribbon":U THEN
+                ToggleRibbon () .
+            WHEN "New Group":U THEN
+                NewRibbonGroup () .
+            WHEN "Custom Properties Pages":U THEN
+                InvokeCustomProperties() .
+            WHEN "Customize Tools":U THEN
+                InvokeCustomize() .
+            WHEN "Load Layout":U THEN
                 LoadLayout () .
-            WHEN "Save Layout":U THEN 
+            WHEN "Save Layout":U THEN
                 SaveLayout () .
-            WHEN "Cancel":U THEN 
+            WHEN "Cancel":U THEN
                 THIS-OBJECT:Close() .
-            WHEN "Close":U THEN 
-                CloseForm () . 
-		END CASE.
+            WHEN "Close":U THEN
+                CloseForm () .
+        END CASE.
 
         CATCH err AS Progress.Lang.Error :
-            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .    
+            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Destructor of the ToolbarDesignerForm class
-        Notes:                                                                        
+        Notes:
     ------------------------------------------------------------------------------*/
-	DESTRUCTOR PUBLIC ToolbarDesignerForm ( ):
+    DESTRUCTOR PUBLIC ToolbarDesignerForm ( ):
 
         System.ComponentModel.LicenseManager:CurrentContext = oCurrentLicenseContext .
 
-		IF VALID-OBJECT(components) THEN DO:
-			CAST(components, System.IDisposable):Dispose().
-		END.
+        IF VALID-OBJECT(components) THEN DO:
+            CAST(components, System.IDisposable):Dispose().
+        END.
 
-	END DESTRUCTOR.
+    END DESTRUCTOR.
 
 END CLASS.

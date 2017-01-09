@@ -27,7 +27,7 @@ USING Progress.Lang.*             FROM PROPATH .
 CLASS Consultingwerk.Web2.Views.SerializableTabElement 
     INHERITS SerializableLayoutElement: 
         
-    {Consultingwerk/JsonSerializableProperty.i TabLabel CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i TabLabel CHARACTER} .
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the SerializableTabElement class

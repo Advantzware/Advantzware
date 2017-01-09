@@ -16,6 +16,10 @@
     <DefaultTableSuffix/>
     <DefaultBeforeTablePrefix>e</DefaultBeforeTablePrefix>
     <DefaultBeforeTableSuffix>Before</DefaultBeforeTableSuffix>
+    <GenerateBusinessEntity>true</GenerateBusinessEntity>
+    <GenerateDataAccess>true</GenerateDataAccess>
+    <GenerateDatasetController>true</GenerateDatasetController>
+    <DistinctTempTableIncludeFiles>true</DistinctTempTableIncludeFiles>
   </eBusinessEntity>
   <eTable>
     <BusinessEntityName>MenuStyleBusinessEntity</BusinessEntityName>
@@ -23,6 +27,7 @@
     <SourceTableNames>SmartMenuStyle</SourceTableNames>
     <SourceBufferNames>SmartMenuStyle</SourceBufferNames>
     <SourceDefaultQuery/>
+    <SourceBufferKeys/>
     <TempTablePurpose/>
     <TempTableDescription/>
     <TempTablePath>Consultingwerk\SmartFramework\Menu</TempTablePath>
@@ -48,6 +53,7 @@
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription>Menu Style Code</FieldDescription>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>Menu Style Code</FieldLabel>
     <FieldFormat>x(8)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -61,6 +67,10 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+    <FieldSemanticType/>
+    <FieldSkipAssignment>false</FieldSkipAssignment>
   </eField>
   <eField>
     <BusinessEntityName>MenuStyleBusinessEntity</BusinessEntityName>
@@ -70,6 +80,7 @@
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription>Description</FieldDescription>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>Description</FieldLabel>
     <FieldFormat>x(80)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -83,6 +94,10 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+    <FieldSemanticType/>
+    <FieldSkipAssignment>false</FieldSkipAssignment>
   </eField>
   <eField>
     <BusinessEntityName>MenuStyleBusinessEntity</BusinessEntityName>
@@ -92,6 +107,7 @@
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription>MenuStyleGuid</FieldDescription>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>MenuStyleGuid</FieldLabel>
     <FieldFormat>x(36)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -105,6 +121,10 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+    <FieldSemanticType/>
+    <FieldSkipAssignment>false</FieldSkipAssignment>
   </eField>
   <eIndex>
     <BusinessEntityName>MenuStyleBusinessEntity</BusinessEntityName>

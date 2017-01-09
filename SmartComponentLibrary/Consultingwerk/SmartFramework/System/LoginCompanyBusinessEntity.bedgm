@@ -16,6 +16,10 @@
     <DefaultTableSuffix/>
     <DefaultBeforeTablePrefix>e</DefaultBeforeTablePrefix>
     <DefaultBeforeTableSuffix>Before</DefaultBeforeTableSuffix>
+    <GenerateBusinessEntity>true</GenerateBusinessEntity>
+    <GenerateDataAccess>true</GenerateDataAccess>
+    <GenerateDatasetController>true</GenerateDatasetController>
+    <DistinctTempTableIncludeFiles>true</DistinctTempTableIncludeFiles>
   </eBusinessEntity>
   <eTable>
     <BusinessEntityName>LoginCompanyBusinessEntity</BusinessEntityName>
@@ -23,6 +27,7 @@
     <SourceTableNames>SmartLoginCompany</SourceTableNames>
     <SourceBufferNames>SmartLoginCompany</SourceBufferNames>
     <SourceDefaultQuery/>
+    <SourceBufferKeys/>
     <TempTablePurpose/>
     <TempTableDescription/>
     <TempTablePath>Consultingwerk\SmartFramework\System</TempTablePath>
@@ -48,6 +53,7 @@
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription>LoginCompanyGuid</FieldDescription>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>LoginCompanyGuid</FieldLabel>
     <FieldFormat>x(36)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -61,6 +67,10 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+    <FieldSemanticType/>
+    <FieldSkipAssignment>false</FieldSkipAssignment>
   </eField>
   <eField>
     <BusinessEntityName>LoginCompanyBusinessEntity</BusinessEntityName>
@@ -70,6 +80,7 @@
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription>Large Image</FieldDescription>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>Large Image</FieldLabel>
     <FieldFormat>x(50)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -83,6 +94,10 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+    <FieldSemanticType/>
+    <FieldSkipAssignment>false</FieldSkipAssignment>
   </eField>
   <eField>
     <BusinessEntityName>LoginCompanyBusinessEntity</BusinessEntityName>
@@ -92,6 +107,7 @@
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription>Small Image</FieldDescription>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>Small Image</FieldLabel>
     <FieldFormat>x(50)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -105,6 +121,10 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+    <FieldSemanticType/>
+    <FieldSkipAssignment>false</FieldSkipAssignment>
   </eField>
   <eField>
     <BusinessEntityName>LoginCompanyBusinessEntity</BusinessEntityName>
@@ -114,6 +134,7 @@
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription>LoginCompanyName</FieldDescription>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>LoginCompanyName</FieldLabel>
     <FieldFormat>x(20)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -127,6 +148,10 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+    <FieldSemanticType/>
+    <FieldSkipAssignment>false</FieldSkipAssignment>
   </eField>
   <eField>
     <BusinessEntityName>LoginCompanyBusinessEntity</BusinessEntityName>
@@ -136,6 +161,7 @@
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription>Foreign Reference Character</FieldDescription>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>Foreign Reference Character</FieldLabel>
     <FieldFormat>x(50)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -149,6 +175,10 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+    <FieldSemanticType/>
+    <FieldSkipAssignment>false</FieldSkipAssignment>
   </eField>
   <eField>
     <BusinessEntityName>LoginCompanyBusinessEntity</BusinessEntityName>
@@ -158,6 +188,7 @@
     <FieldDataType>DECIMAL</FieldDataType>
     <FieldDescription>Foreign Reference Decimal</FieldDescription>
     <FieldInitial>0</FieldInitial>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>Foreign Reference Decimal</FieldLabel>
     <FieldFormat>-&gt;,&gt;&gt;,&gt;&gt;&gt;,&gt;&gt;9.999999999</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -171,6 +202,10 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+    <FieldSemanticType/>
+    <FieldSkipAssignment>false</FieldSkipAssignment>
   </eField>
   <eField>
     <BusinessEntityName>LoginCompanyBusinessEntity</BusinessEntityName>
@@ -180,6 +215,7 @@
     <FieldDataType>INTEGER</FieldDataType>
     <FieldDescription>Foreign Reference Integer</FieldDescription>
     <FieldInitial>0</FieldInitial>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>Foreign Reference Integer</FieldLabel>
     <FieldFormat>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -193,6 +229,10 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+    <FieldSemanticType/>
+    <FieldSkipAssignment>false</FieldSkipAssignment>
   </eField>
   <eField>
     <BusinessEntityName>LoginCompanyBusinessEntity</BusinessEntityName>
@@ -202,6 +242,7 @@
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription>Short Name</FieldDescription>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>Short Name</FieldLabel>
     <FieldFormat>x(20)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -215,6 +256,10 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+    <FieldSemanticType/>
+    <FieldSkipAssignment>false</FieldSkipAssignment>
   </eField>
   <eField>
     <BusinessEntityName>LoginCompanyBusinessEntity</BusinessEntityName>
@@ -224,6 +269,7 @@
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription>Multi-Tenancy Domain</FieldDescription>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>Multi-Tenancy Domain</FieldLabel>
     <FieldFormat>x(50)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -237,6 +283,10 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+    <FieldSemanticType/>
+    <FieldSkipAssignment>false</FieldSkipAssignment>
   </eField>
   <eIndex>
     <BusinessEntityName>LoginCompanyBusinessEntity</BusinessEntityName>

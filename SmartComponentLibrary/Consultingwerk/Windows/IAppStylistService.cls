@@ -45,13 +45,13 @@ INTERFACE Consultingwerk.Windows.IAppStylistService:
         Purpose: Invokes the designer for the loaded style library 
         Notes:   
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID EditStyleLibrary ().
+    METHOD PUBLIC VOID EditStyleLibrary ().
 
     /*------------------------------------------------------------------------------
         Purpose: Loads a Style Library
         Notes:   
         @param pcStyleLibrary The name of the style library file, without the .isl extension
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID LoadStyleLibrary (pcStyleLibrary AS CHARACTER).
+    METHOD PUBLIC VOID LoadStyleLibrary (pcStyleLibrary AS CHARACTER).
 
 END INTERFACE.

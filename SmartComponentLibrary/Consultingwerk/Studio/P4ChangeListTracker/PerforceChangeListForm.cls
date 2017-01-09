@@ -13,29 +13,29 @@
     File        : PerforceChangeListForm
     Purpose     : Shows submitted Perforce Change lists and allows to copy
                   the description to the clipboard
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Fri Nov 13 12:21:52 CET 2015
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.Forms.BaseForm.
-USING Consultingwerk.Studio.P4ChangeListTracker.* FROM PROPATH .  
+USING Consultingwerk.Studio.P4ChangeListTracker.* FROM PROPATH .
 USING Progress.Lang.* FROM PROPATH .
 USING Consultingwerk.Util.* FROM PROPATH.
 USING Consultingwerk.Studio.P4.* FROM PROPATH.
 
-CLASS Consultingwerk.Studio.P4ChangeListTracker.PerforceChangeListForm INHERITS BaseForm: 
+CLASS Consultingwerk.Studio.P4ChangeListTracker.PerforceChangeListForm INHERITS BaseForm:
 
     { Consultingwerk/Studio/P4/ttChangeLists.i }
 
     DEFINE PRIVATE VARIABLE changeListDataGridViewTextBoxColumn AS System.Windows.Forms.DataGridViewTextBoxColumn NO-UNDO.
     DEFINE PRIVATE VARIABLE changeDescriptionDataGridViewTextBoxColumn AS System.Windows.Forms.DataGridViewTextBoxColumn NO-UNDO.
     DEFINE PRIVATE VARIABLE bindingSource1 AS Progress.Data.BindingSource NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE timeStringDataGridViewTextBoxColumn AS System.Windows.Forms.DataGridViewTextBoxColumn NO-UNDO.
     DEFINE PRIVATE VARIABLE dateStringDataGridViewTextBoxColumn AS System.Windows.Forms.DataGridViewTextBoxColumn NO-UNDO.
     DEFINE PRIVATE VARIABLE dataGridView1 AS System.Windows.Forms.DataGridView NO-UNDO.
@@ -45,39 +45,40 @@ CLASS Consultingwerk.Studio.P4ChangeListTracker.PerforceChangeListForm INHERITS 
     DEFINE PRIVATE VARIABLE toolStrip1 AS System.Windows.Forms.ToolStrip NO-UNDO.
     DEFINE PRIVATE VARIABLE userNameDataGridViewTextBoxColumn AS System.Windows.Forms.DataGridViewTextBoxColumn NO-UNDO.
 
-    DEFINE QUERY qQuery FOR ttChangeLists SCROLLING . 
+    DEFINE QUERY qQuery FOR ttChangeLists SCROLLING .
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the PerforceChangeListForm class 
-        Notes:   
+        Purpose: Constructor for the PerforceChangeListForm class
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC PerforceChangeListForm ():
-		
+    CONSTRUCTOR PUBLIC PerforceChangeListForm ():
+
         SUPER().
-        
+
         InitializeComponent().
 
         OPEN QUERY qQuery PRESELECT EACH ttChangeLists BY ttChangeLists.ChangeList DESCENDING .
-        
-        bindingSource1:Handle = QUERY qQuery:HANDLE .  
-        
+
+        bindingSource1:Handle = QUERY qQuery:HANDLE .
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design 
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -254,91 +255,91 @@ CLASS Consultingwerk.Studio.P4ChangeListTracker.PerforceChangeListForm INHERITS 
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the Shown event 
-        Notes:   
+        Purpose: Raises the Shown event
+        Notes:
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
-		
-		SUPER:OnShown (e) .
-		
-		PROCESS EVENTS . 
-		
-		THIS-OBJECT:ReloadChanges() .
+    METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
+
+        SUPER:OnShown (e) .
+
+        PROCESS EVENTS .
+
+        THIS-OBJECT:ReloadChanges() .
 
         CATCH err AS Progress.Lang.Error:
-            ErrorHelper:ShowErrorMessage (err) .    
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Reloads the Change lists from Perforce 
-        Notes:   
+        Purpose: Reloads the Change lists from Perforce
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID ReloadChanges ():
-		
-        DEFINE VARIABLE oChanges AS Changes NO-UNDO .  
-        
-        oChanges = NEW Changes() . 
-        
+    METHOD PROTECTED VOID ReloadChanges ():
+
+        DEFINE VARIABLE oChanges AS Changes NO-UNDO .
+
+        oChanges = NEW Changes() .
+
         oChanges:GetChanges (ChangeListStatusEnum:Submitted, 20, OUTPUT TABLE ttChangeLists) .
 
         OPEN QUERY qQuery PRESELECT EACH ttChangeLists BY ttChangeLists.ChangeList DESCENDING .
 
-        bindingSource1:RefreshAll() .        
+        bindingSource1:RefreshAll() .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the Click event of the toolStripButton
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID toolStripButton1_Click (sender AS System.Object, e AS System.EventArgs):
-		
-		THIS-OBJECT:ReloadChanges () . 
-		
-		CATCH err AS Progress.Lang.Error:
-        	ErrorHelper:ShowErrorMessage (err) .	
+    METHOD PRIVATE VOID toolStripButton1_Click (sender AS System.Object, e AS System.EventArgs):
+
+        THIS-OBJECT:ReloadChanges () .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the Click event of the toolStripButton2
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID toolStripButton2_Click (sender AS System.Object, e AS System.EventArgs):
-		
-		DEFINE VARIABLE oDescribe AS Describe NO-UNDO . 
-		DEFINE VARIABLE lcText    AS LONGCHAR NO-UNDO . 
-		
-		IF AVAILABLE (ttChangeLists) THEN DO:
-		    
-		    oDescribe = NEW Describe () . 
-		    
-		    lcText = oDescribe:ToLongchar (STRING (ttChangeLists.ChangeList)) .
-		    
-		    CLIPBOARD:VALUE = lcText . 
-		    
-        END.		    
+    METHOD PRIVATE VOID toolStripButton2_Click (sender AS System.Object, e AS System.EventArgs):
+
+        DEFINE VARIABLE oDescribe AS Describe NO-UNDO .
+        DEFINE VARIABLE lcText    AS LONGCHAR NO-UNDO .
+
+        IF AVAILABLE (ttChangeLists) THEN DO:
+
+            oDescribe = NEW Describe () .
+
+            lcText = oDescribe:ToLongchar (STRING (ttChangeLists.ChangeList)) .
+
+            CLIPBOARD:VALUE = lcText .
+
+        END.
 
         CATCH err AS Progress.Lang.Error:
-            ErrorHelper:ShowErrorMessage (err) .    
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the PerforceChangeListForm class 
-        Notes:   
+        Purpose: Destructor for the PerforceChangeListForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC PerforceChangeListForm ():
 

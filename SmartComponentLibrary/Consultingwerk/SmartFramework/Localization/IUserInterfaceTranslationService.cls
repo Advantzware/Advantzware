@@ -33,8 +33,8 @@ INTERFACE Consultingwerk.SmartFramework.Localization.IUserInterfaceTranslationSe
         @param sender The reference to the object that raised the event
         @param e The FilterStringResourceEventArgs with the data for this event 
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC EVENT FilterStringResource SIGNATURE VOID (sender AS Progress.Lang.Object, 
-	                                                         e AS FilterStringResourceEventArgs).
+    DEFINE PUBLIC EVENT FilterStringResource SIGNATURE VOID (sender AS Progress.Lang.Object, 
+                                                             e AS FilterStringResourceEventArgs).
 
     /*------------------------------------------------------------------------------
         Purpose: Event raised to allow obtaining customized translation 
@@ -42,8 +42,8 @@ INTERFACE Consultingwerk.SmartFramework.Localization.IUserInterfaceTranslationSe
         @param sender The reference to the object that raised the event
         @param e The ObtainTranslationEventArgs with the data for this event 
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC EVENT ObtainTranslation SIGNATURE VOID (sender AS Progress.Lang.Object,
-	                                                      e AS ObtainTranslationEventArgs).
+    DEFINE PUBLIC EVENT ObtainTranslation SIGNATURE VOID (sender AS Progress.Lang.Object,
+                                                          e AS ObtainTranslationEventArgs).
 
 
     /*------------------------------------------------------------------------------
@@ -61,7 +61,7 @@ INTERFACE Consultingwerk.SmartFramework.Localization.IUserInterfaceTranslationSe
         @param pcResourceKey The original resource key 
         @return The partial match key
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC CHARACTER GetPartialMatchKey (pcResourceKey AS CHARACTER).
+    METHOD PUBLIC CHARACTER GetPartialMatchKey (pcResourceKey AS CHARACTER).
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the String Resources Table for the named UI object 
@@ -70,9 +70,9 @@ INTERFACE Consultingwerk.SmartFramework.Localization.IUserInterfaceTranslationSe
         @param poOriginalStrings The dictionary with the original UI strings
         @param eStringResources OUTPUT The table with the string resources
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID GetTranslationsForObject (pcObjectName AS CHARACTER,
-	                                             poOriginalStrings AS CharacterDictionary,
-	                                             OUTPUT TABLE eStringResources).
+    METHOD PUBLIC VOID GetTranslationsForObject (pcObjectName AS CHARACTER,
+                                                 poOriginalStrings AS CharacterDictionary,
+                                                 OUTPUT TABLE eStringResources).
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the translated String Resources Table for the named UI object 

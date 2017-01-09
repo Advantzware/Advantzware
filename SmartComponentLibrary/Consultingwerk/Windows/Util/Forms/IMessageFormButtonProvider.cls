@@ -35,7 +35,7 @@ INTERFACE Consultingwerk.Windows.Util.Forms.IMessageFormButtonProvider:
         @param poMessage The Message that is currently being processed
         @return The List of the System.Windows.Forms.Button objects to be added to the MessageForm
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC "System.Collections.Generic.List<System.Windows.Forms.Button>" GetButtonsForMessage (poMessage AS Message).
+    METHOD PUBLIC "System.Collections.Generic.List<System.Windows.Forms.Button>" GetButtonsForMessage (poMessage AS Message).
 
     /*------------------------------------------------------------------------------
         Purpose: Handles the click event of a custom button
@@ -44,7 +44,7 @@ INTERFACE Consultingwerk.Windows.Util.Forms.IMessageFormButtonProvider:
         @param poMessage The reference to the Message that is currently shown
         @return Logical value indicating if the Message Message Form should be closed (True = Close)
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL HandleButtonClick (poButton AS System.Windows.Forms.Button,
-	                                         poMessage AS Message).
+    METHOD PUBLIC LOGICAL HandleButtonClick (poButton AS System.Windows.Forms.Button,
+                                             poMessage AS Message).
 
 END INTERFACE.

@@ -8,15 +8,15 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : ttBrowserProperties.i
     Purpose     : Temp-Table for Browse properties, member of dsDynamicBrowser
 
     Syntax      :
 
-    Description : Temp-Table eturned by the IDynamicBrowserRepository and 
-                  used by IDynamicsBrowserRenderer 
+    Description : Temp-Table eturned by the IDynamicBrowserRepository and
+                  used by IDynamicsBrowserRenderer
 
     Author(s)   : Mike Fechner
     Created     : 15.07.2013 17:55:36
@@ -33,13 +33,13 @@ DEFINE {&ACCESS} TEMP-TABLE ttBrowserProperties NO-UNDO {&REFERENCE-ONLY} &IF DE
     FIELD RowSelectors AS LOGICAL FORMAT "yes/no":U
     FIELD SelectTypeRow AS CHARACTER FORMAT "X(20)":U
     FIELD SettingsKey AS CHARACTER FORMAT "X(20)":U
-    FIELD SmartFilterActive AS LOGICAL FORMAT "yes/no":U INIT "no":U
-    FIELD UseFixedHeaders AS LOGICAL FORMAT "yes/no":U INIT "no":U
+    FIELD SmartFilterActive AS LOGICAL FORMAT "yes/no":U INITIAL "no":U
+    FIELD UseFixedHeaders AS LOGICAL FORMAT "yes/no":U INITIAL "no":U
 
     /* Mike Fechner, Consultingwerk Ltd. 26.03.2014
        Support for referencing an object with custom properties for the Grid
        Supposed to be parsed by an IDynamicBrowseRendererCustomizer */
-    FIELD CustomProperties AS Progress.Lang.Object 
+    FIELD CustomProperties AS Progress.Lang.Object
 
     INDEX BrowserKey AS UNIQUE PRIMARY BrowserKey ASCENDING
 

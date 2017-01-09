@@ -37,12 +37,12 @@ CLASS Consultingwerk.OERA.Exceptions.DatasetModelException
         @param poInnerException The reference to the original error
         @param pcErrorString The error message associated with this Exception object
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC DatasetModelException (poInnerException AS Progress.Lang.Error,
-	                                          pcErrorString AS CHARACTER):
-	                                              
-		SUPER (poInnerException, pcErrorString).
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC DatasetModelException (poInnerException AS Progress.Lang.Error,
+                                              pcErrorString AS CHARACTER):
+                                                  
+        SUPER (poInnerException, pcErrorString).
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the DatasetModelException class
@@ -51,35 +51,35 @@ CLASS Consultingwerk.OERA.Exceptions.DatasetModelException
         @param pcErrorString The error message associated with this Exception object
         @param piMessageNumber The error message number associated with this Exception object
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC DatasetModelException (poInnerException AS Progress.Lang.Error,
-	                                          pcErrorString AS CHARACTER,
-	                                          piMessageNumber AS INTEGER):
-	                                              
-		SUPER (poInnerException, pcErrorString, piMessageNumber).
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC DatasetModelException (poInnerException AS Progress.Lang.Error,
+                                              pcErrorString AS CHARACTER,
+                                              piMessageNumber AS INTEGER):
+                                                  
+        SUPER (poInnerException, pcErrorString, piMessageNumber).
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the DatasetModelException class
         Notes:                          
         @param poInnerException The reference to the original error
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC DatasetModelException (poInnerException AS Progress.Lang.Error):
-		
-		SUPER (poInnerException).
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC DatasetModelException (poInnerException AS Progress.Lang.Error):
+        
+        SUPER (poInnerException).
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the DatasetModelException class
         Notes:                          
         @param pcErrorString The error message associated with this Exception object
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC DatasetModelException (pcErrorString AS CHARACTER):
-		
-		SUPER (pcErrorString).
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC DatasetModelException (pcErrorString AS CHARACTER):
+        
+        SUPER (pcErrorString).
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the DatasetModelException class
@@ -87,21 +87,21 @@ CLASS Consultingwerk.OERA.Exceptions.DatasetModelException
         @param pcErrorString The error message associated with this Exception object
         @param piMessageNumber The error message number associated with this Exception object
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC DatasetModelException (pcErrorString AS CHARACTER,
-	                                          piMessageNumber AS INTEGER):
-		
-		SUPER (pcErrorString, piMessageNumber).
-		
-	END CONSTRUCTOR.
-		
+    CONSTRUCTOR PUBLIC DatasetModelException (pcErrorString AS CHARACTER,
+                                              piMessageNumber AS INTEGER):
+        
+        SUPER (pcErrorString, piMessageNumber).
+        
+    END CONSTRUCTOR.
+        
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the DatasetModelException class
         Notes:                          
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC DatasetModelException ():
-		
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC DatasetModelException ():
+        
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
 END CLASS.

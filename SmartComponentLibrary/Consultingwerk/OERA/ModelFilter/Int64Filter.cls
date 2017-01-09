@@ -12,174 +12,174 @@
 /*------------------------------------------------------------------------
     File        : Int64Filter
     Purpose     : Provides Filter methods for INT64 Buffer Fields
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sat Jun 15 02:19:36 CEST 2013
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Consultingwerk.*                  FROM PROPATH . 
-USING Consultingwerk.Assertion.*        FROM PROPATH . 
-USING Consultingwerk.OERA.*             FROM PROPATH . 
-USING Consultingwerk.OERA.ModelFilter.* FROM PROPATH .  
+USING Consultingwerk.*                  FROM PROPATH .
+USING Consultingwerk.Assertion.*        FROM PROPATH .
+USING Consultingwerk.OERA.*             FROM PROPATH .
+USING Consultingwerk.OERA.ModelFilter.* FROM PROPATH .
 USING Progress.Lang.*                   FROM PROPATH .
 
-CLASS Consultingwerk.OERA.ModelFilter.Int64Filter: 
+CLASS Consultingwerk.OERA.ModelFilter.Int64Filter:
 
-    DEFINE PRIVATE VARIABLE hBufferField     AS HANDLE             NO-UNDO . 
-    DEFINE PRIVATE VARIABLE oFilterTarget    AS IModelFilterTarget NO-UNDO . 
-    DEFINE PRIVATE VARIABLE oFilter          AS TableModelFilter   NO-UNDO . 
+    DEFINE PRIVATE VARIABLE hBufferField     AS HANDLE             NO-UNDO .
+    DEFINE PRIVATE VARIABLE oFilterTarget    AS IModelFilterTarget NO-UNDO .
+    DEFINE PRIVATE VARIABLE oFilter          AS TableModelFilter   NO-UNDO .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Constructor for the Int64Filter class
-        Notes:   
-        @param phBufferField The BufferField this Filter works on
-        @param poFilterTarget The IModelFilterTarget to add the QueryExpression to 
-        @param poFilter The reference to the TableModelFilter instance
-    ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC Int64Filter (phBufferField AS HANDLE,
+    /**
+     * Purpose: Constructor for the Int64Filter class
+     * Notes:
+     * @param phBufferField The BufferField this Filter works on
+     * @param poFilterTarget The IModelFilterTarget to add the QueryExpression to
+     * @param poFilter The reference to the TableModelFilter instance
+     */
+    CONSTRUCTOR PUBLIC Int64Filter (phBufferField AS HANDLE,
                                     poFilterTarget AS IModelFilterTarget,
-	                                poFilter AS TableModelFilter):
-		SUPER ().
-		
-		{Consultingwerk/Assertion/HandleAssert/WidgetType.i phBufferField WidgetTypeEnum:BufferField} .
-		
+                                    poFilter AS TableModelFilter):
+        SUPER ().
+
+        {Consultingwerk/Assertion/HandleAssert/WidgetType.i phBufferField WidgetTypeEnum:BufferField} .
+
         {Consultingwerk/Assertion/ObjectAssert/IsValid.i poFilterTarget """IModelFilterTarget"":U"} .
         {Consultingwerk/Assertion/ObjectAssert/IsValid.i poFilter """TableModelFilter"":U"} .
-		
-		ASSIGN hBufferField     = phBufferField 
-		       oFilterTarget    = poFilterTarget
-		       oFilter          = poFilter .
-		
-	END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Retuns an EQ Query Expression
-        Notes:   
-        @param piValue The value for the Expression
-        @return The reference to the TableModel
-    ------------------------------------------------------------------------------*/
+        ASSIGN hBufferField     = phBufferField
+               oFilterTarget    = poFilterTarget
+               oFilter          = poFilter .
+
+    END CONSTRUCTOR.
+
+    /**
+     * Purpose: Retuns an EQ Query Expression
+     * Notes:
+     * @param piValue The value for the Expression
+     * @return The reference to the TableModel
+     */
     METHOD PUBLIC TableModelFilter EQ (piValue AS INT64):
-        
+
         {Consultingwerk/Assertion/ObjectAssert/IsValid.i oFilterTarget """TableModel"":U"} .
-        
+
         oFilterTarget:AddQueryExpression (NEW QueryExpression (NEW BufferFieldName (hBufferField),
                                           OperatorEnum:EQ,
-                                          piValue)) .   
-        
-        RETURN oFilter . 
+                                          piValue)) .
+
+        RETURN oFilter .
 
     END METHOD .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Retuns an GE Query Expression
-        Notes:   
-        @param piValue The value for the Expression
-        @return The reference to the TableModel
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Retuns an GE Query Expression
+     * Notes:
+     * @param piValue The value for the Expression
+     * @return The reference to the TableModel
+     */
     METHOD PUBLIC TableModelFilter GE (piValue AS INT64):
-        
+
         {Consultingwerk/Assertion/ObjectAssert/IsValid.i oFilterTarget """TableModel"":U"} .
-        
+
         oFilterTarget:AddQueryExpression (NEW QueryExpression (NEW BufferFieldName (hBufferField),
                                           OperatorEnum:GE,
-                                          piValue)) .   
-        
-        RETURN oFilter . 
+                                          piValue)) .
+
+        RETURN oFilter .
 
     END METHOD .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Retuns an GT Query Expression
-        Notes:   
-        @param piValue The value for the Expression
-        @return The reference to the TableModel
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Retuns an GT Query Expression
+     * Notes:
+     * @param piValue The value for the Expression
+     * @return The reference to the TableModel
+     */
     METHOD PUBLIC TableModelFilter GT (piValue AS INT64):
-        
+
         {Consultingwerk/Assertion/ObjectAssert/IsValid.i oFilterTarget """TableModel"":U"} .
-        
+
         oFilterTarget:AddQueryExpression (NEW QueryExpression (NEW BufferFieldName (hBufferField),
                                           OperatorEnum:GT,
-                                          piValue)) .   
-        
-        RETURN oFilter . 
+                                          piValue)) .
+
+        RETURN oFilter .
 
     END METHOD .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Retuns a Query Expression
-        Notes:   
-        @return The reference to the TableModel
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Retuns a Query Expression
+     * Notes:
+     * @return The reference to the TableModel
+     */
     METHOD PUBLIC TableModelFilter IsNotUnknownValue ():
-        
-        DEFINE VARIABLE iUnknown AS INT64 NO-UNDO INIT ?.
-        
+
+        DEFINE VARIABLE iUnknown AS INT64 NO-UNDO INITIAL ?.
+
         {Consultingwerk/Assertion/ObjectAssert/IsValid.i oFilterTarget """TableModel"":U"} .
-        
+
         oFilterTarget:AddQueryExpression (NEW QueryExpression (NEW BufferFieldName (hBufferField),
                                           OperatorEnum:NE,
-                                          iUnknown)) .   
-        
-        RETURN oFilter . 
+                                          iUnknown)) .
+
+        RETURN oFilter .
 
     END METHOD .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Retuns an LE Query Expression
-        Notes:   
-        @param piValue The value for the Expression
-        @return The reference to the TableModel
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Retuns an LE Query Expression
+     * Notes:
+     * @param piValue The value for the Expression
+     * @return The reference to the TableModel
+     */
     METHOD PUBLIC TableModelFilter LE (piValue AS INT64):
-        
+
         {Consultingwerk/Assertion/ObjectAssert/IsValid.i oFilterTarget """TableModel"":U"} .
-        
+
         oFilterTarget:AddQueryExpression (NEW QueryExpression (NEW BufferFieldName (hBufferField),
                                           OperatorEnum:LE,
-                                          piValue)) .   
-        
-        RETURN oFilter . 
+                                          piValue)) .
+
+        RETURN oFilter .
 
     END METHOD .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Retuns an LT Query Expression
-        Notes:   
-        @param piValue The value for the Expression
-        @return The reference to the TableModel
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Retuns an LT Query Expression
+     * Notes:
+     * @param piValue The value for the Expression
+     * @return The reference to the TableModel
+     */
     METHOD PUBLIC TableModelFilter LT (piValue AS INT64):
-        
+
         {Consultingwerk/Assertion/ObjectAssert/IsValid.i oFilterTarget """TableModel"":U"} .
-        
+
         oFilterTarget:AddQueryExpression (NEW QueryExpression (NEW BufferFieldName (hBufferField),
                                           OperatorEnum:LT,
-                                          piValue)) .   
-        
-        RETURN oFilter . 
+                                          piValue)) .
+
+        RETURN oFilter .
 
     END METHOD .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Retuns an NE Query Expression
-        Notes:   
-        @param piValue The value for the Expression
-        @return The reference to the TableModel
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Retuns an NE Query Expression
+     * Notes:
+     * @param piValue The value for the Expression
+     * @return The reference to the TableModel
+     */
     METHOD PUBLIC TableModelFilter NE (piValue AS INT64):
-        
+
         {Consultingwerk/Assertion/ObjectAssert/IsValid.i oFilterTarget """TableModel"":U"} .
-        
+
         oFilterTarget:AddQueryExpression (NEW QueryExpression (NEW BufferFieldName (hBufferField),
                                           OperatorEnum:NE,
-                                          piValue)) .   
-        
-        RETURN oFilter . 
+                                          piValue)) .
+
+        RETURN oFilter .
 
     END METHOD .
 

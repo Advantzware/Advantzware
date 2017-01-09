@@ -30,15 +30,15 @@ USING Progress.Lang.*             FROM PROPATH .
 CLASS Consultingwerk.OERA.Exceptions.CannotRemoveTableFromStaticContextDatasetException 
     INHERITS Exception
     {&SERIALIZABLE}:  
-		
+        
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the CannotRemoveTableFromStaticContextDatasetException 
                  class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC CannotRemoveTableFromStaticContextDatasetException ():
-		SUPER ("Unable to remove temp-table from static context dataset!"{&TRAN}, 0).
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC CannotRemoveTableFromStaticContextDatasetException ():
+        SUPER ("Unable to remove temp-table from static context dataset!"{&TRAN}, 0).
+        
+    END CONSTRUCTOR.
 
 END CLASS.

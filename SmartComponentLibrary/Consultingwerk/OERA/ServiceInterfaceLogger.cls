@@ -156,17 +156,17 @@ CLASS Consultingwerk.OERA.ServiceInterfaceLogger:
         @param pcMethodName The name of the Business Entity method invoked
         @param pdtStart The start time of the request, used to calculate runtime with interval from NOW                                                                                
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC VOID LogInvokeMethodRequestRuntime (pcEntityName AS CHARACTER,
-	                                                         pcMethodName AS CHARACTER,
+    METHOD PUBLIC STATIC VOID LogInvokeMethodRequestRuntime (pcEntityName AS CHARACTER,
+                                                             pcMethodName AS CHARACTER,
                                                              pdtStart AS DATETIME):
-		
+        
         LogManager:WriteMessage (SUBSTITUTE ("Finished InvokeMethod Request to Business Entity: &1:&2()"{&TRAN}, pcEntityName, pcMethodName), 
                                  ServiceInterface:CUSTOM_LOG_ENTRY) .
 
         LogManager:WriteMessage (SUBSTITUTE ("Runtime InvokeMethod Request: &1 msec"{&TRAN}, INTERVAL (NOW, pdtStart, "milliseconds":U)), 
                                  ServiceInterface:CUSTOM_LOG_ENTRY) .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Logger method for the SaveChanges method of the ServiceInterface 
@@ -196,15 +196,15 @@ CLASS Consultingwerk.OERA.ServiceInterfaceLogger:
         @param pcEntityName The name of the Business Entity used in the current request                                             
         @param pdtStart The start time of the request, used to calculate runtime with interval from NOW                                                                                
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC VOID LogSaveChangesRequestRuntime (pcEntityName AS CHARACTER,
+    METHOD PUBLIC STATIC VOID LogSaveChangesRequestRuntime (pcEntityName AS CHARACTER,
                                                             pdtStart AS DATETIME):
-	
+    
         LogManager:WriteMessage (SUBSTITUTE ("Finished SaveChanges Request to Business Entity: &1"{&TRAN}, pcEntityName), 
                                  ServiceInterface:CUSTOM_LOG_ENTRY) .
 
         LogManager:WriteMessage (SUBSTITUTE ("Runtime SaveChanges Request: &1 msec"{&TRAN}, INTERVAL (NOW, pdtStart, "milliseconds":U)), 
                                  ServiceInterface:CUSTOM_LOG_ENTRY) .
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

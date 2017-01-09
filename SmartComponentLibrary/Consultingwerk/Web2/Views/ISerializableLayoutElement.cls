@@ -24,8 +24,8 @@ USING Progress.Lang.*                           FROM PROPATH .
 
 INTERFACE Consultingwerk.Web2.Views.ISerializableLayoutElement:  
   
-    {Consultingwerk/JsonSerializableProperty.i Name CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i InstanceId CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i Type Consultingwerk.Web2.Views.LayoutElementType} .
+    {Consultingwerk/JsonSerializableProperty11.i Name CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i InstanceId CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i Type Consultingwerk.Web2.Views.LayoutElementType} .
   
 END INTERFACE.

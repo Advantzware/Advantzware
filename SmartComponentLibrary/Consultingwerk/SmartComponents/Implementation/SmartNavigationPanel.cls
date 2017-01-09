@@ -8,16 +8,16 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/  
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : SmartNavigationPanel
     Purpose     : A simple navigation panel in Windows Vista / Windows 7
                   Explorer style
-    Syntax      : 
-    Description :  
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Wed Mar 10 18:49:25 CET 2010
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -30,53 +30,53 @@ USING Consultingwerk.SmartComponents.Resources.*                               F
 USING Consultingwerk.SmartComponents.Interfaces.Design.IDesignNavigationSource FROM ASSEMBLY .
 USING Progress.Lang.*                                                          FROM PROPATH .
 
-CLASS Consultingwerk.SmartComponents.Implementation.SmartNavigationPanel 
-    INHERITS SmartUserControl 
+CLASS Consultingwerk.SmartComponents.Implementation.SmartNavigationPanel
+    INHERITS SmartUserControl
     IMPLEMENTS ISmartNavigationSource, IDoNotCheckOkToClose,
-               Consultingwerk.SmartComponents.Interfaces.Design.IDesignNavigationSource: 
-    
+               Consultingwerk.SmartComponents.Interfaces.Design.IDesignNavigationSource:
+
     DEFINE PRIVATE VARIABLE BtnPrev AS Infragistics.Win.Misc.UltraButton NO-UNDO.
     DEFINE PRIVATE VARIABLE BtnNext AS Infragistics.Win.Misc.UltraButton NO-UNDO.
     DEFINE PRIVATE VARIABLE BtnLast AS Infragistics.Win.Misc.UltraButton NO-UNDO.
     DEFINE PRIVATE VARIABLE BtnFirst AS Infragistics.Win.Misc.UltraButton NO-UNDO.
     DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
-        
+
     DEFINE VARIABLE oSmartNavigationTarget AS ISmartNavigationTarget NO-UNDO .
-    
+
     /* Mike Fechner, Consultingwerk Ltd. 03.09.2013
        Static only on 10.2B to workaround too-many-temp-table issue
        Not static on 11.x to avoid issues with the combination of static
-       and hybrids on 11.2 and 11.3, OE defect OE00240707  
+       and hybrids on 11.2 and 11.3, OE defect OE00240707
        http://knowledgebase.progress.com/articles/Article/000042229?popup=true */
-    DEFINE PRIVATE 
-    &IF PROVERSION BEGINS "10.2":U &THEN 
-    STATIC 
+    DEFINE PRIVATE
+    &IF PROVERSION BEGINS "10.2":U &THEN
+    STATIC
     &ENDIF TEMP-TABLE ttSmartNavigationTarget NO-UNDO
         FIELD RecordOwner             AS Progress.Lang.Object
         FIELD SmartNavigationTarget   AS Progress.Lang.Object
-        FIELD SmartNavigationPosition AS CHARACTER 
+        FIELD SmartNavigationPosition AS CHARACTER
         INDEX RecordOwner IS UNIQUE RecordOwner SmartNavigationTarget.
         .
-        
+
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the SmartToolbarController class  
-        Notes:    
+        Purpose: Constructor for the SmartToolbarController class
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC SmartNavigationPanel ():
-        
+
         SUPER().
         InitializeComponent().
-        
-        DisableTools ("NavigationFirst,NavigationPrev,NavigationNext,NavigationLast") .
-        
+
+        DisableTools ("NavigationFirst,NavigationPrev,NavigationNext,NavigationLast":U) .
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
     END CONSTRUCTOR.
-    
+
      /*------------------------------------------------------------------------------
-        Purpose: Activate the given SmartNavigationTarget if it is registered with 
+        Purpose: Activate the given SmartNavigationTarget if it is registered with
                  the SmartNavigationSource.
         Notes:   This Method has to be called if one Toolbar handels two or more
                  SmartDataSources at a time.
@@ -84,82 +84,82 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartNavigationPanel
         @param poSmartNavigationTarget The ISmartNavigationTarget instance to activate
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID ActivateSmartNavigationTarget (poSmartNavigationTarget AS ISmartNavigationTarget).
-        
+
         IF poSmartNavigationTarget = ? THEN DO:
             oSmartNavigationTarget = ? .
 
             THIS-OBJECT:UpdateSmartNavigationTargetPosition (?, "":U).
-            
+
             RETURN .
         END.
-        
-        FIND ttSmartNavigationTarget WHERE ttSmartNavigationTarget.RecordOwner           = THIS-OBJECT 
+
+        FIND ttSmartNavigationTarget WHERE ttSmartNavigationTarget.RecordOwner           = THIS-OBJECT
                                        AND ttSmartNavigationTarget.SmartNavigationTarget = poSmartNavigationTarget NO-LOCK NO-ERROR.
 
         IF NOT AVAILABLE ttSmartNavigationTarget THEN
-            UNDO, THROW NEW AppError ("Invalid SmartNavigationTarget!", 0).
+            UNDO, THROW NEW AppError ("Invalid SmartNavigationTarget!":U, 0).
 
         oSmartNavigationTarget = poSmartNavigationTarget .
 
-        THIS-OBJECT:UpdateSmartNavigationTargetPosition (poSmartNavigationTarget, 
+        THIS-OBJECT:UpdateSmartNavigationTargetPosition (poSmartNavigationTarget,
                                                          ttSmartNavigationTarget.SmartNavigationPosition).
-        
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the Click event of BtnFirst                                                                        
-        Notes:                          
+        Purpose: Event handler for the Click event of BtnFirst
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event                                              
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID BtnFirst_Click (sender AS System.Object, 
+    METHOD PRIVATE VOID BtnFirst_Click (sender AS System.Object,
                                         e AS System.EventArgs):
-        
-        IF VALID-OBJECT (oSmartNavigationTarget) THEN 
+
+        IF VALID-OBJECT (oSmartNavigationTarget) THEN
           oSmartNavigationTarget:FetchFirst () .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the Click event of BtnLast                                                                       
-        Notes:                                                                        
+        Purpose: Event handler for the Click event of BtnLast
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event                                              
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID BtnLast_Click (sender AS System.Object, 
+    METHOD PRIVATE VOID BtnLast_Click (sender AS System.Object,
                                        e AS System.EventArgs):
-        
-        IF VALID-OBJECT (oSmartNavigationTarget) THEN 
+
+        IF VALID-OBJECT (oSmartNavigationTarget) THEN
             oSmartNavigationTarget:FetchLast () .
 
     END METHOD.
 
 
      /*------------------------------------------------------------------------------
-        Purpose: Event handler for the Click event of BtnNext                                                                        
-        Notes:                                                                        
+        Purpose: Event handler for the Click event of BtnNext
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event                                              
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID BtnNext_Click (sender AS System.Object, 
+    METHOD PRIVATE VOID BtnNext_Click (sender AS System.Object,
                                        e AS System.EventArgs):
-        
-        IF VALID-OBJECT (oSmartNavigationTarget) THEN 
+
+        IF VALID-OBJECT (oSmartNavigationTarget) THEN
             oSmartNavigationTarget:FetchNext () .
 
     END METHOD.
 
 
      /*------------------------------------------------------------------------------
-        Purpose: Event handler for the Click event of BtnPrev                                                                        
-        Notes:                                                                        
+        Purpose: Event handler for the Click event of BtnPrev
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event                                              
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID BtnPrev_Click (sender AS System.Object, 
+    METHOD PRIVATE VOID BtnPrev_Click (sender AS System.Object,
                                        e AS System.EventArgs):
-        
-        IF VALID-OBJECT (oSmartNavigationTarget) THEN 
+
+        IF VALID-OBJECT (oSmartNavigationTarget) THEN
             oSmartNavigationTarget:FetchPrev () .
 
     END METHOD.
@@ -167,134 +167,135 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartNavigationPanel
 
     /*------------------------------------------------------------------------------
         Purpose: Deregisters a SmartNavigationTarget from the SmartNavigationSource.
-        Notes:   
+        Notes:
         @param poSmartNavigationTarget The ISmartNavigationTarget to deregister
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID DeregisterSmartNavigationTarget (poSmartNavigationTarget AS ISmartNavigationTarget):
-        
-        FIND ttSmartNavigationTarget 
-            WHERE ttSmartNavigationTarget.RecordOwner           = THIS-OBJECT  
+
+        FIND ttSmartNavigationTarget
+            WHERE ttSmartNavigationTarget.RecordOwner           = THIS-OBJECT
               AND ttSmartNavigationTarget.SmartNavigationTarget = poSmartNavigationTarget
-                    EXCLUSIVE-LOCK NO-ERROR .
-        
-        IF AVAILABLE ttSmartNavigationTarget THEN 
+                    NO-ERROR .
+
+        IF AVAILABLE ttSmartNavigationTarget THEN
           DELETE ttSmartNavigationTarget .
-        
+
     END METHOD.
 
-     /*------------------------------------------------------------------------------
+    /*------------------------------------------------------------------------------
         Purpose: Disables the tool with the given Key when it exists in this instance.
                  Invoked by DisableTools.
-        Notes:   
+        Notes:
         @param  pcToolKey Key of the Tool ButtonTool to be disabled
-        @return True if the Tool exists, False if the Tool does not Exist         
+        @return True if the Tool exists, False if the Tool does not Exist
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC LOGICAL DisableTool (pcToolKey AS CHARACTER):
-        
+
         CASE pcToolKey:
             WHEN "NavigationFirst":U
-                THEN BtnFirst:Enabled = FALSE . 
+                THEN BtnFirst:Enabled = FALSE .
             WHEN "NavigationPrev":U
-                THEN BtnPrev:Enabled = FALSE . 
+                THEN BtnPrev:Enabled = FALSE .
             WHEN "NavigationNext":U
-                THEN BtnNext:Enabled = FALSE . 
+                THEN BtnNext:Enabled = FALSE .
             WHEN "NavigationLast":U
                 THEN BtnLast:Enabled = FALSE .
-            OTHERWISE 
+            OTHERWISE
                 RETURN FALSE .
-                 
-        END CASE . 
-        
-        RETURN TRUE . 
+
+        END CASE .
+
+        RETURN TRUE .
 
     END METHOD.
-    
+
     /*------------------------------------------------------------------------------
         Purpose: Disables a list of tools when they exist in this instance.
                  This Method is called from within the Toolbar depending on what
-                 action has been performed and what actions are possible with the 
-                 current SmartTableIOTarget and SmartNavigationTarget. 
-        Notes:   
+                 action has been performed and what actions are possible with the
+                 current SmartTableIOTarget and SmartNavigationTarget.
+        Notes:
         @param pcToolKeys Comma delimeted list of ButtonTool Keys to be disabled
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID DisableTools (pcToolKeys AS CHARACTER):
-        
-        DEFINE VARIABLE i AS INTEGER NO-UNDO.
-        
-        DO i = 1 TO NUM-ENTRIES(pcToolKeys):            
-            DisableTool (ENTRY(i, pcToolKeys)) .           
-        END.        
 
-    END METHOD.    
-    
+        DEFINE VARIABLE i AS INTEGER NO-UNDO.
+
+        DO i = 1 TO NUM-ENTRIES(pcToolKeys):
+            DisableTool (ENTRY(i, pcToolKeys)) .
+        END.
+
+    END METHOD.
+
      /*------------------------------------------------------------------------------
         Purpose: Enables the tool with the given Key when it exists in this instance.
         Notes:   Invoked by EnableTools.
         @param  pcToolKey Key of the Tool ButtonTool to be enabled
-        @return True if the Tool exists, False if the Tool does not Exist         
+        @return True if the Tool exists, False if the Tool does not Exist
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC LOGICAL EnableTool (pcToolKey AS CHARACTER):
-        
+
         CASE pcToolKey:
             WHEN "NavigationFirst":U
-                THEN BtnFirst:Enabled = TRUE . 
+                THEN BtnFirst:Enabled = TRUE .
             WHEN "NavigationPrev":U
-                THEN BtnPrev:Enabled = TRUE . 
+                THEN BtnPrev:Enabled = TRUE .
             WHEN "NavigationNext":U
-                THEN BtnNext:Enabled = TRUE . 
+                THEN BtnNext:Enabled = TRUE .
             WHEN "NavigationLast":U
                 THEN BtnLast:Enabled = TRUE .
-            OTHERWISE 
+            OTHERWISE
                 RETURN FALSE .
-                 
-        END CASE . 
-        
-        RETURN TRUE . 
+
+        END CASE .
+
+        RETURN TRUE .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Enables a list of tools when they exist in this instance.
         Notes:   This Method is called from within the Toolbar depending on what
-                 action has been performed and what actions are possible with the 
-                 current SmartTableIOTarget and SmartNavigationTarget.   
+                 action has been performed and what actions are possible with the
+                 current SmartTableIOTarget and SmartNavigationTarget.
         @param pcToolKeys Comma delimeted list of ButtonTool Keys to be disabled
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID EnableTools (pcToolKeys AS CHARACTER):
-    
+
         DEFINE VARIABLE i AS INTEGER NO-UNDO.
-        
-        DO i = 1 TO NUM-ENTRIES(pcToolKeys):            
-            EnableTool (ENTRY(i, pcToolKeys)) .        
+
+        DO i = 1 TO NUM-ENTRIES(pcToolKeys):
+            EnableTool (ENTRY(i, pcToolKeys)) .
         END.
 
-    END METHOD.    
-    
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+    END METHOD.
+
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
-        @VisualDesigner.FormMember (NeedsInitialize="true").
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance1 AS Infragistics.Win.Appearance NO-UNDO.
         appearance1 = NEW Infragistics.Win.Appearance().
-        @VisualDesigner.FormMember (NeedsInitialize="true").
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE resources AS Progress.Util.ResourceManager NO-UNDO.
-        resources = NEW Progress.Util.ResourceManager("Consultingwerk.SmartComponents.Implementation.SmartNavigationPanel").
-        @VisualDesigner.FormMember (NeedsInitialize="true").
+        resources = NEW Progress.Util.ResourceManager("Consultingwerk.SmartComponents.Implementation.SmartNavigationPanel":U).
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance2 AS Infragistics.Win.Appearance NO-UNDO.
         appearance2 = NEW Infragistics.Win.Appearance().
-        @VisualDesigner.FormMember (NeedsInitialize="true").
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance3 AS Infragistics.Win.Appearance NO-UNDO.
         appearance3 = NEW Infragistics.Win.Appearance().
-        @VisualDesigner.FormMember (NeedsInitialize="true").
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance4 AS Infragistics.Win.Appearance NO-UNDO.
         appearance4 = NEW Infragistics.Win.Appearance().
         THIS-OBJECT:BtnFirst = NEW Infragistics.Win.Misc.UltraButton().
@@ -305,15 +306,15 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartNavigationPanel
         /*  */
         /* BtnFirst */
         /*  */
-        appearance1:Image = CAST(resources:GetObject("appearance1.Image"), System.Object).
+        appearance1:Image = CAST(resources:GetObject("appearance1.Image":U), System.Object).
         appearance1:ImageHAlign = Infragistics.Win.HAlign:Center.
         THIS-OBJECT:BtnFirst:Appearance = appearance1.
         THIS-OBJECT:BtnFirst:ButtonStyle = Infragistics.Win.UIElementButtonStyle:WindowsVistaToolbarButton.
         THIS-OBJECT:BtnFirst:ImageSize = NEW System.Drawing.Size(32, 32).
         THIS-OBJECT:BtnFirst:Location = NEW System.Drawing.Point(0, 0).
         THIS-OBJECT:BtnFirst:Margin = NEW System.Windows.Forms.Padding(0).
-        THIS-OBJECT:BtnFirst:Name = "BtnFirst".
-        THIS-OBJECT:BtnFirst:ShapeImage = CAST(resources:GetObject("BtnFirst.ShapeImage"), System.Drawing.Image).
+        THIS-OBJECT:BtnFirst:Name = "BtnFirst":U.
+        THIS-OBJECT:BtnFirst:ShapeImage = CAST(resources:GetObject("BtnFirst.ShapeImage":U), System.Drawing.Image).
         THIS-OBJECT:BtnFirst:ShowFocusRect = FALSE.
         THIS-OBJECT:BtnFirst:ShowOutline = FALSE.
         THIS-OBJECT:BtnFirst:Size = NEW System.Drawing.Size(32, 32).
@@ -326,15 +327,15 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartNavigationPanel
         /*  */
         /* BtnPrev */
         /*  */
-        appearance2:Image = CAST(resources:GetObject("appearance2.Image"), System.Object).
+        appearance2:Image = CAST(resources:GetObject("appearance2.Image":U), System.Object).
         appearance2:ImageHAlign = Infragistics.Win.HAlign:Center.
         THIS-OBJECT:BtnPrev:Appearance = appearance2.
         THIS-OBJECT:BtnPrev:ButtonStyle = Infragistics.Win.UIElementButtonStyle:WindowsVistaToolbarButton.
         THIS-OBJECT:BtnPrev:ImageSize = NEW System.Drawing.Size(32, 32).
         THIS-OBJECT:BtnPrev:Location = NEW System.Drawing.Point(32, 0).
         THIS-OBJECT:BtnPrev:Margin = NEW System.Windows.Forms.Padding(0).
-        THIS-OBJECT:BtnPrev:Name = "BtnPrev".
-        THIS-OBJECT:BtnPrev:ShapeImage = CAST(resources:GetObject("BtnPrev.ShapeImage"), System.Drawing.Image).
+        THIS-OBJECT:BtnPrev:Name = "BtnPrev":U.
+        THIS-OBJECT:BtnPrev:ShapeImage = CAST(resources:GetObject("BtnPrev.ShapeImage":U), System.Drawing.Image).
         THIS-OBJECT:BtnPrev:ShowFocusRect = FALSE.
         THIS-OBJECT:BtnPrev:ShowOutline = FALSE.
         THIS-OBJECT:BtnPrev:Size = NEW System.Drawing.Size(32, 32).
@@ -347,15 +348,15 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartNavigationPanel
         /*  */
         /* BtnNext */
         /*  */
-        appearance3:Image = CAST(resources:GetObject("appearance3.Image"), System.Object).
+        appearance3:Image = CAST(resources:GetObject("appearance3.Image":U), System.Object).
         appearance3:ImageHAlign = Infragistics.Win.HAlign:Center.
         THIS-OBJECT:BtnNext:Appearance = appearance3.
         THIS-OBJECT:BtnNext:ButtonStyle = Infragistics.Win.UIElementButtonStyle:WindowsVistaToolbarButton.
         THIS-OBJECT:BtnNext:ImageSize = NEW System.Drawing.Size(32, 32).
         THIS-OBJECT:BtnNext:Location = NEW System.Drawing.Point(64, 0).
         THIS-OBJECT:BtnNext:Margin = NEW System.Windows.Forms.Padding(0).
-        THIS-OBJECT:BtnNext:Name = "BtnNext".
-        THIS-OBJECT:BtnNext:ShapeImage = CAST(resources:GetObject("BtnNext.ShapeImage"), System.Drawing.Image).
+        THIS-OBJECT:BtnNext:Name = "BtnNext":U.
+        THIS-OBJECT:BtnNext:ShapeImage = CAST(resources:GetObject("BtnNext.ShapeImage":U), System.Drawing.Image).
         THIS-OBJECT:BtnNext:ShowFocusRect = FALSE.
         THIS-OBJECT:BtnNext:ShowOutline = FALSE.
         THIS-OBJECT:BtnNext:Size = NEW System.Drawing.Size(32, 32).
@@ -368,15 +369,15 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartNavigationPanel
         /*  */
         /* BtnLast */
         /*  */
-        appearance4:Image = CAST(resources:GetObject("appearance4.Image"), System.Object).
+        appearance4:Image = CAST(resources:GetObject("appearance4.Image":U), System.Object).
         appearance4:ImageHAlign = Infragistics.Win.HAlign:Center.
         THIS-OBJECT:BtnLast:Appearance = appearance4.
         THIS-OBJECT:BtnLast:ButtonStyle = Infragistics.Win.UIElementButtonStyle:WindowsVistaToolbarButton.
         THIS-OBJECT:BtnLast:ImageSize = NEW System.Drawing.Size(32, 32).
         THIS-OBJECT:BtnLast:Location = NEW System.Drawing.Point(96, 0).
         THIS-OBJECT:BtnLast:Margin = NEW System.Windows.Forms.Padding(0).
-        THIS-OBJECT:BtnLast:Name = "BtnLast".
-        THIS-OBJECT:BtnLast:ShapeImage = CAST(resources:GetObject("BtnLast.ShapeImage"), System.Drawing.Image).
+        THIS-OBJECT:BtnLast:Name = "BtnLast":U.
+        THIS-OBJECT:BtnLast:ShapeImage = CAST(resources:GetObject("BtnLast.ShapeImage":U), System.Drawing.Image).
         THIS-OBJECT:BtnLast:ShowFocusRect = FALSE.
         THIS-OBJECT:BtnLast:ShowOutline = FALSE.
         THIS-OBJECT:BtnLast:Size = NEW System.Drawing.Size(32, 32).
@@ -389,7 +390,7 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartNavigationPanel
         /*  */
         /* SmartNavigationPanel */
         /*  */
-        THIS-OBJECT:AutoScaleDimensions = NEW System.Drawing.SizeF(6, 13).
+        THIS-OBJECT:AutoScaleDimensions = NEW System.Drawing.SizeF(Progress.Util.CastUtil:ToSingle(6), Progress.Util.CastUtil:ToSingle(13)).
         THIS-OBJECT:AutoSize = TRUE.
         THIS-OBJECT:AutoSizeMode = System.Windows.Forms.AutoSizeMode:GrowAndShrink.
         THIS-OBJECT:BackColor = System.Drawing.Color:Transparent.
@@ -398,7 +399,7 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartNavigationPanel
         THIS-OBJECT:Controls:Add(THIS-OBJECT:BtnPrev).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:BtnFirst).
         THIS-OBJECT:Margin = NEW System.Windows.Forms.Padding(0).
-        THIS-OBJECT:Name = "SmartNavigationPanel".
+        THIS-OBJECT:Name = "SmartNavigationPanel":U.
         THIS-OBJECT:Size = NEW System.Drawing.Size(128, 32).
         THIS-OBJECT:ResumeLayout(FALSE).
         CATCH e AS Progress.Lang.Error:
@@ -414,36 +415,36 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartNavigationPanel
         @param poSmartNavigationTarget The ISmartNavigationTarget to register
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID RegisterSmartNavigationTarget (poSmartNavigationTarget AS ISmartNavigationTarget):
-        
+
         CREATE ttSmartNavigationTarget.
-        
+
         ASSIGN
-            ttSmartNavigationTarget.RecordOwner           = THIS-OBJECT  
+            ttSmartNavigationTarget.RecordOwner           = THIS-OBJECT
             ttSmartNavigationTarget.SmartNavigationTarget = poSmartNavigationTarget
             .
-        
+
         RELEASE ttSmartNavigationTarget.
-        
-        IF NOT VALID-OBJECT(oSmartNavigationTarget) THEN 
+
+        IF NOT VALID-OBJECT(oSmartNavigationTarget) THEN
             ActivateSmartNavigationTarget(poSmartNavigationTarget).
-        
+
         /* Update the tooblar buttons when the link is added */
-        UpdateSmartNavigationTargetPosition (poSmartNavigationTarget, poSmartNavigationTarget:RecordPosition) . 
-        
+        UpdateSmartNavigationTargetPosition (poSmartNavigationTarget, poSmartNavigationTarget:RecordPosition) .
+
     END METHOD.
- 
+
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the SmartNavigationTargetPositionChanged event of the SmartNavigationTarget
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the evnet
         @param e The SmartNavigationTargetPositionChangedEventArgs instance with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PUBLIC VOID UpdateSmartNavigationTargetPosition (sender AS System.Object, 
-                                                            e AS SmartNavigationTargetPositionChangedEventArgs):  
-        
+    METHOD PUBLIC VOID UpdateSmartNavigationTargetPosition (sender AS System.Object,
+                                                            e AS SmartNavigationTargetPositionChangedEventArgs):
+
         DEFINE VARIABLE oSmartNavigationTarget AS ISmartNavigationTarget NO-UNDO .
 
-        IF VALID-OBJECT (sender) AND TYPE-OF (sender, ISmartNavigationTarget) THEN 
+        IF VALID-OBJECT (sender) AND TYPE-OF (sender, ISmartNavigationTarget) THEN
             ASSIGN oSmartNavigationTarget = CAST (sender, ISmartNavigationTarget) .
 
         UpdateSmartNavigationTargetPosition(oSmartNavigationTarget, e:SmartNavigationTargetPosition) .
@@ -453,16 +454,16 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartNavigationPanel
     /*------------------------------------------------------------------------------
         Purpose: Handles the update of a Position from the SmartNavigationTarget.
                  This Method is called from the SmartDataAdapter derived Classes
-                 if the PositionChangedHandler is executed or from inside the 
+                 if the PositionChangedHandler is executed or from inside the
                  ISmartNavigationSource implementing class when the Method
                  UpdateSmartNavigationTargetState or RegisterSmartNavigationTarget
                  are executed.
         Notes:   Enforced by Interface ISmartNavigationSource.
         @param poSmartNavigationTarget The reference to the current SmartNavigationTarget
-        @param pcPosition The RecordPositionEnum member indicating the new navigation target position                       
+        @param pcPosition The RecordPositionEnum member indicating the new navigation target position
     ------------------------------------------------------------------------------*/
-    METHOD PROTECTED VOID UpdateSmartNavigationTargetPosition (poSmartNavigationTarget AS ISmartNavigationTarget, 
-                                                               pcPosition AS CHARACTER):  
+    METHOD PROTECTED VOID UpdateSmartNavigationTargetPosition (poSmartNavigationTarget AS ISmartNavigationTarget,
+                                                               pcPosition AS CHARACTER):
 
         DEFINE VARIABLE cState AS CHARACTER NO-UNDO.
 
@@ -470,107 +471,107 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartNavigationPanel
 
         IF poSmartNavigationTarget = ? THEN DO:
             /* Mike Fechner, Consultingwerk Ltd. 05.02.2010
-               When there is no active Navigation Target, set all buttons to disabled 
-               and (this is new) leave this routine. The remaining code is not required. */            
+               When there is no active Navigation Target, set all buttons to disabled
+               and (this is new) leave this routine. The remaining code is not required. */
             DisableTools ("NavigationFirst,NavigationPrev,NavigationNext,NavigationLast":U) .
-            RETURN . 
-        END. 
-        
+            RETURN .
+        END.
+
         /* Mike Fechner, Consultingwerk Ltd. 28.01.2010
            SmartNavigationTargetState goes over SmartNavigationTargetPosition */
-        ASSIGN cState = poSmartNavigationTarget:SmartDataSourceState . 
-        
+        ASSIGN cState = poSmartNavigationTarget:SmartDataSourceState .
+
         IF cState = DataSourceStateEnum:Navigatable THEN DO:
             IF poSmartNavigationTarget = oSmartNavigationTarget THEN DO:
-                CASE pcPosition: 
+                CASE pcPosition:
                     WHEN RecordPositionEnum:FirstRecord THEN DO:
-                        EnableTools ("NavigationNext,NavigationLast":U) .                    
-                        DisableTools ("NavigationFirst,NavigationPrev":U) .                    
+                        EnableTools ("NavigationNext,NavigationLast":U) .
+                        DisableTools ("NavigationFirst,NavigationPrev":U) .
                     END.
                     WHEN RecordPositionEnum:LastRecord THEN DO:
-                        EnableTools ("NavigationFirst,NavigationPrev":U) .                    
-                        DisableTools ("NavigationNext,NavigationLast":U) .                                    
-                    END. 
+                        EnableTools ("NavigationFirst,NavigationPrev":U) .
+                        DisableTools ("NavigationNext,NavigationLast":U) .
+                    END.
                     WHEN RecordPositionEnum:NotFirstOrLast THEN DO:
-                        EnableTools ("NavigationFirst,NavigationPrev,NavigationNext,NavigationLast":U) .                    
-                    END. 
-                    OTHERWISE 
-                        DisableTools ("NavigationFirst,NavigationPrev,NavigationNext,NavigationLast":U) .            
-                END CASE.       
+                        EnableTools ("NavigationFirst,NavigationPrev,NavigationNext,NavigationLast":U) .
+                    END.
+                    OTHERWISE
+                        DisableTools ("NavigationFirst,NavigationPrev,NavigationNext,NavigationLast":U) .
+                END CASE.
             END.
         END.
         ELSE
             /* Mike Fechner, Consultingwerk Ltd. 28.01.2010
                Currently in Update mode etc. */
-            DisableTools ("NavigationFirst,NavigationPrev,NavigationNext,NavigationLast":U) . 
-        
+            DisableTools ("NavigationFirst,NavigationPrev,NavigationNext,NavigationLast":U) .
+
         FIND FIRST ttSmartNavigationTarget WHERE ttSmartNavigationTarget.RecordOwner           = THIS-OBJECT
-                                           AND   ttSmartNavigationTarget.SmartNavigationTarget = poSmartNavigationTarget 
+                                           AND   ttSmartNavigationTarget.SmartNavigationTarget = poSmartNavigationTarget
             NO-LOCK NO-ERROR .
-        
+
         IF AVAILABLE(ttSmartNavigationTarget) THEN DO:
             ASSIGN ttSmartNavigationTarget.SmartNavigationPosition = pcPosition.
-            
+
             RELEASE ttSmartNavigationTarget.
         END.
-        
+
         FINALLY:
-            THIS-OBJECT:ResumeLayout () .        
+            THIS-OBJECT:ResumeLayout () .
         END FINALLY.
-        
+
     END METHOD .
- 
+
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the SmartNavigationTargetStateChanged event
-        Notes:          
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The SmartNavigationTargetStateChangedEventArgs instance with the data for this event
-    ------------------------------------------------------------------------------*/    
-    METHOD PUBLIC VOID UpdateSmartNavigationTargetState (sender AS System.Object, 
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC VOID UpdateSmartNavigationTargetState (sender AS System.Object,
                                                          e AS SmartNavigationTargetStateChangedEventArgs ):
-        
+
         DEFINE VARIABLE oSmartNavigationTarget AS ISmartNavigationTarget NO-UNDO .
-    
-        IF VALID-OBJECT (sender) AND TYPE-OF (sender, ISmartNavigationTarget) THEN 
+
+        IF VALID-OBJECT (sender) AND TYPE-OF (sender, ISmartNavigationTarget) THEN
             ASSIGN oSmartNavigationTarget = CAST (sender, ISmartNavigationTarget) .
 
         UpdateSmartNavigationTargetState (oSmartNavigationTarget, e:SmartNavigationTargetState) .
 
     END METHOD.
-    
+
     /*------------------------------------------------------------------------------
         Purpose: Handles the update of a State from the SmartNavigationTarget.
                  This Method is called from the SmartDataAdapter derived Classes
                  if the Property setter of SmartDataSourceState is executed.
         Notes:   Enforced by Interface ISmartNavigationSource.
         @param poSmartNavigationTarget The reference to the current SmartNavigationTarget
-        @param pcState The RecordPositionEnum member indicating the new navigation target state, Updating or Navigatable                       
+        @param pcState The RecordPositionEnum member indicating the new navigation target state, Updating or Navigatable
     ------------------------------------------------------------------------------*/
-    METHOD PROTECTED VOID UpdateSmartNavigationTargetState (poSmartNavigationTarget AS ISmartNavigationTarget, 
+    METHOD PROTECTED VOID UpdateSmartNavigationTargetState (poSmartNavigationTarget AS ISmartNavigationTarget,
                                                             pcState AS CHARACTER):
-        
+
         DEFINE VARIABLE cRecordPosition AS CHARACTER NO-UNDO.
-        
+
         THIS-OBJECT:SuspendLayout () .
-        
+
         CASE pcState:
             WHEN DataSourceStateEnum:Navigatable THEN DO:
-                IF VALID-OBJECT(poSmartNavigationTarget) THEN DO:               
+                IF VALID-OBJECT(poSmartNavigationTarget) THEN DO:
                     ASSIGN cRecordPosition = poSmartNavigationTarget:RecordPosition .
-                    
+
                     UpdateSmartNavigationTargetPosition(poSmartNavigationTarget, cRecordPosition) .
-                END.                                
+                END.
             END .
             WHEN DataSourceStateEnum:Updating THEN DO:
                 DisableTools ("NavigationFirst,NavigationPrev,NavigationNext,NavigationLast":U) .
-            END . 
-        END CASE.       
+            END .
+        END CASE.
 
         FINALLY:
-            THIS-OBJECT:ResumeLayout () .        
+            THIS-OBJECT:ResumeLayout () .
         END FINALLY.
 
-    END METHOD. 
+    END METHOD.
 
     DESTRUCTOR PUBLIC SmartNavigationPanel ( ):
 

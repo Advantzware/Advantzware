@@ -33,9 +33,9 @@ CLASS Consultingwerk.Windows.API.Exceptions.InvalidApplicationNameException
         Purpose: Returns the name of the application that caused this exception
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY ApplicationName AS CHARACTER NO-UNDO 
-	GET.
-	PRIVATE SET. 
+    DEFINE PUBLIC PROPERTY ApplicationName AS CHARACTER NO-UNDO 
+    GET.
+    PRIVATE SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the InvalidApplicationNameException class
@@ -44,14 +44,14 @@ CLASS Consultingwerk.Windows.API.Exceptions.InvalidApplicationNameException
         @param piMessageNumber The error message number
         @param pcApplicationName The name of the application that caused this issue
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC InvalidApplicationNameException (pcErrorString AS CHARACTER, 
-	                                                    piMessageNumber AS INTEGER,
-	                                                    pcApplicationName AS CHARACTER):
-		
-		SUPER (INPUT pcErrorString, INPUT piMessageNumber).
-		
-		ASSIGN THIS-OBJECT:ApplicationName = pcApplicationName .
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC InvalidApplicationNameException (pcErrorString AS CHARACTER, 
+                                                        piMessageNumber AS INTEGER,
+                                                        pcApplicationName AS CHARACTER):
+        
+        SUPER (INPUT pcErrorString, INPUT piMessageNumber).
+        
+        ASSIGN THIS-OBJECT:ApplicationName = pcApplicationName .
+        
+    END CONSTRUCTOR.
 
 END CLASS.

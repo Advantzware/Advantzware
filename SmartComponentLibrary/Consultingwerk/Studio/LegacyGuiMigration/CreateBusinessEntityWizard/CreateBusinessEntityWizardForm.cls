@@ -11,13 +11,13 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : CreateBusinessEntityWizardForm
-    Purpose     : Wizard Form to create a new Business Entity and save it 
-                  as a .bedgm file 
-    Syntax      : 
-    Description : 
+    Purpose     : Wizard Form to create a new Business Entity and save it
+                  as a .bedgm file
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Mon Mar 09 17:49:40 CET 2015
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -31,19 +31,19 @@ USING Consultingwerk.Forms.*                                                FROM
 USING Consultingwerk.Framework.*                                            FROM PROPATH .
 USING Consultingwerk.Framework.Collections.*                                FROM PROPATH .
 USING Consultingwerk.SmartComponents.Enum.*                                 FROM PROPATH .
-USING Consultingwerk.Studio.LegacyGuiMigration.CreateBusinessEntityWizard.* FROM PROPATH .  
+USING Consultingwerk.Studio.LegacyGuiMigration.CreateBusinessEntityWizard.* FROM PROPATH .
 USING Consultingwerk.Util.*                                                 FROM PROPATH .
 USING Progress.Lang.*                                                       FROM PROPATH .
 USING System.Windows.Forms.*                                                FROM ASSEMBLY .
 USING Consultingwerk.Windows.API.* FROM PROPATH.
 
-CLASS Consultingwerk.Studio.LegacyGuiMigration.CreateBusinessEntityWizard.CreateBusinessEntityWizardForm 
-    INHERITS BaseForm: 
+CLASS Consultingwerk.Studio.LegacyGuiMigration.CreateBusinessEntityWizard.CreateBusinessEntityWizardForm
+    INHERITS BaseForm:
 
     DEFINE PRIVATE VARIABLE btnOK AS Infragistics.Win.Misc.UltraButton NO-UNDO.
     DEFINE PRIVATE VARIABLE btnCancel AS Infragistics.Win.Misc.UltraButton NO-UNDO.
     DEFINE PRIVATE VARIABLE businessEntityViewerControl1 AS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityViewerControl NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE saveFileDialog1 AS System.Windows.Forms.SaveFileDialog NO-UNDO.
     DEFINE PRIVATE VARIABLE smartBusinessEntityAdapter1 AS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraPanel1 AS Infragistics.Win.Misc.UltraPanel NO-UNDO.
@@ -52,7 +52,7 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.CreateBusinessEntityWizard.Create
     /*------------------------------------------------------------------------------
         Purpose: Raised to allow the caller of the wizard to modify (add/enhance)
                  the Business Entity information
-        Notes:   
+        Notes:
         @param sender The object that raised the CustomizeBusinessEntity event
         @param e The CustomizeBusinessEntityEventArgs with the data for the event
     ------------------------------------------------------------------------------*/
@@ -61,7 +61,7 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.CreateBusinessEntityWizard.Create
 
     /*------------------------------------------------------------------------------
         Purpose: Raised when the status of the class has changed
-        Notes:   
+        Notes:
         @param sender The object that raised the StatusChanged event
         @param e The StatusChangedEventArgs with the data for the event
     ------------------------------------------------------------------------------*/
@@ -69,99 +69,100 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.CreateBusinessEntityWizard.Create
                                                       e AS StatusChangedEventArgs).
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets the refrence to the list of Table names to be used for selecting 
+        Purpose: Gets the refrence to the list of Table names to be used for selecting
                  the name of the Business Entity temp-table
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Tables AS CharacterList NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    DEFINE PUBLIC PROPERTY Tables AS CharacterList NO-UNDO
+    GET.
+    PROTECTED SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the CreateBusinessEntityWizardForm class  
-        Notes:   
+        Purpose: Constructor for the CreateBusinessEntityWizardForm class
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC CreateBusinessEntityWizardForm ():
-		
-		
+    CONSTRUCTOR PUBLIC CreateBusinessEntityWizardForm ():
+
+
         SUPER().
         InitializeComponent().
-        
-        
+
+
         &IF NOT PROVERSION BEGINS "10.2":U AND NOT PROVERSION BEGINS "11.0" &THEN
         THIS-OBJECT:ComponentsCollection:Add (THIS-OBJECT:components).
         &ENDIF
 
-        IF BusinessEntityDesignerSettings:CustomServices > "":U THEN 
-            ServiceLoader:LoadFromFile (BusinessEntityDesignerSettings:CustomServices, TRUE) . 
-                
-        THIS-OBJECT:Tables = NEW CharacterList () .                 
+        IF BusinessEntityDesignerSettings:CustomServices > "":U THEN
+            ServiceLoader:LoadFromFile (BusinessEntityDesignerSettings:CustomServices, TRUE) .
+
+        THIS-OBJECT:Tables = NEW CharacterList () .
 
         CAST (smartBusinessEntityAdapter1:DatasetController,
-              BusinessEntityDatasetController):SuppressQuestionAboutDefaultPackage = TRUE . 
+              BusinessEntityDatasetController):SuppressQuestionAboutDefaultPackage = TRUE .
 
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
-
-	/*------------------------------------------------------------------------------
-	    Purpose: Event handler for the Click event of the btnOK
-	    Notes:
-	    @param sender The reference to the object that raised the event
-	    @param e The System.EventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID btnOK_Click (sender AS System.Object, 
-	                                 e AS System.EventArgs):
-
-        DEFINE VARIABLE oResult          AS DialogResult NO-UNDO . 
-        DEFINE VARIABLE cDefaultFileName AS CHARACTER    NO-UNDO .
-		
-		businessEntityViewerControl1:SaveChanges() .
-		
-	    THIS-OBJECT:OnCustomizeBusinessEntity (NEW CustomizeBusinessEntityEventArgs (CAST (smartBusinessEntityAdapter1:DatasetController,
-                                                                                           BusinessEntityDatasetController):DatasetHandle,
-                                                                                     CAST (smartBusinessEntityAdapter1:DatasetController,
-                                                                                           BusinessEntityDatasetController))) .	
-		
-        cDefaultFileName = CAST (smartBusinessEntityAdapter1:DatasetController,
-                                 BusinessEntityDatasetController):GetDefaultFileName () . 
-                                 
-        IF cDefaultFileName > "":U THEN                          
-            saveFileDialog1:FileName = cDefaultFileName . 
-        ELSE 
-            saveFileDialog1:FileName = "":U .
-		
-        WAIT-FOR saveFileDialog1:ShowDialog () SET oResult . 
-
-        {Consultingwerk/check-dialogresult-ok.i oResult}
-		
-		
-		CAST (smartBusinessEntityAdapter1:DatasetController,
-              BusinessEntityDatasetController):Save (saveFileDialog1:FileName) .
-
-        Win32:ShellExecute ("open":U, saveFileDialog1:FileName) .		
-		
-        THIS-OBJECT:Close () . 		
-
-        CATCH err AS Progress.Lang.Error :
-        	ErrorHelper:ShowErrorMessage (err) .	
-        END CATCH.
-
-	END METHOD.
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design  
-        Notes:   
+        Purpose: Event handler for the Click event of the btnOK
+        Notes:
+        @param sender The reference to the object that raised the event
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    METHOD PRIVATE VOID btnOK_Click (sender AS System.Object,
+                                     e AS System.EventArgs):
+
+        DEFINE VARIABLE oResult          AS DialogResult NO-UNDO .
+        DEFINE VARIABLE cDefaultFileName AS CHARACTER    NO-UNDO .
+
+        businessEntityViewerControl1:SaveChanges() .
+
+        THIS-OBJECT:OnCustomizeBusinessEntity (NEW CustomizeBusinessEntityEventArgs (CAST (smartBusinessEntityAdapter1:DatasetController,
+                                                                                           BusinessEntityDatasetController):DatasetHandle,
+                                                                                     CAST (smartBusinessEntityAdapter1:DatasetController,
+                                                                                           BusinessEntityDatasetController))) .
+
+        cDefaultFileName = CAST (smartBusinessEntityAdapter1:DatasetController,
+                                 BusinessEntityDatasetController):GetDefaultFileName () .
+
+        IF cDefaultFileName > "":U THEN
+            saveFileDialog1:FileName = cDefaultFileName .
+        ELSE
+            saveFileDialog1:FileName = "":U .
+
+        WAIT-FOR saveFileDialog1:ShowDialog () SET oResult .
+
+        {Consultingwerk/check-dialogresult-ok.i oResult}
+
+
+        CAST (smartBusinessEntityAdapter1:DatasetController,
+              BusinessEntityDatasetController):Save (saveFileDialog1:FileName) .
+
+        Win32:ShellExecute ("open":U, saveFileDialog1:FileName) .
+
+        THIS-OBJECT:Close () .
+
+        CATCH err AS Progress.Lang.Error :
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
+    END METHOD.
+
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -284,32 +285,32 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.CreateBusinessEntityWizard.Create
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD.
-    
+    END METHOD.
+
     /*------------------------------------------------------------------------------
         Purpose: Raises the CustomizeBusinessEntity Event
-        Notes:   
+        Notes:
         @param e The CustomizeBusinessEntityEventArgs with the data for the event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID OnCustomizeBusinessEntity (e AS CustomizeBusinessEntityEventArgs):
-            
+
         Consultingwerk.Assertion.EventArgsAssert:IsValid (e, "CustominzeBusinessEntity":U) .
-     
+
         THIS-OBJECT:CustomizeBusinessEntity:Publish (THIS-OBJECT, e) .
-    
+
     END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Raises the StatusChanged
-        Notes:   
+        Notes:
         @param e The StatusChangedEventArgs with the data for the event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID OnStatusChanged (e AS StatusChangedEventArgs):
-            
+
         Consultingwerk.Assertion.EventArgsAssert:IsValid (e, "StatusChanged":U) .
-         
+
         THIS-OBJECT:StatusChanged:Publish (THIS-OBJECT, e) .
-    
+
     END METHOD .
 
     /*------------------------------------------------------------------------------
@@ -318,69 +319,73 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.CreateBusinessEntityWizard.Create
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
-        
-        DEFINE VARIABLE cTable AS CHARACTER         NO-UNDO .
-        DEFINE VARIABLE oList  AS ListNameValuePair NO-UNDO . 
-        
-        DEFINE VARIABLE oDatasetController AS BusinessEntityDatasetController NO-UNDO . 
-        
-        SUPER:OnShown (e) .
-        
-        
-        oDatasetController = CAST (smartBusinessEntityAdapter1:DatasetController, BusinessEntityDatasetController) . 
 
-        IF VALID-OBJECT (FrameworkSettings:ServiceContainer:GetService (Progress.Lang.Class:GetClass ("Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityDatasetController":U))) THEN 
+        DEFINE VARIABLE cTable AS CHARACTER         NO-UNDO .
+        DEFINE VARIABLE oList  AS ListNameValuePair NO-UNDO .
+
+        DEFINE VARIABLE oDatasetController AS BusinessEntityDatasetController NO-UNDO .
+
+        SUPER:OnShown (e) .
+
+
+        oDatasetController = CAST (smartBusinessEntityAdapter1:DatasetController, BusinessEntityDatasetController) .
+
+        IF VALID-OBJECT (FrameworkSettings:ServiceContainer:GetService (Progress.Lang.Class:GetClass ("Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityDatasetController":U))) THEN
             FrameworkSettings:ServiceContainer:RemoveService (Progress.Lang.Class:GetClass ("Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityDatasetController":U)) .
 
         FrameworkSettings:ServiceContainer:AddService (Progress.Lang.Class:GetClass ("Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityDatasetController":U),
                                                        oDatasetController) .
-        
-        oDatasetController:BusinessEntityViewerControl = businessEntityViewerControl1 .
-        oDatasetController:New () . 
 
-        oList = NEW ListNameValuePair () .  
+        oDatasetController:BusinessEntityViewerControl = businessEntityViewerControl1 .
+        oDatasetController:New () .
+
+        oList = NEW ListNameValuePair () .
 
         {Consultingwerk/foreachPrimitiveList.i Character cEntry in this-object:Tables}
 
-            IF cTable = "":U THEN 
+            IF cTable = "":U THEN
                 ASSIGN cTable = cEntry .
-                
+
             oList:Add (cEntry, cEntry) .
         END.
-        
-        IF cTable = "":U THEN DO:  
+
+        IF cTable = "":U THEN DO:
             ASSIGN cTable = "ImportedTable":U .
-            
+
             oList:Add (cTable, cTable) .
         END.
-            
-        IF oList:Count > 1 THEN DO:             
-            IF NOT InputPromptHelper:PromptForCharacterValue ("Select base table for temp-table name"{&TRAN}, 
+
+        IF oList:Count > 1 THEN DO:
+            IF NOT InputPromptHelper:PromptForCharacterValue ("Select base table for temp-table name"{&TRAN},
                                                               "The base table is used for naming the Business Entity Temp-Table"{&TRAN},
                                                               oList,
-                                                              INPUT-OUTPUT cTable) THEN 
+                                                              INPUT-OUTPUT cTable) THEN
             DO:
-                THIS-OBJECT:Close () .                                                             
-                RETURN . 
+                THIS-OBJECT:Close () .
+                RETURN .
             END.
         END.
 
         oDatasetController:CreateTempTable (cTable) .
+        oDatasetController:DatasetHandle:GET-BUFFER-HANDLE ("eTable":U):FIND-FIRST () .
+        oDatasetController:DatasetHandle:GET-BUFFER-HANDLE ("eTable":U)::LayoutWidth  = 200 .
+        oDatasetController:DatasetHandle:GET-BUFFER-HANDLE ("eTable":U)::LayoutColumn = 50 .
+        oDatasetController:DatasetHandle:GET-BUFFER-HANDLE ("eTable":U)::LayoutRow    = 50 .
 
         businessEntityViewerControl1:EnableFields (EnableFieldsEnum:Update) .
 
         CATCH err AS Progress.Lang.Error:
-        	ErrorHelper:ShowErrorMessage (err) .	
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Desstructor for the CreateBusinessEntityWizardForm class  
-        Notes:   
+        Purpose: Desstructor for the CreateBusinessEntityWizardForm class
+        Notes:
     ------------------------------------------------------------------------------*/
-	DESTRUCTOR PUBLIC CreateBusinessEntityWizardForm ():
+    DESTRUCTOR PUBLIC CreateBusinessEntityWizardForm ():
 
-	END DESTRUCTOR.
+    END DESTRUCTOR.
 
 END CLASS.

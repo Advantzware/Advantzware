@@ -50,9 +50,9 @@ CLASS Consultingwerk.SmartFramework.Localization.FilterStringResourceEventArgs
         Purpose: Returns the resource key
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY ResourceKey AS CHARACTER NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    DEFINE PUBLIC PROPERTY ResourceKey AS CHARACTER NO-UNDO 
+    GET.
+    PROTECTED SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the FilterStringResourceEventArgs class
@@ -60,13 +60,13 @@ CLASS Consultingwerk.SmartFramework.Localization.FilterStringResourceEventArgs
         @param pcResourceKey The resource key
         @param pcOriginalString The original string
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC FilterStringResourceEventArgs (pcResourceKey AS CHARACTER,
-	                                                  pcOriginalString AS CHARACTER):
-		SUPER ().
-		
-		ASSIGN THIS-OBJECT:ResourceKey    = pcResourceKey
-		       THIS-OBJECT:OriginalString = pcOriginalString .       
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC FilterStringResourceEventArgs (pcResourceKey AS CHARACTER,
+                                                      pcOriginalString AS CHARACTER):
+        SUPER ().
+        
+        ASSIGN THIS-OBJECT:ResourceKey    = pcResourceKey
+               THIS-OBJECT:OriginalString = pcOriginalString .       
+        
+    END CONSTRUCTOR.
 
 END CLASS.

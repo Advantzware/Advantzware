@@ -8,29 +8,30 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : AppServerLoggingSettingsForm
     Purpose     : Allows setting of logging options for the AppServer
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sat Sep 13 22:24:13 CEST 2014
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
-
-USING Progress.Lang.*.
-USING Consultingwerk.Forms.BaseForm.
-USING Consultingwerk.Framework.Session.* FROM PROPATH.
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-CLASS Consultingwerk.Windows.Session.AppServerLoggingSettingsForm INHERITS BaseForm: 
-	
+USING Consultingwerk.Forms.*             FROM PROPATH .
+USING Consultingwerk.Util.*              FROM PROPATH .
+USING Consultingwerk.Framework.Session.* FROM PROPATH .
+USING Progress.Lang.*                    FROM PROPATH .
+
+CLASS Consultingwerk.Windows.Session.AppServerLoggingSettingsForm INHERITS BaseForm:
+
     DEFINE PRIVATE VARIABLE btnClose AS System.Windows.Forms.Button NO-UNDO.
     DEFINE PRIVATE VARIABLE btnApplyClose AS System.Windows.Forms.Button NO-UNDO.
     DEFINE PRIVATE VARIABLE btnApply AS System.Windows.Forms.Button NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraLabel2 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraLabel1 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE tgDebugMode AS Infragistics.Win.UltraWinEditors.UltraCheckEditor NO-UNDO.
@@ -38,13 +39,13 @@ CLASS Consultingwerk.Windows.Session.AppServerLoggingSettingsForm INHERITS BaseF
     DEFINE PRIVATE VARIABLE tbAblLogManager AS Infragistics.Win.UltraWinEditors.UltraTextEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE panel1 AS System.Windows.Forms.Panel NO-UNDO.
 
-		
+
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the AppServerLoggingSettingsForm class
         Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC AppServerLoggingSettingsForm ():
-		
+    CONSTRUCTOR PUBLIC AppServerLoggingSettingsForm ():
+
         SUPER().
         InitializeComponent().
 
@@ -52,67 +53,84 @@ CLASS Consultingwerk.Windows.Session.AppServerLoggingSettingsForm INHERITS BaseF
         THIS-OBJECT:ComponentsCollection:Add (THIS-OBJECT:components).
         &ENDIF
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Applies the current settings 
-	    Notes:
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID ApplySettings ():
-		
-		ASSIGN SessionManager:ServerLogEntryTypes    = tbAblLogManager:Text  
-		       SessionManager:ServerCustomLogEntries = tbConsultingwerkLogManager:Text
-		       SessionManager:ServerDebugMode        = tgDebugMode:Checked . 
+    /*------------------------------------------------------------------------------
+        Purpose: Applies the current settings
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID ApplySettings ():
 
-	END METHOD.
+        ASSIGN SessionManager:ServerLogEntryTypes    = tbAblLogManager:Text
+               SessionManager:ServerCustomLogEntries = tbConsultingwerkLogManager:Text
+               SessionManager:ServerDebugMode        = tgDebugMode:Checked .
+
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the Click event of the btnClose
         Notes:
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event 
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID btnApply_Click (sender AS System.Object, 
-	                                    e AS System.EventArgs):
-		
-        THIS-OBJECT:ApplySettings () . 
+    METHOD PRIVATE VOID btnApply_Click (sender AS System.Object,
+                                        e AS System.EventArgs):
 
-	END METHOD.
+        THIS-OBJECT:ApplySettings () .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the Click event of the btnClose
         Notes:
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event 
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID btnApplyClose_Click (sender AS System.Object, 
+    METHOD PRIVATE VOID btnApplyClose_Click (sender AS System.Object,
                                              e AS System.EventArgs):
-		
-		THIS-OBJECT:ApplySettings () . 
-		THIS-OBJECT:Close () .
 
-	END METHOD.
-
-	/*------------------------------------------------------------------------------
-	    Purpose: Event handler for the Click event of the btnClose
-	    Notes:
-	    @param sender The reference to the object that raised the event
-	    @param e The System.EventArgs with the data for this event 
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID btnClose_Click (sender AS System.Object, 
-	                                    e AS System.EventArgs):
-		
+        THIS-OBJECT:ApplySettings () .
         THIS-OBJECT:Close () .
 
-	END METHOD.
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
 
-	METHOD PRIVATE VOID InitializeComponent(  ):
-		
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the Click event of the btnClose
+        Notes:
+        @param sender The reference to the object that raised the event
+        @param e The System.EventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID btnClose_Click (sender AS System.Object,
+                                        e AS System.EventArgs):
+
+        THIS-OBJECT:Close () .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD.
+
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE resources AS Progress.Util.ResourceManager NO-UNDO.
@@ -214,33 +232,33 @@ CLASS Consultingwerk.Windows.Session.AppServerLoggingSettingsForm INHERITS BaseF
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD.
+    END METHOD.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Raises the Shown event
-	    Notes:
-	    @param e The System.EventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
-		
-		SUPER:OnShown (e) .
-		
+    /*------------------------------------------------------------------------------
+        Purpose: Raises the Shown event
+        Notes:
+        @param e The System.EventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
+
+        SUPER:OnShown (e) .
+
         ASSIGN tbAblLogManager:Text = SessionManager:ServerLogEntryTypes .
-        
-        IF SessionManager:ServerCustomLogEntries <> ? THEN 
-            tbConsultingwerkLogManager:Text = SessionManager:ServerCustomLogEntries .  
-    
-        IF SessionManager:ServerDebugMode <> ? THEN 
-            tgDebugMode:Checked = SessionManager:ServerDebugMode . 
 
-	END METHOD.
+        IF SessionManager:ServerCustomLogEntries <> ? THEN
+            tbConsultingwerkLogManager:Text = SessionManager:ServerCustomLogEntries .
+
+        IF SessionManager:ServerDebugMode <> ? THEN
+            tgDebugMode:Checked = SessionManager:ServerDebugMode .
+
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Destructor for the AppServerLoggingSettingsForm class
         Notes:
     ------------------------------------------------------------------------------*/
-	DESTRUCTOR PUBLIC AppServerLoggingSettingsForm ():
+    DESTRUCTOR PUBLIC AppServerLoggingSettingsForm ():
 
-	END DESTRUCTOR.
+    END DESTRUCTOR.
 
 END CLASS.

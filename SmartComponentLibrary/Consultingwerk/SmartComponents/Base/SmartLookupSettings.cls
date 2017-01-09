@@ -31,27 +31,27 @@ CLASS Consultingwerk.SmartComponents.Base.SmartLookupSettings:
                  Dialog
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC STATIC PROPERTY ShortcutKey AS System.Windows.Forms.Keys NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC STATIC PROPERTY ShortcutKey AS System.Windows.Forms.Keys NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Static Constructor for the SmartLookupSettings class
         Notes:   Assigns the default for the ShortcutKey setting    
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR STATIC SmartLookupSettings ():
+    CONSTRUCTOR STATIC SmartLookupSettings ():
 
         SmartLookupSettings:ShortcutKey = System.Windows.Forms.Keys:F3 .
-		
-	END CONSTRUCTOR.
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the SmartLookupSettings class
         Notes:   Disallow instance creation   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PRIVATE SmartLookupSettings ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PRIVATE SmartLookupSettings ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
 END CLASS.

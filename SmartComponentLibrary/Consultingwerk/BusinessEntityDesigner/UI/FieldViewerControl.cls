@@ -8,34 +8,38 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/  
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : FieldViewerControl
     Purpose     : Viewer Control for the eField Table
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sat Oct 23 20:58:03 CEST 2010
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.BusinessEntityDesigner.Plugins.CustomServices.* FROM PROPATH .
+USING Consultingwerk.BusinessEntityDesigner.KendoUiBuilder.*         FROM PROPATH .
 USING Consultingwerk.BusinessEntityDesigner.UI.*                     FROM PROPATH .
 USING Consultingwerk.SmartComponents.Base.*                          FROM PROPATH .
 USING Consultingwerk.SmartComponents.Enum.*                          FROM PROPATH .
-USING Consultingwerk.Util.*                                          FROM PROPATH . 
+USING Consultingwerk.Util.*                                          FROM PROPATH .
 USING Consultingwerk.Windows.Controls.*                              FROM PROPATH .
 USING Progress.Lang.*                                                FROM PROPATH .
+USING Infragistics.Win.*                                             FROM ASSEMBLY .
 USING Infragistics.Win.UltraWinTabControl.*                          FROM ASSEMBLY .
 USING System.Windows.Forms.*                                         FROM ASSEMBLY .
 
-CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS SmartViewerControl: 
-    
+CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS SmartViewerControl:
+
+    DEFINE PRIVATE VARIABLE cbSemanticType AS Infragistics.Win.UltraWinEditors.UltraComboEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE eField_FieldCustomControlName_Label AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE eField_FieldCustomControlName AS Infragistics.Win.UltraWinEditors.UltraComboEditor NO-UNDO.
+    DEFINE PRIVATE VARIABLE eField_FieldSkipAssignment AS Infragistics.Win.UltraWinEditors.UltraCheckEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE smartBusinessEntityBindingSource1 AS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource NO-UNDO.
     DEFINE PRIVATE VARIABLE smartBusinessEntityBindingSource1_eField_FieldExtent_Label AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE smartBusinessEntityBindingSource1_eField_FieldExtent AS Infragistics.Win.UltraWinEditors.UltraNumericEditor NO-UNDO.
@@ -46,6 +50,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
     DEFINE PRIVATE VARIABLE ultraLabel1 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraComboEditor3 AS Infragistics.Win.UltraWinEditors.UltraComboEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraComboEditor2 AS Infragistics.Win.UltraWinEditors.UltraComboEditor NO-UNDO.
+    DEFINE PRIVATE VARIABLE ultraLabel3 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraTabPageControl4 AS Infragistics.Win.UltraWinTabControl.UltraTabPageControl NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraTabSharedControlsPage1 AS Infragistics.Win.UltraWinTabControl.UltraTabSharedControlsPage NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraTabPageControl3 AS Infragistics.Win.UltraWinTabControl.UltraTabPageControl NO-UNDO.
@@ -76,30 +81,30 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
     DEFINE PRIVATE VARIABLE ultraTextEditor1 AS Infragistics.Win.UltraWinEditors.UltraTextEditor NO-UNDO.
 
     &IF NOT PROVERSION BEGINS "10" &THEN
-    DEFINE VARIABLE oValidationSettings AS FieldValidationPropertiesControl NO-UNDO . 
+    DEFINE VARIABLE oValidationSettings AS FieldValidationPropertiesControl NO-UNDO .
     &ENDIF
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the FieldViewerControl class                                                                        
-        Notes:      
+        Purpose: Constructor for the FieldViewerControl class
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC FieldViewerControl ():
-        
-        DEFINE VARIABLE oTab AS UltraTab NO-UNDO . 
-        
+
+        DEFINE VARIABLE oTab AS UltraTab NO-UNDO .
+
         SUPER().
         InitializeComponent().
-        
+
         /* Mike Fechner, Consultingwerk Ltd. 18.05.2015
            SCL-424 : Validation properties when not running on OE10 */
         &IF NOT PROVERSION BEGINS "10" &THEN
-        oTab = ultraTabControl1:Tabs:Add ("Validation":U, "Validation Settings":U) .         
+        oTab = ultraTabControl1:Tabs:Add ("Validation":U, "Validation Settings":U) .
         oValidationSettings = NEW FieldValidationPropertiesControl () .
         oValidationSettings:ValueChanged:Subscribe (ValueChangedHandler) .
         oValidationSettings:Dock = DockStyle:Fill .
         oTab:TabPage:Controls:Add (oValidationSettings) .
         &ENDIF
-        
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
@@ -107,102 +112,125 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-       Purpose: This Method attaches a new BindingSource given as the Parameter 
-                poBindingSource to the Objects of the current Class. The new 
-                BindingSource may have been created by a DataAdapter or reused from a 
+       Purpose: This Method attaches a new BindingSource given as the Parameter
+                poBindingSource to the Objects of the current Class. The new
+                BindingSource may have been created by a DataAdapter or reused from a
                 SmartBrowserControl
-       Notes:   It is called by the SmartDataAdapter Class when creating a new 
+       Notes:   It is called by the SmartDataAdapter Class when creating a new
                 BindingSource or when a new SmartDataSource is registered to the
                 Class implementing the Interface ISmartDataTarget.
                 This method is also called from the SmartViewerControl destructor (while
                 a form is closed) to de-attach from the Binding Source. In this case
-                the poBindingSource reference is passed in as the unknown value. 
-       @param poBindingSource The BindingSource to be attached to the Controls contained in the Viewer 
+                the poBindingSource reference is passed in as the unknown value.
+       @param poBindingSource The BindingSource to be attached to the Controls contained in the Viewer
    ------------------------------------------------------------------------------*/
-	METHOD OVERRIDE PUBLIC VOID AttachBindingSource (poBindingSource AS Progress.Data.BindingSource):
-		
-		SUPER:AttachBindingSource (poBindingSource).
+    METHOD OVERRIDE PUBLIC VOID AttachBindingSource (poBindingSource AS Progress.Data.BindingSource):
+
+        SUPER:AttachBindingSource (poBindingSource).
 
         &IF NOT PROVERSION BEGINS "10" &THEN
-        IF VALID-OBJECT (oValidationSettings) AND VALID-OBJECT (poBindingSource) THEN 
+        IF VALID-OBJECT (oValidationSettings) AND VALID-OBJECT (poBindingSource) THEN
             oValidationSettings:DataBindings:Add ("Text":U, poBindingSource, "FieldValidationInstance":U) .
-        &ENDIF        
+        &ENDIF
 
-	END METHOD.
+    END METHOD.
 
-	/*------------------------------------------------------------------------------
-	   Purpose: Event handler for the ValueChanged event of the ultraComboEditor1
-	   Notes:
-	   @param sender The reference to the Control that raised the event
-	   @param e The System.EventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID DataTypeComboValueChanged (sender AS System.Object,
-	                                               e AS System.EventArgs):
-		
-		DEFINE VARIABLE cDataType AS CHARACTER NO-UNDO.
-		
-		IF NOT ultraComboEditor1:Focused THEN 
-		    RETURN . 
+    /**
+     * Purpose: Populates the Semantic Types Combo Box
+     * Notes:
+     */
+    METHOD PROTECTED VOID PopulateSemanticTypes():
 
-        IF PROGRAM-NAME (2) BEGINS "CancelUpdate ":U THEN 
-            RETURN . 
+        DEFINE VARIABLE oSemanticTypeProvider AS ISemanticTypesProvider NO-UNDO .
+
+        oSemanticTypeProvider = {Consultingwerk/get-service.i Consultingwerk.BusinessEntityDesigner.KendoUiBuilder.ISemanticTypesProvider
+                                                              "NEW SemanticTypesProvider()"} .
+
+        cbSemanticType:ValueList = ValueListHelper:FromList(oSemanticTypeProvider:GetSemanticTypes (UNBOX (ultraComboEditor1:Value))).
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+       Purpose: Event handler for the ValueChanged event of the ultraComboEditor1
+       Notes:
+       @param sender The reference to the Control that raised the event
+       @param e The System.EventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID DataTypeComboValueChanged (sender AS System.Object,
+                                                   e AS System.EventArgs):
+
+        DEFINE VARIABLE cDataType AS CHARACTER NO-UNDO.
+
+        IF NOT ultraComboEditor1:Focused THEN
+            RETURN .
+
+        IF PROGRAM-NAME (2) BEGINS "CancelUpdate ":U THEN
+            RETURN .
 
         ASSIGN cDataType = ultraComboEditor1:Text .
 
-        IF DataTypeHelper:IsAblDataType (cDataType) 
-           AND NOT (cDataType = "BLOB":U OR 
-                    cDataType = "COM-HANDLE":U OR 
-                    cDataType = "HANDLE":U OR 
-                    cDataType = "Progress.Lang.Object":U OR 
-                    cDataType = "RAW":U OR 
-                    cDataType = "RECID":U OR 
+        IF DataTypeHelper:IsAblDataType (cDataType)
+           AND NOT (cDataType = "BLOB":U OR
+                    cDataType = "COM-HANDLE":U OR
+                    cDataType = "HANDLE":U OR
+                    cDataType = "Progress.Lang.Object":U OR
+                    cDataType = "RAW":U OR
+                    cDataType = "RECID":U OR
                     cDataType = "ROWID":U)
-            THEN 
+            THEN
 
             THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldFormat:Text = DataTypeHelper:DefaultFormat (cDataType) .
-        ELSE 
+        ELSE
             THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldFormat:Text = "":U .
 
-        IF THIS-OBJECT:SmartTableIOState = TableIOStateEnum:FieldsEnabled THEN 
+        IF THIS-OBJECT:SmartTableIOState = TableIOStateEnum:FieldsEnabled THEN
             THIS-OBJECT:SmartTableIOState = TableIOStateEnum:ModifyingData .
 
-	END METHOD.
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
+    END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns a copy of the value list with the data types 
-        Notes:   
-        @return The copy of the value list with the data types 
+        Purpose: Returns a copy of the value list with the data types
+        Notes:
+        @return The copy of the value list with the data types
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC Infragistics.Win.ValueList GetDataTypeValueList ():
+    METHOD PUBLIC Infragistics.Win.ValueList GetDataTypeValueList ():
 
-        DEFINE VARIABLE oValueList AS Infragistics.Win.ValueList NO-UNDO . 
-        
+        DEFINE VARIABLE oValueList AS Infragistics.Win.ValueList NO-UNDO .
+
         oValueList = CAST (THIS-OBJECT:ultraComboEditor1:ValueList:Clone (),
                            Infragistics.Win.ValueList) .
-		
-		oValueList:ValueListItems:Clear () .
-		
-		{Consultingwerk/foreach.i Infragistics.Win.ValueListItem oItem in THIS-OBJECT:ultraComboEditor1:ValueList:ValueListItems}
-		    oValueList:ValueListItems:Add (oItem:DataValue, oItem:DisplayText) . 
-		END.
-		
-		RETURN oValueList .
 
-	END METHOD .
+        oValueList:ValueListItems:Clear () .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+        {Consultingwerk/foreach.i Infragistics.Win.ValueListItem oItem in THIS-OBJECT:ultraComboEditor1:ValueList:ValueListItems}
+            oValueList:ValueListItems:Add (oItem:DataValue, oItem:DisplayText) .
+        END.
+
+        RETURN oValueList .
+
+    END METHOD .
+
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE appearance1 AS Infragistics.Win.Appearance NO-UNDO.
+        appearance1 = NEW Infragistics.Win.Appearance().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE tableDesc1 AS Progress.Data.TableDesc NO-UNDO.
         tableDesc1 = NEW Progress.Data.TableDesc("eField":U).
@@ -210,8 +238,8 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         DEFINE VARIABLE valueListItem8 AS Infragistics.Win.ValueListItem NO-UNDO.
         valueListItem8 = NEW Infragistics.Win.ValueListItem().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
-        DEFINE VARIABLE appearance1 AS Infragistics.Win.Appearance NO-UNDO.
-        appearance1 = NEW Infragistics.Win.Appearance().
+        DEFINE VARIABLE appearance2 AS Infragistics.Win.Appearance NO-UNDO.
+        appearance2 = NEW Infragistics.Win.Appearance().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE resources AS Progress.Util.ResourceManager NO-UNDO.
         resources = NEW Progress.Util.ResourceManager("Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl":U).
@@ -219,32 +247,29 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         DEFINE VARIABLE valueListItem18 AS Infragistics.Win.ValueListItem NO-UNDO.
         valueListItem18 = NEW Infragistics.Win.ValueListItem().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
-        DEFINE VARIABLE appearance2 AS Infragistics.Win.Appearance NO-UNDO.
-        appearance2 = NEW Infragistics.Win.Appearance().
+        DEFINE VARIABLE appearance3 AS Infragistics.Win.Appearance NO-UNDO.
+        appearance3 = NEW Infragistics.Win.Appearance().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE valueListItem19 AS Infragistics.Win.ValueListItem NO-UNDO.
         valueListItem19 = NEW Infragistics.Win.ValueListItem().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
-        DEFINE VARIABLE appearance3 AS Infragistics.Win.Appearance NO-UNDO.
-        appearance3 = NEW Infragistics.Win.Appearance().
+        DEFINE VARIABLE appearance4 AS Infragistics.Win.Appearance NO-UNDO.
+        appearance4 = NEW Infragistics.Win.Appearance().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE valueListItem20 AS Infragistics.Win.ValueListItem NO-UNDO.
         valueListItem20 = NEW Infragistics.Win.ValueListItem().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
-        DEFINE VARIABLE appearance4 AS Infragistics.Win.Appearance NO-UNDO.
-        appearance4 = NEW Infragistics.Win.Appearance().
+        DEFINE VARIABLE appearance5 AS Infragistics.Win.Appearance NO-UNDO.
+        appearance5 = NEW Infragistics.Win.Appearance().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE valueListItem21 AS Infragistics.Win.ValueListItem NO-UNDO.
         valueListItem21 = NEW Infragistics.Win.ValueListItem().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
-        DEFINE VARIABLE appearance5 AS Infragistics.Win.Appearance NO-UNDO.
-        appearance5 = NEW Infragistics.Win.Appearance().
+        DEFINE VARIABLE appearance6 AS Infragistics.Win.Appearance NO-UNDO.
+        appearance6 = NEW Infragistics.Win.Appearance().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE valueListItem22 AS Infragistics.Win.ValueListItem NO-UNDO.
         valueListItem22 = NEW Infragistics.Win.ValueListItem().
-        @VisualDesigner.FormMember (NeedsInitialize="true":U).
-        DEFINE VARIABLE appearance6 AS Infragistics.Win.Appearance NO-UNDO.
-        appearance6 = NEW Infragistics.Win.Appearance().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance7 AS Infragistics.Win.Appearance NO-UNDO.
         appearance7 = NEW Infragistics.Win.Appearance().
@@ -252,101 +277,101 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         DEFINE VARIABLE appearance8 AS Infragistics.Win.Appearance NO-UNDO.
         appearance8 = NEW Infragistics.Win.Appearance().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
-        DEFINE VARIABLE valueListItem1 AS Infragistics.Win.ValueListItem NO-UNDO.
-        valueListItem1 = NEW Infragistics.Win.ValueListItem().
-        @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance9 AS Infragistics.Win.Appearance NO-UNDO.
         appearance9 = NEW Infragistics.Win.Appearance().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
-        DEFINE VARIABLE valueListItem2 AS Infragistics.Win.ValueListItem NO-UNDO.
-        valueListItem2 = NEW Infragistics.Win.ValueListItem().
+        DEFINE VARIABLE valueListItem1 AS Infragistics.Win.ValueListItem NO-UNDO.
+        valueListItem1 = NEW Infragistics.Win.ValueListItem().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance10 AS Infragistics.Win.Appearance NO-UNDO.
         appearance10 = NEW Infragistics.Win.Appearance().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
-        DEFINE VARIABLE valueListItem3 AS Infragistics.Win.ValueListItem NO-UNDO.
-        valueListItem3 = NEW Infragistics.Win.ValueListItem().
+        DEFINE VARIABLE valueListItem2 AS Infragistics.Win.ValueListItem NO-UNDO.
+        valueListItem2 = NEW Infragistics.Win.ValueListItem().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance11 AS Infragistics.Win.Appearance NO-UNDO.
         appearance11 = NEW Infragistics.Win.Appearance().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
-        DEFINE VARIABLE valueListItem4 AS Infragistics.Win.ValueListItem NO-UNDO.
-        valueListItem4 = NEW Infragistics.Win.ValueListItem().
+        DEFINE VARIABLE valueListItem3 AS Infragistics.Win.ValueListItem NO-UNDO.
+        valueListItem3 = NEW Infragistics.Win.ValueListItem().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance12 AS Infragistics.Win.Appearance NO-UNDO.
         appearance12 = NEW Infragistics.Win.Appearance().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
-        DEFINE VARIABLE valueListItem5 AS Infragistics.Win.ValueListItem NO-UNDO.
-        valueListItem5 = NEW Infragistics.Win.ValueListItem().
+        DEFINE VARIABLE valueListItem4 AS Infragistics.Win.ValueListItem NO-UNDO.
+        valueListItem4 = NEW Infragistics.Win.ValueListItem().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance13 AS Infragistics.Win.Appearance NO-UNDO.
         appearance13 = NEW Infragistics.Win.Appearance().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
-        DEFINE VARIABLE valueListItem6 AS Infragistics.Win.ValueListItem NO-UNDO.
-        valueListItem6 = NEW Infragistics.Win.ValueListItem().
+        DEFINE VARIABLE valueListItem5 AS Infragistics.Win.ValueListItem NO-UNDO.
+        valueListItem5 = NEW Infragistics.Win.ValueListItem().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance14 AS Infragistics.Win.Appearance NO-UNDO.
         appearance14 = NEW Infragistics.Win.Appearance().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
-        DEFINE VARIABLE valueListItem7 AS Infragistics.Win.ValueListItem NO-UNDO.
-        valueListItem7 = NEW Infragistics.Win.ValueListItem().
+        DEFINE VARIABLE valueListItem6 AS Infragistics.Win.ValueListItem NO-UNDO.
+        valueListItem6 = NEW Infragistics.Win.ValueListItem().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance15 AS Infragistics.Win.Appearance NO-UNDO.
         appearance15 = NEW Infragistics.Win.Appearance().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
-        DEFINE VARIABLE valueListItem9 AS Infragistics.Win.ValueListItem NO-UNDO.
-        valueListItem9 = NEW Infragistics.Win.ValueListItem().
+        DEFINE VARIABLE valueListItem7 AS Infragistics.Win.ValueListItem NO-UNDO.
+        valueListItem7 = NEW Infragistics.Win.ValueListItem().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance16 AS Infragistics.Win.Appearance NO-UNDO.
         appearance16 = NEW Infragistics.Win.Appearance().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
-        DEFINE VARIABLE valueListItem10 AS Infragistics.Win.ValueListItem NO-UNDO.
-        valueListItem10 = NEW Infragistics.Win.ValueListItem().
+        DEFINE VARIABLE valueListItem9 AS Infragistics.Win.ValueListItem NO-UNDO.
+        valueListItem9 = NEW Infragistics.Win.ValueListItem().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance17 AS Infragistics.Win.Appearance NO-UNDO.
         appearance17 = NEW Infragistics.Win.Appearance().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
-        DEFINE VARIABLE valueListItem11 AS Infragistics.Win.ValueListItem NO-UNDO.
-        valueListItem11 = NEW Infragistics.Win.ValueListItem().
+        DEFINE VARIABLE valueListItem10 AS Infragistics.Win.ValueListItem NO-UNDO.
+        valueListItem10 = NEW Infragistics.Win.ValueListItem().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance18 AS Infragistics.Win.Appearance NO-UNDO.
         appearance18 = NEW Infragistics.Win.Appearance().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
-        DEFINE VARIABLE valueListItem17 AS Infragistics.Win.ValueListItem NO-UNDO.
-        valueListItem17 = NEW Infragistics.Win.ValueListItem().
+        DEFINE VARIABLE valueListItem11 AS Infragistics.Win.ValueListItem NO-UNDO.
+        valueListItem11 = NEW Infragistics.Win.ValueListItem().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance19 AS Infragistics.Win.Appearance NO-UNDO.
         appearance19 = NEW Infragistics.Win.Appearance().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
-        DEFINE VARIABLE valueListItem12 AS Infragistics.Win.ValueListItem NO-UNDO.
-        valueListItem12 = NEW Infragistics.Win.ValueListItem().
+        DEFINE VARIABLE valueListItem17 AS Infragistics.Win.ValueListItem NO-UNDO.
+        valueListItem17 = NEW Infragistics.Win.ValueListItem().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance20 AS Infragistics.Win.Appearance NO-UNDO.
         appearance20 = NEW Infragistics.Win.Appearance().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
-        DEFINE VARIABLE valueListItem16 AS Infragistics.Win.ValueListItem NO-UNDO.
-        valueListItem16 = NEW Infragistics.Win.ValueListItem().
+        DEFINE VARIABLE valueListItem12 AS Infragistics.Win.ValueListItem NO-UNDO.
+        valueListItem12 = NEW Infragistics.Win.ValueListItem().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance21 AS Infragistics.Win.Appearance NO-UNDO.
         appearance21 = NEW Infragistics.Win.Appearance().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
-        DEFINE VARIABLE valueListItem13 AS Infragistics.Win.ValueListItem NO-UNDO.
-        valueListItem13 = NEW Infragistics.Win.ValueListItem().
+        DEFINE VARIABLE valueListItem16 AS Infragistics.Win.ValueListItem NO-UNDO.
+        valueListItem16 = NEW Infragistics.Win.ValueListItem().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance22 AS Infragistics.Win.Appearance NO-UNDO.
         appearance22 = NEW Infragistics.Win.Appearance().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
-        DEFINE VARIABLE valueListItem14 AS Infragistics.Win.ValueListItem NO-UNDO.
-        valueListItem14 = NEW Infragistics.Win.ValueListItem().
+        DEFINE VARIABLE valueListItem13 AS Infragistics.Win.ValueListItem NO-UNDO.
+        valueListItem13 = NEW Infragistics.Win.ValueListItem().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance23 AS Infragistics.Win.Appearance NO-UNDO.
         appearance23 = NEW Infragistics.Win.Appearance().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
-        DEFINE VARIABLE valueListItem15 AS Infragistics.Win.ValueListItem NO-UNDO.
-        valueListItem15 = NEW Infragistics.Win.ValueListItem().
+        DEFINE VARIABLE valueListItem14 AS Infragistics.Win.ValueListItem NO-UNDO.
+        valueListItem14 = NEW Infragistics.Win.ValueListItem().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance24 AS Infragistics.Win.Appearance NO-UNDO.
         appearance24 = NEW Infragistics.Win.Appearance().
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE valueListItem15 AS Infragistics.Win.ValueListItem NO-UNDO.
+        valueListItem15 = NEW Infragistics.Win.ValueListItem().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance25 AS Infragistics.Win.Appearance NO-UNDO.
         appearance25 = NEW Infragistics.Win.Appearance().
@@ -387,6 +412,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         DEFINE VARIABLE appearance37 AS Infragistics.Win.Appearance NO-UNDO.
         appearance37 = NEW Infragistics.Win.Appearance().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE appearance38 AS Infragistics.Win.Appearance NO-UNDO.
+        appearance38 = NEW Infragistics.Win.Appearance().
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE ultraTab1 AS Infragistics.Win.UltraWinTabControl.UltraTab NO-UNDO.
         ultraTab1 = NEW Infragistics.Win.UltraWinTabControl.UltraTab().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -399,8 +427,10 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         DEFINE VARIABLE ultraTab4 AS Infragistics.Win.UltraWinTabControl.UltraTab NO-UNDO.
         ultraTab4 = NEW Infragistics.Win.UltraWinTabControl.UltraTab().
         THIS-OBJECT:ultraTabPageControl1 = NEW Infragistics.Win.UltraWinTabControl.UltraTabPageControl().
-        THIS-OBJECT:ultraCheckEditor2 = NEW Infragistics.Win.UltraWinEditors.UltraCheckEditor().
+        THIS-OBJECT:ultraLabel3 = NEW Infragistics.Win.Misc.UltraLabel().
+        THIS-OBJECT:cbSemanticType = NEW Infragistics.Win.UltraWinEditors.UltraComboEditor().
         THIS-OBJECT:smartBusinessEntityBindingSource1 = NEW Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource(THIS-OBJECT:components).
+        THIS-OBJECT:ultraCheckEditor2 = NEW Infragistics.Win.UltraWinEditors.UltraCheckEditor().
         THIS-OBJECT:eField_FieldCustomControlName = NEW Infragistics.Win.UltraWinEditors.UltraComboEditor().
         THIS-OBJECT:ultraCheckEditor1 = NEW Infragistics.Win.UltraWinEditors.UltraCheckEditor().
         THIS-OBJECT:ultraComboEditor3 = NEW Infragistics.Win.UltraWinEditors.UltraComboEditor().
@@ -438,9 +468,11 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         THIS-OBJECT:ultraTextEditor1 = NEW Infragistics.Win.UltraWinEditors.UltraTextEditor().
         THIS-OBJECT:ultraTabControl1 = NEW Infragistics.Win.UltraWinTabControl.UltraTabControl().
         THIS-OBJECT:ultraTabSharedControlsPage1 = NEW Infragistics.Win.UltraWinTabControl.UltraTabSharedControlsPage().
+        THIS-OBJECT:eField_FieldSkipAssignment = NEW Infragistics.Win.UltraWinEditors.UltraCheckEditor().
         THIS-OBJECT:ultraTabPageControl1:SuspendLayout().
-        CAST(THIS-OBJECT:ultraCheckEditor2, System.ComponentModel.ISupportInitialize):BeginInit().
+        CAST(THIS-OBJECT:cbSemanticType, System.ComponentModel.ISupportInitialize):BeginInit().
         CAST(THIS-OBJECT:smartBusinessEntityBindingSource1, System.ComponentModel.ISupportInitialize):BeginInit().
+        CAST(THIS-OBJECT:ultraCheckEditor2, System.ComponentModel.ISupportInitialize):BeginInit().
         CAST(THIS-OBJECT:eField_FieldCustomControlName, System.ComponentModel.ISupportInitialize):BeginInit().
         CAST(THIS-OBJECT:ultraCheckEditor1, System.ComponentModel.ISupportInitialize):BeginInit().
         CAST(THIS-OBJECT:ultraComboEditor3, System.ComponentModel.ISupportInitialize):BeginInit().
@@ -464,12 +496,15 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         CAST(THIS-OBJECT:ultraTextEditor1, System.ComponentModel.ISupportInitialize):BeginInit().
         CAST(THIS-OBJECT:ultraTabControl1, System.ComponentModel.ISupportInitialize):BeginInit().
         THIS-OBJECT:ultraTabControl1:SuspendLayout().
+        CAST(THIS-OBJECT:eField_FieldSkipAssignment, System.ComponentModel.ISupportInitialize):BeginInit().
         CAST(THIS-OBJECT, System.ComponentModel.ISupportInitialize):BeginInit().
         THIS-OBJECT:SuspendLayout().
         /*  */
         /* ultraTabPageControl1 */
         /*  */
         THIS-OBJECT:ultraTabPageControl1:AutoScroll = TRUE.
+        THIS-OBJECT:ultraTabPageControl1:Controls:Add(THIS-OBJECT:ultraLabel3).
+        THIS-OBJECT:ultraTabPageControl1:Controls:Add(THIS-OBJECT:cbSemanticType).
         THIS-OBJECT:ultraTabPageControl1:Controls:Add(THIS-OBJECT:ultraCheckEditor2).
         THIS-OBJECT:ultraTabPageControl1:Controls:Add(THIS-OBJECT:eField_FieldCustomControlName).
         THIS-OBJECT:ultraTabPageControl1:Controls:Add(THIS-OBJECT:ultraCheckEditor1).
@@ -492,23 +527,38 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         THIS-OBJECT:ultraTabPageControl1:Controls:Add(THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldExtent_Label).
         THIS-OBJECT:ultraTabPageControl1:Controls:Add(THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldExtent).
         THIS-OBJECT:ultraTabPageControl1:Controls:Add(THIS-OBJECT:eField_FieldCustomControlName_Label).
-        THIS-OBJECT:ultraTabPageControl1:Location = NEW System.Drawing.Point(-10000, -10000).
+        THIS-OBJECT:ultraTabPageControl1:Controls:Add(THIS-OBJECT:eField_FieldSkipAssignment).
+        THIS-OBJECT:ultraTabPageControl1:Location = NEW System.Drawing.Point(1, 22).
         THIS-OBJECT:ultraTabPageControl1:Name = "ultraTabPageControl1":U.
-        THIS-OBJECT:ultraTabPageControl1:Size = NEW System.Drawing.Size(554, 220).
+        THIS-OBJECT:ultraTabPageControl1:Size = NEW System.Drawing.Size(554, 276).
         /*  */
-        /* ultraCheckEditor2 */
+        /* ultraLabel3 */
+        /*  */
+        appearance1:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
+        THIS-OBJECT:ultraLabel3:Appearance = appearance1.
+        THIS-OBJECT:ultraLabel3:AutoSize = TRUE.
+        THIS-OBJECT:ultraLabel3:Location = NEW System.Drawing.Point(4, 224).
+        THIS-OBJECT:ultraLabel3:Name = "ultraLabel3":U.
+        THIS-OBJECT:ultraLabel3:Size = NEW System.Drawing.Size(83, 14).
+        THIS-OBJECT:ultraLabel3:TabIndex = 22.
+        THIS-OBJECT:ultraLabel3:Text = "Semantic &Type:":U.
+        /*  */
+        /* cbSemanticType */
         /*  */
         DEFINE VARIABLE nestedvar0 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar0 = System.Windows.Forms.AnchorStyles:Top.
-        THIS-OBJECT:ultraCheckEditor2:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar0, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:ultraCheckEditor2:AutoSize = TRUE.
-        THIS-OBJECT:ultraCheckEditor2:DataBindings:Add(NEW System.Windows.Forms.Binding("Checked":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "FieldInitialUnknownValue":U, TRUE)).
-        THIS-OBJECT:ultraCheckEditor2:Location = NEW System.Drawing.Point(437, 58).
-        THIS-OBJECT:ultraCheckEditor2:Name = "ultraCheckEditor2":U.
-        THIS-OBJECT:ultraCheckEditor2:Size = NEW System.Drawing.Size(98, 17).
-        THIS-OBJECT:ultraCheckEditor2:TabIndex = 9.
-        THIS-OBJECT:ultraCheckEditor2:Text = "Initial Unknown":U.
-        THIS-OBJECT:ultraCheckEditor2:CheckedChanged:Subscribe(THIS-OBJECT:ultraCheckEditor2_CheckedChanged).
+        nestedvar0 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:cbSemanticType:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar0, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:cbSemanticType:AutoCompleteMode = Infragistics.Win.AutoCompleteMode:SuggestAppend.
+        THIS-OBJECT:cbSemanticType:AutoSuggestFilterMode = Infragistics.Win.AutoSuggestFilterMode:StartsWith.
+        THIS-OBJECT:cbSemanticType:DataBindings:Add(NEW System.Windows.Forms.Binding("Value":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "FieldSemanticType":U, TRUE)).
+        THIS-OBJECT:cbSemanticType:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2007.
+        THIS-OBJECT:cbSemanticType:Location = NEW System.Drawing.Point(150, 220).
+        THIS-OBJECT:cbSemanticType:Name = "cbSemanticType":U.
+        THIS-OBJECT:cbSemanticType:Size = NEW System.Drawing.Size(401, 21).
+        THIS-OBJECT:cbSemanticType:SortStyle = Infragistics.Win.ValueListSortStyle:AscendingByValue.
+        THIS-OBJECT:cbSemanticType:TabIndex = 23.
+        THIS-OBJECT:cbSemanticType:BeforeDropDown:Subscribe(THIS-OBJECT:cbSemanticType_BeforeDropDown).
+        THIS-OBJECT:cbSemanticType:Enter:Subscribe(THIS-OBJECT:cbSemanticType_Enter).
         /*  */
         /* smartBusinessEntityBindingSource1 */
         /*  */
@@ -517,9 +567,10 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         THIS-OBJECT:smartBusinessEntityBindingSource1:EntityTable = "eField":U.
         THIS-OBJECT:smartBusinessEntityBindingSource1:MaxDataGuess = 0.
         THIS-OBJECT:smartBusinessEntityBindingSource1:NoLOBs = FALSE.
+        THIS-OBJECT:smartBusinessEntityBindingSource1:Position = 0.
         tableDesc1:ChildTables = ?.
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
-        DEFINE VARIABLE arrayvar0 AS Progress.Data.ColumnPropDesc EXTENT 22 NO-UNDO.
+        DEFINE VARIABLE arrayvar0 AS Progress.Data.ColumnPropDesc EXTENT 25 NO-UNDO.
         arrayvar0[1] = NEW Progress.Data.ColumnPropDesc("BusinessEntityName":U, "BusinessEntityName":U, Progress.Data.DataType:CHARACTER).
         arrayvar0[2] = NEW Progress.Data.ColumnPropDesc("TempTableName":U, "TempTableName":U, Progress.Data.DataType:CHARACTER).
         arrayvar0[3] = NEW Progress.Data.ColumnPropDesc("FieldName":U, "FieldName":U, Progress.Data.DataType:CHARACTER).
@@ -542,15 +593,33 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         arrayvar0[20] = NEW Progress.Data.ColumnPropDesc("FieldCalcExpression":U, "Calc Expression":U, Progress.Data.DataType:CHARACTER).
         arrayvar0[21] = NEW Progress.Data.ColumnPropDesc("FieldCaseSensitive":U, "Case Sensitive":U, Progress.Data.DataType:LOGICAL).
         arrayvar0[22] = NEW Progress.Data.ColumnPropDesc("FieldCustomControlName":U, "Field Custom Control Name":U, Progress.Data.DataType:CHARACTER).
+        arrayvar0[23] = NEW Progress.Data.ColumnPropDesc("FieldValidationInstance":U, "Validation Instance":U, Progress.Data.DataType:CLOB).
+        arrayvar0[24] = NEW Progress.Data.ColumnPropDesc("FieldSemanticType":U, "Field Semantic Type":U, Progress.Data.DataType:CHARACTER).
+        arrayvar0[25] = NEW Progress.Data.ColumnPropDesc("FieldSkipAssignment":U, "Add field to AssignSkipDictionary":U, Progress.Data.DataType:LOGICAL).
         tableDesc1:Columns = arrayvar0.
         THIS-OBJECT:smartBusinessEntityBindingSource1:TableSchema = tableDesc1.
         /*  */
-        /* eField_FieldCustomControlName */
+        /* ultraCheckEditor2 */
         /*  */
         DEFINE VARIABLE nestedvar1 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar1 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:eField_FieldCustomControlName:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar1, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        nestedvar1 = System.Windows.Forms.AnchorStyles:Top.
+        THIS-OBJECT:ultraCheckEditor2:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar1, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:ultraCheckEditor2:AutoSize = TRUE.
+        THIS-OBJECT:ultraCheckEditor2:DataBindings:Add(NEW System.Windows.Forms.Binding("Checked":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "FieldInitialUnknownValue":U, TRUE)).
+        THIS-OBJECT:ultraCheckEditor2:Location = NEW System.Drawing.Point(437, 58).
+        THIS-OBJECT:ultraCheckEditor2:Name = "ultraCheckEditor2":U.
+        THIS-OBJECT:ultraCheckEditor2:Size = NEW System.Drawing.Size(98, 17).
+        THIS-OBJECT:ultraCheckEditor2:TabIndex = 9.
+        THIS-OBJECT:ultraCheckEditor2:Text = "Initial Unknown":U.
+        THIS-OBJECT:ultraCheckEditor2:CheckedChanged:Subscribe(THIS-OBJECT:ultraCheckEditor2_CheckedChanged).
+        /*  */
+        /* eField_FieldCustomControlName */
+        /*  */
+        DEFINE VARIABLE nestedvar2 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar2 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:eField_FieldCustomControlName:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar2, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
         THIS-OBJECT:eField_FieldCustomControlName:DataBindings:Add(NEW System.Windows.Forms.Binding("Value":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "FieldCustomControlName":U, TRUE)).
+        THIS-OBJECT:eField_FieldCustomControlName:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2007.
         THIS-OBJECT:eField_FieldCustomControlName:Location = NEW System.Drawing.Point(150, 193).
         THIS-OBJECT:eField_FieldCustomControlName:Name = "eField_FieldCustomControlName":U.
         THIS-OBJECT:eField_FieldCustomControlName:Size = NEW System.Drawing.Size(401, 21).
@@ -558,9 +627,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         /*  */
         /* ultraCheckEditor1 */
         /*  */
-        DEFINE VARIABLE nestedvar2 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar2 = System.Windows.Forms.AnchorStyles:Top.
-        THIS-OBJECT:ultraCheckEditor1:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar2, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        DEFINE VARIABLE nestedvar3 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar3 = System.Windows.Forms.AnchorStyles:Top.
+        THIS-OBJECT:ultraCheckEditor1:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar3, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
         THIS-OBJECT:ultraCheckEditor1:AutoSize = TRUE.
         THIS-OBJECT:ultraCheckEditor1:DataBindings:Add(NEW System.Windows.Forms.Binding("Checked":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "FieldCaseSensitive":U, TRUE)).
         THIS-OBJECT:ultraCheckEditor1:Location = NEW System.Drawing.Point(437, 31).
@@ -571,22 +640,22 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         /*  */
         /* ultraComboEditor3 */
         /*  */
-        DEFINE VARIABLE nestedvar3 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar3 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:ultraComboEditor3:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar3, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        DEFINE VARIABLE nestedvar4 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar4 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:ultraComboEditor3:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar4, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
         THIS-OBJECT:ultraComboEditor3:DataBindings:Add(NEW System.Windows.Forms.Binding("Value":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "FieldSetAccess":U, TRUE)).
         THIS-OBJECT:ultraComboEditor3:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2007.
         THIS-OBJECT:ultraComboEditor3:DropDownStyle = Infragistics.Win.DropDownStyle:DropDownList.
-        appearance1:Image = CAST(resources:GetObject("appearance1.Image":U), System.Object).
-        valueListItem8:Appearance = appearance1.
+        appearance2:Image = CAST(resources:GetObject("appearance2.Image":U), System.Object).
+        valueListItem8:Appearance = appearance2.
         valueListItem8:DataValue = "PUBLIC":U.
         valueListItem8:DisplayText = "public":U.
-        appearance2:Image = CAST(resources:GetObject("appearance2.Image":U), System.Object).
-        valueListItem18:Appearance = appearance2.
+        appearance3:Image = CAST(resources:GetObject("appearance3.Image":U), System.Object).
+        valueListItem18:Appearance = appearance3.
         valueListItem18:DataValue = "PROTECTED":U.
         valueListItem18:DisplayText = "protected":U.
-        appearance3:Image = CAST(resources:GetObject("appearance3.Image":U), System.Object).
-        valueListItem19:Appearance = appearance3.
+        appearance4:Image = CAST(resources:GetObject("appearance4.Image":U), System.Object).
+        valueListItem19:Appearance = appearance4.
         valueListItem19:DataValue = "PRIVATE":U.
         valueListItem19:DisplayText = "private (not recommended)":U.
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
@@ -605,16 +674,16 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         THIS-OBJECT:ultraComboEditor2:DataBindings:Add(NEW System.Windows.Forms.Binding("Value":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "FieldGetAccess":U, TRUE)).
         THIS-OBJECT:ultraComboEditor2:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2007.
         THIS-OBJECT:ultraComboEditor2:DropDownStyle = Infragistics.Win.DropDownStyle:DropDownList.
-        appearance4:Image = CAST(resources:GetObject("appearance4.Image":U), System.Object).
-        valueListItem20:Appearance = appearance4.
+        appearance5:Image = CAST(resources:GetObject("appearance5.Image":U), System.Object).
+        valueListItem20:Appearance = appearance5.
         valueListItem20:DataValue = "PUBLIC":U.
         valueListItem20:DisplayText = "public":U.
-        appearance5:Image = CAST(resources:GetObject("appearance5.Image":U), System.Object).
-        valueListItem21:Appearance = appearance5.
+        appearance6:Image = CAST(resources:GetObject("appearance6.Image":U), System.Object).
+        valueListItem21:Appearance = appearance6.
         valueListItem21:DataValue = "PROTECTED":U.
         valueListItem21:DisplayText = "protected":U.
-        appearance6:Image = CAST(resources:GetObject("appearance6.Image":U), System.Object).
-        valueListItem22:Appearance = appearance6.
+        appearance7:Image = CAST(resources:GetObject("appearance7.Image":U), System.Object).
+        valueListItem22:Appearance = appearance7.
         valueListItem22:DataValue = "PRIVATE":U.
         valueListItem22:DisplayText = "private (not recommended)":U.
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
@@ -631,8 +700,8 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         /*  */
         /* ultraLabel2 */
         /*  */
-        appearance7:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
-        THIS-OBJECT:ultraLabel2:Appearance = appearance7.
+        appearance8:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
+        THIS-OBJECT:ultraLabel2:Appearance = appearance8.
         THIS-OBJECT:ultraLabel2:AutoSize = TRUE.
         THIS-OBJECT:ultraLabel2:Location = NEW System.Drawing.Point(323, 169).
         THIS-OBJECT:ultraLabel2:Name = "ultraLabel2":U.
@@ -642,8 +711,8 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         /*  */
         /* ultraLabel1 */
         /*  */
-        appearance8:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
-        THIS-OBJECT:ultraLabel1:Appearance = appearance8.
+        appearance9:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
+        THIS-OBJECT:ultraLabel1:Appearance = appearance9.
         THIS-OBJECT:ultraLabel1:AutoSize = TRUE.
         THIS-OBJECT:ultraLabel1:Location = NEW System.Drawing.Point(4, 169).
         THIS-OBJECT:ultraLabel1:Name = "ultraLabel1":U.
@@ -653,76 +722,76 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         /*  */
         /* ultraComboEditor1 */
         /*  */
-        DEFINE VARIABLE nestedvar4 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar4 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:ultraComboEditor1:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar4, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        DEFINE VARIABLE nestedvar5 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar5 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:ultraComboEditor1:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar5, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
         THIS-OBJECT:ultraComboEditor1:CharacterCasing = System.Windows.Forms.CharacterCasing:Upper.
         THIS-OBJECT:ultraComboEditor1:DataBindings:Add(NEW System.Windows.Forms.Binding("Value":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "FieldDataType":U, TRUE)).
         THIS-OBJECT:ultraComboEditor1:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2007.
         THIS-OBJECT:ultraComboEditor1:DropDownButtonDisplayStyle = Infragistics.Win.ButtonDisplayStyle:OnMouseEnter.
         THIS-OBJECT:ultraComboEditor1:DropDownStyle = Infragistics.Win.DropDownStyle:DropDownList.
-        appearance9:Image = CAST(resources:GetObject("appearance9.Image":U), System.Object).
-        valueListItem1:Appearance = appearance9.
+        appearance10:Image = CAST(resources:GetObject("appearance10.Image":U), System.Object).
+        valueListItem1:Appearance = appearance10.
         valueListItem1:DataValue = "BLOB":U.
         valueListItem1:DisplayText = "BLOB":U.
-        appearance10:Image = CAST(resources:GetObject("appearance10.Image":U), System.Object).
-        valueListItem2:Appearance = appearance10.
+        appearance11:Image = CAST(resources:GetObject("appearance11.Image":U), System.Object).
+        valueListItem2:Appearance = appearance11.
         valueListItem2:DataValue = "CHARACTER":U.
         valueListItem2:DisplayText = "CHARACTER":U.
-        appearance11:Image = CAST(resources:GetObject("appearance11.Image":U), System.Object).
-        valueListItem3:Appearance = appearance11.
+        appearance12:Image = CAST(resources:GetObject("appearance12.Image":U), System.Object).
+        valueListItem3:Appearance = appearance12.
         valueListItem3:DataValue = "CLOB":U.
         valueListItem3:DisplayText = "CLOB":U.
-        appearance12:Image = CAST(resources:GetObject("appearance12.Image":U), System.Object).
-        valueListItem4:Appearance = appearance12.
+        appearance13:Image = CAST(resources:GetObject("appearance13.Image":U), System.Object).
+        valueListItem4:Appearance = appearance13.
         valueListItem4:DataValue = "COM-HANDLE":U.
         valueListItem4:DisplayText = "COM-HANDLE":U.
-        appearance13:Image = CAST(resources:GetObject("appearance13.Image":U), System.Object).
-        valueListItem5:Appearance = appearance13.
+        appearance14:Image = CAST(resources:GetObject("appearance14.Image":U), System.Object).
+        valueListItem5:Appearance = appearance14.
         valueListItem5:DataValue = "DATE":U.
         valueListItem5:DisplayText = "DATE":U.
-        appearance14:Image = CAST(resources:GetObject("appearance14.Image":U), System.Object).
-        valueListItem6:Appearance = appearance14.
+        appearance15:Image = CAST(resources:GetObject("appearance15.Image":U), System.Object).
+        valueListItem6:Appearance = appearance15.
         valueListItem6:DataValue = "DATETIME":U.
         valueListItem6:DisplayText = "DATETIME":U.
-        appearance15:Image = CAST(resources:GetObject("appearance15.Image":U), System.Object).
-        valueListItem7:Appearance = appearance15.
+        appearance16:Image = CAST(resources:GetObject("appearance16.Image":U), System.Object).
+        valueListItem7:Appearance = appearance16.
         valueListItem7:DataValue = "DATETIME-TZ":U.
         valueListItem7:DisplayText = "DATETIME-TZ":U.
-        appearance16:Image = CAST(resources:GetObject("appearance16.Image":U), System.Object).
-        valueListItem9:Appearance = appearance16.
+        appearance17:Image = CAST(resources:GetObject("appearance17.Image":U), System.Object).
+        valueListItem9:Appearance = appearance17.
         valueListItem9:DataValue = "DECIMAL":U.
         valueListItem9:DisplayText = "DECIMAL":U.
-        appearance17:Image = CAST(resources:GetObject("appearance17.Image":U), System.Object).
-        valueListItem10:Appearance = appearance17.
+        appearance18:Image = CAST(resources:GetObject("appearance18.Image":U), System.Object).
+        valueListItem10:Appearance = appearance18.
         valueListItem10:DataValue = "HANDLE":U.
         valueListItem10:DisplayText = "HANDLE":U.
-        appearance18:Image = CAST(resources:GetObject("appearance18.Image":U), System.Object).
-        valueListItem11:Appearance = appearance18.
+        appearance19:Image = CAST(resources:GetObject("appearance19.Image":U), System.Object).
+        valueListItem11:Appearance = appearance19.
         valueListItem11:DataValue = "INT64":U.
         valueListItem11:DisplayText = "INT64":U.
-        appearance19:Image = CAST(resources:GetObject("appearance19.Image":U), System.Object).
-        valueListItem17:Appearance = appearance19.
+        appearance20:Image = CAST(resources:GetObject("appearance20.Image":U), System.Object).
+        valueListItem17:Appearance = appearance20.
         valueListItem17:DataValue = "INTEGER":U.
         valueListItem17:DisplayText = "INTEGER":U.
-        appearance20:Image = CAST(resources:GetObject("appearance20.Image":U), System.Object).
-        valueListItem12:Appearance = appearance20.
+        appearance21:Image = CAST(resources:GetObject("appearance21.Image":U), System.Object).
+        valueListItem12:Appearance = appearance21.
         valueListItem12:DataValue = "LOGICAL":U.
         valueListItem12:DisplayText = "LOGICAL":U.
-        appearance21:Image = CAST(resources:GetObject("appearance21.Image":U), System.Object).
-        valueListItem16:Appearance = appearance21.
+        appearance22:Image = CAST(resources:GetObject("appearance22.Image":U), System.Object).
+        valueListItem16:Appearance = appearance22.
         valueListItem16:DataValue = "PROGRESS.LANG.OBJECT":U.
         valueListItem16:DisplayText = "Progress.Lang.Object":U.
-        appearance22:Image = CAST(resources:GetObject("appearance22.Image":U), System.Object).
-        valueListItem13:Appearance = appearance22.
+        appearance23:Image = CAST(resources:GetObject("appearance23.Image":U), System.Object).
+        valueListItem13:Appearance = appearance23.
         valueListItem13:DataValue = "RAW":U.
         valueListItem13:DisplayText = "RAW":U.
-        appearance23:Image = CAST(resources:GetObject("appearance23.Image":U), System.Object).
-        valueListItem14:Appearance = appearance23.
+        appearance24:Image = CAST(resources:GetObject("appearance24.Image":U), System.Object).
+        valueListItem14:Appearance = appearance24.
         valueListItem14:DataValue = "RECID":U.
         valueListItem14:DisplayText = "RECID":U.
-        appearance24:Image = CAST(resources:GetObject("appearance24.Image":U), System.Object).
-        valueListItem15:Appearance = appearance24.
+        appearance25:Image = CAST(resources:GetObject("appearance25.Image":U), System.Object).
+        valueListItem15:Appearance = appearance25.
         valueListItem15:DataValue = "ROWID":U.
         valueListItem15:DisplayText = "ROWID":U.
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
@@ -753,9 +822,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         /*  */
         /* smartBusinessEntityBindingSource1_eField_FieldName */
         /*  */
-        DEFINE VARIABLE nestedvar5 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar5 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldName:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar5, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        DEFINE VARIABLE nestedvar6 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar6 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldName:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar6, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldName:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "FieldName":U, TRUE)).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldName:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2007.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldName:Location = NEW System.Drawing.Point(150, 3).
@@ -766,8 +835,8 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         /*  */
         /* smartBusinessEntityBindingSource1_eField_FieldName_Label */
         /*  */
-        appearance25:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldName_Label:Appearance = appearance25.
+        appearance26:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
+        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldName_Label:Appearance = appearance26.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldName_Label:AutoSize = TRUE.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldName_Label:Location = NEW System.Drawing.Point(3, 7).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldName_Label:Name = "smartBusinessEntityBindingSource1_eField_FieldName_Label":U.
@@ -777,9 +846,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         /*  */
         /* smartBusinessEntityBindingSource1_eField_FieldSource */
         /*  */
-        DEFINE VARIABLE nestedvar6 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar6 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldSource:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar6, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        DEFINE VARIABLE nestedvar7 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar7 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldSource:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar7, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldSource:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "FieldSource":U, TRUE)).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldSource:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2007.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldSource:Location = NEW System.Drawing.Point(150, 138).
@@ -789,8 +858,8 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         /*  */
         /* smartBusinessEntityBindingSource1_eField_FieldSource_Label */
         /*  */
-        appearance26:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldSource_Label:Appearance = appearance26.
+        appearance27:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
+        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldSource_Label:Appearance = appearance27.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldSource_Label:AutoSize = TRUE.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldSource_Label:Location = NEW System.Drawing.Point(4, 142).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldSource_Label:Name = "smartBusinessEntityBindingSource1_eField_FieldSource_Label":U.
@@ -800,9 +869,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         /*  */
         /* smartBusinessEntityBindingSource1_eField_FieldFormat */
         /*  */
-        DEFINE VARIABLE nestedvar7 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar7 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldFormat:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar7, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        DEFINE VARIABLE nestedvar8 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar8 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldFormat:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar8, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldFormat:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "FieldFormat":U, TRUE)).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldFormat:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2007.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldFormat:Location = NEW System.Drawing.Point(150, 111).
@@ -812,8 +881,8 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         /*  */
         /* smartBusinessEntityBindingSource1_eField_FieldFormat_Label */
         /*  */
-        appearance27:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldFormat_Label:Appearance = appearance27.
+        appearance28:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
+        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldFormat_Label:Appearance = appearance28.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldFormat_Label:AutoSize = TRUE.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldFormat_Label:Location = NEW System.Drawing.Point(4, 115).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldFormat_Label:Name = "smartBusinessEntityBindingSource1_eField_FieldFormat_Label":U.
@@ -823,8 +892,8 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         /*  */
         /* smartBusinessEntityBindingSource1_eField_FieldDataType_Label */
         /*  */
-        appearance28:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldDataType_Label:Appearance = appearance28.
+        appearance29:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
+        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldDataType_Label:Appearance = appearance29.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldDataType_Label:AutoSize = TRUE.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldDataType_Label:Location = NEW System.Drawing.Point(4, 34).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldDataType_Label:Name = "smartBusinessEntityBindingSource1_eField_FieldDataType_Label":U.
@@ -834,9 +903,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         /*  */
         /* smartBusinessEntityBindingSource1_eField_FieldLabel */
         /*  */
-        DEFINE VARIABLE nestedvar8 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar8 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldLabel:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar8, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        DEFINE VARIABLE nestedvar9 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar9 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldLabel:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar9, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldLabel:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "FieldLabel":U, TRUE)).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldLabel:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2007.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldLabel:Location = NEW System.Drawing.Point(150, 84).
@@ -846,8 +915,8 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         /*  */
         /* smartBusinessEntityBindingSource1_eField_FieldLabel_Label */
         /*  */
-        appearance29:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldLabel_Label:Appearance = appearance29.
+        appearance30:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
+        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldLabel_Label:Appearance = appearance30.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldLabel_Label:AutoSize = TRUE.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldLabel_Label:Location = NEW System.Drawing.Point(4, 88).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldLabel_Label:Name = "smartBusinessEntityBindingSource1_eField_FieldLabel_Label":U.
@@ -857,8 +926,8 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         /*  */
         /* smartBusinessEntityBindingSource1_eField_FieldInitial_Label */
         /*  */
-        appearance30:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldInitial_Label:Appearance = appearance30.
+        appearance31:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
+        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldInitial_Label:Appearance = appearance31.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldInitial_Label:AutoSize = TRUE.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldInitial_Label:Location = NEW System.Drawing.Point(3, 61).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldInitial_Label:Name = "smartBusinessEntityBindingSource1_eField_FieldInitial_Label":U.
@@ -868,9 +937,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         /*  */
         /* smartBusinessEntityBindingSource1_eField_FieldInitial */
         /*  */
-        DEFINE VARIABLE nestedvar9 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar9 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldInitial:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar9, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        DEFINE VARIABLE nestedvar10 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar10 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldInitial:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar10, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldInitial:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "FieldInitial":U, TRUE)).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldInitial:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2007.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldInitial:Location = NEW System.Drawing.Point(150, 57).
@@ -880,11 +949,11 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         /*  */
         /* smartBusinessEntityBindingSource1_eField_FieldExtent_Label */
         /*  */
-        DEFINE VARIABLE nestedvar10 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar10 = System.Windows.Forms.AnchorStyles:Top.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldExtent_Label:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar10, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
-        appearance31:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldExtent_Label:Appearance = appearance31.
+        DEFINE VARIABLE nestedvar11 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar11 = System.Windows.Forms.AnchorStyles:Top.
+        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldExtent_Label:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar11, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        appearance32:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
+        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldExtent_Label:Appearance = appearance32.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldExtent_Label:AutoSize = TRUE.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldExtent_Label:Location = NEW System.Drawing.Point(332, 34).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldExtent_Label:Name = "smartBusinessEntityBindingSource1_eField_FieldExtent_Label":U.
@@ -894,9 +963,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         /*  */
         /* smartBusinessEntityBindingSource1_eField_FieldExtent */
         /*  */
-        DEFINE VARIABLE nestedvar11 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar11 = System.Windows.Forms.AnchorStyles:Top.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldExtent:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar11, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        DEFINE VARIABLE nestedvar12 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar12 = System.Windows.Forms.AnchorStyles:Top.
+        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldExtent:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar12, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldExtent:DataBindings:Add(NEW System.Windows.Forms.Binding("Value":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "FieldExtent":U, TRUE)).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldExtent:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2007.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldExtent:Location = NEW System.Drawing.Point(377, 30).
@@ -909,21 +978,21 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         /*  */
         /* eField_FieldCustomControlName_Label */
         /*  */
-        appearance32:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
-        THIS-OBJECT:eField_FieldCustomControlName_Label:Appearance = appearance32.
+        appearance33:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
+        THIS-OBJECT:eField_FieldCustomControlName_Label:Appearance = appearance33.
         THIS-OBJECT:eField_FieldCustomControlName_Label:AutoSize = TRUE.
         THIS-OBJECT:eField_FieldCustomControlName_Label:Location = NEW System.Drawing.Point(4, 196).
         THIS-OBJECT:eField_FieldCustomControlName_Label:Name = "eField_FieldCustomControlName_Label":U.
-        THIS-OBJECT:eField_FieldCustomControlName_Label:Size = NEW System.Drawing.Size(147, 14).
+        THIS-OBJECT:eField_FieldCustomControlName_Label:Size = NEW System.Drawing.Size(119, 14).
         THIS-OBJECT:eField_FieldCustomControlName_Label:TabIndex = 20.
-        THIS-OBJECT:eField_FieldCustomControlName_Label:Text = "&Field Custom Control Name:":U.
+        THIS-OBJECT:eField_FieldCustomControlName_Label:Text = "&Custom Control Name:":U.
         /*  */
         /* ultraTabPageControl2 */
         /*  */
         THIS-OBJECT:ultraTabPageControl2:Controls:Add(THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldDescription).
         THIS-OBJECT:ultraTabPageControl2:Location = NEW System.Drawing.Point(-10000, -10000).
         THIS-OBJECT:ultraTabPageControl2:Name = "ultraTabPageControl2":U.
-        THIS-OBJECT:ultraTabPageControl2:Size = NEW System.Drawing.Size(554, 220).
+        THIS-OBJECT:ultraTabPageControl2:Size = NEW System.Drawing.Size(554, 268).
         /*  */
         /* smartBusinessEntityBindingSource1_eField_FieldDescription */
         /*  */
@@ -933,7 +1002,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldDescription:Multiline = TRUE.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldDescription:Name = "smartBusinessEntityBindingSource1_eField_FieldDescription":U.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldDescription:Scrollbars = System.Windows.Forms.ScrollBars:Both.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldDescription:Size = NEW System.Drawing.Size(554, 220).
+        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldDescription:Size = NEW System.Drawing.Size(554, 268).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldDescription:TabIndex = 0.
         /*  */
         /* ultraTabPageControl3 */
@@ -950,7 +1019,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         THIS-OBJECT:ultraTabPageControl3:Controls:Add(THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldXmlDataType).
         THIS-OBJECT:ultraTabPageControl3:Location = NEW System.Drawing.Point(-10000, -10000).
         THIS-OBJECT:ultraTabPageControl3:Name = "ultraTabPageControl3":U.
-        THIS-OBJECT:ultraTabPageControl3:Size = NEW System.Drawing.Size(554, 220).
+        THIS-OBJECT:ultraTabPageControl3:Size = NEW System.Drawing.Size(554, 268).
         /*  */
         /* smartBusinessEntityBindingSource1_eField_FieldSerializeHidden */
         /*  */
@@ -964,9 +1033,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         /*  */
         /* smartBusinessEntityBindingSource1_eField_FieldXmlNodeName */
         /*  */
-        DEFINE VARIABLE nestedvar12 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar12 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldXmlNodeName:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar12, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        DEFINE VARIABLE nestedvar13 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar13 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldXmlNodeName:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar13, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldXmlNodeName:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "FieldXmlNodeName":U, TRUE)).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldXmlNodeName:Location = NEW System.Drawing.Point(150, 110).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldXmlNodeName:Name = "smartBusinessEntityBindingSource1_eField_FieldXmlNodeName":U.
@@ -975,8 +1044,8 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         /*  */
         /* smartBusinessEntityBindingSource1_eField_FieldXmlNodeName_Label */
         /*  */
-        appearance33:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldXmlNodeName_Label:Appearance = appearance33.
+        appearance34:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
+        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldXmlNodeName_Label:Appearance = appearance34.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldXmlNodeName_Label:AutoSize = TRUE.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldXmlNodeName_Label:Location = NEW System.Drawing.Point(3, 114).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldXmlNodeName_Label:Name = "smartBusinessEntityBindingSource1_eField_FieldXmlNodeName_Label":U.
@@ -986,8 +1055,8 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         /*  */
         /* smartBusinessEntityBindingSource1_eField_FieldSerializeName_Label */
         /*  */
-        appearance34:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldSerializeName_Label:Appearance = appearance34.
+        appearance35:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
+        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldSerializeName_Label:Appearance = appearance35.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldSerializeName_Label:AutoSize = TRUE.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldSerializeName_Label:Location = NEW System.Drawing.Point(3, 33).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldSerializeName_Label:Name = "smartBusinessEntityBindingSource1_eField_FieldSerializeName_Label":U.
@@ -997,9 +1066,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         /*  */
         /* smartBusinessEntityBindingSource1_eField_FieldXmlNodeType */
         /*  */
-        DEFINE VARIABLE nestedvar13 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar13 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldXmlNodeType:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar13, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        DEFINE VARIABLE nestedvar14 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar14 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldXmlNodeType:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar14, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldXmlNodeType:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "FieldXmlNodeType":U, TRUE)).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldXmlNodeType:Location = NEW System.Drawing.Point(150, 83).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldXmlNodeType:Name = "smartBusinessEntityBindingSource1_eField_FieldXmlNodeType":U.
@@ -1008,9 +1077,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         /*  */
         /* smartBusinessEntityBindingSource1_eField_FieldSerializeName */
         /*  */
-        DEFINE VARIABLE nestedvar14 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar14 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldSerializeName:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar14, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        DEFINE VARIABLE nestedvar15 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar15 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldSerializeName:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar15, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldSerializeName:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "FieldSerializeName":U, TRUE)).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldSerializeName:Location = NEW System.Drawing.Point(150, 29).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldSerializeName:Name = "smartBusinessEntityBindingSource1_eField_FieldSerializeName":U.
@@ -1019,8 +1088,8 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         /*  */
         /* smartBusinessEntityBindingSource1_eField_FieldXmlNodeType_Label */
         /*  */
-        appearance35:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldXmlNodeType_Label:Appearance = appearance35.
+        appearance36:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
+        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldXmlNodeType_Label:Appearance = appearance36.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldXmlNodeType_Label:AutoSize = TRUE.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldXmlNodeType_Label:Location = NEW System.Drawing.Point(3, 87).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldXmlNodeType_Label:Name = "smartBusinessEntityBindingSource1_eField_FieldXmlNodeType_Label":U.
@@ -1030,8 +1099,8 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         /*  */
         /* smartBusinessEntityBindingSource1_eField_FieldXmlDataType_Label */
         /*  */
-        appearance36:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldXmlDataType_Label:Appearance = appearance36.
+        appearance37:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
+        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldXmlDataType_Label:Appearance = appearance37.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldXmlDataType_Label:AutoSize = TRUE.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldXmlDataType_Label:Location = NEW System.Drawing.Point(3, 60).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldXmlDataType_Label:Name = "smartBusinessEntityBindingSource1_eField_FieldXmlDataType_Label":U.
@@ -1041,9 +1110,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         /*  */
         /* smartBusinessEntityBindingSource1_eField_FieldXmlDataType */
         /*  */
-        DEFINE VARIABLE nestedvar15 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar15 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldXmlDataType:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar15, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        DEFINE VARIABLE nestedvar16 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar16 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldXmlDataType:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar16, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldXmlDataType:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "FieldXmlDataType":U, TRUE)).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldXmlDataType:Location = NEW System.Drawing.Point(150, 56).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldXmlDataType:Name = "smartBusinessEntityBindingSource1_eField_FieldXmlDataType":U.
@@ -1053,26 +1122,26 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         /* ultraTabPageControl4 */
         /*  */
         THIS-OBJECT:ultraTabPageControl4:Controls:Add(THIS-OBJECT:ultraTextEditor1).
-        THIS-OBJECT:ultraTabPageControl4:Location = NEW System.Drawing.Point(1, 22).
+        THIS-OBJECT:ultraTabPageControl4:Location = NEW System.Drawing.Point(-10000, -10000).
         THIS-OBJECT:ultraTabPageControl4:Name = "ultraTabPageControl4":U.
-        THIS-OBJECT:ultraTabPageControl4:Size = NEW System.Drawing.Size(554, 220).
+        THIS-OBJECT:ultraTabPageControl4:Size = NEW System.Drawing.Size(554, 268).
         /*  */
         /* ultraTextEditor1 */
         /*  */
         THIS-OBJECT:ultraTextEditor1:AlwaysInEditMode = TRUE.
-        appearance37:BackColor = System.Drawing.Color:White.
-        appearance37:BackColor2 = System.Drawing.Color:White.
-        appearance37:FontData:Name = "Courier New":U.
-        appearance37:FontData:SizeInPoints = Progress.Util.CastUtil:ToSingle(11).
-        appearance37:ForeColor = System.Drawing.Color:Black.
-        THIS-OBJECT:ultraTextEditor1:Appearance = appearance37.
+        appearance38:BackColor = System.Drawing.Color:White.
+        appearance38:BackColor2 = System.Drawing.Color:White.
+        appearance38:FontData:Name = "Courier New":U.
+        appearance38:FontData:SizeInPoints = Progress.Util.CastUtil:ToSingle(11).
+        appearance38:ForeColor = System.Drawing.Color:Black.
+        THIS-OBJECT:ultraTextEditor1:Appearance = appearance38.
         THIS-OBJECT:ultraTextEditor1:BackColor = System.Drawing.Color:White.
         THIS-OBJECT:ultraTextEditor1:DataBindings:Add(NEW System.Windows.Forms.Binding("Value":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "FieldCalcExpression":U, TRUE)).
         THIS-OBJECT:ultraTextEditor1:Dock = System.Windows.Forms.DockStyle:Fill.
         THIS-OBJECT:ultraTextEditor1:Location = NEW System.Drawing.Point(0, 0).
         THIS-OBJECT:ultraTextEditor1:Multiline = TRUE.
         THIS-OBJECT:ultraTextEditor1:Name = "ultraTextEditor1":U.
-        THIS-OBJECT:ultraTextEditor1:Size = NEW System.Drawing.Size(554, 220).
+        THIS-OBJECT:ultraTextEditor1:Size = NEW System.Drawing.Size(554, 268).
         THIS-OBJECT:ultraTextEditor1:TabIndex = 0.
         THIS-OBJECT:ultraTextEditor1:UseAppStyling = FALSE.
         /*  */
@@ -1087,7 +1156,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         THIS-OBJECT:ultraTabControl1:Location = NEW System.Drawing.Point(0, 0).
         THIS-OBJECT:ultraTabControl1:Name = "ultraTabControl1":U.
         THIS-OBJECT:ultraTabControl1:SharedControlsPage = THIS-OBJECT:ultraTabSharedControlsPage1.
-        THIS-OBJECT:ultraTabControl1:Size = NEW System.Drawing.Size(556, 243).
+        THIS-OBJECT:ultraTabControl1:Size = NEW System.Drawing.Size(556, 299).
         THIS-OBJECT:ultraTabControl1:TabIndex = 0.
         ultraTab1:TabPage = THIS-OBJECT:ultraTabPageControl1.
         ultraTab1:Text = "Field":U.
@@ -1110,19 +1179,28 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         /*  */
         THIS-OBJECT:ultraTabSharedControlsPage1:Location = NEW System.Drawing.Point(-10000, -10000).
         THIS-OBJECT:ultraTabSharedControlsPage1:Name = "ultraTabSharedControlsPage1":U.
-        THIS-OBJECT:ultraTabSharedControlsPage1:Size = NEW System.Drawing.Size(554, 220).
+        THIS-OBJECT:ultraTabSharedControlsPage1:Size = NEW System.Drawing.Size(554, 276).
+        /*  */
+        /* eField_FieldSkipAssignment */
+        /*  */
+        THIS-OBJECT:eField_FieldSkipAssignment:DataBindings:Add(NEW System.Windows.Forms.Binding("CheckedValue":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "FieldSkipAssignment":U, TRUE)).
+        THIS-OBJECT:eField_FieldSkipAssignment:Location = NEW System.Drawing.Point(150, 247).
+        THIS-OBJECT:eField_FieldSkipAssignment:Name = "eField_FieldSkipAssignment":U.
+        THIS-OBJECT:eField_FieldSkipAssignment:Size = NEW System.Drawing.Size(401, 20).
+        THIS-OBJECT:eField_FieldSkipAssignment:TabIndex = 3.
+        THIS-OBJECT:eField_FieldSkipAssignment:Text = "Add field to AssignSkipDictionary":U.
         /*  */
         /* FieldViewerControl */
         /*  */
         THIS-OBJECT:AutoScaleDimensions = NEW System.Drawing.SizeF(Progress.Util.CastUtil:ToSingle(6), Progress.Util.CastUtil:ToSingle(13)).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:ultraTabControl1).
         THIS-OBJECT:Name = "FieldViewerControl":U.
-        THIS-OBJECT:Size = NEW System.Drawing.Size(556, 243).
-        THIS-OBJECT:SmartTableIOState = "NoDataSource":U.
+        THIS-OBJECT:Size = NEW System.Drawing.Size(556, 299).
         THIS-OBJECT:ultraTabPageControl1:ResumeLayout(FALSE).
         THIS-OBJECT:ultraTabPageControl1:PerformLayout().
-        CAST(THIS-OBJECT:ultraCheckEditor2, System.ComponentModel.ISupportInitialize):EndInit().
+        CAST(THIS-OBJECT:cbSemanticType, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:smartBusinessEntityBindingSource1, System.ComponentModel.ISupportInitialize):EndInit().
+        CAST(THIS-OBJECT:ultraCheckEditor2, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:eField_FieldCustomControlName, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:ultraCheckEditor1, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:ultraComboEditor3, System.ComponentModel.ISupportInitialize):EndInit().
@@ -1149,6 +1227,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         CAST(THIS-OBJECT:ultraTextEditor1, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:ultraTabControl1, System.ComponentModel.ISupportInitialize):EndInit().
         THIS-OBJECT:ultraTabControl1:ResumeLayout(FALSE).
+        CAST(THIS-OBJECT:eField_FieldSkipAssignment, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT, System.ComponentModel.ISupportInitialize):EndInit().
         THIS-OBJECT:ResumeLayout(FALSE).
         CATCH e AS Progress.Lang.Error:
@@ -1156,127 +1235,178 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldViewerControl INHERITS Smart
         END CATCH.
     END METHOD.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Raises the Load event
-	    Notes:
-	    @param e The System.EventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
-		
+    /*------------------------------------------------------------------------------
+        Purpose: Raises the Load event
+        Notes:
+        @param e The System.EventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
+
         DEFINE VARIABLE oValueList                      AS Infragistics.Win.ValueList                        NO-UNDO .
-        DEFINE VARIABLE oAlternativeControlTypeProvider AS ISmartViewerBuilderAlternativeControlTypeProvider NO-UNDO .   
-		
-		SUPER:OnLoad (e) .
+        DEFINE VARIABLE oAlternativeControlTypeProvider AS ISmartViewerBuilderAlternativeControlTypeProvider NO-UNDO .
 
-        oValueList = NEW Infragistics.Win.ValueList () . 
-        oValueList:ValueListItems:Add ("":U) .                
+        SUPER:OnLoad (e) .
 
-        ASSIGN oAlternativeControlTypeProvider = {Consultingwerk/get-service.i Consultingwerk.BusinessEntityDesigner.Plugins.CustomServices.ISmartViewerBuilderAlternativeControlTypeProvider} .                
-                
-        IF VALID-OBJECT (oAlternativeControlTypeProvider) THEN 
+        oValueList = NEW Infragistics.Win.ValueList () .
+        oValueList:ValueListItems:Add ("":U) .
+
+        ASSIGN oAlternativeControlTypeProvider = {Consultingwerk/get-service.i Consultingwerk.BusinessEntityDesigner.Plugins.CustomServices.ISmartViewerBuilderAlternativeControlTypeProvider} .
+
+        IF VALID-OBJECT (oAlternativeControlTypeProvider) THEN
             oAlternativeControlTypeProvider:AddCustomControlTypes (AlternativeControlTypeProviderOriginEnum:AblFrameMigrationForm,
-                                                                   oValueList) .                
-    
-        eField_FieldCustomControlName:ValueList = oValueList .           
+                                                                   oValueList) .
 
-	END METHOD.
-
-    /*------------------------------------------------------------------------------
-        Purpose: Saves the current changes to the database.
-        Notes:   This Method is called by the Toolbar Classes SmartToolbarController 
-                 or SmartToolStripContainer by pressing the corresponding Tool.
-                 Enforced by Interface ISmartDataTarget or ISmartGroupAssignTarget.
-    ------------------------------------------------------------------------------*/
-	METHOD OVERRIDE PUBLIC VOID SaveChanges ():
-		
-        &IF NOT PROVERSION BEGINS "10" &THEN
-        IF VALID-OBJECT (oValidationSettings) THEN 
-            oValidationSettings:Assign () . 
-        &ENDIF	    	
-		
-		SUPER:SaveChanges().
-
-	END METHOD.
-
-	/*------------------------------------------------------------------------------
-	    Purpose: Event handler for the Leave event of the smartBusinessEntityBindingSource1_eField_FieldName 
-	             Control 
-	    Notes:   Builds a well formed label from a camel cased field name
-        @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event 
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID smartBusinessEntityBindingSource1_eField_FieldName_Leave (sender AS System.Object, 
-	                                                                              e AS System.EventArgs):
-		
-		DEFINE VARIABLE cLabel AS CHARACTER NO-UNDO.
-		
-		IF THIS-OBJECT:SmartTableIOState = TableIOStateEnum:ModifyingData AND 
-		   THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldLabel:Text = "":U THEN DO:
-		       
-            ASSIGN cLabel = StringHelper:WellFormFromCamelCase (THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldName:Text) .
-            
-            THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldLabel:Text = cLabel .              		       
-		END.
-
-	END METHOD.
-
-    /*------------------------------------------------------------------------------
-        Purpose: Event handler for the CheckedChanged event of the ultraCheckEditor2 
-                 instance                                                                         
-        Notes:   
-        @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event 
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraCheckEditor2_CheckedChanged (sender AS System.Object, 
-	                                                      e AS System.EventArgs):
-		
-		IF ultraCheckEditor2:Checked THEN 
-		    THIS-OBJECT:SetControlEnabled (THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldInitial,
-		                                   ControlEnabledEnum:Never) .
-        ELSE 
-            THIS-OBJECT:SetControlEnabled (THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldInitial,
-                                           ControlEnabledEnum:Update) .        
-
-	END METHOD .
-
-    /*------------------------------------------------------------------------------
-        Purpose: Event handler for the ValueChanged event of the ultraComboEditor2 
-                 instance                                                                         
-        Notes:           
-        @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event 
-    ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraComboEditor2_ValueChanged (sender AS System.Object, 
-                                                        e AS System.EventArgs):
-        
-        IF NOT ultraComboEditor2:Focused THEN 
-            RETURN .
-            
-        IF UNBOX (ultraComboEditor2:Value) = "PROTECTED":U AND UNBOX (ultraComboEditor3:Value) = "PUBLIC":U THEN 
-            ultraComboEditor3:Value = BOX ("PROTECTED":U) .
-
-        IF UNBOX (ultraComboEditor2:Value) = "PRIVATE":U AND UNBOX (ultraComboEditor3:Value) <> "PRIVATE":U THEN 
-            ultraComboEditor3:Value = BOX ("PRIVATE":U) .
+        eField_FieldCustomControlName:ValueList = oValueList .
 
     END METHOD.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Event handler for the ValueChanged event of the FieldValidationPropertiesControl
-	    Notes:
-	    @param sender The reference to the object that raised the event
-	    @param e The Consultingwerk.EventArgs with the data for this event   
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID ValueChangedHandler (sender AS Progress.Lang.Object,
-	                                        e AS Consultingwerk.EventArgs):
-		
-		IF THIS-OBJECT:SmartTableIOState = TableIOStateEnum:FieldsEnabled THEN 
-		    THIS-OBJECT:SmartTableIOState = TableIOStateEnum:ModifyingData .
+    /*------------------------------------------------------------------------------
+        Purpose: Saves the current changes to the database.
+        Notes:   This Method is called by the Toolbar Classes SmartToolbarController
+                 or SmartToolStripContainer by pressing the corresponding Tool.
+                 Enforced by Interface ISmartDataTarget or ISmartGroupAssignTarget.
+    ------------------------------------------------------------------------------*/
+    METHOD OVERRIDE PUBLIC VOID SaveChanges ():
 
-	END METHOD.
+        &IF NOT PROVERSION BEGINS "10" &THEN
+        IF VALID-OBJECT (oValidationSettings) THEN
+            oValidationSettings:Assign () .
+        &ENDIF
+
+        SUPER:SaveChanges().
+
+    END METHOD.
+
+    /**
+     * Purpose: Event handler for the Enter event of the cbSementicType
+     * Notes:
+     * @param sender The reference to the object that raised the event
+     * @param e The System.EventArgs with the data for this event
+     */
+    METHOD PRIVATE VOID cbSemanticType_Enter (sender AS System.Object,
+                                              e AS System.EventArgs):
+
+        THIS-OBJECT:PopulateSemanticTypes () .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
+    END METHOD.
+
+
+    /**
+     * Purpose: Event handler for the BeforeDropDown event of the cbSementicType
+     * Notes:
+     * @param sender The reference to the object that raised the event
+     * @param e The CancelEventArgs with the data for this event
+     */
+    METHOD PRIVATE VOID cbSemanticType_BeforeDropDown (sender AS System.Object,
+                                                       e AS System.ComponentModel.CancelEventArgs):
+
+        THIS-OBJECT:PopulateSemanticTypes () .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
+    END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the FieldViewerControl class                                                                        
-        Notes:      
+        Purpose: Event handler for the Leave event of the smartBusinessEntityBindingSource1_eField_FieldName
+                 Control
+        Notes:   Builds a well formed label from a camel cased field name
+        @param sender The reference to the object that raised the event
+        @param e The System.EventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID smartBusinessEntityBindingSource1_eField_FieldName_Leave (sender AS System.Object,
+                                                                                  e AS System.EventArgs):
+
+        DEFINE VARIABLE cLabel AS CHARACTER NO-UNDO.
+
+        IF THIS-OBJECT:SmartTableIOState = TableIOStateEnum:ModifyingData AND
+           THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldLabel:Text = "":U THEN DO:
+
+            ASSIGN cLabel = StringHelper:WellFormFromCamelCase (THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldName:Text) .
+
+            THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldLabel:Text = cLabel .
+        END.
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the CheckedChanged event of the ultraCheckEditor2
+                 instance
+        Notes:
+        @param sender The reference to the object that raised the event
+        @param e The System.EventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID ultraCheckEditor2_CheckedChanged (sender AS System.Object,
+                                                          e AS System.EventArgs):
+
+        IF ultraCheckEditor2:Checked THEN
+            THIS-OBJECT:SetControlEnabled (THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldInitial,
+                                           ControlEnabledEnum:Never) .
+        ELSE
+            THIS-OBJECT:SetControlEnabled (THIS-OBJECT:smartBusinessEntityBindingSource1_eField_FieldInitial,
+                                           ControlEnabledEnum:Update) .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the ValueChanged event of the ultraComboEditor2
+                 instance
+        Notes:
+        @param sender The reference to the object that raised the event
+        @param e The System.EventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID ultraComboEditor2_ValueChanged (sender AS System.Object,
+                                                        e AS System.EventArgs):
+
+        IF NOT ultraComboEditor2:Focused THEN
+            RETURN .
+
+        IF UNBOX (ultraComboEditor2:Value) = "PROTECTED":U AND UNBOX (ultraComboEditor3:Value) = "PUBLIC":U THEN
+            ultraComboEditor3:Value = BOX ("PROTECTED":U) .
+
+        IF UNBOX (ultraComboEditor2:Value) = "PRIVATE":U AND UNBOX (ultraComboEditor3:Value) <> "PRIVATE":U THEN
+            ultraComboEditor3:Value = BOX ("PRIVATE":U) .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the ValueChanged event of the FieldValidationPropertiesControl
+        Notes:
+        @param sender The reference to the object that raised the event
+        @param e The Consultingwerk.EventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC VOID ValueChangedHandler (sender AS Progress.Lang.Object,
+                                            e AS Consultingwerk.EventArgs):
+
+        IF THIS-OBJECT:SmartTableIOState = TableIOStateEnum:FieldsEnabled THEN
+            THIS-OBJECT:SmartTableIOState = TableIOStateEnum:ModifyingData .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Destructor for the FieldViewerControl class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC FieldViewerControl ():
 

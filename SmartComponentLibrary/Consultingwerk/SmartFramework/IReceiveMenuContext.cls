@@ -34,6 +34,6 @@ INTERFACE Consultingwerk.SmartFramework.IReceiveMenuContext:
                  about the Label of the menu item that launched the current function
         @param poContext The context of the menu function that launched the current object
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID ReceiveMenuContext (poContext AS Progress.Lang.Object).
+    METHOD PUBLIC VOID ReceiveMenuContext (poContext AS Progress.Lang.Object).
 
 END INTERFACE.

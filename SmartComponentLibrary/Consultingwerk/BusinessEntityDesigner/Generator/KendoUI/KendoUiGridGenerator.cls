@@ -33,11 +33,11 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.KendoUI.KendoUiGridGenerat
         Notes:   
         @param poBuilder The reference to the KendoUiGridBuilder instance
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID Generate (poBuilder AS IKendoUiGridBuilder):
-		
-		DEFINE VARIABLE lcSource AS LONGCHAR NO-UNDO .
-		DEFINE VARIABLE lcGrid   AS LONGCHAR NO-UNDO .
-		
+    METHOD PUBLIC VOID Generate (poBuilder AS IKendoUiGridBuilder):
+        
+        DEFINE VARIABLE lcSource AS LONGCHAR NO-UNDO .
+        DEFINE VARIABLE lcGrid   AS LONGCHAR NO-UNDO .
+        
         ObjectAssert:IsValid (poBuilder) .
 
         lcGrid = poBuilder:GetGrid() .
@@ -54,6 +54,6 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.KendoUI.KendoUiGridGenerat
 
         COPY-LOB FROM lcSource TO FILE poBuilder:OutputFileName .
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

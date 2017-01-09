@@ -44,8 +44,8 @@ CLASS Consultingwerk.SmartFramework.Authorization.TokenSecurityService
         Notes:   
         @param poLookupDescriptor The reference to the SmartBusinessEntityLookupDescriptor to assign the properties to 
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID AssignLookupDescriptorProperties (poLookupDescriptor AS SmartBusinessEntityLookupDescriptor):
-		
+    METHOD PUBLIC VOID AssignLookupDescriptorProperties (poLookupDescriptor AS SmartBusinessEntityLookupDescriptor):
+        
         ASSIGN poLookupDescriptor:AppServerPartition          = "":U
                poLookupDescriptor:LookupBrowserFields         = "SecurityTokenCode,SecurityTokenDescription":U
                poLookupDescriptor:LookupControls              = "":U
@@ -65,7 +65,7 @@ CLASS Consultingwerk.SmartFramework.Authorization.TokenSecurityService
                poLookupDescriptor:LookupQueryString           = "FOR EACH eSmartSecurityToken WHERE eSmartSecurityToken.SecurityTokenCode BEGINS ~"&1~"":U
                .
                
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the Description for the security item 
@@ -73,22 +73,22 @@ CLASS Consultingwerk.SmartFramework.Authorization.TokenSecurityService
         @param pcItemKey The unique key of the security item
         @return The description of the security item
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC CHARACTER GetDescription (pcItemKey AS CHARACTER):
-		
-		DEFINE VARIABLE oSecurityTokenDatasetModel AS SecurityTokenDatasetModel NO-UNDO .
-		
-		IF pcItemKey = "":U THEN 
-		    RETURN "<unknown>":U .
-		
-		oSecurityTokenDatasetModel = NEW SecurityTokenDatasetModel (pcItemKey) .
-		
-		IF oSecurityTokenDatasetModel:SmartSecurityToken:Available THEN 
-		    RETURN SUBSTITUTE ("&1":U, 
-		                       oSecurityTokenDatasetModel:SmartSecurityToken:SecurityTokenCode) . 
-		
-		RETURN pcItemKey .
+    METHOD PUBLIC CHARACTER GetDescription (pcItemKey AS CHARACTER):
+        
+        DEFINE VARIABLE oSecurityTokenDatasetModel AS SecurityTokenDatasetModel NO-UNDO .
+        
+        IF pcItemKey = "":U THEN 
+            RETURN "<unknown>":U .
+        
+        oSecurityTokenDatasetModel = NEW SecurityTokenDatasetModel (pcItemKey) .
+        
+        IF oSecurityTokenDatasetModel:SmartSecurityToken:Available THEN 
+            RETURN SUBSTITUTE ("&1":U, 
+                               oSecurityTokenDatasetModel:SmartSecurityToken:SecurityTokenCode) . 
+        
+        RETURN pcItemKey .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Validates the security item key  
@@ -96,10 +96,10 @@ CLASS Consultingwerk.SmartFramework.Authorization.TokenSecurityService
         @param pcItemKey The unique key of the security item
         @return Logical value indicating if the security item key is valid
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL ValidateKey (pcItemKey AS CHARACTER):
-		
-		RETURN pcItemKey = "":U OR CAN-FIND (SmartSecurityToken WHERE SmartSecurityToken.SecurityTokenGuid = pcItemKey) .
+    METHOD PUBLIC LOGICAL ValidateKey (pcItemKey AS CHARACTER):
+        
+        RETURN pcItemKey = "":U OR CAN-FIND (SmartSecurityToken WHERE SmartSecurityToken.SecurityTokenGuid = pcItemKey) .
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

@@ -55,14 +55,14 @@ CLASS Consultingwerk.Util.Exceptions.MissingIndexFieldValueException
        @param pcBuffername The name of the buffer that caused the exception
        @param pcFieldName The name of the field that caused the exception
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC MissingIndexFieldValueException (pcErrorMessage AS CHARACTER,
-	                                                    pcBufferName AS CHARACTER,
-	                                                    pcFieldName AS CHARACTER):
+    CONSTRUCTOR PUBLIC MissingIndexFieldValueException (pcErrorMessage AS CHARACTER,
+                                                        pcBufferName AS CHARACTER,
+                                                        pcFieldName AS CHARACTER):
 
-		SUPER (SUBSTITUTE (pcErrorMessage, pcBufferName, pcFieldName), 0).
-	
-	    ASSIGN THIS-OBJECT:FieldName = pcFieldName . 
-		
-	END CONSTRUCTOR.
-		
+        SUPER (SUBSTITUTE (pcErrorMessage, pcBufferName, pcFieldName), 0).
+    
+        ASSIGN THIS-OBJECT:FieldName = pcFieldName . 
+        
+    END CONSTRUCTOR.
+        
 END CLASS.

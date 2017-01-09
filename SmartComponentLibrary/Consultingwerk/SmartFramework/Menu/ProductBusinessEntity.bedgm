@@ -16,6 +16,10 @@
     <DefaultTableSuffix/>
     <DefaultBeforeTablePrefix>e</DefaultBeforeTablePrefix>
     <DefaultBeforeTableSuffix>Before</DefaultBeforeTableSuffix>
+    <GenerateBusinessEntity>true</GenerateBusinessEntity>
+    <GenerateDataAccess>true</GenerateDataAccess>
+    <GenerateDatasetController>true</GenerateDatasetController>
+    <DistinctTempTableIncludeFiles>true</DistinctTempTableIncludeFiles>
   </eBusinessEntity>
   <eTable>
     <BusinessEntityName>ProductBusinessEntity</BusinessEntityName>
@@ -23,6 +27,7 @@
     <SourceTableNames>SmartProduct</SourceTableNames>
     <SourceBufferNames>SmartProduct</SourceBufferNames>
     <SourceDefaultQuery/>
+    <SourceBufferKeys/>
     <TempTablePurpose/>
     <TempTableDescription/>
     <TempTablePath>Consultingwerk/SmartFramework/Menu</TempTablePath>
@@ -48,6 +53,7 @@
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription>Code</FieldDescription>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>Code</FieldLabel>
     <FieldFormat>x(20)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -61,6 +67,10 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+    <FieldSemanticType/>
+    <FieldSkipAssignment>false</FieldSkipAssignment>
   </eField>
   <eField>
     <BusinessEntityName>ProductBusinessEntity</BusinessEntityName>
@@ -69,7 +79,8 @@
     <FieldOrder>4</FieldOrder>
     <FieldDataType>CLOB</FieldDataType>
     <FieldDescription>ProductDescription</FieldDescription>
-    <FieldInitial xsi:nil="true"/>
+    <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>ProductDescription</FieldLabel>
     <FieldFormat>x(8)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -83,6 +94,10 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+    <FieldSemanticType/>
+    <FieldSkipAssignment>false</FieldSkipAssignment>
   </eField>
   <eField>
     <BusinessEntityName>ProductBusinessEntity</BusinessEntityName>
@@ -92,6 +107,7 @@
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription>ProductGuid</FieldDescription>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>ProductGuid</FieldLabel>
     <FieldFormat>x(36)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -105,6 +121,10 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+    <FieldSemanticType/>
+    <FieldSkipAssignment>false</FieldSkipAssignment>
   </eField>
   <eField>
     <BusinessEntityName>ProductBusinessEntity</BusinessEntityName>
@@ -114,6 +134,7 @@
     <FieldDataType>LOGICAL</FieldDataType>
     <FieldDescription>Installed</FieldDescription>
     <FieldInitial>no</FieldInitial>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>Installed</FieldLabel>
     <FieldFormat>yes/no</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -127,6 +148,10 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+    <FieldSemanticType/>
+    <FieldSkipAssignment>false</FieldSkipAssignment>
   </eField>
   <eField>
     <BusinessEntityName>ProductBusinessEntity</BusinessEntityName>
@@ -136,6 +161,7 @@
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription>Name</FieldDescription>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>Name</FieldLabel>
     <FieldFormat>x(80)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -149,6 +175,10 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+    <FieldSemanticType/>
+    <FieldSkipAssignment>false</FieldSkipAssignment>
   </eField>
   <eIndex>
     <BusinessEntityName>ProductBusinessEntity</BusinessEntityName>

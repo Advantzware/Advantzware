@@ -49,10 +49,11 @@ CLASS Consultingwerk.Windows.Framework.Menu.SmartMenuStyleViewerControl
         
     END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design
-        Notes:   
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
         
         /* NOTE: The following method is automatically generated.
@@ -69,6 +70,9 @@ CLASS Consultingwerk.Windows.Framework.Menu.SmartMenuStyleViewerControl
         DEFINE VARIABLE appearance1 AS Infragistics.Win.Appearance NO-UNDO.
         appearance1 = NEW Infragistics.Win.Appearance().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE resources AS Progress.Util.ResourceManager NO-UNDO.
+        resources = NEW Progress.Util.ResourceManager("Consultingwerk.Windows.Framework.Menu.SmartMenuStyleViewerControl":U).
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance2 AS Infragistics.Win.Appearance NO-UNDO.
         appearance2 = NEW Infragistics.Win.Appearance().
         THIS-OBJECT:smartBusinessEntityBindingSource1 = NEW Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource(THIS-OBJECT:components).
@@ -84,13 +88,10 @@ CLASS Consultingwerk.Windows.Framework.Menu.SmartMenuStyleViewerControl
         /*  */
         /* smartBusinessEntityBindingSource1 */
         /*  */
-        THIS-OBJECT:smartBusinessEntityBindingSource1:AddFields = FALSE.
         THIS-OBJECT:smartBusinessEntityBindingSource1:BindTo = "QUERY":U.
-        THIS-OBJECT:smartBusinessEntityBindingSource1:ClearSchema = FALSE.
         THIS-OBJECT:smartBusinessEntityBindingSource1:EntityJoin = "YES":U.
         THIS-OBJECT:smartBusinessEntityBindingSource1:EntityName = "Consultingwerk.SmartFramework.Menu.MenuStyleBusinessEntity":U.
         THIS-OBJECT:smartBusinessEntityBindingSource1:EntityTable = "eSmartMenuStyle":U.
-        THIS-OBJECT:smartBusinessEntityBindingSource1:ImportSchema = FALSE.
         THIS-OBJECT:smartBusinessEntityBindingSource1:MaxDataGuess = 0.
         THIS-OBJECT:smartBusinessEntityBindingSource1:NoLOBs = FALSE.
         tableDesc1:ChildTables = ?.
@@ -106,48 +107,33 @@ CLASS Consultingwerk.Windows.Framework.Menu.SmartMenuStyleViewerControl
         /*  */
         appearance1:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:eSmartMenuStyle_MenuStyleCode_Label:Appearance = appearance1.
-        THIS-OBJECT:eSmartMenuStyle_MenuStyleCode_Label:AutoSize = TRUE.
-        THIS-OBJECT:eSmartMenuStyle_MenuStyleCode_Label:Location = NEW System.Drawing.Point(20, 24).
+        resources:ApplyResources(THIS-OBJECT:eSmartMenuStyle_MenuStyleCode_Label, "eSmartMenuStyle_MenuStyleCode_Label":U).
         THIS-OBJECT:eSmartMenuStyle_MenuStyleCode_Label:Name = "eSmartMenuStyle_MenuStyleCode_Label":U.
-        THIS-OBJECT:eSmartMenuStyle_MenuStyleCode_Label:Size = NEW System.Drawing.Size(94, 14).
-        THIS-OBJECT:eSmartMenuStyle_MenuStyleCode_Label:TabIndex = 1.
-        THIS-OBJECT:eSmartMenuStyle_MenuStyleCode_Label:Text = "Menu Style Code:":U.
         /*  */
         /* eSmartMenuStyle_MenuStyleCode */
         /*  */
         THIS-OBJECT:eSmartMenuStyle_MenuStyleCode:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "MenuStyleCode":U, TRUE)).
         THIS-OBJECT:eSmartMenuStyle_MenuStyleCode:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:eSmartMenuStyle_MenuStyleCode:Location = NEW System.Drawing.Point(130, 20).
+        resources:ApplyResources(THIS-OBJECT:eSmartMenuStyle_MenuStyleCode, "eSmartMenuStyle_MenuStyleCode":U).
         THIS-OBJECT:eSmartMenuStyle_MenuStyleCode:Name = "eSmartMenuStyle_MenuStyleCode":U.
-        THIS-OBJECT:eSmartMenuStyle_MenuStyleCode:Size = NEW System.Drawing.Size(150, 21).
-        THIS-OBJECT:eSmartMenuStyle_MenuStyleCode:TabIndex = 2.
         /*  */
         /* eSmartMenuStyle_MenuStyleDescription_Label */
         /*  */
         appearance2:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:eSmartMenuStyle_MenuStyleDescription_Label:Appearance = appearance2.
-        THIS-OBJECT:eSmartMenuStyle_MenuStyleDescription_Label:AutoSize = TRUE.
-        THIS-OBJECT:eSmartMenuStyle_MenuStyleDescription_Label:Location = NEW System.Drawing.Point(20, 50).
+        resources:ApplyResources(THIS-OBJECT:eSmartMenuStyle_MenuStyleDescription_Label, "eSmartMenuStyle_MenuStyleDescription_Label":U).
         THIS-OBJECT:eSmartMenuStyle_MenuStyleDescription_Label:Name = "eSmartMenuStyle_MenuStyleDescription_Label":U.
-        THIS-OBJECT:eSmartMenuStyle_MenuStyleDescription_Label:Size = NEW System.Drawing.Size(64, 14).
-        THIS-OBJECT:eSmartMenuStyle_MenuStyleDescription_Label:TabIndex = 3.
-        THIS-OBJECT:eSmartMenuStyle_MenuStyleDescription_Label:Text = "Description:":U.
         /*  */
         /* eSmartMenuStyle_MenuStyleDescription */
         /*  */
-        DEFINE VARIABLE nestedvar0 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar0 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:eSmartMenuStyle_MenuStyleDescription:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar0, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:eSmartMenuStyle_MenuStyleDescription, "eSmartMenuStyle_MenuStyleDescription":U).
         THIS-OBJECT:eSmartMenuStyle_MenuStyleDescription:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "MenuStyleDescription":U, TRUE)).
         THIS-OBJECT:eSmartMenuStyle_MenuStyleDescription:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:eSmartMenuStyle_MenuStyleDescription:Location = NEW System.Drawing.Point(130, 46).
         THIS-OBJECT:eSmartMenuStyle_MenuStyleDescription:Name = "eSmartMenuStyle_MenuStyleDescription":U.
-        THIS-OBJECT:eSmartMenuStyle_MenuStyleDescription:Size = NEW System.Drawing.Size(167, 21).
-        THIS-OBJECT:eSmartMenuStyle_MenuStyleDescription:TabIndex = 4.
         /*  */
         /* SmartMenuStyleViewerControl */
         /*  */
-        THIS-OBJECT:AutoScaleDimensions = NEW System.Drawing.SizeF(Progress.Util.CastUtil:ToSingle(6), Progress.Util.CastUtil:ToSingle(13)).
+        resources:ApplyResources(THIS-OBJECT, "$this":U).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:eSmartMenuStyle_MenuStyleCode_Label).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:eSmartMenuStyle_MenuStyleCode).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:eSmartMenuStyle_MenuStyleDescription_Label).

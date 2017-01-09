@@ -62,7 +62,7 @@ CLASS Consultingwerk.DeserializationFactory IMPLEMENTS IDeserializationFactory:
         
         IF plcSerializable BEGINS "~{":U THEN DO ON ERROR UNDO, THROW:
 
-            /* SCL-415: Perform JSON Serialization/Deserialization with AMERICAN
+            /* SCL-514: Perform JSON Serialization/Deserialization with AMERICAN
                         numeric format to avoid issues with decimal point interpretation */            
             oFormat = SessionHelper:GetNumericFormat() .
             SessionHelper:SetDefaultNumericFormat() .            
@@ -105,8 +105,8 @@ CLASS Consultingwerk.DeserializationFactory IMPLEMENTS IDeserializationFactory:
                 CATCH err AS Progress.Lang.Error:
                     IF err:GetMessageNum (1) = 13514 THEN 
                         lFromTempTable = FALSE . 
-                	ELSE 
-                	   UNDO, THROW err . 	
+                    ELSE 
+                       UNDO, THROW err .     
                 END CATCH.
             END.            
     
@@ -154,10 +154,10 @@ CLASS Consultingwerk.DeserializationFactory IMPLEMENTS IDeserializationFactory:
         @param phRootNode The root document element
         @return The class name to be used for the deserialization
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED CHARACTER GetClassNameFromNode (phRootNode AS HANDLE):
-		
-		RETURN phRootNode:GET-ATTRIBUTE ("SerializedType":U).
+    METHOD PROTECTED CHARACTER GetClassNameFromNode (phRootNode AS HANDLE):
+        
+        RETURN phRootNode:GET-ATTRIBUTE ("SerializedType":U).
 
-	END METHOD .
+    END METHOD .
     
 END CLASS.

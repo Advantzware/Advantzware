@@ -24,12 +24,12 @@ USING Progress.Lang.*.
 
 INTERFACE Consultingwerk.Framework.IMessageSubscriber:  
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Callback method invoked when messages are distributed/published
-	             to subscribers
-	    Notes:
-	    @param poMessage The reference to the message object
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID MessageCallback (poMessage AS Progress.Lang.Object).
+    /*------------------------------------------------------------------------------
+        Purpose: Callback method invoked when messages are distributed/published
+                 to subscribers
+        Notes:
+        @param poMessage The reference to the message object
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC VOID MessageCallback (poMessage AS Progress.Lang.Object).
 
 END INTERFACE.

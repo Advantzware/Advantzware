@@ -8,14 +8,14 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/   
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : ttFileNames.i
-    Purpose     : 
+    Purpose     :
 
     Syntax      :
 
-    Description : 
+    Description :
 
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Wed Jul 14 07:48:16 CEST 2010
@@ -25,6 +25,6 @@
 /* ***************************  Definitions  ************************** */
 
 DEFINE {&ACCESS} TEMP-TABLE {&PREFIX}ttFileNames NO-UNDO {&REFERENCE-ONLY}
-    FIELD FileName AS CHARACTER LABEL "FileName":U
+    FIELD FileName AS CHARACTER LABEL "FileName":U FORMAT "x(75)":U
     INDEX FileName IS UNIQUE PRIMARY FileName
-    . 
+    .

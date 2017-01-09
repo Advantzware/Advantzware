@@ -34,11 +34,11 @@ CLASS Consultingwerk.SmartComponents.TypeDescriptor.Components.PropertiesSmartDa
         Purpose: Constructor for the PropertiesSmartDataObjectBindingSource class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC PropertiesSmartDataObjectBindingSource ():
-	    
-	    DEFINE VARIABLE oProperty AS IPropertyDescriptor NO-UNDO . 
-		
-		SUPER ().
+    CONSTRUCTOR PUBLIC PropertiesSmartDataObjectBindingSource ():
+        
+        DEFINE VARIABLE oProperty AS IPropertyDescriptor NO-UNDO . 
+        
+        SUPER ().
 
         THIS-OBJECT:TypeName = "Consultingwerk.SmartComponents.Implementation.SmartDataObjectBindingSource":U . 
 
@@ -46,6 +46,6 @@ CLASS Consultingwerk.SmartComponents.TypeDescriptor.Components.PropertiesSmartDa
         oProperty:Attributes:Add (NEW System.ComponentModel.BrowsableAttribute (FALSE)) .
         oProperty:Attributes:Add (NEW System.ComponentModel.DesignerSerializationVisibilityAttribute (DesignerSerializationVisibility:Hidden)) .
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
 END CLASS.

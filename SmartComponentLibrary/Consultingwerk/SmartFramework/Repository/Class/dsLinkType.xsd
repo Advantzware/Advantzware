@@ -6,12 +6,12 @@
         <xsd:element name="eSmartLinkType" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eSmartLinkTypeBefore">
           <xsd:complexType>
             <xsd:sequence>
-              <xsd:element name="LinkTypeGuid" type="xsd:string" nillable="true" prodata:fieldName="LinkTypeGuid" prodata:format="x(36)"/>
-              <xsd:element name="LinkName" type="xsd:string" nillable="true" prodata:fieldName="LinkName" prodata:format="x(80)" prodata:label="Link Name"/>
-              <xsd:element name="SourcePropertyName" type="xsd:string" nillable="true" prodata:fieldName="SourcePropertyName" prodata:format="x(80)" prodata:label="Source Property Name"/>
-              <xsd:element name="SourceHandshakeMethod" type="xsd:string" nillable="true" prodata:fieldName="SourceHandshakeMethod" prodata:format="x(80)" prodata:label="Source Handshake Method"/>
-              <xsd:element name="TargetPropertyName" type="xsd:string" nillable="true" prodata:fieldName="TargetPropertyName" prodata:format="x(80)" prodata:label="Target Property Name"/>
-              <xsd:element name="TargetHandshakeMethod" type="xsd:string" nillable="true" prodata:fieldName="TargetHandshakeMethod" prodata:format="x(80)" prodata:label="Target Handshake Method"/>
+              <xsd:element name="LinkTypeGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="LinkName" type="xsd:string" nillable="true" prodata:format="x(80)" prodata:label="Link Name"/>
+              <xsd:element name="SourcePropertyName" type="xsd:string" nillable="true" prodata:format="x(80)" prodata:label="Source Property Name"/>
+              <xsd:element name="SourceHandshakeMethod" type="xsd:string" nillable="true" prodata:format="x(80)" prodata:label="Source Handshake Method"/>
+              <xsd:element name="TargetPropertyName" type="xsd:string" nillable="true" prodata:format="x(80)" prodata:label="Target Property Name"/>
+              <xsd:element name="TargetHandshakeMethod" type="xsd:string" nillable="true" prodata:format="x(80)" prodata:label="Target Handshake Method"/>
             </xsd:sequence>
           </xsd:complexType>
         </xsd:element>

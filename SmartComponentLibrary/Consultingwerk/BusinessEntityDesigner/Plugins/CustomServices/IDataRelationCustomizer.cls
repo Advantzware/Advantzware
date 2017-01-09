@@ -33,7 +33,7 @@ INTERFACE Consultingwerk.BusinessEntityDesigner.Plugins.CustomServices.IDataRela
         @param proDataRelation The ROWID of the Data Relation record
         @param dsBusinessEntity Dataset with the current Business Entity model  
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID CustomizeDataRelation (proDataRelation AS ROWID,    
-	                                          DATASET FOR dsBusinessEntity).
+    METHOD PUBLIC VOID CustomizeDataRelation (proDataRelation AS ROWID,    
+                                              DATASET FOR dsBusinessEntity).
 
 END INTERFACE.

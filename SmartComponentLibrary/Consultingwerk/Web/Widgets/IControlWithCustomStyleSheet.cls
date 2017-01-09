@@ -31,7 +31,7 @@ INTERFACE Consultingwerk.Web.Widgets.IControlWithCustomStyleSheet:
                  need to be outputted with the Page 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY CustomStyleLibraries AS CHARACTER NO-UNDO 
-	GET.
+    DEFINE PUBLIC PROPERTY CustomStyleLibraries AS CHARACTER NO-UNDO 
+    GET.
 
 END INTERFACE.

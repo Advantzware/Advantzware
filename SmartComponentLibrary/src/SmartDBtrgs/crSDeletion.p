@@ -15,7 +15,7 @@
 
     Syntax      :
 
-    Description : 
+    Description :
 
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Wed Oct 10 02:19:57 CEST 2012
@@ -28,10 +28,12 @@ USING Consultingwerk.Framework.Session.* FROM PROPATH.
 
 TRIGGER PROCEDURE FOR CREATE OF SmartDeletion.
 
-ASSIGN SmartDeletion.DeletionGuid      = GUID 
+{Consultingwerk/products.i}
+
+ASSIGN SmartDeletion.DeletionGuid      = GUID
        SmartDeletion.DeletionTimeStamp = NOW .
-       
-IF SessionManager:UserName > "":U THEN 
-    SmartDeletion.DeletionUser = SessionManager:UserName . 
-ELSE        
-    SmartDeletion.DeletionUser = USERID ("SmartDB":U) .
+
+IF SessionManager:UserName > "":U THEN
+    SmartDeletion.DeletionUser = SessionManager:UserName .
+ELSE
+    SmartDeletion.DeletionUser = USERID (&IF DEFINED (SmartDB) NE 0 &THEN "{&SmartDB}":U &ELSE "SmartDB":U &ENDIF) .

@@ -33,13 +33,13 @@ CLASS Consultingwerk.Web.Kendo.Data.JsdoTransport
     IMPLEMENTS ITransport 
     INHERITS JsonSerializable:
 
-    {Consultingwerk/JsonSerializableProperty.i jsdo CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i tableRef CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i countFnName CHARACTER "INIT ""count"":U"} .
+    {Consultingwerk/JsonSerializableProperty11.i jsdo CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i tableRef CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i countFnName CHARACTER "INIT ""count"":U"} .
 
     /* ITransport */
-    {Consultingwerk/JsonSerializableProperty.i dataType CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i read CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i dataType CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i read CHARACTER} .
     
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the JsdoTransport class
@@ -47,14 +47,14 @@ CLASS Consultingwerk.Web.Kendo.Data.JsdoTransport
         @param pcJsdo The value for jsdo
         @param pcTableRef The value for tableRef
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC JsdoTransport (pcJsdo AS CHARACTER,
-	                                  pcTableRef AS CHARACTER):
-		THIS-OBJECT ().
-		
-		ASSIGN THIS-OBJECT:jsdo     = pcJsdo
-		       THIS-OBJECT:tableRef = pcTableRef .
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC JsdoTransport (pcJsdo AS CHARACTER,
+                                      pcTableRef AS CHARACTER):
+        THIS-OBJECT ().
+        
+        ASSIGN THIS-OBJECT:jsdo     = pcJsdo
+               THIS-OBJECT:tableRef = pcTableRef .
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the JsdoTransport class

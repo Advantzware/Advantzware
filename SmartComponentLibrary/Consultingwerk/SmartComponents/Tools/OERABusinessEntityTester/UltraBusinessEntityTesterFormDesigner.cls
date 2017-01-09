@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2006-2013 by Consultingwerk Ltd. ("CW") -            *
+ * Copyright (C) 2006-2016 by Consultingwerk Ltd. ("CW") -            *
  * www.consultingwerk.de and other contributors as listed             *
  * below.  All Rights Reserved.                                       *
  *                                                                    *
@@ -8,15 +8,15 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/  
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : UltraBusinessEntityTesterFormDesigner
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Marko Rüterbories / Consultingwerk Ltd.
     Created     : Mon Aug 03 10:54:09 CEST 2009
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -27,9 +27,9 @@ USING Consultingwerk.Util.*                 FROM PROPATH .
 USING Infragistics.Win.UltraWinEditors.*    FROM ASSEMBLY .
 USING Progress.Lang.*                       FROM ASSEMBLY .
 
-CLASS Consultingwerk.SmartComponents.Tools.OERABusinessEntityTester.UltraBusinessEntityTesterFormDesigner 
-    INHERITS BaseForm : 
-    
+CLASS Consultingwerk.SmartComponents.Tools.OERABusinessEntityTester.UltraBusinessEntityTesterFormDesigner
+    INHERITS BaseForm :
+
     DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
 
     DEFINE PROTECTED VARIABLE tbCustomParameter AS Infragistics.Win.UltraWinEditors.UltraTextEditor NO-UNDO.
@@ -42,7 +42,7 @@ CLASS Consultingwerk.SmartComponents.Tools.OERABusinessEntityTester.UltraBusines
     DEFINE PRIVATE VARIABLE m_Form_Toolbars_Dock_Area_Bottom AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
 
     DEFINE PROTECTED VARIABLE imageList1 AS System.Windows.Forms.ImageList NO-UNDO.
-        
+
     CONSTRUCTOR PUBLIC UltraBusinessEntityTesterFormDesigner ():
         SUPER ().
         InitializeComponent ().
@@ -50,18 +50,19 @@ CLASS Consultingwerk.SmartComponents.Tools.OERABusinessEntityTester.UltraBusines
             UNDO, THROW e.
         END CATCH.
     END CONSTRUCTOR.
-    
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -107,6 +108,9 @@ CLASS Consultingwerk.SmartComponents.Tools.OERABusinessEntityTester.UltraBusines
         DEFINE VARIABLE buttonTool14 AS Infragistics.Win.UltraWinToolbars.ButtonTool NO-UNDO.
         buttonTool14 = NEW Infragistics.Win.UltraWinToolbars.ButtonTool("StopEntities":U).
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE buttonTool22 AS Infragistics.Win.UltraWinToolbars.ButtonTool NO-UNDO.
+        buttonTool22 = NEW Infragistics.Win.UltraWinToolbars.ButtonTool("Monitor Business Services":U).
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE ultraToolbar4 AS Infragistics.Win.UltraWinToolbars.UltraToolbar NO-UNDO.
         ultraToolbar4 = NEW Infragistics.Win.UltraWinToolbars.UltraToolbar("Custom Context":U).
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -133,6 +137,12 @@ CLASS Consultingwerk.SmartComponents.Tools.OERABusinessEntityTester.UltraBusines
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE buttonTool20 AS Infragistics.Win.UltraWinToolbars.ButtonTool NO-UNDO.
         buttonTool20 = NEW Infragistics.Win.UltraWinToolbars.ButtonTool("Data Source Query Info":U).
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE ultraToolbar7 AS Infragistics.Win.UltraWinToolbars.UltraToolbar NO-UNDO.
+        ultraToolbar7 = NEW Infragistics.Win.UltraWinToolbars.UltraToolbar("Session Management":U).
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE buttonTool24 AS Infragistics.Win.UltraWinToolbars.ButtonTool NO-UNDO.
+        buttonTool24 = NEW Infragistics.Win.UltraWinToolbars.ButtonTool("Authenticate":U).
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE popupMenuTool2 AS Infragistics.Win.UltraWinToolbars.PopupMenuTool NO-UNDO.
         popupMenuTool2 = NEW Infragistics.Win.UltraWinToolbars.PopupMenuTool("File":U).
@@ -278,6 +288,18 @@ CLASS Consultingwerk.SmartComponents.Tools.OERABusinessEntityTester.UltraBusines
         DEFINE VARIABLE popupControlContainerTool2 AS Infragistics.Win.UltraWinToolbars.PopupControlContainerTool NO-UNDO.
         popupControlContainerTool2 = NEW Infragistics.Win.UltraWinToolbars.PopupControlContainerTool("Custom Parameter Object":U).
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE buttonTool23 AS Infragistics.Win.UltraWinToolbars.ButtonTool NO-UNDO.
+        buttonTool23 = NEW Infragistics.Win.UltraWinToolbars.ButtonTool("Monitor Business Services":U).
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE appearance11 AS Infragistics.Win.Appearance NO-UNDO.
+        appearance11 = NEW Infragistics.Win.Appearance().
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE buttonTool25 AS Infragistics.Win.UltraWinToolbars.ButtonTool NO-UNDO.
+        buttonTool25 = NEW Infragistics.Win.UltraWinToolbars.ButtonTool("Authenticate":U).
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE appearance12 AS Infragistics.Win.Appearance NO-UNDO.
+        appearance12 = NEW Infragistics.Win.Appearance().
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE editorButton1 AS Infragistics.Win.UltraWinEditors.EditorButton NO-UNDO.
         editorButton1 = NEW Infragistics.Win.UltraWinEditors.EditorButton().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -336,8 +358,9 @@ CLASS Consultingwerk.SmartComponents.Tools.OERABusinessEntityTester.UltraBusines
         ultraToolbar3:DockedColumn = 0.
         ultraToolbar3:DockedRow = 2.
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
-        DEFINE VARIABLE arrayvar2 AS Infragistics.Win.UltraWinToolbars.ToolBase EXTENT 1 NO-UNDO.
+        DEFINE VARIABLE arrayvar2 AS Infragistics.Win.UltraWinToolbars.ToolBase EXTENT 2 NO-UNDO.
         arrayvar2[1] = buttonTool14.
+        arrayvar2[2] = buttonTool22.
         ultraToolbar3:NonInheritedTools:AddRange(arrayvar2).
         ultraToolbar3:Text = "Service Manager":U.
         ultraToolbar4:DockedColumn = 1.
@@ -349,8 +372,8 @@ CLASS Consultingwerk.SmartComponents.Tools.OERABusinessEntityTester.UltraBusines
         arrayvar3[3] = popupControlContainerTool1.
         ultraToolbar4:NonInheritedTools:AddRange(arrayvar3).
         ultraToolbar4:Text = "Custom Context":U.
-        ultraToolbar5:DockedColumn = 3.
-        ultraToolbar5:DockedRow = 2.
+        ultraToolbar5:DockedColumn = 1.
+        ultraToolbar5:DockedRow = 3.
         ultraToolbar5:FloatingSize = NEW System.Drawing.Size(155, 24).
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
         DEFINE VARIABLE arrayvar4 AS Infragistics.Win.UltraWinToolbars.ToolBase EXTENT 2 NO-UNDO.
@@ -358,34 +381,42 @@ CLASS Consultingwerk.SmartComponents.Tools.OERABusinessEntityTester.UltraBusines
         arrayvar4[2] = buttonTool17.
         ultraToolbar5:NonInheritedTools:AddRange(arrayvar4).
         ultraToolbar5:Text = "Selection":U.
-        ultraToolbar6:DockedColumn = 2.
-        ultraToolbar6:DockedRow = 2.
+        ultraToolbar6:DockedColumn = 0.
+        ultraToolbar6:DockedRow = 3.
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
         DEFINE VARIABLE arrayvar5 AS Infragistics.Win.UltraWinToolbars.ToolBase EXTENT 1 NO-UNDO.
         arrayvar5[1] = buttonTool20.
         ultraToolbar6:NonInheritedTools:AddRange(arrayvar5).
         ultraToolbar6:Text = "Query Info":U.
+        ultraToolbar7:DockedColumn = 2.
+        ultraToolbar7:DockedRow = 3.
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
-        DEFINE VARIABLE arrayvar6 AS Infragistics.Win.UltraWinToolbars.UltraToolbar EXTENT 6 NO-UNDO.
-        arrayvar6[1] = ultraToolbar1.
-        arrayvar6[2] = ultraToolbar2.
-        arrayvar6[3] = ultraToolbar3.
-        arrayvar6[4] = ultraToolbar4.
-        arrayvar6[5] = ultraToolbar5.
-        arrayvar6[6] = ultraToolbar6.
-        THIS-OBJECT:ultraToolbarsManager1:Toolbars:AddRange(arrayvar6).
+        DEFINE VARIABLE arrayvar6 AS Infragistics.Win.UltraWinToolbars.ToolBase EXTENT 1 NO-UNDO.
+        arrayvar6[1] = buttonTool24.
+        ultraToolbar7:NonInheritedTools:AddRange(arrayvar6).
+        ultraToolbar7:Text = "Session Management":U.
+        @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
+        DEFINE VARIABLE arrayvar7 AS Infragistics.Win.UltraWinToolbars.UltraToolbar EXTENT 7 NO-UNDO.
+        arrayvar7[1] = ultraToolbar1.
+        arrayvar7[2] = ultraToolbar2.
+        arrayvar7[3] = ultraToolbar3.
+        arrayvar7[4] = ultraToolbar4.
+        arrayvar7[5] = ultraToolbar5.
+        arrayvar7[6] = ultraToolbar6.
+        arrayvar7[7] = ultraToolbar7.
+        THIS-OBJECT:ultraToolbarsManager1:Toolbars:AddRange(arrayvar7).
         popupMenuTool2:SharedPropsInternal:Caption = "&File":U.
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
-        DEFINE VARIABLE arrayvar7 AS Infragistics.Win.UltraWinToolbars.ToolBase EXTENT 1 NO-UNDO.
-        arrayvar7[1] = buttonTool5.
-        popupMenuTool2:Tools:AddRange(arrayvar7).
+        DEFINE VARIABLE arrayvar8 AS Infragistics.Win.UltraWinToolbars.ToolBase EXTENT 1 NO-UNDO.
+        arrayvar8[1] = buttonTool5.
+        popupMenuTool2:Tools:AddRange(arrayvar8).
         popupMenuTool4:SharedPropsInternal:Caption = "&Data":U.
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
-        DEFINE VARIABLE arrayvar8 AS Infragistics.Win.UltraWinToolbars.ToolBase EXTENT 3 NO-UNDO.
-        arrayvar8[1] = buttonTool3.
-        arrayvar8[2] = buttonTool2.
-        arrayvar8[3] = buttonTool1.
-        popupMenuTool4:Tools:AddRange(arrayvar8).
+        DEFINE VARIABLE arrayvar9 AS Infragistics.Win.UltraWinToolbars.ToolBase EXTENT 3 NO-UNDO.
+        arrayvar9[1] = buttonTool3.
+        arrayvar9[2] = buttonTool2.
+        arrayvar9[3] = buttonTool1.
+        popupMenuTool4:Tools:AddRange(arrayvar9).
         buttonTool6:SharedPropsInternal:Caption = "&Exit":U.
         comboBoxTool4:DropDownStyle = Infragistics.Win.DropDownStyle:DropDown.
         comboBoxTool4:SharedPropsInternal:Caption = "EntityName":U.
@@ -406,9 +437,9 @@ CLASS Consultingwerk.SmartComponents.Tools.OERABusinessEntityTester.UltraBusines
         buttonTool4:SharedPropsInternal:Caption = "&RemoveFilter":U.
         popupMenuTool5:SharedPropsInternal:Caption = "TreeContextMenu":U.
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
-        DEFINE VARIABLE arrayvar9 AS Infragistics.Win.UltraWinToolbars.ToolBase EXTENT 1 NO-UNDO.
-        arrayvar9[1] = buttonTool13.
-        popupMenuTool5:Tools:AddRange(arrayvar9).
+        DEFINE VARIABLE arrayvar10 AS Infragistics.Win.UltraWinToolbars.ToolBase EXTENT 1 NO-UNDO.
+        arrayvar10[1] = buttonTool13.
+        popupMenuTool5:Tools:AddRange(arrayvar10).
         labelTool2:SharedPropsInternal:Caption = "Batch Size:":U.
         labelTool2:SharedPropsInternal:DisplayStyle = Infragistics.Win.UltraWinToolbars.ToolDisplayStyle:TextOnlyAlways.
         comboBoxTool2:AutoComplete = TRUE.
@@ -426,13 +457,13 @@ CLASS Consultingwerk.SmartComponents.Tools.OERABusinessEntityTester.UltraBusines
         valueListItem5:DataValue = System.Convert:ToInt16(0).
         valueListItem5:DisplayText = "(unlimited)":U.
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
-        DEFINE VARIABLE arrayvar10 AS Infragistics.Win.ValueListItem EXTENT 5 NO-UNDO.
-        arrayvar10[1] = valueListItem1.
-        arrayvar10[2] = valueListItem2.
-        arrayvar10[3] = valueListItem3.
-        arrayvar10[4] = valueListItem4.
-        arrayvar10[5] = valueListItem5.
-        valueList2:ValueListItems:AddRange(arrayvar10).
+        DEFINE VARIABLE arrayvar11 AS Infragistics.Win.ValueListItem EXTENT 5 NO-UNDO.
+        arrayvar11[1] = valueListItem1.
+        arrayvar11[2] = valueListItem2.
+        arrayvar11[3] = valueListItem3.
+        arrayvar11[4] = valueListItem4.
+        arrayvar11[5] = valueListItem5.
+        valueList2:ValueListItems:AddRange(arrayvar11).
         comboBoxTool2:ValueList = valueList2.
         appearance5:Image = CAST(resources:GetObject("appearance5.Image":U), System.Object).
         buttonTool15:SharedPropsInternal:AppearancesLarge:Appearance = appearance5.
@@ -467,14 +498,14 @@ CLASS Consultingwerk.SmartComponents.Tools.OERABusinessEntityTester.UltraBusines
         valueListItem10:DataValue = System.Convert:ToInt16(60).
         valueListItem10:DisplayText = "60":U.
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
-        DEFINE VARIABLE arrayvar11 AS Infragistics.Win.ValueListItem EXTENT 6 NO-UNDO.
-        arrayvar11[1] = valueListItem11.
-        arrayvar11[2] = valueListItem6.
-        arrayvar11[3] = valueListItem8.
-        arrayvar11[4] = valueListItem7.
-        arrayvar11[5] = valueListItem9.
-        arrayvar11[6] = valueListItem10.
-        valueList3:ValueListItems:AddRange(arrayvar11).
+        DEFINE VARIABLE arrayvar12 AS Infragistics.Win.ValueListItem EXTENT 6 NO-UNDO.
+        arrayvar12[1] = valueListItem11.
+        arrayvar12[2] = valueListItem6.
+        arrayvar12[3] = valueListItem8.
+        arrayvar12[4] = valueListItem7.
+        arrayvar12[5] = valueListItem9.
+        arrayvar12[6] = valueListItem10.
+        valueList3:ValueListItems:AddRange(arrayvar12).
         comboBoxTool6:ValueList = valueList3.
         labelTool6:SharedPropsInternal:Caption = "Stop-After:":U.
         labelTool6:SharedPropsInternal:Width = 60.
@@ -488,29 +519,39 @@ CLASS Consultingwerk.SmartComponents.Tools.OERABusinessEntityTester.UltraBusines
         popupControlContainerTool2:DropDownArrowStyle = Infragistics.Win.UltraWinToolbars.DropDownArrowStyle:None.
         popupControlContainerTool2:SharedPropsInternal:Caption = "Custom Parameter Object (ISerializable)":U.
         popupControlContainerTool2:SharedPropsInternal:DisplayStyle = Infragistics.Win.UltraWinToolbars.ToolDisplayStyle:TextOnlyAlways.
+        appearance11:Image = CAST(resources:GetObject("appearance11.Image":U), System.Object).
+        buttonTool23:SharedPropsInternal:AppearancesSmall:Appearance = appearance11.
+        buttonTool23:SharedPropsInternal:Caption = "Monitor Business Services":U.
+        buttonTool23:SharedPropsInternal:DisplayStyle = Infragistics.Win.UltraWinToolbars.ToolDisplayStyle:ImageAndText.
+        appearance12:Image = CAST(resources:GetObject("appearance12.Image":U), System.Object).
+        buttonTool25:SharedPropsInternal:AppearancesSmall:Appearance = appearance12.
+        buttonTool25:SharedPropsInternal:Caption = "Authenticate":U.
+        buttonTool25:SharedPropsInternal:DisplayStyle = Infragistics.Win.UltraWinToolbars.ToolDisplayStyle:ImageAndText.
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
-        DEFINE VARIABLE arrayvar12 AS Infragistics.Win.UltraWinToolbars.ToolBase EXTENT 20 NO-UNDO.
-        arrayvar12[1] = popupMenuTool2.
-        arrayvar12[2] = popupMenuTool4.
-        arrayvar12[3] = buttonTool6.
-        arrayvar12[4] = comboBoxTool4.
-        arrayvar12[5] = buttonTool10.
-        arrayvar12[6] = buttonTool11.
-        arrayvar12[7] = buttonTool12.
-        arrayvar12[8] = buttonTool4.
-        arrayvar12[9] = popupMenuTool5.
-        arrayvar12[10] = labelTool2.
-        arrayvar12[11] = comboBoxTool2.
-        arrayvar12[12] = buttonTool15.
-        arrayvar12[13] = labelTool4.
-        arrayvar12[14] = textBoxTool2.
-        arrayvar12[15] = buttonTool18.
-        arrayvar12[16] = buttonTool19.
-        arrayvar12[17] = comboBoxTool6.
-        arrayvar12[18] = labelTool6.
-        arrayvar12[19] = buttonTool21.
-        arrayvar12[20] = popupControlContainerTool2.
-        THIS-OBJECT:ultraToolbarsManager1:Tools:AddRange(arrayvar12).
+        DEFINE VARIABLE arrayvar13 AS Infragistics.Win.UltraWinToolbars.ToolBase EXTENT 22 NO-UNDO.
+        arrayvar13[1] = popupMenuTool2.
+        arrayvar13[2] = popupMenuTool4.
+        arrayvar13[3] = buttonTool6.
+        arrayvar13[4] = comboBoxTool4.
+        arrayvar13[5] = buttonTool10.
+        arrayvar13[6] = buttonTool11.
+        arrayvar13[7] = buttonTool12.
+        arrayvar13[8] = buttonTool4.
+        arrayvar13[9] = popupMenuTool5.
+        arrayvar13[10] = labelTool2.
+        arrayvar13[11] = comboBoxTool2.
+        arrayvar13[12] = buttonTool15.
+        arrayvar13[13] = labelTool4.
+        arrayvar13[14] = textBoxTool2.
+        arrayvar13[15] = buttonTool18.
+        arrayvar13[16] = buttonTool19.
+        arrayvar13[17] = comboBoxTool6.
+        arrayvar13[18] = labelTool6.
+        arrayvar13[19] = buttonTool21.
+        arrayvar13[20] = popupControlContainerTool2.
+        arrayvar13[21] = buttonTool23.
+        arrayvar13[22] = buttonTool25.
+        THIS-OBJECT:ultraToolbarsManager1:Tools:AddRange(arrayvar13).
         THIS-OBJECT:ultraToolbarsManager1:ToolValueChanged:Subscribe(THIS-OBJECT:ultraToolbarsManager1_ToolValueChanged).
         /*  */
         /* Form_Fill_Panel */
@@ -519,9 +560,9 @@ CLASS Consultingwerk.SmartComponents.Tools.OERABusinessEntityTester.UltraBusines
         THIS-OBJECT:Form_Fill_Panel:Controls:Add(THIS-OBJECT:oeraBusinessEntityTesterUserControl1).
         THIS-OBJECT:Form_Fill_Panel:Cursor = System.Windows.Forms.Cursors:Default.
         THIS-OBJECT:Form_Fill_Panel:Dock = System.Windows.Forms.DockStyle:Fill.
-        THIS-OBJECT:Form_Fill_Panel:Location = NEW System.Drawing.Point(0, 78).
+        THIS-OBJECT:Form_Fill_Panel:Location = NEW System.Drawing.Point(0, 106).
         THIS-OBJECT:Form_Fill_Panel:Name = "Form_Fill_Panel":U.
-        THIS-OBJECT:Form_Fill_Panel:Size = NEW System.Drawing.Size(1581, 486).
+        THIS-OBJECT:Form_Fill_Panel:Size = NEW System.Drawing.Size(1214, 458).
         THIS-OBJECT:Form_Fill_Panel:TabIndex = 0.
         /*  */
         /* tbCustomParameter */
@@ -545,7 +586,8 @@ CLASS Consultingwerk.SmartComponents.Tools.OERABusinessEntityTester.UltraBusines
         THIS-OBJECT:oeraBusinessEntityTesterUserControl1:Dock = System.Windows.Forms.DockStyle:Fill.
         THIS-OBJECT:oeraBusinessEntityTesterUserControl1:Location = NEW System.Drawing.Point(0, 0).
         THIS-OBJECT:oeraBusinessEntityTesterUserControl1:Name = "oeraBusinessEntityTesterUserControl1":U.
-        THIS-OBJECT:oeraBusinessEntityTesterUserControl1:Size = NEW System.Drawing.Size(1581, 486).
+        THIS-OBJECT:oeraBusinessEntityTesterUserControl1:Size = NEW System.Drawing.Size(1214, 458).
+        THIS-OBJECT:oeraBusinessEntityTesterUserControl1:StatusBarVisible = TRUE.
         THIS-OBJECT:oeraBusinessEntityTesterUserControl1:TabIndex = 0.
         /*  */
         /* m_Form_Toolbars_Dock_Area_Left */
@@ -554,9 +596,9 @@ CLASS Consultingwerk.SmartComponents.Tools.OERABusinessEntityTester.UltraBusines
         THIS-OBJECT:m_Form_Toolbars_Dock_Area_Left:BackColor = System.Drawing.Color:FromArgb(System.Convert:ToInt32(System.Convert:ToByte(191)), System.Convert:ToInt32(System.Convert:ToByte(219)), System.Convert:ToInt32(System.Convert:ToByte(255))).
         THIS-OBJECT:m_Form_Toolbars_Dock_Area_Left:DockedPosition = Infragistics.Win.UltraWinToolbars.DockedPosition:Left.
         THIS-OBJECT:m_Form_Toolbars_Dock_Area_Left:ForeColor = System.Drawing.SystemColors:ControlText.
-        THIS-OBJECT:m_Form_Toolbars_Dock_Area_Left:Location = NEW System.Drawing.Point(0, 78).
+        THIS-OBJECT:m_Form_Toolbars_Dock_Area_Left:Location = NEW System.Drawing.Point(0, 106).
         THIS-OBJECT:m_Form_Toolbars_Dock_Area_Left:Name = "m_Form_Toolbars_Dock_Area_Left":U.
-        THIS-OBJECT:m_Form_Toolbars_Dock_Area_Left:Size = NEW System.Drawing.Size(0, 486).
+        THIS-OBJECT:m_Form_Toolbars_Dock_Area_Left:Size = NEW System.Drawing.Size(0, 458).
         THIS-OBJECT:m_Form_Toolbars_Dock_Area_Left:ToolbarsManager = THIS-OBJECT:ultraToolbarsManager1.
         /*  */
         /* m_Form_Toolbars_Dock_Area_Right */
@@ -565,9 +607,9 @@ CLASS Consultingwerk.SmartComponents.Tools.OERABusinessEntityTester.UltraBusines
         THIS-OBJECT:m_Form_Toolbars_Dock_Area_Right:BackColor = System.Drawing.Color:FromArgb(System.Convert:ToInt32(System.Convert:ToByte(191)), System.Convert:ToInt32(System.Convert:ToByte(219)), System.Convert:ToInt32(System.Convert:ToByte(255))).
         THIS-OBJECT:m_Form_Toolbars_Dock_Area_Right:DockedPosition = Infragistics.Win.UltraWinToolbars.DockedPosition:Right.
         THIS-OBJECT:m_Form_Toolbars_Dock_Area_Right:ForeColor = System.Drawing.SystemColors:ControlText.
-        THIS-OBJECT:m_Form_Toolbars_Dock_Area_Right:Location = NEW System.Drawing.Point(1581, 78).
+        THIS-OBJECT:m_Form_Toolbars_Dock_Area_Right:Location = NEW System.Drawing.Point(1214, 106).
         THIS-OBJECT:m_Form_Toolbars_Dock_Area_Right:Name = "m_Form_Toolbars_Dock_Area_Right":U.
-        THIS-OBJECT:m_Form_Toolbars_Dock_Area_Right:Size = NEW System.Drawing.Size(0, 486).
+        THIS-OBJECT:m_Form_Toolbars_Dock_Area_Right:Size = NEW System.Drawing.Size(0, 458).
         THIS-OBJECT:m_Form_Toolbars_Dock_Area_Right:ToolbarsManager = THIS-OBJECT:ultraToolbarsManager1.
         /*  */
         /* m_Form_Toolbars_Dock_Area_Top */
@@ -578,7 +620,7 @@ CLASS Consultingwerk.SmartComponents.Tools.OERABusinessEntityTester.UltraBusines
         THIS-OBJECT:m_Form_Toolbars_Dock_Area_Top:ForeColor = System.Drawing.SystemColors:ControlText.
         THIS-OBJECT:m_Form_Toolbars_Dock_Area_Top:Location = NEW System.Drawing.Point(0, 0).
         THIS-OBJECT:m_Form_Toolbars_Dock_Area_Top:Name = "m_Form_Toolbars_Dock_Area_Top":U.
-        THIS-OBJECT:m_Form_Toolbars_Dock_Area_Top:Size = NEW System.Drawing.Size(1581, 78).
+        THIS-OBJECT:m_Form_Toolbars_Dock_Area_Top:Size = NEW System.Drawing.Size(1214, 106).
         THIS-OBJECT:m_Form_Toolbars_Dock_Area_Top:ToolbarsManager = THIS-OBJECT:ultraToolbarsManager1.
         /*  */
         /* m_Form_Toolbars_Dock_Area_Bottom */
@@ -589,7 +631,7 @@ CLASS Consultingwerk.SmartComponents.Tools.OERABusinessEntityTester.UltraBusines
         THIS-OBJECT:m_Form_Toolbars_Dock_Area_Bottom:ForeColor = System.Drawing.SystemColors:ControlText.
         THIS-OBJECT:m_Form_Toolbars_Dock_Area_Bottom:Location = NEW System.Drawing.Point(0, 564).
         THIS-OBJECT:m_Form_Toolbars_Dock_Area_Bottom:Name = "m_Form_Toolbars_Dock_Area_Bottom":U.
-        THIS-OBJECT:m_Form_Toolbars_Dock_Area_Bottom:Size = NEW System.Drawing.Size(1581, 0).
+        THIS-OBJECT:m_Form_Toolbars_Dock_Area_Bottom:Size = NEW System.Drawing.Size(1214, 0).
         THIS-OBJECT:m_Form_Toolbars_Dock_Area_Bottom:ToolbarsManager = THIS-OBJECT:ultraToolbarsManager1.
         /*  */
         /* imageList1 */
@@ -601,7 +643,7 @@ CLASS Consultingwerk.SmartComponents.Tools.OERABusinessEntityTester.UltraBusines
         /*  */
         /* UltraBusinessEntityTesterFormDesigner */
         /*  */
-        THIS-OBJECT:ClientSize = NEW System.Drawing.Size(1581, 564).
+        THIS-OBJECT:ClientSize = NEW System.Drawing.Size(1214, 564).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:Form_Fill_Panel).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:m_Form_Toolbars_Dock_Area_Left).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:m_Form_Toolbars_Dock_Area_Right).
@@ -622,78 +664,78 @@ CLASS Consultingwerk.SmartComponents.Tools.OERABusinessEntityTester.UltraBusines
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the KeyDown handler of the Text boxes with an 
+        Purpose: Event handler for the KeyDown handler of the Text boxes with an
                  EditorButton (Lookup)
         Notes:   Maps F3 to EditorButtonClick
         @param sender The reference to the object that raised the event
         @param e The KeyEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID LookupKeyDownHandler (sender AS System.Object, 
+    METHOD PRIVATE VOID LookupKeyDownHandler (sender AS System.Object,
                                               e AS System.Windows.Forms.KeyEventArgs):
 
         DEFINE VARIABLE cControlName AS CHARACTER NO-UNDO.
-        
-        IF e:Handled = FALSE AND Progress.Util.EnumHelper:AreEqual (e:KeyCode, SmartLookupSettings:ShortcutKey) 
+
+        IF e:Handled = FALSE AND Progress.Util.EnumHelper:AreEqual (e:KeyCode, SmartLookupSettings:ShortcutKey)
             AND THIS-OBJECT:Enabled THEN DO:
 
             ASSIGN cControlName = CAST (sender, System.Windows.Forms.Control):Name .
 
-            DYNAMIC-INVOKE (THIS-OBJECT, 
-                            SUBSTITUTE ("&1_EditorButtonClick":U, cControlName), 
-                            sender, 
+            DYNAMIC-INVOKE (THIS-OBJECT,
+                            SUBSTITUTE ("&1_EditorButtonClick":U, cControlName),
+                            sender,
                             NEW EditorButtonEventArgs (?, ?)) .
         END.
 
         CATCH err AS Progress.Lang.Error:
-            ErrorHelper:ShowErrorMessage (err) .                
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the EditorButtonClick event of the tbCustomParameter
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The EditorButtonEventArgs with the data for this event 
+        @param e The EditorButtonEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID tbCustomParameter_EditorButtonClick (sender AS System.Object, 
-	                                                         e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
-		
-		ASSIGN tbCustomParameter:Text = "~{":U + System.Environment:NewLine + 
+    METHOD PRIVATE VOID tbCustomParameter_EditorButtonClick (sender AS System.Object,
+                                                             e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
+
+        ASSIGN tbCustomParameter:Text = "~{":U + System.Environment:NewLine +
                                         "  ~"SerializedType~": ~"Package.TypeName~",":U + System.Environment:NewLine +
                                         "  ~"PropertyName1~": 42,":U + System.Environment:NewLine +
                                         "  ~"PropertyName2~": ~"Value~"":U + System.Environment:NewLine +
                                         "}":U .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the ToolValueChanged event of the ultraToolbarsManager1
         Notes:
         @param sender The reference to the object that raised the event
-        @param e The ToolEventArgs with the data for this event                                                                        
+        @param e The ToolEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraToolbarsManager1_ToolValueChanged (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraToolbarsManager1_ToolValueChanged (sender AS System.Object,
                                                                 e AS Infragistics.Win.UltraWinToolbars.ToolEventArgs):
-        
+
         DEFINE VARIABLE cValue AS CHARACTER NO-UNDO.
         DEFINE VARIABLE iValue AS INTEGER NO-UNDO.
-        
+
         IF e:Tool:Key = "BatchSize":U THEN DO:
-            ASSIGN cValue = STRING (UNBOX (CAST(e:Tool, Infragistics.Win.UltraWinToolbars.ComboBoxTool):Value)) 
+            ASSIGN cValue = STRING (UNBOX (CAST(e:Tool, Infragistics.Win.UltraWinToolbars.ComboBoxTool):Value))
                    iValue = INTEGER (cValue) NO-ERROR .
-        
-            IF iValue > 0 THEN 
+
+            IF iValue > 0 THEN
                 CAST(e:Tool, Infragistics.Win.UltraWinToolbars.ComboBoxTool):Value = BOX(iValue) .
-            ELSE 
-                CAST(e:Tool, Infragistics.Win.UltraWinToolbars.ComboBoxTool):Value = BOX(0) .  
-    
+            ELSE
+                CAST(e:Tool, Infragistics.Win.UltraWinToolbars.ComboBoxTool):Value = BOX(0) .
+
         END.
 
     END METHOD.
 
 
- 
+
     DESTRUCTOR PUBLIC UltraBusinessEntityTesterFormDesigner ():
         IF VALID-OBJECT (components) THEN DO:
             CAST (components, System.IDisposable):Dispose ().

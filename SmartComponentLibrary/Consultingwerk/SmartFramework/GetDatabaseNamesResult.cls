@@ -41,11 +41,11 @@ CLASS Consultingwerk.SmartFramework.GetDatabaseNamesResult
         Purpose: Constructor for the GetDatabaseNamesResult class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC GetDatabaseNamesResult ():
-		SUPER ().
+    CONSTRUCTOR PUBLIC GetDatabaseNamesResult ():
+        SUPER ().
 
         THIS-OBJECT:AddSerializableProperties ("{&SerializableProperties}":U) .
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
 END CLASS.

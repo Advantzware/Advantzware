@@ -30,28 +30,28 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 CLASS Consultingwerk.Windows.Util.Forms.ProgressLangObjectPropertiesForm 
     INHERITS BaseForm: 
-	
+    
     DEFINE PRIVATE VARIABLE button1 AS System.Windows.Forms.Button NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE label1 AS System.Windows.Forms.Label NO-UNDO.
     DEFINE PRIVATE VARIABLE progressLangObjectPropertyControl1 AS Consultingwerk.Windows.Util.Controls.ProgressLangObjectPropertyControl NO-UNDO.
     DEFINE PRIVATE VARIABLE panel1 AS System.Windows.Forms.Panel NO-UNDO.
 
     {Consultingwerk/products.i}
-		
+        
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the ProgressLangObjectPropertiesForm class  
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ProgressLangObjectPropertiesForm ():
-		
+    CONSTRUCTOR PUBLIC ProgressLangObjectPropertiesForm ():
+        
         SUPER().
         InitializeComponent().
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
 &IF DEFINED (AblReflection) NE 0 &THEN
     /*------------------------------------------------------------------------------
@@ -65,23 +65,23 @@ CLASS Consultingwerk.Windows.Util.Forms.ProgressLangObjectPropertiesForm
     
     END METHOD .
     
-	/*------------------------------------------------------------------------------
+    /*------------------------------------------------------------------------------
         Purpose: Displays the properties of the passed in object in the property grid
         Notes:
         @param poObject The object to visualize
         @param pcTitle The title to display above the object properties
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC VOID DisplayPropertiesOfObject (poObject AS Progress.Lang.Object, 
-	                                                     pcTitle AS CHARACTER):
-		
-		DEFINE VARIABLE oForm AS ProgressLangObjectPropertiesForm NO-UNDO . 
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC STATIC VOID DisplayPropertiesOfObject (poObject AS Progress.Lang.Object, 
+                                                         pcTitle AS CHARACTER):
+        
+        DEFINE VARIABLE oForm AS ProgressLangObjectPropertiesForm NO-UNDO . 
 
         oForm = NEW ProgressLangObjectPropertiesForm () .
         oForm:DisplayObjectProperties (poObject, pcTitle) . 
         
         WAIT-FOR oForm:ShowDialog () . 
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Displays the properties of the passed in object in the property grid
@@ -100,31 +100,32 @@ CLASS Consultingwerk.Windows.Util.Forms.ProgressLangObjectPropertiesForm
         @param poObject The object to visualize
         @param pcTitle The title to display above the object properties
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID DisplayObjectProperties (poObject AS Progress.Lang.Object,
-	                                            pcTitle AS CHARACTER):
-		
-		IF CharacterType:IsNullOrEmpty (pcTitle) THEN DO:
-		
-		    IF VALID-OBJECT (poObject) THEN 
-		        pcTitle = poObject:GetClass():TypeName . 
-		    ELSE 
-		        pcTitle = "<null reference>":U .
-		
-		END.
-		
-		label1:Text = pcTitle .
+    METHOD PUBLIC VOID DisplayObjectProperties (poObject AS Progress.Lang.Object,
+                                                pcTitle AS CHARACTER):
+        
+        IF CharacterType:IsNullOrEmpty (pcTitle) THEN DO:
+        
+            IF VALID-OBJECT (poObject) THEN 
+                pcTitle = poObject:GetClass():TypeName . 
+            ELSE 
+                pcTitle = "<null reference>":U .
+        
+        END.
+        
+        label1:Text = pcTitle .
 
         progressLangObjectPropertyControl1:DisplayObjectProperties (poObject) .
 
-	END METHOD.
+    END METHOD.
 &ENDIF
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design  
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent(  ):
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+        
         /* NOTE: The following method is automatically generated.
         
         We strongly suggest that the contents of this method only be modified using the
@@ -207,14 +208,14 @@ CLASS Consultingwerk.Windows.Util.Forms.ProgressLangObjectPropertiesForm
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Destructor for the ProgressLangObjectPropertyControl class  
         Notes:   
     ------------------------------------------------------------------------------*/
-	DESTRUCTOR PUBLIC ProgressLangObjectPropertiesForm ():
+    DESTRUCTOR PUBLIC ProgressLangObjectPropertiesForm ():
 
-	END DESTRUCTOR.
+    END DESTRUCTOR.
 
 END CLASS.

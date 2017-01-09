@@ -36,14 +36,14 @@ CLASS Consultingwerk.WindowIntegrationKit.BrowseMethods:
         @param phBrowseWidget The handle of the ABL Browse widget
         @return The reference to the IBrowseApi instance  
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC IBrowseApi ForHandle (phBrowseWidget AS HANDLE):
+    METHOD PUBLIC STATIC IBrowseApi ForHandle (phBrowseWidget AS HANDLE):
 
         /* Mike Fechner, Consultingwerk Ltd. 05.08.2013
            RenderedBrowseControl:FromBrowseHandle (phBrowseWidget) Crashes on 10.2A */
-		&IF NOT PROVERSION GE "4" AND PROVERSION GE "10.2B" &THEN
+        &IF NOT PROVERSION GE "4" AND PROVERSION GE "10.2B" &THEN
         DEFINE VARIABLE oRenderedBrowseControl AS RenderedBrowseControl NO-UNDO . 
 
-		IF WinKitSettings:WinKitActive = TRUE THEN DO:
+        IF WinKitSettings:WinKitActive = TRUE THEN DO:
 
             {Consultingwerk/Assertion/HandleAssert/WidgetType.i phBrowseWidget Consultingwerk.WidgetTypeEnum:Browse} .
     
@@ -58,6 +58,6 @@ CLASS Consultingwerk.WindowIntegrationKit.BrowseMethods:
         &ENDIF
             RETURN NEW AblBrowseWidgetApi (phBrowseWidget) .
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

@@ -23,12 +23,12 @@ USING Progress.Lang.*.
 
 INTERFACE Consultingwerk.IOutputStream:  
   
-	/*------------------------------------------------------------------------------
-		Purpose: Writes text to the output destination  																	  
-		Notes:  										
-		@param pcText The text for the output							  
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID Write (pcText AS CHARACTER).
+    /*------------------------------------------------------------------------------
+        Purpose: Writes text to the output destination                                                                        
+        Notes:                                          
+        @param pcText The text for the output                              
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC VOID Write (pcText AS CHARACTER).
 
     /*------------------------------------------------------------------------------
         Purpose: Writes text to the output destination and terminates it with a 

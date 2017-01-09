@@ -35,8 +35,8 @@ INTERFACE Consultingwerk.Windows.LegacyGuiMigration.Widgets.ILogicalInputValueWi
         Notes:   The value for the INPUT-VALUE attribute is the unformatted 
                  SCREEN-VALUE of a widget                          
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY INPUT-VALUE AS LOGICAL NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY INPUT-VALUE AS LOGICAL NO-UNDO 
+    GET.
+    SET. 
 
 END INTERFACE.

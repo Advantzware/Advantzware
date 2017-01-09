@@ -29,7 +29,7 @@ USING Progress.Lang.* FROM PROPATH .
 
 CLASS Consultingwerk.Windows.Framework.Rollbase.ObjectDefinitionForm INHERITS SmartWindowForm: 
 
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE dataObjectDefViewerControl1 AS Consultingwerk.Windows.Framework.Rollbase.DataObjectDefViewerControl NO-UNDO.
     DEFINE PRIVATE VARIABLE smartDataBrowser1 AS Consultingwerk.SmartComponents.Implementation.SmartDataBrowser NO-UNDO.
     DEFINE PRIVATE VARIABLE smartDataBrowser2 AS Consultingwerk.SmartComponents.Implementation.SmartDataBrowser NO-UNDO.
@@ -45,8 +45,8 @@ CLASS Consultingwerk.Windows.Framework.Rollbase.ObjectDefinitionForm INHERITS Sm
         Purpose: Destructor for the ObjectDefinitionForm class 
         Notes:   
     ------------------------------------------------------------------------------*/    
-	CONSTRUCTOR PUBLIC ObjectDefinitionForm ():
-		
+    CONSTRUCTOR PUBLIC ObjectDefinitionForm ():
+        
         SUPER().
 
         InitializeComponent().
@@ -59,14 +59,15 @@ CLASS Consultingwerk.Windows.Framework.Rollbase.ObjectDefinitionForm INHERITS Sm
             Consultingwerk.Util.ErrorHelper:ShowErrorMessage (e) .
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design 
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+        
         /* NOTE: The following method is automatically generated.
         
         We strongly suggest that the contents of this method only be modified using the
@@ -85,13 +86,13 @@ CLASS Consultingwerk.Windows.Framework.Rollbase.ObjectDefinitionForm INHERITS Sm
         appearance1 = NEW Infragistics.Win.Appearance().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE ultraGridBand1 AS Infragistics.Win.UltraWinGrid.UltraGridBand NO-UNDO.
-        ultraGridBand1 = NEW Infragistics.Win.UltraWinGrid.UltraGridBand("RelationshipDefs":U, -1).
-        @VisualDesigner.FormMember (NeedsInitialize="true":U).
-        DEFINE VARIABLE ultraGridColumn1 AS Infragistics.Win.UltraWinGrid.UltraGridColumn NO-UNDO.
-        ultraGridColumn1 = NEW Infragistics.Win.UltraWinGrid.UltraGridColumn("parentid":U).
+        ultraGridBand1 = NEW Infragistics.Win.UltraWinGrid.UltraGridBand("RelationshipDef":U, -1).
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE ultraGridColumn2 AS Infragistics.Win.UltraWinGrid.UltraGridColumn NO-UNDO.
         ultraGridColumn2 = NEW Infragistics.Win.UltraWinGrid.UltraGridColumn("objectid":U).
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE resources AS Progress.Util.ResourceManager NO-UNDO.
+        resources = NEW Progress.Util.ResourceManager("Consultingwerk.Windows.Framework.Rollbase.ObjectDefinitionForm":U).
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE ultraGridColumn3 AS Infragistics.Win.UltraWinGrid.UltraGridColumn NO-UNDO.
         ultraGridColumn3 = NEW Infragistics.Win.UltraWinGrid.UltraGridColumn("id":U).
@@ -221,9 +222,6 @@ CLASS Consultingwerk.Windows.Framework.Rollbase.ObjectDefinitionForm INHERITS Sm
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance24 AS Infragistics.Win.Appearance NO-UNDO.
         appearance24 = NEW Infragistics.Win.Appearance().
-        @VisualDesigner.FormMember (NeedsInitialize="true":U).
-        DEFINE VARIABLE resources AS Progress.Util.ResourceManager NO-UNDO.
-        resources = NEW Progress.Util.ResourceManager("Consultingwerk.Windows.Framework.Rollbase.ObjectDefinitionForm":U).
         THIS-OBJECT:smartBusinessEntityAdapter1 = NEW Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter(THIS-OBJECT:components).
         THIS-OBJECT:smartBusinessEntityBindingSource1 = NEW Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource(THIS-OBJECT:components).
         THIS-OBJECT:smartBusinessEntityBindingSource2 = NEW Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource(THIS-OBJECT:components).
@@ -263,12 +261,9 @@ CLASS Consultingwerk.Windows.Framework.Rollbase.ObjectDefinitionForm INHERITS Sm
         /*  */
         /* smartBusinessEntityBindingSource1 */
         /*  */
-        THIS-OBJECT:smartBusinessEntityBindingSource1:AddFields = FALSE.
         THIS-OBJECT:smartBusinessEntityBindingSource1:BindTo = "QUERY":U.
-        THIS-OBJECT:smartBusinessEntityBindingSource1:ClearSchema = FALSE.
         THIS-OBJECT:smartBusinessEntityBindingSource1:EntityName = "Consultingwerk.RollbaseAdapter.MetaData.ObjectDefBusinessEntity":U.
         THIS-OBJECT:smartBusinessEntityBindingSource1:EntityTable = "DataFieldDef":U.
-        THIS-OBJECT:smartBusinessEntityBindingSource1:ImportSchema = FALSE.
         THIS-OBJECT:smartBusinessEntityBindingSource1:MaxDataGuess = 0.
         THIS-OBJECT:smartBusinessEntityBindingSource1:NoLOBs = FALSE.
         tableDesc1:ChildTables = ?.
@@ -290,12 +285,9 @@ CLASS Consultingwerk.Windows.Framework.Rollbase.ObjectDefinitionForm INHERITS Sm
         /*  */
         /* smartBusinessEntityBindingSource2 */
         /*  */
-        THIS-OBJECT:smartBusinessEntityBindingSource2:AddFields = FALSE.
         THIS-OBJECT:smartBusinessEntityBindingSource2:BindTo = "QUERY":U.
-        THIS-OBJECT:smartBusinessEntityBindingSource2:ClearSchema = FALSE.
         THIS-OBJECT:smartBusinessEntityBindingSource2:EntityName = "Consultingwerk.RollbaseAdapter.MetaData.ObjectDefBusinessEntity":U.
         THIS-OBJECT:smartBusinessEntityBindingSource2:EntityTable = "RelationshipDef":U.
-        THIS-OBJECT:smartBusinessEntityBindingSource2:ImportSchema = FALSE.
         THIS-OBJECT:smartBusinessEntityBindingSource2:MaxDataGuess = 0.
         THIS-OBJECT:smartBusinessEntityBindingSource2:NoLOBs = FALSE.
         tableDesc2:ChildTables = ?.
@@ -350,39 +342,53 @@ CLASS Consultingwerk.Windows.Framework.Rollbase.ObjectDefinitionForm INHERITS Sm
         appearance1:BackColor = System.Drawing.SystemColors:Window.
         appearance1:BorderColor = System.Drawing.SystemColors:InactiveCaption.
         THIS-OBJECT:smartDataBrowser1:DisplayLayout:Appearance = appearance1.
-        ultraGridColumn1:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
-        ultraGridColumn1:Header:VisiblePosition = 0.
-        ultraGridColumn1:Hidden = TRUE.
         ultraGridColumn2:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
-        ultraGridColumn2:Header:VisiblePosition = 1.
+        resources:ApplyResources(ultraGridColumn2:Header, "ultraGridColumn2.Header":U).
+        ultraGridColumn2:Header:VisiblePosition = 0.
+        ultraGridColumn2:ForceApplyResources = "Header":U.
         ultraGridColumn3:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
-        ultraGridColumn3:Header:VisiblePosition = 2.
+        resources:ApplyResources(ultraGridColumn3:Header, "ultraGridColumn3.Header":U).
+        ultraGridColumn3:Header:VisiblePosition = 1.
+        ultraGridColumn3:ForceApplyResources = "Header":U.
         ultraGridColumn4:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
-        ultraGridColumn4:Header:VisiblePosition = 3.
+        resources:ApplyResources(ultraGridColumn4:Header, "ultraGridColumn4.Header":U).
+        ultraGridColumn4:Header:VisiblePosition = 2.
+        ultraGridColumn4:ForceApplyResources = "Header":U.
         ultraGridColumn5:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
-        ultraGridColumn5:Header:VisiblePosition = 4.
+        resources:ApplyResources(ultraGridColumn5:Header, "ultraGridColumn5.Header":U).
+        ultraGridColumn5:Header:VisiblePosition = 3.
+        ultraGridColumn5:ForceApplyResources = "Header":U.
         ultraGridColumn6:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
-        ultraGridColumn6:Header:VisiblePosition = 5.
+        resources:ApplyResources(ultraGridColumn6:Header, "ultraGridColumn6.Header":U).
+        ultraGridColumn6:Header:VisiblePosition = 4.
+        ultraGridColumn6:ForceApplyResources = "Header":U.
         ultraGridColumn7:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
-        ultraGridColumn7:Header:VisiblePosition = 6.
+        resources:ApplyResources(ultraGridColumn7:Header, "ultraGridColumn7.Header":U).
+        ultraGridColumn7:Header:VisiblePosition = 5.
+        ultraGridColumn7:ForceApplyResources = "Header":U.
         ultraGridColumn8:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
-        ultraGridColumn8:Header:VisiblePosition = 7.
+        resources:ApplyResources(ultraGridColumn8:Header, "ultraGridColumn8.Header":U).
+        ultraGridColumn8:Header:VisiblePosition = 6.
+        ultraGridColumn8:ForceApplyResources = "Header":U.
         ultraGridColumn9:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
-        ultraGridColumn9:Header:VisiblePosition = 8.
+        resources:ApplyResources(ultraGridColumn9:Header, "ultraGridColumn9.Header":U).
+        ultraGridColumn9:Header:VisiblePosition = 7.
+        ultraGridColumn9:ForceApplyResources = "Header":U.
         ultraGridColumn10:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
-        ultraGridColumn10:Header:VisiblePosition = 9.
+        resources:ApplyResources(ultraGridColumn10:Header, "ultraGridColumn10.Header":U).
+        ultraGridColumn10:Header:VisiblePosition = 8.
+        ultraGridColumn10:ForceApplyResources = "Header":U.
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
-        DEFINE VARIABLE arrayvar2 AS System.Object EXTENT 10 NO-UNDO.
-        arrayvar2[1] = ultraGridColumn1.
-        arrayvar2[2] = ultraGridColumn2.
-        arrayvar2[3] = ultraGridColumn3.
-        arrayvar2[4] = ultraGridColumn4.
-        arrayvar2[5] = ultraGridColumn5.
-        arrayvar2[6] = ultraGridColumn6.
-        arrayvar2[7] = ultraGridColumn7.
-        arrayvar2[8] = ultraGridColumn8.
-        arrayvar2[9] = ultraGridColumn9.
-        arrayvar2[10] = ultraGridColumn10.
+        DEFINE VARIABLE arrayvar2 AS System.Object EXTENT 9 NO-UNDO.
+        arrayvar2[1] = ultraGridColumn2.
+        arrayvar2[2] = ultraGridColumn3.
+        arrayvar2[3] = ultraGridColumn4.
+        arrayvar2[4] = ultraGridColumn5.
+        arrayvar2[5] = ultraGridColumn6.
+        arrayvar2[6] = ultraGridColumn7.
+        arrayvar2[7] = ultraGridColumn8.
+        arrayvar2[8] = ultraGridColumn9.
+        arrayvar2[9] = ultraGridColumn10.
         ultraGridBand1:Columns:AddRange(arrayvar2).
         ultraGridBand1:Override:AllowDelete = Infragistics.Win.DefaultableBoolean:False.
         ultraGridBand1:Override:SelectTypeCell = Infragistics.Win.UltraWinGrid.SelectType:None.
@@ -430,7 +436,7 @@ CLASS Consultingwerk.Windows.Framework.Rollbase.ObjectDefinitionForm INHERITS Sm
         appearance9:BackGradientStyle = Infragistics.Win.GradientStyle:Horizontal.
         appearance9:BorderColor = System.Drawing.SystemColors:Window.
         THIS-OBJECT:smartDataBrowser1:DisplayLayout:Override:GroupByRowAppearance = appearance9.
-        appearance10:TextHAlignAsString = "Left":U.
+        resources:ApplyResources(appearance10, "appearance10":U).
         THIS-OBJECT:smartDataBrowser1:DisplayLayout:Override:HeaderAppearance = appearance10.
         THIS-OBJECT:smartDataBrowser1:DisplayLayout:Override:HeaderClickAction = Infragistics.Win.UltraWinGrid.HeaderClickAction:ExternalSortMulti.
         THIS-OBJECT:smartDataBrowser1:DisplayLayout:Override:HeaderStyle = Infragistics.Win.HeaderStyle:WindowsXPCommand.
@@ -444,44 +450,27 @@ CLASS Consultingwerk.Windows.Framework.Rollbase.ObjectDefinitionForm INHERITS Sm
         THIS-OBJECT:smartDataBrowser1:DisplayLayout:ScrollBounds = Infragistics.Win.UltraWinGrid.ScrollBounds:ScrollToFill.
         THIS-OBJECT:smartDataBrowser1:DisplayLayout:ScrollStyle = Infragistics.Win.UltraWinGrid.ScrollStyle:Immediate.
         THIS-OBJECT:smartDataBrowser1:DisplayLayout:ViewStyleBand = Infragistics.Win.UltraWinGrid.ViewStyleBand:OutlookGroupBy.
-        THIS-OBJECT:smartDataBrowser1:Dock = System.Windows.Forms.DockStyle:Bottom.
-        THIS-OBJECT:smartDataBrowser1:Font = NEW System.Drawing.Font("Microsoft Sans Serif":U, Progress.Util.CastUtil:ToSingle(8.25), System.Drawing.FontStyle:Regular, System.Drawing.GraphicsUnit:Point, System.Convert:ToByte(0)).
+        resources:ApplyResources(THIS-OBJECT:smartDataBrowser1, "smartDataBrowser1":U).
         THIS-OBJECT:smartDataBrowser1:LinkDataSource = THIS-OBJECT:smartDatasetChildAdapter2.
-        THIS-OBJECT:smartDataBrowser1:Location = NEW System.Drawing.Point(0, 410).
         THIS-OBJECT:smartDataBrowser1:Name = "smartDataBrowser1":U.
         THIS-OBJECT:smartDataBrowser1:SettingsKey = "d6620d08-a767-a78f-d613-f9d9bc21abe6":U.
-        THIS-OBJECT:smartDataBrowser1:Size = NEW System.Drawing.Size(1048, 239).
-        THIS-OBJECT:smartDataBrowser1:TabIndex = 0.
-        THIS-OBJECT:smartDataBrowser1:Text = "smartDataBrowser1":U.
         /*  */
         /* ultraSplitter1 */
         /*  */
         THIS-OBJECT:ultraSplitter1:BackColor = System.Drawing.SystemColors:Control.
-        THIS-OBJECT:ultraSplitter1:Dock = System.Windows.Forms.DockStyle:Bottom.
-        THIS-OBJECT:ultraSplitter1:Location = NEW System.Drawing.Point(0, 404).
+        resources:ApplyResources(THIS-OBJECT:ultraSplitter1, "ultraSplitter1":U).
         THIS-OBJECT:ultraSplitter1:Name = "ultraSplitter1":U.
         THIS-OBJECT:ultraSplitter1:RestoreExtent = 239.
-        THIS-OBJECT:ultraSplitter1:Size = NEW System.Drawing.Size(1048, 6).
-        THIS-OBJECT:ultraSplitter1:TabIndex = 1.
         /*  */
         /* dataObjectDefViewerControl1 */
         /*  */
-        THIS-OBJECT:dataObjectDefViewerControl1:AllowCloseOfUnmodifiedNewRecord = TRUE.
-        THIS-OBJECT:dataObjectDefViewerControl1:Dock = System.Windows.Forms.DockStyle:Top.
+        resources:ApplyResources(THIS-OBJECT:dataObjectDefViewerControl1, "dataObjectDefViewerControl1":U).
         THIS-OBJECT:dataObjectDefViewerControl1:FocusControlOnAdd = ?.
         THIS-OBJECT:dataObjectDefViewerControl1:FocusControlOnUpdate = ?.
         THIS-OBJECT:dataObjectDefViewerControl1:LinkDataSource = THIS-OBJECT:smartBusinessEntityAdapter1.
         THIS-OBJECT:dataObjectDefViewerControl1:LinkGroupAssignSource = ?.
         THIS-OBJECT:dataObjectDefViewerControl1:LinkTableIOSource = ?.
-        THIS-OBJECT:dataObjectDefViewerControl1:Location = NEW System.Drawing.Point(0, 0).
         THIS-OBJECT:dataObjectDefViewerControl1:Name = "dataObjectDefViewerControl1":U.
-        THIS-OBJECT:dataObjectDefViewerControl1:ReadOnlyDisabled = FALSE.
-        THIS-OBJECT:dataObjectDefViewerControl1:SaveMode = FALSE.
-        THIS-OBJECT:dataObjectDefViewerControl1:SecurityKey = "":U.
-        THIS-OBJECT:dataObjectDefViewerControl1:Size = NEW System.Drawing.Size(1048, 110).
-        THIS-OBJECT:dataObjectDefViewerControl1:SmartTableIOState = "FieldsDisabled":U.
-        THIS-OBJECT:dataObjectDefViewerControl1:TabIndex = 2.
-        THIS-OBJECT:dataObjectDefViewerControl1:ViewerLogicClass = "":U.
         /*  */
         /* smartDataBrowser2 */
         /*  */
@@ -491,27 +480,50 @@ CLASS Consultingwerk.Windows.Framework.Rollbase.ObjectDefinitionForm INHERITS Sm
         appearance13:BorderColor = System.Drawing.SystemColors:InactiveCaption.
         THIS-OBJECT:smartDataBrowser2:DisplayLayout:Appearance = appearance13.
         ultraGridColumn12:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn12:Header, "ultraGridColumn12.Header":U).
         ultraGridColumn12:Header:VisiblePosition = 0.
+        ultraGridColumn12:ForceApplyResources = "Header":U.
         ultraGridColumn13:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn13:Header, "ultraGridColumn13.Header":U).
         ultraGridColumn13:Header:VisiblePosition = 1.
+        ultraGridColumn13:ForceApplyResources = "Header":U.
         ultraGridColumn14:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn14:Header, "ultraGridColumn14.Header":U).
         ultraGridColumn14:Header:VisiblePosition = 2.
+        ultraGridColumn14:ForceApplyResources = "Header":U.
         ultraGridColumn15:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn15:Header, "ultraGridColumn15.Header":U).
         ultraGridColumn15:Header:VisiblePosition = 3.
+        ultraGridColumn15:ForceApplyResources = "Header":U.
         ultraGridColumn16:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn16:Header, "ultraGridColumn16.Header":U).
         ultraGridColumn16:Header:VisiblePosition = 4.
+        ultraGridColumn16:ForceApplyResources = "Header":U.
         ultraGridColumn17:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn17:Header, "ultraGridColumn17.Header":U).
         ultraGridColumn17:Header:VisiblePosition = 5.
+        ultraGridColumn17:ForceApplyResources = "Header":U.
         ultraGridColumn18:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn18:Header, "ultraGridColumn18.Header":U).
         ultraGridColumn18:Header:VisiblePosition = 6.
+        ultraGridColumn18:ForceApplyResources = "Header":U.
         ultraGridColumn19:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn19:Header, "ultraGridColumn19.Header":U).
         ultraGridColumn19:Header:VisiblePosition = 7.
+        ultraGridColumn19:ForceApplyResources = "Header":U.
         ultraGridColumn20:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn20:Header, "ultraGridColumn20.Header":U).
         ultraGridColumn20:Header:VisiblePosition = 8.
+        ultraGridColumn20:ForceApplyResources = "Header":U.
         ultraGridColumn21:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        ultraGridColumn21:FilterOperatorDefaultValue = Infragistics.Win.UltraWinGrid.FilterOperatorDefaultValue:GreaterThanOrEqualTo.
+        resources:ApplyResources(ultraGridColumn21:Header, "ultraGridColumn21.Header":U).
         ultraGridColumn21:Header:VisiblePosition = 9.
+        ultraGridColumn21:ForceApplyResources = "Header":U.
         ultraGridColumn22:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn22:Header, "ultraGridColumn22.Header":U).
         ultraGridColumn22:Header:VisiblePosition = 10.
+        ultraGridColumn22:ForceApplyResources = "Header":U.
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
         DEFINE VARIABLE arrayvar3 AS System.Object EXTENT 11 NO-UNDO.
         arrayvar3[1] = ultraGridColumn12.
@@ -572,7 +584,7 @@ CLASS Consultingwerk.Windows.Framework.Rollbase.ObjectDefinitionForm INHERITS Sm
         appearance21:BackGradientStyle = Infragistics.Win.GradientStyle:Horizontal.
         appearance21:BorderColor = System.Drawing.SystemColors:Window.
         THIS-OBJECT:smartDataBrowser2:DisplayLayout:Override:GroupByRowAppearance = appearance21.
-        appearance22:TextHAlignAsString = "Left":U.
+        resources:ApplyResources(appearance22, "appearance22":U).
         THIS-OBJECT:smartDataBrowser2:DisplayLayout:Override:HeaderAppearance = appearance22.
         THIS-OBJECT:smartDataBrowser2:DisplayLayout:Override:HeaderClickAction = Infragistics.Win.UltraWinGrid.HeaderClickAction:ExternalSortMulti.
         THIS-OBJECT:smartDataBrowser2:DisplayLayout:Override:HeaderStyle = Infragistics.Win.HeaderStyle:WindowsXPCommand.
@@ -586,27 +598,19 @@ CLASS Consultingwerk.Windows.Framework.Rollbase.ObjectDefinitionForm INHERITS Sm
         THIS-OBJECT:smartDataBrowser2:DisplayLayout:ScrollBounds = Infragistics.Win.UltraWinGrid.ScrollBounds:ScrollToFill.
         THIS-OBJECT:smartDataBrowser2:DisplayLayout:ScrollStyle = Infragistics.Win.UltraWinGrid.ScrollStyle:Immediate.
         THIS-OBJECT:smartDataBrowser2:DisplayLayout:ViewStyleBand = Infragistics.Win.UltraWinGrid.ViewStyleBand:OutlookGroupBy.
-        THIS-OBJECT:smartDataBrowser2:Dock = System.Windows.Forms.DockStyle:Fill.
-        THIS-OBJECT:smartDataBrowser2:Font = NEW System.Drawing.Font("Microsoft Sans Serif":U, Progress.Util.CastUtil:ToSingle(8.25), System.Drawing.FontStyle:Regular, System.Drawing.GraphicsUnit:Point, System.Convert:ToByte(0)).
+        resources:ApplyResources(THIS-OBJECT:smartDataBrowser2, "smartDataBrowser2":U).
         THIS-OBJECT:smartDataBrowser2:LinkDataSource = THIS-OBJECT:smartDatasetChildAdapter1.
-        THIS-OBJECT:smartDataBrowser2:Location = NEW System.Drawing.Point(0, 110).
         THIS-OBJECT:smartDataBrowser2:Name = "smartDataBrowser2":U.
         THIS-OBJECT:smartDataBrowser2:SettingsKey = "d6620d08-a767-a78f-d613-00da880ddb89":U.
-        THIS-OBJECT:smartDataBrowser2:Size = NEW System.Drawing.Size(1048, 294).
-        THIS-OBJECT:smartDataBrowser2:TabIndex = 3.
-        THIS-OBJECT:smartDataBrowser2:Text = "smartDataBrowser2":U.
         /*  */
         /* ObjectDefinitionForm */
         /*  */
-        THIS-OBJECT:ClientSize = NEW System.Drawing.Size(1048, 649).
+        resources:ApplyResources(THIS-OBJECT, "$this":U).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:smartDataBrowser2).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:dataObjectDefViewerControl1).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:ultraSplitter1).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:smartDataBrowser1).
-        THIS-OBJECT:Icon = CAST(resources:GetObject("$this.Icon":U), System.Drawing.Icon).
         THIS-OBJECT:Name = "ObjectDefinitionForm":U.
-        THIS-OBJECT:Text = "Rollbase Object Definition":U.
-        THIS-OBJECT:WindowPositionRegistryKey = "ObjectDefinitionForm":U.
         CAST(THIS-OBJECT:smartBusinessEntityAdapter1, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:smartBusinessEntityBindingSource1, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:smartBusinessEntityBindingSource2, System.ComponentModel.ISupportInitialize):EndInit().
@@ -619,7 +623,7 @@ CLASS Consultingwerk.Windows.Framework.Rollbase.ObjectDefinitionForm INHERITS Sm
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Destructor for the ObjectDefinitionForm class 

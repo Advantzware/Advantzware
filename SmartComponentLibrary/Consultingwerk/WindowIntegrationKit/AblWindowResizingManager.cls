@@ -57,9 +57,9 @@ CLASS Consultingwerk.WindowIntegrationKit.AblWindowResizingManager:
                  parent frame
         Notes:   Used when nested Frames are resize by themselves                                                                        
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY IgnoreNestedFrames AS LOGICAL NO-UNDO INIT FALSE 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY IgnoreNestedFrames AS LOGICAL NO-UNDO INIT FALSE 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the number of Pixels from the top that Widgets 
@@ -67,9 +67,9 @@ CLASS Consultingwerk.WindowIntegrationKit.AblWindowResizingManager:
                  ignored while resizing                                                                      
         Notes:                                                                        
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY IgnorePixelsFromTop AS INTEGER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY IgnorePixelsFromTop AS INTEGER NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the reference to the managed window                                                                     

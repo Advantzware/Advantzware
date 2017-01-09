@@ -16,6 +16,10 @@
     <DefaultTableSuffix/>
     <DefaultBeforeTablePrefix>e</DefaultBeforeTablePrefix>
     <DefaultBeforeTableSuffix>Before</DefaultBeforeTableSuffix>
+    <GenerateBusinessEntity>true</GenerateBusinessEntity>
+    <GenerateDataAccess>true</GenerateDataAccess>
+    <GenerateDatasetController>true</GenerateDatasetController>
+    <DistinctTempTableIncludeFiles>true</DistinctTempTableIncludeFiles>
   </eBusinessEntity>
   <eTable>
     <BusinessEntityName>SecurityRealmBusinessEntity</BusinessEntityName>
@@ -23,6 +27,7 @@
     <SourceTableNames>SmartSecurityRealm</SourceTableNames>
     <SourceBufferNames>SmartSecurityRealm</SourceBufferNames>
     <SourceDefaultQuery/>
+    <SourceBufferKeys/>
     <TempTablePurpose/>
     <TempTableDescription/>
     <TempTablePath>Consultingwerk\SmartFramework\Authorization</TempTablePath>
@@ -48,6 +53,7 @@
     <FieldDataType>LOGICAL</FieldDataType>
     <FieldDescription>Assignment Company Dependent</FieldDescription>
     <FieldInitial>no</FieldInitial>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>Assignment Company Dependent</FieldLabel>
     <FieldFormat>yes/no</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -61,6 +67,10 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+    <FieldSemanticType/>
+    <FieldSkipAssignment>false</FieldSkipAssignment>
   </eField>
   <eField>
     <BusinessEntityName>SecurityRealmBusinessEntity</BusinessEntityName>
@@ -70,6 +80,7 @@
     <FieldDataType>LOGICAL</FieldDataType>
     <FieldDescription>Default Restricted</FieldDescription>
     <FieldInitial>no</FieldInitial>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>Default Restricted</FieldLabel>
     <FieldFormat>yes/no</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -83,6 +94,10 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+    <FieldSemanticType/>
+    <FieldSkipAssignment>false</FieldSkipAssignment>
   </eField>
   <eField>
     <BusinessEntityName>SecurityRealmBusinessEntity</BusinessEntityName>
@@ -92,6 +107,7 @@
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription>Realm Code</FieldDescription>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>Realm Code</FieldLabel>
     <FieldFormat>x(3)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -105,6 +121,10 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+    <FieldSemanticType/>
+    <FieldSkipAssignment>false</FieldSkipAssignment>
   </eField>
   <eField>
     <BusinessEntityName>SecurityRealmBusinessEntity</BusinessEntityName>
@@ -114,6 +134,7 @@
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription>Realm Description</FieldDescription>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>Realm Description</FieldLabel>
     <FieldFormat>x(80)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -127,6 +148,10 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+    <FieldSemanticType/>
+    <FieldSkipAssignment>false</FieldSkipAssignment>
   </eField>
   <eField>
     <BusinessEntityName>SecurityRealmBusinessEntity</BusinessEntityName>
@@ -136,6 +161,7 @@
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription>SecurityRealmGuid</FieldDescription>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>SecurityRealmGuid</FieldLabel>
     <FieldFormat>x(36)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -149,6 +175,10 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+    <FieldSemanticType/>
+    <FieldSkipAssignment>false</FieldSkipAssignment>
   </eField>
   <eField>
     <BusinessEntityName>SecurityRealmBusinessEntity</BusinessEntityName>
@@ -158,6 +188,7 @@
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription/>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>Security Realm Service</FieldLabel>
     <FieldFormat>x(80)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -171,6 +202,10 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+    <FieldSemanticType/>
+    <FieldSkipAssignment>false</FieldSkipAssignment>
   </eField>
   <eIndex>
     <BusinessEntityName>SecurityRealmBusinessEntity</BusinessEntityName>

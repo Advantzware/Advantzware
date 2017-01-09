@@ -12,14 +12,16 @@
 /*------------------------------------------------------------------------
     File        : RestInterfaceWizard
     Purpose     : Wizard for creating REST Interfaces (Business Entity) classes
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sat Jun 08 15:10:06 CEST 2013
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
+
+{Consultingwerk/products.i}
 
 USING Consultingwerk.BusinessEntityDesigner.Plugins.RestInterfaceGenerator.* FROM PROPATH .
 USING Consultingwerk.BusinessEntityDesigner.Generator.RestInterface.*        FROM PROPATH .
@@ -27,17 +29,17 @@ USING Consultingwerk.Framework.*                                             FRO
 USING Consultingwerk.Framework.Collections.*                                 FROM PROPATH .
 USING Consultingwerk.Forms.*                                                 FROM PROPATH .
 USING Consultingwerk.SmartComponents.Base.*                                  FROM PROPATH .
-USING Consultingwerk.Util.*                                                  FROM PROPATH .   
+USING Consultingwerk.Util.*                                                  FROM PROPATH .
 USING Infragistics.Win.UltraWinEditors.*                                     FROM ASSEMBLY .
 USING Progress.Lang.*                                                        FROM PROPATH .
 USING System.Windows.Forms.*                                                 FROM ASSEMBLY .
 
-CLASS Consultingwerk.BusinessEntityDesigner.Plugins.RestInterfaceGenerator.RestInterfaceWizard INHERITS BaseForm: 
+CLASS Consultingwerk.BusinessEntityDesigner.Plugins.RestInterfaceGenerator.RestInterfaceWizard INHERITS BaseForm:
 
     DEFINE PRIVATE VARIABLE btnGenerate AS Infragistics.Win.Misc.UltraButton NO-UNDO.
     DEFINE PRIVATE VARIABLE btnCancel AS Infragistics.Win.Misc.UltraButton NO-UNDO.
     DEFINE PRIVATE VARIABLE cbFindTable AS Infragistics.Win.UltraWinEditors.UltraComboEditor NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE folderBrowserDialog1 AS System.Windows.Forms.FolderBrowserDialog NO-UNDO.
     DEFINE PRIVATE VARIABLE openFileDialog1 AS System.Windows.Forms.OpenFileDialog NO-UNDO.
     DEFINE PRIVATE VARIABLE tbAppServerModule AS Infragistics.Win.UltraWinEditors.UltraTextEditor NO-UNDO.
@@ -58,120 +60,121 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.RestInterfaceGenerator.RestI
     DEFINE PRIVATE VARIABLE ultraLabel2 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraLabel8 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraLabel9 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
-	
-    /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the Business Entity Name 
-        Notes:   
-    ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY BusinessEntityName AS CHARACTER NO-UNDO 
-    GET.
-    SET. 
-    
-    /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the Business Entity Package 
-        Notes:   
-    ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY BusinessEntityPackage AS CHARACTER NO-UNDO 
-    GET.
-    SET. 
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the name of the Dataset 
-        Notes:   
+        Purpose: Gets and sets the Business Entity Name
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY DatasetName AS CHARACTER NO-UNDO 
+    DEFINE PUBLIC PROPERTY BusinessEntityName AS CHARACTER NO-UNDO
     GET.
-    SET. 
-    	
+    SET.
+
     /*------------------------------------------------------------------------------
-        Purpose: Returns the reference to the List of Tables  
-        Notes:   
+        Purpose: Gets and sets the Business Entity Package
+        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Tables AS CharacterList NO-UNDO 
-	GET.
-	PRIVATE SET. 
-    	
+    DEFINE PUBLIC PROPERTY BusinessEntityPackage AS CHARACTER NO-UNDO
+    GET.
+    SET.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Gets and sets the name of the Dataset
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY DatasetName AS CHARACTER NO-UNDO
+    GET.
+    SET.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the reference to the List of Tables
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY Tables AS CharacterList NO-UNDO
+    GET.
+    PRIVATE SET.
+
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the RestInterfaceWizard class
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC RestInterfaceWizard ():
-		
+    CONSTRUCTOR PUBLIC RestInterfaceWizard ():
+
         SUPER().
-		
+
         InitializeComponent().
-        
+
         &IF NOT PROVERSION BEGINS "10.2":U AND NOT PROVERSION BEGINS "11.0" &THEN
         THIS-OBJECT:ComponentsCollection:Add (THIS-OBJECT:components).
         &ENDIF
-        
+
         THIS-OBJECT:Tables = NEW CharacterList () .
-        
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the Client event of the btnGenerate 
-        Notes:   
+        Purpose: Event handler for the Client event of the btnGenerate
+        Notes:
         @param sender The refernece to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID btnGenerate_Click (sender AS System.Object, 
-	                                       e AS System.EventArgs):
-		
-        DEFINE VARIABLE oSettings  AS Consultingwerk.Framework.ISettingsService NO-UNDO . 
-        DEFINE VARIABLE oGenerator AS RestInterfaceGenerator                    NO-UNDO .  
+    METHOD PRIVATE VOID btnGenerate_Click (sender AS System.Object,
+                                           e AS System.EventArgs):
+
+        DEFINE VARIABLE oSettings  AS Consultingwerk.Framework.ISettingsService NO-UNDO .
+        DEFINE VARIABLE oGenerator AS RestInterfaceGenerator                    NO-UNDO .
         DEFINE VARIABLE cFileName  AS CHARACTER                                 NO-UNDO .
-        
+
         oSettings = {Consultingwerk/get-service.i Consultingwerk.Framework.ISettingsService} .
-		
-		IF tbSourceFolder:Text > "":U THEN 
-    	    IF VALID-OBJECT (oSettings) THEN 
+
+        IF tbSourceFolder:Text > "":U THEN
+            IF VALID-OBJECT (oSettings) THEN
                 oSettings:StoreSetting ("RestInterface":U,
                                         "RestInterfaceSourceFolder":U,
-                                        tbSourceFolder:Text) . 
-        
+                                        tbSourceFolder:Text) .
+
         oGenerator = NEW RestInterfaceGenerator () .
-        
+
         ASSIGN oGenerator:AppServerModule         = tbAppServerModule:Text
                oGenerator:BusinessEntityName      = THIS-OBJECT:BusinessEntityName
                oGenerator:BusinessEntityPackage   = THIS-OBJECT:BusinessEntityPackage
-               oGenerator:DatasetName             = THIS-OBJECT:DatasetName 
-               oGenerator:DatasetPath             = tbDatasetPath:Text 
+               oGenerator:DatasetName             = THIS-OBJECT:DatasetName
+               oGenerator:DatasetPath             = tbDatasetPath:Text
                oGenerator:Description             = tbDescription:Text
                oGenerator:FindTable               = cbFindTable:Text
                oGenerator:IncludeFilePath         = tbIncludeFilePath:Text
                oGenerator:ServiceInterfaceName    = tbInterfaceClassName:Text
                oGenerator:ServiceInterfacePackage = tbInterfacePackage:Text
-               oGenerator:SourceFolder            = tbSourceFolder:Text   
+               oGenerator:SourceFolder            = tbSourceFolder:Text
                oGenerator:URI                     = tbURI:Text
-               .        
+               .
 
         cFileName = oGenerator:Generate() .
 
-        MessageFormHelper:ShowMessage (SUBSTITUTE ("Successfully generated Rest Interface:~n&1",
+        MessageFormHelper:ShowMessage (SUBSTITUTE ("Successfully generated Rest Interface:~n&1"{&TRAN},
                                                    cFileName)) .
 
         CATCH err AS Progress.Lang.Error :
-        	ErrorHelper:ShowErrorMessage (err) .	
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
-	END METHOD .
+    END METHOD .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the visual design
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE editorButton1 AS Infragistics.Win.UltraWinEditors.EditorButton NO-UNDO.
@@ -503,262 +506,268 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.RestInterfaceGenerator.RestI
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the KeyDown handler of the Text boxes with an 
+        Purpose: Event handler for the KeyDown handler of the Text boxes with an
                  EditorButton (Lookup)
         Notes:   Maps F3 to EditorButtonClick
         @param sender The reference to the object that raised the event
         @param e The KeyEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID LookupKeyDownHandler (sender AS System.Object, 
+    METHOD PRIVATE VOID LookupKeyDownHandler (sender AS System.Object,
                                               e AS System.Windows.Forms.KeyEventArgs):
 
         DEFINE VARIABLE cControlName AS CHARACTER NO-UNDO.
-        
-        IF e:Handled = FALSE AND Progress.Util.EnumHelper:AreEqual (e:KeyCode, SmartLookupSettings:ShortcutKey) 
+
+        IF e:Handled = FALSE AND Progress.Util.EnumHelper:AreEqual (e:KeyCode, SmartLookupSettings:ShortcutKey)
             AND THIS-OBJECT:Enabled THEN DO:
 
             ASSIGN cControlName = CAST (sender, System.Windows.Forms.Control):Name .
 
-            DYNAMIC-INVOKE (THIS-OBJECT, 
-                            SUBSTITUTE ("&1_EditorButtonClick":U, cControlName), 
-                            sender, 
+            DYNAMIC-INVOKE (THIS-OBJECT,
+                            SUBSTITUTE ("&1_EditorButtonClick":U, cControlName),
+                            sender,
                             NEW EditorButtonEventArgs (?, ?)) .
         END.
 
         CATCH err AS Progress.Lang.Error:
-            ErrorHelper:ShowErrorMessage (err) .                
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the load event  
-        Notes:   
+        Purpose: Raises the load event
+        Notes:
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
-		
-		DEFINE VARIABLE cInterfaceName AS CHARACTER NO-UNDO.
+    METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
+
+        DEFINE VARIABLE cInterfaceName AS CHARACTER NO-UNDO.
         DEFINE VARIABLE cSourceFolder  AS CHARACTER NO-UNDO.
-		DEFINE VARIABLE cProjectName   AS CHARACTER NO-UNDO.
-		DEFINE VARIABLE cRelativePath  AS CHARACTER NO-UNDO.
-		  
-		DEFINE VARIABLE oSettings AS Consultingwerk.Framework.ISettingsService NO-UNDO . 
-		
-		SUPER:OnLoad (e) .
+        DEFINE VARIABLE cProjectName   AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE cRelativePath  AS CHARACTER NO-UNDO.
+
+        DEFINE VARIABLE oSettings AS Consultingwerk.Framework.ISettingsService NO-UNDO .
+
+        SUPER:OnLoad (e) .
 
         oSettings = {Consultingwerk/get-service.i Consultingwerk.Framework.ISettingsService} .
-    
-        IF VALID-OBJECT (oSettings) THEN DO: 
-            ASSIGN cSourceFolder = oSettings:GetSetting ("RestInterface":U,
-                                                         "RestInterfaceSourceFolder":U) . 
-    
-            IF cSourceFolder > "":U THEN 
-                tbSourceFolder:Text = cSourceFolder.  
 
-            FILE-INFO:FILE-NAME = SUBSTITUTE ("&1~\&2.i":U, 
+        IF VALID-OBJECT (oSettings) THEN DO:
+            ASSIGN cSourceFolder = oSettings:GetSetting ("RestInterface":U,
+                                                         "RestInterfaceSourceFolder":U) .
+
+            IF cSourceFolder > "":U THEN
+                tbSourceFolder:Text = cSourceFolder.
+
+            FILE-INFORMATION:FILE-NAME = SUBSTITUTE ("&1~\&2.i":U,
                                               cSourceFolder,
                                               THIS-OBJECT:DatasetName) .
 
-            IF FILE-INFO:FULL-PATHNAME > "":U THEN DO: 
-                ASSIGN cProjectName = OpenEdgeArchitectHelper:FindProjectNameForPath (FILE-INFO:FULL-PATHNAME) .
-                
+            IF FILE-INFORMATION:FULL-PATHNAME > "":U THEN DO:
+                ASSIGN cProjectName = OpenEdgeArchitectHelper:FindProjectNameForPath (FILE-INFORMATION:FULL-PATHNAME) .
+
                 IF cProjectName > "":U THEN DO:
-                    
-                    ASSIGN cRelativePath = SUBSTRING (FILE-INFO:FULL-PATHNAME, 
-                                                      LENGTH (OpenEdgeArchitectHelper:FindProjectPath (FILE-INFO:FULL-PATHNAME)) + 2) 
-                           cRelativePath = REPLACE (cRelativePath, "~\":U, "/":U) 
+
+                    ASSIGN cRelativePath = SUBSTRING (FILE-INFORMATION:FULL-PATHNAME,
+                                                      LENGTH (OpenEdgeArchitectHelper:FindProjectPath (FILE-INFORMATION:FULL-PATHNAME), "CHARACTER":U) + 2,
+                                                      -1,
+                                                      "CHARACTER":U)
+                           cRelativePath = REPLACE (cRelativePath, "~\":U, "/":U)
                            tbDatasetPath:Text = SUBSTITUTE ("&1/&2":U,
                                                              cProjectName,
-                                                             cRelativePath) . 
-                END.    
+                                                             cRelativePath) .
+                END.
             END.
         END.
 
-        IF THIS-OBJECT:BusinessEntityName MATCHES "*BusinessEntity":U THEN  
-            ASSIGN cInterfaceName = SUBSTRING (THIS-OBJECT:BusinessEntityName, 
-                                               1, 
-                                               LENGTH (THIS-OBJECT:BusinessEntityName) - 14) .
-        ELSE IF THIS-OBJECT:BusinessEntityName MATCHES "*Entity":U THEN  
-            ASSIGN cInterfaceName = SUBSTRING (THIS-OBJECT:BusinessEntityName, 
-                                               1, 
-                                               LENGTH (THIS-OBJECT:BusinessEntityName) - 6) .
-        ELSE 
+        IF THIS-OBJECT:BusinessEntityName MATCHES "*BusinessEntity":U THEN
+            ASSIGN cInterfaceName = SUBSTRING (THIS-OBJECT:BusinessEntityName,
+                                               1,
+                                               LENGTH (THIS-OBJECT:BusinessEntityName, "CHARACTER":U) - 14,
+                                               "CHARACTER":U) .
+        ELSE IF THIS-OBJECT:BusinessEntityName MATCHES "*Entity":U THEN
+            ASSIGN cInterfaceName = SUBSTRING (THIS-OBJECT:BusinessEntityName,
+                                               1,
+                                               LENGTH (THIS-OBJECT:BusinessEntityName, "CHARACTER":U) - 6,
+                                               "CHARACTER":U) .
+        ELSE
             ASSIGN cInterfaceName = THIS-OBJECT:BusinessEntityName .
 
         ASSIGN THIS-OBJECT:tbInterfaceClassName:Text = cInterfaceName
-               THIS-OBJECT:tbURI:Text                = SUBSTITUTE ("&1":U, 
-                                                                   cInterfaceName) 
-               THIS-OBJECT:tbDescription:Text        = SUBSTITUTE ("Service Interface for &1",
-                                                                   THIS-OBJECT:BusinessEntityName) 
-               THIS-OBJECT:tbAppServerModule:Text    = "AppServer":U .       
+               THIS-OBJECT:tbURI:Text                = SUBSTITUTE ("&1":U,
+                                                                   cInterfaceName)
+               THIS-OBJECT:tbDescription:Text        = SUBSTITUTE ("Service Interface for &1"{&TRAN},
+                                                                   THIS-OBJECT:BusinessEntityName)
+               THIS-OBJECT:tbAppServerModule:Text    = "AppServer":U .
 
         {Consultingwerk/foreachPrimitiveList.i Character cTable in THIS-OBJECT:Tables}
             cbFindTable:ValueList:ValueListItems:Add (cTable, cTable) .
         END.
 
-        IF THIS-OBJECT:Tables:Count > 0 THEN 
-            cbFindTable:Text = THIS-OBJECT:Tables:GetValue (1) .   
+        IF THIS-OBJECT:Tables:Count > 0 THEN
+            cbFindTable:Text = THIS-OBJECT:Tables:GetValue (1) .
 
         THIS-OBJECT:ValidateSettings () .
 
-	END METHOD .
-
-	/*------------------------------------------------------------------------------
-	    Purpose: Event handler for the TextChanged event of the tbDatasetPath, 
-	             tbInterfaceClassName, tbInterfacePackage, tbURI, tbIncludeFilePath 
-	             and tbSourceFolder
-	    Notes:   Validates settings and enabled Generate button
-        @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event 
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID RestInterfaceWizard_TextChanged (sender AS System.Object, 
-	                                                     e AS System.EventArgs):
-		
-		THIS-OBJECT:ValidateSettings () .
-
-	END METHOD.
-
-	/*------------------------------------------------------------------------------
-	    Purpose: Event handler for the EditorButtonClick event of the tbInterfacePackage
-	             text editor 
-	    Notes:
-	    @param sender The reference to the object that raised the event
-	    @param e The EditorButtonEventArgs with the data for this event 
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID tbInterfacePackage_EditorButtonClick (sender AS System.Object,             
-	                                                          e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
-		
-        DEFINE VARIABLE oDialogResult        AS System.Windows.Forms.DialogResult                   NO-UNDO .
-        DEFINE VARIABLE cRelative            AS CHARACTER                                           NO-UNDO .
-        DEFINE VARIABLE oFolderBrowserDialog AS Consultingwerk.Windows.Util.Forms.FolderBrowserForm NO-UNDO . 
-        DEFINE VARIABLE cPath                AS CHARACTER                                           NO-UNDO .
-		
-		ASSIGN cPath = FileHelper:CombinePath (THIS-OBJECT:tbSourceFolder:Text,
-		                                       THIS-OBJECT:tbAppServerModule:Text) .
-
-        FILE-INFO:FILE-NAME = cPath . 
-        
-        IF FILE-INFO:FULL-PATHNAME > "":U THEN 
-            ASSIGN cPath = FILE-INFO:FULL-PATHNAME .
-        ELSE DO:
-            FILE-INFO:FULL-PATHNAME = ".":U .
-            ASSIGN cPath = FILE-INFO:FULL-PATHNAME . 
-        END.
-
-        oFolderBrowserDialog = NEW Consultingwerk.Windows.Util.Forms.FolderBrowserForm () . 
-        oFolderBrowserDialog:RootFolder = cPath . 
-        
-        WAIT-FOR oFolderBrowserDialog:ShowDialog() SET oDialogResult .
-        
-        IF Progress.Util.EnumHelper:AreEqual (oDialogResult, System.Windows.Forms.DialogResult:Ok) THEN DO:
-
-            ASSIGN cRelative = SUBSTRING (oFolderBrowserDialog:SelectedFolder, LENGTH (cPath) + 2) 
-            
-            tbInterfacePackage:Text = REPLACE (cRelative, "~\":U, ".":U) .
-        END.
-
-	END METHOD.
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the EditorButtonClick event of the tbDatasetPath
-        Notes:   
+        Purpose: Event handler for the TextChanged event of the tbDatasetPath,
+                 tbInterfaceClassName, tbInterfacePackage, tbURI, tbIncludeFilePath
+                 and tbSourceFolder
+        Notes:   Validates settings and enabled Generate button
+        @param sender The reference to the object that raised the event
+        @param e The System.EventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID RestInterfaceWizard_TextChanged (sender AS System.Object,
+                                                         e AS System.EventArgs):
+
+        THIS-OBJECT:ValidateSettings () .
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the EditorButtonClick event of the tbInterfacePackage
+                 text editor
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The EditorButtonEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraTextEditor1_EditorButtonClick (sender AS System.Object, 
+    METHOD PRIVATE VOID tbInterfacePackage_EditorButtonClick (sender AS System.Object,
+                                                              e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
+
+        DEFINE VARIABLE oDialogResult        AS System.Windows.Forms.DialogResult                   NO-UNDO .
+        DEFINE VARIABLE cRelative            AS CHARACTER                                           NO-UNDO .
+        DEFINE VARIABLE oFolderBrowserDialog AS Consultingwerk.Windows.Util.Forms.FolderBrowserForm NO-UNDO .
+        DEFINE VARIABLE cPath                AS CHARACTER                                           NO-UNDO .
+
+        ASSIGN cPath = FileHelper:CombinePath (THIS-OBJECT:tbSourceFolder:Text,
+                                               THIS-OBJECT:tbAppServerModule:Text) .
+
+        FILE-INFORMATION:FILE-NAME = cPath .
+
+        IF FILE-INFORMATION:FULL-PATHNAME > "":U THEN
+            ASSIGN cPath = FILE-INFORMATION:FULL-PATHNAME .
+        ELSE DO:
+            FILE-INFORMATION:FULL-PATHNAME = ".":U .
+            ASSIGN cPath = FILE-INFORMATION:FULL-PATHNAME .
+        END.
+
+        oFolderBrowserDialog = NEW Consultingwerk.Windows.Util.Forms.FolderBrowserForm () .
+        oFolderBrowserDialog:RootFolder = cPath .
+
+        WAIT-FOR oFolderBrowserDialog:ShowDialog() SET oDialogResult .
+
+        IF Progress.Util.EnumHelper:AreEqual (oDialogResult, System.Windows.Forms.DialogResult:Ok) THEN DO:
+
+            ASSIGN cRelative = SUBSTRING (oFolderBrowserDialog:SelectedFolder, LENGTH (cPath, "CHARACTER":U) + 2, -1, "CHARACTER":U)
+
+            tbInterfacePackage:Text = REPLACE (cRelative, "~\":U, ".":U) .
+        END.
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the EditorButtonClick event of the tbDatasetPath
+        Notes:
+        @param sender The reference to the object that raised the event
+        @param e The EditorButtonEventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID ultraTextEditor1_EditorButtonClick (sender AS System.Object,
                                                             e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
-		
+
         DEFINE VARIABLE oDialogResult AS System.Windows.Forms.DialogResult NO-UNDO .
         DEFINE VARIABLE cProjectName  AS CHARACTER                         NO-UNDO .
         DEFINE VARIABLE cRelativePath AS CHARACTER                         NO-UNDO .
         DEFINE VARIABLE cPath         AS CHARACTER                         NO-UNDO .
-		
-		WAIT-FOR openFileDialog1:ShowDialog() SET oDialogResult .
-		
-		{Consultingwerk/check-dialogresult-ok.i oDialogResult}
+
+        WAIT-FOR openFileDialog1:ShowDialog() SET oDialogResult .
+
+        {Consultingwerk/check-dialogresult-ok.i oDialogResult}
 
         ASSIGN cProjectName = OpenEdgeArchitectHelper:FindProjectNameForPath (openFileDialog1:FileName) .
-        
+
         IF cProjectName > "":U THEN DO:
-            
-            ASSIGN cRelativePath = SUBSTRING (openFileDialog1:FileName, 
-                                              LENGTH (OpenEdgeArchitectHelper:FindProjectPath (openFileDialog1:FileName)) + 2) 
-                   cRelativePath = REPLACE (cRelativePath, "~\":U, "/":U) 
+
+            ASSIGN cRelativePath = SUBSTRING (openFileDialog1:FileName,
+                                              LENGTH (OpenEdgeArchitectHelper:FindProjectPath (openFileDialog1:FileName), "CHARACTER":U) + 2,
+                                              -1,
+                                              "CHARACTER":U)
+                   cRelativePath = REPLACE (cRelativePath, "~\":U, "/":U)
                    tbDatasetPath:Text = SUBSTITUTE ("&1/&2":U,
                                                      cProjectName,
-                                                     cRelativePath) . 
-        END.    
+                                                     cRelativePath) .
+        END.
         ELSE DO:
-            tbDatasetPath:Text = FileHelper:RelativeFileName (openFileDialog1:FileName) .                          
-                        
-            MessageFormHelper:ShowMessage ("Could not determine the Progress Developer Studio project name for the selected file.~n" +
-                                           "Please edit the file name, so that it matches the Eclipse resource name.") .           
+            tbDatasetPath:Text = FileHelper:RelativeFileName (openFileDialog1:FileName) .
+
+            MessageFormHelper:ShowMessage ("Could not determine the Progress Developer Studio project name for the selected file.~n"{&TRAN} +
+                                           "Please edit the file name, so that it matches the Eclipse resource name."{&TRAN}) .
         END.
 
         /* Enter Dataset Include file path */
         ASSIGN cPath = FileHelper:CombinePath (THIS-OBJECT:tbSourceFolder:Text,
                                                THIS-OBJECT:tbAppServerModule:Text) .
 
-        FILE-INFO:FILE-NAME = cPath . 
-        
-        IF FILE-INFO:FULL-PATHNAME > "":U THEN 
-            ASSIGN cPath = FILE-INFO:FULL-PATHNAME .
+        FILE-INFORMATION:FILE-NAME = cPath .
+
+        IF FILE-INFORMATION:FULL-PATHNAME > "":U THEN
+            ASSIGN cPath = FILE-INFORMATION:FULL-PATHNAME .
         ELSE DO:
-            FILE-INFO:FULL-PATHNAME = ".":U .
-            ASSIGN cPath = FILE-INFO:FULL-PATHNAME . 
+            FILE-INFORMATION:FULL-PATHNAME = ".":U .
+            ASSIGN cPath = FILE-INFORMATION:FULL-PATHNAME .
         END.
 
-        ASSIGN cRelativePath = SUBSTRING (openFileDialog1:FileName, LENGTH (cPath) + 2) .
-        
-        IF cRelativePath > "":U THEN  
-            tbIncludeFilePath:Text = REPLACE (cRelativePath, "~\":U, "/":U) .             
-        ELSE 
+        ASSIGN cRelativePath = SUBSTRING (openFileDialog1:FileName, LENGTH (cPath, "CHARACTER":U) + 2, -1, "CHARACTER":U) .
+
+        IF cRelativePath > "":U THEN
+            tbIncludeFilePath:Text = REPLACE (cRelativePath, "~\":U, "/":U) .
+        ELSE
             tbIncludeFilePath:Text = REPLACE (FileHelper:RelativeFileName (openFileDialog1:FileName), "~\":U, "/":U) .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the EditorButtonClick event of the tbSourceFolder 
-        Notes:   
+        Purpose: Event handler for the EditorButtonClick event of the tbSourceFolder
+        Notes:
         @param sender The reference to the object that raised the event
-        @aram e The 
+        @aram e The
         @param e The EditorButtonEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraTextEditor1_EditorButtonClick_1 (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraTextEditor1_EditorButtonClick_1 (sender AS System.Object,
                                                               e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
-		
+
         DEFINE VARIABLE oDialogResult AS System.Windows.Forms.DialogResult NO-UNDO .
 
-        WAIT-FOR folderBrowserDialog1:ShowDialog () SET oDialogResult .         
+        WAIT-FOR folderBrowserDialog1:ShowDialog () SET oDialogResult .
 
         {Consultingwerk/check-dialogresult-ok.i oDialogResult}
 
-        tbSourceFolder:Text = folderBrowserDialog1:SelectedPath .        
+        tbSourceFolder:Text = folderBrowserDialog1:SelectedPath .
 
-	END METHOD .
-
-	/*------------------------------------------------------------------------------
-	    Purpose: Validates settings and enabled btnGenerated
-	    Notes:
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID ValidateSettings ():
-		
-		ASSIGN btnGenerate:Enabled = THIS-OBJECT:tbDatasetPath:Text > "":U AND 
-                                     THIS-OBJECT:tbInterfaceClassName:Text > "":U AND 
-                                     THIS-OBJECT:tbInterfacePackage:Text > "":U AND 
-                                     THIS-OBJECT:tbURI:Text > "":U AND 
-                                     THIS-OBJECT:tbIncludeFilePath:Text > "":U AND 
-                                     THIS-OBJECT:tbSourceFolder:Text > "":U .
-
-	END METHOD.
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the RestInterfaceWizard class 
-        Notes:   
+        Purpose: Validates settings and enabled btnGenerated
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID ValidateSettings ():
+
+        ASSIGN btnGenerate:Enabled = THIS-OBJECT:tbDatasetPath:Text > "":U AND
+                                     THIS-OBJECT:tbInterfaceClassName:Text > "":U AND
+                                     THIS-OBJECT:tbInterfacePackage:Text > "":U AND
+                                     THIS-OBJECT:tbURI:Text > "":U AND
+                                     THIS-OBJECT:tbIncludeFilePath:Text > "":U AND
+                                     THIS-OBJECT:tbSourceFolder:Text > "":U .
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Destructor for the RestInterfaceWizard class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC RestInterfaceWizard ():
 

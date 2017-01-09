@@ -23,24 +23,24 @@ USING Progress.Lang.*.
 
 INTERFACE Consultingwerk.SmartFramework.ITableInfoProvider:  
   
-	/*------------------------------------------------------------------------------
-	    Purpose: Finds a buffer based on the unique key values
-	    Notes:
+    /*------------------------------------------------------------------------------
+        Purpose: Finds a buffer based on the unique key values
+        Notes:
         @param phBuffer The buffer with the database record to return the description for
         @param pcUniqueKeyValues The unqiue key field values
         @param plExclusive Logical value indicating if the record should be accessed with exclusive-lock
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID FindRecordByKeyValues (phBuffer AS HANDLE, 
-	                                          pcUniqueKeyValues AS CHARACTER,
-	                                          plExclusive  AS LOGICAL).
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC VOID FindRecordByKeyValues (phBuffer AS HANDLE, 
+                                              pcUniqueKeyValues AS CHARACTER,
+                                              plExclusive  AS LOGICAL).
 
-	/*------------------------------------------------------------------------------
-		Purpose: Returns the standard description value for a database record  																	  
-		Notes:  															
-		@param phBuffer The buffer with the database record to return the description for
-		@return The standard description value for the record
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC CHARACTER RecordDescription (phBuffer AS HANDLE).
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the standard description value for a database record                                                                        
+        Notes:                                                              
+        @param phBuffer The buffer with the database record to return the description for
+        @return The standard description value for the record
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC CHARACTER RecordDescription (phBuffer AS HANDLE).
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the standard description value for a database record                                                                     

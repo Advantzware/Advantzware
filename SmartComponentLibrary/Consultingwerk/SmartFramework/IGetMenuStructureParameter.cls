@@ -36,8 +36,8 @@ INTERFACE Consultingwerk.SmartFramework.IGetMenuStructureParameter:
         Purpose: Returns the Number of Levels deep the Menu is requested 
         Notes:   Use 0 to request all menu data
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY NumberOfLevels AS INTEGER NO-UNDO 
-	GET.
+    DEFINE PUBLIC PROPERTY NumberOfLevels AS INTEGER NO-UNDO 
+    GET.
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the Root Node Key 

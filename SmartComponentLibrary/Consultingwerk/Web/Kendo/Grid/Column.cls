@@ -28,27 +28,28 @@ USING Progress.Lang.*                 FROM PROPATH .
 CLASS Consultingwerk.Web.Kendo.Grid.Column 
     INHERITS JsonSerializable: 
 
-    {Consultingwerk/JsonSerializableProperty.i field CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i command "CHARACTER EXTENT"} .
-    {Consultingwerk/JsonSerializableProperty.i title CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i type CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i filterable LOGICAL "INIT ?"} .
-    {Consultingwerk/JsonSerializableProperty.i sortable LOGICAL "INIT ?"} .
-    {Consultingwerk/JsonSerializableProperty.i width CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i attributes Consultingwerk.Web.Kendo.Grid.Attributes} .
-	{Consultingwerk/JsonSerializableProperty.i template CHARACTER "INIT ?"} .
-	
-	/*------------------------------------------------------------------------------
+    {Consultingwerk/JsonSerializableProperty11.i field CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i command "CHARACTER EXTENT"} .
+    {Consultingwerk/JsonSerializableProperty11.i title CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i type CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i filterable LOGICAL "INIT ?"} .
+    {Consultingwerk/JsonSerializableProperty11.i format CHARACTER "INIT ?"} .
+    {Consultingwerk/JsonSerializableProperty11.i sortable LOGICAL "INIT ?"} .
+    {Consultingwerk/JsonSerializableProperty11.i width CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i attributes Consultingwerk.Web.Kendo.Grid.Attributes} .
+    {Consultingwerk/JsonSerializableProperty11.i template CHARACTER "INIT ?"} .
+    
+    /*------------------------------------------------------------------------------
         Purpose: Constructor for the Column class                                                                     
         Notes:                                                                        
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC Column ():
-		SUPER ().
-		
-		THIS-OBJECT:UseSerializedTypeInformation = FALSE . 
-		THIS-OBJECT:SerializeNullValues = FALSE . 
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC Column ():
+        SUPER ().
+        
+        THIS-OBJECT:UseSerializedTypeInformation = FALSE . 
+        THIS-OBJECT:SerializeNullValues = FALSE . 
         THIS-OBJECT:AddSerializableProperties ("{&SerializableProperties}":U) .
-                		
-	END CONSTRUCTOR.
+                        
+    END CONSTRUCTOR.
 
 END CLASS.

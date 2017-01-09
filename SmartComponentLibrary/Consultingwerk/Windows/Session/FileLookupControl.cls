@@ -11,26 +11,26 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : FileLookupControl
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Wed Jan 28 16:28:26 CET 2015
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Consultingwerk.Windows.Session.*    FROM PROPATH .  
+USING Consultingwerk.Windows.Session.*    FROM PROPATH .
 USING Consultingwerk.Util.*               FROM PROPATH .
 USING Progress.Lang.*                     FROM PROPATH .
 USING Progress.Windows.*                  FROM ASSEMBLY .
 USING Infragistics.Win.*                  FROM ASSEMBLY.
 USING Infragistics.Win.UltraWinListView.* FROM ASSEMBLY.
 
-CLASS Consultingwerk.Windows.Session.FileLookupControl INHERITS UserControl: 
+CLASS Consultingwerk.Windows.Session.FileLookupControl INHERITS UserControl:
 
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraLabel1 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraComboEditor1 AS Infragistics.Win.UltraWinEditors.UltraComboEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraButton1 AS Infragistics.Win.Misc.UltraButton NO-UNDO.
@@ -40,11 +40,11 @@ CLASS Consultingwerk.Windows.Session.FileLookupControl INHERITS UserControl:
     DEFINE PRIVATE VARIABLE ultraLabel2 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the FileLookupControl class 
-        Notes:   
+        Purpose: Constructor for the FileLookupControl class
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC FileLookupControl ():
-		
+    CONSTRUCTOR PUBLIC FileLookupControl ():
+
         SUPER().
 
         InitializeComponent().
@@ -53,41 +53,42 @@ CLASS Consultingwerk.Windows.Session.FileLookupControl INHERITS UserControl:
         THIS-OBJECT:ComponentsCollection:Add (THIS-OBJECT:components).
         &ENDIF
 
-        THIS-OBJECT:FillFileNameCombo () . 
+        THIS-OBJECT:FillFileNameCombo () .
         ultraListView1:Items:Clear () .
 
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Populates the FileName Combo box 
-        Notes:   
+        Purpose: Populates the FileName Combo box
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID FillFileNameCombo ():
-		
-		THIS-OBJECT:ultraComboEditor1:ValueList:ValueListItems:Clear () . 
+    METHOD PROTECTED VOID FillFileNameCombo ():
+
+        THIS-OBJECT:ultraComboEditor1:ValueList:ValueListItems:Clear () .
 
         THIS-OBJECT:ultraComboEditor1:ValueList:ValueListItems:Add (".applicationsettings":U) .
         THIS-OBJECT:ultraComboEditor1:ValueList:ValueListItems:Add (".applicationsettings.xml":U) .
         THIS-OBJECT:ultraComboEditor1:ValueList:ValueListItems:Add (".BusinessEntityDesignerSettings.xml":U) .
         THIS-OBJECT:ultraComboEditor1:ValueList:ValueListItems:Add (".classpath":U) .
 
-	END METHOD .
+    END METHOD .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design 
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
         DEFINE VARIABLE arrayvar0 AS Infragistics.Win.UltraWinListView.UltraListViewSubItem EXTENT 1 NO-UNDO.
@@ -217,96 +218,104 @@ CLASS Consultingwerk.Windows.Session.FileLookupControl INHERITS UserControl:
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Searches for the file with the name entered in the ultraComboEditor1 
-        Notes:   
+        Purpose: Searches for the file with the name entered in the ultraComboEditor1
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID SearchFile ():
-		
-		DEFINE VARIABLE cFileName   AS CHARACTER         NO-UNDO .
+    METHOD PROTECTED VOID SearchFile ():
+
+        DEFINE VARIABLE cFileName   AS CHARACTER         NO-UNDO .
         DEFINE VARIABLE hCall       AS HANDLE            NO-UNDO .
         DEFINE VARIABLE i           AS INTEGER           NO-UNDO .
         DEFINE VARIABLE cProperties AS CHARACTER         NO-UNDO .
         DEFINE VARIABLE cProperty   AS CHARACTER         NO-UNDO .
         DEFINE VARIABLE oItem       AS UltraListViewItem NO-UNDO .
-        DEFINE VARIABLE cSkip       AS CHARACTER         NO-UNDO 
+        DEFINE VARIABLE cSkip       AS CHARACTER         NO-UNDO
             INIT "TYPE,HANDLE,INSTANTIATING-PROCEDURE":U.
-    		
-		ASSIGN cFileName   = ultraComboEditor1:Text 
-		       cProperties = LIST-QUERY-ATTRS (FILE-INFO:HANDLE).
-		
-		ultraTextEditor1:Text = SEARCH (cFileName) . 
-		ultraListView1:Items:Clear () .
-		
-		FILE-INFO:FILE-NAME = cFileName . 
-		
-		CREATE CALL hCall .  
-		hCall:CALL-TYPE = GET-ATTR-CALL-TYPE . 
-		hCall:IN-HANDLE = FILE-INFO:HANDLE . 
+
+        ASSIGN cFileName   = ultraComboEditor1:Text
+               cProperties = LIST-QUERY-ATTRS (FILE-INFORMATION:HANDLE).
+
+        ultraTextEditor1:Text = SEARCH (cFileName) .
+        ultraListView1:Items:Clear () .
+
+        FILE-INFORMATION:FILE-NAME = cFileName .
+
+        CREATE CALL hCall .
+        hCall:CALL-TYPE = GET-ATTR-CALL-TYPE .
+        hCall:IN-HANDLE = FILE-INFORMATION:HANDLE .
 
         DO i = 1 TO NUM-ENTRIES (cProperties):
-    		
-    		ASSIGN cProperty = ENTRY (i, cProperties) . 
-    		
-    		IF LOOKUP (cProperty, cSkip) > 0 THEN  
-    		    NEXT . 
-    		
-    		hCall:CALL-NAME = cProperty .
-    		
-    		hCall:INVOKE () NO-ERROR . 
-    		
-    		IF ERROR-STATUS:ERROR THEN 
-    		    NEXT . 
-    		
-    		oItem = ultraListView1:Items:Add (ENTRY (i, cProperties)) .
-    		
-    		oItem:Value = ENTRY (i, cProperties) .
-    		
-    		IF cProperty MATCHES "*-TIME":U THEN 
-    		    oItem:SubItems[0]:Value = STRING (INTEGER (hCall:RETURN-VALUE), "hh:mm:ss":U) .
-		    ELSE 
-    		    oItem:SubItems[0]:Value = hCall:RETURN-VALUE . 
+
+            ASSIGN cProperty = ENTRY (i, cProperties) .
+
+            IF LOOKUP (cProperty, cSkip) > 0 THEN
+                NEXT .
+
+            hCall:CALL-NAME = cProperty .
+
+            hCall:INVOKE () NO-ERROR .
+
+            IF ERROR-STATUS:ERROR THEN
+                NEXT .
+
+            oItem = ultraListView1:Items:Add (ENTRY (i, cProperties)) .
+
+            oItem:Value = ENTRY (i, cProperties) .
+
+            IF cProperty MATCHES "*-TIME":U THEN
+                oItem:SubItems[0]:Value = STRING (INTEGER (hCall:RETURN-VALUE), "hh:mm:ss":U) .
+            ELSE
+                oItem:SubItems[0]:Value = hCall:RETURN-VALUE .
 
         END.
 
         FINALLY:
-            GarbageCollectorHelper:DeleteObject (hCall) .		
+            GarbageCollectorHelper:DeleteObject (hCall) .
         END FINALLY.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the Click event of the ultraButton1 
-        Notes:   
+        Purpose: Event handler for the Click event of the ultraButton1
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraButton1_Click (sender AS System.Object, 
-	                                        e AS System.EventArgs):
-		
-		THIS-OBJECT:SearchFile () .
+    METHOD PRIVATE VOID ultraButton1_Click (sender AS System.Object,
+                                            e AS System.EventArgs):
 
-	END METHOD .
+        THIS-OBJECT:SearchFile () .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the KeyPress event of the ultraComboEditor1
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The KeyPressEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraComboEditor1_KeyPress (sender AS System.Object,   
-	                                                e AS System.Windows.Forms.KeyPressEventArgs):
-		
-		IF e:KeyChar = CHR(13) THEN 
-		    THIS-OBJECT:SearchFile () .
+    METHOD PRIVATE VOID ultraComboEditor1_KeyPress (sender AS System.Object,
+                                                    e AS System.Windows.Forms.KeyPressEventArgs):
 
-	END METHOD .
+        IF e:KeyChar = CHR(13) THEN
+            THIS-OBJECT:SearchFile () .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the FileLookupControl class 
-        Notes:   
+        Purpose: Destructor for the FileLookupControl class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC FileLookupControl ():
 

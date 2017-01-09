@@ -81,24 +81,24 @@ CLASS Consultingwerk.SmartFramework.Authentication.UserDatasetModel
 
     END CONSTRUCTOR.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Returns a UserDatasetModel filtered by a UserName
-	    Notes:   Alternative to the search construcors which are by UserGuid or 
-	             UserName in combination to LoginCompanyGuid
-	    @param pcUserName The user name to search for
-	    @return A UserDatasetModel instance filtered by the user name (any login company) 
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC UserDatasetModel FromUsername (pcUserName AS CHARACTER):
-		
-		DEFINE VARIABLE oModel AS UserDatasetModel NO-UNDO . 
-		
-		oModel = NEW UserDatasetModel () . 
-		
+    /*------------------------------------------------------------------------------
+        Purpose: Returns a UserDatasetModel filtered by a UserName
+        Notes:   Alternative to the search construcors which are by UserGuid or 
+                 UserName in combination to LoginCompanyGuid
+        @param pcUserName The user name to search for
+        @return A UserDatasetModel instance filtered by the user name (any login company) 
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC STATIC UserDatasetModel FromUsername (pcUserName AS CHARACTER):
+        
+        DEFINE VARIABLE oModel AS UserDatasetModel NO-UNDO . 
+        
+        oModel = NEW UserDatasetModel () . 
+        
         oModel:SmartUser:Filter:UserName:EQ (pcUserName) .
         oModel:SmartUser:Filter:Run () .
 
-		RETURN oModel .
+        RETURN oModel .
 
-	END METHOD.
+    END METHOD.
 
 END CLASS.

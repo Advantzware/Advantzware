@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2006-2014 by Consultingwerk Ltd. ("CW") -            *
+ * Copyright (C) 2006-2016 by Consultingwerk Ltd. ("CW") -            *
  * www.consultingwerk.de and other contributors as listed             *
  * below.  All Rights Reserved.                                       *
  *                                                                    *
@@ -18,26 +18,29 @@
     Description :  
 
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
-    Created     : 09.10.2014 20:38:00
+    Created     : 31.05.2016 14:13:09
     Notes       :
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
 
+@BusinessEntityGenerator (entityname="Consultingwerk.OERA.Context.ContextBusinessEntity", type="TempTable") .
+
 DEFINE {&ACCESS} TEMP-TABLE eSessionContext{&SUFFIX} NO-UNDO {&REFERENCE-ONLY} &IF DEFINED (NO-BEFORE) EQ 0 &THEN BEFORE-TABLE eSessionContextBefore{&SUFFIX} &ENDIF
-    FIELD UserName AS CHARACTER FORMAT "X(80)":U SERIALIZE-NAME "UserName":U
-    FIELD LoginCompanyName AS CHARACTER FORMAT "X(80)":U SERIALIZE-NAME "LoginCompanyName":U
-    FIELD ClientPrincipal AS RAW SERIALIZE-NAME "ClientPrincipal":U
-    FIELD LoginCompanyKey AS CHARACTER FORMAT "X(8)":U SERIALIZE-NAME "LoginCompanyKey":U
-    FIELD LoginCompanyShortName AS CHARACTER FORMAT "X(8)":U SERIALIZE-NAME "LoginCompanyShortName":U
-    FIELD LoginCompanyReferenceChar AS CHARACTER FORMAT "X(8)":U SERIALIZE-NAME "LoginCompanyReferenceChar":U
-    FIELD LoginCompanyReferenceDecimal AS DECIMAL FORMAT ">>>,>>>,>>9.9999":U SERIALIZE-NAME "LoginCompanyReferenceDecimal":U
-    FIELD LoginCompanyReferenceInteger AS INTEGER FORMAT ">>>,>>>,>>9":U SERIALIZE-NAME "LoginCompanyReferenceInteger":U
-    FIELD LanguageDisplayName AS CHARACTER FORMAT "X(8)":U SERIALIZE-NAME "LanguageDisplayName":U
-    FIELD LanguageIsoCode AS CHARACTER FORMAT "X(8)":U SERIALIZE-NAME "LanguageIsoCode":U
-    FIELD LanguageKey AS CHARACTER FORMAT "X(8)":U SERIALIZE-NAME "LanguageKey":U
-    FIELD UserGroupKeys AS CHARACTER FORMAT "X(8)":U SERIALIZE-NAME "UserGroupKeys":U
-    FIELD UserGroupNames AS CHARACTER FORMAT "X(8)":U SERIALIZE-NAME "UserGroupNames":U
+    FIELD UserName AS CHARACTER FORMAT "X(80)":U
+    FIELD UserKey AS CHARACTER FORMAT "X(36)":U LABEL "User Key":T
+    FIELD LoginCompanyName AS CHARACTER FORMAT "X(80)":U
+    FIELD ClientPrincipal AS RAW
+    FIELD LoginCompanyKey AS CHARACTER FORMAT "X(8)":U
+    FIELD LoginCompanyShortName AS CHARACTER FORMAT "X(8)":U
+    FIELD LoginCompanyReferenceChar AS CHARACTER FORMAT "X(8)":U
+    FIELD LoginCompanyReferenceDecimal AS DECIMAL FORMAT ">>>,>>>,>>9.9999":U
+    FIELD LoginCompanyReferenceInteger AS INTEGER FORMAT ">>>,>>>,>>9":U
+    FIELD LanguageDisplayName AS CHARACTER FORMAT "X(8)":U
+    FIELD LanguageIsoCode AS CHARACTER FORMAT "X(8)":U
+    FIELD LanguageKey AS CHARACTER FORMAT "X(8)":U
+    FIELD UserGroupKeys AS CHARACTER FORMAT "X(8)":U
+    FIELD UserGroupNames AS CHARACTER FORMAT "X(8)":U
     FIELD ServerLogEntryTypes AS CHARACTER FORMAT "X(60)":U
     FIELD ServerCustomLogEntries AS CHARACTER FORMAT "X(60)":U
     FIELD ServerDebugMode AS LOGICAL FORMAT "yes/no":U LABEL "Debug Mode":T

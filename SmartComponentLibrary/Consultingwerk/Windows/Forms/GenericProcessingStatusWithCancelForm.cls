@@ -11,83 +11,84 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : GenericProcessingStatusWithCancelForm
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sun Nov 04 20:02:37 CET 2012
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.Forms.*         FROM PROPATH .
 USING Consultingwerk.Util.*          FROM PROPATH .
-USING Consultingwerk.Windows.Forms.* FROM PROPATH .  
+USING Consultingwerk.Windows.Forms.* FROM PROPATH .
 USING Progress.Lang.*                FROM PROPATH .
 
-CLASS Consultingwerk.Windows.Forms.GenericProcessingStatusWithCancelForm 
-    INHERITS BaseForm: 
-	
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+CLASS Consultingwerk.Windows.Forms.GenericProcessingStatusWithCancelForm
+    INHERITS BaseForm:
+
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE lbStatus AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE pictureBox1 AS System.Windows.Forms.PictureBox NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraButton1 AS Infragistics.Win.Misc.UltraButton NO-UNDO.
-	
+
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets if the Cancel button has been pressed
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Cancelled AS LOGICAL INITIAL FALSE NO-UNDO 
-	GET:
-	    UserInterfaceHelper:ProcessEvents() . 
-	    
-	    RETURN THIS-OBJECT:Cancelled .    
-	END GET. 
-	PROTECTED SET. 
+    DEFINE PUBLIC PROPERTY Cancelled AS LOGICAL INITIAL FALSE NO-UNDO
+    GET:
+        UserInterfaceHelper:ProcessEvents() .
+
+        RETURN THIS-OBJECT:Cancelled .
+    END GET.
+    PROTECTED SET.
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the Status Text
         Notes:   Directly updates the UI and processes UI events
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY StatusText AS CHARACTER NO-UNDO 
-	GET:
-	    RETURN lbStatus:Text . 
-	END GET . 
-	SET (arg AS CHARACTER):
-		lbStatus:Text = arg .  
-		
-		UserInterfaceHelper:ProcessEvents () .
-    END SET. 
+    DEFINE PUBLIC PROPERTY StatusText AS CHARACTER NO-UNDO
+    GET:
+        RETURN lbStatus:Text .
+    END GET .
+    SET (arg AS CHARACTER):
+        lbStatus:Text = arg .
+
+        UserInterfaceHelper:ProcessEvents () .
+    END SET.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the GenericProcessingStatusWithCancelForm class
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC GenericProcessingStatusWithCancelForm ():
-		
+    CONSTRUCTOR PUBLIC GenericProcessingStatusWithCancelForm ():
+
         SUPER().
         InitializeComponent().
-        
-        THIS-OBJECT:StoreFormPosition = FALSE . 
-        
+
+        THIS-OBJECT:StoreFormPosition = FALSE .
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance1 AS Infragistics.Win.Appearance NO-UNDO.
@@ -152,27 +153,31 @@ CLASS Consultingwerk.Windows.Forms.GenericProcessingStatusWithCancelForm
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: 
-        Notes:   
+        Purpose:
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraButton1_Click (sender AS System.Object, 
-	                                        e AS System.EventArgs):
-		
-		ASSIGN THIS-OBJECT:Cancelled = TRUE . 
+    METHOD PRIVATE VOID ultraButton1_Click (sender AS System.Object,
+                                            e AS System.EventArgs):
 
-	END METHOD .
+        ASSIGN THIS-OBJECT:Cancelled = TRUE .
 
-	DESTRUCTOR PUBLIC GenericProcessingStatusWithCancelForm ():
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
 
-		IF VALID-OBJECT(components) THEN DO:
-			CAST(components, System.IDisposable):Dispose().
-		END.
+    END METHOD .
 
-	END DESTRUCTOR.
+    DESTRUCTOR PUBLIC GenericProcessingStatusWithCancelForm ():
+
+        IF VALID-OBJECT(components) THEN DO:
+            CAST(components, System.IDisposable):Dispose().
+        END.
+
+    END DESTRUCTOR.
 
 END CLASS.

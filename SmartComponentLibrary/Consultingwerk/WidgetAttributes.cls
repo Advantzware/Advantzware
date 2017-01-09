@@ -42,21 +42,21 @@ CLASS Consultingwerk.WidgetAttributes:
         Purpose: Constructor for the WidgetAttributes class
         Notes:   Disallow instance creation   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PRIVATE WidgetAttributes ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PRIVATE WidgetAttributes ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the WidgetAttributes class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR STATIC WidgetAttributes ():
-		
-		IF FileHelper:Exists ("Consultingwerk/widgetattributes.xml":U) THEN 
-		    TEMP-TABLE ttWidgetAttributes:READ-XML ("file":U, FileHelper:FindFile ("Consultingwerk/widgetattributes.xml":U), ?, ?, ?) .
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR STATIC WidgetAttributes ():
+        
+        IF FileHelper:Exists ("Consultingwerk/widgetattributes.xml":U) THEN 
+            TEMP-TABLE ttWidgetAttributes:READ-XML ("file":U, FileHelper:FindFile ("Consultingwerk/widgetattributes.xml":U), ?, ?, ?) .
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Verifies that an Attribute name is valid
@@ -64,20 +64,20 @@ CLASS Consultingwerk.WidgetAttributes:
         @param pcAttributeName The name of the attribute to verify
         @return Logical value indicating that the attribute name is valid
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC LOGICAL IsValid (pcAttributeName AS CHARACTER):
-		
-		RETURN CAN-FIND (ttWidgetAttributes WHERE ttWidgetAttributes.AttributeName = pcAttributeName) .
+    METHOD PUBLIC STATIC LOGICAL IsValid (pcAttributeName AS CHARACTER):
+        
+        RETURN CAN-FIND (ttWidgetAttributes WHERE ttWidgetAttributes.AttributeName = pcAttributeName) .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Returns a List of all widget attributes
         Notes:   
         @return The CharacterList of all widget attributes 
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC CharacterList ToList ():
-		
-		DEFINE VARIABLE oList AS CharacterList NO-UNDO.
+    METHOD PUBLIC STATIC CharacterList ToList ():
+        
+        DEFINE VARIABLE oList AS CharacterList NO-UNDO.
 
         oList = NEW CharacterList () . 
         
@@ -85,8 +85,8 @@ CLASS Consultingwerk.WidgetAttributes:
             oList:Add (ttWidgetAttributes.AttributeName) . 
         END.
 
-		RETURN oList .
+        RETURN oList .
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

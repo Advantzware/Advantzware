@@ -186,8 +186,8 @@ CLASS Consultingwerk.Forms.Telerik.BaseRadRibbonForm
         Purpose: Constructor for the BaseRadRibbonForm class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC BaseRadRibbonForm ():
-		
+    CONSTRUCTOR PUBLIC BaseRadRibbonForm ():
+        
         SUPER ().
     
         THIS-OBJECT:DesignTime = Progress.Util.EnumHelper:AreEqual(System.ComponentModel.LicenseManager:UsageMode,
@@ -214,7 +214,7 @@ CLASS Consultingwerk.Forms.Telerik.BaseRadRibbonForm
         END.         
 &ENDIF
  
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
 &IF DEFINED (DelayFormDeletionOnFormClosed) NE 0 &THEN
     /*------------------------------------------------------------------------------
@@ -818,6 +818,6 @@ CLASS Consultingwerk.Forms.Telerik.BaseRadRibbonForm
 {{&CustomBaseFormDestructorInclude}}
 &ENDIF
 
-	END DESTRUCTOR.
+    END DESTRUCTOR.
 &ENDIF
 END CLASS.

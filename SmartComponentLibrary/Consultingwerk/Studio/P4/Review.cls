@@ -33,9 +33,9 @@ CLASS Consultingwerk.Studio.P4.Review:
         Notes:   
         @return The CharacterList with the change list numbers to review 
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC CharacterList GetReviewChangelists ():
-		
-		DEFINE VARIABLE oChanges AS CharacterList NO-UNDO .
+    METHOD PUBLIC CharacterList GetReviewChangelists ():
+        
+        DEFINE VARIABLE oChanges AS CharacterList NO-UNDO .
         DEFINE VARIABLE cLine    AS CHARACTER     NO-UNDO .
 
         oChanges = NEW CharacterList () .
@@ -51,8 +51,8 @@ CLASS Consultingwerk.Studio.P4.Review:
         
         INPUT CLOSE . 
 
-		RETURN oChanges .
+        RETURN oChanges .
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

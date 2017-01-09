@@ -28,7 +28,7 @@ USING Progress.Lang.*                           FROM PROPATH .
 
 CLASS Consultingwerk.Windows.Framework.System.AttachmentRoleSelectForm INHERITS BaseForm: 
 
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraComboEditor1 AS Infragistics.Win.UltraWinEditors.UltraComboEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraLabel1 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraButtonOK AS Infragistics.Win.Misc.UltraButton NO-UNDO.
@@ -39,17 +39,17 @@ CLASS Consultingwerk.Windows.Framework.System.AttachmentRoleSelectForm INHERITS 
         Purpose: Gets and sets the selected value (GUID of the Attachment Role) 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY SelectedValue AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY SelectedValue AS CHARACTER NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the AttachmentRoleSelectForm class 
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC AttachmentRoleSelectForm ():
-		
-		
+    CONSTRUCTOR PUBLIC AttachmentRoleSelectForm ():
+        
+        
         SUPER().
         InitializeComponent().
         
@@ -62,14 +62,15 @@ CLASS Consultingwerk.Windows.Framework.System.AttachmentRoleSelectForm INHERITS 
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+        
         /* NOTE: The following method is automatically generated.
         
         We strongly suggest that the contents of this method only be modified using the
@@ -90,63 +91,40 @@ CLASS Consultingwerk.Windows.Framework.System.AttachmentRoleSelectForm INHERITS 
         /*  */
         /* pictureBox1 */
         /*  */
-        THIS-OBJECT:pictureBox1:Image = CAST(resources:GetObject("pictureBox1.Image":U), System.Drawing.Image).
-        THIS-OBJECT:pictureBox1:Location = NEW System.Drawing.Point(12, 12).
+        resources:ApplyResources(THIS-OBJECT:pictureBox1, "pictureBox1":U).
         THIS-OBJECT:pictureBox1:Name = "pictureBox1":U.
-        THIS-OBJECT:pictureBox1:Size = NEW System.Drawing.Size(48, 48).
-        THIS-OBJECT:pictureBox1:SizeMode = System.Windows.Forms.PictureBoxSizeMode:AutoSize.
-        THIS-OBJECT:pictureBox1:TabIndex = 8.
         THIS-OBJECT:pictureBox1:TabStop = FALSE.
         /*  */
         /* ultraLabel1 */
         /*  */
-        THIS-OBJECT:ultraLabel1:AutoSize = TRUE.
-        THIS-OBJECT:ultraLabel1:Location = NEW System.Drawing.Point(76, 12).
+        resources:ApplyResources(THIS-OBJECT:ultraLabel1, "ultraLabel1":U).
         THIS-OBJECT:ultraLabel1:Name = "ultraLabel1":U.
-        THIS-OBJECT:ultraLabel1:Size = NEW System.Drawing.Size(256, 14).
-        THIS-OBJECT:ultraLabel1:TabIndex = 7.
-        THIS-OBJECT:ultraLabel1:Text = "Select the attachment role for the new attachment:":U.
         /*  */
         /* ultraButtonOK */
         /*  */
-        DEFINE VARIABLE nestedvar0 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar0 = System.Windows.Forms.AnchorStyles:Bottom.
-        THIS-OBJECT:ultraButtonOK:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar0, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:ultraButtonOK, "ultraButtonOK":U).
         THIS-OBJECT:ultraButtonOK:DialogResult = System.Windows.Forms.DialogResult:OK.
-        THIS-OBJECT:ultraButtonOK:Enabled = FALSE.
-        THIS-OBJECT:ultraButtonOK:Location = NEW System.Drawing.Point(196, 62).
         THIS-OBJECT:ultraButtonOK:Name = "ultraButtonOK":U.
-        THIS-OBJECT:ultraButtonOK:Size = NEW System.Drawing.Size(75, 23).
-        THIS-OBJECT:ultraButtonOK:TabIndex = 5.
-        THIS-OBJECT:ultraButtonOK:Text = "&OK":U.
         /*  */
         /* ultraButtonCancel */
         /*  */
-        DEFINE VARIABLE nestedvar1 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar1 = System.Windows.Forms.AnchorStyles:Bottom.
-        THIS-OBJECT:ultraButtonCancel:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar1, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:ultraButtonCancel, "ultraButtonCancel":U).
         THIS-OBJECT:ultraButtonCancel:DialogResult = System.Windows.Forms.DialogResult:Cancel.
-        THIS-OBJECT:ultraButtonCancel:Location = NEW System.Drawing.Point(277, 62).
         THIS-OBJECT:ultraButtonCancel:Name = "ultraButtonCancel":U.
-        THIS-OBJECT:ultraButtonCancel:Size = NEW System.Drawing.Size(75, 23).
-        THIS-OBJECT:ultraButtonCancel:TabIndex = 6.
-        THIS-OBJECT:ultraButtonCancel:Text = "&Cancel":U.
         /*  */
         /* ultraComboEditor1 */
         /*  */
         THIS-OBJECT:ultraComboEditor1:DropDownStyle = Infragistics.Win.DropDownStyle:DropDownList.
         THIS-OBJECT:ultraComboEditor1:LimitToList = TRUE.
-        THIS-OBJECT:ultraComboEditor1:Location = NEW System.Drawing.Point(76, 32).
+        resources:ApplyResources(THIS-OBJECT:ultraComboEditor1, "ultraComboEditor1":U).
         THIS-OBJECT:ultraComboEditor1:Name = "ultraComboEditor1":U.
-        THIS-OBJECT:ultraComboEditor1:Size = NEW System.Drawing.Size(276, 21).
-        THIS-OBJECT:ultraComboEditor1:TabIndex = 4.
         THIS-OBJECT:ultraComboEditor1:ValueChanged:Subscribe(THIS-OBJECT:ultraComboEditor1_ValueChanged).
         /*  */
         /* AttachmentRoleSelectForm */
         /*  */
         THIS-OBJECT:AcceptButton = THIS-OBJECT:ultraButtonOK.
         THIS-OBJECT:CancelButton = THIS-OBJECT:ultraButtonCancel.
-        THIS-OBJECT:ClientSize = NEW System.Drawing.Size(362, 97).
+        resources:ApplyResources(THIS-OBJECT, "$this":U).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:pictureBox1).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:ultraLabel1).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:ultraButtonOK).
@@ -155,8 +133,6 @@ CLASS Consultingwerk.Windows.Framework.System.AttachmentRoleSelectForm INHERITS 
         THIS-OBJECT:Name = "AttachmentRoleSelectForm":U.
         THIS-OBJECT:ShowIcon = FALSE.
         THIS-OBJECT:ShowInTaskbar = FALSE.
-        THIS-OBJECT:Text = "Select a Attachment Role":U.
-        THIS-OBJECT:WindowPositionRegistryKey = "AttachmentRoleSelectForm":U.
         CAST(THIS-OBJECT:pictureBox1, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:ultraComboEditor1, System.ComponentModel.ISupportInitialize):EndInit().
         THIS-OBJECT:ResumeLayout(FALSE).
@@ -164,7 +140,7 @@ CLASS Consultingwerk.Windows.Framework.System.AttachmentRoleSelectForm INHERITS 
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the ValueChanged event of the combo editor
@@ -172,14 +148,14 @@ CLASS Consultingwerk.Windows.Framework.System.AttachmentRoleSelectForm INHERITS 
         @param sender The reference to the control that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraComboEditor1_ValueChanged (sender AS System.Object, 
-	                                                    e AS System.EventArgs):
-		
-		THIS-OBJECT:SelectedValue = UNBOX (ultraComboEditor1:Value) .
+    METHOD PRIVATE VOID ultraComboEditor1_ValueChanged (sender AS System.Object, 
+                                                        e AS System.EventArgs):
+        
+        THIS-OBJECT:SelectedValue = UNBOX (ultraComboEditor1:Value) .
 
         THIS-OBJECT:ultraButtonOK:Enabled = Consultingwerk.CharacterType:IsNotNullOrEmpty (THIS-OBJECT:SelectedValue) .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Destructor for the AttachmentRoleSelectForm class 

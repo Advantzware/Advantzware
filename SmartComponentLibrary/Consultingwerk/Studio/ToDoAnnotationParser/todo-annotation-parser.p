@@ -74,8 +74,8 @@ FOR EACH ttFileNames ON ERROR UNDO, THROW:
         oParser      = NEW AnnotationParser (ttFileNames.FileName) .
         
         CATCH err AS Progress.Lang.Error:
-        	MESSAGE err:GetMessage (1)
-                VIEW-AS ALERT-BOX.	
+            MESSAGE err:GetMessage (1)
+                VIEW-AS ALERT-BOX.    
             NEXT filenames.
         END CATCH.
     END. 

@@ -34,11 +34,11 @@ CLASS Consultingwerk.SmartComponents.TypeDescriptor.Components.PropertiesSmartPa
         Purpose: Constructor for the PropertiesSmartPanelController class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC PropertiesSmartPanelController ():
-	    
-	    DEFINE VARIABLE oProperty AS IPropertyDescriptor NO-UNDO . 
-		
-		SUPER ().
+    CONSTRUCTOR PUBLIC PropertiesSmartPanelController ():
+        
+        DEFINE VARIABLE oProperty AS IPropertyDescriptor NO-UNDO . 
+        
+        SUPER ().
 
         THIS-OBJECT:TypeName = "Consultingwerk.SmartComponents.Implementation.SmartPanelController":U . 
 
@@ -46,6 +46,6 @@ CLASS Consultingwerk.SmartComponents.TypeDescriptor.Components.PropertiesSmartPa
         oProperty:Attributes:Add (NEW System.ComponentModel.BrowsableAttribute (FALSE)) .
         oProperty:Attributes:Add (NEW System.ComponentModel.DesignerSerializationVisibilityAttribute (DesignerSerializationVisibility:Hidden)) .
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
 END CLASS.

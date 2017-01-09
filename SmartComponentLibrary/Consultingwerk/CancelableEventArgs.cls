@@ -38,7 +38,7 @@ CLASS Consultingwerk.CancelableEventArgs
         Notes:   This property can be used by event subscribers to signal that the 
                  operation following the before event should be cancelled
     ------------------------------------------------------------------------------*/    
-    DEFINE PUBLIC PROPERTY Cancel AS LOGICAL NO-UNDO INIT FALSE  
+    DEFINE PUBLIC PROPERTY Cancel AS LOGICAL NO-UNDO INITIAL FALSE  
     GET.
     SET.    
 

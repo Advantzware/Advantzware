@@ -1,0 +1,1003 @@
+<?xml version="1.0"?>
+<dsBusinessEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <eBusinessEntity>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <BusinessEntityPurpose>Business Entity for SmartSchedulerJobPlan</BusinessEntityPurpose>
+    <BusinessEntityDescription/>
+    <BusinessEntityPackage>Consultingwerk.SmartFramework.Scheduler</BusinessEntityPackage>
+    <DataAccessName>SchedulerJobPlanDataAccess</DataAccessName>
+    <DataAccessPackage>Consultingwerk.SmartFramework.Scheduler</DataAccessPackage>
+    <DatasetControllerName>SchedulerJobPlanDatasetController</DatasetControllerName>
+    <DatasetControllerPackage>Consultingwerk.SmartFramework.Scheduler</DatasetControllerPackage>
+    <DatasetName>dsSchedulerJobPlan</DatasetName>
+    <DatasetPath>Consultingwerk/SmartFramework/Scheduler</DatasetPath>
+    <DefaultTablePath>Consultingwerk/SmartFramework/Scheduler</DefaultTablePath>
+    <DefaultTablePrefix>e</DefaultTablePrefix>
+    <DefaultTableSuffix/>
+    <DefaultBeforeTablePrefix>e</DefaultBeforeTablePrefix>
+    <DefaultBeforeTableSuffix>Before</DefaultBeforeTableSuffix>
+    <GenerateBusinessEntity>true</GenerateBusinessEntity>
+    <GenerateDataAccess>true</GenerateDataAccess>
+    <GenerateDatasetController>true</GenerateDatasetController>
+    <DistinctTempTableIncludeFiles>true</DistinctTempTableIncludeFiles>
+  </eBusinessEntity>
+  <eTable>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <SourceTableNames>SmartSchedulerJobPlan,SmartSchedulerJob</SourceTableNames>
+    <SourceBufferNames>SmartSchedulerJobPlan,SmartSchedulerJob</SourceBufferNames>
+    <SourceDefaultQuery>FOR EACH SmartSchedulerJobPlan, FIRST SmartSchedulerJob OF SmartSchedulerJobPlan</SourceDefaultQuery>
+    <SourceBufferKeys/>
+    <TempTablePurpose/>
+    <TempTableDescription/>
+    <TempTablePath>Consultingwerk/SmartFramework/Scheduler</TempTablePath>
+    <TempTableBeforeName>eSmartSchedulerJobPlanBefore</TempTableBeforeName>
+    <LayoutColumn>440</LayoutColumn>
+    <LayoutRow>20</LayoutRow>
+    <LayoutWidth>200</LayoutWidth>
+    <LayoutHeight>870</LayoutHeight>
+    <NamespaceUri/>
+    <NamespacePrefix/>
+    <XmlNodeName/>
+    <SerializeName/>
+    <NoBeforeTable>false</NoBeforeTable>
+    <EntityPackageName>Consultingwerk.SmartFramework.Scheduler</EntityPackageName>
+    <EntityClassName>SmartSchedulerJobPlan</EntityClassName>
+    <DeletedFields/>
+  </eTable>
+  <eField>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <FieldName>Active</FieldName>
+    <FieldOrder>32</FieldOrder>
+    <FieldDataType>LOGICAL</FieldDataType>
+    <FieldDescription>JobPlan is active</FieldDescription>
+    <FieldInitial>Yes</FieldInitial>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
+    <FieldLabel>JobPlan is active</FieldLabel>
+    <FieldFormat>yes/no</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartSchedulerJobPlan.Active</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+  </eField>
+  <eField>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <FieldName>ClientPrincipal</FieldName>
+    <FieldOrder>36</FieldOrder>
+    <FieldDataType>RAW</FieldDataType>
+    <FieldDescription>ClientPrincipal</FieldDescription>
+    <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
+    <FieldLabel/>
+    <FieldFormat/>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartSchedulerJobPlan.ClientPrincipal</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+  </eField>
+  <eField>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <FieldName>ContextDataSet</FieldName>
+    <FieldOrder>33</FieldOrder>
+    <FieldDataType>CLOB</FieldDataType>
+    <FieldDescription>ContextDataSet</FieldDescription>
+    <FieldInitial/>
+    <FieldInitialUnknownValue>true</FieldInitialUnknownValue>
+    <FieldLabel>ContextDataSet</FieldLabel>
+    <FieldFormat>x(8)</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartSchedulerJobPlan.ContextDataSet</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+  </eField>
+  <eField>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <FieldName>DataBaseConnections</FieldName>
+    <FieldOrder>35</FieldOrder>
+    <FieldDataType>CHARACTER</FieldDataType>
+    <FieldDescription>DataBaseConnections</FieldDescription>
+    <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
+    <FieldLabel>DataBaseConnections</FieldLabel>
+    <FieldFormat>x(120)</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartSchedulerJobPlan.DataBaseConnections</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+  </eField>
+  <eField>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <FieldName>JobParamter</FieldName>
+    <FieldOrder>5</FieldOrder>
+    <FieldDataType>CLOB</FieldDataType>
+    <FieldDescription>JobParamter</FieldDescription>
+    <FieldInitial/>
+    <FieldInitialUnknownValue>true</FieldInitialUnknownValue>
+    <FieldLabel>JobParamter</FieldLabel>
+    <FieldFormat>x(8)</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartSchedulerJobPlan.JobParamter</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+  </eField>
+  <eField>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <FieldName>MaxExecutionDelay</FieldName>
+    <FieldOrder>4</FieldOrder>
+    <FieldDataType>INTEGER</FieldDataType>
+    <FieldDescription>Max. Delay</FieldDescription>
+    <FieldInitial>0</FieldInitial>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
+    <FieldLabel>Max. Delay</FieldLabel>
+    <FieldFormat>zzzz9</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartSchedulerJobPlan.MaxExecutionDelay</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+  </eField>
+  <eField>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <FieldName>MaxRuntime</FieldName>
+    <FieldOrder>3</FieldOrder>
+    <FieldDataType>INTEGER</FieldDataType>
+    <FieldDescription>MaxRuntime</FieldDescription>
+    <FieldInitial>0</FieldInitial>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
+    <FieldLabel>MaxRuntime</FieldLabel>
+    <FieldFormat>zzzz9</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartSchedulerJobPlan.MaxRuntime</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+  </eField>
+  <eField>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <FieldName>PlanningType</FieldName>
+    <FieldOrder>6</FieldOrder>
+    <FieldDataType>CHARACTER</FieldDataType>
+    <FieldDescription>Plan Type</FieldDescription>
+    <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
+    <FieldLabel>Plan Type</FieldLabel>
+    <FieldFormat>x(15)</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartSchedulerJobPlan.PlanningType</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+  </eField>
+  <eField>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <FieldName>RecurringApril</FieldName>
+    <FieldOrder>19</FieldOrder>
+    <FieldDataType>LOGICAL</FieldDataType>
+    <FieldDescription>Recurring April</FieldDescription>
+    <FieldInitial>no</FieldInitial>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
+    <FieldLabel>Recurring April</FieldLabel>
+    <FieldFormat>yes/no</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartSchedulerJobPlan.RecurringApril</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+  </eField>
+  <eField>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <FieldName>RecurringAugust</FieldName>
+    <FieldOrder>23</FieldOrder>
+    <FieldDataType>LOGICAL</FieldDataType>
+    <FieldDescription>Recurring August</FieldDescription>
+    <FieldInitial>no</FieldInitial>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
+    <FieldLabel>Recurring August</FieldLabel>
+    <FieldFormat>yes/no</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartSchedulerJobPlan.RecurringAugust</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+  </eField>
+  <eField>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <FieldName>RecurringDaylist</FieldName>
+    <FieldOrder>28</FieldOrder>
+    <FieldDataType>CHARACTER</FieldDataType>
+    <FieldDescription>Recurring Daylist</FieldDescription>
+    <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
+    <FieldLabel>Recurring Daylist</FieldLabel>
+    <FieldFormat>x(30)</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartSchedulerJobPlan.RecurringDaylist</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+  </eField>
+  <eField>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <FieldName>RecurringDecember</FieldName>
+    <FieldOrder>27</FieldOrder>
+    <FieldDataType>LOGICAL</FieldDataType>
+    <FieldDescription>Recurring December</FieldDescription>
+    <FieldInitial>no</FieldInitial>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
+    <FieldLabel>Recurring December</FieldLabel>
+    <FieldFormat>yes/no</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartSchedulerJobPlan.RecurringDecember</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+  </eField>
+  <eField>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <FieldName>RecurringExecutionTimes</FieldName>
+    <FieldOrder>29</FieldOrder>
+    <FieldDataType>CHARACTER</FieldDataType>
+    <FieldDescription>Recurring Execution Times</FieldDescription>
+    <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
+    <FieldLabel>Recurring Execution Times</FieldLabel>
+    <FieldFormat>x(30)</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartSchedulerJobPlan.RecurringExecutionTimes</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+  </eField>
+  <eField>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <FieldName>RecurringFebruary</FieldName>
+    <FieldOrder>17</FieldOrder>
+    <FieldDataType>LOGICAL</FieldDataType>
+    <FieldDescription>Recurring February</FieldDescription>
+    <FieldInitial>no</FieldInitial>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
+    <FieldLabel>Recurring February</FieldLabel>
+    <FieldFormat>yes/no</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartSchedulerJobPlan.RecurringFebruary</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+  </eField>
+  <eField>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <FieldName>RecurringFriday</FieldName>
+    <FieldOrder>12</FieldOrder>
+    <FieldDataType>LOGICAL</FieldDataType>
+    <FieldDescription>Recurring Friday</FieldDescription>
+    <FieldInitial>no</FieldInitial>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
+    <FieldLabel>Recurring Friday</FieldLabel>
+    <FieldFormat>yes/no</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartSchedulerJobPlan.RecurringFriday</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+  </eField>
+  <eField>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <FieldName>RecurringJanuary</FieldName>
+    <FieldOrder>16</FieldOrder>
+    <FieldDataType>LOGICAL</FieldDataType>
+    <FieldDescription>Recurring January</FieldDescription>
+    <FieldInitial>no</FieldInitial>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
+    <FieldLabel>Recurring January</FieldLabel>
+    <FieldFormat>yes/no</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartSchedulerJobPlan.RecurringJanuary</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+  </eField>
+  <eField>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <FieldName>RecurringJuly</FieldName>
+    <FieldOrder>22</FieldOrder>
+    <FieldDataType>LOGICAL</FieldDataType>
+    <FieldDescription>Recurring July</FieldDescription>
+    <FieldInitial>no</FieldInitial>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
+    <FieldLabel>Recurring July</FieldLabel>
+    <FieldFormat>yes/no</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartSchedulerJobPlan.RecurringJuly</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+  </eField>
+  <eField>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <FieldName>RecurringJune</FieldName>
+    <FieldOrder>21</FieldOrder>
+    <FieldDataType>LOGICAL</FieldDataType>
+    <FieldDescription>Recurring June</FieldDescription>
+    <FieldInitial>no</FieldInitial>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
+    <FieldLabel>Recurring June</FieldLabel>
+    <FieldFormat>yes/no</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartSchedulerJobPlan.RecurringJune</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+  </eField>
+  <eField>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <FieldName>RecurringMarch</FieldName>
+    <FieldOrder>18</FieldOrder>
+    <FieldDataType>LOGICAL</FieldDataType>
+    <FieldDescription>Recurring March</FieldDescription>
+    <FieldInitial>no</FieldInitial>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
+    <FieldLabel>Recurring March</FieldLabel>
+    <FieldFormat>yes/no</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartSchedulerJobPlan.RecurringMarch</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+  </eField>
+  <eField>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <FieldName>RecurringMay</FieldName>
+    <FieldOrder>20</FieldOrder>
+    <FieldDataType>LOGICAL</FieldDataType>
+    <FieldDescription>Recurring May</FieldDescription>
+    <FieldInitial>no</FieldInitial>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
+    <FieldLabel>Recurring May</FieldLabel>
+    <FieldFormat>yes/no</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartSchedulerJobPlan.RecurringMay</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+  </eField>
+  <eField>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <FieldName>RecurringMonday</FieldName>
+    <FieldOrder>8</FieldOrder>
+    <FieldDataType>LOGICAL</FieldDataType>
+    <FieldDescription>Recurring Monday</FieldDescription>
+    <FieldInitial>no</FieldInitial>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
+    <FieldLabel>Recurring Monday</FieldLabel>
+    <FieldFormat>yes/no</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartSchedulerJobPlan.RecurringMonday</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+  </eField>
+  <eField>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <FieldName>RecurringNovember</FieldName>
+    <FieldOrder>26</FieldOrder>
+    <FieldDataType>LOGICAL</FieldDataType>
+    <FieldDescription>Recurring November</FieldDescription>
+    <FieldInitial>no</FieldInitial>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
+    <FieldLabel>Recurring November</FieldLabel>
+    <FieldFormat>yes/no</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartSchedulerJobPlan.RecurringNovember</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+  </eField>
+  <eField>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <FieldName>RecurringOctober</FieldName>
+    <FieldOrder>25</FieldOrder>
+    <FieldDataType>LOGICAL</FieldDataType>
+    <FieldDescription>Recurring October</FieldDescription>
+    <FieldInitial>no</FieldInitial>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
+    <FieldLabel>Recurring October</FieldLabel>
+    <FieldFormat>yes/no</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartSchedulerJobPlan.RecurringOctober</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+  </eField>
+  <eField>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <FieldName>RecurringSaturday</FieldName>
+    <FieldOrder>13</FieldOrder>
+    <FieldDataType>LOGICAL</FieldDataType>
+    <FieldDescription>Recurring Saturday</FieldDescription>
+    <FieldInitial>no</FieldInitial>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
+    <FieldLabel>Recurring Saturday</FieldLabel>
+    <FieldFormat>yes/no</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartSchedulerJobPlan.RecurringSaturday</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+  </eField>
+  <eField>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <FieldName>RecurringSeptember</FieldName>
+    <FieldOrder>24</FieldOrder>
+    <FieldDataType>LOGICAL</FieldDataType>
+    <FieldDescription>Recurring September</FieldDescription>
+    <FieldInitial>no</FieldInitial>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
+    <FieldLabel>Recurring September</FieldLabel>
+    <FieldFormat>yes/no</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartSchedulerJobPlan.RecurringSeptember</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+  </eField>
+  <eField>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <FieldName>RecurringSunday</FieldName>
+    <FieldOrder>14</FieldOrder>
+    <FieldDataType>LOGICAL</FieldDataType>
+    <FieldDescription>Recurring Sunday</FieldDescription>
+    <FieldInitial>no</FieldInitial>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
+    <FieldLabel>Recurring Sunday</FieldLabel>
+    <FieldFormat>yes/no</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartSchedulerJobPlan.RecurringSunday</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+  </eField>
+  <eField>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <FieldName>RecurringThursday</FieldName>
+    <FieldOrder>11</FieldOrder>
+    <FieldDataType>LOGICAL</FieldDataType>
+    <FieldDescription>Recurring Thursday</FieldDescription>
+    <FieldInitial>no</FieldInitial>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
+    <FieldLabel>Recurring Thursday</FieldLabel>
+    <FieldFormat>yes/no</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartSchedulerJobPlan.RecurringThursday</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+  </eField>
+  <eField>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <FieldName>RecurringTuesday</FieldName>
+    <FieldOrder>9</FieldOrder>
+    <FieldDataType>LOGICAL</FieldDataType>
+    <FieldDescription>Recurring Tuesday</FieldDescription>
+    <FieldInitial>no</FieldInitial>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
+    <FieldLabel>Recurring Tuesday</FieldLabel>
+    <FieldFormat>yes/no</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartSchedulerJobPlan.RecurringTuesday</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+  </eField>
+  <eField>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <FieldName>RecurringWednesday</FieldName>
+    <FieldOrder>10</FieldOrder>
+    <FieldDataType>LOGICAL</FieldDataType>
+    <FieldDescription>Recurring Wendesday</FieldDescription>
+    <FieldInitial>no</FieldInitial>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
+    <FieldLabel>Recurring Wendesday</FieldLabel>
+    <FieldFormat>yes/no</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartSchedulerJobPlan.RecurringWednesday</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+  </eField>
+  <eField>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <FieldName>ScheduleDateTime</FieldName>
+    <FieldOrder>7</FieldOrder>
+    <FieldDataType>DATETIME-TZ</FieldDataType>
+    <FieldDescription>Once Now/Scheduled</FieldDescription>
+    <FieldInitial/>
+    <FieldInitialUnknownValue>true</FieldInitialUnknownValue>
+    <FieldLabel>Once Now/Scheduled</FieldLabel>
+    <FieldFormat>99/99/9999 HH:MM:SS.SSS+HH:MM</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartSchedulerJobPlan.ScheduleDateTime</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+  </eField>
+  <eField>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <FieldName>SchedulerJobGuid</FieldName>
+    <FieldOrder>2</FieldOrder>
+    <FieldDataType>CHARACTER</FieldDataType>
+    <FieldDescription>Job Guid</FieldDescription>
+    <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
+    <FieldLabel>Job Guid</FieldLabel>
+    <FieldFormat>x(36)</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartSchedulerJobPlan.SchedulerJobGuid</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+  </eField>
+  <eField>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <FieldName>SchedulerJobName</FieldName>
+    <FieldOrder>37</FieldOrder>
+    <FieldDataType>CHARACTER</FieldDataType>
+    <FieldDescription/>
+    <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
+    <FieldLabel>JobName</FieldLabel>
+    <FieldFormat>x(40)</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartSchedulerJob.SchedulerJobName</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+  </eField>
+  <eField>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <FieldName>SchedulerJobPlanGuid</FieldName>
+    <FieldOrder>1</FieldOrder>
+    <FieldDataType>CHARACTER</FieldDataType>
+    <FieldDescription>Job Status ID</FieldDescription>
+    <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
+    <FieldLabel>Job Status ID</FieldLabel>
+    <FieldFormat>x(36)</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartSchedulerJobPlan.SchedulerJobPlanGuid</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+  </eField>
+  <eField>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <FieldName>UserGuid</FieldName>
+    <FieldOrder>34</FieldOrder>
+    <FieldDataType>CHARACTER</FieldDataType>
+    <FieldDescription>UserGuid</FieldDescription>
+    <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
+    <FieldLabel>UserGuid</FieldLabel>
+    <FieldFormat>x(36)</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartSchedulerJobPlan.UserGuid</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+  </eField>
+  <eField>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <FieldName>ValidFrom</FieldName>
+    <FieldOrder>30</FieldOrder>
+    <FieldDataType>DATETIME-TZ</FieldDataType>
+    <FieldDescription>JobPlan valid from</FieldDescription>
+    <FieldInitial/>
+    <FieldInitialUnknownValue>true</FieldInitialUnknownValue>
+    <FieldLabel>JobPlan valid from</FieldLabel>
+    <FieldFormat>99/99/9999 HH:MM:SS.SSS+HH:MM</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartSchedulerJobPlan.ValidFrom</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+  </eField>
+  <eField>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <FieldName>ValidTo</FieldName>
+    <FieldOrder>31</FieldOrder>
+    <FieldDataType>DATETIME-TZ</FieldDataType>
+    <FieldDescription>JobPlan valid to</FieldDescription>
+    <FieldInitial/>
+    <FieldInitialUnknownValue>true</FieldInitialUnknownValue>
+    <FieldLabel>JobPlan valid to</FieldLabel>
+    <FieldFormat>99/99/9999 HH:MM:SS.SSS+HH:MM</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartSchedulerJobPlan.ValidTo</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+  </eField>
+  <eField>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <FieldName>WeekInterval</FieldName>
+    <FieldOrder>15</FieldOrder>
+    <FieldDataType>INTEGER</FieldDataType>
+    <FieldDescription>Week Interval</FieldDescription>
+    <FieldInitial>1</FieldInitial>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
+    <FieldLabel>Week Interval</FieldLabel>
+    <FieldFormat>z9</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartSchedulerJobPlan.WeekInterval</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+  </eField>
+  <eFieldProperties>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <FieldName>PlanningType</FieldName>
+    <PropertyName>ModelClassGenerator.CustomPropertyType</PropertyName>
+    <PropertyValue>Consultingwerk.Windows.Framework.Scheduler.SchedulerJobPlanningTypeEnum</PropertyValue>
+  </eFieldProperties>
+  <eIndex>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <IndexOrder>1</IndexOrder>
+    <IndexName>Job</IndexName>
+    <IndexUnique>false</IndexUnique>
+    <IndexPrimary>false</IndexPrimary>
+    <IndexWordIndex>false</IndexWordIndex>
+    <FieldNames>SchedulerJobGuid</FieldNames>
+    <FieldSort>ASCENDING</FieldSort>
+    <DefaultSearchCodeGeneration>false</DefaultSearchCodeGeneration>
+  </eIndex>
+  <eIndex>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartSchedulerJobPlan</TempTableName>
+    <IndexOrder>2</IndexOrder>
+    <IndexName>JobPlan</IndexName>
+    <IndexUnique>true</IndexUnique>
+    <IndexPrimary>true</IndexPrimary>
+    <IndexWordIndex>false</IndexWordIndex>
+    <FieldNames>SchedulerJobPlanGuid</FieldNames>
+    <FieldSort>ASCENDING</FieldSort>
+    <DefaultSearchCodeGeneration>true</DefaultSearchCodeGeneration>
+  </eIndex>
+</dsBusinessEntity>

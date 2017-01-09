@@ -48,8 +48,8 @@ CLASS Consultingwerk.SmartUnit.OERA.RetrieveDataTest
         @param poTestSuite The ITestSuite to execute
         @return Logical value, when set to false halt will be signalled to the caller (ANT script)  
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL Execute (INPUT poTestSuite AS Consultingwerk.SmartUnit.ITestSuite):
-		
+    METHOD PUBLIC LOGICAL Execute (INPUT poTestSuite AS Consultingwerk.SmartUnit.ITestSuite):
+        
         CREATE eTestsuite . 
         ASSIGN eTestsuite.TestsuiteName = poTestSuite:TestSuite .
          
@@ -62,7 +62,7 @@ CLASS Consultingwerk.SmartUnit.OERA.RetrieveDataTest
         CATCH err AS Progress.Lang.Error:
             MESSAGE ErrorHelper:FormattedErrorMessagesExt (err) .
             
-        	RETURN FALSE . 	
+            RETURN FALSE .     
         END CATCH.
 
         FINALLY:
@@ -70,15 +70,15 @@ CLASS Consultingwerk.SmartUnit.OERA.RetrieveDataTest
                                        DATASET dsTestsuites BY-REFERENCE) .       
         END FINALLY.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Performs a RetrieveDataTest on every Business Entity in the 
                  BusinessEntityFileset 
         Notes:   
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID ExecuteRetrieveDataTest ():
-		
+    METHOD PUBLIC VOID ExecuteRetrieveDataTest ():
+        
         DEFINE VARIABLE cFileset          AS CHARACTER              NO-UNDO .
         DEFINE VARIABLE cBaseFolder       AS CHARACTER              NO-UNDO .
         DEFINE VARIABLE oFiles            AS CharacterList          NO-UNDO . 
@@ -115,9 +115,9 @@ CLASS Consultingwerk.SmartUnit.OERA.RetrieveDataTest
             MESSAGE "Parsing Business Entity:":U cClass 
                     SUBSTITUTE ("(&1)":U, cFileName).
 
-            FILE-INFO:FILE-NAME = cFileName . 
+            FILE-INFORMATION:FILE-NAME = cFileName . 
 
-            oParser = SmartUnit:GetAnnotationParser (FILE-INFO:FULL-PATHNAME, 
+            oParser = SmartUnit:GetAnnotationParser (FILE-INFORMATION:FULL-PATHNAME, 
                                                      FALSE) .
 
             oAnnotations = oParser:GetClassAnnotations () .
@@ -181,7 +181,7 @@ CLASS Consultingwerk.SmartUnit.OERA.RetrieveDataTest
   
             IF lStopCondition = TRUE THEN 
                 ASSIGN eTestcase.ExecutionTime   = INTERVAL (NOW, dtTestStart, "milliseconds":U) / 1000
-                       eTestcase.ErrorMessage    = "A STOP Condition has occured.":U   
+                       eTestcase.ErrorMessage    = "A STOP Condition has occurred.":U   
                        eTestcase.ErrorType       = "":U 
                        eTestcase.ErrorStacktrace = "":U .
             ELSE 
@@ -200,12 +200,12 @@ CLASS Consultingwerk.SmartUnit.OERA.RetrieveDataTest
                     ServiceInterface:StopBusinessEntity (cClass) .
                     
                     CATCH err2 AS BusinessServiceNotRunning:
-                    	/* ignore errors from StopBusinessEntity */	
+                        /* ignore errors from StopBusinessEntity */    
                     END CATCH.
                 END.
             END FINALLY.
         END. /* foreach.i */
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

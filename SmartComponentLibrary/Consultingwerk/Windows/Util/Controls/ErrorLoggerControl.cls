@@ -8,12 +8,12 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/   
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : ErrorLoggerControl
     Purpose     : Displays Error Objects in a scrollable view
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Thu Mar 31 20:59:50 CEST 2011
     Notes       : Reference Implementation of IErrorHandler
@@ -24,10 +24,10 @@ USING Progress.Windows.UserControl.
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-CLASS Consultingwerk.Windows.Util.Controls.ErrorLoggerControl 
+CLASS Consultingwerk.Windows.Util.Controls.ErrorLoggerControl
     INHERITS UserControl
-    IMPLEMENTS Consultingwerk.Framework.IErrorHandler: 
-    
+    IMPLEMENTS Consultingwerk.Framework.IErrorHandler:
+
     DEFINE PRIVATE VARIABLE m_ErrorLoggerControl_Toolbars_Dock_Area_Top AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_ErrorLoggerControl_Toolbars_Dock_Area_Right AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_ErrorLoggerControl_Toolbars_Dock_Area_Left AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
@@ -39,11 +39,11 @@ CLASS Consultingwerk.Windows.Util.Controls.ErrorLoggerControl
     DEFINE PRIVATE VARIABLE ErrorLoggerControl_Fill_Panel AS System.Windows.Forms.Panel NO-UNDO.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor of the ErrorLoggerControl class                                                                        
-        Notes:                                                                        
+        Purpose: Constructor of the ErrorLoggerControl class
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC ErrorLoggerControl ( ):
-        
+
         SUPER().
         InitializeComponent().
         CATCH e AS Progress.Lang.Error:
@@ -53,34 +53,34 @@ CLASS Consultingwerk.Windows.Util.Controls.ErrorLoggerControl
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Clears the Editor with the Error message view                                                                       
-        Notes:                                                                        
+        Purpose: Clears the Editor with the Error message view
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID ClearEditor ():
-        
+
         ultraTextEditor1:Clear () .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Handles an Error object                                                                      
+        Purpose: Handles an Error object
         Notes:   Logical return value indicates if the error has been completely
                  Handled, that is when this method returns TRUE, the ErrorHelper
-                 will not display the error anymore, retrun false when the 
+                 will not display the error anymore, return false when the
                  ErrorHelper should still display the error message dialog.
         @param poError The reference to the Error to handle
-        @return Logical value indicating if the error has been completely handled                                                                                          
+        @return Logical value indicating if the error has been completely handled
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC LOGICAL HandleError (poError AS Progress.Lang.Error):
-        
+
         DEFINE VARIABLE cTypeName AS CHARACTER NO-UNDO .
         DEFINE VARIABLE i         AS INTEGER   NO-UNDO .
-        
-        IF TYPE-OF (poError, System.Exception) THEN 
-            ASSIGN cTypeName = CAST (poError, System.Exception):GetType():FullName . 
-        ELSE 
+
+        IF TYPE-OF (poError, System.Exception) THEN
+            ASSIGN cTypeName = CAST (poError, System.Exception):GetType():FullName .
+        ELSE
             ASSIGN cTypeName = CAST (poError, Progress.Lang.Object):GetClass():TypeName .
-        
+
         ultraTextEditor1:AppendText (SUBSTITUTE ("&1 - &2&3&3":U,
                                                  STRING (NOW, "99.99.9999 HH:MM:SS":U),
                                                  cTypeName,
@@ -89,32 +89,33 @@ CLASS Consultingwerk.Windows.Util.Controls.ErrorLoggerControl
         ultraTextEditor1:AppendText (REPLACE(REPLACE (Consultingwerk.Util.ErrorHelper:FormattedErrorMessages (poError),
                                                       "~n":U, System.Environment:NewLine),
                                              CHR(13), System.Environment:NewLine)) .
-                                              
-        IF TYPE-OF (poError, Progress.Lang.AppError) THEN                                               
+
+        IF TYPE-OF (poError, Progress.Lang.AppError) THEN
             ultraTextEditor1:AppendText (CAST (poError, Progress.Lang.AppError):ReturnValue + System.Environment:NewLine) .
 
-        ultraTextEditor1:AppendText (System.Environment:NewLine + 
-                                     REPLACE (Consultingwerk.Util.ErrorHelper:StackTrace (poError), 
-                                              CHR (10), System.Environment:NewLine) + 
-                                     System.Environment:NewLine + 
-                                     System.Environment:NewLine) .        
-    
-        ultraTextEditor1:SelectionStart = ultraTextEditor1:TextLength . 
+        ultraTextEditor1:AppendText (System.Environment:NewLine +
+                                     REPLACE (Consultingwerk.Util.ErrorHelper:StackTrace (poError),
+                                              CHR (10), System.Environment:NewLine) +
+                                     System.Environment:NewLine +
+                                     System.Environment:NewLine) .
+
+        ultraTextEditor1:SelectionStart = ultraTextEditor1:TextLength .
         ultraTextEditor1:ScrollToCaret () .
 
     END METHOD.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -299,47 +300,47 @@ CLASS Consultingwerk.Windows.Util.Controls.ErrorLoggerControl
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Saves the contents of the editor to a file                                                                       
-        Notes:   The user will be prompted for the file name                                                                        
+        Purpose: Saves the contents of the editor to a file
+        Notes:   The user will be prompted for the file name
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID SaveEditorContents ():
-        
+
         DEFINE VARIABLE oDialogResult AS System.Windows.Forms.DialogResult NO-UNDO.
         DEFINE VARIABLE lcText        AS LONGCHAR                           NO-UNDO.
 
         WAIT-FOR saveFileDialog1:ShowDialog() SET oDialogResult .
-        
-        IF Progress.Util.EnumHelper:AreEqual (oDialogResult, 
+
+        IF Progress.Util.EnumHelper:AreEqual (oDialogResult,
                                               System.Windows.Forms.DialogResult:OK) THEN DO:
-                             
-            ASSIGN lcText = ultraTextEditor1:Text .                             
-            COPY-LOB FROM lcText TO FILE saveFileDialog1:FileName .                                       
+
+            ASSIGN lcText = ultraTextEditor1:Text .
+            COPY-LOB FROM lcText TO FILE saveFileDialog1:FileName .
         END.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the ToolClick event of the UltraToolbarsManager 
-                 instance                                                                        
-        Notes:           
+        Purpose: Event handler for the ToolClick event of the UltraToolbarsManager
+                 instance
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The ToolClickEventArgs with the data for this event                                                              
+        @param e The ToolClickEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraToolbarsManager1_ToolClick (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraToolbarsManager1_ToolClick (sender AS System.Object,
                                                          e AS Infragistics.Win.UltraWinToolbars.ToolClickEventArgs):
-        
+
         CASE e:Tool:Key:
-            WHEN "Clear":U THEN 
+            WHEN "Clear":U THEN
                 ClearEditor () .
-            WHEN "Save":U THEN 
-                SaveEditorContents () . 
-        END.
+            WHEN "Save":U THEN
+                SaveEditorContents () .
+        END CASE .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor of the ErrorLoggerControl class                                                                        
-        Notes:                                                                        
+        Purpose: Destructor of the ErrorLoggerControl class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC ErrorLoggerControl ( ):
 

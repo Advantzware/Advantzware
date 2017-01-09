@@ -38,36 +38,36 @@ CLASS Consultingwerk.Windows.TempTableObjectMapping.TempTableFromTypeFactory
     IMPLEMENTS ITempTableFromTypeFactory: 
 
 &IF DEFINED (DotNetAccessible) NE 0 &THEN
-	/*------------------------------------------------------------------------------
-	    Purpose: Returns the ABL DataType that should be used to store the values of 
-	             the property
-	    Notes:   Assumes CHARACTER for System.String, not LONGCHAR or BLOB
-	    @param poType The type of the property 
-	    @return The ABL DataType to use 
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED CHARACTER AblDataType (poType AS System.Type):
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the ABL DataType that should be used to store the values of 
+                 the property
+        Notes:   Assumes CHARACTER for System.String, not LONGCHAR or BLOB
+        @param poType The type of the property 
+        @return The ABL DataType to use 
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED CHARACTER AblDataType (poType AS System.Type):
 
         IF poType:IsEnum THEN 
             RETURN "INTEGER":U .
 
         RETURN DataTypeHelper:ToAblDataType (poType) .        
 
-	END METHOD.
+    END METHOD.
 
-	/*------------------------------------------------------------------------------
-	   Purpose: Builds an ABL temp-table from a .NET System.Type
-	   Notes:
-	   @param poType The reference to the System.Type to build the temp-table from
-	   @param pcProperties The comma delimited list of property specs, supported entries are PropertyName or PropertyName|FieldName or PropertyName|FieldName(ABL DataType)
-	   @param pcUniqueKeyProperties The comma delimited list of property names that build the PUK, must be form the list in pcProperties
+    /*------------------------------------------------------------------------------
+       Purpose: Builds an ABL temp-table from a .NET System.Type
+       Notes:
+       @param poType The reference to the System.Type to build the temp-table from
+       @param pcProperties The comma delimited list of property specs, supported entries are PropertyName or PropertyName|FieldName or PropertyName|FieldName(ABL DataType)
+       @param pcUniqueKeyProperties The comma delimited list of property names that build the PUK, must be form the list in pcProperties
        @param pcTempTableName The name for the temp-table to create
-	   @return The handle of the created temp-table
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC HANDLE CreateTempTable (poType AS System.Type,
-	                                      pcProperties AS CHARACTER, 
-	                                      pcUniqueKeyProperties AS CHARACTER,
+       @return The handle of the created temp-table
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC HANDLE CreateTempTable (poType AS System.Type,
+                                          pcProperties AS CHARACTER, 
+                                          pcUniqueKeyProperties AS CHARACTER,
                                           pcTempTableName AS CHARACTER):
-		
+        
         DEFINE VARIABLE hTempTable       AS HANDLE       NO-UNDO .
         DEFINE VARIABLE i                AS INTEGER      NO-UNDO .
         DEFINE VARIABLE iEntries         AS INTEGER      NO-UNDO .
@@ -137,20 +137,20 @@ CLASS Consultingwerk.Windows.TempTableObjectMapping.TempTableFromTypeFactory
 
         hTempTable:TEMP-TABLE-PREPARE (pcTempTableName) .
 
-		RETURN hTempTable.
+        RETURN hTempTable.
 
         /* Clean up in case of error */
         CATCH err AS Progress.Lang.Error:
-        	
-        	IF VALID-HANDLE (hTempTable) THEN 
-        	   DELETE OBJECT hTempTable .
-        	 
-        	ASSIGN hTempTable = ? . 
-        	
-        	UNDO, THROW err. 
+            
+            IF VALID-HANDLE (hTempTable) THEN 
+               DELETE OBJECT hTempTable .
+             
+            ASSIGN hTempTable = ? . 
+            
+            UNDO, THROW err. 
         END CATCH.
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
        Purpose: Builds an ABL temp-table from a .NET System.Type

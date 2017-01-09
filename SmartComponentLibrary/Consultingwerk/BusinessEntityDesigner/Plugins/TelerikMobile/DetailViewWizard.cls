@@ -11,13 +11,13 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : DetailViewWizard
-    Purpose     : Wizard for creating a Telerik Mobile DetailView from a Business 
+    Purpose     : Wizard for creating a Telerik Mobile DetailView from a Business
                   Entity Model
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Wed Oct 20 21:40:10 CEST 2012
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -25,28 +25,28 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 {Consultingwerk/products.i}
 
 USING Consultingwerk.Exceptions.*                                     FROM PROPATH .
-USING Consultingwerk.BusinessEntityDesigner.*                         FROM PROPATH . 
+USING Consultingwerk.BusinessEntityDesigner.*                         FROM PROPATH .
 USING Consultingwerk.BusinessEntityDesigner.Generator.TelerikMobile.* FROM PROPATH.
 USING Consultingwerk.BusinessEntityDesigner.Plugins.TelerikMobile.*   FROM PROPATH .
 USING Consultingwerk.Forms.*                                          FROM PROPATH .
-USING Consultingwerk.Framework.*                                      FROM PROPATH . 
-USING Consultingwerk.Framework.Collections.*                          FROM PROPATH . 
+USING Consultingwerk.Framework.*                                      FROM PROPATH .
+USING Consultingwerk.Framework.Collections.*                          FROM PROPATH .
 USING Consultingwerk.SmartComponents.Base.*                           FROM PROPATH .
 USING Consultingwerk.Util.*                                           FROM PROPATH .
 USING Consultingwerk.Windows.*                                        FROM PROPATH .
 USING Consultingwerk.Windows.Controls.*                               FROM PROPATH .
-USING Consultingwerk.Windows.Util.Forms.*                             FROM PROPATH . 
+USING Consultingwerk.Windows.Util.Forms.*                             FROM PROPATH .
 USING Infragistics.Win.UltraWinEditors.*                              FROM ASSEMBLY .
 USING Progress.Lang.*                                                 FROM PROPATH .
-USING System.Windows.Forms.*                                          FROM ASSEMBLY . 
+USING System.Windows.Forms.*                                          FROM ASSEMBLY .
 USING Consultingwerk.Windows.API.*                                    FROM PROPATH .
 
-CLASS Consultingwerk.BusinessEntityDesigner.Plugins.TelerikMobile.DetailViewWizard 
+CLASS Consultingwerk.BusinessEntityDesigner.Plugins.TelerikMobile.DetailViewWizard
     INHERITS BaseForm
-    USE-WIDGET-POOL: 
+    USE-WIDGET-POOL:
 
     { Consultingwerk/Util/TempTables/ttClassNames.i }
-        
+
     DEFINE PRIVATE VARIABLE btnAdd AS Infragistics.Win.Misc.UltraButton NO-UNDO.
     DEFINE PRIVATE VARIABLE btnBack AS Infragistics.Win.Misc.UltraButton NO-UNDO.
     DEFINE PRIVATE VARIABLE btnCancel AS Infragistics.Win.Misc.UltraButton NO-UNDO.
@@ -64,7 +64,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.TelerikMobile.DetailViewWiza
     DEFINE PRIVATE VARIABLE tbViewModel AS Infragistics.Win.UltraWinEditors.UltraTextEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE tbViewTitle AS Infragistics.Win.UltraWinEditors.UltraTextEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE tbViewId AS Infragistics.Win.UltraWinEditors.UltraTextEditor NO-UNDO.
-    DEFINE PUBLIC VARIABLE treeView1 AS System.Windows.Forms.TreeView NO-UNDO.
+    DEFINE PRIVATE VARIABLE treeView1 AS System.Windows.Forms.TreeView NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraLabel1 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraLabel2 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraLabel3 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
@@ -84,59 +84,59 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.TelerikMobile.DetailViewWiza
     DEFINE VARIABLE hDataset AS HANDLE  NO-UNDO .
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the Business Entity Name 
-        Notes:   
+        Purpose: Gets and sets the Business Entity Name
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY BusinessEntityName AS CHARACTER NO-UNDO 
+    DEFINE PUBLIC PROPERTY BusinessEntityName AS CHARACTER NO-UNDO
     GET.
-    SET. 
-    
-    /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the Business Entity Package 
-        Notes:   
-    ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY BusinessEntityPackage AS CHARACTER NO-UNDO 
-    GET.
-    SET. 
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the Label to be shown to the "Form Title" text box 
-        Notes:   
+        Purpose: Gets and sets the Business Entity Package
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY FormTitleLabel AS CHARACTER NO-UNDO 
+    DEFINE PUBLIC PROPERTY BusinessEntityPackage AS CHARACTER NO-UNDO
+    GET.
+    SET.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Gets and sets the Label to be shown to the "Form Title" text box
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY FormTitleLabel AS CHARACTER NO-UNDO
     GET:
-        RETURN THIS-OBJECT:ultraLabel8:Text . 
+        RETURN THIS-OBJECT:ultraLabel8:Text .
     END GET.
     SET (arg AS CHARACTER):
-        ASSIGN THIS-OBJECT:ultraLabel8:Text = arg .         
+        ASSIGN THIS-OBJECT:ultraLabel8:Text = arg .
     END SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Logical value indicating if the code should be generated for the 
-                 generic interface SCL-819 (TRUE) or Service Interface resources were 
+        Purpose: Logical value indicating if the code should be generated for the
+                 generic interface SCL-819 (TRUE) or Service Interface resources were
                  generated using the REST Interface wizard (FALSE)
         Notes:   Default is to use the generic service interface
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY UseGenericInterface AS LOGICAL NO-UNDO INIT TRUE 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY UseGenericInterface AS LOGICAL NO-UNDO INIT TRUE
+    GET.
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the DetailViewWizard class                                                                     
-        Notes:                                                                        
+        Purpose: Constructor for the DetailViewWizard class
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC DetailViewWizard ():
-        
-        DEFINE VARIABLE oImage AS System.Drawing.Image NO-UNDO .  
-        
+
+        DEFINE VARIABLE oImage AS System.Drawing.Image NO-UNDO .
+
         SUPER().
-        
+
         InitializeComponent().
 
-        THIS-OBJECT:StoreFormPosition = FALSE . 
+        THIS-OBJECT:StoreFormPosition = FALSE .
 
-        ASSIGN oImage                                               = ImageHelper:Load ("Consultingwerk\BusinessEntityDesigner\UI\Images\table2_selection_column.png":U) 
-               lvBusinessEntityFields:ItemSettings:Appearance:Image = oImage 
+        ASSIGN oImage                                               = ImageHelper:Load ("Consultingwerk~\BusinessEntityDesigner~\UI~\Images~\table2_selection_column.png":U)
+               lvBusinessEntityFields:ItemSettings:Appearance:Image = oImage
                lvViewerFields:ItemSettings:Appearance:Image         = oImage
                 .
 
@@ -150,291 +150,292 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.TelerikMobile.DetailViewWiza
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the Click event of the btnAdd
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID btnAdd_Click (sender AS System.Object, 
+    METHOD PRIVATE VOID btnAdd_Click (sender AS System.Object,
                                       e AS System.EventArgs):
-        
+
         DEFINE VARIABLE oItemsToRemove AS "System.Collections.Generic.List<Infragistics.Win.UltraWinListView.UltraListViewItem>":U NO-UNDO .
-    
+
         oItemsToRemove = NEW "System.Collections.Generic.List<Infragistics.Win.UltraWinListView.UltraListViewItem>":U () .
-        
+
         {Consultingwerk/foreach.i Infragistics.Win.UltraWinListView.UltraListViewItem oItem in lvBusinessEntityFields:SelectedItems}
             lvViewerFields:Items:Add (oItem:Key, oItem:Key) .
-            oItemsToRemove:Add (oItem) .        
-        END.  
+            oItemsToRemove:Add (oItem) .
+        END.
 
         {Consultingwerk/foreach.i Infragistics.Win.UltraWinListView.UltraListViewItem oItem in oItemsToRemove nodefine}
             lvBusinessEntityFields:Items:Remove (oItem) .
         END.
 
-        IF iPage = 2 THEN 
-            btnNext:Enabled = (lvViewerFields:Items:Count > 0) . 
+        IF iPage = 2 THEN
+            btnNext:Enabled = (lvViewerFields:Items:Count > 0) .
 
         CATCH err AS Progress.Lang.Error:
-            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .                
+            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the Click event of the btnBack
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID btnBack_Click (sender AS System.Object, 
+    METHOD PRIVATE VOID btnBack_Click (sender AS System.Object,
                                        e AS System.EventArgs):
-        
-        ASSIGN iPage = iPage - 1 . 
-     
+
+        ASSIGN iPage = iPage - 1 .
+
         THIS-OBJECT:InitializePage () .
 
         CATCH err AS Progress.Lang.Error:
-            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .                
+            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the Click event of the btnFinish
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID btnFinish_Click (sender AS System.Object, 
+    METHOD PRIVATE VOID btnFinish_Click (sender AS System.Object,
                                          e AS System.EventArgs):
-        
+
         THIS-OBJECT:GeneratePage () .
 
         CATCH err AS Progress.Lang.Error :
-        	Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .	
+            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the Click event of the btnNext
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID btnNext_Click (sender AS System.Object, 
+    METHOD PRIVATE VOID btnNext_Click (sender AS System.Object,
                                        e AS System.EventArgs):
-        
-        ASSIGN iPage = iPage + 1 . 
-     
+
+        ASSIGN iPage = iPage + 1 .
+
         THIS-OBJECT:InitializePage () .
 
         CATCH err AS Progress.Lang.Error:
-            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .                
+            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the Click event of the btnRemove
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PRIVATE VOID btnRemove_Click (INPUT sender AS System.Object, INPUT e AS System.EventArgs):
-        
+
         DEFINE VARIABLE oItemsToRemove AS "System.Collections.Generic.List<Infragistics.Win.UltraWinListView.UltraListViewItem>":U NO-UNDO .
-    
+
         oItemsToRemove = NEW "System.Collections.Generic.List<Infragistics.Win.UltraWinListView.UltraListViewItem>":U () .
-        
+
         {Consultingwerk/foreach.i Infragistics.Win.UltraWinListView.UltraListViewItem oItem in lvViewerFields:SelectedItems}
             lvBusinessEntityFields:Items:Add (oItem:Key, oItem:Key) .
-            oItemsToRemove:Add (oItem) .        
-        END.  
+            oItemsToRemove:Add (oItem) .
+        END.
 
         {Consultingwerk/foreach.i Infragistics.Win.UltraWinListView.UltraListViewItem oItem in oItemsToRemove nodefine}
             lvViewerFields:Items:Remove (oItem) .
         END.
 
-        IF iPage = 2 THEN 
-            btnNext:Enabled = (lvViewerFields:Items:Count > 0) . 
+        IF iPage = 2 THEN
+            btnNext:Enabled = (lvViewerFields:Items:Count > 0) .
 
         CATCH err AS Progress.Lang.Error:
-            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .                
+            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Verifies if the user can press finish 
-        Notes:   
-        @return 
+        Purpose: Verifies if the user can press finish
+        Notes:
+        @return
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED LOGICAL CheckFinish ():
-		
-		RETURN THIS-OBJECT:tbViewTitle:Text > "":U AND
-		       THIS-OBJECT:tbViewId:Text > "":U AND 
-               THIS-OBJECT:tbViewModel:Text > "":U AND 
-               THIS-OBJECT:tbListViewId:Text > "":U AND 
-		       UNBOX (THIS-OBJECT:coViewBuilder:Value) > "":U AND 
-		       UNBOX (THIS-OBJECT:coViewTemplate:Value) > "":U  . 
-		
-	END METHOD .
+    METHOD PROTECTED LOGICAL CheckFinish ():
 
-    /*------------------------------------------------------------------------------
-        Purpose: Walk though the Dataset TopBuffers and add all of them with their 
-                 childs to the TreeView
-        Notes:   
-    ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID FillTreeViewWithTableNames ():
-        
-        DEFINE VARIABLE oFactory AS TreeNodeFromDatasetStructureFactory NO-UNDO . 
-        
-        IF THIS-OBJECT:treeView1:Nodes:Count > 0 THEN RETURN . 
-        
-        oFactory = NEW TreeNodeFromDatasetStructureFactory () . 
-        
-        oFactory:CreateTreeNodes (THIS-OBJECT:treeView1,
-                                  hDataset) .
-         
-    END METHOD.
+        RETURN THIS-OBJECT:tbViewTitle:Text > "":U AND
+               THIS-OBJECT:tbViewId:Text > "":U AND
+               THIS-OBJECT:tbViewModel:Text > "":U AND
+               THIS-OBJECT:tbListViewId:Text > "":U AND
+               UNBOX (THIS-OBJECT:coViewBuilder:Value) > "":U AND
+               UNBOX (THIS-OBJECT:coViewTemplate:Value) > "":U  .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Generates the SmartWindowForm based on the entered values  
-        Notes:   
-    ------------------------------------------------------------------------------*/
-    METHOD PROTECTED VOID GeneratePage ():
-    
-        DEFINE VARIABLE oBuilder   AS IDetailViewBuilder  NO-UNDO . 
-        DEFINE VARIABLE oGenerator AS DetailViewGenerator NO-UNDO . 
-        
-        DEFINE VARIABLE hBuffer    AS HANDLE              NO-UNDO .
-        DEFINE VARIABLE cBuffer    AS CHARACTER           NO-UNDO .
-    
-        oBuilder = DYNAMIC-NEW (UNBOX (coViewBuilder:Value)) ().  
-    
-        ASSIGN oBuilder:ListViewID       = tbListViewId:Text
-               oBuilder:ViewID           = tbViewId:Text 
-               oBuilder:ViewModel        = tbViewModel:Text
-               oBuilder:ViewTitle        = tbViewTitle:Text 
-               oBuilder:TemplateFileName = UNBOX (coViewTemplate:SelectedItem:DataValue) .
-               
-               hBuffer = hDataset:GET-BUFFER-HANDLE (smartBusinessEntityBindingSource1:EntityTable) .
-        
-        {Consultingwerk/foreach.i Infragistics.Win.UltraWinListView.UltraListViewItem oItem in lvViewerFields:Items}
-            
-            oBuilder:AddColumn (oItem:Key,
-                                hBuffer:BUFFER-FIELD (oItem:Key):DATA-TYPE,
-                                hBuffer:BUFFER-FIELD (oItem:Key):LABEL) .                                 
-            
-        END.
-        
-        oGenerator = NEW DetailViewGenerator () . 
-        oGenerator:Generate (oBuilder) .                   
-        oGenerator:ShowPreview () .
-        
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns the first selected table to display in DataView and builds 
+        Purpose: Walk though the Dataset TopBuffers and add all of them with their
+                 childs to the TreeView
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID FillTreeViewWithTableNames ():
+
+        DEFINE VARIABLE oFactory AS TreeNodeFromDatasetStructureFactory NO-UNDO .
+
+        IF THIS-OBJECT:treeView1:Nodes:Count > 0 THEN
+            RETURN .
+
+        oFactory = NEW TreeNodeFromDatasetStructureFactory () .
+
+        oFactory:CreateTreeNodes (THIS-OBJECT:treeView1,
+                                  hDataset) .
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Generates the SmartWindowForm based on the entered values
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID GeneratePage ():
+
+        DEFINE VARIABLE oBuilder   AS IDetailViewBuilder  NO-UNDO .
+        DEFINE VARIABLE oGenerator AS DetailViewGenerator NO-UNDO .
+
+        DEFINE VARIABLE hBuffer    AS HANDLE              NO-UNDO .
+
+        oBuilder = DYNAMIC-NEW (UNBOX (coViewBuilder:Value)) ().
+
+        ASSIGN oBuilder:ListViewID       = tbListViewId:Text
+               oBuilder:ViewID           = tbViewId:Text
+               oBuilder:ViewModel        = tbViewModel:Text
+               oBuilder:ViewTitle        = tbViewTitle:Text
+               oBuilder:TemplateFileName = UNBOX (coViewTemplate:SelectedItem:DataValue) .
+
+               hBuffer = hDataset:GET-BUFFER-HANDLE (smartBusinessEntityBindingSource1:EntityTable) .
+
+        {Consultingwerk/foreach.i Infragistics.Win.UltraWinListView.UltraListViewItem oItem in lvViewerFields:Items}
+
+            oBuilder:AddColumn (oItem:Key,
+                                hBuffer:BUFFER-FIELD (oItem:Key):DATA-TYPE,
+                                hBuffer:BUFFER-FIELD (oItem:Key):LABEL) .
+
+        END.
+
+        oGenerator = NEW DetailViewGenerator () .
+        oGenerator:Generate (oBuilder) .
+        oGenerator:ShowPreview () .
+
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the first selected table to display in DataView and builds
                  a list of all selected child tables from the given selected node
-        Notes:   Returns the name of the SelectedTopBuffer with a list of checked 
+        Notes:   Returns the name of the SelectedTopBuffer with a list of checked
                  nodes or returns the TreeNode object of the SelectedTopBuffer
         @param cCheckedNodes The list of all selected child tables from the given selected node
-        @return The name of the first selected table to display in DataView 
+        @return The name of the first selected table to display in DataView
     ------------------------------------------------------------------------------*/
     METHOD PRIVATE CHARACTER GetSelectedTopBuffer (OUTPUT cCheckedNodes AS CHARACTER):
-        
+
         DEFINE VARIABLE oChildResult AS TreeNode NO-UNDO.
-        
+
         oChildResult = RecurseTreeNodes (THIS-OBJECT:treeView1:Nodes).
-        
+
         IF VALID-OBJECT (oChildResult) THEN DO:
-            ASSIGN 
+            ASSIGN
                 cCheckedNodes = RecurseTreeNodeNames (oChildResult:Nodes).
-            
+
             RETURN oChildResult:Text.
         END.
         ELSE DO:
-            cCheckedNodes = "":U. 
+            cCheckedNodes = "":U.
             RETURN "":U.
         END.
-    
+
     END METHOD.
-    
+
     /*------------------------------------------------------------------------------
-        Purpose: Initializes the List of BindingSource Fields 
-        Notes:   
+        Purpose: Initializes the List of BindingSource Fields
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID InitializeBindingSourceFields ():
-        
+
         DEFINE VARIABLE cEntityTable AS CHARACTER NO-UNDO .
         DEFINE VARIABLE cEntityView  AS CHARACTER NO-UNDO .
         DEFINE VARIABLE cEntityJoin  AS CHARACTER NO-UNDO .
-    
+
         DEFINE VARIABLE oColumnsToRemove AS "System.Collections.Generic.List<System.String>":U NO-UNDO .
-    
+
         oColumnsToRemove = NEW "System.Collections.Generic.List<System.String>":U () .
-    
-        ASSIGN cEntityTable = THIS-OBJECT:GetSelectedTopBuffer (OUTPUT cEntityView) 
+
+        ASSIGN cEntityTable = THIS-OBJECT:GetSelectedTopBuffer (OUTPUT cEntityView)
                cEntityJoin  = TRIM (FILL ("YES,":U, NUM-ENTRIES (cEntityView)), ",":U)
-               
+
                smartBusinessEntityBindingSource1:EntityName  = SUBSTITUTE ("&1.&2":U,
                                                                            THIS-OBJECT:BusinessEntityPackage,
                                                                            THIS-OBJECT:BusinessEntityName)
                smartBusinessEntityBindingSource1:EntityTable = cEntityTable
                smartBusinessEntityBindingSource1:EntityView  = cEntityView
                smartBusinessEntityBindingSource1:EntityJoin  = cEntityJoin
-               .  
+               .
 
-        smartBusinessEntityBindingSource1:DesignerImportSchema (TRUE) .        
-               
+        smartBusinessEntityBindingSource1:DesignerImportSchema (TRUE) .
+
         {Consultingwerk/foreach.i Progress.Data.ColumnPropDesc oColumn in smartBusinessEntityBindingSource1:TableSchema:Columns}
 
-            IF NOT lvBusinessEntityFields:Items:Exists (oColumn:ColumnName) AND 
+            IF NOT lvBusinessEntityFields:Items:Exists (oColumn:ColumnName) AND
                   NOT lvViewerFields:Items:Exists (oColumn:ColumnName) THEN DO:
-                   
-                   lvBusinessEntityFields:Items:Add (oColumn:ColumnName, oColumn:ColumnName) .   
-               END. 
+
+                   lvBusinessEntityFields:Items:Add (oColumn:ColumnName, oColumn:ColumnName) .
+               END.
            END.
-        
+
         oColumnsToRemove:Clear () .
-        
+
         {Consultingwerk/foreach.i Infragistics.Win.UltraWinListView.UltraListViewItem oItem in lvBusinessEntityFields:Items}
 
-            IF NOT THIS-OBJECT:ValidColumn (oItem:Key) THEN 
+            IF NOT THIS-OBJECT:ValidColumn (oItem:Key) THEN
                 oColumnsToRemove:Add (oItem:Key) .
         END.
-        
+
         {Consultingwerk/foreach.i System.Object oObject in oColumnsToRemove}
             lvBusinessEntityFields:Items:Remove (lvBusinessEntityFields:Items[STRING (CAST (oObject, System.String))]) .
         END.
-        
+
         oColumnsToRemove:Clear () .
-        
+
         {Consultingwerk/foreach.i Infragistics.Win.UltraWinListView.UltraListViewItem oItem in lvViewerFields:Items nodefine}
 
-            IF NOT THIS-OBJECT:ValidColumn (oItem:Key) THEN 
+            IF NOT THIS-OBJECT:ValidColumn (oItem:Key) THEN
                 oColumnsToRemove:Add (oItem:Key) .
         END.
-        
+
         {Consultingwerk/foreach.i System.Object oObject in oColumnsToRemove nodefine}
             lvViewerFields:Items:Remove (lvViewerFields:Items[STRING (CAST (oObject, System.String))]) .
         END.
-        
-        
+
+
     END METHOD .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -895,312 +896,283 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.TelerikMobile.DetailViewWiza
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the KeyDown handler of the Text boxes with an 
-                 EditorButton (Lookup)
-        Notes:   Maps F3 to EditorButtonClick
-        @param sender The reference to the object that raised the event
-        @param e The KeyEventArgs with the data for this event
-    ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID LookupKeyDownHandler (sender AS System.Object, 
-                                              e AS System.Windows.Forms.KeyEventArgs):
-
-        DEFINE VARIABLE cControlName AS CHARACTER NO-UNDO.
-        
-        IF e:Handled = FALSE AND Progress.Util.EnumHelper:AreEqual (e:KeyCode, SmartLookupSettings:ShortcutKey) 
-            AND THIS-OBJECT:Enabled THEN DO:
-
-            ASSIGN cControlName = CAST (sender, System.Windows.Forms.Control):Name .
-
-            DYNAMIC-INVOKE (THIS-OBJECT, 
-                            SUBSTITUTE ("&1_EditorButtonClick":U, cControlName), 
-                            sender, 
-                            NEW EditorButtonEventArgs (?, ?)) .
-        END.
-
-        CATCH err AS Progress.Lang.Error:
-            ErrorHelper:ShowErrorMessage (err) .                
-        END CATCH.
-
-    END METHOD .
-
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes a Page 
-        Notes:   
+        Purpose: Initializes a Page
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID InitializePage ():
-        
-        THIS-OBJECT:ultraTabControl1:SelectedTab = THIS-OBJECT:ultraTabControl1:Tabs[iPage - 1] . 
-        
-        ASSIGN btnBack:Enabled = (iPage <> 1) 
+
+        THIS-OBJECT:ultraTabControl1:SelectedTab = THIS-OBJECT:ultraTabControl1:Tabs[iPage - 1] .
+
+        ASSIGN btnBack:Enabled = (iPage <> 1)
                btnNext:Enabled = (iPage <> 3) .
 
         IF iPage = 2 THEN DO:
             THIS-OBJECT:InitializeBindingSourceFields () .
 
-            btnNext:Enabled = (lvViewerFields:Items:Count > 0) . 
-        END . 
+            btnNext:Enabled = (lvViewerFields:Items:Count > 0) .
+        END .
 
         IF iPage = 3 THEN DO:
 
-            IF tbViewTitle:Text > "":U THEN . 
-            ELSE 
+            IF tbViewTitle:Text > "":U THEN .
+            ELSE
                 tbViewTitle:Text = THIS-OBJECT:InitialViewTitle () .
-                
-            IF tbViewId:Text > "":U THEN . 
-            ELSE
-                tbViewId:Text = THIS-OBJECT:InitialViewId () .                 
 
-            IF tbViewModel:Text > "":U THEN . 
+            IF tbViewId:Text > "":U THEN .
             ELSE
-                tbViewModel:Text = THIS-OBJECT:InitialViewModel () .                 
+                tbViewId:Text = THIS-OBJECT:InitialViewId () .
 
-            IF tbListViewId:Text > "":U THEN . 
+            IF tbViewModel:Text > "":U THEN .
             ELSE
-                tbListViewId:Text = THIS-OBJECT:InitialListViewId () .                 
-            
+                tbViewModel:Text = THIS-OBJECT:InitialViewModel () .
+
+            IF tbListViewId:Text > "":U THEN .
+            ELSE
+                tbListViewId:Text = THIS-OBJECT:InitialListViewId () .
+
             btnFinish:Enabled = THIS-OBJECT:CheckFinish () .
         END.
-        ELSE 
-            btnFinish:Enabled = FALSE . 
+        ELSE
+            btnFinish:Enabled = FALSE .
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Builds the initial/default List View ID 
-        Notes:   
+        Purpose: Builds the initial/default List View ID
+        Notes:
         @return The initial/detault View Title
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED CHARACTER InitialListViewId ():
-        
+
         DEFINE VARIABLE cName AS CHARACTER NO-UNDO.
-        
-        ASSIGN cName = smartBusinessEntityBindingSource1:EntityTable + "DetailListView":U . 
 
-        IF cName BEGINS BusinessEntityDesignerSettings:DefaultTablePrefix THEN 
-            cName = SUBSTRING (cName, LENGTH (BusinessEntityDesignerSettings:DefaultTablePrefix) + 1) .
+        ASSIGN cName = smartBusinessEntityBindingSource1:EntityTable + "DetailListView":U .
 
-        ASSIGN SUBSTRING (cName, 1, 1) = LC (SUBSTRING (cName, 1, 1)) .
+        IF cName BEGINS BusinessEntityDesignerSettings:DefaultTablePrefix THEN
+            cName = SUBSTRING (cName, LENGTH (BusinessEntityDesignerSettings:DefaultTablePrefix, "CHARACTER":U) + 1, -1, "CHARACTER":U) .
+
+        ASSIGN SUBSTRING (cName, 1, 1, "CHARACTER":U) = LC (SUBSTRING (cName, 1, 1, "CHARACTER":U)) .
 
         RETURN TRIM (cName) .
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Builds the initial/default View ID 
-        Notes:   
+        Purpose: Builds the initial/default View ID
+        Notes:
         @return The initial/detault View Title
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED CHARACTER InitialViewId ():
-        
+
         DEFINE VARIABLE cName AS CHARACTER NO-UNDO.
-        
-        ASSIGN cName = smartBusinessEntityBindingSource1:EntityTable + "DetailView":U . 
 
-        IF cName BEGINS BusinessEntityDesignerSettings:DefaultTablePrefix THEN 
-            cName = SUBSTRING (cName, LENGTH (BusinessEntityDesignerSettings:DefaultTablePrefix) + 1) .
+        ASSIGN cName = smartBusinessEntityBindingSource1:EntityTable + "DetailView":U .
 
-        ASSIGN SUBSTRING (cName, 1, 1) = LC (SUBSTRING (cName, 1, 1)) .
+        IF cName BEGINS BusinessEntityDesignerSettings:DefaultTablePrefix THEN
+            cName = SUBSTRING (cName, LENGTH (BusinessEntityDesignerSettings:DefaultTablePrefix, "CHARACTER":U) + 1, -1, "CHARACTER":U) .
+
+        ASSIGN SUBSTRING (cName, 1, 1, "CHARACTER":U) = LC (SUBSTRING (cName, 1, 1, "CHARACTER":U)) .
 
         RETURN TRIM (cName) .
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Builds the initial/default View Model Identified 
-        Notes:   
+        Purpose: Builds the initial/default View Model Identified
+        Notes:
         @return The initial/detault View Title
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED CHARACTER InitialViewModel ():
-        
+
         DEFINE VARIABLE cName AS CHARACTER NO-UNDO.
-        
-        ASSIGN cName = smartBusinessEntityBindingSource1:EntityTable  . 
 
-        IF cName BEGINS BusinessEntityDesignerSettings:DefaultTablePrefix THEN 
-            cName = SUBSTRING (cName, LENGTH (BusinessEntityDesignerSettings:DefaultTablePrefix) + 1) .
+        ASSIGN cName = smartBusinessEntityBindingSource1:EntityTable  .
 
-        ASSIGN SUBSTRING (cName, 1, 1) = LC (SUBSTRING (cName, 1, 1)) 
-               cName                   = REPLACE (cName, "-":U, "":U).
+        IF cName BEGINS BusinessEntityDesignerSettings:DefaultTablePrefix THEN
+            cName = SUBSTRING (cName, LENGTH (BusinessEntityDesignerSettings:DefaultTablePrefix, "CHARACTER":U) + 1, -1, "CHARACTER":U) .
+
+        ASSIGN SUBSTRING (cName, 1, 1, "CHARACTER":U) = LC (SUBSTRING (cName, 1, 1, "CHARACTER":U))
+               cName                                  = REPLACE (cName, "-":U, "":U).
 
         RETURN TRIM (SUBSTITUTE ("app.viewModels.&1DetailViewModel":U, cName)) .
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Builds the initial/default View Title 
-        Notes:   
+        Purpose: Builds the initial/default View Title
+        Notes:
         @return The initial/detault View Title
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED CHARACTER InitialViewTitle ():
-        
+
         DEFINE VARIABLE cName AS CHARACTER NO-UNDO.
-        
+
         ASSIGN cName = StringHelper:WellFormFromCamelCase (smartBusinessEntityBindingSource1:EntityTable) + " Details":U .
 
-        IF cName BEGINS BusinessEntityDesignerSettings:DefaultTablePrefix THEN 
-            cName = SUBSTRING (cName, LENGTH (BusinessEntityDesignerSettings:DefaultTablePrefix) + 1) .
+        IF cName BEGINS BusinessEntityDesignerSettings:DefaultTablePrefix THEN
+            cName = SUBSTRING (cName, LENGTH (BusinessEntityDesignerSettings:DefaultTablePrefix, "CHARACTER":U) + 1, -1, "CHARACTER":U) .
 
         RETURN TRIM (cName) .
 
     END METHOD .
-    
-    /*------------------------------------------------------------------------------
-        Purpose: Event handler for the ItemDoubleClick event of the lvBusinessEntityFields 
-        Notes:   
-        @param sender The reference to the object that raised the event
-        @param e The ItemDoubleClickEventArgs with the data for this event 
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID lvBusinessEntityFields_ItemDoubleClick (sender AS System.Object, 
-	                                                            e AS Infragistics.Win.UltraWinListView.ItemDoubleClickEventArgs):
-		
-		IF lvBusinessEntityFields:SelectedItems:Count > 0 THEN 
-		    THIS-OBJECT:btnAdd_Click (btnAdd, System.EventArgs:Empty) .
-		
-	END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the ItemDoubleClick event of the lvViewerFields 
-        Notes:   
+        Purpose: Event handler for the ItemDoubleClick event of the lvBusinessEntityFields
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The ItemDoubleClickEventArgs with the data for this event 
+        @param e The ItemDoubleClickEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID lvViewerFields_ItemDoubleClick (INPUT sender AS System.Object, INPUT e AS Infragistics.Win.UltraWinListView.ItemDoubleClickEventArgs):
-		
-        IF lvViewerFields:SelectedItems:Count > 0 THEN 
+    METHOD PRIVATE VOID lvBusinessEntityFields_ItemDoubleClick (sender AS System.Object,
+                                                                e AS Infragistics.Win.UltraWinListView.ItemDoubleClickEventArgs):
+
+        IF lvBusinessEntityFields:SelectedItems:Count > 0 THEN
+            THIS-OBJECT:btnAdd_Click (btnAdd, System.EventArgs:Empty) .
+
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the ItemDoubleClick event of the lvViewerFields
+        Notes:
+        @param sender The reference to the object that raised the event
+        @param e The ItemDoubleClickEventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID lvViewerFields_ItemDoubleClick (INPUT sender AS System.Object, INPUT e AS Infragistics.Win.UltraWinListView.ItemDoubleClickEventArgs):
+
+        IF lvViewerFields:SelectedItems:Count > 0 THEN
             THIS-OBJECT:btnRemove_Click (btnAdd, System.EventArgs:Empty) .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the Shown event 
-        Notes:   
+        Purpose: Raises the Shown event
+        Notes:
         @param e The System.EventArgs with the data for the Shown event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
-        
+
         DEFINE VARIABLE cClassName       AS CHARACTER                  NO-UNDO .
         DEFINE VARIABLE oException       AS Exception                  NO-UNDO .
         DEFINE VARIABLE oBuilderProvider AS IDetailViewBuilderProvider NO-UNDO .
-         
+
         SUPER:OnShown (e) .
 
-        IF Consultingwerk.CharacterType:IsNotNullOrEmpty (THIS-OBJECT:BusinessEntityPackage) THEN 
+        IF Consultingwerk.CharacterType:IsNotNullOrEmpty (THIS-OBJECT:BusinessEntityPackage) THEN
             ASSIGN cClassName = SUBSTITUTE ("&1.&2":U,
                                             THIS-OBJECT:BusinessEntityPackage,
                                             THIS-OBJECT:BusinessEntityName) .
-        ELSE 
+        ELSE
             ASSIGN cClassName = THIS-OBJECT:BusinessEntityName .
 
         DO ON ERROR UNDO, THROW:
             Consultingwerk.OERA.ServiceManager:StopAllBusinessServices() .
-            Consultingwerk.Framework.FrameworkSettings:ServiceAdapter:FetchDataset ("":U, 
+            Consultingwerk.Framework.FrameworkSettings:ServiceAdapter:FetchDataset ("":U,
                                                                                     cClassName,
-                                                                                    OUTPUT DATASET-HANDLE hDataset) . 
+                                                                                    OUTPUT DATASET-HANDLE hDataset) .
             CATCH beerr AS Progress.Lang.Error :
-                oException = NEW Exception (beerr, 
+                oException = NEW Exception (beerr,
                                             "The Business Entity Schema cannot be loaded."{&TRAN},
-                                            0) . 
-                
+                                            0) .
+
                 Consultingwerk.Util.ErrorHelper:ShowErrorMessage (oException) .
-                
+
                 THIS-OBJECT:Close () .
-                RETURN .     
+                RETURN .
             END CATCH.
-        
+
         END.
 
         THIS-OBJECT:InitializePage () .
-        THIS-OBJECT:FillTreeViewWithTableNames () . 
-    
+        THIS-OBJECT:FillTreeViewWithTableNames () .
+
         /* Mike Fechner, Consultingwerk Ltd. 04.05.2015
            Fetch List of Templates and Builders */
         ASSIGN oBuilderProvider = {Consultingwerk/get-service.i Consultingwerk.BusinessEntityDesigner.Plugins.TelerikMobile.IDetailViewBuilderProvider
                                                                 "NEW DetailViewBuilderProvider ()"} .
-        
+
         coViewBuilder:ValueList  = ValueListHelper:FromList (oBuilderProvider:GetAvailableDetailViewBuilders ()) .
-        
-        IF coViewBuilder:ValueList:ValueListItems:Count > 0 THEN 
+
+        IF coViewBuilder:ValueList:ValueListItems:Count > 0 THEN
             coViewBuilder:SelectedIndex = 0 .
-        
+
         coViewTemplate:ValueList = ValueListHelper:FromList (oBuilderProvider:GetAvailableTemplates ()) .
-        
-        IF coViewTemplate:ValueList:ValueListItems:Count > 0 THEN 
-            coViewTemplate:SelectedIndex = 0 .    
-    
+
+        IF coViewTemplate:ValueList:ValueListItems:Count > 0 THEN
+            coViewTemplate:SelectedIndex = 0 .
+
         /* Mike Fechner, Consultingwerk Ltd. 30.05.2013
            By default, select first node */
-        IF THIS-OBJECT:treeView1:Nodes:Count > 0 THEN 
-            THIS-OBJECT:treeView1:Nodes[0]:Checked = TRUE .      
-    
+        IF THIS-OBJECT:treeView1:Nodes:Count > 0 THEN
+            THIS-OBJECT:treeView1:Nodes[0]:Checked = TRUE .
+
         CATCH err AS Progress.Lang.Error:
             Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .
-            
-            THIS-OBJECT:Close () .    
+
+            THIS-OBJECT:Close () .
         END CATCH.
-        
+
     END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the first selected table to display in DataView
-        Notes:   
+        Notes:
         @param oNodeCollection The collection of tree nodes
         @return The first selected TreeNode
     ------------------------------------------------------------------------------*/
     METHOD PRIVATE TreeNode RecurseTreeNodes (oNodeCollection AS TreeNodeCollection):
-        
+
         DEFINE VARIABLE i            AS INTEGER  NO-UNDO.
         DEFINE VARIABLE oChildResult AS TreeNode NO-UNDO.
-        
+
         IF oNodeCollection:COUNT > 0 THEN
             DO i = 0 TO oNodeCollection:Count - 1:
-                IF oNodeCollection:Item[i]:Checked THEN 
+                IF oNodeCollection:Item[i]:Checked THEN
                     RETURN oNodeCollection:Item[i].
                 ELSE DO:
                     oChildResult = RecurseTreeNodes (oNodeCollection:Item[i]:Nodes).
-                    IF VALID-OBJECT (oChildResult) THEN  
+                    IF VALID-OBJECT (oChildResult) THEN
                         RETURN oChildResult.
                 END.
         END.
         RETURN ?.
-        
+
     END METHOD.
-    
+
     /*------------------------------------------------------------------------------
         Purpose: Builds a list of all selected child tables from the given selected
                  node
-        Notes:   
+        Notes:
         @param oNodeCollection The collection of tree nodes
         @return The comma delimited list of selected child tables of in the nodes collection
     ------------------------------------------------------------------------------*/
     METHOD PRIVATE CHARACTER RecurseTreeNodeNames (oNodeCollection AS TreeNodeCollection):
-        
+
         DEFINE VARIABLE i           AS INTEGER   NO-UNDO.
         DEFINE VARIABLE cEntityList AS CHARACTER NO-UNDO.
-        
+
         DO i = 0 TO oNodeCollection:Count - 1:
             IF oNodeCollection:Item[i]:Checked THEN
                 cEntityList = TRIM (cEntityList + ",":U + oNodeCollection:Item[i]:Text, ",":U).
-            
+
             cEntityList = TRIM (cEntityList + ",":U + RecurseTreeNodeNames (oNodeCollection:Item[i]:Nodes), ",":U).
         END.
-        
+
         RETURN cEntityList.
-        
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the TextChanged event of the various text boxes
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PRIVATE VOID tbOutputFileName_TextChanged (INPUT sender AS System.Object, INPUT e AS System.EventArgs):
-        
-        IF iPage <> 3 THEN 
-            RETURN . 
-           
-        btnFinish:Enabled = THIS-OBJECT:CheckFinish() . 
-           
+
+        IF iPage <> 3 THEN
+            RETURN .
+
+        btnFinish:Enabled = THIS-OBJECT:CheckFinish() .
+
     END METHOD .
 
     /*------------------------------------------------------------------------------
@@ -1209,56 +1181,56 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.TelerikMobile.DetailViewWiza
         @param sender The reference to the object that raised the event
         @param e The TreeViewCancelEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID treeView1_BeforeCheck (sender AS System.Object, 
-	                                           e AS System.Windows.Forms.TreeViewCancelEventArgs):
-	
-	    THIS-OBJECT:treeView1:BeforeCheck:Unsubscribe(THIS-OBJECT:treeView1_BeforeCheck).
-		
-		THIS-OBJECT:UncheckNodes (treeView1:Nodes) . 
+    METHOD PRIVATE VOID treeView1_BeforeCheck (sender AS System.Object,
+                                               e AS System.Windows.Forms.TreeViewCancelEventArgs):
+
+        THIS-OBJECT:treeView1:BeforeCheck:Unsubscribe(THIS-OBJECT:treeView1_BeforeCheck).
+
+        THIS-OBJECT:UncheckNodes (treeView1:Nodes) .
 
         FINALLY:
-            THIS-OBJECT:treeView1:BeforeCheck:Subscribe (THIS-OBJECT:treeView1_BeforeCheck).		
+            THIS-OBJECT:treeView1:BeforeCheck:Subscribe (THIS-OBJECT:treeView1_BeforeCheck).
         END FINALLY.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Unchecks the treenodes in the collection
-        Notes:   
-        @param poNodes The TreeNodeCollection to uncheck nodes in 
+        Notes:
+        @param poNodes The TreeNodeCollection to uncheck nodes in
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID UncheckNodes (poNodes AS TreeNodeCollection):
-		
-		{Consultingwerk/foreach.i TreeNode oNode in poNodes}
-		
-		    oNode:Checked = FALSE .
-		    
-		    IF oNode:Nodes:Count > 0 THEN 
-		        THIS-OBJECT:UncheckNodes (oNode:Nodes) . 
-		END. 
+    METHOD PROTECTED VOID UncheckNodes (poNodes AS TreeNodeCollection):
 
-	END METHOD .
+        {Consultingwerk/foreach.i TreeNode oNode in poNodes}
+
+            oNode:Checked = FALSE .
+
+            IF oNode:Nodes:Count > 0 THEN
+                THIS-OBJECT:UncheckNodes (oNode:Nodes) .
+        END.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Returns true when the Column Name exists in the Column of the BindingSource Schema
-        Notes:   
+        Notes:
         @param pcColumnName The name of the column to test for
         @return True when the Column Name exists in the Column of the BindingSource Schema
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC LOGICAL ValidColumn (pcColumnName AS CHARACTER):
-        
+
         {Consultingwerk/foreach.i Progress.Data.ColumnPropDesc oColumn in smartBusinessEntityBindingSource1:TableSchema:Columns}
-            IF oColumn:ColumnName = pcColumnName THEN 
-                RETURN TRUE . 
-        END . 
-        
+            IF oColumn:ColumnName = pcColumnName THEN
+                RETURN TRUE .
+        END .
+
         RETURN FALSE .
 
     END METHOD .
-    
+
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the DetailViewWizard class 
-        Notes:   
+        Purpose: Destructor for the DetailViewWizard class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC DetailViewWizard ():
 

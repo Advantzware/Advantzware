@@ -14,7 +14,7 @@
 /* ***************************  Definitions  ************************** */
 
 @FILEANNOTATION@
-
+@STARNOVAANNOTATIONS@
 DEFINE {&&ACCESS} TEMP-TABLE &1{&&SUFFIX} NO-UNDO &9{&&REFERENCE-ONLY} &&IF DEFINED (NO-BEFORE) EQ 0 &&THEN &3 &2{&&SUFFIX} &&ENDIF
 &4
 &5

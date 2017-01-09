@@ -34,52 +34,52 @@ CLASS Consultingwerk.Framework.Server.ServerOperatingModeEnum:
         Purpose: The AppServer is started with the stateless mode
         Notes:   PASOE operating  mode
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC STATIC PROPERTY SessionFree AS CHARACTER NO-UNDO INIT "session-free":U
+    DEFINE PUBLIC STATIC PROPERTY SessionFree AS CHARACTER NO-UNDO INITIAL "session-free":U
     GET.
 
     /*------------------------------------------------------------------------------
         Purpose: The AppServer is started with the stateless mode
         Notes:   PASOE operating  mode
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC STATIC PROPERTY SessionManaged AS CHARACTER NO-UNDO INIT "session-managed":U
+    DEFINE PUBLIC STATIC PROPERTY SessionManaged AS CHARACTER NO-UNDO INITIAL "session-managed":U
     GET.
 
     /*------------------------------------------------------------------------------
         Purpose: The AppServer is started with the state-aware mode
         Notes:   Classic OpenEdge AppServer operating mode
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC STATIC PROPERTY StateAware AS CHARACTER NO-UNDO INIT "State-aware":U
-	GET.
+    DEFINE PUBLIC STATIC PROPERTY StateAware AS CHARACTER NO-UNDO INITIAL "State-aware":U
+    GET.
 
     /*------------------------------------------------------------------------------
         Purpose: The AppServer is started with the state-free mode
         Notes:   Classic OpenEdge AppServer operating mode
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC STATIC PROPERTY StateFree AS CHARACTER NO-UNDO INIT "State-free":U
+    DEFINE PUBLIC STATIC PROPERTY StateFree AS CHARACTER NO-UNDO INITIAL "State-free":U
     GET.
 
     /*------------------------------------------------------------------------------
         Purpose: The AppServer is started with the state-reset mode
         Notes:   Classic OpenEdge AppServer operating mode
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC STATIC PROPERTY StateReset AS CHARACTER NO-UNDO INIT "State-reset":U
+    DEFINE PUBLIC STATIC PROPERTY StateReset AS CHARACTER NO-UNDO INITIAL "State-reset":U
     GET.
 
     /*------------------------------------------------------------------------------
         Purpose: The AppServer is started with the stateless mode
         Notes:   Classic OpenEdge AppServer operating mode
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC STATIC PROPERTY Stateless AS CHARACTER NO-UNDO INIT "Stateless":U
+    DEFINE PUBLIC STATIC PROPERTY Stateless AS CHARACTER NO-UNDO INITIAL "Stateless":U
     GET.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Private constructor for the ServerOperatingModeEnum class
-	    Notes:   Disallow instance creation
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PRIVATE ServerOperatingModeEnum ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    /*------------------------------------------------------------------------------
+        Purpose: Private constructor for the ServerOperatingModeEnum class
+        Notes:   Disallow instance creation
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PRIVATE ServerOperatingModeEnum ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
        Purpose: Returns if the current AppServer operating mode is session-free
@@ -126,17 +126,17 @@ CLASS Consultingwerk.Framework.Server.ServerOperatingModeEnum:
 
     END METHOD.
 
-	/*------------------------------------------------------------------------------
-	   Purpose: Returns if the current AppServer operating mode is state-reset
-	   Notes:
-	   @return Logical value indicating if the current AppServer operating mode is 
-	           state reset
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC LOGICAL IsStateReset ():
-		
+    /*------------------------------------------------------------------------------
+       Purpose: Returns if the current AppServer operating mode is state-reset
+       Notes:
+       @return Logical value indicating if the current AppServer operating mode is 
+               state reset
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC STATIC LOGICAL IsStateReset ():
+        
         RETURN SESSION:SERVER-OPERATING-MODE = ServerOperatingModeEnum:StateReset .
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
        Purpose: Returns if the current AppServer operating mode is stateless

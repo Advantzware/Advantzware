@@ -8,15 +8,15 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/  
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : SmartGenericLookupDialogDesigner
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Tue Apr 14 09:59:59 CEST 2009
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -24,9 +24,9 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 USING Progress.Lang.* FROM ASSEMBLY .
 USING Progress.Windows.Form FROM ASSEMBLY .
 
-CLASS Consultingwerk.SmartComponents.Support.SmartGenericLookupDialogDesigner 
-    INHERITS Form : 
-    
+CLASS Consultingwerk.SmartComponents.Support.SmartGenericLookupDialogDesigner
+    INHERITS Form :
+
     DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
 
     DEFINE PRIVATE VARIABLE panel1 AS System.Windows.Forms.Panel NO-UNDO.
@@ -39,7 +39,7 @@ CLASS Consultingwerk.SmartComponents.Support.SmartGenericLookupDialogDesigner
     DEFINE PRIVATE VARIABLE m_Form_Toolbars_Dock_Area_Right AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_Form_Toolbars_Dock_Area_Top AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_Form_Toolbars_Dock_Area_Bottom AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
-        
+
     CONSTRUCTOR PUBLIC SmartGenericLookupDialogDesigner (  ):
         SUPER().
         InitializeComponent().
@@ -47,18 +47,19 @@ CLASS Consultingwerk.SmartComponents.Support.SmartGenericLookupDialogDesigner
             UNDO, THROW e.
         END CATCH.
     END CONSTRUCTOR.
-    
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true").

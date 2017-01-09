@@ -33,10 +33,10 @@ INTERFACE Consultingwerk.BusinessEntityDesigner.Generator.Web2View.IHtmlControlG
         @param pcInnerHtml The inner html for the control
         @return The HTML code for the Control 
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC CHARACTER GenerateHtmlCode (pcTag AS CHARACTER,
-	                                          pcAttributes AS CHARACTER,
-	                                          pcBinding AS CHARACTER,
-	                                          pcInnerHtml AS CHARACTER).
+    METHOD PUBLIC CHARACTER GenerateHtmlCode (pcTag AS CHARACTER,
+                                              pcAttributes AS CHARACTER,
+                                              pcBinding AS CHARACTER,
+                                              pcInnerHtml AS CHARACTER).
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the HTML code for the Control

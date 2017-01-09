@@ -31,6 +31,6 @@ INTERFACE Consultingwerk.Windows.Framework.Menu.ICallParameterControlFactory:
         @param poCallParameterType The class referenceof the CallParameter for which a UserControl should be provided 
         @return The specialized CallParameterControl instance
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC System.Windows.Forms.UserControl GetCallParameterControl (poCallParameterType AS Progress.Lang.Class).
+    METHOD PUBLIC System.Windows.Forms.UserControl GetCallParameterControl (poCallParameterType AS Progress.Lang.Class).
 
 END INTERFACE.

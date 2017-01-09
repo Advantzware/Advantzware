@@ -51,17 +51,17 @@ CLASS Consultingwerk.Windows.AppStylistService
                  Style Library files will be loaded 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY FolderName AS CHARACTER NO-UNDO INIT "Consultingwerk/Windows/Styles":U 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY FolderName AS CHARACTER NO-UNDO INIT "Consultingwerk/Windows/Styles":U 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the name of the current style library 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY StyleLibrary AS CHARACTER NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    DEFINE PUBLIC PROPERTY StyleLibrary AS CHARACTER NO-UNDO 
+    GET.
+    PROTECTED SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the name of the current style library file 
@@ -75,14 +75,14 @@ CLASS Consultingwerk.Windows.AppStylistService
         Purpose: Constructor for the AppStylistService class
         Notes:   Restores previously selected StyleSheet from the user profile
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC AppStylistService ():
-	    
+    CONSTRUCTOR PUBLIC AppStylistService ():
+        
         DEFINE VARIABLE oSettings     AS ISettingsService       NO-UNDO . 
         DEFINE VARIABLE oConfig       AS IConfigurationProvider NO-UNDO . 
         DEFINE VARIABLE cStyleLibrary AS CHARACTER              NO-UNDO .  
         DEFINE VARIABLE cFolderName   AS CHARACTER              NO-UNDO .      
-	    
-		SUPER ().
+        
+        SUPER ().
 
         oConfig = {Consultingwerk/get-service.i Consultingwerk.Framework.IConfigurationProvider} . 
         
@@ -117,7 +117,7 @@ CLASS Consultingwerk.Windows.AppStylistService
                 THIS-OBJECT:LoadStyleLibrary ("Office2010Blue":U) .    
         END.                
                 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Invokes the designer for the loaded style library 
@@ -140,12 +140,12 @@ CLASS Consultingwerk.Windows.AppStylistService
         Notes:   
         @param pcStyleLibrary The name of the style library file, without the .isl extension
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID LoadStyleLibrary (pcStyleLibrary AS CHARACTER):
+    METHOD PUBLIC VOID LoadStyleLibrary (pcStyleLibrary AS CHARACTER):
 
         DEFINE VARIABLE cFileName AS CHARACTER                                 NO-UNDO .
         DEFINE VARIABLE oSettings AS Consultingwerk.Framework.ISettingsService NO-UNDO . 
-		
-		IF THIS-OBJECT:FolderName > "":U THEN 
+        
+        IF THIS-OBJECT:FolderName > "":U THEN 
             ASSIGN cFileName = SUBSTITUTE("&1/&2.isl":U, 
                                           THIS-OBJECT:FolderName,
                                           pcStyleLibrary) .
@@ -168,7 +168,7 @@ CLASS Consultingwerk.Windows.AppStylistService
                                 "StyleLibrary":U,
                                 pcStyleLibrary) .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Raises the StyleLibraryChanged

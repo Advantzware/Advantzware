@@ -40,17 +40,17 @@ CLASS Consultingwerk.Web.Kendo.Grid.ListColumn
         
     END CONSTRUCTOR.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Add's a Column with the given name and title
-	    Notes:
-	    @param pcField The name of the column to add
-	    @param pcTitle The title of the column to add
-	    @return The new added column
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC Column Add (pcField AS CHARACTER,
-	                          pcTitle AS CHARACTER):
-		
-		DEFINE VARIABLE oColumn AS Column NO-UNDO . 
+    /*------------------------------------------------------------------------------
+        Purpose: Add's a Column with the given name and title
+        Notes:
+        @param pcField The name of the column to add
+        @param pcTitle The title of the column to add
+        @return The new added column
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC Column Add (pcField AS CHARACTER,
+                              pcTitle AS CHARACTER):
+        
+        DEFINE VARIABLE oColumn AS Column NO-UNDO . 
 
         ASSIGN oColumn = NEW Column () 
                oColumn:Field = pcField
@@ -60,7 +60,7 @@ CLASS Consultingwerk.Web.Kendo.Grid.ListColumn
           
         RETURN oColumn . 
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Add's a Column with the given name and title

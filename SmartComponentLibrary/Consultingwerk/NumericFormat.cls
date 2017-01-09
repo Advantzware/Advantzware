@@ -42,11 +42,11 @@ CLASS Consultingwerk.NumericFormat
         Purpose: Constructor for the NumericFormat class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC NumericFormat ():
-		SUPER ().
+    CONSTRUCTOR PUBLIC NumericFormat ():
+        SUPER ().
 
         THIS-OBJECT:AddSerializableProperties ("{&SerializableProperties}":U) .
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
 END CLASS.

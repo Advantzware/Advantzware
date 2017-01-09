@@ -33,7 +33,7 @@ CLASS Consultingwerk.SmartFramework.Message
 &ELSE
     INHERITS JsonSerializable
 &ENDIF    
-	IMPLEMENTS IMessage:
+    IMPLEMENTS IMessage:
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the Message Detail
@@ -117,11 +117,11 @@ CLASS Consultingwerk.SmartFramework.Message
         Purpose: Constructor for the Message class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC Message ():
-		SUPER ().
+    CONSTRUCTOR PUBLIC Message ():
+        SUPER ().
 
         THIS-OBJECT:AddSerializableProperties ("{&SerializableProperties}":U) .
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
 END CLASS.

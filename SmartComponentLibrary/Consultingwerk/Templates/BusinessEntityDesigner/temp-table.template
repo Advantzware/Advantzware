@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2006-2015 by Consultingwerk Ltd. ("CW") -            *
+ * Copyright (C) 2006-2016 by Consultingwerk Ltd. ("CW") -            *
  * www.consultingwerk.de and other contributors as listed             *
  * below.  All Rights Reserved.                                       *
  *                                                                    *
@@ -25,7 +25,7 @@
 /* ***************************  Definitions  ************************** */
 
 @FILEANNOTATION@
-
+@STARNOVAANNOTATIONS@
 DEFINE {&&ACCESS} TEMP-TABLE &1{&&SUFFIX} NO-UNDO &9{&&REFERENCE-ONLY} &&IF DEFINED (NO-BEFORE) EQ 0 &&THEN &3 &2{&&SUFFIX} &&ENDIF
 &4
 &5

@@ -35,19 +35,19 @@ CLASS Consultingwerk.Framework.ExpressionParser.WeekdayValueProvider
         Purpose: Gets and sets the list of the names of the days
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY DayNames AS CHARACTER INITIAL 'Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday'{&TRAN} NO-UNDO 
-	GET.
-	SET (arg AS CHARACTER):
-	    ListAssert:NumEntries (arg, 7) .
-	    
-	    ASSIGN THIS-OBJECT:DayNames = arg . 
+    DEFINE PUBLIC PROPERTY DayNames AS CHARACTER INITIAL 'Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday'{&TRAN} NO-UNDO 
+    GET.
+    SET (arg AS CHARACTER):
+        ListAssert:NumEntries (arg, 7) .
+        
+        ASSIGN THIS-OBJECT:DayNames = arg . 
     END. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the reference date
         Notes:   
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY ReferenceDate AS DATE NO-UNDO INIT TODAY 
+    DEFINE PUBLIC PROPERTY ReferenceDate AS DATE NO-UNDO INITIAL TODAY
     GET.
     SET. 
 
@@ -65,12 +65,12 @@ CLASS Consultingwerk.Framework.ExpressionParser.WeekdayValueProvider
         Notes:   
         @param pdtReferenceDate The reference date 
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC WeekdayValueProvider (pdtReferenceDate AS DATE):
-		SUPER ().
-		
-		ASSIGN THIS-OBJECT:ReferenceDate = pdtReferenceDate . 
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC WeekdayValueProvider (pdtReferenceDate AS DATE):
+        SUPER ().
+        
+        ASSIGN THIS-OBJECT:ReferenceDate = pdtReferenceDate . 
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the WeekdayValueProvider class
@@ -105,12 +105,12 @@ CLASS Consultingwerk.Framework.ExpressionParser.WeekdayValueProvider
         @param pcExpression The Character expression to parse
         @return The logical result of the expressioln
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL GetLogicalValue (pcExpression AS CHARACTER):
-		
-		DEFINE VARIABLE iDay AS INTEGER NO-UNDO.
+    METHOD PUBLIC LOGICAL GetLogicalValue (pcExpression AS CHARACTER):
+        
+        DEFINE VARIABLE iDay AS INTEGER NO-UNDO.
 
         ListAssert:EntryIsInList (pcExpression, THIS-OBJECT:DayNames) .
-		
+        
         ASSIGN iDay = WEEKDAY (THIS-OBJECT:ReferenceDate) - 1 .
         
         IF iDay = 0 THEN iDay = 7 .
@@ -120,6 +120,6 @@ CLASS Consultingwerk.Framework.ExpressionParser.WeekdayValueProvider
         ELSE 
             RETURN FALSE . 
         
-	END METHOD .
+    END METHOD .
 
 END CLASS.

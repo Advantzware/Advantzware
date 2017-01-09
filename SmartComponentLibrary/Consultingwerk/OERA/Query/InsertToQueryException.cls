@@ -37,9 +37,9 @@ CLASS Consultingwerk.OERA.Query.InsertToQueryException
         Purpose: Returns the PrepareString that was used when the error was caused
         Notes:                          
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY PrepareString AS CHARACTER NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    DEFINE PUBLIC PROPERTY PrepareString AS CHARACTER NO-UNDO 
+    GET.
+    PROTECTED SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the InvalidSourceMappingException class

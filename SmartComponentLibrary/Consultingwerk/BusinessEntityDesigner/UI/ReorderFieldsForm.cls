@@ -8,15 +8,15 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : ReorderFieldsForm
     Purpose     : Provides an user interface to reorder fields in a temp-table
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sun Nov 07 23:40:51 CET 2010
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 USING Progress.Lang.*.
@@ -24,8 +24,8 @@ USING Consultingwerk.SmartComponents.Base.SmartWindowForm.
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-CLASS Consultingwerk.BusinessEntityDesigner.UI.ReorderFieldsForm INHERITS SmartWindowForm: 
-    
+CLASS Consultingwerk.BusinessEntityDesigner.UI.ReorderFieldsForm INHERITS SmartWindowForm:
+
     DEFINE PRIVATE VARIABLE btnUp AS Infragistics.Win.Misc.UltraButton NO-UNDO.
     DEFINE PRIVATE VARIABLE btnDown AS Infragistics.Win.Misc.UltraButton NO-UNDO.
     DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
@@ -38,18 +38,18 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.ReorderFieldsForm INHERITS SmartW
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the comma delimited list of fields
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY Fields AS CHARACTER NO-UNDO 
+    DEFINE PUBLIC PROPERTY Fields AS CHARACTER NO-UNDO
     GET.
-    SET. 
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the ReorderFieldsForm class                                                                        
-        Notes:      
+        Purpose: Constructor for the ReorderFieldsForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC ReorderFieldsForm ():
-        
+
         SUPER().
         InitializeComponent().
         CATCH e AS Progress.Lang.Error:
@@ -59,22 +59,22 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.ReorderFieldsForm INHERITS SmartW
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the Click event of the btnDown instance                                                                        
-        Notes:                                              
+        Purpose: Event handler for the Click event of the btnDown instance
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event                          
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID btnDown_Click (sender AS System.Object, 
+    METHOD PRIVATE VOID btnDown_Click (sender AS System.Object,
                                        e AS System.EventArgs):
-        
+
         DEFINE VARIABLE oItem AS Infragistics.Win.UltraWinListView.UltraListViewItem NO-UNDO .
         DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
-        
-        ASSIGN oItem  = THIS-OBJECT:ultraListView1:SelectedItems[0] 
+
+        ASSIGN oItem  = THIS-OBJECT:ultraListView1:SelectedItems[0]
                iIndex = oItem:Index.
 
         THIS-OBJECT:ultraListView1:Items:Remove (oItem) .
-        THIS-OBJECT:ultraListView1:Items:Insert (iIndex + 1, oItem) . 
+        THIS-OBJECT:ultraListView1:Items:Insert (iIndex + 1, oItem) .
         THIS-OBJECT:ultraListView1:SelectedItems:Clear() .
         THIS-OBJECT:ultraListView1:SelectedItems:Add (oItem) .
 
@@ -83,21 +83,21 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.ReorderFieldsForm INHERITS SmartW
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the Click event of the btnUp instance                                                                        
-        Notes:                                              
+        Purpose: Event handler for the Click event of the btnUp instance
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event                          
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PRIVATE VOID btnUp_Click (sender AS System.Object, e AS System.EventArgs ):
-        
+
         DEFINE VARIABLE oItem AS Infragistics.Win.UltraWinListView.UltraListViewItem NO-UNDO .
         DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
-        
-        ASSIGN oItem  = THIS-OBJECT:ultraListView1:SelectedItems[0] 
+
+        ASSIGN oItem  = THIS-OBJECT:ultraListView1:SelectedItems[0]
                iIndex = oItem:Index.
 
         THIS-OBJECT:ultraListView1:Items:Remove (oItem) .
-        THIS-OBJECT:ultraListView1:Items:Insert (iIndex - 1, oItem) . 
+        THIS-OBJECT:ultraListView1:Items:Insert (iIndex - 1, oItem) .
         THIS-OBJECT:ultraListView1:SelectedItems:Clear() .
         THIS-OBJECT:ultraListView1:SelectedItems:Add (oItem) .
 
@@ -105,17 +105,18 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.ReorderFieldsForm INHERITS SmartW
 
     END METHOD.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance1 AS Infragistics.Win.Appearance NO-UNDO.
@@ -271,44 +272,44 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.ReorderFieldsForm INHERITS SmartW
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the Load event                                                                       
-        Notes:                        
-        @param e The System.EventArgs with the data for this event                                                
+        Purpose: Raises the Load event
+        Notes:
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
-        
+
         DEFINE VARIABLE i AS INTEGER NO-UNDO.
-        
-        SUPER:OnLoad (e) . 
-        
+
+        SUPER:OnLoad (e) .
+
         THIS-OBJECT:ultraListView1:Items:Clear () .
-        
+
         DO i = 1 TO NUM-ENTRIES (THIS-OBJECT:Fields):
-            
+
             THIS-OBJECT:ultraListView1:Items:Add (ENTRY (i, THIS-OBJECT:Fields),
                                                   ENTRY (i, THIS-OBJECT:Fields))  .
-            
-        END. 
-        
+
+        END.
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the Click event of the ultraButton1 instance                                                                        
-        Notes:                                              
+        Purpose: Event handler for the Click event of the ultraButton1 instance
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event                          
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraButton1_Click (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraButton1_Click (sender AS System.Object,
                                             e AS System.EventArgs):
-        
+
         DEFINE VARIABLE i AS INTEGER NO-UNDO.
-        
+
         THIS-OBJECT:Fields = "":U .
-        
+
         DO i = 0 TO THIS-OBJECT:ultraListView1:Items:Count - 1:
-            
+
             ASSIGN THIS-OBJECT:Fields = THIS-OBJECT:Fields + THIS-OBJECT:ultraListView1:Items[i]:Key + ",":U .
-            
+
         END.
 
         ASSIGN THIS-OBJECT:Fields = TRIM (THIS-OBJECT:Fields, ",":U) .
@@ -316,37 +317,37 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.ReorderFieldsForm INHERITS SmartW
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the ItemSelectionChanged event of the ultraListView1 instance                                                                        
-        Notes:                                              
+        Purpose: Event handler for the ItemSelectionChanged event of the ultraListView1 instance
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The ItemSelectionChangedEventArgs with the data for this event                          
+        @param e The ItemSelectionChangedEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraListView1_ItemSelectionChanged 
-                    (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraListView1_ItemSelectionChanged
+                    (sender AS System.Object,
                      e AS Infragistics.Win.UltraWinListView.ItemSelectionChangedEventArgs):
-                    
+
         IF e:SelectedItems:Count = 0 THEN DO:
-            ASSIGN btnUp:Enabled = FALSE 
+            ASSIGN btnUp:Enabled = FALSE
                    btnDown:Enabled = FALSE .
-                   
-            RETURN .       
-        END.        
-        
-        IF e:SelectedItems[0]:Index > 0 THEN 
+
+            RETURN .
+        END.
+
+        IF e:SelectedItems[0]:Index > 0 THEN
             btnUp:Enabled = TRUE .
-        ELSE 
-            btnUp:Enabled = FALSE . 
-            
-        IF e:SelectedItems[0]:Index < THIS-OBJECT:ultraListView1:Items:Count - 1 THEN 
+        ELSE
+            btnUp:Enabled = FALSE .
+
+        IF e:SelectedItems[0]:Index < THIS-OBJECT:ultraListView1:Items:Count - 1 THEN
             btnDown:Enabled = TRUE .
-        ELSE 
-            btnDown:Enabled = FALSE . 
+        ELSE
+            btnDown:Enabled = FALSE .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the ReorderFieldsForm class                                                                        
-        Notes:      
+        Purpose: Destructor for the ReorderFieldsForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC ReorderFieldsForm ():
 

@@ -55,7 +55,7 @@ CLASS Consultingwerk.SmartUnit.TestSuite
 
     /*------------------------------------------------------------------------------
         Purpose: Returns if the current job should be stopped after an error has
-                 occured 
+                 occurred 
         Notes:   
     ------------------------------------------------------------------------------*/
     {Consultingwerk/SerializableProperty.i HaltOnError LOGICAL}
@@ -91,11 +91,11 @@ CLASS Consultingwerk.SmartUnit.TestSuite
         Purpose: Constructor for the TestSuite class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC TestSuite ():
-		SUPER ().
-		
+    CONSTRUCTOR PUBLIC TestSuite ():
+        SUPER ().
+        
         THIS-OBJECT:AddSerializableProperties ("{&SerializableProperties}":U) .
-		
-	END CONSTRUCTOR.
+        
+    END CONSTRUCTOR.
 
 END CLASS.

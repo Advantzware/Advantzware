@@ -11,107 +11,108 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : SetFrameBackgroundColorParameter
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     : Interface for the parameter object for the
+                  WidgetHelper:SetFrameBackgroundColor method
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sun Nov 11 16:17:03 CET 2012
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 
-USING Consultingwerk.Util.* FROM PROPATH .  
+USING Consultingwerk.Util.* FROM PROPATH .
 USING Progress.Lang.* FROM PROPATH .
 
-INTERFACE Consultingwerk.Util.ISetFrameBackgroundColorParameter: 
+INTERFACE Consultingwerk.Util.ISetFrameBackgroundColorParameter:
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the color number to be used for BROWSE widgets BGCOLOR
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY BrowseColor AS INTEGER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY BrowseColor AS INTEGER NO-UNDO
+    GET.
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the color number to be used for BROWSE widgets 
+        Purpose: Gets and sets the color number to be used for BROWSE widgets
                  LABEL-BGCOLOR
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY BrowseColumnColor AS INTEGER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY BrowseColumnColor AS INTEGER NO-UNDO
+    GET.
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the color number to be used for FRAME and WINDOW 
+        Purpose: Gets and sets the color number to be used for FRAME and WINDOW
                  widgets BGCOLOR
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Color AS INTEGER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY Color AS INTEGER NO-UNDO
+    GET.
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets if LITERAL or TEXT widgets BGCOLOR will be set to 
+        Purpose: Gets and sets if LITERAL or TEXT widgets BGCOLOR will be set to
                  piColor as well
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY ColorLiterals AS LOGICAL NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY ColorLiterals AS LOGICAL NO-UNDO
+    GET.
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the color number to be used for FILL-IN, EDITOR, 
-                 COMBO-BOX widgets BGCOLOR when disabled 
-        Notes:   
+        Purpose: Gets and sets the color number to be used for FILL-IN, EDITOR,
+                 COMBO-BOX widgets BGCOLOR when disabled
+        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY DisabledtextColor AS INTEGER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY DisabledtextColor AS INTEGER NO-UNDO
+    GET.
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets if WidgetHelper:SetFrameBackground should call the 
-                 Win32 API LockWindowUpdate to prevent flickering on the screen 
+        Purpose: Gets and sets if WidgetHelper:SetFrameBackground should call the
+                 Win32 API LockWindowUpdate to prevent flickering on the screen
         Notes:   Default is FALSE to avoid interfering with potentially existing code
                  to avoid window flickering
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY LockWindowUpdate AS LOGICAL NO-UNDO  
+    DEFINE PUBLIC PROPERTY LockWindowUpdate AS LOGICAL NO-UNDO
     GET.
-    SET. 
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the parent FRAME or WINDOW 
-        Notes:   
+        Purpose: Gets and sets the parent FRAME or WINDOW
+        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Parent AS HANDLE NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY Parent AS HANDLE NO-UNDO
+    GET.
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the color number to be used for RADIO-SET widgets BGCOLOR 
-        Notes:   
+        Purpose: Gets and sets the color number to be used for RADIO-SET widgets BGCOLOR
+        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY RadiosetColor AS INTEGER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY RadiosetColor AS INTEGER NO-UNDO
+    GET.
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the color number to be used for FILL-IN, EDITOR, 
-                 COMBO-BOX widgets BGCOLOR 
-        Notes:   
+        Purpose: Gets and sets the color number to be used for FILL-IN, EDITOR,
+                 COMBO-BOX widgets BGCOLOR
+        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY TextboxColor AS INTEGER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY TextboxColor AS INTEGER NO-UNDO
+    GET.
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets The color number to be used for TOGGLE-BOX widgets BGCOLOR 
-        Notes:   
+        Purpose: Gets and sets The color number to be used for TOGGLE-BOX widgets BGCOLOR
+        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY ToggleBoxColor AS INTEGER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY ToggleBoxColor AS INTEGER NO-UNDO
+    GET.
+    SET.
 
 END INTERFACE.

@@ -44,13 +44,13 @@ CLASS Consultingwerk.Util.Exceptions.InvalidFieldNameException
        @param pcErrorMessage The error message for the exception
        @param pcFieldName The name of the field that caused the exception
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC InvalidFieldNameException (pcErrorMessage AS CHARACTER,
-	                                              pcFieldName AS CHARACTER):
+    CONSTRUCTOR PUBLIC InvalidFieldNameException (pcErrorMessage AS CHARACTER,
+                                                  pcFieldName AS CHARACTER):
 
-		SUPER (SUBSTITUTE (pcErrorMessage, pcFieldName), 0).
-	
-	   ASSIGN THIS-OBJECT:FieldName = pcFieldName . 
-		
-	END CONSTRUCTOR.
-		
+        SUPER (SUBSTITUTE (pcErrorMessage, pcFieldName), 0).
+    
+       ASSIGN THIS-OBJECT:FieldName = pcFieldName . 
+        
+    END CONSTRUCTOR.
+        
 END CLASS.

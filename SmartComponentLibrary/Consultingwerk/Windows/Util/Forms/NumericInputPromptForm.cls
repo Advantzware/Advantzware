@@ -56,9 +56,9 @@ CLASS Consultingwerk.Windows.Util.Forms.NumericInputPromptForm
         Purpose: Gets and sets the reference to the InputValidator for this instance
         Notes:                                                          
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY IntegerInputValidator AS IIntegerInputValidator NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY IntegerInputValidator AS IIntegerInputValidator NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the Integer Value of the NumericInputPromptForm
@@ -96,9 +96,9 @@ CLASS Consultingwerk.Windows.Util.Forms.NumericInputPromptForm
         Purpose: Gets and sets the PromptType as a NumericPromptTypeEnum value
         Notes:                                                          
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY PromptType AS NumericPromptTypeEnum NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY PromptType AS NumericPromptTypeEnum NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the NumericInputPromptForm class                                                               
@@ -118,10 +118,11 @@ CLASS Consultingwerk.Windows.Util.Forms.NumericInputPromptForm
 
     END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
         
         /* NOTE: The following method is automatically generated.
@@ -187,18 +188,18 @@ CLASS Consultingwerk.Windows.Util.Forms.NumericInputPromptForm
         END CATCH.
     END METHOD.
 
-	/*------------------------------------------------------------------------------
-		Purpose: Event handler for the Click event of the OK Button 																	  
-		Notes:   Assigns the new CharacterValue 													
-		@param sender The object that raised the event
-		@param e The System.EventArgs with the data for this event				  
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID OkButtonClickHandler (sender AS System.Object,
-	                                            e AS System.EventArgs):
-		
-        IF THIS-OBJECT:PromptType = NumericPromptTypeEnum:TextBox THEN DO:		
-    		IF THIS-OBJECT:NumericType = NumericTypeEnum:Integer THEN 
-    		    THIS-OBJECT:IntegerValue = UNBOX (THIS-OBJECT:ultraNumericEditor1:Value) .
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the Click event of the OK Button                                                                       
+        Notes:   Assigns the new CharacterValue                                                     
+        @param sender The object that raised the event
+        @param e The System.EventArgs with the data for this event                  
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID OkButtonClickHandler (sender AS System.Object,
+                                                e AS System.EventArgs):
+        
+        IF THIS-OBJECT:PromptType = NumericPromptTypeEnum:TextBox THEN DO:        
+            IF THIS-OBJECT:NumericType = NumericTypeEnum:Integer THEN 
+                THIS-OBJECT:IntegerValue = UNBOX (THIS-OBJECT:ultraNumericEditor1:Value) .
             ELSE
                 THIS-OBJECT:DecimalValue = UNBOX (THIS-OBJECT:ultraNumericEditor1:Value) .
         END.
@@ -209,15 +210,15 @@ CLASS Consultingwerk.Windows.Util.Forms.NumericInputPromptForm
                 THIS-OBJECT:DecimalValue = THIS-OBJECT:ultraTrackBar1:Value .
         END.
         
-	END METHOD.
+    END METHOD.
 
-	/*------------------------------------------------------------------------------
-		Purpose: Raises the Load event 																	  
-		Notes:  						
-		@param e The System.EventArgs with the data for this event 											  
-	------------------------------------------------------------------------------*/
-	METHOD OVERRIDE PROTECTED VOID OnLoad (e AS System.EventArgs):
-	
+    /*------------------------------------------------------------------------------
+        Purpose: Raises the Load event                                                                       
+        Notes:                          
+        @param e The System.EventArgs with the data for this event                                               
+    ------------------------------------------------------------------------------*/
+    METHOD OVERRIDE PROTECTED VOID OnLoad (e AS System.EventArgs):
+    
         IF THIS-OBJECT:NumericType = NumericTypeEnum:Integer THEN DO:
     
             IF THIS-OBJECT:PromptType = NumericPromptTypeEnum:TextBox THEN DO:
@@ -250,7 +251,7 @@ CLASS Consultingwerk.Windows.Util.Forms.NumericInputPromptForm
             END.            
         END .
                                                                                           
-		SUPER:OnLoad (e) .
+        SUPER:OnLoad (e) .
 
         IF VALID-OBJECT (THIS-OBJECT:IntegerInputValidator) OR
            VALID-OBJECT (THIS-OBJECT:DecimalInputValidator) THEN DO:
@@ -264,7 +265,7 @@ CLASS Consultingwerk.Windows.Util.Forms.NumericInputPromptForm
         
         THIS-OBJECT:MinimumSize = THIS-OBJECT:Size .
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Raises the Shown event                                                                    
@@ -280,26 +281,26 @@ CLASS Consultingwerk.Windows.Util.Forms.NumericInputPromptForm
         
     END METHOD .
 
-	/*------------------------------------------------------------------------------
-		Purpose: Event handler for the ValueChanged event of the text editor  																	  
-		Notes:   Uses the InputValidator instance to validate the value														
-		@param sender The reference to the System.Object that raised this event
-		@param e The System.EventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID ValueChangedHandler (sender AS System.Object,
-	                                           e AS System.EventArgs):
-		
-		IF THIS-OBJECT:NumericType = NumericTypeEnum:Integer AND 
-		   VALID-OBJECT (THIS-OBJECT:IntegerInputValidator) THEN DO: 
-		    
-		    IF THIS-OBJECT:PromptType = NumericPromptTypeEnum:TextBox THEN
-		        THIS-OBJECT:buOk:Enabled = THIS-OBJECT:IntegerInputValidator:ValidateIntegerValue
-		                                      (UNBOX (THIS-OBJECT:ultraNumericEditor1:Value)) .
-            ELSE 		                                     
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the ValueChanged event of the text editor                                                                        
+        Notes:   Uses the InputValidator instance to validate the value                                                        
+        @param sender The reference to the System.Object that raised this event
+        @param e The System.EventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID ValueChangedHandler (sender AS System.Object,
+                                               e AS System.EventArgs):
+        
+        IF THIS-OBJECT:NumericType = NumericTypeEnum:Integer AND 
+           VALID-OBJECT (THIS-OBJECT:IntegerInputValidator) THEN DO: 
+            
+            IF THIS-OBJECT:PromptType = NumericPromptTypeEnum:TextBox THEN
+                THIS-OBJECT:buOk:Enabled = THIS-OBJECT:IntegerInputValidator:ValidateIntegerValue
+                                              (UNBOX (THIS-OBJECT:ultraNumericEditor1:Value)) .
+            ELSE                                              
                 THIS-OBJECT:buOk:Enabled = THIS-OBJECT:IntegerInputValidator:ValidateIntegerValue
                                               (THIS-OBJECT:ultraTrackBar1:Value) .
-	    END . 
-	    ELSE DO:
+        END . 
+        ELSE DO:
             IF THIS-OBJECT:NumericType = NumericTypeEnum:Decimal AND 
                VALID-OBJECT (THIS-OBJECT:DecimalInputValidator) THEN 
     
@@ -310,8 +311,8 @@ CLASS Consultingwerk.Windows.Util.Forms.NumericInputPromptForm
                 THIS-OBJECT:buOk:Enabled = THIS-OBJECT:DecimalInputValidator:ValidateDecimalValue
                                               (THIS-OBJECT:ultraTrackBar1:Value) .
         END.
-        		
-	END METHOD.
+                
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Destructor for the NumericInputPromptForm class                                                               

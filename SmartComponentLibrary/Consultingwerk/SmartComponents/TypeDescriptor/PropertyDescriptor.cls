@@ -42,21 +42,21 @@ CLASS Consultingwerk.SmartComponents.TypeDescriptor.PropertyDescriptor
         Purpose: Returns the DefaultValue for the Property
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY PropertyName AS CHARACTER NO-UNDO 
-	GET.
-	PROTECTED SET. 
-	
+    DEFINE PUBLIC PROPERTY PropertyName AS CHARACTER NO-UNDO 
+    GET.
+    PROTECTED SET. 
+    
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the PropertyDescriptor class
         Notes:   
         @param pcPropertyName The Name of the Property in the PropertyDescriptor instance
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC PropertyDescriptor (pcPropertyName AS CHARACTER):
-		SUPER ().
-		
-		ASSIGN THIS-OBJECT:PropertyName = pcPropertyName
-		       THIS-OBJECT:Attributes   = NEW "System.Collections.Generic.List<System.Attribute>" /*:U*/ () .
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC PropertyDescriptor (pcPropertyName AS CHARACTER):
+        SUPER ().
+        
+        ASSIGN THIS-OBJECT:PropertyName = pcPropertyName
+               THIS-OBJECT:Attributes   = NEW "System.Collections.Generic.List<System.Attribute>" /*:U*/ () .
+        
+    END CONSTRUCTOR.
 
 END CLASS.

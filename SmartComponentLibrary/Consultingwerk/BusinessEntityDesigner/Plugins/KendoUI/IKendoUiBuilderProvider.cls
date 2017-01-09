@@ -32,13 +32,13 @@ INTERFACE Consultingwerk.BusinessEntityDesigner.Plugins.KendoUI.IKendoUiBuilderP
         Notes:   
         @return The ListNameValuePair with the available Grid Builder classes
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC ListNameValuePair GetAvailableGridBuilders ().
+    METHOD PUBLIC ListNameValuePair GetAvailableGridBuilders ().
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the List of the available Page Template Names 
         Notes:   
         @return The ListNameValuePair with the available Page Template Names
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC ListNameValuePair GetAvailableTemplates ().
+    METHOD PUBLIC ListNameValuePair GetAvailableTemplates ().
 
 END INTERFACE.

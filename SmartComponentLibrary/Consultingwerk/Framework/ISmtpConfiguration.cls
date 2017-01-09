@@ -29,36 +29,36 @@ INTERFACE Consultingwerk.Framework.ISmtpConfiguration:
         Purpose: Returns the SMTP Host Name  
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY SmtpHostName AS CHARACTER NO-UNDO 
-	GET.
+    DEFINE PUBLIC PROPERTY SmtpHostName AS CHARACTER NO-UNDO 
+    GET.
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the Password for the SMTP Authentication 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY SmtpPassword AS CHARACTER NO-UNDO 
-	GET.
+    DEFINE PUBLIC PROPERTY SmtpPassword AS CHARACTER NO-UNDO 
+    GET.
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the SMTP Port Number 
         Notes:   Return ? to use the default port number
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY SmtpPortNumber AS INTEGER NO-UNDO 
-	GET.
-	 
+    DEFINE PUBLIC PROPERTY SmtpPortNumber AS INTEGER NO-UNDO 
+    GET.
+     
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the sender of the emails 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY SmtpSenderName AS CHARACTER NO-UNDO 
-	GET.
+    DEFINE PUBLIC PROPERTY SmtpSenderName AS CHARACTER NO-UNDO 
+    GET.
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the User Name for the SMTP Authentication 
         Notes:   Leave empty to send without authentication
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY SmtpUserName AS CHARACTER NO-UNDO 
-	GET.
+    DEFINE PUBLIC PROPERTY SmtpUserName AS CHARACTER NO-UNDO 
+    GET.
 
 END INTERFACE.

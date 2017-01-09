@@ -16,6 +16,10 @@
     <DefaultTableSuffix/>
     <DefaultBeforeTablePrefix>e</DefaultBeforeTablePrefix>
     <DefaultBeforeTableSuffix>Before</DefaultBeforeTableSuffix>
+    <GenerateBusinessEntity>true</GenerateBusinessEntity>
+    <GenerateDataAccess>true</GenerateDataAccess>
+    <GenerateDatasetController>true</GenerateDatasetController>
+    <DistinctTempTableIncludeFiles>true</DistinctTempTableIncludeFiles>
   </eBusinessEntity>
   <eTable>
     <BusinessEntityName>LinkTypeBusinessEntity</BusinessEntityName>
@@ -23,14 +27,15 @@
     <SourceTableNames>SmartLinkType</SourceTableNames>
     <SourceBufferNames>SmartLinkType</SourceBufferNames>
     <SourceDefaultQuery/>
+    <SourceBufferKeys/>
     <TempTablePurpose/>
     <TempTableDescription/>
     <TempTablePath>Consultingwerk/SmartFramework/Repository/Class</TempTablePath>
     <TempTableBeforeName>eSmartLinkTypeBefore</TempTableBeforeName>
-    <LayoutColumn>181</LayoutColumn>
-    <LayoutRow>71</LayoutRow>
-    <LayoutWidth>100</LayoutWidth>
-    <LayoutHeight>250</LayoutHeight>
+    <LayoutColumn>81</LayoutColumn>
+    <LayoutRow>31</LayoutRow>
+    <LayoutWidth>200</LayoutWidth>
+    <LayoutHeight>290</LayoutHeight>
     <NamespaceUri/>
     <NamespacePrefix/>
     <XmlNodeName/>
@@ -48,6 +53,7 @@
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription>Link Name</FieldDescription>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>Link Name</FieldLabel>
     <FieldFormat>x(80)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -61,6 +67,8 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
   </eField>
   <eField>
     <BusinessEntityName>LinkTypeBusinessEntity</BusinessEntityName>
@@ -70,6 +78,7 @@
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription>LinkTypeGuid</FieldDescription>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>LinkTypeGuid</FieldLabel>
     <FieldFormat>x(36)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -83,6 +92,8 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
   </eField>
   <eField>
     <BusinessEntityName>LinkTypeBusinessEntity</BusinessEntityName>
@@ -92,6 +103,7 @@
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription>Source Handshake Method</FieldDescription>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>Source Handshake Method</FieldLabel>
     <FieldFormat>x(80)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -105,6 +117,8 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
   </eField>
   <eField>
     <BusinessEntityName>LinkTypeBusinessEntity</BusinessEntityName>
@@ -114,6 +128,7 @@
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription>Source Property Name</FieldDescription>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>Source Property Name</FieldLabel>
     <FieldFormat>x(80)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -127,6 +142,8 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
   </eField>
   <eField>
     <BusinessEntityName>LinkTypeBusinessEntity</BusinessEntityName>
@@ -136,6 +153,7 @@
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription>Target Handshake Method</FieldDescription>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>Target Handshake Method</FieldLabel>
     <FieldFormat>x(80)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -149,6 +167,8 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
   </eField>
   <eField>
     <BusinessEntityName>LinkTypeBusinessEntity</BusinessEntityName>
@@ -158,6 +178,7 @@
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription>Target Property Name</FieldDescription>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>Target Property Name</FieldLabel>
     <FieldFormat>x(80)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -171,6 +192,8 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
   </eField>
   <eIndex>
     <BusinessEntityName>LinkTypeBusinessEntity</BusinessEntityName>
@@ -194,6 +217,6 @@
     <IndexWordIndex>false</IndexWordIndex>
     <FieldNames>LinkTypeGuid</FieldNames>
     <FieldSort>ASCENDING</FieldSort>
-    <DefaultSearchCodeGeneration>true</DefaultSearchCodeGeneration>
+    <DefaultSearchCodeGeneration>false</DefaultSearchCodeGeneration>
   </eIndex>
 </dsBusinessEntity>

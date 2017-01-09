@@ -32,10 +32,10 @@ CLASS Consultingwerk.SmartFramework.Tools.ImportDynamicsRepository.ObjValueHelpe
         Purpose: Constructor for the ObjValueHelper class
         Notes:   Disallow instance creation 
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PROTECTED ObjValueHelper ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PROTECTED ObjValueHelper ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Converts a Dynamics _obj Value into a Character Key
@@ -43,20 +43,20 @@ CLASS Consultingwerk.SmartFramework.Tools.ImportDynamicsRepository.ObjValueHelpe
         @param pdeObjValue The decimal _obj value to be converted
         @return The character key
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC CHARACTER ObjToId (pdeObjValue AS DECIMAL):
-		
-		DEFINE VARIABLE oNumericFormat AS NumericFormat NO-UNDO . 
-		
-		oNumericFormat = SessionHelper:GetNumericFormat() .
-		
-		SessionHelper:SetDefaultNumericFormat() .
-		
-		RETURN STRING (pdeObjValue) .
-		
-		FINALLY:
-            SessionHelper:SetNumericFormat (oNumericFormat) .		
+    METHOD PUBLIC STATIC CHARACTER ObjToId (pdeObjValue AS DECIMAL):
+        
+        DEFINE VARIABLE oNumericFormat AS NumericFormat NO-UNDO . 
+        
+        oNumericFormat = SessionHelper:GetNumericFormat() .
+        
+        SessionHelper:SetDefaultNumericFormat() .
+        
+        RETURN STRING (pdeObjValue) .
+        
+        FINALLY:
+            SessionHelper:SetNumericFormat (oNumericFormat) .        
         END FINALLY.
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

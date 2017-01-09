@@ -35,7 +35,7 @@ INTERFACE Consultingwerk.RollbaseAdapter.IRollbaseCredentials:
         Purpose: Returns the UserName for the Rollbase integration 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY UserName AS CHARACTER NO-UNDO 
-	GET.
+    DEFINE PUBLIC PROPERTY UserName AS CHARACTER NO-UNDO 
+    GET.
 
 END INTERFACE.

@@ -33,17 +33,17 @@ CLASS Consultingwerk.OERA.Exceptions.QueryOffEndException
         Purpose: Returns the Query String associated with the error 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY QueryString AS CHARACTER NO-UNDO 
-	GET.
-	PRIVATE SET. 
+    DEFINE PUBLIC PROPERTY QueryString AS CHARACTER NO-UNDO 
+    GET.
+    PRIVATE SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the number of records that was attempted to navigate to 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY SkipRecords AS INTEGER NO-UNDO 
-	GET.
-	PRIVATE SET. 
+    DEFINE PUBLIC PROPERTY SkipRecords AS INTEGER NO-UNDO 
+    GET.
+    PRIVATE SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the QueryOffEndException class
@@ -54,17 +54,17 @@ CLASS Consultingwerk.OERA.Exceptions.QueryOffEndException
         @param pcQueryString the query string associated with the error
         @param piSkipRecords The record number that was attempted to navigate to 
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC QueryOffEndException (pcErrorString AS CHARACTER,
-	                                         piErrorNumber AS INTEGER,
-	                                         pcQueryString AS CHARACTER,
-	                                         piSkipRecords AS INTEGER):
-	                                         
-		SUPER (pcErrorString,
-		       piErrorNumber) .
-		       
+    CONSTRUCTOR PUBLIC QueryOffEndException (pcErrorString AS CHARACTER,
+                                             piErrorNumber AS INTEGER,
+                                             pcQueryString AS CHARACTER,
+                                             piSkipRecords AS INTEGER):
+                                             
+        SUPER (pcErrorString,
+               piErrorNumber) .
+               
         ASSIGN THIS-OBJECT:QueryString = pcQueryString 
-               THIS-OBJECT:SkipRecords = piSkipRecords . 		       
-		       
-	END CONSTRUCTOR.
+               THIS-OBJECT:SkipRecords = piSkipRecords .                
+               
+    END CONSTRUCTOR.
 
 END CLASS.

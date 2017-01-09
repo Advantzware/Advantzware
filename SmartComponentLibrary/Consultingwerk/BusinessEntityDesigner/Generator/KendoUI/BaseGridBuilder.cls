@@ -32,9 +32,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.KendoUI.BaseGridBuilder
         Purpose: Gets and sets the name of the Data Source resource 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY DataSourceName AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY DataSourceName AS CHARACTER NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the name of the table to use from the Data Source resource 
@@ -48,45 +48,45 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.KendoUI.BaseGridBuilder
         Purpose: Returns the reference to the Grid structur 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Grid AS KendoGrid NO-UNDO 
-	GET.
-	PRIVATE SET. 
+    DEFINE PUBLIC PROPERTY Grid AS KendoGrid NO-UNDO 
+    GET.
+    PRIVATE SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and set the File name to the generated 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY OutputFileName AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY OutputFileName AS CHARACTER NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the name of the page to be written 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY PageTitle AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY PageTitle AS CHARACTER NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the name of the template to be used 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY TemplateFileName AS CHARACTER NO-UNDO
-	   INIT "Consultingwerk/BusinessEntityDesigner/Generator/Templates/Web/KendoUiGrid/GridPage.template":U  
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY TemplateFileName AS CHARACTER NO-UNDO
+       INIT "Consultingwerk/BusinessEntityDesigner/Generator/Templates/Web/KendoUiGrid/GridPage.template":U  
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the BaseGridBuilder class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC BaseGridBuilder ():
-		SUPER ().
-		
-		THIS-OBJECT:Grid = NEW KendoGrid () .
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC BaseGridBuilder ():
+        SUPER ().
+        
+        THIS-OBJECT:Grid = NEW KendoGrid () .
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Adds a Columnn to the Grid definition
@@ -97,32 +97,32 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.KendoUI.BaseGridBuilder
         @param piWidthPixels The columns width pixels 
         @return The Grid Column that was added to the Grid
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC Column AddColumn (pcColumnName AS CHARACTER, 
+    METHOD PUBLIC Column AddColumn (pcColumnName AS CHARACTER, 
                                     pcColumnDataType AS CHARACTER,
                                     pcColumnLabel AS CHARACTER,
                                     piWidthPixels AS INTEGER):
-		
-		DEFINE VARIABLE oColumn AS Column NO-UNDO .
-		
-		oColumn = THIS-OBJECT:Grid:columns:Add (pcColumnName) .
-		
-		oColumn:title = pcColumnLabel .
-		
-		IF pcColumnDataType = "INTEGER":U OR pcColumnDataType = "INT64":U THEN  
-		    oColumn:type = "int":U .
-		
-		IF piWidthPixels > 0 THEN 
-		    oColumn:width = SUBSTITUTE ("&1px":U, ROUND (piWidthPixels * 1.2, 0)) . 
-		    		
-		RETURN oColumn .
+        
+        DEFINE VARIABLE oColumn AS Column NO-UNDO .
+        
+        oColumn = THIS-OBJECT:Grid:columns:Add (pcColumnName) .
+        
+        oColumn:title = pcColumnLabel .
+        
+        IF pcColumnDataType = "INTEGER":U OR pcColumnDataType = "INT64":U THEN  
+            oColumn:type = "int":U .
+        
+        IF piWidthPixels > 0 THEN 
+            oColumn:width = SUBSTITUTE ("&1px":U, ROUND (piWidthPixels * 1.2, 0)) . 
+                    
+        RETURN oColumn .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the structure for the Kendo UI Grid
         Notes:   
         @return The json string describing the Grid layout 
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC ABSTRACT LONGCHAR GetGrid () .
+    METHOD PUBLIC ABSTRACT LONGCHAR GetGrid () .
 
 END CLASS.

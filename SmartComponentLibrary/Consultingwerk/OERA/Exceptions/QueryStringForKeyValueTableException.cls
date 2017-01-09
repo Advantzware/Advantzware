@@ -38,9 +38,9 @@ CLASS Consultingwerk.OERA.Exceptions.QueryStringForKeyValueTableException
         @param pcErrorString The error message associated with this Exception object
         @param piMessageNumber The error message number associated with this Exception object
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC QueryStringForKeyValueTableException ( INPUT pcErrorString AS CHARACTER, INPUT piMessageNumber AS INTEGER ):
-		SUPER (INPUT pcErrorString, INPUT piMessageNumber).
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC QueryStringForKeyValueTableException ( INPUT pcErrorString AS CHARACTER, INPUT piMessageNumber AS INTEGER ):
+        SUPER (INPUT pcErrorString, INPUT piMessageNumber).
+        
+    END CONSTRUCTOR.
 
 END CLASS.

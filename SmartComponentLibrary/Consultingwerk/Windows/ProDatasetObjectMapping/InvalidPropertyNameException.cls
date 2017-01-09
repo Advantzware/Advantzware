@@ -42,9 +42,9 @@ CLASS Consultingwerk.Windows.ProDatasetObjectMapping.InvalidPropertyNameExceptio
        Purpose: Returns the name of the property that caused the issue
        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY PropertyName AS CHARACTER NO-UNDO 
-	GET.
-	PRIVATE SET. 
+    DEFINE PUBLIC PROPERTY PropertyName AS CHARACTER NO-UNDO 
+    GET.
+    PRIVATE SET. 
 
     /*------------------------------------------------------------------------------
        Purpose: Returns the name of the System.Type that caused the issue
@@ -62,17 +62,17 @@ CLASS Consultingwerk.Windows.ProDatasetObjectMapping.InvalidPropertyNameExceptio
        @param pcTypeName The type name for the exception
        @param pcChildRelationName The child relation name for the exception
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC InvalidPropertyNameException (pcErrorMessage AS CHARACTER,
-         	                                         pcPropertyName AS CHARACTER,
-         	                                         pcTypeName AS CHARACTER,
-         	                                         pcChildRelationName AS CHARACTER):
-		
-		SUPER (pcErrorMessage, 0).
-		
-		ASSIGN THIS-OBJECT:PropertyName      = pcPropertyName
-		       THIS-OBJECT:TypeName          = pcTypeName
-		       THIS-OBJECT:ChildRelationName = pcChildRelationName .
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC InvalidPropertyNameException (pcErrorMessage AS CHARACTER,
+                                                      pcPropertyName AS CHARACTER,
+                                                      pcTypeName AS CHARACTER,
+                                                      pcChildRelationName AS CHARACTER):
+        
+        SUPER (pcErrorMessage, 0).
+        
+        ASSIGN THIS-OBJECT:PropertyName      = pcPropertyName
+               THIS-OBJECT:TypeName          = pcTypeName
+               THIS-OBJECT:ChildRelationName = pcChildRelationName .
+        
+    END CONSTRUCTOR.
 
 END CLASS.

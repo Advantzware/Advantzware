@@ -28,18 +28,18 @@ USING Progress.Lang.*                                          FROM PROPATH .
 
 INTERFACE Consultingwerk.BusinessEntityDesigner.Generator.Viewer.IControlGeneratorFactory:  
   
-	/*------------------------------------------------------------------------------
-	    Purpose: Generates and returns a ControlGenerator instance for a binding source field
-	    Notes:   The SmartViewerBuilder will assign the following properties to the 
-	             ControlGenerator instance created from this factory: 
-	             DataBindings, Left, Name, ContainerControlGenerator, TabOrder, Top 
-	    @param poViewerBuilder The reference to the viewer builder instance
-	    @param pcColumnName The name of the current BindingSource Column
-	    @param pcFieldName The name (including buffer) of the current business entity field
-	    @param pcCustomControlName The name of the custom control as specified in the field properties in the Business Entity Designer
-	    @return The IControlGenerator instance for the current field or ? when the default control generator should be used
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC IControlGenerator GetControlGenerator (poViewerBuilder AS SmartViewerBuilder, 
+    /*------------------------------------------------------------------------------
+        Purpose: Generates and returns a ControlGenerator instance for a binding source field
+        Notes:   The SmartViewerBuilder will assign the following properties to the 
+                 ControlGenerator instance created from this factory: 
+                 DataBindings, Left, Name, ContainerControlGenerator, TabOrder, Top 
+        @param poViewerBuilder The reference to the viewer builder instance
+        @param pcColumnName The name of the current BindingSource Column
+        @param pcFieldName The name (including buffer) of the current business entity field
+        @param pcCustomControlName The name of the custom control as specified in the field properties in the Business Entity Designer
+        @return The IControlGenerator instance for the current field or ? when the default control generator should be used
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC IControlGenerator GetControlGenerator (poViewerBuilder AS SmartViewerBuilder, 
                                                          pcColumnName AS CHARACTER, 
                                                          pcFieldName AS CHARACTER,
                                                          pcCustomControlName AS CHARACTER).

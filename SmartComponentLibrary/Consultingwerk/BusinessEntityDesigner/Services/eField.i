@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2006-2015 by Consultingwerk Ltd. ("CW") -            *
+ * Copyright (C) 2006-2016 by Consultingwerk Ltd. ("CW") -            *
  * www.consultingwerk.de and other contributors as listed             *
  * below.  All Rights Reserved.                                       *
  *                                                                    *
@@ -8,23 +8,24 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : eField.i
-    Purpose     : 
+    Purpose     :
 
     Syntax      :
 
-    Description :  
+    Description :
 
-    Author(s)   : Mike Fechner / Consultingwerk Ltd.
-    Created     : 18.05.2015 21:00:42
+    Author(s)   : Marko Rüterbories / Consultingwerk Ltd.
+    Created     : 01.12.2016 14:24:54
     Notes       :
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
 
 @BusinessEntityGenerator (entityname="Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityBusinessEntity", type="TempTable") .
+@openapi.openedge.entity.primarykey (fields="TempTableName,FieldName").
 
 DEFINE {&ACCESS} TEMP-TABLE {&PREFIX}eField{&SUFFIX} NO-UNDO {&REFERENCE-ONLY} &IF DEFINED (NO-BEFORE) EQ 0 &THEN BEFORE-TABLE eFieldBefore{&SUFFIX} &ENDIF
     FIELD BusinessEntityName AS CHARACTER FORMAT "X(8)":U
@@ -50,10 +51,11 @@ DEFINE {&ACCESS} TEMP-TABLE {&PREFIX}eField{&SUFFIX} NO-UNDO {&REFERENCE-ONLY} &
     FIELD FieldCaseSensitive AS LOGICAL FORMAT "yes/no":U INIT "FALSE":U LABEL "Case Sensitive":T
     FIELD FieldCustomControlName AS CHARACTER FORMAT "X(80)":U LABEL "Field Custom Control Name":T
     FIELD FieldValidationInstance AS CLOB LABEL "Validation Instance":T
+    FIELD FieldSemanticType AS CHARACTER FORMAT "X(20)":U LABEL "Field Semantic Type":T
+    FIELD FieldSkipAssignment AS LOGICAL FORMAT "yes/no":U LABEL "Add field to AssignSkipDictionary":T
 
     INDEX FieldName AS UNIQUE PRIMARY TempTableName ASCENDING FieldName ASCENDING
     INDEX Order TempTableName ASCENDING FieldOrder ASCENDING
 
     .
 
-    

@@ -8,47 +8,48 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
  /*------------------------------------------------------------------------
     File        : DatabaseLoginPreferencesForm
     Purpose     : Allows to remove opt-out from DB Login
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sat Sep 20 09:29:56 CEST 2014
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 USING Consultingwerk.Forms.*                 FROM PROPATH .
-USING Consultingwerk.Windows.OpenEdgeLogin.* FROM PROPATH . 
+USING Consultingwerk.Util.*                  FROM PROPATH .
+USING Consultingwerk.Windows.OpenEdgeLogin.* FROM PROPATH .
 USING Progress.Lang.*                        FROM PROPATH .
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-CLASS Consultingwerk.BusinessEntityDesigner.UI.DatabaseLoginPreferencesForm INHERITS BaseForm: 
-	
+CLASS Consultingwerk.BusinessEntityDesigner.UI.DatabaseLoginPreferencesForm INHERITS BaseForm:
+
     DEFINE PRIVATE VARIABLE btnRemove AS System.Windows.Forms.Button NO-UNDO.
     DEFINE PRIVATE VARIABLE btnClose AS System.Windows.Forms.Button NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE panel1 AS System.Windows.Forms.Panel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraLabel1 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraListView1 AS Infragistics.Win.UltraWinListView.UltraListView NO-UNDO.
 
     DEFINE VARIABLE oOptOutService AS IDatabaseLoginPreferences                              NO-UNDO .
 
-		
+
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the DatabaseLoginPreferencesForm class
         Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC DatabaseLoginPreferencesForm ():
-		
+    CONSTRUCTOR PUBLIC DatabaseLoginPreferencesForm ():
+
         SUPER().
 
         InitializeComponent().
 
-        ASSIGN btnRemove:Enabled = FALSE .  
-        
+        ASSIGN btnRemove:Enabled = FALSE .
+
         ultraListView1:Items:Clear () .
 
         oOptOutService = {Consultingwerk/get-service.i Consultingwerk.Windows.OpenEdgeLogin.IDatabaseLoginPreferences
@@ -62,49 +63,62 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.DatabaseLoginPreferencesForm INHE
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Event handler for the Click event of the btnClose
-	    Notes:
-	    @param sender The reference to the object that raised the event
-	    @param e The System.EventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID btnClose_Click (sender AS System.Object,   
-	                                    e AS System.EventArgs):
-		
-		THIS-OBJECT:Close () .
-
-	END METHOD.
-
-	/*------------------------------------------------------------------------------
+    /*------------------------------------------------------------------------------
         Purpose: Event handler for the Click event of the btnClose
         Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID btnRemove_Click (sender AS System.Object, e AS System.EventArgs):
-		
-		DEFINE VARIABLE cValue AS CHARACTER NO-UNDO.
-		
-		{Consultingwerk/foreach.i Infragistics.Win.UltraWinListView.UltraListViewItem oItem in ultraListView1:SelectedItems}
-		
-		    cValue = UNBOX (oItem:Value) . 
-		
-            oOptOutService:OptIn (cValue) .		
-		END.
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID btnClose_Click (sender AS System.Object,
+                                        e AS System.EventArgs):
+
+        THIS-OBJECT:Close () .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the Click event of the btnClose
+        Notes:
+        @param sender The reference to the object that raised the event
+        @param e The System.EventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID btnRemove_Click (sender AS System.Object, e AS System.EventArgs):
+
+        DEFINE VARIABLE cValue AS CHARACTER NO-UNDO.
+
+        {Consultingwerk/foreach.i Infragistics.Win.UltraWinListView.UltraListViewItem oItem in ultraListView1:SelectedItems}
+
+            cValue = UNBOX (oItem:Value) .
+
+            oOptOutService:OptIn (cValue) .
+        END.
 
         THIS-OBJECT:RefreshListItems() .
 
-	END METHOD.
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
 
-	METHOD PRIVATE VOID InitializeComponent(  ):
-		
+    END METHOD.
+
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE ultraListViewItem1 AS Infragistics.Win.UltraWinListView.UltraListViewItem NO-UNDO.
@@ -218,63 +232,67 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.DatabaseLoginPreferencesForm INHE
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD.
+    END METHOD.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Raises the Shown event
-	    Notes:
-	    @param e The System.EventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
-		
-		SUPER:OnShown (e) . 
-		
-		THIS-OBJECT:RefreshListItems () . 
+    /*------------------------------------------------------------------------------
+        Purpose: Raises the Shown event
+        Notes:
+        @param e The System.EventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
 
-	END METHOD.
+        SUPER:OnShown (e) .
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Refreshes the List Items
-	    Notes:
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID RefreshListItems ():
-		
-		DEFINE VARIABLE oList AS Consultingwerk.Framework.Collections.CharacterList NO-UNDO . 
-		
-		ultraListView1:Items:Clear () .
-		
-		oList = oOptOutService:GetAllOptOutedDbParam() .
-		
-		{Consultingwerk/foreachPrimitiveList.i Character cDbParam in oList}
+        THIS-OBJECT:RefreshListItems () .
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Refreshes the List Items
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID RefreshListItems ():
+
+        DEFINE VARIABLE oList AS Consultingwerk.Framework.Collections.CharacterList NO-UNDO .
+
+        ultraListView1:Items:Clear () .
+
+        oList = oOptOutService:GetAllOptOutedDbParam() .
+
+        {Consultingwerk/foreachPrimitiveList.i Character cDbParam in oList}
 
             ultraListView1:Items:Add (GUID, BOX (cDbParam)) .
-		
-		END.
 
-	END METHOD.
+        END.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Event handler for the ItemSelectionChanged event of the ultraListView1
-	    Notes:
-	    @param sender The reference to the object that raised the event
-	    @param e The ItemSelectionChangedEventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraListView1_ItemSelectionChanged (sender AS System.Object, 
-	                                                         e AS Infragistics.Win.UltraWinListView.ItemSelectionChangedEventArgs):
-		
-		IF ultraListView1:SelectedItems:Count > 0 THEN 
-		    btnRemove:Enabled = TRUE . 
-        ELSE 
-            btnRemove:Enabled = FALSE .  
+    END METHOD.
 
-	END METHOD.
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the ItemSelectionChanged event of the ultraListView1
+        Notes:
+        @param sender The reference to the object that raised the event
+        @param e The ItemSelectionChangedEventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID ultraListView1_ItemSelectionChanged (sender AS System.Object,
+                                                             e AS Infragistics.Win.UltraWinListView.ItemSelectionChangedEventArgs):
+
+        IF ultraListView1:SelectedItems:Count > 0 THEN
+            btnRemove:Enabled = TRUE .
+        ELSE
+            btnRemove:Enabled = FALSE .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Destructor for the DatabaseLoginPreferencesForm class
         Notes:
     ------------------------------------------------------------------------------*/
-	DESTRUCTOR PUBLIC DatabaseLoginPreferencesForm ( ):
+    DESTRUCTOR PUBLIC DatabaseLoginPreferencesForm ( ):
 
-	END DESTRUCTOR.
+    END DESTRUCTOR.
 
 END CLASS.

@@ -8,15 +8,15 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/  
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : ErrorMessageForm
     Purpose     : Default Error Message Form
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Thu Jul 16 16:01:51 CEST 2009
-    Notes       : Implements Consultingwerk.Util.Forms.IErrorMessageForm 
+    Notes       : Implements Consultingwerk.Util.Forms.IErrorMessageForm
                   and ISupportsInnerExceptionDisplay
   ----------------------------------------------------------------------*/
 
@@ -24,17 +24,17 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.Framework.*          FROM PROPATH .
 USING Consultingwerk.Util.*               FROM PROPATH.
-USING Consultingwerk.Util.Forms.*         FROM PROPATH . 
-USING Consultingwerk.Windows.Util.Forms.* FROM PROPATH . 
+USING Consultingwerk.Util.Forms.*         FROM PROPATH .
+USING Consultingwerk.Windows.Util.Forms.* FROM PROPATH .
 USING Progress.Lang.*                     FROM ASSEMBLY .
 USING Progress.Windows.Form               FROM ASSEMBLY .
 USING System.Windows.Forms.*              FROM ASSEMBLY .
 
 {Consultingwerk/products.i}
 
-CLASS Consultingwerk.Windows.Util.Forms.ErrorMessageForm INHERITS Form 
-    IMPLEMENTS IErrorMessageForm, ISupportsInnerExceptionDisplay, ISupportsExceptionDisplay: 
-    
+CLASS Consultingwerk.Windows.Util.Forms.ErrorMessageForm INHERITS Form
+    IMPLEMENTS IErrorMessageForm, ISupportsInnerExceptionDisplay, ISupportsExceptionDisplay:
+
     DEFINE PRIVATE VARIABLE btnInnerException AS System.Windows.Forms.Button NO-UNDO.
     DEFINE PRIVATE VARIABLE btnProperties AS System.Windows.Forms.Button NO-UNDO.
     DEFINE PRIVATE VARIABLE btnSessionInfo AS System.Windows.Forms.Button NO-UNDO.
@@ -54,173 +54,189 @@ CLASS Consultingwerk.Windows.Util.Forms.ErrorMessageForm INHERITS Form
 
     DEFINE PRIVATE VARIABLE lDisplayStack AS LOGICAL             NO-UNDO INIT TRUE .
     DEFINE PRIVATE VARIABLE oPreviousSize AS System.Drawing.Size NO-UNDO .
-            
-    DEFINE VARIABLE oFullWindowDragManager          AS FullWindowDragManager           NO-UNDO EXTENT 3 .              
-    DEFINE VARIABLE oErrorMessageFormButtonProvider AS IErrorMessageFormButtonProvider NO-UNDO .            
-                
+
+    DEFINE VARIABLE oFullWindowDragManager          AS FullWindowDragManager           NO-UNDO EXTENT 3 .
+    DEFINE VARIABLE oErrorMessageFormButtonProvider AS IErrorMessageFormButtonProvider NO-UNDO .
+
     /*------------------------------------------------------------------------------
-        Purpose: Get's and sets if the stack trace of the error should be opened or not                                                                      
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/    
-    DEFINE PUBLIC PROPERTY DisplayStack AS LOGICAL NO-UNDO  
+        Purpose: Get's and sets if the stack trace of the error should be opened or not
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY DisplayStack AS LOGICAL NO-UNDO
     GET:
         RETURN lDisplayStack .
     END.
     SET (arg AS LOGICAL):
         /* Mike Fechner, Consultingwerk Ltd. 16.07.2009
-           Save size, when closing Stack trace */        
-        IF arg = FALSE AND lDisplayStack = TRUE THEN 
+           Save size, when closing Stack trace */
+        IF arg = FALSE AND lDisplayStack = TRUE THEN
             ASSIGN oPreviousSize = NEW System.Drawing.Size (THIS-OBJECT:Size:Width,
-                                                            THIS-OBJECT:Size:Height) .        
-        
-        ASSIGN lDisplayStack = arg . 
-        
-        IF arg = FALSE THEN DO: 
-            ASSIGN THIS-OBJECT:FormBorderStyle = FormBorderStyle:FixedDialog 
+                                                            THIS-OBJECT:Size:Height) .
+
+        ASSIGN lDisplayStack = arg .
+
+        IF arg = FALSE THEN DO:
+            ASSIGN THIS-OBJECT:FormBorderStyle = FormBorderStyle:FixedDialog
                    THIS-OBJECT:SizeGripStyle   = SizeGripStyle:HIDE
                    THIS-OBJECT:Size            = THIS-OBJECT:MinimumSize .
-        END. 
-        ELSE DO: 
-            ASSIGN THIS-OBJECT:FormBorderStyle = System.Windows.Forms.FormBorderStyle:Sizable 
-                   THIS-OBJECT:SizeGripStyle   = SizeGripStyle:Show 
+        END.
+        ELSE DO:
+            ASSIGN THIS-OBJECT:FormBorderStyle = System.Windows.Forms.FormBorderStyle:Sizable
+                   THIS-OBJECT:SizeGripStyle   = SizeGripStyle:Show
                    THIS-OBJECT:Size            = oPreviousSize.
-        END.  
-    END.    
-    
-    /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the refernece to the error object 
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Exception AS Progress.Lang.Error NO-UNDO 
-	GET.
-	SET. 
+        END.
+    END.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the reference to the inner error object                                                                      
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/    
-    DEFINE PUBLIC PROPERTY InnerException AS Progress.Lang.Error NO-UNDO 
+        Purpose: Gets and sets the refernece to the error object
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY Exception AS Progress.Lang.Error NO-UNDO
     GET.
-    SET.     
-    
+    SET.
+
     /*------------------------------------------------------------------------------
-        Purpose: Get's and sets the error message text                                                                      
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/    
-    DEFINE PUBLIC PROPERTY MessageText AS CHARACTER NO-UNDO 
+        Purpose: Gets and sets the reference to the inner error object
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY InnerException AS Progress.Lang.Error NO-UNDO
+    GET.
+    SET.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Get's and sets the error message text
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY MessageText AS CHARACTER NO-UNDO
     GET:
         RETURN THIS-OBJECT:textBox1:Text.
     END GET.
     SET (arg AS CHARACTER):
         THIS-OBJECT:textBox1:Text = REPLACE(arg, CHR(10), CHR(13) + CHR(10)) .
-    END SET.    
-    
+    END SET.
+
     /*------------------------------------------------------------------------------
-        Purpose: Get's and sets the error stack trace text                                                                      
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/    
-    DEFINE PUBLIC PROPERTY StackTraceText AS CHARACTER NO-UNDO 
+        Purpose: Get's and sets the error stack trace text
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY StackTraceText AS CHARACTER NO-UNDO
     GET:
         RETURN THIS-OBJECT:textBox2:Text .
     END GET.
     SET (arg AS CHARACTER):
         THIS-OBJECT:textBox2:Text = REPLACE(arg, CHR(10), CHR(13) + CHR(10)) .
     END SET.
-    
+
     DEFINE PRIVATE VARIABLE toolStripSeparator1 AS System.Windows.Forms.ToolStripSeparator NO-UNDO.
     DEFINE PRIVATE VARIABLE toolTip1 AS System.Windows.Forms.ToolTip NO-UNDO.
 
     DEFINE PRIVATE VARIABLE panel1 AS System.Windows.Forms.Panel NO-UNDO.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor of the ErrorMessageForm class                                                                       
-        Notes:                                                                        
+        Purpose: Constructor of the ErrorMessageForm class
+        Notes:
     ------------------------------------------------------------------------------*/
      CONSTRUCTOR PUBLIC ErrorMessageForm ():
-                
+
         SUPER().
         InitializeComponent().
 
         ASSIGN oPreviousSize = NEW System.Drawing.Size (THIS-OBJECT:Size:Width,
-                                                        THIS-OBJECT:Size:Height) .        
+                                                        THIS-OBJECT:Size:Height) .
 
-        ASSIGN oFullWindowDragManager[1] = NEW FullWindowDragManager (THIS-OBJECT) 
-               oFullWindowDragManager[2] = NEW FullWindowDragManager (THIS-OBJECT:panel1) 
+        ASSIGN oFullWindowDragManager[1] = NEW FullWindowDragManager (THIS-OBJECT)
+               oFullWindowDragManager[2] = NEW FullWindowDragManager (THIS-OBJECT:panel1)
                oFullWindowDragManager[3] = NEW FullWindowDragManager (THIS-OBJECT:pictureBox1) .
-        
+
         oErrorMessageFormButtonProvider = {Consultingwerk/get-service.i Consultingwerk.Windows.Util.Forms.IErrorMessageFormButtonProvider} .
-        
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
     END CONSTRUCTOR.
-    
+
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the click event of the btnInnerException                                                                         
-        Notes:                                                             
+        Purpose: Event handler for the click event of the btnInnerException
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event           
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID btnInnerException_Click (sender AS System.Object, 
+    METHOD PRIVATE VOID btnInnerException_Click (sender AS System.Object,
                                                  e AS System.EventArgs):
-        
-        IF VALID-OBJECT (THIS-OBJECT:InnerException) THEN 
+
+        IF VALID-OBJECT (THIS-OBJECT:InnerException) THEN
             Consultingwerk.Util.ErrorHelper:ShowErrorMessage (THIS-OBJECT:InnerException) .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
 
     END METHOD.
 
-	/*------------------------------------------------------------------------------
+    /*------------------------------------------------------------------------------
         Purpose: Event handler for the Click event of the btnProperties
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event           
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID btnProperties_Click (sender AS System.Object, e AS System.EventArgs ):
-		
-		&IF DEFINED (AblReflection) NE 0 &THEN
-		ProgressLangObjectPropertiesForm:DisplayPropertiesOfObject (THIS-OBJECT:Exception) .
-		&ENDIF
+        @param e The System.EventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID btnProperties_Click (sender AS System.Object, e AS System.EventArgs ):
 
-	END METHOD.
+        &IF DEFINED (AblReflection) NE 0 &THEN
+        ProgressLangObjectPropertiesForm:DisplayPropertiesOfObject (THIS-OBJECT:Exception) .
+        &ENDIF
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the Click event of the btnSessionInfo
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event           
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID btnSessionInfo_Click (sender AS System.Object, 
-	                                          e AS System.EventArgs):
-		
-		Consultingwerk.Windows.Session.SessionInfoForm:ShowSessionInformation() .
+    METHOD PRIVATE VOID btnSessionInfo_Click (sender AS System.Object,
+                                              e AS System.EventArgs):
 
-	END METHOD .
+        Consultingwerk.Windows.Session.SessionInfoForm:ShowSessionInformation() .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the click event of the btnInnerException                                                                         
-        Notes:   Toggles display of the stack trace                                                                        
+        Purpose: Event handler for the click event of the btnInnerException
+        Notes:   Toggles display of the stack trace
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event           
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PRIVATE VOID btnStack_Click( INPUT sender AS System.Object, INPUT e AS System.EventArgs ):
-        
+
         THIS-OBJECT:DisplayStack = NOT THIS-OBJECT:DisplayStack .
-        
+
         THIS-OBJECT:ToggleButtonState (THIS-OBJECT:DisplayStack) .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Copy's the message dialog as an image to the clipboard
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID CopyImage ():
-        
+
         DEFINE VARIABLE oBitmap AS System.Drawing.Bitmap NO-UNDO .
-        
+
         oBitmap = NEW System.Drawing.Bitmap (THIS-OBJECT:Width, THIS-OBJECT:Height) .
-        
+
         THIS-OBJECT:DrawToBitmap (oBitmap, NEW System.Drawing.Rectangle (0, 0, THIS-OBJECT:Width, THIS-OBJECT:Height)) .
 
         System.Windows.Forms.Clipboard:SetImage (oBitmap) .
@@ -228,96 +244,109 @@ CLASS Consultingwerk.Windows.Util.Forms.ErrorMessageForm INHERITS Form
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Copies the Dialog Box contents as plain text 
-        Notes:   
+        Purpose: Copies the Dialog Box contents as plain text
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID CopyText ():
-        
-        IF THIS-OBJECT:DisplayStack THEN  
-            System.Windows.Forms.Clipboard:SetText (SUBSTITUTE ("&1&2&2Call Stack:&2&3&2&2":U, 
+
+        IF THIS-OBJECT:DisplayStack THEN
+            System.Windows.Forms.Clipboard:SetText (SUBSTITUTE ("&1&2&2Call Stack:&2&3&2&2":U,
                                                                 THIS-OBJECT:MessageText,
                                                                 System.Environment:NewLine,
-                                                                THIS-OBJECT:StackTraceText)) . 
-        ELSE 
-            System.Windows.Forms.Clipboard:SetText (SUBSTITUTE ("&1&2":U, 
+                                                                THIS-OBJECT:StackTraceText)) .
+        ELSE
+            System.Windows.Forms.Clipboard:SetText (SUBSTITUTE ("&1&2":U,
                                                                 THIS-OBJECT:MessageText,
-                                                                System.Environment:NewLine)) . 
-        
-    END METHOD .
-
-    /*------------------------------------------------------------------------------
-        Purpose: Event Handler for the click event of the copyTextToolStripMenuItem 
-        Notes:   
-        @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event           
-    ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID copyTextToolStripMenuItem_Click (sender AS System.Object, 
-                                                         e AS System.EventArgs):
-        
-        THIS-OBJECT:CopyText () .
+                                                                System.Environment:NewLine)) .
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event Handler for the click event of the copyImageToolStripMenuItem 
-        Notes:   
-        @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event           
-    ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID copyImageToolStripMenuItem_Click (INPUT sender AS System.Object, INPUT e AS System.EventArgs):
-        
-        THIS-OBJECT:CopyImage () .
-
-    END METHOD .
-
-    /*------------------------------------------------------------------------------
-        Purpose: Event handler for the click event of custom buttons 
-        Notes:   
-        @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data to this event
-    ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID CustomButtonClickHandler (sender AS System.Object,
-	                                                e AS System.EventArgs):
-		
-		IF oErrorMessageFormButtonProvider:HandleButtonClick (CAST (sender, System.Windows.Forms.Button), 
-		                                                      THIS-OBJECT:Exception) = TRUE THEN 
-            THIS-OBJECT:Close () .
-
-	END METHOD .
-
-    /*------------------------------------------------------------------------------
-        Purpose: Event handler for the Click event of the detailsToolStripMenuItem  
-        Notes:   
+        Purpose: Event Handler for the click event of the copyTextToolStripMenuItem
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID detailsToolStripMenuItem_Click (sender AS System.Object, 
-                                                        e AS System.EventArgs):
-		
-		DEFINE VARIABLE oForm AS ErrorMessageDetailForm NO-UNDO . 
-		
-		oForm = NEW ErrorMessageDetailForm () . 
-		
-		oForm:DisplayErrorDetails (CAST (THIS-OBJECT:Exception, 
-		                                 Progress.Lang.SysError)) . 
+    METHOD PRIVATE VOID copyTextToolStripMenuItem_Click (sender AS System.Object,
+                                                         e AS System.EventArgs):
 
-        CATCH err AS Progress.Lang.Error :
-        	Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .	
+        THIS-OBJECT:CopyText () .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
         END CATCH.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
+        Purpose: Event Handler for the click event of the copyImageToolStripMenuItem
+        Notes:
+        @param sender The reference to the object that raised the event
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID copyImageToolStripMenuItem_Click (INPUT sender AS System.Object, INPUT e AS System.EventArgs):
+
+        THIS-OBJECT:CopyImage () .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the click event of custom buttons
+        Notes:
+        @param sender The reference to the object that raised the event
+        @param e The System.EventArgs with the data to this event
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID CustomButtonClickHandler (sender AS System.Object,
+                                                    e AS System.EventArgs):
+
+        IF oErrorMessageFormButtonProvider:HandleButtonClick (CAST (sender, System.Windows.Forms.Button),
+                                                              THIS-OBJECT:Exception) = TRUE THEN
+            THIS-OBJECT:Close () .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the Click event of the detailsToolStripMenuItem
+        Notes:
+        @param sender The reference to the object that raised the event
+        @param e The System.EventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID detailsToolStripMenuItem_Click (sender AS System.Object,
+                                                        e AS System.EventArgs):
+
+        DEFINE VARIABLE oForm AS ErrorMessageDetailForm NO-UNDO .
+
+        oForm = NEW ErrorMessageDetailForm () .
+
+        oForm:DisplayErrorDetails (CAST (THIS-OBJECT:Exception,
+                                         Progress.Lang.SysError)) .
+
+        CATCH err AS Progress.Lang.Error :
+            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
+    END METHOD .
+
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -459,7 +488,7 @@ CLASS Consultingwerk.Windows.Util.Forms.ErrorMessageForm INHERITS Form
         THIS-OBJECT:btnProperties:Name = "btnProperties":U.
         THIS-OBJECT:btnProperties:Size = NEW System.Drawing.Size(24, 24).
         THIS-OBJECT:btnProperties:TabIndex = 8.
-        THIS-OBJECT:toolTip1:SetToolTip(THIS-OBJECT:btnProperties, "Shows Information about the OpenEdge session":U).
+        THIS-OBJECT:toolTip1:SetToolTip(THIS-OBJECT:btnProperties, "Shows Properties of the Error object":U).
         THIS-OBJECT:btnProperties:UseCompatibleTextRendering = TRUE.
         THIS-OBJECT:btnProperties:UseVisualStyleBackColor = TRUE.
         THIS-OBJECT:btnProperties:Click:Subscribe(THIS-OBJECT:btnProperties_Click).
@@ -574,53 +603,57 @@ CLASS Consultingwerk.Windows.Util.Forms.ErrorMessageForm INHERITS Form
             UNDO, THROW e.
         END CATCH.
     END METHOD.
-    
+
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the KeyDown event of the MessageForm
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The KeyEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PRIVATE VOID KeyDownHandler (sender AS System.Object, e AS System.Windows.Forms.KeyEventArgs):
-        
+
         IF Progress.Util.EnumHelper:AreEqual (e:KeyCode,
-                                              System.Windows.Forms.Keys:Escape) THEN 
+                                              System.Windows.Forms.Keys:Escape) THEN
             THIS-OBJECT:Close () .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the Load event                                                                       
-        Notes:      
-        @param e An EventArgs that contains the event data                                                                  
+        Purpose: Raises the Load event
+        Notes:
+        @param e An EventArgs that contains the event data
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
-        
-        DEFINE VARIABLE oTextSize    AS System.Drawing.Size NO-UNDO . 
+
+        DEFINE VARIABLE oTextSize    AS System.Drawing.Size NO-UNDO .
         DEFINE VARIABLE iDeltaHeight AS INTEGER             NO-UNDO .
         DEFINE VARIABLE iIndex       AS INTEGER             NO-UNDO .
         DEFINE VARIABLE cMessageText AS CHARACTER           NO-UNDO .
-        
+
         ASSIGN iIndex = INDEX (THIS-OBJECT:MessageText, "Backend-Stacktrace:":U) .
 
         IF iIndex > 0 THEN
             ASSIGN cMessageText               = REPLACE (THIS-OBJECT:MessageText, CHR(13) + CHR (10), CHR(10))
-                   iIndex                     = INDEX (cMessageText, "Backend-Stacktrace:":U) 
+                   iIndex                     = INDEX (cMessageText, "Backend-Stacktrace:":U)
                    THIS-OBJECT:StackTraceText = SUBSTITUTE ("&1~n~n&2":U,
                                                             SUBSTRING (cMessageText, iIndex),
                                                             THIS-OBJECT:StackTraceText,
                                                             CHR(13) + CHR(10))
                    THIS-OBJECT:MessageText    = TRIM (SUBSTRING (cMessageText, 1, iIndex - 1),
                                                       CHR (13) + CHR (10)).
-                        
-        IF THIS-OBJECT:StackTraceText = "Stacktrace not provided (-errorstack missing).":U THEN 
-            THIS-OBJECT:DisplayStack = FALSE . 
-        ELSE 
-            THIS-OBJECT:DisplayStack = FrameworkSettings:DebugMode . 
+
+        IF THIS-OBJECT:StackTraceText = "Stacktrace not provided (-errorstack missing).":U THEN
+            THIS-OBJECT:DisplayStack = FALSE .
+        ELSE
+            THIS-OBJECT:DisplayStack = FrameworkSettings:DebugMode .
 
         THIS-OBJECT:ToggleButtonState (THIS-OBJECT:DisplayStack) .
 
-        oTextSize = System.Windows.Forms.TextRenderer:MeasureText (THIS-OBJECT:MessageText,
+        oTextSize = System.Windows.Forms.TextRenderer:MeasureText (REPLACE (THIS-OBJECT:MessageText, CHR(13), "":U) + CHR(10),
                                                                    THIS-OBJECT:textBox1:Font,
                                                                    NEW System.Drawing.Size (THIS-OBJECT:textBox1:Width,
                                                                                             THIS-OBJECT:textBox1:Height),
@@ -649,107 +682,107 @@ CLASS Consultingwerk.Windows.Util.Forms.ErrorMessageForm INHERITS Form
         textBox1:Height = textBox1:HEIGHT + iDeltaHeight .
 
         THIS-OBJECT:MinimumSize = NEW System.Drawing.Size (THIS-OBJECT:Width, THIS-OBJECT:MinimumSize:Height + iDeltaHeight) .
-        
+
         SUPER:OnLoad (e) .
 
         THIS-OBJECT:btnInnerException:Visible = VALID-OBJECT (THIS-OBJECT:InnerException) .
 
 &IF DEFINED (AblReflection) EQ 0 &THEN
         DEFINE VARIABLE iDelta AS INTEGER NO-UNDO .
-        
+
         iDelta = btnProperties:Left - THIS-OBJECT:btnInnerException:Left .
-        
+
         ASSIGN btnInnerException:Left = btnInnerException:Left + iDelta
-               btnSessionInfo:Left    = btnSessionInfo:LEFT + iDelta 
-               btnProperties:Visible  = FALSE .            
+               btnSessionInfo:Left    = btnSessionInfo:LEFT + iDelta
+               btnProperties:Visible  = FALSE .
 &ENDIF
 
-        IF NOT THIS-OBJECT:btnInnerException:Visible THEN 
-            THIS-OBJECT:btnSessionInfo:Location = THIS-OBJECT:btnInnerException:Location. 
+        IF NOT THIS-OBJECT:btnInnerException:Visible THEN
+            THIS-OBJECT:btnSessionInfo:Location = THIS-OBJECT:btnInnerException:Location.
 
-        IF VALID-OBJECT (oErrorMessageFormButtonProvider) THEN 
+        IF VALID-OBJECT (oErrorMessageFormButtonProvider) THEN
             THIS-OBJECT:RenderCustomButtons () .
 
-        IF VALID-OBJECT (THIS-OBJECT:Exception) AND TYPE-OF (THIS-OBJECT:Exception, 
-                                                             Progress.Lang.SysError) AND 
-           VALID-OBJECT ({Consultingwerk/get-service.i Consultingwerk.SmartFramework.IMessageProvider}) THEN 
-           
-            ASSIGN THIS-OBJECT:detailsToolStripMenuItem:Visible = TRUE 
-                   THIS-OBJECT:toolStripSeparator1:Visible      = TRUE . 
-        ELSE 
-            ASSIGN THIS-OBJECT:detailsToolStripMenuItem:Visible = FALSE 
-                   THIS-OBJECT:toolStripSeparator1:Visible      = FALSE . 
+        IF VALID-OBJECT (THIS-OBJECT:Exception) AND TYPE-OF (THIS-OBJECT:Exception,
+                                                             Progress.Lang.SysError) AND
+           VALID-OBJECT ({Consultingwerk/get-service.i Consultingwerk.SmartFramework.IMessageProvider}) THEN
+
+            ASSIGN THIS-OBJECT:detailsToolStripMenuItem:Visible = TRUE
+                   THIS-OBJECT:toolStripSeparator1:Visible      = TRUE .
+        ELSE
+            ASSIGN THIS-OBJECT:detailsToolStripMenuItem:Visible = FALSE
+                   THIS-OBJECT:toolStripSeparator1:Visible      = FALSE .
 
         /* Mike Fechner, Consultingwerk Ltd. 02.09.2014
            SCL-418 - ability to use the MessageFormImage:Error for the ErrorMessageForm as well */
-        IF VALID-OBJECT (MessageFormImages:ImageError) THEN 
-            THIS-OBJECT:pictureBox1:Image = MessageFormImages:ImageError . 
+        IF VALID-OBJECT (MessageFormImages:ImageError) THEN
+            THIS-OBJECT:pictureBox1:Image = MessageFormImages:ImageError .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Renders buttons provided by the IErrorMessageFormButtonProvider 
-        Notes:   
+        Purpose: Renders buttons provided by the IErrorMessageFormButtonProvider
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID RenderCustomButtons ():
-		
-		DEFINE VARIABLE oList     AS "System.Collections.Generic.List<System.Windows.Forms.Button>" NO-UNDO .
+    METHOD PROTECTED VOID RenderCustomButtons ():
+
+        DEFINE VARIABLE oList     AS "System.Collections.Generic.List<System.Windows.Forms.Button>" NO-UNDO .
         DEFINE VARIABLE iPosition AS INTEGER                                                        NO-UNDO .
-        
+
         oList = oErrorMessageFormButtonProvider:GetButtonsForError (THIS-OBJECT:Exception) .
 
-        ASSIGN iPosition = THIS-OBJECT:btnSessionInfo:Left + 
-                           THIS-OBJECT:btnSessionInfo:Width + 6 .   
+        ASSIGN iPosition = THIS-OBJECT:btnSessionInfo:Left +
+                           THIS-OBJECT:btnSessionInfo:Width + 6 .
 
         {Consultingwerk/foreach.i System.Windows.Forms.Button oButton in oList}
-        
+
             oButton:Height = THIS-OBJECT:btnSessionInfo:Height.
             oButton:Location = NEW System.Drawing.Point (iPosition, THIS-OBJECT:btnSessionInfo:Top) .
             oButton:Anchor = CAST (Progress.Util.EnumHelper:Add (System.Windows.Forms.AnchorStyles:Left,
                                                                  System.Windows.Forms.AnchorStyles:Bottom),
                                    System.Windows.Forms.AnchorStyles) .
-        
+
             oButton:Click:Subscribe (CustomButtonClickHandler) .
-        
+
             THIS-OBJECT:Controls:Add (oButton) .
-                
-            ASSIGN iPosition = oButton:Left + 
-                               oButton:Width + 6 .   
-                
+
+            ASSIGN iPosition = oButton:Left +
+                               oButton:Width + 6 .
+
         END.
 
         /* Mike Fechner, Consultingwerk Ltd. 13.10.2014
-           Don't display errors using ErrorHelper:ShowErrorMessage to 
+           Don't display errors using ErrorHelper:ShowErrorMessage to
            avoid errors raised from here to cause additional errors */
         CATCH err AS Progress.Lang.Error:
-        	MESSAGE ErrorHelper:FormattedErrorMessages (err)
-                VIEW-AS ALERT-BOX.	
+            MESSAGE ErrorHelper:FormattedErrorMessages (err)
+                VIEW-AS ALERT-BOX.
         END CATCH.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: toggles the image of the btnStack based on the state                                                                        
-        Notes:                                                       
-        @param plDisplayStack Logical value indicating if the stack trace is visible                 
+        Purpose: toggles the image of the btnStack based on the state
+        Notes:
+        @param plDisplayStack Logical value indicating if the stack trace is visible
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID ToggleButtonState (plDisplayStack AS LOGICAL):
-        
-        IF plDisplayStack THEN 
-            btnStack:IMAGE = imageList1:Images["arrow-up_16.gif":U] . 
-        ELSE 
+
+        IF plDisplayStack THEN
+            btnStack:IMAGE = imageList1:Images["arrow-up_16.gif":U] .
+        ELSE
             btnStack:IMAGE = imageList1:Images["arrow-down_16.gif":U] .
-        
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor of the ErrorMessageForm class                                                                      
-        Notes:                                                                        
+        Purpose: Destructor of the ErrorMessageForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC ErrorMessageForm ():
 
         /* Mike Fechner, Consultingwerk Ltd. 05.08.2014
-           SCL-392: Workaround to issue in OE11.4 with calling into 
+           SCL-392: Workaround to issue in OE11.4 with calling into
                     GarbageCollectorHelper:DeleteObject(Object[])  */
         Consultingwerk.Util.GarbageCollectorHelper:DeleteObject (oFullWindowDragManager[1]) .
         Consultingwerk.Util.GarbageCollectorHelper:DeleteObject (oFullWindowDragManager[2]) .

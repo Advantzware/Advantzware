@@ -119,4 +119,127 @@
   <metadata name="smartBusinessEntityBindingSource1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
+  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="eSmartKeyFieldAssignmentType_KeyFieldAssignmentKey_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"/>
+  <data name="eSmartKeyFieldAssignmentType_KeyFieldAssignmentKey_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>20, 24</value>
+  </data>
+  <data name="eSmartKeyFieldAssignmentType_KeyFieldAssignmentKey_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>27, 14</value>
+  </data>
+  <data name="eSmartKeyFieldAssignmentType_KeyFieldAssignmentKey_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="eSmartKeyFieldAssignmentType_KeyFieldAssignmentKey_Label.Text" xml:space="preserve">
+    <value>Key:</value>
+  </data>
+  <data name="&gt;&gt;eSmartKeyFieldAssignmentType_KeyFieldAssignmentKey_Label.Name" xml:space="preserve">
+    <value>eSmartKeyFieldAssignmentType_KeyFieldAssignmentKey_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartKeyFieldAssignmentType_KeyFieldAssignmentKey_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartKeyFieldAssignmentType_KeyFieldAssignmentKey_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartKeyFieldAssignmentType_KeyFieldAssignmentKey_Label.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="eSmartKeyFieldAssignmentType_KeyFieldAssignmentKey.Location" type="System.Drawing.Point, System.Drawing">
+    <value>130, 20</value>
+  </data>
+  <data name="eSmartKeyFieldAssignmentType_KeyFieldAssignmentKey.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 21</value>
+  </data>
+  <data name="eSmartKeyFieldAssignmentType_KeyFieldAssignmentKey.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="&gt;&gt;eSmartKeyFieldAssignmentType_KeyFieldAssignmentKey.Name" xml:space="preserve">
+    <value>eSmartKeyFieldAssignmentType_KeyFieldAssignmentKey</value>
+  </data>
+  <data name="&gt;&gt;eSmartKeyFieldAssignmentType_KeyFieldAssignmentKey.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartKeyFieldAssignmentType_KeyFieldAssignmentKey.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartKeyFieldAssignmentType_KeyFieldAssignmentKey.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="eSmartKeyFieldAssignmentType_KeyFieldAssignmentDescription_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartKeyFieldAssignmentType_KeyFieldAssignmentDescription_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>20, 50</value>
+  </data>
+  <data name="eSmartKeyFieldAssignmentType_KeyFieldAssignmentDescription_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>64, 14</value>
+  </data>
+  <data name="eSmartKeyFieldAssignmentType_KeyFieldAssignmentDescription_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="eSmartKeyFieldAssignmentType_KeyFieldAssignmentDescription_Label.Text" xml:space="preserve">
+    <value>Description:</value>
+  </data>
+  <data name="&gt;&gt;eSmartKeyFieldAssignmentType_KeyFieldAssignmentDescription_Label.Name" xml:space="preserve">
+    <value>eSmartKeyFieldAssignmentType_KeyFieldAssignmentDescription_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartKeyFieldAssignmentType_KeyFieldAssignmentDescription_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartKeyFieldAssignmentType_KeyFieldAssignmentDescription_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartKeyFieldAssignmentType_KeyFieldAssignmentDescription_Label.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="eSmartKeyFieldAssignmentType_KeyFieldAssignmentDescription.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Bottom, Left, Right</value>
+  </data>
+  <data name="eSmartKeyFieldAssignmentType_KeyFieldAssignmentDescription.Location" type="System.Drawing.Point, System.Drawing">
+    <value>130, 46</value>
+  </data>
+  <data name="eSmartKeyFieldAssignmentType_KeyFieldAssignmentDescription.Multiline" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartKeyFieldAssignmentType_KeyFieldAssignmentDescription.Size" type="System.Drawing.Size, System.Drawing">
+    <value>167, 251</value>
+  </data>
+  <data name="eSmartKeyFieldAssignmentType_KeyFieldAssignmentDescription.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="&gt;&gt;eSmartKeyFieldAssignmentType_KeyFieldAssignmentDescription.Name" xml:space="preserve">
+    <value>eSmartKeyFieldAssignmentType_KeyFieldAssignmentDescription</value>
+  </data>
+  <data name="&gt;&gt;eSmartKeyFieldAssignmentType_KeyFieldAssignmentDescription.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartKeyFieldAssignmentType_KeyFieldAssignmentDescription.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartKeyFieldAssignmentType_KeyFieldAssignmentDescription.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing">
+    <value>6, 13</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1.Name" xml:space="preserve">
+    <value>smartBusinessEntityBindingSource1</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;$this.Name" xml:space="preserve">
+    <value>SmartKeyFieldAssignmentTypeViewerControl</value>
+  </data>
+  <data name="&gt;&gt;$this.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Base.SmartViewerControl, OEProxyAssembly, Version=11.6.0.1, Culture=neutral, PublicKeyToken=null</value>
+  </data>
 </root>

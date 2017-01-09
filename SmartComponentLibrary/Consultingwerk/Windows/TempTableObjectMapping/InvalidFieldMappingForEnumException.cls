@@ -49,9 +49,9 @@ CLASS Consultingwerk.Windows.TempTableObjectMapping.InvalidFieldMappingForEnumEx
        Purpose: Returns the name of the property that caused the issue
        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY PropertyName AS CHARACTER NO-UNDO 
-	GET.
-	PRIVATE SET. 
+    DEFINE PUBLIC PROPERTY PropertyName AS CHARACTER NO-UNDO 
+    GET.
+    PRIVATE SET. 
 
     /*------------------------------------------------------------------------------
        Purpose: Returns the name of the System.Type that caused the issue
@@ -70,19 +70,19 @@ CLASS Consultingwerk.Windows.TempTableObjectMapping.InvalidFieldMappingForEnumEx
        @param pcFieldName The name of the buffer field 
        @param pcFieldType The data type of the buffer field
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC InvalidFieldMappingForEnumException (pcErrorMessage AS CHARACTER,
-         	                                                pcPropertyName AS CHARACTER,
-         	                                                pcTypeName AS CHARACTER,
-         	                                                pcFieldName AS CHARACTER,
-         	                                                pcFieldType AS CHARACTER):
-		
-		SUPER (pcErrorMessage, 0).
-		
-		ASSIGN THIS-OBJECT:PropertyName = pcPropertyName
-		       THIS-OBJECT:TypeName     = pcTypeName
-		       THIS-OBJECT:FieldName    = pcFieldName 
-		       THIS-OBJECT:FieldType    = pcFieldType .
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC InvalidFieldMappingForEnumException (pcErrorMessage AS CHARACTER,
+                                                             pcPropertyName AS CHARACTER,
+                                                             pcTypeName AS CHARACTER,
+                                                             pcFieldName AS CHARACTER,
+                                                             pcFieldType AS CHARACTER):
+        
+        SUPER (pcErrorMessage, 0).
+        
+        ASSIGN THIS-OBJECT:PropertyName = pcPropertyName
+               THIS-OBJECT:TypeName     = pcTypeName
+               THIS-OBJECT:FieldName    = pcFieldName 
+               THIS-OBJECT:FieldType    = pcFieldType .
+        
+    END CONSTRUCTOR.
 
 END CLASS.

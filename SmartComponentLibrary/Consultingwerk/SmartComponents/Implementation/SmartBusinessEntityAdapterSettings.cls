@@ -32,10 +32,10 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapterSe
         Purpose: Private constructor for the SmartBusinessEntityAdapterSettings class
         Notes:   Disallow instance creation
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PRIVATE SmartBusinessEntityAdapterSettings ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PRIVATE SmartBusinessEntityAdapterSettings ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Locates the SmartBusinessEntityAdapter instance that is working
@@ -66,34 +66,34 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapterSe
 
     END METHOD.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Returns the SmartBusinessEntityAdapter that is the SmartDataSource 
-	             of a SmartDataTarget
-	    Notes:   When the given SmartDataTarget is linked to a different adpater type
-	             (e.g. SmartDatasetChildAdapter) the actual SmartBusinessEntityAdapter
-	             that is the data source to this data target is retrieved
-	    @param poDataTarget The SmartDataTarget for which the Adapter is to be retrieve
-	    @return The reference to the SmartBusinessEntityAdapter being the ultimate data source
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC SmartBusinessEntityAdapter FromSmartDataTarget (poDataTarget AS ISmartDataTarget):
-		
-		DEFINE VARIABLE oSource AS ISmartDataSource NO-UNDO . 
-		
-		oSource = poDataTarget:SmartDataSource .
-		
-		DO WHILE VALID-OBJECT (oSource):
-		    
-		    IF TYPE-OF (oSource, SmartBusinessEntityAdapter) THEN 
-		        RETURN CAST (oSource, SmartBusinessEntityAdapter) .
-		    
-		    IF TYPE-OF (oSource, ISmartDataTarget) THEN 
-		        oSource = CAST (oSource, ISmartDataTarget):SmartDataSource . 
-		    ELSE 
-		        oSource = ? .
-		END.
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the SmartBusinessEntityAdapter that is the SmartDataSource 
+                 of a SmartDataTarget
+        Notes:   When the given SmartDataTarget is linked to a different adpater type
+                 (e.g. SmartDatasetChildAdapter) the actual SmartBusinessEntityAdapter
+                 that is the data source to this data target is retrieved
+        @param poDataTarget The SmartDataTarget for which the Adapter is to be retrieve
+        @return The reference to the SmartBusinessEntityAdapter being the ultimate data source
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC STATIC SmartBusinessEntityAdapter FromSmartDataTarget (poDataTarget AS ISmartDataTarget):
+        
+        DEFINE VARIABLE oSource AS ISmartDataSource NO-UNDO . 
+        
+        oSource = poDataTarget:SmartDataSource .
+        
+        DO WHILE VALID-OBJECT (oSource):
+            
+            IF TYPE-OF (oSource, SmartBusinessEntityAdapter) THEN 
+                RETURN CAST (oSource, SmartBusinessEntityAdapter) .
+            
+            IF TYPE-OF (oSource, ISmartDataTarget) THEN 
+                oSource = CAST (oSource, ISmartDataTarget):SmartDataSource . 
+            ELSE 
+                oSource = ? .
+        END.
 
         RETURN ? . 
 
-	END METHOD.
+    END METHOD.
 
 END CLASS.

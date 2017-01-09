@@ -50,9 +50,9 @@ MESSAGE "Source Directory:":U cSourceDir .
 
 oParameter = NEW Consultingwerk.Studio.SmartDox.ParameterCommentValidatorParameter ().
 
-FILE-INFO:FILE-NAME = cSourceDir .
-IF FILE-INFO:FULL-PATHNAME > "":U THEN 
-    ASSIGN oParameter:SourceDir = FILE-INFO:FULL-PATHNAME .
+FILE-INFORMATION:FILE-NAME = cSourceDir .
+IF FILE-INFORMATION:FULL-PATHNAME > "":U THEN 
+    ASSIGN oParameter:SourceDir = FILE-INFORMATION:FULL-PATHNAME .
 ELSE 
     UNDO, THROW NEW Consultingwerk.Exceptions.InvalidParameterValueException ("SourceDir":U, 
                                                                               cSourceDir,

@@ -34,13 +34,18 @@ CLASS Consultingwerk.SmartComponents.TypeDescriptor.Components.PropertiesSmartBu
         Purpose: Constructor for the PropertiesSmartBusinessEntityLookupDesign class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC PropertiesSmartBusinessEntityLookupDesign ():
-	    
-	    DEFINE VARIABLE oProperty AS IPropertyDescriptor NO-UNDO . 
-		
-		SUPER ().
+    CONSTRUCTOR PUBLIC PropertiesSmartBusinessEntityLookupDesign ():
+        
+        DEFINE VARIABLE oProperty AS IPropertyDescriptor NO-UNDO . 
+        
+        SUPER ().
 
         THIS-OBJECT:TypeName = "Consultingwerk.SmartComponents.Base.SmartBusinessEntityLookupDesign":U . 
+
+        oProperty = THIS-OBJECT:Add ("LookupDialogExpandLastColumn":U) .
+        oProperty:Attributes:Add (NEW System.ComponentModel.CategoryAttribute ("SmartBusinessEntityLookup":U)) .
+        oProperty:Attributes:Add (NEW System.ComponentModel.DescriptionAttribute ("Gets and Sets the if the last column of the Lookup Dialog should be expanded":U)) .
+        oProperty:Attributes:Add (NEW DefaultValueAttribute(FALSE)) .
 
         oProperty = THIS-OBJECT:Add ("LookupDialogFilterFields":U) .
         oProperty:Attributes:Add (NEW System.ComponentModel.CategoryAttribute ("SmartBusinessEntityLookup":U)) .
@@ -117,6 +122,6 @@ CLASS Consultingwerk.SmartComponents.TypeDescriptor.Components.PropertiesSmartBu
         oProperty:Attributes:Add (NEW System.ComponentModel.DescriptionAttribute ("The comma delimited list of additional fields that will be retrieved by the lookup operations.":U)) .
         oProperty:Attributes:Add (NEW System.ComponentModel.LocalizableAttribute (FALSE)) .
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
 END CLASS.

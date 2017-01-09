@@ -29,35 +29,39 @@ USING Progress.Lang.*                                      FROM PROPATH .
 
 CLASS Consultingwerk.Windows.Framework.Menu.WebUriCallParameterControl 
     INHERITS CallParameterBaseControl: 
-	
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraLabel2 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE UriTextEditor AS Infragistics.Win.UltraWinEditors.UltraTextEditor NO-UNDO.
 
     DEFINE PRIVATE VARIABLE oFormStartTypeValueList AS Infragistics.Win.ValueList NO-UNDO.
     DEFINE PRIVATE VARIABLE UseExternalWebBrowserCheckEditor AS Infragistics.Win.UltraWinEditors.UltraCheckEditor NO-UNDO.
 
-	CONSTRUCTOR PUBLIC WebUriCallParameterControl ():
+    CONSTRUCTOR PUBLIC WebUriCallParameterControl ():
         SUPER ().
         InitializeComponent ().
         
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+        
         /* NOTE: The following method is automatically generated.
         
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
         
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE resources AS Progress.Util.ResourceManager NO-UNDO.
+        resources = NEW Progress.Util.ResourceManager("Consultingwerk.Windows.Framework.Menu.WebUriCallParameterControl":U).
         THIS-OBJECT:UseExternalWebBrowserCheckEditor = NEW Infragistics.Win.UltraWinEditors.UltraCheckEditor().
         THIS-OBJECT:UriTextEditor = NEW Infragistics.Win.UltraWinEditors.UltraTextEditor().
         THIS-OBJECT:ultraLabel2 = NEW Infragistics.Win.Misc.UltraLabel().
@@ -67,40 +71,28 @@ CLASS Consultingwerk.Windows.Framework.Menu.WebUriCallParameterControl
         /*  */
         /* UseExternalWebBrowserCheckEditor */
         /*  */
-        THIS-OBJECT:UseExternalWebBrowserCheckEditor:Location = NEW System.Drawing.Point(173, 36).
+        resources:ApplyResources(THIS-OBJECT:UseExternalWebBrowserCheckEditor, "UseExternalWebBrowserCheckEditor":U).
         THIS-OBJECT:UseExternalWebBrowserCheckEditor:Name = "UseExternalWebBrowserCheckEditor":U.
-        THIS-OBJECT:UseExternalWebBrowserCheckEditor:Size = NEW System.Drawing.Size(193, 20).
-        THIS-OBJECT:UseExternalWebBrowserCheckEditor:TabIndex = 12.
-        THIS-OBJECT:UseExternalWebBrowserCheckEditor:Text = "Use External Web Browser":U.
         /*  */
         /* UriTextEditor */
         /*  */
-        DEFINE VARIABLE nestedvar0 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar0 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:UriTextEditor:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar0, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:UriTextEditor, "UriTextEditor":U).
         THIS-OBJECT:UriTextEditor:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:UriTextEditor:Location = NEW System.Drawing.Point(173, 9).
         THIS-OBJECT:UriTextEditor:Name = "UriTextEditor":U.
-        THIS-OBJECT:UriTextEditor:Size = NEW System.Drawing.Size(193, 21).
-        THIS-OBJECT:UriTextEditor:TabIndex = 8.
         /*  */
         /* ultraLabel2 */
         /*  */
-        THIS-OBJECT:ultraLabel2:Location = NEW System.Drawing.Point(13, 13).
+        resources:ApplyResources(THIS-OBJECT:ultraLabel2, "ultraLabel2":U).
         THIS-OBJECT:ultraLabel2:Name = "ultraLabel2":U.
-        THIS-OBJECT:ultraLabel2:Size = NEW System.Drawing.Size(154, 23).
-        THIS-OBJECT:ultraLabel2:TabIndex = 6.
-        THIS-OBJECT:ultraLabel2:Text = "URI:":U.
         /*  */
         /* WebUriCallParameterControl */
         /*  */
-        THIS-OBJECT:AutoScaleDimensions = NEW System.Drawing.SizeF(Progress.Util.CastUtil:ToSingle(6), Progress.Util.CastUtil:ToSingle(13)).
+        resources:ApplyResources(THIS-OBJECT, "$this":U).
         THIS-OBJECT:BackColor = System.Drawing.SystemColors:Control.
         THIS-OBJECT:Controls:Add(THIS-OBJECT:UseExternalWebBrowserCheckEditor).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:UriTextEditor).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:ultraLabel2).
         THIS-OBJECT:Name = "WebUriCallParameterControl":U.
-        THIS-OBJECT:Size = NEW System.Drawing.Size(380, 146).
         CAST(THIS-OBJECT:UseExternalWebBrowserCheckEditor, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:UriTextEditor, System.ComponentModel.ISupportInitialize):EndInit().
         THIS-OBJECT:ResumeLayout(FALSE).
@@ -108,7 +100,7 @@ CLASS Consultingwerk.Windows.Framework.Menu.WebUriCallParameterControl
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Clear all editor fields

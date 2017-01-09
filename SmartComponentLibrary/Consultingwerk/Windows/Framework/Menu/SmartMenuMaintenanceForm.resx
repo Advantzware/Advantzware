@@ -117,51 +117,8 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
-  <data name="ultraTabPageControl1.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="ultraTabPageControl1.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
-  <data name="ultraTabPageControl1.AutoScroll" type="System.Boolean, mscorlib">
-    <value>False</value>
-  </data>
-  <data name="ultraTabPageControl1.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
-    <value>Tile</value>
-  </data>
-  <data name="smartMenuViewer1.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="smartMenuViewer1.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="smartMenuViewer1.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Left</value>
-  </data>
-  <data name="smartMenuViewer1.AutoScroll" type="System.Boolean, mscorlib">
-    <value>False</value>
-  </data>
-  <data name="smartMenuViewer1.AutoSize" type="System.Boolean, mscorlib">
-    <value>False</value>
-  </data>
-  <data name="smartMenuViewer1.AutoSizeMode" type="System.Windows.Forms.AutoSizeMode, System.Windows.Forms">
-    <value>GrowOnly</value>
-  </data>
-  <data name="smartMenuViewer1.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="smartMenuViewer1.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
-    <value>Tile</value>
-  </data>
   <data name="smartMenuViewer1.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
     <value>Fill</value>
-  </data>
-  <data name="smartMenuViewer1.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="smartMenuViewer1.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>Inherit</value>
   </data>
   <metadata name="MenuAdapter.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>191, 17</value>
@@ -172,102 +129,21 @@
   <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
   </metadata>
-  <data name="$this.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="$this.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="$this.AutoScroll" type="System.Boolean, mscorlib">
-    <value>False</value>
-  </data>
-  <data name="$this.AutoSize" type="System.Boolean, mscorlib">
-    <value>False</value>
-  </data>
-  <data name="$this.AutoSizeMode" type="System.Windows.Forms.AutoSizeMode, System.Windows.Forms">
-    <value>GrowOnly</value>
-  </data>
-  <data name="$this.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="$this.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
-    <value>Tile</value>
-  </data>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"/>
   <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing">
     <value>811, 529</value>
   </data>
-  <data name="SmartMenuMaintenanceForm_Fill_Panel.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="SmartMenuMaintenanceForm_Fill_Panel.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="SmartMenuMaintenanceForm_Fill_Panel.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Left</value>
-  </data>
-  <data name="SmartMenuMaintenanceForm_Fill_Panel.AutoSize" type="System.Boolean, mscorlib">
-    <value>False</value>
-  </data>
-  <data name="SmartMenuMaintenanceForm_Fill_Panel.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
-    <value>Tile</value>
-  </data>
-  <data name="SmartMenuMaintenanceForm_Fill_Panel.ClientArea.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="SmartMenuMaintenanceForm_Fill_Panel.ClientArea.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="ultraTabControl1.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="ultraTabControl1.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="ultraTabControl1.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Left</value>
-  </data>
-  <data name="ultraTabControl1.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="ultraTabControl1.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
-    <value>Tile</value>
-  </data>
-  <data name="ultraTabSharedControlsPage1.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="ultraTabSharedControlsPage1.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="ultraTabSharedControlsPage1.AutoScroll" type="System.Boolean, mscorlib">
-    <value>False</value>
-  </data>
-  <data name="ultraTabSharedControlsPage1.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
-    <value>Tile</value>
-  </data>
-  <data name="ultraTabSharedControlsPage1.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="ultraTabSharedControlsPage1.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>Inherit</value>
-  </data>
   <data name="ultraTabSharedControlsPage1.Location" type="System.Drawing.Point, System.Drawing">
     <value>-10000, -10000</value>
   </data>
-  <data name="ultraTabSharedControlsPage1.MaximumSize" type="System.Drawing.Size, System.Drawing">
-    <value>0, 0</value>
-  </data>
-  <data name="ultraTabSharedControlsPage1.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
-    <value>Inherit</value>
-  </data>
   <data name="ultraTabSharedControlsPage1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>522, 346</value>
+    <value>522, 347</value>
   </data>
   <data name="&gt;&gt;ultraTabSharedControlsPage1.Name" xml:space="preserve">
     <value>ultraTabSharedControlsPage1</value>
   </data>
   <data name="&gt;&gt;ultraTabSharedControlsPage1.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinTabControl.UltraTabSharedControlsPage, Infragistics4.Win.UltraWinTabControl.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinTabControl.UltraTabSharedControlsPage, Infragistics4.Win.UltraWinTabControl.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ultraTabSharedControlsPage1.Parent" xml:space="preserve">
     <value>ultraTabControl1</value>
@@ -275,47 +151,8 @@
   <data name="&gt;&gt;ultraTabSharedControlsPage1.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
-  <data name="ultraTabPageControl2.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="ultraTabPageControl2.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="ultraTabPageControl2.AutoScroll" type="System.Boolean, mscorlib">
-    <value>False</value>
-  </data>
-  <data name="ultraTabPageControl2.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
-    <value>Tile</value>
-  </data>
-  <data name="ultraPanel1.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="ultraPanel1.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
   <data name="ultraPanel1.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Bottom, Left</value>
-  </data>
-  <data name="ultraPanel1.AutoSize" type="System.Boolean, mscorlib">
-    <value>False</value>
-  </data>
-  <data name="ultraPanel1.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
-    <value>Tile</value>
-  </data>
-  <data name="ultraPanel1.ClientArea.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="ultraPanel1.ClientArea.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="ButtonAssignGroupToMenu.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="ButtonAssignGroupToMenu.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="ButtonAssignGroupToMenu.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Left</value>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance1.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
@@ -333,42 +170,16 @@
         n+nfIYhfQKhMtVdNn/AAAAAASUVORK5CYII=
 </value>
   </data>
-  <data name="appearance1.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance1.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="ButtonAssignGroupToMenu.AutoSize" type="System.Boolean, mscorlib">
-    <value>False</value>
-  </data>
-  <data name="ButtonAssignGroupToMenu.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="ButtonAssignGroupToMenu.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
-    <value>Tile</value>
-  </data>
-  <data name="ButtonAssignGroupToMenu.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
-    <value>None</value>
-  </data>
-  <data name="ButtonAssignGroupToMenu.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
   <data name="ButtonAssignGroupToMenu.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
   </data>
   <data name="ButtonAssignGroupToMenu.Location" type="System.Drawing.Point, System.Drawing">
     <value>9, 111</value>
   </data>
-  <data name="ButtonAssignGroupToMenu.MaximumSize" type="System.Drawing.Size, System.Drawing">
-    <value>0, 0</value>
-  </data>
-  <data name="ButtonAssignGroupToMenu.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
-    <value>Inherit</value>
-  </data>
   <data name="ButtonAssignGroupToMenu.Size" type="System.Drawing.Size, System.Drawing">
     <value>27, 27</value>
   </data>
+  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
   <data name="ButtonAssignGroupToMenu.TabIndex" type="System.Int32, mscorlib">
     <value>6</value>
   </data>
@@ -376,22 +187,13 @@
     <value>ButtonAssignGroupToMenu</value>
   </data>
   <data name="&gt;&gt;ButtonAssignGroupToMenu.Type" xml:space="preserve">
-    <value>Infragistics.Win.Misc.UltraButton, Infragistics4.Win.Misc.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.Misc.UltraButton, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ButtonAssignGroupToMenu.Parent" xml:space="preserve">
     <value>ultraPanel1.ClientArea</value>
   </data>
   <data name="&gt;&gt;ButtonAssignGroupToMenu.ZOrder" xml:space="preserve">
     <value>0</value>
-  </data>
-  <data name="ButtonUnAssignGroupFromMenu.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="ButtonUnAssignGroupFromMenu.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="ButtonUnAssignGroupFromMenu.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Left</value>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance2.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
@@ -409,38 +211,11 @@
         MnUAAAAASUVORK5CYII=
 </value>
   </data>
-  <data name="appearance2.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance2.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="ButtonUnAssignGroupFromMenu.AutoSize" type="System.Boolean, mscorlib">
-    <value>False</value>
-  </data>
-  <data name="ButtonUnAssignGroupFromMenu.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="ButtonUnAssignGroupFromMenu.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
-    <value>Tile</value>
-  </data>
-  <data name="ButtonUnAssignGroupFromMenu.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
-    <value>None</value>
-  </data>
-  <data name="ButtonUnAssignGroupFromMenu.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
   <data name="ButtonUnAssignGroupFromMenu.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
   </data>
   <data name="ButtonUnAssignGroupFromMenu.Location" type="System.Drawing.Point, System.Drawing">
     <value>9, 144</value>
-  </data>
-  <data name="ButtonUnAssignGroupFromMenu.MaximumSize" type="System.Drawing.Size, System.Drawing">
-    <value>0, 0</value>
-  </data>
-  <data name="ButtonUnAssignGroupFromMenu.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
-    <value>Inherit</value>
   </data>
   <data name="ButtonUnAssignGroupFromMenu.Size" type="System.Drawing.Size, System.Drawing">
     <value>27, 27</value>
@@ -452,7 +227,7 @@
     <value>ButtonUnAssignGroupFromMenu</value>
   </data>
   <data name="&gt;&gt;ButtonUnAssignGroupFromMenu.Type" xml:space="preserve">
-    <value>Infragistics.Win.Misc.UltraButton, Infragistics4.Win.Misc.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.Misc.UltraButton, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ButtonUnAssignGroupFromMenu.Parent" xml:space="preserve">
     <value>ultraPanel1.ClientArea</value>
@@ -460,14 +235,11 @@
   <data name="&gt;&gt;ButtonUnAssignGroupFromMenu.ZOrder" xml:space="preserve">
     <value>1</value>
   </data>
-  <data name="ultraPanel1.ClientArea.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
   <data name="&gt;&gt;ultraPanel1.ClientArea.Name" xml:space="preserve">
     <value>ultraPanel1.ClientArea</value>
   </data>
   <data name="&gt;&gt;ultraPanel1.ClientArea.Type" xml:space="preserve">
-    <value>Infragistics.Win.Misc.UltraPanelClientAreaUnsafe, Infragistics4.Win.Misc.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.Misc.UltraPanelClientAreaUnsafe, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ultraPanel1.ClientArea.Parent" xml:space="preserve">
     <value>ultraPanel1</value>
@@ -475,23 +247,8 @@
   <data name="&gt;&gt;ultraPanel1.ClientArea.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
-  <data name="ultraPanel1.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
-    <value>None</value>
-  </data>
-  <data name="ultraPanel1.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="ultraPanel1.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>Inherit</value>
-  </data>
   <data name="ultraPanel1.Location" type="System.Drawing.Point, System.Drawing">
     <value>244, 0</value>
-  </data>
-  <data name="ultraPanel1.MaximumSize" type="System.Drawing.Size, System.Drawing">
-    <value>0, 0</value>
-  </data>
-  <data name="ultraPanel1.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
-    <value>Inherit</value>
   </data>
   <data name="ultraPanel1.Size" type="System.Drawing.Size, System.Drawing">
     <value>44, 342</value>
@@ -503,7 +260,7 @@
     <value>ultraPanel1</value>
   </data>
   <data name="&gt;&gt;ultraPanel1.Type" xml:space="preserve">
-    <value>Infragistics.Win.Misc.UltraPanel, Infragistics4.Win.Misc.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.Misc.UltraPanel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ultraPanel1.Parent" xml:space="preserve">
     <value>ultraTabPageControl2</value>
@@ -511,29 +268,20 @@
   <data name="&gt;&gt;ultraPanel1.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
-  <data name="smartDataBrowser3.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="smartDataBrowser3.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
   <data name="smartDataBrowser3.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Bottom, Left, Right</value>
-  </data>
-  <data name="smartDataBrowser3.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="smartDataBrowser3.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
-    <value>Tile</value>
   </data>
   <metadata name="PossibleGroupBindingSource.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>648, 17</value>
   </metadata>
-  <data name="appearance3.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
+  <data name="ultraGridColumn5.Header.Caption" xml:space="preserve">
+    <value>MenuGroupGuid </value>
   </data>
-  <data name="appearance3.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
+  <data name="ultraGridColumn6.Header.Caption" xml:space="preserve">
+    <value>MenuGuid </value>
+  </data>
+  <data name="ultraGridColumn12.Header.Caption" xml:space="preserve">
+    <value>GroupGuid </value>
   </data>
   <data name="resource.Caption" xml:space="preserve">
     <value>Group Name</value>
@@ -541,80 +289,8 @@
   <data name="resource.Caption1" xml:space="preserve">
     <value>Company Name</value>
   </data>
-  <data name="appearance4.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance4.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance5.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance5.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance6.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance6.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance7.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance7.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance8.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance8.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance9.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance9.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance10.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance10.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance11.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance11.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
   <data name="appearance12.TextHAlignAsString" xml:space="preserve">
     <value>Left</value>
-  </data>
-  <data name="appearance12.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance13.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance13.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance14.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance14.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="smartDataBrowser3.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
-    <value>None</value>
-  </data>
-  <data name="smartDataBrowser3.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="smartDataBrowser3.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>Inherit</value>
   </data>
   <metadata name="PossibleGroupTableAdapter.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>217, 54</value>
@@ -628,26 +304,11 @@
   <data name="PossibleGroupTableAdapter.BindingSourceIncludeFields" xml:space="preserve">
     <value>*</value>
   </data>
-  <data name="PossibleGroupTableAdapter.QuerySort" xml:space="preserve">
-    <value/>
-  </data>
-  <data name="PossibleGroupTableAdapter.QueryString" xml:space="preserve">
-    <value/>
-  </data>
   <data name="smartDataBrowser3.Location" type="System.Drawing.Point, System.Drawing">
     <value>294, -1</value>
   </data>
-  <data name="smartDataBrowser3.MaximumSize" type="System.Drawing.Size, System.Drawing">
-    <value>0, 0</value>
-  </data>
-  <data name="smartDataBrowser3.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
-    <value>Inherit</value>
-  </data>
-  <data name="smartDataBrowser3.SettingsKey" xml:space="preserve">
-    <value>c08e3681-e248-d4a2-e211-a11403bd9eb1</value>
-  </data>
   <data name="smartDataBrowser3.Size" type="System.Drawing.Size, System.Drawing">
-    <value>231, 342</value>
+    <value>229, 342</value>
   </data>
   <data name="smartDataBrowser3.TabIndex" type="System.Int32, mscorlib">
     <value>5</value>
@@ -655,14 +316,11 @@
   <data name="smartDataBrowser3.Text" xml:space="preserve">
     <value>Available Groups</value>
   </data>
-  <data name="smartDataBrowser3.VisibleGridColumns" xml:space="preserve">
-    <value/>
-  </data>
   <data name="&gt;&gt;smartDataBrowser3.Name" xml:space="preserve">
     <value>smartDataBrowser3</value>
   </data>
   <data name="&gt;&gt;smartDataBrowser3.Type" xml:space="preserve">
-    <value>Consultingwerk.SmartComponents.Implementation.SmartDataBrowser, OEProxyAssembly, Version=11.3.0.0, Culture=neutral, PublicKeyToken=null</value>
+    <value>Consultingwerk.SmartComponents.Implementation.SmartDataBrowser, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;smartDataBrowser3.Parent" xml:space="preserve">
     <value>ultraTabPageControl2</value>
@@ -670,29 +328,20 @@
   <data name="&gt;&gt;smartDataBrowser3.ZOrder" xml:space="preserve">
     <value>1</value>
   </data>
-  <data name="smartDataBrowser2.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="smartDataBrowser2.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
   <data name="smartDataBrowser2.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Bottom, Left</value>
-  </data>
-  <data name="smartDataBrowser2.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="smartDataBrowser2.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
-    <value>Tile</value>
   </data>
   <metadata name="MenuGroupBindingSource.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>463, 17</value>
   </metadata>
-  <data name="appearance15.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
+  <data name="ultraGridColumn1.Header.Caption" xml:space="preserve">
+    <value>MenuGroupGuid </value>
   </data>
-  <data name="appearance15.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
+  <data name="ultraGridColumn2.Header.Caption" xml:space="preserve">
+    <value>MenuGuid </value>
+  </data>
+  <data name="ultraGridColumn8.Header.Caption" xml:space="preserve">
+    <value>GroupGuid </value>
   </data>
   <data name="resource.Caption2" xml:space="preserve">
     <value>Group Name</value>
@@ -700,95 +349,17 @@
   <data name="resource.Caption3" xml:space="preserve">
     <value>Company Name</value>
   </data>
-  <data name="appearance16.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance16.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance17.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance17.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance18.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance18.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance19.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance19.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance20.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance20.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance21.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance21.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance22.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance22.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance23.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance23.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
   <data name="appearance24.TextHAlignAsString" xml:space="preserve">
     <value>Left</value>
   </data>
-  <data name="appearance24.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance25.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance25.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance26.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance26.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="smartDataBrowser2.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
-    <value>None</value>
-  </data>
   <data name="smartDataBrowser2.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt</value>
-  </data>
-  <data name="smartDataBrowser2.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>Inherit</value>
   </data>
   <metadata name="MenuGroupAdapter.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 54</value>
   </metadata>
   <data name="smartDataBrowser2.Location" type="System.Drawing.Point, System.Drawing">
     <value>1, 0</value>
-  </data>
-  <data name="smartDataBrowser2.MaximumSize" type="System.Drawing.Size, System.Drawing">
-    <value>0, 0</value>
-  </data>
-  <data name="smartDataBrowser2.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
-    <value>Inherit</value>
-  </data>
-  <data name="smartDataBrowser2.SettingsKey" xml:space="preserve">
-    <value>c08e3681-e248-d4a2-e211-a114401aaaa5</value>
   </data>
   <data name="smartDataBrowser2.Size" type="System.Drawing.Size, System.Drawing">
     <value>237, 342</value>
@@ -799,14 +370,11 @@
   <data name="smartDataBrowser2.Text" xml:space="preserve">
     <value>Assigned Groups</value>
   </data>
-  <data name="smartDataBrowser2.VisibleGridColumns" xml:space="preserve">
-    <value/>
-  </data>
   <data name="&gt;&gt;smartDataBrowser2.Name" xml:space="preserve">
     <value>smartDataBrowser2</value>
   </data>
   <data name="&gt;&gt;smartDataBrowser2.Type" xml:space="preserve">
-    <value>Consultingwerk.SmartComponents.Implementation.SmartDataBrowser, OEProxyAssembly, Version=11.3.0.0, Culture=neutral, PublicKeyToken=null</value>
+    <value>Consultingwerk.SmartComponents.Implementation.SmartDataBrowser, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;smartDataBrowser2.Parent" xml:space="preserve">
     <value>ultraTabPageControl2</value>
@@ -814,29 +382,17 @@
   <data name="&gt;&gt;smartDataBrowser2.ZOrder" xml:space="preserve">
     <value>2</value>
   </data>
-  <data name="ultraTabPageControl2.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="ultraTabPageControl2.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>Inherit</value>
-  </data>
   <data name="ultraTabPageControl2.Location" type="System.Drawing.Point, System.Drawing">
     <value>-10000, -10000</value>
   </data>
-  <data name="ultraTabPageControl2.MaximumSize" type="System.Drawing.Size, System.Drawing">
-    <value>0, 0</value>
-  </data>
-  <data name="ultraTabPageControl2.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
-    <value>Inherit</value>
-  </data>
   <data name="ultraTabPageControl2.Size" type="System.Drawing.Size, System.Drawing">
-    <value>524, 346</value>
+    <value>522, 346</value>
   </data>
   <data name="&gt;&gt;ultraTabPageControl2.Name" xml:space="preserve">
     <value>ultraTabPageControl2</value>
   </data>
   <data name="&gt;&gt;ultraTabPageControl2.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinTabControl.UltraTabPageControl, Infragistics4.Win.UltraWinTabControl.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinTabControl.UltraTabPageControl, Infragistics4.Win.UltraWinTabControl.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ultraTabPageControl2.Parent" xml:space="preserve">
     <value>ultraTabControl1</value>
@@ -847,23 +403,11 @@
   <data name="ultraTabControl1.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
     <value>Fill</value>
   </data>
-  <data name="ultraTabControl1.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="ultraTabControl1.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>Inherit</value>
-  </data>
   <data name="ultraTabControl1.Location" type="System.Drawing.Point, System.Drawing">
     <value>271, 0</value>
   </data>
-  <data name="ultraTabControl1.MaximumSize" type="System.Drawing.Size, System.Drawing">
-    <value>0, 0</value>
-  </data>
-  <data name="ultraTabControl1.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
-    <value>Inherit</value>
-  </data>
   <data name="ultraTabControl1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>524, 369</value>
+    <value>524, 370</value>
   </data>
   <data name="ultraTabControl1.TabIndex" type="System.Int32, mscorlib">
     <value>6</value>
@@ -890,12 +434,6 @@
         FoYg/gOfmOR05ZV4tQAAAABJRU5ErkJggg==
 </value>
   </data>
-  <data name="appearance27.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance27.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
   <data name="ultraTab1.Text" xml:space="preserve">
     <value>Menu</value>
   </data>
@@ -917,12 +455,6 @@
         V18AAAAASUVORK5CYII=
 </value>
   </data>
-  <data name="appearance28.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance28.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
   <data name="ultraTab2.Text" xml:space="preserve">
     <value>Group Assignement</value>
   </data>
@@ -930,7 +462,7 @@
     <value>ultraTabControl1</value>
   </data>
   <data name="&gt;&gt;ultraTabControl1.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinTabControl.UltraTabControl, Infragistics4.Win.UltraWinTabControl.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinTabControl.UltraTabControl, Infragistics4.Win.UltraWinTabControl.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ultraTabControl1.Parent" xml:space="preserve">
     <value>SmartMenuMaintenanceForm_Fill_Panel.ClientArea</value>
@@ -938,41 +470,11 @@
   <data name="&gt;&gt;ultraTabControl1.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
-  <data name="ultraSplitter1.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="ultraSplitter1.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="ultraSplitter1.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>None</value>
-  </data>
-  <data name="ultraSplitter1.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="ultraSplitter1.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
-    <value>Tile</value>
-  </data>
-  <data name="ultraSplitter1.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
-    <value>Left</value>
-  </data>
-  <data name="ultraSplitter1.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="ultraSplitter1.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>Inherit</value>
-  </data>
   <data name="ultraSplitter1.Location" type="System.Drawing.Point, System.Drawing">
     <value>265, 0</value>
   </data>
-  <data name="ultraSplitter1.MaximumSize" type="System.Drawing.Size, System.Drawing">
-    <value>0, 0</value>
-  </data>
-  <data name="ultraSplitter1.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
-    <value>Inherit</value>
-  </data>
   <data name="ultraSplitter1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>6, 369</value>
+    <value>6, 370</value>
   </data>
   <data name="ultraSplitter1.TabIndex" type="System.Int32, mscorlib">
     <value>1</value>
@@ -981,7 +483,7 @@
     <value>ultraSplitter1</value>
   </data>
   <data name="&gt;&gt;ultraSplitter1.Type" xml:space="preserve">
-    <value>Infragistics.Win.Misc.UltraSplitter, Infragistics4.Win.Misc.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.Misc.UltraSplitter, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ultraSplitter1.Parent" xml:space="preserve">
     <value>SmartMenuMaintenanceForm_Fill_Panel.ClientArea</value>
@@ -989,38 +491,14 @@
   <data name="&gt;&gt;ultraSplitter1.ZOrder" xml:space="preserve">
     <value>1</value>
   </data>
-  <data name="MenuTree.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="MenuTree.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="MenuTree.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Left</value>
-  </data>
-  <data name="MenuTree.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
-    <value>Tile</value>
-  </data>
   <data name="MenuTree.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
     <value>Left</value>
-  </data>
-  <data name="MenuTree.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="MenuTree.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>Inherit</value>
   </data>
   <data name="MenuTree.Location" type="System.Drawing.Point, System.Drawing">
     <value>0, 0</value>
   </data>
-  <data name="MenuTree.MaximumSize" type="System.Drawing.Size, System.Drawing">
-    <value>0, 0</value>
-  </data>
-  <data name="MenuTree.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
-    <value>Inherit</value>
-  </data>
   <data name="MenuTree.Size" type="System.Drawing.Size, System.Drawing">
-    <value>265, 369</value>
+    <value>265, 370</value>
   </data>
   <data name="MenuTree.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -1029,7 +507,7 @@
     <value>MenuTree</value>
   </data>
   <data name="&gt;&gt;MenuTree.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinTree.UltraTree, Infragistics4.Win.UltraWinTree.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinTree.UltraTree, Infragistics4.Win.UltraWinTree.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;MenuTree.Parent" xml:space="preserve">
     <value>SmartMenuMaintenanceForm_Fill_Panel.ClientArea</value>
@@ -1037,14 +515,11 @@
   <data name="&gt;&gt;MenuTree.ZOrder" xml:space="preserve">
     <value>2</value>
   </data>
-  <data name="SmartMenuMaintenanceForm_Fill_Panel.ClientArea.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
   <data name="&gt;&gt;SmartMenuMaintenanceForm_Fill_Panel.ClientArea.Name" xml:space="preserve">
     <value>SmartMenuMaintenanceForm_Fill_Panel.ClientArea</value>
   </data>
   <data name="&gt;&gt;SmartMenuMaintenanceForm_Fill_Panel.ClientArea.Type" xml:space="preserve">
-    <value>Infragistics.Win.Misc.UltraPanelClientAreaUnsafe, Infragistics4.Win.Misc.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.Misc.UltraPanelClientAreaUnsafe, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;SmartMenuMaintenanceForm_Fill_Panel.ClientArea.Parent" xml:space="preserve">
     <value>SmartMenuMaintenanceForm_Fill_Panel</value>
@@ -1055,23 +530,11 @@
   <data name="SmartMenuMaintenanceForm_Fill_Panel.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
     <value>Fill</value>
   </data>
-  <data name="SmartMenuMaintenanceForm_Fill_Panel.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="SmartMenuMaintenanceForm_Fill_Panel.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>Inherit</value>
-  </data>
   <data name="SmartMenuMaintenanceForm_Fill_Panel.Location" type="System.Drawing.Point, System.Drawing">
-    <value>8, 152</value>
-  </data>
-  <data name="SmartMenuMaintenanceForm_Fill_Panel.MaximumSize" type="System.Drawing.Size, System.Drawing">
-    <value>0, 0</value>
-  </data>
-  <data name="SmartMenuMaintenanceForm_Fill_Panel.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
-    <value>Inherit</value>
+    <value>8, 151</value>
   </data>
   <data name="SmartMenuMaintenanceForm_Fill_Panel.Size" type="System.Drawing.Size, System.Drawing">
-    <value>795, 369</value>
+    <value>795, 370</value>
   </data>
   <data name="SmartMenuMaintenanceForm_Fill_Panel.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -1080,7 +543,7 @@
     <value>SmartMenuMaintenanceForm_Fill_Panel</value>
   </data>
   <data name="&gt;&gt;SmartMenuMaintenanceForm_Fill_Panel.Type" xml:space="preserve">
-    <value>Infragistics.Win.Misc.UltraPanel, Infragistics4.Win.Misc.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.Misc.UltraPanel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;SmartMenuMaintenanceForm_Fill_Panel.Parent" xml:space="preserve">
     <value>$this</value>
@@ -1088,41 +551,17 @@
   <data name="&gt;&gt;SmartMenuMaintenanceForm_Fill_Panel.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
-  <data name="m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Left.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Left.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Left.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Left</value>
-  </data>
-  <data name="m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Left.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Left.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
-    <value>Tile</value>
-  </data>
-  <data name="m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Left.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>Inherit</value>
-  </data>
   <data name="m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Left.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 152</value>
-  </data>
-  <data name="m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Left.MaximumSize" type="System.Drawing.Size, System.Drawing">
-    <value>0, 0</value>
-  </data>
-  <data name="m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Left.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
-    <value>Inherit</value>
+    <value>0, 151</value>
   </data>
   <data name="m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Left.Size" type="System.Drawing.Size, System.Drawing">
-    <value>8, 369</value>
+    <value>8, 370</value>
   </data>
   <data name="&gt;&gt;m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Left.Name" xml:space="preserve">
     <value>m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Left</value>
   </data>
   <data name="&gt;&gt;m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Left.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Left.Parent" xml:space="preserve">
     <value>$this</value>
@@ -1130,41 +569,17 @@
   <data name="&gt;&gt;m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Left.ZOrder" xml:space="preserve">
     <value>1</value>
   </data>
-  <data name="m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Right.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Right.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Right.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Left</value>
-  </data>
-  <data name="m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Right.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Right.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
-    <value>Tile</value>
-  </data>
-  <data name="m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Right.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>Inherit</value>
-  </data>
   <data name="m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Right.Location" type="System.Drawing.Point, System.Drawing">
-    <value>803, 152</value>
-  </data>
-  <data name="m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Right.MaximumSize" type="System.Drawing.Size, System.Drawing">
-    <value>0, 0</value>
-  </data>
-  <data name="m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Right.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
-    <value>Inherit</value>
+    <value>803, 151</value>
   </data>
   <data name="m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Right.Size" type="System.Drawing.Size, System.Drawing">
-    <value>8, 369</value>
+    <value>8, 370</value>
   </data>
   <data name="&gt;&gt;m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Right.Name" xml:space="preserve">
     <value>m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Right</value>
   </data>
   <data name="&gt;&gt;m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Right.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Right.Parent" xml:space="preserve">
     <value>$this</value>
@@ -1172,32 +587,8 @@
   <data name="&gt;&gt;m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Right.ZOrder" xml:space="preserve">
     <value>2</value>
   </data>
-  <data name="m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Bottom.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Bottom.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Bottom.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Left</value>
-  </data>
-  <data name="m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Bottom.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Bottom.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
-    <value>Tile</value>
-  </data>
-  <data name="m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Bottom.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>Inherit</value>
-  </data>
   <data name="m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Bottom.Location" type="System.Drawing.Point, System.Drawing">
     <value>0, 521</value>
-  </data>
-  <data name="m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Bottom.MaximumSize" type="System.Drawing.Size, System.Drawing">
-    <value>0, 0</value>
-  </data>
-  <data name="m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Bottom.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
-    <value>Inherit</value>
   </data>
   <data name="m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Bottom.Size" type="System.Drawing.Size, System.Drawing">
     <value>811, 8</value>
@@ -1206,7 +597,7 @@
     <value>m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Bottom</value>
   </data>
   <data name="&gt;&gt;m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Bottom.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Bottom.Parent" xml:space="preserve">
     <value>$this</value>
@@ -1214,50 +605,23 @@
   <data name="&gt;&gt;m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Bottom.ZOrder" xml:space="preserve">
     <value>3</value>
   </data>
-  <data name="m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Top.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Top.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Top.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Left</value>
-  </data>
-  <data name="m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Top.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Top.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
-    <value>Tile</value>
-  </data>
-  <data name="m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Top.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>Inherit</value>
-  </data>
   <data name="m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Top.Location" type="System.Drawing.Point, System.Drawing">
     <value>0, 0</value>
   </data>
-  <data name="m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Top.MaximumSize" type="System.Drawing.Size, System.Drawing">
-    <value>0, 0</value>
-  </data>
-  <data name="m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Top.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
-    <value>Inherit</value>
-  </data>
   <data name="m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Top.Size" type="System.Drawing.Size, System.Drawing">
-    <value>811, 152</value>
+    <value>811, 151</value>
   </data>
   <data name="&gt;&gt;m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Top.Name" xml:space="preserve">
     <value>m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Top</value>
   </data>
   <data name="&gt;&gt;m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Top.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Top.Parent" xml:space="preserve">
     <value>$this</value>
   </data>
   <data name="&gt;&gt;m_SmartMenuMaintenanceForm_Toolbars_Dock_Area_Top.ZOrder" xml:space="preserve">
     <value>4</value>
-  </data>
-  <data name="$this.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="$this.Icon" type="System.Drawing.Icon, System.Drawing">
     <value>
@@ -3664,22 +3028,7 @@
 </value>
   </data>
   <data name="$this.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>Inherit</value>
-  </data>
-  <data name="$this.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 0</value>
-  </data>
-  <data name="$this.MaximumSize" type="System.Drawing.Size, System.Drawing">
-    <value>0, 0</value>
-  </data>
-  <data name="$this.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
-    <value>Inherit</value>
-  </data>
-  <data name="$this.RightToLeftLayout" type="System.Boolean, mscorlib">
-    <value>False</value>
-  </data>
-  <data name="$this.StartPosition" type="System.Windows.Forms.FormStartPosition, System.Windows.Forms">
-    <value>WindowsDefaultLocation</value>
+    <value>NoControl</value>
   </data>
   <data name="$this.Text" xml:space="preserve">
     <value>Menu Maintenance</value>
@@ -3691,61 +3040,49 @@
     <value>MenuAdapter</value>
   </data>
   <data name="&gt;&gt;MenuAdapter.Type" xml:space="preserve">
-    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter, OEProxyAssembly, Version=11.3.0.0, Culture=neutral, PublicKeyToken=null</value>
+    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;smartToolbarController1.Name" xml:space="preserve">
     <value>smartToolbarController1</value>
   </data>
   <data name="&gt;&gt;smartToolbarController1.Type" xml:space="preserve">
-    <value>Consultingwerk.SmartComponents.Implementation.SmartToolbarController, OEProxyAssembly, Version=11.3.0.0, Culture=neutral, PublicKeyToken=null</value>
+    <value>Consultingwerk.SmartComponents.Implementation.SmartToolbarController, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;PossibleGroupBindingSource.Name" xml:space="preserve">
     <value>PossibleGroupBindingSource</value>
   </data>
   <data name="&gt;&gt;PossibleGroupBindingSource.Type" xml:space="preserve">
-    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource, OEProxyAssembly, Version=11.3.0.0, Culture=neutral, PublicKeyToken=null</value>
+    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;PossibleGroupTableAdapter.Name" xml:space="preserve">
     <value>PossibleGroupTableAdapter</value>
   </data>
   <data name="&gt;&gt;PossibleGroupTableAdapter.Type" xml:space="preserve">
-    <value>Consultingwerk.SmartComponents.Implementation.SmartTempTableAdapter, OEProxyAssembly, Version=11.3.0.0, Culture=neutral, PublicKeyToken=null</value>
+    <value>Consultingwerk.SmartComponents.Implementation.SmartTempTableAdapter, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;MenuGroupBindingSource.Name" xml:space="preserve">
     <value>MenuGroupBindingSource</value>
   </data>
   <data name="&gt;&gt;MenuGroupBindingSource.Type" xml:space="preserve">
-    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource, OEProxyAssembly, Version=11.3.0.0, Culture=neutral, PublicKeyToken=null</value>
+    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;MenuGroupAdapter.Name" xml:space="preserve">
     <value>MenuGroupAdapter</value>
   </data>
   <data name="&gt;&gt;MenuGroupAdapter.Type" xml:space="preserve">
-    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter, OEProxyAssembly, Version=11.3.0.0, Culture=neutral, PublicKeyToken=null</value>
+    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;MenuBindingSource.Name" xml:space="preserve">
     <value>MenuBindingSource</value>
   </data>
   <data name="&gt;&gt;MenuBindingSource.Type" xml:space="preserve">
-    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource, OEProxyAssembly, Version=11.3.0.0, Culture=neutral, PublicKeyToken=null</value>
+    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;$this.Name" xml:space="preserve">
     <value>SmartMenuMaintenanceForm</value>
   </data>
   <data name="&gt;&gt;$this.Type" xml:space="preserve">
-    <value>Consultingwerk.SmartComponents.Base.SmartWindowForm, OEProxyAssembly, Version=11.3.0.2, Culture=neutral, PublicKeyToken=null</value>
-  </data>
-  <data name="smartToolbarController1.Ribbon.ApplicationMenu.KeyTip" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="smartToolbarController1.Ribbon.ApplicationMenu.ToolTipText" xml:space="preserve">
-    <value/>
-  </data>
-  <data name="smartToolbarController1.Ribbon.ApplicationMenu.ToolTipTextFormatted" xml:space="preserve">
-    <value/>
-  </data>
-  <data name="smartToolbarController1.Ribbon.ApplicationMenu.ToolTipTitle" xml:space="preserve">
-    <value/>
+    <value>Consultingwerk.SmartComponents.Base.SmartWindowForm, OEProxyAssembly, Version=11.6.0.2, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="contextualTabGroup1.Caption" xml:space="preserve">
     <value>Group Assignement</value>
@@ -3759,23 +3096,11 @@
   <data name="ribbonGroup1.Caption" xml:space="preserve">
     <value>Navigation</value>
   </data>
-  <data name="ribbonGroup1.KeyTip" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
   <data name="ribbonGroup2.Caption" xml:space="preserve">
     <value>Maintenance</value>
   </data>
-  <data name="ribbonGroup2.KeyTip" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
   <data name="ribbonGroup3.Caption" xml:space="preserve">
     <value>Menu Tree</value>
-  </data>
-  <data name="ribbonGroup3.KeyTip" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="ribbonTab1.KeyTip" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
   </data>
   <data name="ribbonTab2.Caption" xml:space="preserve">
     <value>Group Assignement</value>
@@ -3783,44 +3108,20 @@
   <data name="ribbonGroup4.Caption" xml:space="preserve">
     <value>Assignement</value>
   </data>
-  <data name="ribbonGroup4.KeyTip" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="ribbonTab2.KeyTip" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
   <data name="ribbonTab3.Caption" xml:space="preserve">
     <value>Menu</value>
   </data>
   <data name="ribbonGroup5.Caption" xml:space="preserve">
     <value>Sequence</value>
   </data>
-  <data name="ribbonGroup5.KeyTip" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
   <data name="ribbonGroup6.Caption" xml:space="preserve">
     <value>Tools</value>
-  </data>
-  <data name="ribbonGroup6.KeyTip" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="ribbonTab3.KeyTip" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="ultraToolbar1.KeyTip" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
   </data>
   <data name="ultraToolbar1.Text" xml:space="preserve">
     <value>Navigation Toolbar</value>
   </data>
-  <data name="ultraToolbar2.KeyTip" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
   <data name="ultraToolbar2.Text" xml:space="preserve">
     <value>TableIO Toolbar</value>
-  </data>
-  <data name="ultraToolbar3.KeyTip" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
   </data>
   <data name="ultraToolbar3.Text" xml:space="preserve">
     <value>Transaction Toolbar</value>
@@ -3831,12 +3132,6 @@
         ACH/C05FVFNDQVBFMi4wAwEBAAAh+QQBAAABACwAAAAAEAAQAAAIRgADCBxIsKDBgwgTFhRwkKFBhwQF
         QIy4EMDEgRMFALAoUSJGjBtDboToUKPIkCRBnrT4UWVHjwIvarwY8yHNADdvKtyZMCAAOw==
 </value>
-  </data>
-  <data name="appearance29.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance29.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
   </data>
   <data name="resource.Caption4" xml:space="preserve">
     <value>First record</value>
@@ -3854,12 +3149,6 @@
         CgAQUeFEihAhHrwIoGPHig89iqS4ceRHhBczakRJ0iFDkAthupx5MCAAOw==
 </value>
   </data>
-  <data name="appearance30.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance30.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
   <data name="resource.Caption5" xml:space="preserve">
     <value>Previous record</value>
   </data>
@@ -3876,12 +3165,6 @@
         CgAA8eDDiwAoIpyYsaNGgxw9Zqw4MKRHkiUvckRp8WPDhxElxpwZMyAAOw==
 </value>
   </data>
-  <data name="appearance31.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance31.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
   <data name="resource.Caption6" xml:space="preserve">
     <value>Next record</value>
   </data>
@@ -3897,12 +3180,6 @@
         ACH/C05FVFNDQVBFMi4wAwEBAAAh+QQBAAABACwAAAAAEAAQAAAIRAADCBxIsKDBgwgTIhRwkKFBAQ4J
         RpQIYGKAiBAzAqgocaCAjSA3YvQYMqRDjCVFevSY8SPHlQ9fwiwI8WHDmwpz6gwIADs=
 </value>
-  </data>
-  <data name="appearance32.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance32.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
   </data>
   <data name="resource.Caption7" xml:space="preserve">
     <value>Last record</value>
@@ -3921,12 +3198,6 @@
         hgEBADs=
 </value>
   </data>
-  <data name="appearance33.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance33.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
   <data name="resource.Caption8" xml:space="preserve">
     <value>Add record</value>
   </data>
@@ -3942,12 +3213,6 @@
         ACH/C05FVFNDQVBFMi4wAwEBAAAh+QQBAAABACwAAAAAEAAQAAAIRQADCBxIsKDBgwgTKkwooKHDhw0H
         DBQAoCJFixUBSBR4EUDHjhsDCBhAsqRJkhEnquQ4MKSAlSJbTjxJM+TCmzhz6rwZEAA7
 </value>
-  </data>
-  <data name="appearance34.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance34.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
   </data>
   <data name="resource.Caption9" xml:space="preserve">
     <value>Copy record</value>
@@ -3978,12 +3243,6 @@
         jTJtKlUaMWJAADs=
 </value>
   </data>
-  <data name="appearance35.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance35.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
   <data name="resource.Caption10" xml:space="preserve">
     <value>Update record</value>
   </data>
@@ -4000,12 +3259,6 @@
         RWgklW6nwEOVvGRPdBlUOmnIrECdRgEwC8D/BRkIUR7q8AXjZ9ywcD9QcIPFagpEFz+p4D10Jz80AAAA
         AElFTkSuQmCC
 </value>
-  </data>
-  <data name="appearance36.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance36.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
   </data>
   <data name="resource.Caption11" xml:space="preserve">
     <value>Save changes</value>
@@ -4035,12 +3288,6 @@
         CpCY8GFDhRMvKrQIsWJDigs1gsR4cIDJkyhNEhg4IIDLli9dBlgpEGYAmzZpCiDAs6fPniQNBgQAOw==
 </value>
   </data>
-  <data name="appearance37.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance37.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
   <data name="resource.Caption12" xml:space="preserve">
     <value>Cancel update</value>
   </data>
@@ -4056,12 +3303,6 @@
         ACH/C05FVFNDQVBFMi4wAwEBAAAh+QQBAAACACwAAAAAEAAQAAAITQAFCBxIsKDBgwgTKgTAsCHDggQE
         OnQYUQCBixEnNqwYsaJFjCAFelQokiTBkSRRIhzAsqVLlh4HBJgpk+bMADFv1gywMybInxhNHgwIADs=
 </value>
-  </data>
-  <data name="appearance38.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance38.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
   </data>
   <data name="resource.Caption13" xml:space="preserve">
     <value>Delete record</value>
@@ -4079,12 +3320,6 @@
         5wIdsmRPoI8o2RdY8G8B5m8FFvQC/ZCQ8mz0eNv8g+Upkdnv7pQhuCRvBcAkGOs9KENPL+BxAAPfcVEC
         +fywAAAAAElFTkSuQmCC
 </value>
-  </data>
-  <data name="appearance39.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance39.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
   </data>
   <data name="resource.Caption14" xml:space="preserve">
     <value>&amp;Exit</value>
@@ -4125,12 +3360,6 @@
         l0uP+3bJc3vZ4MM5jpUbDH8DQj5hxK0qJOUAAAAASUVORK5CYII=
 </value>
   </data>
-  <data name="appearance40.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance40.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance41.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAL
@@ -4146,12 +3375,6 @@
         ghGZu/MdVd5dp4PlRx/uMT3uJWga2RLsXg5bSv9MG6mWKnvZjamGWvpAY7DCYC1rt12iOIGgaf2KFA+1
         3cPaXLSLFljRbx4x1VuOlN/ccaqv8vZwD8Xydqf3H0BmHvnAe+LxAAAAAElFTkSuQmCC
 </value>
-  </data>
-  <data name="appearance41.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance41.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
   </data>
   <data name="resource.Caption15" xml:space="preserve">
     <value>Commit</value>
@@ -4197,12 +3420,6 @@
         3OBZqaODK3NHBdUW3xvsLRylebJGahel4CqYc37TF7mm/Q0w2XEI9fuJFgAAAABJRU5ErkJggg==
 </value>
   </data>
-  <data name="appearance42.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance42.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance43.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAL
@@ -4218,12 +3435,6 @@
         H5bL0oe38/s6PGePEzQNXRs2N40tSaXSdJ9hoYd8M25cMHd+7d3+2bgpesjAsSJB09oVPQzUNpd/xOFz
         +TlBDNEXTkR6dNS29cE9W1CbYwW70/sPAHMk3NA3uHMAAAAASUVORK5CYII=
 </value>
-  </data>
-  <data name="appearance43.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance43.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
   </data>
   <data name="resource.Caption16" xml:space="preserve">
     <value>Revert</value>
@@ -4265,12 +3476,6 @@
         RU5ErkJggg==
 </value>
   </data>
-  <data name="appearance44.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance44.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance45.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAACt0RVh0Q29w
@@ -4286,12 +3491,6 @@
         FhiCWwUFA5tvWxfN/c/r13ibIaRVECpDPODybpTk8qo9CaKhQmiAgQEAu2vs4QLNqKIAAAAASUVORK5C
         YII=
 </value>
-  </data>
-  <data name="appearance45.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance45.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
   </data>
   <data name="resource.Caption17" xml:space="preserve">
     <value>Reorder Menu Items</value>
@@ -4346,12 +3545,6 @@
         FBrsOF5uAAAAAElFTkSuQmCC
 </value>
   </data>
-  <data name="appearance46.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance46.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance47.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAACt0RVh0Q29w
@@ -4371,157 +3564,125 @@
         TkSuQmCC
 </value>
   </data>
-  <data name="appearance47.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance47.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
   <data name="resource.Caption18" xml:space="preserve">
     <value>Copy Guid</value>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance48.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
-        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
+        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
 </value>
-  </data>
-  <data name="appearance48.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance48.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance49.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
-        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
+        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
+        X6CoP9fV4N0PdCSlAAAAAElFTkSuQmCC
 </value>
-  </data>
-  <data name="appearance49.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance49.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
   </data>
   <data name="resource.Caption19" xml:space="preserve">
     <value>Expand all</value>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance50.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
-        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
-        AAAASUVORK5CYII=
+        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
 </value>
-  </data>
-  <data name="appearance50.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance50.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance51.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAArdEVYdENvcHlyaWdodABDb3B5cmlnaHQgqSAyMDA4LTIwMTEgSU5DT1JTIEdtYkgQjiFPAAAC
-        xUlEQVQ4T62PW0iTcRjGv+suo7ugoFJMgnRqR7qqLC1JpSin5mG6KR6WeRq66TSXU+Zh5pKJn6KQRmrm
-        oULLnFqWhzymzgPqdOmGuulsHmbu6bM+GhHRRT3w8ly8z+95/3/iv0mcyJSRyW6mIv5FzYOY091poY61
-        QrZT1v0wpz105M8SRXpYSQTuC0AXgO4fs92KhaEC8APtGgVBjqkJfg6+PD+Hk0zX/XtpzKLcNM6sTOCJ
-        upIoDHXIoJl6BJPhOTaW6jHRKcULMhSV0tsoTfdCRpSLmeNm3ZAQ4GBL4wRRkhdJXR3DqrYFym45epoz
-        0FQeg6dyNhQ1PKyO58O89BjQVQKrNajKC0ZKoKOBxgmCzA4GTB8BYxuw9hrm5WoYZ0gsDYqg7hRga0IM
-        05QUG5NSymUgRV4Q+jNA4wRRLPEF1ltg1tcC2nJ81ZTBNFeErZl8bKnkWJ/MxbpSgrXhdHwZlaBMzES4
-        xxFLAZnuCeirsK0msa0qwOZUDowjKTCOZVKeCcOwCCsDqdD1CqDvT0FFlg9Ylw/s0DhByIWu2JkvpsA8
-        GMezYBgSUpAYBuoL+j4hlnr4WOzkQfs+HotdfNQ9ZIFz5dAGjROEjH9pZ02ZA13/Peh7k7AySHlfMhVO
-        gPZDPDQdsZh/G4PPbdGU81Cf7w+Oy0FLgZR3ftPwKYNaxkLdGg214u7PmVNEfXdVMxfTryIx0xyF1hL2
-        ry9I5pyZ6X3CgqopAmoqONscienGcEy8DMV4QwjG6jhQ1rIx+iyY8hAoigIQfvWwpYB708YugXVCGO/H
-        aBeHndUVJl7AG/ktjFQHYaKeQ5VwMFa7W7JbwEZLoS+47kdXaPx38QIdraKZ9nfifBjlqexT09ncc+bS
-        JGe8I70wUOGHdrk3uB62y3T87wpxs94XceP4tbDrx2Rx3vYDiT4Mk7+zTTi9/hcRxDfyR+V9nL7fBQAA
-        AABJRU5ErkJggg==
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAACt0RVh0Q29w
+        eXJpZ2h0AENvcHlyaWdodCCpIDIwMDgtMjAxMSBJTkNPUlMgR21iSBCOIU8AAALFSURBVDhPrY9bSJNx
+        GMa/6y6ju6CgUkyCdGpHuqosLUmlKKfmYbopHpZ5GrrpNJdT5mHmkomfopBGauahQsucWpaHPKbOA+p0
+        6Ya66WweZu7psz4aEdFFPfDyXLzP73n/f+K/SZzIlJHJbqYi/kXNg5jT3WmhjrVCtlPW/TCnPXTkzxJF
+        elhJBO4LQBeA7h+z3YqFoQLwA+0aBUGOqQl+Dr48P4eTTNf9e2nMotw0zqxM4Im6kigMdcigmXoEk+E5
+        NpbqMdEpxQsyFJXS2yhN90JGlIuZ42bdkBDgYEvjBFGSF0ldHcOqtgXKbjl6mjPQVB6Dp3I2FDU8rI7n
+        w7z0GNBVAqs1qMoLRkqgo4HGCYLMDgZMHwFjG7D2GublahhnSCwNiqDuFGBrQgzTlBQbk1LKZSBFXhD6
+        M0DjBFEs8QXWW2DW1wLacnzVlME0V4StmXxsqeRYn8zFulKCteF0fBmVoEzMRLjHEUsBme4J6KuwrSax
+        rSrA5lQOjCMpMI5lUp4Jw7AIKwOp0PUKoO9PQUWWD1iXD+zQOEHIha7YmS+mwDwYx7NgGBJSkBgG6gv6
+        PiGWevhY7ORB+z4ei1181D1kgXPl0AaNE4SMf2lnTZkDXf896HuTsDJIeV8yFU6A9kM8NB2xmH8bg89t
+        0ZTzUJ/vD47LQUuBlHd+0/Apg1rGQt0aDbXi7s+ZU0R9d1UzF9OvIjHTHIXWEvavL0jmnJnpfcKCqikC
+        aio42xyJ6cZwTLwMxXhDCMbqOFDWsjH6LJjyECiKAhB+9bClgHvTxi6BdUIY78doF4ed1RUmXsAb+S2M
+        VAdhop5DlXAwVrtbslvARkuhL7juR1do/HfxAh2topn2d+J8GOWp7FPT2dxz5tIkZ7wjvTBQ4Yd2uTe4
+        HrbLdPzvCnGz3hdx4/i1sOvHZHHe9gOJPgyTv7NNOL3+FxHEN/JH5X2cvt8FAAAAAElFTkSuQmCC
 </value>
-  </data>
-  <data name="appearance51.TextHAlignAsString" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="appearance51.TextVAlignAsString" xml:space="preserve">
-    <value>Default</value>
   </data>
   <data name="resource.Caption20" xml:space="preserve">
     <value>Collapse all</value>
@@ -4529,32 +3690,17 @@
   <data name="smartMenuViewer1.Location" type="System.Drawing.Point, System.Drawing">
     <value>0, 0</value>
   </data>
-  <data name="smartMenuViewer1.MaximumSize" type="System.Drawing.Size, System.Drawing">
-    <value>0, 0</value>
-  </data>
-  <data name="smartMenuViewer1.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
-    <value>Inherit</value>
-  </data>
-  <data name="smartMenuViewer1.SecurityKey" xml:space="preserve">
-    <value/>
-  </data>
   <data name="smartMenuViewer1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>522, 346</value>
-  </data>
-  <data name="smartMenuViewer1.SmartTableIOState" xml:space="preserve">
-    <value>FieldsDisabled</value>
+    <value>522, 347</value>
   </data>
   <data name="smartMenuViewer1.TabIndex" type="System.Int32, mscorlib">
     <value>5</value>
-  </data>
-  <data name="smartMenuViewer1.ViewerLogicClass" xml:space="preserve">
-    <value/>
   </data>
   <data name="&gt;&gt;smartMenuViewer1.Name" xml:space="preserve">
     <value>smartMenuViewer1</value>
   </data>
   <data name="&gt;&gt;smartMenuViewer1.Type" xml:space="preserve">
-    <value>Consultingwerk.Windows.Framework.Menu.SmartMenuViewer, OEProxyAssembly, Version=11.3.0.0, Culture=neutral, PublicKeyToken=null</value>
+    <value>Consultingwerk.Windows.Framework.Menu.SmartMenuViewer, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;smartMenuViewer1.Parent" xml:space="preserve">
     <value>ultraTabPageControl1</value>
@@ -4562,29 +3708,17 @@
   <data name="&gt;&gt;smartMenuViewer1.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
-  <data name="ultraTabPageControl1.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value/>
-  </data>
-  <data name="ultraTabPageControl1.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>Inherit</value>
-  </data>
   <data name="ultraTabPageControl1.Location" type="System.Drawing.Point, System.Drawing">
     <value>1, 22</value>
   </data>
-  <data name="ultraTabPageControl1.MaximumSize" type="System.Drawing.Size, System.Drawing">
-    <value>0, 0</value>
-  </data>
-  <data name="ultraTabPageControl1.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
-    <value>Inherit</value>
-  </data>
   <data name="ultraTabPageControl1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>522, 346</value>
+    <value>522, 347</value>
   </data>
   <data name="&gt;&gt;ultraTabPageControl1.Name" xml:space="preserve">
     <value>ultraTabPageControl1</value>
   </data>
   <data name="&gt;&gt;ultraTabPageControl1.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinTabControl.UltraTabPageControl, Infragistics4.Win.UltraWinTabControl.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinTabControl.UltraTabPageControl, Infragistics4.Win.UltraWinTabControl.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ultraTabPageControl1.Parent" xml:space="preserve">
     <value>ultraTabControl1</value>

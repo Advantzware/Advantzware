@@ -46,19 +46,19 @@ CLASS Consultingwerk.Studio.ListCaseWhen
         @param poNode The reference to the JPNode for the annotation 
         @return The new CaseWhen that was added to the List 
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC CaseWhen Add (pcExpression AS CHARACTER, 
-    	                        pcFileName AS CHARACTER,
-    	                        piLine AS INTEGER,
-    	                        piColumn AS INTEGER,
-    	                        poNode AS JPNode):
+    METHOD PUBLIC CaseWhen Add (pcExpression AS CHARACTER, 
+                                pcFileName AS CHARACTER,
+                                piLine AS INTEGER,
+                                piColumn AS INTEGER,
+                                poNode AS JPNode):
 
-		RETURN THIS-OBJECT:Add (NEW CaseWhen (pcExpression,
-        		                              pcFileName,
-        		                              piLine,
-        		                              piColumn,
-        		                              poNode)) . 
-		
-	END METHOD .
+        RETURN THIS-OBJECT:Add (NEW CaseWhen (pcExpression,
+                                              pcFileName,
+                                              piLine,
+                                              piColumn,
+                                              poNode)) . 
+        
+    END METHOD .
 &ENDIF
 
     /*------------------------------------------------------------------------------
@@ -67,16 +67,16 @@ CLASS Consultingwerk.Studio.ListCaseWhen
         @param pcExpression The Expression to locate
         @return Logical value indicating if the List contains a CaseWhen option for the given expression
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL Exists (pcExpression AS CHARACTER):
-		
-		{Consultingwerk/foreachABL.i CaseWhen oEntry in THIS-OBJECT}
-		    IF oEntry:Expression = pcExpression THEN 
-		        RETURN TRUE . 
+    METHOD PUBLIC LOGICAL Exists (pcExpression AS CHARACTER):
+        
+        {Consultingwerk/foreachABL.i CaseWhen oEntry in THIS-OBJECT}
+            IF oEntry:Expression = pcExpression THEN 
+                RETURN TRUE . 
         END.
 
         RETURN FALSE . 
     
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the first item from the list for the given expression 

@@ -37,6 +37,6 @@ CLASS &2.List&1_Generated
         THIS-OBJECT:Add (o&1) . 
         
         RETURN o&1 .
-    END.
+    END METHOD .
 
 END CLASS.

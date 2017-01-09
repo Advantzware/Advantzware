@@ -32,20 +32,20 @@ CLASS Consultingwerk.ProcessingStatusChangedEventArgs
         Purpose: Returns the status message of this event
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Message AS CHARACTER NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    DEFINE PUBLIC PROPERTY Message AS CHARACTER NO-UNDO 
+    GET.
+    PROTECTED SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the ProcessingStatusChangedEventArgs class
         Notes:   
         @param pcMessage The message associated with this event
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ProcessingStatusChangedEventArgs (pcMessage AS CHARACTER):
-		SUPER ().
-		
-		ASSIGN THIS-OBJECT:Message = pcMessage .
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC ProcessingStatusChangedEventArgs (pcMessage AS CHARACTER):
+        SUPER ().
+        
+        ASSIGN THIS-OBJECT:Message = pcMessage .
+        
+    END CONSTRUCTOR.
 
 END CLASS.

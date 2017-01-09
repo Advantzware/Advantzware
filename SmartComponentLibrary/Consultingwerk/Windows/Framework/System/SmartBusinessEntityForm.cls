@@ -11,23 +11,23 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : SmartBusinessEntityForm
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Sebastian Düngel / Consultingwerk Ltd.
     Created     : 17.10.2013 19:06:59
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Consultingwerk.Windows.Framework.System.* FROM PROPATH .  
+USING Consultingwerk.Windows.Framework.System.* FROM PROPATH .
 USING Consultingwerk.SmartComponents.Base.*     FROM PROPATH .
 USING Consultingwerk.Util.*                     FROM PROPATH .
 USING Consultingwerk.Framework.Enum.*           FROM PROPATH .
 USING Progress.Lang.*                           FROM PROPATH .
 
-CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityForm INHERITS SmartWindowForm: 
+CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityForm INHERITS SmartWindowForm:
 
     DEFINE PRIVATE VARIABLE smartBusinessEntityAdapter AS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter NO-UNDO.
     DEFINE PRIVATE VARIABLE smartBusinessEntityBindingSourceMain AS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource NO-UNDO.
@@ -38,7 +38,7 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityForm INHERITS S
     DEFINE PRIVATE VARIABLE m_SmartBusinessEntityForm_Toolbars_Dock_Area_Right AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_SmartBusinessEntityForm_Toolbars_Dock_Area_Left AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_SmartBusinessEntityForm_Toolbars_Dock_Area_Bottom AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE smartDataBrowserSmartBusinessEntity AS Consultingwerk.SmartComponents.Implementation.SmartDataBrowser NO-UNDO.
     DEFINE PRIVATE VARIABLE smartDataBrowserTable AS Consultingwerk.SmartComponents.Implementation.SmartDataBrowser NO-UNDO.
     DEFINE PRIVATE VARIABLE smartDatasetChildAdapter AS Consultingwerk.SmartComponents.Implementation.SmartDatasetChildAdapter NO-UNDO.
@@ -50,41 +50,45 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityForm INHERITS S
     DEFINE PRIVATE VARIABLE ultraTabPageControl2 AS Infragistics.Win.UltraWinTabControl.UltraTabPageControl NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraTabPageControl1 AS Infragistics.Win.UltraWinTabControl.UltraTabPageControl NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraTabControl1 AS Infragistics.Win.UltraWinTabControl.UltraTabControl NO-UNDO.
-    
+
     DEFINE VARIABLE lCreatingRecord AS LOGICAL NO-UNDO.
-    
+
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the SmartBusinessEntityForm class                                                                        
-        Notes:                                                                        
+        Purpose: Constructor for the SmartBusinessEntityForm class
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC SmartBusinessEntityForm ():
-		
+    CONSTRUCTOR PUBLIC SmartBusinessEntityForm ():
+
         SUPER().
         InitializeComponent().
-        
+
         &IF NOT PROVERSION BEGINS "10.2":U AND NOT PROVERSION BEGINS "11.0" &THEN
         THIS-OBJECT:ComponentsCollection:Add (THIS-OBJECT:components).
         &ENDIF
-        
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
-	
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    END CONSTRUCTOR.
+
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE resources AS Progress.Util.ResourceManager NO-UNDO.
+        resources = NEW Progress.Util.ResourceManager("Consultingwerk.Windows.Framework.System.SmartBusinessEntityForm":U).
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE buttonTool1 AS Infragistics.Win.UltraWinToolbars.ButtonTool NO-UNDO.
         buttonTool1 = NEW Infragistics.Win.UltraWinToolbars.ButtonTool("Exit":U).
@@ -424,9 +428,6 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityForm INHERITS S
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE tableDesc2 AS Progress.Data.TableDesc NO-UNDO.
         tableDesc2 = NEW Progress.Data.TableDesc("eSmartBusinessEntity":U).
-        @VisualDesigner.FormMember (NeedsInitialize="true":U).
-        DEFINE VARIABLE resources AS Progress.Util.ResourceManager NO-UNDO.
-        resources = NEW Progress.Util.ResourceManager("Consultingwerk.Windows.Framework.System.SmartBusinessEntityForm":U).
         THIS-OBJECT:ultraTabPageControl1 = NEW Infragistics.Win.UltraWinTabControl.UltraTabPageControl().
         THIS-OBJECT:smartBusinessEntityViewerControl = NEW Consultingwerk.Windows.Framework.System.SmartBusinessEntityViewerControl().
         THIS-OBJECT:smartBusinessEntityAdapter = NEW Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter(THIS-OBJECT:components).
@@ -467,37 +468,43 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityForm INHERITS S
         /* ultraTabPageControl1 */
         /*  */
         THIS-OBJECT:ultraTabPageControl1:Controls:Add(THIS-OBJECT:smartBusinessEntityViewerControl).
-        THIS-OBJECT:ultraTabPageControl1:Location = NEW System.Drawing.Point(1, 23).
+        resources:ApplyResources(THIS-OBJECT:ultraTabPageControl1, "ultraTabPageControl1":U).
         THIS-OBJECT:ultraTabPageControl1:Name = "ultraTabPageControl1":U.
-        THIS-OBJECT:ultraTabPageControl1:Size = NEW System.Drawing.Size(679, 552).
         /*  */
         /* smartBusinessEntityViewerControl */
         /*  */
+        THIS-OBJECT:smartBusinessEntityViewerControl:ActivateCurrentGridRowDuringEdit = TRUE.
+        THIS-OBJECT:smartBusinessEntityViewerControl:AllowCloseOfUnmodifiedNewRecord = TRUE.
         THIS-OBJECT:smartBusinessEntityViewerControl:AllowDrop = TRUE.
-        THIS-OBJECT:smartBusinessEntityViewerControl:AutoScroll = TRUE.
-        THIS-OBJECT:smartBusinessEntityViewerControl:Dock = System.Windows.Forms.DockStyle:Fill.
+        resources:ApplyResources(THIS-OBJECT:smartBusinessEntityViewerControl, "smartBusinessEntityViewerControl":U).
         THIS-OBJECT:smartBusinessEntityViewerControl:FocusControlOnAdd = ?.
         THIS-OBJECT:smartBusinessEntityViewerControl:FocusControlOnUpdate = ?.
         THIS-OBJECT:smartBusinessEntityViewerControl:LinkDataSource = THIS-OBJECT:smartBusinessEntityAdapter.
         THIS-OBJECT:smartBusinessEntityViewerControl:LinkGroupAssignSource = ?.
         THIS-OBJECT:smartBusinessEntityViewerControl:LinkTableIOSource = THIS-OBJECT:smartToolbarController.
-        THIS-OBJECT:smartBusinessEntityViewerControl:Location = NEW System.Drawing.Point(0, 0).
         THIS-OBJECT:smartBusinessEntityViewerControl:Name = "smartBusinessEntityViewerControl":U.
-        THIS-OBJECT:smartBusinessEntityViewerControl:Size = NEW System.Drawing.Size(679, 552).
-        THIS-OBJECT:smartBusinessEntityViewerControl:SmartTableIOState = "NoDataSource":U.
-        THIS-OBJECT:smartBusinessEntityViewerControl:TabIndex = 5.
+        THIS-OBJECT:smartBusinessEntityViewerControl:ReadOnlyDisabled = FALSE.
+        THIS-OBJECT:smartBusinessEntityViewerControl:SaveMode = FALSE.
         /*  */
         /* smartBusinessEntityAdapter */
         /*  */
+        THIS-OBJECT:smartBusinessEntityAdapter:AppServerPartition = "":U.
+        THIS-OBJECT:smartBusinessEntityAdapter:BindingSourceExcludeFields = "":U.
+        THIS-OBJECT:smartBusinessEntityAdapter:BindingSourceIncludeFields = "*":U.
         THIS-OBJECT:smartBusinessEntityAdapter:DatasetControllerType = "Consultingwerk.Windows.Framework.System.SmartBusinessEntityDatasetController":U.
         THIS-OBJECT:smartBusinessEntityAdapter:EntityJoin = "NO":U.
         THIS-OBJECT:smartBusinessEntityAdapter:EntityName = "Consultingwerk.SmartFramework.System.SmartBusinessEntityBusinessEntity":U.
         THIS-OBJECT:smartBusinessEntityAdapter:EntityTable = "eSmartBusinessEntity":U.
         THIS-OBJECT:smartBusinessEntityAdapter:EntityView = "eSmartBusinessEntityTable":U.
         THIS-OBJECT:smartBusinessEntityAdapter:FetchLastOnServer = TRUE.
+        THIS-OBJECT:smartBusinessEntityAdapter:ForeignFields = "":U.
         THIS-OBJECT:smartBusinessEntityAdapter:LinkCommitSource = ?.
         THIS-OBJECT:smartBusinessEntityAdapter:LinkDataSource = ?.
         THIS-OBJECT:smartBusinessEntityAdapter:LinkNavigationSource = THIS-OBJECT:smartToolbarController.
+        THIS-OBJECT:smartBusinessEntityAdapter:NonUpdatableColumns = "":U.
+        THIS-OBJECT:smartBusinessEntityAdapter:QuerySort = "":U.
+        THIS-OBJECT:smartBusinessEntityAdapter:SmartDataSourceActive = TRUE.
+        THIS-OBJECT:smartBusinessEntityAdapter:ThrowErrorsFromRetrieveData = FALSE.
         THIS-OBJECT:smartBusinessEntityAdapter:AfterUpdateRecord:Subscribe(THIS-OBJECT:smartBusinessEntityAdapter1_AfterUpdateRecord).
         THIS-OBJECT:smartBusinessEntityAdapter:BeforeUpdateRecord:Subscribe(THIS-OBJECT:smartBusinessEntityAdapter1_BeforeUpdateRecord).
         /*  */
@@ -520,8 +527,8 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityForm INHERITS S
         arrayvar1[5] = buttonTool6.
         arrayvar1[6] = buttonTool7.
         THIS-OBJECT:smartToolbarController:Ribbon:ApplicationMenu:ToolAreaLeft:NonInheritedTools:AddRange(arrayvar1).
-        ribbonTab1:Caption = "Start":U.
-        ribbonGroup1:Caption = "Navigation":U.
+        resources:ApplyResources(ribbonTab1, "ribbonTab1":U).
+        resources:ApplyResources(ribbonGroup1, "ribbonGroup1":U).
         buttonTool8:InstanceProps:MinimumSizeOnRibbon = Infragistics.Win.UltraWinToolbars.RibbonToolSize:ImageOnly.
         buttonTool8:InstanceProps:PreferredSizeOnRibbon = Infragistics.Win.UltraWinToolbars.RibbonToolSize:Large.
         buttonTool9:InstanceProps:MinimumSizeOnRibbon = Infragistics.Win.UltraWinToolbars.RibbonToolSize:ImageOnly.
@@ -537,7 +544,7 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityForm INHERITS S
         arrayvar2[3] = buttonTool10.
         arrayvar2[4] = buttonTool11.
         ribbonGroup1:Tools:AddRange(arrayvar2).
-        ribbonGroup2:Caption = "Maintenance":U.
+        resources:ApplyResources(ribbonGroup2, "ribbonGroup2":U).
         buttonTool12:InstanceProps:MinimumSizeOnRibbon = Infragistics.Win.UltraWinToolbars.RibbonToolSize:ImageOnly.
         buttonTool12:InstanceProps:PreferredSizeOnRibbon = Infragistics.Win.UltraWinToolbars.RibbonToolSize:Large.
         buttonTool13:InstanceProps:MinimumSizeOnRibbon = Infragistics.Win.UltraWinToolbars.RibbonToolSize:ImageOnly.
@@ -584,7 +591,7 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityForm INHERITS S
         arrayvar7[3] = buttonTool25.
         arrayvar7[4] = buttonTool26.
         ultraToolbar1:NonInheritedTools:AddRange(arrayvar7).
-        ultraToolbar1:Text = "Navigation Toolbar":U.
+        resources:ApplyResources(ultraToolbar1, "ultraToolbar1":U).
         ultraToolbar2:DockedColumn = 0.
         ultraToolbar2:DockedRow = 1.
         buttonTool27:InstanceProps:IsFirstInGroup = TRUE.
@@ -597,7 +604,7 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityForm INHERITS S
         arrayvar8[5] = buttonTool31.
         arrayvar8[6] = buttonTool32.
         ultraToolbar2:NonInheritedTools:AddRange(arrayvar8).
-        ultraToolbar2:Text = "TableIO Toolbar":U.
+        resources:ApplyResources(ultraToolbar2, "ultraToolbar2":U).
         ultraToolbar3:DockedColumn = 1.
         ultraToolbar3:DockedRow = 1.
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
@@ -605,7 +612,7 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityForm INHERITS S
         arrayvar9[1] = buttonTool33.
         arrayvar9[2] = buttonTool34.
         ultraToolbar3:NonInheritedTools:AddRange(arrayvar9).
-        ultraToolbar3:Text = "Transaction Toolbar":U.
+        resources:ApplyResources(ultraToolbar3, "ultraToolbar3":U).
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
         DEFINE VARIABLE arrayvar10 AS Infragistics.Win.UltraWinToolbars.UltraToolbar EXTENT 3 NO-UNDO.
         arrayvar10[1] = ultraToolbar1.
@@ -614,84 +621,73 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityForm INHERITS S
         THIS-OBJECT:smartToolbarController:Toolbars:AddRange(arrayvar10).
         appearance25:Image = CAST(resources:GetObject("appearance25.Image":U), System.Object).
         buttonTool35:SharedPropsInternal:AppearancesSmall:Appearance = appearance25.
-        buttonTool35:SharedPropsInternal:Caption = "First record":U.
-        buttonTool35:SharedPropsInternal:CustomizerCaption = "First":U.
+        resources:ApplyResources(buttonTool35:SharedPropsInternal, "buttonTool35.SharedPropsInternal":U).
         buttonTool35:SharedPropsInternal:Enabled = FALSE.
-        buttonTool35:SharedPropsInternal:ToolTipText = "First record":U.
+        buttonTool35:ForceApplyResources = "SharedPropsInternal":U.
         appearance26:Image = CAST(resources:GetObject("appearance26.Image":U), System.Object).
         buttonTool36:SharedPropsInternal:AppearancesSmall:Appearance = appearance26.
-        buttonTool36:SharedPropsInternal:Caption = "Previous record":U.
-        buttonTool36:SharedPropsInternal:CustomizerCaption = "Previous":U.
+        resources:ApplyResources(buttonTool36:SharedPropsInternal, "buttonTool36.SharedPropsInternal":U).
         buttonTool36:SharedPropsInternal:Enabled = FALSE.
-        buttonTool36:SharedPropsInternal:ToolTipText = "Previous record":U.
+        buttonTool36:ForceApplyResources = "SharedPropsInternal":U.
         appearance27:Image = CAST(resources:GetObject("appearance27.Image":U), System.Object).
         buttonTool37:SharedPropsInternal:AppearancesSmall:Appearance = appearance27.
-        buttonTool37:SharedPropsInternal:Caption = "Next record":U.
-        buttonTool37:SharedPropsInternal:CustomizerCaption = "Next":U.
+        resources:ApplyResources(buttonTool37:SharedPropsInternal, "buttonTool37.SharedPropsInternal":U).
         buttonTool37:SharedPropsInternal:Enabled = FALSE.
-        buttonTool37:SharedPropsInternal:ToolTipText = "Next record":U.
+        buttonTool37:ForceApplyResources = "SharedPropsInternal":U.
         appearance28:Image = CAST(resources:GetObject("appearance28.Image":U), System.Object).
         buttonTool38:SharedPropsInternal:AppearancesSmall:Appearance = appearance28.
-        buttonTool38:SharedPropsInternal:Caption = "Last record":U.
-        buttonTool38:SharedPropsInternal:CustomizerCaption = "Last":U.
+        resources:ApplyResources(buttonTool38:SharedPropsInternal, "buttonTool38.SharedPropsInternal":U).
         buttonTool38:SharedPropsInternal:Enabled = FALSE.
-        buttonTool38:SharedPropsInternal:ToolTipText = "Last record":U.
+        buttonTool38:ForceApplyResources = "SharedPropsInternal":U.
         appearance29:Image = CAST(resources:GetObject("appearance29.Image":U), System.Object).
         buttonTool39:SharedPropsInternal:AppearancesSmall:Appearance = appearance29.
-        buttonTool39:SharedPropsInternal:Caption = "Add record":U.
-        buttonTool39:SharedPropsInternal:CustomizerCaption = "Add":U.
+        resources:ApplyResources(buttonTool39:SharedPropsInternal, "buttonTool39.SharedPropsInternal":U).
         buttonTool39:SharedPropsInternal:Enabled = FALSE.
-        buttonTool39:SharedPropsInternal:ToolTipText = "Add record":U.
+        buttonTool39:ForceApplyResources = "SharedPropsInternal":U.
         appearance30:Image = CAST(resources:GetObject("appearance30.Image":U), System.Object).
         buttonTool40:SharedPropsInternal:AppearancesSmall:Appearance = appearance30.
-        buttonTool40:SharedPropsInternal:Caption = "Copy record":U.
-        buttonTool40:SharedPropsInternal:CustomizerCaption = "Copy":U.
+        resources:ApplyResources(buttonTool40:SharedPropsInternal, "buttonTool40.SharedPropsInternal":U).
         buttonTool40:SharedPropsInternal:Enabled = FALSE.
-        buttonTool40:SharedPropsInternal:ToolTipText = "Copy record":U.
+        buttonTool40:ForceApplyResources = "SharedPropsInternal":U.
         appearance31:Image = CAST(resources:GetObject("appearance31.Image":U), System.Object).
         buttonTool41:SharedPropsInternal:AppearancesSmall:Appearance = appearance31.
-        buttonTool41:SharedPropsInternal:Caption = "Update record":U.
-        buttonTool41:SharedPropsInternal:CustomizerCaption = "Update":U.
+        resources:ApplyResources(buttonTool41:SharedPropsInternal, "buttonTool41.SharedPropsInternal":U).
         buttonTool41:SharedPropsInternal:Enabled = FALSE.
-        buttonTool41:SharedPropsInternal:ToolTipText = "Update record":U.
+        buttonTool41:ForceApplyResources = "SharedPropsInternal":U.
         appearance32:Image = CAST(resources:GetObject("appearance32.Image":U), System.Object).
         buttonTool42:SharedPropsInternal:AppearancesSmall:Appearance = appearance32.
-        buttonTool42:SharedPropsInternal:Caption = "Save changes":U.
-        buttonTool42:SharedPropsInternal:CustomizerCaption = "Save":U.
+        resources:ApplyResources(buttonTool42:SharedPropsInternal, "buttonTool42.SharedPropsInternal":U).
         buttonTool42:SharedPropsInternal:Enabled = FALSE.
-        buttonTool42:SharedPropsInternal:ToolTipText = "Save changes":U.
+        buttonTool42:ForceApplyResources = "SharedPropsInternal":U.
         appearance33:Image = CAST(resources:GetObject("appearance33.Image":U), System.Object).
         buttonTool43:SharedPropsInternal:AppearancesSmall:Appearance = appearance33.
-        buttonTool43:SharedPropsInternal:Caption = "Cancel update":U.
-        buttonTool43:SharedPropsInternal:CustomizerCaption = "Cancel":U.
+        resources:ApplyResources(buttonTool43:SharedPropsInternal, "buttonTool43.SharedPropsInternal":U).
         buttonTool43:SharedPropsInternal:Enabled = FALSE.
-        buttonTool43:SharedPropsInternal:ToolTipText = "Cancel update":U.
+        buttonTool43:ForceApplyResources = "SharedPropsInternal":U.
         appearance34:Image = CAST(resources:GetObject("appearance34.Image":U), System.Object).
         buttonTool44:SharedPropsInternal:AppearancesSmall:Appearance = appearance34.
-        buttonTool44:SharedPropsInternal:Caption = "Delete record":U.
-        buttonTool44:SharedPropsInternal:CustomizerCaption = "Delete":U.
+        resources:ApplyResources(buttonTool44:SharedPropsInternal, "buttonTool44.SharedPropsInternal":U).
         buttonTool44:SharedPropsInternal:Enabled = FALSE.
-        buttonTool44:SharedPropsInternal:ToolTipText = "Delete record":U.
+        buttonTool44:ForceApplyResources = "SharedPropsInternal":U.
         appearance35:Image = CAST(resources:GetObject("appearance35.Image":U), System.Object).
         buttonTool45:SharedPropsInternal:AppearancesSmall:Appearance = appearance35.
-        buttonTool45:SharedPropsInternal:Caption = "&Exit":U.
+        resources:ApplyResources(buttonTool45:SharedPropsInternal, "buttonTool45.SharedPropsInternal":U).
         buttonTool45:SharedPropsInternal:DisplayStyle = Infragistics.Win.UltraWinToolbars.ToolDisplayStyle:ImageAndText.
+        buttonTool45:ForceApplyResources = "SharedPropsInternal":U.
         appearance36:Image = CAST(resources:GetObject("appearance36.Image":U), System.Object).
         buttonTool46:SharedPropsInternal:AppearancesLarge:Appearance = appearance36.
         appearance37:Image = CAST(resources:GetObject("appearance37.Image":U), System.Object).
         buttonTool46:SharedPropsInternal:AppearancesSmall:Appearance = appearance37.
-        buttonTool46:SharedPropsInternal:Caption = "Commit":U.
-        buttonTool46:SharedPropsInternal:CustomizerCaption = "Commit":U.
+        resources:ApplyResources(buttonTool46:SharedPropsInternal, "buttonTool46.SharedPropsInternal":U).
         buttonTool46:SharedPropsInternal:Enabled = FALSE.
-        buttonTool46:SharedPropsInternal:ToolTipText = "Commit transaction":U.
+        buttonTool46:ForceApplyResources = "SharedPropsInternal":U.
         appearance38:Image = CAST(resources:GetObject("appearance38.Image":U), System.Object).
         buttonTool47:SharedPropsInternal:AppearancesLarge:Appearance = appearance38.
         appearance39:Image = CAST(resources:GetObject("appearance39.Image":U), System.Object).
         buttonTool47:SharedPropsInternal:AppearancesSmall:Appearance = appearance39.
-        buttonTool47:SharedPropsInternal:Caption = "Revert":U.
-        buttonTool47:SharedPropsInternal:CustomizerCaption = "Revert":U.
+        resources:ApplyResources(buttonTool47:SharedPropsInternal, "buttonTool47.SharedPropsInternal":U).
         buttonTool47:SharedPropsInternal:Enabled = FALSE.
-        buttonTool47:SharedPropsInternal:ToolTipText = "Revert transaction":U.
+        buttonTool47:ForceApplyResources = "SharedPropsInternal":U.
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
         DEFINE VARIABLE arrayvar11 AS Infragistics.Win.UltraWinToolbars.ToolBase EXTENT 13 NO-UNDO.
         arrayvar11[1] = buttonTool35.
@@ -714,46 +710,68 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityForm INHERITS S
         THIS-OBJECT:ultraTabPageControl2:Controls:Add(THIS-OBJECT:smartDataBrowserTable).
         THIS-OBJECT:ultraTabPageControl2:Controls:Add(THIS-OBJECT:ultraSplitter2).
         THIS-OBJECT:ultraTabPageControl2:Controls:Add(THIS-OBJECT:smartBusinessEntityTableViewerControl).
-        THIS-OBJECT:ultraTabPageControl2:Location = NEW System.Drawing.Point(-10000, -10000).
+        resources:ApplyResources(THIS-OBJECT:ultraTabPageControl2, "ultraTabPageControl2":U).
         THIS-OBJECT:ultraTabPageControl2:Name = "ultraTabPageControl2":U.
-        THIS-OBJECT:ultraTabPageControl2:Size = NEW System.Drawing.Size(679, 553).
         /*  */
         /* smartDataBrowserTable */
         /*  */
         THIS-OBJECT:smartDataBrowserTable:DataSource = THIS-OBJECT:smartBusinessEntityBindingSourceChild.
+        THIS-OBJECT:smartDataBrowserTable:DeselectRowsOnActivate = TRUE.
         appearance1:BackColor = System.Drawing.SystemColors:Window.
         appearance1:BorderColor = System.Drawing.SystemColors:InactiveCaption.
         THIS-OBJECT:smartDataBrowserTable:DisplayLayout:Appearance = appearance1.
         ultraGridColumn6:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn6:Header, "ultraGridColumn6.Header":U).
         ultraGridColumn6:Header:VisiblePosition = 0.
         ultraGridColumn6:Hidden = TRUE.
+        ultraGridColumn6:ForceApplyResources = "Header":U.
         ultraGridColumn7:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn7:Header, "ultraGridColumn7.Header":U).
         ultraGridColumn7:Header:VisiblePosition = 1.
         ultraGridColumn7:Hidden = TRUE.
+        ultraGridColumn7:ForceApplyResources = "Header":U.
         ultraGridColumn8:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
         ultraGridColumn8:FilterOperatorDefaultValue = Infragistics.Win.UltraWinGrid.FilterOperatorDefaultValue:GreaterThanOrEqualTo.
+        resources:ApplyResources(ultraGridColumn8:Header, "ultraGridColumn8.Header":U).
         ultraGridColumn8:Header:VisiblePosition = 2.
+        ultraGridColumn8:ForceApplyResources = "Header":U.
         ultraGridColumn9:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn9:Header, "ultraGridColumn9.Header":U).
         ultraGridColumn9:Header:VisiblePosition = 3.
+        ultraGridColumn9:ForceApplyResources = "Header":U.
         ultraGridColumn10:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn10:Header, "ultraGridColumn10.Header":U).
         ultraGridColumn10:Header:VisiblePosition = 4.
         ultraGridColumn10:Hidden = TRUE.
+        ultraGridColumn10:ForceApplyResources = "Header":U.
         ultraGridColumn11:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn11:Header, "ultraGridColumn11.Header":U).
         ultraGridColumn11:Header:VisiblePosition = 5.
         ultraGridColumn11:Hidden = TRUE.
+        ultraGridColumn11:ForceApplyResources = "Header":U.
         ultraGridColumn12:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn12:Header, "ultraGridColumn12.Header":U).
         ultraGridColumn12:Header:VisiblePosition = 6.
         ultraGridColumn12:Hidden = TRUE.
+        ultraGridColumn12:ForceApplyResources = "Header":U.
         ultraGridColumn13:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
         ultraGridColumn13:FilterOperatorDefaultValue = Infragistics.Win.UltraWinGrid.FilterOperatorDefaultValue:GreaterThanOrEqualTo.
+        resources:ApplyResources(ultraGridColumn13:Header, "ultraGridColumn13.Header":U).
         ultraGridColumn13:Header:VisiblePosition = 7.
         ultraGridColumn13:Hidden = TRUE.
+        ultraGridColumn13:ForceApplyResources = "Header":U.
         ultraGridColumn14:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn14:Header, "ultraGridColumn14.Header":U).
         ultraGridColumn14:Header:VisiblePosition = 8.
+        ultraGridColumn14:ForceApplyResources = "Header":U.
         ultraGridColumn15:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn15:Header, "ultraGridColumn15.Header":U).
         ultraGridColumn15:Header:VisiblePosition = 9.
+        ultraGridColumn15:ForceApplyResources = "Header":U.
         ultraGridColumn16:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn16:Header, "ultraGridColumn16.Header":U).
         ultraGridColumn16:Header:VisiblePosition = 10.
+        ultraGridColumn16:ForceApplyResources = "Header":U.
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
         DEFINE VARIABLE arrayvar12 AS System.Object EXTENT 11 NO-UNDO.
         arrayvar12[1] = ultraGridColumn6.
@@ -814,7 +832,7 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityForm INHERITS S
         appearance9:BackGradientStyle = Infragistics.Win.GradientStyle:Horizontal.
         appearance9:BorderColor = System.Drawing.SystemColors:Window.
         THIS-OBJECT:smartDataBrowserTable:DisplayLayout:Override:GroupByRowAppearance = appearance9.
-        appearance10:TextHAlignAsString = "Left":U.
+        resources:ApplyResources(appearance10, "appearance10":U).
         THIS-OBJECT:smartDataBrowserTable:DisplayLayout:Override:HeaderAppearance = appearance10.
         THIS-OBJECT:smartDataBrowserTable:DisplayLayout:Override:HeaderClickAction = Infragistics.Win.UltraWinGrid.HeaderClickAction:ExternalSortMulti.
         THIS-OBJECT:smartDataBrowserTable:DisplayLayout:Override:HeaderStyle = Infragistics.Win.HeaderStyle:WindowsXPCommand.
@@ -828,14 +846,10 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityForm INHERITS S
         THIS-OBJECT:smartDataBrowserTable:DisplayLayout:ScrollBounds = Infragistics.Win.UltraWinGrid.ScrollBounds:ScrollToFill.
         THIS-OBJECT:smartDataBrowserTable:DisplayLayout:ScrollStyle = Infragistics.Win.UltraWinGrid.ScrollStyle:Immediate.
         THIS-OBJECT:smartDataBrowserTable:DisplayLayout:ViewStyleBand = Infragistics.Win.UltraWinGrid.ViewStyleBand:OutlookGroupBy.
-        THIS-OBJECT:smartDataBrowserTable:Dock = System.Windows.Forms.DockStyle:Fill.
+        resources:ApplyResources(THIS-OBJECT:smartDataBrowserTable, "smartDataBrowserTable":U).
         THIS-OBJECT:smartDataBrowserTable:LinkDataSource = THIS-OBJECT:smartDatasetChildAdapter.
-        THIS-OBJECT:smartDataBrowserTable:Location = NEW System.Drawing.Point(0, 0).
         THIS-OBJECT:smartDataBrowserTable:Name = "smartDataBrowserTable":U.
         THIS-OBJECT:smartDataBrowserTable:SettingsKey = "f6ac1e71-9178-7dae-d513-c6cfd44f28d0":U.
-        THIS-OBJECT:smartDataBrowserTable:Size = NEW System.Drawing.Size(679, 284).
-        THIS-OBJECT:smartDataBrowserTable:TabIndex = 3.
-        THIS-OBJECT:smartDataBrowserTable:Text = "smartDataBrowser1":U.
         /*  */
         /* smartBusinessEntityBindingSourceChild */
         /*  */
@@ -863,35 +877,39 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityForm INHERITS S
         /*  */
         /* smartDatasetChildAdapter */
         /*  */
+        THIS-OBJECT:smartDatasetChildAdapter:AppServerPartition = "":U.
+        THIS-OBJECT:smartDatasetChildAdapter:BindingSourceExcludeFields = "":U.
+        THIS-OBJECT:smartDatasetChildAdapter:BindingSourceIncludeFields = "*":U.
         THIS-OBJECT:smartDatasetChildAdapter:EntityTable = "eSmartBusinessEntityTable":U.
         THIS-OBJECT:smartDatasetChildAdapter:ForeignFields = "BusinessEntityGuid,BusinessEntityGuid":U.
         THIS-OBJECT:smartDatasetChildAdapter:LinkDataSource = THIS-OBJECT:smartBusinessEntityAdapter.
         THIS-OBJECT:smartDatasetChildAdapter:LinkGroupCreateSource = ?.
         THIS-OBJECT:smartDatasetChildAdapter:LinkNavigationSource = THIS-OBJECT:smartToolbarController.
+        THIS-OBJECT:smartDatasetChildAdapter:NonUpdatableColumns = "":U.
+        THIS-OBJECT:smartDatasetChildAdapter:QuerySort = "":U.
+        THIS-OBJECT:smartDatasetChildAdapter:SmartDataSourceActive = TRUE.
+        THIS-OBJECT:smartDatasetChildAdapter:ThrowErrorsFromRetrieveData = FALSE.
         /*  */
         /* ultraSplitter2 */
         /*  */
         THIS-OBJECT:ultraSplitter2:BackColor = System.Drawing.SystemColors:Control.
-        THIS-OBJECT:ultraSplitter2:Dock = System.Windows.Forms.DockStyle:Bottom.
-        THIS-OBJECT:ultraSplitter2:Location = NEW System.Drawing.Point(0, 284).
+        resources:ApplyResources(THIS-OBJECT:ultraSplitter2, "ultraSplitter2":U).
         THIS-OBJECT:ultraSplitter2:Name = "ultraSplitter2":U.
         THIS-OBJECT:ultraSplitter2:RestoreExtent = 263.
-        THIS-OBJECT:ultraSplitter2:Size = NEW System.Drawing.Size(679, 6).
-        THIS-OBJECT:ultraSplitter2:TabIndex = 2.
         /*  */
         /* smartBusinessEntityTableViewerControl */
         /*  */
-        THIS-OBJECT:smartBusinessEntityTableViewerControl:Dock = System.Windows.Forms.DockStyle:Bottom.
+        THIS-OBJECT:smartBusinessEntityTableViewerControl:ActivateCurrentGridRowDuringEdit = TRUE.
+        THIS-OBJECT:smartBusinessEntityTableViewerControl:AllowCloseOfUnmodifiedNewRecord = TRUE.
+        resources:ApplyResources(THIS-OBJECT:smartBusinessEntityTableViewerControl, "smartBusinessEntityTableViewerControl":U).
         THIS-OBJECT:smartBusinessEntityTableViewerControl:FocusControlOnAdd = ?.
         THIS-OBJECT:smartBusinessEntityTableViewerControl:FocusControlOnUpdate = ?.
         THIS-OBJECT:smartBusinessEntityTableViewerControl:LinkDataSource = THIS-OBJECT:smartDatasetChildAdapter.
         THIS-OBJECT:smartBusinessEntityTableViewerControl:LinkGroupAssignSource = ?.
         THIS-OBJECT:smartBusinessEntityTableViewerControl:LinkTableIOSource = THIS-OBJECT:smartToolbarController.
-        THIS-OBJECT:smartBusinessEntityTableViewerControl:Location = NEW System.Drawing.Point(0, 290).
         THIS-OBJECT:smartBusinessEntityTableViewerControl:Name = "smartBusinessEntityTableViewerControl":U.
-        THIS-OBJECT:smartBusinessEntityTableViewerControl:Size = NEW System.Drawing.Size(679, 263).
-        THIS-OBJECT:smartBusinessEntityTableViewerControl:SmartTableIOState = "FieldsDisabled":U.
-        THIS-OBJECT:smartBusinessEntityTableViewerControl:TabIndex = 0.
+        THIS-OBJECT:smartBusinessEntityTableViewerControl:ReadOnlyDisabled = FALSE.
+        THIS-OBJECT:smartBusinessEntityTableViewerControl:SaveMode = FALSE.
         /*  */
         /* SmartBusinessEntityForm_Fill_Panel */
         /*  */
@@ -902,29 +920,25 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityForm INHERITS S
         THIS-OBJECT:SmartBusinessEntityForm_Fill_Panel:ClientArea:Controls:Add(THIS-OBJECT:ultraSplitter1).
         THIS-OBJECT:SmartBusinessEntityForm_Fill_Panel:ClientArea:Controls:Add(THIS-OBJECT:smartDataBrowserSmartBusinessEntity).
         THIS-OBJECT:SmartBusinessEntityForm_Fill_Panel:Cursor = System.Windows.Forms.Cursors:Default.
-        THIS-OBJECT:SmartBusinessEntityForm_Fill_Panel:Dock = System.Windows.Forms.DockStyle:Fill.
-        THIS-OBJECT:SmartBusinessEntityForm_Fill_Panel:Location = NEW System.Drawing.Point(8, 151).
+        resources:ApplyResources(THIS-OBJECT:SmartBusinessEntityForm_Fill_Panel, "SmartBusinessEntityForm_Fill_Panel":U).
         THIS-OBJECT:SmartBusinessEntityForm_Fill_Panel:Name = "SmartBusinessEntityForm_Fill_Panel":U.
-        THIS-OBJECT:SmartBusinessEntityForm_Fill_Panel:Size = NEW System.Drawing.Size(996, 578).
-        THIS-OBJECT:SmartBusinessEntityForm_Fill_Panel:TabIndex = 0.
         /*  */
         /* ultraTabControl1 */
         /*  */
         THIS-OBJECT:ultraTabControl1:Controls:Add(THIS-OBJECT:ultraTabSharedControlsPage1).
         THIS-OBJECT:ultraTabControl1:Controls:Add(THIS-OBJECT:ultraTabPageControl1).
         THIS-OBJECT:ultraTabControl1:Controls:Add(THIS-OBJECT:ultraTabPageControl2).
-        THIS-OBJECT:ultraTabControl1:Dock = System.Windows.Forms.DockStyle:Fill.
-        THIS-OBJECT:ultraTabControl1:Location = NEW System.Drawing.Point(313, 0).
+        resources:ApplyResources(THIS-OBJECT:ultraTabControl1, "ultraTabControl1":U).
         THIS-OBJECT:ultraTabControl1:Name = "ultraTabControl1":U.
         THIS-OBJECT:ultraTabControl1:SharedControlsPage = THIS-OBJECT:ultraTabSharedControlsPage1.
-        THIS-OBJECT:ultraTabControl1:Size = NEW System.Drawing.Size(683, 578).
-        THIS-OBJECT:ultraTabControl1:TabIndex = 7.
         ultraTab1:Key = "TabSmartBusinessEntity":U.
         ultraTab1:TabPage = THIS-OBJECT:ultraTabPageControl1.
-        ultraTab1:Text = "SmartBusinessEntity":U.
+        resources:ApplyResources(ultraTab1, "ultraTab1":U).
+        ultraTab1:ForceApplyResources = "":U.
         ultraTab2:Key = "TabSmartBusinessEntityTable":U.
         ultraTab2:TabPage = THIS-OBJECT:ultraTabPageControl2.
-        ultraTab2:Text = "SmartBusinessEntityTable":U.
+        resources:ApplyResources(ultraTab2, "ultraTab2":U).
+        ultraTab2:ForceApplyResources = "":U.
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
         DEFINE VARIABLE arrayvar14 AS Infragistics.Win.UltraWinTabControl.UltraTab EXTENT 2 NO-UNDO.
         arrayvar14[1] = ultraTab1.
@@ -934,40 +948,50 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityForm INHERITS S
         /*  */
         /* ultraTabSharedControlsPage1 */
         /*  */
-        THIS-OBJECT:ultraTabSharedControlsPage1:Location = NEW System.Drawing.Point(-10000, -10000).
+        resources:ApplyResources(THIS-OBJECT:ultraTabSharedControlsPage1, "ultraTabSharedControlsPage1":U).
         THIS-OBJECT:ultraTabSharedControlsPage1:Name = "ultraTabSharedControlsPage1":U.
-        THIS-OBJECT:ultraTabSharedControlsPage1:Size = NEW System.Drawing.Size(679, 552).
         /*  */
         /* ultraSplitter1 */
         /*  */
         THIS-OBJECT:ultraSplitter1:Cursor = System.Windows.Forms.Cursors:VSplit.
-        THIS-OBJECT:ultraSplitter1:Location = NEW System.Drawing.Point(307, 0).
+        resources:ApplyResources(THIS-OBJECT:ultraSplitter1, "ultraSplitter1":U).
         THIS-OBJECT:ultraSplitter1:Name = "ultraSplitter1":U.
         THIS-OBJECT:ultraSplitter1:RestoreExtent = 307.
-        THIS-OBJECT:ultraSplitter1:Size = NEW System.Drawing.Size(6, 578).
-        THIS-OBJECT:ultraSplitter1:TabIndex = 6.
         /*  */
         /* smartDataBrowserSmartBusinessEntity */
         /*  */
         THIS-OBJECT:smartDataBrowserSmartBusinessEntity:DataSource = THIS-OBJECT:smartBusinessEntityBindingSourceMain.
+        THIS-OBJECT:smartDataBrowserSmartBusinessEntity:DeselectRowsOnActivate = TRUE.
         appearance13:BackColor = System.Drawing.SystemColors:Window.
         appearance13:BorderColor = System.Drawing.SystemColors:InactiveCaption.
         THIS-OBJECT:smartDataBrowserSmartBusinessEntity:DisplayLayout:Appearance = appearance13.
         ultraGridColumn17:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn17:Header, "ultraGridColumn17.Header":U).
         ultraGridColumn17:Header:VisiblePosition = 0.
         ultraGridColumn17:Hidden = TRUE.
+        ultraGridColumn17:ForceApplyResources = "Header":U.
         ultraGridColumn18:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn18:Header, "ultraGridColumn18.Header":U).
         ultraGridColumn18:Header:VisiblePosition = 1.
+        ultraGridColumn18:ForceApplyResources = "Header":U.
         ultraGridColumn19:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn19:Header, "ultraGridColumn19.Header":U).
         ultraGridColumn19:Header:VisiblePosition = 2.
+        ultraGridColumn19:ForceApplyResources = "Header":U.
         ultraGridColumn20:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn20:Header, "ultraGridColumn20.Header":U).
         ultraGridColumn20:Header:VisiblePosition = 3.
         ultraGridColumn20:Hidden = TRUE.
+        ultraGridColumn20:ForceApplyResources = "Header":U.
         ultraGridColumn21:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn21:Header, "ultraGridColumn21.Header":U).
         ultraGridColumn21:Header:VisiblePosition = 4.
+        ultraGridColumn21:ForceApplyResources = "Header":U.
         ultraGridColumn1:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn1:Header, "ultraGridColumn1.Header":U).
         ultraGridColumn1:Header:VisiblePosition = 5.
         ultraGridColumn1:Style = Infragistics.Win.UltraWinGrid.ColumnStyle:TriStateCheckBox.
+        ultraGridColumn1:ForceApplyResources = "Header":U.
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
         DEFINE VARIABLE arrayvar15 AS System.Object EXTENT 6 NO-UNDO.
         arrayvar15[1] = ultraGridColumn17.
@@ -1023,7 +1047,7 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityForm INHERITS S
         appearance21:BackGradientStyle = Infragistics.Win.GradientStyle:Horizontal.
         appearance21:BorderColor = System.Drawing.SystemColors:Window.
         THIS-OBJECT:smartDataBrowserSmartBusinessEntity:DisplayLayout:Override:GroupByRowAppearance = appearance21.
-        appearance22:TextHAlignAsString = "Left":U.
+        resources:ApplyResources(appearance22, "appearance22":U).
         THIS-OBJECT:smartDataBrowserSmartBusinessEntity:DisplayLayout:Override:HeaderAppearance = appearance22.
         THIS-OBJECT:smartDataBrowserSmartBusinessEntity:DisplayLayout:Override:HeaderClickAction = Infragistics.Win.UltraWinGrid.HeaderClickAction:ExternalSortMulti.
         THIS-OBJECT:smartDataBrowserSmartBusinessEntity:DisplayLayout:Override:HeaderStyle = Infragistics.Win.HeaderStyle:WindowsXPCommand.
@@ -1037,16 +1061,11 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityForm INHERITS S
         THIS-OBJECT:smartDataBrowserSmartBusinessEntity:DisplayLayout:ScrollBounds = Infragistics.Win.UltraWinGrid.ScrollBounds:ScrollToFill.
         THIS-OBJECT:smartDataBrowserSmartBusinessEntity:DisplayLayout:ScrollStyle = Infragistics.Win.UltraWinGrid.ScrollStyle:Immediate.
         THIS-OBJECT:smartDataBrowserSmartBusinessEntity:DisplayLayout:ViewStyleBand = Infragistics.Win.UltraWinGrid.ViewStyleBand:OutlookGroupBy.
-        THIS-OBJECT:smartDataBrowserSmartBusinessEntity:Dock = System.Windows.Forms.DockStyle:Left.
+        resources:ApplyResources(THIS-OBJECT:smartDataBrowserSmartBusinessEntity, "smartDataBrowserSmartBusinessEntity":U).
         THIS-OBJECT:smartDataBrowserSmartBusinessEntity:FetchAllRecordsOnGroupBy = TRUE.
-        THIS-OBJECT:smartDataBrowserSmartBusinessEntity:Font = NEW System.Drawing.Font("Microsoft Sans Serif":U, Progress.Util.CastUtil:ToSingle(8.25), System.Drawing.FontStyle:Regular, System.Drawing.GraphicsUnit:Point, System.Convert:ToByte(0)).
         THIS-OBJECT:smartDataBrowserSmartBusinessEntity:LinkDataSource = THIS-OBJECT:smartBusinessEntityAdapter.
-        THIS-OBJECT:smartDataBrowserSmartBusinessEntity:Location = NEW System.Drawing.Point(0, 0).
         THIS-OBJECT:smartDataBrowserSmartBusinessEntity:Name = "smartDataBrowserSmartBusinessEntity":U.
         THIS-OBJECT:smartDataBrowserSmartBusinessEntity:SettingsKey = "c934ffc2-f007-d8bd-0214-4426a025837d":U.
-        THIS-OBJECT:smartDataBrowserSmartBusinessEntity:Size = NEW System.Drawing.Size(307, 578).
-        THIS-OBJECT:smartDataBrowserSmartBusinessEntity:TabIndex = 5.
-        THIS-OBJECT:smartDataBrowserSmartBusinessEntity:Text = "smartDataBrowser1":U.
         /*  */
         /* smartBusinessEntityBindingSourceMain */
         /*  */
@@ -1078,9 +1097,8 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityForm INHERITS S
         THIS-OBJECT:m_SmartBusinessEntityForm_Toolbars_Dock_Area_Left:DockedPosition = Infragistics.Win.UltraWinToolbars.DockedPosition:Left.
         THIS-OBJECT:m_SmartBusinessEntityForm_Toolbars_Dock_Area_Left:ForeColor = System.Drawing.SystemColors:ControlText.
         THIS-OBJECT:m_SmartBusinessEntityForm_Toolbars_Dock_Area_Left:InitialResizeAreaExtent = 8.
-        THIS-OBJECT:m_SmartBusinessEntityForm_Toolbars_Dock_Area_Left:Location = NEW System.Drawing.Point(0, 151).
+        resources:ApplyResources(THIS-OBJECT:m_SmartBusinessEntityForm_Toolbars_Dock_Area_Left, "m_SmartBusinessEntityForm_Toolbars_Dock_Area_Left":U).
         THIS-OBJECT:m_SmartBusinessEntityForm_Toolbars_Dock_Area_Left:Name = "m_SmartBusinessEntityForm_Toolbars_Dock_Area_Left":U.
-        THIS-OBJECT:m_SmartBusinessEntityForm_Toolbars_Dock_Area_Left:Size = NEW System.Drawing.Size(8, 578).
         THIS-OBJECT:m_SmartBusinessEntityForm_Toolbars_Dock_Area_Left:ToolbarsManager = THIS-OBJECT:smartToolbarController.
         /*  */
         /* m_SmartBusinessEntityForm_Toolbars_Dock_Area_Right */
@@ -1090,9 +1108,8 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityForm INHERITS S
         THIS-OBJECT:m_SmartBusinessEntityForm_Toolbars_Dock_Area_Right:DockedPosition = Infragistics.Win.UltraWinToolbars.DockedPosition:Right.
         THIS-OBJECT:m_SmartBusinessEntityForm_Toolbars_Dock_Area_Right:ForeColor = System.Drawing.SystemColors:ControlText.
         THIS-OBJECT:m_SmartBusinessEntityForm_Toolbars_Dock_Area_Right:InitialResizeAreaExtent = 8.
-        THIS-OBJECT:m_SmartBusinessEntityForm_Toolbars_Dock_Area_Right:Location = NEW System.Drawing.Point(1004, 151).
+        resources:ApplyResources(THIS-OBJECT:m_SmartBusinessEntityForm_Toolbars_Dock_Area_Right, "m_SmartBusinessEntityForm_Toolbars_Dock_Area_Right":U).
         THIS-OBJECT:m_SmartBusinessEntityForm_Toolbars_Dock_Area_Right:Name = "m_SmartBusinessEntityForm_Toolbars_Dock_Area_Right":U.
-        THIS-OBJECT:m_SmartBusinessEntityForm_Toolbars_Dock_Area_Right:Size = NEW System.Drawing.Size(8, 578).
         THIS-OBJECT:m_SmartBusinessEntityForm_Toolbars_Dock_Area_Right:ToolbarsManager = THIS-OBJECT:smartToolbarController.
         /*  */
         /* m_SmartBusinessEntityForm_Toolbars_Dock_Area_Top */
@@ -1101,9 +1118,8 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityForm INHERITS S
         THIS-OBJECT:m_SmartBusinessEntityForm_Toolbars_Dock_Area_Top:BackColor = System.Drawing.Color:FromArgb(System.Convert:ToInt32(System.Convert:ToByte(191)), System.Convert:ToInt32(System.Convert:ToByte(219)), System.Convert:ToInt32(System.Convert:ToByte(255))).
         THIS-OBJECT:m_SmartBusinessEntityForm_Toolbars_Dock_Area_Top:DockedPosition = Infragistics.Win.UltraWinToolbars.DockedPosition:Top.
         THIS-OBJECT:m_SmartBusinessEntityForm_Toolbars_Dock_Area_Top:ForeColor = System.Drawing.SystemColors:ControlText.
-        THIS-OBJECT:m_SmartBusinessEntityForm_Toolbars_Dock_Area_Top:Location = NEW System.Drawing.Point(0, 0).
+        resources:ApplyResources(THIS-OBJECT:m_SmartBusinessEntityForm_Toolbars_Dock_Area_Top, "m_SmartBusinessEntityForm_Toolbars_Dock_Area_Top":U).
         THIS-OBJECT:m_SmartBusinessEntityForm_Toolbars_Dock_Area_Top:Name = "m_SmartBusinessEntityForm_Toolbars_Dock_Area_Top":U.
-        THIS-OBJECT:m_SmartBusinessEntityForm_Toolbars_Dock_Area_Top:Size = NEW System.Drawing.Size(1012, 151).
         THIS-OBJECT:m_SmartBusinessEntityForm_Toolbars_Dock_Area_Top:ToolbarsManager = THIS-OBJECT:smartToolbarController.
         /*  */
         /* m_SmartBusinessEntityForm_Toolbars_Dock_Area_Bottom */
@@ -1113,27 +1129,23 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityForm INHERITS S
         THIS-OBJECT:m_SmartBusinessEntityForm_Toolbars_Dock_Area_Bottom:DockedPosition = Infragistics.Win.UltraWinToolbars.DockedPosition:Bottom.
         THIS-OBJECT:m_SmartBusinessEntityForm_Toolbars_Dock_Area_Bottom:ForeColor = System.Drawing.SystemColors:ControlText.
         THIS-OBJECT:m_SmartBusinessEntityForm_Toolbars_Dock_Area_Bottom:InitialResizeAreaExtent = 8.
-        THIS-OBJECT:m_SmartBusinessEntityForm_Toolbars_Dock_Area_Bottom:Location = NEW System.Drawing.Point(0, 729).
+        resources:ApplyResources(THIS-OBJECT:m_SmartBusinessEntityForm_Toolbars_Dock_Area_Bottom, "m_SmartBusinessEntityForm_Toolbars_Dock_Area_Bottom":U).
         THIS-OBJECT:m_SmartBusinessEntityForm_Toolbars_Dock_Area_Bottom:Name = "m_SmartBusinessEntityForm_Toolbars_Dock_Area_Bottom":U.
-        THIS-OBJECT:m_SmartBusinessEntityForm_Toolbars_Dock_Area_Bottom:Size = NEW System.Drawing.Size(1012, 8).
         THIS-OBJECT:m_SmartBusinessEntityForm_Toolbars_Dock_Area_Bottom:ToolbarsManager = THIS-OBJECT:smartToolbarController.
         /*  */
         /* SmartBusinessEntityForm */
         /*  */
         THIS-OBJECT:AllowDrop = TRUE.
-        THIS-OBJECT:ClientSize = NEW System.Drawing.Size(1012, 737).
+        resources:ApplyResources(THIS-OBJECT, "$this":U).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:SmartBusinessEntityForm_Fill_Panel).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:m_SmartBusinessEntityForm_Toolbars_Dock_Area_Left).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:m_SmartBusinessEntityForm_Toolbars_Dock_Area_Right).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:m_SmartBusinessEntityForm_Toolbars_Dock_Area_Bottom).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:m_SmartBusinessEntityForm_Toolbars_Dock_Area_Top).
-        THIS-OBJECT:Icon = CAST(resources:GetObject("$this.Icon":U), System.Drawing.Icon).
         THIS-OBJECT:Name = "SmartBusinessEntityForm":U.
         THIS-OBJECT:PrimaryDataSource = THIS-OBJECT:smartBusinessEntityAdapter.
         THIS-OBJECT:PrimaryDataTarget = THIS-OBJECT:smartBusinessEntityAdapter.
         THIS-OBJECT:PrimaryNavigationSource = THIS-OBJECT:smartToolbarController.
-        THIS-OBJECT:Text = "BusinessEntity Maintenance":U.
-        THIS-OBJECT:WindowPositionRegistryKey = "SmartBusinessEntityForm":U.
         THIS-OBJECT:ultraTabPageControl1:ResumeLayout(FALSE).
         CAST(THIS-OBJECT:smartBusinessEntityViewerControl, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:smartBusinessEntityAdapter, System.ComponentModel.ISupportInitialize):EndInit().
@@ -1153,91 +1165,92 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityForm INHERITS S
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Raises the Shown Event
-        Notes:   
+        Notes:
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
-		
-		SUPER:OnShown (e) .
+    METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
+
+        SUPER:OnShown (e) .
 
         Consultingwerk.Util.UserInterfaceHelper:ProcessEvents() .
 
         THIS-OBJECT:smartBusinessEntityAdapter:RetrieveData () .
 
-	END METHOD .
+    END METHOD .
 
-	/*------------------------------------------------------------------------------
-	    Purpose:  Create all BusinessEntity Tables
-	    Notes:
-	    @param sender The reference to the object that raised the event
-	    @param e The AfterUpdateRecordEventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID smartBusinessEntityAdapter1_AfterUpdateRecord (sender AS System.Object, 
-	                                                                   e      AS Consultingwerk.SmartComponents.Implementation.AfterUpdateRecordEventArgs):
-		
-		DEFINE VARIABLE oMessageProvider   AS Consultingwerk.SmartFramework.IMessageProvider NO-UNDO.
+    /*------------------------------------------------------------------------------
+        Purpose:  Create all BusinessEntity Tables
+        Notes:
+        @param sender The reference to the object that raised the event
+        @param e The AfterUpdateRecordEventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID smartBusinessEntityAdapter1_AfterUpdateRecord (sender AS System.Object,
+                                                                       e      AS Consultingwerk.SmartComponents.Implementation.AfterUpdateRecordEventArgs):
+
+        DEFINE VARIABLE oMessageProvider   AS Consultingwerk.SmartFramework.IMessageProvider NO-UNDO.
         DEFINE VARIABLE oMessage           AS Consultingwerk.SmartFramework.Message          NO-UNDO.
         DEFINE VARIABLE oDatasetController AS SmartBusinessEntityDatasetController           NO-UNDO.
-		
-        IF NOT lCreatingRecord THEN RETURN.
-        
+
+        IF NOT lCreatingRecord THEN
+            RETURN.
+
         oMessageProvider = {Consultingwerk/get-service.i Consultingwerk.SmartFramework.IMessageProvider} .
 
-        IF VALID-OBJECT (oMessageProvider) THEN 
+        IF VALID-OBJECT (oMessageProvider) THEN
             DO ON ERROR UNDO, THROW:
                 oMessage = oMessageProvider:GetMessage ("SFR":U, 101) .
-                
+
                 IF MessageFormHelper:ShowMessage (oMessage) = DialogResultEnum:DialogResultYes THEN DO:
-                    
-                    IF VALID-OBJECT (THIS-OBJECT:smartBusinessEntityAdapter:DatasetController) AND 
-                       TYPE-OF (THIS-OBJECT:smartBusinessEntityAdapter:DatasetController, SmartBusinessEntityDatasetController) THEN 
+
+                    IF VALID-OBJECT (THIS-OBJECT:smartBusinessEntityAdapter:DatasetController) AND
+                       TYPE-OF (THIS-OBJECT:smartBusinessEntityAdapter:DatasetController, SmartBusinessEntityDatasetController) THEN
                         oDatasetController = CAST (THIS-OBJECT:smartBusinessEntityAdapter:DatasetController, SmartBusinessEntityDatasetController).
-                        
+
                     IF NOT VALID-OBJECT (oDatasetController) THEN
                         UNDO, THROW NEW AppError (oMessageProvider:GetMessage ("SFR":U, 1):Text, 0).
-                    
-                    oDatasetController:CreateSmartBusinessEntityTable (SUBSTITUTE ("&1.&2":U, 
+
+                    oDatasetController:CreateSmartBusinessEntityTable (SUBSTITUTE ("&1.&2":U,
                                                                                    smartBusinessEntityAdapter:GetFieldValues ("BusinessEntityPackage":U),
                                                                                    smartBusinessEntityAdapter:GetFieldValues ("BusinessEntityName":U))).
-                        
+
                 END.
-    
+
                 CATCH err AS Progress.Lang.Error :
-                    ErrorHelper:ShowErrorMessage (err) .    
+                    ErrorHelper:ShowErrorMessage (err) .
                 END CATCH.
-            END. 
-        
+            END.
+
         FINALLY:
-            ASSIGN lCreatingRecord = FALSE.     		
+            ASSIGN lCreatingRecord = FALSE.
         END FINALLY.
-	END METHOD.
+    END METHOD.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Save creating record state
-	    Notes:
-	    @param sender The reference to the object that raised the event
+    /*------------------------------------------------------------------------------
+        Purpose: Save creating record state
+        Notes:
+        @param sender The reference to the object that raised the event
         @param e The BeforeUpdateRecordEventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID smartBusinessEntityAdapter1_BeforeUpdateRecord (sender AS System.Object, 
-	                                                                    e      AS Consultingwerk.SmartComponents.Implementation.BeforeUpdateRecordEventArgs):
-		
-		ASSIGN lCreatingRecord = smartBusinessEntityAdapter:CreatingRecord .
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID smartBusinessEntityAdapter1_BeforeUpdateRecord (sender AS System.Object,
+                                                                        e      AS Consultingwerk.SmartComponents.Implementation.BeforeUpdateRecordEventArgs):
 
-	END METHOD.
+        ASSIGN lCreatingRecord = smartBusinessEntityAdapter:CreatingRecord .
 
-	/*------------------------------------------------------------------------------
-	 Purpose: Bind the toolbar navigation target 
-	 Notes:
-	 @param sender The reference to the object that raised the event
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+     Purpose: Bind the toolbar navigation target
+     Notes:
+     @param sender The reference to the object that raised the event
      @param e The ActiveTabChangedEventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraTabControl1_ActiveTabChanged (sender AS System.Object, 
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID ultraTabControl1_ActiveTabChanged (sender AS System.Object,
                                                            e      AS Infragistics.Win.UltraWinTabControl.ActiveTabChangedEventArgs):
-		
+
         CASE e:TAB:Key:
             WHEN "TabSmartBusinessEntity":U THEN DO:
                 smartToolbarController:ActivateSmartNavigationTarget (smartBusinessEntityAdapter) .
@@ -1247,13 +1260,13 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityForm INHERITS S
                 smartToolbarController:ActivateSmartNavigationTarget (smartDatasetChildAdapter) .
                 smartToolbarController:ActivateSmartTableIOTarget (smartBusinessEntityTableViewerControl) .
             END.
-        END CASE. 
-        
-	END METHOD.
+        END CASE.
+
+    END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the SmartBusinessEntityForm class 
-        Notes:   
+        Purpose: Destructor for the SmartBusinessEntityForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC SmartBusinessEntityForm ():
 

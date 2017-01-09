@@ -33,8 +33,8 @@ INTERFACE Consultingwerk.SmartFramework.IAssignKeyFieldValuesService:
         @param phBuffer The temp-table buffer (after buffer) to assign key field values to
         @param pcKeyFields Comma delimited list of key fields to assign
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID AssignKeyFields (pcKeyFieldAssignmentKey AS CHARACTER,
-	                                    phBuffer AS HANDLE,
-	                                    pcKeyFields AS CHARACTER).
+    METHOD PUBLIC VOID AssignKeyFields (pcKeyFieldAssignmentKey AS CHARACTER,
+                                        phBuffer AS HANDLE,
+                                        pcKeyFields AS CHARACTER).
 
 END INTERFACE.

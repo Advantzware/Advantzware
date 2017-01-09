@@ -40,24 +40,24 @@ CLASS Consultingwerk.Windows.Util.Forms.ErrorMessageFormButtonProvider
         @param poError The error that is currently being processed
         @return The List the System.Windows.Forms.Button objects to be added to the ErrorMessageForm
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC "System.Collections.Generic.List<System.Windows.Forms.Button>" GetButtonsForError (poError AS Error):
-		
-		DEFINE VARIABLE oList   AS "System.Collections.Generic.List<System.Windows.Forms.Button>" NO-UNDO . 
-		DEFINE VARIABLE oButton AS System.Windows.Forms.Button                                    NO-UNDO .                                   
-		
-		oList = NEW "System.Collections.Generic.List<System.Windows.Forms.Button>" () .
-		
-		IF TYPE-OF (poError, IProvidesSessionInfo) AND VALID-OBJECT (CAST (poError, IProvidesSessionInfo):SessionInfo) THEN DO:
-		    oButton = NEW System.Windows.Forms.Button () .
-		    oButton:Name = "Session Info":U .
-		    oButton:Text = "Session Info"{&TRAN} . 
+    METHOD PUBLIC "System.Collections.Generic.List<System.Windows.Forms.Button>" GetButtonsForError (poError AS Error):
+        
+        DEFINE VARIABLE oList   AS "System.Collections.Generic.List<System.Windows.Forms.Button>" NO-UNDO . 
+        DEFINE VARIABLE oButton AS System.Windows.Forms.Button                                    NO-UNDO .                                   
+        
+        oList = NEW "System.Collections.Generic.List<System.Windows.Forms.Button>" () .
+        
+        IF TYPE-OF (poError, IProvidesSessionInfo) AND VALID-OBJECT (CAST (poError, IProvidesSessionInfo):SessionInfo) THEN DO:
+            oButton = NEW System.Windows.Forms.Button () .
+            oButton:Name = "Session Info":U .
+            oButton:Text = "Session Info"{&TRAN} . 
 
-		    oList:Add (oButton) .
-		END.
+            oList:Add (oButton) .
+        END.
 
-		RETURN oList . 
+        RETURN oList . 
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Handles the click event of a custom button
@@ -71,8 +71,8 @@ CLASS Consultingwerk.Windows.Util.Forms.ErrorMessageFormButtonProvider
                  
         DEFINE VARIABLE oErrorSessionInfoForm AS ErrorSessionInfoForm              NO-UNDO .                  
         DEFINE VARIABLE oDialogResult         AS System.Windows.Forms.DialogResult NO-UNDO .                                           
-                                             		
-		CASE poButton:Name:
+                                                     
+        CASE poButton:Name:
             WHEN "Session Info":U THEN DO:
                 oErrorSessionInfoForm = NEW ErrorSessionInfoForm () . 
                 oErrorSessionInfoForm:SetSessionInfo (CAST (poError, IProvidesSessionInfo):SessionInfo) .
@@ -81,6 +81,6 @@ CLASS Consultingwerk.Windows.Util.Forms.ErrorMessageFormButtonProvider
             END.     
         END CASE.
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

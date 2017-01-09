@@ -116,4 +116,412 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"/>
+  <data name="ultraLabel3.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 33</value>
+  </data>
+  <data name="ultraLabel3.Size" type="System.Drawing.Size, System.Drawing">
+    <value>154, 23</value>
+  </data>
+  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="ultraLabel3.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="ultraLabel3.Text" xml:space="preserve">
+    <value>Parameter:</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel3.Name" xml:space="preserve">
+    <value>ultraLabel3</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel3.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel3.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel3.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="ultraLabel2.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 7</value>
+  </data>
+  <data name="ultraLabel2.Size" type="System.Drawing.Size, System.Drawing">
+    <value>154, 23</value>
+  </data>
+  <data name="ultraLabel2.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="ultraLabel2.Text" xml:space="preserve">
+    <value>View URI:</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel2.Name" xml:space="preserve">
+    <value>ultraLabel2</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel2.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel2.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel2.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="ultraLabel4.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 19</value>
+  </data>
+  <data name="ultraLabel4.Size" type="System.Drawing.Size, System.Drawing">
+    <value>154, 23</value>
+  </data>
+  <data name="ultraLabel4.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="ultraLabel4.Text" xml:space="preserve">
+    <value>Business Entity Name:</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel4.Name" xml:space="preserve">
+    <value>ultraLabel4</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel4.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel4.Parent" xml:space="preserve">
+    <value>groupBox1</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel4.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="tbEntityName.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="editorButton1.Text" xml:space="preserve">
+    <value>...</value>
+  </data>
+  <data name="tbEntityName.Location" type="System.Drawing.Point, System.Drawing">
+    <value>184, 15</value>
+  </data>
+  <data name="tbEntityName.Size" type="System.Drawing.Size, System.Drawing">
+    <value>608, 21</value>
+  </data>
+  <data name="tbEntityName.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="&gt;&gt;tbEntityName.Name" xml:space="preserve">
+    <value>tbEntityName</value>
+  </data>
+  <data name="&gt;&gt;tbEntityName.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;tbEntityName.Parent" xml:space="preserve">
+    <value>groupBox1</value>
+  </data>
+  <data name="&gt;&gt;tbEntityName.ZOrder" xml:space="preserve">
+    <value>7</value>
+  </data>
+  <data name="tbViewTitle.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="tbViewTitle.Location" type="System.Drawing.Point, System.Drawing">
+    <value>183, 96</value>
+  </data>
+  <data name="tbViewTitle.Size" type="System.Drawing.Size, System.Drawing">
+    <value>609, 21</value>
+  </data>
+  <data name="tbViewTitle.TabIndex" type="System.Int32, mscorlib">
+    <value>7</value>
+  </data>
+  <data name="&gt;&gt;tbViewTitle.Name" xml:space="preserve">
+    <value>tbViewTitle</value>
+  </data>
+  <data name="&gt;&gt;tbViewTitle.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;tbViewTitle.Parent" xml:space="preserve">
+    <value>groupBox1</value>
+  </data>
+  <data name="&gt;&gt;tbViewTitle.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <data name="ultraLabel6.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 100</value>
+  </data>
+  <data name="ultraLabel6.Size" type="System.Drawing.Size, System.Drawing">
+    <value>154, 23</value>
+  </data>
+  <data name="ultraLabel6.TabIndex" type="System.Int32, mscorlib">
+    <value>6</value>
+  </data>
+  <data name="ultraLabel6.Text" xml:space="preserve">
+    <value>View Title:</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel6.Name" xml:space="preserve">
+    <value>ultraLabel6</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel6.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel6.Parent" xml:space="preserve">
+    <value>groupBox1</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel6.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="ultraLabel5.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 127</value>
+  </data>
+  <data name="ultraLabel5.Size" type="System.Drawing.Size, System.Drawing">
+    <value>154, 23</value>
+  </data>
+  <data name="ultraLabel5.TabIndex" type="System.Int32, mscorlib">
+    <value>8</value>
+  </data>
+  <data name="ultraLabel5.Text" xml:space="preserve">
+    <value>View:</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel5.Name" xml:space="preserve">
+    <value>ultraLabel5</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel5.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel5.Parent" xml:space="preserve">
+    <value>groupBox1</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel5.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="ultraLabel1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 46</value>
+  </data>
+  <data name="ultraLabel1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>154, 23</value>
+  </data>
+  <data name="ultraLabel1.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="ultraLabel1.Text" xml:space="preserve">
+    <value>Business Entity Table:</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel1.Name" xml:space="preserve">
+    <value>ultraLabel1</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel1.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel1.Parent" xml:space="preserve">
+    <value>groupBox1</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel1.ZOrder" xml:space="preserve">
+    <value>6</value>
+  </data>
+  <data name="coEntityTable.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="coEntityTable.Location" type="System.Drawing.Point, System.Drawing">
+    <value>183, 42</value>
+  </data>
+  <data name="coEntityTable.Size" type="System.Drawing.Size, System.Drawing">
+    <value>609, 21</value>
+  </data>
+  <data name="coEntityTable.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="&gt;&gt;coEntityTable.Name" xml:space="preserve">
+    <value>coEntityTable</value>
+  </data>
+  <data name="&gt;&gt;coEntityTable.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraComboEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;coEntityTable.Parent" xml:space="preserve">
+    <value>groupBox1</value>
+  </data>
+  <data name="&gt;&gt;coEntityTable.ZOrder" xml:space="preserve">
+    <value>8</value>
+  </data>
+  <data name="coEntityView.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="coEntityView.Location" type="System.Drawing.Point, System.Drawing">
+    <value>183, 123</value>
+  </data>
+  <data name="coEntityView.Size" type="System.Drawing.Size, System.Drawing">
+    <value>609, 21</value>
+  </data>
+  <data name="coEntityView.TabIndex" type="System.Int32, mscorlib">
+    <value>9</value>
+  </data>
+  <data name="&gt;&gt;coEntityView.Name" xml:space="preserve">
+    <value>coEntityView</value>
+  </data>
+  <data name="&gt;&gt;coEntityView.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraComboEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;coEntityView.Parent" xml:space="preserve">
+    <value>groupBox1</value>
+  </data>
+  <data name="&gt;&gt;coEntityView.ZOrder" xml:space="preserve">
+    <value>9</value>
+  </data>
+  <data name="tbParameter.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="tbParameter.Location" type="System.Drawing.Point, System.Drawing">
+    <value>186, 30</value>
+  </data>
+  <data name="tbParameter.Multiline" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="tbParameter.Size" type="System.Drawing.Size, System.Drawing">
+    <value>615, 74</value>
+  </data>
+  <data name="tbParameter.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="&gt;&gt;tbParameter.Name" xml:space="preserve">
+    <value>tbParameter</value>
+  </data>
+  <data name="&gt;&gt;tbParameter.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;tbParameter.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tbParameter.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="coViewUri.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="editorButton2.Text" xml:space="preserve">
+    <value>...</value>
+  </data>
+  <data name="valueListItem1.DisplayText" xml:space="preserve">
+    <value>Consultingwerk/Web2/entityview.html</value>
+  </data>
+  <data name="coViewUri.Location" type="System.Drawing.Point, System.Drawing">
+    <value>186, 3</value>
+  </data>
+  <data name="coViewUri.Size" type="System.Drawing.Size, System.Drawing">
+    <value>615, 21</value>
+  </data>
+  <data name="coViewUri.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="&gt;&gt;coViewUri.Name" xml:space="preserve">
+    <value>coViewUri</value>
+  </data>
+  <data name="&gt;&gt;coViewUri.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraComboEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;coViewUri.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;coViewUri.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="groupBox1.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="ultraLabel7.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 73</value>
+  </data>
+  <data name="ultraLabel7.Size" type="System.Drawing.Size, System.Drawing">
+    <value>154, 23</value>
+  </data>
+  <data name="ultraLabel7.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="ultraLabel7.Text" xml:space="preserve">
+    <value>View Tables:</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel7.Name" xml:space="preserve">
+    <value>ultraLabel7</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel7.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel7.Parent" xml:space="preserve">
+    <value>groupBox1</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel7.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="tbViewTables.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="tbViewTables.Location" type="System.Drawing.Point, System.Drawing">
+    <value>183, 69</value>
+  </data>
+  <data name="tbViewTables.Size" type="System.Drawing.Size, System.Drawing">
+    <value>609, 21</value>
+  </data>
+  <data name="tbViewTables.TabIndex" type="System.Int32, mscorlib">
+    <value>5</value>
+  </data>
+  <data name="&gt;&gt;tbViewTables.Name" xml:space="preserve">
+    <value>tbViewTables</value>
+  </data>
+  <data name="&gt;&gt;tbViewTables.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;tbViewTables.Parent" xml:space="preserve">
+    <value>groupBox1</value>
+  </data>
+  <data name="&gt;&gt;tbViewTables.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="groupBox1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 110</value>
+  </data>
+  <data name="groupBox1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>798, 183</value>
+  </data>
+  <data name="groupBox1.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="groupBox1.Text" xml:space="preserve">
+    <value>Simple Business Entity View</value>
+  </data>
+  <data name="&gt;&gt;groupBox1.Name" xml:space="preserve">
+    <value>groupBox1</value>
+  </data>
+  <data name="&gt;&gt;groupBox1.Type" xml:space="preserve">
+    <value>System.Windows.Forms.GroupBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;groupBox1.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;groupBox1.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <metadata name="openFileDialog1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
+  <data name="openFileDialog1.Filter" xml:space="preserve">
+    <value>html-Files|*.html|All Files|*.*</value>
+  </data>
+  <data name="openFileDialog1.Title" xml:space="preserve">
+    <value>Open View</value>
+  </data>
+  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing">
+    <value>6, 13</value>
+  </data>
+  <data name="$this.Size" type="System.Drawing.Size, System.Drawing">
+    <value>804, 321</value>
+  </data>
+  <data name="&gt;&gt;openFileDialog1.Name" xml:space="preserve">
+    <value>openFileDialog1</value>
+  </data>
+  <data name="&gt;&gt;openFileDialog1.Type" xml:space="preserve">
+    <value>System.Windows.Forms.OpenFileDialog, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;$this.Name" xml:space="preserve">
+    <value>LaunchWebViewCallParameterControl</value>
+  </data>
+  <data name="&gt;&gt;$this.Type" xml:space="preserve">
+    <value>Consultingwerk.Windows.Framework.Menu.CallParameterBaseControl, OEProxyAssembly, Version=11.6.0.2, Culture=neutral, PublicKeyToken=null</value>
+  </data>
 </root>

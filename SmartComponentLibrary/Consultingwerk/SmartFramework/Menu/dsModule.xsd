@@ -6,11 +6,13 @@
         <xsd:element name="eSmartModule" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eSmartModuleBefore">
           <xsd:complexType>
             <xsd:sequence>
-              <xsd:element name="ModuleGuid" type="xsd:string" nillable="true" prodata:fieldName="ModuleGuid" prodata:format="x(36)"/>
-              <xsd:element name="ModuleName" type="xsd:string" nillable="true" prodata:fieldName="ModuleName" prodata:format="x(30)"/>
-              <xsd:element name="ModuleDescription" type="xsd:string" nillable="true" prodata:fieldName="ModuleDescription" prodata:format="x(100)"/>
-              <xsd:element name="ProductGuid" type="xsd:string" nillable="true" prodata:fieldName="ProductGuid" prodata:format="x(36)"/>
+              <xsd:element name="ModuleGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="ModuleName" type="xsd:string" nillable="true" prodata:format="x(30)"/>
+              <xsd:element name="ModuleDescription" type="xsd:string" nillable="true" prodata:format="x(100)"/>
+              <xsd:element name="ProductGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
               <xsd:element name="ProductCode" type="xsd:string" nillable="true" prodata:format="x(20)" prodata:label="Code"/>
+              <xsd:element name="ModuleDataFolder" type="xsd:string" nillable="true" prodata:format="x(80)" prodata:label="Data Folder"/>
+              <xsd:element name="ModulePackage" type="xsd:string" nillable="true" prodata:format="x(80)" prodata:label="Package Name"/>
             </xsd:sequence>
           </xsd:complexType>
         </xsd:element>

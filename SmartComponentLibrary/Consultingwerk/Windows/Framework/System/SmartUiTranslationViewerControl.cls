@@ -61,10 +61,11 @@ CLASS Consultingwerk.Windows.Framework.System.SmartUiTranslationViewerControl
         
     END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design
-        Notes:   
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
         
         /* NOTE: The following method is automatically generated.
@@ -80,6 +81,9 @@ CLASS Consultingwerk.Windows.Framework.System.SmartUiTranslationViewerControl
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance1 AS Infragistics.Win.Appearance NO-UNDO.
         appearance1 = NEW Infragistics.Win.Appearance().
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE resources AS Progress.Util.ResourceManager NO-UNDO.
+        resources = NEW Progress.Util.ResourceManager("Consultingwerk.Windows.Framework.System.SmartUiTranslationViewerControl":U).
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance2 AS Infragistics.Win.Appearance NO-UNDO.
         appearance2 = NEW Infragistics.Win.Appearance().
@@ -114,13 +118,10 @@ CLASS Consultingwerk.Windows.Framework.System.SmartUiTranslationViewerControl
         /*  */
         /* smartBusinessEntityBindingSource1 */
         /*  */
-        THIS-OBJECT:smartBusinessEntityBindingSource1:AddFields = FALSE.
         THIS-OBJECT:smartBusinessEntityBindingSource1:BindTo = "QUERY":U.
-        THIS-OBJECT:smartBusinessEntityBindingSource1:ClearSchema = FALSE.
         THIS-OBJECT:smartBusinessEntityBindingSource1:EntityJoin = "YES":U.
         THIS-OBJECT:smartBusinessEntityBindingSource1:EntityName = "Consultingwerk.SmartFramework.System.UiTranslationBusinessEntity":U.
         THIS-OBJECT:smartBusinessEntityBindingSource1:EntityTable = "eSmartUiTranslation":U.
-        THIS-OBJECT:smartBusinessEntityBindingSource1:ImportSchema = FALSE.
         THIS-OBJECT:smartBusinessEntityBindingSource1:MaxDataGuess = 0.
         THIS-OBJECT:smartBusinessEntityBindingSource1:NoLOBs = FALSE.
         tableDesc1:ChildTables = ?.
@@ -139,121 +140,76 @@ CLASS Consultingwerk.Windows.Framework.System.SmartUiTranslationViewerControl
         /*  */
         appearance1:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:tbLanguageGuid_Label:Appearance = appearance1.
-        THIS-OBJECT:tbLanguageGuid_Label:AutoSize = TRUE.
-        THIS-OBJECT:tbLanguageGuid_Label:Location = NEW System.Drawing.Point(20, 7).
+        resources:ApplyResources(THIS-OBJECT:tbLanguageGuid_Label, "tbLanguageGuid_Label":U).
         THIS-OBJECT:tbLanguageGuid_Label:Name = "tbLanguageGuid_Label":U.
-        THIS-OBJECT:tbLanguageGuid_Label:Size = NEW System.Drawing.Size(82, 14).
-        THIS-OBJECT:tbLanguageGuid_Label:TabIndex = 1.
-        THIS-OBJECT:tbLanguageGuid_Label:Text = "LanguageGuid:":U.
         /*  */
         /* tbObjectName_Label */
         /*  */
         appearance2:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:tbObjectName_Label:Appearance = appearance2.
-        THIS-OBJECT:tbObjectName_Label:AutoSize = TRUE.
-        THIS-OBJECT:tbObjectName_Label:Location = NEW System.Drawing.Point(20, 33).
+        resources:ApplyResources(THIS-OBJECT:tbObjectName_Label, "tbObjectName_Label":U).
         THIS-OBJECT:tbObjectName_Label:Name = "tbObjectName_Label":U.
-        THIS-OBJECT:tbObjectName_Label:Size = NEW System.Drawing.Size(126, 14).
-        THIS-OBJECT:tbObjectName_Label:TabIndex = 3.
-        THIS-OBJECT:tbObjectName_Label:Text = "Container Object Name:":U.
         /*  */
         /* tbObjectName */
         /*  */
-        DEFINE VARIABLE nestedvar0 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar0 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:tbObjectName:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar0, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:tbObjectName, "tbObjectName":U).
         THIS-OBJECT:tbObjectName:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "ObjectName":U, TRUE)).
         THIS-OBJECT:tbObjectName:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:tbObjectName:Location = NEW System.Drawing.Point(152, 29).
         THIS-OBJECT:tbObjectName:Name = "tbObjectName":U.
-        THIS-OBJECT:tbObjectName:Size = NEW System.Drawing.Size(292, 21).
-        THIS-OBJECT:tbObjectName:TabIndex = 4.
         /*  */
         /* tbResourceKey_Label */
         /*  */
         appearance3:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:tbResourceKey_Label:Appearance = appearance3.
-        THIS-OBJECT:tbResourceKey_Label:AutoSize = TRUE.
-        THIS-OBJECT:tbResourceKey_Label:Location = NEW System.Drawing.Point(20, 59).
+        resources:ApplyResources(THIS-OBJECT:tbResourceKey_Label, "tbResourceKey_Label":U).
         THIS-OBJECT:tbResourceKey_Label:Name = "tbResourceKey_Label":U.
-        THIS-OBJECT:tbResourceKey_Label:Size = NEW System.Drawing.Size(78, 14).
-        THIS-OBJECT:tbResourceKey_Label:TabIndex = 5.
-        THIS-OBJECT:tbResourceKey_Label:Text = "Resource Key:":U.
         /*  */
         /* tbResourceKey */
         /*  */
-        DEFINE VARIABLE nestedvar1 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar1 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:tbResourceKey:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar1, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:tbResourceKey, "tbResourceKey":U).
         THIS-OBJECT:tbResourceKey:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "ResourceKey":U, TRUE)).
         THIS-OBJECT:tbResourceKey:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:tbResourceKey:Location = NEW System.Drawing.Point(152, 55).
         THIS-OBJECT:tbResourceKey:Name = "tbResourceKey":U.
-        THIS-OBJECT:tbResourceKey:Size = NEW System.Drawing.Size(292, 21).
-        THIS-OBJECT:tbResourceKey:TabIndex = 6.
         /*  */
         /* tbOriginalString_Label */
         /*  */
         appearance4:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:tbOriginalString_Label:Appearance = appearance4.
-        THIS-OBJECT:tbOriginalString_Label:AutoSize = TRUE.
-        THIS-OBJECT:tbOriginalString_Label:Location = NEW System.Drawing.Point(20, 85).
+        resources:ApplyResources(THIS-OBJECT:tbOriginalString_Label, "tbOriginalString_Label":U).
         THIS-OBJECT:tbOriginalString_Label:Name = "tbOriginalString_Label":U.
-        THIS-OBJECT:tbOriginalString_Label:Size = NEW System.Drawing.Size(76, 14).
-        THIS-OBJECT:tbOriginalString_Label:TabIndex = 7.
-        THIS-OBJECT:tbOriginalString_Label:Text = "OriginalString:":U.
         /*  */
         /* tbOriginalString */
         /*  */
-        DEFINE VARIABLE nestedvar2 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar2 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:tbOriginalString:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar2, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:tbOriginalString, "tbOriginalString":U).
         THIS-OBJECT:tbOriginalString:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "OriginalString":U, TRUE)).
         THIS-OBJECT:tbOriginalString:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:tbOriginalString:Location = NEW System.Drawing.Point(152, 81).
         THIS-OBJECT:tbOriginalString:Name = "tbOriginalString":U.
-        THIS-OBJECT:tbOriginalString:Size = NEW System.Drawing.Size(292, 21).
-        THIS-OBJECT:tbOriginalString:TabIndex = 8.
         /*  */
         /* tbTranslatedString_Label */
         /*  */
         appearance5:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:tbTranslatedString_Label:Appearance = appearance5.
-        THIS-OBJECT:tbTranslatedString_Label:AutoSize = TRUE.
-        THIS-OBJECT:tbTranslatedString_Label:Location = NEW System.Drawing.Point(20, 111).
+        resources:ApplyResources(THIS-OBJECT:tbTranslatedString_Label, "tbTranslatedString_Label":U).
         THIS-OBJECT:tbTranslatedString_Label:Name = "tbTranslatedString_Label":U.
-        THIS-OBJECT:tbTranslatedString_Label:Size = NEW System.Drawing.Size(91, 14).
-        THIS-OBJECT:tbTranslatedString_Label:TabIndex = 9.
-        THIS-OBJECT:tbTranslatedString_Label:Text = "TranslatedString:":U.
         /*  */
         /* tbTranslatedString */
         /*  */
-        DEFINE VARIABLE nestedvar3 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar3 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:tbTranslatedString:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar3, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:tbTranslatedString, "tbTranslatedString":U).
         THIS-OBJECT:tbTranslatedString:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "TranslatedString":U, TRUE)).
         THIS-OBJECT:tbTranslatedString:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:tbTranslatedString:Location = NEW System.Drawing.Point(152, 107).
         THIS-OBJECT:tbTranslatedString:Name = "tbTranslatedString":U.
-        THIS-OBJECT:tbTranslatedString:Size = NEW System.Drawing.Size(292, 21).
-        THIS-OBJECT:tbTranslatedString:TabIndex = 10.
         /*  */
         /* ultraComboEditor1 */
         /*  */
-        DEFINE VARIABLE nestedvar4 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar4 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:ultraComboEditor1:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar4, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:ultraComboEditor1, "ultraComboEditor1":U).
         THIS-OBJECT:ultraComboEditor1:DataBindings:Add(NEW System.Windows.Forms.Binding("Value":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "LanguageGuid":U, TRUE)).
         THIS-OBJECT:ultraComboEditor1:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
         THIS-OBJECT:ultraComboEditor1:DropDownStyle = Infragistics.Win.DropDownStyle:DropDownList.
-        THIS-OBJECT:ultraComboEditor1:Location = NEW System.Drawing.Point(152, 3).
         THIS-OBJECT:ultraComboEditor1:Name = "ultraComboEditor1":U.
-        THIS-OBJECT:ultraComboEditor1:Size = NEW System.Drawing.Size(292, 21).
-        THIS-OBJECT:ultraComboEditor1:TabIndex = 11.
         /*  */
         /* SmartUiTranslationViewerControl */
         /*  */
-        THIS-OBJECT:AutoScaleDimensions = NEW System.Drawing.SizeF(Progress.Util.CastUtil:ToSingle(6), Progress.Util.CastUtil:ToSingle(13)).
+        resources:ApplyResources(THIS-OBJECT, "$this":U).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:ultraComboEditor1).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:tbLanguageGuid_Label).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:tbObjectName_Label).
@@ -265,7 +221,6 @@ CLASS Consultingwerk.Windows.Framework.System.SmartUiTranslationViewerControl
         THIS-OBJECT:Controls:Add(THIS-OBJECT:tbTranslatedString_Label).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:tbTranslatedString).
         THIS-OBJECT:Name = "SmartUiTranslationViewerControl":U.
-        THIS-OBJECT:Size = NEW System.Drawing.Size(447, 300).
         CAST(THIS-OBJECT:smartBusinessEntityBindingSource1, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:tbObjectName, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:tbResourceKey, System.ComponentModel.ISupportInitialize):EndInit().

@@ -60,16 +60,16 @@ CLASS Consultingwerk.Windows.ListAndLabel.ListReportBuffer
         @param pcBufferName The Buffer Name
         @return The ReportBuffer or ?
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC ReportBuffer GetItemByBufferName (pcBufferName AS CHARACTER):
-		
-		{Consultingwerk/foreachABL.i ReportBuffer poBuffer in THIS-OBJECT}
-		
-		     IF poBuffer:BufferName = pcBufferName THEN  
-		         RETURN poBuffer . 
-		END.
+    METHOD PUBLIC ReportBuffer GetItemByBufferName (pcBufferName AS CHARACTER):
+        
+        {Consultingwerk/foreachABL.i ReportBuffer poBuffer in THIS-OBJECT}
+        
+             IF poBuffer:BufferName = pcBufferName THEN  
+                 RETURN poBuffer . 
+        END.
 
         RETURN ? . 
     
-	END METHOD .
+    END METHOD .
 
 END CLASS.

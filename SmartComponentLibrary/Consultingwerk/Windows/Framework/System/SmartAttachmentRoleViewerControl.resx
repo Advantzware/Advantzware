@@ -119,4 +119,229 @@
   <metadata name="smartBusinessEntityBindingSource1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
+  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="tbAttachmentRoleName_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"/>
+  <data name="tbAttachmentRoleName_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>20, 24</value>
+  </data>
+  <data name="tbAttachmentRoleName_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>91, 14</value>
+  </data>
+  <data name="tbAttachmentRoleName_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="tbAttachmentRoleName_Label.Text" xml:space="preserve">
+    <value>Attachment Role:</value>
+  </data>
+  <data name="&gt;&gt;tbAttachmentRoleName_Label.Name" xml:space="preserve">
+    <value>tbAttachmentRoleName_Label</value>
+  </data>
+  <data name="&gt;&gt;tbAttachmentRoleName_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;tbAttachmentRoleName_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tbAttachmentRoleName_Label.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="tbAttachmentRoleName.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="tbAttachmentRoleName.Location" type="System.Drawing.Point, System.Drawing">
+    <value>130, 20</value>
+  </data>
+  <data name="tbAttachmentRoleName.Size" type="System.Drawing.Size, System.Drawing">
+    <value>167, 21</value>
+  </data>
+  <data name="tbAttachmentRoleName.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="&gt;&gt;tbAttachmentRoleName.Name" xml:space="preserve">
+    <value>tbAttachmentRoleName</value>
+  </data>
+  <data name="&gt;&gt;tbAttachmentRoleName.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;tbAttachmentRoleName.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tbAttachmentRoleName.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="tbAttachmentRoleDescription_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="tbAttachmentRoleDescription_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>20, 50</value>
+  </data>
+  <data name="tbAttachmentRoleDescription_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>64, 14</value>
+  </data>
+  <data name="tbAttachmentRoleDescription_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="tbAttachmentRoleDescription_Label.Text" xml:space="preserve">
+    <value>Description:</value>
+  </data>
+  <data name="&gt;&gt;tbAttachmentRoleDescription_Label.Name" xml:space="preserve">
+    <value>tbAttachmentRoleDescription_Label</value>
+  </data>
+  <data name="&gt;&gt;tbAttachmentRoleDescription_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;tbAttachmentRoleDescription_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tbAttachmentRoleDescription_Label.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="tbAttachmentRoleDescription.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="tbAttachmentRoleDescription.Location" type="System.Drawing.Point, System.Drawing">
+    <value>130, 46</value>
+  </data>
+  <data name="tbAttachmentRoleDescription.Size" type="System.Drawing.Size, System.Drawing">
+    <value>167, 21</value>
+  </data>
+  <data name="tbAttachmentRoleDescription.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="&gt;&gt;tbAttachmentRoleDescription.Name" xml:space="preserve">
+    <value>tbAttachmentRoleDescription</value>
+  </data>
+  <data name="&gt;&gt;tbAttachmentRoleDescription.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;tbAttachmentRoleDescription.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tbAttachmentRoleDescription.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>20, 77</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>70, 14</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>7</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall_Label.Text" xml:space="preserve">
+    <value>&amp;Small Image:</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall_Label.Name" xml:space="preserve">
+    <value>smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall_Label</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall_Label.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall.Location" type="System.Drawing.Point, System.Drawing">
+    <value>130, 73</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall.Size" type="System.Drawing.Size, System.Drawing">
+    <value>167, 21</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall.TabIndex" type="System.Int32, mscorlib">
+    <value>8</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall.Name" xml:space="preserve">
+    <value>smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>20, 103</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>71, 14</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>9</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge_Label.Text" xml:space="preserve">
+    <value>&amp;Large Image:</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge_Label.Name" xml:space="preserve">
+    <value>smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge_Label</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge_Label.ZOrder" xml:space="preserve">
+    <value>6</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge.Location" type="System.Drawing.Point, System.Drawing">
+    <value>130, 99</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge.Size" type="System.Drawing.Size, System.Drawing">
+    <value>167, 21</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge.TabIndex" type="System.Int32, mscorlib">
+    <value>10</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge.Name" xml:space="preserve">
+    <value>smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge.ZOrder" xml:space="preserve">
+    <value>7</value>
+  </data>
+  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing">
+    <value>6, 13</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1.Name" xml:space="preserve">
+    <value>smartBusinessEntityBindingSource1</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;$this.Name" xml:space="preserve">
+    <value>SmartAttachmentRoleViewerControl</value>
+  </data>
+  <data name="&gt;&gt;$this.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Base.SmartViewerControl, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
 </root>

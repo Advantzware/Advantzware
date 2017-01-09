@@ -12,11 +12,11 @@
 /*------------------------------------------------------------------------
     File        : ChangePasswordForm
     Purpose     : Allows changing the users password
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Marko Rüterbories / Consultingwerk Ltd.
     Created     : Wed Mar 25 12:41:03 CET 2015
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -27,12 +27,12 @@ USING Consultingwerk.Forms.*                              FROM PROPATH .
 USING Consultingwerk.Framework.Session.*                  FROM PROPATH .
 USING Progress.Lang.*                                     FROM PROPATH .
 
-CLASS Consultingwerk.Windows.Session.ChangePasswordForm 
-    INHERITS BaseForm: 
-	
+CLASS Consultingwerk.Windows.Session.ChangePasswordForm
+    INHERITS BaseForm:
+
     DEFINE PRIVATE VARIABLE btnOK AS System.Windows.Forms.Button NO-UNDO.
     DEFINE PRIVATE VARIABLE btnCancel AS System.Windows.Forms.Button NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraTextEditorNewPWConfirmed AS Infragistics.Win.UltraWinEditors.UltraTextEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraTextEditorNewPW AS Infragistics.Win.UltraWinEditors.UltraTextEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraTextEditorCurrentPW AS Infragistics.Win.UltraWinEditors.UltraTextEditor NO-UNDO.
@@ -45,11 +45,11 @@ CLASS Consultingwerk.Windows.Session.ChangePasswordForm
     DEFINE PRIVATE VARIABLE cLoginCompanyGuid AS CHARACTER NO-UNDO.
 
     DEFINE PRIVATE VARIABLE lErrorInChangePassword AS LOGICAL NO-UNDO.
-        
+
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the form with initialization of user and possible
                  current password
-        Notes:   
+        Notes:
         @param pcUserName The name of the user to change the password for
         @param pcCurrentPassword The current password
         @param pcLoginCompanyGuid The company the user belongs too
@@ -60,44 +60,44 @@ CLASS Consultingwerk.Windows.Session.ChangePasswordForm
 
         THIS-OBJECT ().
 
-        ASSIGN 
+        ASSIGN
             cUserName                     = pcUserName
             cLoginCompanyGuid             = pcLoginCompanyGuid
             ultraTextEditorCurrentPW:Text = pcCurrentPassword
             .
-        
+
     END CONSTRUCTOR.
-    
+
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the form
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ChangePasswordForm ():
+    CONSTRUCTOR PUBLIC ChangePasswordForm ():
         SUPER ().
         InitializeComponent ().
-        
+
         &IF NOT PROVERSION BEGINS "10.2":U AND NOT PROVERSION BEGINS "11.0" &THEN
         THIS-OBJECT:ComponentsCollection:Add (THIS-OBJECT:components).
         &ENDIF
-    
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
-	/*------------------------------------------------------------------------------
-        Purpose: Event handler for the click event for the btnOK 
-        Notes:   
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the click event for the btnOK
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID btnOK_Click (sender AS System.Object, 
-	                                 e AS System.EventArgs):
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID btnOK_Click (sender AS System.Object,
+                                     e AS System.EventArgs):
 
         DEFINE VARIABLE oAuthenticationService AS Consultingwerk.Framework.IAuthenticationService NO-UNDO.
-        
-        oAuthenticationService = {Consultingwerk\get-service.i Consultingwerk.Framework.IAuthenticationService}.
-        
+
+        oAuthenticationService = {Consultingwerk/get-service.i Consultingwerk.Framework.IAuthenticationService}.
+
         Consultingwerk.Assertion.ObjectAssert:IsValid (oAuthenticationService, "AuthenticationService":U).
 
         IF cLoginCompanyGuid = "":U AND SessionManager:LoginCompanyKey = "":U THEN
@@ -105,40 +105,41 @@ CLASS Consultingwerk.Windows.Session.ChangePasswordForm
 
         IF cUserName = "":U AND SessionManager:UserName = "":U THEN
             UNDO, THROW NEW AppError ("You need to enter a user name first to be able to change your password!"{&tran}, 0).
-        
-        IF cUserName <> "":U AND 
-           cLoginCompanyGuid <> "":U THEN 
-            oAuthenticationService:ChangePassword (cUserName, 
-                                                   cLoginCompanyGuid, 
+
+        IF cUserName <> "":U AND
+           cLoginCompanyGuid <> "":U THEN
+            oAuthenticationService:ChangePassword (cUserName,
+                                                   cLoginCompanyGuid,
                                                    ultraTextEditorCurrentPW:Text,
                                                    ultraTextEditorNewPW:Text,
                                                    ultraTextEditorNewPWConfirmed:Text).
-        ELSE 
-            oAuthenticationService:ChangePassword (SessionManager:UserName, 
-                                                   SessionManager:LoginCompanyKey, 
+        ELSE
+            oAuthenticationService:ChangePassword (SessionManager:UserName,
+                                                   SessionManager:LoginCompanyKey,
                                                    ultraTextEditorCurrentPW:Text,
                                                    ultraTextEditorNewPW:Text,
                                                    ultraTextEditorNewPWConfirmed:Text).
-            
+
         THIS-OBJECT:Close ().
 
         CATCH ple AS Progress.Lang.Error :
-        	Consultingwerk.Util.ErrorHelper:ShowErrorMessage (ple).
-        	lErrorInChangePassword = TRUE.
+            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (ple).
+            lErrorInChangePassword = TRUE.
         END CATCH.
-	END METHOD.
+    END METHOD.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initialization of the UserInterface
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent (): 
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE resources AS Progress.Util.ResourceManager NO-UNDO.
@@ -289,20 +290,20 @@ CLASS Consultingwerk.Windows.Session.ChangePasswordForm
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Prevent form from getting closed if there was an error in updating
                  the password.
-        Notes:   
+        Notes:
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD OVERRIDE PROTECTED VOID OnClosing (e AS System.ComponentModel.CancelEventArgs):
-        
+
         e:Cancel = lErrorInChangePassword.
-        		
+
         SUPER:OnClosing (e).
-        
+
         FINALLY:
             lErrorInChangePassword = FALSE.
         END.
@@ -310,15 +311,15 @@ CLASS Consultingwerk.Windows.Session.ChangePasswordForm
 
     /*------------------------------------------------------------------------------
         Purpose: Override of the OnShown method to set the initial focus
-        Notes:   
+        Notes:
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD OVERRIDE PROTECTED VOID OnShown (e AS System.EventArgs):
-        
+
         SUPER:OnShown(INPUT e).
 
         ultraTextEditorCurrentPW:Focus ().
-        
+
     END METHOD.
 
 END CLASS.

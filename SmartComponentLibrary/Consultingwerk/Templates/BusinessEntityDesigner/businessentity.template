@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2006-2015 by Consultingwerk Ltd. ("CW") -            *
+ * Copyright (C) 2006-2016 by Consultingwerk Ltd. ("CW") -            *
  * www.consultingwerk.de and other contributors as listed             *
  * below.  All Rights Reserved.                                       *
  *                                                                    *
@@ -21,11 +21,21 @@
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
+USING Consultingwerk.*                FROM PROPATH .
+USING Consultingwerk.Assertion.*      FROM PROPATH .
 USING &2.* FROM PROPATH .
 USING Consultingwerk.SmartFramework.* FROM PROPATH .
 USING Consultingwerk.OERA.*           FROM PROPATH .
 USING Consultingwerk.Util.*           FROM PROPATH . 
 USING Progress.Lang.*                 FROM PROPATH .
+
+/* Sample Annotations - see http://confluence.consultingwerkcloud.com/wiki/display/SCL/The+Annotation+based+Type+Descriptor
+@BusinessEntityView (name="order", isdefault="true", entitytable="eOrder", entityview="eCustomer", 
+                     listcolumns="eOrder.OrderNum,eOrder.OrderDate,eOrder.CustNum,eCustomer.Name",
+                     viewercolumns="eOrder.OrderNum,eOrder.OrderDate,eOrder.CustNum,eCustomer.Name,eOrder.OrderStatus") .
+@BusinessEntityTable (name="eOrder", mandatoryColumns="ordernum,orderstatus", readonlyColumns="ordernum") .
+@BusinessEntityTable (name="eCustomer", mandatoryColumns="ordernum,orderstatus", readonly="true") .
+*/
 
 @FILEANNOTATION@
 

@@ -46,25 +46,25 @@ CLASS Consultingwerk.SmartFramework.Authentication.GetUserGroupAssignmentsParame
         @param pcUserName The name of the Current user
         @param pcLoginCompanyKey The key of the login company
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC GetUserGroupAssignmentsParameter (pcUserName AS CHARACTER,
-	                                                     pcLoginCompanyKey AS CHARACTER):
-		THIS-OBJECT ().
-		
-		ASSIGN 
-		  THIS-OBJECT:UserName        = pcUserName 
-		  THIS-OBJECT:LoginCompanyKey = pcLoginCompanyKey . 
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC GetUserGroupAssignmentsParameter (pcUserName AS CHARACTER,
+                                                         pcLoginCompanyKey AS CHARACTER):
+        THIS-OBJECT ().
+        
+        ASSIGN 
+          THIS-OBJECT:UserName        = pcUserName 
+          THIS-OBJECT:LoginCompanyKey = pcLoginCompanyKey . 
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the GetUserGroupAssignmentsParameter class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC GetUserGroupAssignmentsParameter ():
-		SUPER ().
+    CONSTRUCTOR PUBLIC GetUserGroupAssignmentsParameter ():
+        SUPER ().
 
         THIS-OBJECT:AddSerializableProperties ("{&SerializableProperties}":U) .
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
 END CLASS.

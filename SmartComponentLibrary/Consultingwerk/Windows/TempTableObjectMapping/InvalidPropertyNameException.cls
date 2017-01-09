@@ -32,9 +32,9 @@ CLASS Consultingwerk.Windows.TempTableObjectMapping.InvalidPropertyNameException
        Purpose: Returns the name of the property that caused the issue
        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY PropertyName AS CHARACTER NO-UNDO 
-	GET.
-	PRIVATE SET. 
+    DEFINE PUBLIC PROPERTY PropertyName AS CHARACTER NO-UNDO 
+    GET.
+    PRIVATE SET. 
 
     /*------------------------------------------------------------------------------
        Purpose: Returns the name of the System.Type that caused the issue
@@ -51,15 +51,15 @@ CLASS Consultingwerk.Windows.TempTableObjectMapping.InvalidPropertyNameException
        @param pcPropertyName The property name for the exception
        @param pcTypeName The type name for the exception
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC InvalidPropertyNameException (pcErrorMessage AS CHARACTER,
-	                                                 pcPropertyName AS CHARACTER,
-	                                                 pcTypeName AS CHARACTER):
-		
-		SUPER (pcErrorMessage, 0).
-		
-		ASSIGN THIS-OBJECT:PropertyName = pcPropertyName
-		       THIS-OBJECT:TypeName     = pcTypeName .
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC InvalidPropertyNameException (pcErrorMessage AS CHARACTER,
+                                                     pcPropertyName AS CHARACTER,
+                                                     pcTypeName AS CHARACTER):
+        
+        SUPER (pcErrorMessage, 0).
+        
+        ASSIGN THIS-OBJECT:PropertyName = pcPropertyName
+               THIS-OBJECT:TypeName     = pcTypeName .
+        
+    END CONSTRUCTOR.
 
 END CLASS.

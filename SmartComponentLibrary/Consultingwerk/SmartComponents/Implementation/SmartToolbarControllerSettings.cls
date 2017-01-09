@@ -31,18 +31,18 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartToolbarControllerSettin
                  their Form when the "Exit" tool is clicked
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC STATIC PROPERTY SmartToolbarControllerDefaultExit AS LOGICAL NO-UNDO INIT FALSE  
-	GET.
-	SET. 
+    DEFINE PUBLIC STATIC PROPERTY SmartToolbarControllerDefaultExit AS LOGICAL NO-UNDO INIT FALSE  
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the SmartToolbarControllerSettings class
         Notes:   Disable instance creation   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PRIVATE SmartToolbarControllerSettings ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PRIVATE SmartToolbarControllerSettings ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
 
 

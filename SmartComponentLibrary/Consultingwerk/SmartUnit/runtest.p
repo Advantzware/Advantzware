@@ -79,12 +79,12 @@ RETURN "1":U . /* signal error, as above no success was signalled */
    Catch unhandled error, this would be a SmartUnit
    runtime error */
 CATCH err AS Progress.Lang.Error :
-	MESSAGE "Unhandled SmartUnit error:":U SKIP 
-	        ErrorHelper:FormattedErrorMessagesExt (err) . 
-	
-	RETURN "1":U . /* signal erorr */	
+    MESSAGE "Unhandled SmartUnit error:":U SKIP 
+            ErrorHelper:FormattedErrorMessagesExt (err) . 
+    
+    RETURN "1":U . /* signal erorr */    
 END CATCH.    
     
 FINALLY:
     ASSIGN SmartUnit:Active  = FALSE .
-END FINALLY.	
+END FINALLY.    

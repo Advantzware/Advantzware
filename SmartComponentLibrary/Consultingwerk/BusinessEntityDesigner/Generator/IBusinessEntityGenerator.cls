@@ -19,12 +19,21 @@
     Notes       : 
   ----------------------------------------------------------------------*/
 
-USING Progress.Lang.*.
+USING Consultingwerk.BusinessEntityDesigner.Generator.* FROM PROPATH .
+USING Progress.Lang.*                                   FROM PROPATH .
 
 INTERFACE Consultingwerk.BusinessEntityDesigner.Generator.IBusinessEntityGenerator:  
   
      { Consultingwerk/BusinessEntityDesigner/Services/dsBusinessEntity.i }
   
+    /*------------------------------------------------------------------------------
+        Purpose: Returns a structure that contains the most recently generated file 
+                 names
+        Notes:   
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY Generated AS Generated NO-UNDO 
+    GET.
+
     /*------------------------------------------------------------------------------
         Purpose: Attempt to open files in OpenEdge Architect / Progress Developer Studio
                  for OpenEdge when done.

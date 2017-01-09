@@ -29,7 +29,7 @@ INTERFACE Consultingwerk.Framework.TypeDescriptor.IClassAnnotationProvider:
         Purpose: Clears the cache  
         Notes:   
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID ClearCache ().
+    METHOD PUBLIC VOID ClearCache ().
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the ClassAnnotationContainer with the annotations of the 
@@ -38,6 +38,6 @@ INTERFACE Consultingwerk.Framework.TypeDescriptor.IClassAnnotationProvider:
         @param poClass The class to return the Annotations for
         @return The ClassAnnotationContainer with the annotations of the given class
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC ClassAnnotationContainer GetClassAnnotations (poClass AS Progress.Lang.Class).
+    METHOD PUBLIC ClassAnnotationContainer GetClassAnnotations (poClass AS Progress.Lang.Class).
 
 END INTERFACE.

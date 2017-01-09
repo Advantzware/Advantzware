@@ -30,34 +30,34 @@ USING Progress.Lang.*                 FROM PROPATH .
 
 CLASS Consultingwerk.Web.Kendo.Grid.KendoGrid 
     INHERITS JsonSerializable: 
-	
-    {Consultingwerk/JsonSerializableProperty.i dataSource Consultingwerk.Web.Kendo.Data.IDataSource} .
-    {Consultingwerk/JsonSerializableProperty.i height INTEGER "INIT ?"} .
-    {Consultingwerk/JsonSerializableProperty.i width INTEGER "INIT ?"} .
-    {Consultingwerk/JsonSerializableProperty.i filterable Consultingwerk.Web.Kendo.Grid.Filterable} .
-    {Consultingwerk/JsonSerializableProperty.i groupable LOGICAL "INIT ?"} .
-    {Consultingwerk/JsonSerializableProperty.i reorderable LOGICAL "INIT ?"} .
-    {Consultingwerk/JsonSerializableProperty.i resizable LOGICAL "INIT ?"} .
-    {Consultingwerk/JsonSerializableProperty.i sortable LOGICAL "INIT ?"} .
-    {Consultingwerk/JsonSerializableProperty.i selectable CHARACTER "INIT ?"} .
-    {Consultingwerk/JsonSerializableProperty.i pageable Consultingwerk.Web.Kendo.Grid.Pageable} .
-    {Consultingwerk/JsonSerializableProperty.i editable Consultingwerk.Web.Kendo.Grid.Editable} .
-    {Consultingwerk/JsonSerializableProperty.i toolbar "CHARACTER EXTENT"} .
-    {Consultingwerk/JsonSerializableProperty.i columns Consultingwerk.Web.Kendo.Grid.ListColumn} .
-	
-	/*------------------------------------------------------------------------------
+    
+    {Consultingwerk/JsonSerializableProperty11.i dataSource Consultingwerk.Web.Kendo.Data.IDataSource} .
+    {Consultingwerk/JsonSerializableProperty11.i height INTEGER "INIT ?"} .
+    {Consultingwerk/JsonSerializableProperty11.i width INTEGER "INIT ?"} .
+    {Consultingwerk/JsonSerializableProperty11.i filterable Consultingwerk.Web.Kendo.Grid.Filterable} .
+    {Consultingwerk/JsonSerializableProperty11.i groupable LOGICAL "INIT ?"} .
+    {Consultingwerk/JsonSerializableProperty11.i reorderable LOGICAL "INIT ?"} .
+    {Consultingwerk/JsonSerializableProperty11.i resizable LOGICAL "INIT ?"} .
+    {Consultingwerk/JsonSerializableProperty11.i sortable LOGICAL "INIT ?"} .
+    {Consultingwerk/JsonSerializableProperty11.i selectable CHARACTER "INIT ?"} .
+    {Consultingwerk/JsonSerializableProperty11.i pageable Consultingwerk.Web.Kendo.Grid.Pageable} .
+    {Consultingwerk/JsonSerializableProperty11.i editable Consultingwerk.Web.Kendo.Grid.Editable} .
+    {Consultingwerk/JsonSerializableProperty11.i toolbar "CHARACTER EXTENT"} .
+    {Consultingwerk/JsonSerializableProperty11.i columns Consultingwerk.Web.Kendo.Grid.ListColumn} .
+    
+    /*------------------------------------------------------------------------------
         Purpose: Constructor for the KendoGrid class                                                                     
         Notes:                                                                        
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC KendoGrid ():
-		SUPER ().
-		
-		THIS-OBJECT:UseSerializedTypeInformation = FALSE . 
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC KendoGrid ():
+        SUPER ().
+        
+        THIS-OBJECT:UseSerializedTypeInformation = FALSE . 
         THIS-OBJECT:AddSerializableProperties ("{&SerializableProperties}":U) .
-		
-		THIS-OBJECT:dataSource = NEW DataSource () . 
-		THIS-OBJECT:columns    = NEW ListColumn () .
-		
-	END CONSTRUCTOR.
+        
+        THIS-OBJECT:dataSource = NEW DataSource () . 
+        THIS-OBJECT:columns    = NEW ListColumn () .
+        
+    END CONSTRUCTOR.
     
 END CLASS.

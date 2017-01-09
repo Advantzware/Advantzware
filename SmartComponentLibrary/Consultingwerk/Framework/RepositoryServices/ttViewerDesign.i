@@ -8,14 +8,14 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/  
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : ttViewerDesign.i
-    Purpose     : 
+    Purpose     :
 
     Syntax      :
 
-    Description : 
+    Description :
 
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Tue Nov 09 21:29:32 CET 2010
@@ -26,19 +26,19 @@
 /* ***************************  Definitions  ************************** */
 
 DEFINE {&ACCESS} TEMP-TABLE ttViewerDesign NO-UNDO {&REFERENCE-ONLY}
-    FIELD ControlName         AS CHARACTER 
+    FIELD ControlName         AS CHARACTER
     FIELD ControlInstanceId   AS CHARACTER
     FIELD ContainerInstanceId AS CHARACTER
     FIELD ControlType         AS CHARACTER
     FIELD ControlText         AS CHARACTER
-    FIELD ControlMultiline    AS LOGICAL INIT FALSE  
-    FIELD ControlSize         AS CHARACTER 
+    FIELD ControlMultiline    AS LOGICAL INITIAL FALSE
+    FIELD ControlSize         AS CHARACTER
     FIELD ControlLocation     AS CHARACTER
-    FIELD ControlDock         AS CHARACTER 
-    FIELD ControlAnchor       AS CHARACTER 
-    FIELD BindingProperties   AS CHARACTER 
-    FIELD BindingFields       AS CHARACTER 
+    FIELD ControlDock         AS CHARACTER
+    FIELD ControlAnchor       AS CHARACTER
+    FIELD BindingProperties   AS CHARACTER
+    FIELD BindingFields       AS CHARACTER
     FIELD DynamicControlName  AS CHARACTER
     FIELD HAlign              AS CHARACTER
-    INDEX ControlName IS UNIQUE PRIMARY ControlName ContainerInstanceId .
-    
+    INDEX ControlName IS UNIQUE PRIMARY ControlName ContainerInstanceId
+    INDEX ContainerInstanceId ContainerInstanceId .

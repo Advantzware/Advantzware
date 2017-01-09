@@ -3,4 +3,5 @@
 &3      filter class name
 &4      table model properties (fields)
 @USER@  the current user name
+@USERID@      the current user id
 @DATE@  time stamp

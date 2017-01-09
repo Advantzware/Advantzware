@@ -33,14 +33,14 @@ INTERFACE Consultingwerk.SmartComponents.Support.IClassCacheProvider:
         @param pcClassName The base type (class or interface) that the returned classes need to match
         @param ttClassNames OUTPUT Temp-Table with the list of matching classnames 
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID GetClassNames (pcClassName AS CHARACTER, 
-	                                  OUTPUT TABLE ttClassNames).
+    METHOD PUBLIC VOID GetClassNames (pcClassName AS CHARACTER, 
+                                      OUTPUT TABLE ttClassNames).
 
     /*------------------------------------------------------------------------------
         Purpose: Refreshes the Cache for the given base type
         Notes:   
         @param pcClassName The base type (class or interface) that the returned classes need to match
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID Refresh (pcClassName AS CHARACTER).
+    METHOD PUBLIC VOID Refresh (pcClassName AS CHARACTER).
 
 END INTERFACE.

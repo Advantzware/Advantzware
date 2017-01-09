@@ -37,10 +37,10 @@ CLASS Consultingwerk.Windows.Framework.WebUriCallParameter
     INHERITS JsonSerializable
 &ENDIF    
     IMPLEMENTS IFunctionCallParameter: 
-	
+    
     {Consultingwerk/JsonSerializableProperty.i WebSiteLocation CHARACTER} .
     {Consultingwerk/JsonSerializableProperty.i UseExternalWebBrowser LOGICAL} .
-	
+    
     /*------------------------------------------------------------------------------
         Purpose: Returns the name of the Editor Control used by the Function maintenance
                  Viewer 
@@ -48,24 +48,24 @@ CLASS Consultingwerk.Windows.Framework.WebUriCallParameter
     ------------------------------------------------------------------------------*/
     DEFINE PUBLIC STATIC PROPERTY EditorControl AS CHARACTER NO-UNDO INIT "Consultingwerk.Windows.Framework.Menu.WebUriCallParameterControl":U 
     GET.
-	
+    
     /*------------------------------------------------------------------------------
         Purpose: Returns the image representing this Function Call Parameter
         Notes:   
     ------------------------------------------------------------------------------*/
     DEFINE PUBLIC STATIC PROPERTY ImageKey AS CHARACTER INITIAL "Consultingwerk/Windows/Framework/Images/FunctionCallParameter/earth.png":U NO-UNDO 
     GET.
-	
+    
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the InvokeStaticMethodCallParameter class                                                                     
         Notes:                                                                        
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC WebUriCallParameter ():
-		SUPER ().
-		
+    CONSTRUCTOR PUBLIC WebUriCallParameter ():
+        SUPER ().
+        
         THIS-OBJECT:AddSerializableProperties ("{&SerializableProperties}":U) .
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Invokes/Starts the function associated with the IFunctionCallParameter 
@@ -91,28 +91,28 @@ CLASS Consultingwerk.Windows.Framework.WebUriCallParameter
         
             RETURN oForm . 
         END.
-		
-	END METHOD.
+        
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Returns true when the function is currently active (runninng) 
         Notes:   
         @return True when the function is currently active (runninng)
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL IsActive ():
-		
+    METHOD PUBLIC LOGICAL IsActive ():
+        
         RETURN ? .
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: ReActivates the function 
         Notes:   
         @return True when the function was successfully reactivated
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL ReActivate ():
-		
+    METHOD PUBLIC LOGICAL ReActivate ():
+        
  
-	END METHOD.
+    END METHOD.
 
 END CLASS.

@@ -11,12 +11,12 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : RepositionModeEnum
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sun Feb 16 20:56:24 CET 2014
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -31,25 +31,25 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.*                               FROM PROPATH .
 USING Consultingwerk.Framework.Collections.*         FROM PROPATH .
-USING Consultingwerk.WindowIntegrationKit.Controls.* FROM PROPATH .  
+USING Consultingwerk.WindowIntegrationKit.Controls.* FROM PROPATH .
 USING Progress.Lang.*                                FROM PROPATH .
 
-{&CLASS} Consultingwerk.WindowIntegrationKit.Controls.RepositionModeEnum 
+{&CLASS} Consultingwerk.WindowIntegrationKit.Controls.RepositionModeEnum
     &IF "{&CLASS}" EQ "CLASS" &THEN
     INHERITS Enum
-    &ENDIF    
-        : 
+    &ENDIF
+        :
 
 &IF "{&CLASS}" EQ "ENUM" &THEN
     DEFINE ENUM
-&ENDIF    
+&ENDIF
 
     {Consultingwerk/EnumMember.i Always 1 RepositionModeEnum}
     {Consultingwerk/EnumMember.i Conditional 2 RepositionModeEnum}
 
 &IF "{&CLASS}" EQ "ENUM" &THEN
     .
-&ENDIF    
+&ENDIF
 
 &IF "{&CLASS}" EQ "CLASS" &THEN
 
@@ -61,27 +61,25 @@ USING Progress.Lang.*                                FROM PROPATH .
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PRIVATE RepositionModeEnum (piValue AS INTEGER, pcLabel AS CHARACTER):
         SUPER ().
- 
+
         ASSIGN THIS-OBJECT:Value = piValue
                THIS-OBJECT:Label = pcLabel .
- 
+
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Returns a CharacterList with the names of the Enum members
-        Notes:   
+        Notes:
         @return The CharacterList with the names of the Enum members
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CharacterList GetNames ():
- 
-        DEFINE VARIABLE oReturn AS CharacterList NO-UNDO . 
- 
-        RETURN NEW CharacterList ('{&EnumMembers}':U).
- 
-    END METHOD .
-	
 
-    {Consultingwerk/EnumFromString.i Consultingwerk.WindowIntegrationKit.Controls.RepositionModeEnum} 
+        RETURN NEW CharacterList ('{&EnumMembers}':U).
+
+    END METHOD .
+
+
+    {Consultingwerk/EnumFromString.i Consultingwerk.WindowIntegrationKit.Controls.RepositionModeEnum}
 
 &ENDIF
 

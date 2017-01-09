@@ -7,3 +7,4 @@
 &7      code for AssignToBuffer
 &8      destructor, delete childs
 @USER@  the current user name
+@USERID@      the current user id

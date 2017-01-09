@@ -11,23 +11,23 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : FieldRemovedPromptForm
-    Purpose     : Prompt for the action to be taken when fields haev been 
+    Purpose     : Prompt for the action to be taken when fields haev been
                   removed from the database
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Mon Sep 10 11:42:03 CEST 2012
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Consultingwerk.BusinessEntityDesigner.Services.* FROM PROPATH .  
-USING Consultingwerk.BusinessEntityDesigner.UI.*       FROM PROPATH .  
+USING Consultingwerk.BusinessEntityDesigner.Services.* FROM PROPATH .
+USING Consultingwerk.BusinessEntityDesigner.UI.*       FROM PROPATH .
 USING Consultingwerk.SmartComponents.Base.*            FROM PROPATH .
 USING Progress.Lang.*                                  FROM PROPATH .
 
-CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldRemovedPromptForm INHERITS SmartWindowForm: 
+CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldRemovedPromptForm INHERITS SmartWindowForm:
 
     DEFINE PRIVATE VARIABLE btnOk AS System.Windows.Forms.Button NO-UNDO.
     DEFINE PRIVATE VARIABLE btnCancel AS System.Windows.Forms.Button NO-UNDO.
@@ -41,79 +41,80 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldRemovedPromptForm INHERITS S
     DEFINE PRIVATE VARIABLE pictureBox1 AS System.Windows.Forms.PictureBox NO-UNDO.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the Field Name to be shown in the dialog 
-        Notes:   
+        Purpose: Gets and sets the Field Name to be shown in the dialog
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY FieldName AS CHARACTER NO-UNDO 
+    DEFINE PUBLIC PROPERTY FieldName AS CHARACTER NO-UNDO
     GET:
         RETURN tbDatabaseFieldName:Text .
     END GET .
     SET (arg AS CHARACTER):
         ASSIGN tbDatabaseFieldName:Text = arg .
-    END SET . 
+    END SET .
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the FieldRemovedHandlingEnum value active on the Dialog
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY FieldRemovedHandling AS FieldRemovedHandlingEnum NO-UNDO 
+    DEFINE PUBLIC PROPERTY FieldRemovedHandling AS FieldRemovedHandlingEnum NO-UNDO
     GET:
-        IF rsRemoveSourceColumn:Checked THEN 
+        IF rsRemoveSourceColumn:Checked THEN
             RETURN FieldRemovedHandlingEnum:RemoveSourceColumn .
-        IF rsRemoveField:Checked THEN 
+        IF rsRemoveField:Checked THEN
             RETURN FieldRemovedHandlingEnum:RemoveField .
         ELSE
             RETURN FieldRemovedHandlingEnum:DoNothing .
     END GET.
     SET(INPUT arg AS FieldRemovedHandlingEnum):
-    
+
         Consultingwerk.Assertion.ObjectAssert:IsValid (arg) .
 
         CASE arg:
-            WHEN FieldRemovedHandlingEnum:RemoveSourceColumn THEN 
-                ASSIGN rsRemoveSourceColumn:Checked = TRUE 
+            WHEN FieldRemovedHandlingEnum:RemoveSourceColumn THEN
+                ASSIGN rsRemoveSourceColumn:Checked = TRUE
                        rsRemoveField:Checked        = FALSE
-                       rsDoNothing:Checked          = FALSE . 
-            WHEN FieldRemovedHandlingEnum:RemoveSourceColumn THEN 
-                ASSIGN rsRemoveSourceColumn:Checked = FALSE 
+                       rsDoNothing:Checked          = FALSE .
+            WHEN FieldRemovedHandlingEnum:RemoveSourceColumn THEN
+                ASSIGN rsRemoveSourceColumn:Checked = FALSE
                        rsRemoveField:Checked        = TRUE
-                       rsDoNothing:Checked          = FALSE . 
-            WHEN FieldRemovedHandlingEnum:DoNothing THEN 
-                ASSIGN rsRemoveSourceColumn:Checked = FALSE 
+                       rsDoNothing:Checked          = FALSE .
+            WHEN FieldRemovedHandlingEnum:DoNothing THEN
+                ASSIGN rsRemoveSourceColumn:Checked = FALSE
                        rsRemoveField:Checked        = FALSE
-                       rsDoNothing:Checked          = TRUE . 
+                       rsDoNothing:Checked          = TRUE .
         END CASE.
     END SET.
-     
+
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the FieldRemovedPromptForm class
-        Notes:   
-    ------------------------------------------------------------------------------*/     
+        Notes:
+    ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC FieldRemovedPromptForm (  ):
-        
-        
+
+
         SUPER().
         InitializeComponent().
-        
-        THIS-OBJECT:StoreFormPosition = FALSE . 
-        
+
+        THIS-OBJECT:StoreFormPosition = FALSE .
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
     END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE resources AS Progress.Util.ResourceManager NO-UNDO.
@@ -279,8 +280,8 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldRemovedPromptForm INHERITS S
 
     /*------------------------------------------------------------------------------
         Purpose: Destructor for the FieldRemovedPromptForm class
-        Notes:   
-    ------------------------------------------------------------------------------*/     
+        Notes:
+    ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC FieldRemovedPromptForm ( ):
 
         IF VALID-OBJECT(components) THEN DO:

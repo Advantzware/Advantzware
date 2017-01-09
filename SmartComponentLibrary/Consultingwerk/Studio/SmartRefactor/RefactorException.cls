@@ -37,13 +37,13 @@ CLASS Consultingwerk.Studio.SmartRefactor.RefactorException
         @param poInnerException The reference to the original error
         @param pcErrorString The error message associated with this Exception object
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC RefactorException (poInnerException AS Progress.Lang.Error, 
-	                                      pcErrorString AS CHARACTER):
-	                                          
-		SUPER (poInnerException, pcErrorString).
-		
-	END CONSTRUCTOR.
-	
+    CONSTRUCTOR PUBLIC RefactorException (poInnerException AS Progress.Lang.Error, 
+                                          pcErrorString AS CHARACTER):
+                                              
+        SUPER (poInnerException, pcErrorString).
+        
+    END CONSTRUCTOR.
+    
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the RefactorException
         Notes:                          
@@ -51,57 +51,57 @@ CLASS Consultingwerk.Studio.SmartRefactor.RefactorException
         @param pcErrorString The error message associated with this Exception object
         @param piMessageNumber The error message number associated with this Exception object
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC RefactorException (poInnerException AS Progress.Lang.Error, 
-	                                      pcErrorString AS CHARACTER, 
-	                                      piMessageNumber AS INTEGER):
-	                                          
-		SUPER (poInnerException, pcErrorString, piMessageNumber).
-		
-	END CONSTRUCTOR.
-	
+    CONSTRUCTOR PUBLIC RefactorException (poInnerException AS Progress.Lang.Error, 
+                                          pcErrorString AS CHARACTER, 
+                                          piMessageNumber AS INTEGER):
+                                              
+        SUPER (poInnerException, pcErrorString, piMessageNumber).
+        
+    END CONSTRUCTOR.
+    
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the RefactorException
         Notes:                          
         @param poInnerException The reference to the original error
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC RefactorException (poInnerException AS Progress.Lang.Error):
-		
-		SUPER (poInnerException).
-		
-	END CONSTRUCTOR.
-	
+    CONSTRUCTOR PUBLIC RefactorException (poInnerException AS Progress.Lang.Error):
+        
+        SUPER (poInnerException).
+        
+    END CONSTRUCTOR.
+    
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the RefactorException
         Notes:                          
         @param pcErrorString The error message associated with this Exception object
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC RefactorException (pcErrorString AS CHARACTER):
-	    
-		SUPER (pcErrorString).
-		
-	END CONSTRUCTOR.
-	
+    CONSTRUCTOR PUBLIC RefactorException (pcErrorString AS CHARACTER):
+        
+        SUPER (pcErrorString).
+        
+    END CONSTRUCTOR.
+    
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the RefactorException
         Notes:                          
         @param pcErrorString The error message associated with this Exception object
         @param piMessageNumber The error message number associated with this Exception object
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC RefactorException (pcErrorString AS CHARACTER, 
-	                                      piMessageNumber AS INTEGER):
-	    
-		SUPER (pcErrorString, piMessageNumber).
-		
-	END CONSTRUCTOR.
-	
+    CONSTRUCTOR PUBLIC RefactorException (pcErrorString AS CHARACTER, 
+                                          piMessageNumber AS INTEGER):
+        
+        SUPER (pcErrorString, piMessageNumber).
+        
+    END CONSTRUCTOR.
+    
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the RefactorException
         Notes:                          
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC RefactorException ():
-		
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC RefactorException ():
+        
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
 END CLASS.

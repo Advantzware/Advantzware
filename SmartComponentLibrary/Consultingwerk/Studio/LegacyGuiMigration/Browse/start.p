@@ -8,14 +8,14 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : start.p
-    Purpose     : 
+    Purpose     :
 
     Syntax      :
 
-    Description : 
+    Description :
 
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Mon Dec 21 14:25:53 CET 2009
@@ -28,42 +28,42 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 {Consultingwerk/products.i}
 
-DEFINE VARIABLE oForm AS Consultingwerk.Studio.LegacyGuiMigration.Browse.AblBrowseMigrationForm NO-UNDO . 
+DEFINE VARIABLE oForm AS Consultingwerk.Studio.LegacyGuiMigration.Browse.AblBrowseMigrationForm NO-UNDO .
 
-DEFINE VARIABLE oTaskbarManager AS Microsoft.WindowsAPICodePack.Taskbar.TaskbarManager NO-UNDO . 
+DEFINE VARIABLE oTaskbarManager AS Microsoft.WindowsAPICodePack.Taskbar.TaskbarManager NO-UNDO .
 
 /* ***************************  Main Block  *************************** */
 
 /* Mike Fechner, Consultingwerk Ltd. 01.05.2013
    Best default for GUI apps */
-SESSION:APPL-ALERT-BOXES = TRUE . 
-SESSION:DEBUG-ALERT = TRUE . 
+SESSION:APPL-ALERT-BOXES = TRUE .
+SESSION:DEBUG-ALERT = TRUE .
 SESSION:ERROR-STACK-TRACE = TRUE  .
-SESSION:SYSTEM-ALERT-BOXES = TRUE . 
+SESSION:SYSTEM-ALERT-BOXES = TRUE .
 
 Consultingwerk.Framework.FrameworkSettings:BaseRegistryKey = "Software~\Consultingwerk Ltd.~\ABL Browse Migration~\":U .
-Consultingwerk.Framework.FrameworkSettings:StoreWindowPosition = TRUE . 
-Consultingwerk.Framework.FrameworkSettings:StoreRibbonQuickAccessToolbar = TRUE . 
+Consultingwerk.Framework.FrameworkSettings:StoreWindowPosition = TRUE .
+Consultingwerk.Framework.FrameworkSettings:StoreRibbonQuickAccessToolbar = TRUE .
 &IF DEFINED (NoStaticsInHybrids) EQ 0 &THEN
-Consultingwerk.SmartComponents.Implementation.SmartDataBrowser:SaveColumnSettings = TRUE . 
-&ELSE 
-Consultingwerk.SmartComponents.Implementation.SmartDataBrowserSettings:SaveColumnSettings = TRUE . 
+Consultingwerk.SmartComponents.Implementation.SmartDataBrowser:SaveColumnSettings = TRUE .
+&ELSE
+Consultingwerk.SmartComponents.Implementation.SmartDataBrowserSettings:SaveColumnSettings = TRUE .
 &ENDIF
 
 IF Microsoft.WindowsAPICodePack.Taskbar.TaskbarManager:IsPlatformSupported THEN DO:
-    oTaskbarManager = Microsoft.WindowsAPICodePack.Taskbar.TaskbarManager:Instance . 
-    oTaskbarManager:ApplicationId = "de.consultingwerk.ablbrowsemigration":U . 
+    oTaskbarManager = Microsoft.WindowsAPICodePack.Taskbar.TaskbarManager:Instance .
+    oTaskbarManager:ApplicationId = "de.consultingwerk.ablbrowsemigration":U .
 END.
 
-IF PROVERSION BEGINS "10.":U THEN 
-    FILE-INFO:FILE-NAME = "Consultingwerk\Windows\Styles\Office2007Black_ConsultingwerkStudio.isl":U .
-ELSE     
-    FILE-INFO:FILE-NAME = "Consultingwerk\Windows\Styles\Office2010Blue_ConsultingwerkStudio.isl":U .
+IF PROVERSION BEGINS "10.":U THEN
+    FILE-INFORMATION:FILE-NAME = "Consultingwerk/Windows/Styles/Office2007Black_ConsultingwerkStudio.isl":U .
+ELSE
+    FILE-INFORMATION:FILE-NAME = "Consultingwerk/Windows/Styles/Office2010Blue_ConsultingwerkStudio.isl":U .
 
-IF FILE-INFO:FULL-PATHNAME > "":U THEN 
-    Consultingwerk.Util.StyleLibraryHelper:LoadFromFile (FILE-INFO:FULL-PATHNAME) .
+IF FILE-INFORMATION:FULL-PATHNAME > "":U THEN
+    Consultingwerk.Util.StyleLibraryHelper:LoadFromFile (FILE-INFORMATION:FULL-PATHNAME) .
 
-oForm = NEW Consultingwerk.Studio.LegacyGuiMigration.Browse.AblBrowseMigrationForm () . 
+oForm = NEW Consultingwerk.Studio.LegacyGuiMigration.Browse.AblBrowseMigrationForm () .
 
 WAIT-FOR System.Windows.Forms.Application:Run (oForm) .
 
@@ -71,8 +71,8 @@ DELETE OBJECT Consultingwerk.Framework.FrameworkSettings:WaitStateManager .
 
 /* Mike Fechner, Consultingwerk Ltd. 22.02.2011
    Quit, don't fall back to Procedure Editor */
-QUIT . 
+QUIT .
 
 CATCH e AS Progress.Lang.Error :
-    Consultingwerk.Util.ErrorHelper:ShowErrorMessage (e) .        
+    Consultingwerk.Util.ErrorHelper:ShowErrorMessage (e) .
 END CATCH.

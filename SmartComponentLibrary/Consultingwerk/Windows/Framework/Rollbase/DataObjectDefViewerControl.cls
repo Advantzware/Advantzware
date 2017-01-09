@@ -64,7 +64,7 @@ CLASS Consultingwerk.Windows.Framework.Rollbase.DataObjectDefViewerControl
         
     END CONSTRUCTOR.
 
-	/*------------------------------------------------------------------------------
+    /*------------------------------------------------------------------------------
         Purpose: Handles the FormClosed event of the containing Form                                                                        
         Notes:   
         @param sender The reference to the object that raised the event
@@ -75,39 +75,40 @@ CLASS Consultingwerk.Windows.Framework.Rollbase.DataObjectDefViewerControl
 
         IF VALID-OBJECT (sender) AND TYPE-OF (sender, System.Windows.Forms.Form) THEN 
             CAST (sender, System.Windows.Forms.Form):FormClosing:Unsubscribe (ViewerFormClosingHandler) .
-        	
+            
         CAST (THIS-OBJECT:SmartDataSource, SmartBusinessEntityAdapter):NewFetchDataRequest:Unsubscribe (NewFetchDataRequestHandler) .
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Raises the Load event
         Notes:   
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD OVERRIDE PROTECTED VOID OnLoad (e AS System.EventArgs):
-		
-		SUPER:OnLoad (e).
+    METHOD OVERRIDE PROTECTED VOID OnLoad (e AS System.EventArgs):
+        
+        SUPER:OnLoad (e).
 
         CAST (THIS-OBJECT:SmartDataSource, SmartBusinessEntityAdapter):NewFetchDataRequest:Subscribe (NewFetchDataRequestHandler) .
         THIS-OBJECT:FindForm():FormClosing:Subscribe (ViewerFormClosingHandler) .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Filters the DataSource 
         Notes:   
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID Filter ():
-		
-		CAST (THIS-OBJECT:SmartDataSource, SmartBusinessEntityAdapter):RetrieveData () .  
+    METHOD PROTECTED VOID Filter ():
+        
+        CAST (THIS-OBJECT:SmartDataSource, SmartBusinessEntityAdapter):RetrieveData () .  
 
-	END METHOD .
+    END METHOD .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design
-        Notes:   
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
         
         /* NOTE: The following method is automatically generated.
@@ -123,6 +124,9 @@ CLASS Consultingwerk.Windows.Framework.Rollbase.DataObjectDefViewerControl
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance1 AS Infragistics.Win.Appearance NO-UNDO.
         appearance1 = NEW Infragistics.Win.Appearance().
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE resources AS Progress.Util.ResourceManager NO-UNDO.
+        resources = NEW Progress.Util.ResourceManager("Consultingwerk.Windows.Framework.Rollbase.DataObjectDefViewerControl":U).
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance2 AS Infragistics.Win.Appearance NO-UNDO.
         appearance2 = NEW Infragistics.Win.Appearance().
@@ -182,150 +186,108 @@ CLASS Consultingwerk.Windows.Framework.Rollbase.DataObjectDefViewerControl
         /*  */
         appearance1:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:DataObjectDef_objDefName_Label:Appearance = appearance1.
-        THIS-OBJECT:DataObjectDef_objDefName_Label:AutoSize = TRUE.
-        THIS-OBJECT:DataObjectDef_objDefName_Label:Location = NEW System.Drawing.Point(20, 24).
+        resources:ApplyResources(THIS-OBJECT:DataObjectDef_objDefName_Label, "DataObjectDef_objDefName_Label":U).
         THIS-OBJECT:DataObjectDef_objDefName_Label:Name = "DataObjectDef_objDefName_Label":U.
-        THIS-OBJECT:DataObjectDef_objDefName_Label:Size = NEW System.Drawing.Size(94, 14).
-        THIS-OBJECT:DataObjectDef_objDefName_Label:TabIndex = 0.
-        THIS-OBJECT:DataObjectDef_objDefName_Label:Text = "Integration Name:":U.
         /*  */
         /* DataObjectDef_SingularName_Label */
         /*  */
         appearance2:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:DataObjectDef_SingularName_Label:Appearance = appearance2.
-        THIS-OBJECT:DataObjectDef_SingularName_Label:AutoSize = TRUE.
-        THIS-OBJECT:DataObjectDef_SingularName_Label:Location = NEW System.Drawing.Point(20, 50).
+        resources:ApplyResources(THIS-OBJECT:DataObjectDef_SingularName_Label, "DataObjectDef_SingularName_Label":U).
         THIS-OBJECT:DataObjectDef_SingularName_Label:Name = "DataObjectDef_SingularName_Label":U.
-        THIS-OBJECT:DataObjectDef_SingularName_Label:Size = NEW System.Drawing.Size(82, 14).
-        THIS-OBJECT:DataObjectDef_SingularName_Label:TabIndex = 2.
-        THIS-OBJECT:DataObjectDef_SingularName_Label:Text = "Singular Name:":U.
         /*  */
         /* DataObjectDef_SingularName */
         /*  */
-        DEFINE VARIABLE nestedvar0 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar0 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:DataObjectDef_SingularName:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar0, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:DataObjectDef_SingularName, "DataObjectDef_SingularName":U).
         THIS-OBJECT:DataObjectDef_SingularName:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "SingularName":U, TRUE)).
         THIS-OBJECT:DataObjectDef_SingularName:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:DataObjectDef_SingularName:Location = NEW System.Drawing.Point(130, 46).
         THIS-OBJECT:DataObjectDef_SingularName:Name = "DataObjectDef_SingularName":U.
-        THIS-OBJECT:DataObjectDef_SingularName:Size = NEW System.Drawing.Size(377, 21).
-        THIS-OBJECT:DataObjectDef_SingularName:TabIndex = 3.
         /*  */
         /* DataObjectDef_PluralName_Label */
         /*  */
         appearance3:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:DataObjectDef_PluralName_Label:Appearance = appearance3.
-        THIS-OBJECT:DataObjectDef_PluralName_Label:AutoSize = TRUE.
-        THIS-OBJECT:DataObjectDef_PluralName_Label:Location = NEW System.Drawing.Point(20, 77).
+        resources:ApplyResources(THIS-OBJECT:DataObjectDef_PluralName_Label, "DataObjectDef_PluralName_Label":U).
         THIS-OBJECT:DataObjectDef_PluralName_Label:Name = "DataObjectDef_PluralName_Label":U.
-        THIS-OBJECT:DataObjectDef_PluralName_Label:Size = NEW System.Drawing.Size(70, 14).
-        THIS-OBJECT:DataObjectDef_PluralName_Label:TabIndex = 4.
-        THIS-OBJECT:DataObjectDef_PluralName_Label:Text = "Plural Name:":U.
         /*  */
         /* DataObjectDef_PluralName */
         /*  */
-        DEFINE VARIABLE nestedvar1 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar1 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:DataObjectDef_PluralName:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar1, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:DataObjectDef_PluralName, "DataObjectDef_PluralName":U).
         THIS-OBJECT:DataObjectDef_PluralName:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "PluralName":U, TRUE)).
         THIS-OBJECT:DataObjectDef_PluralName:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:DataObjectDef_PluralName:Location = NEW System.Drawing.Point(130, 73).
         THIS-OBJECT:DataObjectDef_PluralName:Name = "DataObjectDef_PluralName":U.
-        THIS-OBJECT:DataObjectDef_PluralName:Size = NEW System.Drawing.Size(377, 21).
-        THIS-OBJECT:DataObjectDef_PluralName:TabIndex = 5.
         /*  */
         /* DataObjectDef_id_Label */
         /*  */
-        DEFINE VARIABLE nestedvar2 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar2 = System.Windows.Forms.AnchorStyles:Top.
-        THIS-OBJECT:DataObjectDef_id_Label:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar2, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:DataObjectDef_id_Label, "DataObjectDef_id_Label":U).
         appearance4:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:DataObjectDef_id_Label:Appearance = appearance4.
-        THIS-OBJECT:DataObjectDef_id_Label:AutoSize = TRUE.
-        THIS-OBJECT:DataObjectDef_id_Label:Location = NEW System.Drawing.Point(513, 24).
         THIS-OBJECT:DataObjectDef_id_Label:Name = "DataObjectDef_id_Label":U.
-        THIS-OBJECT:DataObjectDef_id_Label:Size = NEW System.Drawing.Size(19, 14).
-        THIS-OBJECT:DataObjectDef_id_Label:TabIndex = 6.
-        THIS-OBJECT:DataObjectDef_id_Label:Text = "ID:":U.
         /*  */
         /* DataObjectDef_id */
         /*  */
-        DEFINE VARIABLE nestedvar3 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar3 = System.Windows.Forms.AnchorStyles:Top.
-        THIS-OBJECT:DataObjectDef_id:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar3, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:DataObjectDef_id, "DataObjectDef_id":U).
         THIS-OBJECT:DataObjectDef_id:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "id":U, TRUE)).
         THIS-OBJECT:DataObjectDef_id:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:DataObjectDef_id:Location = NEW System.Drawing.Point(623, 20).
         THIS-OBJECT:DataObjectDef_id:Name = "DataObjectDef_id":U.
-        THIS-OBJECT:DataObjectDef_id:Size = NEW System.Drawing.Size(150, 21).
-        THIS-OBJECT:DataObjectDef_id:TabIndex = 7.
         /*  */
         /* DataObjectDef_origId_Label */
         /*  */
-        DEFINE VARIABLE nestedvar4 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar4 = System.Windows.Forms.AnchorStyles:Top.
-        THIS-OBJECT:DataObjectDef_origId_Label:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar4, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:DataObjectDef_origId_Label, "DataObjectDef_origId_Label":U).
         appearance5:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:DataObjectDef_origId_Label:Appearance = appearance5.
-        THIS-OBJECT:DataObjectDef_origId_Label:AutoSize = TRUE.
-        THIS-OBJECT:DataObjectDef_origId_Label:Location = NEW System.Drawing.Point(513, 50).
         THIS-OBJECT:DataObjectDef_origId_Label:Name = "DataObjectDef_origId_Label":U.
-        THIS-OBJECT:DataObjectDef_origId_Label:Size = NEW System.Drawing.Size(61, 14).
-        THIS-OBJECT:DataObjectDef_origId_Label:TabIndex = 8.
-        THIS-OBJECT:DataObjectDef_origId_Label:Text = "Original ID:":U.
         /*  */
         /* DataObjectDef_origId */
         /*  */
-        DEFINE VARIABLE nestedvar5 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar5 = System.Windows.Forms.AnchorStyles:Top.
-        THIS-OBJECT:DataObjectDef_origId:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar5, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:DataObjectDef_origId, "DataObjectDef_origId":U).
         THIS-OBJECT:DataObjectDef_origId:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "origId":U, TRUE)).
         THIS-OBJECT:DataObjectDef_origId:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:DataObjectDef_origId:Location = NEW System.Drawing.Point(623, 46).
         THIS-OBJECT:DataObjectDef_origId:Name = "DataObjectDef_origId":U.
-        THIS-OBJECT:DataObjectDef_origId:Size = NEW System.Drawing.Size(150, 21).
-        THIS-OBJECT:DataObjectDef_origId:TabIndex = 9.
         /*  */
         /* smartBusinessEntityLookup1 */
         /*  */
-        DEFINE VARIABLE nestedvar6 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar6 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:smartBusinessEntityLookup1:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar6, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:smartBusinessEntityLookup1, "smartBusinessEntityLookup1":U).
         editorButton1:Key = "ShowLookupDialog":U.
-        editorButton1:Text = "...":U.
+        resources:ApplyResources(editorButton1, "editorButton1":U).
         THIS-OBJECT:smartBusinessEntityLookup1:ButtonsRight:Add(editorButton1).
         THIS-OBJECT:smartBusinessEntityLookup1:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "objDefName":U, TRUE)).
         THIS-OBJECT:smartBusinessEntityLookup1:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:smartBusinessEntityLookup1:Location = NEW System.Drawing.Point(130, 20).
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupAdditionalFields = "":U.
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupBrowserExcludeFields = "":U.
         THIS-OBJECT:smartBusinessEntityLookup1:LookupBrowserFields = "ObjectDefName":U.
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupCascade = FALSE.
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupControls = "":U.
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupDialogClassName = "":U.
         THIS-OBJECT:smartBusinessEntityLookup1:LookupDialogFilterFields = "ObjectDefName":U.
         THIS-OBJECT:smartBusinessEntityLookup1:LookupDialogFilterOperators = "BEGINS":U.
-        THIS-OBJECT:smartBusinessEntityLookup1:LookupDialogTitle = "Lookup Object Name":U.
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupDialogOpenQuery = TRUE.
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupDialogQuerySort = "":U.
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupDialogQueryString = "":U.
         THIS-OBJECT:smartBusinessEntityLookup1:LookupEntityName = "Consultingwerk.RollbaseAdapter.MetaData.ObjectDefNamesBusinessEntity":U.
         THIS-OBJECT:smartBusinessEntityLookup1:LookupEntityTable = "eObjectDefName":U.
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupEntityView = "":U.
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupFields = "":U.
         THIS-OBJECT:smartBusinessEntityLookup1:LookupKeyField = "ObjectDefName":U.
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupKeyValue = "":U.
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupKeyValueColumn = "":U.
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupQuerySort = "":U.
         THIS-OBJECT:smartBusinessEntityLookup1:LookupQueryString = "FOR EACH eObjectDefName WHERE eObjectDefName.ObjectDefName BEGINS ~"&1~"":U.
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupTimerDelay = 750.
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupTimerDisabled = FALSE.
         THIS-OBJECT:smartBusinessEntityLookup1:Name = "smartBusinessEntityLookup1":U.
-        THIS-OBJECT:smartBusinessEntityLookup1:Size = NEW System.Drawing.Size(237, 21).
-        THIS-OBJECT:smartBusinessEntityLookup1:TabIndex = 1.
+        THIS-OBJECT:smartBusinessEntityLookup1:OwningGrid = ?.
         THIS-OBJECT:smartBusinessEntityLookup1:KeyDown:Subscribe(THIS-OBJECT:smartBusinessEntityLookup1_KeyDown).
         /*  */
         /* ultraButton1 */
         /*  */
-        DEFINE VARIABLE nestedvar7 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar7 = System.Windows.Forms.AnchorStyles:Top.
-        THIS-OBJECT:ultraButton1:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar7, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:ultraButton1:Location = NEW System.Drawing.Point(373, 19).
+        resources:ApplyResources(THIS-OBJECT:ultraButton1, "ultraButton1":U).
         THIS-OBJECT:ultraButton1:Name = "ultraButton1":U.
-        THIS-OBJECT:ultraButton1:Size = NEW System.Drawing.Size(134, 23).
-        THIS-OBJECT:ultraButton1:TabIndex = 10.
-        THIS-OBJECT:ultraButton1:Text = "Fetch Object Definition":U.
         THIS-OBJECT:ultraButton1:Click:Subscribe(THIS-OBJECT:ultraButton1_Click).
         /*  */
         /* DataObjectDefViewerControl */
         /*  */
-        THIS-OBJECT:AutoScaleDimensions = NEW System.Drawing.SizeF(Progress.Util.CastUtil:ToSingle(6), Progress.Util.CastUtil:ToSingle(13)).
+        resources:ApplyResources(THIS-OBJECT, "$this":U).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:ultraButton1).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:smartBusinessEntityLookup1).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:DataObjectDef_objDefName_Label).
@@ -338,7 +300,6 @@ CLASS Consultingwerk.Windows.Framework.Rollbase.DataObjectDefViewerControl
         THIS-OBJECT:Controls:Add(THIS-OBJECT:DataObjectDef_origId_Label).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:DataObjectDef_origId).
         THIS-OBJECT:Name = "DataObjectDefViewerControl":U.
-        THIS-OBJECT:Size = NEW System.Drawing.Size(776, 110).
         CAST(THIS-OBJECT:smartBusinessEntityBindingSource1, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:DataObjectDef_SingularName, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:DataObjectDef_PluralName, System.ComponentModel.ISupportInitialize):EndInit().
@@ -359,15 +320,15 @@ CLASS Consultingwerk.Windows.Framework.Rollbase.DataObjectDefViewerControl
         @param sender The object that raised the NewFetchDataRequest event
         @param e The NewFetchDataRequestEventArgs with the data for the event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID NewFetchDataRequestHandler (sender AS Progress.Lang.Object,
+    METHOD PROTECTED VOID NewFetchDataRequestHandler (sender AS Progress.Lang.Object,
                                                       e AS NewFetchDataRequestEventArgs):
-		
-		IF CharacterType:IsNullOrEmpty (smartBusinessEntityLookup1:Text) THEN 
-		    UNDO, THROW NEW AppError ("Object Name needs to be selected first."{&TRAN}, 0) .
-		     
-		e:FetchDataRequest:CustomParameter = NEW CharacterHolder (smartBusinessEntityLookup1:Text).
+        
+        IF CharacterType:IsNullOrEmpty (smartBusinessEntityLookup1:Text) THEN 
+            UNDO, THROW NEW AppError ("Object Name needs to be selected first."{&TRAN}, 0) .
+             
+        e:FetchDataRequest:CustomParameter = NEW CharacterHolder (smartBusinessEntityLookup1:Text).
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the KeyDown event of the smartBusinessEntityLookup1
@@ -375,19 +336,19 @@ CLASS Consultingwerk.Windows.Framework.Rollbase.DataObjectDefViewerControl
         @param sender The reference to the object that raised the event
         @param e The KeyEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID smartBusinessEntityLookup1_KeyDown (sender AS System.Object,
-	                                                        e AS System.Windows.Forms.KeyEventArgs):
-		
-		IF Progress.Util.EnumHelper:AreEqual (e:KeyCode, System.Windows.Forms.Keys:Enter) OR  
-		   Progress.Util.EnumHelper:AreEqual (e:KeyCode, System.Windows.Forms.Keys:Return) THEN  
-		  
-		    THIS-OBJECT:Filter () . 
+    METHOD PRIVATE VOID smartBusinessEntityLookup1_KeyDown (sender AS System.Object,
+                                                            e AS System.Windows.Forms.KeyEventArgs):
+        
+        IF Progress.Util.EnumHelper:AreEqual (e:KeyCode, System.Windows.Forms.Keys:Enter) OR  
+           Progress.Util.EnumHelper:AreEqual (e:KeyCode, System.Windows.Forms.Keys:Return) THEN  
+          
+            THIS-OBJECT:Filter () . 
 
         CATCH err AS Progress.Lang.Error :
-        	Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) . 
+            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) . 
         END CATCH.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the Click event of the ultraButton1
@@ -395,16 +356,16 @@ CLASS Consultingwerk.Windows.Framework.Rollbase.DataObjectDefViewerControl
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraButton1_Click (sender AS System.Object, 
-	                                        e AS System.EventArgs):
-		
-		THIS-OBJECT:Filter () .
+    METHOD PRIVATE VOID ultraButton1_Click (sender AS System.Object, 
+                                            e AS System.EventArgs):
+        
+        THIS-OBJECT:Filter () .
 
         CATCH err AS Progress.Lang.Error :
             Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) . 
         END CATCH.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Destructor for the DataObjectDefViewerControl class

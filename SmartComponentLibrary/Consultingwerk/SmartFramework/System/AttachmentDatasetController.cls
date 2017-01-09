@@ -61,9 +61,9 @@ CLASS Consultingwerk.SmartFramework.System.AttachmentDatasetController
         Purpose: Gets and sets the reference to the UltraListView control
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY ListView AS UltraListView NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY ListView AS UltraListView NO-UNDO 
+    GET.
+    SET. 
 &ENDIF
 
     /*------------------------------------------------------------------------------
@@ -85,11 +85,11 @@ CLASS Consultingwerk.SmartFramework.System.AttachmentDatasetController
         Purpose: Clears the List View 
         Notes:   
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID ClearListView ():
-		
+    METHOD PUBLIC VOID ClearListView ():
+        
         THIS-OBJECT:ListView:Items:Clear () .
 
-	END METHOD .
+    END METHOD .
 &ENDIF        
 
     /*------------------------------------------------------------------------------
@@ -113,10 +113,10 @@ CLASS Consultingwerk.SmartFramework.System.AttachmentDatasetController
         @param pcFileNames And Array of file names to import as Attachmens
         @param pcPath The pathname to add those files to
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID CreateAttachments (pcFileNames AS CHARACTER EXTENT,
-	                                      pcPath AS CHARACTER):
-		
-&IF DEFINED (SmartComponentLibrary) NE 0 AND PROVERSION NE "10.2B":U &THEN 		
+    METHOD PUBLIC VOID CreateAttachments (pcFileNames AS CHARACTER EXTENT,
+                                          pcPath AS CHARACTER):
+        
+&IF DEFINED (SmartComponentLibrary) NE 0 AND PROVERSION NE "10.2B":U &THEN         
         DEFINE VARIABLE i                       AS INTEGER                           NO-UNDO .
         DEFINE VARIABLE oAdapter                AS SmartBusinessEntityAdapter        NO-UNDO . 
         DEFINE VARIABLE cTempTableReference     AS CHARACTER                         NO-UNDO .
@@ -179,10 +179,10 @@ CLASS Consultingwerk.SmartFramework.System.AttachmentDatasetController
 
         FINALLY:
             /* In case of errors, reject pending changes from this method */
-            DATASET dsAttachment:REJECT-CHANGES () .		
+            DATASET dsAttachment:REJECT-CHANGES () .        
         END FINALLY.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Invoked by SmartBusinessEntityAdapter and SmartDatasetChildAdapter
@@ -196,36 +196,36 @@ CLASS Consultingwerk.SmartFramework.System.AttachmentDatasetController
     END METHOD.
 
 &IF DEFINED (DotNetAccessible) NE 0 &THEN         
-	/*------------------------------------------------------------------------------
-		Purpose: Starts Drag and Drop of the Attachment						  
-		Notes:  																
-		@param pcAttachmentKey The key of the Attachment record for the drag and drop operation
-		@param poControl The Control to start the Drag and Drop operation from 
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID DragAttachment (pcAttachmentKey AS CHARACTER,
-	                                   poControl AS System.Windows.Forms.Control):
-		
+    /*------------------------------------------------------------------------------
+        Purpose: Starts Drag and Drop of the Attachment                          
+        Notes:                                                                  
+        @param pcAttachmentKey The key of the Attachment record for the drag and drop operation
+        @param poControl The Control to start the Drag and Drop operation from 
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC VOID DragAttachment (pcAttachmentKey AS CHARACTER,
+                                       poControl AS System.Windows.Forms.Control):
+        
         DEFINE VARIABLE mptrAttachment AS MEMPTR                          NO-UNDO . 
         DEFINE VARIABLE oData          AS System.Windows.Forms.DataObject NO-UNDO . 
-		DEFINE VARIABLE hDataset       AS HANDLE                          NO-UNDO .
-	
-	    IF VALID-OBJECT (FrameworkSettings:WaitStateManager) THEN 
-	        FrameworkSettings:WaitStateManager:SetWaitState() .
-		
-		FrameworkSettings:ServiceAdapter:InvokeMethod ("":U,
-		                                               "Consultingwerk.SmartFramework.System.AttachmentBusinessEntity":U,
-		                                               "GetLargeObjects":U,
-		                                               INPUT-OUTPUT DATASET-HANDLE hDataset,
-		                                               NEW CharacterHolder (pcAttachmentKey)) .
-		
-		hDataset::eSmartAttachment:FIND-FIRST () .
-		    
-		IF NOT hDataset::eSmartAttachment:AVAILABLE THEN 
-		    RETURN . 
-		    
-		COPY-LOB FROM hDataset:GET-BUFFER-HANDLE ("eSmartAttachment":U):BUFFER-FIELD ("AttachmentData":U):BUFFER-VALUE 
-		         TO mptrAttachment . 
-		    
+        DEFINE VARIABLE hDataset       AS HANDLE                          NO-UNDO .
+    
+        IF VALID-OBJECT (FrameworkSettings:WaitStateManager) THEN 
+            FrameworkSettings:WaitStateManager:SetWaitState() .
+        
+        FrameworkSettings:ServiceAdapter:InvokeMethod ("":U,
+                                                       "Consultingwerk.SmartFramework.System.AttachmentBusinessEntity":U,
+                                                       "GetLargeObjects":U,
+                                                       INPUT-OUTPUT DATASET-HANDLE hDataset,
+                                                       NEW CharacterHolder (pcAttachmentKey)) .
+        
+        hDataset::eSmartAttachment:FIND-FIRST () .
+            
+        IF NOT hDataset::eSmartAttachment:AVAILABLE THEN 
+            RETURN . 
+            
+        COPY-LOB FROM hDataset:GET-BUFFER-HANDLE ("eSmartAttachment":U):BUFFER-FIELD ("AttachmentData":U):BUFFER-VALUE 
+                 TO mptrAttachment . 
+            
         oData = Consultingwerk.Util.DragAndDropHelper:GetDragDropDataObject (hDataset::eSmartAttachment::AttachmentName,
                                                                              mptrAttachment) .
 
@@ -233,27 +233,27 @@ CLASS Consultingwerk.SmartFramework.System.AttachmentDatasetController
                               System.Windows.Forms.DragDropEffects:Link) .  
           
         FINALLY:
-            SET-SIZE (mptrAttachment) = 0 . 	
+            SET-SIZE (mptrAttachment) = 0 .     
             
             IF VALID-HANDLE (hDataset) THEN 
                 DELETE OBJECT hDataset .
                 
             IF VALID-OBJECT (FrameworkSettings:WaitStateManager) THEN 
                 FrameworkSettings:WaitStateManager:ClearWaitState() .
-                 	
+                     
             PROCESS EVENTS . 
         END FINALLY.  
         
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Populates the ListView with the current attachments 
         Notes:   
         @param pcFolder The folder selected in the navigation bar
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID PopulateListView (pcFolder AS CHARACTER):
-		
-		DEFINE BUFFER b_eSmartAttachment FOR eSmartAttachment .
+    METHOD PUBLIC VOID PopulateListView (pcFolder AS CHARACTER):
+        
+        DEFINE BUFFER b_eSmartAttachment FOR eSmartAttachment .
         
         DEFINE VARIABLE oListViewItem AS UltraListViewItem NO-UNDO . 
 
@@ -270,7 +270,7 @@ CLASS Consultingwerk.SmartFramework.System.AttachmentDatasetController
                 oListViewItem:Appearance:Image = oImageProvider:ImageForKey ("Consultingwerk/Windows/Framework/Images/SmartFramework/document_32.png":U) .
         END.
 
-	END METHOD .
+    END METHOD .
 &ENDIF
 
     /*------------------------------------------------------------------------------
@@ -290,9 +290,9 @@ CLASS Consultingwerk.SmartFramework.System.AttachmentDatasetController
         @param pcAttachmentKey The attachment to save
         @param pcFileName The name of the file to save to
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID SaveAttachment (pcAttachmentKey AS CHARACTER,
-	                                   pcFileName AS CHARACTER):
-		
+    METHOD PUBLIC VOID SaveAttachment (pcAttachmentKey AS CHARACTER,
+                                       pcFileName AS CHARACTER):
+        
         DEFINE VARIABLE hDataset       AS HANDLE                          NO-UNDO .
     
         IF VALID-OBJECT (FrameworkSettings:WaitStateManager) THEN 
@@ -320,6 +320,6 @@ CLASS Consultingwerk.SmartFramework.System.AttachmentDatasetController
                 FrameworkSettings:WaitStateManager:ClearWaitState() .
         END FINALLY.  
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

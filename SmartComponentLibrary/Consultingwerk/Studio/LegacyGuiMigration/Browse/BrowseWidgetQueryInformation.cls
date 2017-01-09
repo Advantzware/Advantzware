@@ -48,9 +48,9 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Browse.BrowseWidgetQueryInformati
         Purpose: Gets and sets the name of the browse query
         Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY QueryName AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY QueryName AS CHARACTER NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the BrowseWidgetQueryInformation class
@@ -64,15 +64,15 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Browse.BrowseWidgetQueryInformati
         
     END CONSTRUCTOR.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Constructor for the BrowseWidgetQueryInformation class
-	    Notes:
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC BrowseWidgetQueryInformation ():
-		SUPER ().
-		
-		THIS-OBJECT:OpenQueryStatements = NEW CharacterList ("":U, CHR(1)) . 
-		
-	END CONSTRUCTOR.
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the BrowseWidgetQueryInformation class
+        Notes:
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC BrowseWidgetQueryInformation ():
+        SUPER ().
+        
+        THIS-OBJECT:OpenQueryStatements = NEW CharacterList ("":U, CHR(1)) . 
+        
+    END CONSTRUCTOR.
 
 END CLASS.

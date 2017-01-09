@@ -29,8 +29,8 @@ INTERFACE Consultingwerk.SmartFramework.Authorization.ISecurityRealmService:
         Purpose: Returns if an empty value for the security item key is allowed
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY EmptyKeyAllowed AS LOGICAL NO-UNDO 
-	GET.
+    DEFINE PUBLIC PROPERTY EmptyKeyAllowed AS LOGICAL NO-UNDO 
+    GET.
 
     /*------------------------------------------------------------------------------
         Purpose: Assigns the properties of the SmartBusinessEntityLookupDescriptor 
@@ -46,7 +46,7 @@ INTERFACE Consultingwerk.SmartFramework.Authorization.ISecurityRealmService:
         @param pcItemKey The unique key of the security item
         @return The description of the security item
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC CHARACTER GetDescription (pcItemKey AS CHARACTER).
+    METHOD PUBLIC CHARACTER GetDescription (pcItemKey AS CHARACTER).
 
     /*------------------------------------------------------------------------------
         Purpose: Validates the security item key  
@@ -54,6 +54,6 @@ INTERFACE Consultingwerk.SmartFramework.Authorization.ISecurityRealmService:
         @param pcItemKey The unique key of the security item
         @return Logical value indicating if the security item key is valid
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL ValidateKey (pcItemKey AS CHARACTER).
+    METHOD PUBLIC LOGICAL ValidateKey (pcItemKey AS CHARACTER).
 
 END INTERFACE.

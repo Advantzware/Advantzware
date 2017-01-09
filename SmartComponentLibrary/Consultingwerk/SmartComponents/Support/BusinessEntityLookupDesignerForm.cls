@@ -8,16 +8,16 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/   
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : BusinessEntityLookupDesignerForm
     Purpose     : Lookup Designer (typically used within Progress Developer
-                  Studio) 
-    Syntax      : 
-    Description : 
+                  Studio)
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Wed Jul 14 14:18:42 CEST 2010
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -32,8 +32,8 @@ USING Progress.Lang.*                       FROM PROPATH .
 USING Progress.Windows.Form                 FROM ASSEMBLY .
 USING Consultingwerk.Framework.Enum.* FROM PROPATH.
 
-CLASS Consultingwerk.SmartComponents.Support.BusinessEntityLookupDesignerForm INHERITS Form: 
-    
+CLASS Consultingwerk.SmartComponents.Support.BusinessEntityLookupDesignerForm INHERITS Form:
+
     DEFINE PRIVATE VARIABLE bsBrowseColumns AS Consultingwerk.SmartComponents.Implementation.SmartBindingSource NO-UNDO.
     DEFINE PRIVATE VARIABLE bsFieldControls AS Consultingwerk.SmartComponents.Implementation.SmartBindingSource NO-UNDO.
     DEFINE PRIVATE VARIABLE bsFilter AS Consultingwerk.SmartComponents.Implementation.SmartBindingSource NO-UNDO.
@@ -65,162 +65,162 @@ CLASS Consultingwerk.SmartComponents.Support.BusinessEntityLookupDesignerForm IN
     DEFINE PRIVATE VARIABLE ultraGroupBox1 AS Infragistics.Win.Misc.UltraGroupBox NO-UNDO.
 
     {Consultingwerk/Util/TempTables/ttClassNames.i &ACCESS="PRIVATE"}
-        
-    DEFINE PRIVATE QUERY qClassNames FOR ttClassNames SCROLLING .     
-    DEFINE PRIVATE VARIABLE oControlValueList   AS Infragistics.Win.ValueList NO-UNDO .    
-    DEFINE PRIVATE VARIABLE oFieldValueList     AS Infragistics.Win.ValueList NO-UNDO . 
-    DEFINE PRIVATE VARIABLE oFieldValueList2    AS Infragistics.Win.ValueList NO-UNDO . 
-    DEFINE PRIVATE VARIABLE oFieldValueList3    AS Infragistics.Win.ValueList NO-UNDO . 
-    DEFINE PRIVATE VARIABLE oFieldValueList4    AS Infragistics.Win.ValueList NO-UNDO . 
-    DEFINE PRIVATE VARIABLE oOperatorsValueList AS Infragistics.Win.ValueList NO-UNDO . 
 
-    DEFINE TEMP-TABLE ttFieldControls NO-UNDO 
+    DEFINE PRIVATE QUERY qClassNames FOR ttClassNames SCROLLING .
+    DEFINE PRIVATE VARIABLE oControlValueList   AS Infragistics.Win.ValueList NO-UNDO .
+    DEFINE PRIVATE VARIABLE oFieldValueList     AS Infragistics.Win.ValueList NO-UNDO .
+    DEFINE PRIVATE VARIABLE oFieldValueList2    AS Infragistics.Win.ValueList NO-UNDO .
+    DEFINE PRIVATE VARIABLE oFieldValueList3    AS Infragistics.Win.ValueList NO-UNDO .
+    DEFINE PRIVATE VARIABLE oFieldValueList4    AS Infragistics.Win.ValueList NO-UNDO .
+    DEFINE PRIVATE VARIABLE oOperatorsValueList AS Infragistics.Win.ValueList NO-UNDO .
+
+    DEFINE TEMP-TABLE ttFieldControls NO-UNDO
         FIELD FieldName AS CHARACTER
         FIELD ControlName AS CHARACTER
         INDEX FieldName FieldName .
 
     DEFINE TEMP-TABLE ttFilter NO-UNDO
-        FIELD Order AS INTEGER  
+        FIELD Order AS INTEGER
         FIELD FieldName AS CHARACTER
         FIELD Operator AS CHARACTER
         INDEX Order Order .
 
     DEFINE TEMP-TABLE ttBrowseColumn NO-UNDO
-        FIELD Order AS INTEGER  
+        FIELD Order AS INTEGER
         FIELD FieldName AS CHARACTER
         INDEX Order Order .
-        
-    /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the browse columns list                                                                        
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/            
-    DEFINE PUBLIC PROPERTY BrowseColumns AS CHARACTER NO-UNDO 
-    GET.
-    SET. 
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the controls list                                                                        
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/            
-    DEFINE PUBLIC PROPERTY ControlList AS CHARACTER NO-UNDO 
+        Purpose: Gets and sets the browse columns list
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY BrowseColumns AS CHARACTER NO-UNDO
     GET.
-    SET. 
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the field list                                                                        
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/            
-    DEFINE PUBLIC PROPERTY FieldList AS CHARACTER NO-UNDO 
+        Purpose: Gets and sets the controls list
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY ControlList AS CHARACTER NO-UNDO
     GET.
-    SET. 
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the list of filter fields                                                                        
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/            
-    DEFINE PUBLIC PROPERTY FilterFields AS CHARACTER NO-UNDO 
+        Purpose: Gets and sets the field list
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY FieldList AS CHARACTER NO-UNDO
     GET.
-    SET. 
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the list of filter operators (currently used)                                                                        
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/            
-    DEFINE PUBLIC PROPERTY FilterOperators AS CHARACTER NO-UNDO 
+        Purpose: Gets and sets the list of filter fields
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY FilterFields AS CHARACTER NO-UNDO
     GET.
-    SET. 
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the key field name                                                                        
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/            
-    DEFINE PUBLIC PROPERTY KeyField AS CHARACTER NO-UNDO 
+        Purpose: Gets and sets the list of filter operators (currently used)
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY FilterOperators AS CHARACTER NO-UNDO
+    GET.
+    SET.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Gets and sets the key field name
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY KeyField AS CHARACTER NO-UNDO
     GET:
-        RETURN cbKeyField:Text . 
+        RETURN cbKeyField:Text .
     END GET.
     SET (INPUT arg AS CHARACTER):
-        ASSIGN cbKeyField:Text = arg .         
+        ASSIGN cbKeyField:Text = arg .
     END SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the key value field name                                                                        
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/ 
-    DEFINE PUBLIC PROPERTY KeyValueColumn AS CHARACTER NO-UNDO 
+        Purpose: Gets and sets the key value field name
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY KeyValueColumn AS CHARACTER NO-UNDO
     GET:
-        RETURN cbKeyValueColumn:Text . 
+        RETURN cbKeyValueColumn:Text .
     END GET.
     SET (arg AS CHARACTER):
-        ASSIGN cbKeyValueColumn:Text = arg .      
+        ASSIGN cbKeyValueColumn:Text = arg .
     END SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the LookupDialogQueryString                                                                        
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/   
-    DEFINE PUBLIC PROPERTY LookupDialogQueryString AS CHARACTER NO-UNDO 
+        Purpose: Gets and sets the LookupDialogQueryString
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY LookupDialogQueryString AS CHARACTER NO-UNDO
     GET:
-        RETURN tbLookupDialogQueryString:Text . 
+        RETURN tbLookupDialogQueryString:Text .
     END GET.
     SET (arg AS CHARACTER):
-        ASSIGN tbLookupDialogQueryString:Text = arg .      
+        ASSIGN tbLookupDialogQueryString:Text = arg .
     END SET.
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the LookupDialogTitle
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/   
-    DEFINE PUBLIC PROPERTY LookupDialogTitle AS CHARACTER NO-UNDO 
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY LookupDialogTitle AS CHARACTER NO-UNDO
     GET:
-        RETURN tbLookupDialogTitle:Text . 
+        RETURN tbLookupDialogTitle:Text .
     END GET.
     SET (arg AS CHARACTER):
-        ASSIGN tbLookupDialogTitle:Text = arg .      
+        ASSIGN tbLookupDialogTitle:Text = arg .
     END SET.
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the Lookup Entity Table
         Notes:   Required for the QueryString wizard
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY LookupEntityTable AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
-
-    /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the list of field names available to the lookup                                                                        
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/            
-    DEFINE PUBLIC PROPERTY LookupFields AS CHARACTER NO-UNDO 
+    DEFINE PUBLIC PROPERTY LookupEntityTable AS CHARACTER NO-UNDO
     GET.
-    SET. 
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the LookupQueryString                                                                        
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/   
-    DEFINE PUBLIC PROPERTY LookupQueryString AS CHARACTER NO-UNDO 
+        Purpose: Gets and sets the list of field names available to the lookup
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY LookupFields AS CHARACTER NO-UNDO
+    GET.
+    SET.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Gets and sets the LookupQueryString
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY LookupQueryString AS CHARACTER NO-UNDO
     GET:
-        RETURN tbLookupQueryString:Text . 
+        RETURN tbLookupQueryString:Text .
     END GET.
     SET (INPUT arg AS CHARACTER):
-        ASSIGN tbLookupQueryString:Text = arg .      
+        ASSIGN tbLookupQueryString:Text = arg .
     END SET.
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the list of child control field names of the parent
-                 (typically SmartViewerControl)                                                                        
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/            
-    DEFINE PUBLIC PROPERTY ParentViewerControls AS CHARACTER NO-UNDO 
+                 (typically SmartViewerControl)
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY ParentViewerControls AS CHARACTER NO-UNDO
     GET.
-    SET. 
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the BusinessEntityLookupDesignerForm class                                                               
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/            
+        Purpose: Constructor for the BusinessEntityLookupDesignerForm class
+        Notes:
+    ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC BusinessEntityLookupDesignerForm ():
-        
+
         SUPER().
         InitializeComponent().
         CATCH e AS Progress.Lang.Error:
@@ -231,46 +231,50 @@ CLASS Consultingwerk.SmartComponents.Support.BusinessEntityLookupDesignerForm IN
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the Click event of the btnQueryWizard
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID btnQueryWizard_Click (sender AS System.Object, 
-	                                          e AS System.EventArgs):
-		
-		DEFINE VARIABLE cQueryString AS CHARACTER NO-UNDO .
-		
-		IF CharacterType:IsNullOrEmpty (THIS-OBJECT:cbKeyField:Text) THEN DO:
-		    MessageFormHelper:ShowMessage ("Please select a Key Field first!"{&TRAN},
-		                                   THIS-OBJECT:Text,
-		                                   MessageFormImages:ImageWarning) .
-		    
-		    RETURN . 
-		END.
-		
-		ASSIGN cQueryString = SUBSTITUTE ("FOR EACH &1 WHERE &1.&2 BEGINS ~"&&1~"":U,
-		                                  THIS-OBJECT:LookupEntityTable,
-		                                  THIS-OBJECT:cbKeyField:Text) .
+    METHOD PRIVATE VOID btnQueryWizard_Click (sender AS System.Object,
+                                              e AS System.EventArgs):
 
-		IF MessageFormHelper:AskQuestion (cQueryString,
-		                                  THIS-OBJECT:Text) = DialogResultEnum:DialogResultYes THEN 
+        DEFINE VARIABLE cQueryString AS CHARACTER NO-UNDO .
 
-            THIS-OBJECT:tbLookupQueryString:Text = cQueryString . 		                                      
-		
+        IF CharacterType:IsNullOrEmpty (THIS-OBJECT:cbKeyField:Text) THEN DO:
+            MessageFormHelper:ShowMessage ("Please select a Key Field first!"{&TRAN},
+                                           THIS-OBJECT:Text,
+                                           MessageFormImages:ImageWarning) .
 
-	END METHOD .
+            RETURN .
+        END.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                               
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/            
+        ASSIGN cQueryString = SUBSTITUTE ("FOR EACH &1 WHERE &1.&2 BEGINS ~"&&1~"":U,
+                                          THIS-OBJECT:LookupEntityTable,
+                                          THIS-OBJECT:cbKeyField:Text) .
+
+        IF MessageFormHelper:AskQuestion (cQueryString,
+                                          THIS-OBJECT:Text) = DialogResultEnum:DialogResultYes THEN
+
+            THIS-OBJECT:tbLookupQueryString:Text = cQueryString .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
+    END METHOD .
+
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent(  ):
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -1070,9 +1074,9 @@ CLASS Consultingwerk.SmartComponents.Support.BusinessEntityLookupDesignerForm IN
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the FormClosing event                                                                       
+        Purpose: Raises the FormClosing event
         Notes:
-        @param e The FormClosingEventArgs with the data for this event                                                                        
+        @param e The FormClosingEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD OVERRIDE PROTECTED VOID OnFormClosing (e AS System.Windows.Forms.FormClosingEventArgs):
 
@@ -1081,107 +1085,107 @@ CLASS Consultingwerk.SmartComponents.Support.BusinessEntityLookupDesignerForm IN
         /* Mike Fechner, Consultingwerk Ltd. 09.07.2015
            SCL-906 - save pending changes */
         IF smartUpdatableBrowser1:SmartTableIOState = TableIOStateEnum:ModifyingData THEN DO:
-            smartUpdatableBrowser1:SaveChanges() . 
-            
-            IF smartUpdatableBrowser1:SmartTableIOState = TableIOStateEnum:ModifyingData THEN 
-                e:Cancel = TRUE . 
-        END .        
+            smartUpdatableBrowser1:SaveChanges() .
+
+            IF smartUpdatableBrowser1:SmartTableIOState = TableIOStateEnum:ModifyingData THEN
+                e:Cancel = TRUE .
+        END .
 
         IF smartUpdatableBrowser2:SmartTableIOState = TableIOStateEnum:ModifyingData THEN DO:
-            smartUpdatableBrowser2:SaveChanges() . 
-            
-            IF smartUpdatableBrowser2:SmartTableIOState = TableIOStateEnum:ModifyingData THEN 
-                e:Cancel = TRUE . 
-        END .        
+            smartUpdatableBrowser2:SaveChanges() .
+
+            IF smartUpdatableBrowser2:SmartTableIOState = TableIOStateEnum:ModifyingData THEN
+                e:Cancel = TRUE .
+        END .
 
         IF smartUpdatableBrowser3:SmartTableIOState = TableIOStateEnum:ModifyingData THEN DO:
-            smartUpdatableBrowser3:SaveChanges() . 
-            
-            IF smartUpdatableBrowser3:SmartTableIOState = TableIOStateEnum:ModifyingData THEN 
-                e:Cancel = TRUE . 
-        END .        
+            smartUpdatableBrowser3:SaveChanges() .
+
+            IF smartUpdatableBrowser3:SmartTableIOState = TableIOStateEnum:ModifyingData THEN
+                e:Cancel = TRUE .
+        END .
 
         SUPER:OnFormClosing (e).
 
         /* Mike Fechner, Consultingwerk Ltd. 09.07.2015
            SCL-906 - don't serialize tt's into list properties on Cancel */
-        IF e:Cancel = TRUE THEN 
+        IF e:Cancel = TRUE THEN
             RETURN .
-            
+
         FOR EACH ttFieldControls:
             ASSIGN i = i + 1.
-            
-            IF i > 1 THEN 
+
+            IF i > 1 THEN
                 ASSIGN THIS-OBJECT:FieldList   = THIS-OBJECT:FieldList + ",":U
                        THIS-OBJECT:ControlList = THIS-OBJECT:ControlList + ",":U .
-            ELSE 
+            ELSE
                 ASSIGN THIS-OBJECT:FieldList   = "":U
                        THIS-OBJECT:ControlList = "":U .
-                        
+
             ASSIGN THIS-OBJECT:FieldList   = THIS-OBJECT:FieldList + ttFieldControls.FieldName
                    THIS-OBJECT:ControlList = THIS-OBJECT:ControlList + ttFieldControls.ControlName .
-        END. 
-        
-        ASSIGN i = 0 . 
-        
+        END.
+
+        ASSIGN i = 0 .
+
         FOR EACH ttFilter:
             ASSIGN i = i + 1.
-            
-            IF i > 1 THEN 
+
+            IF i > 1 THEN
                 ASSIGN THIS-OBJECT:FilterFields    = THIS-OBJECT:FilterFields + ",":U
                        THIS-OBJECT:FilterOperators = THIS-OBJECT:FilterOperators + ",":U .
-            ELSE 
+            ELSE
                 ASSIGN THIS-OBJECT:FilterFields    = "":U
                        THIS-OBJECT:FilterOperators = "":U .
-                        
+
             ASSIGN THIS-OBJECT:FilterFields    = THIS-OBJECT:FilterFields + ttFilter.FieldName
                    THIS-OBJECT:FilterOperators = THIS-OBJECT:FilterOperators + ttFilter.Operator .
-        END. 
-        
-        ASSIGN i = 0 . 
-        
+        END.
+
+        ASSIGN i = 0 .
+
         FOR EACH ttBrowseColumn:
             ASSIGN i = i + 1.
 
-            IF i > 1 THEN 
+            IF i > 1 THEN
                 ASSIGN THIS-OBJECT:BrowseColumns = THIS-OBJECT:BrowseColumns + ",":U .
-            ELSE 
+            ELSE
                 ASSIGN THIS-OBJECT:BrowseColumns = "":U .
-                        
+
             ASSIGN THIS-OBJECT:BrowseColumns = THIS-OBJECT:BrowseColumns + ttBrowseColumn.FieldName .
-        END . 
-        
+        END .
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the Load event                                                                        
-        Notes:                                                                        
+        Purpose: Raises the Load event
+        Notes:
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD OVERRIDE PROTECTED VOID OnLoad (e AS System.EventArgs):
-        
+
         DEFINE VARIABLE i AS INTEGER NO-UNDO.
-        
+
         oControlValueList = NEW Infragistics.Win.ValueList () .
         oFieldValueList = NEW Infragistics.Win.ValueList () .
         oOperatorsValueList = NEW Infragistics.Win.ValueList () .
-        
+
         oControlValueList:SortStyle = Infragistics.Win.ValueListSortStyle:Ascending .
         oFieldValueList:SortStyle = Infragistics.Win.ValueListSortStyle:Ascending .
         oOperatorsValueList:SortStyle = Infragistics.Win.ValueListSortStyle:Ascending .
 
         DO i = 1 TO NUM-ENTRIES (THIS-OBJECT:ParentViewerControls):
-            oControlValueList:ValueListItems:Add (ENTRY (i, THIS-OBJECT:ParentViewerControls), 
+            oControlValueList:ValueListItems:Add (ENTRY (i, THIS-OBJECT:ParentViewerControls),
                                                 ENTRY (i, THIS-OBJECT:ParentViewerControls)) .
         END.
 
         DO i = 1 TO NUM-ENTRIES (THIS-OBJECT:LookupFields):
-            oFieldValueList:ValueListItems:Add (ENTRY (i, THIS-OBJECT:LookupFields), 
+            oFieldValueList:ValueListItems:Add (ENTRY (i, THIS-OBJECT:LookupFields),
                                                 ENTRY (i, THIS-OBJECT:LookupFields)) .
         END.
 
         DO i = 1 TO NUM-ENTRIES (THIS-OBJECT:FieldList):
-            CREATE ttFieldControls . 
+            CREATE ttFieldControls .
             ASSIGN ttFieldControls.FieldName   = ENTRY (i, THIS-OBJECT:FieldList)
                    ttFieldControls.ControlName = ENTRY (i, THIS-OBJECT:ControlList)
                    NO-ERROR .
@@ -1190,31 +1194,31 @@ CLASS Consultingwerk.SmartComponents.Support.BusinessEntityLookupDesignerForm IN
         DO i = 1 TO NUM-ENTRIES (THIS-OBJECT:FilterFields):
             CREATE ttFilter.
             ASSIGN ttFilter.Order = i
-                   ttFilter.FieldName = ENTRY (i, THIS-OBJECT:FilterFields) 
-                   ttFilter.Operator  = ENTRY (i, THIS-OBJECT:FilterOperators) 
+                   ttFilter.FieldName = ENTRY (i, THIS-OBJECT:FilterFields)
+                   ttFilter.Operator  = ENTRY (i, THIS-OBJECT:FilterOperators)
                  NO-ERROR .
-                 
-            IF ttFilter.Operator = "=":U THEN 
-                ttFilter.Operator = "EQ":U .                  
 
-            IF ttFilter.Operator = ">=":U THEN 
-                ttFilter.Operator = "GE":U .                  
+            IF ttFilter.Operator = "=":U THEN
+                ttFilter.Operator = "EQ":U .
 
-            IF ttFilter.Operator = "<=":U THEN 
-                ttFilter.Operator = "LE":U .                  
+            IF ttFilter.Operator = ">=":U THEN
+                ttFilter.Operator = "GE":U .
+
+            IF ttFilter.Operator = "<=":U THEN
+                ttFilter.Operator = "LE":U .
         END.
-        
+
         DO i = 1 TO NUM-ENTRIES (THIS-OBJECT:BrowseColumns):
             CREATE ttBrowseColumn.
             ASSIGN ttBrowseColumn.Order     = i
                    ttBrowseColumn.FieldName = ENTRY (i, THIS-OBJECT:BrowseColumns)
                    .
         END.
-        
+
         oFieldValueList2 = oFieldValueList:Clone()  .
         oFieldValueList3 = oFieldValueList:Clone()  .
         oFieldValueList4 = oFieldValueList:Clone()  .
-        
+
         oOperatorsValueList:ValueListItems:Add ("EQ":U, "EQ":U) .
         oOperatorsValueList:ValueListItems:Add ("GE":U, "GE":U) .
         oOperatorsValueList:ValueListItems:Add ("LE":U, "LE":U) .
@@ -1222,7 +1226,7 @@ CLASS Consultingwerk.SmartComponents.Support.BusinessEntityLookupDesignerForm IN
         oOperatorsValueList:ValueListItems:Add ("CONTAINS":U, "CONTAINS":U) .
         oOperatorsValueList:ValueListItems:Add ("MATCHES":U, "MATCHES":U) .
         oOperatorsValueList:ValueListItems:Add ("BEGINSMATCHES":U, "BEGINS or MATCHES":U) .
-        
+
         smartUpdatableBrowser1:DisplayLayout:Bands[0]:Columns["FieldName":U]:ValueList = oFieldValueList .
         smartUpdatableBrowser1:DisplayLayout:Bands[0]:Columns["ControlName":U]:ValueList = oControlValueList .
 
@@ -1231,26 +1235,26 @@ CLASS Consultingwerk.SmartComponents.Support.BusinessEntityLookupDesignerForm IN
 
         smartUpdatableBrowser3:DisplayLayout:Bands[0]:Columns["FieldName":U]:ValueList = oFieldValueList3 .
 
-        daFieldControls:TempTableHandle = TEMP-TABLE ttFieldControls:HANDLE . 
+        daFieldControls:TempTableHandle = TEMP-TABLE ttFieldControls:HANDLE .
         daFieldControls:RetrieveData () .
-        
-        daFilter:TempTableHandle = TEMP-TABLE ttFilter:HANDLE . 
+
+        daFilter:TempTableHandle = TEMP-TABLE ttFilter:HANDLE .
         daFilter:RetrieveData () .
 
-        daBrowseColumns:TempTableHandle = TEMP-TABLE ttBrowseColumn:HANDLE . 
+        daBrowseColumns:TempTableHandle = TEMP-TABLE ttBrowseColumn:HANDLE .
         daBrowseColumns:RetrieveData () .
 
-        cbKeyField:ValueList = oFieldValueList .         
-        cbKeyValueColumn:ValueList = oFieldValueList4 .        
-        
+        cbKeyField:ValueList = oFieldValueList .
+        cbKeyValueColumn:ValueList = oFieldValueList4 .
+
         SUPER:OnLoad(INPUT e).
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the BusinessEntityLookupDesignerForm class                                                               
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/            
+        Purpose: Destructor for the BusinessEntityLookupDesignerForm class
+        Notes:
+    ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC BusinessEntityLookupDesignerForm ( ):
 
         IF VALID-OBJECT(components) THEN DO:

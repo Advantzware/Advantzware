@@ -8,15 +8,15 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/  
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : MessageFormImages
     Purpose     : Support for customization of default MessageForm images
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sat Oct 30 12:10:29 CEST 2010
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -26,71 +26,71 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 USING Consultingwerk.Windows.Util.Forms.* FROM PROPATH .
 USING Progress.Lang.*                     FROM PROPATH .
 
-CLASS Consultingwerk.Windows.Util.Forms.MessageFormImages: 
+CLASS Consultingwerk.Windows.Util.Forms.MessageFormImages:
 
     /*------------------------------------------------------------------------------
-        Purpose: Error image resource                                                                        
-        Notes:                                                                        
+        Purpose: Error image resource
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC STATIC PROPERTY ImageError AS System.Drawing.Image NO-UNDO 
+    DEFINE PUBLIC STATIC PROPERTY ImageError AS System.Drawing.Image NO-UNDO
     GET.
-    SET.     
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Information image resource                                                                        
-        Notes:                                                                        
+        Purpose: Information image resource
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC STATIC PROPERTY ImageInfo AS System.Drawing.Image NO-UNDO 
+    DEFINE PUBLIC STATIC PROPERTY ImageInfo AS System.Drawing.Image NO-UNDO
     GET.
-    SET.     
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Question image resource                                                                        
-        Notes:                                                                        
+        Purpose: Question image resource
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC STATIC PROPERTY ImageQuestion AS System.Drawing.Image NO-UNDO 
+    DEFINE PUBLIC STATIC PROPERTY ImageQuestion AS System.Drawing.Image NO-UNDO
     GET.
-    SET.     
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Warning image resource                                                                        
-        Notes:                                                                        
+        Purpose: Warning image resource
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC STATIC PROPERTY ImageWarning AS System.Drawing.Image NO-UNDO 
+    DEFINE PUBLIC STATIC PROPERTY ImageWarning AS System.Drawing.Image NO-UNDO
     GET.
-    SET.     
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Disallow instance creation                                                                         
-        Notes:                                                                        
+        Purpose: Disallow instance creation
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PRIVATE MessageFormImages ():
         SUPER ().
-        
+
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Static constructor, loades Consultingerk supplied default images                                                                      
-        Notes:                                                                        
+        Purpose: Static constructor, loades Consultingerk supplied default images
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR STATIC MessageFormImages ():
 
-        FILE-INFO:FILE-NAME = "Consultingwerk\Windows\Util\Forms\error.png"{&TRAN} .
-        IF FILE-INFO:FULL-PATHNAME <> ? THEN 
-            MessageFormImages:ImageError = Consultingwerk.Util.ImageHelper:Load (FILE-INFO:FULL-PATHNAME) .
+        FILE-INFORMATION:FILE-NAME = "Consultingwerk/Windows/Util/Forms/error.png"{&TRAN} .
+        IF FILE-INFORMATION:FULL-PATHNAME <> ? THEN
+            MessageFormImages:ImageError = Consultingwerk.Util.ImageHelper:Load (FILE-INFORMATION:FULL-PATHNAME) .
 
-        FILE-INFO:FILE-NAME = "Consultingwerk\Windows\Util\Forms\information.png"{&TRAN} .
-        IF FILE-INFO:FULL-PATHNAME <> ? THEN 
-            MessageFormImages:ImageInfo = Consultingwerk.Util.ImageHelper:Load (FILE-INFO:FULL-PATHNAME) .
+        FILE-INFORMATION:FILE-NAME = "Consultingwerk/Windows/Util/Forms/information.png"{&TRAN} .
+        IF FILE-INFORMATION:FULL-PATHNAME <> ? THEN
+            MessageFormImages:ImageInfo = Consultingwerk.Util.ImageHelper:Load (FILE-INFORMATION:FULL-PATHNAME) .
 
-        FILE-INFO:FILE-NAME = "Consultingwerk\Windows\Util\Forms\help2.png"{&TRAN} .
-        IF FILE-INFO:FULL-PATHNAME <> ? THEN 
-            MessageFormImages:ImageQuestion = Consultingwerk.Util.ImageHelper:Load (FILE-INFO:FULL-PATHNAME) .
-        
-        FILE-INFO:FILE-NAME = "Consultingwerk\Windows\Util\Forms\sign_warning.png"{&TRAN} .
-        IF FILE-INFO:FULL-PATHNAME <> ? THEN 
-            MessageFormImages:ImageWarning = Consultingwerk.Util.ImageHelper:Load (FILE-INFO:FULL-PATHNAME) .
-        
+        FILE-INFORMATION:FILE-NAME = "Consultingwerk/Windows/Util/Forms/help2.png"{&TRAN} .
+        IF FILE-INFORMATION:FULL-PATHNAME <> ? THEN
+            MessageFormImages:ImageQuestion = Consultingwerk.Util.ImageHelper:Load (FILE-INFORMATION:FULL-PATHNAME) .
+
+        FILE-INFORMATION:FILE-NAME = "Consultingwerk/Windows/Util/Forms/sign_warning.png"{&TRAN} .
+        IF FILE-INFORMATION:FULL-PATHNAME <> ? THEN
+            MessageFormImages:ImageWarning = Consultingwerk.Util.ImageHelper:Load (FILE-INFORMATION:FULL-PATHNAME) .
+
     END CONSTRUCTOR.
 
 END CLASS.

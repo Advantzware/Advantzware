@@ -28,9 +28,9 @@ USING Progress.Lang.*                 FROM PROPATH .
 CLASS Consultingwerk.Web2.Views.SerializableDataSourceElement 
     INHERITS SerializableLayoutElement: 
 
-    {Consultingwerk/JsonSerializableProperty.i ForeignFields CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i DataSource Consultingwerk.Web.Kendo.Data.DataSource} .
-    {Consultingwerk/JsonSerializableProperty.i CatalogUri CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i ForeignFields CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i DataSource Consultingwerk.Web.Kendo.Data.DataSource} .
+    {Consultingwerk/JsonSerializableProperty11.i CatalogUri CHARACTER} .
      
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the SerializableDataSourceElement class

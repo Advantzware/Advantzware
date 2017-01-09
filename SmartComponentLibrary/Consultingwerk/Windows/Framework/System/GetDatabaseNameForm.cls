@@ -11,25 +11,24 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : GetDatabaseNameForm
-    Purpose     : Provides an UI to select the working database 
-    Syntax      : 
-    Description : 
+    Purpose     : Provides an UI to select the working database
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Wed Nov 28 07:17:43 CET 2012
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.Forms.*                    FROM PROPATH .
-USING Consultingwerk.Windows.Framework.System.* FROM PROPATH .  
+USING Consultingwerk.Windows.Framework.System.* FROM PROPATH .
 USING Consultingwerk.Util.*                     FROM PROPATH .
 USING Progress.Lang.*                           FROM PROPATH .
 
-CLASS Consultingwerk.Windows.Framework.System.GetDatabaseNameForm 
-    INHERITS BaseForm: 
+CLASS Consultingwerk.Windows.Framework.System.GetDatabaseNameForm
+    INHERITS BaseForm:
 
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE pictureBox1 AS System.Windows.Forms.PictureBox NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraLabel1 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraComboEditor1 AS Infragistics.Win.UltraWinEditors.UltraComboEditor NO-UNDO.
@@ -38,47 +37,48 @@ CLASS Consultingwerk.Windows.Framework.System.GetDatabaseNameForm
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the selected database name
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY DatabaseName AS CHARACTER NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    DEFINE PUBLIC PROPERTY DatabaseName AS CHARACTER NO-UNDO
+    GET.
+    PROTECTED SET.
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the comma-delimited list of all available databases
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY DatabaseNames AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY DatabaseNames AS CHARACTER NO-UNDO
+    GET.
+    SET.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the GetDatabaseNameForm class
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC GetDatabaseNameForm ():
-		
-		
+    CONSTRUCTOR PUBLIC GetDatabaseNameForm ():
+
+
         SUPER().
         InitializeComponent().
-        
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE resources AS Progress.Util.ResourceManager NO-UNDO.
@@ -94,63 +94,40 @@ CLASS Consultingwerk.Windows.Framework.System.GetDatabaseNameForm
         /*  */
         /* pictureBox1 */
         /*  */
-        THIS-OBJECT:pictureBox1:Image = CAST(resources:GetObject("pictureBox1.Image":U), System.Drawing.Image).
-        THIS-OBJECT:pictureBox1:Location = NEW System.Drawing.Point(12, 12).
+        resources:ApplyResources(THIS-OBJECT:pictureBox1, "pictureBox1":U).
         THIS-OBJECT:pictureBox1:Name = "pictureBox1":U.
-        THIS-OBJECT:pictureBox1:Size = NEW System.Drawing.Size(48, 48).
-        THIS-OBJECT:pictureBox1:SizeMode = System.Windows.Forms.PictureBoxSizeMode:AutoSize.
-        THIS-OBJECT:pictureBox1:TabIndex = 0.
         THIS-OBJECT:pictureBox1:TabStop = FALSE.
         /*  */
         /* ultraLabel1 */
         /*  */
-        THIS-OBJECT:ultraLabel1:AutoSize = TRUE.
-        THIS-OBJECT:ultraLabel1:Location = NEW System.Drawing.Point(80, 19).
+        resources:ApplyResources(THIS-OBJECT:ultraLabel1, "ultraLabel1":U).
         THIS-OBJECT:ultraLabel1:Name = "ultraLabel1":U.
-        THIS-OBJECT:ultraLabel1:Size = NEW System.Drawing.Size(266, 14).
-        THIS-OBJECT:ultraLabel1:TabIndex = 1.
-        THIS-OBJECT:ultraLabel1:Text = "Select the database name which you want to import:":U.
         /*  */
         /* ultraComboEditor1 */
         /*  */
-        THIS-OBJECT:ultraComboEditor1:Location = NEW System.Drawing.Point(80, 39).
+        THIS-OBJECT:ultraComboEditor1:DropDownStyle = Infragistics.Win.DropDownStyle:DropDownList.
+        resources:ApplyResources(THIS-OBJECT:ultraComboEditor1, "ultraComboEditor1":U).
         THIS-OBJECT:ultraComboEditor1:Name = "ultraComboEditor1":U.
-        THIS-OBJECT:ultraComboEditor1:Size = NEW System.Drawing.Size(265, 21).
-        THIS-OBJECT:ultraComboEditor1:TabIndex = 2.
-        THIS-OBJECT:ultraComboEditor1:Text = "(Select from list)":U.
         THIS-OBJECT:ultraComboEditor1:SelectionChanged:Subscribe(THIS-OBJECT:ultraComboEditor1_SelectionChanged).
         THIS-OBJECT:ultraComboEditor1:ValueChanged:Subscribe(THIS-OBJECT:ultraComboEditor1_ValueChanged).
         /*  */
         /* ultraButton1 */
         /*  */
-        DEFINE VARIABLE nestedvar0 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar0 = System.Windows.Forms.AnchorStyles:Bottom.
-        THIS-OBJECT:ultraButton1:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar0, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:ultraButton1, "ultraButton1":U).
         THIS-OBJECT:ultraButton1:DialogResult = System.Windows.Forms.DialogResult:OK.
-        THIS-OBJECT:ultraButton1:Enabled = FALSE.
-        THIS-OBJECT:ultraButton1:Location = NEW System.Drawing.Point(192, 77).
         THIS-OBJECT:ultraButton1:Name = "ultraButton1":U.
-        THIS-OBJECT:ultraButton1:Size = NEW System.Drawing.Size(75, 23).
-        THIS-OBJECT:ultraButton1:TabIndex = 3.
-        THIS-OBJECT:ultraButton1:Text = "&OK":U.
         /*  */
         /* ultraButton2 */
         /*  */
-        DEFINE VARIABLE nestedvar1 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar1 = System.Windows.Forms.AnchorStyles:Bottom.
-        THIS-OBJECT:ultraButton2:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar1, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:ultraButton2, "ultraButton2":U).
         THIS-OBJECT:ultraButton2:DialogResult = System.Windows.Forms.DialogResult:Cancel.
-        THIS-OBJECT:ultraButton2:Location = NEW System.Drawing.Point(273, 77).
         THIS-OBJECT:ultraButton2:Name = "ultraButton2":U.
-        THIS-OBJECT:ultraButton2:Size = NEW System.Drawing.Size(75, 23).
-        THIS-OBJECT:ultraButton2:TabIndex = 4.
-        THIS-OBJECT:ultraButton2:Text = "&Cancel":U.
         /*  */
         /* GetDatabaseNameForm */
         /*  */
         THIS-OBJECT:AcceptButton = THIS-OBJECT:ultraButton1.
         THIS-OBJECT:CancelButton = THIS-OBJECT:ultraButton2.
-        THIS-OBJECT:ClientSize = NEW System.Drawing.Size(360, 112).
+        resources:ApplyResources(THIS-OBJECT, "$this":U).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:ultraButton2).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:ultraButton1).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:ultraComboEditor1).
@@ -162,8 +139,6 @@ CLASS Consultingwerk.Windows.Framework.System.GetDatabaseNameForm
         THIS-OBJECT:Name = "GetDatabaseNameForm":U.
         THIS-OBJECT:ShowIcon = FALSE.
         THIS-OBJECT:ShowInTaskbar = FALSE.
-        THIS-OBJECT:Text = "Import Tables from Database Schema":U.
-        THIS-OBJECT:WindowPositionRegistryKey = "GetDatabaseNameForm":U.
         CAST(THIS-OBJECT:pictureBox1, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:ultraComboEditor1, System.ComponentModel.ISupportInitialize):EndInit().
         THIS-OBJECT:ResumeLayout(FALSE).
@@ -171,56 +146,56 @@ CLASS Consultingwerk.Windows.Framework.System.GetDatabaseNameForm
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Raises the Load event
-        Notes:   
+        Notes:
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
-		
-		SUPER:OnLoad (e) .
+    METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
+
+        SUPER:OnLoad (e) .
 
         ultraComboEditor1:ValueList = ValueListHelper:FromList (THIS-OBJECT:DatabaseNames) .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the SelectionChanged event of the ultraComboEditor1
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the error
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraComboEditor1_SelectionChanged (sender AS System.Object, 
-	                                                        e AS System.EventArgs):
-		
-		ultraButton1:Enabled = VALID-OBJECT (ultraComboEditor1:SelectedItem) .
+    METHOD PRIVATE VOID ultraComboEditor1_SelectionChanged (sender AS System.Object,
+                                                            e AS System.EventArgs):
 
-        IF VALID-OBJECT (ultraComboEditor1:SelectedItem) THEN 
-            THIS-OBJECT:DatabaseName = UNBOX (ultraComboEditor1:SelectedItem:DataValue) .
-
-	END METHOD .
-
-	/*------------------------------------------------------------------------------
-        Purpose: Event handler for the ValueChanged event of the ultraComboEditor1
-        Notes:   
-        @param sender The reference to the object that raised the error
-        @param e The System.EventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraComboEditor1_ValueChanged (sender AS System.Object, 
-	                                                    e AS System.EventArgs ):
-		
         ultraButton1:Enabled = VALID-OBJECT (ultraComboEditor1:SelectedItem) .
 
-        IF VALID-OBJECT (ultraComboEditor1:SelectedItem) THEN 
+        IF VALID-OBJECT (ultraComboEditor1:SelectedItem) THEN
             THIS-OBJECT:DatabaseName = UNBOX (ultraComboEditor1:SelectedItem:DataValue) .
-            
-	END METHOD.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the GetDatabaseNameForm class 
-        Notes:   
+        Purpose: Event handler for the ValueChanged event of the ultraComboEditor1
+        Notes:
+        @param sender The reference to the object that raised the error
+        @param e The System.EventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID ultraComboEditor1_ValueChanged (sender AS System.Object,
+                                                        e AS System.EventArgs ):
+
+        ultraButton1:Enabled = VALID-OBJECT (ultraComboEditor1:SelectedItem) .
+
+        IF VALID-OBJECT (ultraComboEditor1:SelectedItem) THEN
+            THIS-OBJECT:DatabaseName = UNBOX (ultraComboEditor1:SelectedItem:DataValue) .
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Destructor for the GetDatabaseNameForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC GetDatabaseNameForm ():
 

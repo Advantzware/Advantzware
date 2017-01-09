@@ -68,13 +68,13 @@ CLASS Consultingwerk.SmartFramework.Authorization.RestrictedDefaultLevel:
     DEFINE PUBLIC STATIC PROPERTY RESTRICTED-BY-GROUP AS CHARACTER INITIAL 'RESTRICTED-BY-GROUP':U NO-UNDO 
     GET.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Private constructor for the RestrictedDefaultLevel class
-	    Notes:   Disallow instance creation
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PRIVATE RestrictedDefaultLevel ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    /*------------------------------------------------------------------------------
+        Purpose: Private constructor for the RestrictedDefaultLevel class
+        Notes:   Disallow instance creation
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PRIVATE RestrictedDefaultLevel ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
 END CLASS.

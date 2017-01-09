@@ -12,11 +12,11 @@
 /*------------------------------------------------------------------------
     File        : ReleaseNotesControl
     Purpose     : Displays release notes within Consultingwerk Studio applications
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sat Oct 03 16:22:43 CEST 2015
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -24,7 +24,7 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 {Consultingwerk/products.i}
 
 USING Consultingwerk.*                             FROM PROPATH .
-USING Consultingwerk.Studio.ReleaseNotes.*         FROM PROPATH .  
+USING Consultingwerk.Studio.ReleaseNotes.*         FROM PROPATH .
 USING Consultingwerk.Util.*                        FROM PROPATH .
 USING Consultingwerk.Windows.BackgroundOperation.* FROM PROPATH.
 USING Consultingwerk.Windows.API.*                 FROM PROPATH .
@@ -36,26 +36,26 @@ USING Progress.Lang.*                              FROM PROPATH .
 USING Progress.Windows.*                           FROM ASSEMBLY .
 USING System.Windows.Forms.*                       FROM ASSEMBLY .
 
-CLASS Consultingwerk.Studio.ReleaseNotes.ReleaseNotesControl INHERITS UserControl: 
+CLASS Consultingwerk.Studio.ReleaseNotes.ReleaseNotesControl INHERITS UserControl:
 
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE timer1 AS System.Windows.Forms.Timer NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraFlowLayoutManager1 AS Infragistics.Win.Misc.UltraFlowLayoutManager NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraGridBagLayoutPanel1 AS Infragistics.Win.Misc.UltraGridBagLayoutPanel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraGroupBox1 AS Infragistics.Win.Misc.UltraGroupBox NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraPanel1 AS Infragistics.Win.Misc.UltraPanel NO-UNDO.
 
-    DEFINE VARIABLE oJob AS BackgroundJob NO-UNDO . 
+    DEFINE VARIABLE oJob AS BackgroundJob NO-UNDO .
     DEFINE PRIVATE VARIABLE ultraPanel2 AS Infragistics.Win.Misc.UltraPanel NO-UNDO.
 
     {Consultingwerk/Studio/ReleaseNotes/ttFeed.i}
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the ReleaseNotesControl class 
-        Notes:   
+        Purpose: Constructor for the ReleaseNotesControl class
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ReleaseNotesControl ():
-		
+    CONSTRUCTOR PUBLIC ReleaseNotesControl ():
+
         SUPER().
         InitializeComponent().
 
@@ -67,88 +67,110 @@ CLASS Consultingwerk.Studio.ReleaseNotes.ReleaseNotesControl INHERITS UserContro
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Creates Controls for a single feed entry 
-        Notes:   
+        Purpose: Creates Controls for a single feed entry
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID AddControls ():
-		
-        DEFINE VARIABLE oTitle        AS UltraLabel              NO-UNDO . 
+    METHOD PROTECTED VOID AddControls ():
+
+        DEFINE VARIABLE oTitle        AS UltraLabel              NO-UNDO .
         DEFINE VARIABLE oAge          AS UltraLabel              NO-UNDO .
-        DEFINE VARIABLE oCategories   AS UltraLabel              NO-UNDO . 
+        DEFINE VARIABLE oCategories   AS UltraLabel              NO-UNDO .
         DEFINE VARIABLE oLink         AS UltraFormattedLinkLabel NO-UNDO .
-        DEFINE VARIABLE oSpace        AS UltraLabel              NO-UNDO . 
-                                      
+        DEFINE VARIABLE oSpace        AS UltraLabel              NO-UNDO .
+
         DEFINE VARIABLE cUrl          AS CHARACTER               NO-UNDO .
         DEFINE VARIABLE cDate         AS CHARACTER               NO-UNDO .
-        DEFINE VARIABLE dtReleaseDate AS DATE                    NO-UNDO . 
+        DEFINE VARIABLE dtReleaseDate AS DATE                    NO-UNDO .
 
-        ASSIGN cUrl = REPLACE (ttFeed.EntryLink, 
+        ASSIGN cUrl = REPLACE (ttFeed.EntryLink,
                                "http://jira.consultingwerkcloud.com:8090":U,
                                "http://confluence.consultingwerkcloud.com":U)
 
         oTitle = NEW UltraLabel () .
-        oTitle:Text = ttFeed.EntryTitle . 
+        oTitle:Text = ttFeed.EntryTitle .
         oTitle:AutoSize = TRUE .
-        oTitle:StyleSetName = "Start Page Title":U . 
-                
+        oTitle:StyleSetName = "Start Page Title":U .
+
         ultraPanel2:ClientArea:Controls:Add (oTitle) .
-        
-        ASSIGN cDate         = ENTRY (1, ttFeed.Published, "T":U) 
+
+        ASSIGN cDate         = ENTRY (1, ttFeed.Published, "T":U)
                dtReleaseDate = DATE (INTEGER (ENTRY (2, cDate, "-":U)),
                                      INTEGER (ENTRY (3, cDate, "-":U)),
                                      INTEGER (ENTRY (1, cDate, "-":U))) .
 
-        oAge = NEW UltraLabel () . 
-        oAge:AutoSize = TRUE . 
+        oAge = NEW UltraLabel () .
+        oAge:AutoSize = TRUE .
         oAge:StyleSetName = "Start Page Categories":U .
-        
-        IF TODAY - dtReleaseDate > 1 THEN 
+
+        IF TODAY - dtReleaseDate > 1 THEN
             ASSIGN oAge:Text = SUBSTITUTE ("Released &1 days ago.":U, (TODAY - dtReleaseDate)) .
-        ELSE IF TODAY - dtReleaseDate = 1 THEN 
+        ELSE IF TODAY - dtReleaseDate = 1 THEN
             ASSIGN oAge:Text = "Released yesterday.":U .
-        ELSE 
+        ELSE
             ASSIGN oAge:Text = "Released today.":U .
 
         ultraPanel2:ClientArea:Controls:Add (oAge) .
-        
+
         oCategories = NEW UltraLabel () .
-        oCategories:Text = REPLACE (ttFeed.Categories, ",":U, ", ":U) . 
-        oCategories:AutoSize = TRUE . 
+        oCategories:Text = REPLACE (ttFeed.Categories, ",":U, ", ":U) .
+        oCategories:AutoSize = TRUE .
         oCategories:StyleSetName = "Start Page Categories":U .
-        
+
         ultraPanel2:ClientArea:Controls:Add (oCategories) .
-        
+
         oLink = NEW UltraFormattedLinkLabel () .
-        oLink:Value = SUBSTITUTE ("<a href=~"&1~">&1</a>":U, cUrl) . 
+        oLink:Value = SUBSTITUTE ("<a href=~"&1~">&1</a>":U, cUrl) .
         oLink:AutoSize = TRUE .
-        oLink:StyleSetName = "Start Page":U . 
+        oLink:StyleSetName = "Start Page":U .
         oLink:Tag = BOX (cUrl) .
-        
+
         ultraPanel2:ClientArea:Controls:Add (oLink) .
-        
+
         oLink:Click:Subscribe (LinkClickHandler) .
 
-        oSpace = NEW UltraLabel () . 
+        oSpace = NEW UltraLabel () .
         oSpace:Text = " ":U .
         ultraPanel2:ClientArea:Controls:Add (oSpace) .
-        
-	END METHOD .
+
+    END METHOD .
+
+    /**
+     * Purpose: Displays the error text, from the file generated by the
+     *          background job
+     * Notes:
+     * @param pcFileName The file name with the error text to display
+     */
+    METHOD PROTECTED VOID DisplayErrorText (pcFileName AS CHARACTER):
+
+        DEFINE VARIABLE oBrowser AS WebBrowser NO-UNDO .
+
+        oBrowser = NEW WebBrowser() .
+        oBrowser:Dock = DockStyle:Fill .
+        oBrowser:AllowWebBrowserDrop = FALSE .
+        oBrowser:IsWebBrowserContextMenuEnabled = FALSE .
+        oBrowser:ScriptErrorsSuppressed = TRUE .
+
+        ultraPanel2:ClientArea:Controls:Add (oBrowser) .
+
+        oBrowser:Navigate(pcFileName) .
+
+    END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Docks the Control in a Tab Group relatively to another .NET Control 
-        Notes:   
+        Purpose: Docks the Control in a Tab Group relatively to another .NET Control
+        Notes:
         @param poDockManager The reference to the UltraDockManager
         @param poControl The reference to the control that we should dock the Release Notes Control next to it
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID DockControl (poDockManager AS UltraDockManager,
-	                                poControl AS System.Windows.Forms.Control):
-		
-        DEFINE VARIABLE oControls AS "System.Windows.Forms.Control[]" NO-UNDO . 
-        DEFINE VARIABLE oPane     AS DockableControlPane              NO-UNDO . 
-		
+    METHOD PUBLIC VOID DockControl (poDockManager AS UltraDockManager,
+                                    poControl AS System.Windows.Forms.Control):
+
+        DEFINE VARIABLE oControls AS "System.Windows.Forms.Control[]" NO-UNDO .
+        DEFINE VARIABLE oPane     AS DockableControlPane              NO-UNDO .
+
         /* Mike Fechner, Consultingwerk Ltd. 26.03.2015
            Fix settings for new Dockable pane */
         oPane = poDockManager:PaneFromControl (THIS-OBJECT) .
@@ -156,43 +178,43 @@ CLASS Consultingwerk.Studio.ReleaseNotes.ReleaseNotesControl INHERITS UserContro
         IF NOT VALID-OBJECT (oPane) THEN DO:
             oControls = {Consultingwerk/new-array.i System.Windows.Forms.Control 1} .
             oControls:SetValue (THIS-OBJECT, 0) .
-            
+
             poDockManager:DockControls (oControls,
                                         DockedLocation:DockedLeft,
-                                        ChildPaneStyle:TabGroup) . 
+                                        ChildPaneStyle:TabGroup) .
 
             oPane = poDockManager:PaneFromControl (THIS-OBJECT) .
-            
+
             IF VALID-OBJECT (oPane) THEN DO:
                 oPane:Text = "Start Page"{&TRAN} .
-                oPane:Settings:Appearance:Image = ImageHelper:Load 
+                oPane:Settings:Appearance:Image = ImageHelper:Load
                         ("Consultingwerk/Studio/ReleaseNotes/newspaper_16.png":U) .
-            END. 
+            END.
         END.
         ELSE DO:
                 oPane:Text = "Start Page"{&TRAN} .
-                oPane:Settings:Appearance:Image = ImageHelper:Load 
+                oPane:Settings:Appearance:Image = ImageHelper:Load
                         ("Consultingwerk/Studio/ReleaseNotes/newspaper_16.png":U) .
-        END.        
+        END.
 
         oPane:Settings:AllowPin = DefaultableBoolean:FALSE.
         poDockManager:PaneFromControl (poControl):Parent:ChildPaneStyle = ChildPaneStyle:TabGroup .
         oPane:RepositionToGroup (poDockManager:PaneFromControl (poControl):Parent) .
         oPane:Activate() .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design 
-        Notes:   
+        Purpose: Initializes the Visual Design
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -296,103 +318,106 @@ CLASS Consultingwerk.Studio.ReleaseNotes.ReleaseNotesControl INHERITS UserContro
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Then handler for the LinkClickHandler of a hyperlink
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID LinkClickHandler (sender AS System.Object, 
-	                                        e AS System.EventArgs):
-		
-		Win32:ShellExecute ("open":U, UNBOX (CAST (sender, System.Windows.Forms.Control):Tag)) .
+    METHOD PROTECTED VOID LinkClickHandler (sender AS System.Object,
+                                            e AS System.EventArgs):
 
-	END METHOD .
+        Win32:ShellExecute ("open":U, UNBOX (CAST (sender, System.Windows.Forms.Control):Tag)) .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Raises the Load event
-        Notes:   
+        Notes:
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
-		
-		SUPER:OnLoad (e) .
-		
-		timer1:Enabled = TRUE .
+    METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
 
-	END METHOD .
+        SUPER:OnLoad (e) .
+
+        timer1:Enabled = TRUE .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the ProcessFinished event of the BackgroundJob
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The Consultingwerk.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID ProcessFinishedHandler (sender AS Progress.Lang.Object, 
-	                                              e AS Consultingwerk.EventArgs):
-		
-		DEFINE VARIABLE oParser   AS ReleaseNotesParser NO-UNDO . 
-		DEFINE VARIABLE cFileName AS CHARACTER          NO-UNDO .
-		
-		ASSIGN cFileName = oJob:OutputData 
-		       cFileName = TRIM (cFileName).
+    METHOD PROTECTED VOID ProcessFinishedHandler (sender AS Progress.Lang.Object,
+                                                  e AS Consultingwerk.EventArgs):
 
-		IF NOT FileHelper:Exists (cFileName) THEN 
-		    RETURN . 
-		    
-		oParser = NEW ReleaseNotesParser () .    
-		oParser:ParseAtomFeed (cFileName, OUTPUT TABLE ttFeed) .
-		
-		FOR EACH ttFeed BY ttFeed.EntryTitle DESCENDING ON ERROR UNDO, THROW: 
-		    
-            THIS-OBJECT:AddControls () .		    
-		    
-		END.
+        DEFINE VARIABLE oParser   AS ReleaseNotesParser NO-UNDO .
+        DEFINE VARIABLE cFileName AS CHARACTER          NO-UNDO .
+
+        ASSIGN cFileName = oJob:OutputData
+               cFileName = TRIM (cFileName).
+
+        IF NOT FileHelper:Exists (cFileName) THEN
+            RETURN .
+
+        oParser = NEW ReleaseNotesParser () .
+        oParser:ParseAtomFeed (cFileName, OUTPUT TABLE ttFeed) .
+
+        IF BufferHelper:NumRecords (BUFFER ttFeed:HANDLE) = 0 THEN
+            THIS-OBJECT:DisplayErrorText (cFileName) .
+        ELSE
+            FOR EACH ttFeed BY ttFeed.EntryTitle DESCENDING ON ERROR UNDO, THROW:
+
+                THIS-OBJECT:AddControls () .
+
+            END.
 
         CATCH err AS Progress.Lang.Error:
-        	/* Ignore all errors from above */	
+            THIS-OBJECT:DisplayErrorText (cFileName) .
         END CATCH.
 
         FINALLY:
-            OS-DELETE VALUE (cFileName) . 
+            OS-DELETE VALUE (cFileName) .
         END FINALLY.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the Tick event of the timer1
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID timer1_Tick (sender AS System.Object, 
-	                                 e AS System.EventArgs):
+    METHOD PRIVATE VOID timer1_Tick (sender AS System.Object,
+                                     e AS System.EventArgs):
 
-		DEFINE VARIABLE cIniFileName AS CHARACTER NO-UNDO.
-		
-		timer1:Enabled = FALSE . 
+        DEFINE VARIABLE cIniFileName AS CHARACTER NO-UNDO.
+
+        timer1:Enabled = FALSE .
 
         oJob = NEW BackgroundJob (FileHelper:FindFile ("Consultingwerk/Studio/ReleaseNotes/download-rss.p":U)) .
 
         ASSIGN cIniFileName = StartupParameterHelper:GetStartupParameterValue ("-ininame":U) .
-        
-        IF cIniFileName > "":U THEN 
-           oJob:Parameter = SUBSTITUTE ("-basekey ini -ininame ~"&1~"":U , FileHelper:FindFile(cIniFileName)) . 
-    
-        oJob:AddToJobMonitor = FALSE . 
+
+        IF cIniFileName > "":U THEN
+           oJob:Parameter = SUBSTITUTE ("-basekey ini -ininame ~"&1~"":U , FileHelper:FindFile(cIniFileName)) .
+
+        oJob:AddToJobMonitor = FALSE .
         oJob:SendQuit = FALSE .
         oJob:UiEnvironment = UiEnvironmentEnum:Gui .
-        oJob:ProcessFinished:Subscribe (ProcessFinishedHandler) .        
+        oJob:ProcessFinished:Subscribe (ProcessFinishedHandler) .
 
         oJob:Start (THIS-OBJECT) .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the ReleaseNotesControl class 
-        Notes:   
+        Purpose: Destructor for the ReleaseNotesControl class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC ReleaseNotesControl ():
 

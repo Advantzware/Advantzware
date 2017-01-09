@@ -110,7 +110,7 @@
     <BusinessEntityName>AttributeGroupBusinessEntity</BusinessEntityName>
     <BusinessEntityPurpose/>
     <DBRequired>true</DBRequired>
-    <TrackDeletions xsi:nil="true"/>
+    <TrackDeletions>true</TrackDeletions>
   </eSmartBusinessEntity>
   <eSmartBusinessEntity>
     <BusinessEntityGuid>841d6e2f-14f2-a1b2-ff13-2fd05892342e</BusinessEntityGuid>
@@ -118,7 +118,7 @@
     <BusinessEntityName>AttributeBusinessEntity</BusinessEntityName>
     <BusinessEntityPurpose/>
     <DBRequired>true</DBRequired>
-    <TrackDeletions xsi:nil="true"/>
+    <TrackDeletions>true</TrackDeletions>
   </eSmartBusinessEntity>
   <eSmartBusinessEntity>
     <BusinessEntityGuid>841d6e2f-14f2-a1b2-ff13-30d08487072f</BusinessEntityGuid>
@@ -126,7 +126,7 @@
     <BusinessEntityName>LinkTypeBusinessEntity</BusinessEntityName>
     <BusinessEntityPurpose/>
     <DBRequired>true</DBRequired>
-    <TrackDeletions xsi:nil="true"/>
+    <TrackDeletions>true</TrackDeletions>
   </eSmartBusinessEntity>
   <eSmartBusinessEntity>
     <BusinessEntityGuid>841d6e2f-14f2-a1b2-ff13-30d0b866d8d1</BusinessEntityGuid>
@@ -134,7 +134,7 @@
     <BusinessEntityName>CustomizationTypeBusinessEntity</BusinessEntityName>
     <BusinessEntityPurpose/>
     <DBRequired>true</DBRequired>
-    <TrackDeletions xsi:nil="true"/>
+    <TrackDeletions>true</TrackDeletions>
   </eSmartBusinessEntity>
   <eSmartBusinessEntity>
     <BusinessEntityGuid>841d6e2f-14f2-a1b2-ff13-31d02cf94d6e</BusinessEntityGuid>
@@ -230,12 +230,44 @@
     <BusinessEntityName>ObjectTypeBusinessEntity</BusinessEntityName>
     <BusinessEntityPurpose/>
     <DBRequired>true</DBRequired>
-    <TrackDeletions>false</TrackDeletions>
+    <TrackDeletions>true</TrackDeletions>
   </eSmartBusinessEntity>
   <eSmartBusinessEntity>
     <BusinessEntityGuid>a0301520-8998-0c81-0414-d2226461df08</BusinessEntityGuid>
     <BusinessEntityPackage>Consultingwerk.SmartFramework.Repository.Class</BusinessEntityPackage>
     <BusinessEntityName>AttributeValueBusinessEntity</BusinessEntityName>
+    <BusinessEntityPurpose/>
+    <DBRequired>true</DBRequired>
+    <TrackDeletions>true</TrackDeletions>
+  </eSmartBusinessEntity>
+  <eSmartBusinessEntity>
+    <BusinessEntityGuid>a9035430-1c88-dfbe-0e14-1c35902931f2</BusinessEntityGuid>
+    <BusinessEntityPackage>Consultingwerk.SmartFramework.Repository.Customization</BusinessEntityPackage>
+    <BusinessEntityName>CustomizationBusinessEntity</BusinessEntityName>
+    <BusinessEntityPurpose/>
+    <DBRequired>true</DBRequired>
+    <TrackDeletions>false</TrackDeletions>
+  </eSmartBusinessEntity>
+  <eSmartBusinessEntity>
+    <BusinessEntityGuid>a95d7b2c-5e49-acb6-1014-dd9d9463a86b</BusinessEntityGuid>
+    <BusinessEntityPackage>Consultingwerk.SmartFramework.Scheduler</BusinessEntityPackage>
+    <BusinessEntityName>SchedulerJobBusinessEntity</BusinessEntityName>
+    <BusinessEntityPurpose/>
+    <DBRequired>true</DBRequired>
+    <TrackDeletions>false</TrackDeletions>
+  </eSmartBusinessEntity>
+  <eSmartBusinessEntity>
+    <BusinessEntityGuid>a95d7b2c-5e49-acb6-1014-de9d64069d30</BusinessEntityGuid>
+    <BusinessEntityPackage>Consultingwerk.SmartFramework.Scheduler</BusinessEntityPackage>
+    <BusinessEntityName>SchedulerJobPlanBusinessEntity</BusinessEntityName>
+    <BusinessEntityPurpose/>
+    <DBRequired>true</DBRequired>
+    <TrackDeletions>false</TrackDeletions>
+  </eSmartBusinessEntity>
+  <eSmartBusinessEntity>
+    <BusinessEntityGuid>a95d7b2c-5e49-acb6-1014-de9de81c91dd</BusinessEntityGuid>
+    <BusinessEntityPackage>Consultingwerk.SmartFramework.Scheduler</BusinessEntityPackage>
+    <BusinessEntityName>SchedulerJobStatusBusinessEntity</BusinessEntityName>
     <BusinessEntityPurpose/>
     <DBRequired>true</DBRequired>
     <TrackDeletions>false</TrackDeletions>
@@ -246,7 +278,7 @@
     <BusinessEntityName>ClassTypeBusinessEntity</BusinessEntityName>
     <BusinessEntityPurpose/>
     <DBRequired>true</DBRequired>
-    <TrackDeletions xsi:nil="true"/>
+    <TrackDeletions>true</TrackDeletions>
   </eSmartBusinessEntity>
   <eSmartBusinessEntity>
     <BusinessEntityGuid>de25a9f2-ac02-84b3-0114-bdd044d6a600</BusinessEntityGuid>
@@ -257,6 +289,46 @@
     <TrackDeletions>false</TrackDeletions>
   </eSmartBusinessEntity>
   <eSmartBusinessEntity>
+    <BusinessEntityGuid>e15fbc38-3240-ec81-0a14-4dac40f89353</BusinessEntityGuid>
+    <BusinessEntityPackage>Consultingwerk.SmartFramework.Context</BusinessEntityPackage>
+    <BusinessEntityName>ContextStoreBusinessEntity</BusinessEntityName>
+    <BusinessEntityPurpose/>
+    <DBRequired>true</DBRequired>
+    <TrackDeletions>false</TrackDeletions>
+  </eSmartBusinessEntity>
+  <eSmartBusinessEntity>
+    <BusinessEntityGuid>e89b8bc5-cac3-f4b3-1d14-e4a6cc21ce32</BusinessEntityGuid>
+    <BusinessEntityPackage>Consultingwerk.SmartFramework.System</BusinessEntityPackage>
+    <BusinessEntityName>ModifiedStateBusinessEntity</BusinessEntityName>
+    <BusinessEntityPurpose/>
+    <DBRequired>true</DBRequired>
+    <TrackDeletions>false</TrackDeletions>
+  </eSmartBusinessEntity>
+  <eSmartBusinessEntity>
+    <BusinessEntityGuid>e91f48d2-35da-db91-0e14-72e954edb319</BusinessEntityGuid>
+    <BusinessEntityPackage>Consultingwerk.SmartFramework.Repository.Class</BusinessEntityPackage>
+    <BusinessEntityName>SupportedLinkBusinessEntity</BusinessEntityName>
+    <BusinessEntityPurpose/>
+    <DBRequired>true</DBRequired>
+    <TrackDeletions>true</TrackDeletions>
+  </eSmartBusinessEntity>
+  <eSmartBusinessEntity>
+    <BusinessEntityGuid>ea39fb4e-338f-a8bd-1014-d039309424ee</BusinessEntityGuid>
+    <BusinessEntityPackage>Consultingwerk.SmartFramework.Repository.Object</BusinessEntityPackage>
+    <BusinessEntityName>ObjectMasterBusinessEntity</BusinessEntityName>
+    <BusinessEntityPurpose/>
+    <DBRequired>true</DBRequired>
+    <TrackDeletions>true</TrackDeletions>
+  </eSmartBusinessEntity>
+  <eSmartBusinessEntity>
+    <BusinessEntityGuid>f4676bcc-2858-71af-1a14-d4d0f031eb38</BusinessEntityGuid>
+    <BusinessEntityPackage>Consultingwerk.SmartFramework.Repository.Field</BusinessEntityPackage>
+    <BusinessEntityName>EntityFieldMappingBusinessEntity</BusinessEntityName>
+    <BusinessEntityPurpose/>
+    <DBRequired>true</DBRequired>
+    <TrackDeletions>true</TrackDeletions>
+  </eSmartBusinessEntity>
+  <eSmartBusinessEntity>
     <BusinessEntityGuid>f565f2d7-f0c3-f0b4-d613-042e2c7b5349</BusinessEntityGuid>
     <BusinessEntityPackage>Consultingwerk.SmartFramework.System</BusinessEntityPackage>
     <BusinessEntityName>SmartBusinessEntityBusinessEntity</BusinessEntityName>
@@ -265,12 +337,28 @@
     <TrackDeletions xsi:nil="true"/>
   </eSmartBusinessEntity>
   <eSmartBusinessEntity>
+    <BusinessEntityGuid>f9487476-dfc3-f5a8-1d14-edd60006afbe</BusinessEntityGuid>
+    <BusinessEntityPackage>Consultingwerk.SmartFramework.Repository.Object.Export</BusinessEntityPackage>
+    <BusinessEntityName>ObjectMasterBusinessEntity</BusinessEntityName>
+    <BusinessEntityPurpose/>
+    <DBRequired>true</DBRequired>
+    <TrackDeletions>false</TrackDeletions>
+  </eSmartBusinessEntity>
+  <eSmartBusinessEntity>
     <BusinessEntityGuid>fd72aa36-0ca2-088a-d613-72a75c7e2ae3</BusinessEntityGuid>
     <BusinessEntityPackage>Consultingwerk.SmartFramework.System</BusinessEntityPackage>
     <BusinessEntityName>LoginCompanyBusinessEntity</BusinessEntityName>
     <BusinessEntityPurpose/>
     <DBRequired>true</DBRequired>
     <TrackDeletions xsi:nil="true"/>
+  </eSmartBusinessEntity>
+  <eSmartBusinessEntity>
+    <BusinessEntityGuid>fe0fc29b-ff74-afa2-1e14-3e1c04fa9c1a</BusinessEntityGuid>
+    <BusinessEntityPackage>Consultingwerk.SmartFramework.System</BusinessEntityPackage>
+    <BusinessEntityName>ConfigurationValueBusinessEntity</BusinessEntityName>
+    <BusinessEntityPurpose/>
+    <DBRequired>true</DBRequired>
+    <TrackDeletions>true</TrackDeletions>
   </eSmartBusinessEntity>
   <eSmartBusinessEntityTable>
     <BusinessEntityTableGuid>841d6e2f-14f2-a1b2-ff13-24d0b098d92b</BusinessEntityTableGuid>
@@ -728,6 +816,71 @@
     <AllowUpdate>true</AllowUpdate>
   </eSmartBusinessEntityTable>
   <eSmartBusinessEntityTable>
+    <BusinessEntityTableGuid>a9035430-1c88-dfbe-0e14-1d3500c6420b</BusinessEntityTableGuid>
+    <BusinessEntityGuid>a9035430-1c88-dfbe-0e14-1c35902931f2</BusinessEntityGuid>
+    <TableOrder>2</TableOrder>
+    <TableName>eSmartCustomization</TableName>
+    <TableLabelSingular/>
+    <TableLabelPlural/>
+    <ShouldUseBatching>true</ShouldUseBatching>
+    <BatchSize>100</BatchSize>
+    <AllowDelete>true</AllowDelete>
+    <AllowCreate>true</AllowCreate>
+    <AllowUpdate>true</AllowUpdate>
+  </eSmartBusinessEntityTable>
+  <eSmartBusinessEntityTable>
+    <BusinessEntityTableGuid>a9035430-1c88-dfbe-0e14-1d35109c390b</BusinessEntityTableGuid>
+    <BusinessEntityGuid>a9035430-1c88-dfbe-0e14-1c35902931f2</BusinessEntityGuid>
+    <TableOrder>1</TableOrder>
+    <TableName>eSmartCustomizationResult</TableName>
+    <TableLabelSingular/>
+    <TableLabelPlural/>
+    <ShouldUseBatching>true</ShouldUseBatching>
+    <BatchSize>100</BatchSize>
+    <AllowDelete>true</AllowDelete>
+    <AllowCreate>true</AllowCreate>
+    <AllowUpdate>true</AllowUpdate>
+  </eSmartBusinessEntityTable>
+  <eSmartBusinessEntityTable>
+    <BusinessEntityTableGuid>a95d7b2c-5e49-acb6-1014-dd9d9cc8d19d</BusinessEntityTableGuid>
+    <BusinessEntityGuid>a95d7b2c-5e49-acb6-1014-dd9d9463a86b</BusinessEntityGuid>
+    <TableOrder>1</TableOrder>
+    <TableName>eSmartSchedulerJob</TableName>
+    <TableLabelSingular/>
+    <TableLabelPlural/>
+    <ShouldUseBatching>true</ShouldUseBatching>
+    <BatchSize>100</BatchSize>
+    <AllowDelete>true</AllowDelete>
+    <AllowCreate>true</AllowCreate>
+    <AllowUpdate>true</AllowUpdate>
+  </eSmartBusinessEntityTable>
+  <eSmartBusinessEntityTable>
+    <BusinessEntityTableGuid>a95d7b2c-5e49-acb6-1014-de9d8c9e7cea</BusinessEntityTableGuid>
+    <BusinessEntityGuid>a95d7b2c-5e49-acb6-1014-de9de81c91dd</BusinessEntityGuid>
+    <TableOrder>1</TableOrder>
+    <TableName>eSmartSchedulerJobStatus</TableName>
+    <TableLabelSingular/>
+    <TableLabelPlural/>
+    <ShouldUseBatching>true</ShouldUseBatching>
+    <BatchSize>100</BatchSize>
+    <AllowDelete>true</AllowDelete>
+    <AllowCreate>true</AllowCreate>
+    <AllowUpdate>true</AllowUpdate>
+  </eSmartBusinessEntityTable>
+  <eSmartBusinessEntityTable>
+    <BusinessEntityTableGuid>a95d7b2c-5e49-acb6-1014-de9db40cb742</BusinessEntityTableGuid>
+    <BusinessEntityGuid>a95d7b2c-5e49-acb6-1014-de9d64069d30</BusinessEntityGuid>
+    <TableOrder>1</TableOrder>
+    <TableName>eSmartSchedulerJobPlan</TableName>
+    <TableLabelSingular/>
+    <TableLabelPlural/>
+    <ShouldUseBatching>true</ShouldUseBatching>
+    <BatchSize>100</BatchSize>
+    <AllowDelete>true</AllowDelete>
+    <AllowCreate>true</AllowCreate>
+    <AllowUpdate>true</AllowUpdate>
+  </eSmartBusinessEntityTable>
+  <eSmartBusinessEntityTable>
     <BusinessEntityTableGuid>ade7c7aa-ef3f-7d82-ff13-d0febc2fa14a</BusinessEntityTableGuid>
     <BusinessEntityGuid>ade7c7aa-ef3f-7d82-ff13-d0febc4b973d</BusinessEntityGuid>
     <TableOrder>1</TableOrder>
@@ -745,6 +898,110 @@
     <BusinessEntityGuid>de25a9f2-ac02-84b3-0114-bdd044d6a600</BusinessEntityGuid>
     <TableOrder>1</TableOrder>
     <TableName>eSmartKeyFieldAssignmentType</TableName>
+    <TableLabelSingular/>
+    <TableLabelPlural/>
+    <ShouldUseBatching>true</ShouldUseBatching>
+    <BatchSize>100</BatchSize>
+    <AllowDelete>true</AllowDelete>
+    <AllowCreate>true</AllowCreate>
+    <AllowUpdate>true</AllowUpdate>
+  </eSmartBusinessEntityTable>
+  <eSmartBusinessEntityTable>
+    <BusinessEntityTableGuid>e15fbc38-3240-ec81-0a14-4dace422de71</BusinessEntityTableGuid>
+    <BusinessEntityGuid>e15fbc38-3240-ec81-0a14-4dac40f89353</BusinessEntityGuid>
+    <TableOrder>1</TableOrder>
+    <TableName>eSmartContextStore</TableName>
+    <TableLabelSingular/>
+    <TableLabelPlural/>
+    <ShouldUseBatching>true</ShouldUseBatching>
+    <BatchSize>100</BatchSize>
+    <AllowDelete>true</AllowDelete>
+    <AllowCreate>true</AllowCreate>
+    <AllowUpdate>true</AllowUpdate>
+  </eSmartBusinessEntityTable>
+  <eSmartBusinessEntityTable>
+    <BusinessEntityTableGuid>e89b8bc5-cac3-f4b3-1d14-e4a6ac94965d</BusinessEntityTableGuid>
+    <BusinessEntityGuid>e89b8bc5-cac3-f4b3-1d14-e4a6cc21ce32</BusinessEntityGuid>
+    <TableOrder>1</TableOrder>
+    <TableName>eSmartModifiedState</TableName>
+    <TableLabelSingular/>
+    <TableLabelPlural/>
+    <ShouldUseBatching>true</ShouldUseBatching>
+    <BatchSize>100</BatchSize>
+    <AllowDelete>true</AllowDelete>
+    <AllowCreate>true</AllowCreate>
+    <AllowUpdate>true</AllowUpdate>
+  </eSmartBusinessEntityTable>
+  <eSmartBusinessEntityTable>
+    <BusinessEntityTableGuid>e91f48d2-35da-db91-0e14-72e9a878533b</BusinessEntityTableGuid>
+    <BusinessEntityGuid>e91f48d2-35da-db91-0e14-72e954edb319</BusinessEntityGuid>
+    <TableOrder>1</TableOrder>
+    <TableName>eSmartSupportedLink</TableName>
+    <TableLabelSingular/>
+    <TableLabelPlural/>
+    <ShouldUseBatching>true</ShouldUseBatching>
+    <BatchSize>100</BatchSize>
+    <AllowDelete>true</AllowDelete>
+    <AllowCreate>true</AllowCreate>
+    <AllowUpdate>true</AllowUpdate>
+  </eSmartBusinessEntityTable>
+  <eSmartBusinessEntityTable>
+    <BusinessEntityTableGuid>ea39fb4e-338f-a8bd-1014-d1395491b207</BusinessEntityTableGuid>
+    <BusinessEntityGuid>ea39fb4e-338f-a8bd-1014-d039309424ee</BusinessEntityGuid>
+    <TableOrder>2</TableOrder>
+    <TableName>eSmartLink</TableName>
+    <TableLabelSingular/>
+    <TableLabelPlural/>
+    <ShouldUseBatching>true</ShouldUseBatching>
+    <BatchSize>100</BatchSize>
+    <AllowDelete>true</AllowDelete>
+    <AllowCreate>true</AllowCreate>
+    <AllowUpdate>true</AllowUpdate>
+  </eSmartBusinessEntityTable>
+  <eSmartBusinessEntityTable>
+    <BusinessEntityTableGuid>ea39fb4e-338f-a8bd-1014-d1397883b507</BusinessEntityTableGuid>
+    <BusinessEntityGuid>ea39fb4e-338f-a8bd-1014-d039309424ee</BusinessEntityGuid>
+    <TableOrder>3</TableOrder>
+    <TableName>eSmartObjectInstance</TableName>
+    <TableLabelSingular/>
+    <TableLabelPlural/>
+    <ShouldUseBatching>true</ShouldUseBatching>
+    <BatchSize>100</BatchSize>
+    <AllowDelete>true</AllowDelete>
+    <AllowCreate>true</AllowCreate>
+    <AllowUpdate>true</AllowUpdate>
+  </eSmartBusinessEntityTable>
+  <eSmartBusinessEntityTable>
+    <BusinessEntityTableGuid>ea39fb4e-338f-a8bd-1014-d139a480af07</BusinessEntityTableGuid>
+    <BusinessEntityGuid>ea39fb4e-338f-a8bd-1014-d039309424ee</BusinessEntityGuid>
+    <TableOrder>1</TableOrder>
+    <TableName>eSmartObjectMaster</TableName>
+    <TableLabelSingular/>
+    <TableLabelPlural/>
+    <ShouldUseBatching>true</ShouldUseBatching>
+    <BatchSize>100</BatchSize>
+    <AllowDelete>true</AllowDelete>
+    <AllowCreate>true</AllowCreate>
+    <AllowUpdate>true</AllowUpdate>
+  </eSmartBusinessEntityTable>
+  <eSmartBusinessEntityTable>
+    <BusinessEntityTableGuid>ea39fb4e-338f-a8bd-1014-d139e4c0bb07</BusinessEntityTableGuid>
+    <BusinessEntityGuid>ea39fb4e-338f-a8bd-1014-d039309424ee</BusinessEntityGuid>
+    <TableOrder>4</TableOrder>
+    <TableName>eSmartPage</TableName>
+    <TableLabelSingular/>
+    <TableLabelPlural/>
+    <ShouldUseBatching>true</ShouldUseBatching>
+    <BatchSize>100</BatchSize>
+    <AllowDelete>true</AllowDelete>
+    <AllowCreate>true</AllowCreate>
+    <AllowUpdate>true</AllowUpdate>
+  </eSmartBusinessEntityTable>
+  <eSmartBusinessEntityTable>
+    <BusinessEntityTableGuid>f4676bcc-2858-71af-1a14-d4d0ec6f3e56</BusinessEntityTableGuid>
+    <BusinessEntityGuid>f4676bcc-2858-71af-1a14-d4d0f031eb38</BusinessEntityGuid>
+    <TableOrder>1</TableOrder>
+    <TableName>eSmartEntityFieldMapping</TableName>
     <TableLabelSingular/>
     <TableLabelPlural/>
     <ShouldUseBatching>true</ShouldUseBatching>
@@ -780,12 +1037,103 @@
     <AllowUpdate>true</AllowUpdate>
   </eSmartBusinessEntityTable>
   <eSmartBusinessEntityTable>
+    <BusinessEntityTableGuid>f9487476-dfc3-f5a8-1d14-edd6106bbfe8</BusinessEntityTableGuid>
+    <BusinessEntityGuid>f9487476-dfc3-f5a8-1d14-edd60006afbe</BusinessEntityGuid>
+    <TableOrder>3</TableOrder>
+    <TableName>eSmartLink</TableName>
+    <TableLabelSingular/>
+    <TableLabelPlural/>
+    <ShouldUseBatching>true</ShouldUseBatching>
+    <BatchSize>100</BatchSize>
+    <AllowDelete>true</AllowDelete>
+    <AllowCreate>true</AllowCreate>
+    <AllowUpdate>true</AllowUpdate>
+  </eSmartBusinessEntityTable>
+  <eSmartBusinessEntityTable>
+    <BusinessEntityTableGuid>f9487476-dfc3-f5a8-1d14-edd6ac52b9e8</BusinessEntityTableGuid>
+    <BusinessEntityGuid>f9487476-dfc3-f5a8-1d14-edd60006afbe</BusinessEntityGuid>
+    <TableOrder>1</TableOrder>
+    <TableName>eSmartObjectMaster</TableName>
+    <TableLabelSingular/>
+    <TableLabelPlural/>
+    <ShouldUseBatching>true</ShouldUseBatching>
+    <BatchSize>100</BatchSize>
+    <AllowDelete>true</AllowDelete>
+    <AllowCreate>true</AllowCreate>
+    <AllowUpdate>true</AllowUpdate>
+  </eSmartBusinessEntityTable>
+  <eSmartBusinessEntityTable>
+    <BusinessEntityTableGuid>f9487476-dfc3-f5a8-1d14-edd6ac5ebce8</BusinessEntityTableGuid>
+    <BusinessEntityGuid>f9487476-dfc3-f5a8-1d14-edd60006afbe</BusinessEntityGuid>
+    <TableOrder>2</TableOrder>
+    <TableName>eSmartAttributeValue</TableName>
+    <TableLabelSingular/>
+    <TableLabelPlural/>
+    <ShouldUseBatching>true</ShouldUseBatching>
+    <BatchSize>100</BatchSize>
+    <AllowDelete>true</AllowDelete>
+    <AllowCreate>true</AllowCreate>
+    <AllowUpdate>true</AllowUpdate>
+  </eSmartBusinessEntityTable>
+  <eSmartBusinessEntityTable>
+    <BusinessEntityTableGuid>f9487476-dfc3-f5a8-1d14-edd6d888c5e8</BusinessEntityTableGuid>
+    <BusinessEntityGuid>f9487476-dfc3-f5a8-1d14-edd60006afbe</BusinessEntityGuid>
+    <TableOrder>4</TableOrder>
+    <TableName>eSmartModifiedState</TableName>
+    <TableLabelSingular/>
+    <TableLabelPlural/>
+    <ShouldUseBatching>true</ShouldUseBatching>
+    <BatchSize>100</BatchSize>
+    <AllowDelete>true</AllowDelete>
+    <AllowCreate>true</AllowCreate>
+    <AllowUpdate>true</AllowUpdate>
+  </eSmartBusinessEntityTable>
+  <eSmartBusinessEntityTable>
+    <BusinessEntityTableGuid>f9487476-dfc3-f5a8-1d14-edd6e48fcbe8</BusinessEntityTableGuid>
+    <BusinessEntityGuid>f9487476-dfc3-f5a8-1d14-edd60006afbe</BusinessEntityGuid>
+    <TableOrder>6</TableOrder>
+    <TableName>eSmartPage</TableName>
+    <TableLabelSingular/>
+    <TableLabelPlural/>
+    <ShouldUseBatching>true</ShouldUseBatching>
+    <BatchSize>100</BatchSize>
+    <AllowDelete>true</AllowDelete>
+    <AllowCreate>true</AllowCreate>
+    <AllowUpdate>true</AllowUpdate>
+  </eSmartBusinessEntityTable>
+  <eSmartBusinessEntityTable>
+    <BusinessEntityTableGuid>f9487476-dfc3-f5a8-1d14-edd6f888c8e8</BusinessEntityTableGuid>
+    <BusinessEntityGuid>f9487476-dfc3-f5a8-1d14-edd60006afbe</BusinessEntityGuid>
+    <TableOrder>5</TableOrder>
+    <TableName>eSmartObjectInstance</TableName>
+    <TableLabelSingular/>
+    <TableLabelPlural/>
+    <ShouldUseBatching>true</ShouldUseBatching>
+    <BatchSize>100</BatchSize>
+    <AllowDelete>true</AllowDelete>
+    <AllowCreate>true</AllowCreate>
+    <AllowUpdate>true</AllowUpdate>
+  </eSmartBusinessEntityTable>
+  <eSmartBusinessEntityTable>
     <BusinessEntityTableGuid>fd72aa36-0ca2-088a-d613-73a7c0b0f512</BusinessEntityTableGuid>
     <BusinessEntityGuid>fd72aa36-0ca2-088a-d613-72a75c7e2ae3</BusinessEntityGuid>
     <TableOrder>1</TableOrder>
     <TableName>eSmartLoginCompany</TableName>
     <TableLabelSingular/>
     <TableLabelPlural/>
+    <ShouldUseBatching>true</ShouldUseBatching>
+    <BatchSize>100</BatchSize>
+    <AllowDelete>true</AllowDelete>
+    <AllowCreate>true</AllowCreate>
+    <AllowUpdate>true</AllowUpdate>
+  </eSmartBusinessEntityTable>
+  <eSmartBusinessEntityTable>
+    <BusinessEntityTableGuid>fe0fc29b-ff74-afa2-1e14-3e1c0858022b</BusinessEntityTableGuid>
+    <BusinessEntityGuid>fe0fc29b-ff74-afa2-1e14-3e1c04fa9c1a</BusinessEntityGuid>
+    <TableOrder>1</TableOrder>
+    <TableName>eSmartConfigurationValue</TableName>
+    <TableLabelSingular>Configuration Value</TableLabelSingular>
+    <TableLabelPlural>Configuration Values</TableLabelPlural>
     <ShouldUseBatching>true</ShouldUseBatching>
     <BatchSize>100</BatchSize>
     <AllowDelete>true</AllowDelete>

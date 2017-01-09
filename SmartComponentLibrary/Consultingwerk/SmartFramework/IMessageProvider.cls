@@ -33,7 +33,7 @@ INTERFACE Consultingwerk.SmartFramework.IMessageProvider:
         @param piMessageNumber The message number
         @return The message Structure
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC Message GetMessage (pcMessageGroup AS CHARACTER,
+    METHOD PUBLIC Message GetMessage (pcMessageGroup AS CHARACTER,
                                       piMessageNumber AS INTEGER).
 
     /*------------------------------------------------------------------------------
@@ -434,8 +434,8 @@ INTERFACE Consultingwerk.SmartFramework.IMessageProvider:
         @param piMessageNumber The message number
         @return The message text
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC CHARACTER GetMessageText (pcMessageGroup AS CHARACTER,
-	                                        piMessageNumber AS INTEGER).
+    METHOD PUBLIC CHARACTER GetMessageText (pcMessageGroup AS CHARACTER,
+                                            piMessageNumber AS INTEGER).
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the message text for the specified MessageGroup and Number 

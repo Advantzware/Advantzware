@@ -49,18 +49,18 @@ CLASS Consultingwerk.Framework.TypeDescriptor.TypeDescriptor
     ------------------------------------------------------------------------------*/
     {Consultingwerk/JsonSerializableProperty.i TypeName CHARACTER} .
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Constructor for the TypeDescriptor class
-	    Notes:
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC TypeDescriptor ():
-		SUPER ().
-		
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the TypeDescriptor class
+        Notes:
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC TypeDescriptor ():
+        SUPER ().
+        
         THIS-OBJECT:AddSerializableProperties ('{&SerializableProperties}':U) .
-		
-		ASSIGN THIS-OBJECT:PropertyDescriptors = NEW ListIPropertyDescriptor () .
-		
-	END CONSTRUCTOR.
+        
+        ASSIGN THIS-OBJECT:PropertyDescriptors = NEW ListIPropertyDescriptor () .
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the TypeDescriptor class

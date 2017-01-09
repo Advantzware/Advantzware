@@ -11,8 +11,8 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : RestServerSessionActivator
-    Purpose     : 
-    Syntax      : 
+    Purpose     : Performs session activation for REST requests
+    Syntax      :
     Description : Requires SmartFramework
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Wed Jan 16 11:32:03 CET 2016
@@ -27,113 +27,97 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 {Consultingwerk/products.i}
 
 USING Consultingwerk.Exceptions.*                    FROM PROPATH .
-USING Consultingwerk.Framework.*                     FROM PROPATH . 
-USING Consultingwerk.Framework.Session.*             FROM PROPATH . 
-USING Consultingwerk.Framework.Server.*              FROM PROPATH .  
-USING Consultingwerk.OERA.*                          FROM PROPATH . 
+USING Consultingwerk.Framework.*                     FROM PROPATH .
+USING Consultingwerk.Framework.Session.*             FROM PROPATH .
+USING Consultingwerk.Framework.Server.*              FROM PROPATH .
+USING Consultingwerk.OERA.*                          FROM PROPATH .
 USING Consultingwerk.SmartFramework.Authentication.* FROM PROPATH .
 USING Consultingwerk.SmartFramework.System.*         FROM PROPATH .
-USING Consultingwerk.Util.*                          FROM PROPATH . 
+USING Consultingwerk.Util.*                          FROM PROPATH .
 USING Progress.Lang.*                                FROM PROPATH .
 
-CLASS Consultingwerk.Framework.Server.RestServerSessionActivator: 
+CLASS Consultingwerk.Framework.Server.RestServerSessionActivator:
 
     &IF DEFINED (SmartFramework) NE 0 &THEN
 
-    DEFINE VARIABLE cAuthenticationDB AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cLogEntryTypes    AS CHARACTER NO-UNDO. 
-    DEFINE VARIABLE lDebugMode        AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cCustomLogEntries AS CHARACTER NO-UNDO.
-
-    /*------------------------------------------------------------------------------
-        Purpose: Raised when the ActivateServerSession was not able to reactivate
-                 a users client-principal because the length of the CP was 0 (no 
-                 CP available)
-        Notes:   This event may be used to authenticate a technical user that is 
-                 authorized to run requests on behalf of unauthenticated sessions
-        @param sender The object that raised the PerformTechnicalLogin event
-        @param e The Consultingwerk.EventArgs with the data for the event
-    ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC EVENT PerformTechnicalLogin SIGNATURE VOID (sender AS Progress.Lang.Object,
-                                                              e AS Consultingwerk.EventArgs).
-    
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the ServerSessionActivator class
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC RestServerSessionActivator ():
+    CONSTRUCTOR PUBLIC RestServerSessionActivator ():
 
-		DEFINE VARIABLE oConfiguration AS IConfigurationProvider NO-UNDO .
-		
-		SUPER ().
+        SUPER ().
 
-        ServiceInterface:Activated:Subscribe (ActivateServerSession) .        
-        ServiceInterface:Deactivated:Subscribe (DeactivateServerSession) .        
-		
-		oConfiguration = {Consultingwerk/get-service.i Consultingwerk.Framework.IConfigurationProvider} .
-		
-		IF VALID-OBJECT (oConfiguration) THEN 
-		    cAuthenticationDB = oConfiguration:GetValue ("authenticationDb":U, LDBNAME(1)) . 
-		ELSE 
-		    cAuthenticationDB = LDBNAME(1) . 
-		
-	END CONSTRUCTOR.
+        ServiceInterface:Activated:Subscribe (ActivateServerSession) .
+        ServiceInterface:Deactivated:Subscribe (DeactivateServerSession) .
+
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Activates a server session
-        Notes:   
+        Notes:
         @param e The Consultingwerk.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID ActivateServerSession (e AS Consultingwerk.EventArgs):
+    METHOD PROTECTED VOID ActivateServerSession (e AS Consultingwerk.EventArgs):
 
-        DEFINE VARIABLE hPrincipal          AS HANDLE                           NO-UNDO.
-        DEFINE VARIABLE cName               AS CHARACTER                        NO-UNDO.
-        DEFINE VARIABLE cDomain             AS CHARACTER                        NO-UNDO.
-        
-        DEFINE VARIABLE oLoginCompany       AS LoginCompanyDatasetModel         NO-UNDO . 
-        DEFINE VARIABLE oUser               AS UserDatasetModel                 NO-UNDO . 
-        DEFINE VARIABLE oGetGroupsParameter AS GetUserGroupAssignmentsParameter NO-UNDO . 
-        DEFINE VARIABLE hDataset            AS HANDLE                           NO-UNDO .
+        DEFINE VARIABLE hPrincipal           AS HANDLE                           NO-UNDO.
+        DEFINE VARIABLE cName                AS CHARACTER                        NO-UNDO.
+        DEFINE VARIABLE cDomain              AS CHARACTER                        NO-UNDO.
+
+        DEFINE VARIABLE oLoginCompany        AS LoginCompanyDatasetModel         NO-UNDO .
+        DEFINE VARIABLE oUser                AS UserDatasetModel                 NO-UNDO .
+        DEFINE VARIABLE oGetGroupsParameter  AS GetUserGroupAssignmentsParameter NO-UNDO .
+        DEFINE VARIABLE hDataset             AS HANDLE                           NO-UNDO .
+        DEFINE VARIABLE oContextDatasetStore AS IContextDatasetStore             NO-UNDO .
 
 /*        LogManager:WriteSeparator() .                                               */
 /*        LogManager:WriteObjectProperties (SESSION:CURRENT-REQUEST-INFO, "REQUEST") .*/
- 
-        ASSIGN hPrincipal = SESSION:CURRENT-REQUEST-INFO:GetClientPrincipal().
+
+        IF VALID-OBJECT (SESSION:CURRENT-REQUEST-INFO) THEN
+            ASSIGN hPrincipal = SESSION:CURRENT-REQUEST-INFO:GetClientPrincipal().
 
 /*        LogManager:WriteSeparator() .                                      */
 /*        LogManager:WriteWidgetProperties (hPrincipal, "CLIENT-PRINCIPAL") .*/
 /*        LogManager:WriteSeparator() .                                      */
 
         IF VALID-HANDLE (hPrincipal) THEN DO:
-            hPrincipal:VALIDATE-SEAL ({Consultingwerk/get-service.i IConfigurationProvider}:GetValue ("clientPrincipalSeal":U)) .
-            
-            ASSIGN cName   = hPrincipal:USER-ID  
-                   cDomain = hPrincipal:DOMAIN-NAME . 
-            
-            oUser = NEW UserDatasetModel () . 
 
-            IF cDomain > "":U THEN DO: 
-                oLoginCompany = NEW LoginCompanyDatasetModel () . 
+            hPrincipal:VALIDATE-SEAL ({Consultingwerk/get-service.i Consultingwerk.Framework.IConfigurationProvider}:GetValue ("clientPrincipalSeal":U)) .
+
+            IF hPrincipal:SESSION-ID > "":U THEN
+                ASSIGN oContextDatasetStore = {Consultingwerk/get-service.i Consultingwerk.Framework.Server.IContextDatasetStore} .
+
+            IF VALID-OBJECT (oContextDatasetStore) THEN
+                IF oContextDatasetStore:RestoreSessionContext (hPrincipal) THEN
+                    RETURN .
+
+            ASSIGN cName   = hPrincipal:USER-ID
+                   cDomain = hPrincipal:DOMAIN-NAME .
+
+            oUser = NEW UserDatasetModel () .
+
+            IF cDomain > "":U THEN DO:
+                oLoginCompany = NEW LoginCompanyDatasetModel () .
                 oLoginCompany:SmartLoginCompany:Filter:LoginCompanyTenantDomain:EQ (cDomain):Run () .
-    
-                IF NOT oLoginCompany:SmartLoginCompany:Available THEN   
+
+                IF NOT oLoginCompany:SmartLoginCompany:Available THEN
                     UNDO, THROW NEW Exception (SUBSTITUTE ("Unable to validate user because no login company exists with the provided domain name: &1"{&TRAN}, cDomain), 0) .
-            
+
                 /* locate Domain specific user */
                 oUser:SmartUser:Filter:LoginCompanyGuid:EQ (oLoginCompany:SmartLoginCompany:LoginCompanyGuid) .
                 oUser:SmartUser:Filter:UserName:EQ (cName):Run () .
-                
+
             END.
-            
+
             IF NOT oUser:SmartUser:Available THEN DO:
-                oUser = NEW UserDatasetModel () . 
+                oUser = NEW UserDatasetModel () .
                 oUser:SmartUser:Filter:LoginCompanyGuid:EQ ("":U) .
                 oUser:SmartUser:Filter:UserName:EQ (cName):Run () .
             END.
-            
-            IF NOT oUser:SmartUser:Available THEN 
+
+            IF NOT oUser:SmartUser:Available THEN
                 UNDO, THROW NEW Exception (SUBSTITUTE ("Invalid user."{&TRAN}, cDomain), 0) .
-                
+
             IF VALID-OBJECT (oLoginCompany) THEN
                 ASSIGN SessionManager:LoginCompanyKey              =  oLoginCompany:SmartLoginCompany:LoginCompanyGuid
                        SessionManager:LoginCompanyName             =  oLoginCompany:SmartLoginCompany:LoginCompanyName
@@ -147,63 +131,60 @@ CLASS Consultingwerk.Framework.Server.RestServerSessionActivator:
                        SessionManager:LoginCompanyReferenceChar               =  oLoginCompany:SmartLoginCompany:LoginCompanyReferenceChar
                        SessionManager:LoginCompanyReferenceDecimal            =  oLoginCompany:SmartLoginCompany:LoginCompanyReferenceDecimal
                        SessionManager:LoginCompanyReferenceInteger            =  oLoginCompany:SmartLoginCompany:LoginCompanyReferenceInteger
-                       SessionManager:LoginCompanyShortName                   =  oLoginCompany:SmartLoginCompany:LoginCompanyShort .                        
-            
-            ASSIGN SessionManager:UserName            = oUser:SmartUser:UserName 
-                   SessionManager:LanguageDisplayName = oUser:SmartUser:LanguageName                                           
+                       SessionManager:LoginCompanyShortName                   =  oLoginCompany:SmartLoginCompany:LoginCompanyShort .
+
+            ASSIGN SessionManager:UserName            = oUser:SmartUser:UserName
+                   SessionManager:UserKey             = oUser:SmartUser:UserGuid
+                   SessionManager:LanguageDisplayName = oUser:SmartUser:LanguageName
                    SessionManager:LanguageIsoCode     = oUser:SmartUser:LanguageIsoCode
-                   SessionManager:LanguageKey         = oUser:SmartUser:LanguageGuid .       
-                
+                   SessionManager:LanguageKey         = oUser:SmartUser:LanguageGuid .
+
             oGetGroupsParameter = NEW GetUserGroupAssignmentsParameter (SessionManager:UserName,
                                                                         SessionManager:LoginCompanyKey) .
-    
-            FrameworkSettings:ServiceAdapter:InvokeMethod ("":U,
-                                                           "Consultingwerk.SmartFramework.Authentication.UserBusinessEntity":U,
-                                                           "GetUserGroupAssignments":U,
-                                                           INPUT-OUTPUT DATASET-HANDLE hDataset,
-                                                           oGetGroupsParameter) .
-    
+
+            ServiceInterface:InvokeMethod ("Consultingwerk.SmartFramework.Authentication.UserBusinessEntity":U,
+                                           "GetUserGroupAssignments":U,
+                                           INPUT-OUTPUT DATASET-HANDLE hDataset,
+                                           oGetGroupsParameter) .
+
             ASSIGN
                 SessionManager:UserGroupKeys  = oGetGroupsParameter:GroupGuids
-                SessionManager:UserGroupNames = oGetGroupsParameter:GroupNames .    
-                
+                SessionManager:UserGroupNames = oGetGroupsParameter:GroupNames .
         END.
-        ELSE 
+        ELSE
             SessionManager:Reset() .
-        
+
         IF FrameworkSettings:DebugMode AND NOT ErrorHelper:CurrentStacktrace MATCHES "*as_startup*":U THEN
             SessionManager:LogSessionManagerProperties () .
 
         FINALLY:
-            IF VALID-HANDLE (hDataset) THEN 
-                DELETE OBJECT hDataset .		
+            IF VALID-HANDLE (hDataset) THEN
+                DELETE OBJECT hDataset .
         END FINALLY.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Deactivates a server session
-        Notes:   
+        Notes:
         @param e The Consultingwerk.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID DeactivateServerSession (e AS Consultingwerk.EventArgs):
-		
-		SessionManager:Reset() .
-		
-	END METHOD .
+    METHOD PROTECTED VOID DeactivateServerSession (e AS Consultingwerk.EventArgs):
 
-    /*------------------------------------------------------------------------------
-        Purpose: Raises the PerformTechnicalLogin event
-        Notes:   
-        @param e The Consultingwerk.EventArgs with the data for the event
-    ------------------------------------------------------------------------------*/
-    METHOD PROTECTED VOID OnPerformTechnicalLogin (e AS Consultingwerk.EventArgs):
-            
-        IF NOT VALID-OBJECT (e) THEN 
-            e = Consultingwerk.EventArgs:Empty . 
-    
-        THIS-OBJECT:PerformTechnicalLogin:Publish (THIS-OBJECT, e) .
-    
+        DEFINE VARIABLE hPrincipal           AS HANDLE                           NO-UNDO.
+        DEFINE VARIABLE oContextDatasetStore AS IContextDatasetStore             NO-UNDO .
+
+        IF VALID-OBJECT (SESSION:CURRENT-REQUEST-INFO) THEN
+            ASSIGN hPrincipal = SESSION:CURRENT-REQUEST-INFO:GetClientPrincipal().
+
+        IF VALID-HANDLE (hPrincipal) AND hPrincipal:SESSION-ID > "":U AND VALID-HANDLE (SessionManager:ContextDataset) THEN
+            ASSIGN oContextDatasetStore = {Consultingwerk/get-service.i Consultingwerk.Framework.Server.IContextDatasetStore} .
+
+        IF VALID-OBJECT (oContextDatasetStore) THEN
+            oContextDatasetStore:StoreSessionContext (hPrincipal) .
+
+        SessionManager:Reset() .
+
     END METHOD .
 
     &ENDIF

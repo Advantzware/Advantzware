@@ -33,9 +33,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.Services.GetCustomPropertyNamesEvent
         Purpose: Returns the list of the Custom Property Names
         Notes:   Event Subscribes are supposed to add property names to the list
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY PropertyNames AS CharacterList NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    DEFINE PUBLIC PROPERTY PropertyNames AS CharacterList NO-UNDO 
+    GET.
+    PROTECTED SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the current property scope
@@ -51,13 +51,13 @@ CLASS Consultingwerk.BusinessEntityDesigner.Services.GetCustomPropertyNamesEvent
         @param poCustomPropertiesScope The property scope to edit the custom properties for
         @param poList The list to add custom property names to
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC GetCustomPropertyNamesEventArgs (poCustomPropertiesScope AS CustomPropertiesScopeEnum,
-	                                                    poList AS CharacterList):
-		SUPER ().
-		
-		ASSIGN THIS-OBJECT:Scope         = poCustomPropertiesScope
-		       THIS-OBJECT:PropertyNames = poList . 
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC GetCustomPropertyNamesEventArgs (poCustomPropertiesScope AS CustomPropertiesScopeEnum,
+                                                        poList AS CharacterList):
+        SUPER ().
+        
+        ASSIGN THIS-OBJECT:Scope         = poCustomPropertiesScope
+               THIS-OBJECT:PropertyNames = poList . 
+        
+    END CONSTRUCTOR.
 
 END CLASS.

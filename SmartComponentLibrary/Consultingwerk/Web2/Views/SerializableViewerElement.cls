@@ -27,7 +27,7 @@ USING Progress.Lang.*             FROM PROPATH .
 CLASS Consultingwerk.Web2.Views.SerializableViewerElement 
     INHERITS SerializableLayoutElement: 
         
-    {Consultingwerk/JsonSerializableProperty.i Layout CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i Layout CHARACTER} .
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the SerializableViewerElement class

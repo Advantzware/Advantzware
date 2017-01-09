@@ -30,7 +30,7 @@ USING Progress.Util.*                    FROM ASSEMBLY .
 CLASS Consultingwerk.Windows.TrialVersionForm 
     INHERITS BaseDialogForm: 
 
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE pictureBox1 AS System.Windows.Forms.PictureBox NO-UNDO.
     DEFINE PRIVATE VARIABLE timer2 AS System.Windows.Forms.Timer NO-UNDO.
     DEFINE PRIVATE VARIABLE timer1 AS System.Windows.Forms.Timer NO-UNDO.
@@ -41,8 +41,8 @@ CLASS Consultingwerk.Windows.TrialVersionForm
         Purpose: Constructor for the TrialVersionForm class  
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC TrialVersionForm ():
-		
+    CONSTRUCTOR PUBLIC TrialVersionForm ():
+        
         SUPER().
         
         InitializeComponent().
@@ -55,27 +55,28 @@ CLASS Consultingwerk.Windows.TrialVersionForm
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
-	
+    END CONSTRUCTOR.
+    
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the Tick event of the timer1
         Notes:   
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ButtonOk_Click (sender AS System.Object, e AS System.EventArgs):
-		
-		IF NOT THIS-OBJECT:Modal THEN 
-		    THIS-OBJECT:Close () .
+    METHOD PRIVATE VOID ButtonOk_Click (sender AS System.Object, e AS System.EventArgs):
+        
+        IF NOT THIS-OBJECT:Modal THEN 
+            THIS-OBJECT:Close () .
 
-	END METHOD .
+    END METHOD .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design  
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+        
         /* NOTE: The following method is automatically generated.
         
         We strongly suggest that the contents of this method only be modified using the
@@ -181,20 +182,20 @@ CLASS Consultingwerk.Windows.TrialVersionForm
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Raises the shown event
         Notes:   
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
-		
-		SUPER:OnShown (e) .
-		
-		timer1:Enabled = TRUE . 
+    METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
+        
+        SUPER:OnShown (e) .
+        
+        timer1:Enabled = TRUE . 
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the Tick event of the timer1
@@ -202,13 +203,13 @@ CLASS Consultingwerk.Windows.TrialVersionForm
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID timer1_Tick (sender AS System.Object, e AS System.EventArgs):
-		
-		ASSIGN timer1:Enabled   = FALSE
-		       timer2:Enabled   = TRUE
-		       ButtonOk:Enabled = TRUE . 
+    METHOD PRIVATE VOID timer1_Tick (sender AS System.Object, e AS System.EventArgs):
+        
+        ASSIGN timer1:Enabled   = FALSE
+               timer2:Enabled   = TRUE
+               ButtonOk:Enabled = TRUE . 
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the Tick event of the timer2
@@ -216,11 +217,11 @@ CLASS Consultingwerk.Windows.TrialVersionForm
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID timer2_Tick (sender AS System.Object, e AS System.EventArgs):
-		
-		THIS-OBJECT:Close () . 
+    METHOD PRIVATE VOID timer2_Tick (sender AS System.Object, e AS System.EventArgs):
+        
+        THIS-OBJECT:Close () . 
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Destructor for the TrialVersionForm class 

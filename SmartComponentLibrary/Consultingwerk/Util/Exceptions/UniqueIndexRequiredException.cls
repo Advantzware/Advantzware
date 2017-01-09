@@ -30,20 +30,20 @@ USING Progress.Lang.*             FROM PROPATH .
 CLASS Consultingwerk.Util.Exceptions.UniqueIndexRequiredException 
     INHERITS Exception 
     {&SERIALIZABLE}: 
-		
+        
     /*------------------------------------------------------------------------------
         Purpose: Returns the name of the buffer that caused this exception
         Notes:                          
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY BufferName AS CHARACTER NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    DEFINE PUBLIC PROPERTY BufferName AS CHARACTER NO-UNDO 
+    GET.
+    PROTECTED SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Returns if the calling method did require a Primary unique index
         Notes:   
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY PrimaryRequired AS LOGICAL NO-UNDO INIT FALSE 
+    DEFINE PUBLIC PROPERTY PrimaryRequired AS LOGICAL NO-UNDO INITIAL FALSE 
     GET.
     PRIVATE SET. 
     
@@ -53,13 +53,13 @@ CLASS Consultingwerk.Util.Exceptions.UniqueIndexRequiredException
         @param pcErrorString The error message associated with this Exception object
         @param pcBufferName The name of the Buffer that caused this error
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC UniqueIndexRequiredException (pcErrorString AS CHARACTER,
-	                                                 pcBufferName AS CHARACTER):
-		SUPER (pcErrorString, 0).
-		
-		THIS-OBJECT:BufferName = pcBufferName . 
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC UniqueIndexRequiredException (pcErrorString AS CHARACTER,
+                                                     pcBufferName AS CHARACTER):
+        SUPER (pcErrorString, 0).
+        
+        THIS-OBJECT:BufferName = pcBufferName . 
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the Exception class
@@ -68,14 +68,14 @@ CLASS Consultingwerk.Util.Exceptions.UniqueIndexRequiredException
         @param piMessageNumber The error message number associated with this Exception object
         @param pcBufferName The name of the Buffer that caused this error
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC UniqueIndexRequiredException (pcErrorString AS CHARACTER, 
-	                                                 piMessageNumber AS INTEGER,
-	                                                 pcBufferName AS CHARACTER):
-		SUPER (pcErrorString, piMessageNumber).
-		
+    CONSTRUCTOR PUBLIC UniqueIndexRequiredException (pcErrorString AS CHARACTER, 
+                                                     piMessageNumber AS INTEGER,
+                                                     pcBufferName AS CHARACTER):
+        SUPER (pcErrorString, piMessageNumber).
+        
         THIS-OBJECT:BufferName = pcBufferName . 
-		
-	END CONSTRUCTOR.
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the Exception class

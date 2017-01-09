@@ -107,10 +107,16 @@ CLASS Consultingwerk.Windows.Framework.Controls.MenuStructureUltraToolbarControl
         FOR EACH ttMenuStructure WHERE ttMenuStructure.ParentMenuKey = pcParentMenuKey
                 BY ttMenuStructure.MenuSequence:
         
-            IF ttMenuStructure.HasChild THEN 
-                oTool = NEW PopupMenuTool (ttMenuStructure.MenuKey) .
-            ELSE 
-                oTool = NEW ButtonTool (ttMenuStructure.MenuKey) .
+            IF THIS-OBJECT:ToolbarsManager:Tools:Exists (ttMenuStructure.MenuKey) THEN 
+                oTool = THIS-OBJECT:ToolbarsManager:Tools[ttMenuStructure.MenuKey].
+            ELSE DO:
+                IF ttMenuStructure.HasChild THEN 
+                    oTool = NEW PopupMenuTool (ttMenuStructure.MenuKey) .
+                ELSE 
+                    oTool = NEW ButtonTool (ttMenuStructure.MenuKey) .
+
+                THIS-OBJECT:ToolbarsManager:Tools:Add (oTool) .
+            END.
                 
             oTool:SharedProps:Caption = ttMenuStructure.MenuName .
 
@@ -122,13 +128,14 @@ CLASS Consultingwerk.Windows.Framework.Controls.MenuStructureUltraToolbarControl
                     oTool:SharedProps:AppearancesLarge:Appearance:Image = oImageProvider:ImageForKey (ttMenuStructure.MenuLargeImage) . 
             END.
 
-            THIS-OBJECT:ToolbarsManager:Tools:Add (oTool) .
-
             IF ttMenuStructure.HasChild THEN 
                 THIS-OBJECT:RenderTools (ttMenuStructure.MenuKey,
                                          CAST (oTool, PopupMenuTool):Tools) . 
             
-            oTool = poTools:AddTool (ttMenuStructure.MenuKey) .
+            IF poTools:Exists (ttMenuStructure.MenuKey) THEN 
+                oTool = poTools:Item[ttMenuStructure.MenuKey].
+            ELSE 
+                oTool = poTools:AddTool (ttMenuStructure.MenuKey) .
             
             IF ttMenuStructure.MenuLargeImage > "":U THEN 
                 oTool:InstanceProps:PreferredSizeOnRibbon = RibbonToolSize:Large .

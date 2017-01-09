@@ -50,15 +50,15 @@ CLASS Consultingwerk.OERA.NamedQueryParameter
         Purpose: Constructor for the NamedQueryParameter class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC NamedQueryParameter ():
-		SUPER ().
+    CONSTRUCTOR PUBLIC NamedQueryParameter ():
+        SUPER ().
 
         THIS-OBJECT:Parameters = NEW NamedQueryParameterList () .
 
         THIS-OBJECT:AddSerializableProperties ("{&SerializableProperties}":U) .
-		
-	END CONSTRUCTOR.
-	
+        
+    END CONSTRUCTOR.
+    
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the NamedQueryParameter class
         Notes:
@@ -66,9 +66,9 @@ CLASS Consultingwerk.OERA.NamedQueryParameter
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC NamedQueryParameter (pcName AS CHARACTER):
         THIS-OBJECT ().
-	
-	    ASSIGN THIS-OBJECT:Name = pcName . 
-	
+    
+        ASSIGN THIS-OBJECT:Name = pcName . 
+    
     END CONSTRUCTOR .
 
 END CLASS.

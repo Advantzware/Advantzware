@@ -54,10 +54,10 @@ ASSIGN SmartUnit:Active  = TRUE
        SmartUnit:Verbose = TRUE 
        .
 
-FILE-INFO:FILE-NAME = SESSION:PARAMETER .
+FILE-INFORMATION:FILE-NAME = SESSION:PARAMETER .
 
-IF FILE-INFO:FULL-PATHNAME = ? OR 
-   NOT FILE-INFO:FILE-TYPE MATCHES "*F*":U THEN 
+IF FILE-INFORMATION:FULL-PATHNAME = ? OR 
+   NOT FILE-INFORMATION:FILE-TYPE MATCHES "*F*":U THEN 
 
     UNDO, THROW NEW AppError ("Can only debug a selected class file in Progress Developer Studio.":U, 0) .
        
@@ -83,10 +83,10 @@ RETURN "1":U . /* signal error, as above no success was signalled */
    runtime error */
 CATCH err AS Progress.Lang.Error :
     ErrorHelper:ShowErrorMessage (err, "Unhandled SmartUnit error":U) .
-	
-	RETURN "1":U . /* signal erorr */	
+    
+    RETURN "1":U . /* signal erorr */    
 END CATCH.
 
 FINALLY:
     ASSIGN SmartUnit:Active  = FALSE .
-END FINALLY.	
+END FINALLY.    

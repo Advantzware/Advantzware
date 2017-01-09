@@ -34,10 +34,10 @@ CLASS Consultingwerk.Windows.Framework.SmartFrameworkToolbarCustomizer
         Purpose: Constructor for the SmartFrameworkToolbarCustomizer class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC SmartFrameworkToolbarCustomizer ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC SmartFrameworkToolbarCustomizer ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Customizes a UltraToolbarsManager instance during OnLoad of a BaseForm

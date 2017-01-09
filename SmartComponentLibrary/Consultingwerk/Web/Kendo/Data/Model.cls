@@ -32,19 +32,19 @@ USING Progress.Lang.*                 FROM PROPATH .
 CLASS Consultingwerk.Web.Kendo.Data.Model 
     INHERITS JsonSerializable: 
 
-    {Consultingwerk/JsonSerializableProperty.i id CHARACTER} .
-	
-	/*------------------------------------------------------------------------------
+    {Consultingwerk/JsonSerializableProperty11.i id CHARACTER} .
+    
+    /*------------------------------------------------------------------------------
         Purpose: Constructor for the Model class                                                                     
         Notes:                                                                        
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC Model ():
-		SUPER ().
-		
-		THIS-OBJECT:UseSerializedTypeInformation = FALSE . 
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC Model ():
+        SUPER ().
+        
+        THIS-OBJECT:UseSerializedTypeInformation = FALSE . 
         THIS-OBJECT:AddSerializableProperties ("{&SerializableProperties}":U) .
-                		
-	END CONSTRUCTOR.
+                        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the Model class                                                                     

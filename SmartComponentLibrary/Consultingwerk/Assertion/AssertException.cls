@@ -12,91 +12,91 @@
 /*------------------------------------------------------------------------
     File        : AssertException
     Purpose     : Error class for assertions
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Mon Mar 25 14:48:55 CET 2013
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Consultingwerk.Assertion.*  FROM PROPATH .  
+USING Consultingwerk.Assertion.*  FROM PROPATH .
 USING Consultingwerk.Exceptions.* FROM PROPATH .
 USING Progress.Lang.*             FROM PROPATH .
 
 {Consultingwerk/products.i}
 
-CLASS Consultingwerk.Assertion.AssertException 
-    INHERITS Exception 
-    {&SERIALIZABLE}: 
-        
-    /*------------------------------------------------------------------------------
-        Purpose: Constructor of the AssertException class
-        Notes:                          
-        @param poInnerException The reference to the original error
-        @param pcErrorString The error message associated with this Exception object
-    ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC AssertException (poInnerException AS Progress.Lang.Error, 
-	                                    pcErrorString AS CHARACTER):
-		SUPER (poInnerException, pcErrorString).
-		
-	END CONSTRUCTOR.
-	
-    /*------------------------------------------------------------------------------
-        Purpose: Constructor of the AssertException class
-        Notes:                          
-        @param poInnerException The reference to the original error
-        @param pcErrorMessage The error message associated with this Exception object
-        @param piMessageNumber The error message number associated with this Exception object
-    ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC AssertException (poInnerException AS Progress.Lang.Error, 
-	                                    pcErrorMessage AS CHARACTER, 
-	                                    piMessageNumber AS INTEGER):
-		SUPER (poInnerException, pcErrorMessage, piMessageNumber).
-		
-	END CONSTRUCTOR.
-	
-    /*------------------------------------------------------------------------------
-        Purpose: Constructor of the AssertException class
-        Notes:                          
-        @param poInnerException The reference to the original error
-    ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC AssertException (poInnerException AS Progress.Lang.Error):
-		SUPER (poInnerException).
-		
-	END CONSTRUCTOR.
-	
-    /*------------------------------------------------------------------------------
-        Purpose: Constructor of the AssertException class
-        Notes:                          
-        @param pcErrorString The error message associated with this Exception object
-    ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC AssertException (pcErrorString AS CHARACTER):
-		SUPER (pcErrorString).
-		
-	END CONSTRUCTOR.
-	
-    /*------------------------------------------------------------------------------
-        Purpose: Constructor of the AssertException class
-        Notes:                          
-        @param pcErrorMessage The error message associated with this Exception object
-        @param piMessageNumber The error message number associated with this Exception object
-    ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC AssertException (pcErrorMessage AS CHARACTER, 
-	                                    piMessageNumber AS INTEGER):
-	                                        
-		SUPER (pcErrorMessage, piMessageNumber).
-		
-	END CONSTRUCTOR.
-	
-    /*------------------------------------------------------------------------------
-        Purpose: Constructor of the AssertException class
-        Notes:                          
-    ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC AssertException ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+CLASS Consultingwerk.Assertion.AssertException
+    INHERITS Exception
+    {&SERIALIZABLE}:
+
+    /**
+     * Purpose: Constructor of the AssertException class
+     * Notes:
+     * @param poInnerException The reference to the original error
+     * @param pcErrorString The error message associated with this Exception object
+     */
+    CONSTRUCTOR PUBLIC AssertException (poInnerException AS Progress.Lang.Error,
+                                        pcErrorString AS CHARACTER):
+        SUPER (poInnerException, pcErrorString).
+
+    END CONSTRUCTOR.
+
+    /**
+     * Purpose: Constructor of the AssertException class
+     * Notes:
+     * @param poInnerException The reference to the original error
+     * @param pcErrorMessage The error message associated with this Exception object
+     * @param piMessageNumber The error message number associated with this Exception object
+     */
+    CONSTRUCTOR PUBLIC AssertException (poInnerException AS Progress.Lang.Error,
+                                        pcErrorMessage AS CHARACTER,
+                                        piMessageNumber AS INTEGER):
+        SUPER (poInnerException, pcErrorMessage, piMessageNumber).
+
+    END CONSTRUCTOR.
+
+    /**
+     * Purpose: Constructor of the AssertException class
+     * Notes:
+     * @param poInnerException The reference to the original error
+     */
+    CONSTRUCTOR PUBLIC AssertException (poInnerException AS Progress.Lang.Error):
+        SUPER (poInnerException).
+
+    END CONSTRUCTOR.
+
+    /**
+     * Purpose: Constructor of the AssertException class
+     * Notes:
+     * @param pcErrorString The error message associated with this Exception object
+     */
+    CONSTRUCTOR PUBLIC AssertException (pcErrorString AS CHARACTER):
+        SUPER (pcErrorString).
+
+    END CONSTRUCTOR.
+
+    /**
+     * Purpose: Constructor of the AssertException class
+     * Notes:
+     * @param pcErrorMessage The error message associated with this Exception object
+     * @param piMessageNumber The error message number associated with this Exception object
+     */
+    CONSTRUCTOR PUBLIC AssertException (pcErrorMessage AS CHARACTER,
+                                        piMessageNumber AS INTEGER):
+
+        SUPER (pcErrorMessage, piMessageNumber).
+
+    END CONSTRUCTOR.
+
+    /**
+     * Purpose: Constructor of the AssertException class
+     * Notes:
+     */
+    CONSTRUCTOR PUBLIC AssertException ():
+        SUPER ().
+
+    END CONSTRUCTOR.
 
 END CLASS.

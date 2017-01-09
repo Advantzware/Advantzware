@@ -34,7 +34,7 @@ CLASS Consultingwerk.Windows.Framework.System.SmartMessageForm INHERITS SmartWin
     DEFINE PRIVATE VARIABLE m_SmartMessageForm_Toolbars_Dock_Area_Right AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_SmartMessageForm_Toolbars_Dock_Area_Left AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_SmartMessageForm_Toolbars_Dock_Area_Bottom AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE smartDataBrowser1 AS Consultingwerk.SmartComponents.Implementation.SmartDataBrowser NO-UNDO.
     DEFINE PRIVATE VARIABLE smartBusinessEntityBindingSource1 AS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource NO-UNDO.
     DEFINE PRIVATE VARIABLE smartBusinessEntityAdapter1 AS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter NO-UNDO.
@@ -46,8 +46,8 @@ CLASS Consultingwerk.Windows.Framework.System.SmartMessageForm INHERITS SmartWin
         Purpose: Constructor for the SmartMessageForm class                                                                        
         Notes:                                                                        
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC SmartMessageForm ():
-		
+    CONSTRUCTOR PUBLIC SmartMessageForm ():
+        
         SUPER().
         InitializeComponent().
                 
@@ -55,14 +55,15 @@ CLASS Consultingwerk.Windows.Framework.System.SmartMessageForm INHERITS SmartWin
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
-	
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    END CONSTRUCTOR.
+    
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+        
         /* NOTE: The following method is automatically generated.
         
         We strongly suggest that the contents of this method only be modified using the
@@ -373,8 +374,8 @@ CLASS Consultingwerk.Windows.Framework.System.SmartMessageForm INHERITS SmartWin
         arrayvar1[5] = buttonTool6.
         arrayvar1[6] = buttonTool7.
         THIS-OBJECT:smartToolbarController1:Ribbon:ApplicationMenu:ToolAreaLeft:NonInheritedTools:AddRange(arrayvar1).
-        ribbonTab1:Caption = "Start":U.
-        ribbonGroup1:Caption = "Navigation":U.
+        resources:ApplyResources(ribbonTab1, "ribbonTab1":U).
+        resources:ApplyResources(ribbonGroup1, "ribbonGroup1":U).
         buttonTool8:InstanceProps:MinimumSizeOnRibbon = Infragistics.Win.UltraWinToolbars.RibbonToolSize:ImageOnly.
         buttonTool8:InstanceProps:PreferredSizeOnRibbon = Infragistics.Win.UltraWinToolbars.RibbonToolSize:Large.
         buttonTool9:InstanceProps:MinimumSizeOnRibbon = Infragistics.Win.UltraWinToolbars.RibbonToolSize:ImageOnly.
@@ -390,7 +391,7 @@ CLASS Consultingwerk.Windows.Framework.System.SmartMessageForm INHERITS SmartWin
         arrayvar2[3] = buttonTool10.
         arrayvar2[4] = buttonTool11.
         ribbonGroup1:Tools:AddRange(arrayvar2).
-        ribbonGroup2:Caption = "Maintenance":U.
+        resources:ApplyResources(ribbonGroup2, "ribbonGroup2":U).
         buttonTool12:InstanceProps:MinimumSizeOnRibbon = Infragistics.Win.UltraWinToolbars.RibbonToolSize:ImageOnly.
         buttonTool12:InstanceProps:PreferredSizeOnRibbon = Infragistics.Win.UltraWinToolbars.RibbonToolSize:Large.
         buttonTool13:InstanceProps:MinimumSizeOnRibbon = Infragistics.Win.UltraWinToolbars.RibbonToolSize:ImageOnly.
@@ -437,7 +438,7 @@ CLASS Consultingwerk.Windows.Framework.System.SmartMessageForm INHERITS SmartWin
         arrayvar7[3] = buttonTool25.
         arrayvar7[4] = buttonTool26.
         ultraToolbar1:NonInheritedTools:AddRange(arrayvar7).
-        ultraToolbar1:Text = "Navigation Toolbar":U.
+        resources:ApplyResources(ultraToolbar1, "ultraToolbar1":U).
         ultraToolbar2:DockedColumn = 0.
         ultraToolbar2:DockedRow = 1.
         buttonTool27:InstanceProps:IsFirstInGroup = TRUE.
@@ -450,7 +451,7 @@ CLASS Consultingwerk.Windows.Framework.System.SmartMessageForm INHERITS SmartWin
         arrayvar8[5] = buttonTool31.
         arrayvar8[6] = buttonTool32.
         ultraToolbar2:NonInheritedTools:AddRange(arrayvar8).
-        ultraToolbar2:Text = "TableIO Toolbar":U.
+        resources:ApplyResources(ultraToolbar2, "ultraToolbar2":U).
         ultraToolbar3:DockedColumn = 1.
         ultraToolbar3:DockedRow = 1.
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
@@ -458,7 +459,7 @@ CLASS Consultingwerk.Windows.Framework.System.SmartMessageForm INHERITS SmartWin
         arrayvar9[1] = buttonTool33.
         arrayvar9[2] = buttonTool34.
         ultraToolbar3:NonInheritedTools:AddRange(arrayvar9).
-        ultraToolbar3:Text = "Transaction Toolbar":U.
+        resources:ApplyResources(ultraToolbar3, "ultraToolbar3":U).
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
         DEFINE VARIABLE arrayvar10 AS Infragistics.Win.UltraWinToolbars.UltraToolbar EXTENT 3 NO-UNDO.
         arrayvar10[1] = ultraToolbar1.
@@ -467,84 +468,73 @@ CLASS Consultingwerk.Windows.Framework.System.SmartMessageForm INHERITS SmartWin
         THIS-OBJECT:smartToolbarController1:Toolbars:AddRange(arrayvar10).
         appearance13:Image = CAST(resources:GetObject("appearance13.Image":U), System.Object).
         buttonTool35:SharedPropsInternal:AppearancesSmall:Appearance = appearance13.
-        buttonTool35:SharedPropsInternal:Caption = "First record":U.
-        buttonTool35:SharedPropsInternal:CustomizerCaption = "First":U.
+        resources:ApplyResources(buttonTool35:SharedPropsInternal, "buttonTool35.SharedPropsInternal":U).
         buttonTool35:SharedPropsInternal:Enabled = FALSE.
-        buttonTool35:SharedPropsInternal:ToolTipText = "First record":U.
+        buttonTool35:ForceApplyResources = "SharedPropsInternal":U.
         appearance14:Image = CAST(resources:GetObject("appearance14.Image":U), System.Object).
         buttonTool36:SharedPropsInternal:AppearancesSmall:Appearance = appearance14.
-        buttonTool36:SharedPropsInternal:Caption = "Previous record":U.
-        buttonTool36:SharedPropsInternal:CustomizerCaption = "Previous":U.
+        resources:ApplyResources(buttonTool36:SharedPropsInternal, "buttonTool36.SharedPropsInternal":U).
         buttonTool36:SharedPropsInternal:Enabled = FALSE.
-        buttonTool36:SharedPropsInternal:ToolTipText = "Previous record":U.
+        buttonTool36:ForceApplyResources = "SharedPropsInternal":U.
         appearance15:Image = CAST(resources:GetObject("appearance15.Image":U), System.Object).
         buttonTool37:SharedPropsInternal:AppearancesSmall:Appearance = appearance15.
-        buttonTool37:SharedPropsInternal:Caption = "Next record":U.
-        buttonTool37:SharedPropsInternal:CustomizerCaption = "Next":U.
+        resources:ApplyResources(buttonTool37:SharedPropsInternal, "buttonTool37.SharedPropsInternal":U).
         buttonTool37:SharedPropsInternal:Enabled = FALSE.
-        buttonTool37:SharedPropsInternal:ToolTipText = "Next record":U.
+        buttonTool37:ForceApplyResources = "SharedPropsInternal":U.
         appearance16:Image = CAST(resources:GetObject("appearance16.Image":U), System.Object).
         buttonTool38:SharedPropsInternal:AppearancesSmall:Appearance = appearance16.
-        buttonTool38:SharedPropsInternal:Caption = "Last record":U.
-        buttonTool38:SharedPropsInternal:CustomizerCaption = "Last":U.
+        resources:ApplyResources(buttonTool38:SharedPropsInternal, "buttonTool38.SharedPropsInternal":U).
         buttonTool38:SharedPropsInternal:Enabled = FALSE.
-        buttonTool38:SharedPropsInternal:ToolTipText = "Last record":U.
+        buttonTool38:ForceApplyResources = "SharedPropsInternal":U.
         appearance17:Image = CAST(resources:GetObject("appearance17.Image":U), System.Object).
         buttonTool39:SharedPropsInternal:AppearancesSmall:Appearance = appearance17.
-        buttonTool39:SharedPropsInternal:Caption = "Add record":U.
-        buttonTool39:SharedPropsInternal:CustomizerCaption = "Add":U.
+        resources:ApplyResources(buttonTool39:SharedPropsInternal, "buttonTool39.SharedPropsInternal":U).
         buttonTool39:SharedPropsInternal:Enabled = FALSE.
-        buttonTool39:SharedPropsInternal:ToolTipText = "Add record":U.
+        buttonTool39:ForceApplyResources = "SharedPropsInternal":U.
         appearance18:Image = CAST(resources:GetObject("appearance18.Image":U), System.Object).
         buttonTool40:SharedPropsInternal:AppearancesSmall:Appearance = appearance18.
-        buttonTool40:SharedPropsInternal:Caption = "Copy record":U.
-        buttonTool40:SharedPropsInternal:CustomizerCaption = "Copy":U.
+        resources:ApplyResources(buttonTool40:SharedPropsInternal, "buttonTool40.SharedPropsInternal":U).
         buttonTool40:SharedPropsInternal:Enabled = FALSE.
-        buttonTool40:SharedPropsInternal:ToolTipText = "Copy record":U.
+        buttonTool40:ForceApplyResources = "SharedPropsInternal":U.
         appearance19:Image = CAST(resources:GetObject("appearance19.Image":U), System.Object).
         buttonTool41:SharedPropsInternal:AppearancesSmall:Appearance = appearance19.
-        buttonTool41:SharedPropsInternal:Caption = "Update record":U.
-        buttonTool41:SharedPropsInternal:CustomizerCaption = "Update":U.
+        resources:ApplyResources(buttonTool41:SharedPropsInternal, "buttonTool41.SharedPropsInternal":U).
         buttonTool41:SharedPropsInternal:Enabled = FALSE.
-        buttonTool41:SharedPropsInternal:ToolTipText = "Update record":U.
+        buttonTool41:ForceApplyResources = "SharedPropsInternal":U.
         appearance20:Image = CAST(resources:GetObject("appearance20.Image":U), System.Object).
         buttonTool42:SharedPropsInternal:AppearancesSmall:Appearance = appearance20.
-        buttonTool42:SharedPropsInternal:Caption = "Save changes":U.
-        buttonTool42:SharedPropsInternal:CustomizerCaption = "Save":U.
+        resources:ApplyResources(buttonTool42:SharedPropsInternal, "buttonTool42.SharedPropsInternal":U).
         buttonTool42:SharedPropsInternal:Enabled = FALSE.
-        buttonTool42:SharedPropsInternal:ToolTipText = "Save changes":U.
+        buttonTool42:ForceApplyResources = "SharedPropsInternal":U.
         appearance21:Image = CAST(resources:GetObject("appearance21.Image":U), System.Object).
         buttonTool43:SharedPropsInternal:AppearancesSmall:Appearance = appearance21.
-        buttonTool43:SharedPropsInternal:Caption = "Cancel update":U.
-        buttonTool43:SharedPropsInternal:CustomizerCaption = "Cancel":U.
+        resources:ApplyResources(buttonTool43:SharedPropsInternal, "buttonTool43.SharedPropsInternal":U).
         buttonTool43:SharedPropsInternal:Enabled = FALSE.
-        buttonTool43:SharedPropsInternal:ToolTipText = "Cancel update":U.
+        buttonTool43:ForceApplyResources = "SharedPropsInternal":U.
         appearance22:Image = CAST(resources:GetObject("appearance22.Image":U), System.Object).
         buttonTool44:SharedPropsInternal:AppearancesSmall:Appearance = appearance22.
-        buttonTool44:SharedPropsInternal:Caption = "Delete record":U.
-        buttonTool44:SharedPropsInternal:CustomizerCaption = "Delete":U.
+        resources:ApplyResources(buttonTool44:SharedPropsInternal, "buttonTool44.SharedPropsInternal":U).
         buttonTool44:SharedPropsInternal:Enabled = FALSE.
-        buttonTool44:SharedPropsInternal:ToolTipText = "Delete record":U.
+        buttonTool44:ForceApplyResources = "SharedPropsInternal":U.
         appearance23:Image = CAST(resources:GetObject("appearance23.Image":U), System.Object).
         buttonTool45:SharedPropsInternal:AppearancesSmall:Appearance = appearance23.
-        buttonTool45:SharedPropsInternal:Caption = "&Exit":U.
+        resources:ApplyResources(buttonTool45:SharedPropsInternal, "buttonTool45.SharedPropsInternal":U).
         buttonTool45:SharedPropsInternal:DisplayStyle = Infragistics.Win.UltraWinToolbars.ToolDisplayStyle:ImageAndText.
+        buttonTool45:ForceApplyResources = "SharedPropsInternal":U.
         appearance24:Image = CAST(resources:GetObject("appearance24.Image":U), System.Object).
         buttonTool46:SharedPropsInternal:AppearancesLarge:Appearance = appearance24.
         appearance25:Image = CAST(resources:GetObject("appearance25.Image":U), System.Object).
         buttonTool46:SharedPropsInternal:AppearancesSmall:Appearance = appearance25.
-        buttonTool46:SharedPropsInternal:Caption = "Commit":U.
-        buttonTool46:SharedPropsInternal:CustomizerCaption = "Commit":U.
+        resources:ApplyResources(buttonTool46:SharedPropsInternal, "buttonTool46.SharedPropsInternal":U).
         buttonTool46:SharedPropsInternal:Enabled = FALSE.
-        buttonTool46:SharedPropsInternal:ToolTipText = "Commit transaction":U.
+        buttonTool46:ForceApplyResources = "SharedPropsInternal":U.
         appearance26:Image = CAST(resources:GetObject("appearance26.Image":U), System.Object).
         buttonTool47:SharedPropsInternal:AppearancesLarge:Appearance = appearance26.
         appearance27:Image = CAST(resources:GetObject("appearance27.Image":U), System.Object).
         buttonTool47:SharedPropsInternal:AppearancesSmall:Appearance = appearance27.
-        buttonTool47:SharedPropsInternal:Caption = "Revert":U.
-        buttonTool47:SharedPropsInternal:CustomizerCaption = "Revert":U.
+        resources:ApplyResources(buttonTool47:SharedPropsInternal, "buttonTool47.SharedPropsInternal":U).
         buttonTool47:SharedPropsInternal:Enabled = FALSE.
-        buttonTool47:SharedPropsInternal:ToolTipText = "Revert transaction":U.
+        buttonTool47:ForceApplyResources = "SharedPropsInternal":U.
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
         DEFINE VARIABLE arrayvar11 AS Infragistics.Win.UltraWinToolbars.ToolBase EXTENT 13 NO-UNDO.
         arrayvar11[1] = buttonTool35.
@@ -571,77 +561,83 @@ CLASS Consultingwerk.Windows.Framework.System.SmartMessageForm INHERITS SmartWin
         THIS-OBJECT:SmartMessageForm_Fill_Panel:ClientArea:Controls:Add(THIS-OBJECT:ultraSplitter1).
         THIS-OBJECT:SmartMessageForm_Fill_Panel:ClientArea:Controls:Add(THIS-OBJECT:smartDataBrowser1).
         THIS-OBJECT:SmartMessageForm_Fill_Panel:Cursor = System.Windows.Forms.Cursors:Default.
-        THIS-OBJECT:SmartMessageForm_Fill_Panel:Dock = System.Windows.Forms.DockStyle:Fill.
-        THIS-OBJECT:SmartMessageForm_Fill_Panel:Location = NEW System.Drawing.Point(8, 152).
+        resources:ApplyResources(THIS-OBJECT:SmartMessageForm_Fill_Panel, "SmartMessageForm_Fill_Panel":U).
         THIS-OBJECT:SmartMessageForm_Fill_Panel:Name = "SmartMessageForm_Fill_Panel":U.
-        THIS-OBJECT:SmartMessageForm_Fill_Panel:Size = NEW System.Drawing.Size(630, 319).
-        THIS-OBJECT:SmartMessageForm_Fill_Panel:TabIndex = 0.
         /*  */
         /* smartMessageViewerControl1 */
         /*  */
-        THIS-OBJECT:smartMessageViewerControl1:AutoScroll = TRUE.
-        THIS-OBJECT:smartMessageViewerControl1:Dock = System.Windows.Forms.DockStyle:Fill.
+        resources:ApplyResources(THIS-OBJECT:smartMessageViewerControl1, "smartMessageViewerControl1":U).
         THIS-OBJECT:smartMessageViewerControl1:FocusControlOnAdd = ?.
         THIS-OBJECT:smartMessageViewerControl1:FocusControlOnUpdate = ?.
         THIS-OBJECT:smartMessageViewerControl1:LinkDataSource = THIS-OBJECT:smartBusinessEntityAdapter1.
         THIS-OBJECT:smartMessageViewerControl1:LinkGroupAssignSource = ?.
         THIS-OBJECT:smartMessageViewerControl1:LinkTableIOSource = THIS-OBJECT:smartToolbarController1.
-        THIS-OBJECT:smartMessageViewerControl1:Location = NEW System.Drawing.Point(313, 0).
         THIS-OBJECT:smartMessageViewerControl1:Name = "smartMessageViewerControl1":U.
-        THIS-OBJECT:smartMessageViewerControl1:Size = NEW System.Drawing.Size(317, 319).
-        THIS-OBJECT:smartMessageViewerControl1:SmartTableIOState = "NoDataSource":U.
-        THIS-OBJECT:smartMessageViewerControl1:TabIndex = 5.
         /*  */
         /* smartBusinessEntityAdapter1 */
         /*  */
-        THIS-OBJECT:smartBusinessEntityAdapter1:BatchSize = 100.
+        THIS-OBJECT:smartBusinessEntityAdapter1:AppServerPartition = "":U.
+        THIS-OBJECT:smartBusinessEntityAdapter1:BindingSourceExcludeFields = "":U.
+        THIS-OBJECT:smartBusinessEntityAdapter1:BindingSourceIncludeFields = "*":U.
         THIS-OBJECT:smartBusinessEntityAdapter1:DatasetControllerType = "Consultingwerk.SmartFramework.System.MessageDatasetController":U.
         THIS-OBJECT:smartBusinessEntityAdapter1:EntityJoin = "YES":U.
         THIS-OBJECT:smartBusinessEntityAdapter1:EntityName = "Consultingwerk.SmartFramework.System.MessageBusinessEntity":U.
         THIS-OBJECT:smartBusinessEntityAdapter1:EntityTable = "eSmartMessage":U.
         THIS-OBJECT:smartBusinessEntityAdapter1:FetchLastOnServer = TRUE.
+        THIS-OBJECT:smartBusinessEntityAdapter1:ForeignFields = "":U.
         THIS-OBJECT:smartBusinessEntityAdapter1:LinkCommitSource = ?.
         THIS-OBJECT:smartBusinessEntityAdapter1:LinkDataSource = ?.
         THIS-OBJECT:smartBusinessEntityAdapter1:LinkNavigationSource = THIS-OBJECT:smartToolbarController1.
+        THIS-OBJECT:smartBusinessEntityAdapter1:NonUpdatableColumns = "":U.
+        THIS-OBJECT:smartBusinessEntityAdapter1:QuerySort = "":U.
         THIS-OBJECT:smartBusinessEntityAdapter1:SmartDataSourceActive = TRUE.
+        THIS-OBJECT:smartBusinessEntityAdapter1:ThrowErrorsFromRetrieveData = FALSE.
         /*  */
         /* ultraSplitter1 */
         /*  */
-        THIS-OBJECT:ultraSplitter1:Location = NEW System.Drawing.Point(307, 0).
+        resources:ApplyResources(THIS-OBJECT:ultraSplitter1, "ultraSplitter1":U).
         THIS-OBJECT:ultraSplitter1:Name = "ultraSplitter1":U.
         THIS-OBJECT:ultraSplitter1:RestoreExtent = 307.
-        THIS-OBJECT:ultraSplitter1:Size = NEW System.Drawing.Size(6, 319).
-        THIS-OBJECT:ultraSplitter1:TabIndex = 6.
         /*  */
         /* smartDataBrowser1 */
         /*  */
         THIS-OBJECT:smartDataBrowser1:DataSource = THIS-OBJECT:smartBusinessEntityBindingSource1.
+        THIS-OBJECT:smartDataBrowser1:DeselectRowsOnActivate = TRUE.
         appearance1:BackColor = System.Drawing.SystemColors:Window.
         appearance1:BorderColor = System.Drawing.SystemColors:InactiveCaption.
         THIS-OBJECT:smartDataBrowser1:DisplayLayout:Appearance = appearance1.
         ultraGridColumn1:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn1:Header, "ultraGridColumn1.Header":U).
         ultraGridColumn1:Header:VisiblePosition = 0.
         ultraGridColumn1:Hidden = TRUE.
+        ultraGridColumn1:ForceApplyResources = "Header":U.
         ultraGridColumn2:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
-        ultraGridColumn2:Header:Caption = "Group":U.
+        resources:ApplyResources(ultraGridColumn2:Header, "ultraGridColumn2.Header":U).
         ultraGridColumn2:Header:VisiblePosition = 3.
+        ultraGridColumn2:ForceApplyResources = "Header":U.
         ultraGridColumn3:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
-        ultraGridColumn3:Header:Caption = "Number":U.
+        ultraGridColumn3:FilterOperatorDefaultValue = Infragistics.Win.UltraWinGrid.FilterOperatorDefaultValue:GreaterThanOrEqualTo.
+        resources:ApplyResources(ultraGridColumn3:Header, "ultraGridColumn3.Header":U).
         ultraGridColumn3:Header:VisiblePosition = 4.
+        ultraGridColumn3:ForceApplyResources = "Header":U.
         ultraGridColumn4:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
-        ultraGridColumn4:Header:Caption = "Language":U.
+        resources:ApplyResources(ultraGridColumn4:Header, "ultraGridColumn4.Header":U).
         ultraGridColumn4:Header:VisiblePosition = 2.
+        ultraGridColumn4:ForceApplyResources = "Header":U.
         ultraGridColumn5:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
-        ultraGridColumn5:Header:Caption = "Text":U.
+        resources:ApplyResources(ultraGridColumn5:Header, "ultraGridColumn5.Header":U).
         ultraGridColumn5:Header:VisiblePosition = 5.
+        ultraGridColumn5:ForceApplyResources = "Header":U.
         ultraGridColumn6:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
-        ultraGridColumn6:Header:Caption = "Detail":U.
+        resources:ApplyResources(ultraGridColumn6:Header, "ultraGridColumn6.Header":U).
         ultraGridColumn6:Header:VisiblePosition = 6.
         ultraGridColumn6:Hidden = TRUE.
+        ultraGridColumn6:ForceApplyResources = "Header":U.
         ultraGridColumn7:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
-        ultraGridColumn7:Header:Caption = "Type":U.
+        resources:ApplyResources(ultraGridColumn7:Header, "ultraGridColumn7.Header":U).
         ultraGridColumn7:Header:VisiblePosition = 1.
         ultraGridColumn7:Width = 33.
+        ultraGridColumn7:ForceApplyResources = "Header":U.
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
         DEFINE VARIABLE arrayvar12 AS System.Object EXTENT 7 NO-UNDO.
         arrayvar12[1] = ultraGridColumn1.
@@ -698,7 +694,7 @@ CLASS Consultingwerk.Windows.Framework.System.SmartMessageForm INHERITS SmartWin
         appearance9:BackGradientStyle = Infragistics.Win.GradientStyle:Horizontal.
         appearance9:BorderColor = System.Drawing.SystemColors:Window.
         THIS-OBJECT:smartDataBrowser1:DisplayLayout:Override:GroupByRowAppearance = appearance9.
-        appearance10:TextHAlignAsString = "Left":U.
+        resources:ApplyResources(appearance10, "appearance10":U).
         THIS-OBJECT:smartDataBrowser1:DisplayLayout:Override:HeaderAppearance = appearance10.
         THIS-OBJECT:smartDataBrowser1:DisplayLayout:Override:HeaderClickAction = Infragistics.Win.UltraWinGrid.HeaderClickAction:ExternalSortMulti.
         THIS-OBJECT:smartDataBrowser1:DisplayLayout:Override:HeaderStyle = Infragistics.Win.HeaderStyle:WindowsXPCommand.
@@ -712,17 +708,12 @@ CLASS Consultingwerk.Windows.Framework.System.SmartMessageForm INHERITS SmartWin
         THIS-OBJECT:smartDataBrowser1:DisplayLayout:ScrollBounds = Infragistics.Win.UltraWinGrid.ScrollBounds:ScrollToFill.
         THIS-OBJECT:smartDataBrowser1:DisplayLayout:ScrollStyle = Infragistics.Win.UltraWinGrid.ScrollStyle:Immediate.
         THIS-OBJECT:smartDataBrowser1:DisplayLayout:ViewStyleBand = Infragistics.Win.UltraWinGrid.ViewStyleBand:OutlookGroupBy.
-        THIS-OBJECT:smartDataBrowser1:Dock = System.Windows.Forms.DockStyle:Left.
+        resources:ApplyResources(THIS-OBJECT:smartDataBrowser1, "smartDataBrowser1":U).
         THIS-OBJECT:smartDataBrowser1:FetchAllRecordsOnGroupBy = TRUE.
-        THIS-OBJECT:smartDataBrowser1:Font = NEW System.Drawing.Font("Microsoft Sans Serif":U, Progress.Util.CastUtil:ToSingle(8.25), System.Drawing.FontStyle:Regular, System.Drawing.GraphicsUnit:Point, System.Convert:ToByte(0)).
         THIS-OBJECT:smartDataBrowser1:LinkDataSource = THIS-OBJECT:smartBusinessEntityAdapter1.
-        THIS-OBJECT:smartDataBrowser1:Location = NEW System.Drawing.Point(0, 0).
         THIS-OBJECT:smartDataBrowser1:Name = "smartDataBrowser1":U.
         THIS-OBJECT:smartDataBrowser1:SettingsKey = "c934ffc2-f007-d8bd-0214-45269c656d4c":U.
-        THIS-OBJECT:smartDataBrowser1:Size = NEW System.Drawing.Size(307, 319).
         THIS-OBJECT:smartDataBrowser1:SmartFilterActive = TRUE.
-        THIS-OBJECT:smartDataBrowser1:TabIndex = 5.
-        THIS-OBJECT:smartDataBrowser1:Text = "smartDataBrowser1":U.
         /*  */
         /* smartBusinessEntityBindingSource1 */
         /*  */
@@ -752,9 +743,8 @@ CLASS Consultingwerk.Windows.Framework.System.SmartMessageForm INHERITS SmartWin
         THIS-OBJECT:m_SmartMessageForm_Toolbars_Dock_Area_Left:DockedPosition = Infragistics.Win.UltraWinToolbars.DockedPosition:Left.
         THIS-OBJECT:m_SmartMessageForm_Toolbars_Dock_Area_Left:ForeColor = System.Drawing.SystemColors:ControlText.
         THIS-OBJECT:m_SmartMessageForm_Toolbars_Dock_Area_Left:InitialResizeAreaExtent = 8.
-        THIS-OBJECT:m_SmartMessageForm_Toolbars_Dock_Area_Left:Location = NEW System.Drawing.Point(0, 152).
+        resources:ApplyResources(THIS-OBJECT:m_SmartMessageForm_Toolbars_Dock_Area_Left, "m_SmartMessageForm_Toolbars_Dock_Area_Left":U).
         THIS-OBJECT:m_SmartMessageForm_Toolbars_Dock_Area_Left:Name = "m_SmartMessageForm_Toolbars_Dock_Area_Left":U.
-        THIS-OBJECT:m_SmartMessageForm_Toolbars_Dock_Area_Left:Size = NEW System.Drawing.Size(8, 319).
         THIS-OBJECT:m_SmartMessageForm_Toolbars_Dock_Area_Left:ToolbarsManager = THIS-OBJECT:smartToolbarController1.
         /*  */
         /* m_SmartMessageForm_Toolbars_Dock_Area_Right */
@@ -764,9 +754,8 @@ CLASS Consultingwerk.Windows.Framework.System.SmartMessageForm INHERITS SmartWin
         THIS-OBJECT:m_SmartMessageForm_Toolbars_Dock_Area_Right:DockedPosition = Infragistics.Win.UltraWinToolbars.DockedPosition:Right.
         THIS-OBJECT:m_SmartMessageForm_Toolbars_Dock_Area_Right:ForeColor = System.Drawing.SystemColors:ControlText.
         THIS-OBJECT:m_SmartMessageForm_Toolbars_Dock_Area_Right:InitialResizeAreaExtent = 8.
-        THIS-OBJECT:m_SmartMessageForm_Toolbars_Dock_Area_Right:Location = NEW System.Drawing.Point(638, 152).
+        resources:ApplyResources(THIS-OBJECT:m_SmartMessageForm_Toolbars_Dock_Area_Right, "m_SmartMessageForm_Toolbars_Dock_Area_Right":U).
         THIS-OBJECT:m_SmartMessageForm_Toolbars_Dock_Area_Right:Name = "m_SmartMessageForm_Toolbars_Dock_Area_Right":U.
-        THIS-OBJECT:m_SmartMessageForm_Toolbars_Dock_Area_Right:Size = NEW System.Drawing.Size(8, 319).
         THIS-OBJECT:m_SmartMessageForm_Toolbars_Dock_Area_Right:ToolbarsManager = THIS-OBJECT:smartToolbarController1.
         /*  */
         /* m_SmartMessageForm_Toolbars_Dock_Area_Top */
@@ -775,9 +764,8 @@ CLASS Consultingwerk.Windows.Framework.System.SmartMessageForm INHERITS SmartWin
         THIS-OBJECT:m_SmartMessageForm_Toolbars_Dock_Area_Top:BackColor = System.Drawing.Color:FromArgb(System.Convert:ToInt32(System.Convert:ToByte(191)), System.Convert:ToInt32(System.Convert:ToByte(219)), System.Convert:ToInt32(System.Convert:ToByte(255))).
         THIS-OBJECT:m_SmartMessageForm_Toolbars_Dock_Area_Top:DockedPosition = Infragistics.Win.UltraWinToolbars.DockedPosition:Top.
         THIS-OBJECT:m_SmartMessageForm_Toolbars_Dock_Area_Top:ForeColor = System.Drawing.SystemColors:ControlText.
-        THIS-OBJECT:m_SmartMessageForm_Toolbars_Dock_Area_Top:Location = NEW System.Drawing.Point(0, 0).
+        resources:ApplyResources(THIS-OBJECT:m_SmartMessageForm_Toolbars_Dock_Area_Top, "m_SmartMessageForm_Toolbars_Dock_Area_Top":U).
         THIS-OBJECT:m_SmartMessageForm_Toolbars_Dock_Area_Top:Name = "m_SmartMessageForm_Toolbars_Dock_Area_Top":U.
-        THIS-OBJECT:m_SmartMessageForm_Toolbars_Dock_Area_Top:Size = NEW System.Drawing.Size(646, 152).
         THIS-OBJECT:m_SmartMessageForm_Toolbars_Dock_Area_Top:ToolbarsManager = THIS-OBJECT:smartToolbarController1.
         /*  */
         /* m_SmartMessageForm_Toolbars_Dock_Area_Bottom */
@@ -787,23 +775,19 @@ CLASS Consultingwerk.Windows.Framework.System.SmartMessageForm INHERITS SmartWin
         THIS-OBJECT:m_SmartMessageForm_Toolbars_Dock_Area_Bottom:DockedPosition = Infragistics.Win.UltraWinToolbars.DockedPosition:Bottom.
         THIS-OBJECT:m_SmartMessageForm_Toolbars_Dock_Area_Bottom:ForeColor = System.Drawing.SystemColors:ControlText.
         THIS-OBJECT:m_SmartMessageForm_Toolbars_Dock_Area_Bottom:InitialResizeAreaExtent = 8.
-        THIS-OBJECT:m_SmartMessageForm_Toolbars_Dock_Area_Bottom:Location = NEW System.Drawing.Point(0, 471).
+        resources:ApplyResources(THIS-OBJECT:m_SmartMessageForm_Toolbars_Dock_Area_Bottom, "m_SmartMessageForm_Toolbars_Dock_Area_Bottom":U).
         THIS-OBJECT:m_SmartMessageForm_Toolbars_Dock_Area_Bottom:Name = "m_SmartMessageForm_Toolbars_Dock_Area_Bottom":U.
-        THIS-OBJECT:m_SmartMessageForm_Toolbars_Dock_Area_Bottom:Size = NEW System.Drawing.Size(646, 8).
         THIS-OBJECT:m_SmartMessageForm_Toolbars_Dock_Area_Bottom:ToolbarsManager = THIS-OBJECT:smartToolbarController1.
         /*  */
         /* SmartMessageForm */
         /*  */
-        THIS-OBJECT:ClientSize = NEW System.Drawing.Size(646, 479).
+        resources:ApplyResources(THIS-OBJECT, "$this":U).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:SmartMessageForm_Fill_Panel).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:m_SmartMessageForm_Toolbars_Dock_Area_Left).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:m_SmartMessageForm_Toolbars_Dock_Area_Right).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:m_SmartMessageForm_Toolbars_Dock_Area_Bottom).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:m_SmartMessageForm_Toolbars_Dock_Area_Top).
-        THIS-OBJECT:Icon = CAST(resources:GetObject("$this.Icon":U), System.Drawing.Icon).
         THIS-OBJECT:Name = "SmartMessageForm":U.
-        THIS-OBJECT:Text = "Message Maintenance":U.
-        THIS-OBJECT:WindowPositionRegistryKey = "SmartMessageForm":U.
         CAST(THIS-OBJECT:smartToolbarController1, System.ComponentModel.ISupportInitialize):EndInit().
         THIS-OBJECT:SmartMessageForm_Fill_Panel:ClientArea:ResumeLayout(FALSE).
         THIS-OBJECT:SmartMessageForm_Fill_Panel:ResumeLayout(FALSE).
@@ -815,19 +799,19 @@ CLASS Consultingwerk.Windows.Framework.System.SmartMessageForm INHERITS SmartWin
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Raises the Load event
         Notes:   
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
-		
-		DEFINE VARIABLE oList AS Infragistics.Win.ValueList NO-UNDO . 
-		
-		SUPER:OnLoad (e) .
-		
+    METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
+        
+        DEFINE VARIABLE oList AS Infragistics.Win.ValueList NO-UNDO . 
+        
+        SUPER:OnLoad (e) .
+        
         THIS-OBJECT:smartDataBrowser1:DisplayLayout:Bands[0]:Columns["LanguageGuid":U]:ValueList =
             ValueLists:GetLanguageValueList () .
 
@@ -837,22 +821,22 @@ CLASS Consultingwerk.Windows.Framework.System.SmartMessageForm INHERITS SmartWin
         THIS-OBJECT:smartDataBrowser1:DisplayLayout:Bands[0]:Columns["MessageType":U]:ValueList = 
             oList . 
             
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Raises the Shown Event
         Notes:   
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
-		
-		SUPER:OnShown (e) .
+    METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
+        
+        SUPER:OnShown (e) .
 
         Consultingwerk.Util.UserInterfaceHelper:ProcessEvents() .
 
         THIS-OBJECT:smartBusinessEntityAdapter1:RetrieveData () .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Destructor for the SmartMessageForm class 

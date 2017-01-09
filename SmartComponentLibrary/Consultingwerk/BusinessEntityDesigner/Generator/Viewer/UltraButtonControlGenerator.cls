@@ -45,7 +45,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.UltraButtonControlG
         Notes:   Leave Empty if the Control is not part of a Container such as a 
                  GroupBox
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY ContainerName AS CHARACTER NO-UNDO INIT "":U 
+    DEFINE PUBLIC PROPERTY ContainerName AS CHARACTER NO-UNDO INITIAL "":U
     GET.
     SET. 
 
@@ -53,7 +53,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.UltraButtonControlG
         Purpose: Retusn the TypeName for to be used for this UltraEditorControl
         Notes:   
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY ControlTypeName AS CHARACTER NO-UNDO INIT "Infragistics.Win.Misc.UltraButton":U
+    DEFINE PUBLIC PROPERTY ControlTypeName AS CHARACTER NO-UNDO INITIAL "Infragistics.Win.Misc.UltraButton":U
     GET.
     PROTECTED SET. 
 
@@ -69,7 +69,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.UltraButtonControlG
         Purpose: The Height of the Control
         Notes:   
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY Height AS INTEGER NO-UNDO INIT 21
+    DEFINE PUBLIC PROPERTY Height AS INTEGER NO-UNDO INITIAL 21
     GET.
     SET. 
 
@@ -96,7 +96,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.UltraButtonControlG
                  interface
         Notes:   Used for generating the BeginInit and EndInit method calls
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY SupportInitialize AS LOGICAL NO-UNDO INIT FALSE 
+    DEFINE PUBLIC PROPERTY SupportInitialize AS LOGICAL NO-UNDO INITIAL FALSE
     GET.
 
     /*------------------------------------------------------------------------------
@@ -119,7 +119,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.UltraButtonControlG
         Purpose: Gets and sets the Name of the Template File to be used by this class
         Notes:   
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC STATIC PROPERTY TemplateFileName AS CHARACTER NO-UNDO INIT "UI/ultrabutton.template":U
+    DEFINE PUBLIC STATIC PROPERTY TemplateFileName AS CHARACTER NO-UNDO INITIAL "UI/ultrabutton.template":U
     GET.
     SET. 
 
@@ -127,9 +127,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.UltraButtonControlG
         Purpose: Gets and sets the Text of the Control
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Text AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY Text AS CHARACTER NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: The Position of the Control
@@ -143,7 +143,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.UltraButtonControlG
         Purpose: The Width of the Control
         Notes:   
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY Width AS INTEGER NO-UNDO INIT 150 
+    DEFINE PUBLIC PROPERTY Width AS INTEGER NO-UNDO INITIAL 150
     GET.
     SET. 
 
@@ -156,9 +156,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.UltraButtonControlG
         
         DEFINE VARIABLE lcCode AS LONGCHAR NO-UNDO.
 
-        FILE-INFO:FILE-NAME = TemplateHelper:Find (UltraButtonControlGenerator:TemplateFileName) .
+        FILE-INFORMATION:FILE-NAME = TemplateHelper:Find (UltraButtonControlGenerator:TemplateFileName) .
 
-        COPY-LOB FROM FILE FILE-INFO:FULL-PATHNAME TO lcCode . 
+        COPY-LOB FROM FILE FILE-INFORMATION:FULL-PATHNAME TO lcCode . 
         
         ASSIGN lcCode = SUBSTITUTE (lcCode, 
                                     THIS-OBJECT:Name,

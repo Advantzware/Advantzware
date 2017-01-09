@@ -106,7 +106,7 @@ DEFINE TEMP-TABLE ttClassAttribute          NO-UNDO
     /* attribute values always stored as character. The data-type field used to convert. */
     FIELD tAttributeValue       AS CHARACTER    format 'x(501)'
     FIELD tWhereConstant        AS CHARACTER        /* Equivalent to ryc_attribute.constant_level */
-	/* The class at which this value is set. */
+    /* The class at which this value is set. */
     FIELD tWhereStored          AS CHARACTER    format 'x(35)'
     FIELD tRenderTypeObj        AS DECIMAL
     INDEX idxMain       AS PRIMARY UNIQUE

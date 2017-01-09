@@ -11,25 +11,25 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : ReorderMenuItemsForm
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Marko Rüterbories / Consultingwerk Ltd.
     Created     : Fri Feb 15 18:15:31 CET 2013
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.SmartComponents.Base.SmartWindowForm FROM PROPATH.
-USING Consultingwerk.Windows.Framework.Menu.* FROM PROPATH .  
+USING Consultingwerk.Windows.Framework.Menu.* FROM PROPATH .
 USING Infragistics.Win.UltraWinToolbars.* FROM ASSEMBLY .
 USING System.Windows.Forms.* FROM ASSEMBLY .
 USING Progress.Lang.* FROM PROPATH .
 
-CLASS Consultingwerk.Windows.Framework.Menu.ReorderMenuItemsForm 
-    INHERITS SmartWindowForm: 
-	
+CLASS Consultingwerk.Windows.Framework.Menu.ReorderMenuItemsForm
+    INHERITS SmartWindowForm:
+
     DEFINE PRIVATE VARIABLE m_ReorderMenuItemsForm_Toolbars_Dock_Area_Top    AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_ReorderMenuItemsForm_Toolbars_Dock_Area_Right  AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_ReorderMenuItemsForm_Toolbars_Dock_Area_Left   AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
@@ -38,61 +38,62 @@ CLASS Consultingwerk.Windows.Framework.Menu.ReorderMenuItemsForm
     DEFINE PRIVATE VARIABLE ultraToolbarsManager1                            AS Infragistics.Win.UltraWinToolbars.UltraToolbarsManager  NO-UNDO.
     DEFINE PRIVATE VARIABLE ReorderMenuItemsForm_Fill_Panel                  AS Infragistics.Win.Misc.UltraPanel                        NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraTree1                                       AS Infragistics.Win.UltraWinTree.UltraTree                 NO-UNDO.
-	
-	CONSTRUCTOR PUBLIC ReorderMenuItemsForm ():
+
+    CONSTRUCTOR PUBLIC ReorderMenuItemsForm ():
 
         SUPER ().
         InitializeComponent ().
 
         THIS-OBJECT:StoreFormPosition = FALSE.
-        
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Creates a new Node in the NodesCollection
-        Notes:   
+        Notes:
         @param pcNodeKey The Key of the new Node
         @param pcNodeText The Label of the Node
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID AddListEntry (pcNodeKey  AS CHARACTER,
                                      pcNodeText AS CHARACTER):
-        
+
         ultraTree1:Nodes:Add (pcNodeKey, pcNodeText).
-        
+
         IF ultraTree1:Nodes:Count = 1 THEN DO:
             ultraTree1:Nodes[0]:Selected = TRUE.
-            ultraTree1:ActiveNode = ultraTree1:Nodes[0]. 
+            ultraTree1:ActiveNode = ultraTree1:Nodes[0].
         END.
-    
+
     END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the NodesCollection Index of the Node identified by the
                  NodeKey
-        Notes:   
+        Notes:
         @param pcNodeKey Key of the Node
         @return INTEGER The NodesCollection Index
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC INTEGER GetIndexOfEntry (pcNodeKey AS CHARACTER):
-		
-		RETURN ultraTree1:Nodes:IndexOf(pcNodeKey).
+    METHOD PUBLIC INTEGER GetIndexOfEntry (pcNodeKey AS CHARACTER):
 
-	END METHOD .
+        RETURN ultraTree1:Nodes:IndexOf(pcNodeKey).
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    END METHOD .
+
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -197,8 +198,8 @@ CLASS Consultingwerk.Windows.Framework.Menu.ReorderMenuItemsForm
         arrayvar0[3] = buttonTool13.
         arrayvar0[4] = buttonTool11.
         THIS-OBJECT:ultraToolbarsManager1:Ribbon:ApplicationMenu:ToolAreaLeft:NonInheritedTools:AddRange(arrayvar0).
-        ribbonTab1:Caption = "Data":U.
-        ribbonGroup1:Caption = "Reorder":U.
+        resources:ApplyResources(ribbonTab1, "ribbonTab1":U).
+        resources:ApplyResources(ribbonGroup1, "ribbonGroup1":U).
         buttonTool10:InstanceProps:PreferredSizeOnRibbon = Infragistics.Win.UltraWinToolbars.RibbonToolSize:Large.
         buttonTool2:InstanceProps:PreferredSizeOnRibbon = Infragistics.Win.UltraWinToolbars.RibbonToolSize:Large.
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
@@ -206,7 +207,7 @@ CLASS Consultingwerk.Windows.Framework.Menu.ReorderMenuItemsForm
         arrayvar1[1] = buttonTool10.
         arrayvar1[2] = buttonTool2.
         ribbonGroup1:Tools:AddRange(arrayvar1).
-        ribbonGroup2:Caption = "Activity":U.
+        resources:ApplyResources(ribbonGroup2, "ribbonGroup2":U).
         buttonTool5:InstanceProps:PreferredSizeOnRibbon = Infragistics.Win.UltraWinToolbars.RibbonToolSize:Large.
         buttonTool6:InstanceProps:PreferredSizeOnRibbon = Infragistics.Win.UltraWinToolbars.RibbonToolSize:Large.
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
@@ -230,22 +231,26 @@ CLASS Consultingwerk.Windows.Framework.Menu.ReorderMenuItemsForm
         buttonTool3:SharedPropsInternal:AppearancesLarge:Appearance = appearance1.
         appearance2:Image = CAST(resources:GetObject("appearance2.Image":U), System.Object).
         buttonTool3:SharedPropsInternal:AppearancesSmall:Appearance = appearance2.
-        buttonTool3:SharedPropsInternal:Caption = "Up":U.
+        resources:ApplyResources(buttonTool3:SharedPropsInternal, "buttonTool3.SharedPropsInternal":U).
+        buttonTool3:ForceApplyResources = "SharedPropsInternal":U.
         appearance3:Image = CAST(resources:GetObject("appearance3.Image":U), System.Object).
         buttonTool4:SharedPropsInternal:AppearancesLarge:Appearance = appearance3.
         appearance4:Image = CAST(resources:GetObject("appearance4.Image":U), System.Object).
         buttonTool4:SharedPropsInternal:AppearancesSmall:Appearance = appearance4.
-        buttonTool4:SharedPropsInternal:Caption = "Down":U.
+        resources:ApplyResources(buttonTool4:SharedPropsInternal, "buttonTool4.SharedPropsInternal":U).
+        buttonTool4:ForceApplyResources = "SharedPropsInternal":U.
         appearance5:Image = CAST(resources:GetObject("appearance5.Image":U), System.Object).
         buttonTool7:SharedPropsInternal:AppearancesLarge:Appearance = appearance5.
         appearance6:Image = CAST(resources:GetObject("appearance6.Image":U), System.Object).
         buttonTool7:SharedPropsInternal:AppearancesSmall:Appearance = appearance6.
-        buttonTool7:SharedPropsInternal:Caption = "Ok":U.
+        resources:ApplyResources(buttonTool7:SharedPropsInternal, "buttonTool7.SharedPropsInternal":U).
+        buttonTool7:ForceApplyResources = "SharedPropsInternal":U.
         appearance7:Image = CAST(resources:GetObject("appearance7.Image":U), System.Object).
         buttonTool8:SharedPropsInternal:AppearancesLarge:Appearance = appearance7.
         appearance8:Image = CAST(resources:GetObject("appearance8.Image":U), System.Object).
         buttonTool8:SharedPropsInternal:AppearancesSmall:Appearance = appearance8.
-        buttonTool8:SharedPropsInternal:Caption = "Cancel":U.
+        resources:ApplyResources(buttonTool8:SharedPropsInternal, "buttonTool8.SharedPropsInternal":U).
+        buttonTool8:ForceApplyResources = "SharedPropsInternal":U.
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
         DEFINE VARIABLE arrayvar5 AS Infragistics.Win.UltraWinToolbars.ToolBase EXTENT 4 NO-UNDO.
         arrayvar5[1] = buttonTool3.
@@ -262,21 +267,15 @@ CLASS Consultingwerk.Windows.Framework.Menu.ReorderMenuItemsForm
         /*  */
         THIS-OBJECT:ReorderMenuItemsForm_Fill_Panel:ClientArea:Controls:Add(THIS-OBJECT:ultraTree1).
         THIS-OBJECT:ReorderMenuItemsForm_Fill_Panel:Cursor = System.Windows.Forms.Cursors:Default.
-        THIS-OBJECT:ReorderMenuItemsForm_Fill_Panel:Dock = System.Windows.Forms.DockStyle:Fill.
-        THIS-OBJECT:ReorderMenuItemsForm_Fill_Panel:Location = NEW System.Drawing.Point(8, 150).
+        resources:ApplyResources(THIS-OBJECT:ReorderMenuItemsForm_Fill_Panel, "ReorderMenuItemsForm_Fill_Panel":U).
         THIS-OBJECT:ReorderMenuItemsForm_Fill_Panel:Name = "ReorderMenuItemsForm_Fill_Panel":U.
-        THIS-OBJECT:ReorderMenuItemsForm_Fill_Panel:Size = NEW System.Drawing.Size(378, 193).
-        THIS-OBJECT:ReorderMenuItemsForm_Fill_Panel:TabIndex = 0.
         /*  */
         /* ultraTree1 */
         /*  */
-        THIS-OBJECT:ultraTree1:Dock = System.Windows.Forms.DockStyle:Fill.
-        THIS-OBJECT:ultraTree1:Location = NEW System.Drawing.Point(0, 0).
+        resources:ApplyResources(THIS-OBJECT:ultraTree1, "ultraTree1":U).
         THIS-OBJECT:ultraTree1:Name = "ultraTree1":U.
         m_override1:SelectionType = Infragistics.Win.UltraWinTree.SelectType:SingleAutoDrag.
         THIS-OBJECT:ultraTree1:Override = m_override1.
-        THIS-OBJECT:ultraTree1:Size = NEW System.Drawing.Size(378, 193).
-        THIS-OBJECT:ultraTree1:TabIndex = 0.
         /*  */
         /* m_ReorderMenuItemsForm_Toolbars_Dock_Area_Left */
         /*  */
@@ -285,9 +284,8 @@ CLASS Consultingwerk.Windows.Framework.Menu.ReorderMenuItemsForm
         THIS-OBJECT:m_ReorderMenuItemsForm_Toolbars_Dock_Area_Left:DockedPosition = Infragistics.Win.UltraWinToolbars.DockedPosition:Left.
         THIS-OBJECT:m_ReorderMenuItemsForm_Toolbars_Dock_Area_Left:ForeColor = System.Drawing.SystemColors:ControlText.
         THIS-OBJECT:m_ReorderMenuItemsForm_Toolbars_Dock_Area_Left:InitialResizeAreaExtent = 8.
-        THIS-OBJECT:m_ReorderMenuItemsForm_Toolbars_Dock_Area_Left:Location = NEW System.Drawing.Point(0, 150).
+        resources:ApplyResources(THIS-OBJECT:m_ReorderMenuItemsForm_Toolbars_Dock_Area_Left, "m_ReorderMenuItemsForm_Toolbars_Dock_Area_Left":U).
         THIS-OBJECT:m_ReorderMenuItemsForm_Toolbars_Dock_Area_Left:Name = "m_ReorderMenuItemsForm_Toolbars_Dock_Area_Left":U.
-        THIS-OBJECT:m_ReorderMenuItemsForm_Toolbars_Dock_Area_Left:Size = NEW System.Drawing.Size(8, 193).
         THIS-OBJECT:m_ReorderMenuItemsForm_Toolbars_Dock_Area_Left:ToolbarsManager = THIS-OBJECT:ultraToolbarsManager1.
         /*  */
         /* m_ReorderMenuItemsForm_Toolbars_Dock_Area_Right */
@@ -297,9 +295,8 @@ CLASS Consultingwerk.Windows.Framework.Menu.ReorderMenuItemsForm
         THIS-OBJECT:m_ReorderMenuItemsForm_Toolbars_Dock_Area_Right:DockedPosition = Infragistics.Win.UltraWinToolbars.DockedPosition:Right.
         THIS-OBJECT:m_ReorderMenuItemsForm_Toolbars_Dock_Area_Right:ForeColor = System.Drawing.SystemColors:ControlText.
         THIS-OBJECT:m_ReorderMenuItemsForm_Toolbars_Dock_Area_Right:InitialResizeAreaExtent = 8.
-        THIS-OBJECT:m_ReorderMenuItemsForm_Toolbars_Dock_Area_Right:Location = NEW System.Drawing.Point(386, 150).
+        resources:ApplyResources(THIS-OBJECT:m_ReorderMenuItemsForm_Toolbars_Dock_Area_Right, "m_ReorderMenuItemsForm_Toolbars_Dock_Area_Right":U).
         THIS-OBJECT:m_ReorderMenuItemsForm_Toolbars_Dock_Area_Right:Name = "m_ReorderMenuItemsForm_Toolbars_Dock_Area_Right":U.
-        THIS-OBJECT:m_ReorderMenuItemsForm_Toolbars_Dock_Area_Right:Size = NEW System.Drawing.Size(8, 193).
         THIS-OBJECT:m_ReorderMenuItemsForm_Toolbars_Dock_Area_Right:ToolbarsManager = THIS-OBJECT:ultraToolbarsManager1.
         /*  */
         /* m_ReorderMenuItemsForm_Toolbars_Dock_Area_Top */
@@ -308,9 +305,8 @@ CLASS Consultingwerk.Windows.Framework.Menu.ReorderMenuItemsForm
         THIS-OBJECT:m_ReorderMenuItemsForm_Toolbars_Dock_Area_Top:BackColor = System.Drawing.Color:FromArgb(System.Convert:ToInt32(System.Convert:ToByte(191)), System.Convert:ToInt32(System.Convert:ToByte(219)), System.Convert:ToInt32(System.Convert:ToByte(255))).
         THIS-OBJECT:m_ReorderMenuItemsForm_Toolbars_Dock_Area_Top:DockedPosition = Infragistics.Win.UltraWinToolbars.DockedPosition:Top.
         THIS-OBJECT:m_ReorderMenuItemsForm_Toolbars_Dock_Area_Top:ForeColor = System.Drawing.SystemColors:ControlText.
-        THIS-OBJECT:m_ReorderMenuItemsForm_Toolbars_Dock_Area_Top:Location = NEW System.Drawing.Point(0, 0).
+        resources:ApplyResources(THIS-OBJECT:m_ReorderMenuItemsForm_Toolbars_Dock_Area_Top, "m_ReorderMenuItemsForm_Toolbars_Dock_Area_Top":U).
         THIS-OBJECT:m_ReorderMenuItemsForm_Toolbars_Dock_Area_Top:Name = "m_ReorderMenuItemsForm_Toolbars_Dock_Area_Top":U.
-        THIS-OBJECT:m_ReorderMenuItemsForm_Toolbars_Dock_Area_Top:Size = NEW System.Drawing.Size(394, 150).
         THIS-OBJECT:m_ReorderMenuItemsForm_Toolbars_Dock_Area_Top:ToolbarsManager = THIS-OBJECT:ultraToolbarsManager1.
         /*  */
         /* m_ReorderMenuItemsForm_Toolbars_Dock_Area_Bottom */
@@ -320,24 +316,19 @@ CLASS Consultingwerk.Windows.Framework.Menu.ReorderMenuItemsForm
         THIS-OBJECT:m_ReorderMenuItemsForm_Toolbars_Dock_Area_Bottom:DockedPosition = Infragistics.Win.UltraWinToolbars.DockedPosition:Bottom.
         THIS-OBJECT:m_ReorderMenuItemsForm_Toolbars_Dock_Area_Bottom:ForeColor = System.Drawing.SystemColors:ControlText.
         THIS-OBJECT:m_ReorderMenuItemsForm_Toolbars_Dock_Area_Bottom:InitialResizeAreaExtent = 8.
-        THIS-OBJECT:m_ReorderMenuItemsForm_Toolbars_Dock_Area_Bottom:Location = NEW System.Drawing.Point(0, 343).
+        resources:ApplyResources(THIS-OBJECT:m_ReorderMenuItemsForm_Toolbars_Dock_Area_Bottom, "m_ReorderMenuItemsForm_Toolbars_Dock_Area_Bottom":U).
         THIS-OBJECT:m_ReorderMenuItemsForm_Toolbars_Dock_Area_Bottom:Name = "m_ReorderMenuItemsForm_Toolbars_Dock_Area_Bottom":U.
-        THIS-OBJECT:m_ReorderMenuItemsForm_Toolbars_Dock_Area_Bottom:Size = NEW System.Drawing.Size(394, 8).
         THIS-OBJECT:m_ReorderMenuItemsForm_Toolbars_Dock_Area_Bottom:ToolbarsManager = THIS-OBJECT:ultraToolbarsManager1.
         /*  */
         /* ReorderMenuItemsForm */
         /*  */
-        THIS-OBJECT:ClientSize = NEW System.Drawing.Size(394, 351).
+        resources:ApplyResources(THIS-OBJECT, "$this":U).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:ReorderMenuItemsForm_Fill_Panel).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:m_ReorderMenuItemsForm_Toolbars_Dock_Area_Left).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:m_ReorderMenuItemsForm_Toolbars_Dock_Area_Right).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:m_ReorderMenuItemsForm_Toolbars_Dock_Area_Bottom).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:m_ReorderMenuItemsForm_Toolbars_Dock_Area_Top).
-        THIS-OBJECT:Icon = CAST(resources:GetObject("$this.Icon":U), System.Drawing.Icon).
         THIS-OBJECT:Name = "ReorderMenuItemsForm":U.
-        THIS-OBJECT:StartPosition = System.Windows.Forms.FormStartPosition:CenterParent.
-        THIS-OBJECT:Text = "Reorder Menu Items":U.
-        THIS-OBJECT:WindowPositionRegistryKey = "ReorderMenuItemsForm":U.
         CAST(THIS-OBJECT:ultraToolbarsManager1, System.ComponentModel.ISupportInitialize):EndInit().
         THIS-OBJECT:ReorderMenuItemsForm_Fill_Panel:ClientArea:ResumeLayout(FALSE).
         THIS-OBJECT:ReorderMenuItemsForm_Fill_Panel:ResumeLayout(FALSE).
@@ -346,61 +337,64 @@ CLASS Consultingwerk.Windows.Framework.Menu.ReorderMenuItemsForm
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Moves a Node one position up or down 
-        Notes:   
+        Purpose: Moves a Node one position up or down
+        Notes:
         @param pcAction The direction (Up / Down) to move the Node
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID MoveNode (pcAction AS CHARACTER):
-		DEFINE VARIABLE cNodeKey AS CHARACTER NO-UNDO.
-		
-		IF NOT ultraTree1:SelectedNodes:Count = 1 THEN RETURN.
-		
-		cNodeKey = ultraTree1:SelectedNodes[0]:Key.
-		
-		CASE pcAction:
-		    WHEN "Up":U THEN DO:
-		        IF ultraTree1:SelectedNodes[0]:Index = 0 THEN RETURN.
+    METHOD PROTECTED VOID MoveNode (pcAction AS CHARACTER):
+        DEFINE VARIABLE cNodeKey AS CHARACTER NO-UNDO.
+
+        IF NOT ultraTree1:SelectedNodes:Count = 1 THEN
+            RETURN.
+
+        cNodeKey = ultraTree1:SelectedNodes[0]:Key.
+
+        CASE pcAction:
+            WHEN "Up":U THEN DO:
+                IF ultraTree1:SelectedNodes[0]:Index = 0 THEN
+                    RETURN.
 
                 ultraTree1:SelectedNodes[0]:Reposition (ultraTree1:Nodes, ultraTree1:SelectedNodes[0]:PrevVisibleNode:Index).
-		    END.
-		    WHEN "Down":U THEN DO:
-		        IF ultraTree1:SelectedNodes[0]:Index = ultraTree1:Nodes:Count - 1 THEN RETURN.
-		        
+            END.
+            WHEN "Down":U THEN DO:
+                IF ultraTree1:SelectedNodes[0]:Index = ultraTree1:Nodes:Count - 1 THEN
+                    RETURN.
+
                 ultraTree1:SelectedNodes[0]:Reposition (ultraTree1:Nodes, ultraTree1:SelectedNodes[0]:NextVisibleNode:Index).
-		    END.
-		END CASE.
+            END.
+        END CASE.
 
         ultraTree1:SelectedNodes:Clear ().
         ultraTree1:GetNodeByKey (cNodeKey):Selected = TRUE.
-        ultraTree1:ActiveNode = ultraTree1:GetNodeByKey (cNodeKey). 
-        
-	END METHOD .
+        ultraTree1:ActiveNode = ultraTree1:GetNodeByKey (cNodeKey).
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Handler for the ToolClick Event of the smartToolbarController
-        Notes:   
+        Notes:
         @param sender The source of the event
         @param e A ToolClickEventArgs that contains the data for the event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraToolbarsManager1_ToolClick (sender AS System.Object, 
-	                                                     e AS ToolClickEventArgs):
-		
-		CASE e:Tool:Key:
-		    WHEN "Up":U THEN MoveNode ("Up":U).
+    METHOD PRIVATE VOID ultraToolbarsManager1_ToolClick (sender AS System.Object,
+                                                         e AS ToolClickEventArgs):
+
+        CASE e:Tool:Key:
+            WHEN "Up":U THEN MoveNode ("Up":U).
             WHEN "Down":U THEN MoveNode ("Down":U).
 
             WHEN "Ok":U THEN THIS-OBJECT:DialogResult = DialogResult:OK.
             WHEN "Cancel":U THEN THIS-OBJECT:DialogResult = DialogResult:Cancel.
-		END CASE.
+        END CASE.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the ReorderMenuItemsForm class 
-        Notes:   
+        Purpose: Destructor for the ReorderMenuItemsForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC ReorderMenuItemsForm ():
 

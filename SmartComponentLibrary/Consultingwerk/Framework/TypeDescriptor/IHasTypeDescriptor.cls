@@ -24,11 +24,11 @@ USING Progress.Lang.*                           FROM PROPATH .
 
 INTERFACE Consultingwerk.Framework.TypeDescriptor.IHasTypeDescriptor:  
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Returns the Type Descriptor for the object instance
-	    Notes:
-	    @return The ITypeDescriptor for the object instance
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC ITypeDescriptor GetTypeDescriptor ().
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the Type Descriptor for the object instance
+        Notes:
+        @return The ITypeDescriptor for the object instance
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC ITypeDescriptor GetTypeDescriptor ().
 
 END INTERFACE.

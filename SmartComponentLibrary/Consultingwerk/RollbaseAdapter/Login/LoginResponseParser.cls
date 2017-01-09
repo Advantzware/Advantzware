@@ -39,39 +39,39 @@ CLASS Consultingwerk.RollbaseAdapter.Login.LoginResponseParser
         Purpose: Returns the Error Message of the Login Response 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY ErrorMessage AS CHARACTER NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    DEFINE PUBLIC PROPERTY ErrorMessage AS CHARACTER NO-UNDO 
+    GET.
+    PROTECTED SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the SessionId of the Login Response 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY SessionId AS CHARACTER NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    DEFINE PUBLIC PROPERTY SessionId AS CHARACTER NO-UNDO 
+    GET.
+    PROTECTED SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the LoginResponseParser class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC LoginResponseParser ():
-		SUPER ().
-		
+    CONSTRUCTOR PUBLIC LoginResponseParser ():
+        SUPER ().
+        
         FIX-CODEPAGE (lcCharacterData) = "utf-8":U . 
-		
+        
         RUN Consultingwerk/sax-reader-handler.p 
             PERSISTENT SET hSaxHandler (THIS-OBJECT) .
-		
-	END CONSTRUCTOR.
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Parses the Login Reponse 
         Notes:   
         @param plcResponse The response of the REST Login method
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID ParseResponse (plcResponse AS LONGCHAR):
-		
+    METHOD PUBLIC VOID ParseResponse (plcResponse AS LONGCHAR):
+        
         DEFINE VARIABLE hSaxReader AS HANDLE NO-UNDO.
         
         CREATE SAX-READER hSaxReader . 
@@ -86,7 +86,7 @@ CLASS Consultingwerk.RollbaseAdapter.Login.LoginResponseParser
                 DELETE OBJECT hSaxReader . 
         END FINALLY.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Invoked when the XML parser detects character data.                                                                      
@@ -97,13 +97,13 @@ CLASS Consultingwerk.RollbaseAdapter.Login.LoginResponseParser
         @param plcCharData A LONGCHAR that contains a chunk of character data.
         @param piNumChars The number of characters contained in the MEMPTR.
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID SaxCharacters (plcCharData AS LONGCHAR, 
-	                                  piNumChars AS INTEGER):
-		
+    METHOD PUBLIC VOID SaxCharacters (plcCharData AS LONGCHAR, 
+                                      piNumChars AS INTEGER):
+        
         IF lExpectingCharacter THEN 
             ASSIGN lcCharacterData = lcCharacterData + plcCharData .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Invoked when the XML parser detects the end of an XML document.                                                                     
@@ -112,23 +112,23 @@ CLASS Consultingwerk.RollbaseAdapter.Login.LoginResponseParser
         @param pcLocalName A character string indicating the non-prefixed element name. If namespace processing is not enabled, the string is of length zero.
         @param pcName A character string indicating the actual name of the element in the XML source. If the name has a prefix, qName includes it, whether or not namespace processing is enabled.
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID SaxEndElement (pcNamespaceURI AS CHARACTER, 
-	                                  pcLocalName AS CHARACTER, 
-	                                  pcName AS CHARACTER):
-		
-		CASE pcName:
-		    WHEN "sessionId":U THEN DO:
+    METHOD PUBLIC VOID SaxEndElement (pcNamespaceURI AS CHARACTER, 
+                                      pcLocalName AS CHARACTER, 
+                                      pcName AS CHARACTER):
+        
+        CASE pcName:
+            WHEN "sessionId":U THEN DO:
                 ASSIGN THIS-OBJECT:SessionId = lcCharacterData
-                       lExpectingCharacter   = FALSE . 		        
-		    END.
-		    WHEN "err":U THEN DO:
+                       lExpectingCharacter   = FALSE .                 
+            END.
+            WHEN "err":U THEN DO:
                 ASSIGN THIS-OBJECT:ErrorMessage = lcCharacterData
                        lExpectingCharacter      = FALSE .              
-		    END . 
-		END CASE . 
+            END . 
+        END CASE . 
 
-	END METHOD .
-	
+    END METHOD .
+    
     /*------------------------------------------------------------------------------
         Purpose: Invoked when the XML parser detects the beginning of an element.                                                                     
         Notes:      
@@ -137,19 +137,19 @@ CLASS Consultingwerk.RollbaseAdapter.Login.LoginResponseParser
         @param pcName A character string indicating the actual name of the element in the XML source. If the name has a prefix, qName includes it, whether or not namespace processing is enabled.
         @param phAttributes A handle to a SAX-attributes object, which provides access to all attributes specified for the element. If the element has no attributes, attributes is still a valid handle, and the NUM-ITEMS attribute is zero.      
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID SaxStartElement (pcNamespaceURI AS CHARACTER, 
-	                                    pcLocalName AS CHARACTER, 
-	                                    pcName AS CHARACTER, 
+    METHOD PUBLIC VOID SaxStartElement (pcNamespaceURI AS CHARACTER, 
+                                        pcLocalName AS CHARACTER, 
+                                        pcName AS CHARACTER, 
                                         phAttributes AS HANDLE):
-		
-		CASE pcName:
-		    WHEN "sessionId":U OR when "err":U THEN DO:
-		        ASSIGN lExpectingCharacter = TRUE 
-		               lcCharacterData     = "":U . 
-		    END.
-		END CASE . 
+        
+        CASE pcName:
+            WHEN "sessionId":U OR when "err":U THEN DO:
+                ASSIGN lExpectingCharacter = TRUE 
+                       lcCharacterData     = "":U . 
+            END.
+        END CASE . 
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Destructor for the LoginResponseParser class                                                                      

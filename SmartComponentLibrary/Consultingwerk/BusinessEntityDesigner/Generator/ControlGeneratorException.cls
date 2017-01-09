@@ -40,13 +40,13 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.ControlGeneratorException
         @param poInnerException The reference to the original error
         @param pcErrorString The error message associated with this ControlGeneratorException object
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ControlGeneratorException (poInnerException AS Progress.Lang.Error, 
-	                                              pcErrorString AS CHARACTER):
-	                                                  
-		SUPER (poInnerException, pcErrorString, {&Title}).
-		
-	END CONSTRUCTOR.
-		
+    CONSTRUCTOR PUBLIC ControlGeneratorException (poInnerException AS Progress.Lang.Error, 
+                                                  pcErrorString AS CHARACTER):
+                                                      
+        SUPER (poInnerException, pcErrorString, {&Title}).
+        
+    END CONSTRUCTOR.
+        
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the ControlGeneratorException class
         Notes:                          
@@ -54,37 +54,37 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.ControlGeneratorException
         @param pcErrorString The error message associated with this ControlGeneratorException object
         @param piMessageNumber The error message number associated with this Exception object
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ControlGeneratorException (poInnerException AS Progress.Lang.Error, 
-	                                              pcErrorString AS CHARACTER, 
-	                                              piMessageNumber AS INTEGER):
-	                                                  
-		SUPER (poInnerException, pcErrorString, piMessageNumber, {&Title}).
-		
-	END CONSTRUCTOR.
-	
+    CONSTRUCTOR PUBLIC ControlGeneratorException (poInnerException AS Progress.Lang.Error, 
+                                                  pcErrorString AS CHARACTER, 
+                                                  piMessageNumber AS INTEGER):
+                                                      
+        SUPER (poInnerException, pcErrorString, piMessageNumber, {&Title}).
+        
+    END CONSTRUCTOR.
+    
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the ControlGeneratorException class
         Notes:                          
         @param poInnerException The reference to the original error
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ControlGeneratorException (poInnerException AS Progress.Lang.Error):
-	                                                  
-		SUPER (poInnerException, {&Title}).
-		
-	END CONSTRUCTOR.
-	
+    CONSTRUCTOR PUBLIC ControlGeneratorException (poInnerException AS Progress.Lang.Error):
+                                                      
+        SUPER (poInnerException, {&Title}).
+        
+    END CONSTRUCTOR.
+    
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the ControlGeneratorException class
         Notes:                          
         @param pcErrorString The error message associated with this ControlGeneratorException object
         @param piMessageNumber The error message number associated with this Exception object
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ControlGeneratorException (pcErrorString AS CHARACTER, 
-	                                              piMessageNumber AS INTEGER):
-	                                                  
-		SUPER (pcErrorString, piMessageNumber, {&Title}).
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC ControlGeneratorException (pcErrorString AS CHARACTER, 
+                                                  piMessageNumber AS INTEGER):
+                                                      
+        SUPER (pcErrorString, piMessageNumber, {&Title}).
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the ControlGeneratorException class
@@ -101,10 +101,10 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.ControlGeneratorException
         Purpose: Constructor of the ControlGeneratorException class
         Notes:                          
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ControlGeneratorException ():
-		
-		SUPER ({&Title}).
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC ControlGeneratorException ():
+        
+        SUPER ({&Title}).
+        
+    END CONSTRUCTOR.
 
 END CLASS.

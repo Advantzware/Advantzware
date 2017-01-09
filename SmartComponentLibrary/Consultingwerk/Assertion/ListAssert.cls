@@ -11,169 +11,169 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : ListAssert
-    Purpose     : Assertion methods for delimited lists 
-    Syntax      : 
+    Purpose     : Assertion methods for delimited lists
+    Syntax      :
     Description : Routines in this class typically raise an error condition
                   when the condition is not met.
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sun Jul 14 17:36:13 CEST 2013
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 {Consultingwerk/products.i}
 
-USING Consultingwerk.Assertion.* FROM PROPATH .  
-USING Consultingwerk.Util.*      FROM PROPATH . 
+USING Consultingwerk.Assertion.* FROM PROPATH .
+USING Consultingwerk.Util.*      FROM PROPATH .
 USING Progress.Lang.*            FROM PROPATH .
 
-CLASS Consultingwerk.Assertion.ListAssert: 
+CLASS Consultingwerk.Assertion.ListAssert:
 
-    /*------------------------------------------------------------------------------
-        Purpose: Validates if an entry is in the given list of values
-        Notes:   
-        @param pcEntry The entry to locate in the list
-        @param pcList The list to locate the entry in 
-    ------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC VOID EntryIsInList (pcEntry AS CHARACTER, 
-	                                         pcList AS CHARACTER):
-		
-		IF LOOKUP (pcEntry, pcList) > 0 THEN . 
-		ELSE 
-            UNDO, THROW NEW AssertException (SUBSTITUTE ("The Entry ~"&1~" is not in the List of ~"&2~".."{&TRAN}, 
-                                                         pcEntry, pcList), 
-                                             0) . 
+    /**
+     * Purpose: Validates if an entry is in the given list of values
+     * Notes:
+     * @param pcEntry The entry to locate in the list
+     * @param pcList The list to locate the entry in
+     */
+    METHOD PUBLIC STATIC VOID EntryIsInList (pcEntry AS CHARACTER,
+                                             pcList AS CHARACTER):
 
-	END METHOD .
+        IF LOOKUP (pcEntry, pcList) > 0 THEN .
+        ELSE
+            UNDO, THROW NEW AssertException (SUBSTITUTE ("The Entry ~"&1~" is not in the List of ~"&2~".."{&TRAN},
+                                                         pcEntry, pcList),
+                                             0) .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Validates if an entry is in the given list of values
-        Notes:   
-        @param pcEntry The entry to locate in the list
-        @param pcList The list to locate the entry in 
-        @param pcDelimiter The list delimiter to use
-    ------------------------------------------------------------------------------*/
-    METHOD PUBLIC STATIC VOID EntryIsInList (pcEntry AS CHARACTER, 
+    END METHOD .
+
+    /**
+     * Purpose: Validates if an entry is in the given list of values
+     * Notes:
+     * @param pcEntry The entry to locate in the list
+     * @param pcList The list to locate the entry in
+     * @param pcDelimiter The list delimiter to use
+     */
+    METHOD PUBLIC STATIC VOID EntryIsInList (pcEntry AS CHARACTER,
                                              pcList AS CHARACTER,
                                              pcDelimiter AS CHARACTER):
-        
-        IF LOOKUP (pcEntry, pcList, pcDelimiter) > 0 THEN . 
-        ELSE 
-            UNDO, THROW NEW AssertException (SUBSTITUTE ("The Entry ~"&1~" is not in the List of ~"&2~".."{&TRAN}, 
-                                                         pcEntry, pcList), 
-                                             0) . 
+
+        IF LOOKUP (pcEntry, pcList, pcDelimiter) > 0 THEN .
+        ELSE
+            UNDO, THROW NEW AssertException (SUBSTITUTE ("The Entry ~"&1~" is not in the List of ~"&2~".."{&TRAN},
+                                                         pcEntry, pcList),
+                                             0) .
 
     END METHOD .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Validates if a list has an even number of entries 
-        Notes:   
-        Throws: Consultingwerk.Assertion.AssertException  
-        @param pcList The list to validate
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Validates if a list has an even number of entries
+     * Notes:
+     * Throws: Consultingwerk.Assertion.AssertException
+     * @param pcList The list to validate
+     */
     METHOD PUBLIC STATIC VOID EvenEntries (pcList AS CHARACTER):
-        
+
         DEFINE VARIABLE iEntries AS INTEGER NO-UNDO.
-        
-        ASSIGN iEntries = NUM-ENTRIES (pcList) .  
-        
-        IF iEntries MODULO 2 <> 0 THEN 
-            UNDO, THROW NEW AssertException (SUBSTITUTE ("List has &1 odd number of entries, but an even number is expected."{&TRAN}, 
-                                                         pcList), 
-                                             0) . 
+
+        ASSIGN iEntries = NUM-ENTRIES (pcList) .
+
+        IF iEntries MODULO 2 <> 0 THEN
+            UNDO, THROW NEW AssertException (SUBSTITUTE ("List has &1 odd number of entries, but an even number is expected."{&TRAN},
+                                                         pcList),
+                                             0) .
     END METHOD .
-    
-    /*------------------------------------------------------------------------------
-        Purpose: Validates if a list has an even number of entries 
-        Notes:   
-        Throws: Consultingwerk.Assertion.AssertException  
-        @param pcList The list to validate
-        @param pcDelimiter The list delimiter
-    ------------------------------------------------------------------------------*/
-    METHOD PUBLIC STATIC VOID EvenEntries (pcList AS CHARACTER, 
+
+    /**
+     * Purpose: Validates if a list has an even number of entries
+     * Notes:
+     * Throws: Consultingwerk.Assertion.AssertException
+     * @param pcList The list to validate
+     * @param pcDelimiter The list delimiter
+     */
+    METHOD PUBLIC STATIC VOID EvenEntries (pcList AS CHARACTER,
                                            pcDelimiter AS CHARACTER):
-        
-        DEFINE VARIABLE iEntries AS INTEGER NO-UNDO.
-        
-        ASSIGN iEntries = NUM-ENTRIES (pcList, pcDelimiter) .  
-        
-        IF iEntries MODULO 2 <> 0 THEN 
-            UNDO, THROW NEW AssertException (SUBSTITUTE ("List has &1 odd number of entries, but an even number is expected."{&TRAN}, 
-                                                         pcList), 
-                                             0) . 
-    END METHOD .
-    
-    /*------------------------------------------------------------------------------
-        Purpose: Validates if a list has the expected number of entries 
-        Notes:   
-        Throws: Consultingwerk.Assertion.AssertException  
-        @param pcList The list to validate
-        @param pcDelimiter The list delimiter
-        @param piEntries The expected number of entries
-    ------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC VOID NumEntries (pcList AS CHARACTER, 
-	                                      pcDelimiter AS CHARACTER, 
-	                                      piEntries AS INTEGER):
-		
-        DEFINE VARIABLE iEntries AS INTEGER NO-UNDO.
-		
-		ASSIGN iEntries = NUM-ENTRIES (pcList, pcDelimiter) .  
-		
-		IF iEntries <> piEntries THEN 
-		    UNDO, THROW NEW AssertException (SUBSTITUTE ("List has &1 entries, but expected are &2 entries."{&TRAN}, 
-		                                                 iEntries, piEntries), 
-		                                     0) . 
-	END METHOD .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Validates if a list has the expected number of entries 
-        Notes:   Uses the comma as the default list delimiter    
-        Throws: Consultingwerk.Assertion.AssertException  
-        @param pcList The list to validate
-        @param piEntries The expected number of entries
-    ------------------------------------------------------------------------------*/
-    METHOD PUBLIC STATIC VOID NumEntries (pcList AS CHARACTER, 
+        DEFINE VARIABLE iEntries AS INTEGER NO-UNDO.
+
+        ASSIGN iEntries = NUM-ENTRIES (pcList, pcDelimiter) .
+
+        IF iEntries MODULO 2 <> 0 THEN
+            UNDO, THROW NEW AssertException (SUBSTITUTE ("List has &1 odd number of entries, but an even number is expected."{&TRAN},
+                                                         pcList),
+                                             0) .
+    END METHOD .
+
+    /**
+     * Purpose: Validates if a list has the expected number of entries
+     * Notes:
+     * Throws: Consultingwerk.Assertion.AssertException
+     * @param pcList The list to validate
+     * @param pcDelimiter The list delimiter
+     * @param piEntries The expected number of entries
+     */
+    METHOD PUBLIC STATIC VOID NumEntries (pcList AS CHARACTER,
+                                          pcDelimiter AS CHARACTER,
                                           piEntries AS INTEGER):
-        
+
         DEFINE VARIABLE iEntries AS INTEGER NO-UNDO.
-        
-        ASSIGN iEntries = NUM-ENTRIES (pcList) .  
-        
-        IF iEntries <> piEntries THEN 
-            UNDO, THROW NEW AssertException (SUBSTITUTE ("List has &1 entries, but expected are &2 entries."{&TRAN}, 
-                                                         iEntries, piEntries), 
-                                             0) . 
+
+        ASSIGN iEntries = NUM-ENTRIES (pcList, pcDelimiter) .
+
+        IF iEntries <> piEntries THEN
+            UNDO, THROW NEW AssertException (SUBSTITUTE ("List has &1 entries, but expected are &2 entries."{&TRAN},
+                                                         iEntries, piEntries),
+                                             0) .
     END METHOD .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Validates if a list has only unique entries 
-        Notes:   Based on Consultingwerk.Util.ListHelper:VerifyUniqueEntries 
-        Throws: Consultingwerk.Assertion.AssertException  
-        @param pcList The list to validate
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Validates if a list has the expected number of entries
+     * Notes:   Uses the comma as the default list delimiter
+     * Throws: Consultingwerk.Assertion.AssertException
+     * @param pcList The list to validate
+     * @param piEntries The expected number of entries
+     */
+    METHOD PUBLIC STATIC VOID NumEntries (pcList AS CHARACTER,
+                                          piEntries AS INTEGER):
+
+        DEFINE VARIABLE iEntries AS INTEGER NO-UNDO.
+
+        ASSIGN iEntries = NUM-ENTRIES (pcList) .
+
+        IF iEntries <> piEntries THEN
+            UNDO, THROW NEW AssertException (SUBSTITUTE ("List has &1 entries, but expected are &2 entries."{&TRAN},
+                                                         iEntries, piEntries),
+                                             0) .
+    END METHOD .
+
+    /**
+     * Purpose: Validates if a list has only unique entries
+     * Notes:   Based on Consultingwerk.Util.ListHelper:VerifyUniqueEntries
+     * Throws: Consultingwerk.Assertion.AssertException
+     * @param pcList The list to validate
+     */
     METHOD PUBLIC STATIC VOID UniqueEntries (pcList AS CHARACTER):
-        
-        IF ListHelper:VerifyUniqueEntries (pcList) = TRUE THEN . 
-        ELSE 
-            UNDO, THROW NEW AssertException (SUBSTITUTE ("The list &1 does have non-unique entries."{&TRAN}, pcList), 
-                                             0) .  
+
+        IF ListHelper:VerifyUniqueEntries (pcList) = TRUE THEN .
+        ELSE
+            UNDO, THROW NEW AssertException (SUBSTITUTE ("The list &1 does have non-unique entries."{&TRAN}, pcList),
+                                             0) .
     END METHOD .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Validates if a list has only unique entries 
-        Notes:   Based on Consultingwerk.Util.ListHelper:VerifyUniqueEntries 
-        Throws: Consultingwerk.Assertion.AssertException  
-        @param pcList The list to validate
-        @param pcDelimiter The list delimiter
-    ------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC VOID UniqueEntries (pcList AS CHARACTER, 
+    /**
+     * Purpose: Validates if a list has only unique entries
+     * Notes:   Based on Consultingwerk.Util.ListHelper:VerifyUniqueEntries
+     * Throws: Consultingwerk.Assertion.AssertException
+     * @param pcList The list to validate
+     * @param pcDelimiter The list delimiter
+     */
+    METHOD PUBLIC STATIC VOID UniqueEntries (pcList AS CHARACTER,
                                              pcDelimiter AS CHARACTER):
-		
-		IF ListHelper:VerifyUniqueEntries (pcList, pcDelimiter) = TRUE THEN . 
-        ELSE 
-            UNDO, THROW NEW AssertException (SUBSTITUTE ("The list &1 does have non-unique entries."{&TRAN}, pcList), 
-                                             0) .  
-	END METHOD .
+
+        IF ListHelper:VerifyUniqueEntries (pcList, pcDelimiter) = TRUE THEN .
+        ELSE
+            UNDO, THROW NEW AssertException (SUBSTITUTE ("The list &1 does have non-unique entries."{&TRAN}, pcList),
+                                             0) .
+    END METHOD .
 
 END CLASS.

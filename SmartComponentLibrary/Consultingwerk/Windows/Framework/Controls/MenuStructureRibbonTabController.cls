@@ -44,9 +44,9 @@ CLASS Consultingwerk.Windows.Framework.Controls.MenuStructureRibbonTabController
         @param poOwner The owner in which to invoke methodes (depending on the type of Menu Item)
         @param pcMenuStructureKey The key of the menu structure to render
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC MenuStructureRibbonTabController (poToolbarsManager AS UltraToolbarsManager,
-	                                                     poOwner AS Progress.Lang.Object,
-	                                                     pcMenuStructureKey AS CHARACTER):
+    CONSTRUCTOR PUBLIC MenuStructureRibbonTabController (poToolbarsManager AS UltraToolbarsManager,
+                                                         poOwner AS Progress.Lang.Object,
+                                                         pcMenuStructureKey AS CHARACTER):
         
         SUPER (poToolbarsManager,
                poOwner,
@@ -54,8 +54,8 @@ CLASS Consultingwerk.Windows.Framework.Controls.MenuStructureRibbonTabController
         
         IF VALID-OBJECT (oMenuProvider) THEN 
             THIS-OBJECT:FillMenuStructure (pcMenuStructureKey) .        
-		
-	END CONSTRUCTOR.
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Fills the tree menu 
@@ -64,34 +64,38 @@ CLASS Consultingwerk.Windows.Framework.Controls.MenuStructureRibbonTabController
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID FillMenuStructure (pcMenuStructureKey AS CHARACTER):
         
-        DEFINE VARIABLE cParentNodeKey AS CHARACTER   NO-UNDO .
         DEFINE VARIABLE oRibbonGroup   AS RibbonGroup NO-UNDO .
-        
-        DEFINE BUFFER ttMenuStructure FOR ttMenuStructure . 
-        
-        oMenuProvider:GetMenuStructure (NEW GetMenuStructureParameter (pcMenuStructureKey, 
+
+        DEFINE BUFFER ttMenuStructure FOR ttMenuStructure .
+
+        oMenuProvider:GetMenuStructure (NEW GetMenuStructureParameter (pcMenuStructureKey,
                                                                        0,
                                                                        TRUE),
                                         OUTPUT TABLE ttMenuStructure BY-REFERENCE) .
 
-        FIND ttMenuStructure WHERE ttMenuStructure.MenuKey = pcMenuStructureKey NO-ERROR . 
-    
-        IF NOT AVAILABLE ttMenuStructure THEN 
-            RETURN . 
-            
+        FIND ttMenuStructure WHERE ttMenuStructure.MenuKey = pcMenuStructureKey NO-ERROR .
+
+        IF NOT AVAILABLE ttMenuStructure THEN
+            RETURN .
+
+        IF THIS-OBJECT:ToolbarsManager:Ribbon:Tabs:Exists (pcMenuStructureKey) THEN
+            THIS-OBJECT:ToolbarsManager:Ribbon:Tabs:Remove (THIS-OBJECT:ToolbarsManager:Ribbon:Tabs[pcMenuStructureKey]) .
+
         THIS-OBJECT:ToolbarsManager:BeginUpdate() .
-            
+
         oRibbonTab = THIS-OBJECT:ToolbarsManager:Ribbon:Tabs:Add (pcMenuStructureKey) .
         oRibbonTab:Caption = ttMenuStructure.MenuName .
 
         FOR EACH ttMenuStructure WHERE ttMenuStructure.ParentMenuKey = pcMenuStructureKey
-                BY ttMenuStructure.MenuSequence:
-        
-            oRibbonGroup = oRibbonTab:Groups:Add (ttMenuStructure.MenuKey) .
-            oRibbonGroup:Caption = ttMenuStructure.MenuName .
-            
-            THIS-OBJECT:RenderTools (ttMenuStructure.MenuKey, 
-                                     oRibbonGroup:Tools) .
+            BY ttMenuStructure.MenuSequence ON ERROR UNDO, THROW:
+
+            IF NOT oRibbonTab:Groups:Exists (ttMenuStructure.MenuKey) THEN DO:
+                oRibbonGroup = oRibbonTab:Groups:Add (ttMenuStructure.MenuKey) .
+                oRibbonGroup:Caption = ttMenuStructure.MenuName .
+
+                THIS-OBJECT:RenderTools (ttMenuStructure.MenuKey,
+                                         oRibbonGroup:Tools) .
+            END.
         END.
 
         THIS-OBJECT:ToolbarsManager:EndUpdate() .

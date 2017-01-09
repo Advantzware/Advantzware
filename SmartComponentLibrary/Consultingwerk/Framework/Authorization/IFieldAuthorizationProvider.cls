@@ -32,8 +32,8 @@ INTERFACE Consultingwerk.Framework.Authorization.IFieldAuthorizationProvider:
         @param pcSecurityKey The security key of the field's container (Viewer, Browser)
         @return The FieldRestrictionEnum value  
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC FieldRestrictionEnum IsFieldRestricted (poRequestor AS Progress.Lang.Object,
-	                                                      pcFieldName AS CHARACTER,
-	                                                      pcSecurityKey AS CHARACTER).
+    METHOD PUBLIC FieldRestrictionEnum IsFieldRestricted (poRequestor AS Progress.Lang.Object,
+                                                          pcFieldName AS CHARACTER,
+                                                          pcSecurityKey AS CHARACTER).
 
 END INTERFACE.

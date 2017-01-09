@@ -11,18 +11,18 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : AuthorizationMaintenanceServiceParameter
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Wed May 21 10:24:16 CEST 2014
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Consultingwerk.*                              FROM PROPATH . 
-USING Consultingwerk.SmartFramework.Authorization.* FROM PROPATH .  
+USING Consultingwerk.*                              FROM PROPATH .
+USING Consultingwerk.SmartFramework.Authorization.* FROM PROPATH .
 USING Progress.Lang.*                               FROM PROPATH .
 
 CLASS Consultingwerk.SmartFramework.Authorization.AuthorizationMaintenanceServiceParameter
@@ -30,8 +30,8 @@ CLASS Consultingwerk.SmartFramework.Authorization.AuthorizationMaintenanceServic
     INHERITS XmlSerializable
 &ELSE
     INHERITS JsonSerializable
-&ENDIF   
-    : 
+&ENDIF
+    :
 
     {Consultingwerk/JsonSerializableProperty.i SecurityRealmGuid CHARACTER} .
     {Consultingwerk/JsonSerializableProperty.i OwnerGuids CHARACTER} .
@@ -39,7 +39,7 @@ CLASS Consultingwerk.SmartFramework.Authorization.AuthorizationMaintenanceServic
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the AuthorizationMaintenanceServiceParameter class
-        Notes:   
+        Notes:
         @param pcSecurityRealmGuid The value for the SecurityRealmGuid property
         @param pcOwnerGuids The value for the OwnerGuids property
         @param pcAlternativeLoginCompanyKey The value for the AlternativeLoginCompanyKey property
@@ -47,18 +47,18 @@ CLASS Consultingwerk.SmartFramework.Authorization.AuthorizationMaintenanceServic
     CONSTRUCTOR PUBLIC AuthorizationMaintenanceServiceParameter (pcSecurityRealmGuid          AS CHARACTER,
                                                                  pcOwnerGuids                 AS CHARACTER,
                                                                  pcAlternativeLoginCompanyKey AS CHARACTER):
-    
+
         THIS-OBJECT () .
 
-        ASSIGN THIS-OBJECT:SecurityRealmGuid          = pcSecurityRealmGuid 
-               THIS-OBJECT:OwnerGuids                 = pcOwnerGuids 
+        ASSIGN THIS-OBJECT:SecurityRealmGuid          = pcSecurityRealmGuid
+               THIS-OBJECT:OwnerGuids                 = pcOwnerGuids
                THIS-OBJECT:AlternativeLoginCompanyKey = pcAlternativeLoginCompanyKey.
-                                                                     
-    END.
-                                                                         
+
+    END CONSTRUCTOR .
+
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the AuthorizationMaintenanceServiceParameter class
-        Notes:   
+        Notes:
         @param pcSecurityRealmGuid The value for the SecurityRealmGuid property
         @param pcOwnerGuids The value for the OwnerGuids property
     ------------------------------------------------------------------------------*/
@@ -66,20 +66,20 @@ CLASS Consultingwerk.SmartFramework.Authorization.AuthorizationMaintenanceServic
                                                                  pcOwnerGuids        AS CHARACTER):
         THIS-OBJECT ().
 
-        ASSIGN THIS-OBJECT:SecurityRealmGuid = pcSecurityRealmGuid 
+        ASSIGN THIS-OBJECT:SecurityRealmGuid = pcSecurityRealmGuid
                THIS-OBJECT:OwnerGuids        = pcOwnerGuids .
 
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the AuthorizationMaintenanceServiceParameter class
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC AuthorizationMaintenanceServiceParameter ():
-		SUPER ().
+    CONSTRUCTOR PUBLIC AuthorizationMaintenanceServiceParameter ():
+        SUPER ().
 
         THIS-OBJECT:AddSerializableProperties ("{&SerializableProperties}":U) .
-		
-	END CONSTRUCTOR.
+
+    END CONSTRUCTOR.
 
 END CLASS.

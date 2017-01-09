@@ -27,7 +27,7 @@ USING Progress.Lang.*                                        FROM PROPATH .
 
 CLASS Consultingwerk.Windows.Framework.Authorization.SmartGroupViewer 
     INHERITS SmartViewerControl: 
-	
+    
     DEFINE PRIVATE VARIABLE components                                                           AS System.ComponentModel.IContainer                                               NO-UNDO.
     DEFINE PRIVATE VARIABLE smartBusinessEntityBindingSource1_eSmartGroup_LoginCompanyGuid_Label AS Infragistics.Win.Misc.UltraLabel                                               NO-UNDO.
     DEFINE PRIVATE VARIABLE smartBusinessEntityLookup1                                           AS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityLookup        NO-UNDO.
@@ -38,22 +38,23 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartGroupViewer
     DEFINE PRIVATE VARIABLE smartBusinessEntityBindingSource1                                    AS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraPanel2                                                          AS Infragistics.Win.Misc.UltraPanel                                               NO-UNDO.
 
-	CONSTRUCTOR PUBLIC SmartGroupViewer ():
-		
+    CONSTRUCTOR PUBLIC SmartGroupViewer ():
+        
         SUPER ().
         InitializeComponent ().
         
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+        
         /* NOTE: The following method is automatically generated.
         
         We strongly suggest that the contents of this method only be modified using the
@@ -68,6 +69,9 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartGroupViewer
         DEFINE VARIABLE appearance1 AS Infragistics.Win.Appearance NO-UNDO.
         appearance1 = NEW Infragistics.Win.Appearance().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE resources AS Progress.Util.ResourceManager NO-UNDO.
+        resources = NEW Progress.Util.ResourceManager("Consultingwerk.Windows.Framework.Authorization.SmartGroupViewer":U).
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance2 AS Infragistics.Win.Appearance NO-UNDO.
         appearance2 = NEW Infragistics.Win.Appearance().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -79,9 +83,6 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartGroupViewer
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance4 AS Infragistics.Win.Appearance NO-UNDO.
         appearance4 = NEW Infragistics.Win.Appearance().
-        @VisualDesigner.FormMember (NeedsInitialize="true":U).
-        DEFINE VARIABLE resources AS Progress.Util.ResourceManager NO-UNDO.
-        resources = NEW Progress.Util.ResourceManager("Consultingwerk.Windows.Framework.Authorization.SmartGroupViewer":U).
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE editorButton2 AS Infragistics.Win.UltraWinEditors.EditorButton NO-UNDO.
         editorButton2 = NEW Infragistics.Win.UltraWinEditors.EditorButton("ShowLookupDialog":U).
@@ -134,35 +135,22 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartGroupViewer
         /*  */
         appearance1:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartGroup_GroupName_Label:Appearance = appearance1.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartGroup_GroupName_Label:AutoSize = TRUE.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartGroup_GroupName_Label:Location = NEW System.Drawing.Point(16, 17).
+        resources:ApplyResources(THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartGroup_GroupName_Label, "smartBusinessEntityBindingSource1_eSmartGroup_GroupName_Label":U).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartGroup_GroupName_Label:Name = "smartBusinessEntityBindingSource1_eSmartGroup_GroupName_Label":U.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartGroup_GroupName_Label:Size = NEW System.Drawing.Size(38, 14).
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartGroup_GroupName_Label:TabIndex = 0.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartGroup_GroupName_Label:Text = "&Name:":U.
         /*  */
         /* smartBusinessEntityBindingSource1_eSmartGroup_GroupName */
         /*  */
-        DEFINE VARIABLE nestedvar0 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar0 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartGroup_GroupName:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar0, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartGroup_GroupName, "smartBusinessEntityBindingSource1_eSmartGroup_GroupName":U).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartGroup_GroupName:DataBindings:Add(NEW System.Windows.Forms.Binding("Value":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "GroupName":U, TRUE)).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartGroup_GroupName:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartGroup_GroupName:Location = NEW System.Drawing.Point(126, 13).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartGroup_GroupName:Name = "smartBusinessEntityBindingSource1_eSmartGroup_GroupName":U.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartGroup_GroupName:Size = NEW System.Drawing.Size(150, 21).
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartGroup_GroupName:TabIndex = 1.
         /*  */
         /* smartBusinessEntityBindingSource1_eSmartGroup_ParentGroupGuid_Label */
         /*  */
         appearance2:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartGroup_ParentGroupGuid_Label:Appearance = appearance2.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartGroup_ParentGroupGuid_Label:AutoSize = TRUE.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartGroup_ParentGroupGuid_Label:Location = NEW System.Drawing.Point(16, 43).
+        resources:ApplyResources(THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartGroup_ParentGroupGuid_Label, "smartBusinessEntityBindingSource1_eSmartGroup_ParentGroupGuid_Label":U).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartGroup_ParentGroupGuid_Label:Name = "smartBusinessEntityBindingSource1_eSmartGroup_ParentGroupGuid_Label":U.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartGroup_ParentGroupGuid_Label:Size = NEW System.Drawing.Size(75, 14).
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartGroup_ParentGroupGuid_Label:TabIndex = 2.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartGroup_ParentGroupGuid_Label:Text = "&Parent Group:":U.
         /*  */
         /* ultraPanel2 */
         /*  */
@@ -175,98 +163,103 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartGroupViewer
         THIS-OBJECT:ultraPanel2:ClientArea:Controls:Add(THIS-OBJECT:smartBusinessEntityLookup1).
         THIS-OBJECT:ultraPanel2:ClientArea:Controls:Add(THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartGroup_ParentGroupGuid_Label).
         THIS-OBJECT:ultraPanel2:ClientArea:Controls:Add(THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartGroup_GroupName_Label).
-        THIS-OBJECT:ultraPanel2:Dock = System.Windows.Forms.DockStyle:Fill.
-        THIS-OBJECT:ultraPanel2:Location = NEW System.Drawing.Point(0, 0).
+        resources:ApplyResources(THIS-OBJECT:ultraPanel2, "ultraPanel2":U).
         THIS-OBJECT:ultraPanel2:Name = "ultraPanel2":U.
-        THIS-OBJECT:ultraPanel2:Size = NEW System.Drawing.Size(294, 108).
-        THIS-OBJECT:ultraPanel2:TabIndex = 0.
         /*  */
         /* smartBusinessEntityBindingSource1_eSmartGroup_LoginCompanyGuid_Label */
         /*  */
         appearance3:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartGroup_LoginCompanyGuid_Label:Appearance = appearance3.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartGroup_LoginCompanyGuid_Label:AutoSize = TRUE.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartGroup_LoginCompanyGuid_Label:Location = NEW System.Drawing.Point(16, 70).
+        resources:ApplyResources(THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartGroup_LoginCompanyGuid_Label, "smartBusinessEntityBindingSource1_eSmartGroup_LoginCompanyGuid_Label":U).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartGroup_LoginCompanyGuid_Label:Name = "smartBusinessEntityBindingSource1_eSmartGroup_LoginCompanyGuid_Label":U.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartGroup_LoginCompanyGuid_Label:Size = NEW System.Drawing.Size(87, 14).
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartGroup_LoginCompanyGuid_Label:TabIndex = 4.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartGroup_LoginCompanyGuid_Label:Text = "&Login Company:":U.
         /*  */
         /* smartBusinessEntityLookup2 */
         /*  */
-        DEFINE VARIABLE nestedvar1 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar1 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:smartBusinessEntityLookup2:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar1, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:smartBusinessEntityLookup2, "smartBusinessEntityLookup2":U).
         appearance4:Image = CAST(resources:GetObject("appearance4.Image":U), System.Object).
         appearance4:ImageHAlign = Infragistics.Win.HAlign:Center.
         editorButton1:Appearance = appearance4.
         editorButton1:Key = "ClearValue":U.
         THIS-OBJECT:smartBusinessEntityLookup2:ButtonsLeft:Add(editorButton1).
         editorButton2:Key = "ShowLookupDialog":U.
-        editorButton2:Text = "...":U.
+        resources:ApplyResources(editorButton2, "editorButton2":U).
         THIS-OBJECT:smartBusinessEntityLookup2:ButtonsRight:Add(editorButton2).
         THIS-OBJECT:smartBusinessEntityLookup2:DataBindings:Add(NEW System.Windows.Forms.Binding("LookupKeyValue":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "LoginCompanyGuid":U, TRUE)).
         THIS-OBJECT:smartBusinessEntityLookup2:DataBindings:Add(NEW System.Windows.Forms.Binding("Value":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "LoginCompanyName":U, TRUE)).
         THIS-OBJECT:smartBusinessEntityLookup2:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:smartBusinessEntityLookup2:Location = NEW System.Drawing.Point(126, 66).
+        THIS-OBJECT:smartBusinessEntityLookup2:LookupAdditionalFields = "":U.
+        THIS-OBJECT:smartBusinessEntityLookup2:LookupBrowserExcludeFields = "":U.
         THIS-OBJECT:smartBusinessEntityLookup2:LookupBrowserFields = "LoginCompanyName":U.
+        THIS-OBJECT:smartBusinessEntityLookup2:LookupCascade = FALSE.
+        THIS-OBJECT:smartBusinessEntityLookup2:LookupControls = "":U.
+        THIS-OBJECT:smartBusinessEntityLookup2:LookupDialogClassName = "":U.
         THIS-OBJECT:smartBusinessEntityLookup2:LookupDialogFilterFields = "LoginCompanyName":U.
         THIS-OBJECT:smartBusinessEntityLookup2:LookupDialogFilterOperators = "BEGINS":U.
+        THIS-OBJECT:smartBusinessEntityLookup2:LookupDialogOpenQuery = TRUE.
+        THIS-OBJECT:smartBusinessEntityLookup2:LookupDialogQuerySort = "":U.
         THIS-OBJECT:smartBusinessEntityLookup2:LookupDialogQueryString = "FOR EACH eSmartLoginCompany":U.
-        THIS-OBJECT:smartBusinessEntityLookup2:LookupDialogTitle = "Login Company Lookup":U.
         THIS-OBJECT:smartBusinessEntityLookup2:LookupEntityName = "Consultingwerk.SmartFramework.System.LoginCompanyBusinessEntity":U.
         THIS-OBJECT:smartBusinessEntityLookup2:LookupEntityTable = "eSmartLoginCompany":U.
+        THIS-OBJECT:smartBusinessEntityLookup2:LookupEntityView = "":U.
+        THIS-OBJECT:smartBusinessEntityLookup2:LookupFields = "":U.
         THIS-OBJECT:smartBusinessEntityLookup2:LookupKeyField = "LoginCompanyName":U.
+        THIS-OBJECT:smartBusinessEntityLookup2:LookupKeyValue = "":U.
         THIS-OBJECT:smartBusinessEntityLookup2:LookupKeyValueColumn = "LoginCompanyGuid":U.
+        THIS-OBJECT:smartBusinessEntityLookup2:LookupQuerySort = "":U.
         THIS-OBJECT:smartBusinessEntityLookup2:LookupQueryString = "FOR EACH eSmartLoginCompany WHERE eSmartLoginCompany.LoginCompanyName BEGINS ~"&1~"":U.
+        THIS-OBJECT:smartBusinessEntityLookup2:LookupTimerDelay = 750.
+        THIS-OBJECT:smartBusinessEntityLookup2:LookupTimerDisabled = FALSE.
         THIS-OBJECT:smartBusinessEntityLookup2:Name = "smartBusinessEntityLookup2":U.
         THIS-OBJECT:smartBusinessEntityLookup2:OwningGrid = ?.
-        THIS-OBJECT:smartBusinessEntityLookup2:Size = NEW System.Drawing.Size(150, 21).
-        THIS-OBJECT:smartBusinessEntityLookup2:TabIndex = 5.
         THIS-OBJECT:smartBusinessEntityLookup2:EditorButtonClick:Subscribe(THIS-OBJECT:LoginCompanyLookup_EditorButtonClick).
         THIS-OBJECT:smartBusinessEntityLookup2:TextChanged:Subscribe(THIS-OBJECT:LoginCompanyLookup_TextChanged).
         /*  */
         /* smartBusinessEntityLookup1 */
         /*  */
-        DEFINE VARIABLE nestedvar2 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar2 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:smartBusinessEntityLookup1:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar2, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:smartBusinessEntityLookup1, "smartBusinessEntityLookup1":U).
         appearance5:Image = CAST(resources:GetObject("appearance5.Image":U), System.Object).
         appearance5:ImageHAlign = Infragistics.Win.HAlign:Center.
         editorButton3:Appearance = appearance5.
         editorButton3:Key = "ClearValue":U.
         THIS-OBJECT:smartBusinessEntityLookup1:ButtonsLeft:Add(editorButton3).
         editorButton4:Key = "ShowLookupDialog":U.
-        editorButton4:Text = "...":U.
+        resources:ApplyResources(editorButton4, "editorButton4":U).
         THIS-OBJECT:smartBusinessEntityLookup1:ButtonsRight:Add(editorButton4).
         THIS-OBJECT:smartBusinessEntityLookup1:DataBindings:Add(NEW System.Windows.Forms.Binding("LookupKeyValue":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "ParentGroupGuid":U, TRUE)).
         THIS-OBJECT:smartBusinessEntityLookup1:DataBindings:Add(NEW System.Windows.Forms.Binding("Value":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "ParentGroupName":U, TRUE)).
         THIS-OBJECT:smartBusinessEntityLookup1:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:smartBusinessEntityLookup1:Location = NEW System.Drawing.Point(126, 39).
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupAdditionalFields = "":U.
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupBrowserExcludeFields = "":U.
         THIS-OBJECT:smartBusinessEntityLookup1:LookupBrowserFields = "GroupName":U.
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupCascade = FALSE.
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupControls = "":U.
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupDialogClassName = "":U.
         THIS-OBJECT:smartBusinessEntityLookup1:LookupDialogFilterFields = "GroupName":U.
         THIS-OBJECT:smartBusinessEntityLookup1:LookupDialogFilterOperators = "BEGINS":U.
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupDialogOpenQuery = TRUE.
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupDialogQuerySort = "":U.
         THIS-OBJECT:smartBusinessEntityLookup1:LookupDialogQueryString = "FOR EACH eSmartGroup":U.
-        THIS-OBJECT:smartBusinessEntityLookup1:LookupDialogTitle = "Group Lookup":U.
         THIS-OBJECT:smartBusinessEntityLookup1:LookupEntityName = "Consultingwerk.SmartFramework.Authorization.GroupBusinessEntity":U.
         THIS-OBJECT:smartBusinessEntityLookup1:LookupEntityTable = "eSmartGroup":U.
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupEntityView = "":U.
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupFields = "":U.
         THIS-OBJECT:smartBusinessEntityLookup1:LookupKeyField = "GroupName":U.
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupKeyValue = "":U.
         THIS-OBJECT:smartBusinessEntityLookup1:LookupKeyValueColumn = "GroupGuid":U.
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupQuerySort = "":U.
         THIS-OBJECT:smartBusinessEntityLookup1:LookupQueryString = "FOR EACH eSmartGroup WHERE eSmartGroup.GroupName BEGINS ~"&1~"":U.
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupTimerDelay = 750.
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupTimerDisabled = FALSE.
         THIS-OBJECT:smartBusinessEntityLookup1:Name = "smartBusinessEntityLookup1":U.
         THIS-OBJECT:smartBusinessEntityLookup1:OwningGrid = ?.
-        THIS-OBJECT:smartBusinessEntityLookup1:Size = NEW System.Drawing.Size(150, 21).
-        THIS-OBJECT:smartBusinessEntityLookup1:TabIndex = 3.
         THIS-OBJECT:smartBusinessEntityLookup1:EditorButtonClick:Subscribe(THIS-OBJECT:smartBusinessEntityLookup1_EditorButtonClick).
         THIS-OBJECT:smartBusinessEntityLookup1:TextChanged:Subscribe(THIS-OBJECT:smartBusinessEntityLookup1_TextChanged).
         /*  */
         /* SmartGroupViewer */
         /*  */
-        THIS-OBJECT:AutoScaleDimensions = NEW System.Drawing.SizeF(Progress.Util.CastUtil:ToSingle(6), Progress.Util.CastUtil:ToSingle(13)).
+        resources:ApplyResources(THIS-OBJECT, "$this":U).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:ultraPanel2).
         THIS-OBJECT:Name = "SmartGroupViewer":U.
-        THIS-OBJECT:Size = NEW System.Drawing.Size(294, 108).
-        THIS-OBJECT:SmartTableIOState = "NoDataSource":U.
         CAST(THIS-OBJECT:smartBusinessEntityBindingSource1, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartGroup_GroupName, System.ComponentModel.ISupportInitialize):EndInit().
         THIS-OBJECT:ultraPanel2:ClientArea:ResumeLayout(FALSE).
@@ -279,7 +272,7 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartGroupViewer
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: 
@@ -318,9 +311,9 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartGroupViewer
         @param sender Reference to the Object which is calling the method
         @param e An EventArgs that contains the Event specific data
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID smartBusinessEntityLookup1_EditorButtonClick (sender AS System.Object, 
-	                                                                  e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
-		
+    METHOD PRIVATE VOID smartBusinessEntityLookup1_EditorButtonClick (sender AS System.Object, 
+                                                                      e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
+        
         CASE e:Button:Key:
             WHEN "ClearValue":U THEN DO:
                 smartBusinessEntityLookup1:Text           = "":U.
@@ -328,7 +321,7 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartGroupViewer
             END.
         END CASE.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Set LookupKeyValue to be able to erase the selected LoginCompany
@@ -336,13 +329,13 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartGroupViewer
         @param sender Reference to the Object which is calling the method
         @param e An EventArgs that contains no Event data
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID smartBusinessEntityLookup1_TextChanged (sender AS System.Object, 
-	                                                            e AS System.EventArgs):
-		
+    METHOD PRIVATE VOID smartBusinessEntityLookup1_TextChanged (sender AS System.Object, 
+                                                                e AS System.EventArgs):
+        
         IF smartBusinessEntityLookup1:Text = "":U THEN 
             smartBusinessEntityLookup1:LookupKeyValue = "":U.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Destructor for the SmartGroupViewer class 

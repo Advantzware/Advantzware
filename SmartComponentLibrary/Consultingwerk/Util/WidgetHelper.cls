@@ -102,8 +102,10 @@ CLASS Consultingwerk.Util.WidgetHelper:
                pX = phWidget:X
                pY = phWidget:Y .
 
+        containerLoop:
         DO WHILE VALID-HANDLE (hContainer):
-            IF hContainer:TYPE = "WINDOW":U THEN LEAVE .
+            IF hContainer:TYPE = "WINDOW":U THEN
+                LEAVE containerLoop .
 
             ASSIGN pX = pX + hContainer:X
                    pY = pY + hContainer:Y .
@@ -312,7 +314,7 @@ CLASS Consultingwerk.Util.WidgetHelper:
      */
     METHOD PUBLIC STATIC INTEGER Count (phWidget AS HANDLE):
 
-        DEFINE VARIABLE iCount AS INTEGER NO-UNDO INIT 0 .
+        DEFINE VARIABLE iCount AS INTEGER NO-UNDO INITIAL 0 .
 
         DO WHILE VALID-HANDLE (phWidget):
 
@@ -766,8 +768,8 @@ CLASS Consultingwerk.Util.WidgetHelper:
                                                                                 pcExceptWidgetTypes AS CHARACTER,
                                                                                 pcExceptWidgetNames AS CHARACTER):
 
-        DEFINE VARIABLE iMaxX    AS INTEGER              NO-UNDO INIT 0 .
-        DEFINE VARIABLE iMaxY    AS INTEGER              NO-UNDO INIT 0 .
+        DEFINE VARIABLE iMaxX    AS INTEGER              NO-UNDO INITIAL 0 .
+        DEFINE VARIABLE iMaxY    AS INTEGER              NO-UNDO INITIAL 0 .
         DEFINE VARIABLE iFrameX  AS INTEGER              NO-UNDO .
         DEFINE VARIABLE iFrameY  AS INTEGER              NO-UNDO .
         DEFINE VARIABLE cFrames  AS CHARACTER            NO-UNDO .
@@ -889,7 +891,8 @@ CLASS Consultingwerk.Util.WidgetHelper:
             ASSIGN cValue = STRING (FindChildWidgetByName (phParent,
                                                            cWidgetName)) .
 
-            IF cValue = ? THEN ASSIGN cValue = "?":U .
+            IF cValue = ? THEN
+                ASSIGN cValue = "?":U .
 
             ASSIGN ENTRY (i, cHandles) = cValue .
 
@@ -1094,8 +1097,8 @@ CLASS Consultingwerk.Util.WidgetHelper:
     METHOD PUBLIC STATIC System.Drawing.Point FindInnerMostPoint (phFrame AS HANDLE):
 
         DEFINE VARIABLE hWidget AS HANDLE  NO-UNDO.
-        DEFINE VARIABLE iMinX   AS INTEGER NO-UNDO INIT 0 .
-        DEFINE VARIABLE iMinY   AS INTEGER NO-UNDO INIT 0.
+        DEFINE VARIABLE iMinX   AS INTEGER NO-UNDO INITIAL 0 .
+        DEFINE VARIABLE iMinY   AS INTEGER NO-UNDO INITIAL 0.
 
         {Consultingwerk/Assertion/HandleAssert/WidgetType.i phFrame ""FRAME"":U} .
 
@@ -1171,8 +1174,8 @@ CLASS Consultingwerk.Util.WidgetHelper:
     METHOD PUBLIC STATIC System.Drawing.Point FindOuterMostPoint (phFrame AS HANDLE):
 
         DEFINE VARIABLE hWidget AS HANDLE  NO-UNDO.
-        DEFINE VARIABLE iMaxX   AS INTEGER NO-UNDO INIT 0 .
-        DEFINE VARIABLE iMaxY   AS INTEGER NO-UNDO INIT 0.
+        DEFINE VARIABLE iMaxX   AS INTEGER NO-UNDO INITIAL 0 .
+        DEFINE VARIABLE iMaxY   AS INTEGER NO-UNDO INITIAL 0.
 
         {Consultingwerk/Assertion/HandleAssert/WidgetType.i phFrame ""FRAME"":U} .
 
@@ -1312,8 +1315,8 @@ CLASS Consultingwerk.Util.WidgetHelper:
                                                                             pcExceptWidgetTypes AS CHARACTER,
                                                                             pcExceptWidgetNames AS CHARACTER):
 
-        DEFINE VARIABLE iMinX    AS INTEGER              NO-UNDO INIT 99999 .
-        DEFINE VARIABLE iMinY    AS INTEGER              NO-UNDO INIT 99999 .
+        DEFINE VARIABLE iMinX    AS INTEGER              NO-UNDO INITIAL 99999 .
+        DEFINE VARIABLE iMinY    AS INTEGER              NO-UNDO INITIAL 99999 .
         DEFINE VARIABLE iFrameX  AS INTEGER              NO-UNDO .
         DEFINE VARIABLE iFrameY  AS INTEGER              NO-UNDO .
         DEFINE VARIABLE cFrames  AS CHARACTER            NO-UNDO .
@@ -1423,7 +1426,7 @@ CLASS Consultingwerk.Util.WidgetHelper:
         DEFINE VARIABLE hWidget     AS HANDLE    NO-UNDO.
         DEFINE VARIABLE hResult     AS HANDLE    NO-UNDO.
         DEFINE VARIABLE cRectangles AS CHARACTER NO-UNDO.
-        DEFINE VARIABLE iTop        AS INTEGER   NO-UNDO INIT 99999.
+        DEFINE VARIABLE iTop        AS INTEGER   NO-UNDO INITIAL 99999.
 
         {Consultingwerk/Assertion/HandleAssert/WidgetType.i phParent ""FRAME"":U} .
 
@@ -1653,15 +1656,15 @@ CLASS Consultingwerk.Util.WidgetHelper:
            image extensions (LOAD-IMAGE method of the Button Widget can add
            default extensions) */
         IF FILE-INFORMATION:FULL-PATHNAME = ? THEN DO:
-            FILE-INFO:FILE-NAME = pcImageFileName + ".bmp":U .
+            FILE-INFORMATION:FILE-NAME = pcImageFileName + ".bmp":U .
 
-            IF FILE-INFO:FULL-PATHNAME = ? THEN DO:
-                FILE-INFO:FILE-NAME = pcImageFileName + ".png":U .
+            IF FILE-INFORMATION:FULL-PATHNAME = ? THEN DO:
+                FILE-INFORMATION:FILE-NAME = pcImageFileName + ".png":U .
 
-                IF FILE-INFO:FULL-PATHNAME = ? THEN DO:
-                    FILE-INFO:FILE-NAME = pcImageFileName + ".ico":U .
+                IF FILE-INFORMATION:FULL-PATHNAME = ? THEN DO:
+                    FILE-INFORMATION:FILE-NAME = pcImageFileName + ".ico":U .
 
-                    IF FILE-INFO:FULL-PATHNAME =  ? THEN
+                    IF FILE-INFORMATION:FULL-PATHNAME =  ? THEN
                         RETURN ? .
                 END.
             END.
@@ -1702,7 +1705,7 @@ CLASS Consultingwerk.Util.WidgetHelper:
 
         WidgetHelper:PopulateWidgetTempTable (pcWidgetHandles) .
 
-        FOR EACH ttWidgetsByLocation USE-INDEX LocationByColumn:
+        FOR EACH ttWidgetsByLocation BY ttWidgetsByLocation.WidgetColumn BY ttWidgetsByLocation.WidgetRow:
             ASSIGN cReturn = SUBSTITUTE ("&1,&2":U,
                                          cReturn,
                                          ttWidgetsByLocation.WidgetHandle) .
@@ -1731,7 +1734,7 @@ CLASS Consultingwerk.Util.WidgetHelper:
 
         WidgetHelper:PopulateWidgetTempTable (pcWidgetHandles) .
 
-        FOR EACH ttWidgetsByLocation USE-INDEX Location:
+        FOR EACH ttWidgetsByLocation BY ttWidgetsByLocation.WidgetRow BY ttWidgetsByLocation.WidgetColumn:
             ASSIGN cReturn = SUBSTITUTE ("&1,&2":U,
                                          cReturn,
                                          ttWidgetsByLocation.WidgetHandle) .

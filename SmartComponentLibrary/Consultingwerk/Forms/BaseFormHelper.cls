@@ -30,23 +30,23 @@ USING Consultingwerk.Framework.Authorization.Exceptions.* FROM PROPATH.
 
 CLASS Consultingwerk.Forms.BaseFormHelper: 
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Constructor for the BaseFormHelper class
-	    Notes:   Disallow instance creation
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PRIVATE BaseFormHelper ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the BaseFormHelper class
+        Notes:   Disallow instance creation
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PRIVATE BaseFormHelper ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Invoked FormAuthorizationProvider to verify if the current user 
-	             is allowed to launch the current form
-	    Notes:   Throws FormNotAuthorizedException
+    /*------------------------------------------------------------------------------
+        Purpose: Invoked FormAuthorizationProvider to verify if the current user 
+                 is allowed to launch the current form
+        Notes:   Throws FormNotAuthorizedException
         @param poForm The IBaseForm to store the settings for 
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC VOID CheckFormAuthorizationProvider (poForm AS IBaseForm):
-		
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC STATIC VOID CheckFormAuthorizationProvider (poForm AS IBaseForm):
+        
         DEFINE VARIABLE oFormAuthorizationProvider AS IFormAuthorizationProvider NO-UNDO . 
 
         IF NOT poForm:DesignTime THEN DO:
@@ -57,21 +57,21 @@ CLASS Consultingwerk.Forms.BaseFormHelper:
                                                                        poForm:GetClass():TypeName) THEN 
                     UNDO, THROW NEW FormNotAuthorizedException (poForm:GetClass():TypeName) .
             END.
-        END.		
+        END.        
 
-	END METHOD.
+    END METHOD.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Closes the Forms Dependent Forms
-	    Notes:
+    /*------------------------------------------------------------------------------
+        Purpose: Closes the Forms Dependent Forms
+        Notes:
         @param poForm The IBaseForm to store the settings for 
         @param e The FormClosingEventArgs of the curernt FormClosing event handler
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC VOID CloseDependentForms (poForm AS IBaseForm,
-	                                               e AS FormClosingEventArgs):
-		
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC STATIC VOID CloseDependentForms (poForm AS IBaseForm,
+                                                   e AS FormClosingEventArgs):
+        
         DEFINE VARIABLE oForm AS Progress.Windows.Form NO-UNDO . 
-    		
+            
         IF NOT poForm:DesignTime AND NOT e:Cancel THEN DO:
             
             /* Mike Fechner, Consultingwerk Ltd. 08.11.2011
@@ -101,9 +101,9 @@ CLASS Consultingwerk.Forms.BaseFormHelper:
                     poForm:DependentForms:RemoveAt (0) .        
                 END FINALLY.
             END.
-        END.	
+        END.    
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Loads stored window settings from the registry                                                                     
@@ -126,13 +126,13 @@ CLASS Consultingwerk.Forms.BaseFormHelper:
                                             pcSettingsKey) .
     END METHOD.
 
-	/*------------------------------------------------------------------------------
+    /*------------------------------------------------------------------------------
         Purpose: Restores the stored window position                                                                        
         Notes:                                                                        
         @param poForm The IBaseForm to store the settings for 
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC VOID RestoreWindowPosition (poForm AS IBaseForm):
-		
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC STATIC VOID RestoreWindowPosition (poForm AS IBaseForm):
+        
         DEFINE VARIABLE cPosition    AS CHARACTER                 NO-UNDO.
         DEFINE VARIABLE iTop         AS INTEGER                   NO-UNDO.
         DEFINE VARIABLE iLeft        AS INTEGER                   NO-UNDO.
@@ -188,19 +188,19 @@ CLASS Consultingwerk.Forms.BaseFormHelper:
             /* nothing, ignore errors */           
         END CATCH.
 
-	END METHOD.
+    END METHOD.
 
-	/*------------------------------------------------------------------------------
+    /*------------------------------------------------------------------------------
         Purpose: Stores window settings to the registry                                                                       
         Notes:       
         @param poForm The IBaseForm to store the settings for 
         @param pcSettings The string containing the window settings to be stored
         @param pcSettingsKey The key under which the settings for this Form are stored (e.g. Position)
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC VOID StoreSettings (poForm AS IBaseForm,
-	                                         pcSettings AS CHARACTER,
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC STATIC VOID StoreSettings (poForm AS IBaseForm,
+                                             pcSettings AS CHARACTER,
                                              pcSettingsKey AS CHARACTER):
-		
+        
         DEFINE VARIABLE oSettingsService AS ISettingsService NO-UNDO .
         
         oSettingsService = {Consultingwerk/get-service.i Consultingwerk.Framework.ISettingsService} .
@@ -210,14 +210,14 @@ CLASS Consultingwerk.Forms.BaseFormHelper:
                                            pcSettingsKey, 
                                            pcSettings) .
 
-	END METHOD.
+    END METHOD.
 
-	/*------------------------------------------------------------------------------
+    /*------------------------------------------------------------------------------
         Purpose: Stores the window position to the resgistry                                                                        
         Notes:                                                                        
         @param poForm The IBaseForm to store the settings for 
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC VOID StoreWindowPosition (poForm AS IBaseForm):
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC STATIC VOID StoreWindowPosition (poForm AS IBaseForm):
         
         DEFINE VARIABLE cPosition AS CHARACTER                 NO-UNDO.
         
@@ -243,7 +243,7 @@ CLASS Consultingwerk.Forms.BaseFormHelper:
         
         BaseFormHelper:StoreSettings (poForm, cPosition, "Position":U) .
 
-	END METHOD.
+    END METHOD.
 
 
 END CLASS.

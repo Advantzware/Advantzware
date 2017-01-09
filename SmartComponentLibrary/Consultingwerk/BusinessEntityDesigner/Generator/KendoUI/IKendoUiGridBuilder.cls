@@ -29,9 +29,9 @@ INTERFACE Consultingwerk.BusinessEntityDesigner.Generator.KendoUI.IKendoUiGridBu
         Purpose: Gets and sets the name of the Data Source resource 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY DataSourceName AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY DataSourceName AS CHARACTER NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the name of the table to use from the Data Source resource 
@@ -45,25 +45,25 @@ INTERFACE Consultingwerk.BusinessEntityDesigner.Generator.KendoUI.IKendoUiGridBu
         Purpose: Gets and set the File name to the generated 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY OutputFileName AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY OutputFileName AS CHARACTER NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the name of the page to be written 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY PageTitle AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY PageTitle AS CHARACTER NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the name of the template to be used 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY TemplateFileName AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY TemplateFileName AS CHARACTER NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Adds a Columnn to the Grid definition
@@ -74,7 +74,7 @@ INTERFACE Consultingwerk.BusinessEntityDesigner.Generator.KendoUI.IKendoUiGridBu
         @param piWidthPixels The columns width pixels 
         @return The Grid Column that was added to the Grid
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC Column AddColumn (pcColumnName AS CHARACTER, 
+    METHOD PUBLIC Column AddColumn (pcColumnName AS CHARACTER, 
                                     pcColumnDataType AS CHARACTER,
                                     pcColumnLabel AS CHARACTER,
                                     piWidthPixels AS INTEGER).
@@ -84,6 +84,6 @@ INTERFACE Consultingwerk.BusinessEntityDesigner.Generator.KendoUI.IKendoUiGridBu
         Notes:   
         @return The json string describing the Grid layout 
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LONGCHAR GetGrid ().
+    METHOD PUBLIC LONGCHAR GetGrid ().
 
 END INTERFACE.

@@ -30,29 +30,29 @@ CLASS Consultingwerk.Web.WebErrorHelper:
         Purpose: Returns the current error
         Notes:   Queried by error.html   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC STATIC PROPERTY Error AS Progress.Lang.Error NO-UNDO 
-	GET.
-	PRIVATE SET. 
+    DEFINE PUBLIC STATIC PROPERTY Error AS Progress.Lang.Error NO-UNDO 
+    GET.
+    PRIVATE SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the current error title  
         Notes:   Queried by error.html   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC STATIC PROPERTY Title AS CHARACTER NO-UNDO 
-	GET.
-	PRIVATE SET. 
+    DEFINE PUBLIC STATIC PROPERTY Title AS CHARACTER NO-UNDO 
+    GET.
+    PRIVATE SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the WebErrorHelper class
         Notes:   Disallow instance creation   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PRIVATE WebErrorHelper ():
-		SUPER ().
+    CONSTRUCTOR PRIVATE WebErrorHelper ():
+        SUPER ().
 
         ASSIGN WebErrorHelper:Error = ?
                WebErrorHelper:Title = ? .
-               		
-	END CONSTRUCTOR.
+                       
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Shows an error page in the web browser
@@ -60,13 +60,13 @@ CLASS Consultingwerk.Web.WebErrorHelper:
         @param poError The error object to visualize
         @param pcTitle The title for the message dialog
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC VOID ShowErrorMessage (poError AS Progress.Lang.Error,
-	                                            pcTitle AS CHARACTER):
-		
-		DEFINE VARIABLE web-utilities-hdl AS HANDLE NO-UNDO.
-		
-		ASSIGN WebErrorHelper:Error = poError
-		       WebErrorHelper:Title = pcTitle .  
+    METHOD PUBLIC STATIC VOID ShowErrorMessage (poError AS Progress.Lang.Error,
+                                                pcTitle AS CHARACTER):
+        
+        DEFINE VARIABLE web-utilities-hdl AS HANDLE NO-UNDO.
+        
+        ASSIGN WebErrorHelper:Error = poError
+               WebErrorHelper:Title = pcTitle .  
 
                web-utilities-hdl    = WebContext:web-utilities-hdl . 
 
@@ -77,6 +77,6 @@ CLASS Consultingwerk.Web.WebErrorHelper:
                    WebErrorHelper:Title = ? .  
         END FINALLY.
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

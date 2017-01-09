@@ -32,20 +32,20 @@ USING Progress.Lang.*                  FROM PROPATH .
 CLASS Consultingwerk.OERA.Exceptions.UnableToUseDedicatedBusinessEntityWithoutServiceInterface 
     INHERITS NotSupportedException {&SERIALIZABLE}: 
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Constructor for the UnableToUseDedicatedBusinessEntityWithoutServiceInterface 
-	             class
-	    Notes:
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the UnableToUseDedicatedBusinessEntityWithoutServiceInterface 
+                 class
+        Notes:
         @param pcMethodName The name of the method that is not implemented
         @param pcClassName The name of the class that caused this NotSupportedException
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC UnableToUseDedicatedBusinessEntityWithoutServiceInterface (pcMethodName   AS CHARACTER,
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC UnableToUseDedicatedBusinessEntityWithoutServiceInterface (pcMethodName   AS CHARACTER,
                                                                                   pcClassName    AS CHARACTER):
-		
-		SUPER ((IF pcMethodName > "":U THEN pcMethodName ELSE "UseDedicatedBusinessEntity":U),
-		       pcClassName,
-		       "The use of UseDedicatedBusinessEntity is only supported when using the ServiceInterface."{&TRAN}).
-		
-	END CONSTRUCTOR.
+        
+        SUPER ((IF pcMethodName > "":U THEN pcMethodName ELSE "UseDedicatedBusinessEntity":U),
+               pcClassName,
+               "The use of UseDedicatedBusinessEntity is only supported when using the ServiceInterface."{&TRAN}).
+        
+    END CONSTRUCTOR.
 
 END CLASS.

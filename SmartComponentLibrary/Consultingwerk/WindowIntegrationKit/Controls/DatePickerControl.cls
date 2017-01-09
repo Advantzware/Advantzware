@@ -8,25 +8,25 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : DatePickerControl
     Purpose     : Control that can be used as a PopupEditor or DATE FILL-IN's
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Tue Oct 05 15:36:05 CEST 2010
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
-ROUTINE-LEVEL ON ERROR UNDO, THROW . 
+ROUTINE-LEVEL ON ERROR UNDO, THROW .
 
 USING Progress.Lang.*.
 USING Progress.Windows.UserControl.
 
-CLASS Consultingwerk.WindowIntegrationKit.Controls.DatePickerControl 
-    INHERITS UserControl: 
-    
+CLASS Consultingwerk.WindowIntegrationKit.Controls.DatePickerControl
+    INHERITS UserControl:
+
     DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE TodayButton AS Infragistics.Win.Misc.UltraButton NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraButton1 AS Infragistics.Win.Misc.UltraButton NO-UNDO.
@@ -35,36 +35,36 @@ CLASS Consultingwerk.WindowIntegrationKit.Controls.DatePickerControl
     DEFINE PRIVATE VARIABLE ultraMonthViewMulti1 AS Infragistics.Win.UltraWinSchedule.UltraMonthViewMulti NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraCalendarLook1 AS Infragistics.Win.UltraWinSchedule.UltraCalendarLook NO-UNDO.
 
-    DEFINE VARIABLE lSettingDate AS LOGICAL NO-UNDO.    
-        
+    DEFINE VARIABLE lSettingDate AS LOGICAL NO-UNDO.
+
     /*------------------------------------------------------------------------------
-        Purpose: Raised when the Date is changed                                                                        
-        Notes:      
+        Purpose: Raised when the Date is changed
+        Notes:
     ------------------------------------------------------------------------------*/
     DEFINE PUBLIC EVENT DateChanged DELEGATE System.EventHandler.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the associated DATE                                                                         
-        Notes:      
+        Purpose: Gets and sets the associated DATE
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY Date AS DATE NO-UNDO 
+    DEFINE PUBLIC PROPERTY Date AS DATE NO-UNDO
     GET.
-    SET. 
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the associated WIDGET-HANDLE                                                                        
-        Notes:      
+        Purpose: Gets and sets the associated WIDGET-HANDLE
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY WidgetHandle AS HANDLE NO-UNDO 
+    DEFINE PUBLIC PROPERTY WidgetHandle AS HANDLE NO-UNDO
     GET.
-    SET. 
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the DatePickerControl class                                                                        
-        Notes:      
+        Purpose: Constructor for the DatePickerControl class
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC DatePickerControl ():
-        
+
         SUPER().
         InitializeComponent().
         CATCH e AS Progress.Lang.Error:
@@ -73,17 +73,18 @@ CLASS Consultingwerk.WindowIntegrationKit.Controls.DatePickerControl
 
     END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true").
@@ -188,36 +189,37 @@ CLASS Consultingwerk.WindowIntegrationKit.Controls.DatePickerControl
 
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the DataChanged event                                                                       
-        Notes:                               
-        @param e The System.EventArgs with the data for this event                                         
+        Purpose: Raises the DataChanged event
+        Notes:
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID OnDateChanged (e AS System.EventArgs):
-        
-        IF NOT VALID-OBJECT (e) THEN 
+
+        IF NOT VALID-OBJECT (e) THEN
             e = System.EventArgs:EMPTY .
-            
+
         THIS-OBJECT:DateChanged:Publish (THIS-OBJECT, e) .
 
+        @SuppressUnusedWarnings.
         CATCH err AS Progress.Lang.Error :
-            /* Ignore errors */    
+            /* Ignore errors */
         END CATCH.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the Load event                                                                       
+        Purpose: Raises the Load event
         Notes:
-        @param e The System.EventArgs with the data for this event                                         
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
-        
+
         SUPER:OnLoad (e) .
-        
+
         IF THIS-OBJECT:DATE <> ? THEN DO:
             ultraCalendarInfo1:SelectedDateRanges:Clear () .
             ultraCalendarInfo1:SelectedDateRanges:Add (THIS-OBJECT:Date) .
-            
+
             /* Mike Fechner, Consultingwerk Ltd. 02.08.2011
                The method ActivateDay was introduced in Infragistics
                2009.2, workaround with 2009.1:
@@ -228,57 +230,57 @@ CLASS Consultingwerk.WindowIntegrationKit.Controls.DatePickerControl
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the Click event of the TodayButton                                                                       
-        Notes:                                                  
+        Purpose: Event handler for the Click event of the TodayButton
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event                      
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID TodayButton_Click (sender AS System.Object, 
+    METHOD PRIVATE VOID TodayButton_Click (sender AS System.Object,
                                            e AS System.EventArgs):
-        
-        THIS-OBJECT:DATE = TODAY . 
+
+        THIS-OBJECT:DATE = TODAY .
         OnDateChanged (System.EventArgs:Empty) .
 
     END METHOD.
 
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the Click event of the NoDateButton                                                                       
-        Notes:                                                  
+        Purpose: Event handler for the Click event of the NoDateButton
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event                      
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID NoDateButton_Click (sender AS System.Object, 
+    METHOD PRIVATE VOID NoDateButton_Click (sender AS System.Object,
                                             e AS System.EventArgs):
-        
-      THIS-OBJECT:DATE = ? . 
+
+      THIS-OBJECT:DATE = ? .
       OnDateChanged (System.EventArgs:Empty) .
 
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the AfterSelectedDateRangeChange event of the ultraCalendarInfo1                                                                       
-        Notes:                                                  
+        Purpose: Event handler for the AfterSelectedDateRangeChange event of the ultraCalendarInfo1
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event                      
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraCalendarInfo1_AfterSelectedDateRangeChange (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraCalendarInfo1_AfterSelectedDateRangeChange (sender AS System.Object,
                                                                          e AS System.EventArgs):
-        
-        IF lSettingDate THEN 
-            RETURN . 
-        
-        IF ultraCalendarInfo1:SelectedDateRanges:Count > 0 THEN 
+
+        IF lSettingDate THEN
+            RETURN .
+
+        IF ultraCalendarInfo1:SelectedDateRanges:Count > 0 THEN
             THIS-OBJECT:DATE = ultraCalendarInfo1:SelectedDateRanges[0]:FirstDay:Date .
-            
+
         OnDateChanged (System.EventArgs:Empty) .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor of the DataPickerControl class                                                                       
-        Notes:                                                                        
+        Purpose: Destructor of the DataPickerControl class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC DatePickerControl ():
 

@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2006-2014 by Consultingwerk Ltd. ("CW") -            *
+ * Copyright (C) 2006-2016 by Consultingwerk Ltd. ("CW") -            *
  * www.consultingwerk.de and other contributors as listed             *
  * below.  All Rights Reserved.                                       *
  *                                                                    *
@@ -18,13 +18,14 @@
     Description :  
 
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
-    Created     : 17.04.2015 15:13:00
+    Created     : 06.11.2016 18:48:16
     Notes       :
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
 
 @BusinessEntityGenerator (entityname="Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityBusinessEntity", type="TempTable") .
+@openapi.openedge.entity.primarykey (fields="DataRelationName").
 
 DEFINE {&ACCESS} TEMP-TABLE eDataRelation{&SUFFIX} NO-UNDO {&REFERENCE-ONLY} &IF DEFINED (NO-BEFORE) EQ 0 &THEN BEFORE-TABLE eDataRelationBefore{&SUFFIX} &ENDIF
     FIELD BusinessEntityName AS CHARACTER FORMAT "X(8)":U
@@ -43,6 +44,8 @@ DEFINE {&ACCESS} TEMP-TABLE eDataRelation{&SUFFIX} NO-UNDO {&REFERENCE-ONLY} &IF
 
     INDEX DataRelationName AS UNIQUE PRIMARY DataRelationName ASCENDING
     INDEX Tables AS UNIQUE ParentTempTableName ASCENDING ChildTempTableName ASCENDING
+    INDEX BusinessEntity BusinessEntityName ASCENDING DataRelationName ASCENDING
+    INDEX ChildTempTableName ChildTempTableName ASCENDING DataRelationNotActive ASCENDING
 
     .
 

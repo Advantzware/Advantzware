@@ -8,22 +8,22 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : SmartMasterDetailAdapterForm
-    Purpose     : Simple SmartWindowForm template with a single 
+    Purpose     : Simple SmartWindowForm template with a single
                   SmartBusinessEntityAdapter instance, a SmartDataBrowser
                   and space for a SmartViewerControl
     Syntax      : See SCL-580
-    Description : 
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Mon Dec 08 14:33:33 CET 2014
     Notes       : This Form is not intended to be executed on it's own. This
-                  form is only intended to be used as a base for inheriting 
-                  Forms. 
-                  As the .NET Visual Designer does not support visual 
+                  form is only intended to be used as a base for inheriting
+                  Forms.
+                  As the .NET Visual Designer does not support visual
                   inheritance from abstract classes, this class is not marked
-                  as abstract. 
+                  as abstract.
                   http://confluence.consultingwerkcloud.com/wiki/display/SCL/Using+Visual+Base+From+classes
   ----------------------------------------------------------------------*/
 
@@ -31,18 +31,18 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 {Consultingwerk/products.i}
 
-USING Consultingwerk.Assertion.*            FROM PROPATH . 
-USING Consultingwerk.SmartComponents.Base.* FROM PROPATH . 
+USING Consultingwerk.Assertion.*            FROM PROPATH .
+USING Consultingwerk.SmartComponents.Base.* FROM PROPATH .
 USING Progress.Lang.*                       FROM PROPATH .
 
-CLASS Consultingwerk.SmartComponents.BaseForms.BusinessEntityAdapter.SmartMasterDetailAdapterForm 
-    INHERITS SmartWindowForm: 
-	
+CLASS Consultingwerk.SmartComponents.BaseForms.BusinessEntityAdapter.SmartMasterDetailAdapterForm
+    INHERITS SmartWindowForm:
+
     DEFINE PRIVATE VARIABLE m_SmartMasterDetailAdapterForm_Toolbars_Dock_Area_Top AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_SmartMasterDetailAdapterForm_Toolbars_Dock_Area_Right AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_SmartMasterDetailAdapterForm_Toolbars_Dock_Area_Left AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_SmartMasterDetailAdapterForm_Toolbars_Dock_Area_Bottom AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PROTECTED VARIABLE smartBusinessEntityAdapter1 AS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter NO-UNDO.
     DEFINE PROTECTED VARIABLE smartBusinessEntityBindingSource1 AS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource NO-UNDO.
     DEFINE PROTECTED VARIABLE smartBusinessEntityBindingSource2 AS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource NO-UNDO.
@@ -59,72 +59,72 @@ CLASS Consultingwerk.SmartComponents.BaseForms.BusinessEntityAdapter.SmartMaster
     DEFINE PROTECTED VARIABLE ultraTabControl1 AS Infragistics.Win.UltraWinTabControl.UltraTabControl NO-UNDO.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the instance of the SmartViewerControl used for the 
-                 detail record by this form                                                                       
-        Notes:   Once set, this property value cannot be changed                                                                        
+        Purpose: Gets and sets the instance of the SmartViewerControl used for the
+                 detail record by this form
+        Notes:   Once set, this property value cannot be changed
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY DetailViewerControl AS SmartViewerControl NO-UNDO 
+    DEFINE PUBLIC PROPERTY DetailViewerControl AS SmartViewerControl NO-UNDO
     GET.
     SET (arg AS SmartViewerControl):
-        
-        IF VALID-OBJECT (THIS-OBJECT:DetailViewerControl) THEN 
+
+        IF VALID-OBJECT (THIS-OBJECT:DetailViewerControl) THEN
             UNDO, THROW NEW AppError ("Unable to set DetailViewerControl once DetailViewerControl was set before."{&TRAN}, 0) .
-       
-        {Consultingwerk/Assertion/ObjectAssert/IsValid.i arg """DetailViewerControl"":U"} . 
+
+        {Consultingwerk/Assertion/ObjectAssert/IsValid.i arg """DetailViewerControl"":U"} .
 
         arg:BeginInit() .
-       
-        THIS-OBJECT:DetailViewerControl = arg . 
-       
-        arg:Dock = System.Windows.Forms.DockStyle:Fill .
-        arg:SmartTableIOSource = smartToolbarController1 . 
-        arg:SmartDataSource = smartDatasetChildAdapter1 . 
-       
-        THIS-OBJECT:ultraTabControl1:Tabs["detail":U]:TabPage:Controls:Add (arg) . 
-        
-        arg:BringToFront() . 
 
-        arg:EndInit () . 
+        THIS-OBJECT:DetailViewerControl = arg .
+
+        arg:Dock = System.Windows.Forms.DockStyle:Fill .
+        arg:SmartTableIOSource = smartToolbarController1 .
+        arg:SmartDataSource = smartDatasetChildAdapter1 .
+
+        THIS-OBJECT:ultraTabControl1:Tabs["detail":U]:TabPage:Controls:Add (arg) .
+
+        arg:BringToFront() .
+
+        arg:EndInit () .
     END.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the instance of the SmartViewerControl used for the 
-                 master record by this form                                                                       
-        Notes:   Once set, this property value cannot be changed                                                                        
+        Purpose: Gets and sets the instance of the SmartViewerControl used for the
+                 master record by this form
+        Notes:   Once set, this property value cannot be changed
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY MasterViewerControl AS SmartViewerControl NO-UNDO 
-	GET.
-	SET (arg AS SmartViewerControl):
-	    
-	    IF VALID-OBJECT (THIS-OBJECT:MasterViewerControl) THEN 
-	        UNDO, THROW NEW AppError ("Unable to set MasterViewerControl once MasterViewerControl was set before."{&TRAN}, 0) .
-	   
-	    {Consultingwerk/Assertion/ObjectAssert/IsValid.i arg """MasterViewerControl"":U"} . 
+    DEFINE PUBLIC PROPERTY MasterViewerControl AS SmartViewerControl NO-UNDO
+    GET.
+    SET (arg AS SmartViewerControl):
+
+        IF VALID-OBJECT (THIS-OBJECT:MasterViewerControl) THEN
+            UNDO, THROW NEW AppError ("Unable to set MasterViewerControl once MasterViewerControl was set before."{&TRAN}, 0) .
+
+        {Consultingwerk/Assertion/ObjectAssert/IsValid.i arg """MasterViewerControl"":U"} .
 
         arg:BeginInit() .
-	   
-	    THIS-OBJECT:MasterViewerControl = arg . 
-	   
-	    arg:Dock = System.Windows.Forms.DockStyle:Fill .
-        arg:SmartTableIOSource = smartToolbarController1 . 
-	    arg:SmartDataSource = smartBusinessEntityAdapter1 . 
-	   
-	    THIS-OBJECT:ultraTabControl1:Tabs["master":U]:TabPage:Controls:Add (arg) . 
-	    
-	    arg:BringToFront() . 
 
-        arg:EndInit () . 
-	END.
+        THIS-OBJECT:MasterViewerControl = arg .
+
+        arg:Dock = System.Windows.Forms.DockStyle:Fill .
+        arg:SmartTableIOSource = smartToolbarController1 .
+        arg:SmartDataSource = smartBusinessEntityAdapter1 .
+
+        THIS-OBJECT:ultraTabControl1:Tabs["master":U]:TabPage:Controls:Add (arg) .
+
+        arg:BringToFront() .
+
+        arg:EndInit () .
+    END.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the SmartMasterDetailAdapterForm class                                                                      
-        Notes:                                                                        
+        Purpose: Constructor for the SmartMasterDetailAdapterForm class
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC SmartMasterDetailAdapterForm ():
-		
+    CONSTRUCTOR PUBLIC SmartMasterDetailAdapterForm ():
+
         SUPER().
         InitializeComponent().
-        
+
         &IF NOT PROVERSION BEGINS "10.2":U AND NOT PROVERSION BEGINS "11.0" &THEN
         THIS-OBJECT:ComponentsCollection:Add (THIS-OBJECT:components).
         &ENDIF
@@ -133,19 +133,20 @@ CLASS Consultingwerk.SmartComponents.BaseForms.BusinessEntityAdapter.SmartMaster
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                      
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -1239,15 +1240,15 @@ CLASS Consultingwerk.SmartComponents.BaseForms.BusinessEntityAdapter.SmartMaster
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD.
+    END METHOD.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Initializes the BindingSource with the same parameters as the 
-	             Business Entity Adapter and sets up binding source schema
-	    Notes:
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID InitializeDataBinding ():
-		
+    /*------------------------------------------------------------------------------
+        Purpose: Initializes the BindingSource with the same parameters as the
+                 Business Entity Adapter and sets up binding source schema
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID InitializeDataBinding ():
+
         THIS-OBJECT:smartDatasetChildAdapter1:SmartDataSource = THIS-OBJECT:smartBusinessEntityAdapter1.
 
         THIS-OBJECT:smartBusinessEntityBindingSource1:InitializeFromAdapter (smartBusinessEntityAdapter1) .
@@ -1258,15 +1259,15 @@ CLASS Consultingwerk.SmartComponents.BaseForms.BusinessEntityAdapter.SmartMaster
 
         THIS-OBJECT:smartBusinessEntityBindingSource2:DesignerImportSchema (TRUE) .
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Raises the Shown Event
-        Notes:   
+        Notes:
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
-        
+
         SUPER:OnShown (e) .
 
         Consultingwerk.Util.UserInterfaceHelper:ProcessEvents() .
@@ -1275,35 +1276,35 @@ CLASS Consultingwerk.SmartComponents.BaseForms.BusinessEntityAdapter.SmartMaster
 
     END METHOD .
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Event handler for the SelectedTabChanged event of the ultraTabControl1
-	    Notes:
-	    @param sender The reference to the object that raised the event
-	    @param e The SelectedTabChangedEventArgs with the data for this event 
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraTabControl1_SelectedTabChanged (sender AS System.Object, 
-	                                                         e AS Infragistics.Win.UltraWinTabControl.SelectedTabChangedEventArgs):
-		
-		CASE e:Tab:Key:
-		    WHEN "master":U THEN DO:
-		        smartToolbarController1:ActivateSmartNavigationTarget (smartBusinessEntityAdapter1) .
-		        smartToolbarController1:ActivateSmartTableIOTarget (THIS-OBJECT:MasterViewerControl) .
-		    END.
-		    
-		    WHEN "detail":U THEN DO:
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the SelectedTabChanged event of the ultraTabControl1
+        Notes:
+        @param sender The reference to the object that raised the event
+        @param e The SelectedTabChangedEventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID ultraTabControl1_SelectedTabChanged (sender AS System.Object,
+                                                             e AS Infragistics.Win.UltraWinTabControl.SelectedTabChangedEventArgs):
+
+        CASE e:Tab:Key:
+            WHEN "master":U THEN DO:
+                smartToolbarController1:ActivateSmartNavigationTarget (smartBusinessEntityAdapter1) .
+                smartToolbarController1:ActivateSmartTableIOTarget (THIS-OBJECT:MasterViewerControl) .
+            END.
+
+            WHEN "detail":U THEN DO:
                 smartToolbarController1:ActivateSmartNavigationTarget (smartDatasetChildAdapter1) .
                 smartToolbarController1:ActivateSmartTableIOTarget (THIS-OBJECT:DetailViewerControl) .
-		    END.
-		END.
+            END.
+        END CASE .
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the SmartMasterDetailAdapterForm class                                                                      
-        Notes:                                                                        
+        Purpose: Destructor for the SmartMasterDetailAdapterForm class
+        Notes:
     ------------------------------------------------------------------------------*/
-	DESTRUCTOR PUBLIC SmartMasterDetailAdapterForm ():
+    DESTRUCTOR PUBLIC SmartMasterDetailAdapterForm ():
 
-	END DESTRUCTOR.
+    END DESTRUCTOR.
 
 END CLASS.

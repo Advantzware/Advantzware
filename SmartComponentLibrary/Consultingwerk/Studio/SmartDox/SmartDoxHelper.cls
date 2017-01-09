@@ -113,13 +113,13 @@ CLASS Consultingwerk.Studio.SmartDox.SmartDoxHelper:
         @param plcString A longchar value which replace all space characters
         @return The formated string value with the replaced space character
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC LONGCHAR ReplaceBlank (plcString AS LONGCHAR):
-	    
-		DEFINE VARIABLE cResult AS LONGCHAR NO-UNDO.
+    METHOD PUBLIC STATIC LONGCHAR ReplaceBlank (plcString AS LONGCHAR):
         
-		ASSIGN cResult = REPLACE (plcString, " ":U, "&nbsp;":U).
-		
-		RETURN cResult .
+        DEFINE VARIABLE cResult AS LONGCHAR NO-UNDO.
+        
+        ASSIGN cResult = REPLACE (plcString, " ":U, "&nbsp;":U).
+        
+        RETURN cResult .
 
     END METHOD .
 

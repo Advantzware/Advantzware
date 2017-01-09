@@ -11,34 +11,34 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : DatabaseNotConnectedException
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Fri Nov 30 20:08:07 CET 2012
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Consultingwerk.Exceptions.* FROM PROPATH .  
+USING Consultingwerk.Exceptions.* FROM PROPATH .
 USING Progress.Lang.*             FROM PROPATH .
 
 {Consultingwerk/products.i}
 
-CLASS Consultingwerk.Exceptions.DatabaseNotConnectedException 
+CLASS Consultingwerk.Exceptions.DatabaseNotConnectedException
     INHERITS Exception
-    {&SERIALIZABLE}:  
+    {&SERIALIZABLE}:
 
-    /*------------------------------------------------------------------------------
-        Purpose: Constructor for the DatabaseNotConnectedException class
-        Notes:                                                                   
-        @param pcDatabaseName The database name to use in the error message     
-    ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC DatabaseNotConnectedException (pcDatabaseName AS CHARACTER):
-	    
-		SUPER (SUBSTITUTE ("Database ~"&1~" is not connected.", pcDatabaseName), 0).
-		
-	END CONSTRUCTOR.
+    /**
+     * Purpose: Constructor for the DatabaseNotConnectedException class
+     * Notes:
+     * @param pcDatabaseName The database name to use in the error message
+     */
+    CONSTRUCTOR PUBLIC DatabaseNotConnectedException (pcDatabaseName AS CHARACTER):
+
+        SUPER (SUBSTITUTE ("Database ~"&1~" is not connected."{&TRAN}, pcDatabaseName), 0).
+
+    END CONSTRUCTOR.
 
 END CLASS.

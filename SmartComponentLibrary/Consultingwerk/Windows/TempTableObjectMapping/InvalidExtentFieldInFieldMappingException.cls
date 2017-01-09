@@ -48,9 +48,9 @@ CLASS Consultingwerk.Windows.TempTableObjectMapping.InvalidExtentFieldInFieldMap
        Purpose: Returns the name of the property that caused the issue
        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY PropertyName AS CHARACTER NO-UNDO 
-	GET.
-	PRIVATE SET. 
+    DEFINE PUBLIC PROPERTY PropertyName AS CHARACTER NO-UNDO 
+    GET.
+    PRIVATE SET. 
 
     /*------------------------------------------------------------------------------
        Purpose: Constructor for the InvalidPropertyNameException class
@@ -60,17 +60,17 @@ CLASS Consultingwerk.Windows.TempTableObjectMapping.InvalidExtentFieldInFieldMap
        @param pcFieldName The field name for the exception
        @param pcFieldType The field type for the exception 
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC InvalidExtentFieldInFieldMappingException (pcErrorMessage AS CHARACTER,
-         	                                                      pcPropertyName AS CHARACTER,
-         	                                                      pcFieldName AS CHARACTER,
-         	                                                      pcFieldType AS CHARACTER):
-		
-		SUPER (pcErrorMessage, 0).
-		
-		ASSIGN THIS-OBJECT:PropertyName = pcPropertyName
-		       THIS-OBJECT:FieldName    = pcFieldName 
-		       THIS-OBJECT:FieldType    = pcFieldType .
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC InvalidExtentFieldInFieldMappingException (pcErrorMessage AS CHARACTER,
+                                                                   pcPropertyName AS CHARACTER,
+                                                                   pcFieldName AS CHARACTER,
+                                                                   pcFieldType AS CHARACTER):
+        
+        SUPER (pcErrorMessage, 0).
+        
+        ASSIGN THIS-OBJECT:PropertyName = pcPropertyName
+               THIS-OBJECT:FieldName    = pcFieldName 
+               THIS-OBJECT:FieldType    = pcFieldType .
+        
+    END CONSTRUCTOR.
 
 END CLASS.

@@ -39,22 +39,22 @@ CLASS Consultingwerk.Framework.Exceptions.ServiceNotRegisteredException
                  is not registered
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY ServiceClass AS Progress.Lang.Class NO-UNDO 
-	GET.
-	PRIVATE SET. 
+    DEFINE PUBLIC PROPERTY ServiceClass AS Progress.Lang.Class NO-UNDO 
+    GET.
+    PRIVATE SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the ServiceAlreadyRegisteredException class
         Notes:   
         @param poServiceClass The reference to the Class or interface of the service that cannot be added
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ServiceNotRegisteredException (poServiceClass AS Progress.Lang.Class):
-		SUPER (SUBSTITUTE ("The requested service type for ~"&1~" is not registered."{&TRAN}, 
-		                   poServiceClass:TypeName), 
-		       0) .
-		
-		THIS-OBJECT:ServiceClass = poServiceClass .
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC ServiceNotRegisteredException (poServiceClass AS Progress.Lang.Class):
+        SUPER (SUBSTITUTE ("The requested service type for ~"&1~" is not registered."{&TRAN}, 
+                           poServiceClass:TypeName), 
+               0) .
+        
+        THIS-OBJECT:ServiceClass = poServiceClass .
+        
+    END CONSTRUCTOR.
 
 END CLASS.

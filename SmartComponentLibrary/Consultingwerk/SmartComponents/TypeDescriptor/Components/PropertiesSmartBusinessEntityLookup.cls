@@ -12,35 +12,35 @@
 /*------------------------------------------------------------------------
     File        : PropertiesSmartBusinessEntityLookup
     Purpose     : Provides the Property Descriptor for the SmartBusinessEntityLookup class
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Fri Feb 22 15:33:55 CET 2013
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Consultingwerk.SmartComponents.TypeDescriptor.*            FROM PROPATH .  
-USING Consultingwerk.SmartComponents.TypeDescriptor.Components.* FROM PROPATH .  
+USING Consultingwerk.SmartComponents.TypeDescriptor.*            FROM PROPATH .
+USING Consultingwerk.SmartComponents.TypeDescriptor.Components.* FROM PROPATH .
 USING Progress.Lang.*                                            FROM PROPATH .
 USING System.ComponentModel.*                                    FROM ASSEMBLY .
 USING System.ComponentModel.Design.Serialization.*               FROM ASSEMBLY .
 
 CLASS Consultingwerk.SmartComponents.TypeDescriptor.Components.PropertiesSmartBusinessEntityLookup
-    INHERITS Consultingwerk.SmartComponents.TypeDescriptor.PropertyDescriptorCollection: 
+    INHERITS Consultingwerk.SmartComponents.TypeDescriptor.PropertyDescriptorCollection:
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the PropertiesSmartBusinessEntityLookup class
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC PropertiesSmartBusinessEntityLookup ():
-	    
-	    DEFINE VARIABLE oProperty AS IPropertyDescriptor NO-UNDO . 
-		
-		SUPER ().
+    CONSTRUCTOR PUBLIC PropertiesSmartBusinessEntityLookup ():
 
-        THIS-OBJECT:TypeName = "Consultingwerk.SmartComponents.Base.SmartBusinessEntityLookup":U . 
+        DEFINE VARIABLE oProperty AS IPropertyDescriptor NO-UNDO .
+
+        SUPER ().
+
+        THIS-OBJECT:TypeName = "Consultingwerk.SmartComponents.Base.SmartBusinessEntityLookup":U .
 
         oProperty = THIS-OBJECT:Add ("AdapterType":U) .
         oProperty:Attributes:Add (NEW System.ComponentModel.BrowsableAttribute (FALSE)) .
@@ -56,6 +56,11 @@ CLASS Consultingwerk.SmartComponents.TypeDescriptor.Components.PropertiesSmartBu
         oProperty:Attributes:Add (NEW System.ComponentModel.CategoryAttribute ("SmartBusinessEntityLookup":U)) .
         oProperty:Attributes:Add (NEW System.ComponentModel.DescriptionAttribute ("Returns the reference to the dictionary that contains the values for the LookupAdditionalFields":U)) .
 
-	END CONSTRUCTOR.
+        oProperty = THIS-OBJECT:Add ("SpinThroughPartialMatches":U) .
+        oProperty:Attributes:Add (NEW System.ComponentModel.CategoryAttribute ("SmartBusinessEntityLookup":U)) .
+        oProperty:Attributes:Add (NEW System.ComponentModel.DescriptionAttribute ("Add basic Spinning functionality to the SmartBusinessEntityLoookup":U)) .
+        oProperty:Attributes:Add (NEW DefaultValueAttribute (FALSE)) .
+
+    END CONSTRUCTOR.
 
 END CLASS.

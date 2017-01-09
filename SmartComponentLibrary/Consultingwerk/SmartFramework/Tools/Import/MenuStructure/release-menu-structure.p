@@ -42,8 +42,8 @@ ASSIGN lOverwriteExisting = DataTypeHelper:ToLogical (DYNAMIC-FUNCTION ("getPara
                                         "SourceFile":U) .
 
 
-FILE-INFO:FILE-NAME = cFileName .
-ASSIGN cFileName = FILE-INFO:FULL-PATHNAME . 
+FILE-INFORMATION:FILE-NAME = cFileName .
+ASSIGN cFileName = FILE-INFORMATION:FULL-PATHNAME . 
 
 PUT UNFORMATTED "Loading menu structure from: ":U cFileName SKIP (0). 
 PUT UNFORMATTED "Overwrite existing data: ":U lOverwriteExisting SKIP (1). 

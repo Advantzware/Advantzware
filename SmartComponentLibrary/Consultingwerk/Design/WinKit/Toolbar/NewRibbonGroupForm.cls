@@ -8,15 +8,15 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : NewRibbonGroupForm
     Purpose     : Provides an user interface to create a new Ribbon Group
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Thu Jul 08 23:03:31 CEST 2010
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 USING Progress.Lang.*.
@@ -24,9 +24,9 @@ USING Progress.Windows.Form.
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-CLASS Consultingwerk.Design.WinKit.Toolbar.NewRibbonGroupForm INHERITS Form: 
-	
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+CLASS Consultingwerk.Design.WinKit.Toolbar.NewRibbonGroupForm INHERITS Form:
+
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraLabel2 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraLabel1 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraTabSharedControlsPage1 AS Infragistics.Win.UltraWinTabControl.UltraTabSharedControlsPage NO-UNDO.
@@ -37,51 +37,52 @@ CLASS Consultingwerk.Design.WinKit.Toolbar.NewRibbonGroupForm INHERITS Form:
     DEFINE PRIVATE VARIABLE ultraTextEditor2 AS Infragistics.Win.UltraWinEditors.UltraTextEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraTextEditor1 AS Infragistics.Win.UltraWinEditors.UltraTextEditor NO-UNDO.
 
-		
-	DEFINE PUBLIC PROPERTY ParentTab AS Infragistics.Win.UltraWinToolbars.RibbonTab NO-UNDO 
-	GET.
-	SET. 
+
+    DEFINE PUBLIC PROPERTY ParentTab AS Infragistics.Win.UltraWinToolbars.RibbonTab NO-UNDO
+    GET.
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the NewRibbonGroupForm class                                                                        
-        Notes:                                                                        
+        Purpose: Constructor for the NewRibbonGroupForm class
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC NewRibbonGroupForm (  ):
-		
+    CONSTRUCTOR PUBLIC NewRibbonGroupForm (  ):
+
         SUPER().
         InitializeComponent().
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
-
-	/*------------------------------------------------------------------------------
-        Purpose: Returns the entered values                                                                       
-		Notes:  																	  
-        @param pcKey OUTPUT The Ribbon Group Key value
-        @param pcCaption OUTPUT The Ribbon Group Caption value                                           
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID GetValues (OUTPUT pcKey AS CHARACTER,
-	                              OUTPUT pcCaption AS CHARACTER):
-		
-		ASSIGN pcKey = ultraTextEditor1:Text 
-		       pcCaption = ultraTextEditor2:TEXT
-		       .
-
-	END METHOD.
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
+        Purpose: Returns the entered values
+        Notes:
+        @param pcKey OUTPUT The Ribbon Group Key value
+        @param pcCaption OUTPUT The Ribbon Group Caption value
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent(  ):
-		
+    METHOD PUBLIC VOID GetValues (OUTPUT pcKey AS CHARACTER,
+                                  OUTPUT pcCaption AS CHARACTER):
+
+        ASSIGN pcKey = ultraTextEditor1:Text
+               pcCaption = ultraTextEditor2:TEXT
+               .
+
+    END METHOD.
+
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance1 AS Infragistics.Win.Appearance NO-UNDO.
@@ -236,50 +237,50 @@ CLASS Consultingwerk.Design.WinKit.Toolbar.NewRibbonGroupForm INHERITS Form:
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD.
+    END METHOD.
 
-	/*------------------------------------------------------------------------------
-        Purpose: Raises the Load event                                                                        
-			Notes:  																	  
+    /*------------------------------------------------------------------------------
+        Purpose: Raises the Load event
+            Notes:
         @param e The System.EventArgs with the data for this event
-	------------------------------------------------------------------------------*/
+    ------------------------------------------------------------------------------*/
     METHOD OVERRIDE PROTECTED VOID OnLoad (e AS System.EventArgs ):
-		
-		SUPER:OnLoad(INPUT e).
+
+        SUPER:OnLoad(INPUT e).
 
         ultraTextEditor1:Focus() .
 
-	END METHOD.
-
-	/*------------------------------------------------------------------------------
-        Purpose: Event handler for the TextChanged event of the ultraTextEditor1 instance                                                                        
-			Notes:  																	  
-        @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event                          
-	------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraTextEditor1_TextChanged (sender AS System.Object, 
-                                                      e AS System.EventArgs ):
-		
-        IF ultraTextEditor1:Text > "":U THEN . 
-		ELSE DO:
-		    ultraButton1:Enabled = FALSE .
-		    RETURN .
-	    END.
-		
-		ultraButton1:Enabled = NOT THIS-OBJECT:ParentTab:Groups:Exists (ultraButton1:Text) .
-
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the NewRibbonGroupForm class                                                                        
-        Notes:                                                                        
+        Purpose: Event handler for the TextChanged event of the ultraTextEditor1 instance
+            Notes:
+        @param sender The reference to the object that raised the event
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	DESTRUCTOR PUBLIC NewRibbonGroupForm ( ):
+    METHOD PRIVATE VOID ultraTextEditor1_TextChanged (sender AS System.Object,
+                                                      e AS System.EventArgs ):
 
-		IF VALID-OBJECT(components) THEN DO:
-			CAST(components, System.IDisposable):Dispose().
-		END.
+        IF ultraTextEditor1:Text > "":U THEN .
+        ELSE DO:
+            ultraButton1:Enabled = FALSE .
+            RETURN .
+        END.
 
-	END DESTRUCTOR.
+        ultraButton1:Enabled = NOT THIS-OBJECT:ParentTab:Groups:Exists (ultraButton1:Text) .
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Destructor for the NewRibbonGroupForm class
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DESTRUCTOR PUBLIC NewRibbonGroupForm ( ):
+
+        IF VALID-OBJECT(components) THEN DO:
+            CAST(components, System.IDisposable):Dispose().
+        END.
+
+    END DESTRUCTOR.
 
 END CLASS.

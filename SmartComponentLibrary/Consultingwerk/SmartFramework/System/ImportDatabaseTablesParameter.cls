@@ -41,12 +41,12 @@ CLASS Consultingwerk.SmartFramework.System.ImportDatabaseTablesParameter
         Purpose: Constructor for the ImportDatabaseTablesParameter class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ImportDatabaseTablesParameter ():
-		SUPER ().
+    CONSTRUCTOR PUBLIC ImportDatabaseTablesParameter ():
+        SUPER ().
 
         THIS-OBJECT:AddSerializableProperties ("{&SerializableProperties}":U) .
-		
-	END CONSTRUCTOR.
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the ImportDatabaseTablesParameter class

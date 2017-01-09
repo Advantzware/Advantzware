@@ -13,25 +13,25 @@
     File        : IProvidesRecordKey
     Purpose     : Interface for SmartDataAdapter classes that can provide
                   a value for the key of a record
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Mon Dec 16 11:46:24 CET 2013
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Consultingwerk.SmartComponents.Interfaces.* FROM PROPATH .  
+USING Consultingwerk.SmartComponents.Interfaces.* FROM PROPATH .
 USING Progress.Lang.*                             FROM PROPATH .
 
-INTERFACE Consultingwerk.SmartComponents.Interfaces.IProvidesRecordKey: 
+INTERFACE Consultingwerk.SmartComponents.Interfaces.IProvidesRecordKey:
 
-    /*------------------------------------------------------------------------------
-        Purpose: Returns a key identifying the current record 
-        Notes:   Key values may be concatenated, but must be returned as a single character value
-        @return The single character key that represents the current record
-    ------------------------------------------------------------------------------*/
-	METHOD PUBLIC CHARACTER GetCurrentRecordKey () .
+    /**
+     * Purpose: Returns a key identifying the current record
+     * Notes:   Key values may be concatenated, but must be returned as a single character value
+     * @return The single character key that represents the current record
+     */
+    METHOD PUBLIC CHARACTER GetCurrentRecordKey () .
 
 END INTERFACE .

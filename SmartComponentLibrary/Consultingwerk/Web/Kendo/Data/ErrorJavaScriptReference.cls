@@ -29,7 +29,7 @@ USING Progress.Lang.*                 FROM PROPATH .
 CLASS Consultingwerk.Web.Kendo.Data.ErrorJavaScriptReference
     INHERITS JavaScriptReference: 
 
-    {Consultingwerk/JsonSerializableProperty.i source CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i source CHARACTER} .
     
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the Error class                                                                     

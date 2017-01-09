@@ -37,7 +37,8 @@
     "{2}" = "INTEGER" OR
     "{2}" = "LOGICAL" OR
     "{2}" = "LONGCHAR" OR 
-    "{2}" = "RAW" &THEN
+    "{2}" = "RAW" OR 
+    "{2}" = "ROWID" &THEN
     DEFINE PUBLIC PROPERTY {1} AS {2} NO-UNDO {3} 
     GET():
         RETURN THIS-OBJECT:Get{2}Property ("{1}":U) .

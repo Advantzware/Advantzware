@@ -127,7 +127,7 @@ IF VALID-HANDLE (hDataset5) THEN
 ASSIGN plcParameterOut = plcParameter .                
 
 CATCH err AS Progress.Lang.Error :
-	LogManager:WriteError (err) .	
+    LogManager:WriteError (err) .    
 END CATCH.
                         
 /*{ {&OERASI}/sicatch.i }*/

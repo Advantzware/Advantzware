@@ -119,13 +119,264 @@
   <metadata name="smartToolbarController1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
+  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"/>
+  <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing">
+    <value>646, 479</value>
+  </data>
+  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="smartRelationViewerControl1.AutoScroll" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="smartRelationViewerControl1.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Fill</value>
+  </data>
   <metadata name="smartBusinessEntityAdapter1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>485, 17</value>
   </metadata>
+  <data name="smartRelationViewerControl1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>313, 0</value>
+  </data>
+  <data name="smartRelationViewerControl1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>317, 320</value>
+  </data>
+  <data name="smartRelationViewerControl1.TabIndex" type="System.Int32, mscorlib">
+    <value>5</value>
+  </data>
+  <data name="&gt;&gt;smartRelationViewerControl1.Name" xml:space="preserve">
+    <value>smartRelationViewerControl1</value>
+  </data>
+  <data name="&gt;&gt;smartRelationViewerControl1.Type" xml:space="preserve">
+    <value>Consultingwerk.Windows.Framework.System.SmartRelationViewerControl, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;smartRelationViewerControl1.Parent" xml:space="preserve">
+    <value>SmartRelationForm_Fill_Panel.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;smartRelationViewerControl1.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="ultraSplitter1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>307, 0</value>
+  </data>
+  <data name="ultraSplitter1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>6, 320</value>
+  </data>
+  <data name="ultraSplitter1.TabIndex" type="System.Int32, mscorlib">
+    <value>6</value>
+  </data>
+  <data name="&gt;&gt;ultraSplitter1.Name" xml:space="preserve">
+    <value>ultraSplitter1</value>
+  </data>
+  <data name="&gt;&gt;ultraSplitter1.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraSplitter, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraSplitter1.Parent" xml:space="preserve">
+    <value>SmartRelationForm_Fill_Panel.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;ultraSplitter1.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
   <metadata name="smartBusinessEntityBindingSource1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>251, 17</value>
   </metadata>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"/>
+  <data name="ultraGridColumn1.Header.Caption" xml:space="preserve">
+    <value>RelationGuid </value>
+  </data>
+  <data name="ultraGridColumn2.Header.Caption" xml:space="preserve">
+    <value>Parent Table</value>
+  </data>
+  <data name="ultraGridColumn3.Header.Caption" xml:space="preserve">
+    <value>Parent Table Name</value>
+  </data>
+  <data name="ultraGridColumn4.Header.Caption" xml:space="preserve">
+    <value>Child Table</value>
+  </data>
+  <data name="ultraGridColumn5.Header.Caption" xml:space="preserve">
+    <value>Child Table Name</value>
+  </data>
+  <data name="ultraGridColumn6.Header.Caption" xml:space="preserve">
+    <value>Name </value>
+  </data>
+  <data name="ultraGridColumn7.Header.Caption" xml:space="preserve">
+    <value>Description </value>
+  </data>
+  <data name="ultraGridColumn8.Header.Caption" xml:space="preserve">
+    <value>RelationFieldPair(s) </value>
+  </data>
+  <data name="ultraGridColumn9.Header.Caption" xml:space="preserve">
+    <value>Parent Role Description </value>
+  </data>
+  <data name="ultraGridColumn10.Header.Caption" xml:space="preserve">
+    <value>Child Role Description </value>
+  </data>
+  <data name="ultraGridColumn11.Header.Caption" xml:space="preserve">
+    <value>Parent Cardinality </value>
+  </data>
+  <data name="ultraGridColumn12.Header.Caption" xml:space="preserve">
+    <value>Child Cardinality </value>
+  </data>
+  <data name="ultraGridColumn13.Header.Caption" xml:space="preserve">
+    <value>On Parent Delete </value>
+  </data>
+  <data name="ultraGridColumn17.Header.Caption" xml:space="preserve">
+    <value>Default Parent Relation </value>
+  </data>
+  <data name="ultraGridColumn14.Header.Caption" xml:space="preserve">
+    <value>Attachments </value>
+  </data>
+  <data name="ultraGridColumn15.Header.Caption" xml:space="preserve">
+    <value>Comments </value>
+  </data>
+  <data name="ultraGridColumn16.Header.Caption" xml:space="preserve">
+    <value>SmartRecordKey </value>
+  </data>
+  <data name="ultraGridColumn18.Header.Caption" xml:space="preserve">
+    <value>Inactive </value>
+  </data>
+  <data name="appearance10.TextHAlignAsString" xml:space="preserve">
+    <value>Left</value>
+  </data>
+  <data name="smartDataBrowser1.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Left</value>
+  </data>
+  <data name="smartDataBrowser1.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 8.25pt</value>
+  </data>
+  <data name="smartDataBrowser1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="smartDataBrowser1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>307, 320</value>
+  </data>
+  <data name="smartDataBrowser1.TabIndex" type="System.Int32, mscorlib">
+    <value>5</value>
+  </data>
+  <data name="smartDataBrowser1.Text" xml:space="preserve">
+    <value>smartDataBrowser1</value>
+  </data>
+  <data name="&gt;&gt;smartDataBrowser1.Name" xml:space="preserve">
+    <value>smartDataBrowser1</value>
+  </data>
+  <data name="&gt;&gt;smartDataBrowser1.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartDataBrowser, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;smartDataBrowser1.Parent" xml:space="preserve">
+    <value>SmartRelationForm_Fill_Panel.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;smartDataBrowser1.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="&gt;&gt;SmartRelationForm_Fill_Panel.ClientArea.Name" xml:space="preserve">
+    <value>SmartRelationForm_Fill_Panel.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;SmartRelationForm_Fill_Panel.ClientArea.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraPanelClientAreaUnsafe, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;SmartRelationForm_Fill_Panel.ClientArea.Parent" xml:space="preserve">
+    <value>SmartRelationForm_Fill_Panel</value>
+  </data>
+  <data name="&gt;&gt;SmartRelationForm_Fill_Panel.ClientArea.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="SmartRelationForm_Fill_Panel.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Fill</value>
+  </data>
+  <data name="SmartRelationForm_Fill_Panel.Location" type="System.Drawing.Point, System.Drawing">
+    <value>8, 151</value>
+  </data>
+  <data name="SmartRelationForm_Fill_Panel.Size" type="System.Drawing.Size, System.Drawing">
+    <value>630, 320</value>
+  </data>
+  <data name="SmartRelationForm_Fill_Panel.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="&gt;&gt;SmartRelationForm_Fill_Panel.Name" xml:space="preserve">
+    <value>SmartRelationForm_Fill_Panel</value>
+  </data>
+  <data name="&gt;&gt;SmartRelationForm_Fill_Panel.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraPanel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;SmartRelationForm_Fill_Panel.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;SmartRelationForm_Fill_Panel.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="m_SmartRelationForm_Toolbars_Dock_Area_Left.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 151</value>
+  </data>
+  <data name="m_SmartRelationForm_Toolbars_Dock_Area_Left.Size" type="System.Drawing.Size, System.Drawing">
+    <value>8, 320</value>
+  </data>
+  <data name="&gt;&gt;m_SmartRelationForm_Toolbars_Dock_Area_Left.Name" xml:space="preserve">
+    <value>m_SmartRelationForm_Toolbars_Dock_Area_Left</value>
+  </data>
+  <data name="&gt;&gt;m_SmartRelationForm_Toolbars_Dock_Area_Left.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;m_SmartRelationForm_Toolbars_Dock_Area_Left.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;m_SmartRelationForm_Toolbars_Dock_Area_Left.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="m_SmartRelationForm_Toolbars_Dock_Area_Right.Location" type="System.Drawing.Point, System.Drawing">
+    <value>638, 151</value>
+  </data>
+  <data name="m_SmartRelationForm_Toolbars_Dock_Area_Right.Size" type="System.Drawing.Size, System.Drawing">
+    <value>8, 320</value>
+  </data>
+  <data name="&gt;&gt;m_SmartRelationForm_Toolbars_Dock_Area_Right.Name" xml:space="preserve">
+    <value>m_SmartRelationForm_Toolbars_Dock_Area_Right</value>
+  </data>
+  <data name="&gt;&gt;m_SmartRelationForm_Toolbars_Dock_Area_Right.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;m_SmartRelationForm_Toolbars_Dock_Area_Right.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;m_SmartRelationForm_Toolbars_Dock_Area_Right.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="m_SmartRelationForm_Toolbars_Dock_Area_Bottom.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 471</value>
+  </data>
+  <data name="m_SmartRelationForm_Toolbars_Dock_Area_Bottom.Size" type="System.Drawing.Size, System.Drawing">
+    <value>646, 8</value>
+  </data>
+  <data name="&gt;&gt;m_SmartRelationForm_Toolbars_Dock_Area_Bottom.Name" xml:space="preserve">
+    <value>m_SmartRelationForm_Toolbars_Dock_Area_Bottom</value>
+  </data>
+  <data name="&gt;&gt;m_SmartRelationForm_Toolbars_Dock_Area_Bottom.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;m_SmartRelationForm_Toolbars_Dock_Area_Bottom.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;m_SmartRelationForm_Toolbars_Dock_Area_Bottom.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="m_SmartRelationForm_Toolbars_Dock_Area_Top.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="m_SmartRelationForm_Toolbars_Dock_Area_Top.Size" type="System.Drawing.Size, System.Drawing">
+    <value>646, 151</value>
+  </data>
+  <data name="&gt;&gt;m_SmartRelationForm_Toolbars_Dock_Area_Top.Name" xml:space="preserve">
+    <value>m_SmartRelationForm_Toolbars_Dock_Area_Top</value>
+  </data>
+  <data name="&gt;&gt;m_SmartRelationForm_Toolbars_Dock_Area_Top.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;m_SmartRelationForm_Toolbars_Dock_Area_Top.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;m_SmartRelationForm_Toolbars_Dock_Area_Top.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="$this.Icon" type="System.Drawing.Icon, System.Drawing">
     <value>
         AAABAA8AAAAAAAEABAA4JwAA9gAAADAwAAABAAQAaAYAAC4oAAAgIAAAAQAEAOgCAACWLgAAGBgAAAEA
@@ -1857,12 +2108,72 @@
         AAD/AAAA/wAAAP+BAAD/wwAA
 </value>
   </data>
+  <data name="$this.Text" xml:space="preserve">
+    <value>Relation Maintenance</value>
+  </data>
+  <data name="$this.WindowPositionRegistryKey" xml:space="preserve">
+    <value>SmartRelationForm</value>
+  </data>
+  <data name="&gt;&gt;smartToolbarController1.Name" xml:space="preserve">
+    <value>smartToolbarController1</value>
+  </data>
+  <data name="&gt;&gt;smartToolbarController1.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartToolbarController, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityAdapter1.Name" xml:space="preserve">
+    <value>smartBusinessEntityAdapter1</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityAdapter1.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1.Name" xml:space="preserve">
+    <value>smartBusinessEntityBindingSource1</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;$this.Name" xml:space="preserve">
+    <value>SmartRelationForm</value>
+  </data>
+  <data name="&gt;&gt;$this.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Base.SmartWindowForm, OEProxyAssembly, Version=11.6.0.4, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="ribbonTab1.Caption" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="ribbonGroup1.Caption" xml:space="preserve">
+    <value>Navigation</value>
+  </data>
+  <data name="ribbonGroup2.Caption" xml:space="preserve">
+    <value>Maintenance</value>
+  </data>
+  <data name="ribbonGroup3.Caption" xml:space="preserve">
+    <value>Relations</value>
+  </data>
+  <data name="ultraToolbar1.Text" xml:space="preserve">
+    <value>Navigation Toolbar</value>
+  </data>
+  <data name="ultraToolbar2.Text" xml:space="preserve">
+    <value>TableIO Toolbar</value>
+  </data>
+  <data name="ultraToolbar3.Text" xml:space="preserve">
+    <value>Transaction Toolbar</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance13.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         R0lGODlhEAAQAIMAAACAgMDAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
         ACH/C05FVFNDQVBFMi4wAwEBAAAh+QQBAAABACwAAAAAEAAQAAAIRgADCBxIsKDBgwgTFhRwkKFBhwQF
         QIy4EMDEgRMFALAoUSJGjBtDboToUKPIkCRBnrT4UWVHjwIvarwY8yHNADdvKtyZMCAAOw==
 </value>
+  </data>
+  <data name="buttonTool35.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>First record</value>
+  </data>
+  <data name="buttonTool35.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>First</value>
+  </data>
+  <data name="buttonTool35.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>First record</value>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance14.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
@@ -1871,6 +2182,15 @@
         CgAQUeFEihAhHrwIoGPHig89iqS4ceRHhBczakRJ0iFDkAthupx5MCAAOw==
 </value>
   </data>
+  <data name="buttonTool36.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Previous record</value>
+  </data>
+  <data name="buttonTool36.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Previous</value>
+  </data>
+  <data name="buttonTool36.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Previous record</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance15.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         R0lGODlhEAAQAIMAAACAgMDAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -1878,12 +2198,30 @@
         CgAA8eDDiwAoIpyYsaNGgxw9Zqw4MKRHkiUvckRp8WPDhxElxpwZMyAAOw==
 </value>
   </data>
+  <data name="buttonTool37.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Next record</value>
+  </data>
+  <data name="buttonTool37.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="buttonTool37.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Next record</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance16.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         R0lGODlhEAAQAIMAAACAgMDAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
         ACH/C05FVFNDQVBFMi4wAwEBAAAh+QQBAAABACwAAAAAEAAQAAAIRAADCBxIsKDBgwgTIhRwkKFBAQ4J
         RpQIYGKAiBAzAqgocaCAjSA3YvQYMqRDjCVFevSY8SPHlQ9fwiwI8WHDmwpz6gwIADs=
 </value>
+  </data>
+  <data name="buttonTool38.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Last record</value>
+  </data>
+  <data name="buttonTool38.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Last</value>
+  </data>
+  <data name="buttonTool38.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Last record</value>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance17.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
@@ -1893,12 +2231,30 @@
         hgEBADs=
 </value>
   </data>
+  <data name="buttonTool39.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Add record</value>
+  </data>
+  <data name="buttonTool39.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="buttonTool39.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Add record</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance18.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         R0lGODlhEAAQAIMAAP///8DAwICAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
         ACH/C05FVFNDQVBFMi4wAwEBAAAh+QQBAAABACwAAAAAEAAQAAAIRQADCBxIsKDBgwgTKkwooKHDhw0H
         DBQAoCJFixUBSBR4EUDHjhsDCBhAsqRJkhEnquQ4MKSAlSJbTjxJM+TCmzhz6rwZEAA7
 </value>
+  </data>
+  <data name="buttonTool40.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Copy record</value>
+  </data>
+  <data name="buttonTool40.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="buttonTool40.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Copy record</value>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance19.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
@@ -1920,13 +2276,31 @@
         jTJtKlUaMWJAADs=
 </value>
   </data>
+  <data name="buttonTool41.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Update record</value>
+  </data>
+  <data name="buttonTool41.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Update</value>
+  </data>
+  <data name="buttonTool41.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Update record</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance20.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAADrwAAA68AZW8ckkAAABfSURBVDhPxY0BDsAgCAN5uj9nc1gjKuBi3C5pRLlUMuAX
-        mcIpuQLetwq8fVwQ7EVoJJVup8BDlbxkT3QZVDppyKxAnUYBMAvA/wUZCFEe6vAF42fcsHA/UHCDxWoK
-        RBc/qeA9dCc/NAAAAABJRU5ErkJggg==
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        vAAADrwBlbxySQAAAF9JREFUOE/FjQEOwCAIA3m6P2dzWCMq4GLcLmlEuVQy4BeZwim5At63Crx9XBDs
+        RWgklW6nwEOVvGRPdBlUOmnIrECdRgEwC8D/BRkIUR7q8AXjZ9ywcD9QcIPFagpEFz+p4D10Jz80AAAA
+        AElFTkSuQmCC
 </value>
+  </data>
+  <data name="buttonTool42.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Save changes</value>
+  </data>
+  <data name="buttonTool42.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="buttonTool42.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Save changes</value>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance21.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
@@ -1947,6 +2321,15 @@
         CpCY8GFDhRMvKrQIsWJDigs1gsR4cIDJkyhNEhg4IIDLli9dBlgpEGYAmzZpCiDAs6fPniQNBgQAOw==
 </value>
   </data>
+  <data name="buttonTool43.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Cancel update</value>
+  </data>
+  <data name="buttonTool43.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="buttonTool43.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Cancel update</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance22.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         R0lGODlhEAAQAIMAAACAgP///8DAwICAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -1954,13 +2337,25 @@
         OnQYUQCBixEnNqwYsaJFjCAFelQokiTBkSRRIhzAsqVLlh4HBJgpk+bMADFv1gywMybInxhNHgwIADs=
 </value>
   </data>
+  <data name="buttonTool44.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Delete record</value>
+  </data>
+  <data name="buttonTool44.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="buttonTool44.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Delete record</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance23.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAADrwAAA68AZW8ckkAAABlSURBVDhP5YxBDsAgCAR9Oj+nLDQVCpLaSw81GYPLOoOZ
-        A3JwLUn9FGiRtExEgecCHbJkT6CPKNkXWPBvAeZvBRb0Av2QkPJs9Hjb/IPlKZHZ7+6UIbgkbwXAJBjr
-        PShDTy/gcQAD33FRAvn8sAAAAABJRU5ErkJggg==
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        vAAADrwBlbxySQAAAGVJREFUOE/ljEEOwCAIBH06P6csNBUKktpLDzUZg8s6g5kDcnAtSf0UaJG0TESB
+        5wIdsmRPoI8o2RdY8G8B5m8FFvQC/ZCQ8mz0eNv8g+Upkdnv7pQhuCRvBcAkGOs9KENPL+BxAAPfcVEC
+        +fywAAAAAElFTkSuQmCC
 </value>
+  </data>
+  <data name="buttonTool45.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>&amp;Exit</value>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance24.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
@@ -2014,6 +2409,15 @@
         3cPaXLSLFljRbx4x1VuOlN/ccaqv8vZwD8Xydqf3H0BmHvnAe+LxAAAAAElFTkSuQmCC
 </value>
   </data>
+  <data name="buttonTool46.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Commit</value>
+  </data>
+  <data name="buttonTool46.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Commit</value>
+  </data>
+  <data name="buttonTool46.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Commit transaction</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance26.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAL
@@ -2064,5 +2468,87 @@
         H5bL0oe38/s6PGePEzQNXRs2N40tSaXSdJ9hoYd8M25cMHd+7d3+2bgpesjAsSJB09oVPQzUNpd/xOFz
         +TlBDNEXTkR6dNS29cE9W1CbYwW70/sPAHMk3NA3uHMAAAAASUVORK5CYII=
 </value>
+  </data>
+  <data name="buttonTool47.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Revert</value>
+  </data>
+  <data name="buttonTool47.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Revert</value>
+  </data>
+  <data name="buttonTool47.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Revert transaction</value>
+  </data>
+  <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance28.Image" type="System.Drawing.Bitmap, System.Drawing">
+    <value>
+        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
+</value>
+  </data>
+  <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance29.Image" type="System.Drawing.Bitmap, System.Drawing">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAACt0RVh0Q29w
+        eXJpZ2h0AENvcHlyaWdodCCpIDIwMDgtMjAxMSBJTkNPUlMgR21iSBCOIU8AAANdSURBVDhPRZP9T1JR
+        GMeZ/0C/1y9tLHtZm2Wt1sustWGZmtbIuelKMhN0gWkF8iKIInrhAoKIWJJZmqjUREmKsEZlLRNWs5oz
+        naWRlrqRVtOKb5cr2Xe7O+fcne/nPM95nsOIqEwmiyG1tcmk3mDW6gw+FaEPEob6BTVpWlaRdcvVevOC
+        XE0GFWqNr1ReaeYJRckMhiKGNkdkNNU53R4vxj98wtTsAqbmf+Lj7HdMfF3E+Mw3vJ8OYeRzCMMfZvFw
+        8A2Ihus4W3ypN2qnWDX68NziEiam5xAYnYTv1Si8L0dw78Vb9D0fxt1nb9A7QI3U2v3iHXoGXiPrHD9M
+        m5nZa3bsyYuD/ZEHi0u/MT2/gMmZefS/fAvX0wA6PM9h6/ZC19yFCzI1JJVadPQ9Avs0F/8AAfUYF8ek
+        h/FjKYwjor2g/kHTdgO1t9yQN3TiQk0TeNIanCkSQ2NpQa/Pj8zcwj//AMH6L6XYnrcealsVDhbFwzwn
+        oiFCkwES400I1BYUSAnwywjYHPfhGXyHzDMFqxGg6Zsc+yxraRN9erAQrFYmPVdYTahr60VtiwOVxiZI
+        1QaYW7qQkZO/CgiqPp7Fodb1OGzfgOOObThxJx7ZffuR62bRkFxlOXgSAhxBKZS6BtjdT5CVd341BTvH
+        xcIpdwINSeqMRYZzF3LcB5HvSUJJfyYN4YqrwRUqUdvsQPfjAJUCbzWC7MiG4kE20m/HIdHOxNE7sUju
+        3kh/Kd2baICl3QXt1VtQGa+CbLxJpRCtQkScEu6fQyW76Y17jeuQ7tqKtL4tSHGumDlUClxJNXL4Iogq
+        dLh224PsfP5KChEJxBXoHxhCp9ONBH48ZGNZSO3ZTJuLdCQu65vBL9ehoLQSpK0Dzc6HVB+c+x9BkVgZ
+        9o/NYCa0DNal3aj5wqXNSqsR1vYeWO0u1FOj5kobyjT1UFAXSZVxpRMjEggVfi/V459DvyjAHtpMtrfC
+        1H4P5VaqkYgmcKXVyBWIUawgUKa1IC0zZyRqZzAkSoIpVWn9DtcD+PwjePx6HJ3eIZi7HqC80YFirY2u
+        Apu6OFYqGwcSU/ypGaeYUfuKqqpUMRUaY5JIXmUtKJEM8y7KQqfPC8PsPEE48SQntDMhMbA5bkfjhk1x
+        1FNmRJ8yg/EXhsc5wIHiu/gAAAAASUVORK5CYII=
+</value>
+  </data>
+  <data name="buttonTool19.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Import from Database</value>
   </data>
 </root>

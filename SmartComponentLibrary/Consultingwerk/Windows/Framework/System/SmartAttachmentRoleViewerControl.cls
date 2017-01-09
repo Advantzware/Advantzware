@@ -99,10 +99,11 @@ CLASS Consultingwerk.Windows.Framework.System.SmartAttachmentRoleViewerControl
         
     END METHOD .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design
-        Notes:   
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
         
         /* NOTE: The following method is automatically generated.
@@ -118,6 +119,9 @@ CLASS Consultingwerk.Windows.Framework.System.SmartAttachmentRoleViewerControl
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance1 AS Infragistics.Win.Appearance NO-UNDO.
         appearance1 = NEW Infragistics.Win.Appearance().
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE resources AS Progress.Util.ResourceManager NO-UNDO.
+        resources = NEW Progress.Util.ResourceManager("Consultingwerk.Windows.Framework.System.SmartAttachmentRoleViewerControl":U).
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance2 AS Infragistics.Win.Appearance NO-UNDO.
         appearance2 = NEW Infragistics.Win.Appearance().
@@ -146,13 +150,10 @@ CLASS Consultingwerk.Windows.Framework.System.SmartAttachmentRoleViewerControl
         /*  */
         /* smartBusinessEntityBindingSource1 */
         /*  */
-        THIS-OBJECT:smartBusinessEntityBindingSource1:AddFields = FALSE.
         THIS-OBJECT:smartBusinessEntityBindingSource1:BindTo = "QUERY":U.
-        THIS-OBJECT:smartBusinessEntityBindingSource1:ClearSchema = FALSE.
         THIS-OBJECT:smartBusinessEntityBindingSource1:EntityJoin = "YES":U.
         THIS-OBJECT:smartBusinessEntityBindingSource1:EntityName = "Consultingwerk.SmartFramework.System.AttachmentRoleBusinessEntity":U.
         THIS-OBJECT:smartBusinessEntityBindingSource1:EntityTable = "eSmartAttachmentRole":U.
-        THIS-OBJECT:smartBusinessEntityBindingSource1:ImportSchema = FALSE.
         THIS-OBJECT:smartBusinessEntityBindingSource1:MaxDataGuess = 0.
         THIS-OBJECT:smartBusinessEntityBindingSource1:NoLOBs = FALSE.
         tableDesc1:ChildTables = ?.
@@ -170,71 +171,44 @@ CLASS Consultingwerk.Windows.Framework.System.SmartAttachmentRoleViewerControl
         /*  */
         appearance1:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:tbAttachmentRoleName_Label:Appearance = appearance1.
-        THIS-OBJECT:tbAttachmentRoleName_Label:AutoSize = TRUE.
-        THIS-OBJECT:tbAttachmentRoleName_Label:Location = NEW System.Drawing.Point(20, 24).
+        resources:ApplyResources(THIS-OBJECT:tbAttachmentRoleName_Label, "tbAttachmentRoleName_Label":U).
         THIS-OBJECT:tbAttachmentRoleName_Label:Name = "tbAttachmentRoleName_Label":U.
-        THIS-OBJECT:tbAttachmentRoleName_Label:Size = NEW System.Drawing.Size(91, 14).
-        THIS-OBJECT:tbAttachmentRoleName_Label:TabIndex = 1.
-        THIS-OBJECT:tbAttachmentRoleName_Label:Text = "Attachment Role:":U.
         /*  */
         /* tbAttachmentRoleName */
         /*  */
-        DEFINE VARIABLE nestedvar0 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar0 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:tbAttachmentRoleName:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar0, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:tbAttachmentRoleName, "tbAttachmentRoleName":U).
         THIS-OBJECT:tbAttachmentRoleName:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "AttachmentRoleName":U, TRUE)).
         THIS-OBJECT:tbAttachmentRoleName:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:tbAttachmentRoleName:Location = NEW System.Drawing.Point(130, 20).
         THIS-OBJECT:tbAttachmentRoleName:Name = "tbAttachmentRoleName":U.
-        THIS-OBJECT:tbAttachmentRoleName:Size = NEW System.Drawing.Size(167, 21).
-        THIS-OBJECT:tbAttachmentRoleName:TabIndex = 2.
         /*  */
         /* tbAttachmentRoleDescription_Label */
         /*  */
         appearance2:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:tbAttachmentRoleDescription_Label:Appearance = appearance2.
-        THIS-OBJECT:tbAttachmentRoleDescription_Label:AutoSize = TRUE.
-        THIS-OBJECT:tbAttachmentRoleDescription_Label:Location = NEW System.Drawing.Point(20, 50).
+        resources:ApplyResources(THIS-OBJECT:tbAttachmentRoleDescription_Label, "tbAttachmentRoleDescription_Label":U).
         THIS-OBJECT:tbAttachmentRoleDescription_Label:Name = "tbAttachmentRoleDescription_Label":U.
-        THIS-OBJECT:tbAttachmentRoleDescription_Label:Size = NEW System.Drawing.Size(64, 14).
-        THIS-OBJECT:tbAttachmentRoleDescription_Label:TabIndex = 3.
-        THIS-OBJECT:tbAttachmentRoleDescription_Label:Text = "Description:":U.
         /*  */
         /* tbAttachmentRoleDescription */
         /*  */
-        DEFINE VARIABLE nestedvar1 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar1 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:tbAttachmentRoleDescription:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar1, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:tbAttachmentRoleDescription, "tbAttachmentRoleDescription":U).
         THIS-OBJECT:tbAttachmentRoleDescription:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "AttachmentRoleDescription":U, TRUE)).
         THIS-OBJECT:tbAttachmentRoleDescription:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:tbAttachmentRoleDescription:Location = NEW System.Drawing.Point(130, 46).
         THIS-OBJECT:tbAttachmentRoleDescription:Name = "tbAttachmentRoleDescription":U.
-        THIS-OBJECT:tbAttachmentRoleDescription:Size = NEW System.Drawing.Size(167, 21).
-        THIS-OBJECT:tbAttachmentRoleDescription:TabIndex = 4.
         /*  */
         /* smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall_Label */
         /*  */
         appearance3:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall_Label:Appearance = appearance3.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall_Label:AutoSize = TRUE.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall_Label:Location = NEW System.Drawing.Point(20, 77).
+        resources:ApplyResources(THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall_Label, "smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall_Label":U).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall_Label:Name = "smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall_Label":U.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall_Label:Size = NEW System.Drawing.Size(70, 14).
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall_Label:TabIndex = 7.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall_Label:Text = "&Small Image:":U.
         /*  */
         /* smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall */
         /*  */
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall:AllowDrop = TRUE.
-        DEFINE VARIABLE nestedvar2 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar2 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar2, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall, "smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall":U).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall:DataBindings:Add(NEW System.Windows.Forms.Binding("Value":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "AttachmentRoleImageSmall":U, TRUE)).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall:Location = NEW System.Drawing.Point(130, 73).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall:Name = "smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall":U.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall:Size = NEW System.Drawing.Size(167, 21).
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall:TabIndex = 8.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall:DragDrop:Subscribe(THIS-OBJECT:ImageSelection_DragDrop).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageSmall:DragEnter:Subscribe(THIS-OBJECT:ImageSelection_DragEnter).
         /*  */
@@ -242,31 +216,22 @@ CLASS Consultingwerk.Windows.Framework.System.SmartAttachmentRoleViewerControl
         /*  */
         appearance4:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge_Label:Appearance = appearance4.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge_Label:AutoSize = TRUE.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge_Label:Location = NEW System.Drawing.Point(20, 103).
+        resources:ApplyResources(THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge_Label, "smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge_Label":U).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge_Label:Name = "smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge_Label":U.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge_Label:Size = NEW System.Drawing.Size(71, 14).
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge_Label:TabIndex = 9.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge_Label:Text = "&Large Image:":U.
         /*  */
         /* smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge */
         /*  */
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge:AllowDrop = TRUE.
-        DEFINE VARIABLE nestedvar3 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar3 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar3, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge, "smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge":U).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge:DataBindings:Add(NEW System.Windows.Forms.Binding("Value":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "AttachmentRoleImageLarge":U, TRUE)).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge:Location = NEW System.Drawing.Point(130, 99).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge:Name = "smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge":U.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge:Size = NEW System.Drawing.Size(167, 21).
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge:TabIndex = 10.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge:DragDrop:Subscribe(THIS-OBJECT:ImageSelection_DragDrop).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartAttachmentRole_AttachmentRoleImageLarge:DragEnter:Subscribe(THIS-OBJECT:ImageSelection_DragEnter).
         /*  */
         /* SmartAttachmentRoleViewerControl */
         /*  */
-        THIS-OBJECT:AutoScaleDimensions = NEW System.Drawing.SizeF(Progress.Util.CastUtil:ToSingle(6), Progress.Util.CastUtil:ToSingle(13)).
+        resources:ApplyResources(THIS-OBJECT, "$this":U).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:tbAttachmentRoleName_Label).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:tbAttachmentRoleName).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:tbAttachmentRoleDescription_Label).

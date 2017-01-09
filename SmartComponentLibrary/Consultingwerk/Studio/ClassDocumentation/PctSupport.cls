@@ -40,13 +40,13 @@ CLASS Consultingwerk.Studio.ClassDocumentation.PctSupport:
     GET.
     SET. 
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Constructor for the PctSupport class 
-	    Notes:   Disallow instance creation
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PRIVATE PctSupport ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the PctSupport class 
+        Notes:   Disallow instance creation
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PRIVATE PctSupport ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
 END CLASS.

@@ -39,19 +39,19 @@ CLASS Consultingwerk.Windows.Framework.System.ValueListProvider
         @param pcValueListKey The key to return a value list for 
         @return The ValueList for the given key
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC Infragistics.Win.ValueList ValueListFromKey (pcValueListKey AS CHARACTER):
-		
-	    DEFINE VARIABLE oRequest AS FetchDataRequest NO-UNDO . 	
-    		
-		oRequest = NEW FetchDataRequest ("*":U,
-		                                 SUBSTITUTE ("FOR EACH eSmartValueList WHERE eSmartValueList.ValueListKey = &1":U,
+    METHOD PUBLIC Infragistics.Win.ValueList ValueListFromKey (pcValueListKey AS CHARACTER):
+        
+        DEFINE VARIABLE oRequest AS FetchDataRequest NO-UNDO .     
+            
+        oRequest = NEW FetchDataRequest ("*":U,
+                                         SUBSTITUTE ("FOR EACH eSmartValueList WHERE eSmartValueList.ValueListKey = &1":U,
                                                      QUOTER (pcValueListKey)),
-		                                 1) .
+                                         1) .
 
         FrameworkSettings:ServiceAdapter:RetrieveData ("":U,
                                                        "Consultingwerk.SmartFramework.System.ValueListBusinessEntity":U,
                                                        oRequest,
-                                                       OUTPUT DATASET dsValueList) .        		
+                                                       OUTPUT DATASET dsValueList) .                
 
         IF CAN-FIND (FIRST eSmartValueListEntry WHERE eSmartValueListEntry.ValueListEntryImageKey > "":U) THEN 
             RETURN ValueListHelper:FromTempTableAndImageProvider (TEMP-TABLE eSmartValueListEntry:HANDLE,
@@ -68,9 +68,9 @@ CLASS Consultingwerk.Windows.Framework.System.ValueListProvider
                                                   "&1":U) .
 
         FINALLY:
-            DATASET dsValueList:EMPTY-DATASET () .		
+            DATASET dsValueList:EMPTY-DATASET () .        
         END FINALLY.
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

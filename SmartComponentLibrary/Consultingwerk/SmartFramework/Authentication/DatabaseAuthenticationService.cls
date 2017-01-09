@@ -12,11 +12,11 @@
 /*------------------------------------------------------------------------
     File        : DatabaseAuthenticationService
     Purpose     : Provides server side Authentication  using the database
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Wed Nov 07 01:56:50 CET 2012
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -25,43 +25,43 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.Framework.*                     FROM PROPATH .
 USING Consultingwerk.Framework.Session.*             FROM PROPATH .
-USING Consultingwerk.SmartFramework.*                FROM PROPATH .  
+USING Consultingwerk.SmartFramework.*                FROM PROPATH .
 USING Consultingwerk.SmartFramework.Exceptions.*     FROM PROPATH .
-USING Consultingwerk.SmartFramework.Authentication.* FROM PROPATH .  
-USING Consultingwerk.OERA.*                          FROM PROPATH . 
-USING Consultingwerk.Util.*                          FROM PROPATH . 
+USING Consultingwerk.SmartFramework.Authentication.* FROM PROPATH .
+USING Consultingwerk.OERA.*                          FROM PROPATH .
+USING Consultingwerk.Util.*                          FROM PROPATH .
 USING Progress.Lang.*                                FROM PROPATH .
 
-CLASS Consultingwerk.SmartFramework.Authentication.DatabaseAuthenticationService 
-    IMPLEMENTS IAuthenticationService: 
+CLASS Consultingwerk.SmartFramework.Authentication.DatabaseAuthenticationService
+    IMPLEMENTS IAuthenticationService:
 
     { Consultingwerk/SmartFramework/Authentication/dsUser.i }
 
     /*------------------------------------------------------------------------------
         Purpose: Changes the Password of a user
-        Notes:   
+        Notes:
         @param pcUserName The name of the user to change the password for
         @param pcLoginCompanyGuid The company the user belongs too
         @param pcCurrentPassword The current password
         @param pcNewPassword The new password to be set
         @param pcNewPasswordVerified The repeated new password
     ------------------------------------------------------------------------------*/
-    METHOD PUBLIC VOID ChangePassword (pcUserName AS CHARACTER, 
-                                       pcLoginCompanyGuid AS CHARACTER, 
-                                       pcCurrentPassword AS CHARACTER, 
-                                       pcNewPassword AS CHARACTER, 
+    METHOD PUBLIC VOID ChangePassword (pcUserName AS CHARACTER,
+                                       pcLoginCompanyGuid AS CHARACTER,
+                                       pcCurrentPassword AS CHARACTER,
+                                       pcNewPassword AS CHARACTER,
                                        pcNewPasswordVerified AS CHARACTER):
-        
+
         DEFINE VARIABLE oConfigurationProvider   AS IConfigurationProvider  NO-UNDO .
         DEFINE VARIABLE oUserCredentials         AS IUserCredentials        NO-UNDO .
-        DEFINE VARIABLE oChangePasswordParameter AS ChangePasswordParameter NO-UNDO . 
+        DEFINE VARIABLE oChangePasswordParameter AS ChangePasswordParameter NO-UNDO .
         DEFINE VARIABLE hDataset                 AS HANDLE                  NO-UNDO .
 
-        oConfigurationProvider = {Consultingwerk/get-service.i 
-                                     Consultingwerk.Framework.IConfigurationProvider 
-                                     "NEW Consultingwerk.Framework.ConfigurationProvider ('.applicationsettings':U)"} .  
+        oConfigurationProvider = {Consultingwerk/get-service.i
+                                     Consultingwerk.Framework.IConfigurationProvider
+                                     "NEW Consultingwerk.Framework.ConfigurationProvider ('.applicationsettings':U)"} .
 
-        IF NOT oConfigurationProvider:GetValue ("authenticationDb":U) > "":U THEN 
+        IF NOT oConfigurationProvider:GetValue ("authenticationDb":U) > "":U THEN
             UNDO, THROW NEW AppError ("No database provided for setting authenticationDb in the applicationsettings!"{&TRAN}, 0).
 
         oUserCredentials = NEW Consultingwerk.Framework.UserCredentials (pcUserName,
@@ -72,29 +72,29 @@ CLASS Consultingwerk.SmartFramework.Authentication.DatabaseAuthenticationService
             IF USERID (oConfigurationProvider:GetValue ("authenticationDb":U)) <> Consultingwerk.Framework.Session.SessionManager:UserName THEN
                 UNDO, THROW NEW AppError ("Users can only change their own password!"{&TRAN}, 0).
         END.
-        ELSE 
+        ELSE
             /* login to DB */
             ValidateUser (oUserCredentials).
-            
-        IF pcNewPassword = "":U THEN 
+
+        IF pcNewPassword = "":U THEN
             UNDO, THROW NEW SmartException ("SFR":U, 300).
 
-        IF NOT pcNewPassword = pcNewPasswordVerified THEN 
+        IF NOT pcNewPassword = pcNewPasswordVerified THEN
             UNDO, THROW NEW SmartException ("SFR":U, 301).
 
-        IF pcCurrentPassword = pcNewPassword THEN 
+        IF pcCurrentPassword = pcNewPassword THEN
             UNDO, THROW NEW SmartException ("SFR":U, 302).
-        
+
 
         oChangePasswordParameter = NEW ChangePasswordParameter (oUserCredentials,
-                                                                pcNewPassword) . 
+                                                                pcNewPassword) .
 
         FrameworkSettings:ServiceAdapter:InvokeMethod ("":U,
                                                        "Consultingwerk.SmartFramework.Authentication.UserBusinessEntity":U,
                                                        "ChangeDatabasePassword":U,
                                                        INPUT-OUTPUT DATASET-HANDLE hDataset,
                                                        oChangePasswordParameter) .
-                
+
         FINALLY:
             Consultingwerk.Util.GarbageCollectorHelper:DeleteObject (oUserCredentials).
             Consultingwerk.Util.GarbageCollectorHelper:DeleteObject (oChangePasswordParameter).
@@ -103,19 +103,19 @@ CLASS Consultingwerk.SmartFramework.Authentication.DatabaseAuthenticationService
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Validates the user credentials and updates the Session Manager with 
+        Purpose: Validates the user credentials and updates the Session Manager with
                  the user information
-        Notes:   
+        Notes:
         @param poCredentials The Credentials to be validated
         @return Logical value indicating if the user has been authenficated
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL ValidateUser (poCredentials AS IUserCredentials):
+    METHOD PUBLIC LOGICAL ValidateUser (poCredentials AS IUserCredentials):
 
-        DEFINE VARIABLE oAuthenticationParameter AS AuthenticationParameter NO-UNDO . 
+        DEFINE VARIABLE oAuthenticationParameter AS AuthenticationParameter NO-UNDO .
         DEFINE VARIABLE hDataset                 AS HANDLE                  NO-UNDO .
         DEFINE VARIABLE hPrincipal               AS HANDLE                  NO-UNDO .
-        
-        oAuthenticationParameter = NEW AuthenticationParameter (poCredentials) . 
+
+        oAuthenticationParameter = NEW AuthenticationParameter (poCredentials) .
 
         FrameworkSettings:ServiceAdapter:InvokeMethod ("":U,
                                                        "Consultingwerk.SmartFramework.Authentication.UserBusinessEntity":U,
@@ -124,32 +124,34 @@ CLASS Consultingwerk.SmartFramework.Authentication.DatabaseAuthenticationService
                                                        oAuthenticationParameter) .
 
         CREATE CLIENT-PRINCIPAL hPrincipal .
-         
-        hPrincipal:IMPORT-PRINCIPAL (oAuthenticationParameter:ClientPrincipal) NO-ERROR .
-        		
-        ErrorHelper:ResetErrorStatus() .        		
-        		
-        IF hPrincipal:LOGIN-STATE = "LOGIN":U THEN DO:
-            ASSIGN 
-                SessionManager:UserName         = oAuthenticationParameter:UserName 
-                SessionManager:LoginCompanyName = oAuthenticationParameter:CompanyName 
-                SessionManager:ClientPrincipal  = oAuthenticationParameter:ClientPrincipal . 
-            
-            RETURN TRUE .        		
-        END.        		        		
-		
-		RETURN FALSE.
 
+        hPrincipal:IMPORT-PRINCIPAL (oAuthenticationParameter:ClientPrincipal) NO-ERROR .
+
+        ErrorHelper:ResetErrorStatus() .
+
+        IF hPrincipal:LOGIN-STATE = "LOGIN":U THEN DO:
+            ASSIGN
+                SessionManager:UserName         = oAuthenticationParameter:UserName
+                SessionManager:UserKey          = oAuthenticationParameter:UserKey
+                SessionManager:LoginCompanyName = oAuthenticationParameter:CompanyName
+                SessionManager:ClientPrincipal  = oAuthenticationParameter:ClientPrincipal .
+
+            RETURN TRUE .
+        END.
+
+        RETURN FALSE.
+
+        @SuppressUnusedWarnings.
         CATCH err AS Progress.Lang.Error:
 /*            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .*/
-            
-        	RETURN FALSE . 	
+
+            RETURN FALSE .
         END CATCH.
-        
+
         FINALLY:
-            Consultingwerk.Util.GarbageCollectorHelper:DeleteObject (hPrincipal) .		
+            Consultingwerk.Util.GarbageCollectorHelper:DeleteObject (hPrincipal) .
         END FINALLY.
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

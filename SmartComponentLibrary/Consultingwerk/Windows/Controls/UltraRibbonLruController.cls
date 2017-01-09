@@ -34,34 +34,34 @@ CLASS Consultingwerk.Windows.Controls.UltraRibbonLruController:
                  settings from
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY BaseKey AS CHARACTER NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    DEFINE PUBLIC PROPERTY BaseKey AS CHARACTER NO-UNDO 
+    GET.
+    PROTECTED SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets the ISettingsService Key pattern to use to store/retrieve the 
                  settings from 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY KeyPattern AS CHARACTER NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    DEFINE PUBLIC PROPERTY KeyPattern AS CHARACTER NO-UNDO 
+    GET.
+    PROTECTED SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets the maximum number of LRU items
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY MaxItems AS INTEGER NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    DEFINE PUBLIC PROPERTY MaxItems AS INTEGER NO-UNDO 
+    GET.
+    PROTECTED SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets the reference to the UltraToolbarsManager
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY ToolbarsManager AS UltraToolbarsManager NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    DEFINE PUBLIC PROPERTY ToolbarsManager AS UltraToolbarsManager NO-UNDO 
+    GET.
+    PROTECTED SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the UltraRibbonLruController class
@@ -71,23 +71,23 @@ CLASS Consultingwerk.Windows.Controls.UltraRibbonLruController:
         @param pcKeyPattern The ISettingsService Key pattern to use to store/retrieve the settings from
         @param piMaxItems The maximum number of LRU items
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC UltraRibbonLruController (poToolbarsManager AS UltraToolbarsManager,
-	                                             pcBaseKey AS CHARACTER,
-	                                             pcKeyPattern AS CHARACTER,
-	                                             piMaxItems AS INTEGER):
-		SUPER ().
-		
-		ObjectAssert:IsValid (poToolbarsManager) . 
-		Assert:NotNullOrEmpty (pcBaseKey, "pcBaseKey":U) .
-		Assert:NotNullOrEmpty (pcKeyPattern, "pcKeyPattern":U) .
-		Assert:GE (piMaxItems, 2) .
-		
-		ASSIGN THIS-OBJECT:ToolbarsManager = poToolbarsManager
-		       THIS-OBJECT:BaseKey         = pcBaseKey
-		       THIS-OBJECT:KeyPattern      = pcKeyPattern
-		       THIS-OBJECT:MaxItems        = piMaxItems . 
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC UltraRibbonLruController (poToolbarsManager AS UltraToolbarsManager,
+                                                 pcBaseKey AS CHARACTER,
+                                                 pcKeyPattern AS CHARACTER,
+                                                 piMaxItems AS INTEGER):
+        SUPER ().
+        
+        ObjectAssert:IsValid (poToolbarsManager) . 
+        Assert:NotNullOrEmpty (pcBaseKey, "pcBaseKey":U) .
+        Assert:NotNullOrEmpty (pcKeyPattern, "pcKeyPattern":U) .
+        Assert:GE (piMaxItems, 2) .
+        
+        ASSIGN THIS-OBJECT:ToolbarsManager = poToolbarsManager
+               THIS-OBJECT:BaseKey         = pcBaseKey
+               THIS-OBJECT:KeyPattern      = pcKeyPattern
+               THIS-OBJECT:MaxItems        = piMaxItems . 
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Adds an item at the beginning of the LRU
@@ -95,9 +95,9 @@ CLASS Consultingwerk.Windows.Controls.UltraRibbonLruController:
         @param pcDisplayText The display text of the item
         @param pcItemKey The key of the item
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID AddItemToLru (pcDisplayText AS CHARACTER, 
-	                                 pcItemKey AS CHARACTER):
-	
+    METHOD PUBLIC VOID AddItemToLru (pcDisplayText AS CHARACTER, 
+                                     pcItemKey AS CHARACTER):
+    
         DEFINE VARIABLE oButtonTool AS Infragistics.Win.UltraWinToolbars.ButtonTool NO-UNDO .
         DEFINE VARIABLE oEnumerator AS System.Collections.IEnumerator               NO-UNDO .
         
@@ -129,8 +129,8 @@ CLASS Consultingwerk.Windows.Controls.UltraRibbonLruController:
         THIS-OBJECT:ToolbarsManager:Tools:Add (oButtonTool) .
         
         THIS-OBJECT:ToolbarsManager:Ribbon:ApplicationMenu:ToolAreaRight:Tools:InsertTool(0, oButtonTool:Key) . 
-		
-	END METHOD .
+        
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Loads the LRU list from the ISettingsService                                                                       

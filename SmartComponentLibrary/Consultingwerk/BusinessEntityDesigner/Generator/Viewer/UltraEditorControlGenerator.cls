@@ -45,7 +45,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.UltraEditorControlG
         Purpose: Retusn the TypeName for to be used for this UltraEditorControl
         Notes:   
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY ControlTypeName AS CHARACTER NO-UNDO INIT "Infragistics.Win.UltraWinEditors.UltraTextEditor":U
+    DEFINE PUBLIC PROPERTY ControlTypeName AS CHARACTER NO-UNDO INITIAL "Infragistics.Win.UltraWinEditors.UltraTextEditor":U
     GET.
     PROTECTED SET. 
 
@@ -64,7 +64,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.UltraEditorControlG
         Purpose: The Height of the Control
         Notes:   
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY Height AS INTEGER NO-UNDO INIT 21
+    DEFINE PUBLIC PROPERTY Height AS INTEGER NO-UNDO INITIAL 21
     GET.
     SET. 
 
@@ -91,7 +91,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.UltraEditorControlG
                  interface
         Notes:   Used for generating the BeginInit and EndInit method calls
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY SupportInitialize AS LOGICAL NO-UNDO INIT TRUE 
+    DEFINE PUBLIC PROPERTY SupportInitialize AS LOGICAL NO-UNDO INITIAL TRUE
     GET.
 
     /*------------------------------------------------------------------------------
@@ -114,7 +114,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.UltraEditorControlG
         Purpose: Gets and sets the Name of the Template File to be used by this class
         Notes:   
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC STATIC PROPERTY TemplateFileName AS CHARACTER NO-UNDO INIT "UI/ultratexteditor.template":U
+    DEFINE PUBLIC STATIC PROPERTY TemplateFileName AS CHARACTER NO-UNDO INITIAL "UI/ultratexteditor.template":U
     GET.
     SET. 
 
@@ -122,7 +122,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.UltraEditorControlG
         Purpose: Gets and sets the Name of the Template File to be used by this class
         Notes:   
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC STATIC PROPERTY TemplateFileNameUnbound AS CHARACTER NO-UNDO INIT "UI/ultratexteditor_unbound.template":U
+    DEFINE PUBLIC STATIC PROPERTY TemplateFileNameUnbound AS CHARACTER NO-UNDO INITIAL "UI/ultratexteditor_unbound.template":U
     GET.
     SET. 
 
@@ -154,7 +154,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.UltraEditorControlG
         Purpose: The Width of the Control
         Notes:   
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY Width AS INTEGER NO-UNDO INIT 150 
+    DEFINE PUBLIC PROPERTY Width AS INTEGER NO-UNDO INITIAL 150
     GET.
     SET. 
 
@@ -168,11 +168,11 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.UltraEditorControlG
         DEFINE VARIABLE lcCode AS LONGCHAR NO-UNDO.
 
         IF THIS-OBJECT:DataBindings > "":U THEN 
-            FILE-INFO:FILE-NAME = TemplateHelper:Find (UltraEditorControlGenerator:TemplateFileName) .
+            FILE-INFORMATION:FILE-NAME = TemplateHelper:Find (UltraEditorControlGenerator:TemplateFileName) .
         ELSE 
-            FILE-INFO:FILE-NAME = TemplateHelper:Find (UltraEditorControlGenerator:TemplateFileNameUnbound) .
+            FILE-INFORMATION:FILE-NAME = TemplateHelper:Find (UltraEditorControlGenerator:TemplateFileNameUnbound) .
 
-        COPY-LOB FROM FILE FILE-INFO:FULL-PATHNAME TO lcCode . 
+        COPY-LOB FROM FILE FILE-INFORMATION:FULL-PATHNAME TO lcCode . 
         
         ASSIGN lcCode = SUBSTITUTE (lcCode, 
                                     THIS-OBJECT:Name,
@@ -180,7 +180,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.UltraEditorControlG
                                     "":U /* no appearance object */,
                                     THIS-OBJECT:Left,
                                     THIS-OBJECT:Top,
-                                    THIS-OBJECT:TabOrder) + "~n" + 
+                                    THIS-OBJECT:TabOrder) + "~n":U + 
                                     (IF THIS-OBJECT:Tag > "":U THEN SUBSTITUTE (BusinessEntityGenerator:CaseKeywords ("        THIS-OBJECT:&1:Tag = &2:U.~n":U, ":Tag ":U),
                                                                                 THIS-OBJECT:Name, 
                                                                                 QUOTER(THIS-OBJECT:Tag)) ELSE "":U)

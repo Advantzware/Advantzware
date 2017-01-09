@@ -88,7 +88,7 @@
                 oForm:ToolbarsManager:Ribbon:Tabs:Add (oFrameRibbonTab) .
             END.
         
-            Consultingwerk.Util.UltratoolbarsHelper:BuildRibbonGroupFromFrame 
+            Consultingwerk.Util.UltraToolbarsHelper:BuildRibbonGroupFromFrame 
                 (FRAME {&frame-name}:HANDLE,
                  oForm:ToolbarsManager,
                  oFrameRibbonTab,
@@ -100,7 +100,7 @@
             &ENDIF
         
             IF VALID-OBJECT (oForm) THEN 
-                Consultingwerk.Util.UltratoolbarsHelper:BuildToolbarFromFrame
+                Consultingwerk.Util.UltraToolbarsHelper:BuildToolbarFromFrame
                     (FRAME {&FRAME-NAME}:HANDLE, oForm:ToolbarsManager) .    
         END.
   END FINALLY.

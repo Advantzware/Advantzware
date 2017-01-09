@@ -36,9 +36,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.Shapes.DataRelationConnector INHE
         Purpose: Gets and sets if the Data-Relation is active                                                                         
         Notes:                                                  
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Active AS LOGICAL INITIAL TRUE NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY Active AS LOGICAL INITIAL TRUE NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the DataRelationConnector class                                                                         

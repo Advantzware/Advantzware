@@ -33,25 +33,25 @@ CLASS Consultingwerk.OERA.HandleCommitErrorEventArgs INHERITS EventArgs:
         Purpose: Returns the handle of the Before Buffer associated with this event 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY BufferHandle AS HANDLE NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    DEFINE PUBLIC PROPERTY BufferHandle AS HANDLE NO-UNDO 
+    GET.
+    PROTECTED SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the reference to the error instance associated with this event
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Error AS Progress.Lang.Error NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    DEFINE PUBLIC PROPERTY Error AS Progress.Lang.Error NO-UNDO 
+    GET.
+    PROTECTED SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets if the error is handled
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Handled AS LOGICAL INITIAL FALSE NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY Handled AS LOGICAL INITIAL FALSE NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the HandleCommitErrorEventArgs class
@@ -59,13 +59,13 @@ CLASS Consultingwerk.OERA.HandleCommitErrorEventArgs INHERITS EventArgs:
         @param poError The reference to the error associated with this event
         @param phBufferHandle The handle of the before buffer associated with this event
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC HandleCommitErrorEventArgs (poError AS Progress.Lang.Error,
-	                                               phBufferHandle AS HANDLE):
-		SUPER ().
-		
-		ASSIGN THIS-OBJECT:Error        = poError
-		       THIS-OBJECT:BufferHandle = phBufferHandle .
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC HandleCommitErrorEventArgs (poError AS Progress.Lang.Error,
+                                                   phBufferHandle AS HANDLE):
+        SUPER ().
+        
+        ASSIGN THIS-OBJECT:Error        = poError
+               THIS-OBJECT:BufferHandle = phBufferHandle .
+        
+    END CONSTRUCTOR.
 
 END CLASS.

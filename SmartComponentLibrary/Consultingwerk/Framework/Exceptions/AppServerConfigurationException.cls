@@ -35,9 +35,9 @@ CLASS Consultingwerk.Framework.Exceptions.AppServerConfigurationException
         Purpose: Constructor for the AppServerConfigurationException class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC AppServerConfigurationException ():
-		SUPER ("Unable to start application due to an issue with the AppServer configuration."{&TRAN}, 0).
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC AppServerConfigurationException ():
+        SUPER ("Unable to start application due to an issue with the AppServer configuration."{&TRAN}, 0).
+        
+    END CONSTRUCTOR.
 
 END CLASS.

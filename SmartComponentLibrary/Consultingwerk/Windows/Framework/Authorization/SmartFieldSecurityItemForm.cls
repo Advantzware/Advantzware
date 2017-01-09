@@ -11,66 +11,67 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : SmartFieldSecurityItemForm
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : 18.08.2014 11:00:15
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Consultingwerk.Windows.Framework.Authorization.* FROM PROPATH .  
+USING Consultingwerk.Windows.Framework.Authorization.* FROM PROPATH .
 USING Consultingwerk.SmartComponents.Base.* FROM PROPATH .
 USING Consultingwerk.Util.*                 FROM PROPATH .
 USING Progress.Lang.*                       FROM PROPATH .
 
-CLASS Consultingwerk.Windows.Framework.Authorization.SmartFieldSecurityItemForm INHERITS SmartWindowForm: 
+CLASS Consultingwerk.Windows.Framework.Authorization.SmartFieldSecurityItemForm INHERITS SmartWindowForm:
 
     DEFINE PRIVATE VARIABLE smartFieldSecurityItemViewerControl1 AS Consultingwerk.Windows.Framework.Authorization.SmartFieldSecurityItemViewerControl NO-UNDO.
     DEFINE PRIVATE VARIABLE m_SmartFieldSecurityItemForm_Toolbars_Dock_Area_Top AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_SmartFieldSecurityItemForm_Toolbars_Dock_Area_Right AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_SmartFieldSecurityItemForm_Toolbars_Dock_Area_Left AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_SmartFieldSecurityItemForm_Toolbars_Dock_Area_Bottom AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE smartDataBrowser1 AS Consultingwerk.SmartComponents.Implementation.SmartDataBrowser NO-UNDO.
     DEFINE PRIVATE VARIABLE smartBusinessEntityBindingSource1 AS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource NO-UNDO.
     DEFINE PRIVATE VARIABLE smartBusinessEntityAdapter1 AS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter NO-UNDO.
     DEFINE PRIVATE VARIABLE smartToolbarController1 AS Consultingwerk.SmartComponents.Implementation.SmartToolbarController NO-UNDO.
     DEFINE PRIVATE VARIABLE SmartFieldSecurityItemForm_Fill_Panel AS Infragistics.Win.Misc.UltraPanel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraSplitter1 AS Infragistics.Win.Misc.UltraSplitter NO-UNDO.
-    
+
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the SmartFieldSecurityItemForm class                                                                        
-        Notes:                                                                        
+        Purpose: Constructor for the SmartFieldSecurityItemForm class
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC SmartFieldSecurityItemForm ():
-		
+    CONSTRUCTOR PUBLIC SmartFieldSecurityItemForm ():
+
         SUPER().
         InitializeComponent().
-        
+
         &IF NOT PROVERSION BEGINS "10.2":U AND NOT PROVERSION BEGINS "11.0" &THEN
         THIS-OBJECT:ComponentsCollection:Add (THIS-OBJECT:components).
         &ENDIF
-        
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
-	
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    END CONSTRUCTOR.
+
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -962,26 +963,26 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartFieldSecurityItemForm 
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Raises the Shown Event
-        Notes:   
+        Notes:
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
-		
-		SUPER:OnShown (e) .
+    METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
+
+        SUPER:OnShown (e) .
 
         Consultingwerk.Util.UserInterfaceHelper:ProcessEvents() .
 
         THIS-OBJECT:smartBusinessEntityAdapter1:RetrieveData () .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the SmartFieldSecurityItemForm class 
-        Notes:   
+        Purpose: Destructor for the SmartFieldSecurityItemForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC SmartFieldSecurityItemForm ():
 

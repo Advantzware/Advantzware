@@ -29,7 +29,7 @@
 &SCOPED-DEFINE errorvar err
 &ENDIF
 
-        IF VALID-HANDLE ({1}) AND {1}:NUM-REFERENCES = 0 THEN DO ON ERROR UNDO, THROW:                                 
+        IF VALID-HANDLE ({1}) AND {1}:NUM-REFERENCES = 0 AND {1}:PRIVATE-DATA <> "DO NOT DELETE THIS DATASET":U THEN DO ON ERROR UNDO, THROW:                                 
             DELETE OBJECT {1} .
     
             /* Handle Cannot delete a BY-REFERENCE PARAMETER dataset or table in the called procedure. (12327) */

@@ -16,6 +16,10 @@
     <DefaultTableSuffix/>
     <DefaultBeforeTablePrefix>e</DefaultBeforeTablePrefix>
     <DefaultBeforeTableSuffix>Before</DefaultBeforeTableSuffix>
+    <GenerateBusinessEntity>true</GenerateBusinessEntity>
+    <GenerateDataAccess>true</GenerateDataAccess>
+    <GenerateDatasetController>true</GenerateDatasetController>
+    <DistinctTempTableIncludeFiles>true</DistinctTempTableIncludeFiles>
   </eBusinessEntity>
   <eTable>
     <BusinessEntityName>AttributeBusinessEntity</BusinessEntityName>
@@ -23,6 +27,7 @@
     <SourceTableNames>SmartAttribute,SmartAttributeGroup</SourceTableNames>
     <SourceBufferNames>SmartAttribute,SmartAttributeGroup</SourceBufferNames>
     <SourceDefaultQuery/>
+    <SourceBufferKeys/>
     <TempTablePurpose/>
     <TempTableDescription/>
     <TempTablePath>Consultingwerk/SmartFramework/Repository/Class</TempTablePath>
@@ -48,12 +53,13 @@
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription>Description</FieldDescription>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>Description</FieldLabel>
     <FieldFormat>x(400)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>AttributeDesription</FieldSerializeName>
-    <FieldXmlDataType>string</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttribute.AttributeDesription</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -61,6 +67,10 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+    <FieldSemanticType/>
+    <FieldSkipAssignment>false</FieldSkipAssignment>
   </eField>
   <eField>
     <BusinessEntityName>AttributeBusinessEntity</BusinessEntityName>
@@ -70,12 +80,13 @@
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription>AttributeGroupGuid</FieldDescription>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>AttributeGroupGuid</FieldLabel>
     <FieldFormat>x(36)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>AttributeGroupGuid</FieldSerializeName>
-    <FieldXmlDataType>string</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttribute.AttributeGroupGuid</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -83,6 +94,10 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+    <FieldSemanticType/>
+    <FieldSkipAssignment>false</FieldSkipAssignment>
   </eField>
   <eField>
     <BusinessEntityName>AttributeBusinessEntity</BusinessEntityName>
@@ -92,6 +107,7 @@
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription/>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>Attribute Group</FieldLabel>
     <FieldFormat>x(80)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -105,6 +121,10 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+    <FieldSemanticType/>
+    <FieldSkipAssignment>false</FieldSkipAssignment>
   </eField>
   <eField>
     <BusinessEntityName>AttributeBusinessEntity</BusinessEntityName>
@@ -114,12 +134,13 @@
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription>AttributeGuid</FieldDescription>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>AttributeGuid</FieldLabel>
     <FieldFormat>x(36)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>AttributeGuid</FieldSerializeName>
-    <FieldXmlDataType>string</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttribute.AttributeGuid</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -127,6 +148,10 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+    <FieldSemanticType/>
+    <FieldSkipAssignment>false</FieldSkipAssignment>
   </eField>
   <eField>
     <BusinessEntityName>AttributeBusinessEntity</BusinessEntityName>
@@ -136,12 +161,13 @@
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription>Attribute Label</FieldDescription>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>Attribute Label</FieldLabel>
     <FieldFormat>x(40)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>AttributeLabel</FieldSerializeName>
-    <FieldXmlDataType>string</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttribute.AttributeLabel</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -149,6 +175,10 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+    <FieldSemanticType/>
+    <FieldSkipAssignment>false</FieldSkipAssignment>
   </eField>
   <eField>
     <BusinessEntityName>AttributeBusinessEntity</BusinessEntityName>
@@ -158,12 +188,13 @@
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription>Constant Level</FieldDescription>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>Constant Level</FieldLabel>
     <FieldFormat>x(10)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>ConstantLevel</FieldSerializeName>
-    <FieldXmlDataType>string</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttribute.ConstantLevel</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -171,6 +202,10 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+    <FieldSemanticType/>
+    <FieldSkipAssignment>false</FieldSkipAssignment>
   </eField>
   <eField>
     <BusinessEntityName>AttributeBusinessEntity</BusinessEntityName>
@@ -180,12 +215,13 @@
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription>Lookup Type</FieldDescription>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>Lookup Type</FieldLabel>
     <FieldFormat>x(12)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>LookupType</FieldSerializeName>
-    <FieldXmlDataType>string</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttribute.LookupType</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -193,6 +229,10 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+    <FieldSemanticType/>
+    <FieldSkipAssignment>false</FieldSkipAssignment>
   </eField>
   <eField>
     <BusinessEntityName>AttributeBusinessEntity</BusinessEntityName>
@@ -202,12 +242,13 @@
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription>Lookup Values</FieldDescription>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>Lookup Values</FieldLabel>
     <FieldFormat>x(400)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>LookupValues</FieldSerializeName>
-    <FieldXmlDataType>string</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttribute.LookupValues</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -215,6 +256,10 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+    <FieldSemanticType/>
+    <FieldSkipAssignment>false</FieldSkipAssignment>
   </eField>
   <eField>
     <BusinessEntityName>AttributeBusinessEntity</BusinessEntityName>
@@ -224,12 +269,13 @@
     <FieldDataType>LOGICAL</FieldDataType>
     <FieldDescription>PropertyOrEvent</FieldDescription>
     <FieldInitial>yes</FieldInitial>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>PropertyOrEvent</FieldLabel>
     <FieldFormat>Property/Event</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>PropertyOrEvent</FieldSerializeName>
-    <FieldXmlDataType>boolean</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttribute.PropertyOrEvent</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -237,6 +283,10 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+    <FieldSemanticType/>
+    <FieldSkipAssignment>false</FieldSkipAssignment>
   </eField>
   <eField>
     <BusinessEntityName>AttributeBusinessEntity</BusinessEntityName>
@@ -246,12 +296,13 @@
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription>Property Type</FieldDescription>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>Property Type</FieldLabel>
     <FieldFormat>x(80)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>PropertyType</FieldSerializeName>
-    <FieldXmlDataType>string</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttribute.PropertyType</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -259,6 +310,10 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+    <FieldSemanticType/>
+    <FieldSkipAssignment>false</FieldSkipAssignment>
   </eField>
   <eField>
     <BusinessEntityName>AttributeBusinessEntity</BusinessEntityName>
@@ -268,12 +323,13 @@
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription>Repository Type</FieldDescription>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>Repository Type</FieldLabel>
     <FieldFormat>x(12)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>RepositoryType</FieldSerializeName>
-    <FieldXmlDataType>string</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttribute.RepositoryType</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -281,6 +337,10 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+    <FieldSemanticType/>
+    <FieldSkipAssignment>false</FieldSkipAssignment>
   </eField>
   <eField>
     <BusinessEntityName>AttributeBusinessEntity</BusinessEntityName>
@@ -290,12 +350,13 @@
     <FieldDataType>LOGICAL</FieldDataType>
     <FieldDescription>Runtime Only</FieldDescription>
     <FieldInitial>no</FieldInitial>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>Runtime Only</FieldLabel>
     <FieldFormat>yes/no</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>RuntimeOnly</FieldSerializeName>
-    <FieldXmlDataType>boolean</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttribute.RuntimeOnly</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -303,6 +364,10 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+    <FieldSemanticType/>
+    <FieldSkipAssignment>false</FieldSkipAssignment>
   </eField>
   <eField>
     <BusinessEntityName>AttributeBusinessEntity</BusinessEntityName>
@@ -312,12 +377,13 @@
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription>SET Service Type Name</FieldDescription>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>SET Service Type Name</FieldLabel>
     <FieldFormat>x(80)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>SetServiceType</FieldSerializeName>
-    <FieldXmlDataType>string</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttribute.SetServiceType</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -325,6 +391,10 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+    <FieldSemanticType/>
+    <FieldSkipAssignment>false</FieldSkipAssignment>
   </eField>
   <eField>
     <BusinessEntityName>AttributeBusinessEntity</BusinessEntityName>
@@ -334,12 +404,13 @@
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription>Technical Name</FieldDescription>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>Technical Name</FieldLabel>
     <FieldFormat>x(40)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>TechnicalName</FieldSerializeName>
-    <FieldXmlDataType>string</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttribute.TechnicalName</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -347,6 +418,10 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+    <FieldSemanticType/>
+    <FieldSkipAssignment>false</FieldSkipAssignment>
   </eField>
   <eField>
     <BusinessEntityName>AttributeBusinessEntity</BusinessEntityName>
@@ -356,12 +431,13 @@
     <FieldDataType>LOGICAL</FieldDataType>
     <FieldDescription>Virtual</FieldDescription>
     <FieldInitial>no</FieldInitial>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>Virtual</FieldLabel>
     <FieldFormat>yes/no</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>VirtualProperty</FieldSerializeName>
-    <FieldXmlDataType>boolean</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttribute.VirtualProperty</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -369,6 +445,10 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+    <FieldSemanticType/>
+    <FieldSkipAssignment>false</FieldSkipAssignment>
   </eField>
   <eIndex>
     <BusinessEntityName>AttributeBusinessEntity</BusinessEntityName>

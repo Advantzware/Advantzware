@@ -14,37 +14,37 @@
     Purpose     : Character Constant enumeration for the iomode parameter of
                   the Progress.Lang.ParameterList:SetParameter () method
                   (ABL 11.6 reflection)
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sat Jan 16 11:32:01 CET 2016
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Consultingwerk.* FROM PROPATH .  
+USING Consultingwerk.* FROM PROPATH .
 USING Progress.Lang.*  FROM PROPATH .
 
-CLASS Consultingwerk.IoModeEnum: 
+CLASS Consultingwerk.IoModeEnum:
 
-    DEFINE PUBLIC STATIC PROPERTY Input                  AS CHARACTER INIT "INPUT":U                     GET .
-    DEFINE PUBLIC STATIC PROPERTY Output                 AS CHARACTER INIT "OUTPUT":U                    GET .
-    DEFINE PUBLIC STATIC PROPERTY InputOutput            AS CHARACTER INIT "INPUT-OUTPUT":U              GET .
-    DEFINE PUBLIC STATIC PROPERTY InputAppend            AS CHARACTER INIT "OUTPUT APPEND":U             GET .
-    DEFINE PUBLIC STATIC PROPERTY OutputBind             AS CHARACTER INIT "OUTPUT BIND":U               GET .
-    DEFINE PUBLIC STATIC PROPERTY InputByReference       AS CHARACTER INIT "INPUT BY-REFERENCE":U        GET .
-    DEFINE PUBLIC STATIC PROPERTY OutputByReference      AS CHARACTER INIT "OUTPUT BY-REFERENCE":U       GET .
-    DEFINE PUBLIC STATIC PROPERTY InputOutputByReference AS CHARACTER INIT "INPUT-OUTPUT BY-REFERENCE":U GET .
-    DEFINE PUBLIC STATIC PROPERTY InputBind              AS CHARACTER INIT "INPUT BIND":U                GET .
+    DEFINE PUBLIC STATIC PROPERTY Input                  AS CHARACTER NO-UNDO INITIAL "INPUT":U                     GET .
+    DEFINE PUBLIC STATIC PROPERTY Output                 AS CHARACTER NO-UNDO INITIAL "OUTPUT":U                    GET .
+    DEFINE PUBLIC STATIC PROPERTY InputOutput            AS CHARACTER NO-UNDO INITIAL "INPUT-OUTPUT":U              GET .
+    DEFINE PUBLIC STATIC PROPERTY InputAppend            AS CHARACTER NO-UNDO INITIAL "OUTPUT APPEND":U             GET .
+    DEFINE PUBLIC STATIC PROPERTY OutputBind             AS CHARACTER NO-UNDO INITIAL "OUTPUT BIND":U               GET .
+    DEFINE PUBLIC STATIC PROPERTY InputByReference       AS CHARACTER NO-UNDO INITIAL "INPUT BY-REFERENCE":U        GET .
+    DEFINE PUBLIC STATIC PROPERTY OutputByReference      AS CHARACTER NO-UNDO INITIAL "OUTPUT BY-REFERENCE":U       GET .
+    DEFINE PUBLIC STATIC PROPERTY InputOutputByReference AS CHARACTER NO-UNDO INITIAL "INPUT-OUTPUT BY-REFERENCE":U GET .
+    DEFINE PUBLIC STATIC PROPERTY InputBind              AS CHARACTER NO-UNDO INITIAL "INPUT BIND":U                GET .
 
     /*------------------------------------------------------------------------------
         Purpose: Protected default constructor for the IoModeEnum class
         Notes:   Disallow instance creation
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PROTECTED IoModeEnum ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PROTECTED IoModeEnum ():
+        SUPER ().
+
+    END CONSTRUCTOR.
 
 END CLASS.

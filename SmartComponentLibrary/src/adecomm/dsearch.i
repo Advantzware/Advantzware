@@ -33,9 +33,9 @@ DEFINE VARIABLE Replace_Text AS CHARACTER LABEL "&Replace With"
   FORMAT "x(128)" VIEW-AS FILL-IN SIZE 40 By 1 {&STDPH_FILL} NO-UNDO.
 
 DEFINE VAR Find_Direction AS CHAR LABEL "Direction" INIT "DOWN"
-	VIEW-AS RADIO-SET HORIZONTAL
-		RADIO-BUTTONS "&Up",   "UP",
-			      "&Down", "DOWN" .
+    VIEW-AS RADIO-SET HORIZONTAL
+        RADIO-BUTTONS "&Up",   "UP",
+                  "&Down", "DOWN" .
 
 DEFINE VARIABLE Wrap_Find         AS LOGICAL NO-UNDO.
 DEFINE VARIABLE Text_Found        AS LOGICAL NO-UNDO.
@@ -139,7 +139,7 @@ FORM
   &IF {&OKBOX} &THEN
   DEFINE RECTANGLE RT_Btn_Box    {&STDPH_OKBOX}.
   &ENDIF
-				
+                
   FORM
       SKIP( {&TFM_WID} )
       Find_Text COLON 14

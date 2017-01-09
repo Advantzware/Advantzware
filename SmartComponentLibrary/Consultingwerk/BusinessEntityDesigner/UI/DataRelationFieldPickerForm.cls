@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2006-2013 by Consultingwerk Ltd. ("CW") -            *
+ * Copyright (C) 2006-2016 by Consultingwerk Ltd. ("CW") -            *
  * www.consultingwerk.de and other contributors as listed             *
  * below.  All Rights Reserved.                                       *
  *                                                                    *
@@ -8,30 +8,34 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : DataRelationFieldPickerForm
-    Purpose     : Provides an user interface to associate fields for a 
+    Purpose     : Provides an user interface to associate fields for a
                   data-relation
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Thu Nov 25 20:52:04 CET 2010
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.SmartComponents.Base.* FROM PROPATH .
-USING Consultingwerk.Util.*                 FROM PROPATH . 
+USING Consultingwerk.Util.*                 FROM PROPATH .
 USING Consultingwerk.Windows.Util.Forms.*   FROM PROPATH.
+USING Infragistics.Win.UltraWinListView.*   FROM ASSEMBLY.
 USING Progress.Lang.*                       FROM PROPATH .
+USING Progress.Util.*                       FROM ASSEMBLY.
+USING System.Windows.Forms.*                FROM ASSEMBLY.
 
 {Consultingwerk/products.i}
 
-CLASS Consultingwerk.BusinessEntityDesigner.UI.DataRelationFieldPickerForm 
-    INHERITS SmartWindowForm: 
-    
+CLASS Consultingwerk.BusinessEntityDesigner.UI.DataRelationFieldPickerForm
+    INHERITS SmartWindowForm:
+
+    DEFINE PRIVATE VARIABLE label1 AS System.Windows.Forms.Label NO-UNDO.
     DEFINE PRIVATE VARIABLE m_DataRelationFieldPickerForm_Toolbars_Dock_Area_Top AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_DataRelationFieldPickerForm_Toolbars_Dock_Area_Right AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_DataRelationFieldPickerForm_Toolbars_Dock_Area_Left AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
@@ -52,43 +56,43 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.DataRelationFieldPickerForm
     DEFINE PRIVATE VARIABLE ultraToolbarsManager1 AS Infragistics.Win.UltraWinToolbars.UltraToolbarsManager NO-UNDO.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the buffer handle of the child table eTable buffer                                                                       
-        Notes:                                                                        
+        Purpose: Gets and sets the buffer handle of the child table eTable buffer
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY ChildTableBuffer AS HANDLE NO-UNDO 
+    DEFINE PUBLIC PROPERTY ChildTableBuffer AS HANDLE NO-UNDO
     GET.
-    SET. 
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the handle of the dsBusinessEntity dataset                                                                       
-        Notes:                                                                        
+        Purpose: Gets and sets the handle of the dsBusinessEntity dataset
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY Dataset AS HANDLE NO-UNDO 
+    DEFINE PUBLIC PROPERTY Dataset AS HANDLE NO-UNDO
     GET.
-    SET. 
-                
-    /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the buffer handle of the parent table eTable buffer                                                                       
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY ParentTableBuffer AS HANDLE NO-UNDO 
-    GET.
-    SET. 
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the current relation-fields for the relation                                                                        
-        Notes:                                                                        
+        Purpose: Gets and sets the buffer handle of the parent table eTable buffer
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY RelationFields AS CHARACTER NO-UNDO 
+    DEFINE PUBLIC PROPERTY ParentTableBuffer AS HANDLE NO-UNDO
     GET.
-    SET. 
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the DataRelationFieldPickerForm class                                                                       
-        Notes:                                                                        
+        Purpose: Gets and sets the current relation-fields for the relation
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY RelationFields AS CHARACTER NO-UNDO
+    GET.
+    SET.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the DataRelationFieldPickerForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC DataRelationFieldPickerForm ():
-        
+
         SUPER().
         InitializeComponent().
         CATCH e AS Progress.Lang.Error:
@@ -98,66 +102,106 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.DataRelationFieldPickerForm
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Creates a related field pair                                                                       
-        Notes:    
+        Purpose: Creates a related field pair
+        Notes:
         @param pcParentFieldName  The parent table field name
-        @param pcChildFieldName The child table field name                                                                     
+        @param pcChildFieldName The child table field name
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID CreateRelatedFields (pcParentFieldName AS CHARACTER,
                                                pcChildFieldName AS CHARACTER):
-        
-        DEFINE VARIABLE oParentItem AS Infragistics.Win.UltraWinListView.UltraListViewItem NO-UNDO . 
-        DEFINE VARIABLE oChildItem  AS Infragistics.Win.UltraWinListView.UltraListViewItem NO-UNDO . 
-                
-        DEFINE VARIABLE oRelationItem AS Infragistics.Win.UltraWinListView.UltraListViewItem NO-UNDO .        
-    
+
+        DEFINE VARIABLE oParentItem AS Infragistics.Win.UltraWinListView.UltraListViewItem NO-UNDO .
+        DEFINE VARIABLE oChildItem  AS Infragistics.Win.UltraWinListView.UltraListViewItem NO-UNDO .
+
+        DEFINE VARIABLE oRelationItem AS Infragistics.Win.UltraWinListView.UltraListViewItem NO-UNDO .
+
         IF NOT ultraListView1:Items:Exists (pcParentFieldName) THEN DO:
-            
+
             MessageFormHelper:ShowMessage (SUBSTITUTE ("Relation field &1 in parent table is no longer valid."{&TRAN}, pcParentFieldName),
                                            THIS-OBJECT:Text,
                                            MessageFormImages:ImageWarning) .
-            
-            RETURN . 
+
+            RETURN .
         END.
-        
+
         IF NOT ultraListView2:Items:Exists (pcChildFieldName) THEN DO:
-            
+
             MessageFormHelper:ShowMessage (SUBSTITUTE ("Relation field &1 in child table is no longer valid."{&TRAN}, pcParentFieldName),
                                            THIS-OBJECT:Text,
                                            MessageFormImages:ImageWarning) .
-            
-            RETURN . 
+
+            RETURN .
         END.
-                
+
         oParentItem = ultraListView1:Items [pcParentFieldName] .
         oChildItem  = ultraListView2:Items [pcChildFieldName] .
-                
+
         ultraListView1:Items:Remove(oParentItem) .
         ultraListView2:Items:Remove(oChildItem) .
 
-        oRelationItem = NEW Infragistics.Win.UltraWinListView.UltraListViewItem (SUBSTITUTE ("&1,&2":U, 
-                                                                                             pcParentFieldName, 
+        oRelationItem = NEW Infragistics.Win.UltraWinListView.UltraListViewItem (SUBSTITUTE ("&1,&2":U,
+                                                                                             pcParentFieldName,
                                                                                              pcChildFieldName)) .
 
-        oRelationItem:Value = SUBSTITUTE ("&1 -> &2":U, 
-                                          pcParentFieldName, 
-                                          pcChildFieldName) . 
+        oRelationItem:Value = SUBSTITUTE ("&1 -> &2":U,
+                                          pcParentFieldName,
+                                          pcChildFieldName) .
 
         ultraListView3:Items:Add (oRelationItem) .
 
     END METHOD.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Event handle for the DoubleClick event of the ultraListView1 and ultraListView2
+     * Notes:
+     * @param sender The reference to the control raising the evnet
+     * @param e The System.EventArgs with the data for this event
+     */
+    METHOD PRIVATE VOID DoubleClickFieldsListViewHandler (sender AS System.Object,
+                                                          e AS MouseEventArgs):
+
+        DEFINE VARIABLE oListview1    AS UltraListView     NO-UNDO .
+        DEFINE VARIABLE oListview2    AS UltraListView     NO-UNDO .
+        DEFINE VARIABLE oListviewItem AS UltraListViewItem NO-UNDO .
+
+        oListview1 = CAST (sender, UltraListView) .
+
+        oListviewItem = oListView1:ItemFromPoint (e:Location) .
+
+        IF NOT VALID-OBJECT (oListviewItem) THEN
+            RETURN .
+
+        IF oListview1 = ultraListView1 THEN
+            ASSIGN oListview2 = ultraListView2 .
+        ELSE
+            ASSIGN oListView2 = ultraListView1 .
+
+        oListview1:SelectedItems:Clear () .
+        oListview1:SelectedItems:Add (oListviewItem) .
+
+        IF NOT oListview2:Items:Exists (oListviewItem:Key) THEN
+            RETURN .
+
+        THIS-OBJECT:CreateRelatedFields (oListviewItem:Key, oListviewItem:Key) .
+
+        CATCH err AS Progress.Lang.Error :
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
+    END METHOD.
+
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -222,6 +266,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.DataRelationFieldPickerForm
         THIS-OBJECT:m_DataRelationFieldPickerForm_Toolbars_Dock_Area_Right = NEW Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea().
         THIS-OBJECT:m_DataRelationFieldPickerForm_Toolbars_Dock_Area_Top = NEW Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea().
         THIS-OBJECT:m_DataRelationFieldPickerForm_Toolbars_Dock_Area_Bottom = NEW Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea().
+        THIS-OBJECT:label1 = NEW System.Windows.Forms.Label().
         THIS-OBJECT:ultraTabPageControl1:SuspendLayout().
         THIS-OBJECT:tableLayoutPanel1:SuspendLayout().
         CAST(THIS-OBJECT:ultraListView1, System.ComponentModel.ISupportInitialize):BeginInit().
@@ -278,6 +323,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.DataRelationFieldPickerForm
         THIS-OBJECT:ultraListView1:ViewSettingsList:ColumnWidth = 200.
         THIS-OBJECT:ultraListView1:DragDrop:Subscribe(THIS-OBJECT:ultraListView1_DragDrop).
         THIS-OBJECT:ultraListView1:DragOver:Subscribe(THIS-OBJECT:ultraListView1_DragOver).
+        THIS-OBJECT:ultraListView1:MouseDoubleClick:Subscribe(THIS-OBJECT:DoubleClickFieldsListViewHandler).
         THIS-OBJECT:ultraListView1:MouseDown:Subscribe(THIS-OBJECT:ultraListView1_MouseDown).
         /*  */
         /* ultraListView2 */
@@ -296,6 +342,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.DataRelationFieldPickerForm
         THIS-OBJECT:ultraListView2:ViewSettingsList:ColumnWidth = 200.
         THIS-OBJECT:ultraListView2:DragDrop:Subscribe(THIS-OBJECT:ultraListView2_DragDrop).
         THIS-OBJECT:ultraListView2:DragOver:Subscribe(THIS-OBJECT:ultraListView2_DragOver).
+        THIS-OBJECT:ultraListView2:MouseDoubleClick:Subscribe(THIS-OBJECT:DoubleClickFieldsListViewHandler).
         THIS-OBJECT:ultraListView2:MouseDown:Subscribe(THIS-OBJECT:ultraListView2_MouseDown).
         /*  */
         /* ultraListView3 */
@@ -440,9 +487,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.DataRelationFieldPickerForm
         THIS-OBJECT:m_DataRelationFieldPickerForm_Toolbars_Dock_Area_Left:BackColor = System.Drawing.SystemColors:Control.
         THIS-OBJECT:m_DataRelationFieldPickerForm_Toolbars_Dock_Area_Left:DockedPosition = Infragistics.Win.UltraWinToolbars.DockedPosition:Left.
         THIS-OBJECT:m_DataRelationFieldPickerForm_Toolbars_Dock_Area_Left:ForeColor = System.Drawing.SystemColors:ControlText.
-        THIS-OBJECT:m_DataRelationFieldPickerForm_Toolbars_Dock_Area_Left:Location = NEW System.Drawing.Point(0, 25).
+        THIS-OBJECT:m_DataRelationFieldPickerForm_Toolbars_Dock_Area_Left:Location = NEW System.Drawing.Point(0, 0).
         THIS-OBJECT:m_DataRelationFieldPickerForm_Toolbars_Dock_Area_Left:Name = "m_DataRelationFieldPickerForm_Toolbars_Dock_Area_Left":U.
-        THIS-OBJECT:m_DataRelationFieldPickerForm_Toolbars_Dock_Area_Left:Size = NEW System.Drawing.Size(0, 395).
+        THIS-OBJECT:m_DataRelationFieldPickerForm_Toolbars_Dock_Area_Left:Size = NEW System.Drawing.Size(0, 420).
         THIS-OBJECT:m_DataRelationFieldPickerForm_Toolbars_Dock_Area_Left:ToolbarsManager = THIS-OBJECT:ultraToolbarsManager1.
         /*  */
         /* m_DataRelationFieldPickerForm_Toolbars_Dock_Area_Right */
@@ -451,9 +498,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.DataRelationFieldPickerForm
         THIS-OBJECT:m_DataRelationFieldPickerForm_Toolbars_Dock_Area_Right:BackColor = System.Drawing.SystemColors:Control.
         THIS-OBJECT:m_DataRelationFieldPickerForm_Toolbars_Dock_Area_Right:DockedPosition = Infragistics.Win.UltraWinToolbars.DockedPosition:Right.
         THIS-OBJECT:m_DataRelationFieldPickerForm_Toolbars_Dock_Area_Right:ForeColor = System.Drawing.SystemColors:ControlText.
-        THIS-OBJECT:m_DataRelationFieldPickerForm_Toolbars_Dock_Area_Right:Location = NEW System.Drawing.Point(667, 25).
+        THIS-OBJECT:m_DataRelationFieldPickerForm_Toolbars_Dock_Area_Right:Location = NEW System.Drawing.Point(667, 0).
         THIS-OBJECT:m_DataRelationFieldPickerForm_Toolbars_Dock_Area_Right:Name = "m_DataRelationFieldPickerForm_Toolbars_Dock_Area_Right":U.
-        THIS-OBJECT:m_DataRelationFieldPickerForm_Toolbars_Dock_Area_Right:Size = NEW System.Drawing.Size(0, 395).
+        THIS-OBJECT:m_DataRelationFieldPickerForm_Toolbars_Dock_Area_Right:Size = NEW System.Drawing.Size(0, 420).
         THIS-OBJECT:m_DataRelationFieldPickerForm_Toolbars_Dock_Area_Right:ToolbarsManager = THIS-OBJECT:ultraToolbarsManager1.
         /*  */
         /* m_DataRelationFieldPickerForm_Toolbars_Dock_Area_Top */
@@ -464,7 +511,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.DataRelationFieldPickerForm
         THIS-OBJECT:m_DataRelationFieldPickerForm_Toolbars_Dock_Area_Top:ForeColor = System.Drawing.SystemColors:ControlText.
         THIS-OBJECT:m_DataRelationFieldPickerForm_Toolbars_Dock_Area_Top:Location = NEW System.Drawing.Point(0, 0).
         THIS-OBJECT:m_DataRelationFieldPickerForm_Toolbars_Dock_Area_Top:Name = "m_DataRelationFieldPickerForm_Toolbars_Dock_Area_Top":U.
-        THIS-OBJECT:m_DataRelationFieldPickerForm_Toolbars_Dock_Area_Top:Size = NEW System.Drawing.Size(667, 25).
+        THIS-OBJECT:m_DataRelationFieldPickerForm_Toolbars_Dock_Area_Top:Size = NEW System.Drawing.Size(667, 0).
         THIS-OBJECT:m_DataRelationFieldPickerForm_Toolbars_Dock_Area_Top:ToolbarsManager = THIS-OBJECT:ultraToolbarsManager1.
         /*  */
         /* m_DataRelationFieldPickerForm_Toolbars_Dock_Area_Bottom */
@@ -478,10 +525,24 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.DataRelationFieldPickerForm
         THIS-OBJECT:m_DataRelationFieldPickerForm_Toolbars_Dock_Area_Bottom:Size = NEW System.Drawing.Size(667, 0).
         THIS-OBJECT:m_DataRelationFieldPickerForm_Toolbars_Dock_Area_Bottom:ToolbarsManager = THIS-OBJECT:ultraToolbarsManager1.
         /*  */
+        /* label1 */
+        /*  */
+        DEFINE VARIABLE nestedvar3 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+        nestedvar3 = System.Windows.Forms.AnchorStyles:Bottom.
+        THIS-OBJECT:label1:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar3, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:label1:AutoSize = TRUE.
+        THIS-OBJECT:label1:Location = NEW System.Drawing.Point(16, 390).
+        THIS-OBJECT:label1:Name = "label1":U.
+        THIS-OBJECT:label1:Size = NEW System.Drawing.Size(301, 17).
+        THIS-OBJECT:label1:TabIndex = 10.
+        THIS-OBJECT:label1:Text = "Right-Click for Drag && Drop; Double-Click for Automapping.":U.
+        THIS-OBJECT:label1:UseCompatibleTextRendering = TRUE.
+        /*  */
         /* DataRelationFieldPickerForm */
         /*  */
         THIS-OBJECT:CancelButton = THIS-OBJECT:ultraButton2.
         THIS-OBJECT:ClientSize = NEW System.Drawing.Size(667, 420).
+        THIS-OBJECT:Controls:Add(THIS-OBJECT:label1).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:ultraTabControl1).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:ultraButton2).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:ultraButton1).
@@ -504,6 +565,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.DataRelationFieldPickerForm
         THIS-OBJECT:ultraTabControl1:ResumeLayout(FALSE).
         CAST(THIS-OBJECT:ultraToolbarsManager1, System.ComponentModel.ISupportInitialize):EndInit().
         THIS-OBJECT:ResumeLayout(FALSE).
+        THIS-OBJECT:PerformLayout().
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
@@ -511,70 +573,68 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.DataRelationFieldPickerForm
 
     /*------------------------------------------------------------------------------
         Purpose: Automatically maps the currently selected entry on the left table
-                 to an entry on the right table 
-        Notes:   
+                 to an entry on the right table
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID LeftMapAutomatically ():
-		
-		DEFINE VARIABLE cKey AS CHARACTER NO-UNDO.
+    METHOD PROTECTED VOID LeftMapAutomatically ():
+
+        DEFINE VARIABLE cKey AS CHARACTER NO-UNDO.
 
         IF ultraListView1:SelectedItems:Count <> 1 THEN DO:
             Consultingwerk.Util.MessageFormHelper:ShowMessage ("Please select one item before using the auto mapping function!"{&TRAN},
-                                                               Consultingwerk.Windows.Util.Forms.MessageFormImages:ImageWarning) . 
-                                                                
-            RETURN .                                                                 
+                                                               Consultingwerk.Windows.Util.Forms.MessageFormImages:ImageWarning) .
+
+            RETURN .
         END.
 
         ASSIGN cKey = ultraListView1:SelectedItems[0]:Key .
-        
+
         IF NOT ultraListView2:Items:Exists (cKey) THEN DO:
             Consultingwerk.Util.MessageFormHelper:ShowMessage (SUBSTITUTE ("The field &1 has no field available for auto mapping!"{&TRAN}, cKey),
-                                                                Consultingwerk.Windows.Util.Forms.MessageFormImages:ImageWarning) . 
-                                                                
-            RETURN .                                                                 
+                                                                Consultingwerk.Windows.Util.Forms.MessageFormImages:ImageWarning) .
+
+            RETURN .
         END.
-        
+
         THIS-OBJECT:CreateRelatedFields (cKey, cKey) .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the Load event                                                                       
-        Notes:                        
-        @param e The System.EventArgs with the data for this event                                                
+        Purpose: Raises the Load event
+        Notes:
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
-        
-        DEFINE VARIABLE hChildBuffer AS HANDLE               NO-UNDO.
-        DEFINE VARIABLE hTableBuffer AS HANDLE               NO-UNDO.
+
         DEFINE VARIABLE hQuery       AS HANDLE               NO-UNDO.
         DEFINE VARIABLE oImage       AS System.Drawing.Image NO-UNDO .
         DEFINE VARIABLE i            AS INTEGER              NO-UNDO.
-        
-        FILE-INFO:FILE-NAME = "Consultingwerk\BusinessEntityDesigner\UI\Images\table2_selection_column.png":U .
-        
-        IF FILE-INFO:FULL-PATHNAME > "":U THEN 
-            oImage = Consultingwerk.Util.ImageHelper:Load (FILE-INFO:FULL-PATHNAME) .
-        
-        SUPER:OnLoad (e) . 
-        
-        ultraLabel1:Text = THIS-OBJECT:ParentTableBuffer::TempTableName . 
-        ultraLabel2:Text = THIS-OBJECT:ChildTableBuffer::TempTableName . 
-        
-        ASSIGN hQuery = Consultingwerk.Util.QueryHelper:CreatePreparedQuery 
+
+        FILE-INFORMATION:FILE-NAME = "Consultingwerk/BusinessEntityDesigner/UI/Images/table2_selection_column.png":U .
+
+        IF FILE-INFORMATION:FULL-PATHNAME > "":U THEN
+            oImage = Consultingwerk.Util.ImageHelper:Load (FILE-INFORMATION:FULL-PATHNAME) .
+
+        SUPER:OnLoad (e) .
+
+        ultraLabel1:Text = THIS-OBJECT:ParentTableBuffer::TempTableName .
+        ultraLabel2:Text = THIS-OBJECT:ChildTableBuffer::TempTableName .
+
+        ASSIGN hQuery = Consultingwerk.Util.QueryHelper:CreatePreparedQuery
               (THIS-OBJECT:Dataset::eField,
                SUBSTITUTE ("FOR EACH eField WHERE BusinessEntityName = '&1' AND TempTableName = '&2'":U,
                            THIS-OBJECT:ChildTableBuffer::BusinessEntityName,
                            THIS-OBJECT:ChildTableBuffer::TempTableName)) .
-        
+
         DO WHILE NOT hQuery:QUERY-OFF-END:
-            
+
             ultraListView2:Items:Add (THIS-OBJECT:DATASET::eField::FieldName,
                                       THIS-OBJECT:DATASET::eField::FieldName):Appearance:Image = oImage .
-            
-            hQuery:GET-NEXT () . 
+
+            hQuery:GET-NEXT () .
         END.
-        
+
         DELETE OBJECT hQuery .
 
         ASSIGN hQuery = Consultingwerk.Util.QueryHelper:CreatePreparedQuery
@@ -590,25 +650,25 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.DataRelationFieldPickerForm
 
             hQuery:GET-NEXT () .
         END.
-        
+
         DELETE OBJECT hQuery .
-        
+
         DO i = 2 TO NUM-ENTRIES (THIS-OBJECT:RelationFields) BY 2:
-            
+
             CreateRelatedFields (ENTRY (i - 1, THIS-OBJECT:RelationFields),
                                  ENTRY (i, THIS-OBJECT:RelationFields)) .
-            
+
         END.
-        
+
         CATCH err AS Progress.Lang.Error:
-        	ErrorHelper:ShowErrorMessage (err) .	
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
-        
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Removes the currently selected field pair                                                                        
-        Notes:                                                                        
+        Purpose: Removes the currently selected field pair
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID RemoveSelectedFieldPair ():
 
@@ -616,23 +676,23 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.DataRelationFieldPickerForm
         DEFINE VARIABLE cChildField  AS CHARACTER NO-UNDO.
 
         DEFINE VARIABLE oImage AS System.Drawing.Image NO-UNDO .
-        
-        IF NOT VALID-OBJECT (ultraListView3:ActiveItem) THEN 
-            UNDO, THROW NEW AppError ("Please select a field pair from the linked fields list first."{&TRAN}, 0) . 
+
+        IF NOT VALID-OBJECT (ultraListView3:ActiveItem) THEN
+            UNDO, THROW NEW AppError ("Please select a field pair from the linked fields list first."{&TRAN}, 0) .
 
         ASSIGN cParentField = ENTRY (1, ultraListView3:ActiveItem:Key)
                cChildField  = ENTRY (2, ultraListView3:ActiveItem:Key) .
-               
-        ultraListView3:Items:Remove (ultraListView3:ActiveItem) .        
-        
-        FILE-INFO:FILE-NAME = "Consultingwerk\BusinessEntityDesigner\UI\Images\table2_selection_column.png":U .
-        
-        IF FILE-INFO:FULL-PATHNAME > "":U THEN 
-            oImage = Consultingwerk.Util.ImageHelper:Load (FILE-INFO:FULL-PATHNAME) .
+
+        ultraListView3:Items:Remove (ultraListView3:ActiveItem) .
+
+        FILE-INFORMATION:FILE-NAME = "Consultingwerk/BusinessEntityDesigner/UI/Images/table2_selection_column.png":U .
+
+        IF FILE-INFORMATION:FULL-PATHNAME > "":U THEN
+            oImage = Consultingwerk.Util.ImageHelper:Load (FILE-INFORMATION:FULL-PATHNAME) .
 
         ultraListView1:Items:Add (cParentField,
                                   cParentField):Appearance:Image = oImage .
-        
+
         ultraListView2:Items:Add (cChildField,
                                   cChildField):Appearance:Image = oImage .
 
@@ -640,270 +700,308 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.DataRelationFieldPickerForm
 
     /*------------------------------------------------------------------------------
         Purpose: Automatically maps the currently selected entry on the left table
-                 to an entry on the right table 
-        Notes:   
+                 to an entry on the right table
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID RightMapAutomatically ():
-		
+    METHOD PROTECTED VOID RightMapAutomatically ():
+
         DEFINE VARIABLE cKey AS CHARACTER NO-UNDO.
 
         IF ultraListView2:SelectedItems:Count <> 1 THEN DO:
             Consultingwerk.Util.MessageFormHelper:ShowMessage ("Please select one item before using the auto mapping function!"{&TRAN},
-                                                               Consultingwerk.Windows.Util.Forms.MessageFormImages:ImageWarning) . 
-                                                                
-            RETURN .                                                                 
+                                                               Consultingwerk.Windows.Util.Forms.MessageFormImages:ImageWarning) .
+
+            RETURN .
         END.
 
         ASSIGN cKey = ultraListView2:SelectedItems[0]:Key .
-        
+
         IF NOT ultraListView1:Items:Exists (cKey) THEN DO:
             Consultingwerk.Util.MessageFormHelper:ShowMessage (SUBSTITUTE ("The field &1 has no field available for auto mapping!"{&TRAN}, cKey),
-                                                                Consultingwerk.Windows.Util.Forms.MessageFormImages:ImageWarning) . 
-                                                                
-            RETURN .                                                                 
+                                                                Consultingwerk.Windows.Util.Forms.MessageFormImages:ImageWarning) .
+
+            RETURN .
         END.
-        
+
         THIS-OBJECT:CreateRelatedFields (cKey, cKey) .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the Click event of the ultraButton1                                                                        
-        Notes:                                                        
+        Purpose: Event handler for the Click event of the ultraButton1
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event                 
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PRIVATE VOID ultraButton1_Click (sender AS System.Object, e AS System.EventArgs):
-        
-        
+
+
         THIS-OBJECT:RelationFields = "":U .
 
         {Consultingwerk/foreach.i Infragistics.Win.UltraWinListView.UltraListViewItem oItem in ultraListView3:Items}
 
             THIS-OBJECT:RelationFields = THIS-OBJECT:RelationFields +
                                          oItem:Key +
-                                         ",":U .  
+                                         ",":U .
         END.
 
         THIS-OBJECT:RelationFields = TRIM (THIS-OBJECT:RelationFields, ",":U) .
 
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the Click event of the ultraButton3                                                                        
-        Notes:                                                        
+        Purpose: Event handler for the Click event of the ultraButton3
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event                 
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraButton3_Click (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraButton3_Click (sender AS System.Object,
                                             e AS System.EventArgs ):
-        
+
         DEFINE VARIABLE cParentField AS CHARACTER NO-UNDO.
         DEFINE VARIABLE cChildField  AS CHARACTER NO-UNDO.
 
-        IF NOT VALID-OBJECT (ultraListView1:ActiveItem) OR NOT VALID-OBJECT (ultraListView2:ActiveItem) THEN 
-            UNDO, THROW NEW AppError ("Please select a field from the parent table and a field from the child table first."{&TRAN}, 0) . 
-        
+        IF NOT VALID-OBJECT (ultraListView1:ActiveItem) OR NOT VALID-OBJECT (ultraListView2:ActiveItem) THEN
+            UNDO, THROW NEW AppError ("Please select a field from the parent table and a field from the child table first."{&TRAN}, 0) .
+
         ASSIGN cParentField = UNBOX (ultraListView1:ActiveItem:Value)
                cChildField  = UNBOX (ultraListView2:ActiveItem:Value)
                 .
-        
+
         CreateRelatedFields (cParentField, cChildField) .
-        
+
         CATCH err AS Progress.Lang.Error :
-            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .    
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the DragDrop event of the ListView control
-        Notes:   
+        Notes:
         @param sender The reference to the sending Control
         @param e The DragEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraListView1_DragDrop (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraListView1_DragDrop (sender AS System.Object,
                                                  e AS System.Windows.Forms.DragEventArgs):
-        
+
         DEFINE VARIABLE oListViewItem  AS Infragistics.Win.UltraWinListView.UltraListViewItem NO-UNDO .
         DEFINE VARIABLE oListViewItem2 AS Infragistics.Win.UltraWinListView.UltraListViewItem NO-UNDO .
 
         DEFINE VARIABLE oPoint AS System.Drawing.Point NO-UNDO .
 
-        IF NOT e:Data:GetDataPresent (Progress.Util.TypeHelper:GetType ("Infragistics.Win.UltraWinListView.UltraListViewItem":U)) THEN 
-            RETURN . 
+        IF NOT e:Data:GetDataPresent (Progress.Util.TypeHelper:GetType ("Infragistics.Win.UltraWinListView.UltraListViewItem":U)) THEN
+            RETURN .
 
         oPoint = ultraListView1:PointToClient (NEW System.Drawing.Point (e:X, e:Y)) .
 
         oListViewItem = ultraListView1:ItemFromPoint (oPoint) .
 
-        oListViewItem2 = CAST (e:Data:GetData (Progress.Util.TypeHelper:GetType ("Infragistics.Win.UltraWinListView.UltraListViewItem":U)), 
+        oListViewItem2 = CAST (e:Data:GetData (Progress.Util.TypeHelper:GetType ("Infragistics.Win.UltraWinListView.UltraListViewItem":U)),
                                Infragistics.Win.UltraWinListView.UltraListViewItem) .
 
-        IF VALID-OBJECT (oListViewItem) AND VALID-OBJECT (oListViewItem2) THEN 
+        IF VALID-OBJECT (oListViewItem) AND VALID-OBJECT (oListViewItem2) THEN
             CreateRelatedFields (oListViewItem:Key, oListViewItem2:Key) .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the DragOver event of the ListView control
-        Notes:   
+        Notes:
         @param sender The reference to the sending Control
         @param e The DragEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraListView1_DragOver (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraListView1_DragOver (sender AS System.Object,
                                                  e AS System.Windows.Forms.DragEventArgs):
-        
+
         DEFINE VARIABLE oListViewItem  AS Infragistics.Win.UltraWinListView.UltraListViewItem NO-UNDO .
         DEFINE VARIABLE oListViewItem2 AS Infragistics.Win.UltraWinListView.UltraListViewItem NO-UNDO .
 
         DEFINE VARIABLE oPoint AS System.Drawing.Point NO-UNDO .
 
-        IF NOT e:Data:GetDataPresent (Progress.Util.TypeHelper:GetType("Infragistics.Win.UltraWinListView.UltraListViewItem":U)) THEN 
-            RETURN . 
+        IF NOT e:Data:GetDataPresent (Progress.Util.TypeHelper:GetType("Infragistics.Win.UltraWinListView.UltraListViewItem":U)) THEN
+            RETURN .
 
         oPoint = ultraListView1:PointToClient (NEW System.Drawing.Point (e:X, e:Y)) .
 
         oListViewItem = ultraListView1:ItemFromPoint (oPoint) .
 
-        oListViewItem2 = CAST (e:Data:GetData (Progress.Util.TypeHelper:GetType("Infragistics.Win.UltraWinListView.UltraListViewItem":U)), 
+        oListViewItem2 = CAST (e:Data:GetData (Progress.Util.TypeHelper:GetType("Infragistics.Win.UltraWinListView.UltraListViewItem":U)),
                                Infragistics.Win.UltraWinListView.UltraListViewItem) .
 
         IF VALID-OBJECT (oListViewItem) AND oListViewItem2:Control = ultraListView2 THEN DO:
             e:Effect = System.Windows.Forms.DragDropEffects:Link .
-        
-            RETURN . 
-        END.
 
-        e:Effect = System.Windows.Forms.DragDropEffects:None .
-
-    END METHOD.
-
-    /*------------------------------------------------------------------------------
-        Purpose: Event handler for the MouseDown event of the ListView control
-        Notes:   
-        @param sender The reference to the sending Control
-        @param e The MouseEventArgs with the data for this event
-    ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraListView1_MouseDown (sender AS System.Object, e AS System.Windows.Forms.MouseEventArgs):
-        
-        DEFINE VARIABLE oListViewItem AS Infragistics.Win.UltraWinListView.UltraListViewItem NO-UNDO .
-        
-        oListViewItem = ultraListView1:ItemFromPoint (e:Location) .
-        
-        IF NOT VALID-OBJECT (oListViewItem) OR NOT VALID-OBJECT (oListViewItem:Value) THEN 
-            RETURN . 
-            
-        IF Progress.Util.EnumHelper:AreEqual (e:Button, 
-                                              System.Windows.Forms.MouseButtons:Left) THEN 
-            ultraListView1:DoDragDrop (oListViewItem, System.Windows.Forms.DragDropEffects:Link) .
-        ELSE DO:
-            oListViewItem:Activate() .                                                  
-            ultraListView1:SelectedItems:Add (oListViewItem) .
-        END.
-        
-    END METHOD.
-
-    /*------------------------------------------------------------------------------
-        Purpose: Event handler for the DragDrop event of the ListView control
-        Notes:   
-        @param sender The reference to the sending Control
-        @param e The DragEventArgs with the data for this event
-    ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraListView2_DragDrop (sender AS System.Object,
-                                                 e AS System.Windows.Forms.DragEventArgs):
-              
-        DEFINE VARIABLE oListViewItem  AS Infragistics.Win.UltraWinListView.UltraListViewItem NO-UNDO .
-        DEFINE VARIABLE oListViewItem2 AS Infragistics.Win.UltraWinListView.UltraListViewItem NO-UNDO .
-
-        DEFINE VARIABLE oPoint AS System.Drawing.Point NO-UNDO .
-
-        IF NOT e:Data:GetDataPresent (Progress.Util.TypeHelper:GetType("Infragistics.Win.UltraWinListView.UltraListViewItem":U)) THEN 
-            RETURN . 
-
-        oPoint = ultraListView2:PointToClient (NEW System.Drawing.Point (e:X, e:Y)) .
-
-        oListViewItem2 = ultraListView2:ItemFromPoint (oPoint) .
-
-        oListViewItem = CAST (e:Data:GetData (Progress.Util.TypeHelper:GetType("Infragistics.Win.UltraWinListView.UltraListViewItem":U)), 
-                              Infragistics.Win.UltraWinListView.UltraListViewItem) .
-
-        IF VALID-OBJECT (oListViewItem) AND VALID-OBJECT (oListViewItem2) THEN 
-            CreateRelatedFields (oListViewItem:Key, oListViewItem2:Key) .
-
-    END METHOD.
-
-    /*------------------------------------------------------------------------------
-        Purpose: Event handler for the DragOver event of the ListView control
-        Notes:   
-        @param sender The reference to the sending Control
-        @param e The DragEventArgs with the data for this event
-    ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraListView2_DragOver (sender AS System.Object, e AS System.Windows.Forms.DragEventArgs):
-        
-        DEFINE VARIABLE oListViewItem  AS Infragistics.Win.UltraWinListView.UltraListViewItem NO-UNDO .
-        DEFINE VARIABLE oListViewItem2 AS Infragistics.Win.UltraWinListView.UltraListViewItem NO-UNDO .
-        
-        DEFINE VARIABLE oPoint AS System.Drawing.Point NO-UNDO . 
-        
-        IF NOT e:Data:GetDataPresent (Progress.Util.TypeHelper:GetType("Infragistics.Win.UltraWinListView.UltraListViewItem":U)) THEN 
-            RETURN . 
-        
-        oPoint = ultraListView2:PointToClient (NEW System.Drawing.Point (e:X, e:Y)) .
-        
-        oListViewItem = ultraListView2:ItemFromPoint (oPoint) .
-
-        oListViewItem2 = CAST (e:Data:GetData (Progress.Util.TypeHelper:GetType("Infragistics.Win.UltraWinListView.UltraListViewItem":U)), 
-                               Infragistics.Win.UltraWinListView.UltraListViewItem) .
-
-        IF VALID-OBJECT (oListViewItem) AND oListViewItem2:Control = ultraListView1 THEN DO: 
-            e:Effect = System.Windows.Forms.DragDropEffects:Link .
-        
             RETURN .
         END.
 
         e:Effect = System.Windows.Forms.DragDropEffects:None .
 
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the MouseDown event of the ListView control
-        Notes:   
+        Notes:
+        @param sender The reference to the sending Control
+        @param e The MouseEventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID ultraListView1_MouseDown (sender AS System.Object, e AS System.Windows.Forms.MouseEventArgs):
+
+        DEFINE VARIABLE oListViewItem AS Infragistics.Win.UltraWinListView.UltraListViewItem NO-UNDO .
+
+        IF EnumHelper:AreNotEqual (e:Button, MouseButtons:Right) THEN
+            RETURN .
+
+        oListViewItem = ultraListView1:ItemFromPoint (e:Location) .
+
+        IF NOT VALID-OBJECT (oListViewItem) OR NOT VALID-OBJECT (oListViewItem:Value) THEN
+            RETURN .
+
+        IF Progress.Util.EnumHelper:AreEqual (e:Button,
+                                              System.Windows.Forms.MouseButtons:Right) THEN
+            ultraListView1:DoDragDrop (oListViewItem, System.Windows.Forms.DragDropEffects:Link) .
+        ELSE DO:
+            oListViewItem:Activate() .
+            ultraListView1:SelectedItems:Add (oListViewItem) .
+        END.
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the DragDrop event of the ListView control
+        Notes:
+        @param sender The reference to the sending Control
+        @param e The DragEventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID ultraListView2_DragDrop (sender AS System.Object,
+                                                 e AS System.Windows.Forms.DragEventArgs):
+
+        DEFINE VARIABLE oListViewItem  AS Infragistics.Win.UltraWinListView.UltraListViewItem NO-UNDO .
+        DEFINE VARIABLE oListViewItem2 AS Infragistics.Win.UltraWinListView.UltraListViewItem NO-UNDO .
+
+        DEFINE VARIABLE oPoint AS System.Drawing.Point NO-UNDO .
+
+        IF NOT e:Data:GetDataPresent (Progress.Util.TypeHelper:GetType("Infragistics.Win.UltraWinListView.UltraListViewItem":U)) THEN
+            RETURN .
+
+        oPoint = ultraListView2:PointToClient (NEW System.Drawing.Point (e:X, e:Y)) .
+
+        oListViewItem2 = ultraListView2:ItemFromPoint (oPoint) .
+
+        oListViewItem = CAST (e:Data:GetData (Progress.Util.TypeHelper:GetType("Infragistics.Win.UltraWinListView.UltraListViewItem":U)),
+                              Infragistics.Win.UltraWinListView.UltraListViewItem) .
+
+        IF VALID-OBJECT (oListViewItem) AND VALID-OBJECT (oListViewItem2) THEN
+            CreateRelatedFields (oListViewItem:Key, oListViewItem2:Key) .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the DragOver event of the ListView control
+        Notes:
+        @param sender The reference to the sending Control
+        @param e The DragEventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID ultraListView2_DragOver (sender AS System.Object, e AS System.Windows.Forms.DragEventArgs):
+
+        DEFINE VARIABLE oListViewItem  AS Infragistics.Win.UltraWinListView.UltraListViewItem NO-UNDO .
+        DEFINE VARIABLE oListViewItem2 AS Infragistics.Win.UltraWinListView.UltraListViewItem NO-UNDO .
+
+        DEFINE VARIABLE oPoint AS System.Drawing.Point NO-UNDO .
+
+        IF NOT e:Data:GetDataPresent (Progress.Util.TypeHelper:GetType("Infragistics.Win.UltraWinListView.UltraListViewItem":U)) THEN
+            RETURN .
+
+        oPoint = ultraListView2:PointToClient (NEW System.Drawing.Point (e:X, e:Y)) .
+
+        oListViewItem = ultraListView2:ItemFromPoint (oPoint) .
+
+        oListViewItem2 = CAST (e:Data:GetData (Progress.Util.TypeHelper:GetType("Infragistics.Win.UltraWinListView.UltraListViewItem":U)),
+                               Infragistics.Win.UltraWinListView.UltraListViewItem) .
+
+        IF VALID-OBJECT (oListViewItem) AND oListViewItem2:Control = ultraListView1 THEN DO:
+            e:Effect = System.Windows.Forms.DragDropEffects:Link .
+
+            RETURN .
+        END.
+
+        e:Effect = System.Windows.Forms.DragDropEffects:None .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the MouseDown event of the ListView control
+        Notes:
         @param sender The reference to the sending Control
         @param e The MouseEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PRIVATE VOID ultraListView2_MouseDown( INPUT sender AS System.Object, INPUT e AS System.Windows.Forms.MouseEventArgs ):
-        
+
         DEFINE VARIABLE oListViewItem AS Infragistics.Win.UltraWinListView.UltraListViewItem NO-UNDO .
-        
+
+        IF EnumHelper:AreNotEqual (e:Button, MouseButtons:Right) THEN
+            RETURN .
+
         oListViewItem = ultraListView2:ItemFromPoint (e:Location) .
-        
-        IF NOT VALID-OBJECT (oListViewItem) OR NOT VALID-OBJECT (oListViewItem:Value) THEN 
-            RETURN . 
-            
-        IF Progress.Util.EnumHelper:AreEqual (e:Button, 
-                                              System.Windows.Forms.MouseButtons:Left) THEN 
+
+        IF NOT VALID-OBJECT (oListViewItem) OR NOT VALID-OBJECT (oListViewItem:Value) THEN
+            RETURN .
+
+        IF Progress.Util.EnumHelper:AreEqual (e:Button,
+                                              System.Windows.Forms.MouseButtons:Right) THEN
             ultraListView2:DoDragDrop (oListViewItem, System.Windows.Forms.DragDropEffects:Link) .
         ELSE DO:
-            oListViewItem:Activate() .                                                
-            ultraListView2:SelectedItems:Add (oListViewItem) .        
+            oListViewItem:Activate() .
+            ultraListView2:SelectedItems:Add (oListViewItem) .
         END.
-        
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the KeyDown event of the ultraListView3 (selected field pairs)
-        Notes:   
+        Notes:
         @param sender The object that raised this event
-        @param e The KeyEventArgs with the data for this event 
+        @param e The KeyEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraListView3_KeyDown (sender AS System.Object,   
+    METHOD PRIVATE VOID ultraListView3_KeyDown (sender AS System.Object,
                                                 e AS System.Windows.Forms.KeyEventArgs):
-        
-        IF ultraListView3:SelectedItems:Count > 0 AND 
-           Progress.Util.EnumHelper:AreEqual (e:KeyCode, 
-                                              System.Windows.Forms.Keys:Delete) THEN 
-            THIS-OBJECT:RemoveSelectedFieldPair () .                                              
+
+        IF ultraListView3:SelectedItems:Count > 0 AND
+           Progress.Util.EnumHelper:AreEqual (e:KeyCode,
+                                              System.Windows.Forms.Keys:Delete) THEN
+            THIS-OBJECT:RemoveSelectedFieldPair () .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
 
     END METHOD .
 
@@ -911,29 +1009,29 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.DataRelationFieldPickerForm
         Purpose: Event handler for the ToolClick event of the ultraToolbarsManager1
         Notes:
         @param sender The reference to the object that raised the event
-        @param e The ToolClickEventArgs with the data for this event                                                                        
+        @param e The ToolClickEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraToolbarsManager1_ToolClick (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraToolbarsManager1_ToolClick (sender AS System.Object,
                                                          e AS Infragistics.Win.UltraWinToolbars.ToolClickEventArgs):
-        
+
         CASE e:Tool:Key:
-            WHEN "Remove":U THEN 
-                THIS-OBJECT:RemoveSelectedFieldPair ().        
-            WHEN "LeftMapAutomatically":U THEN 
-                THIS-OBJECT:LeftMapAutomatically () . 
-            WHEN "RightMapAutomatically":U THEN 
-                THIS-OBJECT:RightMapAutomatically () . 
-        END CASE . 
+            WHEN "Remove":U THEN
+                THIS-OBJECT:RemoveSelectedFieldPair ().
+            WHEN "LeftMapAutomatically":U THEN
+                THIS-OBJECT:LeftMapAutomatically () .
+            WHEN "RightMapAutomatically":U THEN
+                THIS-OBJECT:RightMapAutomatically () .
+        END CASE .
 
         CATCH err AS Progress.Lang.Error :
-            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .    
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
-        
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the DataRelationFieldPickerForm class                                                                       
-        Notes:                                                                        
+        Purpose: Destructor for the DataRelationFieldPickerForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC DataRelationFieldPickerForm ( ):
 

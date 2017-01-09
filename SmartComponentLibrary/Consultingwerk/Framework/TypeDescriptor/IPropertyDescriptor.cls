@@ -63,8 +63,8 @@ INTERFACE Consultingwerk.Framework.TypeDescriptor.IPropertyDescriptor:
         Purpose: Returns the name of the property 
         Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY PropertyName AS CHARACTER NO-UNDO 
-	GET.
+    DEFINE PUBLIC PROPERTY PropertyName AS CHARACTER NO-UNDO 
+    GET.
 
     /*------------------------------------------------------------------------------
         Purpose: Returns if the property should be visible in a property sheed

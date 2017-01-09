@@ -26,26 +26,26 @@ USING Progress.Lang.*       FROM PROPATH .
 CLASS Consultingwerk.OERA.DataSourceQueryInfoProvider
     IMPLEMENTS IDataSourceQueryInfoProvider:  
   
-	/*------------------------------------------------------------------------------
-	   Purpose: Returns the reference to an IDataSourceQueryInfo object to the 
-	            DataAccess:FetchData method
-	   Notes:   If provided and type matches returns the CustomParameter reference 
-	            from the IFetchDataRequest
-	   @param pcDataAccessClassName The name of the Data Access class 
-	   @param poFetchDataRequest The reference to the fetch data request object 
-	   @return The reference to the IDataSourceQueryInfo implementation
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC IDataSourceQueryInfo GetDataSourceQueryInfo (pcDataAccessClassName AS CHARACTER,
-	                                                           poFetchDataRequest AS IFetchDataRequest):
-	     
+    /*------------------------------------------------------------------------------
+       Purpose: Returns the reference to an IDataSourceQueryInfo object to the 
+                DataAccess:FetchData method
+       Notes:   If provided and type matches returns the CustomParameter reference 
+                from the IFetchDataRequest
+       @param pcDataAccessClassName The name of the Data Access class 
+       @param poFetchDataRequest The reference to the fetch data request object 
+       @return The reference to the IDataSourceQueryInfo implementation
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC IDataSourceQueryInfo GetDataSourceQueryInfo (pcDataAccessClassName AS CHARACTER,
+                                                               poFetchDataRequest AS IFetchDataRequest):
+         
         IF VALID-OBJECT (poFetchDataRequest) AND 
            VALID-OBJECT (poFetchDataRequest:CustomParameter) AND 
            TYPE-OF (poFetchDataRequest:CustomParameter, IDataSourceQueryInfo) THEN 
             
             RETURN CAST (poFetchDataRequest:CustomParameter, IDataSourceQueryInfo) .      
-	                                                               
+                                                                   
         RETURN ? .
-        	                                                              
-    END METHOD .	                                                              
+                                                                          
+    END METHOD .                                                                  
 
 END CLASS.

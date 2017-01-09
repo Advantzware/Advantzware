@@ -34,20 +34,20 @@ CLASS Consultingwerk.SmartComponents.Implementation.BeforeLookupDialogShownEvent
         Purpose: Returns the reference to the Lookup Dialog instance 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY SmartBusinessEntityLookupDialog AS ISmartBusinessEntityLookupDialog NO-UNDO 
-	GET.
-	PUBLIC SET. 
+    DEFINE PUBLIC PROPERTY SmartBusinessEntityLookupDialog AS ISmartBusinessEntityLookupDialog NO-UNDO 
+    GET.
+    PUBLIC SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the BeforeLookupDialogShownEventArgs class
         Notes:   
         @param poDialog The reference to the Lookup Dialog
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC BeforeLookupDialogShownEventArgs (poDialog AS ISmartBusinessEntityLookupDialog):
-		SUPER ().
-		
-		THIS-OBJECT:SmartBusinessEntityLookupDialog = poDialog . 
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC BeforeLookupDialogShownEventArgs (poDialog AS ISmartBusinessEntityLookupDialog):
+        SUPER ().
+        
+        THIS-OBJECT:SmartBusinessEntityLookupDialog = poDialog . 
+        
+    END CONSTRUCTOR.
 
 END CLASS.

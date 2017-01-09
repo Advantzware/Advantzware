@@ -12,29 +12,29 @@
 /*------------------------------------------------------------------------
     File        : NewFieldInIncludeFileForm
     Purpose     : Dialog used by TempTableImported when a new field
-                  has been found in the include file 
-    Syntax      : 
-    Description : 
+                  has been found in the include file
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Fri Jul 10 13:03:33 CEST 2015
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Consultingwerk.BusinessEntityDesigner.UI.* FROM PROPATH .  
+USING Consultingwerk.BusinessEntityDesigner.UI.* FROM PROPATH .
 USING Consultingwerk.Framework.Collections.*     FROM PROPATH .
 USING Consultingwerk.SmartComponents.Base.*      FROM PROPATH .
 USING Consultingwerk.Util.*                      FROM PROPATH .
 USING Progress.Lang.*                            FROM PROPATH .
 
-CLASS Consultingwerk.BusinessEntityDesigner.UI.NewFieldInIncludeFileForm 
-    INHERITS SmartWindowForm: 
-	
+CLASS Consultingwerk.BusinessEntityDesigner.UI.NewFieldInIncludeFileForm
+    INHERITS SmartWindowForm:
+
     DEFINE PRIVATE VARIABLE btnOk AS System.Windows.Forms.Button NO-UNDO.
     DEFINE PRIVATE VARIABLE btnCancel AS System.Windows.Forms.Button NO-UNDO.
     DEFINE PRIVATE VARIABLE cbRemovedFields AS Infragistics.Win.UltraWinEditors.UltraComboEditor NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE rsRenamedField AS System.Windows.Forms.RadioButton NO-UNDO.
     DEFINE PRIVATE VARIABLE rsNewField AS System.Windows.Forms.RadioButton NO-UNDO.
     DEFINE PRIVATE VARIABLE tbFieldName AS System.Windows.Forms.TextBox NO-UNDO.
@@ -42,41 +42,41 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.NewFieldInIncludeFileForm
     DEFINE PRIVATE VARIABLE pictureBox1 AS System.Windows.Forms.PictureBox NO-UNDO.
     DEFINE PRIVATE VARIABLE panel1 AS System.Windows.Forms.Panel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraLabel1 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
-    
+
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the new field name
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY NewFieldName AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY NewFieldName AS CHARACTER NO-UNDO
+    GET.
+    SET.
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the list of remove fields
         Notes:   List is not initializted by this class
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY RemovedFields AS CharacterList NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY RemovedFields AS CharacterList NO-UNDO
+    GET.
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns "" when the field should be considered a new field or the 
-                 name of the original field in case of a renamed field 
-        Notes:   
+        Purpose: Returns "" when the field should be considered a new field or the
+                 name of the original field in case of a renamed field
+        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY RenamedFieldName AS CHARACTER NO-UNDO 
-	GET:
-		IF rsRenamedField:Checked THEN 
-		    RETURN cbRemovedFields:TEXT . 
-		ELSE RETURN "" . 
-	END GET.
+    DEFINE PUBLIC PROPERTY RenamedFieldName AS CHARACTER NO-UNDO
+    GET:
+        IF rsRenamedField:Checked THEN
+            RETURN cbRemovedFields:TEXT .
+        ELSE RETURN "" .
+    END GET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the NewFieldInIncludeFileForm class 
-        Notes:   
+        Purpose: Constructor for the NewFieldInIncludeFileForm class
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC NewFieldInIncludeFileForm ():
-		
+    CONSTRUCTOR PUBLIC NewFieldInIncludeFileForm ():
+
         SUPER().
         InitializeComponent().
 
@@ -88,19 +88,20 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.NewFieldInIncludeFileForm
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design 
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE resources AS Progress.Util.ResourceManager NO-UNDO.
@@ -272,45 +273,45 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.NewFieldInIncludeFileForm
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the Load event 
-        Notes:   
+        Purpose: Raises the Load event
+        Notes:
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
-		
-		SUPER:OnLoad (e) .
+    METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
 
-        THIS-OBJECT:tbFieldName:Text = THIS-OBJECT:NewFieldName . 
+        SUPER:OnLoad (e) .
+
+        THIS-OBJECT:tbFieldName:Text = THIS-OBJECT:NewFieldName .
 
         THIS-OBJECT:cbRemovedFields:ValueList = ValueListHelper:FromList (THIS-OBJECT:RemovedFields) .
-        
-        IF THIS-OBJECT:cbRemovedFields:ValueList:ValueListItems:Count > 0 THEN 
-            THIS-OBJECT:cbRemovedFields:SelectedIndex = 0 . 
 
-	END METHOD .
+        IF THIS-OBJECT:cbRemovedFields:ValueList:ValueListItems:Count > 0 THEN
+            THIS-OBJECT:cbRemovedFields:SelectedIndex = 0 .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the CheckedChanged evnent of the rsRenamedField 
-        Notes:   
+        Purpose: Event handler for the CheckedChanged evnent of the rsRenamedField
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID rsRenamedField_CheckedChanged (sender AS System.Object, 
-	                                                   e AS System.EventArgs):
-		
-		ASSIGN cbRemovedFields:Enabled = rsRenamedField:Checked .
+    METHOD PRIVATE VOID rsRenamedField_CheckedChanged (sender AS System.Object,
+                                                       e AS System.EventArgs):
 
-        IF rsRenamedField:Checked THEN 
-            cbRemovedFields:DropDown () . 
+        ASSIGN cbRemovedFields:Enabled = rsRenamedField:Checked .
 
-	END METHOD .
+        IF rsRenamedField:Checked THEN
+            cbRemovedFields:DropDown () .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the NewFieldInIncludeFileForm class 
-        Notes:   
+        Purpose: Destructor for the NewFieldInIncludeFileForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC NewFieldInIncludeFileForm ():
 

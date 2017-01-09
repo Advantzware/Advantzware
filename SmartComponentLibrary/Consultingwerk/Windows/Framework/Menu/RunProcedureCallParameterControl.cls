@@ -30,7 +30,7 @@ USING Progress.Lang.*                                      FROM PROPATH .
 
 CLASS Consultingwerk.Windows.Framework.Menu.RunProcedureCallParameterControl 
     INHERITS CallParameterBaseControl: 
-	
+    
     DEFINE PRIVATE VARIABLE AllowMultipleCheckEditor                    AS Infragistics.Win.UltraWinEditors.UltraCheckEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE CharacterParameterValueTextEditor           AS Infragistics.Win.UltraWinEditors.UltraTextEditor  NO-UNDO.
     DEFINE PRIVATE VARIABLE components                                  AS System.ComponentModel.IContainer                  NO-UNDO.
@@ -50,7 +50,7 @@ CLASS Consultingwerk.Windows.Framework.Menu.RunProcedureCallParameterControl
 
     DEFINE PRIVATE VARIABLE oFormStartTypeValueList AS Infragistics.Win.ValueList NO-UNDO.
 
-	CONSTRUCTOR PUBLIC RunProcedureCallParameterControl ():
+    CONSTRUCTOR PUBLIC RunProcedureCallParameterControl ():
         SUPER ().
 
         InitializeComponent ().
@@ -58,20 +58,24 @@ CLASS Consultingwerk.Windows.Framework.Menu.RunProcedureCallParameterControl
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+        
         /* NOTE: The following method is automatically generated.
         
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
         
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE resources AS Progress.Util.ResourceManager NO-UNDO.
+        resources = NEW Progress.Util.ResourceManager("Consultingwerk.Windows.Framework.Menu.RunProcedureCallParameterControl":U).
         THIS-OBJECT:UseCharacterParameterValueCheckEditor = NEW Infragistics.Win.UltraWinEditors.UltraCheckEditor().
         THIS-OBJECT:ProcedureNameTextEditor = NEW Infragistics.Win.UltraWinEditors.UltraTextEditor().
         THIS-OBJECT:CharacterParameterValueTextEditor = NEW Infragistics.Win.UltraWinEditors.UltraTextEditor().
@@ -100,139 +104,88 @@ CLASS Consultingwerk.Windows.Framework.Menu.RunProcedureCallParameterControl
         /*  */
         /* UseCharacterParameterValueCheckEditor */
         /*  */
-        THIS-OBJECT:UseCharacterParameterValueCheckEditor:Location = NEW System.Drawing.Point(213, 152).
+        resources:ApplyResources(THIS-OBJECT:UseCharacterParameterValueCheckEditor, "UseCharacterParameterValueCheckEditor":U).
         THIS-OBJECT:UseCharacterParameterValueCheckEditor:Name = "UseCharacterParameterValueCheckEditor":U.
-        THIS-OBJECT:UseCharacterParameterValueCheckEditor:Size = NEW System.Drawing.Size(436, 20).
-        THIS-OBJECT:UseCharacterParameterValueCheckEditor:TabIndex = 13.
-        THIS-OBJECT:UseCharacterParameterValueCheckEditor:Text = "Use Character Parameter Value":U.
         /*  */
         /* ProcedureNameTextEditor */
         /*  */
-        DEFINE VARIABLE nestedvar0 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar0 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:ProcedureNameTextEditor:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar0, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:ProcedureNameTextEditor, "ProcedureNameTextEditor":U).
         THIS-OBJECT:ProcedureNameTextEditor:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:ProcedureNameTextEditor:Location = NEW System.Drawing.Point(213, 3).
         THIS-OBJECT:ProcedureNameTextEditor:Name = "ProcedureNameTextEditor":U.
-        THIS-OBJECT:ProcedureNameTextEditor:Size = NEW System.Drawing.Size(436, 21).
-        THIS-OBJECT:ProcedureNameTextEditor:TabIndex = 1.
         /*  */
         /* CharacterParameterValueTextEditor */
         /*  */
-        DEFINE VARIABLE nestedvar1 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar1 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:CharacterParameterValueTextEditor:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar1, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:CharacterParameterValueTextEditor, "CharacterParameterValueTextEditor":U).
         THIS-OBJECT:CharacterParameterValueTextEditor:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:CharacterParameterValueTextEditor:Location = NEW System.Drawing.Point(213, 31).
         THIS-OBJECT:CharacterParameterValueTextEditor:Name = "CharacterParameterValueTextEditor":U.
-        THIS-OBJECT:CharacterParameterValueTextEditor:Size = NEW System.Drawing.Size(436, 21).
-        THIS-OBJECT:CharacterParameterValueTextEditor:TabIndex = 3.
         /*  */
         /* ultraLabel3 */
         /*  */
-        THIS-OBJECT:ultraLabel3:Location = NEW System.Drawing.Point(13, 7).
+        resources:ApplyResources(THIS-OBJECT:ultraLabel3, "ultraLabel3":U).
         THIS-OBJECT:ultraLabel3:Name = "ultraLabel3":U.
-        THIS-OBJECT:ultraLabel3:Size = NEW System.Drawing.Size(204, 23).
-        THIS-OBJECT:ultraLabel3:TabIndex = 0.
-        THIS-OBJECT:ultraLabel3:Text = "Procedure Name:":U.
         /*  */
         /* ultraLabel2 */
         /*  */
-        THIS-OBJECT:ultraLabel2:Location = NEW System.Drawing.Point(13, 35).
+        resources:ApplyResources(THIS-OBJECT:ultraLabel2, "ultraLabel2":U).
         THIS-OBJECT:ultraLabel2:Name = "ultraLabel2":U.
-        THIS-OBJECT:ultraLabel2:Size = NEW System.Drawing.Size(204, 23).
-        THIS-OBJECT:ultraLabel2:TabIndex = 2.
-        THIS-OBJECT:ultraLabel2:Text = "Character Parameter Value:":U.
         /*  */
         /* AllowMultipleCheckEditor */
         /*  */
-        THIS-OBJECT:AllowMultipleCheckEditor:Location = NEW System.Drawing.Point(213, 126).
+        resources:ApplyResources(THIS-OBJECT:AllowMultipleCheckEditor, "AllowMultipleCheckEditor":U).
         THIS-OBJECT:AllowMultipleCheckEditor:Name = "AllowMultipleCheckEditor":U.
-        THIS-OBJECT:AllowMultipleCheckEditor:Size = NEW System.Drawing.Size(436, 20).
-        THIS-OBJECT:AllowMultipleCheckEditor:TabIndex = 12.
-        THIS-OBJECT:AllowMultipleCheckEditor:Text = "Allow Multiple":U.
         /*  */
         /* InitializeInternalProcedureTextBox */
         /*  */
         THIS-OBJECT:InitializeInternalProcedureTextBox:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:InitializeInternalProcedureTextBox:Location = NEW System.Drawing.Point(213, 60).
+        resources:ApplyResources(THIS-OBJECT:InitializeInternalProcedureTextBox, "InitializeInternalProcedureTextBox":U).
         THIS-OBJECT:InitializeInternalProcedureTextBox:Name = "InitializeInternalProcedureTextBox":U.
-        THIS-OBJECT:InitializeInternalProcedureTextBox:Size = NEW System.Drawing.Size(176, 21).
-        THIS-OBJECT:InitializeInternalProcedureTextBox:TabIndex = 5.
         /*  */
         /* ultraLabel1 */
         /*  */
-        THIS-OBJECT:ultraLabel1:Location = NEW System.Drawing.Point(13, 64).
+        resources:ApplyResources(THIS-OBJECT:ultraLabel1, "ultraLabel1":U).
         THIS-OBJECT:ultraLabel1:Name = "ultraLabel1":U.
-        THIS-OBJECT:ultraLabel1:Size = NEW System.Drawing.Size(204, 23).
-        THIS-OBJECT:ultraLabel1:TabIndex = 4.
-        THIS-OBJECT:ultraLabel1:Text = "Initialize Internal Procedure:":U.
         /*  */
         /* ReactivateInternalProcedureTextBox */
         /*  */
         THIS-OBJECT:ReactivateInternalProcedureTextBox:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:ReactivateInternalProcedureTextBox:Location = NEW System.Drawing.Point(213, 93).
+        resources:ApplyResources(THIS-OBJECT:ReactivateInternalProcedureTextBox, "ReactivateInternalProcedureTextBox":U).
         THIS-OBJECT:ReactivateInternalProcedureTextBox:Name = "ReactivateInternalProcedureTextBox":U.
-        THIS-OBJECT:ReactivateInternalProcedureTextBox:Size = NEW System.Drawing.Size(176, 21).
-        THIS-OBJECT:ReactivateInternalProcedureTextBox:TabIndex = 9.
         /*  */
         /* ultraLabel4 */
         /*  */
-        THIS-OBJECT:ultraLabel4:Location = NEW System.Drawing.Point(13, 97).
+        resources:ApplyResources(THIS-OBJECT:ultraLabel4, "ultraLabel4":U).
         THIS-OBJECT:ultraLabel4:Name = "ultraLabel4":U.
-        THIS-OBJECT:ultraLabel4:Size = NEW System.Drawing.Size(204, 23).
-        THIS-OBJECT:ultraLabel4:TabIndex = 8.
-        THIS-OBJECT:ultraLabel4:Text = "Reactivate Internal Procedure:":U.
         /*  */
         /* RunPersistentCheckBox */
         /*  */
-        THIS-OBJECT:RunPersistentCheckBox:Location = NEW System.Drawing.Point(213, 178).
+        resources:ApplyResources(THIS-OBJECT:RunPersistentCheckBox, "RunPersistentCheckBox":U).
         THIS-OBJECT:RunPersistentCheckBox:Name = "RunPersistentCheckBox":U.
-        THIS-OBJECT:RunPersistentCheckBox:Size = NEW System.Drawing.Size(436, 20).
-        THIS-OBJECT:RunPersistentCheckBox:TabIndex = 14.
-        THIS-OBJECT:RunPersistentCheckBox:Text = "Run Persistent":U.
         /*  */
         /* ReactivateInternalProcedureParameterTextBox */
         /*  */
-        DEFINE VARIABLE nestedvar2 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar2 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:ReactivateInternalProcedureParameterTextBox:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar2, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:ReactivateInternalProcedureParameterTextBox, "ReactivateInternalProcedureParameterTextBox":U).
         THIS-OBJECT:ReactivateInternalProcedureParameterTextBox:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:ReactivateInternalProcedureParameterTextBox:Location = NEW System.Drawing.Point(475, 93).
         THIS-OBJECT:ReactivateInternalProcedureParameterTextBox:Name = "ReactivateInternalProcedureParameterTextBox":U.
-        THIS-OBJECT:ReactivateInternalProcedureParameterTextBox:Size = NEW System.Drawing.Size(174, 21).
-        THIS-OBJECT:ReactivateInternalProcedureParameterTextBox:TabIndex = 11.
         /*  */
         /* ultraLabel5 */
         /*  */
-        THIS-OBJECT:ultraLabel5:Location = NEW System.Drawing.Point(395, 95).
+        resources:ApplyResources(THIS-OBJECT:ultraLabel5, "ultraLabel5":U).
         THIS-OBJECT:ultraLabel5:Name = "ultraLabel5":U.
-        THIS-OBJECT:ultraLabel5:Size = NEW System.Drawing.Size(89, 23).
-        THIS-OBJECT:ultraLabel5:TabIndex = 10.
-        THIS-OBJECT:ultraLabel5:Text = "Parameter:":U.
         /*  */
         /* InitializeInternalProcedureParameterTextBox */
         /*  */
-        DEFINE VARIABLE nestedvar3 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar3 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:InitializeInternalProcedureParameterTextBox:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar3, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:InitializeInternalProcedureParameterTextBox, "InitializeInternalProcedureParameterTextBox":U).
         THIS-OBJECT:InitializeInternalProcedureParameterTextBox:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:InitializeInternalProcedureParameterTextBox:Location = NEW System.Drawing.Point(475, 60).
         THIS-OBJECT:InitializeInternalProcedureParameterTextBox:Name = "InitializeInternalProcedureParameterTextBox":U.
-        THIS-OBJECT:InitializeInternalProcedureParameterTextBox:Size = NEW System.Drawing.Size(174, 21).
-        THIS-OBJECT:InitializeInternalProcedureParameterTextBox:TabIndex = 7.
         /*  */
         /* ultraLabel6 */
         /*  */
-        THIS-OBJECT:ultraLabel6:Location = NEW System.Drawing.Point(395, 64).
+        resources:ApplyResources(THIS-OBJECT:ultraLabel6, "ultraLabel6":U).
         THIS-OBJECT:ultraLabel6:Name = "ultraLabel6":U.
-        THIS-OBJECT:ultraLabel6:Size = NEW System.Drawing.Size(83, 23).
-        THIS-OBJECT:ultraLabel6:TabIndex = 6.
-        THIS-OBJECT:ultraLabel6:Text = "Parameter:":U.
         /*  */
         /* RunProcedureCallParameterControl */
         /*  */
-        THIS-OBJECT:AutoScaleDimensions = NEW System.Drawing.SizeF(Progress.Util.CastUtil:ToSingle(6), Progress.Util.CastUtil:ToSingle(13)).
+        resources:ApplyResources(THIS-OBJECT, "$this":U).
         THIS-OBJECT:BackColor = System.Drawing.SystemColors:Control.
         THIS-OBJECT:Controls:Add(THIS-OBJECT:ReactivateInternalProcedureParameterTextBox).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:ultraLabel5).
@@ -250,7 +203,6 @@ CLASS Consultingwerk.Windows.Framework.Menu.RunProcedureCallParameterControl
         THIS-OBJECT:Controls:Add(THIS-OBJECT:ultraLabel3).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:ultraLabel2).
         THIS-OBJECT:Name = "RunProcedureCallParameterControl":U.
-        THIS-OBJECT:Size = NEW System.Drawing.Size(663, 210).
         CAST(THIS-OBJECT:UseCharacterParameterValueCheckEditor, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:ProcedureNameTextEditor, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:CharacterParameterValueTextEditor, System.ComponentModel.ISupportInitialize):EndInit().
@@ -265,7 +217,7 @@ CLASS Consultingwerk.Windows.Framework.Menu.RunProcedureCallParameterControl
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Clear all editor fields

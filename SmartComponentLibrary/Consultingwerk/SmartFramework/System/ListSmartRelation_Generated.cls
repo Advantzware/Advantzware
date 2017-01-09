@@ -8,15 +8,15 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : ListSmartRelation_Generated
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner
-    Created     : 28.04.2013 00:33:34 
-    Notes       : 
+    Created     : 28.04.2013 00:33:34
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -25,27 +25,27 @@ USING Consultingwerk.Framework.Base.GenericList FROM PROPATH .
 USING Consultingwerk.SmartFramework.System.* FROM PROPATH .
 USING Progress.Lang.* FROM PROPATH .
 
-CLASS Consultingwerk.SmartFramework.System.ListSmartRelation_Generated 
+CLASS Consultingwerk.SmartFramework.System.ListSmartRelation_Generated
     INHERITS GenericList
-    ABSTRACT: 
+    ABSTRACT:
 
     { Consultingwerk/Framework/Base/GenericList.i SmartRelation }
 
     /*------------------------------------------------------------------------------
-        Purpose: Creates a New Row, Initializes it and adds it to the List 
-        Notes:   
+        Purpose: Creates a New Row, Initializes it and adds it to the List
+        Notes:
         @return The reference to the new row instance
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED SmartRelation NewRow ():
-        
-        DEFINE VARIABLE oSmartRelation AS SmartRelation NO-UNDO . 
-        
-        oSmartRelation = NEW SmartRelation () . 
-        oSmartRelation:InitializeNewRow () . 
-        
-        THIS-OBJECT:Add (oSmartRelation) . 
-        
+
+        DEFINE VARIABLE oSmartRelation AS SmartRelation NO-UNDO .
+
+        oSmartRelation = NEW SmartRelation () .
+        oSmartRelation:InitializeNewRow () .
+
+        THIS-OBJECT:Add (oSmartRelation) .
+
         RETURN oSmartRelation .
-    END.
+    END METHOD .
 
 END CLASS.

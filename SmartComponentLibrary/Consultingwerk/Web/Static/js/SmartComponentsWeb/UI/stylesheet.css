@@ -239,7 +239,7 @@ body{
     
     /*Browse-Hack für IE7 Darstellung*/
     margin: 5px 5px 0px 5px !important;
-    *+margin: -10px 5px 0px 5px !important;
+    /* *+margin: -10px 5px 0px 5px !important;*/
     
     list-style-type: none !important;
 }

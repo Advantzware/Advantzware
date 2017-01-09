@@ -81,19 +81,19 @@ CLASS Consultingwerk.Studio.CaseWhen:
         @param piColumn The column number of the Annotation
         @param poNode The reference to the JPNode for the annotation 
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC CaseWhen (pcExpression AS CHARACTER, 
-	                             pcFileName AS CHARACTER,
+    CONSTRUCTOR PUBLIC CaseWhen (pcExpression AS CHARACTER, 
+                                 pcFileName AS CHARACTER,
                                  piLine AS INTEGER,
                                  piColumn AS INTEGER,
                                  poNode AS JPNode):
-		SUPER ().
-		
+        SUPER ().
+        
         ASSIGN THIS-OBJECT:Expression = pcExpression
                THIS-OBJECT:FileName   = pcFileName
                THIS-OBJECT:Line       = piLine
                THIS-OBJECT:Column     = piColumn 
                THIS-OBJECT:Node       = poNode . 
-		
-	END CONSTRUCTOR.
+        
+    END CONSTRUCTOR.
 &ENDIF
 END CLASS.

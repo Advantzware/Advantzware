@@ -39,16 +39,16 @@ CLASS Consultingwerk.Framework.TypeDescriptor.ListSerializableClassMemberAnnotat
         @param pcName The name of the class member to return
         @return The SerializableClassMemberAnnotation with the given name
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC SerializableClassMemberAnnotation FindByName (pcName AS CHARACTER):
-		
-		{Consultingwerk/foreachABL.i SerializableClassMemberAnnotation oAnnotation in THIS-OBJECT}
-		
-		    IF oAnnotation:Name = pcName THEN 
-		        RETURN oAnnotation .
-		END.
+    METHOD PUBLIC SerializableClassMemberAnnotation FindByName (pcName AS CHARACTER):
+        
+        {Consultingwerk/foreachABL.i SerializableClassMemberAnnotation oAnnotation in THIS-OBJECT}
+        
+            IF oAnnotation:Name = pcName THEN 
+                RETURN oAnnotation .
+        END.
 
         RETURN ? . 
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

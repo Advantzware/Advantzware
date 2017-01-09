@@ -55,27 +55,27 @@ CLASS Consultingwerk.SmartFramework.FunctionCallCacheService
         Purpose: Constructor for the FunctionCallCacheService class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC FunctionCallCacheService ():
-		SUPER ().
+    CONSTRUCTOR PUBLIC FunctionCallCacheService ():
+        SUPER ().
         
         InitializeService ().
-		
-	END CONSTRUCTOR.
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Populates the ValueList property of this class
         Notes:   
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID InitializeService ():
-		
-		DEFINE VARIABLE cImageKey AS CHARACTER NO-UNDO.
-		
-		IF VALID-OBJECT (Consultingwerk.Framework.FrameworkSettings:WaitStateManager) THEN 
-		    Consultingwerk.Framework.FrameworkSettings:WaitStateManager:SetWaitState ("Caching Function Call Parameters":U).
-		
-		&IF DEFINED (DotNetAccessible) NE 0 &THEN
-		UserInterfaceHelper:ProcessEvents() .
-		
+    METHOD PUBLIC VOID InitializeService ():
+        
+        DEFINE VARIABLE cImageKey AS CHARACTER NO-UNDO.
+        
+        IF VALID-OBJECT (Consultingwerk.Framework.FrameworkSettings:WaitStateManager) THEN 
+            Consultingwerk.Framework.FrameworkSettings:WaitStateManager:SetWaitState ("Caching Function Call Parameters":U).
+        
+        &IF DEFINED (DotNetAccessible) NE 0 &THEN
+        UserInterfaceHelper:ProcessEvents() .
+        
         ClassHelper:GetClassNamesInClassPath ("Consultingwerk.SmartFramework.IFunctionCallParameter":U, 
                                               OUTPUT TABLE ttClassNames BY-REFERENCE).
                 
@@ -126,6 +126,6 @@ CLASS Consultingwerk.SmartFramework.FunctionCallCacheService
             IF VALID-OBJECT (Consultingwerk.Framework.FrameworkSettings:WaitStateManager) THEN 
                 Consultingwerk.Framework.FrameworkSettings:WaitStateManager:ClearWaitState ("Caching Function Call Parameters":U).
         END FINALLY.
-	END METHOD .
+    END METHOD .
 
 END CLASS.

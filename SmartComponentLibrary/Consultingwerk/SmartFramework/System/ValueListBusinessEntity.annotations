@@ -1,0 +1,28 @@
+{
+  "SerializedType": "Consultingwerk.Framework.TypeDescriptor.ClassAnnotationContainer",
+  "ClassName": "Consultingwerk.SmartFramework.System.ValueListBusinessEntity",
+  "TimeStamp": "2016-09-14T11:42:30.088+02:00",
+  "Annotations": [
+    {
+      "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableAnnotation",
+      "Name": "@BusinessEntityTable",
+      "Parameters": [
+        {
+          "SerializedType": "Consultingwerk.NameValuePair",
+          "Name": "name",
+          "Value": "eSmartValueList"
+        },
+        {
+          "SerializedType": "Consultingwerk.NameValuePair",
+          "Name": "MandatoryColumns",
+          "Value": "ValueListKey"
+        },
+        {
+          "SerializedType": "Consultingwerk.NameValuePair",
+          "Name": "DefaultSort",
+          "Value": "BY eSmartValueList.ValueListKey"
+        }
+      ]
+    }
+  ]
+}

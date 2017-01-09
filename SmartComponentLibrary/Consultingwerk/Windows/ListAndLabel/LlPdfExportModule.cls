@@ -32,16 +32,16 @@ CLASS Consultingwerk.Windows.ListAndLabel.LlPdfExportModule
         Purpose: Returns the key of the Export Module
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC OVERRIDE PROPERTY ExportModule AS CHARACTER NO-UNDO INIT "PDF":U
-	GET.
+    DEFINE PUBLIC OVERRIDE PROPERTY ExportModule AS CHARACTER NO-UNDO INIT "PDF":U
+    GET.
 
     /*------------------------------------------------------------------------------
         Purpose: Specifies the title of the generated PDF document. 
         Notes:   Default: title passed to LlPrintWithBoxStart().
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY PDF_Title AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY PDF_Title AS CHARACTER NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Specifies the subject of the generated PDF document. 
@@ -194,16 +194,16 @@ CLASS Consultingwerk.Windows.ListAndLabel.LlPdfExportModule
         Purpose: Constructor for the LlPdfExportModule class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC LlPdfExportModule ():
-		SUPER ().
-		
-		THIS-OBJECT:ExportProperties = THIS-OBJECT:ExportProperties + ",":U + 
+    CONSTRUCTOR PUBLIC LlPdfExportModule ():
+        SUPER ().
+        
+        THIS-OBJECT:ExportProperties = THIS-OBJECT:ExportProperties + ",":U + 
             "PDF_Title,PDF_Subject,PDF_Keywords,PDF_Encryption_EncryptFile,PDF_Encryption_EnableChanging,PDF_Encryption_EnableCopying,":U +
             "PDF_Encryption_Level,PDF_OwnerPassword,PDF_UserPassword,PDF_FontMode,PDF_ExcludedFonts,PDF_CompressStreamMethod,":U +
-            "Picture_JPEGQuality,PDF_DontStackWorldModifications,PDF_PDFAMode,PDF_Author":U .		
-		
-		THIS-OBJECT:ExtensionType = LlConst:LL_LLX_EXTENSIONTYPE_EXPORT . 
-		
-	END CONSTRUCTOR.
+            "Picture_JPEGQuality,PDF_DontStackWorldModifications,PDF_PDFAMode,PDF_Author":U .        
+        
+        THIS-OBJECT:ExtensionType = LlConst:LL_LLX_EXTENSIONTYPE_EXPORT . 
+        
+    END CONSTRUCTOR.
 
 END CLASS.

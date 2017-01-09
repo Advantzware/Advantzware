@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2006-2015 by Consultingwerk Ltd. ("CW") -            *
+ * Copyright (C) 2006-2016 by Consultingwerk Ltd. ("CW") -            *
  * www.consultingwerk.de and other contributors as listed             *
  * below.  All Rights Reserved.                                       *
  *                                                                    *
@@ -11,12 +11,12 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : Catalog
-    Purpose     : Generic JSON/JSDO Catalog generation 
-    Syntax      : 
-    Description : 
+    Purpose     : Generic JSON/JSDO Catalog generation
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Tue May 19 11:09:49 CEST 2015
-    Notes       : Calls into version specific implementations (like V1.2 for 11.5) 
+    Notes       : Calls into version specific implementations (like V1.2 for 11.5)
                   Currently always calls into the V1.2 implementation
   ----------------------------------------------------------------------*/
 
@@ -26,59 +26,67 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.Assertion.*               FROM PROPATH .
 USING Consultingwerk.Framework.*               FROM PROPATH .
-USING Consultingwerk.OERA.JsdoGenericService.* FROM PROPATH .  
+USING Consultingwerk.OERA.*                    FROM PROPATH .
+USING Consultingwerk.OERA.JsdoGenericService.* FROM PROPATH .
 USING Consultingwerk.Util.*                    FROM PROPATH .
 USING Progress.Lang.*                          FROM PROPATH .
 
-CLASS Consultingwerk.OERA.JsdoGenericService.Catalog: 
+CLASS Consultingwerk.OERA.JsdoGenericService.Catalog:
 
-    DEFINE VARIABLE oConfig AS IConfigurationProvider NO-UNDO . 
+    DEFINE VARIABLE oConfig AS IConfigurationProvider NO-UNDO .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Constructor for the Catalog class
-        Notes:   Initializes IConfigurationProvider service based on .restapplicationsettings
-                 when the service should not yet be deployed
-    ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC Catalog ():
-	    
-		DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO.
+    /**
+     * Purpose: Constructor for the Catalog class
+     * Notes:   Initializes IConfigurationProvider service based on .restapplicationsettings
+     *          when the service should not yet be deployed
+     */
+    CONSTRUCTOR PUBLIC Catalog ():
 
-		SUPER ().
-		
+        DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO.
+
+        SUPER ().
+
         FileAssert:Exists (".restapplicationsettings":U) .
-		
+
         ASSIGN cFileName = FileHelper:FindFile (".restapplicationsettings":U) .
-		
-		ASSIGN oConfig = {Consultingwerk/get-service.i Consultingwerk.Framework.IConfigurationProvider
-		                                               "NEW ConfigurationProvider (cFileName)"} .
-		
-	END CONSTRUCTOR.
+
+        ASSIGN oConfig = {Consultingwerk/get-service.i Consultingwerk.Framework.IConfigurationProvider
+                                                       "NEW ConfigurationProvider (cFileName)"} .
+
+    END CONSTRUCTOR.
 
 
-    /*------------------------------------------------------------------------------
-        Purpose: Returns the Catalog for a given Business Entity 
-        Notes:   
-        @param pcEntityName The name of the Business Entity 
-        @param pcJsonCatalog OUTPUT The JSON Catalog for the Business Entity 
-    ------------------------------------------------------------------------------*/
-	@openapi.openedge.export(type="REST", useReturnValue="false", writeDataSetBeforeImage="false").
-	METHOD PUBLIC VOID GetCatalogForBusinessEntity (pcEntityName AS CHARACTER,
-	                                                OUTPUT pcJsonCatalog AS LONGCHAR):
-		
+    /**
+     * Purpose: Returns the Catalog for a given Business Entity
+     * Notes:
+     * @param pcEntityName The name of the Business Entity
+     * @param pcJsonCatalog OUTPUT The JSON Catalog for the Business Entity
+     */
+    @openapi.openedge.export(type="REST", useReturnValue="false", writeDataSetBeforeImage="false").
+    METHOD PUBLIC VOID GetCatalogForBusinessEntity (pcEntityName AS CHARACTER,
+                                                    OUTPUT pcJsonCatalog AS LONGCHAR):
+
         DEFINE VARIABLE oCatalog         AS ICatalog                    NO-UNDO .
-        DEFINE VARIABLE oAddressProvider AS IRestServiceAddressProvider NO-UNDO . 
+        DEFINE VARIABLE oAddressProvider AS IRestServiceAddressProvider NO-UNDO .
+
+        ServiceInterface:Activate () .
 
         oAddressProvider = {Consultingwerk/get-service.i Consultingwerk.OERA.JsdoGenericService.IRestServiceAddressProvider
                                                          "NEW Consultingwerk.OERA.JsdoGenericService.RestServiceAddressProvider()"} .
 
-        oCatalog = NEW CatalogV12 () .
+        oCatalog = {Consultingwerk/get-service.i Consultingwerk.OERA.JsdoGenericService.ICatalog
+                                                 "NEW CatalogV14 ()"} .
 
         oCatalog:GetCatalogForBusinessEntity (pcEntityName,
-                                              oAddressProvider:GetRestServiceAddress (pcEntityName, 
+                                              oAddressProvider:GetRestServiceAddress (pcEntityName,
                                                                                       oConfig:GetValue("RestServiceName":U),
                                                                                       oConfig:GetValue("RestServiceAddress":U)),
                                               OUTPUT pcJsonCatalog) .
 
-	END METHOD .
+        FINALLY:
+            ServiceInterface:Deactivate () .
+        END FINALLY.
+
+    END METHOD .
 
 END CLASS.

@@ -35,8 +35,8 @@ CLASS Consultingwerk.SmartComponents.Implementation.HandleValidationErrorEventAr
         Notes:   The Error contains a reference to the RecordIdentifier structure
     ------------------------------------------------------------------------------*/
     DEFINE PUBLIC PROPERTY Error AS ValidationException NO-UNDO 
-	GET.
-	PRIVATE SET. 
+    GET.
+    PRIVATE SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets if the erorr associated with this event was handled 
@@ -44,22 +44,22 @@ CLASS Consultingwerk.SmartComponents.Implementation.HandleValidationErrorEventAr
         Notes:   When set to True the SmartBusinessEntityAdapter will not further 
                  handle the error itself
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Handled AS LOGICAL INITIAL FALSE NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY Handled AS LOGICAL INITIAL FALSE NO-UNDO 
+    GET.
+    SET. 
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Constructor for the HandleValidationErrorEventArgs class
-	    Notes:
-	    @param poError The reference to the ValidationException structure
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC HandleValidationErrorEventArgs (poError AS ValidationException):
-		SUPER ().
-		
-		{Consultingwerk/Assertion/ObjectAssert/IsValid.i poError """poError"":U"} .
-		
-		THIS-OBJECT:Error = poError . 
-		
-	END CONSTRUCTOR.
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the HandleValidationErrorEventArgs class
+        Notes:
+        @param poError The reference to the ValidationException structure
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC HandleValidationErrorEventArgs (poError AS ValidationException):
+        SUPER ().
+        
+        {Consultingwerk/Assertion/ObjectAssert/IsValid.i poError """poError"":U"} .
+        
+        THIS-OBJECT:Error = poError . 
+        
+    END CONSTRUCTOR.
 
 END CLASS.

@@ -8,22 +8,22 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/   
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : SmartSecurityAssignmentViewerControl
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner
     Created     : 28.07.2013 20:59:39
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Consultingwerk.Framework.*                      FROM PROPATH . 
-USING Consultingwerk.Framework.Session.*              FROM PROPATH . 
-USING Consultingwerk.OERA.*                           FROM PROPATH . 
+USING Consultingwerk.Framework.*                      FROM PROPATH .
+USING Consultingwerk.Framework.Session.*              FROM PROPATH .
+USING Consultingwerk.OERA.*                           FROM PROPATH .
 USING Consultingwerk.SmartComponents.Base.*           FROM PROPATH .
 USING Consultingwerk.SmartComponents.Enum.*           FROM PROPATH .
 USING Consultingwerk.SmartComponents.Implementation.* FROM PROPATH .
@@ -33,9 +33,9 @@ USING Progress.Lang.*                                 FROM PROPATH .
 
 {Consultingwerk/products.i}
 
-CLASS Consultingwerk.Windows.Framework.Authorization.SmartSecurityAssignmentViewerControl 
-    INHERITS SmartViewerControl: 
-    
+CLASS Consultingwerk.Windows.Framework.Authorization.SmartSecurityAssignmentViewerControl
+    INHERITS SmartViewerControl:
+
     DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
 
     DEFINE PRIVATE VARIABLE coSecurityRealm AS Consultingwerk.SmartComponents.Implementation.SmartComboEditor NO-UNDO.
@@ -52,49 +52,50 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartSecurityAssignmentView
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the SmartSecurityAssignmentViewerControl class
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC SmartSecurityAssignmentViewerControl ():
-                
+
         SUPER().
         InitializeComponent().
 
-        
+
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Assigns the properties of the Lookup Control based on the selected 
-                 security realm 
-        Notes:   
+        Purpose: Assigns the properties of the Lookup Control based on the selected
+                 security realm
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID AssignLookupProperties ():
-		
-        DEFINE VARIABLE oParameter AS SecurityRealmLookupParameter NO-UNDO . 
-         
+    METHOD PROTECTED VOID AssignLookupProperties ():
+
+        DEFINE VARIABLE oParameter AS SecurityRealmLookupParameter NO-UNDO .
+
         ASSIGN oParameter                   = NEW SecurityRealmLookupParameter ()
-               oParameter:SecurityRealmGuid = UNBOX (coSecurityRealm:Value) . 
-         
+               oParameter:SecurityRealmGuid = UNBOX (coSecurityRealm:Value) .
+
         FrameworkSettings:ServiceAdapter:InvokeTask ("":U,
                                                      "Consultingwerk.SmartFramework.Authorization.SecurityRealmInfoService":U,
                                                      "GetSecurityRealmLookupParameter":U,
                                                      oParameter,
                                                      SessionManager:ContextDataset) .
-        
+
         oParameter:LookupDescriptor:AssignToSmartBusinessEntityLookup (loSecurityItem) .
 
-	END METHOD .
+    END METHOD .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design
-        Notes:   
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -510,76 +511,76 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartSecurityAssignmentView
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the BeforePerformLookup event of the loSecurityItem 
-        Notes:   
+        Purpose: Event handler for the BeforePerformLookup event of the loSecurityItem
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The CancelEventHandler with the data for this event 
+        @param e The CancelEventHandler with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID loSecurityItem_BeforePerformLookup (sender AS System.Object, 
-	                                                        e AS System.ComponentModel.CancelEventArgs):
-		
-        IF NOT VALID-OBJECT (coSecurityRealm:SelectedItem) THEN DO: 
+    METHOD PRIVATE VOID loSecurityItem_BeforePerformLookup (sender AS System.Object,
+                                                            e AS System.ComponentModel.CancelEventArgs):
+
+        IF NOT VALID-OBJECT (coSecurityRealm:SelectedItem) THEN DO:
             MessageFormHelper:ShowMessage ("Please select a security realm first."{&TRAN},
                                            THIS-OBJECT:FindForm ():Text,
                                            Consultingwerk.Windows.Util.Forms.MessageFormImages:ImageError) .
-            e:Cancel = TRUE . 
-            RETURN . 
-        END . 
+            e:Cancel = TRUE .
+            RETURN .
+        END .
 
         THIS-OBJECT:AssignLookupProperties () .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the ShowLookupDialog event of the loSecurityItem 
-        Notes:   
+        Purpose: Event handler for the ShowLookupDialog event of the loSecurityItem
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The CancelEventHandler with the data for this event 
+        @param e The CancelEventHandler with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID loSecurityItem_ShowLookupDialog (sender AS System.Object, 
-	                                                     e AS System.ComponentModel.CancelEventArgs):
-		
-        IF NOT VALID-OBJECT (coSecurityRealm:SelectedItem) THEN DO: 
+    METHOD PRIVATE VOID loSecurityItem_ShowLookupDialog (sender AS System.Object,
+                                                         e AS System.ComponentModel.CancelEventArgs):
+
+        IF NOT VALID-OBJECT (coSecurityRealm:SelectedItem) THEN DO:
             MessageFormHelper:ShowMessage ("Please select a security realm first."{&TRAN},
                                            THIS-OBJECT:FindForm ():Text,
                                            Consultingwerk.Windows.Util.Forms.MessageFormImages:ImageError) .
-            e:Cancel = TRUE . 
-            RETURN . 
-        END . 
+            e:Cancel = TRUE .
+            RETURN .
+        END .
 
         THIS-OBJECT:AssignLookupProperties () .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Raises the Load event
-        Notes:   
+        Notes:
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
-        
+
         SUPER:OnLoad (e) .
-    
+
         IF SessionManager:LoginCompanyKey > "":U THEN DO:
 
-            ASSIGN smartBusinessEntityLookup1:LookupQueryString = SUBSTITUTE 
+            ASSIGN smartBusinessEntityLookup1:LookupQueryString = SUBSTITUTE
                 ("for each eSmartUser where eSmartUser.UserName begins ~"&&1~" and eSmartUser.LoginCompanyGuid = &1 ~
                                          or eSmartUser.UserName begins ~"&&1~" and eSmartUser.LoginCompanyGuid = &2":U,
                   QUOTER (SessionManager:LoginCompanyKey),
-                  QUOTER ("":U)) .                    
-                                                                   
-            ASSIGN smartBusinessEntityLookup1:LookupDialogQueryString = SUBSTITUTE 
+                  QUOTER ("":U)) .
+
+            ASSIGN smartBusinessEntityLookup1:LookupDialogQueryString = SUBSTITUTE
                 ("for each eSmartUser where eSmartUser.LoginCompanyGuid = &1 ~
                                          or eSmartUser.LoginCompanyGuid = &2":U,
                   QUOTER (SessionManager:LoginCompanyKey),
-                  QUOTER ("":U)) .                    
+                  QUOTER ("":U)) .
         END.
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Destructor for the SmartSecurityAssignmentViewerControl class
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC SmartSecurityAssignmentViewerControl ( ):
 

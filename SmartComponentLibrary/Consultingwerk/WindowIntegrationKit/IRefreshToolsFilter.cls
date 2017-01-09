@@ -24,15 +24,15 @@ USING Progress.Lang.*.
 
 INTERFACE Consultingwerk.WindowIntegrationKit.IRefreshToolsFilter:  
   
-	/*------------------------------------------------------------------------------
-	   Purpose: Allows filtering out widgets/tools from the UltraToolbarsHelper:RefreshTools   
-	            API functionality
-	   Notes:
-	   @param poTool The reference to the current base Tool
-	   @param phWidget The handle of the represented ABL widget (menu item, button, ...)
-	   @return Logical value indicating if the Widget should be filtered out or not (FALSE will skip the current widget)
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL FilterTool (poTool AS Infragistics.Win.UltraWinToolbars.ToolBase,
-	                                  phWidget AS HANDLE).
+    /*------------------------------------------------------------------------------
+       Purpose: Allows filtering out widgets/tools from the UltraToolbarsHelper:RefreshTools   
+                API functionality
+       Notes:
+       @param poTool The reference to the current base Tool
+       @param phWidget The handle of the represented ABL widget (menu item, button, ...)
+       @return Logical value indicating if the Widget should be filtered out or not (FALSE will skip the current widget)
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC LOGICAL FilterTool (poTool AS Infragistics.Win.UltraWinToolbars.ToolBase,
+                                      phWidget AS HANDLE).
 
 END INTERFACE. 

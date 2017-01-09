@@ -8,64 +8,64 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : FormNotAuthorizedException
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Thu Nov 08 22:59:37 CET 2012
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 {Consultingwerk/products.i}
 
-USING Consultingwerk.Framework.Authorization.Exceptions.* FROM PROPATH . 
+USING Consultingwerk.Framework.Authorization.Exceptions.* FROM PROPATH .
 USING Progress.Lang.*                                     FROM PROPATH .
 
-CLASS Consultingwerk.Framework.Authorization.Exceptions.FormNotAuthorizedException 
+CLASS Consultingwerk.Framework.Authorization.Exceptions.FormNotAuthorizedException
     INHERITS NotAuthorizedException
-    {&SERIALIZABLE}:  
+    {&SERIALIZABLE}:
 
-    /*------------------------------------------------------------------------------
-        Purpose: Returns the Name of the Form Class 
-        Notes:                                              
-    ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY FormClassName AS CHARACTER NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    /**
+     * Purpose: Returns the Name of the Form Class
+     * Notes:
+     */
+    DEFINE PUBLIC PROPERTY FormClassName AS CHARACTER NO-UNDO
+    GET.
+    PROTECTED SET.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Constructor for the FormNotAuthorizedException Class 
-        Notes:                                              
-        @param pcFormClassName The name of the Form Class that cannot be started
-    ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC FormNotAuthorizedException (pcFormClassName AS CHARACTER):
+    /**
+     * Purpose: Constructor for the FormNotAuthorizedException Class
+     * Notes:
+     * @param pcFormClassName The name of the Form Class that cannot be started
+     */
+    CONSTRUCTOR PUBLIC FormNotAuthorizedException (pcFormClassName AS CHARACTER):
         &IF DEFINED (SmartFramework) NE 0 &THEN
         DEFINE VARIABLE oMessageProvider AS Consultingwerk.SmartFramework.IMessageProvider NO-UNDO .
         DEFINE VARIABLE cMessage         AS CHARACTER                                      NO-UNDO .
 
-        SUPER () . 
-        
+        SUPER () .
+
         oMessageProvider = {Consultingwerk/get-service.i Consultingwerk.SmartFramework.IMessageProvider} .
-        
-        IF VALID-OBJECT (oMessageProvider) THEN 
-            cMessage = oMessageProvider:GetMessageText ("SFR":U, 102, pcFormClassName) .        
-        	    
-        IF cMessage > "":U THEN 
-            THIS-OBJECT:AddMessage (cMessage, 0) . 
-        ELSE 	    
-	        THIS-OBJECT:AddMessage (SUBSTITUTE ("You are not authorized to launch &1."{&TRAN}, pcFormClassName), 0) .
-	    &ELSE
-		SUPER (SUBSTITUTE ("You are not authorized to launch &1."{&TRAN}, pcFormClassName), 
-		       0).
-		&ENDIF
-		
-		THIS-OBJECT:FormClassName = pcFormClassName .
-		
-	END CONSTRUCTOR.
+
+        IF VALID-OBJECT (oMessageProvider) THEN
+            cMessage = oMessageProvider:GetMessageText ("SFR":U, 102, pcFormClassName) .
+
+        IF cMessage > "":U THEN
+            THIS-OBJECT:AddMessage (cMessage, 0) .
+        ELSE
+            THIS-OBJECT:AddMessage (SUBSTITUTE ("You are not authorized to launch &1."{&TRAN}, pcFormClassName), 0) .
+        &ELSE
+        SUPER (SUBSTITUTE ("You are not authorized to launch &1."{&TRAN}, pcFormClassName),
+               0).
+        &ENDIF
+
+        THIS-OBJECT:FormClassName = pcFormClassName .
+
+    END CONSTRUCTOR.
 
 END CLASS.

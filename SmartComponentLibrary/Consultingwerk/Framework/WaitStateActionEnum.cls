@@ -13,11 +13,11 @@
     File        : WaitStateActionEnum
     Purpose     : Enum with possible values for the wait-state, used by the
                   WaitStateManager events
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner
     Created     : Sun Jun 17 10:44:06 CEST 2012
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -32,35 +32,35 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.*                       FROM PROPATH .
 USING Consultingwerk.Framework.Collections.* FROM PROPATH .
-USING Consultingwerk.Framework.*             FROM PROPATH .  
+USING Consultingwerk.Framework.*             FROM PROPATH .
 USING Progress.Lang.*                        FROM PROPATH .
 
-{&CLASS} Consultingwerk.Framework.WaitStateActionEnum 
+{&CLASS} Consultingwerk.Framework.WaitStateActionEnum
     &IF "{&CLASS}" EQ "CLASS" &THEN
     INHERITS Enum
-    &ENDIF    
-        : 
+    &ENDIF
+        :
 
 &IF "{&CLASS}" EQ "ENUM" &THEN
     DEFINE ENUM
-&ENDIF    
+&ENDIF
 
     /*------------------------------------------------------------------------------
-        Purpose: The wait-state is active                                                                      
-        Notes:                                                                        
+        Purpose: The wait-state is active
+        Notes:
     ------------------------------------------------------------------------------*/
     {Consultingwerk/EnumMember.i SetWaitState 0 WaitStateActionEnum}
 
     /*------------------------------------------------------------------------------
-        Purpose: No active wait-state                                                                      
-        Notes:                                                                        
+        Purpose: No active wait-state
+        Notes:
     ------------------------------------------------------------------------------*/
     {Consultingwerk/EnumMember.i ClearWaitState 1 WaitStateActionEnum}
 
 
 &IF "{&CLASS}" EQ "ENUM" &THEN
     .
-&ENDIF    
+&ENDIF
 
 &IF "{&CLASS}" EQ "CLASS" &THEN
 
@@ -73,27 +73,25 @@ USING Progress.Lang.*                        FROM PROPATH .
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PRIVATE WaitStateActionEnum (piValue AS INTEGER, pcLabel AS CHARACTER):
         SUPER ().
- 
+
         ASSIGN THIS-OBJECT:Value = piValue
                THIS-OBJECT:Label = pcLabel .
- 
+
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns a CharacterList with the names of the Enum members 
-        Notes:   
+        Purpose: Returns a CharacterList with the names of the Enum members
+        Notes:
         @return The CharacterList with the names of the Enum members
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CharacterList GetNames ():
-        
-        DEFINE VARIABLE oReturn AS CharacterList NO-UNDO . 
-        
+
         RETURN NEW CharacterList ('{&EnumMembers}':U).
 
     END METHOD .
-    
-    {Consultingwerk/EnumFromString.i Consultingwerk.Framework.WaitStateActionEnum}    
-    
-&ENDIF 
-    
+
+    {Consultingwerk/EnumFromString.i Consultingwerk.Framework.WaitStateActionEnum}
+
+&ENDIF
+
 END {&CLASS} .

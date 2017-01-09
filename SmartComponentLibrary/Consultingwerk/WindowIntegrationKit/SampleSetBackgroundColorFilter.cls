@@ -41,9 +41,9 @@ CLASS Consultingwerk.WindowIntegrationKit.SampleSetBackgroundColorFilter
         @param poParameter The ISetFrameBackgroundColorParameter instance with the parameters for the SetFrameBackgroundColor routine
         @return Logical value indicating if the Widget should be color coded or not, when FALSE the widget will be ignored
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL FilterWidgetForSetBackgroundColor (phWidget AS HANDLE,
+    METHOD PUBLIC LOGICAL FilterWidgetForSetBackgroundColor (phWidget AS HANDLE,
                                                              poParameter AS ISetFrameBackgroundColorParameter):
-		
+        
         IF phWidget:TYPE <> WidgetTypeEnum:FillIn AND 
            phWidget:TYPE <> WidgetTypeEnum:Editor AND 
            phWidget:TYPE <> WidgetTypeEnum:ComboBox THEN 
@@ -55,6 +55,6 @@ CLASS Consultingwerk.WindowIntegrationKit.SampleSetBackgroundColorFilter
 
         RETURN FALSE . 
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

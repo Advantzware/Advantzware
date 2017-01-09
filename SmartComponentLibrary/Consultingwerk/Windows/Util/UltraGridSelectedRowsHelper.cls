@@ -34,10 +34,10 @@ CLASS Consultingwerk.Windows.Util.UltraGridSelectedRowsHelper:
         Purpose: Constructor for the UltraGridSelectedRowsHelper class
         Notes:   Disallow instance creation
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PRIVATE UltraGridSelectedRowsHelper ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PRIVATE UltraGridSelectedRowsHelper ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Copies selected rows in the Ultragrid's first Band from a source 
@@ -48,22 +48,22 @@ CLASS Consultingwerk.Windows.Util.UltraGridSelectedRowsHelper:
         @param phSourceDataset The Source ProDataset
         @param phTargetDataset The Target ProDataset 
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC VOID CopySelectedRowsToProDataset (poGrid AS UltraGrid,
-	                                                        pcTables AS CHARACTER, 
-	                                                        phSourceDataset AS HANDLE, 
-	                                                        phTargetDataset AS HANDLE):
+    METHOD PUBLIC STATIC VOID CopySelectedRowsToProDataset (poGrid AS UltraGrid,
+                                                            pcTables AS CHARACTER, 
+                                                            phSourceDataset AS HANDLE, 
+                                                            phTargetDataset AS HANDLE):
         
         DEFINE VARIABLE i          AS INTEGER      NO-UNDO .
         DEFINE VARIABLE oActiveRow AS UltraGridRow NO-UNDO . 
-		DEFINE VARIABLE iPosition  AS INTEGER      NO-UNDO .
-		
+        DEFINE VARIABLE iPosition  AS INTEGER      NO-UNDO .
+        
         DEFINE VARIABLE hSourceBuffer AS HANDLE    NO-UNDO .
         DEFINE VARIABLE hTargetBuffer AS HANDLE    NO-UNDO .
         DEFINE VARIABLE cFindString   AS CHARACTER NO-UNDO . 
-		
-		ObjectAssert:IsValid (poGrid, "poGrid":U) .
-		Assert:NotNullOrEmpty (pcTables, "pcTables":U) .
-		{Consultingwerk/Assertion/HandleAssert/WidgetType.i phSourceDataset WidgetTypeEnum:Dataset} .
+        
+        ObjectAssert:IsValid (poGrid, "poGrid":U) .
+        Assert:NotNullOrEmpty (pcTables, "pcTables":U) .
+        {Consultingwerk/Assertion/HandleAssert/WidgetType.i phSourceDataset WidgetTypeEnum:Dataset} .
         {Consultingwerk/Assertion/HandleAssert/WidgetType.i phTargetDataset WidgetTypeEnum:Dataset} .
         
         DO i = 1 TO NUM-ENTRIES (pcTables):
@@ -100,9 +100,9 @@ CLASS Consultingwerk.Windows.Util.UltraGridSelectedRowsHelper:
         FINALLY:
             ASSIGN CAST (poGrid:DataSource, Progress.Data.BindingSource):Position = iPosition
                    poGrid:ActiveRow                                               = oActiveRow .
-             		
+                     
         END FINALLY.
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

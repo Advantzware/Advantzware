@@ -37,24 +37,24 @@ CLASS Consultingwerk.SmartFramework.System.AssignKeyFieldValuesService
         @param phBuffer The temp-table buffer (after buffer) to assign key field values to
         @param pcKeyFields Comma delimited list of key fields to assign
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID AssignKeyFields (pcKeyFieldAssignmentKey AS CHARACTER,
+    METHOD PUBLIC VOID AssignKeyFields (pcKeyFieldAssignmentKey AS CHARACTER,
                                         phBuffer AS HANDLE,
-	                                    pcKeyFields AS CHARACTER):
-	    
+                                        pcKeyFields AS CHARACTER):
+        
         DEFINE VARIABLE i      AS INTEGER   NO-UNDO .
-	    DEFINE VARIABLE cField AS CHARACTER NO-UNDO .
-	    
-        DO i = 1 TO NUM-ENTRIES (pcKeyFields):	    
-	       
-	       ASSIGN cField = ENTRY (i, pcKeyFields) .
-	       
-	       IF phBuffer:BUFFER-FIELD (cField):BUFFER-VALUE = "":U OR 
-	          phBuffer:BUFFER-FIELD (cField):BUFFER-VALUE = ? THEN 
-	           
-	       phBuffer:BUFFER-FIELD (cField):BUFFER-VALUE = GUID . 
-	    
-	    END.
-	    
-	END METHOD .
+        DEFINE VARIABLE cField AS CHARACTER NO-UNDO .
+        
+        DO i = 1 TO NUM-ENTRIES (pcKeyFields):        
+           
+           ASSIGN cField = ENTRY (i, pcKeyFields) .
+           
+           IF phBuffer:BUFFER-FIELD (cField):BUFFER-VALUE = "":U OR 
+              phBuffer:BUFFER-FIELD (cField):BUFFER-VALUE = ? THEN 
+               
+           phBuffer:BUFFER-FIELD (cField):BUFFER-VALUE = GUID . 
+        
+        END.
+        
+    END METHOD .
 
 END CLASS .

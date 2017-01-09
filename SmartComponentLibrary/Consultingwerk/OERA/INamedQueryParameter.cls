@@ -28,14 +28,14 @@ INTERFACE Consultingwerk.OERA.INamedQueryParameter:
         Purpose: Returns the Name of the Query
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Name AS CHARACTER NO-UNDO 
-	GET.
+    DEFINE PUBLIC PROPERTY Name AS CHARACTER NO-UNDO 
+    GET.
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the Dictionary of Named Query Parameters 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Parameters AS NamedQueryParameterList NO-UNDO 
-	GET.
+    DEFINE PUBLIC PROPERTY Parameters AS NamedQueryParameterList NO-UNDO 
+    GET.
 
 END INTERFACE.

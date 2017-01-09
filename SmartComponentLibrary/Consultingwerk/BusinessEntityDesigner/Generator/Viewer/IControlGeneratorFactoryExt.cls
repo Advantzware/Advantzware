@@ -30,16 +30,16 @@ USING Progress.Lang.*                                          FROM PROPATH .
 
 INTERFACE Consultingwerk.BusinessEntityDesigner.Generator.Viewer.IControlGeneratorFactoryExt:  
   
-	/*------------------------------------------------------------------------------
-	    Purpose: Generates and returns a ControlGenerator instance for a binding source field
-	    Notes:   The SmartViewerBuilder will assign the following properties to the 
-	             ControlGenerator instance created from this factory: 
-	             DataBindings, Left, Name, ContainerControlGenerator, TabOrder, Top 
-	    @param poViewerBuilder The reference to the viewer builder instance
-	    @param poParameter The ControlGeneratorFactoryParameter instance with the data for this call
-	    @return The IControlGenerator instance for the current field or ? when the default control generator should be used
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC IControlGenerator GetControlGenerator (poViewerBuilder AS SmartViewerBuilder, 
+    /*------------------------------------------------------------------------------
+        Purpose: Generates and returns a ControlGenerator instance for a binding source field
+        Notes:   The SmartViewerBuilder will assign the following properties to the 
+                 ControlGenerator instance created from this factory: 
+                 DataBindings, Left, Name, ContainerControlGenerator, TabOrder, Top 
+        @param poViewerBuilder The reference to the viewer builder instance
+        @param poParameter The ControlGeneratorFactoryParameter instance with the data for this call
+        @return The IControlGenerator instance for the current field or ? when the default control generator should be used
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC IControlGenerator GetControlGenerator (poViewerBuilder AS SmartViewerBuilder, 
                                                          poParameter AS ControlGeneratorFactoryParameter).
 
 END INTERFACE.

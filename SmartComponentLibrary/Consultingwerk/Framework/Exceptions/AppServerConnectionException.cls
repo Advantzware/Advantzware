@@ -38,16 +38,16 @@ CLASS Consultingwerk.Framework.Exceptions.AppServerConnectionException
                  this error
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Partition AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY Partition AS CHARACTER NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the Title to be used in the Error Dialog or Message Box 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Title AS CHARACTER NO-UNDO INIT "AppServer Connection"{&TRAN}
-	GET.
+    DEFINE PUBLIC PROPERTY Title AS CHARACTER NO-UNDO INITIAL "AppServer Connection"{&TRAN}
+    GET.
     PRIVATE SET. 
 
     /*------------------------------------------------------------------------------
@@ -65,14 +65,14 @@ CLASS Consultingwerk.Framework.Exceptions.AppServerConnectionException
         Notes:   
         @param pcPartition The AppServer Partition that failed to be connected
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC AppServerConnectionException (pcPartition AS CHARACTER):
-	    
-		SUPER (SUBSTITUTE ("Unable to connect to the AppServer partition named &1."{&TRAN},
-		                   pcPartition),
-		       0).
-		
-		THIS-OBJECT:Partition = pcPartition. 
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC AppServerConnectionException (pcPartition AS CHARACTER):
+        
+        SUPER (SUBSTITUTE ("Unable to connect to the AppServer partition named &1."{&TRAN},
+                           pcPartition),
+               0).
+        
+        THIS-OBJECT:Partition = pcPartition. 
+        
+    END CONSTRUCTOR.
 
 END CLASS.

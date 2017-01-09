@@ -33,8 +33,8 @@ CLASS Consultingwerk.Windows.OpenEdgeLogin.DatabaseLoginPreferences IMPLEMENTS I
         Notes:
         @return The CharacterList of all database opted-out from the login dialog
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC CharacterList GetAllOptOutedDbParam ():
-		
+    METHOD PUBLIC CharacterList GetAllOptOutedDbParam ():
+        
         DEFINE VARIABLE oSettingsService AS ISettingsService NO-UNDO .
         DEFINE VARIABLE oList            AS CharacterList    NO-UNDO .  
         DEFINE VARIABLE i                AS INTEGER          NO-UNDO .
@@ -59,7 +59,7 @@ CLASS Consultingwerk.Windows.OpenEdgeLogin.DatabaseLoginPreferences IMPLEMENTS I
                 RETURN oList .                                                    
         END.
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Returns TRUE when the user has opted-out from the DB Connection
@@ -68,23 +68,23 @@ CLASS Consultingwerk.Windows.OpenEdgeLogin.DatabaseLoginPreferences IMPLEMENTS I
         @param pcDbParam The DBPARAM value for the DB to opt out from
         @return Logical value indicating if the user has opted out from the given DB
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL IsDisabled (pcDbParam AS CHARACTER):
-		
+    METHOD PUBLIC LOGICAL IsDisabled (pcDbParam AS CHARACTER):
+        
         DEFINE VARIABLE oList  AS CharacterList NO-UNDO . 
         
         oList = GetAllOptOutedDbParam () .
         
         RETURN oList:ContainsValue (pcDbParam) .
          
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Opts in for the given database connection
         Notes:   Based on DBPARAM () function
         @param pcDbParam The DBPARAM value for the DB to opt in for
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID OptIn (pcDbParam AS CHARACTER):
-		
+    METHOD PUBLIC VOID OptIn (pcDbParam AS CHARACTER):
+        
         DEFINE VARIABLE oList  AS CharacterList NO-UNDO . 
         DEFINE VARIABLE iEntry AS INTEGER       NO-UNDO .
         
@@ -100,35 +100,35 @@ CLASS Consultingwerk.Windows.OpenEdgeLogin.DatabaseLoginPreferences IMPLEMENTS I
             END.
         END.
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Opts out for the given database connection
         Notes:   Based on DBPARAM () function
         @param pcDbParam The DBPARAM value for the DB to opt out for
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID OptOut (pcDbParam AS CHARACTER):
-		
-		DEFINE VARIABLE oList AS CharacterList NO-UNDO . 
-		
-		oList = GetAllOptOutedDbParam () .
-		
-		IF NOT oList:ContainsValue (pcDbParam) THEN DO:
-		    oList:Add (pcDbParam) .
-		    
-		    THIS-OBJECT:WriteSettings (oList) .
-		END.
+    METHOD PUBLIC VOID OptOut (pcDbParam AS CHARACTER):
+        
+        DEFINE VARIABLE oList AS CharacterList NO-UNDO . 
+        
+        oList = GetAllOptOutedDbParam () .
+        
+        IF NOT oList:ContainsValue (pcDbParam) THEN DO:
+            oList:Add (pcDbParam) .
+            
+            THIS-OBJECT:WriteSettings (oList) .
+        END.
 
-	END METHOD.
+    END METHOD.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Writes the List of Database Connection Profiles back to the 
-	             Settings Service
-	    Notes:
-	    @param poList The CharacterList of disabled database connection profiles
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID WriteSettings (poList AS CharacterList):
-		
+    /*------------------------------------------------------------------------------
+        Purpose: Writes the List of Database Connection Profiles back to the 
+                 Settings Service
+        Notes:
+        @param poList The CharacterList of disabled database connection profiles
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID WriteSettings (poList AS CharacterList):
+        
         DEFINE VARIABLE oSettingsService AS ISettingsService NO-UNDO . 
         DEFINE VARIABLE i                AS INTEGER          NO-UNDO .
         DEFINE VARIABLE j                AS INTEGER          NO-UNDO .
@@ -152,6 +152,6 @@ CLASS Consultingwerk.Windows.OpenEdgeLogin.DatabaseLoginPreferences IMPLEMENTS I
                                            "":U) .
         END.
         
-	END METHOD.
+    END METHOD.
 
 END CLASS.

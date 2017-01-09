@@ -78,7 +78,7 @@ DO ON STOP UNDO, LEAVE:
            pw_Window:TITLE        = {&PW_Title_Leader} + New_Name
            
            Private_Data           = pw_Editor:PRIVATE-DATA 
-		   ENTRY ( {&PW_Temp_Web_File_Pos}, Private_Data ) = ""
+           ENTRY ( {&PW_Temp_Web_File_Pos}, Private_Data ) = ""
            ENTRY ( {&PW_Broker_URL_Pos},    Private_Data ) = ""
            ENTRY ( {&PW_Compile_File_Pos},  Private_Data ) = ""
            ENTRY ( {&PW_Class_Type_Pos},    Private_Data ) = ""

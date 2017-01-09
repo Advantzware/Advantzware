@@ -47,9 +47,9 @@ CLASS Consultingwerk.SmartComponents.Base.UnableToCommitTransactionException
         Purpose: Returns the class name of the TableIOTarget that caused the issue
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY TableIOTargetName AS CHARACTER NO-UNDO 
-	GET.
-	PRIVATE SET. 
+    DEFINE PUBLIC PROPERTY TableIOTargetName AS CHARACTER NO-UNDO 
+    GET.
+    PRIVATE SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the UnableToCommitTransactionException class
@@ -57,16 +57,16 @@ CLASS Consultingwerk.SmartComponents.Base.UnableToCommitTransactionException
         @param pcTableIOTargetName The name of the TableIOTarget that caused the issue
         @param poTableIOTarget The reference to the TableIOTarget that cause the issue
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC UnableToCommitTransactionException (pcTableIOTargetName AS CHARACTER,
-	                                                       poTableIOTarget AS ISmartTableIOTarget):
-		SUPER (SUBSTITUTE ((IF pcTableIOTargetName > "":U THEN "&1~n&2":U ELSE "&1":U),
-		                   SmartComponentLibraryCustomizer:SmartBusinessEntityAdapter_UnableToCommitTransaction,
-		                   pcTableIOTargetName),
-		      0).
-		
+    CONSTRUCTOR PUBLIC UnableToCommitTransactionException (pcTableIOTargetName AS CHARACTER,
+                                                           poTableIOTarget AS ISmartTableIOTarget):
+        SUPER (SUBSTITUTE ((IF pcTableIOTargetName > "":U THEN "&1~n&2":U ELSE "&1":U),
+                           SmartComponentLibraryCustomizer:SmartBusinessEntityAdapter_UnableToCommitTransaction,
+                           pcTableIOTargetName),
+              0).
+        
         ASSIGN THIS-OBJECT:TableIOTarget     = poTableIOTarget
                THIS-OBJECT:TableIOTargetName = pcTableIOTargetName . 
-		
-	END CONSTRUCTOR.
+        
+    END CONSTRUCTOR.
 
 END CLASS.

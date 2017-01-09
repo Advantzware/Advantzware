@@ -11,12 +11,12 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : ColumnDisplayTypeEnum
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Sebastian Düngel / Consultingwerk Ltd.
     Created     : Tue Mar 26 02:13:08 CET 2013
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -31,26 +31,26 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.*                       FROM PROPATH .
 USING Consultingwerk.Framework.Collections.* FROM PROPATH .
-USING Consultingwerk.Web.Widgets.Grid.*      FROM PROPATH .  
+USING Consultingwerk.Web.Widgets.Grid.*      FROM PROPATH .
 USING Progress.Lang.*                        FROM PROPATH .
 
-{&CLASS} Consultingwerk.Web.Widgets.Grid.ColumnDisplayTypeEnum 
+{&CLASS} Consultingwerk.Web.Widgets.Grid.ColumnDisplayTypeEnum
     &IF "{&CLASS}" EQ "CLASS" &THEN
     INHERITS Enum
-    &ENDIF    
-        : 
+    &ENDIF
+        :
 
 &IF "{&CLASS}" EQ "ENUM" &THEN
     DEFINE ENUM
-&ENDIF    
- 
+&ENDIF
+
     {Consultingwerk/EnumMember.i Text 0 ColumnDisplayTypeEnum}
     {Consultingwerk/EnumMember.i Image 1 ColumnDisplayTypeEnum}
     {Consultingwerk/EnumMember.i ImageAndText 2 ColumnDisplayTypeEnum}
 
 &IF "{&CLASS}" EQ "ENUM" &THEN
     .
-&ENDIF    
+&ENDIF
 
 &IF "{&CLASS}" EQ "CLASS" &THEN
 
@@ -62,27 +62,25 @@ USING Progress.Lang.*                        FROM PROPATH .
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PRIVATE ColumnDisplayTypeEnum (piValue AS INTEGER, pcLabel AS CHARACTER):
         SUPER ().
- 
+
         ASSIGN THIS-OBJECT:Value = piValue
                THIS-OBJECT:Label = pcLabel .
- 
+
     END CONSTRUCTOR.
 
- 
+
     /*------------------------------------------------------------------------------
         Purpose: Returns a CharacterList with the names of the Enum members
-        Notes:   
+        Notes:
         @return The CharacterList with the names of the Enum members
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CharacterList GetNames ():
- 
-        DEFINE VARIABLE oReturn AS CharacterList NO-UNDO . 
- 
+
         RETURN NEW CharacterList ('{&EnumMembers}':U).
- 
+
     END METHOD .
-	
-    {Consultingwerk/EnumFromString.i Consultingwerk.Web.Widgets.Grid.ColumnDisplayTypeEnum}    
+
+    {Consultingwerk/EnumFromString.i Consultingwerk.Web.Widgets.Grid.ColumnDisplayTypeEnum}
 
 &ENDIF
 

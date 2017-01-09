@@ -35,8 +35,8 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.KendoUI.ReadOnlyGridBuilde
         Notes:   
         @return The json string describing the Grid layout 
     ------------------------------------------------------------------------------*/
-	METHOD OVERRIDE LONGCHAR GetGrid ():
-		
+    METHOD OVERRIDE LONGCHAR GetGrid ():
+        
         DEFINE VARIABLE lcJson         AS LONGCHAR NO-UNDO . 
 
         THIS-OBJECT:Grid:height = 600 . 
@@ -64,6 +64,6 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.KendoUI.ReadOnlyGridBuilde
 
         RETURN lcJson .
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

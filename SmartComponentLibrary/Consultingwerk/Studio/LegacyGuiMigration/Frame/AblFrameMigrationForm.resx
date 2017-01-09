@@ -135,7 +135,7 @@
     <value>True</value>
   </data>
   <data name="ultraCheckEditor1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 212</value>
+    <value>6, 237</value>
   </data>
   <data name="ultraCheckEditor1.Size" type="System.Drawing.Size, System.Drawing">
     <value>135, 17</value>
@@ -150,7 +150,7 @@
     <value>ultraCheckEditor1</value>
   </data>
   <data name="&gt;&gt;ultraCheckEditor1.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinEditors.UltraCheckEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinEditors.UltraCheckEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ultraCheckEditor1.Parent" xml:space="preserve">
     <value>AblFrameMigrationForm_Fill_Panel.ClientArea</value>
@@ -165,7 +165,7 @@
     <value>NoControl</value>
   </data>
   <data name="ultraLabel5.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 323</value>
+    <value>6, 348</value>
   </data>
   <data name="ultraLabel5.Size" type="System.Drawing.Size, System.Drawing">
     <value>100, 23</value>
@@ -180,7 +180,7 @@
     <value>ultraLabel5</value>
   </data>
   <data name="&gt;&gt;ultraLabel5.Type" xml:space="preserve">
-    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ultraLabel5.Parent" xml:space="preserve">
     <value>AblFrameMigrationForm_Fill_Panel.ClientArea</value>
@@ -195,7 +195,7 @@
     <value>NoControl</value>
   </data>
   <data name="ultraLabel4.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 296</value>
+    <value>6, 321</value>
   </data>
   <data name="ultraLabel4.Size" type="System.Drawing.Size, System.Drawing">
     <value>100, 23</value>
@@ -210,7 +210,7 @@
     <value>ultraLabel4</value>
   </data>
   <data name="&gt;&gt;ultraLabel4.Type" xml:space="preserve">
-    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ultraLabel4.Parent" xml:space="preserve">
     <value>AblFrameMigrationForm_Fill_Panel.ClientArea</value>
@@ -222,7 +222,7 @@
     <value>Bottom, Left, Right</value>
   </data>
   <data name="ultraTextEditor4.Location" type="System.Drawing.Point, System.Drawing">
-    <value>144, 319</value>
+    <value>144, 344</value>
   </data>
   <data name="ultraTextEditor4.Size" type="System.Drawing.Size, System.Drawing">
     <value>619, 21</value>
@@ -234,7 +234,7 @@
     <value>ultraTextEditor4</value>
   </data>
   <data name="&gt;&gt;ultraTextEditor4.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ultraTextEditor4.Parent" xml:space="preserve">
     <value>AblFrameMigrationForm_Fill_Panel.ClientArea</value>
@@ -265,7 +265,7 @@
 </value>
   </data>
   <data name="ultraTextEditor3.Location" type="System.Drawing.Point, System.Drawing">
-    <value>144, 292</value>
+    <value>144, 317</value>
   </data>
   <data name="ultraTextEditor3.Size" type="System.Drawing.Size, System.Drawing">
     <value>619, 21</value>
@@ -277,7 +277,7 @@
     <value>ultraTextEditor3</value>
   </data>
   <data name="&gt;&gt;ultraTextEditor3.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ultraTextEditor3.Parent" xml:space="preserve">
     <value>AblFrameMigrationForm_Fill_Panel.ClientArea</value>
@@ -308,7 +308,7 @@
 </value>
   </data>
   <data name="ultraTextEditor2.Location" type="System.Drawing.Point, System.Drawing">
-    <value>144, 265</value>
+    <value>144, 290</value>
   </data>
   <data name="ultraTextEditor2.Size" type="System.Drawing.Size, System.Drawing">
     <value>619, 21</value>
@@ -320,7 +320,7 @@
     <value>ultraTextEditor2</value>
   </data>
   <data name="&gt;&gt;ultraTextEditor2.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ultraTextEditor2.Parent" xml:space="preserve">
     <value>AblFrameMigrationForm_Fill_Panel.ClientArea</value>
@@ -351,7 +351,7 @@
 </value>
   </data>
   <data name="ultraTextEditor1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>144, 238</value>
+    <value>144, 263</value>
   </data>
   <data name="ultraTextEditor1.Size" type="System.Drawing.Size, System.Drawing">
     <value>619, 21</value>
@@ -363,7 +363,7 @@
     <value>ultraTextEditor1</value>
   </data>
   <data name="&gt;&gt;ultraTextEditor1.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ultraTextEditor1.Parent" xml:space="preserve">
     <value>AblFrameMigrationForm_Fill_Panel.ClientArea</value>
@@ -378,7 +378,7 @@
     <value>NoControl</value>
   </data>
   <data name="ultraLabel3.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 269</value>
+    <value>6, 294</value>
   </data>
   <data name="ultraLabel3.Size" type="System.Drawing.Size, System.Drawing">
     <value>132, 23</value>
@@ -393,7 +393,7 @@
     <value>ultraLabel3</value>
   </data>
   <data name="&gt;&gt;ultraLabel3.Type" xml:space="preserve">
-    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ultraLabel3.Parent" xml:space="preserve">
     <value>AblFrameMigrationForm_Fill_Panel.ClientArea</value>
@@ -408,7 +408,7 @@
     <value>NoControl</value>
   </data>
   <data name="ultraLabel2.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 242</value>
+    <value>6, 267</value>
   </data>
   <data name="ultraLabel2.Size" type="System.Drawing.Size, System.Drawing">
     <value>132, 23</value>
@@ -423,7 +423,7 @@
     <value>ultraLabel2</value>
   </data>
   <data name="&gt;&gt;ultraLabel2.Type" xml:space="preserve">
-    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ultraLabel2.Parent" xml:space="preserve">
     <value>AblFrameMigrationForm_Fill_Panel.ClientArea</value>
@@ -450,7 +450,7 @@
     <value>ultraLabel1</value>
   </data>
   <data name="&gt;&gt;ultraLabel1.Type" xml:space="preserve">
-    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ultraLabel1.Parent" xml:space="preserve">
     <value>AblFrameMigrationForm_Fill_Panel.ClientArea</value>
@@ -474,7 +474,7 @@
     <value>coFrameName</value>
   </data>
   <data name="&gt;&gt;coFrameName.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinEditors.UltraComboEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinEditors.UltraComboEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;coFrameName.Parent" xml:space="preserve">
     <value>AblFrameMigrationForm_Fill_Panel.ClientArea</value>
@@ -488,6 +488,63 @@
   <metadata name="bindingSource1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>324, 17</value>
   </metadata>
+  <data name="ultraGridColumn14.Header.Caption" xml:space="preserve">
+    <value>Selected </value>
+  </data>
+  <data name="ultraGridColumn1.Header.Caption" xml:space="preserve">
+    <value>Order </value>
+  </data>
+  <data name="ultraGridColumn2.Header.Caption" xml:space="preserve">
+    <value>Field Name </value>
+  </data>
+  <data name="ultraGridColumn3.Header.Caption" xml:space="preserve">
+    <value>Data Type </value>
+  </data>
+  <data name="ultraGridColumn4.Header.Caption" xml:space="preserve">
+    <value>Widget Type </value>
+  </data>
+  <data name="ultraGridColumn5.Header.Caption" xml:space="preserve">
+    <value>Format </value>
+  </data>
+  <data name="ultraGridColumn6.Header.Caption" xml:space="preserve">
+    <value>Row </value>
+  </data>
+  <data name="ultraGridColumn7.Header.Caption" xml:space="preserve">
+    <value>Column </value>
+  </data>
+  <data name="ultraGridColumn8.Header.Caption" xml:space="preserve">
+    <value>View-As </value>
+  </data>
+  <data name="ultraGridColumn9.Header.Caption" xml:space="preserve">
+    <value>Width </value>
+  </data>
+  <data name="ultraGridColumn10.Header.Caption" xml:space="preserve">
+    <value>Height </value>
+  </data>
+  <data name="ultraGridColumn11.Header.Caption" xml:space="preserve">
+    <value>Value </value>
+  </data>
+  <data name="ultraGridColumn12.Header.Caption" xml:space="preserve">
+    <value>Label </value>
+  </data>
+  <data name="ultraGridColumn13.Header.Caption" xml:space="preserve">
+    <value>No Labels </value>
+  </data>
+  <data name="ultraGridColumn15.Header.Caption" xml:space="preserve">
+    <value>Alternative Control Type </value>
+  </data>
+  <data name="ultraGridColumn16.Header.Caption" xml:space="preserve">
+    <value>Radio Buttons </value>
+  </data>
+  <data name="ultraGridColumn17.Header.Caption" xml:space="preserve">
+    <value>PRIVATE-DATA </value>
+  </data>
+  <data name="ultraGridColumn18.Header.Caption" xml:space="preserve">
+    <value>List Items </value>
+  </data>
+  <data name="ultraGridColumn19.Header.Caption" xml:space="preserve">
+    <value>List Item Pairs </value>
+  </data>
   <data name="appearance13.TextHAlignAsString" xml:space="preserve">
     <value>Left</value>
   </data>
@@ -501,7 +558,7 @@
     <value>6, 37</value>
   </data>
   <data name="smartUpdatableBrowser1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>757, 169</value>
+    <value>757, 194</value>
   </data>
   <data name="smartUpdatableBrowser1.TabIndex" type="System.Int32, mscorlib">
     <value>5</value>
@@ -525,7 +582,7 @@
     <value>AblFrameMigrationForm_Fill_Panel.ClientArea</value>
   </data>
   <data name="&gt;&gt;AblFrameMigrationForm_Fill_Panel.ClientArea.Type" xml:space="preserve">
-    <value>Infragistics.Win.Misc.UltraPanelClientAreaUnsafe, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.Misc.UltraPanelClientAreaUnsafe, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;AblFrameMigrationForm_Fill_Panel.ClientArea.Parent" xml:space="preserve">
     <value>AblFrameMigrationForm_Fill_Panel</value>
@@ -537,10 +594,10 @@
     <value>Fill</value>
   </data>
   <data name="AblFrameMigrationForm_Fill_Panel.Location" type="System.Drawing.Point, System.Drawing">
-    <value>8, 176</value>
+    <value>8, 151</value>
   </data>
   <data name="AblFrameMigrationForm_Fill_Panel.Size" type="System.Drawing.Size, System.Drawing">
-    <value>769, 346</value>
+    <value>769, 371</value>
   </data>
   <data name="AblFrameMigrationForm_Fill_Panel.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -549,7 +606,7 @@
     <value>AblFrameMigrationForm_Fill_Panel</value>
   </data>
   <data name="&gt;&gt;AblFrameMigrationForm_Fill_Panel.Type" xml:space="preserve">
-    <value>Infragistics.Win.Misc.UltraPanel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.Misc.UltraPanel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;AblFrameMigrationForm_Fill_Panel.Parent" xml:space="preserve">
     <value>$this</value>
@@ -558,16 +615,16 @@
     <value>0</value>
   </data>
   <data name="m_AblFrameMigrationForm_Toolbars_Dock_Area_Left.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 176</value>
+    <value>0, 151</value>
   </data>
   <data name="m_AblFrameMigrationForm_Toolbars_Dock_Area_Left.Size" type="System.Drawing.Size, System.Drawing">
-    <value>8, 346</value>
+    <value>8, 371</value>
   </data>
   <data name="&gt;&gt;m_AblFrameMigrationForm_Toolbars_Dock_Area_Left.Name" xml:space="preserve">
     <value>m_AblFrameMigrationForm_Toolbars_Dock_Area_Left</value>
   </data>
   <data name="&gt;&gt;m_AblFrameMigrationForm_Toolbars_Dock_Area_Left.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;m_AblFrameMigrationForm_Toolbars_Dock_Area_Left.Parent" xml:space="preserve">
     <value>$this</value>
@@ -576,16 +633,16 @@
     <value>1</value>
   </data>
   <data name="m_AblFrameMigrationForm_Toolbars_Dock_Area_Right.Location" type="System.Drawing.Point, System.Drawing">
-    <value>777, 176</value>
+    <value>777, 151</value>
   </data>
   <data name="m_AblFrameMigrationForm_Toolbars_Dock_Area_Right.Size" type="System.Drawing.Size, System.Drawing">
-    <value>8, 346</value>
+    <value>8, 371</value>
   </data>
   <data name="&gt;&gt;m_AblFrameMigrationForm_Toolbars_Dock_Area_Right.Name" xml:space="preserve">
     <value>m_AblFrameMigrationForm_Toolbars_Dock_Area_Right</value>
   </data>
   <data name="&gt;&gt;m_AblFrameMigrationForm_Toolbars_Dock_Area_Right.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;m_AblFrameMigrationForm_Toolbars_Dock_Area_Right.Parent" xml:space="preserve">
     <value>$this</value>
@@ -603,7 +660,7 @@
     <value>m_AblFrameMigrationForm_Toolbars_Dock_Area_Bottom</value>
   </data>
   <data name="&gt;&gt;m_AblFrameMigrationForm_Toolbars_Dock_Area_Bottom.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;m_AblFrameMigrationForm_Toolbars_Dock_Area_Bottom.Parent" xml:space="preserve">
     <value>$this</value>
@@ -630,7 +687,7 @@
     <value>ultraStatusBar1</value>
   </data>
   <data name="&gt;&gt;ultraStatusBar1.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinStatusBar.UltraStatusBar, Infragistics4.Win.UltraWinStatusBar.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinStatusBar.UltraStatusBar, Infragistics4.Win.UltraWinStatusBar.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ultraStatusBar1.Parent" xml:space="preserve">
     <value>$this</value>
@@ -642,13 +699,13 @@
     <value>0, 0</value>
   </data>
   <data name="m_AblFrameMigrationForm_Toolbars_Dock_Area_Top.Size" type="System.Drawing.Size, System.Drawing">
-    <value>785, 176</value>
+    <value>785, 151</value>
   </data>
   <data name="&gt;&gt;m_AblFrameMigrationForm_Toolbars_Dock_Area_Top.Name" xml:space="preserve">
     <value>m_AblFrameMigrationForm_Toolbars_Dock_Area_Top</value>
   </data>
   <data name="&gt;&gt;m_AblFrameMigrationForm_Toolbars_Dock_Area_Top.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;m_AblFrameMigrationForm_Toolbars_Dock_Area_Top.Parent" xml:space="preserve">
     <value>$this</value>
@@ -2235,7 +2292,7 @@
     <value>bindingSource1</value>
   </data>
   <data name="&gt;&gt;bindingSource1.Type" xml:space="preserve">
-    <value>Progress.Data.BindingSource, Progress.NetUI, Version=11.6.0.1228, Culture=neutral, PublicKeyToken=null</value>
+    <value>Progress.Data.BindingSource, Progress.NetUI, Version=11.6.0.1407, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;smartTempTableAdapter1.Name" xml:space="preserve">
     <value>smartTempTableAdapter1</value>
@@ -2259,7 +2316,7 @@
     <value>AblFrameMigrationForm</value>
   </data>
   <data name="&gt;&gt;$this.Type" xml:space="preserve">
-    <value>Consultingwerk.SmartComponents.Base.SmartWindowForm, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+    <value>Consultingwerk.SmartComponents.Base.SmartWindowForm, OEProxyAssembly, Version=11.6.0.1, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="ribbonTab1.Caption" xml:space="preserve">
     <value>Start</value>
@@ -3123,73 +3180,87 @@
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance49.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
-        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
-        LPgfDfT7AEthZGAAAAAASUVORK5CYII=
+        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
+        AABJRU5ErkJggg==
 </value>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance50.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAArdEVYdENvcHlyaWdodABDb3B5cmlnaHQgqSAyMDA4LTIwMTEgSU5DT1JTIEdtYkgQjiFPAAAC
-        hElEQVQ4T6WT/0sTcRjH93dERUkWSvRLiUG/FIFFKQo2SSgqNShyMoS+rJHil9zmZpvfZqdzOKwQwtj6
-        Qt9/UkaFUllQuRq4as5tN2+3m+ftdnv3uXOr1o/2HA/Ph/vwfj3P53PvU/13tPYMefVGK1pMfWi3DKLT
-        aoexn4J50AELSbma+odhHnLAMDCMrr6bsJD9HrLupZxeld5sR5t9HIaRCdhckxiauA/n5BPcevACdx6+
-        xG2SY+6ncHmeYZDsUfce47mmAd8PbsM1kx0qnYVCLjLkETMSRCmDVDqtJC+KYHke3KoAThDAksqSyvAC
-        ZK1Kb3Mq4rQkQcoQgEREQgoJIoqyCXwLhZVKJzilLi7HMR8MIRClIWvzAKKcpKs/sAS9fRTV19Wo7t4P
-        LdWA9/4PWIzFFaCPAH7STD5gTSzhc2Aep9oGYJy6jHPjfhw2PMIZzz5UdOzF9MdXWAhH4V8KI8TE/wEQ
-        sXzmJvtptL4pQ8dMI6xTCdSPvoZ2thCVjmLUtNThBx1DIEIjEmfzAblLU+suotZhQ7Pbh14vj0vurzjQ
-        3oWKkVJsPKImx2DI+MugOe4PIJMFCOTGD503YkP9XZR2BnBsOIqybg/OTm9FmbUEW45WgWY5cpEMGG4l
-        HyCKaaymRDR2UCh3FWG7xoYC7Rx2XXVhd8tJqG/sRFWTDjE2iTAZn0ny+QC5O59KYc63gB0n9qCc2oTi
-        C50oqBvD5uNGlNQXYWb+nfI5I4mE4o2/ABmley5nv8yg9kozCis0KKzUoKbZgLeffKRrErGsH1hipN8A
-        OWQTyZNIihMl4os1U4mipEwnpOUJRayQKZPEjfK7HCAoL9aZwew/ud5QqX4BbCi/Es6MhAMAAAAASUVO
-        RK5CYII=
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAACt0RVh0Q29w
+        eXJpZ2h0AENvcHlyaWdodCCpIDIwMDgtMjAxMSBJTkNPUlMgR21iSBCOIU8AAAKESURBVDhPpZP/SxNx
+        GMf3d0RFSRZK9EuJQb8UgUUpCjZJKCo1KHIyhL6skeKX3OZmm99mp3M4rBDC2PpC339SRoVSWVC5Grhq
+        zm03b7eb5+12e/e5c6vWj/YcD8+H+/B+Pc/nc+9T/Xe09gx59UYrWkx9aLcMotNqh7GfgnnQAQtJuZr6
+        h2EecsAwMIyuvpuwkP0esu6lnF6V3mxHm30chpEJ2FyTGJq4D+fkE9x68AJ3Hr7EbZJj7qdweZ5hkOxR
+        9x7juaYB3w9uwzWTHSqdhUIuMuQRMxJEKYNUOq0kL4pgeR7cqgBOEMCSypLK8AJkrUpvcyritCRByhCA
+        RERCCgkiirIJfAuFlUonOKUuLscxHwwhEKUha/MAopykqz+wBL19FNXX1aju3g8t1YD3/g9YjMUVoI8A
+        ftJMPmBNLOFzYB6n2gZgnLqMc+N+HDY8whnPPlR07MX0x1dYCEfhXwojxMT/ARCxfOYm+2m0vilDx0wj
+        rFMJ1I++hna2EJWOYtS01OEHHUMgQiMSZ/MBuUtT6y6i1mFDs9uHXi+PS+6vONDehYqRUmw8oibHYMj4
+        y6A57g8gkwUI5MYPnTdiQ/1dlHYGcGw4irJuD85Ob0WZtQRbjlaBZjlykQwYbiUfIIpprKZENHZQKHcV
+        YbvGhgLtHHZddWF3y0mob+xEVZMOMTaJMBmfSfL5ALk7n0phzreAHSf2oJzahOILnSioG8Pm40aU1Bdh
+        Zv6d8jkjiYTijb8AGaV7Lme/zKD2SjMKKzQorNSgptmAt598pGsSsawfWGKk3wA5ZBPJk0iKEyXiizVT
+        iaKkTCek5QlFrJApk8SN8rscICgv1pnB7D+53lCpfgFsKL8SzoyEAwAAAABJRU5ErkJggg==
 </value>
   </data>
   <data name="buttonTool28.SharedPropsInternal.Caption" xml:space="preserve">
     <value>Generate Web2 View</value>
+  </data>
+  <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance51.Image" type="System.Drawing.Bitmap, System.Drawing">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        wgAADsIBFShKgAAAAWtJREFUeF7tlEFuwzAMBPttf8P/6y19R1IGcKAKC3JFSLJq7wBzomXac9DXtm3P
+        O/sOsO/7Lf0T4G4ogAIogAIogAIogAIogAI4AWyW1QM9P9oaOsD346dZtLAkmvcG7VMANkBWj2jeG7SP
+        CjAKBfjdOdsaKkD5glZXhw6ALrlIBbhSgKyrQwUYRRlqljWnB5hJOoDNsnpE896gfXQAdMlFRj8YzXuD
+        9ikAGyCrB3p+tDVUgCujAEwAm2VdHToAuuQiFSAIYPPZ1tABsnpE896gfVSAUSjAfwlgs6we0bw3aB8d
+        AF1ykdEP2ny2NacGWAE6QNbVoQJcGQVgAtgs6+rQAdAlFxkFsHnGAzSLrDk9ADrnWb6z9Tz6HjpAVg+b
+        ow/1LN/Zeh59DxVgFK0/YJY/0Xq+PHugAEwAm2X1QM8zHqBZZA0dABWNRAtXQwHYAFlXhwpwZRRAARRA
+        ARRAARRAAT4B7ugnwH3dni8ac4hCWMY81wAAAABJRU5ErkJggg==
+</value>
+  </data>
+  <data name="buttonTool40.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Kendo UI Builder View</value>
   </data>
   <metadata name="openFileDialog1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>191, 17</value>

@@ -8,15 +8,15 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/   
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : MethodNotImplementedException
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sun Aug 09 22:31:12 CEST 2009
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -27,18 +27,18 @@ USING Progress.Lang.* FROM ASSEMBLY .
 
 CLASS Consultingwerk.SmartComponents.Implementation.MethodNotImplementedException
     INHERITS AppError
-    {&SERIALIZABLE}:  
+    {&SERIALIZABLE}:
 
     /*------------------------------------------------------------------------------
         Purpose: The Constructor initializes a new instance of MethodNotImplementedException.
-        Notes:   
-        @param pcMethodName Name of the Method where the error occured
+        Notes:
+        @param pcMethodName Name of the Method where the error occurred
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC MethodNotImplementedException (pcMethodName AS CHARACTER):
-        
-        SUPER (SUBSTITUTE ("Method &1 is not implemented by the class.", 
+
+        SUPER (SUBSTITUTE ("Method &1 is not implemented by the class."{&TRAN},
                            pcMethodName), 0).
-        
+
     END CONSTRUCTOR.
 
 END CLASS.

@@ -29,13 +29,13 @@ USING Progress.Lang.*             FROM PROPATH .
 CLASS Consultingwerk.Framework.Exceptions.CannotMoveNextOnChangedList
     INHERITS Exception: 
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Constructor for the CannotMoveNextOnChangedList class
-	    Notes:
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC CannotMoveNextOnChangedList ():
-		SUPER ("Cannot call MoveNext() on List after List has changed."{&TRAN}, 0).
-		
-	END CONSTRUCTOR.
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the CannotMoveNextOnChangedList class
+        Notes:
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC CannotMoveNextOnChangedList ():
+        SUPER ("Cannot call MoveNext() on List after List has changed."{&TRAN}, 0).
+        
+    END CONSTRUCTOR.
 
 END CLASS.

@@ -8,15 +8,15 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/   
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : LogManagerErrorHandler
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Thu Apr 14 13:14:16 CEST 2011
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -27,24 +27,24 @@ USING Consultingwerk.Framework.IErrorHandler    FROM PROPATH .
 USING Consultingwerk.Util.*                     FROM PROPATH .
 USING Progress.Lang.*                           FROM PROPATH .
 
-CLASS Consultingwerk.Framework.LogManagerErrorHandler 
-    IMPLEMENTS IErrorHandler: 
+CLASS Consultingwerk.Framework.LogManagerErrorHandler
+    IMPLEMENTS IErrorHandler:
 
     /*------------------------------------------------------------------------------
-        Purpose: Handles an Error object by writing it to the client logfile                                                                      
+        Purpose: Handles an Error object by writing it to the client logfile
         Notes:   Logical return value indicates if the error has been completely
                  Handled, that is when this method returns TRUE, the ErrorHelper
-                 will not display the error anymore, retrun false when the 
-                 ErrorHelper should still display the error message dialog.         
+                 will not display the error anymore, return false when the
+                 ErrorHelper should still display the error message dialog.
                  This method will not mark the error as handled. Thus it will always
                  return false.
-        @param poError The reference to the Error object 
-        @return Logical value indicating if the error has been handled                                                                
+        @param poError The reference to the Error object
+        @return Logical value indicating if the error has been handled
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC LOGICAL HandleError (poError AS Progress.Lang.Error):
-        
+
         LogManager:WriteError (poError) .
-        
+
         RETURN FALSE .
 
     END METHOD.

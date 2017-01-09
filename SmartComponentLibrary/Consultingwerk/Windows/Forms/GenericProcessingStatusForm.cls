@@ -11,70 +11,71 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : GenericProcessingStatusForm
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sun Nov 04 20:02:37 CET 2012
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.Forms.*         FROM PROPATH .
 USING Consultingwerk.Util.*          FROM PROPATH .
-USING Consultingwerk.Windows.Forms.* FROM PROPATH .  
+USING Consultingwerk.Windows.Forms.* FROM PROPATH .
 USING Progress.Lang.*                FROM PROPATH .
 
-CLASS Consultingwerk.Windows.Forms.GenericProcessingStatusForm INHERITS BaseForm: 
+CLASS Consultingwerk.Windows.Forms.GenericProcessingStatusForm INHERITS BaseForm:
 
-	
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE lbStatus AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE pictureBox1 AS System.Windows.Forms.PictureBox NO-UNDO.
-	
+
     /*------------------------------------------------------------------------------
-        Purpose: 
-        Notes:   
+        Purpose:
+        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY StatusText AS CHARACTER NO-UNDO 
-	GET:
-	    RETURN lbStatus:Text . 
-	END GET . 
-	SET (arg AS CHARACTER):
-		lbStatus:Text = arg .  
-		
-		UserInterfaceHelper:ProcessEvents () .
-    END SET. 
+    DEFINE PUBLIC PROPERTY StatusText AS CHARACTER NO-UNDO
+    GET:
+        RETURN lbStatus:Text .
+    END GET .
+    SET (arg AS CHARACTER):
+        lbStatus:Text = arg .
+
+        UserInterfaceHelper:ProcessEvents () .
+    END SET.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the GenericProcessingStatusForm class
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC GenericProcessingStatusForm ():
-		
+    CONSTRUCTOR PUBLIC GenericProcessingStatusForm ():
+
         SUPER().
         InitializeComponent().
-        
-        THIS-OBJECT:StoreFormPosition = FALSE . 
-        
+
+        THIS-OBJECT:StoreFormPosition = FALSE .
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance1 AS Infragistics.Win.Appearance NO-UNDO.
@@ -128,14 +129,14 @@ CLASS Consultingwerk.Windows.Forms.GenericProcessingStatusForm INHERITS BaseForm
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
-	DESTRUCTOR PUBLIC GenericProcessingStatusForm ( ):
+    DESTRUCTOR PUBLIC GenericProcessingStatusForm ( ):
 
-		IF VALID-OBJECT(components) THEN DO:
-			CAST(components, System.IDisposable):Dispose().
-		END.
+        IF VALID-OBJECT(components) THEN DO:
+            CAST(components, System.IDisposable):Dispose().
+        END.
 
-	END DESTRUCTOR.
+    END DESTRUCTOR.
 
 END CLASS.

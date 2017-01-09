@@ -38,12 +38,12 @@ CLASS Consultingwerk.Web2.SmartFramework.Message.SerializableSmartMessage
 &ENDIF
     :
 
-    {Consultingwerk/JsonSerializableProperty.i MessageGroup CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i MessageNumber INTEGER} .
-    {Consultingwerk/JsonSerializableProperty.i Language Consultingwerk.Web2.SmartFramework.Language.SerializableSmartLanguage} .
-    {Consultingwerk/JsonSerializableProperty.i MessageText CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i MessageDetail CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i MessageType Consultingwerk.SmartFramework.MessageTypeEnum} .
+    {Consultingwerk/JsonSerializableProperty11.i MessageGroup CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i MessageNumber INTEGER} .
+    {Consultingwerk/JsonSerializableProperty11.i Language Consultingwerk.Web2.SmartFramework.Language.SerializableSmartLanguage} .
+    {Consultingwerk/JsonSerializableProperty11.i MessageText CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i MessageDetail CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i MessageType Consultingwerk.SmartFramework.MessageTypeEnum} .
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the SerializableSmartMessage class

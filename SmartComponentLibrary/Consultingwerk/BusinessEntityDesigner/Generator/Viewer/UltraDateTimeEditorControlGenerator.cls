@@ -46,7 +46,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.UltraDateTimeEditor
         Purpose: Retusn the TypeName for to be used for this UltraEditorControl
         Notes:   
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY ControlTypeName AS CHARACTER NO-UNDO INIT "Infragistics.Win.UltraWinEditors.UltraDateTimeEditor":U
+    DEFINE PUBLIC PROPERTY ControlTypeName AS CHARACTER NO-UNDO INITIAL "Infragistics.Win.UltraWinEditors.UltraDateTimeEditor":U
     GET.
     PROTECTED SET. 
 
@@ -65,7 +65,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.UltraDateTimeEditor
         Purpose: The Height of the Control
         Notes:   
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY Height AS INTEGER NO-UNDO INIT 21
+    DEFINE PUBLIC PROPERTY Height AS INTEGER NO-UNDO INITIAL 21
     GET.
     SET. 
 
@@ -92,7 +92,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.UltraDateTimeEditor
                  interface
         Notes:   Used for generating the BeginInit and EndInit method calls
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY SupportInitialize AS LOGICAL NO-UNDO INIT TRUE 
+    DEFINE PUBLIC PROPERTY SupportInitialize AS LOGICAL NO-UNDO INITIAL TRUE
     GET.
 
     /*------------------------------------------------------------------------------
@@ -115,7 +115,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.UltraDateTimeEditor
         Purpose: Gets and sets the Name of the Template File to be used by this class
         Notes:   
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC STATIC PROPERTY TemplateFileName AS CHARACTER NO-UNDO INIT "UI/ultradatetimeeditor.template":U
+    DEFINE PUBLIC STATIC PROPERTY TemplateFileName AS CHARACTER NO-UNDO INITIAL "UI/ultradatetimeeditor.template":U
     GET.
     SET. 
 
@@ -123,7 +123,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.UltraDateTimeEditor
         Purpose: Gets and sets the Name of the Template File to be used by this class
         Notes:   
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC STATIC PROPERTY TemplateFileNameUnbound AS CHARACTER NO-UNDO INIT "UI/ultradatetimeeditor_unbound.template":U
+    DEFINE PUBLIC STATIC PROPERTY TemplateFileNameUnbound AS CHARACTER NO-UNDO INITIAL "UI/ultradatetimeeditor_unbound.template":U
     GET.
     SET. 
 
@@ -155,7 +155,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.UltraDateTimeEditor
         Purpose: The Width of the Control
         Notes:   
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY Width AS INTEGER NO-UNDO INIT 150
+    DEFINE PUBLIC PROPERTY Width AS INTEGER NO-UNDO INITIAL 150
     GET.
     SET. 
 
@@ -170,11 +170,11 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.UltraDateTimeEditor
         DEFINE VARIABLE cProperties AS CHARACTER NO-UNDO .
 
         IF THIS-OBJECT:DataBindings > "":U THEN 
-            FILE-INFO:FILE-NAME = TemplateHelper:Find (UltraDateTimeEditorControlGenerator:TemplateFileName) .
+            FILE-INFORMATION:FILE-NAME = TemplateHelper:Find (UltraDateTimeEditorControlGenerator:TemplateFileName) .
         ELSE 
-            FILE-INFO:FILE-NAME = TemplateHelper:Find (UltraDateTimeEditorControlGenerator:TemplateFileNameUnbound) .
+            FILE-INFORMATION:FILE-NAME = TemplateHelper:Find (UltraDateTimeEditorControlGenerator:TemplateFileNameUnbound) .
 
-        COPY-LOB FROM FILE FILE-INFO:FULL-PATHNAME TO lcCode . 
+        COPY-LOB FROM FILE FILE-INFORMATION:FULL-PATHNAME TO lcCode . 
         
         ASSIGN lcCode = SUBSTITUTE (lcCode, 
                                     THIS-OBJECT:Name,

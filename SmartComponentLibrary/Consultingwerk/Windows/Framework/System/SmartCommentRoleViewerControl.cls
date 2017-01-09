@@ -99,10 +99,11 @@ CLASS Consultingwerk.Windows.Framework.System.SmartCommentRoleViewerControl
         
     END METHOD .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design
-        Notes:   
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
         
         /* NOTE: The following method is automatically generated.
@@ -118,6 +119,9 @@ CLASS Consultingwerk.Windows.Framework.System.SmartCommentRoleViewerControl
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance1 AS Infragistics.Win.Appearance NO-UNDO.
         appearance1 = NEW Infragistics.Win.Appearance().
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE resources AS Progress.Util.ResourceManager NO-UNDO.
+        resources = NEW Progress.Util.ResourceManager("Consultingwerk.Windows.Framework.System.SmartCommentRoleViewerControl":U).
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance2 AS Infragistics.Win.Appearance NO-UNDO.
         appearance2 = NEW Infragistics.Win.Appearance().
@@ -146,13 +150,10 @@ CLASS Consultingwerk.Windows.Framework.System.SmartCommentRoleViewerControl
         /*  */
         /* smartBusinessEntityBindingSource1 */
         /*  */
-        THIS-OBJECT:smartBusinessEntityBindingSource1:AddFields = FALSE.
         THIS-OBJECT:smartBusinessEntityBindingSource1:BindTo = "QUERY":U.
-        THIS-OBJECT:smartBusinessEntityBindingSource1:ClearSchema = FALSE.
         THIS-OBJECT:smartBusinessEntityBindingSource1:EntityJoin = "YES":U.
         THIS-OBJECT:smartBusinessEntityBindingSource1:EntityName = "Consultingwerk.SmartFramework.System.CommentRoleBusinessEntity":U.
         THIS-OBJECT:smartBusinessEntityBindingSource1:EntityTable = "eSmartCommentRole":U.
-        THIS-OBJECT:smartBusinessEntityBindingSource1:ImportSchema = FALSE.
         THIS-OBJECT:smartBusinessEntityBindingSource1:MaxDataGuess = 0.
         THIS-OBJECT:smartBusinessEntityBindingSource1:NoLOBs = FALSE.
         tableDesc1:ChildTables = ?.
@@ -170,71 +171,44 @@ CLASS Consultingwerk.Windows.Framework.System.SmartCommentRoleViewerControl
         /*  */
         appearance1:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:tbCommentRoleName_Label:Appearance = appearance1.
-        THIS-OBJECT:tbCommentRoleName_Label:AutoSize = TRUE.
-        THIS-OBJECT:tbCommentRoleName_Label:Location = NEW System.Drawing.Point(20, 24).
+        resources:ApplyResources(THIS-OBJECT:tbCommentRoleName_Label, "tbCommentRoleName_Label":U).
         THIS-OBJECT:tbCommentRoleName_Label:Name = "tbCommentRoleName_Label":U.
-        THIS-OBJECT:tbCommentRoleName_Label:Size = NEW System.Drawing.Size(83, 14).
-        THIS-OBJECT:tbCommentRoleName_Label:TabIndex = 1.
-        THIS-OBJECT:tbCommentRoleName_Label:Text = "Comment Role:":U.
         /*  */
         /* tbCommentRoleName */
         /*  */
-        DEFINE VARIABLE nestedvar0 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar0 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:tbCommentRoleName:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar0, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:tbCommentRoleName, "tbCommentRoleName":U).
         THIS-OBJECT:tbCommentRoleName:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "CommentRoleName":U, TRUE)).
         THIS-OBJECT:tbCommentRoleName:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:tbCommentRoleName:Location = NEW System.Drawing.Point(130, 20).
         THIS-OBJECT:tbCommentRoleName:Name = "tbCommentRoleName":U.
-        THIS-OBJECT:tbCommentRoleName:Size = NEW System.Drawing.Size(167, 21).
-        THIS-OBJECT:tbCommentRoleName:TabIndex = 2.
         /*  */
         /* tbCommentRoleDescription_Label */
         /*  */
         appearance2:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:tbCommentRoleDescription_Label:Appearance = appearance2.
-        THIS-OBJECT:tbCommentRoleDescription_Label:AutoSize = TRUE.
-        THIS-OBJECT:tbCommentRoleDescription_Label:Location = NEW System.Drawing.Point(20, 50).
+        resources:ApplyResources(THIS-OBJECT:tbCommentRoleDescription_Label, "tbCommentRoleDescription_Label":U).
         THIS-OBJECT:tbCommentRoleDescription_Label:Name = "tbCommentRoleDescription_Label":U.
-        THIS-OBJECT:tbCommentRoleDescription_Label:Size = NEW System.Drawing.Size(64, 14).
-        THIS-OBJECT:tbCommentRoleDescription_Label:TabIndex = 3.
-        THIS-OBJECT:tbCommentRoleDescription_Label:Text = "Description:":U.
         /*  */
         /* tbCommentRoleDescription */
         /*  */
-        DEFINE VARIABLE nestedvar1 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar1 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:tbCommentRoleDescription:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar1, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:tbCommentRoleDescription, "tbCommentRoleDescription":U).
         THIS-OBJECT:tbCommentRoleDescription:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "CommentRoleDescription":U, TRUE)).
         THIS-OBJECT:tbCommentRoleDescription:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:tbCommentRoleDescription:Location = NEW System.Drawing.Point(130, 46).
         THIS-OBJECT:tbCommentRoleDescription:Name = "tbCommentRoleDescription":U.
-        THIS-OBJECT:tbCommentRoleDescription:Size = NEW System.Drawing.Size(167, 21).
-        THIS-OBJECT:tbCommentRoleDescription:TabIndex = 4.
         /*  */
         /* smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageSmall_Label */
         /*  */
         appearance3:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageSmall_Label:Appearance = appearance3.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageSmall_Label:AutoSize = TRUE.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageSmall_Label:Location = NEW System.Drawing.Point(20, 76).
+        resources:ApplyResources(THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageSmall_Label, "smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageSmall_Label":U).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageSmall_Label:Name = "smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageSmall_Label":U.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageSmall_Label:Size = NEW System.Drawing.Size(70, 14).
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageSmall_Label:TabIndex = 5.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageSmall_Label:Text = "&Small Image:":U.
         /*  */
         /* smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageSmall */
         /*  */
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageSmall:AllowDrop = TRUE.
-        DEFINE VARIABLE nestedvar2 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar2 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageSmall:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar2, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageSmall, "smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageSmall":U).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageSmall:DataBindings:Add(NEW System.Windows.Forms.Binding("Value":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "CommentRoleImageSmall":U, TRUE)).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageSmall:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageSmall:Location = NEW System.Drawing.Point(130, 72).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageSmall:Name = "smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageSmall":U.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageSmall:Size = NEW System.Drawing.Size(167, 21).
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageSmall:TabIndex = 6.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageSmall:DragDrop:Subscribe(THIS-OBJECT:ImageSelection_DragDrop).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageSmall:DragEnter:Subscribe(THIS-OBJECT:ImageSelection_DragEnter).
         /*  */
@@ -242,31 +216,22 @@ CLASS Consultingwerk.Windows.Framework.System.SmartCommentRoleViewerControl
         /*  */
         appearance4:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageLarge_Label:Appearance = appearance4.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageLarge_Label:AutoSize = TRUE.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageLarge_Label:Location = NEW System.Drawing.Point(20, 102).
+        resources:ApplyResources(THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageLarge_Label, "smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageLarge_Label":U).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageLarge_Label:Name = "smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageLarge_Label":U.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageLarge_Label:Size = NEW System.Drawing.Size(71, 14).
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageLarge_Label:TabIndex = 7.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageLarge_Label:Text = "&Large Image:":U.
         /*  */
         /* smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageLarge */
         /*  */
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageLarge:AllowDrop = TRUE.
-        DEFINE VARIABLE nestedvar3 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar3 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageLarge:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar3, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageLarge, "smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageLarge":U).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageLarge:DataBindings:Add(NEW System.Windows.Forms.Binding("Value":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "CommentRoleImageLarge":U, TRUE)).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageLarge:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageLarge:Location = NEW System.Drawing.Point(130, 98).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageLarge:Name = "smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageLarge":U.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageLarge:Size = NEW System.Drawing.Size(167, 21).
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageLarge:TabIndex = 8.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageLarge:DragDrop:Subscribe(THIS-OBJECT:ImageSelection_DragDrop).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartCommentRole_CommentRoleImageLarge:DragEnter:Subscribe(THIS-OBJECT:ImageSelection_DragEnter).
         /*  */
         /* SmartCommentRoleViewerControl */
         /*  */
-        THIS-OBJECT:AutoScaleDimensions = NEW System.Drawing.SizeF(Progress.Util.CastUtil:ToSingle(6), Progress.Util.CastUtil:ToSingle(13)).
+        resources:ApplyResources(THIS-OBJECT, "$this":U).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:tbCommentRoleName_Label).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:tbCommentRoleName).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:tbCommentRoleDescription_Label).

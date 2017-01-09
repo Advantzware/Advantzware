@@ -34,7 +34,7 @@ INTERFACE Consultingwerk.Studio.LegacyGuiMigration.Frame.IFrameParserPostProcess
         @param pcFrameName The name of the frame to return the widgets for
         @param ttFrameWidget INPUT-OUTPUT TABLE The temp-table with the frame widget information (from Consultingwerk/Studio/LegacyGuiMigration/Frame/ttFrameWidget.i) 
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID PostProcessFrameWidgets (pcFileName AS CHARACTER,
+    METHOD PUBLIC VOID PostProcessFrameWidgets (pcFileName AS CHARACTER,
                                                 pcFrameName AS CHARACTER,
                                                 INPUT-OUTPUT TABLE ttFrameWidget).
 

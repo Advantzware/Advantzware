@@ -1,0 +1,397 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="" xmlns:prodata="urn:schemas-progress-com:xml-prodata:0001">
+  <xsd:element name="dsGlobRsc" prodata:proDataSet="true">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="tdEdt" minOccurs="0" maxOccurs="unbounded">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="hEditor" type="xsd:long" nillable="true" prodata:dataType="prodata:handle"/>
+              <xsd:element name="cFullPathName" type="xsd:string" nillable="true"/>
+              <xsd:element name="isClass" type="xsd:boolean" nillable="true"/>
+              <xsd:element name="cInherits" type="xsd:string" nillable="true"/>
+              <xsd:element name="dLastLoadGlobalTime" type="xsd:decimal" nillable="true"/>
+              <xsd:element name="iCursorLine" type="xsd:int" nillable="true"/>
+              <xsd:element name="iNumLines" type="xsd:int" nillable="true" prodata:format=">>>>>9"/>
+              <xsd:element name="cSrcNarative" type="xsd:string" nillable="true"/>
+              <xsd:element name="cABHackDumpVersion" type="xsd:string" nillable="true" default="13-JAN-2008" prodata:format="X(11)"/>
+              <xsd:element name="iLength" type="xsd:decimal" nillable="true"/>
+              <xsd:element name="hWin" type="xsd:long" nillable="true" prodata:dataType="prodata:handle"/>
+              <xsd:element name="cIgnoreValueChanged" type="xsd:string" nillable="true"/>
+              <xsd:element name="lManageableSections" type="xsd:boolean" nillable="true"/>
+              <xsd:element name="hSectionCombo" type="xsd:long" nillable="true" prodata:dataType="prodata:handle"/>
+              <xsd:element name="hWidgetName" type="xsd:long" nillable="true" prodata:dataType="prodata:handle"/>
+              <xsd:element name="hEventCombo" type="xsd:long" nillable="true" prodata:dataType="prodata:handle"/>
+              <xsd:element name="currentSection" type="xsd:string" nillable="true"/>
+              <xsd:element name="currentEvent" type="xsd:string" nillable="true"/>
+              <xsd:element name="currentWidget" type="xsd:string" nillable="true"/>
+              <xsd:element name="iMarkOffset" type="xsd:int" nillable="true"/>
+              <xsd:element name="iEventLine" type="xsd:int" nillable="true"/>
+              <xsd:element name="cFileName" type="xsd:string" nillable="true" prodata:format="X(35)" prodata:label="Source file"/>
+              <xsd:element name="dLastSaveOpenTime" type="xsd:decimal" nillable="true"/>
+              <xsd:element name="cLastSaveOpenTime" type="xsd:string" nillable="true" prodata:label="Open/saved"/>
+              <xsd:element name="cWinTitle" type="xsd:string" nillable="true"/>
+              <xsd:element name="cParameters" type="xsd:string" nillable="true"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="tdtt" minOccurs="0" maxOccurs="unbounded">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="hEditor" type="xsd:long" nillable="true" prodata:dataType="prodata:handle"/>
+              <xsd:element name="ittid" type="xsd:int" nillable="true"/>
+              <xsd:element name="cFileName" type="xsd:string" nillable="true"/>
+              <xsd:element name="cttname" type="xsd:string" nillable="true"/>
+              <xsd:element name="cBeforeTable" type="xsd:string" nillable="true"/>
+              <xsd:element name="cAccessMode" type="xsd:string" nillable="true" prodata:help="PRIVATE | PROTECTED | PUBLIC"/>
+              <xsd:element name="cNarative" type="xsd:string" nillable="true"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="tdfld" minOccurs="0" maxOccurs="unbounded">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="ittid" type="xsd:int" nillable="true"/>
+              <xsd:element name="cfldname" type="xsd:string" nillable="true"/>
+              <xsd:element name="ifldSeq" type="xsd:int" nillable="true"/>
+              <xsd:element name="cDataType" type="xsd:string" nillable="true"/>
+              <xsd:element name="cNarative" type="xsd:string" nillable="true"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="tdIdx" minOccurs="0" maxOccurs="unbounded">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="ittid" type="xsd:int" nillable="true"/>
+              <xsd:element name="cidxname" type="xsd:string" nillable="true"/>
+              <xsd:element name="idxSeq" type="xsd:int" nillable="true"/>
+              <xsd:element name="cFieldsInfo" type="xsd:string" nillable="true"/>
+              <xsd:element name="coptn" type="xsd:string" nillable="true"/>
+              <xsd:element name="cNarative" type="xsd:string" nillable="true"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="tdFunc" minOccurs="0" maxOccurs="unbounded">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="hEditor" type="xsd:long" nillable="true" prodata:dataType="prodata:handle"/>
+              <xsd:element name="cFileName" type="xsd:string" nillable="true"/>
+              <xsd:element name="cName" type="xsd:string" nillable="true"/>
+              <xsd:element name="cParameters" type="xsd:string" nillable="true"/>
+              <xsd:element name="cAccessMode" type="xsd:string" nillable="true" prodata:help="PRIVATE | PROTECTED | PUBLIC"/>
+              <xsd:element name="cNarative" type="xsd:string" nillable="true"/>
+              <xsd:element name="cReturnType" type="xsd:string" nillable="true"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="tdgbuffer" minOccurs="0" maxOccurs="unbounded">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="hEditor" type="xsd:long" nillable="true" prodata:dataType="prodata:handle"/>
+              <xsd:element name="cFileName" type="xsd:string" nillable="true"/>
+              <xsd:element name="cName" type="xsd:string" nillable="true"/>
+              <xsd:element name="cfor" type="xsd:string" nillable="true"/>
+              <xsd:element name="lExplicitDef" type="xsd:boolean" nillable="true"/>
+              <xsd:element name="cAccessMode" type="xsd:string" nillable="true" prodata:help="PRIVATE | PROTECTED | PUBLIC"/>
+              <xsd:element name="cNarative" type="xsd:string" nillable="true"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="tdgVar" minOccurs="0" maxOccurs="unbounded">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="hEditor" type="xsd:long" nillable="true" prodata:dataType="prodata:handle"/>
+              <xsd:element name="cFileName" type="xsd:string" nillable="true"/>
+              <xsd:element name="cVar" type="xsd:string" nillable="true"/>
+              <xsd:element name="cDataType" type="xsd:string" nillable="true"/>
+              <xsd:element name="cViewAs" type="xsd:string" nillable="true"/>
+              <xsd:element name="cAccessMode" type="xsd:string" nillable="true" prodata:help="PRIVATE | PROTECTED | PUBLIC"/>
+              <xsd:element name="cClassFile" type="xsd:string" nillable="true" prodata:help="Class file for non basic data types (resolved with USING's when needed)"/>
+              <xsd:element name="cNarative" type="xsd:string" nillable="true"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="tdMark" minOccurs="0" maxOccurs="unbounded">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="hEditor" type="xsd:long" nillable="true" prodata:dataType="prodata:handle"/>
+              <xsd:element name="iLine" type="xsd:int" nillable="true"/>
+              <xsd:element name="iOffset" type="xsd:int" nillable="true"/>
+              <xsd:element name="cBlockType" type="xsd:string" nillable="true"/>
+              <xsd:element name="cBlockName" type="xsd:string" nillable="true"/>
+              <xsd:element name="iEditorLength" type="xsd:int" nillable="true"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="tdMethod" minOccurs="0" maxOccurs="unbounded">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="hEditor" type="xsd:long" nillable="true" prodata:dataType="prodata:handle"/>
+              <xsd:element name="cFileName" type="xsd:string" nillable="true"/>
+              <xsd:element name="cName" type="xsd:string" nillable="true"/>
+              <xsd:element name="cParameters" type="xsd:string" nillable="true"/>
+              <xsd:element name="cAccessMode" type="xsd:string" nillable="true" prodata:help="PRIVATE | PROTECTED | PUBLIC"/>
+              <xsd:element name="cNarative" type="xsd:string" nillable="true"/>
+              <xsd:element name="cReturnType" type="xsd:string" nillable="true"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="tdProc" minOccurs="0" maxOccurs="unbounded">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="hEditor" type="xsd:long" nillable="true" prodata:dataType="prodata:handle"/>
+              <xsd:element name="cFileName" type="xsd:string" nillable="true"/>
+              <xsd:element name="cName" type="xsd:string" nillable="true"/>
+              <xsd:element name="cParameters" type="xsd:string" nillable="true"/>
+              <xsd:element name="cAccessMode" type="xsd:string" nillable="true" prodata:help="PRIVATE | PROTECTED | PUBLIC"/>
+              <xsd:element name="cNarative" type="xsd:string" nillable="true"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="tdReferedBuffer" minOccurs="0" maxOccurs="unbounded">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="hEditor" type="xsd:long" nillable="true" prodata:dataType="prodata:handle"/>
+              <xsd:element name="cBlockName" type="xsd:string" nillable="true"/>
+              <xsd:element name="cBlockType" type="xsd:string" nillable="true"/>
+              <xsd:element name="cDataBase" type="xsd:string" nillable="true"/>
+              <xsd:element name="cBufferName" type="xsd:string" nillable="true"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="tdUsing" minOccurs="0" maxOccurs="unbounded">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="hEditor" type="xsd:long" nillable="true" prodata:dataType="prodata:handle"/>
+              <xsd:element name="cUsing" type="xsd:string" nillable="true"/>
+              <xsd:element name="cNarative" type="xsd:string" nillable="true"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="tdgLibHandle" minOccurs="0" maxOccurs="unbounded">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="hEditor" type="xsd:long" nillable="true" prodata:dataType="prodata:handle"/>
+              <xsd:element name="cFileName" type="xsd:string" nillable="true"/>
+              <xsd:element name="iLine" type="xsd:int" nillable="true"/>
+              <xsd:element name="cLibFile" type="xsd:string" nillable="true"/>
+              <xsd:element name="cVar" type="xsd:string" nillable="true"/>
+              <xsd:element name="lSuperOfThisProc" type="xsd:boolean" nillable="true"/>
+              <xsd:element name="cNarative" type="xsd:string" nillable="true"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="tdPreproc" minOccurs="0" maxOccurs="unbounded">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="hEditor" type="xsd:long" nillable="true" prodata:dataType="prodata:handle"/>
+              <xsd:element name="cFileName" type="xsd:string" nillable="true"/>
+              <xsd:element name="iLineNum" type="xsd:int" nillable="true"/>
+              <xsd:element name="cName" type="xsd:string" nillable="true"/>
+              <xsd:element name="cType" type="xsd:string" nillable="true"/>
+              <xsd:element name="cValue" type="xsd:string" nillable="true"/>
+              <xsd:element name="iIncludeLevel" type="xsd:int" nillable="true"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+    <xsd:unique name="ittidSeq">
+      <xsd:selector xpath=".//tdfld"/>
+      <xsd:field xpath="ittid"/>
+      <xsd:field xpath="ifldSeq"/>
+    </xsd:unique>
+    <xsd:unique name="tdIdx_ittidSeq">
+      <xsd:selector xpath=".//tdIdx"/>
+      <xsd:field xpath="ittid"/>
+      <xsd:field xpath="idxSeq"/>
+    </xsd:unique>
+    <xsd:unique name="editorBlockName" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//tdMark"/>
+      <xsd:field xpath="hEditor"/>
+      <xsd:field xpath="cBlockType"/>
+      <xsd:field xpath="cBlockName"/>
+    </xsd:unique>
+    <xsd:unique name="editorBlockTypeNameDBBuffer" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//tdReferedBuffer"/>
+      <xsd:field xpath="hEditor"/>
+      <xsd:field xpath="cBlockType"/>
+      <xsd:field xpath="cBlockName"/>
+      <xsd:field xpath="cDataBase"/>
+      <xsd:field xpath="cBufferName"/>
+    </xsd:unique>
+  </xsd:element>
+  <xsd:annotation>
+    <xsd:appinfo>
+      <prodata:index name="hEditor" prodata:primaryIndex="true">
+        <prodata:table name="tdEdt"/>
+        <prodata:field name="hEditor"/>
+      </prodata:index>
+      <prodata:index name="dLastSaveOpenTime">
+        <prodata:table name="tdEdt"/>
+        <prodata:field name="dLastSaveOpenTime"/>
+      </prodata:index>
+      <prodata:index name="cFullPathName">
+        <prodata:table name="tdEdt"/>
+        <prodata:field name="cFullPathName"/>
+      </prodata:index>
+      <prodata:index name="hWin">
+        <prodata:table name="tdEdt"/>
+        <prodata:field name="hWin"/>
+      </prodata:index>
+      <prodata:index name="hEditorcttname" prodata:primaryIndex="true">
+        <prodata:table name="tdtt"/>
+        <prodata:field name="hEditor"/>
+        <prodata:field name="cttname"/>
+      </prodata:index>
+      <prodata:index name="hEditorcttBefore">
+        <prodata:table name="tdtt"/>
+        <prodata:field name="hEditor"/>
+        <prodata:field name="cBeforeTable"/>
+      </prodata:index>
+      <prodata:index name="ittid">
+        <prodata:table name="tdtt"/>
+        <prodata:field name="ittid"/>
+      </prodata:index>
+      <prodata:index name="cAssessMode">
+        <prodata:table name="tdtt"/>
+        <prodata:field name="cAccessMode"/>
+      </prodata:index>
+      <prodata:index name="hEditorcFileName">
+        <prodata:table name="tdtt"/>
+        <prodata:field name="hEditor"/>
+        <prodata:field name="cFileName"/>
+      </prodata:index>
+      <prodata:index name="ittidName" prodata:primaryIndex="true">
+        <prodata:table name="tdfld"/>
+        <prodata:field name="ittid"/>
+        <prodata:field name="cfldname"/>
+      </prodata:index>
+      <prodata:index name="ittidName" prodata:primaryIndex="true">
+        <prodata:table name="tdIdx"/>
+        <prodata:field name="ittid"/>
+        <prodata:field name="cidxname"/>
+      </prodata:index>
+      <prodata:index name="hEditorCName" prodata:primaryIndex="true">
+        <prodata:table name="tdFunc"/>
+        <prodata:field name="hEditor"/>
+        <prodata:field name="cName"/>
+      </prodata:index>
+      <prodata:index name="cAssessMode">
+        <prodata:table name="tdFunc"/>
+        <prodata:field name="cAccessMode"/>
+      </prodata:index>
+      <prodata:index name="cName" prodata:primaryIndex="true">
+        <prodata:table name="tdgbuffer"/>
+        <prodata:field name="cName"/>
+      </prodata:index>
+      <prodata:index name="hEditorCname">
+        <prodata:table name="tdgbuffer"/>
+        <prodata:field name="hEditor"/>
+        <prodata:field name="cName"/>
+      </prodata:index>
+      <prodata:index name="cAssessMode">
+        <prodata:table name="tdgbuffer"/>
+        <prodata:field name="cAccessMode"/>
+      </prodata:index>
+      <prodata:index name="hEditorcFileName">
+        <prodata:table name="tdgbuffer"/>
+        <prodata:field name="hEditor"/>
+        <prodata:field name="cFileName"/>
+      </prodata:index>
+      <prodata:index name="hEditorcVar" prodata:primaryIndex="true">
+        <prodata:table name="tdgVar"/>
+        <prodata:field name="hEditor"/>
+        <prodata:field name="cVar"/>
+      </prodata:index>
+      <prodata:index name="cAssessMode">
+        <prodata:table name="tdgVar"/>
+        <prodata:field name="cAccessMode"/>
+      </prodata:index>
+      <prodata:index name="hEditorcFileName">
+        <prodata:table name="tdgVar"/>
+        <prodata:field name="hEditor"/>
+        <prodata:field name="cFileName"/>
+      </prodata:index>
+      <prodata:index name="editorLine">
+        <prodata:table name="tdMark"/>
+        <prodata:field name="hEditor"/>
+        <prodata:field name="iLine"/>
+      </prodata:index>
+      <prodata:index name="editorOffset">
+        <prodata:table name="tdMark"/>
+        <prodata:field name="hEditor"/>
+        <prodata:field name="iOffset"/>
+      </prodata:index>
+      <prodata:index name="hEditorCName" prodata:primaryIndex="true">
+        <prodata:table name="tdMethod"/>
+        <prodata:field name="hEditor"/>
+        <prodata:field name="cName"/>
+      </prodata:index>
+      <prodata:index name="cAssessMode">
+        <prodata:table name="tdMethod"/>
+        <prodata:field name="cAccessMode"/>
+      </prodata:index>
+      <prodata:index name="hEditorCName" prodata:primaryIndex="true">
+        <prodata:table name="tdProc"/>
+        <prodata:field name="hEditor"/>
+        <prodata:field name="cName"/>
+      </prodata:index>
+      <prodata:index name="cAssessMode">
+        <prodata:table name="tdProc"/>
+        <prodata:field name="cAccessMode"/>
+      </prodata:index>
+      <prodata:index name="editorUsing" prodata:primaryIndex="true">
+        <prodata:table name="tdUsing"/>
+        <prodata:field name="hEditor"/>
+        <prodata:field name="cUsing"/>
+      </prodata:index>
+      <prodata:index name="hEditorcVar" prodata:primaryIndex="true">
+        <prodata:table name="tdgLibHandle"/>
+        <prodata:field name="hEditor"/>
+        <prodata:field name="cVar"/>
+      </prodata:index>
+      <prodata:index name="editorLine">
+        <prodata:table name="tdgLibHandle"/>
+        <prodata:field name="hEditor"/>
+        <prodata:field name="iLine"/>
+      </prodata:index>
+      <prodata:index name="hEditorcFileName">
+        <prodata:table name="tdgLibHandle"/>
+        <prodata:field name="hEditor"/>
+        <prodata:field name="cFileName"/>
+      </prodata:index>
+      <prodata:index name="heditorLinenum" prodata:primaryIndex="true">
+        <prodata:table name="tdPreproc"/>
+        <prodata:field name="hEditor"/>
+        <prodata:field name="iLineNum"/>
+        <prodata:field name="cName"/>
+      </prodata:index>
+      <prodata:index name="hEditorcFileName">
+        <prodata:table name="tdPreproc"/>
+        <prodata:field name="hEditor"/>
+        <prodata:field name="cFileName"/>
+      </prodata:index>
+      <prodata:index name="hEditorCNameTypeLineNum">
+        <prodata:table name="tdPreproc"/>
+        <prodata:field name="hEditor"/>
+        <prodata:field name="cName"/>
+        <prodata:field name="cType"/>
+        <prodata:field name="iLineNum"/>
+      </prodata:index>
+      <prodata:relation name="reltdtt" prodata:parent="tdEdt" prodata:child="tdtt" prodata:relationFields="hEditor,hEditor,cFileName,cFileName"/>
+      <prodata:relation name="reltdfld" prodata:parent="tdtt" prodata:child="tdfld" prodata:relationFields="ittid,ittid"/>
+      <prodata:relation name="reltdIdx" prodata:parent="tdtt" prodata:child="tdIdx" prodata:relationFields="ittid,ittid"/>
+      <prodata:relation name="reltdFunc" prodata:parent="tdEdt" prodata:child="tdFunc" prodata:relationFields="hEditor,hEditor,cFileName,cFileName"/>
+      <prodata:relation name="reltdgbuffer" prodata:parent="tdEdt" prodata:child="tdgbuffer" prodata:relationFields="hEditor,hEditor,cFileName,cFileName"/>
+      <prodata:relation name="reltdgVar" prodata:parent="tdEdt" prodata:child="tdgVar" prodata:relationFields="hEditor,hEditor,cFileName,cFileName"/>
+      <prodata:relation name="reltdMark" prodata:parent="tdEdt" prodata:child="tdMark" prodata:relationFields="hEditor,hEditor"/>
+      <prodata:relation name="reltdMethod" prodata:parent="tdEdt" prodata:child="tdMethod" prodata:relationFields="hEditor,hEditor,cFileName,cFileName"/>
+      <prodata:relation name="reltdProc" prodata:parent="tdEdt" prodata:child="tdProc" prodata:relationFields="hEditor,hEditor,cFileName,cFileName"/>
+      <prodata:relation name="reltdReferedBuffer" prodata:parent="tdEdt" prodata:child="tdReferedBuffer" prodata:relationFields="hEditor,hEditor"/>
+      <prodata:relation name="reltdUsing" prodata:parent="tdEdt" prodata:child="tdUsing" prodata:relationFields="hEditor,hEditor"/>
+      <prodata:relation name="reltdglibhandle" prodata:parent="tdEdt" prodata:child="tdgLibHandle" prodata:relationFields="hEditor,hEditor"/>
+      <prodata:relation name="reltdPreproc" prodata:parent="tdEdt" prodata:child="tdPreproc" prodata:relationFields="hEditor,hEditor"/>
+    </xsd:appinfo>
+  </xsd:annotation>
+</xsd:schema>

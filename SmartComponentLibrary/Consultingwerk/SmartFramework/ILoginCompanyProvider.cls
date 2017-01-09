@@ -32,6 +32,6 @@ INTERFACE Consultingwerk.SmartFramework.ILoginCompanyProvider:
         Notes:   
         @param ttLoginCompany OUTPUT Temp-Table with the list of available login companies
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID GetAvailableLoginCompanies (OUTPUT TABLE ttLoginCompany).
+    METHOD PUBLIC VOID GetAvailableLoginCompanies (OUTPUT TABLE ttLoginCompany).
 
 END INTERFACE.

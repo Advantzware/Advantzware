@@ -27,6 +27,9 @@
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
+USING Consultingwerk.Util.* FROM PROPATH.
+
+{Consultingwerk/products.i}
 {Consultingwerk/Util/TempTables/ttClassNames.i}
 
 DEFINE INPUT  PARAMETER pcBaseType              AS CHARACTER NO-UNDO .
@@ -35,8 +38,13 @@ DEFINE OUTPUT PARAMETER TABLE FOR ttClassNames .
 
 /* ***************************  Main Block  *************************** */
 
+LogManager:WriteMessage (SUBSTITUTE ("Fetching Class Names: &1":U, pcBaseType), "ClassHelper":U) .
+
 Consultingwerk.Util.ClassHelper:GetClassNamesInClassPathNoDotNet (pcBaseType, 
                                                                   plIncludeAbstract,
                                                                   OUTPUT TABLE ttClassNames) .
+
+IF LOOKUP ("ClassHelper":U, LogManager:CustomLogEntries) > 0 THEN 
+    LogManager:WriteMessage (SUBSTITUTE ("Returning &1 classes.":U, BufferHelper:NumRecords(BUFFER ttClassNames:HANDLE)), "ClassHelper":U) .
 
                                                                   

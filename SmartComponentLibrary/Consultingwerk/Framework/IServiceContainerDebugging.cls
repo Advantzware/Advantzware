@@ -11,27 +11,27 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : IServiceContainerDebugging
-    Purpose     : Interface that describes the required methods for 
+    Purpose     : Interface that describes the required methods for
                   debugging features of the ServiceContainer framework
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Fri Jun 07 08:28:54 CEST 2013
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
-USING Consultingwerk.Framework.* FROM PROPATH .  
+USING Consultingwerk.Framework.* FROM PROPATH .
 USING Progress.Lang.*            FROM PROPATH.
 
-INTERFACE Consultingwerk.Framework.IServiceContainerDebugging:  
-  
-    { Consultingwerk/Framework/ttServiceTable.i }  
-  
-    /*------------------------------------------------------------------------------
-        Purpose: Returns the service instances as a ttServiceTable output 
-        Notes:   See Consultingwerk/Framework/ttServiceTable.i   
-        @param ttServiceTable OUTPUT TABLE The temp-table with the service definitions
-    ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID GetServiceTable (OUTPUT TABLE ttServiceTable).
+INTERFACE Consultingwerk.Framework.IServiceContainerDebugging:
+
+    { Consultingwerk/Framework/ttServiceTable.i }
+
+    /**
+     * Purpose: Returns the service instances as a ttServiceTable output
+     * Notes:   See Consultingwerk/Framework/ttServiceTable.i
+     * @param ttServiceTable OUTPUT TABLE The temp-table with the service definitions
+     */
+    METHOD PUBLIC VOID GetServiceTable (OUTPUT TABLE ttServiceTable).
 
 END INTERFACE.

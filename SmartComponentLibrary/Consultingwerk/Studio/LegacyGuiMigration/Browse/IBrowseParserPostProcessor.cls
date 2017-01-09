@@ -34,7 +34,7 @@ INTERFACE Consultingwerk.Studio.LegacyGuiMigration.Browse.IBrowseParserPostProce
         @param pcBrowseName The name of the browse to return the widgets for
         @param ttBrowseColumn INPUT-OUTPUT TABLE The temp-table with the browse widget information (from Consultingwerk/Studio/LegacyGuiMigration/Browse/ttBrowseColumn.i) 
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID PostProcessBrowseColumn (pcFileName AS CHARACTER,
+    METHOD PUBLIC VOID PostProcessBrowseColumn (pcFileName AS CHARACTER,
                                                 pcBrowseName AS CHARACTER,
                                                 INPUT-OUTPUT TABLE ttBrowseColumn).
 

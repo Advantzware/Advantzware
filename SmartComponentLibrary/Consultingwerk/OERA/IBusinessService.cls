@@ -8,24 +8,24 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : IBusinessService
-    Purpose     : Non functional Interace for Business Services (no methods
-                  required to implement IBusinessService)
-    Syntax      : 
-    Description : Classes implementing this Interface may be registered in 
-                  the ServiceManager and can thus be reached as Business 
-                  Entities or Business Tasks via Service Adapter/Service 
+    Purpose     : Non functional Interface for Business Services (functional
+                  requirements; no methods required to implement IBusinessService)
+    Syntax      :
+    Description : Classes implementing this Interface may be registered in
+                  the ServiceManager and can thus be reached as Business
+                  Entities or Business Tasks via Service Adapter/Service
                   Interface
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Wed Feb 24 22:16:47 CET 2010
-    Notes       : Implemented by the Consultingwerk.OERA.BusinessEntity 
+    Notes       : Implemented by the Consultingwerk.OERA.BusinessEntity
                   class
   ----------------------------------------------------------------------*/
 
 USING Progress.Lang.*.
 
-INTERFACE Consultingwerk.OERA.IBusinessService:  
-  
+INTERFACE Consultingwerk.OERA.IBusinessService:
+
 END INTERFACE.

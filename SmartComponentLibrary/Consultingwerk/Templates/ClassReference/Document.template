@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <!--
 /**********************************************************************
- * Copyright (C) 2006-2015 by Consultingwerk Ltd. ("CW") -            *
+ * Copyright (C) 2006-2016 by Consultingwerk Ltd. ("CW") -            *
  * www.consultingwerk.de and other contributors as listed             *
  * below.  All Rights Reserved.                                       *
  *                                                                    *
@@ -256,6 +256,30 @@
         </tbody>
     </table>
     @PROPERTYCOMMENTTAGCLOSE@
+    @ENUMMEMBERCOMMENTTAGOPEN@
+    <br>
+    <div class="TableHeadingColor">
+        <span class="span_toplink"><a href="#top">Top</a></span>
+        <span id="property_summary" class="expand_arrow expandButtonShow HeightFixIE">
+        </span>
+        <span>
+            <font size="+2">
+                <b><a name="properties">Enum Member Summary</a></b>
+            </font>
+        </span>
+    </div>
+    <table border="0" class="table_content table_content_summary enum_summary">
+        <tbody>
+            <tr class="TableSubHeadingColor">
+                <th align="left"></th>
+                <th align="left"></th>
+                <th align="left">Name</th>
+                <th align="left">Purpose</th>
+            </tr>
+            @OVERVIEWENUMMEMBERS@   
+        </tbody>
+    </table>
+    @ENUMMEMBERCOMMENTTAGCLOSE@    
     <br>
     <br>
     @DETAILMETHODCOMMENTTAGOPEN@
@@ -331,7 +355,7 @@
     <br>
     @DETAILPROPERTYCOMMENTTAGCLOSE@
     
-    <font class="footer">&copy;2006-2015 Consultingwerk Ltd.</font>
+    <font class="footer">&copy;2006-2016 Consultingwerk Ltd.</font>
 	&nbsp; &nbsp; &nbsp; &nbsp; 
 	<a href="mailto:info@consultingwerk.de" class="footer_link">info@consultingwerk.de</a>
 	&nbsp;

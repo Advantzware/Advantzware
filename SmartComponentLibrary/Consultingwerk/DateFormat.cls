@@ -41,11 +41,11 @@ CLASS Consultingwerk.DateFormat
         Purpose: Constructor for the DateFormat class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC DateFormat ():
-		SUPER ().
+    CONSTRUCTOR PUBLIC DateFormat ():
+        SUPER ().
 
         THIS-OBJECT:AddSerializableProperties ("{&SerializableProperties}":U) .
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
 END CLASS.

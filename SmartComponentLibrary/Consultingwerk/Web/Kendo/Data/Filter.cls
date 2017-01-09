@@ -30,9 +30,9 @@ USING Progress.Lang.*                 FROM PROPATH .
 CLASS Consultingwerk.Web.Kendo.Data.Filter 
     INHERITS JsonSerializable:
 
-    {Consultingwerk/JsonSerializableProperty.i field CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i operator Consultingwerk.Web.Kendo.Data.FilterOperatorEnum}.
-    {Consultingwerk/JsonSerializableProperty.i value CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i field CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i operator Consultingwerk.Web.Kendo.Data.FilterOperatorEnum}.
+    {Consultingwerk/JsonSerializableProperty11.i value CHARACTER} .
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the Filter class
@@ -41,16 +41,16 @@ CLASS Consultingwerk.Web.Kendo.Data.Filter
         @param poOperator The value for the operator
         @param pcValue The value for the value
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC Filter (pcField AS CHARACTER,
-	                           poOperator AS FilterOperatorEnum,
-	                           pcValue AS CHARACTER):
-		THIS-OBJECT ().
-		
-		ASSIGN THIS-OBJECT:field    = pcField
-		       THIS-OBJECT:operator = poOperator 
-		       THIS-OBJECT:value    = pcValue  . 
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC Filter (pcField AS CHARACTER,
+                               poOperator AS FilterOperatorEnum,
+                               pcValue AS CHARACTER):
+        THIS-OBJECT ().
+        
+        ASSIGN THIS-OBJECT:field    = pcField
+               THIS-OBJECT:operator = poOperator 
+               THIS-OBJECT:value    = pcValue  . 
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the Filter class

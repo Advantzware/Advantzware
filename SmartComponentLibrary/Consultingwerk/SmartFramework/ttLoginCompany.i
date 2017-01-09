@@ -8,14 +8,14 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : ttLoginCompany.i
-    Purpose     : 
+    Purpose     :
 
     Syntax      :
 
-    Description :  
+    Description :
 
     Author(s)   : Mike Fechner
     Created     : 08.01.2013 20:09:32
@@ -31,8 +31,8 @@ DEFINE {&ACCESS} TEMP-TABLE ttLoginCompany NO-UNDO {&REFERENCE-ONLY} &IF DEFINED
     FIELD LoginCompanyImageLarge AS CHARACTER FORMAT "x(50)":U LABEL "Large Image":T SERIALIZE-NAME "LoginCompanyImageLarge":U XML-DATA-TYPE "string":U XML-NODE-TYPE "ELEMENT":U
     FIELD LoginCompanyImageSmall AS CHARACTER FORMAT "x(50)":U LABEL "Small Image":T SERIALIZE-NAME "LoginCompanyImageSmall":U XML-DATA-TYPE "string":U XML-NODE-TYPE "ELEMENT":U
     FIELD LoginCompanyReferenceChar AS CHARACTER FORMAT "x(50)":U LABEL "Foreign Reference Character":T SERIALIZE-NAME "LoginCompanyReferenceChar":U XML-DATA-TYPE "string":U XML-NODE-TYPE "ELEMENT":U
-    FIELD LoginCompanyReferenceDecimal AS DECIMAL FORMAT "->,>>,>>>,>>9.999999999":U INIT "0":U LABEL "Foreign Reference Decimal":T SERIALIZE-NAME "LoginCompanyReferenceDecimal":U XML-DATA-TYPE "decimal":U XML-NODE-TYPE "ELEMENT":U
-    FIELD LoginCompanyReferenceInteger AS INTEGER FORMAT "->,>>>,>>9":U INIT "0":U LABEL "Foreign Reference Integer":T SERIALIZE-NAME "LoginCompanyReferenceInteger":U XML-DATA-TYPE "int":U XML-NODE-TYPE "ELEMENT":U
+    FIELD LoginCompanyReferenceDecimal AS DECIMAL FORMAT "->,>>,>>>,>>9.999999999":U INITIAL "0":U LABEL "Foreign Reference Decimal":T SERIALIZE-NAME "LoginCompanyReferenceDecimal":U XML-DATA-TYPE "decimal":U XML-NODE-TYPE "ELEMENT":U
+    FIELD LoginCompanyReferenceInteger AS INTEGER FORMAT "->,>>>,>>9":U INITIAL "0":U LABEL "Foreign Reference Integer":T SERIALIZE-NAME "LoginCompanyReferenceInteger":U XML-DATA-TYPE "int":U XML-NODE-TYPE "ELEMENT":U
     FIELD LoginCompanyTenantDomain AS CHARACTER FORMAT "x(50)":U LABEL "Multi-Tenancy Domain":T SERIALIZE-NAME "LoginCompanyTenantDomain":U XML-DATA-TYPE "string":U XML-NODE-TYPE "ELEMENT":U
 
     INDEX LoginCompanyKey AS UNIQUE PRIMARY LoginCompanyKey ASCENDING

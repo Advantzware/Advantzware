@@ -91,9 +91,9 @@ CLASS Consultingwerk.Windows.ListAndLabel.LlExportModule ABSTRACT:
         Purpose: Returns the type of the Extension Module
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY ExtensionType AS INTEGER NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    DEFINE PUBLIC PROPERTY ExtensionType AS INTEGER NO-UNDO 
+    GET.
+    PROTECTED SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Sets the properties for the Export Module

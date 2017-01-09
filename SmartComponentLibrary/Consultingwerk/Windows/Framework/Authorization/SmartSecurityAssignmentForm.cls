@@ -11,27 +11,27 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : SmartSecurityAssignmentForm
-    Purpose     : 
-    Syntax      : 
-    Description : 
-    Author(s)   : Mike Fechner / Consultingwerk Ltd. 
+    Purpose     :
+    Syntax      :
+    Description :
+    Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : 28.07.2013 21:01:03
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Consultingwerk.Framework.*                       FROM PROPATH . 
-USING Consultingwerk.Framework.Session.*               FROM PROPATH . 
+USING Consultingwerk.Framework.*                       FROM PROPATH .
+USING Consultingwerk.Framework.Session.*               FROM PROPATH .
 USING Consultingwerk.SmartComponents.Base.*            FROM PROPATH .
-USING Consultingwerk.SmartComponents.Implementation.*  FROM PROPATH . 
+USING Consultingwerk.SmartComponents.Implementation.*  FROM PROPATH .
 USING Consultingwerk.SmartFramework.Authorization.*    FROM PROPATH .
 USING Consultingwerk.OERA.*                            FROM PROPATH .
-USING Consultingwerk.Windows.Framework.Authorization.* FROM PROPATH .  
+USING Consultingwerk.Windows.Framework.Authorization.* FROM PROPATH .
 USING Consultingwerk.Util.*                            FROM PROPATH .
 USING Progress.Lang.*                                  FROM PROPATH .
 
-CLASS Consultingwerk.Windows.Framework.Authorization.SmartSecurityAssignmentForm INHERITS SmartWindowForm: 
+CLASS Consultingwerk.Windows.Framework.Authorization.SmartSecurityAssignmentForm INHERITS SmartWindowForm:
 
     DEFINE PRIVATE VARIABLE smartBusinessEntityLookup1 AS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityLookup NO-UNDO.
     DEFINE PRIVATE VARIABLE smartComboEditor1 AS Consultingwerk.SmartComponents.Implementation.SmartComboEditor NO-UNDO.
@@ -41,106 +41,107 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartSecurityAssignmentForm
     DEFINE PRIVATE VARIABLE m_SmartSecurityAssignmentForm_Toolbars_Dock_Area_Right AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_SmartSecurityAssignmentForm_Toolbars_Dock_Area_Left AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_SmartSecurityAssignmentForm_Toolbars_Dock_Area_Bottom AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE smartDataBrowser1 AS Consultingwerk.SmartComponents.Implementation.SmartDataBrowser NO-UNDO.
     DEFINE PRIVATE VARIABLE smartBusinessEntityBindingSource1 AS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource NO-UNDO.
     DEFINE PRIVATE VARIABLE smartBusinessEntityAdapter1 AS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter NO-UNDO.
     DEFINE PRIVATE VARIABLE smartToolbarController1 AS Consultingwerk.SmartComponents.Implementation.SmartToolbarController NO-UNDO.
     DEFINE PRIVATE VARIABLE SmartSecurityAssignmentForm_Fill_Panel AS Infragistics.Win.Misc.UltraPanel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraSplitter1 AS Infragistics.Win.Misc.UltraSplitter NO-UNDO.
-    
+
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the SmartSecurityAssignmentForm class                                                                        
-        Notes:                                                                        
+        Purpose: Constructor for the SmartSecurityAssignmentForm class
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC SmartSecurityAssignmentForm ():
-		
-		DEFINE VARIABLE oImageProvider AS Consultingwerk.Windows.Framework.IImageProvider NO-UNDO . 
-		DEFINE VARIABLE oValueList     AS Infragistics.Win.ValueList                      NO-UNDO . 
-		
+    CONSTRUCTOR PUBLIC SmartSecurityAssignmentForm ():
+
+        DEFINE VARIABLE oImageProvider AS Consultingwerk.Windows.Framework.IImageProvider NO-UNDO .
+        DEFINE VARIABLE oValueList     AS Infragistics.Win.ValueList                      NO-UNDO .
+
         SUPER().
         InitializeComponent().
-        
+
         &IF NOT PROVERSION BEGINS "10.2":U AND NOT PROVERSION BEGINS "11.0" &THEN
         THIS-OBJECT:ComponentsCollection:Add (THIS-OBJECT:components).
         &ENDIF
-        
+
         oImageProvider = {Consultingwerk/get-service.i Consultingwerk.Windows.Framework.IImageProvider} .
-        
+
         IF VALID-OBJECT (oImageProvider) THEN DO:
             oValueList = NEW Infragistics.Win.ValueList () .
             oValueList:DisplayStyle = Infragistics.Win.ValueListDisplayStyle:Picture .
             oValueList:ValueListItems:Add ("G":U):Appearance:Image = oImageProvider:ImageForKey ("Consultingwerk/Windows/Framework/Images/users_16.png":U) .
             oValueList:ValueListItems:Add ("U":U):Appearance:Image = oImageProvider:ImageForKey ("Consultingwerk/Windows/Framework/Images/user_16.png":U) .
-        
-            smartDataBrowser1:DisplayLayout:Bands[0]:Columns ["OwnerType":U]:ValueList = oValueList . 
+
+            smartDataBrowser1:DisplayLayout:Bands[0]:Columns ["OwnerType":U]:ValueList = oValueList .
         END.
-        
+
         smartBusinessEntityAdapter1:CollectFilterValues:Subscribe (CollectFilterValuesHandler) .
         smartBusinessEntityAdapter1:BeforeCreateRecord:Subscribe (BeforeCreateRecordHandler) .
-                
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
-	
-	/*------------------------------------------------------------------------------
-        Purpose: Event handler for the BeforeCreateRecord event of the SmartBusinessEntityAdapter 
+    END CONSTRUCTOR.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the BeforeCreateRecord event of the SmartBusinessEntityAdapter
         Notes:
         @param sender The reference to the object that raised the event
         @param e The BeforeCreateRecordEventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID BeforeCreateRecordHandler (sender AS Progress.Lang.Object,
-	                                                 e AS BeforeCreateRecordEventArgs):
-		
-		DEFINE VARIABLE cValue AS CHARACTER NO-UNDO.
-        
-        ASSIGN cValue = UNBOX (smartComboEditor1:Value) . 
-        
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID BeforeCreateRecordHandler (sender AS Progress.Lang.Object,
+                                                     e AS BeforeCreateRecordEventArgs):
+
+        DEFINE VARIABLE cValue AS CHARACTER NO-UNDO.
+
+        ASSIGN cValue = UNBOX (smartComboEditor1:Value) .
+
         IF cValue > "":U THEN
-            e:BufferHandle::SecurityRealmGuid = cValue . 
+            e:BufferHandle::SecurityRealmGuid = cValue .
 
-	END METHOD.
+    END METHOD.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Event handler for the CollectFilterValues event of the SmartBusinessEntityAdapter 
-	    Notes:
-	    @param sender The reference to the object that raised the event
-	    @param e The CollectFilterValuesEventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID CollectFilterValuesHandler (sender AS Progress.Lang.Object,
-	                                                  e AS Consultingwerk.SmartComponents.Implementation.CollectFilterValuesEventArgs):
-		
-		DEFINE VARIABLE cValue AS CHARACTER NO-UNDO.
-		
-		ASSIGN cValue = UNBOX (smartComboEditor1:Value) . 
-		
-		IF cValue > "":U THEN 
-    		e:QueryExpressions:GetItem ("eSmartSecurityAssignment":U):Add ("eSmartSecurityAssignment.SecurityRealmGuid":U,
-    		                                                               Consultingwerk.OperatorEnum:EQ,
-    		                                                               cValue) .
-    
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the CollectFilterValues event of the SmartBusinessEntityAdapter
+        Notes:
+        @param sender The reference to the object that raised the event
+        @param e The CollectFilterValuesEventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID CollectFilterValuesHandler (sender AS Progress.Lang.Object,
+                                                      e AS Consultingwerk.SmartComponents.Implementation.CollectFilterValuesEventArgs):
+
+        DEFINE VARIABLE cValue AS CHARACTER NO-UNDO.
+
+        ASSIGN cValue = UNBOX (smartComboEditor1:Value) .
+
+        IF cValue > "":U THEN
+            e:QueryExpressions:GetItem ("eSmartSecurityAssignment":U):Add ("eSmartSecurityAssignment.SecurityRealmGuid":U,
+                                                                           Consultingwerk.OperatorEnum:EQ,
+                                                                           cValue) .
+
         ASSIGN cValue = smartBusinessEntityLookup1:LookupKeyValue .
 
-        IF cValue > "":U THEN 
+        IF cValue > "":U THEN
             e:QueryExpressions:GetItem ("eSmartSecurityAssignment":U):Add ("eSmartSecurityAssignment.SecurityItemGuid":U,
                                                                            Consultingwerk.OperatorEnum:EQ,
                                                                            cValue) .
 
-	END METHOD.
+    END METHOD.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -1211,16 +1212,16 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartSecurityAssignmentForm
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Raises the Shown Event
-        Notes:   
+        Notes:
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
-		
-		SUPER:OnShown (e) .
+    METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
+
+        SUPER:OnShown (e) .
 
         Consultingwerk.Util.UserInterfaceHelper:ProcessEvents() .
 
@@ -1228,114 +1229,114 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartSecurityAssignmentForm
 
 /*        THIS-OBJECT:smartBusinessEntityAdapter1:RetrieveData () .*/
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the AfterPerformLookup event of the smartBusinessEntityLookup1
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID smartBusinessEntityLookup1_AfterPerformLookup (sender AS System.Object, 
-	                                                                   e AS System.EventArgs):
-		
-		smartBusinessEntityAdapter1:RetrieveData () . 
+    METHOD PRIVATE VOID smartBusinessEntityLookup1_AfterPerformLookup (sender AS System.Object,
+                                                                       e AS System.EventArgs):
 
-	END METHOD .
+        smartBusinessEntityAdapter1:RetrieveData () .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the LookupComplete event of the smartBusinessEntityLookup1
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID smartBusinessEntityLookup1_LookupComplete (sender AS System.Object, 
-	                                                               e AS System.EventArgs):
-		
-		smartBusinessEntityAdapter1:RetrieveData () . 
+    METHOD PRIVATE VOID smartBusinessEntityLookup1_LookupComplete (sender AS System.Object,
+                                                                   e AS System.EventArgs):
 
-	END METHOD .
+        smartBusinessEntityAdapter1:RetrieveData () .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the TextChanged event of the smartBusinessEntityLookup1
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID smartBusinessEntityLookup1_TextChanged (sender AS System.Object, 
-	                                                            e AS System.EventArgs):
-		
-		IF smartBusinessEntityLookup1:Text = "" THEN DO:
-		    smartBusinessEntityLookup1:LookupKeyValue = "":U . 
-		  
-		    smartBusinessEntityAdapter1:RetrieveData () . 
-		END.
+    METHOD PRIVATE VOID smartBusinessEntityLookup1_TextChanged (sender AS System.Object,
+                                                                e AS System.EventArgs):
 
-	END METHOD .
+        IF smartBusinessEntityLookup1:Text = "" THEN DO:
+            smartBusinessEntityLookup1:LookupKeyValue = "":U .
 
-	/*------------------------------------------------------------------------------
+            smartBusinessEntityAdapter1:RetrieveData () .
+        END.
+
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
        Purpose: Event handler for the ValueChanged event of the SmartComboEditor
        Notes:
        @param sender The reference to the object that raised the event
        @param e The System.EventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID smartComboEditor1_ValueChanged (sender AS System.Object, 
-	                                                    e AS System.EventArgs):
-		
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID smartComboEditor1_ValueChanged (sender AS System.Object,
+                                                        e AS System.EventArgs):
+
         DEFINE VARIABLE cValue     AS CHARACTER                    NO-UNDO.
-        DEFINE VARIABLE oParameter AS SecurityRealmLookupParameter NO-UNDO . 
-                 
-        ASSIGN cValue                                    = UNBOX (smartComboEditor1:Value)  
-               smartBusinessEntityLookup1:Value          = "":U 
+        DEFINE VARIABLE oParameter AS SecurityRealmLookupParameter NO-UNDO .
+
+        ASSIGN cValue                                    = UNBOX (smartComboEditor1:Value)
+               smartBusinessEntityLookup1:Value          = "":U
                smartBusinessEntityLookup1:Text           = "":U
                smartBusinessEntityLookup1:LookupKeyValue = "":U
                .
-                 
-        IF cValue > "":U THEN DO: 
-            smartBusinessEntityLookup1:Enabled = TRUE . 
+
+        IF cValue > "":U THEN DO:
+            smartBusinessEntityLookup1:Enabled = TRUE .
 
             ASSIGN oParameter                   = NEW SecurityRealmLookupParameter ()
-                   oParameter:SecurityRealmGuid = cValue . 
-             
+                   oParameter:SecurityRealmGuid = cValue .
+
             FrameworkSettings:ServiceAdapter:InvokeTask ("":U,
                                                          "Consultingwerk.SmartFramework.Authorization.SecurityRealmInfoService":U,
                                                          "GetSecurityRealmLookupParameter":U,
                                                          oParameter,
                                                          SessionManager:ContextDataset) .
-            
-            oParameter:LookupDescriptor:AssignToSmartBusinessEntityLookup (smartBusinessEntityLookup1) .        
+
+            oParameter:LookupDescriptor:AssignToSmartBusinessEntityLookup (smartBusinessEntityLookup1) .
 
         END.
-        ELSE 
-            ASSIGN smartBusinessEntityLookup1:Enabled = FALSE . 
+        ELSE
+            ASSIGN smartBusinessEntityLookup1:Enabled = FALSE .
 
         smartBusinessEntityAdapter1:RetrieveData () .
 
-	END METHOD.
-
-	/*------------------------------------------------------------------------------
-       Purpose: Event handler for the EnabledChanged event of the SmartDataBrowser
-	   Notes:
-	   @param sender The reference to the object that raised the event
-	   @param e The System.EventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID smartDataBrowser1_EnabledChanged (sender AS System.Object, 
-	                                                      e AS System.EventArgs):
-
-        DEFINE VARIABLE cValue AS CHARACTER NO-UNDO.
-        
-        ASSIGN cValue                             = UNBOX (smartComboEditor1:Value)  
-		
-		       smartComboEditor1:Enabled          = smartDataBrowser1:Enabled
-		       smartBusinessEntityLookup1:Enabled = smartDataBrowser1:Enabled AND cValue > "":U 
-		       .
-		         
-
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the SmartSecurityAssignmentForm class 
-        Notes:   
+       Purpose: Event handler for the EnabledChanged event of the SmartDataBrowser
+       Notes:
+       @param sender The reference to the object that raised the event
+       @param e The System.EventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID smartDataBrowser1_EnabledChanged (sender AS System.Object,
+                                                          e AS System.EventArgs):
+
+        DEFINE VARIABLE cValue AS CHARACTER NO-UNDO.
+
+        ASSIGN cValue                             = UNBOX (smartComboEditor1:Value)
+
+               smartComboEditor1:Enabled          = smartDataBrowser1:Enabled
+               smartBusinessEntityLookup1:Enabled = smartDataBrowser1:Enabled AND cValue > "":U
+               .
+
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Destructor for the SmartSecurityAssignmentForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC SmartSecurityAssignmentForm ():
 

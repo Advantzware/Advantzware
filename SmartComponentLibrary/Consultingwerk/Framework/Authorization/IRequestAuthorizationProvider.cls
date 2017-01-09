@@ -25,15 +25,15 @@ USING Progress.Lang.*       FROM PROPATH .
 
 INTERFACE Consultingwerk.Framework.Authorization.IRequestAuthorizationProvider:  
 
-	/*------------------------------------------------------------------------------
-		Purpose: Provides Authorization for FetchData Requests 																	  
-		Notes:  												
-		@param pcEntityName The name of the Business Entity
-		@param poRequest The IFetchDataRequest instance with the parameter for the FetchData request   
-	    @return Logical value indicating if the FetchData request is restricted	          					  
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL IsFetchDataRestricted (pcEntityName AS CHARACTER,
-	                                             poRequest AS IFetchDataRequest) .
+    /*------------------------------------------------------------------------------
+        Purpose: Provides Authorization for FetchData Requests                                                                       
+        Notes:                                                  
+        @param pcEntityName The name of the Business Entity
+        @param poRequest The IFetchDataRequest instance with the parameter for the FetchData request   
+        @return Logical value indicating if the FetchData request is restricted                                    
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC LOGICAL IsFetchDataRestricted (pcEntityName AS CHARACTER,
+                                                 poRequest AS IFetchDataRequest) .
 
     /*------------------------------------------------------------------------------
         Purpose: Provides Authorization for InvokeMethod Requests                                                                    

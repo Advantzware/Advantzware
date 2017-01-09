@@ -65,29 +65,29 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Browse.AblBrowseMigrationSettings
     GET.
     PRIVATE SET. 
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Private constructor for the AblBrowseMigrationSettings class
-	    Notes:   Disallow instance creation
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PRIVATE AblBrowseMigrationSettings ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    /*------------------------------------------------------------------------------
+        Purpose: Private constructor for the AblBrowseMigrationSettings class
+        Notes:   Disallow instance creation
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PRIVATE AblBrowseMigrationSettings ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Static constructor for the AblBrowseMigrationSettings class
-	    Notes:
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR STATIC  AblBrowseMigrationSettings ():
+    /*------------------------------------------------------------------------------
+        Purpose: Static constructor for the AblBrowseMigrationSettings class
+        Notes:
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR STATIC  AblBrowseMigrationSettings ():
 
-        FILE-INFO:FILE-NAME = ".AblBrowseMigrationSettings.xml":U .
+        FILE-INFORMATION:FILE-NAME = ".AblBrowseMigrationSettings.xml":U .
 
-        IF FILE-INFO:FULL-PATHNAME <> ? THEN DO: 
+        IF FILE-INFORMATION:FULL-PATHNAME <> ? THEN DO: 
             TEMP-TABLE ttAblBrowseMigrationSettings:READ-XML ("FILE":U, 
-                                                              FILE-INFO:FULL-PATHNAME,
+                                                              FILE-INFORMATION:FULL-PATHNAME,
                                                               "EMPTY":U, ?, ?) .
             
-            ASSIGN AblBrowseMigrationSettings:SettingsFile       = FILE-INFO:FULL-PATHNAME 
+            ASSIGN AblBrowseMigrationSettings:SettingsFile       = FILE-INFORMATION:FULL-PATHNAME 
                    AblBrowseMigrationSettings:SettingsFileLoaded = TRUE .
         END.                                                                 
                                                                  
@@ -100,8 +100,8 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Browse.AblBrowseMigrationSettings
             
             FIND FIRST ttAblBrowseMigrationSettings .
         END.
-		
-	END CONSTRUCTOR.
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Saves settings to the file .BusinessEntityDesignerSettings.xml                                                                         
@@ -112,14 +112,14 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Browse.AblBrowseMigrationSettings
         DEFINE VARIABLE oException AS ExceptionWithTitle NO-UNDO . 
         DEFINE VARIABLE cFileName  AS CHARACTER          NO-UNDO .
         
-        FILE-INFO:FILE-NAME = ".AblBrowseMigrationSettings.xml":U .
+        FILE-INFORMATION:FILE-NAME = ".AblBrowseMigrationSettings.xml":U .
         
-        IF FILE-INFO:FULL-PATHNAME > "":U THEN 
-            cFileName = FILE-INFO:FULL-PATHNAME .
+        IF FILE-INFORMATION:FULL-PATHNAME > "":U THEN 
+            cFileName = FILE-INFORMATION:FULL-PATHNAME .
         ELSE 
             cFileName = ".AblBrowseMigrationSettings.xml":U . 
         
-        IF FILE-INFO:FULL-PATHNAME > "":U AND NOT FILE-INFO:FILE-TYPE MATCHES "*W*":U THEN  
+        IF FILE-INFORMATION:FULL-PATHNAME > "":U AND NOT FILE-INFORMATION:FILE-TYPE MATCHES "*W*":U THEN  
             Consultingwerk.Util.MessageFormHelper:ShowMessage ("Unable to store application preferences."{&TRAN},
                                                                "ABL GUI FRAME Widget Migration"{&TRAN},
                                                                "The file .AblBrowseMigrationSettings.xml is write protected."{&TRAN},

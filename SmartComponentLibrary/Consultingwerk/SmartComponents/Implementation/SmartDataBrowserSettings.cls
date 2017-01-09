@@ -47,10 +47,10 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartDataBrowserSettings:
         Purpose: Private constructor for the SmartDataBrowserSettings class
         Notes:   Disallow instance creation
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PRIVATE SmartDataBrowserSettings ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PRIVATE SmartDataBrowserSettings ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Raises the SmartDataBrowserActivated event                                                                        

@@ -35,8 +35,8 @@ INTERFACE Consultingwerk.BusinessEntityDesigner.Plugins.CustomServices.INewField
         @param pcFieldName The name of the new field
         @param dsBusinessEntity INPUT-OUTPUT DATASET The Businesss Entity Dataset (should be passed BY-REFERENCE)
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID HandleNewField (pcTempTableName AS CHARACTER,
-	                                   pcFieldName AS CHARACTER, 
-	                                   INPUT-OUTPUT DATASET dsBusinessEntity).
+    METHOD PUBLIC VOID HandleNewField (pcTempTableName AS CHARACTER,
+                                       pcFieldName AS CHARACTER, 
+                                       INPUT-OUTPUT DATASET dsBusinessEntity).
 
 END INTERFACE.

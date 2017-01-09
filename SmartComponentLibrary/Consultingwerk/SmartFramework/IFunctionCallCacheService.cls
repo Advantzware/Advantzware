@@ -32,8 +32,8 @@ INTERFACE Consultingwerk.SmartFramework.IFunctionCallCacheService:
         Notes:   
     ------------------------------------------------------------------------------*/
     &IF DEFINED (DotNetAccessible) NE 0 &THEN
-	DEFINE PUBLIC PROPERTY FunctionCallTypes AS Infragistics.Win.ValueList NO-UNDO 
-	GET.
+    DEFINE PUBLIC PROPERTY FunctionCallTypes AS Infragistics.Win.ValueList NO-UNDO 
+    GET.
     &ENDIF
 
     /*------------------------------------------------------------------------------

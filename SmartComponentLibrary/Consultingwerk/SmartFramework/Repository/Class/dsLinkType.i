@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2006-2014 by Consultingwerk Ltd. ("CW") -            *
+ * Copyright (C) 2006-2016 by Consultingwerk Ltd. ("CW") -            *
  * www.consultingwerk.de and other contributors as listed             *
  * below.  All Rights Reserved.                                       *
  *                                                                    *
@@ -17,8 +17,8 @@
 
     Description : 
 
-    Author(s)   : Marko Rüterbories / Consultingwerk Ltd.
-    Created     : 21.05.2014 10:27:57
+    Author(s)   : Mike Fechner / Consultingwerk Ltd.
+    Created     : 03.05.2016 23:33:50
     Notes       :
   ----------------------------------------------------------------------*/
 
@@ -26,12 +26,15 @@
 
 &SCOPED-DEFINE ACCESS {&ACCESS}
 &SCOPED-DEFINE REFERENCE-ONLY {&REFERENCE-ONLY}
+&SCOPED-DEFINE SUFFIX {&SUFFIX}
 
 &GLOBAL-DEFINE DATASET-NAME dsLinkType
 
 { Consultingwerk/SmartFramework/Repository/Class/eSmartLinkType.i }
 
 
-DEFINE {&ACCESS} DATASET dsLinkType {&REFERENCE-ONLY} FOR eSmartLinkType 
+@BusinessEntityGenerator (entityname="Consultingwerk.SmartFramework.Repository.Class.LinkTypeBusinessEntity", type="Dataset") .
+
+DEFINE {&ACCESS} DATASET dsLinkType{&SUFFIX} {&REFERENCE-ONLY} FOR eSmartLinkType{&SUFFIX} 
 
     .    

@@ -35,18 +35,18 @@ CLASS Consultingwerk.SmartComponents.BaseForms.TabFolder.SmartTabFolderPage
                  by this user control
         Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY SmartDataSources AS DictionaryISmartDataSource NO-UNDO 
-	GET.
-	PRIVATE SET. 
+    DEFINE PUBLIC PROPERTY SmartDataSources AS DictionaryISmartDataSource NO-UNDO 
+    GET.
+    PRIVATE SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the reference to the ISmartNavigationSource provided to this 
                  user control
         Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY SmartNavigationSource AS ISmartNavigationSource NO-UNDO 
-	GET.
-	PRIVATE SET. 
+    DEFINE PUBLIC PROPERTY SmartNavigationSource AS ISmartNavigationSource NO-UNDO 
+    GET.
+    PRIVATE SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the reference to the ISmartTableIOSource provided to this 
@@ -57,24 +57,24 @@ CLASS Consultingwerk.SmartComponents.BaseForms.TabFolder.SmartTabFolderPage
     GET.
     PRIVATE SET. 
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Constructor for the SmartTabFolderPage class 
-	    Notes:
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC SmartTabFolderPage ():
-		SUPER ().
-		
-		THIS-OBJECT:SmartDataSources = NEW DictionaryISmartDataSource () . 
-		
-	END CONSTRUCTOR.
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the SmartTabFolderPage class 
+        Notes:
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC SmartTabFolderPage ():
+        SUPER ().
+        
+        THIS-OBJECT:SmartDataSources = NEW DictionaryISmartDataSource () . 
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Activates the SmartTabFolderPage (after selecting the tab)
         Notes:   Used to activate links
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID Activate ():
-	    /* pseudo abstract */
-	END METHOD . 
+    METHOD PUBLIC VOID Activate ():
+        /* pseudo abstract */
+    END METHOD . 
 
     /*------------------------------------------------------------------------------
        Purpose: Initializes the SmartTabFolderPage
@@ -83,7 +83,7 @@ CLASS Consultingwerk.SmartComponents.BaseForms.TabFolder.SmartTabFolderPage
        @param poTableIOSource The reference to the Table IO Source (Ribbon) on the Form
        @param poNavigationSource The reference to the Navigation Source (Ribbon) on the Form
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID InitializeSmartTabFolderPage (poDataSource AS Consultingwerk.SmartComponents.Interfaces.ISmartDataSource, 
+    METHOD PUBLIC VOID InitializeSmartTabFolderPage (poDataSource AS Consultingwerk.SmartComponents.Interfaces.ISmartDataSource, 
                                                      poTableIOSource AS Consultingwerk.SmartComponents.Interfaces.ISmartTableIOSource, 
                                                      poNavigationSource AS Consultingwerk.SmartComponents.Interfaces.ISmartNavigationSource):
         

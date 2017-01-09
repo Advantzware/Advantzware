@@ -11,23 +11,23 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : SmartModuleMaintenanceForm
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Marko Rüterbories / Consultingwerk Ltd.
     Created     : Thu Oct 11 17:16:32 CEST 2012
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.SmartComponents.Base.SmartWindowForm FROM PROPATH .
-USING Consultingwerk.Windows.Framework.Menu.*             FROM PROPATH .  
+USING Consultingwerk.Windows.Framework.Menu.*             FROM PROPATH .
 USING Progress.Lang.*                                     FROM PROPATH .
 
-CLASS Consultingwerk.Windows.Framework.Menu.SmartModuleMaintenanceForm 
-    INHERITS SmartWindowForm: 
-    
+CLASS Consultingwerk.Windows.Framework.Menu.SmartModuleMaintenanceForm
+    INHERITS SmartWindowForm:
+
     DEFINE PRIVATE VARIABLE m_SmartModuleMaintenanceForm_Toolbars_Dock_Area_Top    AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea                        NO-UNDO.
     DEFINE PRIVATE VARIABLE m_SmartModuleMaintenanceForm_Toolbars_Dock_Area_Right  AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea                        NO-UNDO.
     DEFINE PRIVATE VARIABLE m_SmartModuleMaintenanceForm_Toolbars_Dock_Area_Left   AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea                        NO-UNDO.
@@ -42,26 +42,27 @@ CLASS Consultingwerk.Windows.Framework.Menu.SmartModuleMaintenanceForm
     DEFINE PRIVATE VARIABLE ultraSplitter1 AS Infragistics.Win.Misc.UltraSplitter NO-UNDO.
 
     CONSTRUCTOR PUBLIC SmartModuleMaintenanceForm ():
-        
+
         SUPER ().
         InitializeComponent ().
-        
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
     END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -764,12 +765,14 @@ CLASS Consultingwerk.Windows.Framework.Menu.SmartModuleMaintenanceForm
         arrayvar13 = NEW "Progress.Data.TableDesc[]"(0).
         tableDesc1:ChildTables = arrayvar13.
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
-        DEFINE VARIABLE arrayvar14 AS Progress.Data.ColumnPropDesc EXTENT 5 NO-UNDO.
+        DEFINE VARIABLE arrayvar14 AS Progress.Data.ColumnPropDesc EXTENT 7 NO-UNDO.
         arrayvar14[1] = NEW Progress.Data.ColumnPropDesc("ModuleGuid":U, "ModuleGuid":U, Progress.Data.DataType:CHARACTER).
         arrayvar14[2] = NEW Progress.Data.ColumnPropDesc("ModuleName":U, "ModuleName":U, Progress.Data.DataType:CHARACTER).
         arrayvar14[3] = NEW Progress.Data.ColumnPropDesc("ModuleDescription":U, "ModuleDescription":U, Progress.Data.DataType:CHARACTER).
         arrayvar14[4] = NEW Progress.Data.ColumnPropDesc("ProductGuid":U, "ProductGuid":U, Progress.Data.DataType:CHARACTER).
         arrayvar14[5] = NEW Progress.Data.ColumnPropDesc("ProductCode":U, "Code":U, Progress.Data.DataType:CHARACTER).
+        arrayvar14[6] = NEW Progress.Data.ColumnPropDesc("ModuleDataFolder":U, "Data Folder":U, Progress.Data.DataType:CHARACTER).
+        arrayvar14[7] = NEW Progress.Data.ColumnPropDesc("ModulePackage":U, "Package Name":U, Progress.Data.DataType:CHARACTER).
         tableDesc1:Columns = arrayvar14.
         THIS-OBJECT:ModuleBindingSource:TableSchema = tableDesc1.
         /*  */
@@ -952,23 +955,23 @@ CLASS Consultingwerk.Windows.Framework.Menu.SmartModuleMaintenanceForm
 
     /*------------------------------------------------------------------------------
         Purpose: Raises the Load event
-        Notes:   
+        Notes:
         @param e The System.EventArgs that contains no event data
     ------------------------------------------------------------------------------*/
     METHOD OVERRIDE PROTECTED VOID OnLoad (e AS System.EventArgs):
 
-        DEFINE VARIABLE oValueList AS Infragistics.Win.ValueList           NO-UNDO . 
+        DEFINE VARIABLE oValueList AS Infragistics.Win.ValueList           NO-UNDO .
         DEFINE VARIABLE hDataset   AS HANDLE                               NO-UNDO .
         DEFINE VARIABLE oRequest   AS Consultingwerk.OERA.FetchDataRequest NO-UNDO .
 
         SUPER:OnLoad (e) .
 
         oRequest = NEW Consultingwerk.OERA.FetchDataRequest ("*":U) .
-        
+
         Consultingwerk.Framework.FrameworkSettings:ServiceAdapter:RetrieveData ("":U,
                                                                                 "Consultingwerk.SmartFramework.Menu.ProductBusinessEntity":U,
                                                                                 oRequest,
-                                                                                OUTPUT DATASET-HANDLE hDataset) . 
+                                                                                OUTPUT DATASET-HANDLE hDataset) .
 
         IF VALID-HANDLE (hDataset) THEN DO:
             oValueList = Consultingwerk.Util.ValueListHelper:FromTempTable (hDataset::eSmartProduct:TABLE-HANDLE,
@@ -977,36 +980,36 @@ CLASS Consultingwerk.Windows.Framework.Menu.SmartModuleMaintenanceForm
                                                                             "&1":U,
                                                                             "":U,
                                                                             "None":U) .
-            
-            ModuleBrowser:DisplayLayout:Bands[0]:Columns["ProductGuid":U]:ValueList = oValueList . 
-        END.        
-        
+
+            ModuleBrowser:DisplayLayout:Bands[0]:Columns["ProductGuid":U]:ValueList = oValueList .
+        END.
+
         FINALLY:
-            IF VALID-HANDLE (hDataset) THEN 
-                DELETE OBJECT hDataset	 .	
+            IF VALID-HANDLE (hDataset) THEN
+                DELETE OBJECT hDataset     .
         END FINALLY.
-        
-    END METHOD . 
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Override of the OnShown Method to first show the form and then 
+        Purpose: Override of the OnShown Method to first show the form and then
                  initiate reading data.
-        Notes:   
+        Notes:
         @param e An EventArgs that contains no event data
     ------------------------------------------------------------------------------*/
     METHOD OVERRIDE PROTECTED VOID OnShown (e AS System.EventArgs):
-        
+
         SUPER:OnShown (e).
 
         Consultingwerk.Util.UserInterfaceHelper:ProcessEvents() .
 
         ModuleAdapter:RetrieveData ().
-        
+
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the SmartModuleMaintenanceForm class 
-        Notes:   
+        Purpose: Destructor for the SmartModuleMaintenanceForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC SmartModuleMaintenanceForm ():
 

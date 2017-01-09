@@ -1,5 +1,12 @@
 <?xml version="1.0"?>
 <ttServiceLoader xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <ttServiceLoaderRow>
+    <Order>10</Order>
+    <ServiceTypeName>Consultingwerk.OERA.IServiceManagerLifeCycleProvider</ServiceTypeName>
+    <ServiceClassName>Consultingwerk.OERA.ServiceManagerLifeCycleProvider</ServiceClassName>
+  </ttServiceLoaderRow>
+
   <ttServiceLoaderRow>
     <Order>10</Order>
     <ServiceTypeName>Consultingwerk.OERA.IServiceNameMappingService</ServiceTypeName>

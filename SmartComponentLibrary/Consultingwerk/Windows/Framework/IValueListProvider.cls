@@ -31,6 +31,6 @@ INTERFACE Consultingwerk.Windows.Framework.IValueListProvider:
         @param pcValueListKey The key to return a value list for 
         @return The ValueList for the given key
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC Infragistics.Win.ValueList ValueListFromKey (pcValueListKey AS CHARACTER).
+    METHOD PUBLIC Infragistics.Win.ValueList ValueListFromKey (pcValueListKey AS CHARACTER).
 
 END INTERFACE.

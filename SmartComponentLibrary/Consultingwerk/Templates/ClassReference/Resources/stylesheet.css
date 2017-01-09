@@ -244,6 +244,12 @@ code{
   width: 16px;
 }
 
+.node_imginterface{
+  background-image: url(nut_and_bolt.png);
+  height: 16px;
+  width: 16px;
+}
+
 .parentclassnode{
   background-image: url(node.PNG);
   width: 19px;
@@ -508,6 +514,11 @@ margin: -40px auto 0;
 }
 
 .unit_interface
+{
+    width: 1000px;
+}
+
+.unit_enum
 {
     width: 1000px;
 }

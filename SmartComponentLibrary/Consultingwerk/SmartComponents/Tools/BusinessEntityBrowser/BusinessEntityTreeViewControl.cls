@@ -8,16 +8,16 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : BusinessEntityTreeViewControl
-    Purpose     : Visualizes the list of available business entities in a 
+    Purpose     : Visualizes the list of available business entities in a
                   tree view
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Tue Feb 14 22:53:13 CET 2012
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -25,53 +25,53 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 USING Consultingwerk.Framework.*            FROM PROPATH.
 USING Consultingwerk.SmartComponents.Base.* FROM PROPATH .
 USING Consultingwerk.Util.*                 FROM PROPATH.
-USING Infragistics.Win.UltraWinTree.*       FROM ASSEMBLY . 
+USING Infragistics.Win.UltraWinTree.*       FROM ASSEMBLY .
 USING Progress.Lang.*                       FROM PROPATH .
 
-CLASS Consultingwerk.SmartComponents.Tools.BusinessEntityBrowser.BusinessEntityTreeViewControl 
-    INHERITS SmartUserControl: 
-    
+CLASS Consultingwerk.SmartComponents.Tools.BusinessEntityBrowser.BusinessEntityTreeViewControl
+    INHERITS SmartUserControl:
+
     DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraTree1 AS Infragistics.Win.UltraWinTree.UltraTree NO-UNDO.
 
     {Consultingwerk/Util/TempTables/ttClassNames.i}
 
-    DEFINE VARIABLE oImageFolder AS System.Drawing.Image NO-UNDO . 
+    DEFINE VARIABLE oImageFolder AS System.Drawing.Image NO-UNDO .
     DEFINE VARIABLE oImageClass  AS System.Drawing.Image NO-UNDO .
-        
+
     /*------------------------------------------------------------------------------
         Purpose: Raised when the SelectedClassName property changes
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
     DEFINE PUBLIC EVENT SelectedClassNameChanged DELEGATE System.EventHandler.
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the name of the currently selected class
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY SelectedClassName AS CHARACTER NO-UNDO 
+    DEFINE PUBLIC PROPERTY SelectedClassName AS CHARACTER NO-UNDO
     GET.
     PROTECTED SET (arg AS CHARACTER):
-        THIS-OBJECT:SelectedClassName = arg . 
-        
+        THIS-OBJECT:SelectedClassName = arg .
+
         THIS-OBJECT:OnSelectedClassNameChanged (System.EventArgs:Empty) .
-    END SET . 
+    END SET .
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the BusinessEntityTreeViewControl class
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC BusinessEntityTreeViewControl ():
-        
-        
+
+
         SUPER().
         InitializeComponent().
-        
+
         oImageFolder = Consultingwerk.Util.ImageHelper:Load ("Consultingwerk/SmartComponents/Tools/BusinessEntityBrowser/folder.png":U) .
         oImageClass  = Consultingwerk.Util.ImageHelper:Load ("Consultingwerk/SmartComponents/Tools/BusinessEntityBrowser/document_gear.png":U) .
-        
+
         THIS-OBJECT:ultraTree1:Nodes:Clear () .
-        
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
@@ -79,56 +79,57 @@ CLASS Consultingwerk.SmartComponents.Tools.BusinessEntityBrowser.BusinessEntityT
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Creates a node structure for a package (part of the classname)                                                                       
-        Notes:  
+        Purpose: Creates a node structure for a package (part of the classname)
+        Notes:
         @param pcPackage The Package (part of the classname) to create the node structure for
-        @return The Parent Nodes collection                                                                      
+        @return The Parent Nodes collection
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED TreeNodesCollection CreatePackageNodes (pcPackage AS CHARACTER):
-        
+
         DEFINE VARIABLE oNodes    AS TreeNodesCollection NO-UNDO .
         DEFINE VARIABLE oNode     AS UltraTreeNode       NO-UNDO .
         DEFINE VARIABLE iLevel    AS INTEGER             NO-UNDO .
         DEFINE VARIABLE cSegments AS CHARACTER           NO-UNDO .
         DEFINE VARIABLE cSegment  AS CHARACTER           NO-UNDO .
-    
-        IF pcPackage = "":U THEN 
-            RETURN THIS-OBJECT:ultraTree1:Nodes . 
+
+        IF pcPackage = "":U THEN
+            RETURN THIS-OBJECT:ultraTree1:Nodes .
 
         oNodes = THIS-OBJECT:ultraTree1:Nodes .
 
         DO iLevel = 1 TO NUM-ENTRIES (pcPackage, ".":U) ON ERROR UNDO, THROW:
-    
-            ASSIGN cSegment  = ENTRY (iLevel, pcPackage, ".":U) 
+
+            ASSIGN cSegment  = ENTRY (iLevel, pcPackage, ".":U)
                    cSegments = cSegments + (IF cSegments > "":U THEN ".":U ELSE "":U) +
                                cSegment .
-    
-            IF oNodes:Exists (cSegments) THEN 
-                oNodes = oNodes[cSegments]:Nodes .                        
-    
+
+            IF oNodes:Exists (cSegments) THEN
+                oNodes = oNodes[cSegments]:Nodes .
+
             ELSE DO ON ERROR UNDO, THROW:
                 oNode = oNodes:Add (cSegments, cSegment) .
                 oNode:LeftImages:Add (oImageFolder) .
-            
+
                 oNodes = oNode:Nodes.
             END.
         END .
 
-        RETURN oNodes . 
+        RETURN oNodes .
 
     END METHOD.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         @VisualDesigner.FormMember (NeedsInitialize="true").
         DEFINE VARIABLE ultraTreeNode1 AS Infragistics.Win.UltraWinTree.UltraTreeNode NO-UNDO.
@@ -198,109 +199,109 @@ CLASS Consultingwerk.SmartComponents.Tools.BusinessEntityBrowser.BusinessEntityT
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Loads the Business Entites and populates the TreeView                                                                      
-        Notes:                                                                        
+        Purpose: Loads the Business Entites and populates the TreeView
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID LoadBusinessEntities ():
-        
-        DEFINE VARIABLE oNodesCollection AS TreeNodesCollection NO-UNDO . 
-        
+
+        DEFINE VARIABLE oNodesCollection AS TreeNodesCollection NO-UNDO .
+
         DEFINE VARIABLE cPackage         AS CHARACTER           NO-UNDO.
         DEFINE VARIABLE cClassName       AS CHARACTER           NO-UNDO.
         DEFINE VARIABLE iDot             AS INTEGER             NO-UNDO.
-        
-        IF VALID-OBJECT (FrameworkSettings:WaitStateManager) THEN 
+
+        IF VALID-OBJECT (FrameworkSettings:WaitStateManager) THEN
             FrameworkSettings:WaitStateManager:SetWaitState ("Loading Business Entity Names":U) .
-        
+
         Consultingwerk.Util.GarbageCollectorHelper:ClearUltraTreeNodes (THIS-OBJECT:ultraTree1) .
-        
+
         THIS-OBJECT:ultraTree1:Nodes:Clear () .
-        
+
         UserInterfaceHelper:ProcessEvents() .
-        
+
         Consultingwerk.Util.ClassHelper:GetClassNamesInClassPath ("Consultingwerk.OERA.IBusinessEntity":U,
                                                                   OUTPUT TABLE ttClassNames BY-REFERENCE) .
 
         ultraTree1:BeginUpdate() .
 
         FOR EACH ttClassNames ON ERROR UNDO, THROW:
-            ASSIGN iDot = R-INDEX (ttClassNames.ClassName, ".":U) . 
-            
-            IF iDot > 1 THEN 
-                ASSIGN cPackage   = SUBSTRING (ttClassNames.ClassName, 1, iDot - 1) 
-                       cClassName = SUBSTRING (ttClassNames.ClassName, iDot + 1).    
-            ELSE 
+            ASSIGN iDot = R-INDEX (ttClassNames.ClassName, ".":U) .
+
+            IF iDot > 1 THEN
+                ASSIGN cPackage   = SUBSTRING (ttClassNames.ClassName, 1, iDot - 1)
+                       cClassName = SUBSTRING (ttClassNames.ClassName, iDot + 1).
+            ELSE
                 ASSIGN cPackage   = "":U
-                       cClassName = ttClassNames.ClassName . 
-            
+                       cClassName = ttClassNames.ClassName .
+
             oNodesCollection = CreatePackageNodes (cPackage) .
-            
+
             oNodesCollection:Add (ttClassNames.ClassName, cClassName):LeftImages:Add (oImageClass) .
         END.
 
 
         {Consultingwerk/foreach.i UltraTreeNode oNode in ultraTree1:Nodes}
-            
-            IF oNode:HasNodes THEN 
-                oNode:Expanded = TRUE . 
-        
+
+            IF oNode:HasNodes THEN
+                oNode:Expanded = TRUE .
+
         END.
 
         ultraTree1:EndUpdate() .
 
-        IF VALID-OBJECT (FrameworkSettings:WaitStateManager) THEN 
+        IF VALID-OBJECT (FrameworkSettings:WaitStateManager) THEN
             FrameworkSettings:WaitStateManager:ClearWaitState ("Loading Business Entity Names":U) .
 
         CATCH err AS Progress.Lang.Error :
-            IF VALID-OBJECT (FrameworkSettings:WaitStateManager) THEN 
+            IF VALID-OBJECT (FrameworkSettings:WaitStateManager) THEN
                 FrameworkSettings:WaitStateManager:ClearWaitState ("Loading Business Entity Names":U) .
 
-            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .    
+            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
     END METHOD.
 
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the SelectedClassNameChanged event                                                                       
-        Notes:                   
-        @param e The System.EventArgs with the data for this event                                                     
+        Purpose: Raises the SelectedClassNameChanged event
+        Notes:
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID OnSelectedClassNameChanged (e AS System.EventArgs):
-        
-        IF NOT VALID-OBJECT (e) THEN 
-            e = System.EventArgs:Empty . 
+
+        IF NOT VALID-OBJECT (e) THEN
+            e = System.EventArgs:Empty .
 
         THIS-OBJECT:SelectedClassNameChanged:Publish (THIS-OBJECT, e) .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the MouseDoubleClick event of the ultraTree1 class                                                                        
-        Notes:                                                                       
+        Purpose: Event handler for the MouseDoubleClick event of the ultraTree1 class
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The MouseEventArgs with the data for this event   
+        @param e The MouseEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraTree1_MouseDoubleClick (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraTree1_MouseDoubleClick (sender AS System.Object,
                                                      e AS System.Windows.Forms.MouseEventArgs):
-        
+
         DEFINE VARIABLE oNode AS UltraTreeNode NO-UNDO .
 
         oNode = ultraTree1:GetNodeFromPoint (e:Location) .
-        
-        IF NOT VALID-OBJECT (oNode) THEN 
-            RETURN . 
-            
-        IF oNode:HasNodes THEN 
-            RETURN . 
-            
-        THIS-OBJECT:SelectedClassName = oNode:Key .            
+
+        IF NOT VALID-OBJECT (oNode) THEN
+            RETURN .
+
+        IF oNode:HasNodes THEN
+            RETURN .
+
+        THIS-OBJECT:SelectedClassName = oNode:Key .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Destructor for the BusinessEntityTreeViewControl class
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC BusinessEntityTreeViewControl ():
 

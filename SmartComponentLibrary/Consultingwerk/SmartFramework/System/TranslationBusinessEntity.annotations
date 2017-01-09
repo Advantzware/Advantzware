@@ -1,0 +1,27 @@
+{
+  "SerializedType": "Consultingwerk.Framework.TypeDescriptor.ClassAnnotationContainer",
+  "ClassName": "Consultingwerk.SmartFramework.System.TranslationBusinessEntity",
+  "TimeStamp": "2016-09-14T11:42:29.492+02:00",
+  "Annotations": [
+    {
+      "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableAnnotation",
+      "Name": "@BusinessEntityTable",
+      "Parameters": [
+        {
+          "SerializedType": "Consultingwerk.NameValuePair",
+          "Name": "name",
+          "Value": "eSmartTranslation"
+        },
+        {
+          "SerializedType": "Consultingwerk.NameValuePair",
+          "Name": "MandatoryColumns"
+        },
+        {
+          "SerializedType": "Consultingwerk.NameValuePair",
+          "Name": "DefaultSort",
+          "Value": "BY eSmartTranslation.TranslationKey BY eSmartTranslation.OriginalString"
+        }
+      ]
+    }
+  ]
+}

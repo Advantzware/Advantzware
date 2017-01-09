@@ -37,4 +37,10 @@
     <ServiceClassName>Consultingwerk.SmartFramework.Authorization.SecurityService</ServiceClassName>
   </ttServiceLoaderRow>       
   
+  <ttServiceLoaderRow>
+    <Order>24</Order>
+    <ServiceTypeName>Consultingwerk.SmartFramework.Authorization.ITokenSecurityService,Consultingwerk.SmartFramework.Authorization.IToolbarItemSecurityService</ServiceTypeName>
+    <ServiceClassName>Consultingwerk.SmartFramework.Authorization.AuthorizationClient</ServiceClassName>
+  </ttServiceLoaderRow>      
+    
 </ttServiceLoader>

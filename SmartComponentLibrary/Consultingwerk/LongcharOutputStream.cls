@@ -28,26 +28,26 @@ CLASS Consultingwerk.LongcharOutputStream IMPLEMENTS IOutputStream:
 
     DEFINE VARIABLE lcStream AS LONGCHAR NO-UNDO . 
 
-	/*------------------------------------------------------------------------------
-		Purpose: Returns the current longchar data  																	  
-		Notes:
-	    @return The current longchar data  																	  
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC LONGCHAR GetLongchar ():
-		
-		RETURN lcStream.
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the current longchar data                                                                        
+        Notes:
+        @return The current longchar data                                                                        
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC LONGCHAR GetLongchar ():
+        
+        RETURN lcStream.
 
-	END METHOD.
+    END METHOD.
 
-	/*------------------------------------------------------------------------------
-		Purpose: Resets the stream by deleting the stored LONGCHAR data  																	  
-		Notes:  																	  
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID Reset ():
-		
-		lcStream = "":U . 
+    /*------------------------------------------------------------------------------
+        Purpose: Resets the stream by deleting the stored LONGCHAR data                                                                        
+        Notes:                                                                        
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC VOID Reset ():
+        
+        lcStream = "":U . 
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Resets the stream by deleting the stored LONGCHAR data and sets the
@@ -89,6 +89,6 @@ CLASS Consultingwerk.LongcharOutputStream IMPLEMENTS IOutputStream:
 
         lcStream = lcStream + pcText + Consultingwerk.Environment:NewLine .
 
-	END METHOD.
+    END METHOD.
 
 END CLASS.

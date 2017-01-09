@@ -38,17 +38,17 @@ CLASS Consultingwerk.SmartFramework.MessageFormatter:
         @param piMessageNumber The message number to return
         @return The message structure
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC CHARACTER GetMessage (pcMessageGroup AS CHARACTER,
-	                                           piMessageNumber AS INTEGER):
-		
-		RETURN GetMessage (pcMessageGroup, 
-		                   piMessageNumber, 
-		                   "":U, "":U, "":U, 
-		                   "":U, "":U, "":U, 
-		                   "":U, "":U, "":U).
+    METHOD PUBLIC STATIC CHARACTER GetMessage (pcMessageGroup AS CHARACTER,
+                                               piMessageNumber AS INTEGER):
+        
+        RETURN GetMessage (pcMessageGroup, 
+                           piMessageNumber, 
+                           "":U, "":U, "":U, 
+                           "":U, "":U, "":U, 
+                           "":U, "":U, "":U).
 
-	END METHOD .
-	
+    END METHOD .
+    
     /*------------------------------------------------------------------------------
         Purpose: Returns a message structure to be expanded on the client using the 
                  IMessageProvider  
@@ -68,7 +68,7 @@ CLASS Consultingwerk.SmartFramework.MessageFormatter:
                            "":U, "":U, "":U, 
                            "":U, "":U, "":U).
 
-    END METHOD .	
+    END METHOD .    
     /*------------------------------------------------------------------------------
         Purpose: Returns a message structure to be expanded on the client using the 
                  IMessageProvider  
@@ -90,7 +90,7 @@ CLASS Consultingwerk.SmartFramework.MessageFormatter:
                            "":U, "":U, "":U, 
                            "":U, "":U, "":U).
 
-    END METHOD .	
+    END METHOD .    
     /*------------------------------------------------------------------------------
         Purpose: Returns a message structure to be expanded on the client using the 
                  IMessageProvider  
@@ -115,7 +115,7 @@ CLASS Consultingwerk.SmartFramework.MessageFormatter:
                            "":U, "":U, "":U).
 
     END METHOD .
-    	
+        
     /*------------------------------------------------------------------------------
         Purpose: Returns a message structure to be expanded on the client using the 
                  IMessageProvider  
@@ -142,7 +142,7 @@ CLASS Consultingwerk.SmartFramework.MessageFormatter:
                            "":U, "":U, "":U).
 
     END METHOD .
-    	
+        
     /*------------------------------------------------------------------------------
         Purpose: Returns a message structure to be expanded on the client using the 
                  IMessageProvider  
@@ -171,7 +171,7 @@ CLASS Consultingwerk.SmartFramework.MessageFormatter:
                            "":U, "":U, "":U).
 
     END METHOD .
-    	
+        
     /*------------------------------------------------------------------------------
         Purpose: Returns a message structure to be expanded on the client using the 
                  IMessageProvider  

@@ -15,9 +15,9 @@
 
     Syntax      :
 
-    Description : 
+    Description :
 
-    Author(s)   : 
+    Author(s)   :
     Created     : Tue Oct 20 20:33:31 CEST 2015
     Notes       :
   ----------------------------------------------------------------------*/
@@ -28,12 +28,12 @@
 { Consultingwerk/SmartFramework/Repository/Class/eSmartAttributeValue.i }
 &ENDIF
 
-DEFINE {&ACCESS} TEMP-TABLE eDesignAttributeValue{&SUFFIX} NO-UNDO {&REFERENCE-ONLY} 
-    LIKE eSmartAttributeValue 
+DEFINE {&ACCESS} TEMP-TABLE eDesignAttributeValue{&SUFFIX} NO-UNDO {&REFERENCE-ONLY}
+    LIKE eSmartAttributeValue
     &IF DEFINED (NO-BEFORE) EQ 0 &THEN BEFORE-TABLE eDesignAttributeValueBefore{&SUFFIX} &ENDIF
 
-    FIELD IsInherited AS LOGICAL INIT TRUE 
-    FIELD InheritedFrom AS CHARACTER 
+    FIELD IsInherited AS LOGICAL INIT TRUE
+    FIELD InheritedFrom AS CHARACTER
 
     FIELD TechnicalName AS CHARACTER FORMAT "x(40)":U LABEL "Technical Name":T
     FIELD AttributeDesription AS CHARACTER FORMAT "x(400)":U LABEL "Description":T
@@ -42,8 +42,7 @@ DEFINE {&ACCESS} TEMP-TABLE eDesignAttributeValue{&SUFFIX} NO-UNDO {&REFERENCE-O
     FIELD PropertyType AS CHARACTER FORMAT "x(80)":U LABEL "Property Type":T
     FIELD RepositoryType AS CHARACTER FORMAT "x(12)":U LABEL "Repository Type":T
     FIELD PropertyOrEvent AS LOGICAL FORMAT "Property/Event":U INIT "yes":U LABEL "PropertyOrEvent":T
-    . 
-    
-DEFINE DATASET dsDesignAttributeValue FOR eDesignAttributeValue .    
-    
-    
+    .
+
+DEFINE {&ACCESS} DATASET dsDesignAttributeValue{&SUFFIX} {&REFERENCE-ONLY} FOR eDesignAttributeValue{&SUFFIX} .
+

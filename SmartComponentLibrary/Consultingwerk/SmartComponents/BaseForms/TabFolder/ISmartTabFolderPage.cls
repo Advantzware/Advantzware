@@ -30,24 +30,24 @@ INTERFACE Consultingwerk.SmartComponents.BaseForms.TabFolder.ISmartTabFolderPage
        Purpose: Returns a dictionary of SmartDataSources on the SmartTabFolderPage
        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY SmartDataSources AS DictionaryISmartDataSource NO-UNDO 
-	GET.
+    DEFINE PUBLIC PROPERTY SmartDataSources AS DictionaryISmartDataSource NO-UNDO 
+    GET.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Activates the SmartTabFolderPage (after selecting the tab)
-	    Notes:   Used to activate links
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID Activate ().
+    /*------------------------------------------------------------------------------
+        Purpose: Activates the SmartTabFolderPage (after selecting the tab)
+        Notes:   Used to activate links
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC VOID Activate ().
 
-	/*------------------------------------------------------------------------------
-	   Purpose: Initializes the SmartTabFolderPage
-	   Notes:   Allows to add SmartLinks etc.
-	   @param poDataSource The reference to the data source (from a previous tab page) 
-	   @param poTableIOSource The reference to the Table IO Source (Ribbon) on the Form
-	   @param poNavigationSource The reference to the Navigation Source (Ribbon) on the Form
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID InitializeSmartTabFolderPage (poDataSource AS ISmartDataSource,
-	                                                 poTableIOSource AS ISmartTableIOSource,
-	                                                 poNavigationSource AS ISmartNavigationSource).
+    /*------------------------------------------------------------------------------
+       Purpose: Initializes the SmartTabFolderPage
+       Notes:   Allows to add SmartLinks etc.
+       @param poDataSource The reference to the data source (from a previous tab page) 
+       @param poTableIOSource The reference to the Table IO Source (Ribbon) on the Form
+       @param poNavigationSource The reference to the Navigation Source (Ribbon) on the Form
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC VOID InitializeSmartTabFolderPage (poDataSource AS ISmartDataSource,
+                                                     poTableIOSource AS ISmartTableIOSource,
+                                                     poNavigationSource AS ISmartNavigationSource).
 
 END INTERFACE.

@@ -8,14 +8,14 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/  
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : sibeginrequest.i
-    Purpose     : 
+    Purpose     :
 
     Syntax      :
 
-    Description : 
+    Description :
 
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sun Oct 23 21:11:37 CEST 2011
@@ -24,10 +24,10 @@
 
 /* ***************************  Main Block  *************************** */
 
-        DEFINE VARIABLE lCallActivated AS LOGICAL INIT FALSE  .
-        
+        DEFINE VARIABLE lCallActivated AS LOGICAL INITIAL FALSE  .
+
         IF NOT ServiceInterface:IsActive THEN DO:
             ASSIGN lCallActivated = TRUE .
-            
+
             ServiceInterface:Activate () .
-        END.    
+        END.

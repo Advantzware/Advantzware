@@ -3001,6 +3001,23 @@ The DCU will update this table from the information in the .pfl file that the DC
     <KeyFieldAssignmentGUID/>
   </eSmartTable>
   <eSmartTable>
+    <TableGUID>e9b11d8c-4137-91a5-0c14-a873558c267c</TableGUID>
+    <TableName>SmartContextStore</TableName>
+    <DatabaseName>SmartDB</DatabaseName>
+    <TableDescription>Persistent Store for Context Dataset between Authenticated REST calls</TableDescription>
+    <UniqueKeyFields>ContextStoreGUID</UniqueKeyFields>
+    <UniqueKeyFormats>x(36)</UniqueKeyFormats>
+    <UniqueKeySubstitute>&amp;1</UniqueKeySubstitute>
+    <AllowComments>false</AllowComments>
+    <AllowAttachments>false</AllowAttachments>
+    <DescriptionFields/>
+    <DescriptionFormats/>
+    <DescriptionSubstitute/>
+    <QualifiedTableName>SmartDB.SmartContextStore</QualifiedTableName>
+    <TempTableName/>
+    <KeyFieldAssignmentGUID/>
+  </eSmartTable>
+  <eSmartTable>
     <TableGUID>ac858ba7-c01b-78bb-0114-84bd9c800acd</TableGUID>
     <TableName>SmartCustomization</TableName>
     <DatabaseName>SmartDB</DatabaseName>
@@ -3065,6 +3082,23 @@ The DCU will update this table from the information in the .pfl file that the DC
     <DescriptionFormats/>
     <DescriptionSubstitute/>
     <QualifiedTableName>SmartDB.SmartDeletion</QualifiedTableName>
+    <TempTableName/>
+    <KeyFieldAssignmentGUID/>
+  </eSmartTable>
+  <eSmartTable>
+    <TableGUID>e89b8bc5-cac3-f4b3-1d14-c3a64dd44752</TableGUID>
+    <TableName>SmartEntityFieldMapping</TableName>
+    <DatabaseName>SmartDB</DatabaseName>
+    <TableDescription/>
+    <UniqueKeyFields>EntityFieldMappingGuid</UniqueKeyFields>
+    <UniqueKeyFormats>x(36)</UniqueKeyFormats>
+    <UniqueKeySubstitute>&amp;1</UniqueKeySubstitute>
+    <AllowComments>false</AllowComments>
+    <AllowAttachments>false</AllowAttachments>
+    <DescriptionFields/>
+    <DescriptionFormats/>
+    <DescriptionSubstitute/>
+    <QualifiedTableName>SmartDB.SmartEntityFieldMapping</QualifiedTableName>
     <TempTableName/>
     <KeyFieldAssignmentGUID/>
   </eSmartTable>
@@ -3273,6 +3307,23 @@ The DCU will update this table from the information in the .pfl file that the DC
     <KeyFieldAssignmentGUID/>
   </eSmartTable>
   <eSmartTable>
+    <TableGUID>e89b8bc5-cac3-f4b3-1d14-c3a64fd44752</TableGUID>
+    <TableName>SmartModifiedState</TableName>
+    <DatabaseName>SmartDB</DatabaseName>
+    <TableDescription/>
+    <UniqueKeyFields>ModifiedStateGuid</UniqueKeyFields>
+    <UniqueKeyFormats>x(36)</UniqueKeyFormats>
+    <UniqueKeySubstitute>&amp;1</UniqueKeySubstitute>
+    <AllowComments>false</AllowComments>
+    <AllowAttachments>false</AllowAttachments>
+    <DescriptionFields/>
+    <DescriptionFormats/>
+    <DescriptionSubstitute/>
+    <QualifiedTableName>SmartDB.SmartModifiedState</QualifiedTableName>
+    <TempTableName/>
+    <KeyFieldAssignmentGUID/>
+  </eSmartTable>
+  <eSmartTable>
     <TableGUID>db2075a5-f925-d997-e211-273b01a96923</TableGUID>
     <TableName>SmartModule</TableName>
     <DatabaseName>SmartDB</DatabaseName>
@@ -3316,9 +3367,9 @@ The DCU will update this table from the information in the .pfl file that the DC
     <UniqueKeySubstitute>&amp;1</UniqueKeySubstitute>
     <AllowComments>false</AllowComments>
     <AllowAttachments>false</AllowAttachments>
-    <DescriptionFields/>
-    <DescriptionFormats/>
-    <DescriptionSubstitute/>
+    <DescriptionFields>ObjectName</DescriptionFields>
+    <DescriptionFormats>x(80)</DescriptionFormats>
+    <DescriptionSubstitute>&amp;1</DescriptionSubstitute>
     <QualifiedTableName>SmartDB.SmartObjectMaster</QualifiedTableName>
     <TempTableName/>
     <KeyFieldAssignmentGUID/>
@@ -3388,6 +3439,57 @@ The DCU will update this table from the information in the .pfl file that the DC
     <DescriptionFormats/>
     <DescriptionSubstitute/>
     <QualifiedTableName>SmartDB.SmartRelation</QualifiedTableName>
+    <TempTableName/>
+    <KeyFieldAssignmentGUID/>
+  </eSmartTable>
+  <eSmartTable>
+    <TableGUID>e89b8bc5-cac3-f4b3-1d14-c3a6fdfd4a52</TableGUID>
+    <TableName>SmartSchedulerJob</TableName>
+    <DatabaseName>SmartDB</DatabaseName>
+    <TableDescription/>
+    <UniqueKeyFields>SchedulerJobGuid</UniqueKeyFields>
+    <UniqueKeyFormats>x(36)</UniqueKeyFormats>
+    <UniqueKeySubstitute>&amp;1</UniqueKeySubstitute>
+    <AllowComments>false</AllowComments>
+    <AllowAttachments>false</AllowAttachments>
+    <DescriptionFields/>
+    <DescriptionFormats/>
+    <DescriptionSubstitute/>
+    <QualifiedTableName>SmartDB.SmartSchedulerJob</QualifiedTableName>
+    <TempTableName/>
+    <KeyFieldAssignmentGUID/>
+  </eSmartTable>
+  <eSmartTable>
+    <TableGUID>e89b8bc5-cac3-f4b3-1d14-c3a6fffd4a52</TableGUID>
+    <TableName>SmartSchedulerJobPlan</TableName>
+    <DatabaseName>SmartDB</DatabaseName>
+    <TableDescription/>
+    <UniqueKeyFields>SchedulerJobPlanGuid</UniqueKeyFields>
+    <UniqueKeyFormats>x(36)</UniqueKeyFormats>
+    <UniqueKeySubstitute>&amp;1</UniqueKeySubstitute>
+    <AllowComments>false</AllowComments>
+    <AllowAttachments>false</AllowAttachments>
+    <DescriptionFields/>
+    <DescriptionFormats/>
+    <DescriptionSubstitute/>
+    <QualifiedTableName>SmartDB.SmartSchedulerJobPlan</QualifiedTableName>
+    <TempTableName/>
+    <KeyFieldAssignmentGUID/>
+  </eSmartTable>
+  <eSmartTable>
+    <TableGUID>e89b8bc5-cac3-f4b3-1d14-c3a6bc034e52</TableGUID>
+    <TableName>SmartSchedulerJobStatus</TableName>
+    <DatabaseName>SmartDB</DatabaseName>
+    <TableDescription/>
+    <UniqueKeyFields>SchedulerJobStatusGuid</UniqueKeyFields>
+    <UniqueKeyFormats>x(36)</UniqueKeyFormats>
+    <UniqueKeySubstitute>&amp;1</UniqueKeySubstitute>
+    <AllowComments>false</AllowComments>
+    <AllowAttachments>false</AllowAttachments>
+    <DescriptionFields/>
+    <DescriptionFormats/>
+    <DescriptionSubstitute/>
+    <QualifiedTableName>SmartDB.SmartSchedulerJobStatus</QualifiedTableName>
     <TempTableName/>
     <KeyFieldAssignmentGUID/>
   </eSmartTable>

@@ -119,4 +119,328 @@
   <metadata name="smartBusinessEntityBindingSource1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
+  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="tbMessageGroup_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"/>
+  <data name="tbMessageGroup_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>20, 24</value>
+  </data>
+  <data name="tbMessageGroup_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>88, 14</value>
+  </data>
+  <data name="tbMessageGroup_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="tbMessageGroup_Label.Text" xml:space="preserve">
+    <value>Message Group:</value>
+  </data>
+  <data name="&gt;&gt;tbMessageGroup_Label.Name" xml:space="preserve">
+    <value>tbMessageGroup_Label</value>
+  </data>
+  <data name="&gt;&gt;tbMessageGroup_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;tbMessageGroup_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tbMessageGroup_Label.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="tbMessageGroup.Location" type="System.Drawing.Point, System.Drawing">
+    <value>130, 20</value>
+  </data>
+  <data name="tbMessageGroup.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 21</value>
+  </data>
+  <data name="tbMessageGroup.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="&gt;&gt;tbMessageGroup.Name" xml:space="preserve">
+    <value>tbMessageGroup</value>
+  </data>
+  <data name="&gt;&gt;tbMessageGroup.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;tbMessageGroup.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tbMessageGroup.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="tbMessageNumber_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="tbMessageNumber_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>300, 24</value>
+  </data>
+  <data name="tbMessageNumber_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>48, 14</value>
+  </data>
+  <data name="tbMessageNumber_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="tbMessageNumber_Label.Text" xml:space="preserve">
+    <value>Number:</value>
+  </data>
+  <data name="&gt;&gt;tbMessageNumber_Label.Name" xml:space="preserve">
+    <value>tbMessageNumber_Label</value>
+  </data>
+  <data name="&gt;&gt;tbMessageNumber_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;tbMessageNumber_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tbMessageNumber_Label.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="tbMessageNumber.Location" type="System.Drawing.Point, System.Drawing">
+    <value>356, 20</value>
+  </data>
+  <data name="tbMessageNumber.Size" type="System.Drawing.Size, System.Drawing">
+    <value>134, 21</value>
+  </data>
+  <data name="tbMessageNumber.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="&gt;&gt;tbMessageNumber.Name" xml:space="preserve">
+    <value>tbMessageNumber</value>
+  </data>
+  <data name="&gt;&gt;tbMessageNumber.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraNumericEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;tbMessageNumber.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tbMessageNumber.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <data name="tbLanguageGuid_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="tbLanguageGuid_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>20, 51</value>
+  </data>
+  <data name="tbLanguageGuid_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>58, 14</value>
+  </data>
+  <data name="tbLanguageGuid_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="tbLanguageGuid_Label.Text" xml:space="preserve">
+    <value>Language:</value>
+  </data>
+  <data name="&gt;&gt;tbLanguageGuid_Label.Name" xml:space="preserve">
+    <value>tbLanguageGuid_Label</value>
+  </data>
+  <data name="&gt;&gt;tbLanguageGuid_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;tbLanguageGuid_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tbLanguageGuid_Label.ZOrder" xml:space="preserve">
+    <value>6</value>
+  </data>
+  <data name="tbMessageText_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="tbMessageText_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>20, 78</value>
+  </data>
+  <data name="tbMessageText_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>29, 14</value>
+  </data>
+  <data name="tbMessageText_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>8</value>
+  </data>
+  <data name="tbMessageText_Label.Text" xml:space="preserve">
+    <value>Text:</value>
+  </data>
+  <data name="&gt;&gt;tbMessageText_Label.Name" xml:space="preserve">
+    <value>tbMessageText_Label</value>
+  </data>
+  <data name="&gt;&gt;tbMessageText_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;tbMessageText_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tbMessageText_Label.ZOrder" xml:space="preserve">
+    <value>7</value>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="tbMessageText.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="tbMessageText.Location" type="System.Drawing.Point, System.Drawing">
+    <value>130, 74</value>
+  </data>
+  <data name="tbMessageText.Multiline" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="tbMessageText.Size" type="System.Drawing.Size, System.Drawing">
+    <value>360, 57</value>
+  </data>
+  <data name="tbMessageText.TabIndex" type="System.Int32, mscorlib">
+    <value>9</value>
+  </data>
+  <data name="&gt;&gt;tbMessageText.Name" xml:space="preserve">
+    <value>tbMessageText</value>
+  </data>
+  <data name="&gt;&gt;tbMessageText.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;tbMessageText.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tbMessageText.ZOrder" xml:space="preserve">
+    <value>8</value>
+  </data>
+  <data name="tbMessageDetail_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="tbMessageDetail_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>20, 139</value>
+  </data>
+  <data name="tbMessageDetail_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>36, 14</value>
+  </data>
+  <data name="tbMessageDetail_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>10</value>
+  </data>
+  <data name="tbMessageDetail_Label.Text" xml:space="preserve">
+    <value>Detail:</value>
+  </data>
+  <data name="&gt;&gt;tbMessageDetail_Label.Name" xml:space="preserve">
+    <value>tbMessageDetail_Label</value>
+  </data>
+  <data name="&gt;&gt;tbMessageDetail_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;tbMessageDetail_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tbMessageDetail_Label.ZOrder" xml:space="preserve">
+    <value>9</value>
+  </data>
+  <data name="tbMessageDetail.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Bottom, Left, Right</value>
+  </data>
+  <data name="tbMessageDetail.Location" type="System.Drawing.Point, System.Drawing">
+    <value>130, 137</value>
+  </data>
+  <data name="tbMessageDetail.Multiline" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="tbMessageDetail.Size" type="System.Drawing.Size, System.Drawing">
+    <value>360, 165</value>
+  </data>
+  <data name="tbMessageDetail.TabIndex" type="System.Int32, mscorlib">
+    <value>11</value>
+  </data>
+  <data name="&gt;&gt;tbMessageDetail.Name" xml:space="preserve">
+    <value>tbMessageDetail</value>
+  </data>
+  <data name="&gt;&gt;tbMessageDetail.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;tbMessageDetail.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tbMessageDetail.ZOrder" xml:space="preserve">
+    <value>10</value>
+  </data>
+  <data name="tbMessageType_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="tbMessageType_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>300, 51</value>
+  </data>
+  <data name="tbMessageType_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>33, 14</value>
+  </data>
+  <data name="tbMessageType_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>6</value>
+  </data>
+  <data name="tbMessageType_Label.Text" xml:space="preserve">
+    <value>Type:</value>
+  </data>
+  <data name="&gt;&gt;tbMessageType_Label.Name" xml:space="preserve">
+    <value>tbMessageType_Label</value>
+  </data>
+  <data name="&gt;&gt;tbMessageType_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;tbMessageType_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tbMessageType_Label.ZOrder" xml:space="preserve">
+    <value>11</value>
+  </data>
+  <data name="ultraComboEditor1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>130, 47</value>
+  </data>
+  <data name="ultraComboEditor1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 21</value>
+  </data>
+  <data name="ultraComboEditor1.TabIndex" type="System.Int32, mscorlib">
+    <value>5</value>
+  </data>
+  <data name="&gt;&gt;ultraComboEditor1.Name" xml:space="preserve">
+    <value>ultraComboEditor1</value>
+  </data>
+  <data name="&gt;&gt;ultraComboEditor1.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraComboEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraComboEditor1.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraComboEditor1.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="ultraComboEditor2.Location" type="System.Drawing.Point, System.Drawing">
+    <value>356, 47</value>
+  </data>
+  <data name="ultraComboEditor2.Size" type="System.Drawing.Size, System.Drawing">
+    <value>134, 21</value>
+  </data>
+  <data name="ultraComboEditor2.TabIndex" type="System.Int32, mscorlib">
+    <value>7</value>
+  </data>
+  <data name="&gt;&gt;ultraComboEditor2.Name" xml:space="preserve">
+    <value>ultraComboEditor2</value>
+  </data>
+  <data name="&gt;&gt;ultraComboEditor2.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraComboEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraComboEditor2.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraComboEditor2.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing">
+    <value>6, 13</value>
+  </data>
+  <data name="$this.Size" type="System.Drawing.Size, System.Drawing">
+    <value>493, 305</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1.Name" xml:space="preserve">
+    <value>smartBusinessEntityBindingSource1</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;$this.Name" xml:space="preserve">
+    <value>SmartMessageViewerControl</value>
+  </data>
+  <data name="&gt;&gt;$this.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Base.SmartViewerControl, OEProxyAssembly, Version=11.6.0.3, Culture=neutral, PublicKeyToken=null</value>
+  </data>
 </root>

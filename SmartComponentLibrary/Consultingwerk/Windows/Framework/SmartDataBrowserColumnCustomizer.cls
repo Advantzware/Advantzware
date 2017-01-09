@@ -49,14 +49,14 @@ CLASS Consultingwerk.Windows.Framework.SmartDataBrowserColumnCustomizer
         @param poGrid The reference to the SmartDataBrowserControl
         @param poColumn The Column. The callback should directly manipulate the Column properties
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID AssignColumnProperties (poGrid AS SmartDataBrowser, 
-	                                           poColumn AS UltraGridColumn):
-		
-/*		IF poColumn:Key MATCHES "*Guid":U AND NOT VALID-OBJECT (poColumn:ValueList) THEN*/
-/*		    ASSIGN poColumn:Hidden                   = TRUE                             */
-/*		           poColumn:ExcludeFromColumnChooser = ExcludeFromColumnChooser:True .  */
+    METHOD PUBLIC VOID AssignColumnProperties (poGrid AS SmartDataBrowser, 
+                                               poColumn AS UltraGridColumn):
+        
+/*        IF poColumn:Key MATCHES "*Guid":U AND NOT VALID-OBJECT (poColumn:ValueList) THEN*/
+/*            ASSIGN poColumn:Hidden                   = TRUE                             */
+/*                   poColumn:ExcludeFromColumnChooser = ExcludeFromColumnChooser:True .  */
 
-	END METHOD .
+    END METHOD .
 &ENDIF
 
 END CLASS.

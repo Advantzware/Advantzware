@@ -33,9 +33,9 @@ CLASS Consultingwerk.SmartComponents.TypeDescriptor.PropertyDescriptorCollection
         Purpose: Gets and sets the name of the class that these properties belong to  
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY TypeName AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY TypeName AS CHARACTER NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Adds an IPropertyDescriptor to the Collection
@@ -43,10 +43,10 @@ CLASS Consultingwerk.SmartComponents.TypeDescriptor.PropertyDescriptorCollection
         @param pcPropertyName The name of the property to add
         @return The new IPropertyDescriptor instance 
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC IPropertyDescriptor Add (pcPropertyName AS CHARACTER):
-		
-		RETURN THIS-OBJECT:Add (pcPropertyName, NEW PropertyDescriptor (pcPropertyName)) .
+    METHOD PUBLIC IPropertyDescriptor Add (pcPropertyName AS CHARACTER):
+        
+        RETURN THIS-OBJECT:Add (pcPropertyName, NEW PropertyDescriptor (pcPropertyName)) .
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

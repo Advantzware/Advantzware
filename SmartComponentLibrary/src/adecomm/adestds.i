@@ -33,7 +33,7 @@ Description:
          This file contains pre-processor definitions that should be used for
          consistent user interface layout across dialog boxes.
 
-	Defines all the product names
+    Defines all the product names
 
 Author: Wm.T.Wood + Ravi-Chandar Ramalingam + Mike Pacholec
 
@@ -45,9 +45,9 @@ Date Created: January 14, 1993
          05-11-93 mikep remove underscores from globals (disturbing ccall)
          05-14-93 mikep changed editor phrase handing
          05-17-93 wood  remove quotes from definition for UIB_SHORT_NAME
-	 05-19-93 ravi  changed UIB-name to Window Builder and added new
-		        copyright information which will not require us to
-			type this log as it will be a part of RCS/SCC log
+     05-19-93 ravi  changed UIB-name to Window Builder and added new
+                copyright information which will not require us to
+            type this log as it will be a part of RCS/SCC log
 ----------------------------------------------------------------------------*/
 &GLOBAL ADESTDSI "" /* allow to check if this file has already been included */
 
@@ -168,9 +168,9 @@ DEFINE NEW GLOBAL SHARED VARIABLE wfRunning  AS CHARACTER NO-UNDO.
  &GLOBAL HM_DBTNG     2   /* horizontal margin between default button groups */
 &ELSE
  &GLOBAL HM_DBTN      {&HM_BTN}  /* horizontal margin between default buttons 
-      	       	     	      	    in the same group */
+                                            in the same group */
  &GLOBAL HM_DBTNG     {&HM_BTNG} /* horizontal margin between default button 
-      	       	     	      	    groups */
+                                            groups */
 &ENDIF
 
 /* generic margins relating to the frame */
@@ -243,7 +243,7 @@ DEFINE NEW GLOBAL SHARED VARIABLE wfRunning  AS CHARACTER NO-UNDO.
 
 &IF "{&WINDOW-SYSTEM}" = "OSF/Motif" &THEN
  &GLOBAL HFM_OKBOX    0 /* effectively, the horizontal frame margin between 
-      	       	     	 frame and help btn since there's no ok box */
+                               frame and help btn since there's no ok box */
 &ELSE
  &GLOBAL HFM_OKBOX    1 /* horizontal frame margin for the ok box */
 &ENDIF

@@ -37,21 +37,21 @@ CLASS Consultingwerk.Studio.P4.Changes:
         @param piMax The Maximum number of Change lists
         @param ttChangeLists OUTPUT The temp-table with the change list descriptions
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID GetChanges (poStatus AS ChangeListStatusEnum,
-	                               piMax AS INTEGER,
-	                               OUTPUT TABLE ttChangeLists):
-		
-		DEFINE VARIABLE cCommand   AS CHARACTER     NO-UNDO .
-		DEFINE VARIABLE oTokenizer AS Tokenizer     NO-UNDO . 
-		DEFINE VARIABLE cLine      AS CHARACTER     NO-UNDO .
-		DEFINE VARIABLE oList      AS CharacterList NO-UNDO.
-		
-		EMPTY TEMP-TABLE ttChangeLists . 
-		
-		ASSIGN cCommand = "p4 changes -t ":U .
-		
-		IF VALID-OBJECT (poStatus) THEN 
-		    ASSIGN cCommand = cCommand + SUBSTITUTE ("-s &1 ":U, LC (STRING (poStatus))) .
+    METHOD PUBLIC VOID GetChanges (poStatus AS ChangeListStatusEnum,
+                                   piMax AS INTEGER,
+                                   OUTPUT TABLE ttChangeLists):
+        
+        DEFINE VARIABLE cCommand   AS CHARACTER     NO-UNDO .
+        DEFINE VARIABLE oTokenizer AS Tokenizer     NO-UNDO . 
+        DEFINE VARIABLE cLine      AS CHARACTER     NO-UNDO .
+        DEFINE VARIABLE oList      AS CharacterList NO-UNDO.
+        
+        EMPTY TEMP-TABLE ttChangeLists . 
+        
+        ASSIGN cCommand = "p4 changes -t ":U .
+        
+        IF VALID-OBJECT (poStatus) THEN 
+            ASSIGN cCommand = cCommand + SUBSTITUTE ("-s &1 ":U, LC (STRING (poStatus))) .
 
         IF piMax > 0 THEN 
             ASSIGN cCommand = cCommand + SUBSTITUTE ("-m &1 ":U, piMax) .
@@ -76,6 +76,6 @@ CLASS Consultingwerk.Studio.P4.Changes:
             END.
         END.
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

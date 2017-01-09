@@ -1,8 +1,95 @@
 {
   "SerializedType": "Consultingwerk.Framework.TypeDescriptor.ClassAnnotationContainer",
   "ClassName": "Consultingwerk.SmartFramework.Repository.Class.ObjectTypeBusinessEntity",
-  "TimeStamp": "2015-10-29T18:07:22.322+01:00",
+  "TimeStamp": "2016-11-13T12:26:49.670+01:00",
+  "Annotations": [
+    {
+      "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableAnnotation",
+      "Name": "@BusinessEntityTable",
+      "Parameters": [
+        {
+          "SerializedType": "Consultingwerk.NameValuePair",
+          "Name": "name",
+          "Value": "eSmartObjectType"
+        },
+        {
+          "SerializedType": "Consultingwerk.NameValuePair",
+          "Name": "MandatoryColumns",
+          "Value": "ObjectTypeName"
+        },
+        {
+          "SerializedType": "Consultingwerk.NameValuePair",
+          "Name": "DefaultSort",
+          "Value": "BY eSmartObjectType.ObjectTypeName"
+        }
+      ]
+    }
+  ],
   "Methods": [
+    {
+      "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableClassMemberAnnotation",
+      "Name": "ClassIsA",
+      "Annotations": [
+        {
+          "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableAnnotation",
+          "Name": "@InvokeMethod",
+          "Parameters": [
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "template",
+              "Value": "invoke-receive-dataset"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "parameterClassName",
+              "Value": "Consultingwerk.SmartFramework.Repository.Class.ClassIsAParameter"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "datasetInput",
+              "Value": "false"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "datasetOutput",
+              "Value": "true"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableClassMemberAnnotation",
+      "Name": "GetChildClasses",
+      "Annotations": [
+        {
+          "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableAnnotation",
+          "Name": "@InvokeMethod",
+          "Parameters": [
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "template",
+              "Value": "invoke-receive-dataset"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "parameterClassName",
+              "Value": "Consultingwerk.SmartFramework.Repository.Class.GetChildClassesParameter"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "datasetInput",
+              "Value": "false"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "datasetOutput",
+              "Value": "true"
+            }
+          ]
+        }
+      ]
+    },
     {
       "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableClassMemberAnnotation",
       "Name": "GetParentClasses",

@@ -38,40 +38,40 @@ CLASS Consultingwerk.SmartComponents.Base.SmartViewerLogic
                  instance of the Viewer Logic Object 
         Notes:   The Owner property cannot be modified once set   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Owner AS SmartViewerControl NO-UNDO 
-	GET.
-	SET (arg AS SmartViewerControl):
-	    
-	    IF NOT VALID-OBJECT (arg) THEN 
+    DEFINE PUBLIC PROPERTY Owner AS SmartViewerControl NO-UNDO 
+    GET.
+    SET (arg AS SmartViewerControl):
+        
+        IF NOT VALID-OBJECT (arg) THEN 
             UNDO, THROW NEW InvalidValueException ("?":U, 
                                                    "Owner":U) .
-	    
-	    IF VALID-OBJECT (THIS-OBJECT:Owner) THEN 
-	        UNDO, THROW NEW InvalidValueException (arg:ToString (),
-	                                               "Owner":U) .
-	    
-	    THIS-OBJECT:Owner = arg .
-	    
-	END. 
+        
+        IF VALID-OBJECT (THIS-OBJECT:Owner) THEN 
+            UNDO, THROW NEW InvalidValueException (arg:ToString (),
+                                                   "Owner":U) .
+        
+        THIS-OBJECT:Owner = arg .
+        
+    END. 
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the List of attached SmartViewerControl instances 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY SmartViewerControls AS ListSmartViewerControl NO-UNDO 
-	GET.
-	PRIVATE SET. 
-	
+    DEFINE PUBLIC PROPERTY SmartViewerControls AS ListSmartViewerControl NO-UNDO 
+    GET.
+    PRIVATE SET. 
+    
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the SmartViewerLogic class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC SmartViewerLogic ():
-		SUPER ().
-		
-		THIS-OBJECT:SmartViewerControls = NEW ListSmartViewerControl () . 
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC SmartViewerLogic ():
+        SUPER ().
+        
+        THIS-OBJECT:SmartViewerControls = NEW ListSmartViewerControl () . 
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the reference to the first Control that is bound to the named 
@@ -139,11 +139,11 @@ CLASS Consultingwerk.SmartComponents.Base.SmartViewerLogic
         Purpose: Initializes the SmartViewerLogic instance
         Notes:   
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID Initialize ():
-		
-		THIS-OBJECT:SubscribeEvents() .
+    METHOD PUBLIC VOID Initialize ():
+        
+        THIS-OBJECT:SubscribeEvents() .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Handshake method for SmartViewerControl instances 
@@ -151,13 +151,13 @@ CLASS Consultingwerk.SmartComponents.Base.SmartViewerLogic
                  specific viewer
         @param poSmartViewerControl The SmartViewerControl instance this logic class will provid logic for
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID RegisterSmartViewerControl (poSmartViewerControl AS SmartViewerControl):
-		
+    METHOD PUBLIC VOID RegisterSmartViewerControl (poSmartViewerControl AS SmartViewerControl):
+        
         ASSIGN poSmartViewerControl:ViewerLogicObject = THIS-OBJECT . 
 
         THIS-OBJECT:SmartViewerControls:Add (poSmartViewerControl) .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Shuts down the SmartViewerLogic instance
@@ -174,7 +174,7 @@ CLASS Consultingwerk.SmartComponents.Base.SmartViewerLogic
         Notes:   This method needs to be implemented by the Viewer Logic class and 
                  is supposed to subscribe to control events
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC ABSTRACT VOID SubscribeEvents ().
+    METHOD PUBLIC ABSTRACT VOID SubscribeEvents ().
 
     /*------------------------------------------------------------------------------
         Purpose: Unsubscribes the events for an attached viewer instance

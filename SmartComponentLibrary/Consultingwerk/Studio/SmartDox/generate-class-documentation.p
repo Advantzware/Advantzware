@@ -60,9 +60,9 @@ MESSAGE "Target File:     ":U cTargetFile .
 oParameter = NEW Consultingwerk.Studio.SmartDox.SmartDoxParameter ().
 oParameter:TargetFile = cTargetFile .
 
-FILE-INFO:FILE-NAME = cSourceDir .
-IF FILE-INFO:FULL-PATHNAME > "":U THEN 
-    ASSIGN oParameter:SourceDir = FILE-INFO:FULL-PATHNAME .
+FILE-INFORMATION:FILE-NAME = cSourceDir .
+IF FILE-INFORMATION:FULL-PATHNAME > "":U THEN 
+    ASSIGN oParameter:SourceDir = FILE-INFORMATION:FULL-PATHNAME .
 ELSE 
     UNDO, THROW NEW Consultingwerk.Exceptions.InvalidParameterValueException ("SourceDir":U, 
                                                                               cSourceDir,
@@ -75,10 +75,10 @@ oDoc:GenerateClassReference (oParameter).
 RETURN "0":U . 
 
 CATCH err AS Progress.Lang.Error :
-	DO i = 1 TO err:NumMessages:
-	
-	   MESSAGE err:GetMessage (i) .
-	END.
+    DO i = 1 TO err:NumMessages:
+    
+       MESSAGE err:GetMessage (i) .
+    END.
 
     IF err:CallStack > "":U THEN 
         MESSAGE err:CallStack . 

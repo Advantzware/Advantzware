@@ -27,21 +27,21 @@
 /* ***************************  Main Block  *************************** */
 
             /* Mike Fechner, Consultingwerk Ltd. 16.01.2016
-               SCL-1167 - workaournd ABL issue with DYNAMIC-INVOKE when the parameter object = ? */
+               SCL-1167 - workaround ABL issue with DYNAMIC-INVOKE when the parameter object = ? */
             &IF DEFINED (AblReflection) NE 0 &THEN
             IF NOT VALID-OBJECT (poParameter) THEN DO:
-                
+
                 oMethod = AblReflectionHelper:GetInvokableMethod (oTask:GetClass(), pcMethodName, piNumDatasets) .
-                
-                IF NOT VALID-OBJECT (oMethod) THEN 
+
+                IF NOT VALID-OBJECT (oMethod) THEN
                     UNDO, THROW NEW MethodInvokationException (SUBSTITUTE ("Invalid method &1 in &2"{&TRAN},
                                                                            pcMethodName,
                                                                            pcTaskName),
-                                                               0, 
+                                                               0,
                                                                pcMethodName) .
-                
+
                 oParameterList = NEW ParameterList (piNumDatasets + 1) .
-                
+
                 &IF "{1}"  NE "" &THEN oParameterList:SetParameter (1,  "DATASET-HANDLE":U,             IoModeEnum:InputOutput, {1})  . &ENDIF
                 &IF "{2}"  NE "" &THEN oParameterList:SetParameter (2,  "DATASET-HANDLE":U,             IoModeEnum:InputOutput, {2})  . &ENDIF
                 &IF "{3}"  NE "" &THEN oParameterList:SetParameter (3,  "DATASET-HANDLE":U,             IoModeEnum:InputOutput, {3})  . &ENDIF
@@ -56,5 +56,5 @@
 
                 oMethod:Invoke (oTask, oParameterList).
             END.
-            ELSE 
+            ELSE
             &ENDIF

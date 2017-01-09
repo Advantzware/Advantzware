@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2006-2013 by Consultingwerk Ltd. ("CW") -            *
+ * Copyright (C) 2006-2016 by Consultingwerk Ltd. ("CW") -            *
  * www.consultingwerk.de and other contributors as listed             *
  * below.  All Rights Reserved.                                       *
  *                                                                    *
@@ -12,55 +12,59 @@
 /*------------------------------------------------------------------------
     File        : IBusinessEntity
     Purpose     : Provides Access and Business Logik for a ProDataset
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Wed Feb 24 22:22:20 CET 2010
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
-USING Consultingwerk.OERA.* .
-USING Progress.Lang.* .
+USING Consultingwerk.OERA.* FROM PROPATH .
+USING Progress.Lang.*       FROM PROPATH .
 
-INTERFACE Consultingwerk.OERA.IBusinessEntity:  
+INTERFACE Consultingwerk.OERA.IBusinessEntity
+&IF NOT PROVERSION BEGINS "10.2" &THEN
+    INHERITS IBusinessService
+&ENDIF
+    :
 
     /*------------------------------------------------------------------------------
-        Purpose:  Fetch data and/or definitions  
-        Notes:               
+        Purpose:  Fetch data and/or definitions
+        Notes:
         @param poFetchDataRequest The IFetchDataRequest object with the parameter for this call
         @param phDataset OUTPUT Dataset with the resulting data
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID FetchData (poFetchDataRequest AS IFetchDataRequest,
-                                  OUTPUT DATASET-HANDLE phDataset) .  
+                                  OUTPUT DATASET-HANDLE phDataset) .
 
     /*------------------------------------------------------------------------------
-        Purpose: Creates and returns an empty dataset to the caller                                                                         
-        Notes:   Useful fo rdynamic callers that need access to the dataset schema prior to calling FetchData
+        Purpose: Creates and returns an empty dataset to the caller
+        Notes:   Useful for dynamic callers that need access to the dataset schema prior to calling FetchData
         @param phDataset OUTPUT Dataset with the resulting data
     ------------------------------------------------------------------------------*/
-    METHOD PUBLIC VOID FetchDataset (OUTPUT DATASET-HANDLE phDataset) .  
-    
+    METHOD PUBLIC VOID FetchDataset (OUTPUT DATASET-HANDLE phDataset) .
+
     /*------------------------------------------------------------------------------
-        Purpose: Saves changes                                                                       
+        Purpose: Saves changes
         Notes:   This method is called from consumers of the Business Entity and
                  receives the dataset.
                  This method is called by the ServiceInterface when no parameter object
-                 has been passed in   
-        @param phDataset INPUT-OUTPUT Dataset with changes                                                                     
+                 has been passed in
+        @param phDataset INPUT-OUTPUT Dataset with changes
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID SaveChanges (INPUT-OUTPUT DATASET-HANDLE phDataset) .
 
     /*------------------------------------------------------------------------------
-        Purpose: Saves changes                                                                       
+        Purpose: Saves changes
         Notes:   This method is called from consumers of the Business Entity and
-                 receives the dataset. 
+                 receives the dataset.
                  This method is called by the ServiceInterface when a parameter object
-                 has been passed in. The parameter object will be accessible from within 
-                 the business entity using the protected property SaveChangesParameter    
-        @param phDataset INPUT-OUTPUT Dataset with changes              
-        @param poParameter Optional Parameter object for the SaveChanges method                                                       
+                 has been passed in. The parameter object will be accessible from within
+                 the business entity using the protected property SaveChangesParameter
+        @param phDataset INPUT-OUTPUT Dataset with changes
+        @param poParameter Optional Parameter object for the SaveChanges method
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID SaveChanges (INPUT-OUTPUT DATASET-HANDLE phDataset,
                                     poParameter AS Progress.Lang.Object) .
-                                          
+
 END INTERFACE.

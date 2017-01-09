@@ -33,20 +33,20 @@ CLASS Consultingwerk.SmartComponents.Implementation.NewFetchDataRequestEventArgs
         Purpose: Returns the reference to the FetchDataRequest object                                                                     
         Notes:                                                                        
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY FetchDataRequest AS IFetchDataRequest NO-UNDO 
-	GET.
-	PRIVATE SET. 
+    DEFINE PUBLIC PROPERTY FetchDataRequest AS IFetchDataRequest NO-UNDO 
+    GET.
+    PRIVATE SET. 
 
-	/*------------------------------------------------------------------------------
-		Purpose: Constructor for the NewFetchDataRequestEventArgs class  																	  
-		Notes:  																	  
-	    @param poFetchDataRequest The IFetchDataRequest instand for this object
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC NewFetchDataRequestEventArgs (poFetchDataRequest AS IFetchDataRequest):
-		SUPER ().
-		
-		THIS-OBJECT:FetchDataRequest = poFetchDataRequest . 
-		
-	END CONSTRUCTOR.
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the NewFetchDataRequestEventArgs class                                                                        
+        Notes:                                                                        
+        @param poFetchDataRequest The IFetchDataRequest instand for this object
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC NewFetchDataRequestEventArgs (poFetchDataRequest AS IFetchDataRequest):
+        SUPER ().
+        
+        THIS-OBJECT:FetchDataRequest = poFetchDataRequest . 
+        
+    END CONSTRUCTOR.
 
 END CLASS.

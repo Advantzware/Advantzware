@@ -110,6 +110,8 @@
               <xsd:element name="FieldCaseSensitive" type="xsd:boolean" nillable="true" prodata:label="Case Sensitive"/>
               <xsd:element name="FieldCustomControlName" type="xsd:string" nillable="true" prodata:format="X(80)" prodata:label="Field Custom Control Name"/>
               <xsd:element name="FieldValidationInstance" type="xsd:string" nillable="true" prodata:dataType="prodata:clob" prodata:label="Validation Instance"/>
+              <xsd:element name="FieldSemanticType" type="xsd:string" nillable="true" prodata:format="X(20)" prodata:label="Field Semantic Type"/>
+              <xsd:element name="FieldSkipAssignment" type="xsd:boolean" nillable="true" prodata:label="Add field to AssignSkipDictionary"/>
             </xsd:sequence>
           </xsd:complexType>
         </xsd:element>
@@ -258,6 +260,29 @@
   </xsd:element>
   <xsd:annotation>
     <xsd:appinfo>
+      <prodata:index name="BusinessEntity">
+        <prodata:table name="eDataRelation"/>
+        <prodata:field name="BusinessEntityName"/>
+        <prodata:field name="DataRelationName"/>
+      </prodata:index>
+      <prodata:index name="ChildTempTableName">
+        <prodata:table name="eDataRelation"/>
+        <prodata:field name="ChildTempTableName"/>
+        <prodata:field name="DataRelationNotActive"/>
+      </prodata:index>
+      <prodata:index name="BusinessEntity">
+        <prodata:table name="eTable"/>
+        <prodata:field name="BusinessEntityName"/>
+        <prodata:field name="TempTableName"/>
+      </prodata:index>
+      <prodata:index name="TempTablePath">
+        <prodata:table name="eTable"/>
+        <prodata:field name="TempTablePath"/>
+      </prodata:index>
+      <prodata:index name="EntityPackageName">
+        <prodata:table name="eTable"/>
+        <prodata:field name="EntityPackageName"/>
+      </prodata:index>
       <prodata:index name="Order">
         <prodata:table name="eField"/>
         <prodata:field name="TempTableName"/>
@@ -267,6 +292,10 @@
         <prodata:table name="eIndex"/>
         <prodata:field name="TempTableName"/>
         <prodata:field name="IndexOrder"/>
+      </prodata:index>
+      <prodata:index name="DefaultSearchCodeGeneration">
+        <prodata:table name="eIndex"/>
+        <prodata:field name="DefaultSearchCodeGeneration"/>
       </prodata:index>
     </xsd:appinfo>
   </xsd:annotation>

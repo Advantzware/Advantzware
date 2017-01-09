@@ -12,14 +12,14 @@
 /*------------------------------------------------------------------------
     File        : check-dialogresult-ok.i
     Purpose     : Compares the {1} with System.Windows.Forms.DialogResult:OK
-                  and leaves the current procedure/method when it's 
+                  and leaves the current procedure/method when it's
                   not eqal
-                  
+
                   Optional second parameter {2} containing the return-value
 
     Syntax      :
 
-    Description : 
+    Description :
 
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sun Jul 03 08:55:11 CEST 2011
@@ -29,4 +29,5 @@
 /* ***************************  Main Block  *************************** */
 
     IF Progress.Util.EnumHelper:AreNotEqual ({1},
-                                             System.Windows.Forms.DialogResult:OK) THEN RETURN {2} . 
+                                             System.Windows.Forms.DialogResult:OK) THEN
+        RETURN {2} .

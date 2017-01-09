@@ -34,20 +34,20 @@ CLASS Consultingwerk.SmartFramework.FormAuthorizationProvider
         @param pcClassName The Form class name to launch
         @return Logical value indicating if the Form startup is restricted                        
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL IsFormStartupRestricted (poRequestor AS Progress.Lang.Object,
+    METHOD PUBLIC LOGICAL IsFormStartupRestricted (poRequestor AS Progress.Lang.Object,
                                                    pcClassName AS CHARACTER):
-		
+        
 /*        IF pcClassName = "Consultingwerk.SmartComponentsDemo.CustomerExplorer.Main.CustomerExplorer":U OR          */
 /*           pcClassName = "Consultingwerk.SmartComponentsDemo.CustomerExplorer.WelcomeScreen.WelcomeScreenForm":U OR*/
 /*           pcClassName = "Consultingwerk.BPM.Windows.LoginForm":U OR                                               */
 /*           pcClassName = "Consultingwerk.Windows.Session.LoginForm":U THEN                                         */
 /*                                                                                                                   */
-/*		    RETURN FALSE .                                                                                               */
-/*		                                                                                                                   */
-/*		RETURN TRUE .                                                                                                    */
+/*            RETURN FALSE .                                                                                               */
+/*                                                                                                                           */
+/*        RETURN TRUE .                                                                                                    */
 
         RETURN FALSE . 
 
-	END METHOD.
+    END METHOD.
 
 END CLASS.

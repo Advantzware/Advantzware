@@ -44,12 +44,18 @@
   </ttDesktopItemsRow>
   <ttDesktopItemsRow>
     <ItemOrder>8</ItemOrder>
+    <ItemText>Configuration File Editor</ItemText>
+    <ItemImage>Consultingwerk/Studio/Desktop/Images/control_panel.png</ItemImage>
+    <RunProcedure>Consultingwerk/Studio/ConfigurationSettingsEditor/start.p</RunProcedure>
+  </ttDesktopItemsRow>  
+  <ttDesktopItemsRow>
+    <ItemOrder>9</ItemOrder>
     <ItemText>JIRA</ItemText>
     <ItemImage>Consultingwerk/Studio/Desktop/Images/jira.png</ItemImage>
     <OpenWebSite>http://jira.consultingwerkcloud.com/</OpenWebSite>
   </ttDesktopItemsRow>
   <ttDesktopItemsRow>
-    <ItemOrder>9</ItemOrder>
+    <ItemOrder>10</ItemOrder>
     <ItemText>ESD</ItemText>
     <ItemImage>Consultingwerk/Studio/Desktop/Images/box_software.png</ItemImage>
     <OpenWebSite>https://esd.consultingwerkcloud.com/</OpenWebSite>

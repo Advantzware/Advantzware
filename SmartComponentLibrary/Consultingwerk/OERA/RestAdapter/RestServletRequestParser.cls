@@ -39,11 +39,11 @@ CLASS Consultingwerk.OERA.RestAdapter.RestServletRequestParser:
         @param poRequest The RestServletRequest to parse the QueryString from
         @return The CharacterDictionary with the query name/value pairs
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC CharacterDictionary ParseQueryString (poRequest AS RestServletRequest):
-		
-		RETURN THIS-OBJECT:ParseQueryString (poRequest:QueryString).
+    METHOD PUBLIC CharacterDictionary ParseQueryString (poRequest AS RestServletRequest):
+        
+        RETURN THIS-OBJECT:ParseQueryString (poRequest:QueryString).
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Parses the given QueryString into a CharacterDictionary 
@@ -65,8 +65,8 @@ CLASS Consultingwerk.OERA.RestAdapter.RestServletRequestParser:
         @param pcRequest The servlet request info as received as a mapped input parameter from the REST Adapter
         @return The RestServletRequest with the data for the request
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC RestServletRequest ParseServletRequest (pcRequest AS LONGCHAR):
-		
+    METHOD PUBLIC RestServletRequest ParseServletRequest (pcRequest AS LONGCHAR):
+        
         DEFINE VARIABLE oRootArray AS JsonArray          NO-UNDO.
         DEFINE VARIABLE oParser    AS ObjectModelParser  NO-UNDO.
         DEFINE VARIABLE i          AS INTEGER            NO-UNDO.
@@ -101,6 +101,6 @@ CLASS Consultingwerk.OERA.RestAdapter.RestServletRequestParser:
         
         RETURN oRequest .
         
-	END METHOD .
+    END METHOD .
 
 END CLASS.

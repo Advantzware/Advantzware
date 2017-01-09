@@ -37,10 +37,10 @@ INTERFACE Consultingwerk.BusinessEntityDesigner.Plugins.CustomServices.ICustomBu
         @param pcDataAccessName INPUT-OUTPUT The name for the Data Access class
         @return Logical value indicating if the values have been modified 
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL DetermineBusinessEntityNameFields (INPUT-OUTPUT pcBusinessEntityName AS CHARACTER,
-	                                                         INPUT-OUTPUT pcDatasetControllerType AS CHARACTER,
-	                                                         INPUT-OUTPUT pcBusinessEntityPurpose AS CHARACTER,
-	                                                         INPUT-OUTPUT pcDatasetName AS CHARACTER,
-	                                                         INPUT-OUTPUT pcDataAccessName AS CHARACTER).
+    METHOD PUBLIC LOGICAL DetermineBusinessEntityNameFields (INPUT-OUTPUT pcBusinessEntityName AS CHARACTER,
+                                                             INPUT-OUTPUT pcDatasetControllerType AS CHARACTER,
+                                                             INPUT-OUTPUT pcBusinessEntityPurpose AS CHARACTER,
+                                                             INPUT-OUTPUT pcDatasetName AS CHARACTER,
+                                                             INPUT-OUTPUT pcDataAccessName AS CHARACTER).
 
 END INTERFACE.

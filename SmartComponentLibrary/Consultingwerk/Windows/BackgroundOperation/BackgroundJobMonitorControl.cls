@@ -11,92 +11,91 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : BackgroundJobMonitorControl
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sun Nov 04 01:15:11 CET 2012
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Consultingwerk.Framework.*                   FROM PROPATH . 
-USING Consultingwerk.Windows.BackgroundOperation.* FROM PROPATH .
-USING Progress.Lang.*                              FROM PROPATH .
-USING Progress.Windows.UserControl                 FROM ASSEMBLY .
-USING System.Windows.Forms.*                       FROM ASSEMBLY .
+USING Consultingwerk.Framework.*                   FROM PROPATH.
+USING Consultingwerk.Windows.BackgroundOperation.* FROM PROPATH.
+USING Progress.Lang.*                              FROM PROPATH.
+USING Progress.Windows.UserControl                 FROM ASSEMBLY.
+USING System.Windows.Forms.*                       FROM ASSEMBLY.
 
-CLASS Consultingwerk.Windows.BackgroundOperation.BackgroundJobMonitorControl INHERITS UserControl: 
+CLASS Consultingwerk.Windows.BackgroundOperation.BackgroundJobMonitorControl INHERITS UserControl:
 
-
-	
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraFlowLayoutManager1 AS Infragistics.Win.Misc.UltraFlowLayoutManager NO-UNDO.
-    
-    
-	CONSTRUCTOR PUBLIC BackgroundJobMonitorControl ():
-		
-		
+
+    CONSTRUCTOR PUBLIC BackgroundJobMonitorControl ():
+
+
         SUPER().
         InitializeComponent().
-        
+
         /* Register in Service Container */
         DO ON ERROR UNDO, THROW:
             /* It may be possible, that there is already a BackgroundJobMonitorControl registered
-               in the Service Container. */ 
+               in the Service Container. */
             FrameworkSettings:ServiceContainer:RemoveService (THIS-OBJECT:GetClass()) .
-        
+
+            @SuppressUnusedWarnings.
             CATCH err AS Progress.Lang.Error:
-                /* In the Visual Designer it's actually possible that the 
-                   pre-registered instance has been deleted. So just ignore 
+                /* In the Visual Designer it's actually possible that the
+                   pre-registered instance has been deleted. So just ignore
                    errors from above */
             END CATCH.
         END.
-        
-        FrameworkSettings:ServiceContainer:AddService 
+
+        FrameworkSettings:ServiceContainer:AddService
                     (THIS-OBJECT:GetClass(),
                      THIS-OBJECT) .
-        
+
         &IF NOT PROVERSION BEGINS "10.2":U AND NOT PROVERSION BEGINS "11.0" &THEN
         THIS-OBJECT:ComponentsCollection:ADD(THIS-OBJECT:components).
         &ENDIF
-        
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Adds a Background Job Progress Control to the Monitor 
-        Notes:   
+        Purpose: Adds a Background Job Progress Control to the Monitor
+        Notes:
         @param poControl The BackgroundJobProgressControl to add
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID AddJobProgressControl (poControl AS BackgroundJobProgressControl):
-		
+    METHOD PUBLIC VOID AddJobProgressControl (poControl AS BackgroundJobProgressControl):
+
         DEFINE VARIABLE nestedvar0 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        
+
         nestedvar0 = CAST(Progress.Util.EnumHelper:OR (System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        
+
         poControl:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar0, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
-        poControl:Width = THIS-OBJECT:Width - 2 .  
-		
-		THIS-OBJECT:Controls:Add (poControl) .
+        poControl:Width = THIS-OBJECT:Width - 2 .
 
-	END METHOD .
+        THIS-OBJECT:Controls:Add (poControl) .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    END METHOD .
+
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         THIS-OBJECT:ultraFlowLayoutManager1 = NEW Infragistics.Win.Misc.UltraFlowLayoutManager(THIS-OBJECT:components).
@@ -122,40 +121,40 @@ CLASS Consultingwerk.Windows.BackgroundOperation.BackgroundJobMonitorControl INH
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Stops all Background Jobs
-        Notes:   
-        @return True when no Background Jobs did exist or all could have been closed 
+        Notes:
+        @return True when no Background Jobs did exist or all could have been closed
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL StopAllBackgroundJobs ():
-		
-		DEFINE VARIABLE oJobControl AS BackgroundJobProgressControl NO-UNDO . 
-		
-		{Consultingwerk/foreach.i Control oControl in this-object:Controls}
-		
-		    IF TYPE-OF (oControl, BackgroundJobProgressControl) THEN DO:
-		        
-		        oJobControl = CAST (oControl, BackgroundJobProgressControl) .
-		        
-		        IF VALID-OBJECT (oJobControl:BackgroundJob) THEN DO:
-		            
-		            IF oJobControl:BackgroundJob:AllowClose = TRUE THEN  
-		                oJobControl:BackgroundJob:Stop() .
-		            ELSE 
-		                RETURN FALSE . 
-		        END.
-		    END.
-		END.
+    METHOD PUBLIC LOGICAL StopAllBackgroundJobs ():
 
-		RETURN TRUE .
+        DEFINE VARIABLE oJobControl AS BackgroundJobProgressControl NO-UNDO .
 
-	END METHOD .
+        {Consultingwerk/foreach.i Control oControl in this-object:Controls}
+
+            IF TYPE-OF (oControl, BackgroundJobProgressControl) THEN DO:
+
+                oJobControl = CAST (oControl, BackgroundJobProgressControl) .
+
+                IF VALID-OBJECT (oJobControl:BackgroundJob) THEN DO:
+
+                    IF oJobControl:BackgroundJob:AllowClose = TRUE THEN
+                        oJobControl:BackgroundJob:Stop() .
+                    ELSE
+                        RETURN FALSE .
+                END.
+            END.
+        END.
+
+        RETURN TRUE .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the BackgroundJobMonitorControl class 
-        Notes:   
+        Purpose: Destructor for the BackgroundJobMonitorControl class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC BackgroundJobMonitorControl ():
 

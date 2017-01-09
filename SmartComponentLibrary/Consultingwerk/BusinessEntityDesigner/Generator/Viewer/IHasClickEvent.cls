@@ -28,8 +28,8 @@ INTERFACE Consultingwerk.BusinessEntityDesigner.Generator.Viewer.IHasClickEvent:
         Purpose: Code block for the Click (CHOOSE) event
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY ClickTriggerBlock AS LONGCHAR NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY ClickTriggerBlock AS LONGCHAR NO-UNDO 
+    GET.
+    SET. 
 
 END INTERFACE.

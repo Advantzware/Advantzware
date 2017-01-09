@@ -35,9 +35,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.BeforeAddingFieldToNewTableEventArgs
         Purpose: Returns the Database Name associated with the event 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY DatabaseName AS CHARACTER NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    DEFINE PUBLIC PROPERTY DatabaseName AS CHARACTER NO-UNDO 
+    GET.
+    PROTECTED SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the Field Name associated with the event 
@@ -62,15 +62,15 @@ CLASS Consultingwerk.BusinessEntityDesigner.BeforeAddingFieldToNewTableEventArgs
         @param pcTableName The Table Name associated with the event
         @param pcFieldName The Field Name associated with the event
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC BeforeAddingFieldToNewTableEventArgs (pcDatabaseName AS CHARACTER,
-	                                                         pcTableName AS CHARACTER,
-	                                                         pcFieldName AS CHARACTER):
-		SUPER ().
-		
-		ASSIGN THIS-OBJECT:DatabaseName = pcDatabaseName
-		       THIS-OBJECT:TableName    = pcTableName
-		       THIS-OBJECT:FieldName    = pcFieldName . 
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC BeforeAddingFieldToNewTableEventArgs (pcDatabaseName AS CHARACTER,
+                                                             pcTableName AS CHARACTER,
+                                                             pcFieldName AS CHARACTER):
+        SUPER ().
+        
+        ASSIGN THIS-OBJECT:DatabaseName = pcDatabaseName
+               THIS-OBJECT:TableName    = pcTableName
+               THIS-OBJECT:FieldName    = pcFieldName . 
+        
+    END CONSTRUCTOR.
 
 END CLASS.

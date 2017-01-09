@@ -40,8 +40,8 @@ INTERFACE Consultingwerk.BusinessEntityDesigner.Services.ITableNameGeneratorServ
         @param dsBusinessEntity The Business Entity Designer Dataset
         @return The name for the new temp-table
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC CHARACTER GenerateTempTableName (pcDatabaseName AS CHARACTER,
-	                                               pcTableName AS CHARACTER, 
-	                                               DATASET dsBusinessEntity).
+    METHOD PUBLIC CHARACTER GenerateTempTableName (pcDatabaseName AS CHARACTER,
+                                                   pcTableName AS CHARACTER, 
+                                                   DATASET dsBusinessEntity).
 
 END INTERFACE.

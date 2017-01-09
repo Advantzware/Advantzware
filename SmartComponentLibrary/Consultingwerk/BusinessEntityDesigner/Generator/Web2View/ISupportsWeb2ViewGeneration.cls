@@ -30,6 +30,6 @@ INTERFACE Consultingwerk.BusinessEntityDesigner.Generator.Web2View.ISupportsWeb2
         Notes:   
         @return The HTML source for the current Control 
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC CHARACTER GenerateHtml ().
+    METHOD PUBLIC CHARACTER GenerateHtml ().
 
 END INTERFACE.

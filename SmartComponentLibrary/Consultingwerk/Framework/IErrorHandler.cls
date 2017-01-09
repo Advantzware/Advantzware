@@ -8,30 +8,30 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : IErrorHandler
-    Purpose     : Defines a methods required for handling messages, 
-    Syntax      : 
-    Description : 
+    Purpose     : Defines a methods required for handling messages,
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Thu Mar 31 20:13:43 CEST 2011
-    Notes       : See Consultingwerk.Util.ErrorHelper, 
+    Notes       : See Consultingwerk.Util.ErrorHelper,
                   Consultingwerk.FrameworkSettings.ListIErrorHandler
   ----------------------------------------------------------------------*/
 
 USING Progress.Lang.*.
 
-INTERFACE Consultingwerk.Framework.IErrorHandler:  
-  
+INTERFACE Consultingwerk.Framework.IErrorHandler:
+
     /*------------------------------------------------------------------------------
-        Purpose: Handles an Error object                                                                        
+        Purpose: Handles an Error object
         Notes:   Logical return value indicates if the error has been completely
                  Handled, that is when this method returns TRUE, the ErrorHelper
-                 will not display the error anymore, retrun false when the 
-                 ErrorHelper should still display the error message dialog. 
+                 will not display the error anymore, return false when the
+                 ErrorHelper should still display the error message dialog.
         @param poError The reference to the Error to handle
-        @return Logical value indicating if the error has been completely handled                                                                                          
+        @return Logical value indicating if the error has been completely handled
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC LOGICAL HandleError (poError AS Progress.Lang.Error).
 

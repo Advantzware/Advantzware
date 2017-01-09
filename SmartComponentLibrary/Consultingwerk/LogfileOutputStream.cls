@@ -49,6 +49,6 @@ CLASS Consultingwerk.LogfileOutputStream IMPLEMENTS IOutputStream:
 
         Consultingwerk.Util.LogManager:WriteMessage (pcText) .
 
-	END METHOD.
+    END METHOD.
 
 END CLASS.

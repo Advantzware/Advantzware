@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2006-2015 by Consultingwerk Ltd. ("CW") -            *
+ * Copyright (C) 2006-2016 by Consultingwerk Ltd. ("CW") -            *
  * www.consultingwerk.de and other contributors as listed             *
  * below.  All Rights Reserved.                                       *
  *                                                                    *
@@ -8,22 +8,22 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : BusinessEntityDesignerForm
     Purpose     : Main Form of the Consultingwerk BusinessEntity Designer
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Wed Oct 13 12:07:58 CEST 2010
-    Notes       : Built using Infragistics Controls and Crainiate ERM 
+    Notes       : Built using Infragistics Controls and Crainiate ERM
                   Controls
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.*                                    FROM PROPATH .
-USING Consultingwerk.Assertion.*                          FROM PROPATH . 
+USING Consultingwerk.Assertion.*                          FROM PROPATH .
 USING Consultingwerk.BusinessEntityDesigner.Services.*    FROM PROPATH .
 USING Consultingwerk.BusinessEntityDesigner.*             FROM PROPATH .
 USING Consultingwerk.BusinessEntityDesigner.UI.*          FROM PROPATH .
@@ -31,26 +31,27 @@ USING Consultingwerk.BusinessEntityDesigner.UI.Shapes.*   FROM PROPATH .
 USING Consultingwerk.Framework.*                          FROM PROPATH .
 USING Consultingwerk.Framework.Enum.*                     FROM PROPATH .
 USING Consultingwerk.SmartComponents.Base.*               FROM PROPATH .
-USING Consultingwerk.SmartComponents.Enum.*               FROM PROPATH . 
-USING Consultingwerk.SmartComponents.Implementation.*     FROM PROPATH . 
-USING Consultingwerk.SmartComponents.Interfaces.*         FROM PROPATH . 
+USING Consultingwerk.SmartComponents.Enum.*               FROM PROPATH .
+USING Consultingwerk.SmartComponents.Implementation.*     FROM PROPATH .
+USING Consultingwerk.SmartComponents.Interfaces.*         FROM PROPATH .
 USING Consultingwerk.Studio.ReleaseNotes.*                FROM PROPATH.
 USING Consultingwerk.Util.*                               FROM PROPATH .
 USING Consultingwerk.Util.Forms.*                         FROM PROPATH .
 USING Consultingwerk.Windows.Util.Forms.*                 FROM PROPATH .
-USING Consultingwerk.Windows.API.*                        FROM PROPATH . 
-USING Infragistics.Win.UltraWinDock.*                     FROM ASSEMBLY . 
+USING Consultingwerk.Windows.API.*                        FROM PROPATH .
+USING Infragistics.Win.UltraWinDock.*                     FROM ASSEMBLY .
 USING Infragistics.Win.UltraWinExplorerBar.*              FROM ASSEMBLY .
-USING Infragistics.Win.UltraWinListView.*                 FROM ASSEMBLY . 
+USING Infragistics.Win.UltraWinListView.*                 FROM ASSEMBLY .
+USING Infragistics.Win.UltraWinToolbars.*                 FROM ASSEMBLY .
 USING Progress.Lang.*                                     FROM ASSEMBLY .
 USING System.Drawing.*                                    FROM ASSEMBLY .
 USING System.Windows.Forms.*                              FROM ASSEMBLY .
 
 {Consultingwerk/products.i}
 
-CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerForm 
-    INHERITS SmartWindowForm: 
-    
+CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerForm
+    INHERITS SmartWindowForm:
+
     DEFINE PRIVATE VARIABLE businessEntityViewerControl1 AS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityViewerControl NO-UNDO.
     DEFINE PRIVATE VARIABLE databaseFieldsControl1 AS Consultingwerk.BusinessEntityDesigner.UI.DatabaseFieldsControl NO-UNDO.
     DEFINE PRIVATE VARIABLE dataRelationAdapter AS Consultingwerk.SmartComponents.Implementation.SmartDatasetChildAdapter NO-UNDO.
@@ -109,86 +110,90 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerForm
     DEFINE PRIVATE VARIABLE windowDockingArea6 AS Infragistics.Win.UltraWinDock.WindowDockingArea NO-UNDO.
     DEFINE PRIVATE VARIABLE windowDockingArea7 AS Infragistics.Win.UltraWinDock.WindowDockingArea NO-UNDO.
 
-    DEFINE PRIVATE VARIABLE oNewConnector AS Crainiate.ERM4.Connector NO-UNDO . 
-    DEFINE VARIABLE cBaseTitle AS CHARACTER NO-UNDO.    
-        
+    DEFINE PRIVATE VARIABLE oNewConnector AS Crainiate.ERM4.Connector NO-UNDO .
+    DEFINE VARIABLE cBaseTitle AS CHARACTER NO-UNDO.
+
     DEFINE VARIABLE oLRUList AS "System.Collections.Generic.List<System.String>":U NO-UNDO .
-    DEFINE VARIABLE lRemovingElements AS LOGICAL NO-UNDO INIT FALSE .    
+    DEFINE VARIABLE lRemovingElements AS LOGICAL NO-UNDO INIT FALSE .
     DEFINE PRIVATE VARIABLE windowDockingArea9 AS Infragistics.Win.UltraWinDock.WindowDockingArea NO-UNDO.
     DEFINE PRIVATE VARIABLE windowDockingArea8 AS Infragistics.Win.UltraWinDock.WindowDockingArea NO-UNDO.
-        
-    DEFINE VARIABLE oSplash AS Consultingwerk.SmartComponents.Support.Splash.Splash NO-UNDO . 
-    DEFINE VARIABLE oTimer  AS System.Windows.Forms.Timer NO-UNDO . 
-        
-    DEFINE VARIABLE oController AS BusinessEntityDatasetController NO-UNDO .         
-        
-    DEFINE VARIABLE oBusinessEntitySourceEditorForm AS BusinessEntitySourceEditorForm NO-UNDO . 
-        
+
+    DEFINE VARIABLE oSplash AS Consultingwerk.SmartComponents.Support.Splash.Splash NO-UNDO .
+    DEFINE VARIABLE oTimer  AS System.Windows.Forms.Timer NO-UNDO .
+
+    DEFINE VARIABLE oController AS BusinessEntityDatasetController NO-UNDO .
+
+    DEFINE VARIABLE oBusinessEntitySourceEditorForm AS BusinessEntitySourceEditorForm NO-UNDO .
+
+    DEFINE VARIABLE oLogControl AS BusinessEntityGeneratorLogControl NO-UNDO .
     DEFINE VARIABLE lUseLocalFileHistory AS LOGICAL NO-UNDO.
-        
-    DEFINE PROTECTED TEMP-TABLE ttPlugins NO-UNDO 
-       FIELD cPluginName AS CHARACTER 
-       FIELD oPlugin     AS Progress.Lang.Object 
-       INDEX cPluginName IS UNIQUE PRIMARY cPluginName .     
+    DEFINE VARIABLE lApplyingDisplayReleaseNotesAtStart AS LOGICAL NO-UNDO INIT FALSE .
+
+    DEFINE PROTECTED TEMP-TABLE ttPlugins NO-UNDO
+       FIELD cPluginName AS CHARACTER
+       FIELD oPlugin     AS Progress.Lang.Object
+       INDEX cPluginName IS UNIQUE PRIMARY cPluginName .
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets file name of the current bedgm file                                                                        
-        Notes:                                                                        
+        Purpose: Gets and sets file name of the current bedgm file
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY FileName AS CHARACTER NO-UNDO 
+    DEFINE PUBLIC PROPERTY FileName AS CHARACTER NO-UNDO
     GET.
     SET (arg AS CHARACTER):
-        
+
         UpdateFileLRU (arg) .
-        
-        THIS-OBJECT:FileName = arg . 
-    END. 
+
+        THIS-OBJECT:FileName = arg .
+    END.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the BusinessEntityDesignerForm class                                                                        
-        Notes:                                                                        
+        Purpose: Constructor for the BusinessEntityDesignerForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC BusinessEntityDesignerForm ():
-        
-        DEFINE VARIABLE oStatusManager AS IStatusManager NO-UNDO . 
-    
+
+        DEFINE VARIABLE oStatusManager AS IStatusManager NO-UNDO .
+
         SUPER().
-    
+
         InitializeComponent().
-        
-        &IF NOT PROVERSION BEGINS "10.":U &THEN          
+
+        THIS-OBJECT:AddToolForReleaseNotesSetting () .
+
+        &IF NOT PROVERSION BEGINS "10.":U &THEN
         smartToolbarController1:Style = Infragistics.Win.UltraWinToolbars.ToolbarStyle:Office2010 .
-        smartToolbarController1:Ribbon:ApplicationMenuButtonImage = ? . 
+        smartToolbarController1:Ribbon:ApplicationMenuButtonImage = ? .
         &ENDIF
-        
+
         /* Mike Fechner, Consultingwerk Ltd. 20.02.2014
-           Register the Business Entity Desginer Form and the 
+           Register the Business Entity Desginer Form and the
            BusinessEntityDatasetController in the ServiceContainer
-           so that it's accessible from plugins or custom services 
+           so that it's accessible from plugins or custom services
            loaded in the Business Entity Designer environment */
         THIS-OBJECT:RegisterServices () .
-        
+
         oStatusManager = {Consultingwerk/get-service.i Consultingwerk.Framework.IStatusManager
                                                        "NEW Consultingwerk.Framework.StatusManager()"} .
-        
+
         oStatusManager:GenericStatusChanded:Subscribe (GenericStatusChandedHandler) .
-        
+
         /* Mike Fechner, Consultingwerk Ltd. 31.10.2011
            Top level Form does not need to be deleted when closed */
         THIS-OBJECT:DeleteOnFormClosed = FALSE  .
-        
-        oSplash = NEW Consultingwerk.SmartComponents.Support.Splash.Splash () . 
-        oSplash:ApplicationTitle = "Business Entity Designer":U . 
-        oSplash:TopMost = TRUE . 
+
+        oSplash = NEW Consultingwerk.SmartComponents.Support.Splash.Splash () .
+        oSplash:ApplicationTitle = "Business Entity Designer":U .
+        oSplash:TopMost = TRUE .
         oSplash:Show () .
         UserInterfaceHelper:ProcessEvents () .
-        
+
         CAST (smartBusinessEntityAdapter2:DatasetController,
               DatabaseSchemaDatasetController):DatabaseFieldsControl = databaseFieldsControl1 .
-        
+
         oController = CAST (smartBusinessEntityAdapter1:DatasetController,
                             BusinessEntityDatasetController) .
-                                
+
         oController:DrawShapes (model1) .
         oController:Model = THIS-OBJECT:model1.
         oController:DockManager = ultraDockManager1 .
@@ -204,267 +209,311 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerForm
 
         oLRUList = NEW "System.Collections.Generic.List<System.String>":U () .
         LoadLRU () .
-        
+
         ASSIGN cBaseTitle = THIS-OBJECT:Text .
 
         THIS-OBJECT:NewDesign () .
-        
-        THIS-OBJECT:ultraStatusBar1:Panels["proversion":U]:Text       = SessionHelper:FullVersionString() . 
-        THIS-OBJECT:ultraStatusBar1:Panels["frameworkversion":U]:Text = (NEW FrameworkVersion()):GetVersionString (). 
-        THIS-OBJECT:ultraStatusBar1:Panels["bitness":U]:Text          = SUBSTITUTE ("&1 bit":U, SessionHelper:ProcessBitness()) . 
-        
-        IF PROVERSION BEGINS "10":U THEN 
+
+        THIS-OBJECT:ultraStatusBar1:Panels["proversion":U]:Text       = SessionHelper:FullVersionString() .
+        THIS-OBJECT:ultraStatusBar1:Panels["frameworkversion":U]:Text = (NEW FrameworkVersion()):GetVersionString ().
+        THIS-OBJECT:ultraStatusBar1:Panels["bitness":U]:Text          = SUBSTITUTE ("&1 bit":U, SessionHelper:ProcessBitness()) .
+
+        IF PROVERSION BEGINS "10":U THEN
             smartToolbarController1:Tools["Database Login Preferences":U]:SharedProps:Enabled = FALSE .
-        
+
         CATCH e AS Progress.Lang.Error:
-            IF VALID-OBJECT (oSplash) THEN 
+            IF VALID-OBJECT (oSplash) THEN
                 oSplash:Close () .
-            
+
             UNDO, THROW e.
         END CATCH.
 
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Activates the Design Canvas 
-        Notes:   
+        Purpose: Activates the Design Canvas
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID ActivateDesignCanvas ():
-		
-		ultraDockManager1:PaneFromControl(panel1):Activate () .
+    METHOD PUBLIC VOID ActivateDesignCanvas ():
 
-	END METHOD .
+        ultraDockManager1:PaneFromControl(panel1):Activate () .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Activates the Add connector mode (allows dragging of new relations) 
-                 on the model                                                                        
-        Notes:                                                                        
+        Purpose: Activates the Add connector mode (allows dragging of new relations)
+                 on the model
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID ActivateDrawConnector ():
-        
+
         THIS-OBJECT:ActivateDesignCanvas () .
-        
+
         THIS-OBJECT:model1:Runtime:InteractiveMode = Crainiate.ERM4.InteractiveMode:AddConnector .
 
-        CAST (THIS-OBJECT:smartToolbarController1:Tools["DrawConnector":U], 
-              Infragistics.Win.UltraWinToolbars.StateButtonTool):CHECKED = TRUE . 
+        CAST (THIS-OBJECT:smartToolbarController1:Tools["DrawConnector":U],
+              Infragistics.Win.UltraWinToolbars.StateButtonTool):CHECKED = TRUE .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Activates the pointer mode (allows selection of Shapes) on the model                                                                      
-        Notes:                                                                        
+        Purpose: Activates the pointer mode (allows selection of Shapes) on the model
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID ActivateDrawPointer ():
-    
+
         THIS-OBJECT:ActivateDesignCanvas () .
-                
+
         THIS-OBJECT:model1:Runtime:InteractiveMode = Crainiate.ERM4.InteractiveMode:Normal .
 
-        CAST (THIS-OBJECT:smartToolbarController1:Tools["DrawPointer":U], 
-              Infragistics.Win.UltraWinToolbars.StateButtonTool):CHECKED = TRUE . 
+        CAST (THIS-OBJECT:smartToolbarController1:Tools["DrawPointer":U],
+              Infragistics.Win.UltraWinToolbars.StateButtonTool):CHECKED = TRUE .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Activates the (context) menu items based on the current selected                                                                        
-        Notes:                                                                        
+        Purpose: Activates the (context) menu items based on the current selected
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID ActivateMenuItems ():
-        
-        DEFINE VARIABLE oTables    AS Crainiate.ERM4.Elements NO-UNDO . 
-        DEFINE VARIABLE oRelations AS Crainiate.ERM4.Elements NO-UNDO . 
-        
-        DEFINE VARIABLE oEnumerator AS System.Collections.IEnumerator NO-UNDO . 
-        DEFINE VARIABLE oTable      AS Crainiate.ERM4.Table           NO-UNDO . 
-        
+
+        DEFINE VARIABLE oTables    AS Crainiate.ERM4.Elements NO-UNDO .
+        DEFINE VARIABLE oRelations AS Crainiate.ERM4.Elements NO-UNDO .
+
+        DEFINE VARIABLE oEnumerator AS System.Collections.IEnumerator NO-UNDO .
+        DEFINE VARIABLE oTable      AS Crainiate.ERM4.Table           NO-UNDO .
+
         DEFINE VARIABLE cTag        AS CHARACTER                      NO-UNDO .
-                
-        ASSIGN oTables    = model1:SelectedElements(Progress.Util.TypeHelper:GetType ("Crainiate.ERM4.Table":U)) 
+
+        ASSIGN oTables    = model1:SelectedElements(Progress.Util.TypeHelper:GetType ("Crainiate.ERM4.Table":U))
                oRelations = model1:SelectedElements(Progress.Util.TypeHelper:GetType ("Crainiate.ERM4.Connector":U))
                .
-        
-        smartToolbarController1:Tools["Custom Business Entity Properties":U]:SharedProps:Enabled = TRUE . 
-        
+
+        smartToolbarController1:Tools["Custom Business Entity Properties":U]:SharedProps:Enabled = TRUE .
+
         IF oTables:Count > 0 THEN DO:
-            smartToolbarController1:Tools["RefreshTable":U]:SharedProps:Enabled = TRUE .             
-            smartToolbarController1:Tools["RefreshTable2":U]:SharedProps:Enabled = TRUE .             
+            smartToolbarController1:Tools["RefreshTable":U]:SharedProps:Enabled = TRUE .
+            smartToolbarController1:Tools["RefreshTable2":U]:SharedProps:Enabled = TRUE .
             smartToolbarController1:Tools["FieldsReorder":U]:SharedProps:Enabled = TRUE .
             smartToolbarController1:Tools["Duplicate Table":U]:SharedProps:Enabled = TRUE .
             smartToolbarController1:Tools["Edit Fields":U]:SharedProps:Enabled = TRUE .
 
             smartToolbarController1:Tools["Custom Table Properties":U]:SharedProps:Enabled = TRUE .
-            
-            smartToolbarController1:Tools["Copy Field Names":U]:SharedProps:Enabled = TRUE .             
-            
+
+            smartToolbarController1:Tools["Copy Field Names":U]:SharedProps:Enabled = TRUE .
+
             oEnumerator = oTables:GetEnumerator () .
             oEnumerator:Reset() .
             oEnumerator:MoveNext () .
-            
+
             oTable = CAST (CAST (oEnumerator:Current, System.Collections.DictionaryEntry):Value, Crainiate.ERM4.Table) .
-            
-            IF VALID-OBJECT (oTable:SelectedItem) THEN 
+
+            IF VALID-OBJECT (oTable:SelectedItem) THEN
                 ASSIGN cTag = UNBOX (oTable:SelectedItem:Tag).
-            
+
             IF cTag BEGINS "eField,":U THEN DO:
-                ASSIGN 
-                    smartToolbarController1:Tools["Custom Field Properties":U]:SharedProps:Enabled = TRUE 
-                    smartToolbarController1:Tools["Custom Index Properties":U]:SharedProps:Enabled = FALSE 
+                ASSIGN
+                    smartToolbarController1:Tools["Custom Field Properties":U]:SharedProps:Enabled = TRUE
+                    smartToolbarController1:Tools["Custom Index Properties":U]:SharedProps:Enabled = FALSE
 
-                    smartToolbarController1:Tools["Split Extend Field into separate Fields":U]:SharedProps:Enabled = oController:IsExtentField (cTag) . 
+                    smartToolbarController1:Tools["Split Extend Field into separate Fields":U]:SharedProps:Enabled = oController:IsExtentField (cTag) .
             END.
-            ELSE IF cTag BEGINS "eIndex,":U THEN 
-                ASSIGN 
-                    smartToolbarController1:Tools["Custom Field Properties":U]:SharedProps:Enabled = FALSE 
-                    smartToolbarController1:Tools["Custom Index Properties":U]:SharedProps:Enabled = TRUE             
+            ELSE IF cTag BEGINS "eIndex,":U THEN
+                ASSIGN
+                    smartToolbarController1:Tools["Custom Field Properties":U]:SharedProps:Enabled = FALSE
+                    smartToolbarController1:Tools["Custom Index Properties":U]:SharedProps:Enabled = TRUE
 
-                    smartToolbarController1:Tools["Split Extend Field into separate Fields":U]:SharedProps:Enabled = FALSE . 
-            ELSE 
-                ASSIGN 
-                    smartToolbarController1:Tools["Custom Field Properties":U]:SharedProps:Enabled = FALSE 
-                    smartToolbarController1:Tools["Custom Index Properties":U]:SharedProps:Enabled = FALSE .            
-        END . 
+                    smartToolbarController1:Tools["Split Extend Field into separate Fields":U]:SharedProps:Enabled = FALSE .
+            ELSE
+                ASSIGN
+                    smartToolbarController1:Tools["Custom Field Properties":U]:SharedProps:Enabled = FALSE
+                    smartToolbarController1:Tools["Custom Index Properties":U]:SharedProps:Enabled = FALSE .
+        END .
         ELSE DO:
-            smartToolbarController1:Tools["RefreshTable":U]:SharedProps:Enabled = FALSE .             
-            smartToolbarController1:Tools["RefreshTable2":U]:SharedProps:Enabled = FALSE .             
+            smartToolbarController1:Tools["RefreshTable":U]:SharedProps:Enabled = FALSE .
+            smartToolbarController1:Tools["RefreshTable2":U]:SharedProps:Enabled = FALSE .
             smartToolbarController1:Tools["FieldsReorder":U]:SharedProps:Enabled = FALSE .
             smartToolbarController1:Tools["Duplicate Table":U]:SharedProps:Enabled = FALSE .
             smartToolbarController1:Tools["Edit Fields":U]:SharedProps:Enabled = FALSE .
 
-            smartToolbarController1:Tools["Copy Field Names":U]:SharedProps:Enabled = FALSE .             
+            smartToolbarController1:Tools["Copy Field Names":U]:SharedProps:Enabled = FALSE .
 
             smartToolbarController1:Tools["Custom Table Properties":U]:SharedProps:Enabled = FALSE .
             smartToolbarController1:Tools["Custom Field Properties":U]:SharedProps:Enabled = FALSE .
-            smartToolbarController1:Tools["Custom Index Properties":U]:SharedProps:Enabled = FALSE .          
-            smartToolbarController1:Tools["Split Extend Field into separate Fields":U]:SharedProps:Enabled = FALSE .  
+            smartToolbarController1:Tools["Custom Index Properties":U]:SharedProps:Enabled = FALSE .
+            smartToolbarController1:Tools["Split Extend Field into separate Fields":U]:SharedProps:Enabled = FALSE .
         END.
-        
+
         IF oRelations:Count > 0 THEN DO:
             smartToolbarController1:Tools["Relation Fields":U]:SharedProps:Enabled = TRUE .
             smartToolbarController1:Tools["Remove Relation":U]:SharedProps:Enabled = TRUE .
-            
-            smartToolbarController1:Tools["Custom Relation Properties":U]:SharedProps:Enabled = TRUE .            
+
+            smartToolbarController1:Tools["Custom Relation Properties":U]:SharedProps:Enabled = TRUE .
         END.
         ELSE DO:
             smartToolbarController1:Tools["Relation Fields":U]:SharedProps:Enabled = FALSE .
-            smartToolbarController1:Tools["Remove Relation":U]:SharedProps:Enabled = FALSE .             
+            smartToolbarController1:Tools["Remove Relation":U]:SharedProps:Enabled = FALSE .
 
-            smartToolbarController1:Tools["Custom Relation Properties":U]:SharedProps:Enabled = FALSE .            
+            smartToolbarController1:Tools["Custom Relation Properties":U]:SharedProps:Enabled = FALSE .
         END.
 
     END METHOD.
 
+    /**
+     * Purpose: Adds a Tool to the Business Entity Designer Ribbon application
+     *          menu that allows a user to toggle the display of the release
+     *          notes
+     * Notes:
+     */
+    METHOD PROTECTED VOID AddToolForReleaseNotesSetting():
+
+        DEFINE VARIABLE oStateButtonTool AS StateButtonTool  NO-UNDO .
+        DEFINE VARIABLE oSettingsService AS ISettingsService NO-UNDO .
+        DEFINE VARIABLE lSetting         AS LOGICAL          NO-UNDO .
+
+        oStateButtonTool = NEW StateButtonTool ("Display Release Notes At Start":U) .
+        oStateButtonTool:SharedProps:Caption = "Display Release Notes At Start"{&TRAN} .
+        oStateButtonTool:SharedProps:AppearancesSmall:Appearance:Image = ImageHelper:Load ("Consultingwerk/BusinessEntityDesigner/UI/Images/note_pinned_16.png":U) .
+        oStateButtonTool:SharedProps:AppearancesLarge:Appearance:Image = ImageHelper:Load ("Consultingwerk/BusinessEntityDesigner/UI/Images/note_pinned_32.png":U) .
+
+        smartToolbarController1:Tools:Add (oStateButtonTool) .
+        smartToolbarController1:Ribbon:ApplicationMenu:ToolAreaLeft:Tools:AddTool ("Display Release Notes At Start":U)
+                    :InstanceProps:IsFirstInGroup = TRUE .
+
+
+        oSettingsService = {Consultingwerk/get-service.i Consultingwerk.Framework.ISettingsService} .
+
+        IF VALID-OBJECT (oSettingsService) THEN DO:
+            lSetting = DataTypeHelper:ToLogical(oSettingsService:GetSetting (THIS-OBJECT:WindowPositionRegistryKey,
+                                                                             "Display Release Notes At Start":U)) .
+
+            IF lSetting = ? THEN
+                ASSIGN lSetting = TRUE .
+
+            ASSIGN lApplyingDisplayReleaseNotesAtStart = TRUE .
+
+            oStateButtonTool:Checked = lSetting .
+        END.
+
+        FINALLY:
+            ASSIGN lApplyingDisplayReleaseNotesAtStart = FALSE .
+        END FINALLY.
+
+    END METHOD.
+
+
     /*------------------------------------------------------------------------------
         Purpose: Performs an Auto Layout of the Current Diagram
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID AutoLayout ():
-		
-		DEFINE VARIABLE oGraph  AS Crainiate.ERM4.Layouts.Graph              NO-UNDO . 
-		DEFINE VARIABLE oLayout AS Crainiate.ERM4.Layouts.OrthogonalLayout  NO-UNDO . 
-	
+    METHOD PUBLIC VOID AutoLayout ():
+
+        DEFINE VARIABLE oGraph  AS Crainiate.ERM4.Layouts.Graph              NO-UNDO .
+        DEFINE VARIABLE oLayout AS Crainiate.ERM4.Layouts.OrthogonalLayout  NO-UNDO .
+
         THIS-OBJECT:ActivateDesignCanvas () .
-		
-		oGraph = NEW Crainiate.ERM4.Layouts.Graph () .
-		
+
+        oGraph = NEW Crainiate.ERM4.Layouts.Graph () .
+
         /* Set up the nodes and edges for the graph from the diagram */
         oGraph:AddDiagram (model1) .
         oGraph:Margin = NEW Crainiate.ERM4.Margin (0, 0, 0, 0) .
 
         /* Set the up the parameters for the layout and perform the layout. */
         oLayout = NEW Crainiate.ERM4.Layouts.OrthogonalLayout   () .
-        oLayout:ConnectedComponentDistance = 200 . 
-        oLayout:Distance = 300 . 
+        oLayout:ConnectedComponentDistance = 200 .
+        oLayout:Distance = 300 .
         oLayout:DoLayout (oGraph) .
 
-        oGraph:Apply (model1) .		
+        oGraph:Apply (model1) .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose:                                                                        
-        Notes:                                                                        
+        Purpose:
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID BuildLRUMenuItems ():
-        
+
         DEFINE VARIABLE i     AS INTEGER                                      NO-UNDO.
         DEFINE VARIABLE oTool AS Infragistics.Win.UltraWinToolbars.ButtonTool NO-UNDO .
 
         DO i = 1 TO 10:
-            IF smartToolbarController1:Tools:Exists ("LRUEntry":U + STRING (i, "99":U)) THEN 
+            IF smartToolbarController1:Tools:Exists ("LRUEntry":U + STRING (i, "99":U)) THEN
                 smartToolbarController1:Tools:Remove(smartToolbarController1:Tools["LRUEntry":U + STRING (i, "99":U)]) .
         END.
 
-        DO i = 0 TO oLRUList:Count - 1: 
-            IF i >= 10 THEN RETURN . 
-            
+        DO i = 0 TO oLRUList:Count - 1:
+            IF i >= 10 THEN
+                RETURN .
+
             oTool = NEW Infragistics.Win.UltraWinToolbars.ButtonTool ("LRUEntry":U + STRING (i + 1, "99":U)) .
             oTool:SharedProps:Caption = STRING (oLRUList:Item[i]) .
             smartToolbarController1:Tools:Add (oTool) .
-            
-            CAST (smartToolbarController1:Tools["FilterHistory":U], 
+
+            CAST (smartToolbarController1:Tools["FilterHistory":U],
                   Infragistics.Win.UltraWinToolbars.PopupMenuTool):Tools:AddTool ("LRUEntry":U + STRING (i + 1, "99":U)) .
         END.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Starts the Business Entity Tester for the current Business Entity                                                                        
-        Notes:                                                                        
+        Purpose: Starts the Business Entity Tester for the current Business Entity
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID BusinessEntityTester ():
-        
-        DEFINE VARIABLE oForm       AS Consultingwerk.SmartComponents.Tools.OERABusinessEntityTester.UltraBusinessEntityTesterForm NO-UNDO . 
+
+        DEFINE VARIABLE oForm       AS Consultingwerk.SmartComponents.Tools.OERABusinessEntityTester.UltraBusinessEntityTesterForm NO-UNDO .
         DEFINE VARIABLE cEntityName AS CHARACTER                                                                                   NO-UNDO.
-        
+
         oForm = NEW Consultingwerk.SmartComponents.Tools.OERABusinessEntityTester.UltraBusinessEntityTesterForm  () .
-        
+
         IF smartBusinessEntityAdapter1:QueryHandle:GET-BUFFER-HANDLE (1):AVAILABLE THEN DO:
-            IF smartBusinessEntityAdapter1:QueryHandle:GET-BUFFER-HANDLE (1)::BusinessEntityPackage > "":U THEN   
+            IF smartBusinessEntityAdapter1:QueryHandle:GET-BUFFER-HANDLE (1)::BusinessEntityPackage > "":U THEN
                 ASSIGN cEntityName = SUBSTITUTE ("&1.&2":U,
                                                  smartBusinessEntityAdapter1:QueryHandle:GET-BUFFER-HANDLE (1)::BusinessEntityPackage,
                                                  smartBusinessEntityAdapter1:QueryHandle:GET-BUFFER-HANDLE (1)::BusinessEntityName) .
             ELSE
-                ASSIGN cEntityName = smartBusinessEntityAdapter1:QueryHandle:GET-BUFFER-HANDLE (1)::BusinessEntityName .                                                                           
+                ASSIGN cEntityName = smartBusinessEntityAdapter1:QueryHandle:GET-BUFFER-HANDLE (1)::BusinessEntityName .
 
             IF cEntityName <> "New":U THEN
-                ASSIGN oForm:BusinessEntityName = cEntityName . 
+                ASSIGN oForm:BusinessEntityName = cEntityName .
         END.
-        
+
         oForm:Show () .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Prompts for SaveChanges prompt if required                                                                        
+        Purpose: Prompts for SaveChanges prompt if required
         Notes:
-        @return Logical value indicating if the user has chosen to save changes                                                                        
+        @return Logical value indicating if the user has chosen to save changes
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED LOGICAL CheckChanges ():
 
-        DEFINE VARIABLE oDialogResult AS DialogResultEnum NO-UNDO . 
-        DEFINE VARIABLE lOk           AS LOGICAL          NO-UNDO .        
-                 
+        DEFINE VARIABLE oDialogResult AS DialogResultEnum NO-UNDO .
+        DEFINE VARIABLE lOk           AS LOGICAL          NO-UNDO .
+
         IF oController:UnsavedChanges THEN DO:
-    
+
             THIS-OBJECT:ActivateDesignCanvas () .
-    
+
             oDialogResult = MessageFormHelper:ShowMessage("Save changes?"{&TRAN},
                                                           "Business Entity Designer"{&TRAN},
                                                           "The current design has unsaved changes."{&TRAN},
                                                           MessageFormImages:ImageQuestion,
                                                           MessageFormDefaults:LabelYesNoCancel,
                                                           MessageFormDefaults:GetDialogResultYesNoCancel()) .
-            
-            IF oDialogResult:Equals (DialogResultEnum:DialogResultNo) THEN 
-                RETURN TRUE . 
 
-            IF oDialogResult:Equals (DialogResultEnum:DialogResultCancel) THEN 
-                RETURN FALSE . 
+            IF oDialogResult:Equals (DialogResultEnum:DialogResultNo) THEN
+                RETURN TRUE .
+
+            IF oDialogResult:Equals (DialogResultEnum:DialogResultCancel) THEN
+                RETURN FALSE .
 
             SaveDesign(OUTPUT lOk) .
-            
-            RETURN lOk . 
+
+            RETURN lOk .
         END.
 
         RETURN TRUE .
@@ -473,365 +522,367 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerForm
 
     /*------------------------------------------------------------------------------
         Purpose: Closes the source code editor
-        Notes:   
-        @return Logical value indicating if the editor was closed 
+        Notes:
+        @return Logical value indicating if the editor was closed
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED LOGICAL CheckCloseSourceCodeEditor ():
-	
-	    IF NOT VALID-OBJECT (oBusinessEntitySourceEditorForm) THEN 
-            RETURN TRUE . 
-            
+    METHOD PROTECTED LOGICAL CheckCloseSourceCodeEditor ():
+
+        IF NOT VALID-OBJECT (oBusinessEntitySourceEditorForm) THEN
+            RETURN TRUE .
+
         IF oBusinessEntitySourceEditorForm:CloseAll () = TRUE THEN DO:
             GarbageCollectorHelper:DeleteObject (oBusinessEntitySourceEditorForm) .
-            
+
             oBusinessEntitySourceEditorForm = ? .
-            
-            RETURN TRUE . 
+
+            RETURN TRUE .
         END.
             ELSE RETURN FALSE .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Collapses all tables on the model                                                                      
-        Notes:                                                                        
+        Purpose: Collapses all tables on the model
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID CollapseAllTables ():
 
         THIS-OBJECT:ActivateDesignCanvas () .
-        
+
         {Consultingwerk/foreach.i System.Collections.DictionaryEntry oElement in THIS-OBJECT:model1:Shapes}
-        
-            IF TYPE-OF (oElement:Value, TempTableShape) THEN 
-                CAST (oElement:Value, TempTableShape):Expanded = FALSE . 
+
+            IF TYPE-OF (oElement:Value, TempTableShape) THEN
+                CAST (oElement:Value, TempTableShape):Expanded = FALSE .
         END.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Compiles the generated source code                                                                         
-        Notes:                                                                        
+        Purpose: Compiles the generated source code
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID Compile ():
-        
+
         CAST (smartBusinessEntityAdapter1:DatasetController,
               BusinessEntityDatasetController):CompileSource () .
 
     END METHOD.
 
-	/*------------------------------------------------------------------------------
-		Purpose: Shows a dialog that allows to copy field names of the selected 
-		         table to the clipboard  																	  
-		Notes:  																	  
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID CopyFieldNames():
-		
+    /*------------------------------------------------------------------------------
+        Purpose: Shows a dialog that allows to copy field names of the selected
+                 table to the clipboard
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID CopyFieldNames():
+
         DEFINE VARIABLE oEnumerator AS System.Collections.IDictionaryEnumerator NO-UNDO .
-        DEFINE VARIABLE oTables     AS Crainiate.ERM4.Elements                  NO-UNDO . 
+        DEFINE VARIABLE oTables     AS Crainiate.ERM4.Elements                  NO-UNDO .
 
-        DEFINE VARIABLE oForm       AS CopyFieldsForm                           NO-UNDO . 
-		
-		oForm = NEW CopyFieldsForm () . 
-        
+        DEFINE VARIABLE oForm       AS CopyFieldsForm                           NO-UNDO .
+
+        oForm = NEW CopyFieldsForm () .
+
         THIS-OBJECT:ActivateDesignCanvas () .
-        
+
         ASSIGN oTables = model1:SelectedElements(Progress.Util.TypeHelper:GetType ("Crainiate.ERM4.Table":U)) .
-        
-        IF oTables:Count = 0 THEN RETURN . 
-        
+
+        IF oTables:Count = 0 THEN
+            RETURN .
+
         oEnumerator = oTables:GetEnumerator () .
-        oEnumerator:MoveNext() .  
-        
-        ASSIGN oForm:BufferHandle = oController:DatasetHandle::eField 
-               oForm:TableName    = CAST(CAST (oEnumerator:Current, System.Collections.DictionaryEntry):Value, 
-                                         Consultingwerk.BusinessEntityDesigner.UI.Shapes.TempTableShape):Heading . 
-        
-        WAIT-FOR oForm:ShowDialog () . 
-		
-	END METHOD.
+        oEnumerator:MoveNext() .
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Displays a text in the "status" panel of the UltraStatusBar
-	    Notes:
-	    @param pcStatusText The StatusText to display
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID DisplayStatus (pcStatusText AS CHARACTER):
-		
-		ultraStatusBar1:Panels["status":U]:Text = pcStatusText .
-		
-		UserInterfaceHelper:ProcessEvents() . 
+        ASSIGN oForm:BufferHandle = oController:DatasetHandle::eField
+               oForm:TableName    = CAST(CAST (oEnumerator:Current, System.Collections.DictionaryEntry):Value,
+                                         Consultingwerk.BusinessEntityDesigner.UI.Shapes.TempTableShape):Heading .
 
-	END METHOD.
+        WAIT-FOR oForm:ShowDialog () .
+
+    END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Duplicates the currently selected table 
-        Notes:   
+        Purpose: Displays a text in the "status" panel of the UltraStatusBar
+        Notes:
+        @param pcStatusText The StatusText to display
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID DuplicateSelectedTable ():
-		
-        DEFINE VARIABLE oEnumerator AS System.Collections.IDictionaryEnumerator NO-UNDO .
-        DEFINE VARIABLE oTables     AS Crainiate.ERM4.Elements                  NO-UNDO . 
-    
-        THIS-OBJECT:ActivateDesignCanvas () .
-        
-        ASSIGN oTables = model1:SelectedElements (Progress.Util.TypeHelper:GetType ("Crainiate.ERM4.Table":U)) .
-        
-        IF oTables:Count = 0 THEN RETURN . 
-        
-        oEnumerator = oTables:GetEnumerator () .
-        oEnumerator:MoveNext() .  
+    METHOD PUBLIC VOID DisplayStatus (pcStatusText AS CHARACTER):
 
-        oController:DuplicateTable (CAST (CAST (oEnumerator:Current, 
-                                                System.Collections.DictionaryEntry):Value, 
+        ultraStatusBar1:Panels["status":U]:Text = pcStatusText .
+
+        UserInterfaceHelper:ProcessEvents() .
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Duplicates the currently selected table
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID DuplicateSelectedTable ():
+
+        DEFINE VARIABLE oEnumerator AS System.Collections.IDictionaryEnumerator NO-UNDO .
+        DEFINE VARIABLE oTables     AS Crainiate.ERM4.Elements                  NO-UNDO .
+
+        THIS-OBJECT:ActivateDesignCanvas () .
+
+        ASSIGN oTables = model1:SelectedElements (Progress.Util.TypeHelper:GetType ("Crainiate.ERM4.Table":U)) .
+
+        IF oTables:Count = 0 THEN
+            RETURN .
+
+        oEnumerator = oTables:GetEnumerator () .
+        oEnumerator:MoveNext() .
+
+        oController:DuplicateTable (CAST (CAST (oEnumerator:Current,
+                                                System.Collections.DictionaryEntry):Value,
                                           Consultingwerk.BusinessEntityDesigner.UI.Shapes.TempTableShape)) .
-
-	END METHOD .
-
-    /*------------------------------------------------------------------------------
-        Purpose: Invokes the Field Editor Form 
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID EditFields ():
-		
-        DEFINE VARIABLE oEnumerator AS System.Collections.IDictionaryEnumerator NO-UNDO .
-        DEFINE VARIABLE oTables     AS Crainiate.ERM4.Elements                  NO-UNDO . 
-        DEFINE VARIABLE cTableName  AS CHARACTER                                NO-UNDO .
-    
-       THIS-OBJECT:ActivateDesignCanvas () .
-        
-        ASSIGN oTables = model1:SelectedElements (Progress.Util.TypeHelper:GetType ("Crainiate.ERM4.Table":U)) .
-        
-        IF oTables:Count = 0 THEN RETURN . 
-        
-        oEnumerator = oTables:GetEnumerator () .
-        oEnumerator:MoveNext() .  
-
-        ASSIGN cTableName = CAST (CAST (oEnumerator:Current, 
-                                        System.Collections.DictionaryEntry):Value, 
-                                  Consultingwerk.BusinessEntityDesigner.UI.Shapes.TempTableShape):Heading.
-
-        oController:EditFields (cTableName) .
-
-	END METHOD .
-
-    /*------------------------------------------------------------------------------
-        Purpose: Opens the BusinessEntitySourceEditorForm for the current business 
-                 entity 
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID EditSource ():
-		
-        IF VALID-OBJECT (oBusinessEntitySourceEditorForm) THEN 
-            oBusinessEntitySourceEditorForm:Activate () .
-        ELSE DO:
-            oBusinessEntitySourceEditorForm = NEW BusinessEntitySourceEditorForm (oController:DatasetHandle) . 
-            oBusinessEntitySourceEditorForm:Show () .
-        END.
-        
-	END METHOD .
-
-    /*------------------------------------------------------------------------------
-        Purpose: Ensures that all Viewers have saved their changes
-        Notes:   
-        @return Logical value indicating if all Viewers are saved 
-    ------------------------------------------------------------------------------*/
-	METHOD PROTECTED LOGICAL EnsureAllViewersSaved ():
-		
-		DEFINE VARIABLE oViewers AS Consultingwerk.SmartComponents.Base.SmartViewerControl NO-UNDO EXTENT 5 .
-		DEFINE VARIABLE i        AS INTEGER                                                NO-UNDO .
-		
-		ASSIGN 
-		    oViewers[1] = THIS-OBJECT:businessEntityViewerControl1 
-		    oViewers[2] = THIS-OBJECT:memberTableViewerControl1
-		    oViewers[3] = THIS-OBJECT:dataRelationViewerControl1
-		    oViewers[4] = THIS-OBJECT:fieldViewerControl1
-		    oViewers[5] = THIS-OBJECT:indexViewerControl1    
-		    .
-		
-		DO i = 1 TO EXTENT (oViewers):
-		    IF oViewers[i]:SmartTableIOState = TableIOStateEnum:ModifyingData THEN DO: 
-		         oViewers[i]:SaveChanges() . 
-
-                /* Mike Fechner, Consultingwerk Ltd. 21.02.2010
-                   Check if still in update mode */
-                IF oViewers[i]:SmartTableIOState = TableIOStateEnum:ModifyingData THEN 
-                    RETURN FALSE .		          
-		    END.
-		END.
-		
-		RETURN TRUE . 
-		
-		CATCH err AS Progress.Lang.Error:
-		    ErrorHelper:ShowErrorMessage (err) .
-		    
-        	RETURN FALSE . 	
-        END CATCH.
-
-	END METHOD .
-
-	/*------------------------------------------------------------------------------
-		Purpose: Expands all tables on the model  																	  
-		Notes:  																	  
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID ExpandAllTables ():
-	
-        THIS-OBJECT:ActivateDesignCanvas () .
-		
-        {Consultingwerk/foreach.i System.Collections.DictionaryEntry oElement in THIS-OBJECT:model1:Shapes}
-        
-            IF TYPE-OF (oElement:Value, TempTableShape) THEN 
-                CAST (oElement:Value, TempTableShape):Expanded = TRUE . 
-        END.
-
-	END METHOD.
-
-    /*------------------------------------------------------------------------------
-        Purpose:                                                                        
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/
-    METHOD PROTECTED VOID FieldsReorder ():
-        
-        DEFINE VARIABLE oEnumerator AS System.Collections.IDictionaryEnumerator NO-UNDO .
-        DEFINE VARIABLE oTables     AS Crainiate.ERM4.Elements                  NO-UNDO . 
-        
-        DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
-    
-        THIS-OBJECT:ActivateDesignCanvas () .
-        
-        ASSIGN oTables = model1:SelectedElements(Progress.Util.TypeHelper:GetType ("Crainiate.ERM4.Table":U)) .
-        
-        IF oTables:Count = 0 THEN RETURN . 
-        
-        oEnumerator = oTables:GetEnumerator () .
-        oEnumerator:MoveNext() .  
-        
-        CAST (smartBusinessEntityAdapter1:DatasetController,
-              BusinessEntityDatasetController):FieldsReorder (CAST(CAST (oEnumerator:Current, System.Collections.DictionaryEntry):Value, 
-                                                                   Consultingwerk.BusinessEntityDesigner.UI.Shapes.TempTableShape)) .    
-
-    END METHOD.
-
-    /*------------------------------------------------------------------------------
-        Purpose: Filters the list of database tables in the toolbox                                                                        
-        Notes:                                                     
-        @param pcFilter The filter value                    
-    ------------------------------------------------------------------------------*/
-    METHOD PROTECTED VOID FilterTables (pcFilter AS CHARACTER):
-        
-        DEFINE VARIABLE i AS INTEGER NO-UNDO.
-    
-        DEFINE VARIABLE oListView AS UltraListView NO-UNDO . 
-    
-        searchTimer:Enabled = FALSE .  
-        
-        IF pcFilter > "":U THEN . 
-        ELSE ASSIGN pcFilter = "":U .
-        
-        DO i = 1 TO ultraExplorerBar1:Groups:Count - 1:
-            
-            IF TYPE-OF (ultraExplorerBar1:Groups[i]:Container:Controls[0], 
-                        UltraListView) THEN DO:
-            
-                oListView = CAST (ultraExplorerBar1:Groups[i]:Container:Controls[0], 
-                                  UltraListView) .
-            
-                {Consultingwerk/foreach.i UltraListViewItem oItem in oListView:Items}
-                    oItem:VISIBLE = oItem:Text BEGINS pcFilter .  
-                END.        
-            END.
-        END.
-
-        IF pcFilter > "":U THEN DO:
-            IF oLRUList:Contains (pcFilter) THEN 
-                oLRUList:Remove (pcFilter) .
-                
-            oLRUList:Insert (0, pcFilter) .
-            
-            DO WHILE oLRUList:Count > 10:
-                oLRUList:RemoveAt (10) .
-            END.
-            
-            BuildLRUMenuItems () .  
-            StoreLRU () .
-        END.
-
-        IF pcFilter <> CAST (smartToolbarController1:Tools ["FilterTable":U], 
-                             Infragistics.Win.UltraWinToolbars.TextBoxTool):Text THEN 
-
-            CAST (smartToolbarController1:Tools ["FilterTable":U], 
-                  Infragistics.Win.UltraWinToolbars.TextBoxTool):Text = pcFilter .            
-
-        IF pcFilter = "":U THEN 
-            CAST (smartToolbarController1:Tools ["FilterTable":U]:SharedProps:ToolInstances[0], 
-                              Infragistics.Win.UltraWinToolbars.TextBoxTool):IsInEditMode = TRUE .         
-
-    END METHOD.
-
-    /*------------------------------------------------------------------------------
-        Purpose: Generates the source code                                                                        
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/
-    METHOD PROTECTED VOID GenerateSource ():
-
-        IF NOT THIS-OBJECT:EnsureAllViewersSaved () THEN 
-            RETURN . 
-            
-        /* Mike Fechner, Consultingwerk Ltd. 16.05.2014
-           SCL-299: Prompt for save changes before generate */
-        IF BusinessEntityDesignerSettings:PromptForSaveBeforeGenerate THEN DO:
-            IF NOT THIS-OBJECT:CheckChanges() THEN 
-                RETURN . 
-        END.
-        
-        CAST (smartBusinessEntityAdapter1:DatasetController,
-              BusinessEntityDatasetController):GenerateSource () .
-              
-    END METHOD.
-
-	/*------------------------------------------------------------------------------
-	    Purpose: Event handler for the GenericStatusChanded event of the IStatusManager
-	    Notes:
-	    @param sender The reference to the IStatusManager that raised the event
-	    @param pcStatus The new status text
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID GenericStatusChandedHandler (sender AS IStatusManager, 
-                                                       pcStatus AS CHARACTER):
-		
-		THIS-OBJECT:DisplayStatus (pcStatus) .
-
-	END METHOD.
-
-    /*------------------------------------------------------------------------------
-        Purpose: Prompts for a file to import and invokes the ImportTableFromFile method
-                 in the BusinessEntityDatasetController class
-        Notes:   
-    ------------------------------------------------------------------------------*/
-    METHOD PROTECTED VOID ImportTable ():
-
-        DEFINE VARIABLE cFileName     AS CHARACTER    NO-UNDO.
-        DEFINE VARIABLE oDialogResult AS DialogResult NO-UNDO . 
-
-        WAIT-FOR openFileDialog2:ShowDialog (THIS-OBJECT) SET oDialogResult . 
-
-        THIS-OBJECT:ActivateDesignCanvas () .
-
-        {Consultingwerk/check-dialogresult-ok.i oDialogResult} 
-        
-        oController:ImportTableFromFile (openFileDialog2:FileName) .
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
+        Purpose: Invokes the Field Editor Form
+        Notes:
     ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID EditFields ():
+
+        DEFINE VARIABLE oEnumerator AS System.Collections.IDictionaryEnumerator NO-UNDO .
+        DEFINE VARIABLE oTables     AS Crainiate.ERM4.Elements                  NO-UNDO .
+        DEFINE VARIABLE cTableName  AS CHARACTER                                NO-UNDO .
+
+       THIS-OBJECT:ActivateDesignCanvas () .
+
+        ASSIGN oTables = model1:SelectedElements (Progress.Util.TypeHelper:GetType ("Crainiate.ERM4.Table":U)) .
+
+        IF oTables:Count = 0 THEN
+            RETURN .
+
+        oEnumerator = oTables:GetEnumerator () .
+        oEnumerator:MoveNext() .
+
+        ASSIGN cTableName = CAST (CAST (oEnumerator:Current,
+                                        System.Collections.DictionaryEntry):Value,
+                                  Consultingwerk.BusinessEntityDesigner.UI.Shapes.TempTableShape):Heading.
+
+        oController:EditFields (cTableName) .
+
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Opens the BusinessEntitySourceEditorForm for the current business
+                 entity
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID EditSource ():
+
+        IF VALID-OBJECT (oBusinessEntitySourceEditorForm) THEN
+            oBusinessEntitySourceEditorForm:Activate () .
+        ELSE DO:
+            oBusinessEntitySourceEditorForm = NEW BusinessEntitySourceEditorForm (oController:DatasetHandle) .
+            oBusinessEntitySourceEditorForm:Show () .
+        END.
+
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Ensures that all Viewers have saved their changes
+        Notes:
+        @return Logical value indicating if all Viewers are saved
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED LOGICAL EnsureAllViewersSaved ():
+
+        DEFINE VARIABLE oViewers AS Consultingwerk.SmartComponents.Base.SmartViewerControl NO-UNDO EXTENT 5 .
+        DEFINE VARIABLE i        AS INTEGER                                                NO-UNDO .
+
+        ASSIGN
+            oViewers[1] = THIS-OBJECT:businessEntityViewerControl1
+            oViewers[2] = THIS-OBJECT:memberTableViewerControl1
+            oViewers[3] = THIS-OBJECT:dataRelationViewerControl1
+            oViewers[4] = THIS-OBJECT:fieldViewerControl1
+            oViewers[5] = THIS-OBJECT:indexViewerControl1
+            .
+
+        DO i = 1 TO EXTENT (oViewers):
+            IF oViewers[i]:SmartTableIOState = TableIOStateEnum:ModifyingData THEN DO:
+                 oViewers[i]:SaveChanges() .
+
+                /* Mike Fechner, Consultingwerk Ltd. 21.02.2010
+                   Check if still in update mode */
+                IF oViewers[i]:SmartTableIOState = TableIOStateEnum:ModifyingData THEN
+                    RETURN FALSE .
+            END.
+        END.
+
+        RETURN TRUE .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+
+            RETURN FALSE .
+        END CATCH.
+
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Expands all tables on the model
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID ExpandAllTables ():
+
+        THIS-OBJECT:ActivateDesignCanvas () .
+
+        {Consultingwerk/foreach.i System.Collections.DictionaryEntry oElement in THIS-OBJECT:model1:Shapes}
+
+            IF TYPE-OF (oElement:Value, TempTableShape) THEN
+                CAST (oElement:Value, TempTableShape):Expanded = TRUE .
+        END.
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose:
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID FieldsReorder ():
+
+        DEFINE VARIABLE oEnumerator AS System.Collections.IDictionaryEnumerator NO-UNDO .
+        DEFINE VARIABLE oTables     AS Crainiate.ERM4.Elements                  NO-UNDO .
+
+        THIS-OBJECT:ActivateDesignCanvas () .
+
+        ASSIGN oTables = model1:SelectedElements(Progress.Util.TypeHelper:GetType ("Crainiate.ERM4.Table":U)) .
+
+        IF oTables:Count = 0 THEN
+            RETURN .
+
+        oEnumerator = oTables:GetEnumerator () .
+        oEnumerator:MoveNext() .
+
+        CAST (smartBusinessEntityAdapter1:DatasetController,
+              BusinessEntityDatasetController):FieldsReorder (CAST(CAST (oEnumerator:Current, System.Collections.DictionaryEntry):Value,
+                                                                   Consultingwerk.BusinessEntityDesigner.UI.Shapes.TempTableShape)) .
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Filters the list of database tables in the toolbox
+        Notes:
+        @param pcFilter The filter value
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID FilterTables (pcFilter AS CHARACTER):
+
+        DEFINE VARIABLE i AS INTEGER NO-UNDO.
+
+        DEFINE VARIABLE oListView AS UltraListView NO-UNDO .
+
+        searchTimer:Enabled = FALSE .
+
+        IF pcFilter > "":U THEN .
+        ELSE ASSIGN pcFilter = "":U .
+
+        DO i = 1 TO ultraExplorerBar1:Groups:Count - 1:
+
+            IF TYPE-OF (ultraExplorerBar1:Groups[i]:Container:Controls[0],
+                        UltraListView) THEN DO:
+
+                oListView = CAST (ultraExplorerBar1:Groups[i]:Container:Controls[0],
+                                  UltraListView) .
+
+                {Consultingwerk/foreach.i UltraListViewItem oItem in oListView:Items}
+                    oItem:VISIBLE = oItem:Text BEGINS pcFilter .
+                END.
+            END.
+        END.
+
+        IF pcFilter > "":U THEN DO:
+            IF oLRUList:Contains (pcFilter) THEN
+                oLRUList:Remove (pcFilter) .
+
+            oLRUList:Insert (0, pcFilter) .
+
+            DO WHILE oLRUList:Count > 10:
+                oLRUList:RemoveAt (10) .
+            END.
+
+            BuildLRUMenuItems () .
+            StoreLRU () .
+        END.
+
+        IF pcFilter <> CAST (smartToolbarController1:Tools ["FilterTable":U],
+                             Infragistics.Win.UltraWinToolbars.TextBoxTool):Text THEN
+
+            CAST (smartToolbarController1:Tools ["FilterTable":U],
+                  Infragistics.Win.UltraWinToolbars.TextBoxTool):Text = pcFilter .
+
+        IF pcFilter = "":U THEN
+            CAST (smartToolbarController1:Tools ["FilterTable":U]:SharedProps:ToolInstances[0],
+                              Infragistics.Win.UltraWinToolbars.TextBoxTool):IsInEditMode = TRUE .
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Generates the source code
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID GenerateSource ():
+
+        IF NOT THIS-OBJECT:EnsureAllViewersSaved () THEN
+            RETURN .
+
+        /* Mike Fechner, Consultingwerk Ltd. 16.05.2014
+           SCL-299: Prompt for save changes before generate */
+        IF BusinessEntityDesignerSettings:PromptForSaveBeforeGenerate THEN DO:
+            IF NOT THIS-OBJECT:CheckChanges() THEN
+                RETURN .
+        END.
+
+        CAST (smartBusinessEntityAdapter1:DatasetController,
+              BusinessEntityDatasetController):GenerateSource () .
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the GenericStatusChanded event of the IStatusManager
+        Notes:
+        @param sender The reference to the IStatusManager that raised the event
+        @param pcStatus The new status text
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID GenericStatusChandedHandler (sender AS IStatusManager,
+                                                       pcStatus AS CHARACTER):
+
+        THIS-OBJECT:DisplayStatus (pcStatus) .
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Prompts for a file to import and invokes the ImportTableFromFile method
+                 in the BusinessEntityDatasetController class
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID ImportTable ():
+
+        DEFINE VARIABLE oDialogResult AS DialogResult NO-UNDO .
+
+        WAIT-FOR openFileDialog2:ShowDialog (THIS-OBJECT) SET oDialogResult .
+
+        THIS-OBJECT:ActivateDesignCanvas () .
+
+        {Consultingwerk/check-dialogresult-ok.i oDialogResult}
+
+        oController:ImportTableFromFile (openFileDialog2:FileName) .
+
+    END METHOD .
+
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -3062,6 +3113,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerForm
         ultraStatusPanel1:Key = "modified":U.
         ultraStatusPanel2:Key = "status":U.
         ultraStatusPanel2:SizingMode = Infragistics.Win.UltraWinStatusBar.PanelSizingMode:Spring.
+        ultraStatusPanel2:WrapText = Infragistics.Win.DefaultableBoolean:False.
         ultraStatusPanel3:Key = "workdir":U.
         ultraStatusPanel3:SizingMode = Infragistics.Win.UltraWinStatusBar.PanelSizingMode:Automatic.
         ultraStatusPanel3:Style = Infragistics.Win.UltraWinStatusBar.PanelStyle:Button.
@@ -3074,14 +3126,18 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerForm
         ultraStatusPanel5:Key = "frameworkversion":U.
         ultraStatusPanel5:SizingMode = Infragistics.Win.UltraWinStatusBar.PanelSizingMode:Automatic.
         ultraStatusPanel5:Text = "frameworkversion":U.
+        ultraStatusPanel5:WrapText = Infragistics.Win.DefaultableBoolean:False.
         ultraStatusPanel6:Key = "proversion":U.
         ultraStatusPanel6:Text = "proversion":U.
-        ultraStatusPanel6:Width = 70.
-        ultraStatusPanel7:Key = "Zoom":U.
+        ultraStatusPanel6:Width = 40.
+        ultraStatusPanel6:WrapText = Infragistics.Win.DefaultableBoolean:False.
+        ultraStatusPanel7:Key = "bitness":U.
         ultraStatusPanel7:SizingMode = Infragistics.Win.UltraWinStatusBar.PanelSizingMode:Automatic.
-        ultraStatusPanel7:Text = "100 %":U.
-        ultraStatusPanel8:Key = "bitness":U.
+        ultraStatusPanel7:WrapText = Infragistics.Win.DefaultableBoolean:False.
+        ultraStatusPanel8:Key = "Zoom":U.
         ultraStatusPanel8:SizingMode = Infragistics.Win.UltraWinStatusBar.PanelSizingMode:Automatic.
+        ultraStatusPanel8:Text = "100 %":U.
+        ultraStatusPanel8:WrapText = Infragistics.Win.DefaultableBoolean:False.
         ultraStatusPanel9:Control = THIS-OBJECT:ultraTrackBar1.
         ultraStatusPanel9:Style = Infragistics.Win.UltraWinStatusBar.PanelStyle:ControlContainer.
         ultraStatusPanel9:Width = 150.
@@ -3210,192 +3266,247 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerForm
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Initializes the Plugins for the Business Entity Designer                                                                       
-        Notes:                                                                        
+        Purpose: Initializes the Plugins for the Business Entity Designer
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID InitializePlugins ():
-        
+
         DEFINE VARIABLE i       AS INTEGER                       NO-UNDO.
         DEFINE VARIABLE cPlugin AS CHARACTER                     NO-UNDO.
-        DEFINE VARIABLE oPlugin AS IBusinessEntityDesignerPlugin NO-UNDO . 
+        DEFINE VARIABLE oPlugin AS IBusinessEntityDesignerPlugin NO-UNDO .
         DEFINE VARIABLE hDataset AS HANDLE NO-UNDO.
-        
-        ASSIGN hDataset = oController:DatasetHandle . 
-        
+
+        ASSIGN hDataset = oController:DatasetHandle .
+
         pluginloop:
         DO i = 1 TO NUM-ENTRIES (BusinessEntityDesignerSettings:BusinessEntityDesignerPlugins, "|":U):
 
             ASSIGN cPlugin = TRIM (ENTRY (i, BusinessEntityDesignerSettings:BusinessEntityDesignerPlugins, "|":U)) .
-            
+
             IF cPlugin > "":U AND NOT cPlugin BEGINS "#":U THEN DO ON ERROR UNDO, NEXT pluginloop .
-          
+
                 oPlugin = DYNAMIC-NEW (cPlugin) () .
-                 
+
                 oPlugin:Startup (DATASET-HANDLE hDataset BIND,
                                  oController,
-                                 THIS-OBJECT, 
-                                 THIS-OBJECT:smartToolbarController1) .  
-    
-                CREATE ttPlugins . 
+                                 THIS-OBJECT,
+                                 THIS-OBJECT:smartToolbarController1) .
+
+                CREATE ttPlugins .
                 ASSIGN ttPlugins.cPluginName = cPlugin
                        ttPlugins.oPlugin     = oPlugin .
-                RELEASE ttPlugins .         
-          
+                RELEASE ttPlugins .
+
                 CATCH err AS Progress.Lang.Error :
                     Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err,
                                                                       SUBSTITUTE ("Error loading plugin: &1"{&TRAN},
-                                                                                  cPlugin)) .    
+                                                                                  cPlugin)) .
                     IF VALID-OBJECT (oPlugin) THEN DO:
-                        oPlugin:Shutdown() . 
-                        IF VALID-OBJECT (oPlugin) THEN 
+                        oPlugin:Shutdown() .
+                        IF VALID-OBJECT (oPlugin) THEN
                             DELETE OBJECT oPlugin .
-                    END.                        
-                END CATCH. 
+                    END.
+                END CATCH.
             END.
         END.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Loads the .bedgm file LRU from the Registry                                                                       
-        Notes:                                                                        
+        Purpose: Loads the .bedgm file LRU from the Registry
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID LoadFileLRU ():
-        
+
         DEFINE VARIABLE i            AS INTEGER   NO-UNDO.
         DEFINE VARIABLE cFileName    AS CHARACTER NO-UNDO.
-        
+
         DEFINE VARIABLE cSettingsKey AS CHARACTER NO-UNDO.
 
-        ASSIGN lUseLocalFileHistory = BusinessEntityDesignerSettings:UseLocalFileHistory .  
+        ASSIGN lUseLocalFileHistory = BusinessEntityDesignerSettings:UseLocalFileHistory .
 
-        IF lUseLocalFileHistory THEN 
-            ASSIGN cSettingsKey = Consultingwerk.Framework.FrameworkSettings:BaseRegistryKey + "Settings~\":U + 
+        IF lUseLocalFileHistory THEN
+            ASSIGN cSettingsKey = Consultingwerk.Framework.FrameworkSettings:BaseRegistryKey + "Settings~\":U +
                                   REPLACE (BusinessEntityDesignerSettings:SettingsFile, ":":U, "":U).
-        ELSE 
-            ASSIGN cSettingsKey = Consultingwerk.Framework.FrameworkSettings:BaseRegistryKey + "Settings":U . 
+        ELSE
+            ASSIGN cSettingsKey = Consultingwerk.Framework.FrameworkSettings:BaseRegistryKey + "Settings":U .
 
         DO i = 12 TO 0 BY -1 ON ERROR UNDO, THROW:
-            cFileName = Consultingwerk.Framework.Registry:GetRegistryValue 
+            cFileName = Consultingwerk.Framework.Registry:GetRegistryValue
                            ("User":U,
-                            cSettingsKey, 
-                            "File LRU ":U + STRING (i, "99":U)) . 
-            
-            IF cFileName > "":U THEN 
+                            cSettingsKey,
+                            "File LRU ":U + STRING (i, "99":U)) .
+
+            IF cFileName > "":U THEN
                 UpdateFileLRU (cFileName) .
-                
+
+            @SuppressUnusedWarnings.
             CATCH err AS Progress.Lang.Error :
-                /* noop */    
+                /* noop */
             END CATCH.
         END.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Loads the table filter LRU from the registry                                                                        
-        Notes:                                                                        
+        Purpose: Loads the table filter LRU from the registry
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID LoadLRU ():
-        
+
         DEFINE VARIABLE cSettings AS CHARACTER NO-UNDO.
         DEFINE VARIABLE i         AS INTEGER   NO-UNDO.
-                
-        ASSIGN cSettings = Consultingwerk.Framework.Registry:GetRegistryValue 
+
+        ASSIGN cSettings = Consultingwerk.Framework.Registry:GetRegistryValue
                                    ("User":U,
-                                    Consultingwerk.Framework.FrameworkSettings:BaseRegistryKey + "Settings":U, 
-                                    "FilterHistory":U) .   
+                                    Consultingwerk.Framework.FrameworkSettings:BaseRegistryKey + "Settings":U,
+                                    "FilterHistory":U) .
 
         oLRUList:Clear() .
-        
+
         DO i = 1 TO NUM-ENTRIES (cSettings, "|":U):
             oLRUList:Add (ENTRY (i, cSettings, "|":U)) .
         END .
 
         BuildLRUMenuItems() .
 
+        @SuppressUnusedWarnings.
         CATCH err AS System.Exception:
-            /* ignore */    
+            /* ignore */
         END CATCH.
 
     END METHOD.
 
+    /**
+     * Purpose: Handles changing the DisplayReleaseNotes toggle
+     * Notes:
+     */
+    METHOD PROTECTED VOID ToggleDisplayReleaseNotes():
+
+        DEFINE VARIABLE oSettingsService AS ISettingsService NO-UNDO .
+        DEFINE VARIABLE lSetting         AS LOGICAL          NO-UNDO .
+
+        IF lApplyingDisplayReleaseNotesAtStart THEN
+            RETURN .
+
+        ASSIGN lSetting = UltraToolbarsHelper:GetStateButtonToolChecked (smartToolbarController1,
+                                                                         "Display Release Notes At Start":U) .
+
+        oSettingsService = {Consultingwerk/get-service.i Consultingwerk.Framework.ISettingsService} .
+
+        IF VALID-OBJECT (oSettingsService) THEN
+            oSettingsService:StoreSetting(THIS-OBJECT:WindowPositionRegistryKey,
+                                          "Display Release Notes At Start":U,
+                                          STRING (lSetting)) .
+
+        MessageFormHelper:ShowMessage ("This setting will be applied the next time you start the Business Entity Designer"{&TRAN}, 10) .
+
+    END METHOD.
+
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the DragDrop event of the crainiate model1                                                                        
-        Notes:                                                               
-        @param sender The reference to the object that raised the event
-        @param e The DragEventArgs with the data for this event         
+        Purpose: Returns the Title that should be shown in the title bar Business Entity Designer Form
+        Notes:
+        @param pcFileName The currently open file name or ? for "untitled"
+        @return The Title that should be shown in the title bar
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID model1_DragDrop (sender AS System.Object, 
+    METHOD PROTECTED CHARACTER WindowTitle (pcFileName AS CHARACTER):
+
+        DEFINE VARIABLE cShortFileName AS CHARACTER NO-UNDO.
+
+        IF pcFileName <> ? THEN DO:
+            ASSIGN cShortFileName = FileHelper:ShortFileName(pcFileName)
+                   cShortFileName = REPLACE(cShortFileName, ".bedgm":U, "":U) .
+
+            RETURN SUBSTITUTE ("&1 - &2 (&3)":U,
+                               cShortFileName,
+                               cBaseTitle,
+                               pcFileName) .
+        END.
+        ELSE
+            RETURN SUBSTITUTE ("<untitled> - &1"{&TRAN}, cBaseTitle) .
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the DragDrop event of the crainiate model1
+        Notes:
+        @param sender The reference to the object that raised the event
+        @param e The DragEventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID model1_DragDrop (sender AS System.Object,
                                          e AS System.Windows.Forms.DragEventArgs):
-        
-        DEFINE VARIABLE oPoint        AS System.Drawing.Point                NO-UNDO . 
-        DEFINE VARIABLE oPointF       AS System.Drawing.PointF               NO-UNDO . 
-        DEFINE VARIABLE oElement      AS Crainiate.ERM4.Element              NO-UNDO . 
-        DEFINE VARIABLE hDataset      AS HANDLE                              NO-UNDO .
-        DEFINE VARIABLE oItem         AS Infragistics.Shared.IKeyedSubObject NO-UNDO . 
-        DEFINE VARIABLE oArray        AS System.Array                        NO-UNDO . 
-        DEFINE VARIABLE cFileName     AS CHARACTER                           NO-UNDO .
-        DEFINE VARIABLE oDialogResult AS DialogResultEnum                    NO-UNDO .
-        DEFINE VARIABLE cTag          AS CHARACTER                           NO-UNDO .
-    
+
+        DEFINE VARIABLE oPoint         AS System.Drawing.Point                NO-UNDO .
+        DEFINE VARIABLE oPointF        AS System.Drawing.PointF               NO-UNDO .
+        DEFINE VARIABLE oElement       AS Crainiate.ERM4.Element              NO-UNDO .
+        DEFINE VARIABLE hDataset       AS HANDLE                              NO-UNDO .
+        DEFINE VARIABLE oItem          AS Infragistics.Shared.IKeyedSubObject NO-UNDO .
+        DEFINE VARIABLE oArray         AS System.Array                        NO-UNDO .
+        DEFINE VARIABLE cFileName      AS CHARACTER                           NO-UNDO .
+        DEFINE VARIABLE oDialogResult  AS DialogResultEnum                    NO-UNDO .
+        DEFINE VARIABLE oDialogResult2 AS DialogResultEnum                    NO-UNDO .
+        DEFINE VARIABLE cTag           AS CHARACTER                           NO-UNDO .
+
         IF e:Data:GetDataPresent (System.Windows.Forms.DataFormats:FileDrop) THEN DO:
             oArray = CAST (e:Data:GetData(System.Windows.Forms.DataFormats:FileDrop),
                            System.Array) .
-                           
+
             IF VALID-OBJECT (oArray) THEN DO:
                 cFileName = oArray:GetValue (0):ToString () .
-                 
+
                 IF cFileName MATCHES "*.bedgm":U THEN DO:
-                    
+                    IF CheckChanges () = FALSE THEN
+                        RETURN .
+
                     CAST (smartBusinessEntityAdapter1:DatasetController,
                           BusinessEntityDatasetController):Open (cFileName, THIS-OBJECT:model1) .
-                    
-                    ASSIGN THIS-OBJECT:TEXT = cBaseTitle + " <":U + cFileName + ">":U 
-                           THIS-OBJECT:FileName = cFileName .                          
-                END.          
-                ELSE IF cFileName MATCHES "*.i":U THEN 
+
+                    ASSIGN THIS-OBJECT:Text     = THIS-OBJECT:WindowTitle (cFileName)
+                           THIS-OBJECT:FileName = cFileName .
+                END.
+                ELSE IF cFileName MATCHES "*.i":U THEN
                     oController:ImportTableFromFile (cFileName) .
-                                
-                THIS-OBJECT:Activate () .                
+
+                THIS-OBJECT:Activate () .
             END .
 
             RETURN .
         END.
-            
-        IF NOT e:Data:GetDataPresent (Progress.Util.TypeHelper:GetType ("Infragistics.Win.UltraWinExplorerBar.UltraExplorerBarItem":U)) AND  
-           NOT e:Data:GetDataPresent (Progress.Util.TypeHelper:GetType ("Infragistics.Win.UltraWinListView.UltraListViewItem":U)) THEN 
-            
+
+        IF NOT e:Data:GetDataPresent (Progress.Util.TypeHelper:GetType ("Infragistics.Win.UltraWinExplorerBar.UltraExplorerBarItem":U)) AND
+           NOT e:Data:GetDataPresent (Progress.Util.TypeHelper:GetType ("Infragistics.Win.UltraWinListView.UltraListViewItem":U)) THEN
+
             RETURN .
-        
-        IF e:Data:GetDataPresent (Progress.Util.TypeHelper:GetType ("Infragistics.Win.UltraWinExplorerBar.UltraExplorerBarItem":U)) THEN 
+
+        IF e:Data:GetDataPresent (Progress.Util.TypeHelper:GetType ("Infragistics.Win.UltraWinExplorerBar.UltraExplorerBarItem":U)) THEN
             oItem = CAST (e:Data:GetData (Progress.Util.TypeHelper:GetType ("Infragistics.Win.UltraWinExplorerBar.UltraExplorerBarItem":U)),
                           Infragistics.Shared.IKeyedSubObject) .
-        ELSE 
+        ELSE
             oItem = CAST (e:Data:GetData (Progress.Util.TypeHelper:GetType ("Infragistics.Win.UltraWinListView.UltraListViewItem":U)),
                           Infragistics.Shared.IKeyedSubObject) .
-        
+
         oPoint = model1:PointToClient(NEW System.Drawing.Point (e:X, e:Y))  .
         oPointF = model1:PointToDiagram(oPoint:X, oPoint:Y) .
         oElement = model1:ElementFromPoint (oPoint:X, oPoint:Y) .
-        
+
         IF oItem:Key BEGINS "table.":U THEN DO:
             IF VALID-OBJECT (oElement) AND TYPE-OF (oElement, TempTableShape) THEN DO:
                 /* Mike Fechner, Consultingwerk Ltd. 16.12.2010
                    Adding another table to an existing temp-table */
-                
-                oDialogResult = Consultingwerk.Util.MessageFormHelper:AskQuestion 
-                                    (SUBSTITUTE ("Add &1.&2 as an additional source table to the temp-table &3?"{&TRAN}, 
+
+                oDialogResult = Consultingwerk.Util.MessageFormHelper:AskQuestion
+                                    (SUBSTITUTE ("Add &1.&2 as an additional source table to the temp-table &3?"{&TRAN},
                                                  ENTRY (2, oItem:Key, ".":U),
                                                  ENTRY (3, oItem:Key, ".":U),
                                                  CAST (oElement, TempTableShape):Heading),
-                                     "Business Entity Designer"{&TRAN}, 
+                                     "Business Entity Designer"{&TRAN},
                                      SUBSTITUTE ("The fields of the database table &1.&2 will be added to the temp-table &3."{&TRAN},
                                                  ENTRY (2, oItem:Key, ".":U),
                                                  ENTRY (3, oItem:Key, ".":U),
                                                  CAST (oElement, TempTableShape):Heading)) .
-                  
-                IF NOT oDialogResult:Equals (DialogResultEnum:DialogResultYes) THEN 
-                    RETURN .    
+
+                IF NOT oDialogResult:Equals (DialogResultEnum:DialogResultYes) THEN
+                    RETURN .
 
                 hDataset = CAST (smartBusinessEntityAdapter2:DatasetController,
                                  DatabaseSchemaDatasetController):GetTableSchema (ENTRY (2, oItem:Key, ".":U), ENTRY (3, oItem:Key, ".":U)) .
@@ -3403,319 +3514,350 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerForm
                 CAST (smartBusinessEntityAdapter1:DatasetController,
                       BusinessEntityDatasetController):AddSourceTable (hDataset,
                                                                        oElement:Key,
-                                                                       THIS-OBJECT:model1) .                   
-                    
-                DELETE OBJECT hDataset .     
+                                                                       THIS-OBJECT:model1) .
+
+                DELETE OBJECT hDataset .
             END.
             ELSE DO:
                 hDataset = CAST (smartBusinessEntityAdapter2:DatasetController,
                                  DatabaseSchemaDatasetController):GetTableSchema (ENTRY (2, oItem:Key, ".":U), ENTRY (3, oItem:Key, ".":U)) .
-    
+
                 CAST (smartBusinessEntityAdapter1:DatasetController,
-                      BusinessEntityDatasetController):CreateTempTable (hDataset, 
+                      BusinessEntityDatasetController):CreateTempTable (hDataset,
                                                                         THIS-OBJECT:model1,
-                                                                        INTEGER(oPointF:X - 30), 
+                                                                        INTEGER(oPointF:X - 30),
                                                                         INTEGER(oPointF:Y - 10)) .
-                      
-                DELETE OBJECT hDataset . 
+
+                DELETE OBJECT hDataset .
             END.
         END.
-        ELSE CASE oItem:Key: 
+        ELSE CASE oItem:Key:
             WHEN "table":U THEN DO:
                 CAST (smartBusinessEntityAdapter1:DatasetController,
                       BusinessEntityDatasetController):CreateTempTable (THIS-OBJECT:model1,
-                                                                        INTEGER(oPointF:X - 30), 
+                                                                        INTEGER(oPointF:X - 30),
                                                                         INTEGER(oPointF:Y - 10)) .
             END.
             WHEN "annotation":U THEN DO:
-                
+
             END.
             WHEN "field":U THEN DO:
-                IF VALID-OBJECT (oElement) AND TYPE-OF (oElement, TempTableShape) THEN 
+                IF VALID-OBJECT (oElement) AND TYPE-OF (oElement, TempTableShape) THEN
                     CAST (smartBusinessEntityAdapter1:DatasetController,
                           BusinessEntityDatasetController):AddNewField (CAST (oElement, TempTableShape)) .
             END.
             WHEN "index":U THEN DO:
-                IF VALID-OBJECT (oElement) AND TYPE-OF (oElement, TempTableShape) THEN 
+                IF VALID-OBJECT (oElement) AND TYPE-OF (oElement, TempTableShape) THEN
                     CAST (smartBusinessEntityAdapter1:DatasetController,
                           BusinessEntityDatasetController):AddNewIndex  (CAST (oElement, TempTableShape)) .
             END.
-        END CASE . 
-        
+        END CASE .
+
         IF oItem:Key BEGINS "field.":U THEN DO:
-            
-            oDialogResult = Consultingwerk.Util.MessageFormHelper:AskQuestion 
+
+            oDialogResult = Consultingwerk.Util.MessageFormHelper:AskQuestion
                                 ("Keep source field information for the new field?"{&TRAN},
-                                 "Business Entity Designer"{&TRAN}, 
+                                 "Business Entity Designer"{&TRAN},
                                  "When keeping the source field information, the new temp-table field will "{&TRAN} +
-                                 "be populated from the database using a data-source and not from a calculated "{&TRAN} + 
-                                 "field expression.~n~n"{&TRAN} + 
+                                 "be populated from the database using a data-source and not from a calculated "{&TRAN} +
+                                 "field expression.~n~n"{&TRAN} +
                                  "In that case, it's expected to be part of the data source query."{&TRAN}) .
-              
-            IF VALID-OBJECT (oElement) AND TYPE-OF (oElement, TempTableShape) THEN DO: 
+
+            IF oDialogResult:Equals (DialogResultEnum:DialogResultYes) THEN DO:
+
+               IF NOT CAST (smartBusinessEntityAdapter1:DatasetController,
+                            BusinessEntityDatasetController):HasSourceTable(CAST (oElement, TempTableShape), ENTRY (3, oItem:Key, ".":U)) THEN DO:
+
+                    oDialogResult2 = Consultingwerk.Util.MessageFormHelper:AskQuestion
+                                         (SUBSTITUTE ("Add &1 as an additional source table?"{&TRAN}, ENTRY (3, oItem:KEY, ".":U)),
+                                          "Business Entity Designer"{&TRAN}) .
+                END.
+                ELSE
+                    ASSIGN oDialogResult2 = DialogResultEnum:DialogResultNo .
+            END.
+            ELSE
+                ASSIGN oDialogResult2 = DialogResultEnum:DialogResultNo .
+
+            IF VALID-OBJECT (oElement) AND TYPE-OF (oElement, TempTableShape) THEN DO:
                 ASSIGN cTag = UNBOX (Consultingwerk.Util.ReflectionHelper:GetPropertyValue (oItem, "Tag":U)) .
-                
+
                 CAST (smartBusinessEntityAdapter1:DatasetController,
                       BusinessEntityDatasetController):AddExistingField (CAST (oElement, TempTableShape),
-                                                                         SUBSTRING (oItem:Key, 7),
+                                                                         SUBSTRING (oItem:Key, 7, -1, "CHARACTER":U),
                                                                          cTag,
-                                                                         oDialogResult:Equals (DialogResultEnum:DialogResultYes)) .
-            END.                                                                         
+                                                                         oDialogResult:Equals (DialogResultEnum:DialogResultYes),
+                                                                         oDialogResult2:Equals (DialogResultEnum:DialogResultYes)) .
+            END.
         END.
-        
+
         CATCH err AS Progress.Lang.Error :
-            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .    
+            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
         FINALLY:
-            GarbageCollectorHelper:DeleteObject (hDataset) . 
+            GarbageCollectorHelper:DeleteObject (hDataset) .
         END FINALLY.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the DragEnter event of the crainiate model1                                                                        
-        Notes:                                                               
+        Purpose: Event handler for the DragEnter event of the crainiate model1
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The DragEventArgs with the data for this event         
+        @param e The DragEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID model1_DragEnter (sender AS System.Object, 
+    METHOD PRIVATE VOID model1_DragEnter (sender AS System.Object,
                                           e AS System.Windows.Forms.DragEventArgs):
 
-        DEFINE VARIABLE oArray    AS System.Array           NO-UNDO . 
+        DEFINE VARIABLE oArray    AS System.Array           NO-UNDO .
         DEFINE VARIABLE cFileName AS CHARACTER              NO-UNDO .
-        
+
         IF e:Data:GetDataPresent (System.Windows.Forms.DataFormats:FileDrop) THEN DO:
             oArray = CAST (e:Data:GetData(System.Windows.Forms.DataFormats:FileDrop),
                            System.Array) .
 
             IF VALID-OBJECT (oArray) THEN DO:
                 cFileName = oArray:GetValue (0):ToString () .
-                 
-                IF cFileName MATCHES "*.bedgm":U OR cFileName MATCHES "*.i":U THEN 
+
+                IF cFileName MATCHES "*.bedgm":U OR cFileName MATCHES "*.i":U THEN
                     e:Effect = System.Windows.Forms.DragDropEffects:Copy .
-                ELSE                             
+                ELSE
                     e:Effect = System.Windows.Forms.DragDropEffects:None .
 
             END.
-            ELSE 
+            ELSE
                 e:Effect = System.Windows.Forms.DragDropEffects:None .
 
             RETURN .
         END.
-            
+
         IF NOT e:Data:GetDataPresent (Progress.Util.TypeHelper:GetType ("Infragistics.Win.UltraWinExplorerBar.UltraExplorerBarItem":U)) AND
            NOT e:Data:GetDataPresent (Progress.Util.TypeHelper:GetType ("Infragistics.Win.UltraWinListView.UltraListViewItem":U)) THEN DO:
-            
+
             e:Effect = System.Windows.Forms.DragDropEffects:None .
             RETURN .
-        END.             
+        END.
 
-        e:Effect = System.Windows.Forms.DragDropEffects:Copy .                  
+        e:Effect = System.Windows.Forms.DragDropEffects:Copy .
 
         CATCH err AS Progress.Lang.Error :
-            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .    
+            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the DragOver event of the crainiate model1                                                                        
-        Notes:                                                               
+        Purpose: Event handler for the DragOver event of the crainiate model1
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The DragEventArgs with the data for this event         
+        @param e The DragEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID model1_DragOver (sender AS System.Object, 
+    METHOD PRIVATE VOID model1_DragOver (sender AS System.Object,
                                          e AS System.Windows.Forms.DragEventArgs):
-        
-        DEFINE VARIABLE oPoint   AS System.Drawing.Point                NO-UNDO . 
-        DEFINE VARIABLE oElement AS Crainiate.ERM4.Element              NO-UNDO . 
-        DEFINE VARIABLE oItem    AS Infragistics.Shared.IKeyedSubObject NO-UNDO . 
-        
-        IF NOT e:Data:GetDataPresent (Progress.Util.TypeHelper:GetType ("Infragistics.Win.UltraWinExplorerBar.UltraExplorerBarItem":U)) AND 
-           NOT e:Data:GetDataPresent (Progress.Util.TypeHelper:GetType ("Infragistics.Win.UltraWinListView.UltraListViewItem":U)) THEN 
-            
+
+        DEFINE VARIABLE oPoint   AS System.Drawing.Point                NO-UNDO .
+        DEFINE VARIABLE oElement AS Crainiate.ERM4.Element              NO-UNDO .
+        DEFINE VARIABLE oItem    AS Infragistics.Shared.IKeyedSubObject NO-UNDO .
+
+        IF NOT e:Data:GetDataPresent (Progress.Util.TypeHelper:GetType ("Infragistics.Win.UltraWinExplorerBar.UltraExplorerBarItem":U)) AND
+           NOT e:Data:GetDataPresent (Progress.Util.TypeHelper:GetType ("Infragistics.Win.UltraWinListView.UltraListViewItem":U)) THEN
+
             RETURN .
-        
-        IF e:Data:GetDataPresent (Progress.Util.TypeHelper:GetType ("Infragistics.Win.UltraWinExplorerBar.UltraExplorerBarItem":U)) THEN 
+
+        IF e:Data:GetDataPresent (Progress.Util.TypeHelper:GetType ("Infragistics.Win.UltraWinExplorerBar.UltraExplorerBarItem":U)) THEN
             oItem = CAST (e:Data:GetData (Progress.Util.TypeHelper:GetType ("Infragistics.Win.UltraWinExplorerBar.UltraExplorerBarItem":U)),
                           Infragistics.Shared.IKeyedSubObject) .
-        ELSE 
+        ELSE
             oItem = CAST (e:Data:GetData (Progress.Util.TypeHelper:GetType ("Infragistics.Win.UltraWinListView.UltraListViewItem":U)),
                           Infragistics.Shared.IKeyedSubObject) .
-        
+
         oPoint = model1:PointToClient(NEW System.Drawing.Point (e:X, e:Y))  .
         oElement = model1:ElementFromPoint (oPoint:X, oPoint:Y) .
 
         IF oItem:Key BEGINS "table.":U THEN DO:
-            IF VALID-OBJECT (oElement) AND TYPE-OF (oElement, TempTableShape) THEN 
+            IF VALID-OBJECT (oElement) AND TYPE-OF (oElement, TempTableShape) THEN
                 e:Effect = System.Windows.Forms.DragDropEffects:Link .
-            ELSE  
+            ELSE
                 e:Effect = System.Windows.Forms.DragDropEffects:Copy .
         END.
         ELSE IF oItem:Key = "table":U OR oItem:Key = "annotation":U THEN DO:
-            IF VALID-OBJECT (oElement) AND TYPE-OF (oElement, TempTableShape) THEN 
+            IF VALID-OBJECT (oElement) AND TYPE-OF (oElement, TempTableShape) THEN
                 e:Effect = System.Windows.Forms.DragDropEffects:None .
-            ELSE  
+            ELSE
                 e:Effect = System.Windows.Forms.DragDropEffects:Copy .
-        END .  
+        END .
         ELSE IF oItem:Key = "field":U OR oItem:Key = "Index":U THEN DO:
-            IF VALID-OBJECT (oElement) AND TYPE-OF (oElement, TempTableShape) THEN 
+            IF VALID-OBJECT (oElement) AND TYPE-OF (oElement, TempTableShape) THEN
                 e:Effect = System.Windows.Forms.DragDropEffects:Copy .
-            ELSE  
+            ELSE
                 e:Effect = System.Windows.Forms.DragDropEffects:None .
         END.
         ELSE IF oItem:Key BEGINS "field.":U THEN DO:
-            IF VALID-OBJECT (oElement) AND TYPE-OF (oElement, TempTableShape) THEN 
+            IF VALID-OBJECT (oElement) AND TYPE-OF (oElement, TempTableShape) THEN
                 e:Effect = System.Windows.Forms.DragDropEffects:Copy .
-            ELSE  
+            ELSE
                 e:Effect = System.Windows.Forms.DragDropEffects:None .
         END.
-        
+
         CATCH err AS Progress.Lang.Error :
-            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .    
+            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
-        
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the ElementInserted event of the crainiate model1                                                                        
-        Notes:                                                               
+        Purpose: Event handler for the ElementInserted event of the crainiate model1
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The ElementsEventArgs with the data for this event         
+        @param e The ElementsEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID model1_ElementInserted (sender AS System.Object, 
+    METHOD PRIVATE VOID model1_ElementInserted (sender AS System.Object,
                                                 e AS Crainiate.ERM4.ElementsEventArgs):
-        
-        IF Progress.Util.EnumHelper:AreEqual (THIS-OBJECT:model1:Runtime:InteractiveMode, 
-                                              Crainiate.ERM4.InteractiveMode:AddConnector) AND 
+
+        IF Progress.Util.EnumHelper:AreEqual (THIS-OBJECT:model1:Runtime:InteractiveMode,
+                                              Crainiate.ERM4.InteractiveMode:AddConnector) AND
            TYPE-OF (e:Value, Crainiate.ERM4.Connector) THEN DO:
 
             /* Mike Fechner, Consultingwerk Ltd. 14.10.2010
                Remove Connectors with no Shape at the start */
             IF NOT VALID-OBJECT (CAST(e:Value, Crainiate.ERM4.Connector):Start:Shape) THEN DO:
                 THIS-OBJECT:model1:Lines:Remove(CAST (e:Value, Crainiate.ERM4.Connector):Key) .
-                
-                DELETE OBJECT e:Value. 
-                RETURN . 
+
+                DELETE OBJECT e:Value.
+                RETURN .
             END.
 
             /* Activate Timer */
             oNewConnector = CAST (e:Value, Crainiate.ERM4.Connector) .
-        
-            timer1:Enabled = TRUE .  
-        
-            CAST (e:Value, Crainiate.ERM4.Connector):Start:AllowMove = FALSE . 
-        
+
+            timer1:Enabled = TRUE .
+
+            CAST (e:Value, Crainiate.ERM4.Connector):Start:AllowMove = FALSE .
+
             ActivateDrawPointer () .
         END.
-        
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the ElementRemoved event of the crainiate model1                                                                        
-        Notes:                                                               
+        Purpose: Event handler for the ElementRemoved event of the crainiate model1
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The ElementsEventArgs with the data for this event         
+        @param e The ElementsEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID model1_ElementRemoved (sender AS System.Object, 
+    METHOD PRIVATE VOID model1_ElementRemoved (sender AS System.Object,
                                                e AS Crainiate.ERM4.ElementsEventArgs):
-    
-        DEFINE VARIABLE oRemoveTable AS TempTableShape NO-UNDO .  
-    
-        IF lRemovingElements THEN 
-            RETURN . 
-            
+
+        DEFINE VARIABLE oRemoveTable AS TempTableShape NO-UNDO .
+
+        IF lRemovingElements THEN
+            RETURN .
+
         ELSE DO ON ERROR UNDO, THROW:
-            ASSIGN lRemovingElements = TRUE . 
-            
+            ASSIGN lRemovingElements = TRUE .
+
             IF TYPE-OF (e:Value, TempTableShape) THEN DO:
-                
-                ASSIGN oRemoveTable = CAST (e:Value, TempTableShape) . 
-                
+
+                ASSIGN oRemoveTable = CAST (e:Value, TempTableShape) .
+
                 CAST (smartBusinessEntityAdapter1:DatasetController,
                       BusinessEntityDatasetController):RemoveTable (THIS-OBJECT:model1,
                                                                     oRemoveTable) .
-            END.                                                                    
+            END.
             ELSE IF TYPE-OF (e:Value, DataRelationConnector) THEN DO:
-                PROCESS EVENTS . 
-                
+                PROCESS EVENTS .
+
                 CAST (smartBusinessEntityAdapter1:DatasetController,
                       BusinessEntityDatasetController):RemoveRelation (THIS-OBJECT:model1,
                                                                        CAST (e:Value, DataRelationConnector)) .
             END.
-            
+
             FINALLY:
-                ASSIGN lRemovingElements = FALSE . 
+                ASSIGN lRemovingElements = FALSE .
             END FINALLY.
         END.
 
         CATCH err AS Progress.Lang.Error :
-            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .    
+            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the EnabledChanged event of the crainiate model1                                                                        
-        Notes:                                                               
+        Purpose: Event handler for the EnabledChanged event of the crainiate model1
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event         
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PRIVATE VOID model1_EnabledChanged (sender AS System.Object,
                                                e AS System.EventArgs):
 
-        DEFINE VARIABLE cNonUpdateTools AS CHARACTER NO-UNDO 
-            INIT "BusinessEntityTester,Options,Print,Exit,Save,SaveAs,Open,New,GenerateSource,Regenerate Source,Compile":U .    
-        
-        IF THIS-OBJECT:model1:Enabled THEN 
+        DEFINE VARIABLE cNonUpdateTools AS CHARACTER NO-UNDO
+            INIT "BusinessEntityTester,Options,Print,Exit,Save,SaveAs,Open,New,GenerateSource,Regenerate Source,Compile":U .
+
+        IF THIS-OBJECT:model1:Enabled THEN
             THIS-OBJECT:smartToolbarController1:EnableTools (cNonUpdateTools) .
-        ELSE                 
+        ELSE
             THIS-OBJECT:smartToolbarController1:DisableTools (cNonUpdateTools) .
 
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the SelectedChanged event of the crainiate model1                                                                        
-        Notes:                                                               
+        Purpose: Event handler for the SelectedChanged event of the crainiate model1
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event         
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID model1_SelectedChanged (sender AS System.Object, 
+    METHOD PRIVATE VOID model1_SelectedChanged (sender AS System.Object,
                                                 e AS System.EventArgs):
-        
+
         ActivateMenuItems () .
 
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Creates a new Business Entity Design                                                                         
-        Notes:                                                                        
+        Purpose: Creates a new Business Entity Design
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID NewDesign ():
-    
+
         THIS-OBJECT:ActivateDesignCanvas () .
-    
-        IF CheckChanges () = FALSE THEN 
+
+        IF CheckChanges () = FALSE THEN
             RETURN .
-        
-        IF CheckCloseSourceCodeEditor () = FALSE THEN 
-            RETURN . 
-        
+
+        IF CheckCloseSourceCodeEditor () = FALSE THEN
+            RETURN .
+
         IF CAST (smartBusinessEntityAdapter1:DatasetController,
-                 BusinessEntityDatasetController):New (THIS-OBJECT:model1) = FALSE THEN 
-            RETURN . 
-              
-        ASSIGN THIS-OBJECT:TEXT = cBaseTitle + " <untitled>":U  
-               THIS-OBJECT:FileName = "":U .              
+                 BusinessEntityDatasetController):New (THIS-OBJECT:model1) = FALSE THEN
+            RETURN .
+
+        ASSIGN THIS-OBJECT:Text     = THIS-OBJECT:WindowTitle (?)
+               THIS-OBJECT:FileName = "":U .
+
+        THIS-OBJECT:ActivateDesignCanvas () .
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Opens a new window 
-        Notes:   
+        Purpose: Opens a new window
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID NewWindow ():
+    METHOD PUBLIC VOID NewWindow ():
 
-        DEFINE VARIABLE cStartupParameter AS CHARACTER                           NO-UNDO .		
+        DEFINE VARIABLE cStartupParameter AS CHARACTER                           NO-UNDO .
         DEFINE VARIABLE oStartInfo        AS System.Diagnostics.ProcessStartInfo NO-UNDO .
 
         ASSIGN cStartupParameter = SUBSTITUTE ('&1 -p Consultingwerk/BusinessEntityDesigner/start.p -param ""':U,
@@ -3723,62 +3865,65 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerForm
 
         oStartInfo = NEW System.Diagnostics.ProcessStartInfo () .
         oStartInfo:FileName = Consultingwerk.Util.SessionHelper:ExecutablePath() .
-        oStartInfo:Arguments = cStartupParameter . 
+        oStartInfo:Arguments = cStartupParameter .
         oStartInfo:WorkingDirectory = Consultingwerk.Util.SessionHelper:CurrentDirectory() .
-        
+
         System.Diagnostics.Process:Start (oStartInfo) .
-        
-	END METHOD .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the FormClosing Event                                                                        
+        Purpose: Raises the FormClosing Event
         Notes:   Shut's down Plugins and saves UI preferences to .BusinessEntityDesignerSettings2.xml
-        @param e The FormClosingEventArgs with the data for this event                                                                        
+        @param e The FormClosingEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED OVERRIDE VOID OnFormClosing (e AS CLASS System.Windows.Forms.FormClosingEventArgs):
 
-        IF CheckChanges () = FALSE THEN 
+        IF CheckChanges () = FALSE THEN
             e:Cancel = TRUE .
-        ELSE 
-            IF CheckCloseSourceCodeEditor() = FALSE THEN 
-                e:Cancel = TRUE . 
+        ELSE
+            IF CheckCloseSourceCodeEditor() = FALSE THEN
+                e:Cancel = TRUE .
 
         SUPER:OnFormClosing (e) .
 
         IF NOT e:Cancel THEN DO:
             THIS-OBJECT:ShutdownPlugins() .
- 
+
             DockManagerHelper:StoreToSettingsService (ultraDockManager1,
                                                       THIS-OBJECT:WindowPositionRegistryKey) .
-            
+
             StoreFileLRU () .
         END.
-        
+
         CATCH err AS Progress.Lang.Error:
-        	ErrorHelper:ShowErrorMessage (err) .
-        	
-        	e:Cancel = TRUE . 	
+            ErrorHelper:ShowErrorMessage (err) .
+
+            e:Cancel = TRUE .
         END CATCH.
-        
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the Load event                                                                       
-        Notes:   
-        @param e The System.EventArgs with the data for this event                                                                     
+        Purpose: Raises the Load event
+        Notes:
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
-        
-        DEFINE VARIABLE cFileName AS CHARACTER           NO-UNDO .
-        DEFINE VARIABLE oControls AS "Control[]"         NO-UNDO . 
-        DEFINE VARIABLE oPane     AS DockableControlPane NO-UNDO . 
-        
+
+        DEFINE VARIABLE cFileName            AS CHARACTER           NO-UNDO .
+        DEFINE VARIABLE oControls            AS "Control[]"         NO-UNDO .
+        DEFINE VARIABLE oPane                AS DockableControlPane NO-UNDO .
+        DEFINE VARIABLE oSettingsService     AS ISettingsService    NO-UNDO .
+        DEFINE VARIABLE lSetting             AS LOGICAL             NO-UNDO .
+        DEFINE VARIABLE oReleaseNotesControl AS ReleaseNotesControl NO-UNDO .
+
         SUPER:OnLoad (e) .
-        
+
         LoadFileLRU () .
-        
+
         UserInterfaceHelper:ProcessEvents () .
-        
+
         DockManagerHelper:RestoreFromSettingsService (ultraDockManager1,
                                                       THIS-OBJECT:WindowPositionRegistryKey) .
 
@@ -3789,25 +3934,25 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerForm
         IF NOT VALID-OBJECT (oPane) THEN DO:
             oControls = {Consultingwerk/new-array.i System.Windows.Forms.Control 1} .
             oControls:SetValue (THIS-OBJECT:databaseFieldsControl1, 0) .
-            
+
             ultraDockManager1:DockControls (oControls,
                                             DockedLocation:DockedRight,
-                                            ChildPaneStyle:TabGroup) . 
+                                            ChildPaneStyle:TabGroup) .
 
             oPane = ultraDockManager1:PaneFromControl (databaseFieldsControl1) .
-            
+
             IF VALID-OBJECT (oPane) THEN DO:
                 oPane:Text = "Database Fields"{&TRAN} .
-                oPane:Settings:Appearance:Image = ImageHelper:Load 
+                oPane:Settings:Appearance:Image = ImageHelper:Load
                         ("Consultingwerk/BusinessEntityDesigner/UI/Images/table2_selection_column.png":U) .
-            END. 
+            END.
         END.
         ELSE DO:
             oPane:Text = "Database Fields"{&TRAN} .
-            oPane:Settings:Appearance:Image = ImageHelper:Load 
+            oPane:Settings:Appearance:Image = ImageHelper:Load
                     ("Consultingwerk/BusinessEntityDesigner/UI/Images/table2_selection_column.png":U) .
-        END. 
-        
+        END.
+
         /* Mike Fechner, Consultingwerk Ltd. 26.03.2015
            Fix settings for new Dockable pane */
         oPane = ultraDockManager1:PaneFromControl (THIS-OBJECT:logManagerSettings1) .
@@ -3815,98 +3960,122 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerForm
         IF NOT VALID-OBJECT (oPane) THEN DO:
             oControls = {Consultingwerk/new-array.i System.Windows.Forms.Control 1} .
             oControls:SetValue (THIS-OBJECT:logManagerSettings1, 0) .
-            
+
             ultraDockManager1:DockControls (oControls,
                                             DockedLocation:DockedLeft,
-                                            ChildPaneStyle:TabGroup) . 
+                                            ChildPaneStyle:TabGroup) .
 
             oPane = ultraDockManager1:PaneFromControl (logManagerSettings1) .
-            
+
             IF VALID-OBJECT (oPane) THEN DO:
                 oPane:Text = "Logfile Settings"{&TRAN} .
-                oPane:Settings:Appearance:Image = ImageHelper:Load 
+                oPane:Settings:Appearance:Image = ImageHelper:Load
                         ("Consultingwerk/BusinessEntityDesigner/UI/Images/date_time_16.png":U) .
-            END. 
+            END.
         END.
         ELSE DO:
                 oPane:Text = "Logfile Settings"{&TRAN} .
-                oPane:Settings:Appearance:Image = ImageHelper:Load 
+                oPane:Settings:Appearance:Image = ImageHelper:Load
                         ("Consultingwerk/BusinessEntityDesigner/UI/Images/date_time_16.png":U) .
         END.
 
         /* Mike Fechner, Consultingwerk Ltd. 03.10.2015
            SCL-1052 - Create Release Note Control */
-        DEFINE VARIABLE oReleaseNotesControl AS ReleaseNotesControl NO-UNDO .
-    
-        oReleaseNotesControl = NEW ReleaseNotesControl () .
-        
-        THIS-OBJECT:Controls:Add (oReleaseNotesControl) .
+        oSettingsService = {Consultingwerk/get-service.i Consultingwerk.Framework.ISettingsService} .
 
-        oReleaseNotesControl:DockControl (ultraDockManager1, panel1) .
-        oReleaseNotesControl:AllowDrop = TRUE . 
-        oReleaseNotesControl:DragEnter:Subscribe (ReleaseNotesControlDragEnter) .
+        IF VALID-OBJECT (oSettingsService) THEN DO:
+            lSetting = DataTypeHelper:ToLogical(oSettingsService:GetSetting (THIS-OBJECT:WindowPositionRegistryKey,
+                                                                             "Display Release Notes At Start":U)) .
 
+            IF lSetting = ? THEN
+                ASSIGN lSetting = TRUE .
+
+            IF lSetting THEN DO:
+
+                oReleaseNotesControl = NEW ReleaseNotesControl () .
+
+                THIS-OBJECT:Controls:Add (oReleaseNotesControl) .
+
+                oReleaseNotesControl:DockControl (ultraDockManager1, panel1) .
+                oReleaseNotesControl:AllowDrop = TRUE .
+                oReleaseNotesControl:DragEnter:Subscribe (ReleaseNotesControlDragEnter) .
+            END.
+        END.
+
+        /* Mike Fechner, Consultingwerk Ltd., 02.11.2016
+         * SCL-1470: Log Pane
+         */
+        oLogControl = NEW BusinessEntityGeneratorLogControl () .
+        THIS-OBJECT:Controls:Add (oLogControl) .
+        oLogControl:DockControl(ultraDockManager1, panel1) .
 
         ActivateMenuItems () .
 
-        IF BusinessEntityDesignerSettings:BusinessEntityDesignerPlugins > "":U THEN 
-            InitializePlugins () . 
+        IF BusinessEntityDesignerSettings:BusinessEntityDesignerPlugins > "":U THEN
+            InitializePlugins () .
 
         IF SESSION:PARAMETER MATCHES "*.bedgm":U THEN DO:
-            
-            FILE-INFO:FILE-NAME = SESSION:PARAMETER .
-            
-            ASSIGN cFileName = FILE-INFO:FULL-PATHNAME . 
-            
+
+            FILE-INFORMATION:FILE-NAME = SESSION:PARAMETER .
+
+            ASSIGN cFileName = FILE-INFORMATION:FULL-PATHNAME .
+
             IF cFileName > "":U THEN DO:
                 CAST (smartBusinessEntityAdapter1:DatasetController,
                     BusinessEntityDatasetController):Open (cFileName, THIS-OBJECT:model1) .
-        
-                ASSIGN THIS-OBJECT:Text     = SUBSTITUTE ("&1 <&2>":U, cBaseTitle, cFileName) 
+
+                ASSIGN THIS-OBJECT:Text     = THIS-OBJECT:WindowTitle (cFileName)
                        THIS-OBJECT:FileName = cFileName .
-            END.        
-        END. 
-        ELSE 
+            END.
+        END.
+        ELSE
             CAST (smartBusinessEntityAdapter1:DatasetController,
                 BusinessEntityDatasetController):New (THIS-OBJECT:model1) .
-               
+
         databaseFieldsControl1:DatabaseSchemaDatasetController = CAST (smartBusinessEntityAdapter2:DatasetController,
                                                                        DatabaseSchemaDatasetController) .
-                            
+
         businessEntityViewerControl1:FieldsEnabled:Subscribe (ViewerFieldsEnabledHandler) .
         memberTableViewerControl1:FieldsEnabled:Subscribe (ViewerFieldsEnabledHandler) .
         fieldViewerControl1:FieldsEnabled:Subscribe (ViewerFieldsEnabledHandler) .
         indexViewerControl1:FieldsEnabled:Subscribe (ViewerFieldsEnabledHandler) .
         dataRelationViewerControl1:FieldsEnabled:Subscribe (ViewerFieldsEnabledHandler) .
-                            
+
+        ultraStatusBar1:Panels["Zoom":U]:Text = SUBSTITUTE ("&1 %":U,
+                                                            ultraTrackBar1:Value) .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the Shown event                                                                        
-        Notes:                              
-        @param e The System.EventArgs with the data for this event                                          
+        Purpose: Raises the Shown event
+        Notes:
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD OVERRIDE PROTECTED VOID OnShown (e AS System.EventArgs ):
-        
+
         DEFINE VARIABLE cWorkDir AS CHARACTER NO-UNDO.
-        
+
         SUPER:OnShown(e).
-        
+
         /* Mike Fechner, Consultingwerk Ltd. 02.11.2009
            Create a Timer to Close the Splash screen */
-        
+
         IF VALID-OBJECT (oSplash) THEN DO:
             oTimer = NEW System.Windows.Forms.Timer () .
             oTimer:Tick:Subscribe (TimerTick) .
-            oTimer:Start () .    
+            oTimer:Start () .
             oTimer:Interval = 3000 .
         END.
 
         ASSIGN cWorkDir = SessionHelper:CurrentDirectory() .
 
-        IF LENGTH (cWorkDir) > 30 THEN 
+        IF LENGTH (cWorkDir, "CHARACTER":U) > 30 THEN
             ASSIGN
-                ultraStatusBar1:Panels["workdir":U]:Text = "...":U + SUBSTRING (cWorkDir, LENGTH (cWorkDir) - 30)
+                ultraStatusBar1:Panels["workdir":U]:Text = "...":U + SUBSTRING (cWorkDir, LENGTH (cWorkDir, "CHARACTER":U) - 30, -1, "CHARACTER":U)
                 ultraStatusBar1:Panels["workdir":U]:ToolTipText = cWorkDir
                 .
         ELSE
@@ -3917,23 +4086,23 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerForm
         DO ON ERROR UNDO, THROW:
 
             ultraStatusBar1:Panels["username":U]:Text = Win32:GetUserName (ExtendedNameFormatEnum:NameDisplay) .
-            
+
             CATCH err AS Progress.Lang.Error :
-                Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .    
+                Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .
             END CATCH.
-            
-        END.   
+
+        END.
 
         /* Mike Fechner, Consultingwerk Ltd. 11.04.2011
-           Warning message when starting with not compile session */            
-        IF NOT SessionHelper:AllowsCompile() THEN 
-            MessageFormHelper:ShowMessage ("You ABL session is not enabled for compile."{&TRAN} + System.Environment:NewLine + 
+           Warning message when starting with not compile session */
+        IF NOT SessionHelper:AllowsCompile() THEN
+            MessageFormHelper:ShowMessage ("You ABL session is not enabled for compile."{&TRAN} + System.Environment:NewLine +
                                            "Some functions of the Business Entity Designer may not function as expected."{&TRAN},
-                                           "Business Entity Designer"{&TRAN}, 
+                                           "Business Entity Designer"{&TRAN},
                                            MessageFormImages:ImageWarning) .
-            
+
         UserInterfaceHelper:ProcessEvents () .
-        
+
         smartBusinessEntityAdapter1:RetrieveData() .
 
         THIS-OBJECT:DisplayStatus ("Loading Database Schema...":U) .
@@ -3944,299 +4113,314 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerForm
 
         CAST (smartBusinessEntityAdapter2:DatasetController,
               DatabaseSchemaDatasetController):PopulateToolbox (ultraExplorerBar1) .
-            
+
         THIS-OBJECT:ParseStartupParameter () .
-            
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Opens a design using a FileOpen Dialog                                                                        
-        Notes:                                                                        
+        Purpose: Opens a design using a FileOpen Dialog
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID OpenDesign ():
-        
+
         DEFINE VARIABLE oResult AS System.Windows.Forms.DialogResult NO-UNDO .
 
         THIS-OBJECT:ActivateDesignCanvas () .
 
-        IF CheckChanges () = FALSE THEN 
-            RETURN .
-    
-        IF CheckCloseSourceCodeEditor () = FALSE THEN 
-            RETURN . 
-        
-        openFileDialog1:FileName = THIS-OBJECT:FileName . 
-        
-        WAIT-FOR openFileDialog1:ShowDialog () SET oResult . 
-        
-        IF NOT Progress.Util.EnumHelper:AreEqual (System.Windows.Forms.DialogResult:OK,
-                                                  oResult) THEN 
-            RETURN .
-            
-        IF CAST (smartBusinessEntityAdapter1:DatasetController,
-                 BusinessEntityDatasetController):Open (openFileDialog1:FileName, THIS-OBJECT:model1) = FALSE THEN 
+        IF CheckChanges () = FALSE THEN
             RETURN .
 
-        ASSIGN THIS-OBJECT:TEXT = cBaseTitle + " <":U + openFileDialog1:FileName + ">":U 
+        IF CheckCloseSourceCodeEditor () = FALSE THEN
+            RETURN .
+
+        openFileDialog1:FileName = THIS-OBJECT:FileName .
+
+        WAIT-FOR openFileDialog1:ShowDialog () SET oResult .
+
+        IF NOT Progress.Util.EnumHelper:AreEqual (System.Windows.Forms.DialogResult:OK,
+                                                  oResult) THEN
+            RETURN .
+
+        IF CAST (smartBusinessEntityAdapter1:DatasetController,
+                 BusinessEntityDatasetController):Open (openFileDialog1:FileName, THIS-OBJECT:model1) = FALSE THEN
+            RETURN .
+
+        ASSIGN THIS-OBJECT:Text     = THIS-OBJECT:WindowTitle (openFileDialog1:FileName)
                THIS-OBJECT:FileName = openFileDialog1:FileName .
+
+        THIS-OBJECT:ActivateDesignCanvas () .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Opens a file from the LRU list                                                                        
+        Purpose: Opens a file from the LRU list
         Notes:
-        @param pcFileName The file name to load                                                                        
+        @param pcFileName The file name to load
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID OpenFileFromLRU (pcFileName AS CHARACTER):
-        
-        IF CheckChanges () = FALSE THEN 
+
+        IF CheckChanges () = FALSE THEN
             RETURN .
 
         THIS-OBJECT:ActivateDesignCanvas () .
 
-        IF CheckCloseSourceCodeEditor () = FALSE THEN 
-            RETURN . 
-        
-        IF CAST (smartBusinessEntityAdapter1:DatasetController,
-                 BusinessEntityDatasetController):Open (pcFileName, THIS-OBJECT:model1) = FALSE THEN 
+        IF CheckCloseSourceCodeEditor () = FALSE THEN
             RETURN .
 
-        ASSIGN THIS-OBJECT:TEXT = cBaseTitle + " <":U + pcFileName + ">":U 
+        IF CAST (smartBusinessEntityAdapter1:DatasetController,
+                 BusinessEntityDatasetController):Open (pcFileName, THIS-OBJECT:model1) = FALSE THEN
+            RETURN .
+
+        ASSIGN THIS-OBJECT:Text     = THIS-OBJECT:WindowTitle (pcFileName)
                THIS-OBJECT:FileName = pcFileName .
+
+        THIS-OBJECT:ActivateDesignCanvas () .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Parses and processes the startup parameters 
-        Notes:   When the -param parameter contains open= then we'll open the 
+        Purpose: Parses and processes the startup parameters
+        Notes:   When the -param parameter contains open= then we'll open the
                  given .bedgm file
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID ParseStartupParameter ():
-		
-		DEFINE VARIABLE oParameters AS Consultingwerk.Framework.Collections.CharacterDictionary NO-UNDO . 
+    METHOD PROTECTED VOID ParseStartupParameter ():
+
+        DEFINE VARIABLE oParameters AS Consultingwerk.Framework.Collections.CharacterDictionary NO-UNDO .
         DEFINE VARIABLE cFileName   AS CHARACTER                                                NO-UNDO .
 
-        oParameters = ListHelper:AlternatingListToDictionary (SESSION:PARAMETER, 
+        oParameters = ListHelper:AlternatingListToDictionary (SESSION:PARAMETER,
                                                               ",":U,
                                                               "=":U) .
 
         IF oParameters:ContainsKey ("open":U) THEN DO:
             ASSIGN cFileName = oParameters:GetValue ("open":U) .
-            
+
             IF CAST (smartBusinessEntityAdapter1:DatasetController,
-                     BusinessEntityDatasetController):Open (cFileName, THIS-OBJECT:model1) = FALSE THEN 
+                     BusinessEntityDatasetController):Open (cFileName, THIS-OBJECT:model1) = FALSE THEN
                 RETURN .
 
-            ASSIGN THIS-OBJECT:TEXT = cBaseTitle + " <":U + cFileName + ">":U 
+            ASSIGN THIS-OBJECT:Text     = THIS-OBJECT:WindowTitle (cFileName)
                    THIS-OBJECT:FileName = cFileName .
-        END.            
+        END.
 
-	END METHOD .
-
-    /*------------------------------------------------------------------------------
-        Purpose: Pastes temp-tables from a block of source code
-        Notes:   
-    ------------------------------------------------------------------------------*/
-    METHOD PROTECTED VOID PasteSourceCode ():
-        
-        DEFINE VARIABLE cSourceCode   AS LONGCHAR     NO-UNDO.
-        DEFINE VARIABLE oDialogResult AS DialogResult NO-UNDO . 
-
-        DEFINE VARIABLE oForm AS PasteSourceCodeForm NO-UNDO . 
-
-        oForm = NEW PasteSourceCodeForm () . 
-
-        WAIT-FOR oForm:ShowDialog (THIS-OBJECT) SET oDialogResult . 
-
-        {Consultingwerk/check-dialogresult-ok.i oDialogResult} 
-    
         THIS-OBJECT:ActivateDesignCanvas () .
-        
-        oController:ImportTableFromLongChar (oForm:CodeBlock) .
-        
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose:                                                                        
-        Notes:                                                                        
+        Purpose: Pastes temp-tables from a block of source code
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID PasteSourceCode ():
+
+        DEFINE VARIABLE oDialogResult AS DialogResult NO-UNDO .
+
+        DEFINE VARIABLE oForm AS PasteSourceCodeForm NO-UNDO .
+
+        oForm = NEW PasteSourceCodeForm () .
+
+        WAIT-FOR oForm:ShowDialog (THIS-OBJECT) SET oDialogResult .
+
+        {Consultingwerk/check-dialogresult-ok.i oDialogResult}
+
+        THIS-OBJECT:ActivateDesignCanvas () .
+
+        oController:ImportTableFromLongChar (oForm:CodeBlock) .
+
+
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose:
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID Print ():
-        
+
         DEFINE VARIABLE oPrint AS Crainiate.ERM4.Printing.PrintDocument NO-UNDO .
 
         THIS-OBJECT:ActivateDesignCanvas () .
-        
+
         oPrint = NEW Crainiate.ERM4.Printing.PrintDocument (THIS-OBJECT:model1) .
-        
+
         IF ultraPrintPreviewDialog1:IsDisposed THEN DO:
-            DELETE OBJECT THIS-OBJECT:ultraPrintPreviewDialog1 .  
-            
+            DELETE OBJECT THIS-OBJECT:ultraPrintPreviewDialog1 .
+
             THIS-OBJECT:ultraPrintPreviewDialog1 = NEW Infragistics.Win.Printing.UltraPrintPreviewDialog (THIS-OBJECT:components).
             THIS-OBJECT:ultraPrintPreviewDialog1:Style = Infragistics.Win.UltraWinToolbars.ToolbarStyle:Office2007.
             THIS-OBJECT:ultraPrintPreviewDialog1:UseAntiAlias = TRUE.
         END.
-        
-        ultraPrintPreviewDialog1:Document = oPrint . 
-        
+
+        ultraPrintPreviewDialog1:Document = oPrint .
+
         WAIT-FOR ultraPrintPreviewDialog1:ShowDialog () .
-        
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Refreshes the selected temp-tables from the database                                                                       
-        Notes:                                                                        
+        Purpose: Refreshes the selected temp-tables from the database
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID RefreshTable ():
-        
+
         DEFINE VARIABLE oEnumerator AS System.Collections.IDictionaryEnumerator NO-UNDO .
-        DEFINE VARIABLE oTables     AS Crainiate.ERM4.Elements                  NO-UNDO . 
-        
+        DEFINE VARIABLE oTables     AS Crainiate.ERM4.Elements                  NO-UNDO .
+
         DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
-    
+
         THIS-OBJECT:ActivateDesignCanvas () .
-        
+
         ASSIGN oTables = model1:SelectedElements(Progress.Util.TypeHelper:GetType ("Crainiate.ERM4.Table":U)) .
-        
-        IF oTables:Count = 0 THEN RETURN . 
-        
+
+        IF oTables:Count = 0 THEN
+            RETURN .
+
         oEnumerator = oTables:GetEnumerator () .
-        oEnumerator:MoveNext() .  
-        
+        oEnumerator:MoveNext() .
+
         ASSIGN cMessage = CAST (smartBusinessEntityAdapter1:DatasetController,
-                                BusinessEntityDatasetController):RefreshTable (CAST(CAST (oEnumerator:Current, System.Collections.DictionaryEntry):Value, 
+                                BusinessEntityDatasetController):RefreshTable (CAST(CAST (oEnumerator:Current, System.Collections.DictionaryEntry):Value,
                                                                                     Consultingwerk.BusinessEntityDesigner.UI.Shapes.TempTableShape),
                                                                                        CAST (smartBusinessEntityAdapter2:DatasetController,
-                                                                                             DatabaseSchemaDatasetController)) .    
-    
-        IF cMessage > "":U THEN 
+                                                                                             DatabaseSchemaDatasetController)) .
+
+        IF cMessage > "":U THEN
             Consultingwerk.Util.MessageFormHelper:ShowMessage (cMessage,
                                                                "Business Entity Designer"{&TRAN}) .
-    
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Refreshes the selected temp-tables from the include files
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID RefreshTableFromInclude ():
-		
+    METHOD PROTECTED VOID RefreshTableFromInclude ():
+
         DEFINE VARIABLE oEnumerator AS System.Collections.IDictionaryEnumerator NO-UNDO .
-        DEFINE VARIABLE oTables     AS Crainiate.ERM4.Elements                  NO-UNDO . 
-        
+        DEFINE VARIABLE oTables     AS Crainiate.ERM4.Elements                  NO-UNDO .
+
         DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
-        
+
         THIS-OBJECT:ActivateDesignCanvas () .
-        
+
         ASSIGN oTables = model1:SelectedElements(Progress.Util.TypeHelper:GetType ("Crainiate.ERM4.Table":U)) .
-        
-        IF oTables:Count = 0 THEN RETURN . 
-        
+
+        IF oTables:Count = 0 THEN
+            RETURN .
+
         oEnumerator = oTables:GetEnumerator () .
-        oEnumerator:MoveNext() .  
-        
+        oEnumerator:MoveNext() .
+
         ASSIGN cMessage = CAST (smartBusinessEntityAdapter1:DatasetController,
-                                BusinessEntityDatasetController):RefreshTableFromInclude (CAST(CAST (oEnumerator:Current, System.Collections.DictionaryEntry):Value, 
-                                                                                               Consultingwerk.BusinessEntityDesigner.UI.Shapes.TempTableShape)) .    
-    
-        IF cMessage > "":U THEN 
+                                BusinessEntityDatasetController):RefreshTableFromInclude (CAST(CAST (oEnumerator:Current, System.Collections.DictionaryEntry):Value,
+                                                                                               Consultingwerk.BusinessEntityDesigner.UI.Shapes.TempTableShape)) .
+
+        IF cMessage > "":U THEN
             Consultingwerk.Util.MessageFormHelper:ShowMessage (cMessage,
                                                                "Business Entity Designer"{&TRAN}) .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Re-Generates source code (refresh)                                                                        
-        Notes:                                                                        
+        Purpose: Re-Generates source code (refresh)
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID RegenerateSource ():
-    
-        IF NOT THIS-OBJECT:EnsureAllViewersSaved () THEN 
-            RETURN . 
-            
+
+        IF NOT THIS-OBJECT:EnsureAllViewersSaved () THEN
+            RETURN .
+
         /* Mike Fechner, Consultingwerk Ltd. 16.05.2014
            SCL-299: Prompt for save changes before generate */
         IF BusinessEntityDesignerSettings:PromptForSaveBeforeGenerate THEN DO:
-            IF NOT THIS-OBJECT:CheckChanges() THEN 
-                RETURN . 
+            IF NOT THIS-OBJECT:CheckChanges() THEN
+                RETURN .
         END.
-        
+
         CAST (smartBusinessEntityAdapter1:DatasetController,
-              BusinessEntityDatasetController):ReGenerateSource () .        
+              BusinessEntityDatasetController):ReGenerateSource () .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Registers the Business Entity Desginer Form and the BusinessEntityDatasetController 
+        Purpose: Registers the Business Entity Desginer Form and the BusinessEntityDatasetController
                  in the ServiceContainer
-        Notes:   Ensures that it's accessible from plugins or custom services loaded 
+        Notes:   Ensures that it's accessible from plugins or custom services loaded
                  in the Business Entity Designer environment
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID RegisterServices ():
-		
-		DEFINE VARIABLE oLoader AS ServiceLoader NO-UNDO .
-		
+    METHOD PROTECTED VOID RegisterServices ():
+
+        DEFINE VARIABLE oLoader AS ServiceLoader NO-UNDO .
+        DEFINE VARIABLE i       AS INTEGER       NO-UNDO .
+
         /* Mike Fechner, Consultingwerk Ltd. 19.05.2014
-           SCL-283: Optionally do not register the BusinessEntityDesignerForm in the 
-           ServiceContainer while starting the Business Entity Designer. This is to 
-           workaround crashes occuring under 10.2B at a single customer only. */ 
-	    &IF DEFINED (DoNotRegisterBusinessEntityDesignerForm) EQ 0 &THEN	
-        FrameworkSettings:ServiceContainer:AddService 
+           SCL-283: Optionally do not register the BusinessEntityDesignerForm in the
+           ServiceContainer while starting the Business Entity Designer. This is to
+           workaround crashes occuring under 10.2B at a single customer only. */
+        &IF DEFINED (DoNotRegisterBusinessEntityDesignerForm) EQ 0 &THEN
+        FrameworkSettings:ServiceContainer:AddService
             (Progress.Lang.Class:GetClass ("Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerForm":U),
              THIS-OBJECT) .
         &ENDIF
-        
-        FrameworkSettings:ServiceContainer:AddService 
+
+        FrameworkSettings:ServiceContainer:AddService
             (Progress.Lang.Class:GetClass ("Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityDatasetController":U),
              smartBusinessEntityAdapter1:DatasetController) .
-        
+
         IF BusinessEntityDesignerSettings:CustomServices > "":U THEN DO ON ERROR UNDO, THROW:
-            
-            oLoader = NEW ServiceLoader () . 
-            oLoader:Load (BusinessEntityDesignerSettings:CustomServices) .
-            
+
+            oLoader = NEW ServiceLoader () .
+
+            DO i = 1 TO NUM-ENTRIES (BusinessEntityDesignerSettings:CustomServices):
+                oLoader:Load (ENTRY (i, BusinessEntityDesignerSettings:CustomServices)) .
+            END .
+
             CATCH err AS Progress.Lang.Error:
-            	Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .	
+                Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .
             END CATCH.
         END.
-        
-	END METHOD .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the DragEnter event of the ReleaseNotesControl
-        Notes:   
-        @param sender The reference to the Control that raised the event 
+        Notes:
+        @param sender The reference to the Control that raised the event
         @param e The DragEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID ReleaseNotesControlDragEnter (sender AS System.Object, 
-	                                                    e AS DragEventArgs):
-		
-		THIS-OBJECT:ActivateDesignCanvas() .
+    METHOD PROTECTED VOID ReleaseNotesControlDragEnter (sender AS System.Object,
+                                                        e AS DragEventArgs):
 
-	END METHOD .
+        THIS-OBJECT:ActivateDesignCanvas() .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Removes the currently selected data relation                                                                        
-        Notes:                                                                        
+        Purpose: Removes the currently selected data relation
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID RemoveDataRelation ():
-        
-        DEFINE VARIABLE oRelations    AS Crainiate.ERM4.Elements        NO-UNDO . 
+
+        DEFINE VARIABLE oRelations    AS Crainiate.ERM4.Elements        NO-UNDO .
         DEFINE VARIABLE oDialogResult AS DialogResultEnum               NO-UNDO .
-        DEFINE VARIABLE oEnumerator   AS System.Collections.IEnumerator NO-UNDO . 
+        DEFINE VARIABLE oEnumerator   AS System.Collections.IEnumerator NO-UNDO .
 
         THIS-OBJECT:ActivateDesignCanvas () .
 
         oDialogResult = MessageFormHelper:AskQuestion ("Remove Data-Relation?"{&TRAN},
                                                        "Business Entity Designer"{&TRAN}) .
 
-        IF oDialogResult:Equals (DialogResultEnum:DialogResultYes) THEN . 
-        ELSE RETURN .  
-        
+        IF oDialogResult:Equals (DialogResultEnum:DialogResultYes) THEN .
+        ELSE RETURN .
+
         ASSIGN oRelations  = model1:SelectedElements(Progress.Util.TypeHelper:GetType ("Crainiate.ERM4.Connector":U))
-               oEnumerator = oRelations:Values:GetEnumerator() 
+               oEnumerator = oRelations:Values:GetEnumerator()
                .
-        
+
         oEnumerator:Reset() .
         oEnumerator:MoveNext() .
 
@@ -4246,580 +4430,602 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerForm
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Saves the design                                                                      
-        Notes:                   
-        @param plOk Logical value indicating if the design was saved                                                     
+        Purpose: Saves the design
+        Notes:
+        @param plOk Logical value indicating if the design was saved
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID SaveDesign (OUTPUT plOk AS LOGICAL):
 
         THIS-OBJECT:ActivateDesignCanvas () .
 
-        ASSIGN plOk = TRUE . 
+        ASSIGN plOk = TRUE .
 
-        IF THIS-OBJECT:FileName > "":U THEN DO: 
+        IF THIS-OBJECT:FileName > "":U THEN DO:
             IF CAST (smartBusinessEntityAdapter1:DatasetController,
-                     BusinessEntityDatasetController):Save (THIS-OBJECT:FileName) = FALSE THEN 
+                     BusinessEntityDatasetController):Save (THIS-OBJECT:FileName) = FALSE THEN
                 RETURN .
         END.
-        ELSE 
-            THIS-OBJECT:SaveDesignAs (OUTPUT plOk) . 
-        
+        ELSE
+            THIS-OBJECT:SaveDesignAs (OUTPUT plOk) .
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Saves the design under a new name                                                                     
-        Notes:                   
-        @param plOk Logical value indicating if the design was saved                                                     
+        Purpose: Saves the design under a new name
+        Notes:
+        @param plOk Logical value indicating if the design was saved
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID SaveDesignAs (OUTPUT plOk AS LOGICAL):
-        
+
         DEFINE VARIABLE oResult          AS System.Windows.Forms.DialogResult NO-UNDO .
         DEFINE VARIABLE cDefaultFileName AS CHARACTER NO-UNDO.
 
         THIS-OBJECT:ActivateDesignCanvas () .
-    
-        ASSIGN plOk = TRUE .  
-    
-        IF THIS-OBJECT:FileName > "":U THEN     
-            saveFileDialog1:FileName = THIS-OBJECT:FileName . 
+
+        ASSIGN plOk = TRUE .
+
+        IF THIS-OBJECT:FileName > "":U THEN
+            saveFileDialog1:FileName = THIS-OBJECT:FileName .
         ELSE DO:
             cDefaultFileName = CAST (smartBusinessEntityAdapter1:DatasetController,
-                                     BusinessEntityDatasetController):GetDefaultFileName () . 
-                                     
-            IF cDefaultFileName > "":U THEN                          
-                saveFileDialog1:FileName = cDefaultFileName . 
-            ELSE 
+                                     BusinessEntityDatasetController):GetDefaultFileName () .
+
+            IF cDefaultFileName > "":U THEN
+                saveFileDialog1:FileName = cDefaultFileName .
+            ELSE
                 saveFileDialog1:FileName = "":U .
         END.
-        
-        WAIT-FOR saveFileDialog1:ShowDialog () SET oResult . 
-        
+
+        WAIT-FOR saveFileDialog1:ShowDialog () SET oResult .
+
         IF NOT Progress.Util.EnumHelper:AreEqual (System.Windows.Forms.DialogResult:OK,
-                                                  oResult) THEN 
+                                                  oResult) THEN
             DO:
-                ASSIGN plOk = FALSE . 
+                ASSIGN plOk = FALSE .
                 RETURN .
             END.
-            
+
         IF CAST (smartBusinessEntityAdapter1:DatasetController,
-                 BusinessEntityDatasetController):Save (saveFileDialog1:FileName) = FALSE THEN  
+                 BusinessEntityDatasetController):Save (saveFileDialog1:FileName) = FALSE THEN
             RETURN .
 
-        ASSIGN THIS-OBJECT:TEXT = cBaseTitle + " <":U + saveFileDialog1:FileName + ">":U 
+        ASSIGN THIS-OBJECT:Text     = THIS-OBJECT:WindowTitle (saveFileDialog1:FileName)
                THIS-OBJECT:FileName = saveFileDialog1:FileName .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the Tick event of the searchTimer component
-        Notes:   
-        @param sender The reference to the System.Object that raised the event 
+        Notes:
+        @param sender The reference to the System.Object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID searchTimer_Tick (sender AS System.Object, 
-	                                      e AS System.EventArgs):
-		
-		THIS-OBJECT:FilterTables (CAST (smartToolbarController1:Tools["FilterTable":U], Infragistics.Win.UltraWinToolbars.TextBoxTool):Text) .
+    METHOD PRIVATE VOID searchTimer_Tick (sender AS System.Object,
+                                          e AS System.EventArgs):
 
-	END METHOD .
+        THIS-OBJECT:FilterTables (CAST (smartToolbarController1:Tools["FilterTable":U], Infragistics.Win.UltraWinToolbars.TextBoxTool):Text) .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Shows the Progress ADE Database Connections Dialog 
-        Notes:   
+        Purpose: Shows the Progress ADE Database Connections Dialog
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID ShowDatabaseConnectionsDialog ():
-		
-		RUN protools/_dblist.w PERSISTENT . 
+    METHOD PROTECTED VOID ShowDatabaseConnectionsDialog ():
 
-	END METHOD .
+        RUN protools/_dblist.w PERSISTENT .
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Shows the Login Preferencse Dialog
-	    Notes:
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID ShowDatabaseLoginPreferences ():
-		
-		DEFINE VARIABLE oForm AS DatabaseLoginPreferencesForm NO-UNDO . 
-		
-		ASSIGN oForm = NEW DatabaseLoginPreferencesForm () . 
-		
-		WAIT-FOR oForm:ShowDialog () . 
-
-	END METHOD.
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose:                                                                        
-        Notes:                                                                        
+        Purpose: Shows the Login Preferencse Dialog
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID ShowDatabaseLoginPreferences ():
+
+        DEFINE VARIABLE oForm AS DatabaseLoginPreferencesForm NO-UNDO .
+
+        ASSIGN oForm = NEW DatabaseLoginPreferencesForm () .
+
+        WAIT-FOR oForm:ShowDialog () .
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose:
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID ShowOptionsDialog ():
-        
+
         DEFINE VARIABLE oForm         AS BusinessEntityDesignerSettingsForm NO-UNDO .
-        DEFINE VARIABLE oDialogResult AS System.Windows.Forms.DialogResult  NO-UNDO . 
+        DEFINE VARIABLE oDialogResult AS System.Windows.Forms.DialogResult  NO-UNDO .
 
         DO ON ERROR UNDO, THROW:
             oForm = NEW BusinessEntityDesignerSettingsForm () .
-        
+
             CATCH err AS Progress.Lang.SysError:
-                IF err:NumMessages = 0 THEN 
+                IF err:NumMessages = 0 THEN
                     /* retry */
                     oForm = NEW BusinessEntityDesignerSettingsForm () .
-                ELSE 
-                    UNDO, THROW err . 
+                ELSE
+                    UNDO, THROW err .
             END CATCH.
         END.
-        
-        WAIT-FOR oForm:ShowDialog (THIS-OBJECT) SET oDialogResult . 
+
+        WAIT-FOR oForm:ShowDialog (THIS-OBJECT) SET oDialogResult .
 
     END METHOD.
 
 
     /*------------------------------------------------------------------------------
-        Purpose: Shutdown all loaded plugins                                                                        
-        Notes:                                                                        
+        Purpose: Shutdown all loaded plugins
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID ShutdownPlugins ():
-    
-        DEFINE VARIABLE oPlugin AS IBusinessEntityDesignerPlugin NO-UNDO . 
-        
+
+        DEFINE VARIABLE oPlugin AS IBusinessEntityDesignerPlugin NO-UNDO .
+
         FOR EACH ttPlugins:
             ASSIGN oPlugin = CAST (ttPlugins.oPlugin, IBusinessEntityDesignerPlugin) .
-            
+
             IF VALID-OBJECT (oPlugin) THEN DO:
-                oPlugin:Shutdown() . 
-                IF VALID-OBJECT (oPlugin) THEN 
+                oPlugin:Shutdown() .
+                IF VALID-OBJECT (oPlugin) THEN
                     DELETE OBJECT oPlugin .
-            END.                        
+            END.
         END.
-    
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the ToolClick event of the smartToolbarController1                                                                        
-        Notes:                                                                       
+        Purpose: Event handler for the ToolClick event of the smartToolbarController1
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The ToolClickEventArgs with the data for this event   
+        @param e The ToolClickEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID smartToolbarController1_ToolClick (INPUT sender AS System.Object, 
+    METHOD PRIVATE VOID smartToolbarController1_ToolClick (INPUT sender AS System.Object,
                                                            INPUT e AS Infragistics.Win.UltraWinToolbars.ToolClickEventArgs ):
-        
+
         DEFINE VARIABLE lOk AS LOGICAL NO-UNDO.
-        
+
         CASE e:Tool:Key:
-            
-            WHEN "DrawConnector":U THEN 
+
+            WHEN "DrawConnector":U THEN
                 THIS-OBJECT:ActivateDrawConnector () .
-            WHEN "DrawPointer":U THEN 
+            WHEN "DrawPointer":U THEN
                 THIS-OBJECT:ActivateDrawPointer () .
-            WHEN "AutoLayout":U THEN 
+            WHEN "AutoLayout":U THEN
                 THIS-OBJECT:AutoLayout () .
-                
+
             WHEN "BusinessEntityTester":U THEN
                 THIS-OBJECT:BusinessEntityTester () .
-            WHEN "Options":U THEN 
-                THIS-OBJECT:ShowOptionsDialog () . 
-            WHEN "Print":U THEN 
-                THIS-OBJECT:Print () . 
-            WHEN "Exit":U THEN 
+            WHEN "Options":U THEN
+                THIS-OBJECT:ShowOptionsDialog () .
+            WHEN "Print":U THEN
+                THIS-OBJECT:Print () .
+            WHEN "Exit":U THEN
                 THIS-OBJECT:Close()  .
-            WHEN "Save":U THEN 
+            WHEN "Save":U THEN
                 THIS-OBJECT:SaveDesign (OUTPUT lOk) .
-            WHEN "SaveAs":U THEN 
+            WHEN "SaveAs":U THEN
                 THIS-OBJECT:SaveDesignAs (OUTPUT lOk) .
-            WHEN "FilterClear":U THEN 
-                THIS-OBJECT:FilterTables ("":U) .    
-                
-            WHEN "Open":U THEN 
+            WHEN "FilterClear":U THEN
+                THIS-OBJECT:FilterTables ("":U) .
+
+            WHEN "Open":U THEN
                 THIS-OBJECT:OpenDesign () .
-            WHEN "New":U THEN 
+            WHEN "New":U THEN
                 THIS-OBJECT:NewDesign () .
-                
-            WHEN "GenerateSource":U THEN 
+
+            WHEN "GenerateSource":U THEN
                THIS-OBJECT:GenerateSource () .
-            WHEN "Regenerate Source":U THEN 
-               THIS-OBJECT:ReGenerateSource () .    
-            WHEN "Compile":U THEN 
+            WHEN "Regenerate Source":U THEN
+               THIS-OBJECT:ReGenerateSource () .
+            WHEN "Compile":U THEN
                THIS-OBJECT:Compile () .
-            WHEN "Edit Source":U THEN 
-               THIS-OBJECT:EditSource () .         
-                 
+            WHEN "Edit Source":U THEN
+               THIS-OBJECT:EditSource () .
+
             /* Table */
-            WHEN "RefreshTable":U THEN 
-                THIS-OBJECT:RefreshTable () .            
-            WHEN "RefreshTable2":U THEN 
-                THIS-OBJECT:RefreshTableFromInclude () .            
-            WHEN "FieldsReorder":U THEN 
-                THIS-OBJECT:FieldsReorder () .            
-            WHEN "Duplicate Table":U THEN 
+            WHEN "RefreshTable":U THEN
+                THIS-OBJECT:RefreshTable () .
+            WHEN "RefreshTable2":U THEN
+                THIS-OBJECT:RefreshTableFromInclude () .
+            WHEN "FieldsReorder":U THEN
+                THIS-OBJECT:FieldsReorder () .
+            WHEN "Duplicate Table":U THEN
                 THIS-OBJECT:DuplicateSelectedTable () .
-            WHEN "Edit Fields":U THEN 
-                THIS-OBJECT:EditFields () .                    
-                    
-            WHEN "Copy Field Names":U THEN 
-                THIS-OBJECT:CopyFieldNames () .                    
-                    
+            WHEN "Edit Fields":U THEN
+                THIS-OBJECT:EditFields () .
+
+            WHEN "Copy Field Names":U THEN
+                THIS-OBJECT:CopyFieldNames () .
+
             /* Data-Relation */
-            WHEN "Relation Fields":U THEN 
+            WHEN "Relation Fields":U THEN
                 THIS-OBJECT:UpdateRelationFields () .
-            WHEN "Remove Relation":U THEN 
-                THIS-OBJECT:RemoveDataRelation () .                
-                
-            WHEN "Import Table":U THEN 
-                THIS-OBJECT:ImportTable () . 
-            WHEN "Paste ABL Source Code":U THEN 
+            WHEN "Remove Relation":U THEN
+                THIS-OBJECT:RemoveDataRelation () .
+
+            WHEN "Import Table":U THEN
+                THIS-OBJECT:ImportTable () .
+            WHEN "Paste ABL Source Code":U THEN
                 THIS-OBJECT:PasteSourceCode () .
-               
-            WHEN "Session Info":U THEN 
+
+            WHEN "Session Info":U THEN
                 Consultingwerk.Windows.Session.SessionInfoForm:ShowSessionInformation () .
-                            
-            WHEN "New Window":U THEN 
-                THIS-OBJECT:NewWindow () . 
-    
-            WHEN "Expand all":U THEN 
-                THIS-OBJECT:ExpandAllTables () .                             
-                            
-            WHEN "Collapse all":U THEN 
-                THIS-OBJECT:CollapseAllTables () .                            
-                            
+
+            WHEN "New Window":U THEN
+                THIS-OBJECT:NewWindow () .
+
+            WHEN "Expand all":U THEN
+                THIS-OBJECT:ExpandAllTables () .
+
+            WHEN "Collapse all":U THEN
+                THIS-OBJECT:CollapseAllTables () .
+
             /* Custom properties */
-            WHEN "Custom Business Entity Properties":U THEN 
+            WHEN "Custom Business Entity Properties":U THEN
                 THIS-OBJECT:UpdateCustomProperties (CustomPropertiesScopeEnum:BusinessEntity) .
 
-            WHEN "Custom Table Properties":U THEN 
+            WHEN "Custom Table Properties":U THEN
                 THIS-OBJECT:UpdateCustomProperties (CustomPropertiesScopeEnum:TempTable) .
 
-            WHEN "Custom Relation Properties":U THEN 
+            WHEN "Custom Relation Properties":U THEN
                 THIS-OBJECT:UpdateCustomProperties (CustomPropertiesScopeEnum:DataRelation) .
 
-            WHEN "Custom Field Properties":U THEN 
+            WHEN "Custom Field Properties":U THEN
                 THIS-OBJECT:UpdateCustomProperties (CustomPropertiesScopeEnum:Field) .
 
-            WHEN "Custom Index Properties":U THEN 
+            WHEN "Custom Index Properties":U THEN
                 THIS-OBJECT:UpdateCustomProperties (CustomPropertiesScopeEnum:Index) .
-                
-            WHEN "Database Connections":U THEN 
-                THIS-OBJECT:ShowDatabaseConnectionsDialog () . 
-                
-            WHEN "Database Login Preferences":U THEN 
+
+            WHEN "Database Connections":U THEN
+                THIS-OBJECT:ShowDatabaseConnectionsDialog () .
+
+            WHEN "Database Login Preferences":U THEN
                 THIS-OBJECT:ShowDatabaseLoginPreferences () .
-                            
-            WHEN "Split Extend Field into separate Fields":U THEN 
+
+            WHEN "Split Extend Field into separate Fields":U THEN
                 oController:SplitExtentField (fieldAdapter:GetFieldValues ("TempTableName":U),
-                                              fieldAdapter:GetFieldValues ("FieldName":U)) .                             
-                            
-                            
+                                              fieldAdapter:GetFieldValues ("FieldName":U)) .
+
+            WHEN "Display Release Notes At Start":U THEN
+                THIS-OBJECT:ToggleDisplayReleaseNotes () .
+
+
 /*            OTHERWISE                     */
 /*              MESSAGE e:Tool:Key          */
 /*                  VIEW-AS ALERT-BOX.*/
 /*                                            */
         END CASE .
 
-        IF e:Tool:Key BEGINS "file_lru_":U  THEN 
+        IF e:Tool:Key BEGINS "file_lru_":U  THEN
             OpenFileFromLRU (e:Tool:SharedProps:ToolTipText) .
 
-        IF e:Tool:Key BEGINS "LRUEntry":U THEN 
-            THIS-OBJECT:FilterTables (e:Tool:SharedProps:Caption). 
+        IF e:Tool:Key BEGINS "LRUEntry":U THEN
+            THIS-OBJECT:FilterTables (e:Tool:SharedProps:Caption).
 
         CATCH err AS Progress.Lang.Error :
-            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .    
+            IF VALID-OBJECT (oLogControl) THEN
+                oLogControl:DisplayText (ErrorHelper:FormattedErrorMessages(err)) .
+
+            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
+        FINALLY:
+            IF VALID-OBJECT (oLogControl) THEN
+                oLogControl:InsertSeperator() .
+        END FINALLY.
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the ToolKeyPress event of the smartToolbarController1
+        Notes:
+        @param sender The reference to the object that raised the event
+        @param e The ToolKeyPressEventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID smartToolbarController1_ToolKeyPress (sender AS System.Object,
+                                                              e AS Infragistics.Win.UltraWinToolbars.ToolKeyPressEventArgs):
+
+        IF e:Tool:Key = "FilterTable":U THEN DO:
+            IF e:KeyChar = CHR(13) THEN
+                THIS-OBJECT:FilterTables (CAST (e:Tool, Infragistics.Win.UltraWinToolbars.TextBoxTool):Text) .
+            ELSE
+                searchTimer:Enabled = TRUE .
+        END.
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the ToolKeyPress event of the smartToolbarController1                                                                        
-        Notes:                                                                   
-        @param sender The reference to the object that raised the event     
-        @param e The ToolKeyPressEventArgs with the data for this event
-    ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID smartToolbarController1_ToolKeyPress (sender AS System.Object, 
-                                                              e AS Infragistics.Win.UltraWinToolbars.ToolKeyPressEventArgs):
-        
-        IF e:Tool:Key = "FilterTable":U THEN DO:
-            IF e:KeyChar = CHR(13) THEN 
-                THIS-OBJECT:FilterTables (CAST (e:Tool, Infragistics.Win.UltraWinToolbars.TextBoxTool):Text) .
-            ELSE 
-                searchTimer:Enabled = TRUE . 
-        END.                
-
-    END METHOD.
-
-    /*------------------------------------------------------------------------------
-        Purpose: Stores the LRU file list in the registry                                                                         
-        Notes:                                                                        
+        Purpose: Stores the LRU file list in the registry
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID StoreFileLRU ():
-        
+
         DEFINE VARIABLE oButtonTool  AS Infragistics.Win.UltraWinToolbars.ButtonTool NO-UNDO .
         DEFINE VARIABLE i            AS INTEGER                                      NO-UNDO .
-        
+
         DEFINE VARIABLE cSettingsKey AS CHARACTER                                    NO-UNDO.
 
-        IF lUseLocalFileHistory THEN 
-            ASSIGN cSettingsKey = Consultingwerk.Framework.FrameworkSettings:BaseRegistryKey + "Settings~\":U + 
+        IF lUseLocalFileHistory THEN
+            ASSIGN cSettingsKey = Consultingwerk.Framework.FrameworkSettings:BaseRegistryKey + "Settings~\":U +
                                   REPLACE (BusinessEntityDesignerSettings:SettingsFile, ":":U, "":U).
-        ELSE 
-            ASSIGN cSettingsKey = Consultingwerk.Framework.FrameworkSettings:BaseRegistryKey + "Settings":U . 
+        ELSE
+            ASSIGN cSettingsKey = Consultingwerk.Framework.FrameworkSettings:BaseRegistryKey + "Settings":U .
 
         DO i = 0 TO smartToolbarController1:Ribbon:ApplicationMenu:ToolAreaRight:Tools:Count - 1:
-            
+
             oButtonTool = CAST (smartToolbarController1:Ribbon:ApplicationMenu:ToolAreaRight:Tools[i],
-                                Infragistics.Win.UltraWinToolbars.ButtonTool) . 
-                            
-            IF oButtonTool:SharedProps:TooltipText > "":U THEN                                     
-                Consultingwerk.Framework.Registry:SetRegistryValue 
+                                Infragistics.Win.UltraWinToolbars.ButtonTool) .
+
+            IF oButtonTool:SharedProps:TooltipText > "":U THEN
+                Consultingwerk.Framework.Registry:SetRegistryValue
                                ("User":U,
-                                cSettingsKey, 
-                                "File LRU ":U + STRING (i, "99":U), 
-                                oButtonTool:SharedProps:TooltipText) .               
+                                cSettingsKey,
+                                "File LRU ":U + STRING (i, "99":U),
+                                oButtonTool:SharedProps:TooltipText) .
         END.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose:                                                                        
-        Notes:                                                                        
+        Purpose:
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID StoreLRU ():
 
         DEFINE VARIABLE cSettings AS CHARACTER NO-UNDO.
         DEFINE VARIABLE i         AS INTEGER   NO-UNDO.
-        
+
         DO i = 0 TO oLRUList:Count - 1:
             cSettings = cSettings + "|":U + oLRUList [i] .
         END .
-        
-        Consultingwerk.Framework.Registry:SetRegistryValue 
-                       ("User":U,
-                        Consultingwerk.Framework.FrameworkSettings:BaseRegistryKey + "Settings":U, 
-                        "FilterHistory":U, 
-                        TRIM (cSettings, "|":U)) .   
 
+        Consultingwerk.Framework.Registry:SetRegistryValue
+                       ("User":U,
+                        Consultingwerk.Framework.FrameworkSettings:BaseRegistryKey + "Settings":U,
+                        "FilterHistory":U,
+                        TRIM (cSettings, "|":U)) .
+
+        @SuppressUnusedWarnings.
         CATCH err AS System.Exception:
-            /* ignore */    
+            /* ignore */
         END CATCH.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the TableItemSelected event of the 
+        Purpose: Event handler for the TableItemSelected event of the
                  BusinessEntityDatasetController
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The Consultingwerk.EventArgs with the data for this event                                                                           
+        @param e The Consultingwerk.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID TableItemSelectedHandler (sender AS Progress.Lang.Object,
-	                                                e AS Consultingwerk.EventArgs):
-		
-		THIS-OBJECT:ActivateMenuItems () .
+    METHOD PROTECTED VOID TableItemSelectedHandler (sender AS Progress.Lang.Object,
+                                                    e AS Consultingwerk.EventArgs):
 
-	END METHOD .
+        THIS-OBJECT:ActivateMenuItems () .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the Tick event of the temporary Timer instance                                                                        
-        Notes:   Close the splash screen after a while                                                                     
+        Purpose: Event handler for the Tick event of the temporary Timer instance
+        Notes:   Close the splash screen after a while
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event                                                                           
-    ------------------------------------------------------------------------------*/    
-    METHOD PROTECTED VOID TimerTick (sender AS System.Object, 
+        @param e The System.EventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID TimerTick (sender AS System.Object,
                                      e AS System.EventArgs) :
-        
-        IF VALID-OBJECT (oSplash) THEN         
+
+        IF VALID-OBJECT (oSplash) THEN
             oSplash:Close ().
-             
+
         oTimer:Dispose () .
-        
-        oTimer = ? . 
-        oSplash = ? . 
-        
+
+        oTimer = ? .
+        oSplash = ? .
+
     END METHOD.
-    
+
     /*------------------------------------------------------------------------------
-        Purpose: Event Handler for the Tick Event of the timer1 component                                                                        
+        Purpose: Event Handler for the Tick Event of the timer1 component
         Notes:   Used when a new Data-Relation has been dragged on the design canvas
-                 In the model1_ElementInserted event handler, the target shape of the 
-                 new connector is not yet set. This is the case immediately after 
+                 In the model1_ElementInserted event handler, the target shape of the
+                 new connector is not yet set. This is the case immediately after
                  that event handler - thus the use of this timer.
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event                                                                           
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID timer1_Tick (sender AS System.Object, 
+    METHOD PRIVATE VOID timer1_Tick (sender AS System.Object,
                                      e AS System.EventArgs):
-        
+
         DEFINE VARIABLE cStart          AS CHARACTER NO-UNDO.
         DEFINE VARIABLE cEnd            AS CHARACTER NO-UNDO.
         DEFINE VARIABLE cChildTableName AS CHARACTER NO-UNDO.
         DEFINE VARIABLE lActive         AS LOGICAL   NO-UNDO INIT TRUE .
-        
-        timer1:Enabled = FALSE . 
 
-        IF NOT VALID-OBJECT (oNewConnector) THEN 
-            RETURN . 
+        timer1:Enabled = FALSE .
+
+        IF NOT VALID-OBJECT (oNewConnector) THEN
+            RETURN .
 
         IF NOT VALID-OBJECT (oNewConnector:End:Shape) THEN DO:
             THIS-OBJECT:model1:Lines:Remove(oNewConnector:Key) .
-            
+
             DELETE OBJECT oNewConnector.
-            
-            RETURN.  
+
+            RETURN.
         END.
 
         ASSIGN cStart          = oNewConnector:Start:Shape:Key
                cEnd            = oNewConnector:End:Shape:Key
-               cChildTableName = CAST (oNewConnector:End:Shape, Crainiate.ERM4.Table):Heading  
+               cChildTableName = CAST (oNewConnector:End:Shape, Crainiate.ERM4.Table):Heading
                NO-ERROR .
-    
+
         IF cStart > "":U AND cEnd > "":U AND cChildTableName > "":U THEN .
         ELSE DO:
             THIS-OBJECT:model1:Lines:Remove(oNewConnector:Key) .
-            
+
             DELETE OBJECT oNewConnector.
-             
-            RETURN .  
-        END.    
-    
+
+            RETURN .
+        END.
+
         /* Mike Fechner, Consultingwerk Ltd. 25.04.2011
-           Multiple parent tables are not supported by ProDataset - and the 
+           Multiple parent tables are not supported by ProDataset - and the
            current code that populates the structure treeview has issues with
            it as well (System.ArgumentException: Key already exists, key: 0x000000000001b902) */
-        IF oController:HasActiveParentRelation (cChildTableName) THEN 
-            ASSIGN lActive = FALSE . 
+        IF oController:HasActiveParentRelation (cChildTableName) THEN
+            ASSIGN lActive = FALSE .
 
         THIS-OBJECT:model1:Lines:Remove(oNewConnector:Key) .
-        
+
         DELETE OBJECT oNewConnector.
 
         IF cStart > "":U AND cEnd > "":U THEN
             CAST (smartBusinessEntityAdapter1:DatasetController,
-                  BusinessEntityDatasetController):CreateDataRelation (THIS-OBJECT:model1, 
+                  BusinessEntityDatasetController):CreateDataRelation (THIS-OBJECT:model1,
                                                                        cStart,
                                                                        cEnd,
-                                                                       lActive) .        
+                                                                       lActive) .
 
         CATCH err AS Progress.Lang.Error :
-            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .    
+            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the PaneActivate event of the ultraDockManager1                                                                        
-        Notes:                                                                    
+        Purpose: Event handler for the PaneActivate event of the ultraDockManager1
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The ControlPaneEventArgs with the data for this event     
+        @param e The ControlPaneEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraDockManager1_PaneActivate (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraDockManager1_PaneActivate (sender AS System.Object,
                                                         e AS Infragistics.Win.UltraWinDock.ControlPaneEventArgs):
-        
-        DEFINE VARIABLE oControl AS System.Windows.Forms.Control NO-UNDO .
-        
-        IF TYPE-OF (CAST(e:Pane:Control, Progress.Lang.Object), ISmartTableIOTarget) THEN 
+
+        IF TYPE-OF (CAST(e:Pane:Control, Progress.Lang.Object), ISmartTableIOTarget) THEN
             smartToolbarController1:ActivateSmartTableIOTarget
-                (CAST (CAST(e:Pane:Control, Progress.Lang.Object), ISmartTableIOTarget)) .  
+                (CAST (CAST(e:Pane:Control, Progress.Lang.Object), ISmartTableIOTarget)) .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the ActiveGroupChanged event of the ActiveGroupChanged 
-        Notes:   
+        Purpose: Event handler for the ActiveGroupChanged event of the ActiveGroupChanged
+        Notes:
         @param sender The object that raised the event
         @param e The GroupEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraExplorerBar1_ActiveGroupChanged (sender AS System.Object,
-	                                                          e AS GroupEventArgs):
-		
-        IF VALID-OBJECT (e:Group:Container) AND 
-           e:Group:Container:Controls:Count > 0 THEN 
-            
-            e:Group:Container:Controls[0]:Focus() . 
+    METHOD PRIVATE VOID ultraExplorerBar1_ActiveGroupChanged (sender AS System.Object,
+                                                              e AS GroupEventArgs):
+
+        IF VALID-OBJECT (e:Group:Container) AND
+           e:Group:Container:Controls:Count > 0 THEN
+
+            e:Group:Container:Controls[0]:Focus() .
 
         CATCH err AS Progress.Lang.Error:
-            ErrorHelper:ShowErrorMessage (err) .    
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the MouseDown event of the ultraExplorerBar1
-        Notes:   
+        Notes:
         @param sender The object that raised the event
         @param e The MouseEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraExplorerBar1_MouseDown (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraExplorerBar1_MouseDown (sender AS System.Object,
                                                      e AS System.Windows.Forms.MouseEventArgs):
 
         DEFINE VARIABLE oItem AS Infragistics.Win.UltraWinExplorerBar.UltraExplorerBarItem NO-UNDO .
-        DEFINE VARIABLE oEffects AS System.Windows.Forms.DragDropEffects NO-UNDO . 
-        
-        oItem = ultraExplorerBar1:ItemFromPoint (e:Location) . 
-        
+        DEFINE VARIABLE oEffects AS System.Windows.Forms.DragDropEffects NO-UNDO .
+
+        oItem = ultraExplorerBar1:ItemFromPoint (e:Location) .
+
         IF NOT VALID-OBJECT (oItem) THEN
-            RETURN . 
-            
+            RETURN .
+
         oEffects = CAST (Progress.Util.EnumHelper:Or (System.Windows.Forms.DragDropEffects:Copy,
                                                       System.Windows.Forms.DragDropEffects:Link),
-                         System.Windows.Forms.DragDropEffects) .             
-            
-        ultraExplorerBar1:DoDragDrop (oItem, oEffects) .            
+                         System.Windows.Forms.DragDropEffects) .
+
+        ultraExplorerBar1:DoDragDrop (oItem, oEffects) .
 
         CATCH err AS Progress.Lang.Error :
-            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .    
+            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the ButtonClick event of the ultraStatusBar
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The PanelEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraStatusBar1_ButtonClick (sender AS System.Object, 
-	                                                 e AS Infragistics.Win.UltraWinStatusBar.PanelEventArgs):
-		
-		IF e:Panel:Key = "workdir":U THEN 
-		    Consultingwerk.Util.WindowsExplorerHelper:ShowFolder (SessionHelper:CurrentDirectory()) .
+    METHOD PRIVATE VOID ultraStatusBar1_ButtonClick (sender AS System.Object,
+                                                     e AS Infragistics.Win.UltraWinStatusBar.PanelEventArgs):
+
+        IF e:Panel:Key = "workdir":U THEN
+            Consultingwerk.Util.WindowsExplorerHelper:ShowFolder (SessionHelper:CurrentDirectory()) .
 
         CATCH err AS Progress.Lang.Error:
-            ErrorHelper:ShowErrorMessage (err) .    
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
-        
-	END METHOD .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the ValueChanged event of the ultraTrackBar1
-        Notes:   
+        Notes:
         @param sender The object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraTrackBar1_ValueChanged (INPUT sender AS System.Object, 
+    METHOD PRIVATE VOID ultraTrackBar1_ValueChanged (INPUT sender AS System.Object,
                                                      INPUT e AS System.EventArgs):
-        
-        model1:Zoom = ultraTrackBar1:Value . 
-        
+
+        model1:Zoom = ultraTrackBar1:Value .
+
         ultraStatusBar1:Panels["Zoom":U]:Text = SUBSTITUTE ("&1 %":U,
                                                             ultraTrackBar1:Value) .
 
         CATCH err AS Progress.Lang.Error:
-            ErrorHelper:ShowErrorMessage (err) .    
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
-        
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the AfterSelect event of the ultraTree1                                                                      
-        Notes:                                                                        
+        Purpose: Event handler for the AfterSelect event of the ultraTree1
+        Notes:
         @param sender The object that raised the event
         @param e The SelectEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraTree1_AfterSelect (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraTree1_AfterSelect (sender AS System.Object,
                                                 e AS Infragistics.Win.UltraWinTree.SelectEventArgs):
-        
+
         DEFINE VARIABLE cKey   AS CHARACTER            NO-UNDO.
-        DEFINE VARIABLE oShape AS Crainiate.ERM4.Shape NO-UNDO . 
-        
-        IF ultraTree1:SelectedNodes:Count = 0 THEN 
-            RETURN . 
-        
+        DEFINE VARIABLE oShape AS Crainiate.ERM4.Shape NO-UNDO .
+
+        IF ultraTree1:SelectedNodes:Count = 0 THEN
+            RETURN .
+
         ASSIGN cKey = ultraTree1:SelectedNodes[0]:Key .
 
         IF model1:Shapes:Contains (cKey) THEN DO:
@@ -4827,66 +5033,66 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerForm
             oShape = CAST (model1:Shapes[cKey], Crainiate.ERM4.Shape) .
 
             model1:SelectElements (FALSE) .
-                    
-            oShape:Selected = TRUE .  
 
-            model1:ScrollToElement (oShape) . 
+            oShape:Selected = TRUE .
+
+            model1:ScrollToElement (oShape) .
         END.
 
         CATCH err AS Progress.Lang.Error:
-        	ErrorHelper:ShowErrorMessage (err) .	
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Handles the UnsavedChangesChanged event of the BusinessEntityDatasetController                                                                        
+        Purpose: Handles the UnsavedChangesChanged event of the BusinessEntityDatasetController
         Notes:
         @param sender The object that raised the event
         @param e The Consultingwerk.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID UnsavedChangesChangedHandler (sender AS Progress.Lang.Object,
                                                         e AS Consultingwerk.EventArgs):
-        
-        IF oController:UnsavedChanges THEN 
+
+        IF oController:UnsavedChanges THEN
             ultraStatusBar1:Panels["modified":U]:Text = "Modified":U .
-        ELSE 
+        ELSE
             ultraStatusBar1:Panels["modified":U]:Text = "":U .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Updates the custom properties for the currently selected object of 
-                 the given scope 
-        Notes:   Calls into the BusinessEntityDatasetController's UpdateCustomProperties 
+        Purpose: Updates the custom properties for the currently selected object of
+                 the given scope
+        Notes:   Calls into the BusinessEntityDatasetController's UpdateCustomProperties
                  method
         @param poCustomPropertiesScope The property scope to edit the custom properties for
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID UpdateCustomProperties (poCustomPropertiesScope AS CustomPropertiesScopeEnum):
-		
-		ObjectAssert:IsValid (poCustomPropertiesScope, "poCustomPropertiesScope":U) .
+    METHOD PUBLIC VOID UpdateCustomProperties (poCustomPropertiesScope AS CustomPropertiesScopeEnum):
 
-        oController:UpdateCustomProperties (poCustomPropertiesScope) .        
+        ObjectAssert:IsValid (poCustomPropertiesScope, "poCustomPropertiesScope":U) .
 
-	END METHOD .
+        oController:UpdateCustomProperties (poCustomPropertiesScope) .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Updates the LRU file list with a recently opened file name                                                                       
-        Notes:                            
-        @param pcFileName The name of the recently opened file                                                    
+        Purpose: Updates the LRU file list with a recently opened file name
+        Notes:
+        @param pcFileName The name of the recently opened file
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID UpdateFileLRU (pcFileName AS CHARACTER):
-        
+
         DEFINE VARIABLE oButtonTool AS Infragistics.Win.UltraWinToolbars.ButtonTool NO-UNDO .
         DEFINE VARIABLE oEnumerator AS System.Collections.IEnumerator               NO-UNDO .
-        
+
         oEnumerator = smartToolbarController1:Ribbon:ApplicationMenu:ToolAreaRight:Tools:GetEnumerator() .
         oEnumerator:Reset() .
-        
+
         DO WHILE oEnumerator:MoveNext():
             oButtonTool = CAST (oEnumerator:Current,
                                 Infragistics.Win.UltraWinToolbars.ButtonTool) .
-            
+
             IF oButtonTool:SharedProps:TooltipText = pcFileName THEN DO:
                 smartToolbarController1:Tools:Remove (oButtonTool:SharedProps:RootTool) .
             END.
@@ -4894,52 +5100,52 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerForm
 
         DO WHILE smartToolbarController1:Ribbon:ApplicationMenu:ToolAreaRight:Tools:Count > 10:
             oButtonTool = CAST (smartToolbarController1:Ribbon:ApplicationMenu:ToolAreaRight:Tools[10],
-                                Infragistics.Win.UltraWinToolbars.ButtonTool) . 
-                                           
+                                Infragistics.Win.UltraWinToolbars.ButtonTool) .
+
             smartToolbarController1:Tools:Remove (oButtonTool:SharedProps:RootTool) .
         END.
 
         oButtonTool = NEW Infragistics.Win.UltraWinToolbars.ButtonTool ("file_lru_":U + GUID) .
-        oButtonTool:SharedProps:Caption = (IF LENGTH (pcFileName) > 40 THEN "... ":U ELSE "":U) + 
-                                          SUBSTRING (pcFileName, MAX (1, LENGTH (pcFileName) - 40)) .
+        oButtonTool:SharedProps:Caption = (IF LENGTH (pcFileName, "CHARACTER":U) > 40 THEN "... ":U ELSE "":U) +
+                                          SUBSTRING (pcFileName, MAX (1, LENGTH (pcFileName, "CHARACTER":U) - 40), -1, "CHARACTER":U) .
         oButtonTool:SharedProps:ToolTipText = pcFileName .
         smartToolbarController1:Tools:Add (oButtonTool) .
-        
-        smartToolbarController1:Ribbon:ApplicationMenu:ToolAreaRight:Tools:InsertTool(0, oButtonTool:Key) . 
+
+        smartToolbarController1:Ribbon:ApplicationMenu:ToolAreaRight:Tools:InsertTool(0, oButtonTool:Key) .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Pops up dialog for relation field mapping                                                                        
-        Notes:                                                                        
+        Purpose: Pops up dialog for relation field mapping
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID UpdateRelationFields ():
 
         THIS-OBJECT:ActivateDesignCanvas () .
-        
+
         CAST (smartBusinessEntityAdapter1:DatasetController,
-              BusinessEntityDatasetController):UpdateDataRelationFields () .        
+              BusinessEntityDatasetController):UpdateDataRelationFields () .
 
     END METHOD.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Event handler for the FieldsEnabled event of the five viewers in the
-	             Business Entity Designer Form
-	    Notes:   Ensures that only a single property viewer is in update mode
-	    @param sender The reference to the object that rised the event
-	    @param e The System.EventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID ViewerFieldsEnabledHandler (sender AS System.Object,
-	                                                  e AS System.EventArgs):
-		
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the FieldsEnabled event of the five viewers in the
+                 Business Entity Designer Form
+        Notes:   Ensures that only a single property viewer is in update mode
+        @param sender The reference to the object that rised the event
+        @param e The System.EventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID ViewerFieldsEnabledHandler (sender AS System.Object,
+                                                      e AS System.EventArgs):
+
         DEFINE VARIABLE oViewers      AS SmartViewerControl NO-UNDO EXTENT 5 .
-        DEFINE VARIABLE cLabels       AS CHARACTER          NO-UNDO EXTENT 5 .  
-        DEFINE VARIABLE oDialogResult AS DialogResultEnum   NO-UNDO . 
-		
-		DEFINE VARIABLE i        AS INTEGER            NO-UNDO .
+        DEFINE VARIABLE cLabels       AS CHARACTER          NO-UNDO EXTENT 5 .
+        DEFINE VARIABLE oDialogResult AS DialogResultEnum   NO-UNDO .
+
+        DEFINE VARIABLE i        AS INTEGER            NO-UNDO .
         DEFINE VARIABLE iCurrent AS INTEGER            NO-UNDO .
-		
-		ASSIGN oViewers[1] = businessEntityViewerControl1 cLabels[1] = "Entity"{&TRAN}
+
+        ASSIGN oViewers[1] = businessEntityViewerControl1 cLabels[1] = "Entity"{&TRAN}
                oViewers[2] = memberTableViewerControl1    cLabels[2] = "Table"{&TRAN}
                oViewers[3] = fieldViewerControl1          cLabels[3] = "Field"{&TRAN}
                oViewers[4] = indexViewerControl1          cLabels[4] = "Index"{&TRAN}
@@ -4947,48 +5153,51 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerForm
                .
 
         DO iCurrent = 1 TO 5:
-            IF oViewers[iCurrent] = sender THEN 
+            IF oViewers[iCurrent] = sender THEN
                 LEAVE .
         END.
-        
-        DO i = 1 TO 5:
-            IF i = iCurrent THEN NEXT . 
 
-            IF oViewers[i]:SmartTableIOState = TableIOStateEnum:FieldsDisabled OR 
-               oViewers[i]:SmartTableIOState = TableIOStateEnum:NoRecordAvailable OR 
-               oViewers[i]:SmartTableIOState = TableIOStateEnum:NoDataSource OR 
-               oViewers[i]:SmartTableIOState = TableIOStateEnum:NoParentRecordAvailable THEN NEXT . 
-               
-            IF oViewers[i]:SmartTableIOState = TableIOStateEnum:FieldsEnabled THEN DO: 
-                oViewers[i]:CancelUpdate() .                           
+        DO i = 1 TO 5:
+            IF i = iCurrent THEN
+                NEXT .
+
+            IF oViewers[i]:SmartTableIOState = TableIOStateEnum:FieldsDisabled OR
+               oViewers[i]:SmartTableIOState = TableIOStateEnum:NoRecordAvailable OR
+               oViewers[i]:SmartTableIOState = TableIOStateEnum:NoDataSource OR
+               oViewers[i]:SmartTableIOState = TableIOStateEnum:NoParentRecordAvailable THEN
+                NEXT .
+
+            IF oViewers[i]:SmartTableIOState = TableIOStateEnum:FieldsEnabled THEN DO:
+                oViewers[i]:CancelUpdate() .
                 NEXT.
             END.
-               
+
             oDialogResult = MessageFormHelper:AskQuestion (SUBSTITUTE ("Save changes in &1 Properties?"{&TRAN}, cLabels[i]),
                                                            THIS-OBJECT:Text) .
-                                                           
-            IF oDialogResult = DialogResultEnum:DialogResultNo THEN DO: 
-                oViewers[i]:CancelUpdate() .                           
+
+            IF oDialogResult = DialogResultEnum:DialogResultNo THEN DO:
+                oViewers[i]:CancelUpdate() .
                 NEXT.
             END.
-            
+
             oViewers[i]:SaveChanges() .
-            
-            IF oViewers[i]:SmartTableIOState = TableIOStateEnum:FieldsDisabled OR 
-               oViewers[i]:SmartTableIOState = TableIOStateEnum:NoRecordAvailable OR 
-               oViewers[i]:SmartTableIOState = TableIOStateEnum:NoDataSource OR 
-               oViewers[i]:SmartTableIOState = TableIOStateEnum:NoParentRecordAvailable THEN NEXT . 
+
+            IF oViewers[i]:SmartTableIOState = TableIOStateEnum:FieldsDisabled OR
+               oViewers[i]:SmartTableIOState = TableIOStateEnum:NoRecordAvailable OR
+               oViewers[i]:SmartTableIOState = TableIOStateEnum:NoDataSource OR
+               oViewers[i]:SmartTableIOState = TableIOStateEnum:NoParentRecordAvailable THEN
+                NEXT .
 
             oViewers[iCurrent]:DisableFields() .
-            
-            RETURN .             
-        END.    
-        
-	END METHOD.
+
+            RETURN .
+        END.
+
+    END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the BusinessEntityDesignerForm class                                                                        
-        Notes:                                                                        
+        Purpose: Destructor for the BusinessEntityDesignerForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC BusinessEntityDesignerForm ( ):
 
@@ -4999,4 +5208,4 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerForm
     END DESTRUCTOR.
 
 END CLASS.
- 
+

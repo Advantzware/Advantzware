@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="" xmlns:prodata="urn:schemas-progress-com:xml-prodata:0001">
+  <xsd:element name="dsModifiedState" prodata:proDataSet="true">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="eSmartModifiedState" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eSmartModifiedStateBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="ModifiedStateGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="ModifiedStateTable" type="xsd:string" nillable="true" prodata:format="x(22)" prodata:label="Table"/>
+              <xsd:element name="ModifiedStateKeyFieldValues" type="xsd:string" nillable="true" prodata:format="x(40)" prodata:label="Key Field Values"/>
+              <xsd:element name="ModifiedStateTimeStamp" type="xsd:dateTime" nillable="true" prodata:label="Time Stamp"/>
+              <xsd:element name="ModifiedStateUser" type="xsd:string" nillable="true" prodata:format="x(20)" prodata:label="User Name"/>
+              <xsd:element name="Description" type="xsd:string" nillable="true" prodata:format="X(80)"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+    <xsd:unique name="ModifiedStateGuid" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eSmartModifiedState"/>
+      <xsd:field xpath="ModifiedStateGuid"/>
+    </xsd:unique>
+    <xsd:unique name="ModifiedStateTableKeyFieldValues">
+      <xsd:selector xpath=".//eSmartModifiedState"/>
+      <xsd:field xpath="ModifiedStateTable"/>
+      <xsd:field xpath="ModifiedStateKeyFieldValues"/>
+    </xsd:unique>
+  </xsd:element>
+  <xsd:annotation>
+    <xsd:appinfo>
+      <prodata:index name="TimeStamp">
+        <prodata:table name="eSmartModifiedState"/>
+        <prodata:field name="ModifiedStateTimeStamp"/>
+      </prodata:index>
+    </xsd:appinfo>
+  </xsd:annotation>
+</xsd:schema>

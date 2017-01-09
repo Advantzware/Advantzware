@@ -8,31 +8,31 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : CopyFieldsForm
     Purpose     : Allows to copy field names to the windows clipboard
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Fri Jan 15 08:28:55 CET 2016
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW .
 
-USING Consultingwerk.*           FROM PROPATH . 
-USING Consultingwerk.Assertion.* FROM PROPATH . 
+USING Consultingwerk.*           FROM PROPATH .
+USING Consultingwerk.Assertion.* FROM PROPATH .
 USING Consultingwerk.Forms.*     FROM PROPATH .
 USING Consultingwerk.Util.*      FROM PROPATH .
 USING Progress.Lang.*            FROM PROPATH .
 
-CLASS Consultingwerk.BusinessEntityDesigner.UI.CopyFieldsForm 
-    INHERITS BaseForm: 
-	
+CLASS Consultingwerk.BusinessEntityDesigner.UI.CopyFieldsForm
+    INHERITS BaseForm:
+
     DEFINE PRIVATE VARIABLE btnCopy AS Infragistics.Win.Misc.UltraButton NO-UNDO.
     DEFINE PRIVATE VARIABLE btnCancel AS Infragistics.Win.Misc.UltraButton NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraButton2 AS Infragistics.Win.Misc.UltraButton NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraButton1 AS Infragistics.Win.Misc.UltraButton NO-UNDO.
     DEFINE PRIVATE VARIABLE panel1 AS System.Windows.Forms.Panel NO-UNDO.
@@ -41,27 +41,27 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.CopyFieldsForm
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the handle of the eField buffer used to populate
-                 the list view                                                                                        
-        Notes:                                           
+                 the list view
+        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY BufferHandle AS HANDLE NO-UNDO 
-	GET.
-	SET. 
-
-    /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the name of the selected temp-table                                                                                   
-        Notes:                                           
-    ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY TableName AS CHARACTER NO-UNDO 
+    DEFINE PUBLIC PROPERTY BufferHandle AS HANDLE NO-UNDO
     GET.
-    SET. 
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the CopyFieldsForm class                                                                      
-        Notes:                                           
+        Purpose: Gets and sets the name of the selected temp-table
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC CopyFieldsForm ():
-		
+    DEFINE PUBLIC PROPERTY TableName AS CHARACTER NO-UNDO
+    GET.
+    SET.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the CopyFieldsForm class
+        Notes:
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC CopyFieldsForm ():
+
         SUPER().
         InitializeComponent().
 
@@ -69,41 +69,46 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.CopyFieldsForm
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the Click event of the btnCopy_Click                                
-        Notes:   Copies selected fields to the clipboard                                    
+        Purpose: Event handler for the Click event of the btnCopy_Click
+        Notes:   Copies selected fields to the clipboard
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event                                                                    
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID btnCopy_Click (sender AS System.Object, 
+    METHOD PRIVATE VOID btnCopy_Click (sender AS System.Object,
                                        e AS System.EventArgs):
-        
-        DEFINE VARIABLE cCopyString AS CHARACTER NO-UNDO.                                           
-                                           
+
+        DEFINE VARIABLE cCopyString AS CHARACTER NO-UNDO.
+
         {Consultingwerk/foreach.i Infragistics.Win.UltraWinListView.UltraListViewItem oItem in ultraListView1:Items}
             IF Progress.Util.EnumHelper:AreEqual (oItem:CheckState, System.Windows.Forms.CheckState:Checked) THEN
                 cCopyString = cCopyString + SUBSTITUTE ("&1.&2~n":U,
                                                         THIS-OBJECT:TableName,
-                                                        UNBOX (oItem:Value)).  
+                                                        UNBOX (oItem:Value)).
         END.
 
-        CLIPBOARD:VALUE = cCopyString . 
+        CLIPBOARD:VALUE = cCopyString .
 
-	END METHOD.
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                      
-        Notes:                                           
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    END METHOD.
+
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE ultraListViewItem1 AS Infragistics.Win.UltraWinListView.UltraListViewItem NO-UNDO.
@@ -238,113 +243,125 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.CopyFieldsForm
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD.
+    END METHOD.
 
-	/*------------------------------------------------------------------------------
-		Purpose: Raises the Load event  																	  
-		Notes:  					
-		@param e The System.EventArgs with the data for this event												  
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
-		
-		SUPER:OnLoad (e) .
-		
-		THIS-OBJECT:PopulateFields () . 
-		
-	END METHOD.
+    /*------------------------------------------------------------------------------
+        Purpose: Raises the Load event
+        Notes:
+        @param e The System.EventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
 
-	/*------------------------------------------------------------------------------
-		Purpose: Populates the List View with Field Names  																	  
-		Notes:  																	  
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID PopulateFields ():
+        SUPER:OnLoad (e) .
+
+        THIS-OBJECT:PopulateFields () .
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Populates the List View with Field Names
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID PopulateFields ():
 
         DEFINE VARIABLE hQuery  AS HANDLE                                              NO-UNDO .
         DEFINE VARIABLE hBuffer AS HANDLE                                              NO-UNDO .
-        DEFINE VARIABLE oItem   AS Infragistics.Win.UltraWinListView.UltraListViewItem NO-UNDO . 
+        DEFINE VARIABLE oItem   AS Infragistics.Win.UltraWinListView.UltraListViewItem NO-UNDO .
 
         HandleAssert:WidgetType (THIS-OBJECT:BufferHandle, WidgetTypeEnum:Buffer) .
         Assert:NotNullOrEmpty (THIS-OBJECT:TableName, "TableName":U) .
-		
+
         ultraListView1:Items:Clear () .
 
         CREATE BUFFER hBuffer FOR TABLE (THIS-OBJECT:BufferHandle) .
-        
-        hQuery = QueryHelper:CreatePreparedQuery (hBuffer, 
+
+        hQuery = QueryHelper:CreatePreparedQuery (hBuffer,
                                                   SUBSTITUTE ("for each eField where TempTableName = &1 by FieldOrder":U, QUOTER (THIS-OBJECT:TableName))) .
 
         DO WHILE NOT hQuery:QUERY-OFF-END:
             oItem = ultraListView1:Items:Add (hBuffer::FieldName, hBuffer::FieldName) .
-            oItem:CheckState = System.Windows.Forms.CheckState:Checked . 
-            
+            oItem:CheckState = System.Windows.Forms.CheckState:Checked .
+
             hQuery:GET-NEXT () .
         END.
 
         FINALLY:
             GarbageCollectorHelper:DeleteObject (hQuery) .
-            GarbageCollectorHelper:DeleteObject (hBuffer) .		
+            GarbageCollectorHelper:DeleteObject (hBuffer) .
         END FINALLY.
 
-	END METHOD.
-
-	/*------------------------------------------------------------------------------
-		Purpose: Event handler for the Click event of the ultraButton1 								  
-		Notes:   Selects all Items                                    
-	    @param sender The reference to the object that raised the event
-	    @param e The System.EventArgs with the data for this event																	  
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraButton1_Click (sender AS System.Object, 
-	                                        e AS System.EventArgs):
-		
-		{Consultingwerk/foreach.i Infragistics.Win.UltraWinListView.UltraListViewItem oItem in ultraListView1:Items}
-		    oItem:CheckState = System.Windows.Forms.CheckState:Checked .
-		END.
-
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the Click event of the ultraButton2                               
-        Notes:   Deselects all Items                                    
+        Purpose: Event handler for the Click event of the ultraButton1
+        Notes:   Selects all Items
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event                                                                    
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraButton2_Click (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraButton1_Click (sender AS System.Object,
                                             e AS System.EventArgs):
-        
+
+        {Consultingwerk/foreach.i Infragistics.Win.UltraWinListView.UltraListViewItem oItem in ultraListView1:Items}
+            oItem:CheckState = System.Windows.Forms.CheckState:Checked .
+        END.
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the Click event of the ultraButton2
+        Notes:   Deselects all Items
+        @param sender The reference to the object that raised the event
+        @param e The System.EventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID ultraButton2_Click (sender AS System.Object,
+                                            e AS System.EventArgs):
+
         {Consultingwerk/foreach.i Infragistics.Win.UltraWinListView.UltraListViewItem oItem in ultraListView1:Items}
             oItem:CheckState = System.Windows.Forms.CheckState:Unchecked .
         END.
 
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the Click event of the ultraButton3                               
-        Notes:   Inverts the current item selection                                
+        Purpose: Event handler for the Click event of the ultraButton3
+        Notes:   Inverts the current item selection
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event                                                                    
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraButton3_Click (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraButton3_Click (sender AS System.Object,
                                             e AS System.EventArgs):
-        
+
         {Consultingwerk/foreach.i Infragistics.Win.UltraWinListView.UltraListViewItem oItem in ultraListView1:Items}
-            IF Progress.Util.EnumHelper:AreEqual (oItem:CheckState, System.Windows.Forms.CheckState:Unchecked) THEN 
+            IF Progress.Util.EnumHelper:AreEqual (oItem:CheckState, System.Windows.Forms.CheckState:Unchecked) THEN
                 oItem:CheckState = System.Windows.Forms.CheckState:Checked .
-            ELSE 
+            ELSE
                 oItem:CheckState = System.Windows.Forms.CheckState:Unchecked .
         END.
 
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
     END METHOD.
-    
+
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the CopyFieldsForm class                                                                      
-        Notes:                                           
+        Purpose: Destructor for the CopyFieldsForm class
+        Notes:
     ------------------------------------------------------------------------------*/
-	DESTRUCTOR PUBLIC CopyFieldsForm ():
+    DESTRUCTOR PUBLIC CopyFieldsForm ():
 
-		IF VALID-OBJECT(components) THEN DO:
-			CAST(components, System.IDisposable):Dispose().
-		END.
+        IF VALID-OBJECT(components) THEN DO:
+            CAST(components, System.IDisposable):Dispose().
+        END.
 
-	END DESTRUCTOR.
+    END DESTRUCTOR.
 
 END CLASS.

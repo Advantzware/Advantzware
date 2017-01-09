@@ -32,9 +32,9 @@ CLASS Consultingwerk.SmartComponents.Base.SmartViewerOptionalFeatures:
                  overridable method CustomInitializeControlHandler
         Notes:   SCL-814   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY CallCustomInitializeControlHandler AS LOGICAL INITIAL FALSE NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY CallCustomInitializeControlHandler AS LOGICAL INITIAL FALSE NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Allows directly enable the Data Source's UpdateState when fields are

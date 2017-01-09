@@ -12,23 +12,23 @@
 /*------------------------------------------------------------------------
     File        : PasteSourceCodeForm
     Purpose     : Provides an user interface to paste ABL source code from the
-                  clipboard 
-    Syntax      : 
-    Description : 
+                  clipboard
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Thu Sep 20 22:25:58 CEST 2012
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.Forms.BaseForm.
 
-USING Consultingwerk.BusinessEntityDesigner.UI.* FROM PROPATH .  
+USING Consultingwerk.BusinessEntityDesigner.UI.* FROM PROPATH .
 USING Progress.Lang.* FROM PROPATH .
 
-CLASS Consultingwerk.BusinessEntityDesigner.UI.PasteSourceCodeForm INHERITS BaseForm: 
-    
+CLASS Consultingwerk.BusinessEntityDesigner.UI.PasteSourceCodeForm INHERITS BaseForm:
+
     DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraTextEditor1 AS Infragistics.Win.UltraWinEditors.UltraTextEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraTabSharedControlsPage1 AS Infragistics.Win.UltraWinTabControl.UltraTabSharedControlsPage NO-UNDO.
@@ -39,20 +39,20 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.PasteSourceCodeForm INHERITS Base
     DEFINE PRIVATE VARIABLE ultraButton1 AS Infragistics.Win.Misc.UltraButton NO-UNDO.
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns the ABL source code as a LONGCHAR value 
-        Notes:   
+        Purpose: Returns the ABL source code as a LONGCHAR value
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY CodeBlock AS LONGCHAR NO-UNDO 
+    DEFINE PUBLIC PROPERTY CodeBlock AS LONGCHAR NO-UNDO
     GET:
         RETURN ultraTextEditor1:Text .
     END GET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the PasteSourceCodeForm class                                                                        
-        Notes:      
+        Purpose: Constructor for the PasteSourceCodeForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC PasteSourceCodeForm ():
-        
+
         SUPER().
         InitializeComponent().
         CATCH e AS Progress.Lang.Error:
@@ -61,17 +61,18 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.PasteSourceCodeForm INHERITS Base
 
     END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance2 AS Infragistics.Win.Appearance NO-UNDO.
@@ -219,12 +220,12 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.PasteSourceCodeForm INHERITS Base
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the DragDrop event of the ultraTextEditor1 instance                                                                        
-        Notes:                                              
+        Purpose: Event handler for the DragDrop event of the ultraTextEditor1 instance
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The DragEventArgs with the data for this event                          
+        @param e The DragEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraTextEditor1_DragDrop (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraTextEditor1_DragDrop (sender AS System.Object,
                                                    e AS System.Windows.Forms.DragEventArgs):
 
         DEFINE VARIABLE lcText AS LONGCHAR  NO-UNDO.
@@ -233,19 +234,19 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.PasteSourceCodeForm INHERITS Base
 
         IF Consultingwerk.Util.DragAndDropHelper:IsFileDrop (e:Data) THEN DO:
             cFiles = Consultingwerk.Util.DragAndDropHelper:GetDropFileNames (e:Data) .
-           
+
             DO i = 1 TO EXTENT (cFiles):
-                COPY-LOB FROM FILE (cFiles[i]) TO lcText . 
-            
+                COPY-LOB FROM FILE (cFiles[i]) TO lcText .
+
                 ultraTextEditor1:AppendText (lcText) .
             END.
         END .
         ELSE DO:
             lcText = UNBOX (e:Data:GetData (System.Windows.Forms.DataFormats:Text)) .
-           
+
             ultraTextEditor1:AppendText (lcText) .
         END.
-        
+
         CATCH err AS Progress.Lang.Error :
             Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
@@ -253,58 +254,58 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.PasteSourceCodeForm INHERITS Base
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the DragEnter event of the ultraTextEditor1 instance                                                                        
-        Notes:                                              
+        Purpose: Event handler for the DragEnter event of the ultraTextEditor1 instance
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The DragEventArgs with the data for this event                          
+        @param e The DragEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraTextEditor1_DragEnter (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraTextEditor1_DragEnter (sender AS System.Object,
                                                     e AS System.Windows.Forms.DragEventArgs):
-        
-        IF Consultingwerk.Util.DragAndDropHelper:IsFileDrop (e:Data) OR 
-           Consultingwerk.Util.DragAndDropHelper:IsTextDrop (e:Data) THEN 
 
-            e:Effect = System.Windows.Forms.DragDropEffects:Copy .                
-       
+        IF Consultingwerk.Util.DragAndDropHelper:IsFileDrop (e:Data) OR
+           Consultingwerk.Util.DragAndDropHelper:IsTextDrop (e:Data) THEN
+
+            e:Effect = System.Windows.Forms.DragDropEffects:Copy .
+
        CATCH err AS Progress.Lang.Error :
               Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .
        END CATCH.
-                
+
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the KeyDwown event of the ultraTextEditor1 instance                                                                        
-        Notes:                                              
+        Purpose: Event handler for the KeyDwown event of the ultraTextEditor1 instance
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The KeyEventArgs with the data for this event                          
+        @param e The KeyEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraTextEditor1_KeyDown (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraTextEditor1_KeyDown (sender AS System.Object,
                                                   e AS System.Windows.Forms.KeyEventArgs):
-        
+
         IF Progress.Util.EnumHelper:AreEqual(e:KeyCode,
-                                             System.Windows.Forms.Keys:A) AND 
-           e:Control THEN 
-              
-              ultraTextEditor1:SelectAll () . 
+                                             System.Windows.Forms.Keys:A) AND
+           e:Control THEN
+
+              ultraTextEditor1:SelectAll () .
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the TextChanged event of the ultraTextEditor1 instance                                                                        
-        Notes:                                              
+        Purpose: Event handler for the TextChanged event of the ultraTextEditor1 instance
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event                          
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraTextEditor1_TextChanged (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraTextEditor1_TextChanged (sender AS System.Object,
                                                       e AS System.EventArgs):
-        
-        ultraButton1:Enabled = ultraTextEditor1:TextLength > 0 . 
+
+        ultraButton1:Enabled = ultraTextEditor1:TextLength > 0 .
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the PasteSourceCodeForm class                                                                        
-        Notes:      
+        Purpose: Destructor for the PasteSourceCodeForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC PasteSourceCodeForm ():
 

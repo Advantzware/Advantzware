@@ -116,7 +116,117 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="CallTypeCombo.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"/>
+  <data name="CallTypeCombo.Location" type="System.Drawing.Point, System.Drawing">
+    <value>76, 32</value>
+  </data>
+  <data name="CallTypeCombo.Size" type="System.Drawing.Size, System.Drawing">
+    <value>304, 21</value>
+  </data>
+  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="CallTypeCombo.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="&gt;&gt;CallTypeCombo.Name" xml:space="preserve">
+    <value>CallTypeCombo</value>
+  </data>
+  <data name="&gt;&gt;CallTypeCombo.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraComboEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;CallTypeCombo.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;CallTypeCombo.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <data name="ultraButtonCancel.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Bottom, Right</value>
+  </data>
+  <data name="ultraButtonCancel.Location" type="System.Drawing.Point, System.Drawing">
+    <value>305, 75</value>
+  </data>
+  <data name="ultraButtonCancel.Size" type="System.Drawing.Size, System.Drawing">
+    <value>75, 23</value>
+  </data>
+  <data name="ultraButtonCancel.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="ultraButtonCancel.Text" xml:space="preserve">
+    <value>&amp;Cancel</value>
+  </data>
+  <data name="&gt;&gt;ultraButtonCancel.Name" xml:space="preserve">
+    <value>ultraButtonCancel</value>
+  </data>
+  <data name="&gt;&gt;ultraButtonCancel.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraButton, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraButtonCancel.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraButtonCancel.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="ultraButtonOK.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Bottom, Right</value>
+  </data>
+  <data name="ultraButtonOK.Enabled" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
+  <data name="ultraButtonOK.Location" type="System.Drawing.Point, System.Drawing">
+    <value>224, 75</value>
+  </data>
+  <data name="ultraButtonOK.Size" type="System.Drawing.Size, System.Drawing">
+    <value>75, 23</value>
+  </data>
+  <data name="ultraButtonOK.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="ultraButtonOK.Text" xml:space="preserve">
+    <value>&amp;OK</value>
+  </data>
+  <data name="&gt;&gt;ultraButtonOK.Name" xml:space="preserve">
+    <value>ultraButtonOK</value>
+  </data>
+  <data name="&gt;&gt;ultraButtonOK.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraButton, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraButtonOK.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraButtonOK.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="ultraLabel1.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="ultraLabel1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>76, 12</value>
+  </data>
+  <data name="ultraLabel1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>254, 14</value>
+  </data>
+  <data name="ultraLabel1.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="ultraLabel1.Text" xml:space="preserve">
+    <value>Select the call type of the menu function to create:</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel1.Name" xml:space="preserve">
+    <value>ultraLabel1</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel1.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel1.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel1.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="pictureBox1.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAABGdBTUEAALGPC/xhBQAAACt0RVh0Q29w
@@ -213,6 +323,33 @@
         uC2ioj/95/D/3xAS+m++qT3w4eDg8gAAAABJRU5ErkJggg==
 </value>
   </data>
+  <data name="pictureBox1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>12, 12</value>
+  </data>
+  <data name="pictureBox1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>48, 48</value>
+  </data>
+  <data name="pictureBox1.SizeMode" type="System.Windows.Forms.PictureBoxSizeMode, System.Windows.Forms">
+    <value>AutoSize</value>
+  </data>
+  <data name="pictureBox1.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="&gt;&gt;pictureBox1.Name" xml:space="preserve">
+    <value>pictureBox1</value>
+  </data>
+  <data name="&gt;&gt;pictureBox1.Type" xml:space="preserve">
+    <value>System.Windows.Forms.PictureBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;pictureBox1.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;pictureBox1.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="ultraButtonRefreshList.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Bottom, Left</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance1.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAACt0RVh0Q29w
@@ -234,5 +371,53 @@
         XcB9iSXvEZYy1C/9H3yVRcg53OHhq3rvCNUOCOtt65xys4slM4cFIjSE/AlrmKrtzjjPowAAAABJRU5E
         rkJggg==
 </value>
+  </data>
+  <data name="ultraButtonRefreshList.Location" type="System.Drawing.Point, System.Drawing">
+    <value>12, 75</value>
+  </data>
+  <data name="ultraButtonRefreshList.MinimumSize" type="System.Drawing.Size, System.Drawing">
+    <value>178, 23</value>
+  </data>
+  <data name="ultraButtonRefreshList.Size" type="System.Drawing.Size, System.Drawing">
+    <value>178, 23</value>
+  </data>
+  <data name="ultraButtonRefreshList.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="ultraButtonRefreshList.Text" xml:space="preserve">
+    <value>Refresh Function-Call types</value>
+  </data>
+  <data name="&gt;&gt;ultraButtonRefreshList.Name" xml:space="preserve">
+    <value>ultraButtonRefreshList</value>
+  </data>
+  <data name="&gt;&gt;ultraButtonRefreshList.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraButton, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraButtonRefreshList.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraButtonRefreshList.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing">
+    <value>398, 123</value>
+  </data>
+  <data name="$this.StartPosition" type="System.Windows.Forms.FormStartPosition, System.Windows.Forms">
+    <value>CenterParent</value>
+  </data>
+  <data name="$this.Text" xml:space="preserve">
+    <value>Select Function-Call Type</value>
+  </data>
+  <data name="$this.WindowPositionRegistryKey" xml:space="preserve">
+    <value>ChooseFunctionCallTypeDialog</value>
+  </data>
+  <data name="&gt;&gt;$this.Name" xml:space="preserve">
+    <value>ChooseFunctionCallTypeDialog</value>
+  </data>
+  <data name="&gt;&gt;$this.Type" xml:space="preserve">
+    <value>Consultingwerk.Forms.BaseForm, OEProxyAssembly, Version=11.6.0.1, Culture=neutral, PublicKeyToken=null</value>
   </data>
 </root>

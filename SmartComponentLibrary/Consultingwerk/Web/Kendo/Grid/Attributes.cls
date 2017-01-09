@@ -29,19 +29,19 @@ USING Progress.Lang.*                 FROM PROPATH .
 CLASS Consultingwerk.Web.Kendo.Grid.Attributes 
     INHERITS JsonSerializable: 
 
-    {Consultingwerk/JsonSerializableProperty.i class CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i style CHARACTER} .
-	
-	/*------------------------------------------------------------------------------
+    {Consultingwerk/JsonSerializableProperty11.i class CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i style CHARACTER} .
+    
+    /*------------------------------------------------------------------------------
         Purpose: Constructor for the Attributes class                                                                     
         Notes:                                                                        
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC Attributes ():
-		SUPER ().
-		
-		THIS-OBJECT:UseSerializedTypeInformation = FALSE . 
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC Attributes ():
+        SUPER ().
+        
+        THIS-OBJECT:UseSerializedTypeInformation = FALSE . 
         THIS-OBJECT:AddSerializableProperties ("{&SerializableProperties}":U) .
-                		
-	END CONSTRUCTOR.
+                        
+    END CONSTRUCTOR.
 
 END CLASS.

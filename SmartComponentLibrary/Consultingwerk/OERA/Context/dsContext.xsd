@@ -22,19 +22,20 @@
         <xsd:element name="eSessionContext" minOccurs="0" maxOccurs="unbounded">
           <xsd:complexType>
             <xsd:sequence>
-              <xsd:element name="UserName" type="xsd:string" nillable="true" prodata:fieldName="UserName" prodata:format="X(80)"/>
-              <xsd:element name="LoginCompanyName" type="xsd:string" nillable="true" prodata:fieldName="LoginCompanyName" prodata:format="X(80)"/>
-              <xsd:element name="ClientPrincipal" type="xsd:base64Binary" nillable="true" prodata:fieldName="ClientPrincipal"/>
-              <xsd:element name="LoginCompanyKey" type="xsd:string" nillable="true" prodata:fieldName="LoginCompanyKey"/>
-              <xsd:element name="LoginCompanyShortName" type="xsd:string" nillable="true" prodata:fieldName="LoginCompanyShortName"/>
-              <xsd:element name="LoginCompanyReferenceChar" type="xsd:string" nillable="true" prodata:fieldName="LoginCompanyReferenceChar"/>
-              <xsd:element name="LoginCompanyReferenceDecimal" type="xsd:decimal" nillable="true" prodata:fieldName="LoginCompanyReferenceDecimal" prodata:format=">>>,>>>,>>9.9999"/>
-              <xsd:element name="LoginCompanyReferenceInteger" type="xsd:int" nillable="true" prodata:fieldName="LoginCompanyReferenceInteger" prodata:format=">>>,>>>,>>9"/>
-              <xsd:element name="LanguageDisplayName" type="xsd:string" nillable="true" prodata:fieldName="LanguageDisplayName"/>
-              <xsd:element name="LanguageIsoCode" type="xsd:string" nillable="true" prodata:fieldName="LanguageIsoCode"/>
-              <xsd:element name="LanguageKey" type="xsd:string" nillable="true" prodata:fieldName="LanguageKey"/>
-              <xsd:element name="UserGroupKeys" type="xsd:string" nillable="true" prodata:fieldName="UserGroupKeys"/>
-              <xsd:element name="UserGroupNames" type="xsd:string" nillable="true" prodata:fieldName="UserGroupNames"/>
+              <xsd:element name="UserName" type="xsd:string" nillable="true" prodata:format="X(80)"/>
+              <xsd:element name="UserKey" type="xsd:string" nillable="true" prodata:format="X(36)" prodata:label="User Key"/>
+              <xsd:element name="LoginCompanyName" type="xsd:string" nillable="true" prodata:format="X(80)"/>
+              <xsd:element name="ClientPrincipal" type="xsd:base64Binary" nillable="true"/>
+              <xsd:element name="LoginCompanyKey" type="xsd:string" nillable="true"/>
+              <xsd:element name="LoginCompanyShortName" type="xsd:string" nillable="true"/>
+              <xsd:element name="LoginCompanyReferenceChar" type="xsd:string" nillable="true"/>
+              <xsd:element name="LoginCompanyReferenceDecimal" type="xsd:decimal" nillable="true" prodata:format=">>>,>>>,>>9.9999"/>
+              <xsd:element name="LoginCompanyReferenceInteger" type="xsd:int" nillable="true" prodata:format=">>>,>>>,>>9"/>
+              <xsd:element name="LanguageDisplayName" type="xsd:string" nillable="true"/>
+              <xsd:element name="LanguageIsoCode" type="xsd:string" nillable="true"/>
+              <xsd:element name="LanguageKey" type="xsd:string" nillable="true"/>
+              <xsd:element name="UserGroupKeys" type="xsd:string" nillable="true"/>
+              <xsd:element name="UserGroupNames" type="xsd:string" nillable="true"/>
               <xsd:element name="ServerLogEntryTypes" type="xsd:string" nillable="true" prodata:format="X(60)"/>
               <xsd:element name="ServerCustomLogEntries" type="xsd:string" nillable="true" prodata:format="X(60)"/>
               <xsd:element name="ServerDebugMode" type="xsd:boolean" nillable="true" prodata:label="Debug Mode"/>

@@ -8,22 +8,22 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : SmartSingleAdapterForm
-    Purpose     : Simple SmartWindowForm template with a single 
+    Purpose     : Simple SmartWindowForm template with a single
                   SmartBusinessEntityAdapter instance, a SmartDataBrowser
                   and space for a SmartViewerControl
     Syntax      : See SCL-580
-    Description : 
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Mon Dec 08 14:33:33 CET 2014
     Notes       : This Form is not intended to be executed on it's own. This
-                  form is only intended to be used as a base for inheriting 
-                  Forms. 
-                  As the .NET Visual Designer does not support visual 
+                  form is only intended to be used as a base for inheriting
+                  Forms.
+                  As the .NET Visual Designer does not support visual
                   inheritance from abstract classes, this class is not marked
-                  as abstract. 
+                  as abstract.
                   http://confluence.consultingwerkcloud.com/wiki/display/SCL/Using+Visual+Base+From+classes
   ----------------------------------------------------------------------*/
 
@@ -31,18 +31,18 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 {Consultingwerk/products.i}
 
-USING Consultingwerk.Assertion.*            FROM PROPATH . 
-USING Consultingwerk.SmartComponents.Base.* FROM PROPATH . 
+USING Consultingwerk.Assertion.*            FROM PROPATH .
+USING Consultingwerk.SmartComponents.Base.* FROM PROPATH .
 USING Progress.Lang.*                       FROM PROPATH .
 
-CLASS Consultingwerk.SmartComponents.BaseForms.BusinessEntityAdapter.SmartSingleAdapterForm 
-    INHERITS SmartWindowForm: 
-	
+CLASS Consultingwerk.SmartComponents.BaseForms.BusinessEntityAdapter.SmartSingleAdapterForm
+    INHERITS SmartWindowForm:
+
     DEFINE PRIVATE VARIABLE m_SmartSingleAdapterForm_Toolbars_Dock_Area_Top AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_SmartSingleAdapterForm_Toolbars_Dock_Area_Right AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_SmartSingleAdapterForm_Toolbars_Dock_Area_Left AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_SmartSingleAdapterForm_Toolbars_Dock_Area_Bottom AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PROTECTED VARIABLE smartBusinessEntityAdapter1 AS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter NO-UNDO.
     DEFINE PRIVATE VARIABLE smartBusinessEntityBindingSource1 AS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource NO-UNDO.
     DEFINE PROTECTED VARIABLE smartDataBrowser1 AS Consultingwerk.SmartComponents.Implementation.SmartDataBrowser NO-UNDO.
@@ -51,43 +51,43 @@ CLASS Consultingwerk.SmartComponents.BaseForms.BusinessEntityAdapter.SmartSingle
     DEFINE PRIVATE VARIABLE ultraSplitter1 AS Infragistics.Win.Misc.UltraSplitter NO-UNDO.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the instance of the SmartViewerControl used by this 
-                 form                                                                       
-        Notes:   Once set, this property value cannot be changed                                                                        
+        Purpose: Gets and sets the instance of the SmartViewerControl used by this
+                 form
+        Notes:   Once set, this property value cannot be changed
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY SmartViewerControl AS SmartViewerControl NO-UNDO 
-	GET.
-	SET (arg AS SmartViewerControl):
-	    
-	    IF VALID-OBJECT (THIS-OBJECT:SmartViewerControl) THEN 
-	        UNDO, THROW NEW AppError ("Unable to set SmartViewerControl once SmartViewerControl was set before."{&TRAN}, 0) .
-	   
-	    {Consultingwerk/Assertion/ObjectAssert/IsValid.i arg """SmartViewerControl"":U"} . 
+    DEFINE PUBLIC PROPERTY SmartViewerControl AS SmartViewerControl NO-UNDO
+    GET.
+    SET (arg AS SmartViewerControl):
+
+        IF VALID-OBJECT (THIS-OBJECT:SmartViewerControl) THEN
+            UNDO, THROW NEW AppError ("Unable to set SmartViewerControl once SmartViewerControl was set before."{&TRAN}, 0) .
+
+        {Consultingwerk/Assertion/ObjectAssert/IsValid.i arg """SmartViewerControl"":U"} .
 
         arg:BeginInit() .
-	   
-	    THIS-OBJECT:SmartViewerControl = arg . 
-	   
-	    arg:Dock = System.Windows.Forms.DockStyle:Fill .
-        arg:SmartTableIOSource = smartToolbarController1 . 
-	    arg:SmartDataSource = smartBusinessEntityAdapter1 . 
-	   
-	    THIS-OBJECT:SmartSingleAdapterForm_Fill_Panel:ClientArea:Controls:Add (arg) . 
-	    
-	    arg:BringToFront() . 
 
-        arg:EndInit () . 
-	END.
+        THIS-OBJECT:SmartViewerControl = arg .
+
+        arg:Dock = System.Windows.Forms.DockStyle:Fill .
+        arg:SmartTableIOSource = smartToolbarController1 .
+        arg:SmartDataSource = smartBusinessEntityAdapter1 .
+
+        THIS-OBJECT:SmartSingleAdapterForm_Fill_Panel:ClientArea:Controls:Add (arg) .
+
+        arg:BringToFront() .
+
+        arg:EndInit () .
+    END.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the SmartSingleAdapterForm class                                                                      
-        Notes:                                                                        
+        Purpose: Constructor for the SmartSingleAdapterForm class
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC SmartSingleAdapterForm ():
-		
+    CONSTRUCTOR PUBLIC SmartSingleAdapterForm ():
+
         SUPER().
         InitializeComponent().
-        
+
         &IF NOT PROVERSION BEGINS "10.2":U AND NOT PROVERSION BEGINS "11.0" &THEN
         THIS-OBJECT:ComponentsCollection:Add (THIS-OBJECT:components).
         &ENDIF
@@ -96,19 +96,20 @@ CLASS Consultingwerk.SmartComponents.BaseForms.BusinessEntityAdapter.SmartSingle
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                      
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -919,28 +920,28 @@ CLASS Consultingwerk.SmartComponents.BaseForms.BusinessEntityAdapter.SmartSingle
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD.
+    END METHOD.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Initializes the BindingSource with the same parameters as the 
-	             Business Entity Adapter and sets up binding source schema
-	    Notes:
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID InitializeDataBinding ():
-		
+    /*------------------------------------------------------------------------------
+        Purpose: Initializes the BindingSource with the same parameters as the
+                 Business Entity Adapter and sets up binding source schema
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID InitializeDataBinding ():
+
         THIS-OBJECT:smartBusinessEntityBindingSource1:InitializeFromAdapter (smartBusinessEntityAdapter1) .
 
         THIS-OBJECT:smartBusinessEntityBindingSource1:DesignerImportSchema (TRUE) .
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Raises the Shown Event
-        Notes:   
+        Notes:
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
-        
+
         SUPER:OnShown (e) .
 
         Consultingwerk.Util.UserInterfaceHelper:ProcessEvents() .
@@ -950,11 +951,11 @@ CLASS Consultingwerk.SmartComponents.BaseForms.BusinessEntityAdapter.SmartSingle
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the SmartSingleAdapterForm class                                                                      
-        Notes:                                                                        
+        Purpose: Destructor for the SmartSingleAdapterForm class
+        Notes:
     ------------------------------------------------------------------------------*/
-	DESTRUCTOR PUBLIC SmartSingleAdapterForm ():
+    DESTRUCTOR PUBLIC SmartSingleAdapterForm ():
 
-	END DESTRUCTOR.
+    END DESTRUCTOR.
 
 END CLASS.

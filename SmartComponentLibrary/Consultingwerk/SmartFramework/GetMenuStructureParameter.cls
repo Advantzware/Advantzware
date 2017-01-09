@@ -66,12 +66,12 @@ CLASS Consultingwerk.SmartFramework.GetMenuStructureParameter
         Purpose: Constructor for the GetMenuStructureParameter class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC GetMenuStructureParameter ():
-		SUPER ().
-		
-		THIS-OBJECT:AddSerializableProperties ("{&SerializableProperties}":U) .
+    CONSTRUCTOR PUBLIC GetMenuStructureParameter ():
+        SUPER ().
+        
+        THIS-OBJECT:AddSerializableProperties ("{&SerializableProperties}":U) .
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the GetMenuStructureParameter class

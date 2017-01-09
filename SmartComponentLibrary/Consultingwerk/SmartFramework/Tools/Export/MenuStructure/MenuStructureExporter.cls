@@ -37,8 +37,8 @@ CLASS Consultingwerk.SmartFramework.Tools.Export.MenuStructure.MenuStructureExpo
         Notes:   
         @param pcMenuGuid The Menu Guid to export
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID ExportMenu (pcMenuGuid AS CHARACTER):
-		
+    METHOD PROTECTED VOID ExportMenu (pcMenuGuid AS CHARACTER):
+        
         DEFINE BUFFER eSmartMenu     FOR eSmartMenu . 
         DEFINE BUFFER eSmartFunction FOR eSmartFunction . 
 
@@ -64,7 +64,7 @@ CLASS Consultingwerk.SmartFramework.Tools.Export.MenuStructure.MenuStructureExpo
             THIS-OBJECT:ExportMenu (SmartMenu.MenuGuid) .
         END.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Exports a menu structure to the given file name 
@@ -72,21 +72,21 @@ CLASS Consultingwerk.SmartFramework.Tools.Export.MenuStructure.MenuStructureExpo
         @param pcParentMenuGuids The comma delimited list of menu guids to export including all children
         @param pcTargetFile The target file to write to
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID ExportMenuStructure (pcParentMenuGuids AS CHARACTER,
-	                                        pcTargetFile AS CHARACTER):
-		
-		DEFINE VARIABLE cParentMenuGuid AS CHARACTER NO-UNDO .
-		DEFINE VARIABLE i               AS INTEGER   NO-UNDO .
+    METHOD PUBLIC VOID ExportMenuStructure (pcParentMenuGuids AS CHARACTER,
+                                            pcTargetFile AS CHARACTER):
+        
+        DEFINE VARIABLE cParentMenuGuid AS CHARACTER NO-UNDO .
+        DEFINE VARIABLE i               AS INTEGER   NO-UNDO .
 
         DATASET dsMenu:EMPTY-DATASET () .
-		
-		DEFINE BUFFER SmartMenu FOR SmartMenu . 
-		
-		DO i = 1 TO NUM-ENTRIES (pcParentMenuGuids) ON ERROR UNDO, THROW:
-		
-		    ASSIGN cParentMenuGuid = ENTRY (i, pcParentMenuGuids) .
-		
-		    FOR EACH SmartMenu WHERE SmartMenu.MenuGuid = cParentMenuGuid NO-LOCK ON ERROR UNDO, THROW . 
+        
+        DEFINE BUFFER SmartMenu FOR SmartMenu . 
+        
+        DO i = 1 TO NUM-ENTRIES (pcParentMenuGuids) ON ERROR UNDO, THROW:
+        
+            ASSIGN cParentMenuGuid = ENTRY (i, pcParentMenuGuids) .
+        
+            FOR EACH SmartMenu WHERE SmartMenu.MenuGuid = cParentMenuGuid NO-LOCK ON ERROR UNDO, THROW . 
 
                 THIS-OBJECT:ExportMenu (SmartMenu.MenuGuid) .                
 
@@ -99,9 +99,9 @@ CLASS Consultingwerk.SmartFramework.Tools.Export.MenuStructure.MenuStructureExpo
                                   TRUE) .
 
         FINALLY:
-            DATASET dsMenu:EMPTY-DATASET () . 		
+            DATASET dsMenu:EMPTY-DATASET () .         
         END FINALLY.
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

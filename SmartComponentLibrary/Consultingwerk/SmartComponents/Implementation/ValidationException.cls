@@ -37,19 +37,19 @@ CLASS Consultingwerk.SmartComponents.Implementation.ValidationException
                  this error 
         Notes:                          
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY RecordIdentifier AS RecordIdentifier NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY RecordIdentifier AS RecordIdentifier NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the ValidationException class
         Notes:  
         @param pcErrorString The error message associated with this ExceptionWithTitle object
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ValidationException (pcErrorString AS CHARACTER):
-		SUPER (pcErrorString, "Validation Error"{&TRAN}).
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC ValidationException (pcErrorString AS CHARACTER):
+        SUPER (pcErrorString, "Validation Error"{&TRAN}).
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the ValidationException class
@@ -57,22 +57,22 @@ CLASS Consultingwerk.SmartComponents.Implementation.ValidationException
         @param pcErrorString The error message associated with this ExceptionWithTitle object
         @param piMessageNumber The error message number associated with this ExceptionWithTitle object
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ValidationException (pcErrorString AS CHARACTER, 
-	                                        piMessageNumber AS INTEGER):
-	                                            
-		SUPER (pcErrorString, 
-		       piMessageNumber, 
-		       "Validation Error"{&TRAN}).
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC ValidationException (pcErrorString AS CHARACTER, 
+                                            piMessageNumber AS INTEGER):
+                                                
+        SUPER (pcErrorString, 
+               piMessageNumber, 
+               "Validation Error"{&TRAN}).
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the ValidationException class
         Notes:                          
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ValidationException ():
-		SUPER ("Validation Error"{&TRAN}).
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC ValidationException ():
+        SUPER ("Validation Error"{&TRAN}).
+        
+    END CONSTRUCTOR.
 
 END CLASS.

@@ -64,11 +64,11 @@ CLASS Consultingwerk.Enum ABSTRACT:
         Notes:   Introduced for compability with 11.6 native Enums
         @return The Enum Memeber value  
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC FINAL INT64 GetValue ():
-		
-		RETURN THIS-OBJECT:Value .
+    METHOD PUBLIC FINAL INT64 GetValue ():
+        
+        RETURN THIS-OBJECT:Value .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Returns a CHARACTER representation (human readable) of the 

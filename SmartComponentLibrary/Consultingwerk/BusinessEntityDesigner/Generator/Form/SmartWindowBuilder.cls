@@ -54,7 +54,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Form.SmartWindowBuilder:
         Purpose: Gets and sets the name of the Dataset Controller used
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY DatasetControllerName AS CHARACTER NO-UNDO 
+    DEFINE PUBLIC PROPERTY DatasetControllerName AS CHARACTER NO-UNDO 
     GET:
         RETURN THIS-OBJECT:Generator:DatasetControllerName . 
     END GET . 
@@ -114,7 +114,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Form.SmartWindowBuilder:
         Purpose: Gets and sets the Form Title (Text Property of the generated Form)
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY FormTitle AS CHARACTER NO-UNDO 
+    DEFINE PUBLIC PROPERTY FormTitle AS CHARACTER NO-UNDO 
     GET:
         RETURN THIS-OBJECT:Generator:FormTitle . 
     END GET . 
@@ -126,7 +126,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Form.SmartWindowBuilder:
         Purpose: Gets and sets the list of Grid Columns
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY GridColumns AS CharacterList NO-UNDO 
+    DEFINE PUBLIC PROPERTY GridColumns AS CharacterList NO-UNDO 
     GET:
         RETURN THIS-OBJECT:Generator:GridColumns . 
     END GET . 
@@ -182,7 +182,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Form.SmartWindowBuilder:
         Purpose: Gets and sets the name of the SmartViewer to be used in the SmartWindowForm
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY ViewerName AS CHARACTER NO-UNDO 
+    DEFINE PUBLIC PROPERTY ViewerName AS CHARACTER NO-UNDO 
     GET:
         RETURN THIS-OBJECT:Generator:ViewerName . 
     END GET . 

@@ -91,9 +91,9 @@ CLASS Consultingwerk.SmartComponents.Support.DatasetRelationNodeParser:
             hRelation     = phDataHandle:GET-RELATION (i).
             
             IF hRelation:PARENT-BUFFER = phBuffer AND 
-    	       hRelation:ACTIVE        = TRUE AND
-    	       hRelation:RECURSIVE     = FALSE THEN DO:
-    	           
+               hRelation:ACTIVE        = TRUE AND
+               hRelation:RECURSIVE     = FALSE THEN DO:
+                   
                 /* Add ChildTable */
                 RecurseDatasetRelations (phDataHandle, 
                                          hRelation:CHILD-BUFFER, 

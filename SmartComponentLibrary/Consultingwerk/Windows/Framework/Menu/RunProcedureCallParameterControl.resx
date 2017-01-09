@@ -116,4 +116,376 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"/>
+  <data name="UseCharacterParameterValueCheckEditor.Location" type="System.Drawing.Point, System.Drawing">
+    <value>213, 152</value>
+  </data>
+  <data name="UseCharacterParameterValueCheckEditor.Size" type="System.Drawing.Size, System.Drawing">
+    <value>436, 20</value>
+  </data>
+  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="UseCharacterParameterValueCheckEditor.TabIndex" type="System.Int32, mscorlib">
+    <value>13</value>
+  </data>
+  <data name="UseCharacterParameterValueCheckEditor.Text" xml:space="preserve">
+    <value>Use Character Parameter Value</value>
+  </data>
+  <data name="&gt;&gt;UseCharacterParameterValueCheckEditor.Name" xml:space="preserve">
+    <value>UseCharacterParameterValueCheckEditor</value>
+  </data>
+  <data name="&gt;&gt;UseCharacterParameterValueCheckEditor.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraCheckEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;UseCharacterParameterValueCheckEditor.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;UseCharacterParameterValueCheckEditor.ZOrder" xml:space="preserve">
+    <value>10</value>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="ProcedureNameTextEditor.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="ProcedureNameTextEditor.Location" type="System.Drawing.Point, System.Drawing">
+    <value>213, 3</value>
+  </data>
+  <data name="ProcedureNameTextEditor.Size" type="System.Drawing.Size, System.Drawing">
+    <value>436, 21</value>
+  </data>
+  <data name="ProcedureNameTextEditor.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="&gt;&gt;ProcedureNameTextEditor.Name" xml:space="preserve">
+    <value>ProcedureNameTextEditor</value>
+  </data>
+  <data name="&gt;&gt;ProcedureNameTextEditor.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ProcedureNameTextEditor.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ProcedureNameTextEditor.ZOrder" xml:space="preserve">
+    <value>11</value>
+  </data>
+  <data name="CharacterParameterValueTextEditor.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="CharacterParameterValueTextEditor.Location" type="System.Drawing.Point, System.Drawing">
+    <value>213, 31</value>
+  </data>
+  <data name="CharacterParameterValueTextEditor.Size" type="System.Drawing.Size, System.Drawing">
+    <value>436, 21</value>
+  </data>
+  <data name="CharacterParameterValueTextEditor.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="&gt;&gt;CharacterParameterValueTextEditor.Name" xml:space="preserve">
+    <value>CharacterParameterValueTextEditor</value>
+  </data>
+  <data name="&gt;&gt;CharacterParameterValueTextEditor.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;CharacterParameterValueTextEditor.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;CharacterParameterValueTextEditor.ZOrder" xml:space="preserve">
+    <value>12</value>
+  </data>
+  <data name="ultraLabel3.Location" type="System.Drawing.Point, System.Drawing">
+    <value>13, 7</value>
+  </data>
+  <data name="ultraLabel3.Size" type="System.Drawing.Size, System.Drawing">
+    <value>204, 23</value>
+  </data>
+  <data name="ultraLabel3.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="ultraLabel3.Text" xml:space="preserve">
+    <value>Procedure Name:</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel3.Name" xml:space="preserve">
+    <value>ultraLabel3</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel3.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel3.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel3.ZOrder" xml:space="preserve">
+    <value>13</value>
+  </data>
+  <data name="ultraLabel2.Location" type="System.Drawing.Point, System.Drawing">
+    <value>13, 35</value>
+  </data>
+  <data name="ultraLabel2.Size" type="System.Drawing.Size, System.Drawing">
+    <value>204, 23</value>
+  </data>
+  <data name="ultraLabel2.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="ultraLabel2.Text" xml:space="preserve">
+    <value>Character Parameter Value:</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel2.Name" xml:space="preserve">
+    <value>ultraLabel2</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel2.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel2.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel2.ZOrder" xml:space="preserve">
+    <value>14</value>
+  </data>
+  <data name="AllowMultipleCheckEditor.Location" type="System.Drawing.Point, System.Drawing">
+    <value>213, 126</value>
+  </data>
+  <data name="AllowMultipleCheckEditor.Size" type="System.Drawing.Size, System.Drawing">
+    <value>436, 20</value>
+  </data>
+  <data name="AllowMultipleCheckEditor.TabIndex" type="System.Int32, mscorlib">
+    <value>12</value>
+  </data>
+  <data name="AllowMultipleCheckEditor.Text" xml:space="preserve">
+    <value>Allow Multiple</value>
+  </data>
+  <data name="&gt;&gt;AllowMultipleCheckEditor.Name" xml:space="preserve">
+    <value>AllowMultipleCheckEditor</value>
+  </data>
+  <data name="&gt;&gt;AllowMultipleCheckEditor.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraCheckEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;AllowMultipleCheckEditor.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;AllowMultipleCheckEditor.ZOrder" xml:space="preserve">
+    <value>9</value>
+  </data>
+  <data name="InitializeInternalProcedureTextBox.Location" type="System.Drawing.Point, System.Drawing">
+    <value>213, 60</value>
+  </data>
+  <data name="InitializeInternalProcedureTextBox.Size" type="System.Drawing.Size, System.Drawing">
+    <value>176, 21</value>
+  </data>
+  <data name="InitializeInternalProcedureTextBox.TabIndex" type="System.Int32, mscorlib">
+    <value>5</value>
+  </data>
+  <data name="&gt;&gt;InitializeInternalProcedureTextBox.Name" xml:space="preserve">
+    <value>InitializeInternalProcedureTextBox</value>
+  </data>
+  <data name="&gt;&gt;InitializeInternalProcedureTextBox.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;InitializeInternalProcedureTextBox.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;InitializeInternalProcedureTextBox.ZOrder" xml:space="preserve">
+    <value>7</value>
+  </data>
+  <data name="ultraLabel1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>13, 64</value>
+  </data>
+  <data name="ultraLabel1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>204, 23</value>
+  </data>
+  <data name="ultraLabel1.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="ultraLabel1.Text" xml:space="preserve">
+    <value>Initialize Internal Procedure:</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel1.Name" xml:space="preserve">
+    <value>ultraLabel1</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel1.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel1.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel1.ZOrder" xml:space="preserve">
+    <value>8</value>
+  </data>
+  <data name="ReactivateInternalProcedureTextBox.Location" type="System.Drawing.Point, System.Drawing">
+    <value>213, 93</value>
+  </data>
+  <data name="ReactivateInternalProcedureTextBox.Size" type="System.Drawing.Size, System.Drawing">
+    <value>176, 21</value>
+  </data>
+  <data name="ReactivateInternalProcedureTextBox.TabIndex" type="System.Int32, mscorlib">
+    <value>9</value>
+  </data>
+  <data name="&gt;&gt;ReactivateInternalProcedureTextBox.Name" xml:space="preserve">
+    <value>ReactivateInternalProcedureTextBox</value>
+  </data>
+  <data name="&gt;&gt;ReactivateInternalProcedureTextBox.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ReactivateInternalProcedureTextBox.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ReactivateInternalProcedureTextBox.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <data name="ultraLabel4.Location" type="System.Drawing.Point, System.Drawing">
+    <value>13, 97</value>
+  </data>
+  <data name="ultraLabel4.Size" type="System.Drawing.Size, System.Drawing">
+    <value>204, 23</value>
+  </data>
+  <data name="ultraLabel4.TabIndex" type="System.Int32, mscorlib">
+    <value>8</value>
+  </data>
+  <data name="ultraLabel4.Text" xml:space="preserve">
+    <value>Reactivate Internal Procedure:</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel4.Name" xml:space="preserve">
+    <value>ultraLabel4</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel4.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel4.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel4.ZOrder" xml:space="preserve">
+    <value>6</value>
+  </data>
+  <data name="RunPersistentCheckBox.Location" type="System.Drawing.Point, System.Drawing">
+    <value>213, 178</value>
+  </data>
+  <data name="RunPersistentCheckBox.Size" type="System.Drawing.Size, System.Drawing">
+    <value>436, 20</value>
+  </data>
+  <data name="RunPersistentCheckBox.TabIndex" type="System.Int32, mscorlib">
+    <value>14</value>
+  </data>
+  <data name="RunPersistentCheckBox.Text" xml:space="preserve">
+    <value>Run Persistent</value>
+  </data>
+  <data name="&gt;&gt;RunPersistentCheckBox.Name" xml:space="preserve">
+    <value>RunPersistentCheckBox</value>
+  </data>
+  <data name="&gt;&gt;RunPersistentCheckBox.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraCheckEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;RunPersistentCheckBox.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;RunPersistentCheckBox.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="ReactivateInternalProcedureParameterTextBox.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="ReactivateInternalProcedureParameterTextBox.Location" type="System.Drawing.Point, System.Drawing">
+    <value>475, 93</value>
+  </data>
+  <data name="ReactivateInternalProcedureParameterTextBox.Size" type="System.Drawing.Size, System.Drawing">
+    <value>174, 21</value>
+  </data>
+  <data name="ReactivateInternalProcedureParameterTextBox.TabIndex" type="System.Int32, mscorlib">
+    <value>11</value>
+  </data>
+  <data name="&gt;&gt;ReactivateInternalProcedureParameterTextBox.Name" xml:space="preserve">
+    <value>ReactivateInternalProcedureParameterTextBox</value>
+  </data>
+  <data name="&gt;&gt;ReactivateInternalProcedureParameterTextBox.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ReactivateInternalProcedureParameterTextBox.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ReactivateInternalProcedureParameterTextBox.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="ultraLabel5.Location" type="System.Drawing.Point, System.Drawing">
+    <value>395, 95</value>
+  </data>
+  <data name="ultraLabel5.Size" type="System.Drawing.Size, System.Drawing">
+    <value>89, 23</value>
+  </data>
+  <data name="ultraLabel5.TabIndex" type="System.Int32, mscorlib">
+    <value>10</value>
+  </data>
+  <data name="ultraLabel5.Text" xml:space="preserve">
+    <value>Parameter:</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel5.Name" xml:space="preserve">
+    <value>ultraLabel5</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel5.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel5.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel5.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="InitializeInternalProcedureParameterTextBox.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="InitializeInternalProcedureParameterTextBox.Location" type="System.Drawing.Point, System.Drawing">
+    <value>475, 60</value>
+  </data>
+  <data name="InitializeInternalProcedureParameterTextBox.Size" type="System.Drawing.Size, System.Drawing">
+    <value>174, 21</value>
+  </data>
+  <data name="InitializeInternalProcedureParameterTextBox.TabIndex" type="System.Int32, mscorlib">
+    <value>7</value>
+  </data>
+  <data name="&gt;&gt;InitializeInternalProcedureParameterTextBox.Name" xml:space="preserve">
+    <value>InitializeInternalProcedureParameterTextBox</value>
+  </data>
+  <data name="&gt;&gt;InitializeInternalProcedureParameterTextBox.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;InitializeInternalProcedureParameterTextBox.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;InitializeInternalProcedureParameterTextBox.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="ultraLabel6.Location" type="System.Drawing.Point, System.Drawing">
+    <value>395, 64</value>
+  </data>
+  <data name="ultraLabel6.Size" type="System.Drawing.Size, System.Drawing">
+    <value>83, 23</value>
+  </data>
+  <data name="ultraLabel6.TabIndex" type="System.Int32, mscorlib">
+    <value>6</value>
+  </data>
+  <data name="ultraLabel6.Text" xml:space="preserve">
+    <value>Parameter:</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel6.Name" xml:space="preserve">
+    <value>ultraLabel6</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel6.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel6.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel6.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing">
+    <value>6, 13</value>
+  </data>
+  <data name="$this.Size" type="System.Drawing.Size, System.Drawing">
+    <value>663, 210</value>
+  </data>
+  <data name="&gt;&gt;$this.Name" xml:space="preserve">
+    <value>RunProcedureCallParameterControl</value>
+  </data>
+  <data name="&gt;&gt;$this.Type" xml:space="preserve">
+    <value>Consultingwerk.Windows.Framework.Menu.CallParameterBaseControl, OEProxyAssembly, Version=11.6.0.4, Culture=neutral, PublicKeyToken=null</value>
+  </data>
 </root>

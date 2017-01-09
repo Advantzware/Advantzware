@@ -29,9 +29,9 @@ INTERFACE Consultingwerk.BusinessEntityDesigner.Generator.IControlGenerator:
         Notes:   Leave Empty if the Control is not part of a Container such as a 
                  GroupBox
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY ContainerName AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY ContainerName AS CHARACTER NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the default data bindings of the Control

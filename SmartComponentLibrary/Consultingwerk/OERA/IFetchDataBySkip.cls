@@ -31,7 +31,7 @@ INTERFACE Consultingwerk.OERA.IFetchDataBySkip:
                  reading data 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Skip AS INTEGER NO-UNDO 
-	GET.
+    DEFINE PUBLIC PROPERTY Skip AS INTEGER NO-UNDO 
+    GET.
 
 END INTERFACE.

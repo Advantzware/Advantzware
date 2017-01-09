@@ -31,6 +31,6 @@ INTERFACE Consultingwerk.Framework.ExpressionParser.ILogicalValueProvider:
         @param pcExpression The Character expression to parse
         @return The logical result of the expressioln
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL GetLogicalValue (pcExpression AS CHARACTER) .
+    METHOD PUBLIC LOGICAL GetLogicalValue (pcExpression AS CHARACTER) .
 
 END INTERFACE.

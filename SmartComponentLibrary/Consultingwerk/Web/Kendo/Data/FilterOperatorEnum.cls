@@ -11,15 +11,15 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : FilterOperatorEnum
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sun Jul 19 07:43:54 CEST 2015
-    Notes       : The supported operators are: "eq" (equal to), "neq" (not equal to), 
-                  "lt" (less than), "lte" (less than or equal to), 
-                  "gt" (greater than), "gte" (greater than or equal to), 
-                  "startswith", "endswith", "contains". The last three are 
+    Notes       : The supported operators are: "eq" (equal to), "neq" (not equal to),
+                  "lt" (less than), "lte" (less than or equal to),
+                  "gt" (greater than), "gte" (greater than or equal to),
+                  "startswith", "endswith", "contains". The last three are
                   supported only for string fields.
   ----------------------------------------------------------------------*/
 
@@ -35,18 +35,18 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.*                       FROM PROPATH .
 USING Consultingwerk.Framework.Collections.* FROM PROPATH .
-USING Consultingwerk.Web.Kendo.Data.*        FROM PROPATH .  
+USING Consultingwerk.Web.Kendo.Data.*        FROM PROPATH .
 USING Progress.Lang.*                        FROM PROPATH .
 
-{&CLASS} Consultingwerk.Web.Kendo.Data.FilterOperatorEnum 
+{&CLASS} Consultingwerk.Web.Kendo.Data.FilterOperatorEnum
     &IF "{&CLASS}" EQ "CLASS" &THEN
     INHERITS Enum
-    &ENDIF    
-        : 
+    &ENDIF
+        :
 
 &IF "{&CLASS}" EQ "ENUM" &THEN
     DEFINE ENUM
-&ENDIF    
+&ENDIF
 
     {Consultingwerk/EnumMember.i eq 0 FilterOperatorEnum}
     {Consultingwerk/EnumMember.i neq 1 FilterOperatorEnum}
@@ -60,7 +60,7 @@ USING Progress.Lang.*                        FROM PROPATH .
 
 &IF "{&CLASS}" EQ "ENUM" &THEN
     .
-&ENDIF    
+&ENDIF
 
 &IF "{&CLASS}" EQ "CLASS" &THEN
 
@@ -72,26 +72,24 @@ USING Progress.Lang.*                        FROM PROPATH .
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PRIVATE FilterOperatorEnum (piValue AS INTEGER, pcLabel AS CHARACTER):
         SUPER ().
- 
+
         ASSIGN THIS-OBJECT:Value = piValue
                THIS-OBJECT:Label = pcLabel .
- 
+
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Returns a CharacterList with the names of the Enum members
-        Notes:   
+        Notes:
         @return The CharacterList with the names of the Enum members
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CharacterList GetNames ():
- 
-        DEFINE VARIABLE oReturn AS CharacterList NO-UNDO . 
- 
+
         RETURN NEW CharacterList ('{&EnumMembers}':U).
- 
+
     END METHOD .
-	
-    {Consultingwerk/EnumFromString.i Consultingwerk.Web.Kendo.Data.FilterOperatorEnum} 
+
+    {Consultingwerk/EnumFromString.i Consultingwerk.Web.Kendo.Data.FilterOperatorEnum}
 
 &ENDIF
 

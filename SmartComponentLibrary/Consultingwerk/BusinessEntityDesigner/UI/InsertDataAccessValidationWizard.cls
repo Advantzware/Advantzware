@@ -11,104 +11,105 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : InsertDataAccessValidationWizard
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sun Jun 30 14:57:16 CEST 2013
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.Forms.*                     FROM PROPATH .
-USING Consultingwerk.BusinessEntityDesigner.UI.* FROM PROPATH .  
-USING Consultingwerk.Framework.Collections.*     FROM PROPATH . 
-USING Consultingwerk.Util.*                      FROM PROPATH . 
+USING Consultingwerk.BusinessEntityDesigner.UI.* FROM PROPATH .
+USING Consultingwerk.Framework.Collections.*     FROM PROPATH .
+USING Consultingwerk.Util.*                      FROM PROPATH .
 USING Progress.Lang.*                            FROM PROPATH .
 
-CLASS Consultingwerk.BusinessEntityDesigner.UI.InsertDataAccessValidationWizard INHERITS BaseForm: 
+CLASS Consultingwerk.BusinessEntityDesigner.UI.InsertDataAccessValidationWizard INHERITS BaseForm:
 
     DEFINE PRIVATE VARIABLE btnOk AS Infragistics.Win.Misc.UltraButton NO-UNDO.
     DEFINE PRIVATE VARIABLE btnCancel AS Infragistics.Win.Misc.UltraButton NO-UNDO.
     DEFINE PRIVATE VARIABLE cbValidationType AS Infragistics.Win.UltraWinEditors.UltraComboEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE cbBufferName AS Infragistics.Win.UltraWinEditors.UltraComboEditor NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE panel1 AS System.Windows.Forms.Panel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraLabel1 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraLabel2 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the list with the buffer names  
-        Notes:   
+        Purpose: Gets and sets the list with the buffer names
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY BufferList AS CharacterList NO-UNDO 
+    DEFINE PUBLIC PROPERTY BufferList AS CharacterList NO-UNDO
     GET.
     SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns the Method Name  
-        Notes:   
+        Purpose: Returns the Method Name
+        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY BufferName AS CHARACTER NO-UNDO 
-	GET():
-.		RETURN cbBufferName:Text.
-	END GET.
-	 
+    DEFINE PUBLIC PROPERTY BufferName AS CHARACTER NO-UNDO
+    GET():
+.        RETURN cbBufferName:Text.
+    END GET.
+
     /*------------------------------------------------------------------------------
-        Purpose: Returns the Parameter Type   
-        Notes:   
+        Purpose: Returns the Parameter Type
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY ValidationType AS CHARACTER NO-UNDO 
+    DEFINE PUBLIC PROPERTY ValidationType AS CHARACTER NO-UNDO
     GET():
         RETURN cbValidationType:Text.
     END GET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the InsertDataAccessValidationWizard class  
-        Notes:   
+        Purpose: Constructor for the InsertDataAccessValidationWizard class
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC InsertDataAccessValidationWizard ():
-		
+    CONSTRUCTOR PUBLIC InsertDataAccessValidationWizard ():
+
         SUPER().
         InitializeComponent().
-        
+
         &IF NOT PROVERSION BEGINS "10.2":U AND NOT PROVERSION BEGINS "11.0" &THEN
         THIS-OBJECT:ComponentsCollection:Add (THIS-OBJECT:components).
         &ENDIF
-        
-        THIS-OBJECT:StoreFormPosition = FALSE . 
-        
+
+        THIS-OBJECT:StoreFormPosition = FALSE .
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the TextChanged event of the ComboBoxEditor controls
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this method 
+        @param e The System.EventArgs with the data for this method
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID cbBufferName_TextChanged (sender AS System.Object, 
-	                                              e AS System.EventArgs):
-		
-        THIS-OBJECT:btnOK:Enabled = (THIS-OBJECT:cbBufferName:Text > "":U AND 
-                                     THIS-OBJECT:cbValidationType:Text > "":U) .
-	END METHOD .
+    METHOD PRIVATE VOID cbBufferName_TextChanged (sender AS System.Object,
+                                                  e AS System.EventArgs):
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design  
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+        THIS-OBJECT:btnOK:Enabled = (THIS-OBJECT:cbBufferName:Text > "":U AND
+                                     THIS-OBJECT:cbValidationType:Text > "":U) .
+    END METHOD .
+
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE resources AS Progress.Util.ResourceManager NO-UNDO.
@@ -228,19 +229,19 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.InsertDataAccessValidationWizard 
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the Load event 
-        Notes:   
+        Purpose: Raises the Load event
+        Notes:
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD OVERRIDE PROTECTED VOID OnLoad (INPUT e AS System.EventArgs):
-		
-		SUPER:OnLoad(INPUT e).
+    METHOD OVERRIDE PROTECTED VOID OnLoad (INPUT e AS System.EventArgs):
+
+        SUPER:OnLoad(INPUT e).
 
         THIS-OBJECT:cbBufferName:ValueList = ValueListHelper:FromList (THIS-OBJECT:BufferList) .
-         
+
         THIS-OBJECT:cbValidationType:ValueList:ValueListItems:Add ("CreateBeginTrans":U) .
         THIS-OBJECT:cbValidationType:ValueList:ValueListItems:Add ("CreateEndTrans":U) .
         THIS-OBJECT:cbValidationType:ValueList:ValueListItems:Add ("ModifyBeginTrans":U) .
@@ -248,11 +249,11 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.InsertDataAccessValidationWizard 
         THIS-OBJECT:cbValidationType:ValueList:ValueListItems:Add ("DeleteBeginTrans":U) .
         THIS-OBJECT:cbValidationType:ValueList:ValueListItems:Add ("DeleteEndTrans":U) .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the InsertDataAccessValidationWizard class 
-        Notes:   
+        Purpose: Destructor for the InsertDataAccessValidationWizard class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC InsertDataAccessValidationWizard ():
 

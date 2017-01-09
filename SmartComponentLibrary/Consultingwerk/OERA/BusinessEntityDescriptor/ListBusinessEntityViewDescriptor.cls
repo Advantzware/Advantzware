@@ -39,7 +39,7 @@ CLASS Consultingwerk.OERA.BusinessEntityDescriptor.ListBusinessEntityViewDescrip
         @param pcName The name to return
         @return Logical value indicating if the List contains an Item with the given Name
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL ContainsName (pcName AS CHARACTER):
+    METHOD PUBLIC LOGICAL ContainsName (pcName AS CHARACTER):
 
         {Consultingwerk/linqABL.i IBusinessEntityViewDescriptor oItem in THIS-OBJECT 
                     WHERE Name = pcName}
@@ -49,7 +49,7 @@ CLASS Consultingwerk.OERA.BusinessEntityDescriptor.ListBusinessEntityViewDescrip
         
         RETURN FALSE . 
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the Item from the List with the given Name 

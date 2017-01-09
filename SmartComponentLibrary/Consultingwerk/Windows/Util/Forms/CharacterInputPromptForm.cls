@@ -8,30 +8,30 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : CharacterInputPromptForm
     Purpose     : Input prompt for a character value
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sat Feb 25 23:12:26 CET 2012
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Consultingwerk.*                    FROM PROPATH . 
-USING Consultingwerk.Framework.*          FROM PROPATH . 
+USING Consultingwerk.*                    FROM PROPATH .
+USING Consultingwerk.Framework.*          FROM PROPATH .
 USING Consultingwerk.Framework.Enum.*     FROM PROPATH .
-USING Consultingwerk.Util.*               FROM PROPATH .   
+USING Consultingwerk.Util.*               FROM PROPATH .
 USING Consultingwerk.Windows.Util.Forms.* FROM PROPATH .
 USING Progress.Lang.*                     FROM PROPATH .
-USING System.Windows.Forms.*              FROM ASSEMBLY . 
+USING System.Windows.Forms.*              FROM ASSEMBLY .
 
-CLASS Consultingwerk.Windows.Util.Forms.CharacterInputPromptForm 
-    INHERITS BaseInputPromptForm: 
-    
+CLASS Consultingwerk.Windows.Util.Forms.CharacterInputPromptForm
+    INHERITS BaseInputPromptForm:
+
     DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE saveFileDialog1 AS System.Windows.Forms.SaveFileDialog NO-UNDO.
     DEFINE PRIVATE VARIABLE openFileDialog1 AS System.Windows.Forms.OpenFileDialog NO-UNDO.
@@ -41,66 +41,67 @@ CLASS Consultingwerk.Windows.Util.Forms.CharacterInputPromptForm
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the Character Value of the CharacterInputPromptForm
-        Notes:                                                          
+        Notes:
     ------------------------------------------------------------------------------*/
- 	DEFINE PUBLIC PROPERTY CharacterValue AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+     DEFINE PUBLIC PROPERTY CharacterValue AS CHARACTER NO-UNDO
+    GET.
+    SET.
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the reference to the InputValidator for this instance
-        Notes:                                                          
+        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY InputValidator AS ICharacterInputValidator NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY InputValidator AS ICharacterInputValidator NO-UNDO
+    GET.
+    SET.
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the PromptType as a CharacterPromptTypeEnum value
-        Notes:                                                          
+        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY PromptType AS CharacterPromptTypeEnum NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY PromptType AS CharacterPromptTypeEnum NO-UNDO
+    GET.
+    SET.
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the ValueList as a ListNameValuePair
-        Notes:   When this property is set, the Dialog will use an UltraComboEditor                                                          
+        Notes:   When this property is set, the Dialog will use an UltraComboEditor
                  for the data entry
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY ValueList AS ListNameValuePair NO-UNDO  
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY ValueList AS ListNameValuePair NO-UNDO
+    GET.
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the CharacterInputPromptForm class                                                               
-        Notes:                                                          
+        Purpose: Constructor for the CharacterInputPromptForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC CharacterInputPromptForm ():
-        
+
         SUPER().
 
         InitializeComponent().
-        
+
         THIS-OBJECT:buOk:Click:Subscribe (OkButtonClickHandler) .
-                
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
     END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         @VisualDesigner.FormMember (NeedsInitialize="true").
         DEFINE VARIABLE editorButton1 AS Infragistics.Win.UltraWinEditors.EditorButton NO-UNDO.
@@ -185,38 +186,38 @@ CLASS Consultingwerk.Windows.Util.Forms.CharacterInputPromptForm
         END CATCH.
     END METHOD.
 
-	/*------------------------------------------------------------------------------
-		Purpose: Event handler for the Click event of the OK Button 																	  
-		Notes:   Assigns the new CharacterValue 													
-		@param sender The object that raised the event
-		@param e The System.EventArgs with the data for this event				  
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID OkButtonClickHandler (sender AS System.Object,
-	                                            e AS System.EventArgs):
-		
-		IF NOT VALID-OBJECT (THIS-OBJECT:ValueList) THEN 
-		    THIS-OBJECT:CharacterValue = UNBOX (THIS-OBJECT:ultraTextEditor1:Value) . 
-        ELSE 
-            THIS-OBJECT:CharacterValue = UNBOX (THIS-OBJECT:ultraComboEditor1:Value) . 
-        
-	END METHOD.
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the Click event of the OK Button
+        Notes:   Assigns the new CharacterValue
+        @param sender The object that raised the event
+        @param e The System.EventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID OkButtonClickHandler (sender AS System.Object,
+                                                e AS System.EventArgs):
 
-	/*------------------------------------------------------------------------------
-		Purpose: Raises the Load event 																	  
-		Notes:  						
-		@param e The System.EventArgs with the data for this event 											  
-	------------------------------------------------------------------------------*/
-	METHOD OVERRIDE PROTECTED VOID OnLoad (e AS System.EventArgs):
-		
-		IF NOT VALID-OBJECT (THIS-OBJECT:ValueList) THEN DO:
-		    IF NOT VALID-OBJECT (THIS-OBJECT:PromptType) THEN 
-		        THIS-OBJECT:PromptType = CharacterPromptTypeEnum:TextBox .
-		    
-		    CASE THIS-OBJECT:PromptType:
+        IF NOT VALID-OBJECT (THIS-OBJECT:ValueList) THEN
+            THIS-OBJECT:CharacterValue = UNBOX (THIS-OBJECT:ultraTextEditor1:Value) .
+        ELSE
+            THIS-OBJECT:CharacterValue = UNBOX (THIS-OBJECT:ultraComboEditor1:Value) .
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Raises the Load event
+        Notes:
+        @param e The System.EventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD OVERRIDE PROTECTED VOID OnLoad (e AS System.EventArgs):
+
+        IF NOT VALID-OBJECT (THIS-OBJECT:ValueList) THEN DO:
+            IF NOT VALID-OBJECT (THIS-OBJECT:PromptType) THEN
+                THIS-OBJECT:PromptType = CharacterPromptTypeEnum:TextBox .
+
+            CASE THIS-OBJECT:PromptType:
                 WHEN CharacterPromptTypeEnum:TextEditor THEN DO:
-                    
-                    ultraTextEditor1:Multiline = TRUE . 
-                    ultraTextEditor1:WordWrap = TRUE . 
+
+                    ultraTextEditor1:Multiline = TRUE .
+                    ultraTextEditor1:WordWrap = TRUE .
                     ultraTextEditor1:Scrollbars = ScrollBars:Both .
                     ultraTextEditor1:Anchor = CAST (EnumHelperExt:Or (AnchorStyles:Top,
                                                                       AnchorStyles:Left,
@@ -233,24 +234,24 @@ CLASS Consultingwerk.Windows.Util.Forms.CharacterInputPromptForm
                 WHEN CharacterPromptTypeEnum:FileNameMustExist THEN DO:
                     ultraTextEditor1:ButtonsRight[0]:Visible = TRUE .
                 END.
-		        
-		    END CASE . 
-		    
-		    THIS-OBJECT:ultraTextEditor1:Text = THIS-OBJECT:CharacterValue . 
-		    THIS-OBJECT:ultraComboEditor1:Visible = FALSE . 
-		END.
-		ELSE DO:
-		    THIS-OBJECT:ultraComboEditor1:ValueList = ValueListHelper:FromList (THIS-OBJECT:ValueList) .
-            THIS-OBJECT:ultraComboEditor1:Value = BOX (THIS-OBJECT:CharacterValue) . 
-            THIS-OBJECT:ultraTextEditor1:Visible = FALSE . 
-		END.
-		
-		SUPER:OnLoad (e) .
+
+            END CASE .
+
+            THIS-OBJECT:ultraTextEditor1:Text = THIS-OBJECT:CharacterValue .
+            THIS-OBJECT:ultraComboEditor1:Visible = FALSE .
+        END.
+        ELSE DO:
+            THIS-OBJECT:ultraComboEditor1:ValueList = ValueListHelper:FromList (THIS-OBJECT:ValueList) .
+            THIS-OBJECT:ultraComboEditor1:Value = BOX (THIS-OBJECT:CharacterValue) .
+            THIS-OBJECT:ultraTextEditor1:Visible = FALSE .
+        END.
+
+        SUPER:OnLoad (e) .
 
         IF VALID-OBJECT (THIS-OBJECT:InputValidator) THEN DO:
-            IF NOT VALID-OBJECT (THIS-OBJECT:ValueList) THEN 
+            IF NOT VALID-OBJECT (THIS-OBJECT:ValueList) THEN
                 THIS-OBJECT:ultraTextEditor1:ValueChanged:Subscribe (ValueChangedHandler) .
-            ELSE 
+            ELSE
                 THIS-OBJECT:ultraComboEditor1:ValueChanged:Subscribe (ValueChangedHandler) .
 
             THIS-OBJECT:ValueChangedHandler (THIS-OBJECT:ultraTextEditor1,
@@ -259,97 +260,105 @@ CLASS Consultingwerk.Windows.Util.Forms.CharacterInputPromptForm
 
         THIS-OBJECT:MinimumSize = THIS-OBJECT:Size .
 
-        IF THIS-OBJECT:PromptType = CharacterPromptTypeEnum:TextEditor THEN 
-            THIS-OBJECT:Height = THIS-OBJECT:Height + 50 . 
+        IF THIS-OBJECT:PromptType = CharacterPromptTypeEnum:TextEditor THEN
+            THIS-OBJECT:Height = THIS-OBJECT:Height + 50 .
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the Shown event                                                                    
-        Notes:                          
-        @param e The System.EventArgs with the data for this event                                            
+        Purpose: Raises the Shown event
+        Notes:
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD OVERRIDE PROTECTED VOID OnShown (e AS System.EventArgs):
-        
+
         SUPER:OnShown (e) .
-        
+
         THIS-OBJECT:ultraTextEditor1:Focus () .
         THIS-OBJECT:ultraTextEditor1:SelectAll () .
-        
+
     END METHOD .
-    
-	/*------------------------------------------------------------------------------
-		Purpose: Event handler for the EditorButtonClick event of the ultraTextEditor1  																	  
-		Notes:  																	  
-		@param sender The reference to the System.Object that raised the event
-		@param e The EdutorButtonEventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraTextEditor1_EditorButtonClick (sender AS System.Object, 
-	                                                        e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
-		
-		DEFINE VARIABLE oDialogResult AS DialogResult NO-UNDO . 
-		
-		CASE THIS-OBJECT:PromptType:
-		    WHEN CharacterPromptTypeEnum:DirectoryName THEN DO:
-	
-	            ASSIGN folderBrowserDialog1:Description  = THIS-OBJECT:Title
-	                   folderBrowserDialog1:SelectedPath = UNBOX (ultraTextEditor1:Value) .
-		        
-                WAIT-FOR folderBrowserDialog1:ShowDialog () SET oDialogResult . 
-                
-                {Consultingwerk/check-dialogresult-ok.i oDialogResult} .
-
-                ultraTextEditor1:Value = BOX (folderBrowserDialog1:SelectedPath) . 
-		    END . 
-            WHEN CharacterPromptTypeEnum:FileNameAskOverwrite THEN DO:
-    
-                ASSIGN saveFileDialog1:Title = THIS-OBJECT:Title
-                       saveFileDialog1:FileName = UNBOX (ultraTextEditor1:Value) .
-                
-                WAIT-FOR saveFileDialog1:ShowDialog () SET oDialogResult . 
-                
-                {Consultingwerk/check-dialogresult-ok.i oDialogResult} .
-
-                ultraTextEditor1:Value = BOX (saveFileDialog1:FileName) . 
-            END . 
-            WHEN CharacterPromptTypeEnum:FileNameMustExist THEN DO:
-    
-                ASSIGN openFileDialog1:Title = THIS-OBJECT:Title
-                       openFileDialog1:FileName = UNBOX (ultraTextEditor1:Value) .
-                
-                WAIT-FOR openFileDialog1:ShowDialog () SET oDialogResult . 
-                
-                {Consultingwerk/check-dialogresult-ok.i oDialogResult} .
-
-                ultraTextEditor1:Value = BOX (openFileDialog1:FileName) . 
-            END . 
-		END CASE . 
-
-	END METHOD.
-
-	/*------------------------------------------------------------------------------
-		Purpose: Event handler for the ValueChanged event of the text editor  																	  
-		Notes:   Uses the InputValidator instance to validate the value														
-		@param sender The reference to the System.Object that raised this event
-		@param e The System.EventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID ValueChangedHandler (sender AS System.Object,
-	                                           e AS System.EventArgs):
-		
-		IF VALID-OBJECT (THIS-OBJECT:InputValidator) THEN DO:
-            IF NOT VALID-OBJECT (THIS-OBJECT:ValueList) THEN 	
-    		    THIS-OBJECT:buOk:Enabled = THIS-OBJECT:InputValidator:ValidateCharacterValue 
-    		                                      (UNBOX (THIS-OBJECT:ultraTextEditor1:Value)) .
-		    ELSE 
-                THIS-OBJECT:buOk:Enabled = THIS-OBJECT:InputValidator:ValidateCharacterValue 
-                                                  (UNBOX (THIS-OBJECT:ultraComboEditor1:Value)) .
-		END.
-		
-	END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the CharacterInputPromptForm class                                                               
-        Notes:                                                          
+        Purpose: Event handler for the EditorButtonClick event of the ultraTextEditor1
+        Notes:
+        @param sender The reference to the System.Object that raised the event
+        @param e The EdutorButtonEventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID ultraTextEditor1_EditorButtonClick (sender AS System.Object,
+                                                            e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
+
+        DEFINE VARIABLE oDialogResult AS DialogResult NO-UNDO .
+
+        CASE THIS-OBJECT:PromptType:
+            WHEN CharacterPromptTypeEnum:DirectoryName THEN DO:
+
+                ASSIGN folderBrowserDialog1:Description  = THIS-OBJECT:Title
+                       folderBrowserDialog1:SelectedPath = UNBOX (ultraTextEditor1:Value) .
+
+                WAIT-FOR folderBrowserDialog1:ShowDialog () SET oDialogResult .
+
+                {Consultingwerk/check-dialogresult-ok.i oDialogResult} .
+
+                ultraTextEditor1:Value = BOX (folderBrowserDialog1:SelectedPath) .
+            END .
+            WHEN CharacterPromptTypeEnum:FileNameAskOverwrite THEN DO:
+
+                ASSIGN saveFileDialog1:Title = THIS-OBJECT:Title
+                       saveFileDialog1:FileName = UNBOX (ultraTextEditor1:Value) .
+
+                WAIT-FOR saveFileDialog1:ShowDialog () SET oDialogResult .
+
+                {Consultingwerk/check-dialogresult-ok.i oDialogResult} .
+
+                ultraTextEditor1:Value = BOX (saveFileDialog1:FileName) .
+            END .
+            WHEN CharacterPromptTypeEnum:FileNameMustExist THEN DO:
+
+                ASSIGN openFileDialog1:Title = THIS-OBJECT:Title
+                       openFileDialog1:FileName = UNBOX (ultraTextEditor1:Value) .
+
+                WAIT-FOR openFileDialog1:ShowDialog () SET oDialogResult .
+
+                {Consultingwerk/check-dialogresult-ok.i oDialogResult} .
+
+                ultraTextEditor1:Value = BOX (openFileDialog1:FileName) .
+            END .
+        END CASE .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the ValueChanged event of the text editor
+        Notes:   Uses the InputValidator instance to validate the value
+        @param sender The reference to the System.Object that raised this event
+        @param e The System.EventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID ValueChangedHandler (sender AS System.Object,
+                                               e AS System.EventArgs):
+
+        IF VALID-OBJECT (THIS-OBJECT:InputValidator) THEN DO:
+            IF NOT VALID-OBJECT (THIS-OBJECT:ValueList) THEN
+                THIS-OBJECT:buOk:Enabled = THIS-OBJECT:InputValidator:ValidateCharacterValue
+                                                  (UNBOX (THIS-OBJECT:ultraTextEditor1:Value)) .
+            ELSE
+                THIS-OBJECT:buOk:Enabled = THIS-OBJECT:InputValidator:ValidateCharacterValue
+                                                  (UNBOX (THIS-OBJECT:ultraComboEditor1:Value)) .
+        END.
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Destructor for the CharacterInputPromptForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC CharacterInputPromptForm ():
 

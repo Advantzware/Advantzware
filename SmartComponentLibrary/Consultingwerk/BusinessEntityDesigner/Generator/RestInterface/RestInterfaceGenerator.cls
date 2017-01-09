@@ -11,138 +11,138 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : RestInterfaceGenerator
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Tue Jun 11 13:15:47 CEST 2013
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Consultingwerk.BusinessEntityDesigner.*                         FROM PROPATH . 
-USING Consultingwerk.BusinessEntityDesigner.Generator.*               FROM PROPATH . 
-USING Consultingwerk.BusinessEntityDesigner.Generator.RestInterface.* FROM PROPATH .  
-USING Consultingwerk.Util.*                                           FROM PROPATH . 
+USING Consultingwerk.BusinessEntityDesigner.*                         FROM PROPATH .
+USING Consultingwerk.BusinessEntityDesigner.Generator.*               FROM PROPATH .
+USING Consultingwerk.BusinessEntityDesigner.Generator.RestInterface.* FROM PROPATH .
+USING Consultingwerk.Util.*                                           FROM PROPATH .
 USING Progress.Lang.*                                                 FROM PROPATH .
 
-CLASS Consultingwerk.BusinessEntityDesigner.Generator.RestInterface.RestInterfaceGenerator: 
+CLASS Consultingwerk.BusinessEntityDesigner.Generator.RestInterface.RestInterfaceGenerator:
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the AppServer Module
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY AppServerModule AS CHARACTER NO-UNDO 
+    DEFINE PUBLIC PROPERTY AppServerModule AS CHARACTER NO-UNDO
     GET.
-    SET. 
-    
+    SET.
+
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the Business Entity Name 
-        Notes:   
+        Purpose: Gets and sets the Business Entity Name
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY BusinessEntityName AS CHARACTER NO-UNDO 
+    DEFINE PUBLIC PROPERTY BusinessEntityName AS CHARACTER NO-UNDO
     GET.
-    SET. 
-    
+    SET.
+
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the Business Entity Package 
-        Notes:   
+        Purpose: Gets and sets the Business Entity Package
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY BusinessEntityPackage AS CHARACTER NO-UNDO 
+    DEFINE PUBLIC PROPERTY BusinessEntityPackage AS CHARACTER NO-UNDO
     GET.
-    SET. 
+    SET.
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the name the ProDataset
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY DatasetName AS CHARACTER NO-UNDO 
+    DEFINE PUBLIC PROPERTY DatasetName AS CHARACTER NO-UNDO
     GET.
-    SET. 
+    SET.
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the path of the dataset include file
         Notes:   This is the path reference relative to the Eclipse workspace virtual
                  file system
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY DatasetPath AS CHARACTER NO-UNDO 
+    DEFINE PUBLIC PROPERTY DatasetPath AS CHARACTER NO-UNDO
     GET.
-    SET. 
+    SET.
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the Description
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY Description AS CHARACTER NO-UNDO 
+    DEFINE PUBLIC PROPERTY Description AS CHARACTER NO-UNDO
     GET.
-    SET. 
+    SET.
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the table used for the Read method
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY FindTable AS CHARACTER NO-UNDO 
+    DEFINE PUBLIC PROPERTY FindTable AS CHARACTER NO-UNDO
     GET.
-    SET. 
+    SET.
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the Path for the Dataset Include File
-        Notes:   This is the path reference used in the source code for referencing 
-                 the include file 
+        Notes:   This is the path reference used in the source code for referencing
+                 the include file
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY IncludeFilePath AS CHARACTER NO-UNDO 
+    DEFINE PUBLIC PROPERTY IncludeFilePath AS CHARACTER NO-UNDO
     GET.
-    SET. 
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the Service Interface Name 
-        Notes:   
+        Purpose: Gets and sets the Service Interface Name
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY ServiceInterfaceName AS CHARACTER NO-UNDO 
+    DEFINE PUBLIC PROPERTY ServiceInterfaceName AS CHARACTER NO-UNDO
     GET.
-    SET. 
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the Service Interface Package Name 
-        Notes:   
+        Purpose: Gets and sets the Service Interface Package Name
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY ServiceInterfacePackage AS CHARACTER NO-UNDO 
+    DEFINE PUBLIC PROPERTY ServiceInterfacePackage AS CHARACTER NO-UNDO
     GET.
-    SET. 
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the name of the output folder 
-        Notes:   
+        Purpose: Gets and sets the name of the output folder
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY SourceFolder AS CHARACTER NO-UNDO 
+    DEFINE PUBLIC PROPERTY SourceFolder AS CHARACTER NO-UNDO
     GET.
-    SET. 
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the URI of the Interface  
-        Notes:   
+        Purpose: Gets and sets the URI of the Interface
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY URI AS CHARACTER NO-UNDO 
+    DEFINE PUBLIC PROPERTY URI AS CHARACTER NO-UNDO
     GET.
-    SET. 
-    
-    /*------------------------------------------------------------------------------
-        Purpose: Generates the source code for the service interface class 
-        Notes:   
-        @return The name of the generated class file 
-    ------------------------------------------------------------------------------*/
-	METHOD PUBLIC CHARACTER Generate ():
+    SET.
 
-        DEFINE VARIABLE lcSource            AS LONGCHAR           NO-UNDO . 
+    /*------------------------------------------------------------------------------
+        Purpose: Generates the source code for the service interface class
+        Notes:
+        @return The name of the generated class file
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC CHARACTER Generate ():
+
+        DEFINE VARIABLE lcSource            AS LONGCHAR           NO-UNDO .
         DEFINE VARIABLE cOutputFile         AS CHARACTER          NO-UNDO.
-        DEFINE VARIABLE oWriteFileEventArgs AS WriteFileEventArgs NO-UNDO . 
-	
-        FILE-INFO:FILE-NAME = BusinessEntityDesignerSettings:TemplateFolder + "/OeMobile/restinterface.template":U .
+        DEFINE VARIABLE oWriteFileEventArgs AS WriteFileEventArgs NO-UNDO .
 
-        COPY-LOB FROM FILE FILE-INFO:FULL-PATHNAME TO lcSource . 
+        FILE-INFORMATION:FILE-NAME = BusinessEntityDesignerSettings:TemplateFolder + "/OeMobile/restinterface.template":U .
 
-        ASSIGN lcSource = SUBSTITUTE (lcSource, 
+        COPY-LOB FROM FILE FILE-INFORMATION:FULL-PATHNAME TO lcSource .
+
+        ASSIGN lcSource = SUBSTITUTE (lcSource,
                                       THIS-OBJECT:ServiceInterfaceName,
                                       THIS-OBJECT:ServiceInterfacePackage,
                                       SUBSTITUTE ("&1.&2":U, THIS-OBJECT:BusinessEntityPackage, THIS-OBJECT:BusinessEntityName),
@@ -152,10 +152,11 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.RestInterface.RestInterfac
                                       THIS-OBJECT:URI,
                                       THIS-OBJECT:DatasetName,
                                       THIS-OBJECT:DatasetPath) .
-                                      
+
         ASSIGN lcSource = REPLACE (lcSource, "@FINDTABLE@":U, THIS-OBJECT:FindTable)
                lcSource = REPLACE (lcSource, "@INCLUDEFILEPATH@":U, THIS-OBJECT:IncludeFilePath)
-               lcSource = REPLACE (lcSource, "@USER@":U, BusinessEntityGenerator:GetUserName ()) 
+               lcSource = REPLACE (lcSource, "@USER@":U, BusinessEntityGenerator:GetUserName ())
+               lcSource = REPLACE (lcSource, "@USERID@":U, BusinessEntityGenerator:GetUserId ())
                lcSource = REPLACE (lcSource, "@FILEANNOTATION@":U, BusinessEntityGenerator:GenerateFileAnnotation(THIS-OBJECT:BusinessEntityPackage,
                                                                                                                   THIS-OBJECT:BusinessEntityName,
                                                                                                                   "RestInterface":U)) .
@@ -163,22 +164,22 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.RestInterface.RestInterfac
         ASSIGN cOutputFile = FileHelper:CombinePath (THIS-OBJECT:SourceFolder,
                                                      THIS-OBJECT:AppServerModule,
                                                      REPLACE (THIS-OBJECT:ServiceInterfacePackage, ".":U, "/":U),
-                                                     SUBSTITUTE ("&1.cls":U, THIS-OBJECT:ServiceInterfaceName)) . 
+                                                     SUBSTITUTE ("&1.cls":U, THIS-OBJECT:ServiceInterfaceName)) .
 
         oWriteFileEventArgs = BusinessEntityGenerator:RaiseWriteFileEvent ("REST Interface":U, cOutputFile) .
 
         IF VALID-OBJECT (oWriteFileEventArgs) THEN DO:
-            IF oWriteFileEventArgs:Cancel THEN 
+            IF oWriteFileEventArgs:Cancel THEN
                 RETURN cOutputFile .
-                
-            IF oWriteFileEventArgs:NewFileName > "":U THEN 
-                cOutputFile = oWriteFileEventArgs:NewFileName . 
+
+            IF oWriteFileEventArgs:NewFileName > "":U THEN
+                cOutputFile = oWriteFileEventArgs:NewFileName .
         END.
 
         COPY-LOB FROM lcSource TO FILE cOutputFile .
-        
-        RETURN cOutputFile .  
 
-	END METHOD .    
+        RETURN cOutputFile .
+
+    END METHOD .
 
 END CLASS.

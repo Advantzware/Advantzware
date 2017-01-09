@@ -12,8 +12,8 @@
 /*------------------------------------------------------------------------
     File        : ExtractClassAnnotationsParameter
     Purpose     : Parameter class for the ExtractClassAnnotationsJob
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Wed Jul 01 18:04:31 CEST 2015
     Notes       : SCL-846
@@ -25,10 +25,10 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 {Consultingwerk/products.i}
 
 USING Consultingwerk.*                                FROM PROPATH .
-USING Consultingwerk.Studio.ExtractClassAnnotations.* FROM PROPATH .  
+USING Consultingwerk.Studio.ExtractClassAnnotations.* FROM PROPATH .
 USING Progress.Lang.*                                 FROM PROPATH .
 
-CLASS Consultingwerk.Studio.ExtractClassAnnotations.ExtractClassAnnotationsParameter 
+CLASS Consultingwerk.Studio.ExtractClassAnnotations.ExtractClassAnnotationsParameter
 &IF '{&FrameworkSerializationType}' EQ 'XML' OR PROVERSION BEGINS '10.2':U &THEN
     INHERITS XmlSerializable
 &ELSE
@@ -36,9 +36,11 @@ CLASS Consultingwerk.Studio.ExtractClassAnnotations.ExtractClassAnnotationsParam
 &ENDIF
     {&SERIALIZABLE}:
 
+    {Consultingwerk/JsonSerializableProperty.i BuildFiles CHARACTER} .
     {Consultingwerk/JsonSerializableProperty.i Directory CHARACTER} .
     {Consultingwerk/JsonSerializableProperty.i FileMask CHARACTER} .
     {Consultingwerk/JsonSerializableProperty.i ExcludeAnnotations CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty.i OnlyWriteModified LOGICAL} .
     {Consultingwerk/JsonSerializableProperty.i OverwriteWriteProtected LOGICAL} .
     {Consultingwerk/JsonSerializableProperty.i Verbose LOGICAL} .
 
@@ -50,6 +52,6 @@ CLASS Consultingwerk.Studio.ExtractClassAnnotations.ExtractClassAnnotationsParam
         SUPER ().
         THIS-OBJECT:AddSerializableProperties ('{&SerializableProperties}':U) .
 
-    END CONSTRUCTOR. 
+    END CONSTRUCTOR.
 
 END CLASS.

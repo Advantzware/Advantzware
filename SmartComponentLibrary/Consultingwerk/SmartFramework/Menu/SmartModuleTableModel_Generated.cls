@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2006-2014 by Consultingwerk Ltd. ("CW") -            *
+ * Copyright (C) 2006-2016 by Consultingwerk Ltd. ("CW") -            *
  * www.consultingwerk.de and other contributors as listed             *
  * below.  All Rights Reserved.                                       *
  *                                                                    *
@@ -15,7 +15,7 @@
     Syntax      : 
     Description : 
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
-    Created     : 06/03/2015 12:52:24,343+01:00
+    Created     : 31/12/2016 14:03:11,102+01:00
     Notes       : 
   ----------------------------------------------------------------------*/
 
@@ -43,6 +43,19 @@ CLASS Consultingwerk.SmartFramework.Menu.SmartModuleTableModel_Generated
     END SET .
 
     /*------------------------------------------------------------------------------
+        Purpose: Returns the value of the ModuleGuid field when a record is available
+        Notes:   Returns the default value, when no record
+        @param pDefaultValue The default value to return when no record is available
+        @return The field value or the default value when no record is available
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC CHARACTER ModuleGuidWhenAvailable (pDefaultValue AS CHARACTER):
+        IF THIS-OBJECT:BufferHandle:AVAILABLE THEN 
+            RETURN THIS-OBJECT:BufferHandle:BUFFER-FIELD ("ModuleGuid":U):BUFFER-VALUE .
+        ELSE 
+            RETURN pDefaultValue .
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
         Purpose: Gets and sets the current ModuleName value
         Notes:   
     ------------------------------------------------------------------------------*/
@@ -53,6 +66,19 @@ CLASS Consultingwerk.SmartFramework.Menu.SmartModuleTableModel_Generated
     PUBLIC SET (arg AS CHARACTER):
         THIS-OBJECT:SetCharacterFieldValue ("ModuleName":U, arg) .
     END SET .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the value of the ModuleName field when a record is available
+        Notes:   Returns the default value, when no record
+        @param pDefaultValue The default value to return when no record is available
+        @return The field value or the default value when no record is available
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC CHARACTER ModuleNameWhenAvailable (pDefaultValue AS CHARACTER):
+        IF THIS-OBJECT:BufferHandle:AVAILABLE THEN 
+            RETURN THIS-OBJECT:BufferHandle:BUFFER-FIELD ("ModuleName":U):BUFFER-VALUE .
+        ELSE 
+            RETURN pDefaultValue .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the current ModuleDescription value
@@ -67,6 +93,19 @@ CLASS Consultingwerk.SmartFramework.Menu.SmartModuleTableModel_Generated
     END SET .
 
     /*------------------------------------------------------------------------------
+        Purpose: Returns the value of the ModuleDescription field when a record is available
+        Notes:   Returns the default value, when no record
+        @param pDefaultValue The default value to return when no record is available
+        @return The field value or the default value when no record is available
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC CHARACTER ModuleDescriptionWhenAvailable (pDefaultValue AS CHARACTER):
+        IF THIS-OBJECT:BufferHandle:AVAILABLE THEN 
+            RETURN THIS-OBJECT:BufferHandle:BUFFER-FIELD ("ModuleDescription":U):BUFFER-VALUE .
+        ELSE 
+            RETURN pDefaultValue .
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
         Purpose: Gets and sets the current ProductGuid value
         Notes:   
     ------------------------------------------------------------------------------*/
@@ -79,6 +118,19 @@ CLASS Consultingwerk.SmartFramework.Menu.SmartModuleTableModel_Generated
     END SET .
 
     /*------------------------------------------------------------------------------
+        Purpose: Returns the value of the ProductGuid field when a record is available
+        Notes:   Returns the default value, when no record
+        @param pDefaultValue The default value to return when no record is available
+        @return The field value or the default value when no record is available
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC CHARACTER ProductGuidWhenAvailable (pDefaultValue AS CHARACTER):
+        IF THIS-OBJECT:BufferHandle:AVAILABLE THEN 
+            RETURN THIS-OBJECT:BufferHandle:BUFFER-FIELD ("ProductGuid":U):BUFFER-VALUE .
+        ELSE 
+            RETURN pDefaultValue .
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
         Purpose: Gets and sets the current ProductCode value
         Notes:   
     ------------------------------------------------------------------------------*/
@@ -89,6 +141,69 @@ CLASS Consultingwerk.SmartFramework.Menu.SmartModuleTableModel_Generated
     PUBLIC SET (arg AS CHARACTER):
         THIS-OBJECT:SetCharacterFieldValue ("ProductCode":U, arg) .
     END SET .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the value of the ProductCode field when a record is available
+        Notes:   Returns the default value, when no record
+        @param pDefaultValue The default value to return when no record is available
+        @return The field value or the default value when no record is available
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC CHARACTER ProductCodeWhenAvailable (pDefaultValue AS CHARACTER):
+        IF THIS-OBJECT:BufferHandle:AVAILABLE THEN 
+            RETURN THIS-OBJECT:BufferHandle:BUFFER-FIELD ("ProductCode":U):BUFFER-VALUE .
+        ELSE 
+            RETURN pDefaultValue .
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Gets and sets the current ModuleDataFolder value
+        Notes:   
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY ModuleDataFolder AS CHARACTER NO-UNDO
+    GET:
+        RETURN THIS-OBJECT:GetCharacterFieldValue ("ModuleDataFolder":U) .
+    END GET . 
+    PUBLIC SET (arg AS CHARACTER):
+        THIS-OBJECT:SetCharacterFieldValue ("ModuleDataFolder":U, arg) .
+    END SET .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the value of the ModuleDataFolder field when a record is available
+        Notes:   Returns the default value, when no record
+        @param pDefaultValue The default value to return when no record is available
+        @return The field value or the default value when no record is available
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC CHARACTER ModuleDataFolderWhenAvailable (pDefaultValue AS CHARACTER):
+        IF THIS-OBJECT:BufferHandle:AVAILABLE THEN 
+            RETURN THIS-OBJECT:BufferHandle:BUFFER-FIELD ("ModuleDataFolder":U):BUFFER-VALUE .
+        ELSE 
+            RETURN pDefaultValue .
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Gets and sets the current ModulePackage value
+        Notes:   
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY ModulePackage AS CHARACTER NO-UNDO
+    GET:
+        RETURN THIS-OBJECT:GetCharacterFieldValue ("ModulePackage":U) .
+    END GET . 
+    PUBLIC SET (arg AS CHARACTER):
+        THIS-OBJECT:SetCharacterFieldValue ("ModulePackage":U, arg) .
+    END SET .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the value of the ModulePackage field when a record is available
+        Notes:   Returns the default value, when no record
+        @param pDefaultValue The default value to return when no record is available
+        @return The field value or the default value when no record is available
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC CHARACTER ModulePackageWhenAvailable (pDefaultValue AS CHARACTER):
+        IF THIS-OBJECT:BufferHandle:AVAILABLE THEN 
+            RETURN THIS-OBJECT:BufferHandle:BUFFER-FIELD ("ModulePackage":U):BUFFER-VALUE .
+        ELSE 
+            RETURN pDefaultValue .
+    END METHOD .
 
 
 

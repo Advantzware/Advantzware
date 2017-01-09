@@ -28,14 +28,14 @@ USING Progress.Lang.*       FROM PROPATH .
 
 INTERFACE Consultingwerk.OERA.IDataAccessFactory:  
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Returns a reference to an instance of the Data Access 
-	    Notes:
-	    @param pcDataAccessName The name of the Data Access obejct as known to the Business Entity 
-	    @param phDatasetHandle The handle of the Dataset that the Data Access is expected to bind to
-	    @return The reference to the Data Access class
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC IDataAccess GetDataAccessObject (pcDataAccessName AS CHARACTER,
+    /*------------------------------------------------------------------------------
+        Purpose: Returns a reference to an instance of the Data Access 
+        Notes:
+        @param pcDataAccessName The name of the Data Access obejct as known to the Business Entity 
+        @param phDatasetHandle The handle of the Dataset that the Data Access is expected to bind to
+        @return The reference to the Data Access class
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC IDataAccess GetDataAccessObject (pcDataAccessName AS CHARACTER,
                                                    phDatasetHandle AS HANDLE).
 
 END INTERFACE.

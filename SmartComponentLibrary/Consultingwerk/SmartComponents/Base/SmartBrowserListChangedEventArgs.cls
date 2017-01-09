@@ -32,17 +32,17 @@ CLASS Consultingwerk.SmartComponents.Base.SmartBrowserListChangedEventArgs INHER
         Purpose: Returns the number of records from the BindingSource
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Count AS INTEGER NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    DEFINE PUBLIC PROPERTY Count AS INTEGER NO-UNDO 
+    GET.
+    PROTECTED SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Returns True if more data is available 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY MoreRecordsAvailable AS LOGICAL NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    DEFINE PUBLIC PROPERTY MoreRecordsAvailable AS LOGICAL NO-UNDO 
+    GET.
+    PROTECTED SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the SmartBrowserListChangedEventArgs class
@@ -50,13 +50,13 @@ CLASS Consultingwerk.SmartComponents.Base.SmartBrowserListChangedEventArgs INHER
         @param piCount The number of records available
         @param plMoreRecords Logicla value indicating if batching is active
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC SmartBrowserListChangedEventArgs (piCount AS INTEGER,
-	                                                     plMoreRecords AS LOGICAL):
-		SUPER ().
-		
-		ASSIGN THIS-OBJECT:Count                = piCount
-		       THIS-OBJECT:MoreRecordsAvailable = plMoreRecords .
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC SmartBrowserListChangedEventArgs (piCount AS INTEGER,
+                                                         plMoreRecords AS LOGICAL):
+        SUPER ().
+        
+        ASSIGN THIS-OBJECT:Count                = piCount
+               THIS-OBJECT:MoreRecordsAvailable = plMoreRecords .
+        
+    END CONSTRUCTOR.
 
 END CLASS.

@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2006-2013 by Consultingwerk Ltd. ("CW") -            *
+ * Copyright (C) 2006-2016 by Consultingwerk Ltd. ("CW") -            *
  * www.consultingwerk.de and other contributors as listed             *
  * below.  All Rights Reserved.                                       *
  *                                                                    *
@@ -8,15 +8,15 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/  
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : OERABusinessEntityTesterFilterDialogDesigner
     Purpose     : Filter Dialog for the Business Entity Tester
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Marko Rüterbories / Consultingwerk Ltd.
     Created     : Wed Apr 08 11:18:24 CEST 2009
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -25,9 +25,9 @@ USING Consultingwerk.Forms.* FROM PROPATH .
 USING Progress.Lang.*        FROM ASSEMBLY .
 USING Progress.Windows.Form  FROM ASSEMBLY .
 
-CLASS Consultingwerk.SmartComponents.Tools.OERABusinessEntityTester.OERABusinessEntityTesterFilterDialogDesigner 
-    INHERITS BaseForm: 
-    
+CLASS Consultingwerk.SmartComponents.Tools.OERABusinessEntityTester.OERABusinessEntityTesterFilterDialogDesigner
+    INHERITS BaseForm:
+
     DEFINE PROTECTED VARIABLE cbRecentItems AS System.Windows.Forms.ComboBox NO-UNDO.
     DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
 
@@ -36,8 +36,8 @@ CLASS Consultingwerk.SmartComponents.Tools.OERABusinessEntityTester.OERABusiness
     DEFINE PROTECTED VARIABLE button2 AS System.Windows.Forms.Button NO-UNDO.
     DEFINE PRIVATE VARIABLE button1 AS System.Windows.Forms.Button NO-UNDO.
 
-    DEFINE PROTECTED VARIABLE textBox1 AS System.Windows.Forms.TextBox NO-UNDO.
-        
+    DEFINE PROTECTED VARIABLE textBox1 AS Consultingwerk.Windows.Controls.DatasetCodeAssistTextEditor NO-UNDO.
+
     CONSTRUCTOR PUBLIC OERABusinessEntityTesterFilterDialogDesigner ():
         SUPER().
         InitializeComponent().
@@ -45,18 +45,19 @@ CLASS Consultingwerk.SmartComponents.Tools.OERABusinessEntityTester.OERABusiness
             UNDO, THROW e.
         END CATCH.
     END CONSTRUCTOR.
-    
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE resources AS Progress.Util.ResourceManager NO-UNDO.
@@ -64,7 +65,7 @@ CLASS Consultingwerk.SmartComponents.Tools.OERABusinessEntityTester.OERABusiness
         THIS-OBJECT:panel1 = NEW System.Windows.Forms.Panel().
         THIS-OBJECT:button2 = NEW System.Windows.Forms.Button().
         THIS-OBJECT:button1 = NEW System.Windows.Forms.Button().
-        THIS-OBJECT:textBox1 = NEW System.Windows.Forms.TextBox().
+        THIS-OBJECT:textBox1 = NEW Consultingwerk.Windows.Controls.DatasetCodeAssistTextEditor().
         THIS-OBJECT:cbRecentItems = NEW System.Windows.Forms.ComboBox().
         THIS-OBJECT:label1 = NEW System.Windows.Forms.Label().
         THIS-OBJECT:panel1:SuspendLayout().

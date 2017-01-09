@@ -46,8 +46,8 @@ CLASS Consultingwerk.Windows.Framework.Repository.Class.SmartLinkTypeForm
         Purpose: Constructor for the SmartLinkTypeForm class                                                                        
         Notes:                                                                        
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC SmartLinkTypeForm ():
-		
+    CONSTRUCTOR PUBLIC SmartLinkTypeForm ():
+        
         SUPER().
         InitializeComponent().
         
@@ -59,14 +59,15 @@ CLASS Consultingwerk.Windows.Framework.Repository.Class.SmartLinkTypeForm
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
-	
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    END CONSTRUCTOR.
+    
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+        
         /* NOTE: The following method is automatically generated.
         
         We strongly suggest that the contents of this method only be modified using the
@@ -976,22 +977,22 @@ CLASS Consultingwerk.Windows.Framework.Repository.Class.SmartLinkTypeForm
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Raises the Shown Event
         Notes:   
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
-		
-		SUPER:OnShown (e) .
+    METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
+        
+        SUPER:OnShown (e) .
 
         Consultingwerk.Util.UserInterfaceHelper:ProcessEvents() .
 
         THIS-OBJECT:smartBusinessEntityAdapter1:RetrieveData () .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Destructor for the SmartLinkTypeForm class 

@@ -26,14 +26,14 @@ USING Progress.Lang.*                                                FROM PROPAT
 
 INTERFACE Consultingwerk.BusinessEntityDesigner.Plugins.CustomServices.ISmartViewerBuilderAlternativeControlTypeProvider:  
   
-	/*------------------------------------------------------------------------------
-	    Purpose: Callback to add additional alternative Control Types to the Value List
-	             of Alternative Control Types
-	    Notes:
-	    @param poOrigin The AlternativeControlTypeProviderOriginEnum describing the origin of the call
-	    @param poValueList The ValueList to add additional Control Types to
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID AddCustomControlTypes (poOrigin AS AlternativeControlTypeProviderOriginEnum,
-	                                          poValueList AS ValueList).
+    /*------------------------------------------------------------------------------
+        Purpose: Callback to add additional alternative Control Types to the Value List
+                 of Alternative Control Types
+        Notes:
+        @param poOrigin The AlternativeControlTypeProviderOriginEnum describing the origin of the call
+        @param poValueList The ValueList to add additional Control Types to
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC VOID AddCustomControlTypes (poOrigin AS AlternativeControlTypeProviderOriginEnum,
+                                              poValueList AS ValueList).
 
 END INTERFACE.

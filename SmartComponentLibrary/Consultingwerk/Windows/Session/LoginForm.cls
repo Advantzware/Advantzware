@@ -8,40 +8,40 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/   
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : LoginForm
     Purpose     : User interface for user authentication
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Mon Nov 15 22:34:04 CET 2010
     Notes       : Supports visual inheritance to allow customization
                   - Images
                   - TabFolder size
                   - Login to BPM (visible)
-                  - Open Task List (visible) 
+                  - Open Task List (visible)
   ----------------------------------------------------------------------*/
 
-ROUTINE-LEVEL ON ERROR UNDO, THROW . 
+ROUTINE-LEVEL ON ERROR UNDO, THROW .
 
 {Consultingwerk/products.i}
 
 USING Consultingwerk.Forms.*                           FROM PROPATH .
 USING Consultingwerk.Framework.*                       FROM PROPATH .
 USING Consultingwerk.Framework.Session.*               FROM PROPATH .
-USING Consultingwerk.SmartFramework.Authentication.*   FROM PROPATH . 
+USING Consultingwerk.SmartFramework.Authentication.*   FROM PROPATH .
 USING Consultingwerk.OERA.*                            FROM PROPATH .
 USING Consultingwerk.Util.*                            FROM PROPATH .
 USING Consultingwerk.Windows.Session.*                 FROM PROPATH .
-USING Consultingwerk.Windows.Util.Forms.*              FROM PROPATH .  
+USING Consultingwerk.Windows.Util.Forms.*              FROM PROPATH .
 USING Progress.Lang.*                                  FROM PROPATH .
 USING Progress.Windows.Form                            FROM ASSEMBLY .
 
-CLASS Consultingwerk.Windows.Session.LoginForm 
+CLASS Consultingwerk.Windows.Session.LoginForm
     INHERITS BaseForm
-    IMPLEMENTS Consultingwerk.Framework.Session.ILoginForm: 
-    
+    IMPLEMENTS Consultingwerk.Framework.Session.ILoginForm:
+
     DEFINE PRIVATE VARIABLE btnInfo AS Infragistics.Win.Misc.UltraButton NO-UNDO.
     DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PROTECTED VARIABLE toSignOnToBPM AS Infragistics.Win.UltraWinEditors.UltraCheckEditor NO-UNDO.
@@ -63,67 +63,68 @@ CLASS Consultingwerk.Windows.Session.LoginForm
     DEFINE PRIVATE VARIABLE ultraTextEditor2 AS Infragistics.Win.UltraWinEditors.UltraTextEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraTextEditor1 AS Infragistics.Win.UltraWinEditors.UltraTextEditor NO-UNDO.
 
-    DEFINE VARIABLE oFullWindowDragManager AS Consultingwerk.Windows.Util.Forms.FullWindowDragManager NO-UNDO EXTENT 2 . 
-        
-    DEFINE VARIABLE oClearButtonProvider   AS Consultingwerk.Windows.Controls.ClearButtonProvider NO-UNDO EXTENT 2 .        
-        
-    DEFINE VARIABLE oLanguageProvider AS Consultingwerk.SmartFramework.ILanguageProvider NO-UNDO . 
-    DEFINE VARIABLE oLoginCompanyProvider AS Consultingwerk.SmartFramework.ILoginCompanyProvider NO-UNDO . 
-    DEFINE VARIABLE oImageProvider AS Consultingwerk.Windows.Framework.IImageProvider NO-UNDO . 
-        
-    DEFINE VARIABLE lBpmLoginFailed AS LOGICAL NO-UNDO INIT FALSE .    
-        
-    {Consultingwerk/SmartFramework/ttLanguage.i &NO-BEFORE &REFERENCE-ONLY=REFERENCE-ONLY}  
-    {Consultingwerk/SmartFramework/ttLoginCompany.i &NO-BEFORE &REFERENCE-ONLY=REFERENCE-ONLY}  
-        
+    DEFINE VARIABLE oFullWindowDragManager AS Consultingwerk.Windows.Util.Forms.FullWindowDragManager NO-UNDO EXTENT 2 .
+
+    DEFINE VARIABLE oClearButtonProvider   AS Consultingwerk.Windows.Controls.ClearButtonProvider NO-UNDO EXTENT 2 .
+
+    DEFINE VARIABLE oLanguageProvider AS Consultingwerk.SmartFramework.ILanguageProvider NO-UNDO .
+    DEFINE VARIABLE oLoginCompanyProvider AS Consultingwerk.SmartFramework.ILoginCompanyProvider NO-UNDO .
+    DEFINE VARIABLE oImageProvider AS Consultingwerk.Windows.Framework.IImageProvider NO-UNDO .
+
+    DEFINE VARIABLE lBpmLoginFailed AS LOGICAL NO-UNDO INIT FALSE .
+
+    {Consultingwerk/SmartFramework/ttLanguage.i &NO-BEFORE &REFERENCE-ONLY=REFERENCE-ONLY}
+    {Consultingwerk/SmartFramework/ttLoginCompany.i &NO-BEFORE &REFERENCE-ONLY=REFERENCE-ONLY}
+
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the LoginForm class                                                                      
-        Notes:                                                                        
+        Purpose: Constructor for the LoginForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC LoginForm ():
-        
+
         SUPER().
 
         InitializeComponent().
-        
+
         &IF DEFINED (OpenEdgeBPM) NE 0 &THEN
         ASSIGN THIS-OBJECT:toSignOnToBPM:Enabled = TRUE
-               THIS-OBJECT:toSignOnToBPM:Checked = TRUE . 
+               THIS-OBJECT:toSignOnToBPM:Checked = TRUE .
         &ENDIF
-        
+
         THIS-OBJECT:StoreFormPosition  = FALSE .
         THIS-OBJECT:DeleteOnFormClosed = FALSE  .
-        
-        ASSIGN oLanguageProvider = {Consultingwerk/get-service.i Consultingwerk.SmartFramework.ILanguageProvider} 
+
+        ASSIGN oLanguageProvider = {Consultingwerk/get-service.i Consultingwerk.SmartFramework.ILanguageProvider}
                oLoginCompanyProvider = {Consultingwerk/get-service.i Consultingwerk.SmartFramework.ILoginCompanyProvider}
                oImageProvider = {Consultingwerk/get-service.i Consultingwerk.Windows.Framework.IImageProvider}.
-        
+
         ASSIGN oClearButtonProvider[1] = NEW Consultingwerk.Windows.Controls.ClearButtonProvider (ultraTextEditor1)
                oClearButtonProvider[2] = NEW Consultingwerk.Windows.Controls.ClearButtonProvider (ultraTextEditor2) .
-        
+
         &IF DEFINED (SmartComponentLibrary) NE 0 &THEN
-        ultraButton3:Visible = TRUE . 
+        ultraButton3:Visible = TRUE .
         &ELSE
         ultraButton3:Visible = FALSE .
-        &ENDIF 
-        
+        &ENDIF
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
     END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance1 AS Infragistics.Win.Appearance NO-UNDO.
@@ -497,218 +498,218 @@ CLASS Consultingwerk.Windows.Session.LoginForm
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the FormClosing event                                                                        
-        Notes:      
-        @param e The FormClosingEventArgs with the data for this event                                                                  
+        Purpose: Raises the FormClosing event
+        Notes:
+        @param e The FormClosingEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED OVERRIDE VOID OnFormClosing (e AS System.Windows.Forms.FormClosingEventArgs):
-        
-        IF lBpmLoginFailed THEN 
-            ASSIGN e:Cancel        = TRUE 
-                   lBpmLoginFailed = FALSE . 
+
+        IF lBpmLoginFailed THEN
+            ASSIGN e:Cancel        = TRUE
+                   lBpmLoginFailed = FALSE .
 
         SUPER:OnFormClosing (e) .
-        
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the Load event                                                                       
+        Purpose: Raises the Load event
         Notes:
-        @param e The System.EventArgs with the data for this event                                                                        
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
 
         DEFINE VARIABLE oSettingsService AS ISettingsService NO-UNDO .
-        DEFINE VARIABLE cLRUUserName     AS CHARACTER        NO-UNDO .            
-        DEFINE VARIABLE cLRUCompanyName  AS CHARACTER        NO-UNDO .    
+        DEFINE VARIABLE cLRUUserName     AS CHARACTER        NO-UNDO .
+        DEFINE VARIABLE cLRUCompanyName  AS CHARACTER        NO-UNDO .
         DEFINE VARIABLE cLoginToBPM      AS CHARACTER        NO-UNDO .
         DEFINE VARIABLE cStartTaskList   AS CHARACTER        NO-UNDO .
-                
+
         SUPER:OnLoad (e) .
 
         oFullWindowDragManager[1] = NEW Consultingwerk.Windows.Util.Forms.FullWindowDragManager (ultraPictureBox1) .
         oFullWindowDragManager[2] = NEW Consultingwerk.Windows.Util.Forms.FullWindowDragManager (ultraPictureBox2) .
-        
+
         /* Mike Fechner, Consultingwerk Ltd. 20.10.2011
            Get the last recently used user name from the Registry */
-       
+
         oSettingsService = {Consultingwerk/get-service.i Consultingwerk.Framework.ISettingsService} .
 
         IF VALID-OBJECT (oSettingsService) THEN DO ON ERROR UNDO, THROW:
-            cLRUUserName = oSettingsService:GetSetting ("UserInformation":U, 
+            cLRUUserName = oSettingsService:GetSetting ("UserInformation":U,
                                                         "LRUUsername":U) .
-            cLRUCompanyName = oSettingsService:GetSetting ("UserInformation":U, 
+            cLRUCompanyName = oSettingsService:GetSetting ("UserInformation":U,
                                                             "LRUCompanyName":U) .
-                                                            
-            IF cLRUUserName > "":U THEN 
+
+            IF cLRUUserName > "":U THEN
                 THIS-OBJECT:ultraTextEditor1:Text = cLRUUserName .
-            ELSE 
+            ELSE
                 THIS-OBJECT:ultraTextEditor1:Text = System.Environment:UserName .
-                            
-            IF cLRUCompanyName > "":U THEN 
+
+            IF cLRUCompanyName > "":U THEN
                 THIS-OBJECT:ultraComboEditor1:Text = cLRUCompanyName .
 
-            &IF DEFINED (OpenEdgeBPM) &THEN                                                            
-            cLoginToBPM = oSettingsService:GetSetting ("UserInformation":U, 
+            &IF DEFINED (OpenEdgeBPM) &THEN
+            cLoginToBPM = oSettingsService:GetSetting ("UserInformation":U,
                                                        "LoginToBPM":U) .
-            
-            IF cLoginToBPM > "":U THEN 
-                THIS-OBJECT:toSignOnToBPM:Checked = DataTypeHelper:ToLogical (cLoginToBPM) .                 
+
+            IF cLoginToBPM > "":U THEN
+                THIS-OBJECT:toSignOnToBPM:Checked = DataTypeHelper:ToLogical (cLoginToBPM) .
 
 
-            cStartTaskList = oSettingsService:GetSetting ("UserInformation":U, 
+            cStartTaskList = oSettingsService:GetSetting ("UserInformation":U,
                                                           "StartTaskListOnBPMLogin":U) .
-            
-            IF cStartTaskList > "":U THEN 
-                THIS-OBJECT:toStartTaskList:Checked = DataTypeHelper:ToLogical (cStartTaskList) .                 
+
+            IF cStartTaskList > "":U THEN
+                THIS-OBJECT:toStartTaskList:Checked = DataTypeHelper:ToLogical (cStartTaskList) .
             &ENDIF
-            
+
             CATCH err AS Progress.Lang.Error :
                 THIS-OBJECT:ultraTextEditor1:Text = "":U .
-                THIS-OBJECT:ultraComboEditor1:Text = "":U .        
+                THIS-OBJECT:ultraComboEditor1:Text = "":U .
             END CATCH.
-        END .  
-        ELSE 
+        END .
+        ELSE
             THIS-OBJECT:ultraTextEditor1:Text = System.Environment:UserName .
-    
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the Shown event                                                                        
-        Notes:     
-        @param e The System.EventArgs with the data for this event                                                                   
+        Purpose: Raises the Shown event
+        Notes:
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
-        
-        DEFINE VARIABLE oValueListItem   AS Infragistics.Win.ValueListItem NO-UNDO . 
+
+        DEFINE VARIABLE oValueListItem   AS Infragistics.Win.ValueListItem NO-UNDO .
         DEFINE VARIABLE cCurrentLanguage AS CHARACTER                      NO-UNDO .
         DEFINE VARIABLE cCurrentCompany  AS CHARACTER                      NO-UNDO .
         DEFINE VARIABLE oSettingsService AS ISettingsService               NO-UNDO .
-     
+
         SUPER:OnShown (e) .
-        
+
         /* Mike Fechner, Consultingwerk Ltd. 08.01.2013
            Retrieve Framework Languages */
         IF VALID-OBJECT (oLanguageProvider) THEN DO ON ERROR UNDO, THROW:
             ultraComboEditor2:ValueList:ValueListItems:Clear () .
-            
+
             oLanguageProvider:GetAvailableLanguages (OUTPUT TABLE ttLanguage) .
-            
+
             FOR EACH ttLanguage BY ttLanguage.LanguageName:
                 oValueListItem = ultraComboEditor2:ValueList:ValueListItems:Add (BOX (ttLanguage.LanguageKey),
                                                                                  ttLanguage.LanguageName) .
-                
+
                 oValueListItem:Tag = BOX (ttLanguage.LanguageIsoCode) .
-                
-                IF ttLanguage.LanguageImage > "":U AND VALID-OBJECT (oImageProvider) THEN 
+
+                IF ttLanguage.LanguageImage > "":U AND VALID-OBJECT (oImageProvider) THEN
                     oValueListItem:Appearance:Image = oImageProvider:ImageForKey (ttLanguage.LanguageImage) .
             END.
-            
-            IF VALID-OBJECT (oImageProvider) THEN 
+
+            IF VALID-OBJECT (oImageProvider) THEN
                 ultraComboEditor2:ValueList:DisplayStyle = Infragistics.Win.ValueListDisplayStyle:DisplayTextAndPicture .
-            
+
             cCurrentLanguage = oLanguageProvider:GetSessionDefaultLanguage () .
-            
-            IF cCurrentLanguage > "":U THEN 
+
+            IF cCurrentLanguage > "":U THEN
                 ultraComboEditor2:Value = cCurrentLanguage .
-            ELSE  
-                IF ultraComboEditor2:ValueList:ValueListItems:Count > 0 THEN 
-                    ultraComboEditor2:SelectedIndex = 0 . 
-            
+            ELSE
+                IF ultraComboEditor2:ValueList:ValueListItems:Count > 0 THEN
+                    ultraComboEditor2:SelectedIndex = 0 .
+
             CATCH err AS Progress.Lang.Error :
-            	Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err, THIS-OBJECT) .	
+                Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err, THIS-OBJECT) .
             END CATCH.
         END.
-        
+
         /* Mike Fechner, Consultingwerk Ltd. 08.01.2013
            Retrieve Framework Login Companies */
         IF VALID-OBJECT (oLoginCompanyProvider) THEN DO ON ERROR UNDO, THROW:
             oSettingsService = {Consultingwerk/get-service.i Consultingwerk.Framework.ISettingsService} .
-            
+
             ultraComboEditor1:ValueList:ValueListItems:Clear () .
-            
+
             oLoginCompanyProvider:GetAvailableLoginCompanies (OUTPUT TABLE ttLoginCompany) .
-            
+
             FOR EACH ttLoginCompany BY ttLoginCompany.LoginCompanyName:
                 oValueListItem = ultraComboEditor1:ValueList:ValueListItems:Add (BOX (ttLoginCompany.LoginCompanyKey),
                                                                                  ttLoginCompany.LoginCompanyName) .
-                
-                IF ttLoginCompany.LoginCompanyImageSmall > "":U AND VALID-OBJECT (oImageProvider) THEN 
+
+                IF ttLoginCompany.LoginCompanyImageSmall > "":U AND VALID-OBJECT (oImageProvider) THEN
                     oValueListItem:Appearance:Image = oImageProvider:ImageForKey (ttLoginCompany.LoginCompanyImageSmall) .
             END.
-            
-            IF VALID-OBJECT (oImageProvider) THEN 
+
+            IF VALID-OBJECT (oImageProvider) THEN
                 ultraComboEditor1:ValueList:DisplayStyle = Infragistics.Win.ValueListDisplayStyle:DisplayTextAndPicture .
-            
+
             cCurrentLanguage = oLanguageProvider:GetSessionDefaultLanguage () .
-            cCurrentCompany = oSettingsService:GetSetting ("UserInformation":U, 
+            cCurrentCompany = oSettingsService:GetSetting ("UserInformation":U,
                                                             "LRUCompanyKey":U) .
             IF cCurrentCompany > "":U THEN
                 ultraComboEditor1:Value = cCurrentCompany .
             ELSE
                 IF ultraComboEditor1:ValueList:ValueListItems:Count > 0 THEN
                     ultraComboEditor1:SelectedIndex = 0 .
-            
+
             CATCH err AS Progress.Lang.Error :
-                Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err, THIS-OBJECT) .    
+                Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err, THIS-OBJECT) .
             END CATCH.
-        END.        
-        
-        IF THIS-OBJECT:ultraTextEditor1:Text > "":U THEN  
+        END.
+
+        IF THIS-OBJECT:ultraTextEditor1:Text > "":U THEN
             THIS-OBJECT:ultraTextEditor2:Focus() .
-        ELSE 
+        ELSE
             THIS-OBJECT:ultraTextEditor1:Focus() .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the CheckedChanged of the toSignOnToBPM control                                                                         
-        Notes:                                                                        
+        Purpose: Event handler for the CheckedChanged of the toSignOnToBPM control
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event                       
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID toSignOnToBPM_CheckedChanged (sender AS System.Object, 
+    METHOD PRIVATE VOID toSignOnToBPM_CheckedChanged (sender AS System.Object,
                                                       e AS System.EventArgs):
-        
-        THIS-OBJECT:toStartTaskList:Enabled = THIS-OBJECT:toSignOnToBPM:Checked . 
+
+        THIS-OBJECT:toStartTaskList:Enabled = THIS-OBJECT:toSignOnToBPM:Checked .
 
         CATCH err AS Progress.Lang.Error :
-            ErrorHelper:ShowErrorMessage (err, THIS-OBJECT) .    
+            ErrorHelper:ShowErrorMessage (err, THIS-OBJECT) .
         END CATCH.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the Click event of the btnOk                                                                        
-        Notes:                                                 
+        Purpose: Event handler for the Click event of the btnOk
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event                       
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID btnOk_Click (sender AS System.Object, 
+    METHOD PRIVATE VOID btnOk_Click (sender AS System.Object,
                                      e AS System.EventArgs):
 
         DEFINE VARIABLE oSettingsService     AS ISettingsService                                   NO-UNDO .
-        DEFINE VARIABLE oUserCredentials     AS IUserCredentials                                   NO-UNDO . 
+        DEFINE VARIABLE oUserCredentials     AS IUserCredentials                                   NO-UNDO .
         DEFINE VARIABLE oTranslationProvider AS Consultingwerk.SmartFramework.ITranslationProvider NO-UNDO .
-    
+
         oUserCredentials = NEW UserCredentials (THIS-OBJECT:ultraTextEditor1:Text,
                                                 THIS-OBJECT:ultraTextEditor2:Text,
                                                 UNBOX (THIS-OBJECT:ultraComboEditor1:Value)) .
 
-        IF VALID-OBJECT (THIS-OBJECT:ultraComboEditor1:SelectedItem) THEN 
+        IF VALID-OBJECT (THIS-OBJECT:ultraComboEditor1:SelectedItem) THEN
             oUserCredentials:CompanyName = THIS-OBJECT:ultraComboEditor1:SelectedItem:DisplayText .
 
         SessionManager:Login (oUserCredentials) .
 
-        THIS-OBJECT:DialogResult = System.Windows.Forms.DialogResult:OK .                 
+        THIS-OBJECT:DialogResult = System.Windows.Forms.DialogResult:OK .
 
         SessionManager:LanguageKey = UNBOX (THIS-OBJECT:ultraComboEditor2:Value) .
-        
+
         oTranslationProvider = {Consultingwerk/get-service.i Consultingwerk.SmartFramework.ITranslationProvider} .
-        
-        IF VALID-OBJECT (oTranslationProvider) THEN 
+
+        IF VALID-OBJECT (oTranslationProvider) THEN
             oTranslationProvider:CacheAllTranslations () .
-        
+
         IF VALID-OBJECT (THIS-OBJECT:ultraComboEditor2:SelectedItem) THEN DO:
             SessionManager:LanguageDisplayName = THIS-OBJECT:ultraComboEditor2:SelectedItem:DisplayText .
             SessionManager:LanguageIsoCode = UNBOX (THIS-OBJECT:ultraComboEditor2:SelectedItem:Tag) .
@@ -718,37 +719,37 @@ CLASS Consultingwerk.Windows.Session.LoginForm
         oSettingsService = {Consultingwerk/get-service.i Consultingwerk.Framework.ISettingsService} .
 
         IF VALID-OBJECT (oSettingsService) THEN DO:
-            oSettingsService:StoreSetting ("UserInformation":U, 
-                                           "LRUUsername":U, 
-                                           SessionManager:UserName) .            
-            oSettingsService:StoreSetting ("UserInformation":U, 
-                                           "LRUCompanyName":U, 
-                                           SessionManager:LoginCompanyName) .   
-            oSettingsService:StoreSetting ("UserInformation":U, 
-                                           "LRUCompanyKey":U, 
-                                           SessionManager:LoginCompanyKey) .                                              
+            oSettingsService:StoreSetting ("UserInformation":U,
+                                           "LRUUsername":U,
+                                           SessionManager:UserName) .
+            oSettingsService:StoreSetting ("UserInformation":U,
+                                           "LRUCompanyName":U,
+                                           SessionManager:LoginCompanyName) .
+            oSettingsService:StoreSetting ("UserInformation":U,
+                                           "LRUCompanyKey":U,
+                                           SessionManager:LoginCompanyKey) .
         END.
 
         &IF DEFINED (OpenEdgeBPM) NE 0 &THEN
-        DEFINE VARIABLE oBPMAdapter AS Consultingwerk.BPM.IBPMAdapterProxy NO-UNDO .                 
-        oBPMAdapter = { Consultingwerk/get-service.i Consultingwerk.BPM.IBPMAdapterProxy 
+        DEFINE VARIABLE oBPMAdapter AS Consultingwerk.BPM.IBPMAdapterProxy NO-UNDO .
+        oBPMAdapter = { Consultingwerk/get-service.i Consultingwerk.BPM.IBPMAdapterProxy
                                                      "NEW Consultingwerk.BPM.BPMAdapterProxy ()"} .
 
-        oSettingsService:StoreSetting ("UserInformation":U, 
-                                       "LoginToBPM":U, 
-                                       STRING (THIS-OBJECT:toSignOnToBPM:Checked, "Yes/No":U)) .            
-                           
-        oSettingsService:StoreSetting ("UserInformation":U, 
-                                       "StartTaskListOnBPMLogin":U, 
-                                       STRING (THIS-OBJECT:toStartTaskList:Checked, "Yes/No":U)) .            
-                           
-        IF THIS-OBJECT:toSignOnToBPM:Checked THEN DO: 
+        oSettingsService:StoreSetting ("UserInformation":U,
+                                       "LoginToBPM":U,
+                                       STRING (THIS-OBJECT:toSignOnToBPM:Checked, "Yes/No":U)) .
+
+        oSettingsService:StoreSetting ("UserInformation":U,
+                                       "StartTaskListOnBPMLogin":U,
+                                       STRING (THIS-OBJECT:toStartTaskList:Checked, "Yes/No":U)) .
+
+        IF THIS-OBJECT:toSignOnToBPM:Checked THEN DO:
             oBpmAdapter:StoreBpmCredentials (THIS-OBJECT:ultraTextEditor1:Text,
-                                             THIS-OBJECT:ultraTextEditor2:Text) .            
-            
-            Consultingwerk.OERA.ContextWrapper:SetLogicalContextProperty ("BpmSignOnToBpm":U, 
+                                             THIS-OBJECT:ultraTextEditor2:Text) .
+
+            Consultingwerk.OERA.ContextWrapper:SetLogicalContextProperty ("BpmSignOnToBpm":U,
                                                                           TRUE) .
-            Consultingwerk.OERA.ContextWrapper:SetLogicalContextProperty ("BpmStartTaskList":U, 
+            Consultingwerk.OERA.ContextWrapper:SetLogicalContextProperty ("BpmStartTaskList":U,
                                                                           THIS-OBJECT:toStartTaskList:Checked) .
         END.
         &ENDIF
@@ -756,59 +757,67 @@ CLASS Consultingwerk.Windows.Session.LoginForm
         THIS-OBJECT:Close () .
 
         CATCH err AS Progress.Lang.Error:
-        	ErrorHelper:ShowErrorMessage (err, THIS-OBJECT) .	
+            ErrorHelper:ShowErrorMessage (err, THIS-OBJECT) .
 
-            IF THIS-OBJECT:ultraTextEditor1:Focused THEN 
+            IF THIS-OBJECT:ultraTextEditor1:Focused THEN
                 THIS-OBJECT:ultraTextEditor1:SelectAll () .
 
-            IF THIS-OBJECT:ultraTextEditor2:Focused THEN 
+            IF THIS-OBJECT:ultraTextEditor2:Focused THEN
                 THIS-OBJECT:ultraTextEditor2:SelectAll () .
         END CATCH.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the click event for the btnInfo 
-        Notes:   
+        Purpose: Event handler for the click event for the btnInfo
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID btnInfo_Click (sender AS System.Object, 
-	                                        e AS System.EventArgs):
-		
-		Consultingwerk.Windows.Session.SessionInfoForm:ShowSessionInformation() .
+    METHOD PRIVATE VOID btnInfo_Click (sender AS System.Object,
+                                            e AS System.EventArgs):
 
-	END METHOD .
+        Consultingwerk.Windows.Session.SessionInfoForm:ShowSessionInformation() .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the click event for the ultraButton3 (ChangePassword) 
-        Notes:   
+        Purpose: Event handler for the click event for the ultraButton3 (ChangePassword)
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraButton3_Click (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraButton3_Click (sender AS System.Object,
                                             e AS System.EventArgs ):
 
 &IF DEFINED (SmartComponentLibrary) NE 0 &THEN
         DEFINE VARIABLE oChangePasswordForm AS ChangePasswordForm NO-UNDO.
         DEFINE VARIABLE oDialogResult       AS System.Windows.Forms.DialogResult NO-UNDO.
-        
+
         oChangePasswordForm = NEW ChangePasswordForm (THIS-OBJECT:ultraTextEditor1:Text,
                                                       THIS-OBJECT:ultraTextEditor2:Text,
                                                       UNBOX (THIS-OBJECT:ultraComboEditor1:Value)).
-        
+
         Consultingwerk.Util.FormHelper:ShowDialog (oChangePasswordForm, OUTPUT oDialogResult).
-        
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
         FINALLY:
             Consultingwerk.Util.GarbageCollectorHelper:DeleteObject (oChangePasswordForm).
         END FINALLY.
-&ENDIF        
-        
+&ENDIF
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the LoginForm class                                                                      
-        Notes:                                                                        
+        Purpose: Destructor for the LoginForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC LoginForm ( ):
 

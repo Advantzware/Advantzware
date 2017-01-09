@@ -11,12 +11,12 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : ChangeListStatusEnum
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike
     Created     : Fri Nov 13 11:53:32 CET 2015
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -31,18 +31,18 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.*                       FROM PROPATH .
 USING Consultingwerk.Framework.Collections.* FROM PROPATH .
-USING Consultingwerk.Studio.P4.*             FROM PROPATH .  
+USING Consultingwerk.Studio.P4.*             FROM PROPATH .
 USING Progress.Lang.*                        FROM PROPATH .
 
-{&CLASS} Consultingwerk.Studio.P4.ChangeListStatusEnum 
+{&CLASS} Consultingwerk.Studio.P4.ChangeListStatusEnum
     &IF "{&CLASS}" EQ "CLASS" &THEN
     INHERITS Enum
-    &ENDIF    
-        : 
+    &ENDIF
+        :
 
 &IF "{&CLASS}" EQ "ENUM" &THEN
     DEFINE ENUM
-&ENDIF    
+&ENDIF
 
     {Consultingwerk/EnumMember.i Pending 0 ChangeListStatusEnum}
     {Consultingwerk/EnumMember.i Submitted 1 ChangeListStatusEnum}
@@ -50,7 +50,7 @@ USING Progress.Lang.*                        FROM PROPATH .
 
 &IF "{&CLASS}" EQ "ENUM" &THEN
     .
-&ENDIF    
+&ENDIF
 
 &IF "{&CLASS}" EQ "CLASS" &THEN
 
@@ -62,27 +62,25 @@ USING Progress.Lang.*                        FROM PROPATH .
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PRIVATE ChangeListStatusEnum (piValue AS INTEGER, pcLabel AS CHARACTER):
         SUPER ().
- 
+
         ASSIGN THIS-OBJECT:Value = piValue
                THIS-OBJECT:Label = pcLabel .
- 
+
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Returns a CharacterList with the names of the Enum members
-        Notes:   
+        Notes:
         @return The CharacterList with the names of the Enum members
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CharacterList GetNames ():
- 
-        DEFINE VARIABLE oReturn AS CharacterList NO-UNDO . 
- 
-        RETURN NEW CharacterList ('{&EnumMembers}':U).
- 
-    END METHOD .
-	
-    {Consultingwerk/EnumFromString.i Consultingwerk.Studio.P4.ChangeListStatusEnum} 
 
-&ENDIF 
+        RETURN NEW CharacterList ('{&EnumMembers}':U).
+
+    END METHOD .
+
+    {Consultingwerk/EnumFromString.i Consultingwerk.Studio.P4.ChangeListStatusEnum}
+
+&ENDIF
 
 END {&CLASS} .

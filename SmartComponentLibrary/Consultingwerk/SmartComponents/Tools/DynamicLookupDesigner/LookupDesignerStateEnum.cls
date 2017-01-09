@@ -8,15 +8,15 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : LookupDesignerStateEnum
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk
     Created     : Wed Oct 26 11:30:00 CEST 2011
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -31,61 +31,59 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.*                                             FROM PROPATH .
 USING Consultingwerk.Framework.Collections.*                       FROM PROPATH .
-USING Consultingwerk.SmartComponents.Tools.DynamicLookupDesigner.* FROM PROPATH . 
+USING Consultingwerk.SmartComponents.Tools.DynamicLookupDesigner.* FROM PROPATH .
 USING Progress.Lang.*                                              FROM PROPATH .
 
-{&CLASS} Consultingwerk.SmartComponents.Tools.DynamicLookupDesigner.LookupDesignerStateEnum 
+{&CLASS} Consultingwerk.SmartComponents.Tools.DynamicLookupDesigner.LookupDesignerStateEnum
     &IF "{&CLASS}" EQ "CLASS" &THEN
     INHERITS Enum
-    &ENDIF    
-        : 
+    &ENDIF
+        :
 
 &IF "{&CLASS}" EQ "ENUM" &THEN
     DEFINE ENUM
-&ENDIF    
+&ENDIF
 
-    /* Static members */  
-    {Consultingwerk/EnumMember.i Default 1 LookupDesignerStateEnum}  
-    {Consultingwerk/EnumMember.i New 2 LookupDesignerStateEnum}  
-    {Consultingwerk/EnumMember.i Opening 3 LookupDesignerStateEnum}  
-    {Consultingwerk/EnumMember.i Editing 4 LookupDesignerStateEnum}  
+    /* Static members */
+    {Consultingwerk/EnumMember.i Default 1 LookupDesignerStateEnum}
+    {Consultingwerk/EnumMember.i New 2 LookupDesignerStateEnum}
+    {Consultingwerk/EnumMember.i Opening 3 LookupDesignerStateEnum}
+    {Consultingwerk/EnumMember.i Editing 4 LookupDesignerStateEnum}
 
 &IF "{&CLASS}" EQ "ENUM" &THEN
     .
-&ENDIF    
+&ENDIF
 
 &IF "{&CLASS}" EQ "CLASS" &THEN
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the LookupDesignerStateEnum class                                                                      
-        Notes:                                                       
+        Purpose: Constructor for the LookupDesignerStateEnum class
+        Notes:
         @param piValue The integer enum value
-        @param pcLabel The charcter enum label                                                                          
+        @param pcLabel The charcter enum label
     ------------------------------------------------------------------------------*/
-    CONSTRUCTOR PRIVATE LookupDesignerStateEnum (piValue AS INTEGER, 
+    CONSTRUCTOR PRIVATE LookupDesignerStateEnum (piValue AS INTEGER,
                                                  pcLabel AS CHARACTER):
         SUPER ().
-        
-        ASSIGN THIS-OBJECT:Value = piValue 
-               THIS-OBJECT:Label = pcLabel . 
-        
+
+        ASSIGN THIS-OBJECT:Value = piValue
+               THIS-OBJECT:Label = pcLabel .
+
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns a CharacterList with the names of the Enum members 
-        Notes:   
+        Purpose: Returns a CharacterList with the names of the Enum members
+        Notes:
         @return The CharacterList with the names of the Enum members
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CharacterList GetNames ():
-        
-        DEFINE VARIABLE oReturn AS CharacterList NO-UNDO . 
-        
+
         RETURN NEW CharacterList ('{&EnumMembers}':U).
 
     END METHOD .
-    
-    {Consultingwerk/EnumFromString.i Consultingwerk.SmartComponents.Tools.DynamicLookupDesigner.LookupDesignerStateEnum}    
-    
-&ENDIF 
-    
+
+    {Consultingwerk/EnumFromString.i Consultingwerk.SmartComponents.Tools.DynamicLookupDesigner.LookupDesignerStateEnum}
+
+&ENDIF
+
 END {&CLASS} .

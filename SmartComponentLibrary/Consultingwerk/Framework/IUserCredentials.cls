@@ -28,9 +28,9 @@ INTERFACE Consultingwerk.Framework.IUserCredentials:
         Purpose: Gets and sets the Company Key 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY CompanyKey AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY CompanyKey AS CHARACTER NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the Company Name 
@@ -44,16 +44,16 @@ INTERFACE Consultingwerk.Framework.IUserCredentials:
         Purpose: Gets and sets the Password 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Password AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY Password AS CHARACTER NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the UserName
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY UserName AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY UserName AS CHARACTER NO-UNDO 
+    GET.
+    SET. 
 
 END INTERFACE.

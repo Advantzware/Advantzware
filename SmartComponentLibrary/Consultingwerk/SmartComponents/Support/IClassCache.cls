@@ -31,21 +31,21 @@ INTERFACE Consultingwerk.SmartComponents.Support.IClassCache:
         Purpose: Gets and sets the ClassName this class is caching 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY ClassName AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY ClassName AS CHARACTER NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the class names temp-table
         Notes:   
         @param ttClassNames The temp-table with the class names 
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID GetClassNames (OUTPUT TABLE ttClassNames) .
+    METHOD PUBLIC VOID GetClassNames (OUTPUT TABLE ttClassNames) .
 
     /*------------------------------------------------------------------------------
         Purpose: Refreshes the Class Names Cache 
         Notes:   
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID Refresh ().
+    METHOD PUBLIC VOID Refresh ().
 
 END INTERFACE.

@@ -32,13 +32,13 @@ INTERFACE Consultingwerk.SmartFramework.ILanguageProvider:
         Notes:   
         @param ttLanguage OUTPUT Temp-Table with the list of available languages
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID GetAvailableLanguages (OUTPUT TABLE ttLanguage).
+    METHOD PUBLIC VOID GetAvailableLanguages (OUTPUT TABLE ttLanguage).
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the code of the session default language
         Notes:   
         @return The character key of the session default language or ? when unknown
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC CHARACTER GetSessionDefaultLanguage ().
+    METHOD PUBLIC CHARACTER GetSessionDefaultLanguage ().
 
 END INTERFACE.

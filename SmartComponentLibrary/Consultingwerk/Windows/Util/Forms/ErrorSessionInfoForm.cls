@@ -28,9 +28,9 @@ USING System.Windows.Forms.* FROM ASSEMBLY.
 
 CLASS Consultingwerk.Windows.Util.Forms.ErrorSessionInfoForm 
     INHERITS BaseForm: 
-	
+    
     DEFINE PRIVATE VARIABLE button1 AS System.Windows.Forms.Button NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE panel1 AS System.Windows.Forms.Panel NO-UNDO.
     DEFINE PRIVATE VARIABLE value AS System.Windows.Forms.ColumnHeader NO-UNDO.
     DEFINE PRIVATE VARIABLE property AS System.Windows.Forms.ColumnHeader NO-UNDO.
@@ -40,8 +40,8 @@ CLASS Consultingwerk.Windows.Util.Forms.ErrorSessionInfoForm
         Purpose: Constructor for the ErrorSessionInfoForm class                                                                        
         Notes:                                          
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ErrorSessionInfoForm ():
-		
+    CONSTRUCTOR PUBLIC ErrorSessionInfoForm ():
+        
         SUPER().
 
         InitializeComponent().
@@ -53,14 +53,15 @@ CLASS Consultingwerk.Windows.Util.Forms.ErrorSessionInfoForm
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:                                          
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+        
         /* NOTE: The following method is automatically generated.
         
         We strongly suggest that the contents of this method only be modified using the
@@ -147,20 +148,20 @@ CLASS Consultingwerk.Windows.Util.Forms.ErrorSessionInfoForm
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD.
+    END METHOD.
 
-	/*------------------------------------------------------------------------------
-  	    Purpose: Sets the Session Info
-	    Notes:   This method will display the session info 
-	    @param poSessionInfo The SessionInfo to display
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID SetSessionInfo (poSessionInfo AS SessionInfo):
-		
-		DEFINE VARIABLE oItem AS ListViewItem NO-UNDO . 
+    /*------------------------------------------------------------------------------
+          Purpose: Sets the Session Info
+        Notes:   This method will display the session info 
+        @param poSessionInfo The SessionInfo to display
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC VOID SetSessionInfo (poSessionInfo AS SessionInfo):
+        
+        DEFINE VARIABLE oItem AS ListViewItem NO-UNDO . 
 
-		listView1:Items:Clear () . 
-		
-		{Consultingwerk/foreachABL.i NameValuePair oPair in poSessionInfo:Properties}
+        listView1:Items:Clear () . 
+        
+        {Consultingwerk/foreachABL.i NameValuePair oPair in poSessionInfo:Properties}
 
             oItem = NEW ListViewItem (oPair:Name) .
             oItem:SubItems:Add (oPair:Value) . 
@@ -168,14 +169,14 @@ CLASS Consultingwerk.Windows.Util.Forms.ErrorSessionInfoForm
             listView1:Items:Add (oItem) .
         END.
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Destructor for the ErrorSessionInfoForm class                                                                        
         Notes:                                          
     ------------------------------------------------------------------------------*/
-	DESTRUCTOR PUBLIC ErrorSessionInfoForm ():
+    DESTRUCTOR PUBLIC ErrorSessionInfoForm ():
 
-	END DESTRUCTOR.
+    END DESTRUCTOR.
 
 END CLASS.

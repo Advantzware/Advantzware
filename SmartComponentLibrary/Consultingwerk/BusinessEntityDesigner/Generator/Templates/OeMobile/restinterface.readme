@@ -8,3 +8,4 @@
 &8            dataset name
 &9            dataset path (including PDSOE project name and include file name)
 @USER@        the current user name
+@USERID@      the current user id

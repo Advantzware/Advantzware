@@ -131,7 +131,189 @@
   <metadata name="smartDatasetChildAdapter2.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>875, 17</value>
   </metadata>
+  <data name="ultraGridColumn2.Header.Caption" xml:space="preserve">
+    <value>objectid </value>
+  </data>
+  <data name="ultraGridColumn3.Header.Caption" xml:space="preserve">
+    <value>id </value>
+  </data>
+  <data name="ultraGridColumn4.Header.Caption" xml:space="preserve">
+    <value>origid </value>
+  </data>
+  <data name="ultraGridColumn5.Header.Caption" xml:space="preserve">
+    <value>relName </value>
+  </data>
+  <data name="ultraGridColumn6.Header.Caption" xml:space="preserve">
+    <value>isMultiple1 </value>
+  </data>
+  <data name="ultraGridColumn7.Header.Caption" xml:space="preserve">
+    <value>isMultiple2 </value>
+  </data>
+  <data name="ultraGridColumn8.Header.Caption" xml:space="preserve">
+    <value>isSystem </value>
+  </data>
+  <data name="ultraGridColumn9.Header.Caption" xml:space="preserve">
+    <value>objDef1 </value>
+  </data>
+  <data name="ultraGridColumn10.Header.Caption" xml:space="preserve">
+    <value>objDef2 </value>
+  </data>
+  <data name="appearance10.TextHAlignAsString" xml:space="preserve">
+    <value>Left</value>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="smartDataBrowser1.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Bottom</value>
+  </data>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"/>
+  <data name="smartDataBrowser1.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 8.25pt</value>
+  </data>
+  <data name="smartDataBrowser1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 410</value>
+  </data>
+  <data name="smartDataBrowser1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>1048, 239</value>
+  </data>
+  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="smartDataBrowser1.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="smartDataBrowser1.Text" xml:space="preserve">
+    <value>smartDataBrowser1</value>
+  </data>
+  <data name="&gt;&gt;smartDataBrowser1.Name" xml:space="preserve">
+    <value>smartDataBrowser1</value>
+  </data>
+  <data name="&gt;&gt;smartDataBrowser1.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartDataBrowser, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;smartDataBrowser1.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;smartDataBrowser1.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="ultraSplitter1.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Bottom</value>
+  </data>
+  <data name="ultraSplitter1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 404</value>
+  </data>
+  <data name="ultraSplitter1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>1048, 6</value>
+  </data>
+  <data name="ultraSplitter1.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="&gt;&gt;ultraSplitter1.Name" xml:space="preserve">
+    <value>ultraSplitter1</value>
+  </data>
+  <data name="&gt;&gt;ultraSplitter1.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraSplitter, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraSplitter1.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraSplitter1.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="dataObjectDefViewerControl1.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Top</value>
+  </data>
+  <data name="dataObjectDefViewerControl1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="dataObjectDefViewerControl1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>1048, 110</value>
+  </data>
+  <data name="dataObjectDefViewerControl1.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="&gt;&gt;dataObjectDefViewerControl1.Name" xml:space="preserve">
+    <value>dataObjectDefViewerControl1</value>
+  </data>
+  <data name="&gt;&gt;dataObjectDefViewerControl1.Type" xml:space="preserve">
+    <value>Consultingwerk.Windows.Framework.Rollbase.DataObjectDefViewerControl, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;dataObjectDefViewerControl1.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;dataObjectDefViewerControl1.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="ultraGridColumn12.Header.Caption" xml:space="preserve">
+    <value>objectid </value>
+  </data>
+  <data name="ultraGridColumn13.Header.Caption" xml:space="preserve">
+    <value>id </value>
+  </data>
+  <data name="ultraGridColumn14.Header.Caption" xml:space="preserve">
+    <value>origid </value>
+  </data>
+  <data name="ultraGridColumn15.Header.Caption" xml:space="preserve">
+    <value>fieldName </value>
+  </data>
+  <data name="ultraGridColumn16.Header.Caption" xml:space="preserve">
+    <value>groupName </value>
+  </data>
+  <data name="ultraGridColumn17.Header.Caption" xml:space="preserve">
+    <value>dataName </value>
+  </data>
+  <data name="ultraGridColumn18.Header.Caption" xml:space="preserve">
+    <value>uiClass </value>
+  </data>
+  <data name="ultraGridColumn19.Header.Caption" xml:space="preserve">
+    <value>isRequired </value>
+  </data>
+  <data name="ultraGridColumn20.Header.Caption" xml:space="preserve">
+    <value>isReadOnly </value>
+  </data>
+  <data name="ultraGridColumn21.Header.Caption" xml:space="preserve">
+    <value>maxLength </value>
+  </data>
+  <data name="ultraGridColumn22.Header.Caption" xml:space="preserve">
+    <value>DisplayLabel </value>
+  </data>
+  <data name="appearance22.TextHAlignAsString" xml:space="preserve">
+    <value>Left</value>
+  </data>
+  <data name="smartDataBrowser2.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Fill</value>
+  </data>
+  <data name="smartDataBrowser2.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 8.25pt</value>
+  </data>
+  <data name="smartDataBrowser2.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 110</value>
+  </data>
+  <data name="smartDataBrowser2.Size" type="System.Drawing.Size, System.Drawing">
+    <value>1048, 294</value>
+  </data>
+  <data name="smartDataBrowser2.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="smartDataBrowser2.Text" xml:space="preserve">
+    <value>smartDataBrowser2</value>
+  </data>
+  <data name="&gt;&gt;smartDataBrowser2.Name" xml:space="preserve">
+    <value>smartDataBrowser2</value>
+  </data>
+  <data name="&gt;&gt;smartDataBrowser2.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartDataBrowser, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;smartDataBrowser2.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;smartDataBrowser2.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing">
+    <value>1048, 649</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="$this.Icon" type="System.Drawing.Icon, System.Drawing">
     <value>
         AAABAA8AAAAAAAEABABsIgAA9gAAADAwAAABAAQAaAYAAGIjAAAgIAAAAQAEAOgCAADKKQAAGBgAAAEA
@@ -1921,5 +2103,47 @@
         AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//8AAP//AAD/3wAA/g8AAPAHAACAAwAA
         AAEAAAAAAAAAAAAAgAAAAMAAAADgAwAA8AcAAPh/AAD//wAA//8AAA==
 </value>
+  </data>
+  <data name="$this.Text" xml:space="preserve">
+    <value>Rollbase Object Definition</value>
+  </data>
+  <data name="$this.WindowPositionRegistryKey" xml:space="preserve">
+    <value>ObjectDefinitionForm</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityAdapter1.Name" xml:space="preserve">
+    <value>smartBusinessEntityAdapter1</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityAdapter1.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1.Name" xml:space="preserve">
+    <value>smartBusinessEntityBindingSource1</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource2.Name" xml:space="preserve">
+    <value>smartBusinessEntityBindingSource2</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource2.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;smartDatasetChildAdapter1.Name" xml:space="preserve">
+    <value>smartDatasetChildAdapter1</value>
+  </data>
+  <data name="&gt;&gt;smartDatasetChildAdapter1.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartDatasetChildAdapter, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;smartDatasetChildAdapter2.Name" xml:space="preserve">
+    <value>smartDatasetChildAdapter2</value>
+  </data>
+  <data name="&gt;&gt;smartDatasetChildAdapter2.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartDatasetChildAdapter, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;$this.Name" xml:space="preserve">
+    <value>ObjectDefinitionForm</value>
+  </data>
+  <data name="&gt;&gt;$this.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Base.SmartWindowForm, OEProxyAssembly, Version=11.6.0.3, Culture=neutral, PublicKeyToken=null</value>
   </data>
 </root>

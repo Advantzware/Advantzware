@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2006-2014 by Consultingwerk Ltd. ("CW") -            *
+ * Copyright (C) 2006-2015 by Consultingwerk Ltd. ("CW") -            *
  * www.consultingwerk.de and other contributors as listed             *
  * below.  All Rights Reserved.                                       *
  *                                                                    *
@@ -17,8 +17,8 @@
 
     Description : 
 
-    Author(s)   : Mike Fechner
-    Created     : 23.12.2014 21:48:11
+    Author(s)   : Marko Rüterbories
+    Created     : 01.12.2016 14:24:54
     Notes       :
   ----------------------------------------------------------------------*/
 
@@ -92,6 +92,9 @@
 &GLOBAL-DEFINE eField.FieldCalcExpression "eField.FieldCalcExpression"
 &GLOBAL-DEFINE eField.FieldCaseSensitive "eField.FieldCaseSensitive"
 &GLOBAL-DEFINE eField.FieldCustomControlName "eField.FieldCustomControlName"
+&GLOBAL-DEFINE eField.FieldValidationInstance "eField.FieldValidationInstance"
+&GLOBAL-DEFINE eField.FieldSemanticType "eField.FieldSemanticType"
+&GLOBAL-DEFINE eField.FieldSkipAssignment "eField.FieldSkipAssignment"
 
 &GLOBAL-DEFINE eFieldProperties "eFieldProperties"
 &GLOBAL-DEFINE eFieldProperties.TempTableName "eFieldProperties.TempTableName"
@@ -123,6 +126,7 @@
 &GLOBAL-DEFINE eTable.SourceTableNames "eTable.SourceTableNames"
 &GLOBAL-DEFINE eTable.SourceBufferNames "eTable.SourceBufferNames"
 &GLOBAL-DEFINE eTable.SourceDefaultQuery "eTable.SourceDefaultQuery"
+&GLOBAL-DEFINE eTable.SourceBufferKeys "eTable.SourceBufferKeys"
 &GLOBAL-DEFINE eTable.TempTablePurpose "eTable.TempTablePurpose"
 &GLOBAL-DEFINE eTable.TempTableDescription "eTable.TempTableDescription"
 &GLOBAL-DEFINE eTable.TempTablePath "eTable.TempTablePath"

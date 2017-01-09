@@ -30,7 +30,7 @@
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.* FROM PROPATH .
-USING Progress.Lang.*.
+USING Progress.Lang.*  FROM PROPATH .
 
 CLASS Consultingwerk.DatasetCallbackEnum: 
 
@@ -42,7 +42,7 @@ CLASS Consultingwerk.DatasetCallbackEnum:
                  created.                                                                     
         Notes:                                                                        
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC STATIC PROPERTY AfterFill AS CHARACTER NO-UNDO INIT "AFTER-FILL":U 
+    DEFINE PUBLIC STATIC PROPERTY AfterFill AS CHARACTER NO-UNDO INITIAL "AFTER-FILL":U
     GET. 
 
     /*------------------------------------------------------------------------------
@@ -53,7 +53,7 @@ CLASS Consultingwerk.DatasetCallbackEnum:
                  Alternatively, it allows the developer to intercept and fully 
                  replace the default behavior.                                                                        
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC STATIC PROPERTY BeforeFill AS CHARACTER NO-UNDO INIT "BEFORE-FILL":U
+    DEFINE PUBLIC STATIC PROPERTY BeforeFill AS CHARACTER NO-UNDO INITIAL "BEFORE-FILL":U
     GET. 
 
     /*------------------------------------------------------------------------------

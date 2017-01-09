@@ -40,10 +40,10 @@ CLASS Consultingwerk.OERA.ResultsetTempTableFactory:
         @param pcEntityView The entity view table names
         @return The temp-table handle
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC HANDLE BuildResultsetTempTable (phDataset AS HANDLE, 
+    METHOD PUBLIC HANDLE BuildResultsetTempTable (phDataset AS HANDLE, 
                                                   pcEntityTable AS CHARACTER,
                                                   pcEntityView AS CHARACTER):   
-		
+        
         DEFINE VARIABLE hTable  AS HANDLE  NO-UNDO .
         DEFINE VARIABLE i       AS INTEGER NO-UNDO .
         DEFINE VARIABLE cBuffer AS CHARACTER NO-UNDO.
@@ -67,6 +67,6 @@ CLASS Consultingwerk.OERA.ResultsetTempTableFactory:
         
         RETURN hTable .
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

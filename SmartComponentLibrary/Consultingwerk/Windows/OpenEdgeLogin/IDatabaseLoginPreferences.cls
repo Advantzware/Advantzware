@@ -27,21 +27,21 @@ USING Progress.Lang.*                        FROM PROPATH .
 
 INTERFACE Consultingwerk.Windows.OpenEdgeLogin.IDatabaseLoginPreferences:  
   
-	/*------------------------------------------------------------------------------
-	    Purpose: Returns a CharacterList of all database opted-out from the login dialog
-	    Notes:
-	    @return The CharacterList of all database opted-out from the login dialog
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC CharacterList GetAllOptOutedDbParam ().
+    /*------------------------------------------------------------------------------
+        Purpose: Returns a CharacterList of all database opted-out from the login dialog
+        Notes:
+        @return The CharacterList of all database opted-out from the login dialog
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC CharacterList GetAllOptOutedDbParam ().
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Returns TRUE when the user has opted-out from the DB Connection
-	             dialog for the given database 
-	    Notes:
+    /*------------------------------------------------------------------------------
+        Purpose: Returns TRUE when the user has opted-out from the DB Connection
+                 dialog for the given database 
+        Notes:
         @param pcDbParam The DBPARAM value for the DB to opt out from
         @return Logical value indicating if the user has opted out from the given DB
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL IsDisabled (pcDbParam AS CHARACTER).
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC LOGICAL IsDisabled (pcDbParam AS CHARACTER).
 
     /*------------------------------------------------------------------------------
         Purpose: Opts in for the given database connection
@@ -50,11 +50,11 @@ INTERFACE Consultingwerk.Windows.OpenEdgeLogin.IDatabaseLoginPreferences:
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID OptIn (pcDbParam AS CHARACTER).
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Opts out for the given database connection
-	    Notes:   Based on DBPARAM () function
-	    @param pcDbParam The DBPARAM value for the DB to opt out for
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID OptOut (pcDbParam AS CHARACTER).
+    /*------------------------------------------------------------------------------
+        Purpose: Opts out for the given database connection
+        Notes:   Based on DBPARAM () function
+        @param pcDbParam The DBPARAM value for the DB to opt out for
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC VOID OptOut (pcDbParam AS CHARACTER).
 
 END INTERFACE.

@@ -31,14 +31,14 @@ INTERFACE Consultingwerk.OERA.IFetchDataByKeyTableParameter:
                  the method
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY KeyValueTableHandle AS HANDLE NO-UNDO 
-	GET.
+    DEFINE PUBLIC PROPERTY KeyValueTableHandle AS HANDLE NO-UNDO 
+    GET.
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the comma delimited list of Tables to retrieve 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Tables AS CHARACTER NO-UNDO 
-	GET.
+    DEFINE PUBLIC PROPERTY Tables AS CHARACTER NO-UNDO 
+    GET.
 
 END INTERFACE.

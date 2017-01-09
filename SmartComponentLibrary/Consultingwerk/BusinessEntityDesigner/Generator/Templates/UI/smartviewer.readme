@@ -16,4 +16,5 @@
 @CONTROL_ENDINIT@ The :EndInit calls for the contained Controls
 
 @USER@ The current user name
+@USERID@      the current user id
 @DATE@ The current date/time

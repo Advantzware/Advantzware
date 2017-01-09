@@ -58,7 +58,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.SmartViewerBuilder:
                  Binding Source or not
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY CreateBindingSource AS LOGICAL INITIAL TRUE NO-UNDO 
+    DEFINE PUBLIC PROPERTY CreateBindingSource AS LOGICAL INITIAL TRUE NO-UNDO 
     GET:
         RETURN THIS-OBJECT:Generator:CreateBindingSource . 
     END GET . 
@@ -145,18 +145,18 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.SmartViewerBuilder:
         
     END CONSTRUCTOR.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Assigns the events form the Viewer Field Spec to the Editor
-	    Notes:
-	    @param poViewerFieldSpec The viewer field spec 
-	    @param poControlGenerator The reference to the control generator
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID AssignEvents (poViewerFieldSpec  AS ViewerFieldSpec,
-	                                    poControlGenerator AS IControlGenerator):
-		
-		IF poViewerFieldSpec:ClickTriggerBlock > "":U AND TYPE-OF (poControlGenerator,
-		                                                           IHasClickEvent) THEN 
-            ASSIGN CAST (poControlGenerator, IHasClickEvent):ClickTriggerBlock = poViewerFieldSpec:ClickTriggerBlock . 		                                                           
+    /*------------------------------------------------------------------------------
+        Purpose: Assigns the events form the Viewer Field Spec to the Editor
+        Notes:
+        @param poViewerFieldSpec The viewer field spec 
+        @param poControlGenerator The reference to the control generator
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID AssignEvents (poViewerFieldSpec  AS ViewerFieldSpec,
+                                        poControlGenerator AS IControlGenerator):
+        
+        IF poViewerFieldSpec:ClickTriggerBlock > "":U AND TYPE-OF (poControlGenerator,
+                                                                   IHasClickEvent) THEN 
+            ASSIGN CAST (poControlGenerator, IHasClickEvent):ClickTriggerBlock = poViewerFieldSpec:ClickTriggerBlock .                                                                    
 
         IF poViewerFieldSpec:ValidatingTriggerBlock > "":U AND TYPE-OF (poControlGenerator,
                                                                         IHasValidatingEvent) THEN 
@@ -166,30 +166,30 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.SmartViewerBuilder:
                                                                           IHasValueChangedEvent) THEN 
             ASSIGN CAST (poControlGenerator, IHasValueChangedEvent):ValueChangedTriggerBlock = poViewerFieldSpec:ValueChangedTriggerBlock .                                                                 
 
-	END METHOD.
+    END METHOD.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Returns the Height of the given control generator instance
-	    Notes:
-	    @param poControl The Control generator instance to return the height for
-	    @return The height used for the generated control
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED INTEGER ControlHeight (poControl AS Progress.Lang.Object):
-		
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the Height of the given control generator instance
+        Notes:
+        @param poControl The Control generator instance to return the height for
+        @return The height used for the generated control
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED INTEGER ControlHeight (poControl AS Progress.Lang.Object):
+        
         IF TYPE-OF (poControl, IHasWidthAndHeight) THEN
             RETURN CAST (poControl, IHasWidthAndHeight):Height . 
         ELSE 
             RETURN 21 . 
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Iterates the List of Controls and checks if controls are surrounded
                  by a GroupBox 
         Notes:   
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID FindContainedControls ():
-		
+    METHOD PROTECTED VOID FindContainedControls ():
+        
         {Consultingwerk/foreachABL.i IControlGenerator oContainer in THIS-OBJECT:Generator:ControlGenerators}
 
             IF NOT TYPE-OF (oContainer, UltraGroupBoxControlGenerator) THEN 
@@ -241,7 +241,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.SmartViewerBuilder:
             END.
         END.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Generates the SmartViewer
@@ -260,7 +260,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.SmartViewerBuilder:
         DEFINE VARIABLE oLogicalField               AS UltraCheckEditorControlGenerator    NO-UNDO .
         DEFINE VARIABLE oDateTimeField              AS UltraDateTimeEditorControlGenerator NO-UNDO .
         DEFINE VARIABLE i                           AS INTEGER                             NO-UNDO .
-        DEFINE VARIABLE iTop                        AS INTEGER                             NO-UNDO INIT 20 .
+        DEFINE VARIABLE iTop                        AS INTEGER                             NO-UNDO INITIAL 20 .
         DEFINE VARIABLE iHeight                     AS INTEGER                             NO-UNDO .
         
         DEFINE VARIABLE cFieldName                  AS CHARACTER                           NO-UNDO .
@@ -809,16 +809,16 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.SmartViewerBuilder:
         @param piRectHeight The height of the point
         @return Logical value indicating if the point is located within the rectangle
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED LOGICAL PointIsInRectangle (piPointLeft AS INTEGER,
-	                                             piPointTop AS INTEGER, 
-	                                             piRectLeft AS INTEGER,
-	                                             piRectTop AS INTEGER, 
-	                                             piRectWidth AS INTEGER, 
-	                                             piRectHeight AS INTEGER):
-		
-		RETURN (piPointLeft >= piRectLeft AND piPointLeft <= piRectLeft + piRectWidth) AND 
-		       (piPointTop >= piRectTop   AND piPointTop  <= piRectTop + piRectHeight)  .
+    METHOD PROTECTED LOGICAL PointIsInRectangle (piPointLeft AS INTEGER,
+                                                 piPointTop AS INTEGER, 
+                                                 piRectLeft AS INTEGER,
+                                                 piRectTop AS INTEGER, 
+                                                 piRectWidth AS INTEGER, 
+                                                 piRectHeight AS INTEGER):
+        
+        RETURN (piPointLeft >= piRectLeft AND piPointLeft <= piRectLeft + piRectWidth) AND 
+               (piPointTop >= piRectTop   AND piPointTop  <= piRectTop + piRectHeight)  .
 
-	END METHOD .
+    END METHOD .
  
 END CLASS.

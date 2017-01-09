@@ -35,23 +35,23 @@ CLASS Consultingwerk.OERA.Exceptions.BusinessServiceAlreadyRunning
         Purpose: Returns the name of the Business Service that is already running 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY BusinessServiceName AS CHARACTER NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    DEFINE PUBLIC PROPERTY BusinessServiceName AS CHARACTER NO-UNDO 
+    GET.
+    PROTECTED SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the BusinessServiceAlreadyRunning class
         Notes:   
         @param pcServiceName The name of the Business Service that is already running
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC BusinessServiceAlreadyRunning (pcServiceName AS CHARACTER):
-		
-		SUPER (SUBSTITUTE("BusinessService &1 is already running."{&TRAN},
+    CONSTRUCTOR PUBLIC BusinessServiceAlreadyRunning (pcServiceName AS CHARACTER):
+        
+        SUPER (SUBSTITUTE("BusinessService &1 is already running."{&TRAN},
                           pcServiceName), 
                0).
-		
-		THIS-OBJECT:BusinessServiceName = pcServiceName .
-		
-	END CONSTRUCTOR.
+        
+        THIS-OBJECT:BusinessServiceName = pcServiceName .
+        
+    END CONSTRUCTOR.
 
 END CLASS.

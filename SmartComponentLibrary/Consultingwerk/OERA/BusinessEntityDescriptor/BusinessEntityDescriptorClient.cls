@@ -82,7 +82,7 @@ CLASS Consultingwerk.OERA.BusinessEntityDescriptor.BusinessEntityDescriptorClien
         END FINALLY.
     
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Retrieves a Business Entity Descriptor from the Backend
@@ -90,11 +90,11 @@ CLASS Consultingwerk.OERA.BusinessEntityDescriptor.BusinessEntityDescriptorClien
         @param pcBusinessEntityName The name of the Business Entity to return the Business Entity Descriptor for
         @return The Business Entity Descriptor of the given Business Entity
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED IBusinessEntityDescriptor RetrieveBusinessEntityDescriptor (pcBusinessEntityName AS CHARACTER):
-		
+    METHOD PROTECTED IBusinessEntityDescriptor RetrieveBusinessEntityDescriptor (pcBusinessEntityName AS CHARACTER):
+        
         DEFINE VARIABLE hDataset   AS HANDLE                               NO-UNDO.
         DEFINE VARIABLE oParameter AS GetBusinessEntityDescriptorParameter NO-UNDO . 
-		
+        
         oParameter = NEW GetBusinessEntityDescriptorParameter (FALSE) . 
 
         FrameworkSettings:ServiceAdapter:InvokeMethod ("":U,
@@ -108,6 +108,6 @@ CLASS Consultingwerk.OERA.BusinessEntityDescriptor.BusinessEntityDescriptorClien
 
         RETURN oParameter:Descriptor . 
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

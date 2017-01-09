@@ -35,8 +35,8 @@ CLASS Consultingwerk.Framework.MessageInteraction.ListQuestion
         Notes:   
         @return Logical value indicating if the list contains an unanswered question 
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL HasUnansweredQuestion ():
-		
+    METHOD PUBLIC LOGICAL HasUnansweredQuestion ():
+        
         /* 1. Checken, ob wir bereits eine Antwort auf die Frage haben */
         {Consultingwerk/foreachABL.i Question oQuestion in THIS-OBJECT}
             IF oQuestion:MessageReply = MessageReplyEnum:Unanswered THEN 
@@ -45,6 +45,6 @@ CLASS Consultingwerk.Framework.MessageInteraction.ListQuestion
 
         RETURN FALSE .
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

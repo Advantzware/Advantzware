@@ -13,8 +13,8 @@
     File        : BusinessServiceTypeEnum
     Purpose     : Enum for types of Business Service to be queried from
                   ServiceManager:IsRunning
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Tue Apr 28 11:06:53 CEST 2015
     Notes       : SCL-783
@@ -32,18 +32,18 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.*                       FROM PROPATH .
 USING Consultingwerk.Framework.Collections.* FROM PROPATH .
-USING Consultingwerk.OERA.*                  FROM PROPATH .  
+USING Consultingwerk.OERA.*                  FROM PROPATH .
 USING Progress.Lang.*                        FROM PROPATH .
 
-{&CLASS} Consultingwerk.OERA.BusinessServiceTypeEnum 
+{&CLASS} Consultingwerk.OERA.BusinessServiceTypeEnum
     &IF "{&CLASS}" EQ "CLASS" &THEN
     INHERITS Enum
-    &ENDIF    
-        : 
+    &ENDIF
+        :
 
 &IF "{&CLASS}" EQ "ENUM" &THEN
     DEFINE ENUM
-&ENDIF    
+&ENDIF
 
     {Consultingwerk/EnumMember.i Any 0 BusinessServiceTypeEnum}
     {Consultingwerk/EnumMember.i ExternallyRegistered 1 BusinessServiceTypeEnum}
@@ -51,7 +51,7 @@ USING Progress.Lang.*                        FROM PROPATH .
 
 &IF "{&CLASS}" EQ "ENUM" &THEN
     .
-&ENDIF    
+&ENDIF
 
 &IF "{&CLASS}" EQ "CLASS" &THEN
 
@@ -63,26 +63,24 @@ USING Progress.Lang.*                        FROM PROPATH .
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PRIVATE BusinessServiceTypeEnum (piValue AS INTEGER, pcLabel AS CHARACTER):
         SUPER ().
- 
+
         ASSIGN THIS-OBJECT:Value = piValue
                THIS-OBJECT:Label = pcLabel .
- 
+
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Returns a CharacterList with the names of the Enum members
-        Notes:   
+        Notes:
         @return The CharacterList with the names of the Enum members
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CharacterList GetNames ():
- 
-        DEFINE VARIABLE oReturn AS CharacterList NO-UNDO . 
- 
+
         RETURN NEW CharacterList ('{&EnumMembers}':U).
- 
+
     END METHOD .
-	
-    {Consultingwerk/EnumFromString.i Consultingwerk.OERA.BusinessServiceTypeEnum} 
+
+    {Consultingwerk/EnumFromString.i Consultingwerk.OERA.BusinessServiceTypeEnum}
 
 &ENDIF
 

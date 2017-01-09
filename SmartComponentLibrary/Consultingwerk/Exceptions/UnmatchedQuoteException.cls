@@ -13,56 +13,56 @@
     File        : UnmatchedQuoteException
     Purpose     : Exception thrown from the StringHelper:FindClosingQuote()
                   method
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Fri Nov 29 12:40:14 CET 2013
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 {Consultingwerk/products.i}
 
-USING Consultingwerk.Exceptions.* FROM PROPATH .  
+USING Consultingwerk.Exceptions.* FROM PROPATH .
 USING Progress.Lang.*             FROM PROPATH .
 
-CLASS Consultingwerk.Exceptions.UnmatchedQuoteException 
+CLASS Consultingwerk.Exceptions.UnmatchedQuoteException
     INHERITS Exception
-    {&SERIALIZABLE}:  
+    {&SERIALIZABLE}:
 
-    /*------------------------------------------------------------------------------
-        Purpose: Returns the Source String associated with the Exception 
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY SourceString AS LONGCHAR NO-UNDO 
-	GET.
-	PRIVATE SET. 
-
-    /*------------------------------------------------------------------------------
-        Purpose: Returns the Starting Position associated with the Exception 
-        Notes:   
-    ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY StartingPosition AS INTEGER NO-UNDO 
+    /**
+     * Purpose: Returns the Source String associated with the Exception
+     * Notes:
+     */
+    DEFINE PUBLIC PROPERTY SourceString AS LONGCHAR NO-UNDO
     GET.
-    PRIVATE SET. 
+    PRIVATE SET.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Constructor for the UnmatchedQuoteException class
-        Notes:   
-        @param pcSourceString The source string that should contain a closing quote
-        @param piStartingPosition The starting position, which is the position of the opening quote
-    ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC UnmatchedQuoteException (pcSourceString AS LONGCHAR,
-	                                            piStartingPosition AS INTEGER):
-		
-		SUPER (SUBSTITUTE ("The Character value ~"&1~" does not contain a matching quote for position &2"{&TRAN},
-		                   pcSourceString,
-		                   piStartingPosition), 0).
-		
-		ASSIGN THIS-OBJECT:SourceString     = pcSourceString  
-		       THIS-OBJECT:StartingPosition = piStartingPosition .
-		
-	END CONSTRUCTOR.
+    /**
+     * Purpose: Returns the Starting Position associated with the Exception
+     * Notes:
+     */
+    DEFINE PUBLIC PROPERTY StartingPosition AS INTEGER NO-UNDO
+    GET.
+    PRIVATE SET.
+
+    /**
+     * Purpose: Constructor for the UnmatchedQuoteException class
+     * Notes:
+     * @param pcSourceString The source string that should contain a closing quote
+     * @param piStartingPosition The starting position, which is the position of the opening quote
+     */
+    CONSTRUCTOR PUBLIC UnmatchedQuoteException (pcSourceString AS LONGCHAR,
+                                                piStartingPosition AS INTEGER):
+
+        SUPER (SUBSTITUTE ("The Character value ~"&1~" does not contain a matching quote for position &2"{&TRAN},
+                           pcSourceString,
+                           piStartingPosition), 0).
+
+        ASSIGN THIS-OBJECT:SourceString     = pcSourceString
+               THIS-OBJECT:StartingPosition = piStartingPosition .
+
+    END CONSTRUCTOR.
 
 END CLASS.

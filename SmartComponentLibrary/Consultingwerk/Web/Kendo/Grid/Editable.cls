@@ -28,7 +28,7 @@ USING Progress.Lang.*                 FROM PROPATH .
 CLASS Consultingwerk.Web.Kendo.Grid.Editable
     INHERITS JsonSerializable: 
 
-    {Consultingwerk/JsonSerializableProperty.i mode CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i mode CHARACTER} .
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the Editable class                                                                     

@@ -40,67 +40,67 @@ CLASS Consultingwerk.Web.Kendo.Data.DataSourceJavaScriptReference
                  this node
         Notes:                                                                        
     ------------------------------------------------------------------------------*/
-    {Consultingwerk/JsonSerializableProperty.i source CHARACTER} .            
-	
+    {Consultingwerk/JsonSerializableProperty11.i source CHARACTER} .            
+    
     /*------------------------------------------------------------------------------
         Purpose: Not used by this type
         Notes:                                                                        
     ------------------------------------------------------------------------------*/
-    {Consultingwerk/JsonSerializableProperty.i type CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i type CHARACTER} .
 
     /*------------------------------------------------------------------------------
         Purpose: Not used by this type
         Notes:                                                                        
     ------------------------------------------------------------------------------*/
-    {Consultingwerk/JsonSerializableProperty.i transport Consultingwerk.Web.Kendo.Data.ITransport} .
+    {Consultingwerk/JsonSerializableProperty11.i transport Consultingwerk.Web.Kendo.Data.ITransport} .
 
     /*------------------------------------------------------------------------------
         Purpose: Not used by this type
         Notes:                                                                        
     ------------------------------------------------------------------------------*/
-    {Consultingwerk/JsonSerializableProperty.i schema Consultingwerk.Web.Kendo.Data.Schema} .
+    {Consultingwerk/JsonSerializableProperty11.i schema Consultingwerk.Web.Kendo.Data.Schema} .
 
     /*------------------------------------------------------------------------------
         Purpose: Not used by this type
         Notes:                                                                        
     ------------------------------------------------------------------------------*/
-    {Consultingwerk/JsonSerializableProperty.i error Consultingwerk.Web.Kendo.Data.ErrorJavaScriptReference} .    
+    {Consultingwerk/JsonSerializableProperty11.i error Consultingwerk.Web.Kendo.Data.ErrorJavaScriptReference} .    
 
     /*------------------------------------------------------------------------------
         Purpose: Not used by this type
         Notes:                                                                        
     ------------------------------------------------------------------------------*/
-    {Consultingwerk/JsonSerializableProperty.i pageSize INTEGER "INIT ?"} .
+    {Consultingwerk/JsonSerializableProperty11.i pageSize INTEGER "INIT ?"} .
 
     /*------------------------------------------------------------------------------
         Purpose: Not used by this type
         Notes:                                                                        
     ------------------------------------------------------------------------------*/
-    {Consultingwerk/JsonSerializableProperty.i serverPaging LOGICAL "INIT ?"} .
+    {Consultingwerk/JsonSerializableProperty11.i serverPaging LOGICAL "INIT ?"} .
 
     /*------------------------------------------------------------------------------
         Purpose: Not used by this type
         Notes:                                                                        
     ------------------------------------------------------------------------------*/
-    {Consultingwerk/JsonSerializableProperty.i serverFiltering LOGICAL "INIT ?"} .
+    {Consultingwerk/JsonSerializableProperty11.i serverFiltering LOGICAL "INIT ?"} .
 
     /*------------------------------------------------------------------------------
         Purpose: Not used by this type
         Notes:                                                                        
     ------------------------------------------------------------------------------*/
-    {Consultingwerk/JsonSerializableProperty.i serverSorting LOGICAL "INIT ?"} .    
+    {Consultingwerk/JsonSerializableProperty11.i serverSorting LOGICAL "INIT ?"} .    
 
-	/*------------------------------------------------------------------------------
+    /*------------------------------------------------------------------------------
         Purpose: Constructor for the DataSourceJavaScriptReference class                                                                     
         Notes:                                                                        
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC DataSourceJavaScriptReference ():
-		SUPER ().
-		
-		THIS-OBJECT:UseSerializedTypeInformation = FALSE . 
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC DataSourceJavaScriptReference ():
+        SUPER ().
+        
+        THIS-OBJECT:UseSerializedTypeInformation = FALSE . 
         THIS-OBJECT:AddSerializableProperties ("{&SerializableProperties}":U) .
-		
-	END CONSTRUCTOR.
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the DataSourceJavaScriptReference class                                                                     

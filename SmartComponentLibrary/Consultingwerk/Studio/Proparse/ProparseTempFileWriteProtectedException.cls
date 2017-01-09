@@ -37,9 +37,9 @@ CLASS Consultingwerk.Studio.Proparse.ProparseTempFileWriteProtectedException
         Purpose: Gets and sets the file name of the temp-file that caused the issue                                                                         
         Notes:                  
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY TempFileName AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY TempFileName AS CHARACTER NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the ProparseTempFileWriteProtectedException class                                                                         
@@ -47,16 +47,16 @@ CLASS Consultingwerk.Studio.Proparse.ProparseTempFileWriteProtectedException
         @param pcTempFileName The Name of the temp-file that caused the issue
         @param pcTitle The tile for the error message
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ProparseTempFileWriteProtectedException (pcTempFileName AS CHARACTER, 
-	                                                            pcTitle AS CHARACTER ):
-		
-		SUPER (SUBSTITUTE ("Unable to invoke Proparse as the listing file ~"&1~" exists and is write protected."{&TRAN},
-		                   pcTempFileName), 
-		       0, 
-		       pcTitle).
-		
-		ASSIGN THIS-OBJECT:TempFileName = pcTitle . 
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC ProparseTempFileWriteProtectedException (pcTempFileName AS CHARACTER, 
+                                                                pcTitle AS CHARACTER ):
+        
+        SUPER (SUBSTITUTE ("Unable to invoke Proparse as the listing file ~"&1~" exists and is write protected."{&TRAN},
+                           pcTempFileName), 
+               0, 
+               pcTitle).
+        
+        ASSIGN THIS-OBJECT:TempFileName = pcTitle . 
+        
+    END CONSTRUCTOR.
 
 END CLASS.

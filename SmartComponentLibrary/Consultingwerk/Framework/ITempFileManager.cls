@@ -30,13 +30,13 @@ INTERFACE Consultingwerk.Framework.ITempFileManager:
         Purpose: Deletes all temp-files 
         Notes:   Typically called when ending the ABL session
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID CleanUp ().
+    METHOD PUBLIC VOID CleanUp ().
 
     /*------------------------------------------------------------------------------
         Purpose: Registers a temp-file for delete when the session ends 
         Notes:   
         @param pcFileName The name of the temp-file to delete
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID RegisterTempFile (pcFileName AS CHARACTER).
+    METHOD PUBLIC VOID RegisterTempFile (pcFileName AS CHARACTER).
 
 END INTERFACE.

@@ -31,9 +31,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Web2View.HtmlControlGenera
         Purpose: Gets and sets the horizontal scaling factor
         Notes:   Defaults to 1.2
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC STATIC PROPERTY HorizontalScaling AS DECIMAL INITIAL 1.3 NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC STATIC PROPERTY HorizontalScaling AS DECIMAL INITIAL 1.3 NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the horizontal scaling factor
@@ -52,17 +52,17 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Web2View.HtmlControlGenera
         @param pcInnerHtml The inner html for the control
         @return The HTML code for the Control 
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC CHARACTER GenerateHtmlCode (pcTag AS CHARACTER, 
-	                                          pcAttributes AS CHARACTER, 
-	                                          pcBinding AS CHARACTER, 
-	                                          pcInnerHtml AS CHARACTER):
-		
-		IF pcBinding > "":U THEN 
-		    RETURN SUBSTITUTE ('        <&1 &2 ng-model="<%= get-field (~'scope~':U) %>.&3">&4</&1>':U,
-		                       pcTag, 
-		                       pcAttributes,
-		                       pcBinding,
-		                       pcInnerHtml) .
+    METHOD PUBLIC CHARACTER GenerateHtmlCode (pcTag AS CHARACTER, 
+                                              pcAttributes AS CHARACTER, 
+                                              pcBinding AS CHARACTER, 
+                                              pcInnerHtml AS CHARACTER):
+        
+        IF pcBinding > "":U THEN 
+            RETURN SUBSTITUTE ('        <&1 &2 ng-model="<%= get-field (~'scope~':U) %>.&3">&4</&1>':U,
+                               pcTag, 
+                               pcAttributes,
+                               pcBinding,
+                               pcInnerHtml) .
         ELSE 
             RETURN SUBSTITUTE ('        <&1 &2>&4</&1>':U,
                                pcTag, 
@@ -70,7 +70,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Web2View.HtmlControlGenera
                                "":U,
                                pcInnerHtml) .
         
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the HTML code for the Control
@@ -80,13 +80,13 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Web2View.HtmlControlGenera
         @param pcBinding The Control binding attribute
         @return The HTML code for the Control 
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC CHARACTER GenerateHtmlCode (pcTag AS CHARACTER, 
-	                                          pcAttributes AS CHARACTER, 
-	                                          pcBinding AS CHARACTER):
-		
-		RETURN THIS-OBJECT:GenerateHtmlCode (pcTag, pcAttributes, pcBinding, "":U) .
+    METHOD PUBLIC CHARACTER GenerateHtmlCode (pcTag AS CHARACTER, 
+                                              pcAttributes AS CHARACTER, 
+                                              pcBinding AS CHARACTER):
+        
+        RETURN THIS-OBJECT:GenerateHtmlCode (pcTag, pcAttributes, pcBinding, "":U) .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the HTML code for the Control
@@ -95,11 +95,11 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Web2View.HtmlControlGenera
         @param pcAttributes The attributes for the Control
         @return The HTML code for the Control 
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC CHARACTER GenerateHtmlCode (pcTag AS CHARACTER, 
-	                                          pcAttributes AS CHARACTER):
-		
-		RETURN THIS-OBJECT:GenerateHtmlCode (pcTag, pcAttributes, "":U, "":U) .
+    METHOD PUBLIC CHARACTER GenerateHtmlCode (pcTag AS CHARACTER, 
+                                              pcAttributes AS CHARACTER):
+        
+        RETURN THIS-OBJECT:GenerateHtmlCode (pcTag, pcAttributes, "":U, "":U) .
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

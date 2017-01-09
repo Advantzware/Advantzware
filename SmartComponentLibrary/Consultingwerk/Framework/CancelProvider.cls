@@ -21,8 +21,8 @@
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Progress.Lang.*.
-USING Consultingwerk.Framework.* .
+USING Consultingwerk.Framework.* FROM PROPATH .
+USING Progress.Lang.*            FROM PROPATH .
 
 CLASS Consultingwerk.Framework.CancelProvider IMPLEMENTS ICancelProvider: 
 
@@ -48,7 +48,7 @@ CLASS Consultingwerk.Framework.CancelProvider IMPLEMENTS ICancelProvider:
         Purpose: Gets or sets if the Cancel function is active or not.                                                                      
         Notes:                                                                        
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY CancelActive AS LOGICAL NO-UNDO INIT FALSE  
+    DEFINE PUBLIC PROPERTY CancelActive AS LOGICAL NO-UNDO INITIAL FALSE
     GET.
     SET (arg AS LOGICAL):
         THIS-OBJECT:CancelActive = arg . 

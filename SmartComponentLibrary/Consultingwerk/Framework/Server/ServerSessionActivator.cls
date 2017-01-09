@@ -11,129 +11,130 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : ServerSessionActivator
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Wed Jan 16 11:32:03 CET 2013
     Notes       : Although in our default setup this class is loaded as a
                   service using services.xml there is no need to implement
                   an interface. This class subscribes itself to events of
                   the service interface and does not have any public methods
-		  Custom LogEntryTypes supported: ProVersion
+          Custom LogEntryTypes supported: ProVersion
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 {Consultingwerk/products.i}
 
-USING Consultingwerk.Framework.*         FROM PROPATH . 
-USING Consultingwerk.Framework.Session.* FROM PROPATH . 
-USING Consultingwerk.Framework.Server.*  FROM PROPATH .  
-USING Consultingwerk.OERA.*              FROM PROPATH . 
-USING Consultingwerk.Util.*              FROM PROPATH . 
+USING Consultingwerk.Framework.*         FROM PROPATH .
+USING Consultingwerk.Framework.Session.* FROM PROPATH .
+USING Consultingwerk.Framework.Server.*  FROM PROPATH .
+USING Consultingwerk.OERA.*              FROM PROPATH .
+USING Consultingwerk.Util.*              FROM PROPATH .
 USING Progress.Lang.*                    FROM PROPATH .
 
-CLASS Consultingwerk.Framework.Server.ServerSessionActivator: 
+CLASS Consultingwerk.Framework.Server.ServerSessionActivator:
 
     DEFINE VARIABLE cAuthenticationDB AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cLogEntryTypes    AS CHARACTER NO-UNDO. 
+    DEFINE VARIABLE cLogEntryTypes    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lDebugMode        AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cCustomLogEntries AS CHARACTER NO-UNDO.
 
     /*------------------------------------------------------------------------------
         Purpose: Raised when the ActivateServerSession was not able to reactivate
-                 a users client-principal because the length of the CP was 0 (no 
+                 a users client-principal because the length of the CP was 0 (no
                  CP available)
-        Notes:   This event may be used to authenticate a technical user that is 
+        Notes:   This event may be used to authenticate a technical user that is
                  authorized to run requests on behalf of unauthenticated sessions
         @param sender The object that raised the PerformTechnicalLogin event
         @param e The Consultingwerk.EventArgs with the data for the event
     ------------------------------------------------------------------------------*/
     DEFINE PUBLIC EVENT PerformTechnicalLogin SIGNATURE VOID (sender AS Progress.Lang.Object,
                                                               e AS Consultingwerk.EventArgs).
-    
+
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the ServerSessionActivator class
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ServerSessionActivator ():
+    CONSTRUCTOR PUBLIC ServerSessionActivator ():
 
-		DEFINE VARIABLE oConfiguration AS IConfigurationProvider NO-UNDO .
-		
-		SUPER ().
+        DEFINE VARIABLE oConfiguration AS IConfigurationProvider NO-UNDO .
 
-        ServiceInterface:Activated:Subscribe (ActivateServerSession) .        
-        ServiceInterface:Deactivated:Subscribe (DeactivateServerSession) .        
-		
-		oConfiguration = {Consultingwerk/get-service.i Consultingwerk.Framework.IConfigurationProvider} .
-		
-		IF VALID-OBJECT (oConfiguration) THEN 
-		    cAuthenticationDB = oConfiguration:GetValue ("authenticationDb":U, LDBNAME(1)) . 
-		ELSE 
-		    cAuthenticationDB = LDBNAME(1) . 
-		
-	END CONSTRUCTOR.
+        SUPER ().
+
+        ServiceInterface:Activated:Subscribe (ActivateServerSession) .
+        ServiceInterface:Deactivated:Subscribe (DeactivateServerSession) .
+
+        oConfiguration = {Consultingwerk/get-service.i Consultingwerk.Framework.IConfigurationProvider} .
+
+        IF VALID-OBJECT (oConfiguration) THEN
+            cAuthenticationDB = oConfiguration:GetValue ("authenticationDb":U, LDBNAME(1)) .
+        ELSE
+            cAuthenticationDB = LDBNAME(1) .
+
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Activates a server session
-        Notes:   The output of the Clients and AppServers ProVersion requires the 
+        Notes:   The output of the Clients and AppServers ProVersion requires the
                  "ProVersion" custom log entry type to be activated within the LogManager
-                 class 
+                 class
         @param e The Consultingwerk.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID ActivateServerSession (e AS Consultingwerk.EventArgs):
+    METHOD PROTECTED VOID ActivateServerSession (e AS Consultingwerk.EventArgs):
 
         DEFINE VARIABLE hPrincipal AS HANDLE NO-UNDO.
-		
-        ASSIGN cLogEntryTypes    = LOG-MANAGER:LOG-ENTRY-TYPES 
+
+        ASSIGN cLogEntryTypes    = LOG-MANAGER:LOG-ENTRY-TYPES
                lDebugMode        = FrameworkSettings:DebugMode
-               cCustomLogEntries = LogManager:CustomLogEntries . 
-		
-		IF VALID-HANDLE (SessionManager:ContextDataset) THEN DO:
-		    IF SESSION:REMOTE AND DatasetHelper:HasBuffer (SessionManager:ContextDataset, "eSessionContext":U) THEN 
-		        ContextWrapper:AppServerProVersion          = PROVERSION . 
-		    
-		    ASSIGN 
-		        SessionManager:ClientPrincipal              = ContextWrapper:ClientPrincipal
-		        SessionManager:LanguageDisplayName          = ContextWrapper:LanguageDisplayName 
-                SessionManager:LanguageIsoCode              = ContextWrapper:LanguageIsoCode 
-                SessionManager:LanguageKey                  = ContextWrapper:LanguageKey 
-                SessionManager:LoginCompanyKey              = ContextWrapper:LoginCompanyKey 
-                SessionManager:LoginCompanyName             = ContextWrapper:LoginCompanyName 
-                SessionManager:LoginCompanyReferenceChar    = ContextWrapper:LoginCompanyReferenceChar 
-                SessionManager:LoginCompanyReferenceDecimal = ContextWrapper:LoginCompanyReferenceDecimal 
-                SessionManager:LoginCompanyReferenceInteger = ContextWrapper:LoginCompanyReferenceInteger 
+               cCustomLogEntries = LogManager:CustomLogEntries .
+
+        IF VALID-HANDLE (SessionManager:ContextDataset) THEN DO:
+            IF SESSION:REMOTE AND DatasetHelper:HasBuffer (SessionManager:ContextDataset, "eSessionContext":U) THEN
+                ContextWrapper:AppServerProVersion          = PROVERSION .
+
+            ASSIGN
+                SessionManager:ClientPrincipal              = ContextWrapper:ClientPrincipal
+                SessionManager:LanguageDisplayName          = ContextWrapper:LanguageDisplayName
+                SessionManager:LanguageIsoCode              = ContextWrapper:LanguageIsoCode
+                SessionManager:LanguageKey                  = ContextWrapper:LanguageKey
+                SessionManager:LoginCompanyKey              = ContextWrapper:LoginCompanyKey
+                SessionManager:LoginCompanyName             = ContextWrapper:LoginCompanyName
+                SessionManager:LoginCompanyReferenceChar    = ContextWrapper:LoginCompanyReferenceChar
+                SessionManager:LoginCompanyReferenceDecimal = ContextWrapper:LoginCompanyReferenceDecimal
+                SessionManager:LoginCompanyReferenceInteger = ContextWrapper:LoginCompanyReferenceInteger
                 SessionManager:LoginCompanyShortName        = ContextWrapper:LoginCompanyShortName
                 SessionManager:ServerLogEntryTypes          = ContextWrapper:ServerLogEntryTypes
                 SessionManager:ServerDebugMode              = ContextWrapper:ServerDebugMode
-                SessionManager:ServerCustomLogEntries       = ContextWrapper:ServerCustomLogEntries 
+                SessionManager:ServerCustomLogEntries       = ContextWrapper:ServerCustomLogEntries
                 SessionManager:UserName                     = ContextWrapper:UserName
-                SessionManager:UserGroupKeys                = ContextWrapper:UserGroupKeys                
-                SessionManager:UserGroupNames               = ContextWrapper:UserGroupNames                 
-		        .
-		    
-		    IF SessionManager:ServerLogEntryTypes > "":U THEN 
-		        ASSIGN LOG-MANAGER:LOG-ENTRY-TYPES = SessionManager:ServerLogEntryTypes .
-		    
-		    IF SessionManager:ServerCustomLogEntries > "":U THEN 
-		        ASSIGN LogManager:CustomLogEntries = SessionManager:ServerCustomLogEntries .
-		    
-		    IF SessionManager:ServerDebugMode <> ? THEN 
-		        ASSIGN FrameworkSettings:DebugMode = SessionManager:ServerDebugMode .  
-		     
-		    IF FrameworkSettings:DebugMode AND LOOKUP ("ProVersion":U, LogManager:CustomLogEntries) > 0 THEN DO:
-		        LogManager:WriteFormattedMessage ("[ProVersion] AppServer OpenEdge Version: &1":U, ContextWrapper:AppServerProVersion) .		        
-		        LogManager:WriteFormattedMessage ("[ProVersion] Client    OpenEdge Version: &1":U, ContextWrapper:ClientProVersion) .             
-		    END. 
-		     
-		    IF LENGTH (SessionManager:ClientPrincipal) > 0 THEN DO ON ERROR UNDO, THROW:
-		        CREATE CLIENT-PRINCIPAL hPrincipal . 
-		        hPrincipal:IMPORT-PRINCIPAL (SessionManager:ClientPrincipal) .
+                SessionManager:UserKey                      = ContextWrapper:UserKey
+                SessionManager:UserGroupKeys                = ContextWrapper:UserGroupKeys
+                SessionManager:UserGroupNames               = ContextWrapper:UserGroupNames
+                .
 
-                SET-DB-CLIENT (hPrincipal, cAuthenticationDB) . 		        
+            IF SessionManager:ServerLogEntryTypes > "":U THEN
+                ASSIGN LOG-MANAGER:LOG-ENTRY-TYPES = SessionManager:ServerLogEntryTypes .
 
-                IF FrameworkSettings:DebugMode THEN 
+            IF SessionManager:ServerCustomLogEntries > "":U THEN
+                ASSIGN LogManager:CustomLogEntries = SessionManager:ServerCustomLogEntries .
+
+            IF SessionManager:ServerDebugMode <> ? THEN
+                ASSIGN FrameworkSettings:DebugMode = SessionManager:ServerDebugMode .
+
+            IF FrameworkSettings:DebugMode AND LOOKUP ("ProVersion":U, LogManager:CustomLogEntries) > 0 THEN DO:
+                LogManager:WriteFormattedMessage ("[ProVersion] AppServer OpenEdge Version: &1":U, ContextWrapper:AppServerProVersion) .
+                LogManager:WriteFormattedMessage ("[ProVersion] Client    OpenEdge Version: &1":U, ContextWrapper:ClientProVersion) .
+            END.
+
+            IF LENGTH (SessionManager:ClientPrincipal, "RAW":U) > 0 THEN DO ON ERROR UNDO, THROW:
+                CREATE CLIENT-PRINCIPAL hPrincipal .
+                hPrincipal:IMPORT-PRINCIPAL (SessionManager:ClientPrincipal) .
+
+                SET-DB-CLIENT (hPrincipal, cAuthenticationDB) .
+
+                IF FrameworkSettings:DebugMode THEN
                     LogManager:WriteFormattedMessage ("[ActivateServerSession] Autenticated as &1 / &2 / &3":U,
 &IF NOT PROVERSION BEGINS "10.2":U &THEN
                                                       hPrincipal:QUALIFIED-USER-ID,
@@ -144,102 +145,103 @@ CLASS Consultingwerk.Framework.Server.ServerSessionActivator:
                                                       hPrincipal:STATE-DETAIL) .
 
                 FINALLY:
-                    GarbageCollectorHelper:DeleteObject (hPrincipal) .      
+                    GarbageCollectorHelper:DeleteObject (hPrincipal) .
                 END FINALLY.
-		    END.
-		    ELSE 
-		        OnPerformTechnicalLogin (Consultingwerk.EventArgs:Empty) .
-        END.		        
+            END.
+            ELSE
+                OnPerformTechnicalLogin (Consultingwerk.EventArgs:Empty) .
+        END.
         ELSE DO:
             /* Mike Fechner, Consultingwerk Ltd. 20.08.2013
-               Don't write message to the AppServer logfile when invoked from the AppServer startup 
+               Don't write message to the AppServer logfile when invoked from the AppServer startup
                procedure - as it's expected that there is no ContextDataset in that case */
-            IF NOT ErrorHelper:CurrentStacktrace MATCHES "*as_startup*":U THEN DO: 
+            IF NOT ErrorHelper:CurrentStacktrace MATCHES "*as_startup*":U THEN DO:
                 LogManager:WriteMessage ("Unable to Activate Session without ContextDataset!!!"{&TRAN}) .
 &IF DEFINED (AblReflection) NE 0 &THEN
                 LogManager:WriteObjectProperties (SESSION:CURRENT-REQUEST-INFO, "SESSION:CURRENT-REQUEST-INFO":U) .
 &ENDIF
                 LogManager:WriteStackTrace() .
             END.
-            
+
             THIS-OBJECT:DeactivateServerSession (e) .
-        END. 
+        END.
 
-        IF FrameworkSettings:DebugMode AND NOT ErrorHelper:CurrentStacktrace MATCHES "*as_startup*":U THEN 
-            SessionManager:LogSessionManagerProperties () . 
+        IF FrameworkSettings:DebugMode AND NOT ErrorHelper:CurrentStacktrace MATCHES "*as_startup*":U THEN
+            SessionManager:LogSessionManagerProperties () .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Deactivates a server session
-        Notes:   
+        Notes:
         @param e The Consultingwerk.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID DeactivateServerSession (e AS Consultingwerk.EventArgs):
-		
+    METHOD PROTECTED VOID DeactivateServerSession (e AS Consultingwerk.EventArgs):
+
         DEFINE VARIABLE hPrincipal AS HANDLE    NO-UNDO .
-		DEFINE VARIABLE cPropath   AS CHARACTER NO-UNDO .
-		
-		ASSIGN 
-		    SessionManager:ClientPrincipal              = ?
-		    SessionManager:LanguageDisplayName          = ? 
-            SessionManager:LanguageIsoCode              = ? 
-            SessionManager:LanguageKey                  = ? 
-            SessionManager:LoginCompanyKey              = ? 
-            SessionManager:LoginCompanyName             = ? 
-            SessionManager:LoginCompanyReferenceChar    = ? 
-            SessionManager:LoginCompanyReferenceDecimal = ? 
-            SessionManager:LoginCompanyReferenceInteger = ? 
-            SessionManager:LoginCompanyShortName        = ? 
-            SessionManager:ServerLogEntryTypes          = ? 
-            SessionManager:UserName                     = ? 
+        DEFINE VARIABLE cPropath   AS CHARACTER NO-UNDO .
+
+        ASSIGN
+            SessionManager:ClientPrincipal              = ?
+            SessionManager:LanguageDisplayName          = ?
+            SessionManager:LanguageIsoCode              = ?
+            SessionManager:LanguageKey                  = ?
+            SessionManager:LoginCompanyKey              = ?
+            SessionManager:LoginCompanyName             = ?
+            SessionManager:LoginCompanyReferenceChar    = ?
+            SessionManager:LoginCompanyReferenceDecimal = ?
+            SessionManager:LoginCompanyReferenceInteger = ?
+            SessionManager:LoginCompanyShortName        = ?
+            SessionManager:ServerLogEntryTypes          = ?
+            SessionManager:UserName                     = ?
+            SessionManager:UserKey                      = ?
             .
 
-        IF cLogEntryTypes <> LOG-MANAGER:LOG-ENTRY-TYPES THEN 
-            LOG-MANAGER:LOG-ENTRY-TYPES = cLogEntryTypes . 
-            
-        IF lDebugMode <> FrameworkSettings:DebugMode THEN 
+        IF cLogEntryTypes <> LOG-MANAGER:LOG-ENTRY-TYPES THEN
+            LOG-MANAGER:LOG-ENTRY-TYPES = cLogEntryTypes .
+
+        IF lDebugMode <> FrameworkSettings:DebugMode THEN
             FrameworkSettings:DebugMode = lDebugMode .
-            
-        IF cCustomLogEntries <> LogManager:CustomLogEntries THEN 
-            LogManager:CustomLogEntries = cCustomLogEntries . 
+
+        IF cCustomLogEntries <> LogManager:CustomLogEntries THEN
+            LogManager:CustomLogEntries = cCustomLogEntries .
 
 &IF NOT PROVERSION BEGINS "10.2":U &THEN
         /* become nobody on the DB */
         CREATE CLIENT-PRINCIPAL hPrincipal.
 
         hPrincipal:INITIALIZE ("nobody":U) .
-        
-        hPrincipal:SEAL ("":U) . 
+
+        hPrincipal:SEAL ("":U) .
 
         SET-DB-CLIENT (hPrincipal, cAuthenticationDB) .
-&ENDIF     
+&ENDIF
 
         FINALLY:
-            GarbageCollectorHelper:DeleteObject (hPrincipal) . 		
+            GarbageCollectorHelper:DeleteObject (hPrincipal) .
 
             /* Mike Fechner, Consultingwerk Ltd. 21.08.2013
                Restore startup propath */
             ASSIGN cPropath = FrameworkSettings:StartupPropath .
 
-            IF cPropath > "":U THEN 
-                PROPATH = cPropath . 
+            IF cPropath > "":U THEN
+                PROPATH = cPropath .
         END FINALLY.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Raises the PerformTechnicalLogin event
-        Notes:   
+        Notes:
         @param e The Consultingwerk.EventArgs with the data for the event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID OnPerformTechnicalLogin (e AS Consultingwerk.EventArgs):
-            
-        IF NOT VALID-OBJECT (e) THEN 
-            e = Consultingwerk.EventArgs:Empty . 
-    
+
+        IF NOT VALID-OBJECT (e) THEN
+            e = Consultingwerk.EventArgs:Empty .
+
         THIS-OBJECT:PerformTechnicalLogin:Publish (THIS-OBJECT, e) .
-    
+
     END METHOD .
 
 END CLASS.

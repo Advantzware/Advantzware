@@ -30,8 +30,8 @@ USING Progress.Lang.*                 FROM PROPATH .
 CLASS Consultingwerk.Web.Kendo.Data.Sort 
     INHERITS JsonSerializable:
 
-    {Consultingwerk/JsonSerializableProperty.i field CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i dir Consultingwerk.Web.Kendo.Data.SortDirection} .
+    {Consultingwerk/JsonSerializableProperty11.i field CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i dir Consultingwerk.Web.Kendo.Data.SortDirection} .
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the Sort class
@@ -39,14 +39,14 @@ CLASS Consultingwerk.Web.Kendo.Data.Sort
         @param pcField The value for the field
         @param poDir The value for the operator
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC Sort (pcField AS CHARACTER,
-	                         poDir AS SortDirection):
-		THIS-OBJECT ().
-		
-		ASSIGN THIS-OBJECT:field  = pcField
-		       THIS-OBJECT:dir    = poDir . 
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC Sort (pcField AS CHARACTER,
+                             poDir AS SortDirection):
+        THIS-OBJECT ().
+        
+        ASSIGN THIS-OBJECT:field  = pcField
+               THIS-OBJECT:dir    = poDir . 
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the Sort class

@@ -30,12 +30,12 @@ USING Progress.Lang.*                 FROM PROPATH .
 CLASS Consultingwerk.Web.Kendo.Grid.FilterOperatorsString 
     INHERITS JsonSerializable:
 
-    {Consultingwerk/JsonSerializableProperty.i startswith CHARACTER "INIT ""Starts with"":U"} .
-    {Consultingwerk/JsonSerializableProperty.i eq CHARACTER "INIT ""Is equal to"":U"} .
-    {Consultingwerk/JsonSerializableProperty.i neq CHARACTER "INIT ""Is not equal to"":U"} .
-    {Consultingwerk/JsonSerializableProperty.i contains CHARACTER "INIT ""Contains"":U"} .
-    {Consultingwerk/JsonSerializableProperty.i doesnotcontain CHARACTER "INIT ""Does not contain"":U"} .
-    {Consultingwerk/JsonSerializableProperty.i endswith CHARACTER "INIT ""Ends with"":U"} .
+    {Consultingwerk/JsonSerializableProperty11.i startswith CHARACTER "INIT ""Starts with"":U"} .
+    {Consultingwerk/JsonSerializableProperty11.i eq CHARACTER "INIT ""Is equal to"":U"} .
+    {Consultingwerk/JsonSerializableProperty11.i neq CHARACTER "INIT ""Is not equal to"":U"} .
+    {Consultingwerk/JsonSerializableProperty11.i contains CHARACTER "INIT ""Contains"":U"} .
+    {Consultingwerk/JsonSerializableProperty11.i doesnotcontain CHARACTER "INIT ""Does not contain"":U"} .
+    {Consultingwerk/JsonSerializableProperty11.i endswith CHARACTER "INIT ""Ends with"":U"} .
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the FilterOperatorsString class
@@ -53,7 +53,7 @@ CLASS Consultingwerk.Web.Kendo.Grid.FilterOperatorsString
         Purpose: Applies ABL supported filters 
         Notes:   
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID ApplyAblSupportedFilter ():
+    METHOD PUBLIC VOID ApplyAblSupportedFilter ():
 
         ASSIGN THIS-OBJECT:eq             = "Is equal to":U 
                THIS-OBJECT:neq            = "Is not equal to":U 
@@ -62,6 +62,6 @@ CLASS Consultingwerk.Web.Kendo.Grid.FilterOperatorsString
                THIS-OBJECT:doesnotcontain = "":U
                THIS-OBJECT:endswith       = "":U .
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

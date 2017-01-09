@@ -11,11 +11,11 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : PostMessage.p
-    Purpose     : 
+    Purpose     :
 
     Syntax      :
 
-    Description : 
+    Description :
 
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Tue Mar 30 21:28:45 CEST 2010
@@ -40,9 +40,9 @@ PROCEDURE PostMessageA EXTERNAL "user32":
     DEFINE INPUT PARAMETER wparam       AS LONG.
     DEFINE INPUT PARAMETER lparam       AS LONG.
     DEFINE RETURN PARAMETER ReturnValue AS LONG.
-END.
+END PROCEDURE .
 
 
-IF piHwnd > 0 THEN 
+IF piHwnd > 0 THEN
     RUN PostMessageA (piHwnd, piUmsg, piwParam, pilParam, OUTPUT piReturnValue) .
 

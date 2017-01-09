@@ -8,15 +8,15 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
  /*------------------------------------------------------------------------
     File        : OsErrorException
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Mon Jan 30 14:53:35 CET 2012
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -26,39 +26,39 @@ USING Consultingwerk.Exceptions.Exception.
 
 {Consultingwerk/products.i}
 
-CLASS Consultingwerk.Exceptions.OsErrorException 
+CLASS Consultingwerk.Exceptions.OsErrorException
     INHERITS Exception
-    {&SERIALIZABLE}:  
+    {&SERIALIZABLE}:
 
-    /*------------------------------------------------------------------------------
-        Purpose: Returns the OE-ERROR Value associated with this error                                              
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY OS-ERROR AS INTEGER NO-UNDO 
+    /**
+     * Purpose: Returns the OE-ERROR Value associated with this error
+     * Notes:
+     */
+    DEFINE PUBLIC PROPERTY OS-ERROR AS INTEGER NO-UNDO
     GET.
-    PROTECTED SET. 
+    PROTECTED SET.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Returns the error message matching the OS-ERROR value                                              
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY OS-ERROR-TEXT AS CHARACTER NO-UNDO 
+    /**
+     * Purpose: Returns the error message matching the OS-ERROR value
+     * Notes:
+     */
+    DEFINE PUBLIC PROPERTY OS-ERROR-TEXT AS CHARACTER NO-UNDO
     GET.
-    PROTECTED SET. 
+    PROTECTED SET.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Constructor for the OsErrorException class                                                                        
-        Notes:            
-        @param piOsError The value of the OS-ERROR property                                                            
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Constructor for the OsErrorException class
+     * Notes:
+     * @param piOsError The value of the OS-ERROR property
+     */
     CONSTRUCTOR PUBLIC OsErrorException (piOsError AS INTEGER):
-        SUPER (SUBSTITUTE ("&1 (&2)":U, 
+        SUPER (SUBSTITUTE ("&1 (&2)":U,
                            Consultingwerk.Util.FileHelper:OS-ERROR-TEXT (piOsError),
                            piOSError), 0).
-        
+
         ASSIGN THIS-OBJECT:OS-ERROR = piOsError
-               THIS-OBJECT:OS-ERROR-TEXT = Consultingwerk.Util.FileHelper:OS-ERROR-TEXT(piOsError) .  
-        
+               THIS-OBJECT:OS-ERROR-TEXT = Consultingwerk.Util.FileHelper:OS-ERROR-TEXT(piOsError) .
+
     END CONSTRUCTOR.
 
 END CLASS.

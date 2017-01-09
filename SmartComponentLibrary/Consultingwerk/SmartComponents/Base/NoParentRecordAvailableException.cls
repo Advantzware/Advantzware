@@ -35,13 +35,13 @@ CLASS Consultingwerk.SmartComponents.Base.NoParentRecordAvailableException
         @param pcErrorString The error message associated with this Exception object
         @param piMessageNumber The error message number associated with this Exception object
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC NoParentRecordAvailableException (poInnerException AS Progress.Lang.Error, 
-	                                                     pcErrorString AS CHARACTER, 
-	                                                     piMessageNumber AS INTEGER):
-	                                                     
-		SUPER (poInnerException, pcErrorString, piMessageNumber).
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC NoParentRecordAvailableException (poInnerException AS Progress.Lang.Error, 
+                                                         pcErrorString AS CHARACTER, 
+                                                         piMessageNumber AS INTEGER):
+                                                         
+        SUPER (poInnerException, pcErrorString, piMessageNumber).
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the NoParentRecordAvailableException class
@@ -49,11 +49,11 @@ CLASS Consultingwerk.SmartComponents.Base.NoParentRecordAvailableException
         @param pcErrorString The error message associated with this Exception object
         @param piMessageNumber The error message number associated with this Exception object
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC NoParentRecordAvailableException (pcErrorString AS CHARACTER, 
-	                                                     piMessageNumber AS INTEGER):
-	                                                     
-		SUPER (pcErrorString, piMessageNumber).
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC NoParentRecordAvailableException (pcErrorString AS CHARACTER, 
+                                                         piMessageNumber AS INTEGER):
+                                                         
+        SUPER (pcErrorString, piMessageNumber).
+        
+    END CONSTRUCTOR.
 
 END CLASS.

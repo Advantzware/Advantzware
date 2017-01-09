@@ -45,21 +45,21 @@ run createObject.
 /* ************ Functions ****************************************/   
 
 FUNCTION getContext RETURNS CHARACTER 
-	() FORWARD.
-	
+    () FORWARD.
+    
 FUNCTION setContext RETURNS CHARACTER 
-	(pcContext AS CHARACTER) FORWARD.
+    (pcContext AS CHARACTER) FORWARD.
 
 /* ************************  Function Implementations ***************** */
 
 FUNCTION getContext RETURNS CHARACTER ():
 /*------------------------------------------------------------------------------
-	Purpose: Returns the Buisiness Entities request context  																	  
-	Notes:  																	  
-------------------------------------------------------------------------------*/	
+    Purpose: Returns the Buisiness Entities request context                                                                        
+    Notes:                                                                        
+------------------------------------------------------------------------------*/    
 
     RETURN cEntityContext . 
-		
+        
 END FUNCTION.
 
 function getStaticDataset returns handle():
@@ -75,10 +75,10 @@ end.
 
 FUNCTION setContext RETURNS CHARACTER (pcContext AS CHARACTER):
 /*------------------------------------------------------------------------------
-	Purpose: Set's the request context in the Business Entity  																	  
-	Notes:  																	  
-------------------------------------------------------------------------------*/	
+    Purpose: Set's the request context in the Business Entity                                                                        
+    Notes:                                                                        
+------------------------------------------------------------------------------*/    
 
     ASSIGN cEntityContext = pcContext . 
-		
+        
 END FUNCTION.

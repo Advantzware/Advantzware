@@ -46,12 +46,12 @@ CLASS Consultingwerk.SmartComponents.Support.ClassCache
         Notes:   
         @param ttClassNames The temp-table with the class names 
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID GetClassNames (OUTPUT TABLE FOR ttClassNames):
-		
+    METHOD PUBLIC VOID GetClassNames (OUTPUT TABLE FOR ttClassNames):
+        
         IF NOT lCached THEN 
             THIS-OBJECT:Refresh () .
              
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Refreshes the Class Names Cache 

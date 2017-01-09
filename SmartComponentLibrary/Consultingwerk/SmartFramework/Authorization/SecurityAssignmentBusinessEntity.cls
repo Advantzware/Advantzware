@@ -8,15 +8,15 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : SecurityAssignmentBusinessEntity
     Purpose     : Business Entity for SecurityAssignment
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner
     Created     : 28.07.2013 17:49:49
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -25,39 +25,39 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.*                              FROM PROPATH .
 USING Consultingwerk.Assertion.*                    FROM PROPATH .
-USING Consultingwerk.Framework.Session.*            FROM PROPATH . 
+USING Consultingwerk.Framework.Session.*            FROM PROPATH .
 USING Consultingwerk.SmartFramework.*               FROM PROPATH .
 USING Consultingwerk.SmartFramework.Authorization.* FROM PROPATH .
 USING Consultingwerk.OERA.*                         FROM PROPATH .
-USING Consultingwerk.Util.*                         FROM PROPATH . 
+USING Consultingwerk.Util.*                         FROM PROPATH .
 USING Progress.Lang.*                               FROM PROPATH .
 
-CLASS Consultingwerk.SmartFramework.Authorization.SecurityAssignmentBusinessEntity 
-    INHERITS SmartBusinessEntity: 
+CLASS Consultingwerk.SmartFramework.Authorization.SecurityAssignmentBusinessEntity
+    INHERITS SmartBusinessEntity:
 
     { Consultingwerk/SmartFramework/Authentication/dsUser.i }
     { Consultingwerk/SmartFramework/Authorization/dsGroup.i }
     { Consultingwerk/SmartFramework/Authorization/dsSecurityAssignment.i }
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor of the SecurityAssignmentBusinessEntity class                                                                     
-        Notes:   Passes the handle of the dataset instance to the base class and 
-                 sets the default DataAccessName                                                                        
+        Purpose: Constructor of the SecurityAssignmentBusinessEntity class
+        Notes:   Passes the handle of the dataset instance to the base class and
+                 sets the default DataAccessName
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC SecurityAssignmentBusinessEntity ():
         SUPER (DATASET dsSecurityAssignment:HANDLE).
-        
+
         THIS-OBJECT:DataAccessName = "Consultingwerk.SmartFramework.Authorization.SecurityAssignmentDataAccess":U .
 
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Gets a group record using the business entity
-        Notes:   
+        Notes:
         @param pcGroupGuid The group guid to be found
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID GetGroup (pcGroupGuid AS CHARACTER):
-        
+
         ServiceInterface:FetchData ("Consultingwerk.SmartFramework.Authorization.GroupBusinessEntity":U,
                                     NEW FetchDataRequest ("eSmartGroup":U,
                                                           SUBSTITUTE ("FOR EACH eSmartGroup WHERE eSmartGroup.GroupGuid = &1":U,
@@ -68,26 +68,26 @@ CLASS Consultingwerk.SmartFramework.Authorization.SecurityAssignmentBusinessEnti
 
     /*------------------------------------------------------------------------------
         Purpose: Gets a user record using the business entity
-        Notes:   
+        Notes:
         @param pcUserGuid The user guid to be found
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID GetUser (pcUserGuid AS CHARACTER):
-		
-		ServiceInterface:FetchData ("Consultingwerk.SmartFramework.Authentication.UserBusinessEntity":U,
-		                            NEW FetchDataRequest ("eSmartUser":U,
-		                                                  SUBSTITUTE ("FOR EACH eSmartUser WHERE eSmartUser.UserGuid = &1":U,
-		                                                              QUOTER (pcUserGuid))),
-		                            OUTPUT DATASET dsUser) .
+    METHOD PROTECTED VOID GetUser (pcUserGuid AS CHARACTER):
 
-	END METHOD .
+        ServiceInterface:FetchData ("Consultingwerk.SmartFramework.Authentication.UserBusinessEntity":U,
+                                    NEW FetchDataRequest ("eSmartUser":U,
+                                                          SUBSTITUTE ("FOR EACH eSmartUser WHERE eSmartUser.UserGuid = &1":U,
+                                                                      QUOTER (pcUserGuid))),
+                                    OUTPUT DATASET dsUser) .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Provides a hook to modify data in the ProDataset after Read and 
-                 Update operations (i.e. population of aggregated values)                                                                     
-        Notes:   Invoked during FetchData () and SaveChanges ()                                                                     
+        Purpose: Provides a hook to modify data in the ProDataset after Read and
+                 Update operations (i.e. population of aggregated values)
+        Notes:   Invoked during FetchData () and SaveChanges ()
     ------------------------------------------------------------------------------*/
     METHOD OVERRIDE PUBLIC VOID ReceiveData ():
-        
+
         DEFINE VARIABLE oInfoService AS SecurityRealmInfoService NO-UNDO .
 
         oInfoService = CAST (ServiceManager:GetBusinessService ("Consultingwerk.SmartFramework.Authorization.SecurityRealmInfoService":U),
@@ -139,39 +139,39 @@ CLASS Consultingwerk.SmartFramework.Authorization.SecurityAssignmentBusinessEnti
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Provides a hook for high level data validation before Update 
-                 operations                                                                     
+        Purpose: Provides a hook for high level data validation before Update
+                 operations
         Notes:   Invoked during SaveChanges (). When the ERROR flag of the ProDataset
                  is set, the Update operation will be cancelled before writing back
-                 the data to the database using the DataAccess object                                                                      
+                 the data to the database using the DataAccess object
     ------------------------------------------------------------------------------*/
     METHOD OVERRIDE PUBLIC VOID ValidateData ():
-        
+
         DEFINE VARIABLE oInfoService AS SecurityRealmInfoService NO-UNDO .
 
         oInfoService = CAST (ServiceManager:GetBusinessService ("Consultingwerk.SmartFramework.Authorization.SecurityRealmInfoService":U),
                              SecurityRealmInfoService) .
-        
+
         FOR EACH eSmartSecurityAssignment:
-            IF CharacterType:IsNotNullOrEmpty (eSmartSecurityAssignment.GroupGuid) AND 
+            IF CharacterType:IsNotNullOrEmpty (eSmartSecurityAssignment.GroupGuid) AND
                CharacterType:IsNotNullOrEmpty (eSmartSecurityAssignment.UserGuid) THEN
-               
-                DatasetHelper:SetErrorString (BUFFER eSmartSecurityAssignment:HANDLE,   
-                                              "Only User or Group may be specified for security assignment."{&TRAN}) . 
+
+                DatasetHelper:SetErrorString (BUFFER eSmartSecurityAssignment:HANDLE,
+                                              "Only User or Group may be specified for security assignment."{&TRAN}) .
             ELSE DO:
-                IF CharacterType:IsNotNullOrEmpty (eSmartSecurityAssignment.GroupGuid) THEN DO: 
+                IF CharacterType:IsNotNullOrEmpty (eSmartSecurityAssignment.GroupGuid) THEN DO:
                     THIS-OBJECT:GetGroup (eSmartSecurityAssignment.GroupGuid) .
-                    
-                    IF NOT CAN-FIND (FIRST eSmartGroup) THEN  
-                        DatasetHelper:SetErrorString (BUFFER eSmartSecurityAssignment:HANDLE,   
-                                                      "Invalid user group sepcified."{&TRAN}) . 
+
+                    IF NOT CAN-FIND (FIRST eSmartGroup) THEN
+                        DatasetHelper:SetErrorString (BUFFER eSmartSecurityAssignment:HANDLE,
+                                                      "Invalid user group specified."{&TRAN}) .
                 END.
-                ELSE IF CharacterType:IsNotNullOrEmpty (eSmartSecurityAssignment.UserGuid) THEN DO: 
+                ELSE IF CharacterType:IsNotNullOrEmpty (eSmartSecurityAssignment.UserGuid) THEN DO:
                     THIS-OBJECT:GetUser (eSmartSecurityAssignment.UserGuid) .
-                    
-                    IF NOT CAN-FIND (FIRST eSmartUser) THEN  
-                        DatasetHelper:SetErrorString (BUFFER eSmartSecurityAssignment:HANDLE,   
-                                                      "Invalid user sepcified."{&TRAN}) . 
+
+                    IF NOT CAN-FIND (FIRST eSmartUser) THEN
+                        DatasetHelper:SetErrorString (BUFFER eSmartSecurityAssignment:HANDLE,
+                                                      "Invalid user specified."{&TRAN}) .
                 END.
             END.
 
@@ -179,25 +179,25 @@ CLASS Consultingwerk.SmartFramework.Authorization.SecurityAssignmentBusinessEnti
                                                            "SecurityRealmGuid":U,
                                                            "Security realm needs to be specified."{&TRAN}) .
 
-            IF oInfoService:GetSecurityRealmEmptyKeyAllowed (eSmartSecurityAssignment.SecurityRealmGuid) = FALSE THEN 
+            IF oInfoService:GetSecurityRealmEmptyKeyAllowed (eSmartSecurityAssignment.SecurityRealmGuid) = FALSE THEN
                 Consultingwerk.OERA.Validate:IsNotNullOrEmpty (BUFFER eSmartSecurityAssignment:HANDLE,
                                                                "SecurityItemGuid":U,
                                                                "Security item needs to be specified."{&TRAN}) .
-                                           
+
             IF oInfoService:GetSecurityRealmCompanyDependent (eSmartSecurityAssignment.SecurityRealmGuid) = TRUE THEN DO:
                 /* Mike Fechner, Consultingwerk Ltd. 04.09.2015
                    SCL-1007 - only assign login company guid for new records that are not already provided by the caller
                    with login company guid value */
-                IF ROW-STATE (eSmartSecurityAssignment) = ROW-CREATED AND CharacterType:IsNullOrEmpty (eSmartSecurityAssignment.LoginCompanyGuid) THEN DO: 
+                IF ROW-STATE (eSmartSecurityAssignment) = ROW-CREATED AND CharacterType:IsNullOrEmpty (eSmartSecurityAssignment.LoginCompanyGuid) THEN DO:
                     {Consultingwerk/Assertion/Assert/NotNullOrEmpty.i SessionManager:LoginCompanyKey "'Login Company Key':U"} .
-                    
+
                     ASSIGN eSmartSecurityAssignment.LoginCompanyGuid = SessionManager:LoginCompanyKey .
-                END. 
+                END.
             END.
             ELSE
-                ASSIGN eSmartSecurityAssignment.LoginCompanyGuid = "":U .              
-        END.        
-        
+                ASSIGN eSmartSecurityAssignment.LoginCompanyGuid = "":U .
+        END.
+
     END METHOD.
 
 END CLASS.

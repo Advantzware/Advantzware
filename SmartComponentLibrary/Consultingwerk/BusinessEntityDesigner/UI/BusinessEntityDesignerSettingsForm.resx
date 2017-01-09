@@ -296,7 +296,9 @@
   <data name="ultraLabel34.Text" xml:space="preserve">
     <value>Enter the command line required to start the Business Entity Designer for the active project, include the path to prowin32.exe, an .ini fle containing the propath, a pf file that contains database connections etc.
 
-Include -param open=%filename% for the file name of the .bedgm file that is being opened by double clicking in the Windows Explorer.</value>
+Include -param open=%filename% for the file name of the .bedgm file that is being opened by double clicking in the Windows Explorer.
+
+Use %prowin% as a substitute for the complete path to prowin.exe or prowin32.exe of the specified Progress Version.</value>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance7.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
@@ -322,6 +324,9 @@ Include -param open=%filename% for the file name of the .bedgm file that is bein
   </metadata>
   <metadata name="openFileDialog1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>177, 17</value>
+  </metadata>
+  <metadata name="openFileDialog2.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>310, 17</value>
   </metadata>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="$this.Icon" type="System.Drawing.Icon, System.Drawing">
     <value>

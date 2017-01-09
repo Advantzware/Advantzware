@@ -147,7 +147,7 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;button1.ZOrder" xml:space="preserve">
-    <value>2</value>
+    <value>3</value>
   </data>
   <data name="ultraTilePanel1.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Bottom, Left, Right</value>
@@ -186,7 +186,7 @@
     <value>lvPropath</value>
   </data>
   <data name="&gt;&gt;lvPropath.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinListView.UltraListView, Infragistics4.Win.UltraWinListView.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinListView.UltraListView, Infragistics4.Win.UltraWinListView.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;lvPropath.Parent" xml:space="preserve">
     <value>ultraTile1</value>
@@ -201,7 +201,7 @@
     <value>ultraTile1</value>
   </data>
   <data name="&gt;&gt;ultraTile1.Type" xml:space="preserve">
-    <value>Infragistics.Win.Misc.UltraTile, Infragistics4.Win.Misc.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.Misc.UltraTile, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ultraTile1.Parent" xml:space="preserve">
     <value>ultraTilePanel1.TileContainerLarge</value>
@@ -219,7 +219,7 @@
     <value>DB</value>
   </data>
   <data name="lvDatabases.Size" type="System.Drawing.Size, System.Drawing">
-    <value>180, 21</value>
+    <value>180, 16</value>
   </data>
   <data name="ultraListViewSubItemColumn2.Text" xml:space="preserve">
     <value>Parameters</value>
@@ -234,7 +234,7 @@
     <value>lvDatabases</value>
   </data>
   <data name="&gt;&gt;lvDatabases.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinListView.UltraListView, Infragistics4.Win.UltraWinListView.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinListView.UltraListView, Infragistics4.Win.UltraWinListView.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;lvDatabases.Parent" xml:space="preserve">
     <value>ultraTile2</value>
@@ -249,13 +249,13 @@
     <value>ultraTile2</value>
   </data>
   <data name="&gt;&gt;ultraTile2.Type" xml:space="preserve">
-    <value>Infragistics.Win.Misc.UltraTile, Infragistics4.Win.Misc.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.Misc.UltraTile, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ultraTile2.Parent" xml:space="preserve">
     <value>ultraTilePanel1.TileContainerNormal</value>
   </data>
   <data name="&gt;&gt;ultraTile2.ZOrder" xml:space="preserve">
-    <value>0</value>
+    <value>1</value>
   </data>
   <data name="ultraTile3.Caption" xml:space="preserve">
     <value>SESSION</value>
@@ -267,7 +267,7 @@
     <value>Property</value>
   </data>
   <data name="lvSessionProperties.Size" type="System.Drawing.Size, System.Drawing">
-    <value>180, 21</value>
+    <value>180, 16</value>
   </data>
   <data name="ultraListViewSubItemColumn3.Text" xml:space="preserve">
     <value>Value</value>
@@ -282,7 +282,7 @@
     <value>lvSessionProperties</value>
   </data>
   <data name="&gt;&gt;lvSessionProperties.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinListView.UltraListView, Infragistics4.Win.UltraWinListView.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinListView.UltraListView, Infragistics4.Win.UltraWinListView.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;lvSessionProperties.Parent" xml:space="preserve">
     <value>ultraTile3</value>
@@ -297,13 +297,13 @@
     <value>ultraTile3</value>
   </data>
   <data name="&gt;&gt;ultraTile3.Type" xml:space="preserve">
-    <value>Infragistics.Win.Misc.UltraTile, Infragistics4.Win.Misc.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.Misc.UltraTile, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ultraTile3.Parent" xml:space="preserve">
     <value>ultraTilePanel1.TileContainerNormal</value>
   </data>
   <data name="&gt;&gt;ultraTile3.ZOrder" xml:space="preserve">
-    <value>1</value>
+    <value>2</value>
   </data>
   <data name="ultraTile4.Caption" xml:space="preserve">
     <value>Startup Parameter</value>
@@ -330,7 +330,7 @@
     <value>lvStartupParameter</value>
   </data>
   <data name="&gt;&gt;lvStartupParameter.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinListView.UltraListView, Infragistics4.Win.UltraWinListView.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinListView.UltraListView, Infragistics4.Win.UltraWinListView.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;lvStartupParameter.Parent" xml:space="preserve">
     <value>ultraTile4</value>
@@ -345,7 +345,7 @@
     <value>ultraTile4</value>
   </data>
   <data name="&gt;&gt;ultraTile4.Type" xml:space="preserve">
-    <value>Infragistics.Win.Misc.UltraTile, Infragistics4.Win.Misc.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.Misc.UltraTile, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ultraTile4.Parent" xml:space="preserve">
     <value>ultraTilePanel1.TileContainerLarge</value>
@@ -363,7 +363,7 @@
     <value>Setting</value>
   </data>
   <data name="lvInternationalization.Size" type="System.Drawing.Size, System.Drawing">
-    <value>180, 21</value>
+    <value>180, 16</value>
   </data>
   <data name="ultraListViewSubItemColumn5.Text" xml:space="preserve">
     <value>Value</value>
@@ -378,7 +378,7 @@
     <value>lvInternationalization</value>
   </data>
   <data name="&gt;&gt;lvInternationalization.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinListView.UltraListView, Infragistics4.Win.UltraWinListView.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinListView.UltraListView, Infragistics4.Win.UltraWinListView.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;lvInternationalization.Parent" xml:space="preserve">
     <value>ultraTile5</value>
@@ -393,13 +393,13 @@
     <value>ultraTile5</value>
   </data>
   <data name="&gt;&gt;ultraTile5.Type" xml:space="preserve">
-    <value>Infragistics.Win.Misc.UltraTile, Infragistics4.Win.Misc.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.Misc.UltraTile, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ultraTile5.Parent" xml:space="preserve">
     <value>ultraTilePanel1.TileContainerNormal</value>
   </data>
   <data name="&gt;&gt;ultraTile5.ZOrder" xml:space="preserve">
-    <value>2</value>
+    <value>3</value>
   </data>
   <data name="ultraTile6.Caption" xml:space="preserve">
     <value>Process</value>
@@ -411,7 +411,7 @@
     <value>Setting</value>
   </data>
   <data name="lvProcess.Size" type="System.Drawing.Size, System.Drawing">
-    <value>180, 21</value>
+    <value>180, 16</value>
   </data>
   <data name="lvProcess.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -423,7 +423,7 @@
     <value>lvProcess</value>
   </data>
   <data name="&gt;&gt;lvProcess.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinListView.UltraListView, Infragistics4.Win.UltraWinListView.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinListView.UltraListView, Infragistics4.Win.UltraWinListView.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;lvProcess.Parent" xml:space="preserve">
     <value>ultraTile6</value>
@@ -438,13 +438,13 @@
     <value>ultraTile6</value>
   </data>
   <data name="&gt;&gt;ultraTile6.Type" xml:space="preserve">
-    <value>Infragistics.Win.Misc.UltraTile, Infragistics4.Win.Misc.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.Misc.UltraTile, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ultraTile6.Parent" xml:space="preserve">
     <value>ultraTilePanel1.TileContainerNormal</value>
   </data>
   <data name="&gt;&gt;ultraTile6.ZOrder" xml:space="preserve">
-    <value>3</value>
+    <value>4</value>
   </data>
   <data name="ultraTile7.Caption" xml:space="preserve">
     <value>Service Instances</value>
@@ -456,7 +456,7 @@
     <value>Service Type</value>
   </data>
   <data name="lvServices.Size" type="System.Drawing.Size, System.Drawing">
-    <value>180, 21</value>
+    <value>180, 16</value>
   </data>
   <data name="ultraListViewSubItemColumn7.Text" xml:space="preserve">
     <value>Instance</value>
@@ -471,7 +471,7 @@
     <value>lvServices</value>
   </data>
   <data name="&gt;&gt;lvServices.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinListView.UltraListView, Infragistics4.Win.UltraWinListView.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinListView.UltraListView, Infragistics4.Win.UltraWinListView.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;lvServices.Parent" xml:space="preserve">
     <value>ultraTile7</value>
@@ -486,13 +486,13 @@
     <value>ultraTile7</value>
   </data>
   <data name="&gt;&gt;ultraTile7.Type" xml:space="preserve">
-    <value>Infragistics.Win.Misc.UltraTile, Infragistics4.Win.Misc.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.Misc.UltraTile, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ultraTile7.Parent" xml:space="preserve">
     <value>ultraTilePanel1.TileContainerNormal</value>
   </data>
   <data name="&gt;&gt;ultraTile7.ZOrder" xml:space="preserve">
-    <value>4</value>
+    <value>5</value>
   </data>
   <data name="ultraTile8.Caption" xml:space="preserve">
     <value>Servers</value>
@@ -504,7 +504,7 @@
     <value>Server Type</value>
   </data>
   <data name="lvServers.Size" type="System.Drawing.Size, System.Drawing">
-    <value>180, 21</value>
+    <value>180, 16</value>
   </data>
   <data name="ultraListViewSubItemColumn8.Text" xml:space="preserve">
     <value>Name</value>
@@ -519,7 +519,7 @@
     <value>lvServers</value>
   </data>
   <data name="&gt;&gt;lvServers.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinListView.UltraListView, Infragistics4.Win.UltraWinListView.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinListView.UltraListView, Infragistics4.Win.UltraWinListView.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;lvServers.Parent" xml:space="preserve">
     <value>ultraTile8</value>
@@ -534,13 +534,13 @@
     <value>ultraTile8</value>
   </data>
   <data name="&gt;&gt;ultraTile8.Type" xml:space="preserve">
-    <value>Infragistics.Win.Misc.UltraTile, Infragistics4.Win.Misc.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.Misc.UltraTile, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ultraTile8.Parent" xml:space="preserve">
     <value>ultraTilePanel1.TileContainerNormal</value>
   </data>
   <data name="&gt;&gt;ultraTile8.ZOrder" xml:space="preserve">
-    <value>5</value>
+    <value>6</value>
   </data>
   <data name="ultraTile9.Caption" xml:space="preserve">
     <value>Service Definitions</value>
@@ -554,6 +554,33 @@
   <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing">
     <value>639, 449</value>
   </data>
+  <data name="button3.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Bottom, Left</value>
+  </data>
+  <data name="button3.Location" type="System.Drawing.Point, System.Drawing">
+    <value>12, 414</value>
+  </data>
+  <data name="button3.Size" type="System.Drawing.Size, System.Drawing">
+    <value>110, 23</value>
+  </data>
+  <data name="button3.TabIndex" type="System.Int32, mscorlib">
+    <value>11</value>
+  </data>
+  <data name="button3.Text" xml:space="preserve">
+    <value>Context Dataset</value>
+  </data>
+  <data name="&gt;&gt;button3.Name" xml:space="preserve">
+    <value>button3</value>
+  </data>
+  <data name="&gt;&gt;button3.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;button3.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;button3.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
   <data name="button2.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Bottom, Left</value>
   </data>
@@ -561,7 +588,7 @@
     <value>NoControl</value>
   </data>
   <data name="button2.Location" type="System.Drawing.Point, System.Drawing">
-    <value>10, 414</value>
+    <value>128, 414</value>
   </data>
   <data name="button2.Size" type="System.Drawing.Size, System.Drawing">
     <value>110, 23</value>
@@ -582,7 +609,7 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;button2.ZOrder" xml:space="preserve">
-    <value>0</value>
+    <value>1</value>
   </data>
   <data name="m_SessionInfoForm_Toolbars_Dock_Area_Left.Location" type="System.Drawing.Point, System.Drawing">
     <value>0, 0</value>
@@ -594,13 +621,13 @@
     <value>m_SessionInfoForm_Toolbars_Dock_Area_Left</value>
   </data>
   <data name="&gt;&gt;m_SessionInfoForm_Toolbars_Dock_Area_Left.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;m_SessionInfoForm_Toolbars_Dock_Area_Left.Parent" xml:space="preserve">
     <value>$this</value>
   </data>
   <data name="&gt;&gt;m_SessionInfoForm_Toolbars_Dock_Area_Left.ZOrder" xml:space="preserve">
-    <value>3</value>
+    <value>4</value>
   </data>
   <data name="m_SessionInfoForm_Toolbars_Dock_Area_Right.Location" type="System.Drawing.Point, System.Drawing">
     <value>639, 0</value>
@@ -612,13 +639,13 @@
     <value>m_SessionInfoForm_Toolbars_Dock_Area_Right</value>
   </data>
   <data name="&gt;&gt;m_SessionInfoForm_Toolbars_Dock_Area_Right.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;m_SessionInfoForm_Toolbars_Dock_Area_Right.Parent" xml:space="preserve">
     <value>$this</value>
   </data>
   <data name="&gt;&gt;m_SessionInfoForm_Toolbars_Dock_Area_Right.ZOrder" xml:space="preserve">
-    <value>4</value>
+    <value>5</value>
   </data>
   <data name="m_SessionInfoForm_Toolbars_Dock_Area_Bottom.Location" type="System.Drawing.Point, System.Drawing">
     <value>0, 449</value>
@@ -630,13 +657,13 @@
     <value>m_SessionInfoForm_Toolbars_Dock_Area_Bottom</value>
   </data>
   <data name="&gt;&gt;m_SessionInfoForm_Toolbars_Dock_Area_Bottom.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;m_SessionInfoForm_Toolbars_Dock_Area_Bottom.Parent" xml:space="preserve">
     <value>$this</value>
   </data>
   <data name="&gt;&gt;m_SessionInfoForm_Toolbars_Dock_Area_Bottom.ZOrder" xml:space="preserve">
-    <value>5</value>
+    <value>6</value>
   </data>
   <data name="m_SessionInfoForm_Toolbars_Dock_Area_Top.Location" type="System.Drawing.Point, System.Drawing">
     <value>0, 0</value>
@@ -648,13 +675,13 @@
     <value>m_SessionInfoForm_Toolbars_Dock_Area_Top</value>
   </data>
   <data name="&gt;&gt;m_SessionInfoForm_Toolbars_Dock_Area_Top.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;m_SessionInfoForm_Toolbars_Dock_Area_Top.Parent" xml:space="preserve">
     <value>$this</value>
   </data>
   <data name="&gt;&gt;m_SessionInfoForm_Toolbars_Dock_Area_Top.ZOrder" xml:space="preserve">
-    <value>6</value>
+    <value>7</value>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="$this.Icon" type="System.Drawing.Icon, System.Drawing">
     <value>
@@ -2566,9 +2593,6 @@
         AQAAgAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIABAACAAQAAwAMAAOAHAAD4HwAA
 </value>
   </data>
-  <data name="$this.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
   <data name="$this.Text" xml:space="preserve">
     <value>Session Info</value>
   </data>
@@ -2579,13 +2603,13 @@
     <value>ultraToolbarsManager1</value>
   </data>
   <data name="&gt;&gt;ultraToolbarsManager1.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsManager, Infragistics4.Win.UltraWinToolbars.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsManager, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;$this.Name" xml:space="preserve">
     <value>SessionInfoForm</value>
   </data>
   <data name="&gt;&gt;$this.Type" xml:space="preserve">
-    <value>Consultingwerk.Forms.BaseForm, OEProxyAssembly, Version=11.5.0.2, Culture=neutral, PublicKeyToken=null</value>
+    <value>Consultingwerk.Forms.BaseForm, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance2.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
@@ -2641,7 +2665,7 @@
     <value>Relative Path</value>
   </data>
   <data name="lvServiceDefinitions.Size" type="System.Drawing.Size, System.Drawing">
-    <value>180, 21</value>
+    <value>180, 16</value>
   </data>
   <data name="ultraListViewSubItemColumn9.Text" xml:space="preserve">
     <value>Absolute Path</value>
@@ -2656,7 +2680,7 @@
     <value>lvServiceDefinitions</value>
   </data>
   <data name="&gt;&gt;lvServiceDefinitions.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinListView.UltraListView, Infragistics4.Win.UltraWinListView.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinListView.UltraListView, Infragistics4.Win.UltraWinListView.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;lvServiceDefinitions.Parent" xml:space="preserve">
     <value>ultraTile9</value>
@@ -2671,13 +2695,13 @@
     <value>ultraTile9</value>
   </data>
   <data name="&gt;&gt;ultraTile9.Type" xml:space="preserve">
-    <value>Infragistics.Win.Misc.UltraTile, Infragistics4.Win.Misc.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.Misc.UltraTile, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ultraTile9.Parent" xml:space="preserve">
     <value>ultraTilePanel1.TileContainerNormal</value>
   </data>
   <data name="&gt;&gt;ultraTile9.ZOrder" xml:space="preserve">
-    <value>6</value>
+    <value>7</value>
   </data>
   <data name="ultraTile11.Caption" xml:space="preserve">
     <value>File Lookup</value>
@@ -2686,7 +2710,7 @@
     <value>0, 18</value>
   </data>
   <data name="fileLookupControl1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>180, 21</value>
+    <value>180, 16</value>
   </data>
   <data name="fileLookupControl1.TabIndex" type="System.Int32, mscorlib">
     <value>6</value>
@@ -2695,7 +2719,7 @@
     <value>fileLookupControl1</value>
   </data>
   <data name="&gt;&gt;fileLookupControl1.Type" xml:space="preserve">
-    <value>Consultingwerk.Windows.Session.FileLookupControl, OEProxyAssembly, Version=11.5.0.0, Culture=neutral, PublicKeyToken=null</value>
+    <value>Consultingwerk.Windows.Session.FileLookupControl, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;fileLookupControl1.Parent" xml:space="preserve">
     <value>ultraTile11</value>
@@ -2710,25 +2734,73 @@
     <value>ultraTile11</value>
   </data>
   <data name="&gt;&gt;ultraTile11.Type" xml:space="preserve">
-    <value>Infragistics.Win.Misc.UltraTile, Infragistics4.Win.Misc.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.Misc.UltraTile, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ultraTile11.Parent" xml:space="preserve">
     <value>ultraTilePanel1.TileContainerNormal</value>
   </data>
   <data name="&gt;&gt;ultraTile11.ZOrder" xml:space="preserve">
-    <value>7</value>
+    <value>8</value>
+  </data>
+  <data name="ultraTile12.Caption" xml:space="preserve">
+    <value>Loaded Assemblies</value>
+  </data>
+  <data name="lvAssemblies.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 18</value>
+  </data>
+  <data name="ultraListView1.MainColumn.Text" xml:space="preserve">
+    <value>Full Name</value>
+  </data>
+  <data name="lvAssemblies.Size" type="System.Drawing.Size, System.Drawing">
+    <value>180, 16</value>
+  </data>
+  <data name="ultraListViewSubItemColumn10.Text" xml:space="preserve">
+    <value>Location</value>
+  </data>
+  <data name="lvAssemblies.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="lvAssemblies.Text" xml:space="preserve">
+    <value>ultraListView1</value>
+  </data>
+  <data name="&gt;&gt;lvAssemblies.Name" xml:space="preserve">
+    <value>lvAssemblies</value>
+  </data>
+  <data name="&gt;&gt;lvAssemblies.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinListView.UltraListView, Infragistics4.Win.UltraWinListView.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;lvAssemblies.Parent" xml:space="preserve">
+    <value>ultraTile12</value>
+  </data>
+  <data name="&gt;&gt;lvAssemblies.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="ultraTile12.TabIndex" type="System.Int32, mscorlib">
+    <value>10</value>
+  </data>
+  <data name="&gt;&gt;ultraTile12.Name" xml:space="preserve">
+    <value>ultraTile12</value>
+  </data>
+  <data name="&gt;&gt;ultraTile12.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraTile, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraTile12.Parent" xml:space="preserve">
+    <value>ultraTilePanel1.TileContainerNormal</value>
+  </data>
+  <data name="&gt;&gt;ultraTile12.ZOrder" xml:space="preserve">
+    <value>0</value>
   </data>
   <data name="&gt;&gt;ultraTilePanel1.Name" xml:space="preserve">
     <value>ultraTilePanel1</value>
   </data>
   <data name="&gt;&gt;ultraTilePanel1.Type" xml:space="preserve">
-    <value>Infragistics.Win.Misc.UltraTilePanel, Infragistics4.Win.Misc.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.Misc.UltraTilePanel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ultraTilePanel1.Parent" xml:space="preserve">
     <value>$this</value>
   </data>
   <data name="&gt;&gt;ultraTilePanel1.ZOrder" xml:space="preserve">
-    <value>1</value>
+    <value>2</value>
   </data>
   <data name="ultraTile10.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -2737,6 +2809,6 @@
     <value>ultraTile10</value>
   </data>
   <data name="&gt;&gt;ultraTile10.Type" xml:space="preserve">
-    <value>Infragistics.Win.Misc.UltraTile, Infragistics4.Win.Misc.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.Misc.UltraTile, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
 </root>

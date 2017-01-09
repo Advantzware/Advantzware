@@ -28,15 +28,15 @@ INTERFACE Consultingwerk.Framework.TypeDescriptor.ITypeDescriptor:
         Purpose: Returns a description for the type
         Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Description AS CHARACTER NO-UNDO 
-	GET.
+    DEFINE PUBLIC PROPERTY Description AS CHARACTER NO-UNDO 
+    GET.
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the list of property descriptory
         Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY PropertyDescriptors AS ListIPropertyDescriptor NO-UNDO 
-	GET.
+    DEFINE PUBLIC PROPERTY PropertyDescriptors AS ListIPropertyDescriptor NO-UNDO 
+    GET.
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the name of the type that defines the property

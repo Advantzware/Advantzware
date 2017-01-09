@@ -98,7 +98,7 @@ PROCEDURE process-web-request :
   END.
 
   CATCH err AS Progress.Lang.Error:
-  	LogManager:WriteError (err) .	
+      LogManager:WriteError (err) .    
   END CATCH.
 
 END PROCEDURE.

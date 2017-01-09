@@ -13,28 +13,31 @@
     File        : AblFrameMigrationForm
     Purpose     : Provides user interface for turning ABL GUI FRAME Widgets
                   into GUI for .NET UI Objects
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Mon Dec 02 20:03:21 CET 2013
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
+USING Consultingwerk.BusinessEntityDesigner.KendoUiBuilder.* FROM PROPATH.
+USING Consultingwerk.BusinessEntityDesigner.KendoUiBuilder.Builder.* FROM PROPATH.
 USING Consultingwerk.*                                                      FROM PROPATH .
 USING Consultingwerk.Assertion.*                                            FROM PROPATH .
 USING Consultingwerk.BusinessEntityDesigner.*                               FROM PROPATH .
-USING Consultingwerk.BusinessEntityDesigner.Generator.Viewer.*              FROM PROPATH . 
+USING Consultingwerk.BusinessEntityDesigner.Generator.Viewer.*              FROM PROPATH .
 USING Consultingwerk.BusinessEntityDesigner.Plugins.CustomServices.*        FROM PROPATH .
-USING Consultingwerk.Framework.*                                            FROM PROPATH . 
+USING Consultingwerk.Framework.*                                            FROM PROPATH .
 USING Consultingwerk.SmartComponents.Base.*                                 FROM PROPATH .
-USING Consultingwerk.SmartComponents.Enum.*                                 FROM PROPATH . 
-USING Consultingwerk.SmartComponents.Implementation.*                       FROM PROPATH . 
+USING Consultingwerk.SmartComponents.Enum.*                                 FROM PROPATH .
+USING Consultingwerk.SmartComponents.Implementation.*                       FROM PROPATH .
 USING Consultingwerk.SmartComponents.Support.*                              FROM PROPATH .
 USING Consultingwerk.Studio.LegacyGuiMigration.CreateBusinessEntityWizard.* FROM PROPATH .
 USING Consultingwerk.Studio.LegacyGuiMigration.Frame.*                      FROM PROPATH .
-USING Consultingwerk.Util.*                                                 FROM PROPATH .   
+USING Consultingwerk.Util.*                                                 FROM PROPATH .
+USING Consultingwerk.Windows.API.*                                          FROM PROPATH .
 USING Consultingwerk.Windows.Util.Forms.*                                   FROM PROPATH .
 USING Infragistics.Win.UltraWinEditors.*                                    FROM ASSEMBLY .
 USING Progress.Lang.*                                                       FROM PROPATH .
@@ -42,8 +45,8 @@ USING System.Windows.Forms.*                                                FROM
 
 {Consultingwerk/products.i}
 
-CLASS Consultingwerk.Studio.LegacyGuiMigration.Frame.AblFrameMigrationForm 
-    INHERITS SmartWindowForm: 
+CLASS Consultingwerk.Studio.LegacyGuiMigration.Frame.AblFrameMigrationForm
+    INHERITS SmartWindowForm:
 
     DEFINE PRIVATE VARIABLE bindingSource1 AS Progress.Data.BindingSource NO-UNDO.
     DEFINE PRIVATE VARIABLE coFrameName AS Infragistics.Win.UltraWinEditors.UltraComboEditor NO-UNDO.
@@ -52,13 +55,13 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Frame.AblFrameMigrationForm
     DEFINE PRIVATE VARIABLE m_AblFrameMigrationForm_Toolbars_Dock_Area_Left AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_AblFrameMigrationForm_Toolbars_Dock_Area_Bottom AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE AblFrameMigrationForm_Fill_Panel AS Infragistics.Win.Misc.UltraPanel NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE openFileDialog1 AS System.Windows.Forms.OpenFileDialog NO-UNDO.
     DEFINE PRIVATE VARIABLE saveFileDialog1 AS System.Windows.Forms.SaveFileDialog NO-UNDO.
     DEFINE PRIVATE VARIABLE smartTempTableAdapter1 AS Consultingwerk.SmartComponents.Implementation.SmartTempTableAdapter NO-UNDO.
     DEFINE PRIVATE VARIABLE smartToolbarController1 AS Consultingwerk.SmartComponents.Implementation.SmartToolbarController NO-UNDO.
     DEFINE PRIVATE VARIABLE smartUpdatableBrowser1 AS Consultingwerk.SmartComponents.Implementation.SmartUpdatableBrowser NO-UNDO.
-    
+
     DEFINE PRIVATE VARIABLE ultraCheckEditor1 AS Infragistics.Win.UltraWinEditors.UltraCheckEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraLabel1 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraLabel5 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
@@ -70,119 +73,121 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Frame.AblFrameMigrationForm
     DEFINE PRIVATE VARIABLE ultraLabel2 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraTextEditor4 AS Infragistics.Win.UltraWinEditors.UltraTextEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraTextEditor3 AS Infragistics.Win.UltraWinEditors.UltraTextEditor NO-UNDO.
-    
+
     {Consultingwerk/Studio/LegacyGuiMigration/Frame/ttFrameWidget.i}
     {Consultingwerk/Studio/LegacyGuiMigration/Frame/dsTrigger.i}
 
     DEFINE VARIABLE oParser AS FrameParser NO-UNDO .
 
-    DEFINE TEMP-TABLE ttSelectedFrameWidget NO-UNDO 
+    DEFINE TEMP-TABLE ttSelectedFrameWidget NO-UNDO
         LIKE ttFrameWidget
-        FIELD IsSelected             AS LOGICAL   INIT TRUE 
+        FIELD IsSelected             AS LOGICAL   INIT TRUE
         FIELD AlternativeControlType AS CHARACTER INIT "":U.
-    
+
     DEFINE VARIABLE oLruController AS Consultingwerk.Windows.Controls.UltraRibbonLruController NO-UNDO  .
-    
-    /*------------------------------------------------------------------------------
-        Purpose: Returns the name of the currently opened file 
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY FileName AS CHARACTER NO-UNDO 
-	GET.
-	PROTECTED SET. 
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the AblFrameMigrationForm class 
-        Notes:   
+        Purpose: Returns the name of the currently opened file
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC AblFrameMigrationForm ():
-        		
+    DEFINE PUBLIC PROPERTY FileName AS CHARACTER NO-UNDO
+    GET.
+    PROTECTED SET.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the AblFrameMigrationForm class
+        Notes:
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC AblFrameMigrationForm ():
+
         SUPER().
 
         InitializeComponent().
-        
+
         &IF NOT PROVERSION BEGINS "10.2":U AND NOT PROVERSION BEGINS "11.0" &THEN
         THIS-OBJECT:ComponentsCollection:Add (THIS-OBJECT:components).
+        &ELSE
+        smartToolbarController1:Tools["Kendo UI Builder View":U]:SharedProps:Enabled = FALSE .
         &ENDIF
-                
-        oParser = NEW FrameParser () . 
+
+        oParser = NEW FrameParser () .
         oParser:StatusChanged:Subscribe (StatusChangedHandler) .
-    
+
         smartTempTableAdapter1:TempTableHandle = TEMP-TABLE ttSelectedFrameWidget:HANDLE .
         smartTempTableAdapter1:RetrieveData () .
-              
+
         oLruController = NEW Consultingwerk.Windows.Controls.UltraRibbonLruController (THIS-OBJECT:smartToolbarController1,
                                                                                        "LRU":U,
                                                                                        "&1":U,
                                                                                        10) .
-                
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Event handler for the CustomizeBusinessEntity event of the 
-	             CreatBusinessEntityWizardForm
-	    Notes:
-	    @param sender The reference to the object that raised the event
-	    @param e The CustomizeBusinessEntityEventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID CustomizeBusinessEntity (sender AS Progress.Lang.Object,
-	                                               e AS CustomizeBusinessEntityEventArgs):
-		
-		DEFINE VARIABLE cFieldName  AS CHARACTER       NO-UNDO .
-		DEFINE VARIABLE oFieldName  AS BufferFieldName NO-UNDO .
-	    DEFINE VARIABLE hBuffer     AS HANDLE          NO-UNDO .
-	    DEFINE VARIABLE roRowid     AS ROWID           NO-UNDO . 
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the CustomizeBusinessEntity event of the
+                 CreatBusinessEntityWizardForm
+        Notes:
+        @param sender The reference to the object that raised the event
+        @param e The CustomizeBusinessEntityEventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID CustomizeBusinessEntity (sender AS Progress.Lang.Object,
+                                                   e AS CustomizeBusinessEntityEventArgs):
+
+        DEFINE VARIABLE cFieldName  AS CHARACTER       NO-UNDO .
+        DEFINE VARIABLE oFieldName  AS BufferFieldName NO-UNDO .
+        DEFINE VARIABLE hBuffer     AS HANDLE          NO-UNDO .
+        DEFINE VARIABLE roRowid     AS ROWID           NO-UNDO .
         DEFINE VARIABLE lKeepSource AS LOGICAL         NO-UNDO .
-	
-	    DEFINE VARIABLE cBufferNames AS CHARACTER NO-UNDO.
-	
-	    hBuffer = e:Dataset:GET-BUFFER-HANDLE ("eTable":U) .
-	    hBuffer:FIND-FIRST () .
+
+        DEFINE VARIABLE cBufferNames AS CHARACTER NO-UNDO.
+
+        hBuffer = e:Dataset:GET-BUFFER-HANDLE ("eTable":U) .
+        hBuffer:FIND-FIRST () .
 
         roRowid = hBuffer:ROWID .
 
-        ASSIGN cBufferNames = hBuffer::SourceTableNames . 
+        ASSIGN cBufferNames = hBuffer::SourceTableNames .
 
-		FOR EACH ttSelectedFrameWidget WHERE ttSelectedFrameWidget.IsSelected:
-		    
-		    IF NUM-ENTRIES (ttSelectedFrameWidget.FieldName, ".":U) > 1 THEN DO:
-    		    ASSIGN oFieldName = BufferHelper:ParseFieldName (ttSelectedFrameWidget.FieldName) . 
-    		    
-    		    IF LOOKUP (oFieldName:TableName, cBufferNames) = 0 THEN 
-    		        cBufferNames = cBufferNames + ",":U + oFieldName:TableName .
-    		      
-    		    ASSIGN cFieldName = SUBSTITUTE ("&1.&2.&3":U,
-    		                                    IF oFieldName:DatabaseName > "":U THEN 
-    		                                          oFieldName:DatabaseName 
-    		                                    ELSE 
-    		                                          "":U,
-    		                                    oFieldName:TableName,
-    		                                    oFieldName:FieldName) 
-    		           lKeepSource = TRUE  .
-    		                                    
-		    END.
-		    ELSE 
-		        ASSIGN cFieldName  = ttSelectedFrameWidget.FieldName 
-		               lKeepSource = FALSE.
-		    
-		    e:Controller:AddExistingField (roRowid, 
-		                                   cFieldName,
-		                                   SUBSTITUTE ("&2&1&3&1&4&1&5":U, 
-		                                               CHR (1),
-	                                                   ttSelectedFrameWidget.FieldDataType,
-	                                                   "":U, 
-	                                                   ttSelectedFrameWidget.WidgetLabel,
-	                                                   ttSelectedFrameWidget.FieldFormat),
-		                                   lKeepSource) .
-		    
-		END.
+        FOR EACH ttSelectedFrameWidget WHERE ttSelectedFrameWidget.IsSelected:
 
-        ASSIGN hBuffer::SourceTableNames  = cBufferNames 
-               hBuffer::SourceBufferNames = cBufferNames . 
+            IF NUM-ENTRIES (ttSelectedFrameWidget.FieldName, ".":U) > 1 THEN DO:
+                ASSIGN oFieldName = BufferHelper:ParseFieldName (ttSelectedFrameWidget.FieldName) .
+
+                IF LOOKUP (oFieldName:TableName, cBufferNames) = 0 THEN
+                    cBufferNames = cBufferNames + ",":U + oFieldName:TableName .
+
+                ASSIGN cFieldName = SUBSTITUTE ("&1.&2.&3":U,
+                                                IF oFieldName:DatabaseName > "":U THEN
+                                                      oFieldName:DatabaseName
+                                                ELSE
+                                                      "":U,
+                                                oFieldName:TableName,
+                                                oFieldName:FieldName)
+                       lKeepSource = TRUE  .
+
+            END.
+            ELSE
+                ASSIGN cFieldName  = ttSelectedFrameWidget.FieldName
+                       lKeepSource = FALSE.
+
+            e:Controller:AddExistingField (roRowid,
+                                           cFieldName,
+                                           SUBSTITUTE ("&2&1&3&1&4&1&5":U,
+                                                       CHR (1),
+                                                       ttSelectedFrameWidget.FieldDataType,
+                                                       "":U,
+                                                       ttSelectedFrameWidget.WidgetLabel,
+                                                       ttSelectedFrameWidget.FieldFormat),
+                                           lKeepSource) .
+
+        END.
+
+        ASSIGN hBuffer::SourceTableNames  = cBufferNames
+               hBuffer::SourceBufferNames = cBufferNames .
 
         THIS-OBJECT:ultraTextEditor2:Text = hBuffer::TempTableName .
 
@@ -193,216 +198,216 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Frame.AblFrameMigrationForm
                                                         hBuffer::BusinessEntityPackage,
                                                         hBuffer::BusinessEntityName) .
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Generates an Web2 View from the selected Widgets
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID GenerateWeb2View ():
-		
+    METHOD PROTECTED VOID GenerateWeb2View ():
+
         DEFINE VARIABLE oBindingSource AS SmartBusinessEntityBindingSource NO-UNDO .
         DEFINE VARIABLE oBuilder       AS SmartViewerBuilder               NO-UNDO .
         DEFINE VARIABLE cFileName      AS CHARACTER                        NO-UNDO .
         DEFINE VARIABLE oList          AS ListViewerFieldSpec              NO-UNDO .
-    
+
         DEFINE VARIABLE oSaveFileDialog  AS SaveFileDialog                NO-UNDO .
-        DEFINE VARIABLE oDialogResult    AS DialogResult                  NO-UNDO . 
-    
-        ASSIGN oSaveFileDialog                  = NEW SaveFileDialog () 
-               oSaveFileDialog:AddExtension     = TRUE 
-               oSaveFileDialog:CheckPathExists  = TRUE 
+        DEFINE VARIABLE oDialogResult    AS DialogResult                  NO-UNDO .
+
+        ASSIGN oSaveFileDialog                  = NEW SaveFileDialog ()
+               oSaveFileDialog:AddExtension     = TRUE
+               oSaveFileDialog:CheckPathExists  = TRUE
                oSaveFileDialog:DefaultExt       = "html":U
                oSaveFileDialog:DereferenceLinks = TRUE
                oSaveFileDialog:Filter           = "HTML Files (*.html)|*.html"{&TRAN}
-               oSaveFileDialog:FilterIndex      = 0 
+               oSaveFileDialog:FilterIndex      = 0
                oSaveFileDialog:OverwritePrompt  = TRUE
                oSaveFileDialog:RestoreDirectory = TRUE
-               oSaveFileDialog:Title            = "Save Web View"{&TRAN} .  
+               oSaveFileDialog:Title            = "Save Web View"{&TRAN} .
 
         WAIT-FOR oSaveFileDialog:ShowDialog (THIS-OBJECT) SET oDialogResult .
 
         {Consultingwerk/check-dialogresult-ok.i oDialogResult} .
 
-        ASSIGN cFileName = oSaveFileDialog:FileName .    
-    
+        ASSIGN cFileName = oSaveFileDialog:FileName .
+
         THIS-OBJECT:SaveUnsavedChanges () .
-        
+
         /* Mike Fechner, Consultingwerk Ltd. 10.07.2014
            Cannot proceed without Entity Name, Entity Table */
-        IF ultraCheckEditor1:Checked THEN DO: 
+        IF ultraCheckEditor1:Checked THEN DO:
             Assert:NotNullOrEmpty (ultraTextEditor1:Text, "Business Entity Name"{&TRAN}) .
             Assert:NotNullOrEmpty (ultraTextEditor2:Text, "Entity Table"{&TRAN}) .
 
             oBindingSource = NEW SmartBusinessEntityBindingSource () .
-            
+
             ASSIGN oBindingSource:EntityName  = ultraTextEditor1:Text
                    oBindingSource:EntityTable = ENTRY (1, ultraTextEditor2:Text)
                    oBindingSource:EntityView  = ListHelper:RemoveEntry (ultraTextEditor2:Text, 1)
-                   oBindingSource:EntityJoin  = TRIM (FILL ("yes,":U, NUM-ENTRIES (oBindingSource:EntityView)), ",":U) 
-                        .  
-    
-            oBindingSource:DesignerImportSchema (TRUE) .        
-    
+                   oBindingSource:EntityJoin  = TRIM (FILL ("yes,":U, NUM-ENTRIES (oBindingSource:EntityView)), ",":U)
+                        .
+
+            oBindingSource:DesignerImportSchema (TRUE) .
+
             /* Mike Fechner, Consultingwerk Ltd. 10.07.2014
                Unable to continue without Table Schmea */
-            IF NOT VALID-OBJECT (oBindingSource:TableSchema) THEN 
-                RETURN . 
+            IF NOT VALID-OBJECT (oBindingSource:TableSchema) THEN
+                RETURN .
         END.
-        
+
         oBuilder = NEW SmartViewerBuilder () .
-        oBuilder:Generator = NEW SmartWeb2ViewGenerator (cFileName) . 
-        
+        oBuilder:Generator = NEW SmartWeb2ViewGenerator (cFileName) .
+
         oList = THIS-OBJECT:PrepareViewerBuilder (oBuilder, oBindingSource) .
-                
+
         oBuilder:Generate (oList) .
-        
-        IF cFileName > "":U THEN 
+
+        IF cFileName > "":U THEN
             WindowsExplorerHelper:ShowFileInExplorer (cFileName) .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Prepares the SmartViewerBuilder (adds fields)
-        Notes:   
+        Notes:
         @param poBuilder The SmartViewerBuilder instance to prepare
         @param poBindingSource The SmartBusinessEntityBindingSource with the reference schema
         @return The list of viewer field specs to pass to the builder with the Generate() method
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED ListViewerFieldSpec PrepareViewerBuilder (poBuilder AS SmartViewerBuilder,
-	                                                           poBindingSource AS SmartBusinessEntityBindingSource):
+    METHOD PROTECTED ListViewerFieldSpec PrepareViewerBuilder (poBuilder AS SmartViewerBuilder,
+                                                               poBindingSource AS SmartBusinessEntityBindingSource):
 
-        DEFINE VARIABLE oField         AS ViewerFieldSpec                  NO-UNDO . 
+        DEFINE VARIABLE oField         AS ViewerFieldSpec                  NO-UNDO .
         DEFINE VARIABLE cName          AS CHARACTER                        NO-UNDO .
         DEFINE VARIABLE oList          AS ListViewerFieldSpec              NO-UNDO .
         DEFINE VARIABLE iMinLeft       AS INTEGER                          NO-UNDO INIT 99999 .
         DEFINE VARIABLE iMinTop        AS INTEGER                          NO-UNDO INIT 99999 .
         DEFINE VARIABLE lParseTrigger  AS LOGICAL                          NO-UNDO .
-        DEFINE VARIABLE oTriggerParser AS TriggerParser                    NO-UNDO . 
+        DEFINE VARIABLE oTriggerParser AS TriggerParser                    NO-UNDO .
         DEFINE VARIABLE lcCode         AS LONGCHAR                         NO-UNDO .
-		
+
         poBuilder:BindingSource = poBindingSource .
         poBuilder:ClassName = ultraTextEditor4:Text .
         poBuilder:PackageName = ultraTextEditor3:Text .
-        poBuilder:CreateBindingSource = ultraCheckEditor1:Checked . 
-        
+        poBuilder:CreateBindingSource = ultraCheckEditor1:Checked .
+
         IF VALID-OBJECT (poBindingSource) THEN DO:
-            poBuilder:EntityJoin  = poBindingSource:EntityJoin . 
-            poBuilder:EntityName  = poBindingSource:EntityName . 
-            poBuilder:EntityTable = poBindingSource:EntityTable . 
+            poBuilder:EntityJoin  = poBindingSource:EntityJoin .
+            poBuilder:EntityName  = poBindingSource:EntityName .
+            poBuilder:EntityTable = poBindingSource:EntityTable .
             poBuilder:EntityView  = poBindingSource:EntityView .
-        END. 
+        END.
 
         oList = NEW ListViewerFieldSpec () .
 
         /* Left / Top Align */
-        IF UltraToolbarsHelper:GetStateButtonToolChecked (smartToolbarController1, 
+        IF UltraToolbarsHelper:GetStateButtonToolChecked (smartToolbarController1,
                                                           "Left/Top Align":U) THEN DO:
 
             FOR EACH ttSelectedFrameWidget WHERE ttSelectedFrameWidget.IsSelected = TRUE
                            BY ttSelectedFrameWidget.Order:
-           
-                ASSIGN iMinLeft = MIN (iMinLeft, ttSelectedFrameWidget.AtColumn * SESSION:PIXELS-PER-COLUMN) 
-                       iMinTop  = MIN (iMinTop, ttSelectedFrameWidget.AtRow * SESSION:PIXELS-PER-ROW) .
-            END.            
+
+                ASSIGN iMinLeft = MINIMUM (iMinLeft, ttSelectedFrameWidget.AtColumn * SESSION:PIXELS-PER-COLUMN)
+                       iMinTop  = MINIMUM (iMinTop, ttSelectedFrameWidget.AtRow * SESSION:PIXELS-PER-ROW) .
+            END.
         END.
 
         /* Mike Fechner, Consultingwerk Ltd. 15.11.2014
            SCL-419 : Parsing of trigger blocks */
-        ASSIGN lParseTrigger = UltraToolbarsHelper:GetStateButtonToolChecked (smartToolbarController1, 
+        ASSIGN lParseTrigger = UltraToolbarsHelper:GetStateButtonToolChecked (smartToolbarController1,
                                                                               "Parse Trigger Code":U) .
-              
+
         IF lParseTrigger THEN DO:
             oTriggerParser = NEW TriggerParser () .
             oTriggerParser:StatusChanged:Subscribe (StatusChangedHandler) .
             oTriggerParser:GetTriggerCode (THIS-OBJECT:FileName,
-                                           OUTPUT DATASET dsTrigger BY-REFERENCE) .                                                                             
-            
+                                           OUTPUT DATASET dsTrigger BY-REFERENCE) .
+
             oTriggerParser:StatusChanged:Unsubscribe (StatusChangedHandler) .
 
-            DELETE OBJECT oTriggerParser . 
-            
+            DELETE OBJECT oTriggerParser .
+
             THIS-OBJECT:DisplayStatus ("":U) .
         END.
 
-        IF iMinLeft = 99999 THEN iMinLeft = 0 . 
-        IF iMinTop  = 99999 THEN iMinTop  = 0 . 
+        IF iMinLeft = 99999 THEN iMinLeft = 0 .
+        IF iMinTop  = 99999 THEN iMinTop  = 0 .
 
         FOR EACH ttSelectedFrameWidget WHERE ttSelectedFrameWidget.IsSelected = TRUE
                        BY ttSelectedFrameWidget.Order:
 
-            IF ttSelectedFrameWidget.FieldName > "":U THEN 
-                ASSIGN cName = ENTRY (NUM-ENTRIES (ttSelectedFrameWidget.FieldName, ".":U), ttSelectedFrameWidget.FieldName, ".":U) . 
-            ELSE 
-                ASSIGN cName = "":U . 
+            IF ttSelectedFrameWidget.FieldName > "":U THEN
+                ASSIGN cName = ENTRY (NUM-ENTRIES (ttSelectedFrameWidget.FieldName, ".":U), ttSelectedFrameWidget.FieldName, ".":U) .
+            ELSE
+                ASSIGN cName = "":U .
 
             oField = NEW ViewerFieldSpec (cName) .
 
-            IF NUM-ENTRIES (ttSelectedFrameWidget.FieldName, ".":U) > 1 THEN 
-                ASSIGN oField:ControlName = DesignerHelper:DesignerSafeName (REPLACE (BusinessEntityDesignerSettings:DefaultBeforeTablePrefix + 
-                                                                                      ttSelectedFrameWidget.FieldName, ".":U, "_":U) + 
+            IF NUM-ENTRIES (ttSelectedFrameWidget.FieldName, ".":U) > 1 THEN
+                ASSIGN oField:ControlName = DesignerHelper:DesignerSafeName (REPLACE (BusinessEntityDesignerSettings:DefaultBeforeTablePrefix +
+                                                                                      ttSelectedFrameWidget.FieldName, ".":U, "_":U) +
                                                                                       BusinessEntityDesignerSettings:DefaultTableSuffix) .
-            ELSE 
+            ELSE
                 ASSIGN oField:ControlName = DesignerHelper:DesignerSafeName (REPLACE (ttSelectedFrameWidget.FieldName, ".":U, "_":U)) .
-            
+
             ASSIGN oField:DataType               = ttSelectedFrameWidget.FieldDataType
                    oField:FieldLabel             = ttSelectedFrameWidget.WidgetLabel
-                   oField:Left                   = ttSelectedFrameWidget.AtColumn * SESSION:PIXELS-PER-COLUMN - iMinLeft  
+                   oField:Left                   = ttSelectedFrameWidget.AtColumn * SESSION:PIXELS-PER-COLUMN - iMinLeft
                    oField:Top                    = ttSelectedFrameWidget.AtRow * SESSION:PIXELS-PER-ROW - iMinTop
                    oField:NoLabel                = ttSelectedFrameWidget.NoLabels
                    oField:ViewAs                 = ttSelectedFrameWidget.ViewAs
                    oField:PrivateData            = ttSelectedFrameWidget.PrivateData
                    oField:RadioButtons           = ttSelectedFrameWidget.RadioButtons
                    oField:ListItems              = ttSelectedFrameWidget.ListItems
-                   oField:ListItemPairs          = ttSelectedFrameWidget.ListItemPairs 
+                   oField:ListItemPairs          = ttSelectedFrameWidget.ListItemPairs
                    oField:WidgetValue            = StringHelper:Unquote (ttSelectedFrameWidget.WidgetValue)
                    oField:AlternativeControlType = ttSelectedFrameWidget.AlternativeControlType
                    .
-        
-            IF ttSelectedFrameWidget.WidgetType > "":U THEN 
+
+            IF ttSelectedFrameWidget.WidgetType > "":U THEN
                 oField:WidgetType = ttSelectedFrameWidget.WidgetType .
-        
+
             IF ttSelectedFrameWidget.WidgetType = "BUTTON":U OR ttSelectedFrameWidget.WidgetType = "RECTANGLE":U THEN
-                oField:NoLabel = TRUE . 
-        
-            IF ttSelectedFrameWidget.ViewAsWidth > 0 THEN 
+                oField:NoLabel = TRUE .
+
+            IF ttSelectedFrameWidget.ViewAsWidth > 0 THEN
                 oField:Width = ttSelectedFrameWidget.ViewAsWidth * SESSION:PIXELS-PER-COLUMN .
-            ELSE            
-                oField:Width = SESSION:PIXELS-PER-COLUMN . 
-                   
-            IF ttSelectedFrameWidget.ViewAsHeight > 0 THEN 
+            ELSE
+                oField:Width = SESSION:PIXELS-PER-COLUMN .
+
+            IF ttSelectedFrameWidget.ViewAsHeight > 0 THEN
                 oField:Height = ttSelectedFrameWidget.ViewAsHeight * SESSION:PIXELS-PER-ROW .
-            ELSE            
-                oField:Height = SESSION:PIXELS-PER-ROW . 
-                   
+            ELSE
+                oField:Height = SESSION:PIXELS-PER-ROW .
+
             IF lParseTrigger THEN DO:
-                
+
                 FOR EACH ttTriggerEvent WHERE ttTriggerEvent.TriggerWidget = ttSelectedFrameWidget.FieldName
                                          AND (ttTriggerEvent.TriggerFrame  = UNBOX (coFrameName:Value)
                                           OR  ttTriggerEvent.TriggerFrame  = "":U),
                     FIRST ttTriggerCode OF ttTriggerEvent:
-                                              
+
                     ASSIGN lcCode = ttTriggerCode.TriggerCode .
 
                     CASE ttTriggerEvent.TriggerEvent:
-                        WHEN "CHOOSE":U THEN 
+                        WHEN "CHOOSE":U THEN
                             oField:ClickTriggerBlock = THIS-OBJECT:CommentBlock (ttTriggerEvent.TriggerEvent,
                                                                                  ttTriggerEvent.TriggerWidget,
                                                                                  ttTriggerEvent.TriggerFrame,
                                                                                  lcCode) .
 
-                        WHEN "LEAVE":U THEN 
+                        WHEN "LEAVE":U THEN
                             oField:ValidatingTriggerBlock = THIS-OBJECT:CommentBlock (ttTriggerEvent.TriggerEvent,
                                                                                       ttTriggerEvent.TriggerWidget,
                                                                                       ttTriggerEvent.TriggerFrame,
                                                                                       lcCode) .
 
-                        WHEN "VALUE-CHANGED":U THEN 
+                        WHEN "VALUE-CHANGED":U THEN
                             oField:ValueChangedTriggerBlock = THIS-OBJECT:CommentBlock (ttTriggerEvent.TriggerEvent,
                                                                                         ttTriggerEvent.TriggerWidget,
                                                                                         ttTriggerEvent.TriggerFrame,
                                                                                         lcCode) .
-                                              
+
                         OTHERWISE DO:
                             MessageFormHelper:ShowMessage (SUBSTITUTE ((IF ttTriggerEvent.TriggerFrame <> "":U THEN "Unable to migrate trigger code for &1 of &2 in frame &3."{&TRAN}
                                                                                                                ELSE "Unable to migrate trigger code for &1 of &2"{&TRAN}),
@@ -410,162 +415,235 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Frame.AblFrameMigrationForm
                                                                         ttTriggerEvent.TriggerWidget,
                                                                         ttTriggerEvent.TriggerFrame),
                                                            THIS-OBJECT:Text,
-                                                           MessageFormImages:ImageWarning) . 
+                                                           MessageFormImages:ImageWarning) .
                         END.
-                    END.
+                    END CASE .
                 END.
-            END.                   
-                   
-            oList:Add (oField) .                   
+            END.
+
+            oList:Add (oField) .
         END.
 
-        RETURN oList . 
+        RETURN oList .
 
-	END METHOD .
+    END METHOD .
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Shows the wizard to create a new Business Entity
-	    Notes:
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID ShowNewBusinessEntityWizard ():
-		
-		DEFINE VARIABLE oForm        AS CreateBusinessEntityWizardForm NO-UNDO . 
-        DEFINE VARIABLE cTableName   AS CHARACTER                      NO-UNDO .
+    /*------------------------------------------------------------------------------
+        Purpose: Shows the wizard to create a new Business Entity
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID ShowNewBusinessEntityWizard ():
+
+        DEFINE VARIABLE oForm        AS CreateBusinessEntityWizardForm NO-UNDO .
         DEFINE VARIABLE oBufferField AS BufferFieldName                NO-UNDO .
-        		
-		oForm = NEW CreateBusinessEntityWizardForm () . 
-	       
-	    oForm:StatusChanged:Subscribe (StatusChangedHandler) .
-	    oForm:CustomizeBusinessEntity:Subscribe (CustomizeBusinessEntity) . 
-	    
-	    oForm:Tables:Clear () .
-	    
-	    FOR EACH ttSelectedFrameWidget WHERE ttSelectedFrameWidget.IsSelected ON ERROR UNDO, THROW:
-	        
+
+        oForm = NEW CreateBusinessEntityWizardForm () .
+
+        oForm:StatusChanged:Subscribe (StatusChangedHandler) .
+        oForm:CustomizeBusinessEntity:Subscribe (CustomizeBusinessEntity) .
+
+        oForm:Tables:Clear () .
+
+        FOR EACH ttSelectedFrameWidget WHERE ttSelectedFrameWidget.IsSelected ON ERROR UNDO, THROW:
+
             IF NUM-ENTRIES (ttSelectedFrameWidget.FieldName, ".":U) > 1 THEN DO:
                 oBufferField = BufferHelper:ParseFieldName (ttSelectedFrameWidget.FieldName) .
-                
-                IF NOT oForm:Tables:ContainsValue (oBufferField:TableName) THEN 
+
+                IF NOT oForm:Tables:ContainsValue (oBufferField:TableName) THEN
                     oForm:Tables:Add (oBufferField:TableName) .
-	        END.
-	    END.  
-	       
-		WAIT-FOR oForm:ShowDialog () . 
+            END.
+        END.
+
+        WAIT-FOR oForm:ShowDialog () .
 
         oForm:StatusChanged:Unsubscribe (StatusChangedHandler) .
-        
-        DELETE OBJECT oForm . 
-    
+
+        DELETE OBJECT oForm .
+
         FINALLY:
-            THIS-OBJECT:DisplayStatus ("":U) .    		
+            THIS-OBJECT:DisplayStatus ("":U) .
         END FINALLY.
 
-	END METHOD.
+    END METHOD.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Opens the Options Dialog
-	    Notes:
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID ShowOptionsDialog ():
-		
-		DEFINE VARIABLE oForm AS AblFrameMigrationSettingsForm NO-UNDO . 
+    /*------------------------------------------------------------------------------
+        Purpose: Opens the Options Dialog
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID ShowOptionsDialog ():
 
-        oForm = NEW AblFrameMigrationSettingsForm () . 
-        
-        WAIT-FOR oForm:ShowDialog () .  
+        DEFINE VARIABLE oForm AS AblFrameMigrationSettingsForm NO-UNDO .
 
-	END METHOD.
+        oForm = NEW AblFrameMigrationSettingsForm () .
+
+        WAIT-FOR oForm:ShowDialog () .
+
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the DragDrop event of the Form
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The DragEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID AblFrameMigrationForm_DragDrop (sender AS System.Object,
-	                                                    e AS System.Windows.Forms.DragEventArgs):
-		
-		DEFINE VARIABLE cFileNames AS CHARACTER NO-UNDO EXTENT .
-		
-        IF DragAndDropHelper:IsFileDrop (e:Data) AND 
-           smartToolbarController1:Tools["Open File":U]:SharedProps:Enabled THEN DO: 
-		
-		    ASSIGN cFileNames = DragAndDropHelper:GetDropFileNames (e:Data) .
+    METHOD PRIVATE VOID AblFrameMigrationForm_DragDrop (sender AS System.Object,
+                                                        e AS System.Windows.Forms.DragEventArgs):
 
-            THIS-OBJECT:Activate () .  
-            THIS-OBJECT:OpenFile (cFileNames[1]) . 
-		END.
+        DEFINE VARIABLE cFileNames AS CHARACTER NO-UNDO EXTENT .
+
+        IF DragAndDropHelper:IsFileDrop (e:Data) AND
+           smartToolbarController1:Tools["Open File":U]:SharedProps:Enabled THEN DO:
+
+            ASSIGN cFileNames = DragAndDropHelper:GetDropFileNames (e:Data) .
+
+            THIS-OBJECT:Activate () .
+            THIS-OBJECT:OpenFile (cFileNames[1]) .
+        END.
 
         CATCH err AS Progress.Lang.Error :
-            ErrorHelper:ShowErrorMessage (err) .    
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
-        
-	END METHOD .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the DragEnter event of the Form
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The DragEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID AblFrameMigrationForm_DragEnter (sender AS System.Object, 
-	                                                     e AS System.Windows.Forms.DragEventArgs):
-		
-		IF DragAndDropHelper:IsFileDrop (e:Data) AND 
-		   smartToolbarController1:Tools["Open File":U]:SharedProps:Enabled THEN 
-		   
-		   e:Effect = System.Windows.Forms.DragDropEffects:Copy . 
+    METHOD PRIVATE VOID AblFrameMigrationForm_DragEnter (sender AS System.Object,
+                                                         e AS System.Windows.Forms.DragEventArgs):
+
+        IF DragAndDropHelper:IsFileDrop (e:Data) AND
+           smartToolbarController1:Tools["Open File":U]:SharedProps:Enabled THEN
+
+           e:Effect = System.Windows.Forms.DragDropEffects:Copy .
 
         CATCH err AS Progress.Lang.Error :
-            ErrorHelper:ShowErrorMessage (err) .    
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
-        
-	END METHOD .
+
+    END METHOD .
+
+    /**
+     * Purpose: Generates a Kendo UI Builder View
+     * Notes:
+     */
+    METHOD PROTECTED VOID GenerateKendoUiBuilderView():
+
+        DEFINE VARIABLE oBindingSource AS SmartBusinessEntityBindingSource NO-UNDO .
+        DEFINE VARIABLE oBuilder       AS SmartViewerBuilder               NO-UNDO .
+        DEFINE VARIABLE oList          AS ListViewerFieldSpec              NO-UNDO .
+        DEFINE VARIABLE oData          AS KendoUiBuilderData               NO-UNDO .
+        DEFINE VARIABLE oForm          AS ViewGeneratorWizardForm          NO-UNDO .
+        DEFINE VARIABLE oDialogResult  AS DialogResult                     NO-UNDO .
+        DEFINE VARIABLE cUri           AS CHARACTER                        NO-UNDO .
+
+        oForm = NEW ViewGeneratorWizardForm () .
+        oForm:ViewName = REPLACE (FileHelper:ShortFileName (SUBSTRING (THIS-OBJECT:FileName,
+                                                                       1,
+                                                                       R-INDEX (THIS-OBJECT:FileName, ".":U) - 1)),
+                                  "-":U, "":U) .
+        oForm:BusinessEntityName = ultraTextEditor1:Text .
+        oForm:EntityTable = ultraTextEditor2:Text .
+
+        WAIT-FOR oForm:ShowDialog (THIS-OBJECT) SET oDialogResult .
+
+        {Consultingwerk/check-dialogresult-ok.i oDialogResult}
+
+        oData = oForm:GetKendoUiBuilderData () .
+
+        THIS-OBJECT:SaveUnsavedChanges () .
+
+        /* Mike Fechner, Consultingwerk Ltd. 10.07.2014
+           Cannot proceed without Entity Name, Entity Table */
+        IF ultraCheckEditor1:Checked THEN DO:
+            Assert:NotNullOrEmpty (ultraTextEditor1:Text, "Business Entity Name"{&TRAN}) .
+            Assert:NotNullOrEmpty (ultraTextEditor2:Text, "Entity Table"{&TRAN}) .
+
+            oBindingSource = NEW SmartBusinessEntityBindingSource () .
+
+            ASSIGN oBindingSource:EntityName  = ultraTextEditor1:Text
+                   oBindingSource:EntityTable = ENTRY (1, ultraTextEditor2:Text)
+                   oBindingSource:EntityView  = ListHelper:RemoveEntry (ultraTextEditor2:Text, 1)
+                   oBindingSource:EntityJoin  = TRIM (FILL ("yes,":U, NUM-ENTRIES (oBindingSource:EntityView)), ",":U)
+                        .
+
+            oBindingSource:DesignerImportSchema (TRUE) .
+
+            /* Mike Fechner, Consultingwerk Ltd. 10.07.2014
+               Unable to continue without Table Schmea */
+            IF NOT VALID-OBJECT (oBindingSource:TableSchema) THEN
+                RETURN .
+        END.
+
+        oBuilder = NEW SmartViewerBuilder () .
+        oBuilder:Generator = NEW KendoUiBuilderViewGenerator (oData)  .
+
+        oList = THIS-OBJECT:PrepareViewerBuilder (oBuilder, oBindingSource) .
+
+        ASSIGN oData:ViewerFieldSpecs = oList
+               oData:EntityName       = ultraTextEditor1:Text
+               oData:EntityTable      = ENTRY (1, ultraTextEditor2:Text)
+               oData:EntityView       = ListHelper:RemoveEntry (ultraTextEditor2:Text, 1)
+               oData:EntityJoin       = TRIM (FILL ("yes,":U, NUM-ENTRIES (ultraTextEditor2:Text)), ",":U) .
+
+        oBuilder:Generate (oList) .
+
+        /* Open generated view/module in Kendo UI Builder */
+        ASSIGN cUri = SUBSTITUTE ("&1edit-module/&2":U,
+                                  oData:KendoUiBuilderUri,
+                                  oData:ModuleName) .
+
+        Win32:ShellExecute ("open":U, cUri) .
+
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the ValueChanged event of the coFrameName
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the evnet
-        @param e The System.EventArgs with the data for this event 
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID coFrameName_ValueChanged (sender AS System.Object, 
-	                                              e AS System.EventArgs):
-		
-		DEFINE VARIABLE oPreProcessor AS IAblFrameMigrationPreProcessor NO-UNDO .
-		DEFINE VARIABLE oSettings     AS ViewerSettings                 NO-UNDO .  
-		DEFINE VARIABLE cFrame        AS CHARACTER                      NO-UNDO .
-		
+    METHOD PRIVATE VOID coFrameName_ValueChanged (sender AS System.Object,
+                                                  e AS System.EventArgs):
+
+        DEFINE VARIABLE oPreProcessor AS IAblFrameMigrationPreProcessor NO-UNDO .
+        DEFINE VARIABLE oSettings     AS ViewerSettings                 NO-UNDO .
+        DEFINE VARIABLE cFrame        AS CHARACTER                      NO-UNDO .
+
         DEFINE BUFFER ttSelectedFrameWidget FOR ttSelectedFrameWidget .
 
         ASSIGN cFrame = UNBOX (coFrameName:Value) .
 
-        IF CharacterType:IsNullOrEmpty (cFrame) THEN 
-            RETURN . 
-        
+        IF CharacterType:IsNullOrEmpty (cFrame) THEN
+            RETURN .
+
         oParser:GetFrameWidgets (THIS-OBJECT:FileName,
                                  cFrame,
                                  OUTPUT TABLE ttFrameWidget) .
-        
+
         EMPTY TEMP-TABLE ttSelectedFrameWidget .
-        
+
         FOR EACH ttFrameWidget:
             CREATE ttSelectedFrameWidget.
             BUFFER-COPY ttFrameWidget TO ttSelectedFrameWidget .
-            
+
             /* Mike Fechner, Consultingwerk Ltd. 01.11.2015
                Typically a Browse becomes it's own object */
-            IF ttSelectedFrameWidget.WidgetType = WidgetTypeEnum:Browse THEN 
+            IF ttSelectedFrameWidget.WidgetType = WidgetTypeEnum:Browse THEN
                 ASSIGN ttSelectedFrameWidget.IsSelected = FALSE .
-        END. 
-        
+        END.
+
         /* Mike Fechner, Consultingwerk Ltd. 10.12.2014
            SCL-541: Allow to post-process parser result through customization class */
         oPreProcessor = {Consultingwerk/get-service.i Consultingwerk.Studio.LegacyGuiMigration.Frame.IAblFrameMigrationPreProcessor} .
-        
+
         IF VALID-OBJECT (oPreProcessor) THEN DO:
 
-            ASSIGN oSettings = NEW ViewerSettings () 
-                   oSettings:CreateBindingSource = ultraCheckEditor1:Checked 
+            ASSIGN oSettings = NEW ViewerSettings ()
+                   oSettings:CreateBindingSource = ultraCheckEditor1:Checked
                    oSettings:EntityName          = ultraTextEditor1:Text
                    oSettings:EntityTables        = ultraTextEditor2:Text
                    oSettings:ViewerPackage       = ultraTextEditor3:Text
@@ -575,127 +653,127 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Frame.AblFrameMigrationForm
                                                   cFrame,
                                                   INPUT-OUTPUT TABLE ttSelectedFrameWidget BY-REFERENCE,
                                                   INPUT-OUTPUT oSettings) .
-                                                  
-            IF VALID-OBJECT (oSettings) THEN                                                   
-                ASSIGN ultraCheckEditor1:Checked = oSettings:CreateBindingSource   
-                       ultraTextEditor1:Text     = oSettings:EntityName           
-                       ultraTextEditor2:Text     = oSettings:EntityTables        
-                       ultraTextEditor3:Text     = oSettings:ViewerPackage        
-                       ultraTextEditor4:Text     = oSettings:ViewerName           
+
+            IF VALID-OBJECT (oSettings) THEN
+                ASSIGN ultraCheckEditor1:Checked = oSettings:CreateBindingSource
+                       ultraTextEditor1:Text     = oSettings:EntityName
+                       ultraTextEditor2:Text     = oSettings:EntityTables
+                       ultraTextEditor3:Text     = oSettings:ViewerPackage
+                       ultraTextEditor4:Text     = oSettings:ViewerName
                        .
         END.
-        
+
         smartTempTableAdapter1:RetrieveData () .
-        
+
         THIS-OBJECT:DisplayStatus ("":U) .
-        
+
         CATCH err AS Progress.Lang.Error :
-        	ErrorHelper:ShowErrorMessage (err) .	
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
-	END METHOD .
+    END METHOD .
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Converts a source code block into a comment
-	    Notes:
-	    @param pcEvent The name of the event
-	    @param pcWidget The name of the widget
-	    @param pcFrame The frame name
-	    @param pcSource The trigger source code
-	    @return The commented source code block
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED CHARACTER CommentBlock (pcEvent AS CHARACTER,
-	                                         pcWidget AS CHARACTER,
-	                                         pcFrame AS CHARACTER,
-	                                         pcSource AS LONGCHAR):
-		
-		DEFINE VARIABLE cComment AS CHARACTER NO-UNDO.
-		
-		IF pcFrame > "":U THEN 
-		    ASSIGN cComment = SUBSTITUTE ("        /* Trigger code from ON &1 OF &2 IN FRAME &3 ~n":U,
-		                                  pcEvent, 
-		                                  pcWidget,
-		                                  pcFrame) .
-        ELSE 
+    /*------------------------------------------------------------------------------
+        Purpose: Converts a source code block into a comment
+        Notes:
+        @param pcEvent The name of the event
+        @param pcWidget The name of the widget
+        @param pcFrame The frame name
+        @param pcSource The trigger source code
+        @return The commented source code block
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED CHARACTER CommentBlock (pcEvent AS CHARACTER,
+                                             pcWidget AS CHARACTER,
+                                             pcFrame AS CHARACTER,
+                                             pcSource AS LONGCHAR):
+
+        DEFINE VARIABLE cComment AS CHARACTER NO-UNDO.
+
+        IF pcFrame > "":U THEN
+            ASSIGN cComment = SUBSTITUTE ("        /* Trigger code from ON &1 OF &2 IN FRAME &3 ~n":U,
+                                          pcEvent,
+                                          pcWidget,
+                                          pcFrame) .
+        ELSE
             ASSIGN cComment = SUBSTITUTE ("        /* Trigger code from ON &1 OF &2 ~n":U,
-                                          pcEvent, 
+                                          pcEvent,
                                           pcWidget) .
 
         ASSIGN cComment = cComment + SUBSTITUTE ("           &1 - &2 ~n~n&3~n":U,
                                                  THIS-OBJECT:FileName,
                                                  STRING (NOW, "99.99.9999 hh:mm:ss":U),
                                                  StringHelper:Indent (STRING (pcSource), 8)) .
-                                                 
+
         ASSIGN cComment = cComment + "        */~n":U .
 
         RETURN cComment .
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Marks all records as deselected 
-        Notes:   
+        Purpose: Marks all records as deselected
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID DeselectAll ():
-		
-		THIS-OBJECT:SelectAll (FALSE) .
+    METHOD PROTECTED VOID DeselectAll ():
 
-	END METHOD .
+        THIS-OBJECT:SelectAll (FALSE) .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Displays the Status
-        Notes:   
+        Notes:
         @param pcStatus The status to display
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID DisplayStatus (pcStatus AS CHARACTER):
-		
-		ultraStatusBar1:Panels["status":U]:Text = pcStatus . 
+    METHOD PROTECTED VOID DisplayStatus (pcStatus AS CHARACTER):
 
-        UserInterfaceHelper:ProcessEvents () . 
+        ultraStatusBar1:Panels["status":U]:Text = pcStatus .
 
-	END METHOD .
+        UserInterfaceHelper:ProcessEvents () .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Generates a Temp-Table based on the Variables or Fields used in 
+        Purpose: Generates a Temp-Table based on the Variables or Fields used in
                  a FRAME
-        Notes:   Starting point for generating Business Entities based on existing 
+        Notes:   Starting point for generating Business Entities based on existing
                  Frames
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID GenerateTempTable ():
-		
-        DEFINE VARIABLE lcFields      AS LONGCHAR                          NO-UNDO . 
-        DEFINE VARIABLE lcSource      AS LONGCHAR                          NO-UNDO . 
-        DEFINE VARIABLE oDialogResult AS System.Windows.Forms.DialogResult NO-UNDO . 
+    METHOD PROTECTED VOID GenerateTempTable ():
+
+        DEFINE VARIABLE lcFields      AS LONGCHAR                          NO-UNDO .
+        DEFINE VARIABLE lcSource      AS LONGCHAR                          NO-UNDO .
+        DEFINE VARIABLE oDialogResult AS System.Windows.Forms.DialogResult NO-UNDO .
         DEFINE VARIABLE cName         AS CHARACTER                         NO-UNDO .
 
-        WAIT-FOR saveFileDialog1:ShowDialog () SET oDialogResult . 
-        
-        {Consultingwerk/check-dialogresult-ok.i oDialogResult} .	   
-	
+        WAIT-FOR saveFileDialog1:ShowDialog () SET oDialogResult .
+
+        {Consultingwerk/check-dialogresult-ok.i oDialogResult} .
+
         THIS-OBJECT:SaveUnsavedChanges () .
-		
-		ASSIGN cName = ENTRY (1, FileHelper:ShortFileName (saveFileDialog1:FileName), ".":U) . 
-		
+
+        ASSIGN cName = ENTRY (1, FileHelper:ShortFileName (saveFileDialog1:FileName), ".":U) .
+
         FOR EACH ttSelectedFrameWidget WHERE ttSelectedFrameWidget.IsSelected
-                                         AND ttSelectedFrameWidget.FieldDataType > "":U: 
-            
+                                         AND ttSelectedFrameWidget.FieldDataType > "":U:
+
             ASSIGN lcFields = lcFields + SUBSTITUTE ("    FIELD &1 AS &2":U, ENTRY (NUM-ENTRIES (ttSelectedFrameWidget.FieldName, ".":U), ttSelectedFrameWidget.FieldName, ".":U),
-                                                                             ttSelectedFrameWidget.FieldDataType) . 
+                                                                             ttSelectedFrameWidget.FieldDataType) .
 
-            IF ttSelectedFrameWidget.FieldFormat > "":U THEN 
-                lcFields = lcFields + SUBSTITUTE (" FORMAT ~"&1~"":U, ttSelectedFrameWidget.FieldFormat) .  
+            IF ttSelectedFrameWidget.FieldFormat > "":U THEN
+                lcFields = lcFields + SUBSTITUTE (" FORMAT ~"&1~"":U, ttSelectedFrameWidget.FieldFormat) .
 
-            IF ttSelectedFrameWidget.WidgetLabel > "":U THEN 
-                lcFields = lcFields + SUBSTITUTE (" LABEL ~"&1~"":U, ttSelectedFrameWidget.WidgetLabel) .  
+            IF ttSelectedFrameWidget.WidgetLabel > "":U THEN
+                lcFields = lcFields + SUBSTITUTE (" LABEL ~"&1~"":U, ttSelectedFrameWidget.WidgetLabel) .
 
             lcFields = lcFields + Consultingwerk.Environment:NewLine .
-                                   
-        END . 
 
-        COPY-LOB FROM FILE TemplateHelper:Find ("temp-table.template":U) 
+        END .
+
+        COPY-LOB FROM FILE TemplateHelper:Find ("temp-table.template":U)
                  TO lcSource.
-        
-        ASSIGN lcSource = SUBSTITUTE (lcSource, 
+
+        ASSIGN lcSource = SUBSTITUTE (lcSource,
                                       cName,
                                       cName + "Before":U,
                                       "BEFORE-TABLE":U,
@@ -707,72 +785,74 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Frame.AblFrameMigrationForm
                                       "":U) .
 
         /* Mike Fechner, Consultingwerk Ltd. 18.06.2012
-           user name, replace @USER@, with the current user name */                                      
-        ASSIGN lcSource = REPLACE (lcSource, "@USER@":U, "":U) 
+           user name, replace @USER@, with the current user name */
+        ASSIGN lcSource = REPLACE (lcSource, "@USER@":U, "":U)
+               lcSource = REPLACE (lcSource, "@USERID@":U, "":U)
                lcSource = REPLACE (lcSource, "@FILEANNOTATION@":U, "":U)
-               lcSource = StringHelper:FixLineEnding (lcSource) .           
+               lcSource = StringHelper:FixLineEnding (lcSource) .
 
         COPY-LOB FROM lcSource TO FILE saveFileDialog1:FileName .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Generates the SmartViewerControl based on the setting in the screen 
-        Notes:   
+        Purpose: Generates the SmartViewerControl based on the setting in the screen
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID GenerateViewer ():
-		
+    METHOD PROTECTED VOID GenerateViewer ():
+
         DEFINE VARIABLE oBindingSource AS SmartBusinessEntityBindingSource NO-UNDO .
         DEFINE VARIABLE oBuilder       AS SmartViewerBuilder               NO-UNDO .
         DEFINE VARIABLE cFileName      AS CHARACTER                        NO-UNDO .
         DEFINE VARIABLE oList          AS ListViewerFieldSpec              NO-UNDO .
-    
+
         THIS-OBJECT:SaveUnsavedChanges () .
-        
+
         /* Mike Fechner, Consultingwerk Ltd. 10.07.2014
            Cannot proceed without Entity Name, Entity Table */
-        IF ultraCheckEditor1:Checked THEN DO: 
+        IF ultraCheckEditor1:Checked THEN DO:
             Assert:NotNullOrEmpty (ultraTextEditor1:Text, "Business Entity Name"{&TRAN}) .
             Assert:NotNullOrEmpty (ultraTextEditor2:Text, "Entity Table"{&TRAN}) .
 
             oBindingSource = NEW SmartBusinessEntityBindingSource () .
-            
+
             ASSIGN oBindingSource:EntityName  = ultraTextEditor1:Text
                    oBindingSource:EntityTable = ENTRY (1, ultraTextEditor2:Text)
                    oBindingSource:EntityView  = ListHelper:RemoveEntry (ultraTextEditor2:Text, 1)
-                   oBindingSource:EntityJoin  = TRIM (FILL ("yes,":U, NUM-ENTRIES (oBindingSource:EntityView)), ",":U) 
-                        .  
-    
-            oBindingSource:DesignerImportSchema (TRUE) .        
-    
+                   oBindingSource:EntityJoin  = TRIM (FILL ("yes,":U, NUM-ENTRIES (oBindingSource:EntityView)), ",":U)
+                        .
+
+            oBindingSource:DesignerImportSchema (TRUE) .
+
             /* Mike Fechner, Consultingwerk Ltd. 10.07.2014
                Unable to continue without Table Schmea */
-            IF NOT VALID-OBJECT (oBindingSource:TableSchema) THEN 
-                RETURN . 
+            IF NOT VALID-OBJECT (oBindingSource:TableSchema) THEN
+                RETURN .
         END.
-        
+
         oBuilder = NEW SmartViewerBuilder () .
-        
+
         oList = THIS-OBJECT:PrepareViewerBuilder (oBuilder, oBindingSource) .
-                
+
         cFileName = oBuilder:Generate (oList) .
-        
-        IF cFileName > "":U THEN 
+
+        IF cFileName > "":U THEN
             WindowsExplorerHelper:ShowFileInExplorer (cFileName) .
 
-	END METHOD .
+    END METHOD .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design 
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -814,6 +894,9 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Frame.AblFrameMigrationForm
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE buttonTool39 AS Infragistics.Win.UltraWinToolbars.ButtonTool NO-UNDO.
         buttonTool39 = NEW Infragistics.Win.UltraWinToolbars.ButtonTool("GenerateWeb2View":U).
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE buttonTool60 AS Infragistics.Win.UltraWinToolbars.ButtonTool NO-UNDO.
+        buttonTool60 = NEW Infragistics.Win.UltraWinToolbars.ButtonTool("Kendo UI Builder View":U).
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE buttonTool18 AS Infragistics.Win.UltraWinToolbars.ButtonTool NO-UNDO.
         buttonTool18 = NEW Infragistics.Win.UltraWinToolbars.ButtonTool("Generate Temp-Table":U).
@@ -1091,6 +1174,12 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Frame.AblFrameMigrationForm
         DEFINE VARIABLE appearance50 AS Infragistics.Win.Appearance NO-UNDO.
         appearance50 = NEW Infragistics.Win.Appearance().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE buttonTool40 AS Infragistics.Win.UltraWinToolbars.ButtonTool NO-UNDO.
+        buttonTool40 = NEW Infragistics.Win.UltraWinToolbars.ButtonTool("Kendo UI Builder View":U).
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE appearance51 AS Infragistics.Win.Appearance NO-UNDO.
+        appearance51 = NEW Infragistics.Win.Appearance().
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE editorButton1 AS Infragistics.Win.UltraWinEditors.EditorButton NO-UNDO.
         editorButton1 = NEW Infragistics.Win.UltraWinEditors.EditorButton().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -1280,19 +1369,21 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Frame.AblFrameMigrationForm
         buttonTool48:InstanceProps:PreferredSizeOnRibbon = Infragistics.Win.UltraWinToolbars.RibbonToolSize:Large.
         buttonTool12:InstanceProps:PreferredSizeOnRibbon = Infragistics.Win.UltraWinToolbars.RibbonToolSize:Large.
         buttonTool39:InstanceProps:PreferredSizeOnRibbon = Infragistics.Win.UltraWinToolbars.RibbonToolSize:Large.
+        buttonTool60:InstanceProps:PreferredSizeOnRibbon = Infragistics.Win.UltraWinToolbars.RibbonToolSize:Large.
         buttonTool18:InstanceProps:IsFirstInGroup = TRUE.
         buttonTool18:InstanceProps:PreferredSizeOnRibbon = Infragistics.Win.UltraWinToolbars.RibbonToolSize:Large.
         buttonTool2:InstanceProps:PreferredSizeOnRibbon = Infragistics.Win.UltraWinToolbars.RibbonToolSize:Large.
         buttonTool50:InstanceProps:IsFirstInGroup = TRUE.
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
-        DEFINE VARIABLE arrayvar2 AS Infragistics.Win.UltraWinToolbars.ToolBase EXTENT 7 NO-UNDO.
+        DEFINE VARIABLE arrayvar2 AS Infragistics.Win.UltraWinToolbars.ToolBase EXTENT 8 NO-UNDO.
         arrayvar2[1] = buttonTool48.
         arrayvar2[2] = buttonTool12.
         arrayvar2[3] = buttonTool39.
-        arrayvar2[4] = buttonTool18.
-        arrayvar2[5] = buttonTool2.
-        arrayvar2[6] = buttonTool50.
-        arrayvar2[7] = buttonTool51.
+        arrayvar2[4] = buttonTool60.
+        arrayvar2[5] = buttonTool18.
+        arrayvar2[6] = buttonTool2.
+        arrayvar2[7] = buttonTool50.
+        arrayvar2[8] = buttonTool51.
         ribbonGroup1:Tools:AddRange(arrayvar2).
         resources:ApplyResources(ribbonGroup2, "ribbonGroup2":U).
         stateButtonTool1:InstanceProps:PreferredSizeOnRibbon = Infragistics.Win.UltraWinToolbars.RibbonToolSize:Large.
@@ -1522,8 +1613,12 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Frame.AblFrameMigrationForm
         buttonTool28:SharedPropsInternal:AppearancesSmall:Appearance = appearance50.
         resources:ApplyResources(buttonTool28:SharedPropsInternal, "buttonTool28.SharedPropsInternal":U).
         buttonTool28:ForceApplyResources = "SharedPropsInternal":U.
+        appearance51:Image = CAST(resources:GetObject("appearance51.Image":U), System.Object).
+        buttonTool40:SharedPropsInternal:AppearancesLarge:Appearance = appearance51.
+        resources:ApplyResources(buttonTool40:SharedPropsInternal, "buttonTool40.SharedPropsInternal":U).
+        buttonTool40:ForceApplyResources = "SharedPropsInternal":U.
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
-        DEFINE VARIABLE arrayvar14 AS Infragistics.Win.UltraWinToolbars.ToolBase EXTENT 22 NO-UNDO.
+        DEFINE VARIABLE arrayvar14 AS Infragistics.Win.UltraWinToolbars.ToolBase EXTENT 23 NO-UNDO.
         arrayvar14[1] = buttonTool35.
         arrayvar14[2] = buttonTool36.
         arrayvar14[3] = buttonTool37.
@@ -1546,6 +1641,7 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Frame.AblFrameMigrationForm
         arrayvar14[20] = buttonTool57.
         arrayvar14[21] = buttonTool6.
         arrayvar14[22] = buttonTool28.
+        arrayvar14[23] = buttonTool40.
         THIS-OBJECT:smartToolbarController1:Tools:AddRange(arrayvar14).
         THIS-OBJECT:smartToolbarController1:ToolClick:Subscribe(THIS-OBJECT:smartToolbarController1_ToolClick).
         /*  */
@@ -1652,6 +1748,7 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Frame.AblFrameMigrationForm
         /*  */
         /* smartUpdatableBrowser1 */
         /*  */
+        THIS-OBJECT:smartUpdatableBrowser1:AllowAddNew = Infragistics.Win.UltraWinGrid.AllowAddNew:No.
         resources:ApplyResources(THIS-OBJECT:smartUpdatableBrowser1, "smartUpdatableBrowser1":U).
         THIS-OBJECT:smartUpdatableBrowser1:DataSource = THIS-OBJECT:bindingSource1.
         THIS-OBJECT:smartUpdatableBrowser1:DisabledColumnsForAdd = "Order,FieldName,FieldDataType,WidgetType,FieldFormat,AtRow,AtColumn,ViewAs,ViewAsWidth,ViewAsHeight,WidgetValue":U.
@@ -1660,70 +1757,108 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Frame.AblFrameMigrationForm
         appearance4:BorderColor = System.Drawing.SystemColors:InactiveCaption.
         THIS-OBJECT:smartUpdatableBrowser1:DisplayLayout:Appearance = appearance4.
         ultraGridColumn14:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn14:Header, "ultraGridColumn14.Header":U).
         ultraGridColumn14:Header:VisiblePosition = 0.
         ultraGridColumn14:HiddenWhenGroupBy = Infragistics.Win.DefaultableBoolean:False.
+        ultraGridColumn14:ForceApplyResources = "Header":U.
         ultraGridColumn1:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
         ultraGridColumn1:FilterOperatorDefaultValue = Infragistics.Win.UltraWinGrid.FilterOperatorDefaultValue:GreaterThanOrEqualTo.
+        resources:ApplyResources(ultraGridColumn1:Header, "ultraGridColumn1.Header":U).
         ultraGridColumn1:Header:VisiblePosition = 2.
         ultraGridColumn1:HiddenWhenGroupBy = Infragistics.Win.DefaultableBoolean:False.
+        ultraGridColumn1:ForceApplyResources = "Header":U.
         ultraGridColumn2:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn2:Header, "ultraGridColumn2.Header":U).
         ultraGridColumn2:Header:VisiblePosition = 3.
         ultraGridColumn2:HiddenWhenGroupBy = Infragistics.Win.DefaultableBoolean:False.
+        ultraGridColumn2:ForceApplyResources = "Header":U.
         ultraGridColumn3:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn3:Header, "ultraGridColumn3.Header":U).
         ultraGridColumn3:Header:VisiblePosition = 4.
         ultraGridColumn3:HiddenWhenGroupBy = Infragistics.Win.DefaultableBoolean:False.
+        ultraGridColumn3:ForceApplyResources = "Header":U.
         ultraGridColumn4:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn4:Header, "ultraGridColumn4.Header":U).
         ultraGridColumn4:Header:VisiblePosition = 5.
         ultraGridColumn4:HiddenWhenGroupBy = Infragistics.Win.DefaultableBoolean:False.
+        ultraGridColumn4:ForceApplyResources = "Header":U.
         ultraGridColumn5:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn5:Header, "ultraGridColumn5.Header":U).
         ultraGridColumn5:Header:VisiblePosition = 6.
         ultraGridColumn5:HiddenWhenGroupBy = Infragistics.Win.DefaultableBoolean:False.
+        ultraGridColumn5:ForceApplyResources = "Header":U.
         ultraGridColumn6:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
         ultraGridColumn6:FilterOperatorDefaultValue = Infragistics.Win.UltraWinGrid.FilterOperatorDefaultValue:GreaterThanOrEqualTo.
+        resources:ApplyResources(ultraGridColumn6:Header, "ultraGridColumn6.Header":U).
         ultraGridColumn6:Header:VisiblePosition = 7.
         ultraGridColumn6:HiddenWhenGroupBy = Infragistics.Win.DefaultableBoolean:False.
+        ultraGridColumn6:ForceApplyResources = "Header":U.
         ultraGridColumn7:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
         ultraGridColumn7:FilterOperatorDefaultValue = Infragistics.Win.UltraWinGrid.FilterOperatorDefaultValue:GreaterThanOrEqualTo.
+        resources:ApplyResources(ultraGridColumn7:Header, "ultraGridColumn7.Header":U).
         ultraGridColumn7:Header:VisiblePosition = 8.
         ultraGridColumn7:HiddenWhenGroupBy = Infragistics.Win.DefaultableBoolean:False.
+        ultraGridColumn7:ForceApplyResources = "Header":U.
         ultraGridColumn8:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn8:Header, "ultraGridColumn8.Header":U).
         ultraGridColumn8:Header:VisiblePosition = 9.
         ultraGridColumn8:HiddenWhenGroupBy = Infragistics.Win.DefaultableBoolean:False.
+        ultraGridColumn8:ForceApplyResources = "Header":U.
         ultraGridColumn9:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
         ultraGridColumn9:FilterOperatorDefaultValue = Infragistics.Win.UltraWinGrid.FilterOperatorDefaultValue:GreaterThanOrEqualTo.
+        resources:ApplyResources(ultraGridColumn9:Header, "ultraGridColumn9.Header":U).
         ultraGridColumn9:Header:VisiblePosition = 10.
         ultraGridColumn9:HiddenWhenGroupBy = Infragistics.Win.DefaultableBoolean:False.
+        ultraGridColumn9:ForceApplyResources = "Header":U.
         ultraGridColumn10:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
         ultraGridColumn10:FilterOperatorDefaultValue = Infragistics.Win.UltraWinGrid.FilterOperatorDefaultValue:GreaterThanOrEqualTo.
+        resources:ApplyResources(ultraGridColumn10:Header, "ultraGridColumn10.Header":U).
         ultraGridColumn10:Header:VisiblePosition = 11.
         ultraGridColumn10:HiddenWhenGroupBy = Infragistics.Win.DefaultableBoolean:False.
+        ultraGridColumn10:ForceApplyResources = "Header":U.
         ultraGridColumn11:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn11:Header, "ultraGridColumn11.Header":U).
         ultraGridColumn11:Header:VisiblePosition = 12.
         ultraGridColumn11:HiddenWhenGroupBy = Infragistics.Win.DefaultableBoolean:False.
+        ultraGridColumn11:ForceApplyResources = "Header":U.
         ultraGridColumn12:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn12:Header, "ultraGridColumn12.Header":U).
         ultraGridColumn12:Header:VisiblePosition = 13.
         ultraGridColumn12:HiddenWhenGroupBy = Infragistics.Win.DefaultableBoolean:False.
+        ultraGridColumn12:ForceApplyResources = "Header":U.
         ultraGridColumn13:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn13:Header, "ultraGridColumn13.Header":U).
         ultraGridColumn13:Header:VisiblePosition = 14.
         ultraGridColumn13:HiddenWhenGroupBy = Infragistics.Win.DefaultableBoolean:False.
+        ultraGridColumn13:ForceApplyResources = "Header":U.
         ultraGridColumn15:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn15:Header, "ultraGridColumn15.Header":U).
         ultraGridColumn15:Header:VisiblePosition = 1.
         ultraGridColumn15:HiddenWhenGroupBy = Infragistics.Win.DefaultableBoolean:False.
         ultraGridColumn15:Style = Infragistics.Win.UltraWinGrid.ColumnStyle:DropDownList.
+        ultraGridColumn15:ForceApplyResources = "Header":U.
         ultraGridColumn16:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
         ultraGridColumn16:ExcludeFromColumnChooser = Infragistics.Win.UltraWinGrid.ExcludeFromColumnChooser:True.
+        resources:ApplyResources(ultraGridColumn16:Header, "ultraGridColumn16.Header":U).
         ultraGridColumn16:Header:VisiblePosition = 15.
         ultraGridColumn16:Hidden = TRUE.
         ultraGridColumn16:HiddenWhenGroupBy = Infragistics.Win.DefaultableBoolean:False.
+        ultraGridColumn16:ForceApplyResources = "Header":U.
         ultraGridColumn17:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn17:Header, "ultraGridColumn17.Header":U).
         ultraGridColumn17:Header:VisiblePosition = 16.
         ultraGridColumn17:HiddenWhenGroupBy = Infragistics.Win.DefaultableBoolean:False.
+        ultraGridColumn17:ForceApplyResources = "Header":U.
         ultraGridColumn18:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn18:Header, "ultraGridColumn18.Header":U).
         ultraGridColumn18:Header:VisiblePosition = 17.
         ultraGridColumn18:HiddenWhenGroupBy = Infragistics.Win.DefaultableBoolean:False.
+        ultraGridColumn18:ForceApplyResources = "Header":U.
         ultraGridColumn19:CellActivation = Infragistics.Win.UltraWinGrid.Activation:NoEdit.
+        resources:ApplyResources(ultraGridColumn19:Header, "ultraGridColumn19.Header":U).
         ultraGridColumn19:Header:VisiblePosition = 18.
         ultraGridColumn19:HiddenWhenGroupBy = Infragistics.Win.DefaultableBoolean:False.
+        ultraGridColumn19:ForceApplyResources = "Header":U.
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
         DEFINE VARIABLE arrayvar15 AS System.Object EXTENT 19 NO-UNDO.
         arrayvar15[1] = ultraGridColumn14.
@@ -1954,442 +2089,445 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Frame.AblFrameMigrationForm
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the KeyDown handler of the Text boxes with an 
+        Purpose: Event handler for the KeyDown handler of the Text boxes with an
                  EditorButton (Lookup)
         Notes:   Maps F3 to EditorButtonClick
         @param sender The reference to the object that raised the event
         @param e The KeyEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID LookupKeyDownHandler (sender AS System.Object, 
+    METHOD PRIVATE VOID LookupKeyDownHandler (sender AS System.Object,
                                               e AS System.Windows.Forms.KeyEventArgs):
 
         DEFINE VARIABLE cControlName AS CHARACTER NO-UNDO.
-        
-        IF e:Handled = FALSE AND Progress.Util.EnumHelper:AreEqual (e:KeyCode, SmartLookupSettings:ShortcutKey) 
+
+        IF e:Handled = FALSE AND Progress.Util.EnumHelper:AreEqual (e:KeyCode, SmartLookupSettings:ShortcutKey)
             AND THIS-OBJECT:Enabled THEN DO:
 
             ASSIGN cControlName = CAST (sender, System.Windows.Forms.Control):Name .
 
-            DYNAMIC-INVOKE (THIS-OBJECT, 
-                            SUBSTITUTE ("&1_EditorButtonClick":U, cControlName), 
-                            sender, 
+            DYNAMIC-INVOKE (THIS-OBJECT,
+                            SUBSTITUTE ("&1_EditorButtonClick":U, cControlName),
+                            sender,
                             NEW EditorButtonEventArgs (?, ?)) .
         END.
 
         CATCH err AS Progress.Lang.Error:
-            ErrorHelper:ShowErrorMessage (err) .                
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Raises the FormClosing Event
-        Notes:   
+        Notes:
         @param e The FormClosingEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED OVERRIDE VOID OnFormClosing (e AS System.Windows.Forms.FormClosingEventArgs):
+    METHOD PROTECTED OVERRIDE VOID OnFormClosing (e AS System.Windows.Forms.FormClosingEventArgs):
 
-		SUPER:OnFormClosing (e) .
+        SUPER:OnFormClosing (e) .
 
-        IF e:Cancel THEN RETURN . 
-		
+        IF e:Cancel THEN
+            RETURN .
+
         THIS-OBJECT:StoreSettings (THIS-OBJECT:ultraTextEditor1:Text, "BusinessEntityName":U) .
         THIS-OBJECT:StoreSettings (THIS-OBJECT:ultraTextEditor2:Text, "EntityTable":U) .
         THIS-OBJECT:StoreSettings (THIS-OBJECT:ultraTextEditor3:Text, "ViewerPackage":U) .
         THIS-OBJECT:StoreSettings (THIS-OBJECT:ultraTextEditor4:Text, "ViewerName":U) .
-        THIS-OBJECT:StoreSettings (STRING (UltraToolbarsHelper:GetStateButtonToolChecked (smartToolbarController1, 
-                                                                                          "Left/Top Align":U)), 
+        THIS-OBJECT:StoreSettings (STRING (UltraToolbarsHelper:GetStateButtonToolChecked (smartToolbarController1,
+                                                                                          "Left/Top Align":U)),
                                    "LeftTop Align":U) .
-        THIS-OBJECT:StoreSettings (STRING (UltraToolbarsHelper:GetStateButtonToolChecked (smartToolbarController1, 
-                                                                                          "Parse Trigger Code":U)), 
+        THIS-OBJECT:StoreSettings (STRING (UltraToolbarsHelper:GetStateButtonToolChecked (smartToolbarController1,
+                                                                                          "Parse Trigger Code":U)),
                                    "Parse Trigger Code":U) .
-                                   
+
         THIS-OBJECT:StoreSettings (STRING (THIS-OBJECT:ultraCheckEditor1:Checked), "Create BindingSource":U) .
-        
-        oLruController:StoreLru () .          
 
-	END METHOD .
-
-    /*------------------------------------------------------------------------------
-        Purpose: Raises the Load event 
-        Notes:   
-        @param e The System.EventArgs with the data for this event
-    ------------------------------------------------------------------------------*/
-	METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
-		
-        DEFINE VARIABLE cValue                          AS CHARACTER                                         NO-UNDO . 
-        DEFINE VARIABLE oLoader                         AS ServiceLoader                                     NO-UNDO .
-
-        DEFINE VARIABLE oValueList                      AS Infragistics.Win.ValueList                        NO-UNDO .
-        DEFINE VARIABLE oAlternativeControlTypeProvider AS ISmartViewerBuilderAlternativeControlTypeProvider NO-UNDO .   
-        DEFINE VARIABLE oCustomizer                     AS IAblFrameMigrationFormCustomizer                  NO-UNDO .         		
-        		
-		SUPER:OnLoad (e) .
-		
-        ASSIGN cValue = THIS-OBJECT:LoadSettings ("BusinessEntityName":U) .
-        
-        IF cValue > "":U THEN 
-            ASSIGN THIS-OBJECT:ultraTextEditor1:Text = cValue . 
-                
-        ASSIGN cValue = THIS-OBJECT:LoadSettings ("EntityTable":U) .
-        
-        IF cValue > "":U THEN 
-            ASSIGN THIS-OBJECT:ultraTextEditor2:Text = cValue . 
-
-        ASSIGN cValue = THIS-OBJECT:LoadSettings ("ViewerPackage":U) .
-        
-        IF cValue > "":U THEN 
-            ASSIGN THIS-OBJECT:ultraTextEditor3:Text = cValue . 
-
-        ASSIGN cValue = THIS-OBJECT:LoadSettings ("ViewerName":U) .
-        
-        IF cValue > "":U THEN 
-            ASSIGN THIS-OBJECT:ultraTextEditor4:Text = cValue . 
-
-        ASSIGN cValue = THIS-OBJECT:LoadSettings ("LeftTop Align":U) .
-        
-        IF cValue = "yes":U OR cValue = "no":U THEN 
-            UltraToolbarsHelper:SetStateButtonToolChecked (smartToolbarController1, 
-                                                           "Left/Top Align":U, 
-                                                           DataTypeHelper:ToLogical (cValue)) .
-        
-        ASSIGN cValue = THIS-OBJECT:LoadSettings ("Parse Trigger Code":U) .
-        
-        IF cValue = "yes":U OR cValue = "no":U THEN 
-            UltraToolbarsHelper:SetStateButtonToolChecked (smartToolbarController1, 
-                                                           "Parse Trigger Code":U, 
-                                                           DataTypeHelper:ToLogical (cValue)) .
-        
-        ASSIGN cValue = THIS-OBJECT:LoadSettings ("Create BindingSource":U) .
-
-        IF cValue = "yes":U OR cValue = "no":U THEN 
-            ultraCheckEditor1:Checked = DataTypeHelper:ToLogical (cValue) .
-        
-        oLruController:LoadLru() .
-        
-        IF AblFrameMigrationSettings:CustomServices > "":U THEN DO ON ERROR UNDO, THROW:
-            
-            oLoader = NEW ServiceLoader () . 
-            oLoader:Load (AblFrameMigrationSettings:CustomServices) .
-            
-            CATCH err AS Progress.Lang.Error:
-                Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .    
-            END CATCH.
-        END.        
-               
-        oValueList = NEW Infragistics.Win.ValueList () . 
-        oValueList:ValueListItems:Add ("":U) .                
-        oValueList:ValueListItems:Add ("SmartBusinessEntityLookup":U) .                
-        oValueList:ValueListItems:Add ("SmartComboEditor":U) .  
-                      
-        ASSIGN oAlternativeControlTypeProvider = {Consultingwerk/get-service.i Consultingwerk.BusinessEntityDesigner.Plugins.CustomServices.ISmartViewerBuilderAlternativeControlTypeProvider} .                
-                
-        IF VALID-OBJECT (oAlternativeControlTypeProvider) THEN 
-            oAlternativeControlTypeProvider:AddCustomControlTypes (AlternativeControlTypeProviderOriginEnum:AblFrameMigrationForm,
-                                                                   oValueList) .                
-                
-        smartUpdatableBrowser1:DisplayLayout:Bands[0]:Columns["AlternativeControlType":U]:ValueList = oValueList .           
-
-        oCustomizer = {Consultingwerk/get-service.i Consultingwerk.Studio.LegacyGuiMigration.Frame.IAblFrameMigrationFormCustomizer} .                 
-               
-        IF VALID-OBJECT (oCustomizer) THEN 
-            oCustomizer:Startup (TABLE ttSelectedFrameWidget BIND,
-                                 DATASET dsTrigger BIND,
-                                 THIS-OBJECT,
-                                 smartToolbarController1) .                
-        
-	END METHOD .
-
-    /*------------------------------------------------------------------------------
-        Purpose: Shows the openFiledialog and opens a file for parsing 
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID OpenFile ():
-		
-		DEFINE VARIABLE oDialogResult AS System.Windows.Forms.DialogResult NO-UNDO .
-		
-		WAIT-FOR openFileDialog1:ShowDialog (THIS-OBJECT) SET oDialogResult .
-
-        {Consultingwerk/check-dialogresult-ok.i oDialogResult}
-
-        THIS-OBJECT:OpenFile (openFileDialog1:FileName) . 
-
-	END METHOD .
-
-    /*------------------------------------------------------------------------------
-        Purpose: Shows the openFiledialog and opens a file for parsing 
-        Notes:   
-        @param pcFileName The name of the file of open
-    ------------------------------------------------------------------------------*/
-    METHOD PROTECTED VOID OpenFile (pcFileName AS CHARACTER):
-        
-        DEFINE VARIABLE oFrames AS Consultingwerk.Framework.Collections.CharacterList NO-UNDO  .
-        
-        Consultingwerk.Assertion.FileAssert:Exists (pcFileName) . 
-    
-        THIS-OBJECT:FileName = pcFileName .  
-    
-        THIS-OBJECT:ultraStatusBar1:Panels["filename":U]:Text = pcFileName . 
-
-        THIS-OBJECT:smartToolbarController1:Tools["Open in Proparse":U]:SharedProps:Enabled = TRUE .
-
-        oLruController:AddItemToLru (pcFileName, pcFileName) .      
-    
-        oFrames = oParser:GetFrameNames (pcFileName) .    
-        
-        IF oFrames:Count > 0 THEN DO: 
-            coFrameName:ValueList = Consultingwerk.Util.ValueListHelper:FromList (oFrames) .
-            coFrameName:DropDown () .
-        END.
-        ELSE 
-            MessageFormHelper:ShowMessage ("No FRAME Definitions found in source file."{&TRAN},
-                                           THIS-OBJECT:Text,
-                                           Consultingwerk.Windows.Util.Forms.MessageFormImages:ImageWarning) .
-               
-        THIS-OBJECT:DisplayStatus ("":U) .
-                             
-    END METHOD . 
-        
-    /*------------------------------------------------------------------------------
-        Purpose: Opens a File From the LRU
-        Notes:   
-        @param pcFileName The name of the file to open
-    ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID OpenFileFromLru (pcFileName AS CHARACTER):
-		
-		THIS-OBJECT:OpenFile (pcFileName) .
-
-	END METHOD .
-
-    /*------------------------------------------------------------------------------
-        Purpose: Opens the current file in the Proparse Tree View
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID OpenFileInProparse ():
-		
-		DEFINE VARIABLE oForm AS Consultingwerk.Studio.Proparse.ProparseTreeViewForm NO-UNDO . 
-		
-		oForm = NEW Consultingwerk.Studio.Proparse.ProparseTreeViewForm () .
-		
-		oForm:Show () . 
-
-        THIS-OBJECT:DependentForms:Add (oForm) . 
-		
-		oForm:OpenFileForParsing (THIS-OBJECT:FileName) .
-
-	END METHOD .
-
-    /*------------------------------------------------------------------------------
-        Purpose: Saves unsaved changes in the SmartUpdatableBrowser 
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID SaveUnsavedChanges ():
-		
-		IF smartUpdatableBrowser1:SmartTableIOState = TableIOStateEnum:ModifyingData THEN 
-		    smartUpdatableBrowser1:SaveChanges () . 
-
-	END METHOD .
-
-    /*------------------------------------------------------------------------------
-        Purpose: Marks all records as selected 
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID SelectAll ():
-		
-		THIS-OBJECT:SelectAll (TRUE) . 
-
-	END METHOD .
-
-    /*------------------------------------------------------------------------------
-        Purpose: Marks all records as selected or deselected
-        Notes:   
-        @param plSelected Logical value indicating if the records should be selected (true) or deselected (false)
-    ------------------------------------------------------------------------------*/
-    METHOD PROTECTED VOID SelectAll (plSelected AS LOGICAL):
-        
-        DEFINE BUFFER ttSelectedFrameWidget FOR ttSelectedFrameWidget . 
-        
-        IF smartUpdatableBrowser1:SmartTableIOState = TableIOStateEnum:ModifyingData THEN 
-            smartUpdatableBrowser1:SaveChanges () . 
-
-        IF smartUpdatableBrowser1:SmartTableIOState = TableIOStateEnum:ModifyingData THEN
-            RETURN . 
-            
-        FOR EACH ttSelectedFrameWidget:
-            ASSIGN ttSelectedFrameWidget.IsSelected = plSelected . 
-        END.
-        
-        smartTempTableAdapter1:RetrieveData () . 
+        oLruController:StoreLru () .
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the ToolClick event of the smartToolbarController1  
-        Notes:   
+        Purpose: Raises the Load event
+        Notes:
+        @param e The System.EventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
+
+        DEFINE VARIABLE cValue                          AS CHARACTER                                         NO-UNDO .
+        DEFINE VARIABLE oLoader                         AS ServiceLoader                                     NO-UNDO .
+
+        DEFINE VARIABLE oValueList                      AS Infragistics.Win.ValueList                        NO-UNDO .
+        DEFINE VARIABLE oAlternativeControlTypeProvider AS ISmartViewerBuilderAlternativeControlTypeProvider NO-UNDO .
+        DEFINE VARIABLE oCustomizer                     AS IAblFrameMigrationFormCustomizer                  NO-UNDO .
+
+        SUPER:OnLoad (e) .
+
+        ASSIGN cValue = THIS-OBJECT:LoadSettings ("BusinessEntityName":U) .
+
+        IF cValue > "":U THEN
+            ASSIGN THIS-OBJECT:ultraTextEditor1:Text = cValue .
+
+        ASSIGN cValue = THIS-OBJECT:LoadSettings ("EntityTable":U) .
+
+        IF cValue > "":U THEN
+            ASSIGN THIS-OBJECT:ultraTextEditor2:Text = cValue .
+
+        ASSIGN cValue = THIS-OBJECT:LoadSettings ("ViewerPackage":U) .
+
+        IF cValue > "":U THEN
+            ASSIGN THIS-OBJECT:ultraTextEditor3:Text = cValue .
+
+        ASSIGN cValue = THIS-OBJECT:LoadSettings ("ViewerName":U) .
+
+        IF cValue > "":U THEN
+            ASSIGN THIS-OBJECT:ultraTextEditor4:Text = cValue .
+
+        ASSIGN cValue = THIS-OBJECT:LoadSettings ("LeftTop Align":U) .
+
+        IF cValue = "yes":U OR cValue = "no":U THEN
+            UltraToolbarsHelper:SetStateButtonToolChecked (smartToolbarController1,
+                                                           "Left/Top Align":U,
+                                                           DataTypeHelper:ToLogical (cValue)) .
+
+        ASSIGN cValue = THIS-OBJECT:LoadSettings ("Parse Trigger Code":U) .
+
+        IF cValue = "yes":U OR cValue = "no":U THEN
+            UltraToolbarsHelper:SetStateButtonToolChecked (smartToolbarController1,
+                                                           "Parse Trigger Code":U,
+                                                           DataTypeHelper:ToLogical (cValue)) .
+
+        ASSIGN cValue = THIS-OBJECT:LoadSettings ("Create BindingSource":U) .
+
+        IF cValue = "yes":U OR cValue = "no":U THEN
+            ultraCheckEditor1:Checked = DataTypeHelper:ToLogical (cValue) .
+
+        oLruController:LoadLru() .
+
+        IF AblFrameMigrationSettings:CustomServices > "":U THEN DO ON ERROR UNDO, THROW:
+
+            oLoader = NEW ServiceLoader () .
+            oLoader:Load (AblFrameMigrationSettings:CustomServices) .
+
+            CATCH err AS Progress.Lang.Error:
+                Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .
+            END CATCH.
+        END.
+
+        oValueList = NEW Infragistics.Win.ValueList () .
+        oValueList:ValueListItems:Add ("":U) .
+        oValueList:ValueListItems:Add ("SmartBusinessEntityLookup":U) .
+        oValueList:ValueListItems:Add ("SmartComboEditor":U) .
+
+        ASSIGN oAlternativeControlTypeProvider = {Consultingwerk/get-service.i Consultingwerk.BusinessEntityDesigner.Plugins.CustomServices.ISmartViewerBuilderAlternativeControlTypeProvider} .
+
+        IF VALID-OBJECT (oAlternativeControlTypeProvider) THEN
+            oAlternativeControlTypeProvider:AddCustomControlTypes (AlternativeControlTypeProviderOriginEnum:AblFrameMigrationForm,
+                                                                   oValueList) .
+
+        smartUpdatableBrowser1:DisplayLayout:Bands[0]:Columns["AlternativeControlType":U]:ValueList = oValueList .
+
+        oCustomizer = {Consultingwerk/get-service.i Consultingwerk.Studio.LegacyGuiMigration.Frame.IAblFrameMigrationFormCustomizer} .
+
+        IF VALID-OBJECT (oCustomizer) THEN
+            oCustomizer:Startup (TABLE ttSelectedFrameWidget BIND,
+                                 DATASET dsTrigger BIND,
+                                 THIS-OBJECT,
+                                 smartToolbarController1) .
+
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Shows the openFiledialog and opens a file for parsing
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID OpenFile ():
+
+        DEFINE VARIABLE oDialogResult AS System.Windows.Forms.DialogResult NO-UNDO .
+
+        WAIT-FOR openFileDialog1:ShowDialog (THIS-OBJECT) SET oDialogResult .
+
+        {Consultingwerk/check-dialogresult-ok.i oDialogResult}
+
+        THIS-OBJECT:OpenFile (openFileDialog1:FileName) .
+
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Shows the openFiledialog and opens a file for parsing
+        Notes:
+        @param pcFileName The name of the file of open
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID OpenFile (pcFileName AS CHARACTER):
+
+        DEFINE VARIABLE oFrames AS Consultingwerk.Framework.Collections.CharacterList NO-UNDO  .
+
+        Consultingwerk.Assertion.FileAssert:Exists (pcFileName) .
+
+        THIS-OBJECT:FileName = pcFileName .
+
+        THIS-OBJECT:ultraStatusBar1:Panels["filename":U]:Text = pcFileName .
+
+        THIS-OBJECT:smartToolbarController1:Tools["Open in Proparse":U]:SharedProps:Enabled = TRUE .
+
+        oLruController:AddItemToLru (pcFileName, pcFileName) .
+
+        oFrames = oParser:GetFrameNames (pcFileName) .
+
+        IF oFrames:Count > 0 THEN DO:
+            coFrameName:ValueList = Consultingwerk.Util.ValueListHelper:FromList (oFrames) .
+            coFrameName:DropDown () .
+        END.
+        ELSE
+            MessageFormHelper:ShowMessage ("No FRAME Definitions found in source file."{&TRAN},
+                                           THIS-OBJECT:Text,
+                                           Consultingwerk.Windows.Util.Forms.MessageFormImages:ImageWarning) .
+
+        THIS-OBJECT:DisplayStatus ("":U) .
+
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Opens a File From the LRU
+        Notes:
+        @param pcFileName The name of the file to open
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID OpenFileFromLru (pcFileName AS CHARACTER):
+
+        THIS-OBJECT:OpenFile (pcFileName) .
+
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Opens the current file in the Proparse Tree View
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID OpenFileInProparse ():
+
+        DEFINE VARIABLE oForm AS Consultingwerk.Studio.Proparse.ProparseTreeViewForm NO-UNDO .
+
+        oForm = NEW Consultingwerk.Studio.Proparse.ProparseTreeViewForm () .
+
+        oForm:Show () .
+
+        THIS-OBJECT:DependentForms:Add (oForm) .
+
+        oForm:OpenFileForParsing (THIS-OBJECT:FileName) .
+
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Saves unsaved changes in the SmartUpdatableBrowser
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC VOID SaveUnsavedChanges ():
+
+        IF smartUpdatableBrowser1:SmartTableIOState = TableIOStateEnum:ModifyingData THEN
+            smartUpdatableBrowser1:SaveChanges () .
+
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Marks all records as selected
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID SelectAll ():
+
+        THIS-OBJECT:SelectAll (TRUE) .
+
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Marks all records as selected or deselected
+        Notes:
+        @param plSelected Logical value indicating if the records should be selected (true) or deselected (false)
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID SelectAll (plSelected AS LOGICAL):
+
+        DEFINE BUFFER ttSelectedFrameWidget FOR ttSelectedFrameWidget .
+
+        IF smartUpdatableBrowser1:SmartTableIOState = TableIOStateEnum:ModifyingData THEN
+            smartUpdatableBrowser1:SaveChanges () .
+
+        IF smartUpdatableBrowser1:SmartTableIOState = TableIOStateEnum:ModifyingData THEN
+            RETURN .
+
+        FOR EACH ttSelectedFrameWidget:
+            ASSIGN ttSelectedFrameWidget.IsSelected = plSelected .
+        END.
+
+        smartTempTableAdapter1:RetrieveData () .
+
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the ToolClick event of the smartToolbarController1
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The ToolClickEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID smartToolbarController1_ToolClick (sender AS System.Object,    
-	                                                       e AS Infragistics.Win.UltraWinToolbars.ToolClickEventArgs):
-	
-        CASE e:Tool:Key:
-            WHEN "Open File":U THEN 
-                THIS-OBJECT:OpenFile () . 
-	        WHEN "Generate":U THEN  
-	            THIS-OBJECT:GenerateViewer () . 
-	        WHEN "GenerateWeb2View":U THEN 
-	            THIS-OBJECT:GenerateWeb2View () .
-            WHEN "Generate Temp-Table":U THEN 
-                THIS-OBJECT:GenerateTempTable () . 	            
-	        WHEN "Select all":U THEN 
-	            THIS-OBJECT:SelectAll () . 
-            WHEN "Deselect all":U THEN 
-                THIS-OBJECT:DeselectAll () . 
-            WHEN "Open in Proparse":U THEN 
-                THIS-OBJECT:OpenFileInProparse () .  
-            WHEN "Options":U THEN 
-                THIS-OBJECT:ShowOptionsDialog () .         
-            WHEN "New Business Entity":U THEN 
-                THIS-OBJECT:ShowNewBusinessEntityWizard () .   
-	
-		END CASE .
+    METHOD PRIVATE VOID smartToolbarController1_ToolClick (sender AS System.Object,
+                                                           e AS Infragistics.Win.UltraWinToolbars.ToolClickEventArgs):
 
-        IF e:Tool:Key BEGINS "lru_":U THEN 
+        CASE e:Tool:Key:
+            WHEN "Open File":U THEN
+                THIS-OBJECT:OpenFile () .
+            WHEN "Generate":U THEN
+                THIS-OBJECT:GenerateViewer () .
+            WHEN "GenerateWeb2View":U THEN
+                THIS-OBJECT:GenerateWeb2View () .
+            WHEN "Kendo UI Builder View":U THEN
+                THIS-OBJECT:GenerateKendoUiBuilderView () .
+            WHEN "Generate Temp-Table":U THEN
+                THIS-OBJECT:GenerateTempTable () .
+            WHEN "Select all":U THEN
+                THIS-OBJECT:SelectAll () .
+            WHEN "Deselect all":U THEN
+                THIS-OBJECT:DeselectAll () .
+            WHEN "Open in Proparse":U THEN
+                THIS-OBJECT:OpenFileInProparse () .
+            WHEN "Options":U THEN
+                THIS-OBJECT:ShowOptionsDialog () .
+            WHEN "New Business Entity":U THEN
+                THIS-OBJECT:ShowNewBusinessEntityWizard () .
+
+        END CASE .
+
+        IF e:Tool:Key BEGINS "lru_":U THEN
             OpenFileFromLru (UNBOX (e:Tool:SharedProps:RootTool:Tag)) .
 
         CATCH err AS Progress.Lang.Error :
-        	ErrorHelper:ShowErrorMessage (err) .	
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the StatusChanged event of the Frame or Trigger
                  Parser
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The StatusChangedEventArgs with the data for this event 
+        @param e The StatusChangedEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID StatusChangedHandler (sender AS Progress.Lang.Object,
+    METHOD PRIVATE VOID StatusChangedHandler (sender AS Progress.Lang.Object,
                                              e AS StatusChangedEventArgs):
-		
-		THIS-OBJECT:DisplayStatus (e:Status) . 
 
-	END METHOD .
+        THIS-OBJECT:DisplayStatus (e:Status) .
 
-	/*------------------------------------------------------------------------------
-	   Purpose: Event handler for the CheckedChanged event of the ultraCheckEditor1
-	   Notes:
-	   @param sender The reference to the object that raised the event
-	   @param e The System.EventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraCheckEditor1_CheckedChanged (sender AS System.Object, 
-	                                                      e AS System.EventArgs):
-		
-		ASSIGN ultraTextEditor1:Enabled = ultraCheckEditor1:Checked
-		       ultraTextEditor2:Enabled = ultraCheckEditor1:Checked . 
-
-	END METHOD.
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the EditorButtonClick event of the ultraTextEditor1 
+       Purpose: Event handler for the CheckedChanged event of the ultraCheckEditor1
+       Notes:
+       @param sender The reference to the object that raised the event
+       @param e The System.EventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID ultraCheckEditor1_CheckedChanged (sender AS System.Object,
+                                                          e AS System.EventArgs):
+
+        ASSIGN ultraTextEditor1:Enabled = ultraCheckEditor1:Checked
+               ultraTextEditor2:Enabled = ultraCheckEditor1:Checked .
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the EditorButtonClick event of the ultraTextEditor1
         Notes:   Opens the Business Entity search dialog
         @param sender The reference to the object that raised the event
         @param e The EditorButtonEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraTextEditor1_EditorButtonClick (sender AS System.Object, 
-	                                                        e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
-		
-		DEFINE VARIABLE cEntityName AS CHARACTER NO-UNDO.
-		
-        Consultingwerk.SmartComponents.Support.BusinessEntityDesignerSupport:SelectBusinessEntityName (OUTPUT cEntityName). 
+    METHOD PRIVATE VOID ultraTextEditor1_EditorButtonClick (sender AS System.Object,
+                                                            e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
 
-        IF cEntityName > "":U THEN 
-            ASSIGN ultraTextEditor1:Text = cEntityName .  
+        DEFINE VARIABLE cEntityName AS CHARACTER NO-UNDO.
 
-	END METHOD .
+        Consultingwerk.SmartComponents.Support.BusinessEntityDesignerSupport:SelectBusinessEntityName (OUTPUT cEntityName).
+
+        IF cEntityName > "":U THEN
+            ASSIGN ultraTextEditor1:Text = cEntityName .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the EditorButtonClick event of the ultraTextEditor2 
+        Purpose: Event handler for the EditorButtonClick event of the ultraTextEditor2
         Notes:   Opens the Table Selection dialog for the choosen Business Entity
         @param sender The reference to the object that raised the event
         @param e The EditorButtonEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraTextEditor2_EditorButtonClick (sender AS System.Object, 
-	                                                        e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
-		
-		DEFINE VARIABLE cTables      AS CHARACTER NO-UNDO .
-		DEFINE VARIABLE cEntityJoin  AS CHARACTER NO-UNDO .
+    METHOD PRIVATE VOID ultraTextEditor2_EditorButtonClick (sender AS System.Object,
+                                                            e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
+
+        DEFINE VARIABLE cTables      AS CHARACTER NO-UNDO .
+        DEFINE VARIABLE cEntityJoin  AS CHARACTER NO-UNDO .
         DEFINE VARIABLE hDataHandle  AS HANDLE    NO-UNDO .
 
-        ASSIGN cTables = ultraTextEditor2:Text .  
+        ASSIGN cTables = ultraTextEditor2:Text .
 
-        FrameworkSettings:ServiceAdapter:FetchDataset ("":U, 
+        FrameworkSettings:ServiceAdapter:FetchDataset ("":U,
                                                       ultraTextEditor1:Text,
-                                                      OUTPUT DATASET-HANDLE hDataHandle BY-REFERENCE) . 
+                                                      OUTPUT DATASET-HANDLE hDataHandle BY-REFERENCE) .
 
-        ASSIGN cEntityJoin = TRIM (FILL ("yes,":U, NUM-ENTRIES (cTables)), ",":U) . 
+        ASSIGN cEntityJoin = TRIM (FILL ("yes,":U, NUM-ENTRIES (cTables)), ",":U) .
 
-        RUN Consultingwerk\SmartComponents\Support\SmartBusinessEntityAdapterDesigner_ShowBusinessEntityTblPic.p
+        RUN Consultingwerk/SmartComponents/Support/SmartBusinessEntityAdapterDesigner_ShowBusinessEntityTblPic.p
                 (hDataHandle,
-                 ultraTextEditor2:Text, 
+                 ultraTextEditor2:Text,
                  OUTPUT cTables,
                  INPUT-OUTPUT cEntityJoin) .
 
-        IF cTables > "":U THEN 
-            ASSIGN ultraTextEditor2:Text = cTables .   
+        IF cTables > "":U THEN
+            ASSIGN ultraTextEditor2:Text = cTables .
 
         FINALLY:
-            GarbageCollectorHelper:DeleteObject (hDataHandle) .		
+            GarbageCollectorHelper:DeleteObject (hDataHandle) .
         END FINALLY.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the EditorButtonClick event of the ultraTextEditor3 
-        Notes:   Opens the Package Selection dialog 
+        Purpose: Event handler for the EditorButtonClick event of the ultraTextEditor3
+        Notes:   Opens the Package Selection dialog
         @param sender The reference to the object that raised the event
         @param e The EditorButtonEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraTextEditor3_EditorButtonClick (sender AS System.Object, 
-	                                                        e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
-		
+    METHOD PRIVATE VOID ultraTextEditor3_EditorButtonClick (sender AS System.Object,
+                                                            e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
+
         DEFINE VARIABLE oDialogResult        AS System.Windows.Forms.DialogResult                   NO-UNDO .
         DEFINE VARIABLE cRelative            AS CHARACTER                                           NO-UNDO .
-        
-        DEFINE VARIABLE oFolderBrowserDialog AS Consultingwerk.Windows.Util.Forms.FolderBrowserForm NO-UNDO . 
 
-        FILE-INFO:FILE-NAME = ".":U .
+        DEFINE VARIABLE oFolderBrowserDialog AS Consultingwerk.Windows.Util.Forms.FolderBrowserForm NO-UNDO .
 
-        oFolderBrowserDialog = NEW Consultingwerk.Windows.Util.Forms.FolderBrowserForm () . 
-        oFolderBrowserDialog:RootFolder = FILE-INFO:FULL-PATHNAME . 
-        
+        FILE-INFORMATION:FILE-NAME = ".":U .
+
+        oFolderBrowserDialog = NEW Consultingwerk.Windows.Util.Forms.FolderBrowserForm () .
+        oFolderBrowserDialog:RootFolder = FILE-INFORMATION:FULL-PATHNAME .
+
         WAIT-FOR oFolderBrowserDialog:ShowDialog() SET oDialogResult .
-        
+
         IF Progress.Util.EnumHelper:AreEqual (oDialogResult, System.Windows.Forms.DialogResult:Ok) THEN DO:
-            FILE-INFO:FILE-NAME = ".":U .
+            FILE-INFORMATION:FILE-NAME = ".":U .
 
             ASSIGN cRelative = FileHelper:RelativeFileName(oFolderBrowserDialog:SelectedFolder)
-                   cRelative = REPLACE (cRelative, "/":U, "~\":U) . 
+                   cRelative = REPLACE (cRelative, "/":U, "~\":U) .
 
-            IF SUBSTRING (cRelative, 2, 1) = ":":U OR cRelative BEGINS "~\~\":U OR cRelative BEGINS "/":U OR cRelative BEGINS ".":U THEN 
-                Consultingwerk.Util.MessageFormHelper:ShowMessage 
+            IF SUBSTRING (cRelative, 2, 1) = ":":U OR cRelative BEGINS "~\~\":U OR cRelative BEGINS "/":U OR cRelative BEGINS ".":U THEN
+                Consultingwerk.Util.MessageFormHelper:ShowMessage
                               ("Unable to translate path into package."{&TRAN},
                                "Business Entity Designer"{&TRAN},
                                "Path needs to be relative to working directory."{&TRAN},
                                Consultingwerk.Windows.Util.Forms.MessageFormImages:ImageWarning) .
             ELSE
                 THIS-OBJECT:ultraTextEditor3:Text = REPLACE (cRelative, "~\":U, ".":U) .
-        END.        
+        END.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the AblFrameMigrationForm class 
-        Notes:   
+        Purpose: Destructor for the AblFrameMigrationForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC AblFrameMigrationForm ():
 

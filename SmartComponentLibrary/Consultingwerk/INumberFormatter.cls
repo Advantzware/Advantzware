@@ -31,6 +31,6 @@ INTERFACE Consultingwerk.INumberFormatter:
         @param piNumber The number to format
         @return The string representing the number in a human readable form
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC CHARACTER FormatNumber (piNumber AS INTEGER).
+    METHOD PUBLIC CHARACTER FormatNumber (piNumber AS INTEGER).
 
 END INTERFACE.

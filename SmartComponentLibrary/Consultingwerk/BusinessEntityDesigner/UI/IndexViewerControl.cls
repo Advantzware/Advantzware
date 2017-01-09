@@ -8,28 +8,28 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/  
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : IndexViewerControl
     Purpose     : Viewer Control for the eIndex Table
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sat Oct 23 21:09:05 CEST 2010
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Consultingwerk.*                           FROM PROPATH . 
+USING Consultingwerk.*                           FROM PROPATH .
 USING Consultingwerk.BusinessEntityDesigner.UI.* FROM PROPATH.
 USING Consultingwerk.SmartComponents.Base.*      FROM PROPATH .
 USING Consultingwerk.SmartComponents.Enum.*      FROM PROPATH .
 USING Consultingwerk.Util.*                      FROM PROPATH .
 USING Progress.Lang.*                            FROM PROPATH .
 
-CLASS Consultingwerk.BusinessEntityDesigner.UI.IndexViewerControl INHERITS SmartViewerControl: 
-    
+CLASS Consultingwerk.BusinessEntityDesigner.UI.IndexViewerControl INHERITS SmartViewerControl:
+
     DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE eIndex_DefaultSearchCodeGeneration AS Infragistics.Win.UltraWinEditors.UltraCheckEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraTabSharedControlsPage1 AS Infragistics.Win.UltraWinTabControl.UltraTabSharedControlsPage NO-UNDO.
@@ -46,13 +46,13 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.IndexViewerControl INHERITS Smart
     DEFINE PRIVATE VARIABLE smartBusinessEntityBindingSource1_eIndex_FieldNames AS Infragistics.Win.UltraWinEditors.UltraTextEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE smartBusinessEntityBindingSource1 AS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource NO-UNDO.
 
-        
+
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the MemberTableViewerControl class                                                                         
-        Notes:                                                                        
+        Purpose: Constructor for the MemberTableViewerControl class
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC IndexViewerControl ():
-        
+
         SUPER().
         InitializeComponent().
         CATCH e AS Progress.Lang.Error:
@@ -61,17 +61,18 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.IndexViewerControl INHERITS Smart
 
     END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -233,6 +234,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.IndexViewerControl INHERITS Smart
         /*  */
         /* smartBusinessEntityBindingSource1_eIndex_IndexWordIndex */
         /*  */
+        THIS-OBJECT:smartBusinessEntityBindingSource1_eIndex_IndexWordIndex:AutoSize = TRUE.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eIndex_IndexWordIndex:DataBindings:Add(NEW System.Windows.Forms.Binding("CheckedValue":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "IndexWordIndex":U, TRUE)).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eIndex_IndexWordIndex:Location = NEW System.Drawing.Point(150, 82).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eIndex_IndexWordIndex:Name = "smartBusinessEntityBindingSource1_eIndex_IndexWordIndex":U.
@@ -243,6 +245,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.IndexViewerControl INHERITS Smart
         /*  */
         /* smartBusinessEntityBindingSource1_eIndex_IndexUnique */
         /*  */
+        THIS-OBJECT:smartBusinessEntityBindingSource1_eIndex_IndexUnique:AutoSize = TRUE.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eIndex_IndexUnique:DataBindings:Add(NEW System.Windows.Forms.Binding("CheckedValue":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "IndexUnique":U, TRUE)).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eIndex_IndexUnique:Location = NEW System.Drawing.Point(150, 30).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eIndex_IndexUnique:Name = "smartBusinessEntityBindingSource1_eIndex_IndexUnique":U.
@@ -253,6 +256,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.IndexViewerControl INHERITS Smart
         /*  */
         /* smartBusinessEntityBindingSource1_eIndex_IndexPrimary */
         /*  */
+        THIS-OBJECT:smartBusinessEntityBindingSource1_eIndex_IndexPrimary:AutoSize = TRUE.
         THIS-OBJECT:smartBusinessEntityBindingSource1_eIndex_IndexPrimary:DataBindings:Add(NEW System.Windows.Forms.Binding("CheckedValue":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "IndexPrimary":U, TRUE)).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eIndex_IndexPrimary:Location = NEW System.Drawing.Point(150, 56).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eIndex_IndexPrimary:Name = "smartBusinessEntityBindingSource1_eIndex_IndexPrimary":U.
@@ -263,6 +267,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.IndexViewerControl INHERITS Smart
         /*  */
         /* eIndex_DefaultSearchCodeGeneration */
         /*  */
+        THIS-OBJECT:eIndex_DefaultSearchCodeGeneration:AutoSize = TRUE.
         THIS-OBJECT:eIndex_DefaultSearchCodeGeneration:DataBindings:Add(NEW System.Windows.Forms.Binding("CheckedValue":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "DefaultSearchCodeGeneration":U, TRUE)).
         THIS-OBJECT:eIndex_DefaultSearchCodeGeneration:Location = NEW System.Drawing.Point(150, 162).
         THIS-OBJECT:eIndex_DefaultSearchCodeGeneration:Name = "eIndex_DefaultSearchCodeGeneration":U.
@@ -299,7 +304,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.IndexViewerControl INHERITS Smart
         THIS-OBJECT:AutoScaleDimensions = NEW System.Drawing.SizeF(Progress.Util.CastUtil:ToSingle(6), Progress.Util.CastUtil:ToSingle(13)).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:ultraTabControl1).
         THIS-OBJECT:Name = "IndexViewerControl":U.
-        THIS-OBJECT:Size = NEW System.Drawing.Size(627, 236).
+        THIS-OBJECT:Size = NEW System.Drawing.Size(556, 291).
         THIS-OBJECT:ultraTabPageControl2:ResumeLayout(FALSE).
         THIS-OBJECT:ultraTabPageControl2:PerformLayout().
         CAST(THIS-OBJECT:smartBusinessEntityBindingSource1_eIndex_FieldSort, System.ComponentModel.ISupportInitialize):EndInit().
@@ -320,70 +325,70 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.IndexViewerControl INHERITS Smart
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the EditorButtonClick event of the 
+        Purpose: Event handler for the EditorButtonClick event of the
                  smartBusinessEntityBindingSource1_eIndex_FieldNames Control
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The EditorButtonEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID smartBusinessEntityBindingSource1_eIndex_FieldNames_EditorButtonClick (sender AS System.Object, 
-	                                                                                           e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
-		
-		DEFINE VARIABLE oIndexFieldsForm AS IndexFieldsForm                   NO-UNDO . 
-		DEFINE VARIABLE oDialogResult    AS System.Windows.Forms.DialogResult NO-UNDO . 
-		
-		oIndexFieldsForm = NEW IndexFieldsForm (THIS-OBJECT:SmartDataSource:GetFieldValues ("BusinessEntityName":U),
-		                                        THIS-OBJECT:SmartDataSource:GetFieldValues ("TempTableName":U),
-		                                        THIS-OBJECT:SmartDataSource:GetFieldValues ("IndexName":U),
-		                                        smartBusinessEntityBindingSource1_eIndex_FieldNames:Text,
-		                                        smartBusinessEntityBindingSource1_eIndex_FieldSort:Text) . 
-		
-        WAIT-FOR oIndexFieldsForm:ShowDialog () SET oDialogResult . 
+    METHOD PRIVATE VOID smartBusinessEntityBindingSource1_eIndex_FieldNames_EditorButtonClick (sender AS System.Object,
+                                                                                               e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
+
+        DEFINE VARIABLE oIndexFieldsForm AS IndexFieldsForm                   NO-UNDO .
+        DEFINE VARIABLE oDialogResult    AS System.Windows.Forms.DialogResult NO-UNDO .
+
+        oIndexFieldsForm = NEW IndexFieldsForm (THIS-OBJECT:SmartDataSource:GetFieldValues ("BusinessEntityName":U),
+                                                THIS-OBJECT:SmartDataSource:GetFieldValues ("TempTableName":U),
+                                                THIS-OBJECT:SmartDataSource:GetFieldValues ("IndexName":U),
+                                                smartBusinessEntityBindingSource1_eIndex_FieldNames:Text,
+                                                smartBusinessEntityBindingSource1_eIndex_FieldSort:Text) .
+
+        WAIT-FOR oIndexFieldsForm:ShowDialog () SET oDialogResult .
 
         {Consultingwerk/check-dialogresult-ok.i oDialogResult} .
 
         ASSIGN smartBusinessEntityBindingSource1_eIndex_FieldNames:Text = oIndexFieldsForm:IndexFields
-               smartBusinessEntityBindingSource1_eIndex_FieldSort:Text  = oIndexFieldsForm:IndexSort 
+               smartBusinessEntityBindingSource1_eIndex_FieldSort:Text  = oIndexFieldsForm:IndexSort
                THIS-OBJECT:SmartTableIOState                            = TableIOStateEnum:ModifyingData .
 
         CATCH err AS Progress.Lang.Error:
-            ErrorHelper:ShowErrorMessage (err) .    
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the Leave event for the Index FieldNames field
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised this error
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID smartBusinessEntityBindingSource1_eIndex_FieldNames_Leave (sender AS System.Object, 
-	                                                                               e AS System.EventArgs):
-		
-		DEFINE VARIABLE cFields AS CHARACTER NO-UNDO .
-		DEFINE VARIABLE cSort   AS CHARACTER NO-UNDO .
+    METHOD PRIVATE VOID smartBusinessEntityBindingSource1_eIndex_FieldNames_Leave (sender AS System.Object,
+                                                                                   e AS System.EventArgs):
+
+        DEFINE VARIABLE cFields AS CHARACTER NO-UNDO .
+        DEFINE VARIABLE cSort   AS CHARACTER NO-UNDO .
         DEFINE VARIABLE i       AS INTEGER   NO-UNDO .
 
-        IF NOT smartBusinessEntityBindingSource1_eIndex_FieldSort:Enabled THEN 
-            RETURN . 
+        IF NOT smartBusinessEntityBindingSource1_eIndex_FieldSort:Enabled THEN
+            RETURN .
 
         ASSIGN cFields = UNBOX (smartBusinessEntityBindingSource1_eIndex_FieldNames:Value)
                cSort   = UNBOX (smartBusinessEntityBindingSource1_eIndex_FieldSort:Value) .
-    
+
          ASSIGN cFields = ListHelper:RemoveEmptyEntries (cFields)
                 cSort   = ListHelper:RemoveEmptyEntries (cSort) .
 
-        IF CharacterType:IsNullOrEmpty (cFields) THEN 
-            ASSIGN cSort = "":U . 
+        IF CharacterType:IsNullOrEmpty (cFields) THEN
+            ASSIGN cSort = "":U .
         ELSE IF CharacterType:IsNotNullOrEmpty (cFields) AND CharacterType:IsNullOrEmpty (cSort) THEN DO:
-            
-            ASSIGN cSort = TRIM (FILL ("ASCENDING,":U, NUM-ENTRIES (cFields)), ",":U) . 
-            
-            IF cSort > "":U THEN 
+
+            ASSIGN cSort = TRIM (FILL ("ASCENDING,":U, NUM-ENTRIES (cFields)), ",":U) .
+
+            IF cSort > "":U THEN
                 smartBusinessEntityBindingSource1_eIndex_FieldSort:Value = BOX (cSort) .
-                
-            RETURN .   
+
+            RETURN .
         END.
         ELSE DO:
             IF NUM-ENTRIES (cSort) < NUM-ENTRIES (cFields) THEN DO:
@@ -394,27 +399,27 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.IndexViewerControl INHERITS Smart
                     ASSIGN cSort = ListHelper:RemoveEntry (cSort, i) .
                 END.
             END.
-            
+
             DO i = 1 TO NUM-ENTRIES (cSort):
-                IF ENTRY (i, cSort) BEGINS "D":U THEN 
+                IF ENTRY (i, cSort) BEGINS "D":U THEN
                     ASSIGN ENTRY (i, cSort) = "DESCENDING":U .
-                ELSE 
-                    ASSIGN ENTRY (i, cSort) = "ASCENDING":U . 
+                ELSE
+                    ASSIGN ENTRY (i, cSort) = "ASCENDING":U .
             END.
         END.
-    
+
         smartBusinessEntityBindingSource1_eIndex_FieldNames:Value = BOX (cFields) .
         smartBusinessEntityBindingSource1_eIndex_FieldSort:Value = BOX (cSort) .
-        
+
         CATCH err AS Progress.Lang.Error:
-        	ErrorHelper:ShowErrorMessage (err) .	
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
-        
-	END METHOD .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the MemberTableViewerControl class                                                                         
-        Notes:                                                                        
+        Purpose: Destructor for the MemberTableViewerControl class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC IndexViewerControl ( ):
 

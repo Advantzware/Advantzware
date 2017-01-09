@@ -99,7 +99,7 @@ CLASS Consultingwerk.Util.UltraToolbarsHelper:
      * Notes:
      */
     DEFINE PUBLIC STATIC PROPERTY ApplicationMenuFooterTools AS CHARACTER NO-UNDO
-        INIT "m_Ende":U
+        INITIAL "m_Ende":U
     GET.
     SET.
 
@@ -485,7 +485,7 @@ CLASS Consultingwerk.Util.UltraToolbarsHelper:
 
         DEFINE VARIABLE hWidget   AS HANDLE          NO-UNDO .
         DEFINE VARIABLE oTool     AS ToolBase        NO-UNDO .
-        DEFINE VARIABLE deLastCol AS DECIMAL  INIT ? NO-UNDO .
+        DEFINE VARIABLE deLastCol AS DECIMAL         NO-UNDO INITIAL ? .
         DEFINE VARIABLE cName     AS CHARACTER       NO-UNDO .
 
         DEFINE VARIABLE oRibbonGroup AS RibbonGroup NO-UNDO .
@@ -561,7 +561,9 @@ CLASS Consultingwerk.Util.UltraToolbarsHelper:
             ASSIGN hWidget = hWidget:NEXT-SIBLING .
         END.
 
-        widgetbylocationloop: FOR EACH ttWidgetsByLocation USE-INDEX LocationByColumn:
+        widgetbylocationloop:
+        FOR EACH ttWidgetsByLocation BY ttWidgetsByLocation.WidgetColumn BY ttWidgetsByLocation.WidgetRow
+            ON ERROR UNDO, THROW:
             ASSIGN hWidget = ttWidgetsByLocation.WidgetHandle
                    cName   = SUBSTITUTE ("&1&2&3":U,
                                          pcToolkeyPrefix,
@@ -617,7 +619,7 @@ CLASS Consultingwerk.Util.UltraToolbarsHelper:
                 IF deLastCol = ? OR (deLastCol + ToolbarButtonMaxDistance) < hWidget:COLUMN THEN
                     oRibbonGroup:Tools[cName]:InstanceProps:IsFirstInGroup = TRUE .
 
-                ASSIGN deLastCol = hWidget:COL + hWidget:WIDTH .
+                ASSIGN deLastCol = hWidget:COLUMN + hWidget:WIDTH .
 
                 /* Mike Fechner, Consultingwerk Ltd. 23 Aug 2011
                    Image Handling in separate Routine now for easier reuse */
@@ -1094,7 +1096,7 @@ CLASS Consultingwerk.Util.UltraToolbarsHelper:
                                                     poForm AS IFormWithUltraToolbarsManager):
 
         DEFINE VARIABLE hChild         AS HANDLE        NO-UNDO.
-        DEFINE VARIABLE lRulePending   AS LOGICAL       NO-UNDO INIT TRUE .
+        DEFINE VARIABLE lRulePending   AS LOGICAL       NO-UNDO INITIAL TRUE .
         DEFINE VARIABLE oToolItem      AS ToolBase      NO-UNDO .
         DEFINE VARIABLE oPopupMenuItem AS PopupMenuTool NO-UNDO .
 
@@ -1174,7 +1176,7 @@ CLASS Consultingwerk.Util.UltraToolbarsHelper:
                                              plIncludeMenuItem AS LOGICAL):
 
         DEFINE VARIABLE hChild         AS HANDLE        NO-UNDO.
-        DEFINE VARIABLE lRulePending   AS LOGICAL       NO-UNDO INIT FALSE .
+        DEFINE VARIABLE lRulePending   AS LOGICAL       NO-UNDO INITIAL FALSE .
         DEFINE VARIABLE oToolItem      AS ToolBase      NO-UNDO .
         DEFINE VARIABLE oPopupMenuItem AS PopupMenuTool NO-UNDO .
 
@@ -1259,7 +1261,7 @@ CLASS Consultingwerk.Util.UltraToolbarsHelper:
 
         DEFINE VARIABLE hFieldGroup  AS HANDLE                NO-UNDO .
         DEFINE VARIABLE hWidget      AS HANDLE                NO-UNDO .
-        DEFINE VARIABLE deLastCol    AS DECIMAL        INIT ? NO-UNDO .
+        DEFINE VARIABLE deLastCol    AS DECIMAL               NO-UNDO INITIAL ?.
 
         EMPTY TEMP-TABLE ttWidgetsByLocation .
 
@@ -1329,7 +1331,7 @@ CLASS Consultingwerk.Util.UltraToolbarsHelper:
                 hWidget   = hWidget:NEXT-SIBLING .
         END.
 
-        widgetbylocationloop: FOR EACH ttWidgetsByLocation USE-INDEX Location:
+        widgetbylocationloop: FOR EACH ttWidgetsByLocation BY ttWidgetsByLocation.WidgetRow BY ttWidgetsByLocation.WidgetColumn:
             ASSIGN hWidget = ttWidgetsByLocation.WidgetHandle .
 
 &IF DEFINED (WinKit) &THEN
@@ -1393,7 +1395,7 @@ CLASS Consultingwerk.Util.UltraToolbarsHelper:
                Add to UltraToolbarsManager and the Toolbar */
             oToolbar:Tools:Add (oButtonToolI) .
 
-            deLastCol = hWidget:COL + hWidget:WIDTH .
+            deLastCol = hWidget:COLUMN + hWidget:WIDTH .
         END.
 
 &IF DEFINED (WinKit) &THEN
@@ -1641,7 +1643,7 @@ CLASS Consultingwerk.Util.UltraToolbarsHelper:
         DEFINE VARIABLE oButtonToolI AS ToolBase              NO-UNDO .
 
         DEFINE VARIABLE hWidget      AS HANDLE                NO-UNDO .
-        DEFINE VARIABLE deLastCol    AS DECIMAL        INIT ? NO-UNDO .
+        DEFINE VARIABLE deLastCol    AS DECIMAL               NO-UNDO INITIAL ?.
         DEFINE VARIABLE iCount       AS INTEGER               NO-UNDO .
         DEFINE VARIABLE cToolKey     AS CHARACTER             NO-UNDO .
 
@@ -1680,7 +1682,7 @@ CLASS Consultingwerk.Util.UltraToolbarsHelper:
             END.
         END.
 
-        FOR EACH ttWidgetsByLocation USE-INDEX Location:
+        FOR EACH ttWidgetsByLocation BY ttWidgetsByLocation.WidgetRow BY ttWidgetsByLocation.WidgetColumn:
 
             ASSIGN
               hWidget   = ttWidgetsByLocation.WidgetHandle
@@ -1728,7 +1730,7 @@ CLASS Consultingwerk.Util.UltraToolbarsHelper:
                 oButtonTool:SharedProps:DisplayStyle = ToolDisplayStyle:TextOnlyAlways .
 
             /* Separator before next button ? */
-            IF deLastCol = ? OR deLastCol < hWidget:COL THEN
+            IF deLastCol = ? OR deLastCol < hWidget:COLUMN THEN
                 oButtonToolI:InstanceProps:IsFirstInGroup = TRUE .
 
             /* Let .NET Toolbar know the Progress widget Handle */
@@ -1737,7 +1739,7 @@ CLASS Consultingwerk.Util.UltraToolbarsHelper:
             /* Add to UltraToolbarsManager and the Toolbar */
             oToolbar:Tools:Add (oButtonToolI) .
 
-            deLastCol = hWidget:COL + hWidget:WIDTH .
+            deLastCol = hWidget:COLUMN + hWidget:WIDTH .
 
         END.
 
@@ -3514,7 +3516,7 @@ CLASS Consultingwerk.Util.UltraToolbarsHelper:
                                             plUseCustomService AS LOGICAL):
 
         DEFINE VARIABLE oImage  AS System.Drawing.Bitmap NO-UNDO .
-        DEFINE VARIABLE lReturn AS LOGICAL               NO-UNDO INIT FALSE .
+        DEFINE VARIABLE lReturn AS LOGICAL               NO-UNDO INITIAL FALSE .
 
         DEFINE VARIABLE oIcon   AS System.Drawing.Icon   NO-UNDO .
 
@@ -3549,21 +3551,21 @@ CLASS Consultingwerk.Util.UltraToolbarsHelper:
             RETURN FALSE .
 
         IF phWidget:IMAGE > "":U THEN DO:
-            FILE-INFO:FILE-NAME = phWidget:IMAGE .
+            FILE-INFORMATION:FILE-NAME = phWidget:IMAGE .
 
-            IF FILE-INFO:FULL-PATHNAME > "":U AND
+            IF FILE-INFORMATION:FULL-PATHNAME > "":U AND
 
                /* Mike Fechner, Consultingwerk Ltd. 10.07.2009
                   .NET routines cannot load images from procedure library */
-               NOT FILE-INFO:FULL-PATHNAME MATCHES "*<<*":U THEN DO:
+               NOT FILE-INFORMATION:FULL-PATHNAME MATCHES "*<<*":U THEN DO:
 
                 IF phWidget:IMAGE MATCHES "*.ico":U THEN DO:
-                    oIcon = NEW System.Drawing.Icon (FILE-INFO:FULL-PATHNAME) .
+                    oIcon = NEW System.Drawing.Icon (FILE-INFORMATION:FULL-PATHNAME) .
 
                     ASSIGN oImage = oIcon:ToBitmap () .
                 END.
                 ELSE
-                    oImage = Consultingwerk.Util.ImageHelper:MakeTransparent(Consultingwerk.Util.ImageHelper:Load (FILE-INFO:FULL-PATHNAME)).
+                    oImage = Consultingwerk.Util.ImageHelper:MakeTransparent(Consultingwerk.Util.ImageHelper:Load (FILE-INFORMATION:FULL-PATHNAME)).
 
                 poButtonTool:SharedProps:AppearancesSmall:Appearance = NEW Infragistics.Win.Appearance () .
 
@@ -3766,7 +3768,7 @@ CLASS Consultingwerk.Util.UltraToolbarsHelper:
 
         DEFINE VARIABLE hMenubar       AS HANDLE        NO-UNDO.
         DEFINE VARIABLE hChild         AS HANDLE        NO-UNDO.
-        DEFINE VARIABLE lRulePending   AS LOGICAL       NO-UNDO INIT FALSE .
+        DEFINE VARIABLE lRulePending   AS LOGICAL       NO-UNDO INITIAL FALSE .
         DEFINE VARIABLE oToolItem      AS ToolBase      NO-UNDO .
         DEFINE VARIABLE oPopupMenuItem AS PopupMenuTool NO-UNDO .
 

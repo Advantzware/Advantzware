@@ -36,33 +36,33 @@ CLASS Consultingwerk.Framework.Server.ServerHelperTask
         Purpose: Constructor for the ServerHelperTask class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ServerHelperTask ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC ServerHelperTask ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Routine that can be used by clients to PING the AppServer 
         Notes:   
         @param poKeepAlive The CharacterHolder who's value will be set to the Ping response
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID Ping (poKeepAlive AS CharacterHolder):
-		
-		IF VALID-OBJECT (poKeepAlive) THEN 
-		    poKeepAlive:Value = SUBSTITUTE ("Hello, &1"{&TRAN}, NOW) .
+    METHOD PUBLIC VOID Ping (poKeepAlive AS CharacterHolder):
+        
+        IF VALID-OBJECT (poKeepAlive) THEN 
+            poKeepAlive:Value = SUBSTITUTE ("Hello, &1"{&TRAN}, NOW) .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Writes a message to the AppServer logfile 
         Notes:   
         @param poMessage The CharacterHolder instance with the message to be written to the logfile
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID WriteToLogFile (poMessage AS CharacterHolder):
-		
-		IF VALID-OBJECT (poMessage) THEN 
-            LogManager:WriteFormattedMessage ("[Client-Message] &1":U, poMessage:Value) .		    
+    METHOD PUBLIC VOID WriteToLogFile (poMessage AS CharacterHolder):
+        
+        IF VALID-OBJECT (poMessage) THEN 
+            LogManager:WriteFormattedMessage ("[Client-Message] &1":U, poMessage:Value) .            
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

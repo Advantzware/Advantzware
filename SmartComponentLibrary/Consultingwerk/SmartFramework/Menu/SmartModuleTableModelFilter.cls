@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2006-2014 by Consultingwerk Ltd. ("CW") -            *
+ * Copyright (C) 2006-2016 by Consultingwerk Ltd. ("CW") -            *
  * www.consultingwerk.de and other contributors as listed             *
  * below.  All Rights Reserved.                                       *
  *                                                                    *
@@ -15,7 +15,7 @@
     Syntax      : 
     Description : 
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
-    Created     : 06/03/2015 12:52:24,341+01:00
+    Created     : 31/12/2016 14:03:11,062+01:00
     Notes       : 
   ----------------------------------------------------------------------*/
 
@@ -78,6 +78,24 @@ CLASS Consultingwerk.SmartFramework.Menu.SmartModuleTableModelFilter
     DEFINE PUBLIC PROPERTY ProductCode AS CharacterFilter NO-UNDO 
     GET:
         RETURN oTableModel:NewCharacterFilter ("ProductCode":U, THIS-OBJECT) .
+    END GET.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the CharacterFilter for the ModuleDataFolder field
+        Notes:   
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY ModuleDataFolder AS CharacterFilter NO-UNDO 
+    GET:
+        RETURN oTableModel:NewCharacterFilter ("ModuleDataFolder":U, THIS-OBJECT) .
+    END GET.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the CharacterFilter for the ModulePackage field
+        Notes:   
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY ModulePackage AS CharacterFilter NO-UNDO 
+    GET:
+        RETURN oTableModel:NewCharacterFilter ("ModulePackage":U, THIS-OBJECT) .
     END GET.
 
 

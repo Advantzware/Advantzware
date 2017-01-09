@@ -12,11 +12,11 @@
 /*------------------------------------------------------------------------
     File        : OperatorEnum
     Purpose     : Enumeration of Operators
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Wed Oct 10 11:58:06 CEST 2012
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -29,20 +29,20 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 &GLOBAL-DEFINE CLASS CLASS
 &ENDIF
 
-USING Consultingwerk.*                       FROM PROPATH .  
-USING Consultingwerk.Exceptions.*            FROM PROPATH . 
+USING Consultingwerk.*                       FROM PROPATH .
+USING Consultingwerk.Exceptions.*            FROM PROPATH .
 USING Consultingwerk.Framework.Collections.* FROM PROPATH .
 USING Progress.Lang.*                        FROM PROPATH .
 
-{&CLASS} Consultingwerk.OperatorEnum 
+{&CLASS} Consultingwerk.OperatorEnum
     &IF "{&CLASS}" EQ "CLASS" &THEN
     INHERITS Enum
-    &ENDIF    
-        : 
+    &ENDIF
+        :
 
 &IF "{&CLASS}" EQ "ENUM" &THEN
     DEFINE ENUM
-&ENDIF    
+&ENDIF
 
     {Consultingwerk/EnumMember.i EQ 0 OperatorEnum}
     {Consultingwerk/EnumMember.i Begins 1 OperatorEnum}
@@ -59,7 +59,7 @@ USING Progress.Lang.*                        FROM PROPATH .
 
 &IF "{&CLASS}" EQ "ENUM" &THEN
     .
-&ENDIF    
+&ENDIF
 
 &IF "{&CLASS}" EQ "CLASS" &THEN
 
@@ -71,51 +71,49 @@ USING Progress.Lang.*                        FROM PROPATH .
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PRIVATE OperatorEnum (piValue AS INTEGER, pcLabel AS CHARACTER):
         SUPER ().
- 
+
         ASSIGN THIS-OBJECT:Value = piValue
                THIS-OBJECT:Label = pcLabel .
- 
+
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the Enum member with the given name
-        Notes:   Supports the Enum member names as well as =, <>, >=, >, <= and < 
+        Notes:   Supports the Enum member names as well as =, <>, >=, >, <= and <
                  Method is duplicated on as Consultingwerk.QueryParser:OperatorFromString
                  as this method here is not supported anymore from OpenEdge 11.6 on
-                 when using the native Enums   
+                 when using the native Enums
         @param pcName The Name of the Enum member
         @return The Enum member with the given name
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC OperatorEnum FromString (pcName AS CHARACTER):
-		
-		RETURN QueryParser:OperatorFromString (pcName) .
-		
-	END METHOD .
+    METHOD PUBLIC STATIC OperatorEnum FromString (pcName AS CHARACTER):
+
+        RETURN QueryParser:OperatorFromString (pcName) .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the Character expression of the Enum
-        Notes:   
+        Notes:
         @return The Character representation of the Enum
     ------------------------------------------------------------------------------*/
     METHOD OVERRIDE PUBLIC CHARACTER ToString ():
-        
+
         RETURN UPPER (SUPER:ToString()) .
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns a CharacterList with the names of the Enum members 
-        Notes:   
+        Purpose: Returns a CharacterList with the names of the Enum members
+        Notes:
         @return The CharacterList with the names of the Enum members
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CharacterList GetNames ():
-        
-        DEFINE VARIABLE oReturn AS CharacterList NO-UNDO . 
-        
+
         RETURN NEW CharacterList ('{&EnumMembers}':U).
 
     END METHOD .
-    
-&ENDIF 
-    
+
+&ENDIF
+
 END {&CLASS} .

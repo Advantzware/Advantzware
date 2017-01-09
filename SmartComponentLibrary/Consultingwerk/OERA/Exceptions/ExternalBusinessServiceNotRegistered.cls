@@ -35,23 +35,23 @@ CLASS Consultingwerk.OERA.Exceptions.ExternalBusinessServiceNotRegistered
         Purpose: Returns the name of the external Business Service that is not registered
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY BusinessServiceName AS CHARACTER NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    DEFINE PUBLIC PROPERTY BusinessServiceName AS CHARACTER NO-UNDO 
+    GET.
+    PROTECTED SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the BusinessServiceAlreadyRegistered class
         Notes:   
         @param pcServiceName The name of the external Business Service that is not registered
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ExternalBusinessServiceNotRegistered (pcServiceName AS CHARACTER):
-		
-		SUPER (SUBSTITUTE("The service name &1 is not registered as an external service with the ServiceManager."{&TRAN},
+    CONSTRUCTOR PUBLIC ExternalBusinessServiceNotRegistered (pcServiceName AS CHARACTER):
+        
+        SUPER (SUBSTITUTE("The service name &1 is not registered as an external service with the ServiceManager."{&TRAN},
                           pcServiceName), 
                0).
-		
-		THIS-OBJECT:BusinessServiceName = pcServiceName .
-		
-	END CONSTRUCTOR.
+        
+        THIS-OBJECT:BusinessServiceName = pcServiceName .
+        
+    END CONSTRUCTOR.
 
 END CLASS.

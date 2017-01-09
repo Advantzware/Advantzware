@@ -35,9 +35,9 @@ CLASS Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseContext:
                  of the cell
         Notes:   EndUpdate is only fired, when the cell value actually has changed
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY ApplyCellLeaveToBrowse AS ApplyCellLeaveToBrowseEnum NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY ApplyCellLeaveToBrowse AS ApplyCellLeaveToBrowseEnum NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets if the Enter event of the RenderedBrowserControl will 
@@ -53,18 +53,18 @@ CLASS Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseContext:
         Notes:   Controls if F1..F12 events on the Grid will result in an APPLY "Fn" 
                  TO the CURRENT-COLUMN or the BROWSE widget
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY ApplyFunctionKeyEvents AS ApplyFunctionKeyEventsEnum NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY ApplyFunctionKeyEvents AS ApplyFunctionKeyEventsEnum NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets if the RenderedBrowseControl will APPLY the ITERATION-CHANGED
                  event together with the VALUE-CHANGED Event
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY ApplyIterationChanged AS LOGICAL NO-UNDO INIT FALSE 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY ApplyIterationChanged AS LOGICAL NO-UNDO INIT FALSE 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets if the instance to the RenderedBrowseControl is should
@@ -89,9 +89,9 @@ CLASS Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseContext:
         Notes:   Typically applying ROW-ENTRY during OnBeforeEnterEditMode may cause 
                  issues with ADM1 based updatable browser
     ------------------------------------------------------------------------------*/    
-	DEFINE PUBLIC PROPERTY ApplyRowEntryOnBeforeEnterEditMode AS LOGICAL INITIAL TRUE NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY ApplyRowEntryOnBeforeEnterEditMode AS LOGICAL INITIAL TRUE NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets if the instance of the RenderedBrowseControl should 
@@ -107,9 +107,9 @@ CLASS Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseContext:
                  APPLY ROW-LEAVE to the Progress browse OnLeave 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY ApplyRowLeaveOnLeave AS LOGICAL NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY ApplyRowLeaveOnLeave AS LOGICAL NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets if the instance of the RenderedBrowseControl should 
@@ -125,9 +125,9 @@ CLASS Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseContext:
                  buffer during handling the OnRowDeactivate
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY AssignBindingSourceOnRowDeactivate AS LOGICAL NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY AssignBindingSourceOnRowDeactivate AS LOGICAL NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets if the instance to the RenderedBrowseControl is using Batching
@@ -210,9 +210,9 @@ CLASS Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseContext:
         Purpose: Get's and sets if the CursorKeyNavigation during update is used
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY CursorKeyNavigationInEdit AS CursorKeyNavigationInEditEnum NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY CursorKeyNavigationInEdit AS CursorKeyNavigationInEditEnum NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets a list of column keys to be used for the additional 
@@ -234,27 +234,27 @@ CLASS Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseContext:
         Notes:   Turning these features off may greatly improve the performance of 
                  the RenderedBrowseControl
     ------------------------------------------------------------------------------*/    
-	DEFINE PUBLIC PROPERTY DisableCalculatedFieldsAndColor AS LOGICAL INITIAL FALSE NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY DisableCalculatedFieldsAndColor AS LOGICAL INITIAL FALSE NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets if the RenderedBrowseControl should disable the 
                  OutlookGroupBy even when Batching is not used 
         Notes:   By default Grids that do not use batching to allow the OutlookGroupBy
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY DisableOutlookGroupBy AS LOGICAL INITIAL FALSE NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY DisableOutlookGroupBy AS LOGICAL INITIAL FALSE NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the inital value for the Dock property of the grid 
         Notes:   Allows to avoid need for repositioning the Grid during initalization
                  Only applied, when a valid value is assigned 
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Dock AS System.Windows.Forms.DockStyle NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY Dock AS System.Windows.Forms.DockStyle NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets of the Browser has dynamic columns
@@ -293,27 +293,27 @@ CLASS Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseContext:
                  RenderedBrowseWithSearchControl instance should be created. Typically
                  assigned by a callback in the actual ABL GUI program. 
     ------------------------------------------------------------------------------*/    
-	DEFINE PUBLIC PROPERTY EnableSearch AS LOGICAL NO-UNDO INIT FALSE  
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY EnableSearch AS LOGICAL NO-UNDO INIT FALSE  
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: MaxDataGuess value for the RenderedBrowseControl instance, used only
                  when batching                                                                     
         Notes:   Default value is set by WinKitControls:DefaultMaxDataGuess
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY MaxDataGuess AS INTEGER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY MaxDataGuess AS INTEGER NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets if the RenderedBrowseControl should subscribe to the 
                  ENTRY event of the Browse Cells
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY MonitorBrowseCellEntry AS LOGICAL NO-UNDO INIT FALSE 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY MonitorBrowseCellEntry AS LOGICAL NO-UNDO INIT FALSE 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the reference to the .NET Control that should be used
@@ -346,15 +346,15 @@ CLASS Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseContext:
         Purpose: Constructor for the RenderedBrowseContext class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC RenderedBrowseContext ():
-		SUPER ().
-		
+    CONSTRUCTOR PUBLIC RenderedBrowseContext ():
+        SUPER ().
+        
         ASSIGN  
             THIS-OBJECT:ApplyFunctionKeyEvents    = ApplyFunctionKeyEventsEnum:ToBrowse 
             THIS-OBJECT:CursorKeyNavigationInEdit = CursorKeyNavigationInEditEnum:UpDownLeftRight 
             THIS-OBJECT:MaxDataGuess              = WinKitControls:DefaultMaxDataGuess 
             .
         
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
 END CLASS.

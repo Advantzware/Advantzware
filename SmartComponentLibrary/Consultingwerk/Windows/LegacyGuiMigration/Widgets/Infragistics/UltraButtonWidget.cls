@@ -44,25 +44,25 @@ CLASS Consultingwerk.Windows.LegacyGuiMigration.Widgets.Infragistics.UltraButton
     GET.
     PROTECTED SET.
 
-	/*------------------------------------------------------------------------------
+    /*------------------------------------------------------------------------------
         Purpose: The type of a handle
-	    Notes:   FILL-IN
-	------------------------------------------------------------------------------*/
-	DEFINE PUBLIC OVERRIDE PROPERTY TYPE AS CHARACTER NO-UNDO INIT "BUTTON":U 
-	GET .
-	PROTECTED SET . 
+        Notes:   FILL-IN
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC OVERRIDE PROPERTY TYPE AS CHARACTER NO-UNDO INIT "BUTTON":U 
+    GET .
+    PROTECTED SET . 
 
-	/*------------------------------------------------------------------------------
-	   Purpose: Constructor for the UltraButtonWidget class
-	   Notes:
-	   @param poEditor The reference to the UltraTextEditor this instance should represent
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC UltraButtonWidget (poEditor AS UltraButton):
-		SUPER (poEditor).
+    /*------------------------------------------------------------------------------
+       Purpose: Constructor for the UltraButtonWidget class
+       Notes:
+       @param poEditor The reference to the UltraTextEditor this instance should represent
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC UltraButtonWidget (poEditor AS UltraButton):
+        SUPER (poEditor).
 
         ASSIGN oControl = poEditor .
         
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Reads the image contained in a specified file.                                                                       

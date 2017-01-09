@@ -12,8 +12,8 @@
 /*------------------------------------------------------------------------
     File        : ClassAnnotationContainer
     Purpose     : Holder class for the annotations of a class
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Wed Jul 01 15:10:15 CEST 2015
     Notes       : Serializable class, purpose to be serialized to .annotations
@@ -26,10 +26,10 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 {Consultingwerk/products.i}
 
 USING Consultingwerk.*                          FROM PROPATH .
-USING Consultingwerk.Framework.TypeDescriptor.* FROM PROPATH .  
+USING Consultingwerk.Framework.TypeDescriptor.* FROM PROPATH .
 USING Progress.Lang.*                           FROM PROPATH .
 
-CLASS Consultingwerk.Framework.TypeDescriptor.ClassAnnotationContainer 
+CLASS Consultingwerk.Framework.TypeDescriptor.ClassAnnotationContainer
 &IF '{&FrameworkSerializationType}' EQ 'XML' OR PROVERSION BEGINS '10.2':U &THEN
     INHERITS XmlSerializable
 &ELSE
@@ -45,19 +45,20 @@ CLASS Consultingwerk.Framework.TypeDescriptor.ClassAnnotationContainer
     {Consultingwerk/JsonSerializableProperty.i Events Consultingwerk.Framework.TypeDescriptor.ListSerializableClassMemberAnnotation} .
     {Consultingwerk/JsonSerializableProperty.i Methods Consultingwerk.Framework.TypeDescriptor.ListSerializableClassMemberAnnotation} .
     {Consultingwerk/JsonSerializableProperty.i Properties Consultingwerk.Framework.TypeDescriptor.ListSerializableClassMemberAnnotation} .
+    {Consultingwerk/JsonSerializableProperty.i TempTables Consultingwerk.Framework.TypeDescriptor.ListSerializableClassMemberAnnotation} .
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the ClassAnnotationContainer class
-        Notes:   
+        Notes:
         @param pcClassName The class name that is described by these annotations
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ClassAnnotationContainer (pcClassName AS CHARACTER):
-		THIS-OBJECT ().
-		
-		ASSIGN THIS-OBJECT:ClassName = pcClassName
-		       THIS-OBJECT:TimeStamp = NOW  . 
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC ClassAnnotationContainer (pcClassName AS CHARACTER):
+        THIS-OBJECT ().
+
+        ASSIGN THIS-OBJECT:ClassName = pcClassName
+               THIS-OBJECT:TimeStamp = NOW  .
+
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the ClassAnnotationContainer class
@@ -67,12 +68,13 @@ CLASS Consultingwerk.Framework.TypeDescriptor.ClassAnnotationContainer
         SUPER ().
         THIS-OBJECT:AddSerializableProperties ('{&SerializableProperties}':U) .
 
-        THIS-OBJECT:Annotations = NEW ListSerializableAnnotation () . 
-        THIS-OBJECT:Constructors = NEW ListSerializableClassMemberAnnotation () . 
-        THIS-OBJECT:Events = NEW ListSerializableClassMemberAnnotation () . 
-        THIS-OBJECT:Methods = NEW ListSerializableClassMemberAnnotation () . 
-        THIS-OBJECT:Properties = NEW ListSerializableClassMemberAnnotation () . 
+        THIS-OBJECT:Annotations = NEW ListSerializableAnnotation () .
+        THIS-OBJECT:Constructors = NEW ListSerializableClassMemberAnnotation () .
+        THIS-OBJECT:Events = NEW ListSerializableClassMemberAnnotation () .
+        THIS-OBJECT:Methods = NEW ListSerializableClassMemberAnnotation () .
+        THIS-OBJECT:Properties = NEW ListSerializableClassMemberAnnotation () .
+        THIS-OBJECT:TempTables = NEW ListSerializableClassMemberAnnotation () .
 
-    END CONSTRUCTOR. 
+    END CONSTRUCTOR.
 
 END CLASS.

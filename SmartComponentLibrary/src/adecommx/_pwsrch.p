@@ -7,7 +7,7 @@
 
 /**************************************************************************
     Procedure:  _pwsrch.p
-    
+
     Purpose:    Execute Procedure Window Search menu commands.
 
     Syntax :    RUN adecomm/_pwsrch.p ( INPUT p_Action ) .
@@ -34,15 +34,13 @@ THEN RUN adecomm/_adeload.p.
 
 /* Search defines and procedures. */
 { adecomm/dsearch.i }
-{ adecomm/psearch.i }       
+{ adecomm/psearch.i }
 
 DEFINE INPUT PARAMETER p_Action AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER phWindow AS HANDLE    NO-UNDO.
 
 DEFINE VARIABLE pw_Window       AS WIDGET-HANDLE NO-UNDO.
 DEFINE VARIABLE pw_Editor       AS WIDGET-HANDLE NO-UNDO.
-DEFINE VARIABLE hAttr_Field     AS WIDGET-HANDLE NO-UNDO.
-DEFINE VARIABLE l_ok            AS LOGICAL       NO-UNDO.
 DEFINE VARIABLE h_cwin          AS WIDGET-HANDLE NO-UNDO.
 
 
@@ -62,16 +60,16 @@ PROCEDURE GetSrchAttr.
 
 DEFINE INPUT PARAMETER p_Editor AS WIDGET-HANDLE NO-UNDO.
 DEFINE INPUT PARAMETER p_Action AS CHARACTER     NO-UNDO.
-        
-DEFINE VARIABLE hFind_Text      AS WIDGET-HANDLE NO-UNDO.        
-DEFINE VARIABLE hRepl_Text      AS WIDGET-HANDLE NO-UNDO.        
+
+DEFINE VARIABLE hFind_Text      AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE hRepl_Text      AS WIDGET-HANDLE NO-UNDO.
 
 DO:
     /* Get the persistent Find Field values. */
     RUN GetFrameAttr ( INPUT p_Editor:FRAME , INPUT {&PW_Find_Text} ,
                        OUTPUT hFind_Text ).
     ASSIGN Find_Text = hFind_Text:PRIVATE-DATA .
-    
+
     IF p_Action BEGINS "FIND"
     THEN DO:
     ASSIGN Find_Direction                 =
@@ -83,15 +81,15 @@ DO:
               ( ENTRY( {&PW_Find_Wrap_pos} , p_Editor:PRIVATE-DATA ) =
                 STRING( TRUE , Find_Filters[2]:FORMAT IN FRAME FindText ) )
            .
-    END. /* Find */                         
-           
+    END. /* Find */
+
     IF p_Action BEGINS "REPLACE"
     THEN DO:
     /* Get the persistent Replace Field values. */
     RUN GetFrameAttr ( INPUT p_Editor:FRAME , INPUT {&PW_Replace_Text} ,
                        OUTPUT hRepl_Text ).
     ASSIGN Replace_Text = hRepl_Text:PRIVATE-DATA .
-    
+
     ASSIGN Replace_Filters[ Case_Sensitive ] =
               ( ENTRY( {&PW_Replace_Case_Pos} , p_Editor:PRIVATE-DATA ) =
                 STRING( TRUE , Replace_Filters[1]:FORMAT IN FRAME ReplaceText ) )
@@ -120,13 +118,13 @@ PROCEDURE PutSrchAttr.
     Authors: John Palazzo
     Date   : January, 1994
 **************************************************************************/
-        
+
 DEFINE INPUT PARAMETER p_Editor AS WIDGET-HANDLE NO-UNDO.
 DEFINE INPUT PARAMETER p_Action AS CHARACTER     NO-UNDO.
 
 DEFINE VARIABLE hFind_Text      AS WIDGET-HANDLE NO-UNDO.
 DEFINE VARIABLE hRepl_Text      AS WIDGET-HANDLE NO-UNDO.
-DEFINE VARIABLE Private_Data    AS CHARACTER     NO-UNDO.        
+DEFINE VARIABLE Private_Data    AS CHARACTER     NO-UNDO.
 
 DO:
     /* Put the dialog values back into the PW Attribute Fields. */
@@ -136,7 +134,7 @@ DO:
                        OUTPUT hRepl_Text ).
 
     /* Bug workaround - ENTRY statement balks at :PRIVATE-DATA. */
-    ASSIGN Private_Data = p_Editor:PRIVATE-DATA.             
+    ASSIGN Private_Data = p_Editor:PRIVATE-DATA.
     /* FIND */
     ASSIGN hFind_Text:PRIVATE-DATA        = Find_Text
            ENTRY( {&PW_Find_Direction_Pos} , Private_Data )
@@ -159,28 +157,30 @@ END PROCEDURE.
 
 /* MAIN */
 DO:
+  mainLoop:
   REPEAT ON STOP UNDO, RETRY:
-    IF RETRY THEN LEAVE.
+    IF RETRY THEN
+        LEAVE mainLoop .
     /* Get widget handles of Procedure Window and its editor widget. */
     RUN adecomm/_pwgetwh.p ( INPUT phWindow , OUTPUT pw_Window ).
     RUN adecomm/_pwgeteh.p ( INPUT pw_Window , OUTPUT pw_Editor ).
 
     /* Save current-window handle to restore later. */
     ASSIGN h_cwin         = CURRENT-WINDOW
-           CURRENT-WINDOW = pw_Window.               
-    
+           CURRENT-WINDOW = pw_Window.
+
     /* Get the current values of the Search fields. */
     RUN GetSrchAttr ( INPUT pw_Editor , p_Action ).
-            
+
     CASE p_Action:
         WHEN "FIND"      THEN RUN FindText ( pw_Editor ).
-           
+
         WHEN "FIND-NEXT" THEN RUN FindNext ( pw_Editor , FIND-NEXT-OCCURRENCE ).
-        
+
         WHEN "FIND-PREV" THEN RUN FindPrev ( pw_Editor , FIND-PREV-OCCURRENCE ).
-        
+
         WHEN "REPLACE"   THEN RUN ReplaceText ( pw_Editor ).
-        
+
         WHEN "GOTO-LINE" THEN RUN GotoLine ( pw_Editor ).
     END CASE.
 
@@ -188,8 +188,9 @@ DO:
     RUN PutSrchAttr ( INPUT pw_Editor , p_Action ).
 
     LEAVE.
-  END. /* REPEAT */                                                   
+  END. /* REPEAT */
 
   /* Repoint current-window. */
-  IF VALID-HANDLE( h_cwin ) THEN ASSIGN CURRENT-WINDOW = h_cwin .
+  IF VALID-HANDLE( h_cwin ) THEN
+      ASSIGN CURRENT-WINDOW = h_cwin .
 END. /* DO */

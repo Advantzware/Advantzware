@@ -31,12 +31,12 @@ INTERFACE Consultingwerk.SmartFramework.System.ISmartBusinessEntityConfiguration
         @param pcBusinessEntityName The full class name (including package) of the SmartBusinessEntity
         @return The ISmartBusinessEntityConfiguration instance for the requested Business Entity
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC ISmartBusinessEntityConfiguration GetSmartBusinessEntityConfiguration (pcBusinessEntityName AS CHARACTER).
+    METHOD PUBLIC ISmartBusinessEntityConfiguration GetSmartBusinessEntityConfiguration (pcBusinessEntityName AS CHARACTER).
 
     /*------------------------------------------------------------------------------
         Purpose: Resets the services cache (if present) 
         Notes:   
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID ResetCache ().
+    METHOD PUBLIC VOID ResetCache ().
 
 END INTERFACE.

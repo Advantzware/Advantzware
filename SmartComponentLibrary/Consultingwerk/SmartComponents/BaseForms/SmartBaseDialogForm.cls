@@ -8,16 +8,16 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : SmartBaseDialogForm
-    Purpose     : Simple Dialog Form template following the Consultingwerk 
-                  Dialog Standards with dialog contents in a white panel 
-                  and the buttons in grey. When validation for OK demanded, 
-                  the ButtonOk should be disabled when the validation is not 
+    Purpose     : Simple Dialog Form template following the Consultingwerk
+                  Dialog Standards with dialog contents in a white panel
+                  and the buttons in grey. When validation for OK demanded,
+                  the ButtonOk should be disabled when the validation is not
                   passed
-    Syntax      : 
-    Description : Template for forms to be started using the ShowDialog() 
+    Syntax      :
+    Description : Template for forms to be started using the ShowDialog()
                   method
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Mon Dec 08 13:37:29 CET 2014
@@ -31,20 +31,20 @@ USING Progress.Lang.*                       FROM PROPATH .
 
 {Consultingwerk/products.i}
 
-CLASS Consultingwerk.SmartComponents.BaseForms.SmartBaseDialogForm 
-    INHERITS SmartWindowForm: 
-	
+CLASS Consultingwerk.SmartComponents.BaseForms.SmartBaseDialogForm
+    INHERITS SmartWindowForm:
+
     DEFINE PROTECTED VARIABLE ButtonOk AS System.Windows.Forms.Button NO-UNDO.
     DEFINE PROTECTED VARIABLE ButtonCancel AS System.Windows.Forms.Button NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PROTECTED VARIABLE ContentPanel AS System.Windows.Forms.Panel NO-UNDO.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the SmartBaseDialogForm class                                                                      
-        Notes:                                                                        
+        Purpose: Constructor for the SmartBaseDialogForm class
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC SmartBaseDialogForm ():
-		
+    CONSTRUCTOR PUBLIC SmartBaseDialogForm ():
+
         SUPER().
         InitializeComponent().
 
@@ -54,25 +54,26 @@ CLASS Consultingwerk.SmartComponents.BaseForms.SmartBaseDialogForm
 
         /* Mike Fechner, Consultingwerk Ltd. 08.12.2014
            Dialogs should not store their position by default */
-        THIS-OBJECT:StoreFormPosition = FALSE . 
+        THIS-OBJECT:StoreFormPosition = FALSE .
 
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                      
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE resources AS Progress.Util.ResourceManager NO-UNDO.
@@ -192,14 +193,14 @@ CLASS Consultingwerk.SmartComponents.BaseForms.SmartBaseDialogForm
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the SmartBaseDialogForm class                                                                      
-        Notes:                                                                        
+        Purpose: Destructor for the SmartBaseDialogForm class
+        Notes:
     ------------------------------------------------------------------------------*/
-	DESTRUCTOR PUBLIC SmartBaseDialogForm ():
+    DESTRUCTOR PUBLIC SmartBaseDialogForm ():
 
-	END DESTRUCTOR.
+    END DESTRUCTOR.
 
 END CLASS.

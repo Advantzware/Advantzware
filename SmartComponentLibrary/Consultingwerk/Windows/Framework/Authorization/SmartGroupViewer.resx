@@ -119,7 +119,117 @@
   <metadata name="smartBusinessEntityBindingSource1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
+  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="smartBusinessEntityBindingSource1_eSmartGroup_GroupName_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"/>
+  <data name="smartBusinessEntityBindingSource1_eSmartGroup_GroupName_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>16, 17</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartGroup_GroupName_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>38, 14</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartGroup_GroupName_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartGroup_GroupName_Label.Text" xml:space="preserve">
+    <value>&amp;Name:</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartGroup_GroupName_Label.Name" xml:space="preserve">
+    <value>smartBusinessEntityBindingSource1_eSmartGroup_GroupName_Label</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartGroup_GroupName_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartGroup_GroupName_Label.Parent" xml:space="preserve">
+    <value>ultraPanel2.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartGroup_GroupName_Label.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="smartBusinessEntityBindingSource1_eSmartGroup_GroupName.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartGroup_GroupName.Location" type="System.Drawing.Point, System.Drawing">
+    <value>126, 13</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartGroup_GroupName.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 21</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartGroup_GroupName.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartGroup_GroupName.Name" xml:space="preserve">
+    <value>smartBusinessEntityBindingSource1_eSmartGroup_GroupName</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartGroup_GroupName.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartGroup_GroupName.Parent" xml:space="preserve">
+    <value>ultraPanel2.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartGroup_GroupName.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartGroup_ParentGroupGuid_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartGroup_ParentGroupGuid_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>16, 43</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartGroup_ParentGroupGuid_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>75, 14</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartGroup_ParentGroupGuid_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartGroup_ParentGroupGuid_Label.Text" xml:space="preserve">
+    <value>&amp;Parent Group:</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartGroup_ParentGroupGuid_Label.Name" xml:space="preserve">
+    <value>smartBusinessEntityBindingSource1_eSmartGroup_ParentGroupGuid_Label</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartGroup_ParentGroupGuid_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartGroup_ParentGroupGuid_Label.Parent" xml:space="preserve">
+    <value>ultraPanel2.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartGroup_ParentGroupGuid_Label.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartGroup_LoginCompanyGuid_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartGroup_LoginCompanyGuid_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>16, 70</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartGroup_LoginCompanyGuid_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>87, 14</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartGroup_LoginCompanyGuid_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartGroup_LoginCompanyGuid_Label.Text" xml:space="preserve">
+    <value>&amp;Login Company:</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartGroup_LoginCompanyGuid_Label.Name" xml:space="preserve">
+    <value>smartBusinessEntityBindingSource1_eSmartGroup_LoginCompanyGuid_Label</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartGroup_LoginCompanyGuid_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartGroup_LoginCompanyGuid_Label.Parent" xml:space="preserve">
+    <value>ultraPanel2.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartGroup_LoginCompanyGuid_Label.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="smartBusinessEntityLookup2.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance4.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAACt0RVh0Q29w
@@ -138,22 +248,136 @@
         MXmihmy8279p6H7PWUPJh7m2uNydReQPiLFB/uRDeL0AAAAASUVORK5CYII=
 </value>
   </data>
+  <data name="editorButton2.Text" xml:space="preserve">
+    <value>...</value>
+  </data>
+  <data name="smartBusinessEntityLookup2.Location" type="System.Drawing.Point, System.Drawing">
+    <value>126, 66</value>
+  </data>
+  <data name="smartBusinessEntityLookup2.LookupDialogTitle" xml:space="preserve">
+    <value>Login Company Lookup</value>
+  </data>
+  <data name="smartBusinessEntityLookup2.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 21</value>
+  </data>
+  <data name="smartBusinessEntityLookup2.TabIndex" type="System.Int32, mscorlib">
+    <value>5</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityLookup2.Name" xml:space="preserve">
+    <value>smartBusinessEntityLookup2</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityLookup2.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityLookup, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityLookup2.Parent" xml:space="preserve">
+    <value>ultraPanel2.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityLookup2.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="smartBusinessEntityLookup1.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance5.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
-        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
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAACt0RVh0Q29w
+        eXJpZ2h0AENvcHlyaWdodCCpIDIwMDgtMjAxMSBJTkNPUlMgR21iSBCOIU8AAAK4SURBVDhPdVNbSFRR
+        FN3jYxwHxbcovt9+KOiHKAgiZlg6VpqO3pEczBgbRdR8IBGk0EOs7z6DCOrDyNBSC7FmHEctfGQPK4iI
+        KKuv7CMwwdW6M02g5IbD3Nlnr7XXWfsc8cRBkeoDIpuHRBr4V+PO7o4qkVqDyK9jIvV/U+4oE6lTdLqd
+        6b4+NAcEoFrEzPQuErIqLVrtzp2SErT4+aFOpNG1oXau1+t3ZgcGsDI0BEd/P6x6PdjiHwk/lHaCJsrL
+        MV5aipHCQpz29UUt80LZPx62tWFlcBALPT1wdnTAbrGgS6eDQqwK7tZqMV1WhgfFxRjNy8NITg5upaaq
+        BNuqfGMj5dusVji47E1NcJrNmDMa0csuPQQ72NVG6Y/y8zGWnY3RlBT0enurDZpUhXKcXSwsfKIocJpM
+        mK+pwbOqKhdwrqgI87m5mImLw0RwMO75++OcCE6KWAj1chGowTMr7ezoqKjAUmUlVnneJUp9GhXlWguR
+        kbCT4IKXF6x7wZ5Qne708YGzoADLSUl4EROD9fh4rCckYCk8HMMEt+4HVuMECc5Q3nRgIF5R8ofkZHxO
+        T8entDSskeCKRoPu/4zYFarbHSyYJHg1NhbvCf6WkYGfNG0zKwsb/H5Nkqus6dtLQjeVVm7c5fznIiKw
+        RoKPdPpNdDQ2EhOxRRO/Z2a6SJdDQnCJtV0eEl5L4ymRnZu8KJNBQZhll+ckWCXRRZ55mMVf6MNXKnhH
+        X1boi411g8zTjAY5IrJ1jTO9zTGO8xo/DguDLTQUA27DzPTEoMp+SzUvSbTIicxw/z7VsvG2HBUxNdO4
+        6xzhKJNjJOl3j8pzTg3PbLjMJotUZ+eaok9nSUqcSbVA1IfRwsQNqujkL6/XXqc1PLPhPImn2EAFU537
+        MXmihmy8279p6H7PWUPJh7m2uNydReQPiLFB/uRDeL0AAAAASUVORK5CYII=
 </value>
+  </data>
+  <data name="editorButton4.Text" xml:space="preserve">
+    <value>...</value>
+  </data>
+  <data name="smartBusinessEntityLookup1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>126, 39</value>
+  </data>
+  <data name="smartBusinessEntityLookup1.LookupDialogTitle" xml:space="preserve">
+    <value>Group Lookup</value>
+  </data>
+  <data name="smartBusinessEntityLookup1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 21</value>
+  </data>
+  <data name="smartBusinessEntityLookup1.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityLookup1.Name" xml:space="preserve">
+    <value>smartBusinessEntityLookup1</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityLookup1.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityLookup, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityLookup1.Parent" xml:space="preserve">
+    <value>ultraPanel2.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityLookup1.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="&gt;&gt;ultraPanel2.ClientArea.Name" xml:space="preserve">
+    <value>ultraPanel2.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;ultraPanel2.ClientArea.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraPanelClientAreaUnsafe, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraPanel2.ClientArea.Parent" xml:space="preserve">
+    <value>ultraPanel2</value>
+  </data>
+  <data name="&gt;&gt;ultraPanel2.ClientArea.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="ultraPanel2.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Fill</value>
+  </data>
+  <data name="ultraPanel2.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="ultraPanel2.Size" type="System.Drawing.Size, System.Drawing">
+    <value>294, 108</value>
+  </data>
+  <data name="ultraPanel2.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="&gt;&gt;ultraPanel2.Name" xml:space="preserve">
+    <value>ultraPanel2</value>
+  </data>
+  <data name="&gt;&gt;ultraPanel2.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraPanel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraPanel2.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraPanel2.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing">
+    <value>6, 13</value>
+  </data>
+  <data name="$this.Size" type="System.Drawing.Size, System.Drawing">
+    <value>294, 108</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1.Name" xml:space="preserve">
+    <value>smartBusinessEntityBindingSource1</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;$this.Name" xml:space="preserve">
+    <value>SmartGroupViewer</value>
+  </data>
+  <data name="&gt;&gt;$this.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Base.SmartViewerControl, OEProxyAssembly, Version=11.6.0.1, Culture=neutral, PublicKeyToken=null</value>
   </data>
 </root>

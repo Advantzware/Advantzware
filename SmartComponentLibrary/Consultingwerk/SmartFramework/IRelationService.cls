@@ -73,8 +73,8 @@ INTERFACE Consultingwerk.SmartFramework.IRelationService:
         @param pcChildFieldName The unqualified field name of the child buffer that references the parent table
         @return The description value of the parent record as returned by the ITableInfoProvider.RecordDescription() method 
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC CHARACTER GetParentDescriptionForField (phChildBuffer AS HANDLE, 
-	                                                      pcChildFieldName AS CHARACTER).
+    METHOD PUBLIC CHARACTER GetParentDescriptionForField (phChildBuffer AS HANDLE, 
+                                                          pcChildFieldName AS CHARACTER).
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the description value for the default parent record of the 
@@ -116,8 +116,8 @@ INTERFACE Consultingwerk.SmartFramework.IRelationService:
         @param phBuffer The handle of the database buffer (parent) to process delete for 
         @param plDeleteParent Logical parameter, indicating of the parent buffer should actually be deleted
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID ProcessDelete (phBuffer AS HANDLE,
-	                                  plDeleteParent AS LOGICAL).
+    METHOD PUBLIC VOID ProcessDelete (phBuffer AS HANDLE,
+                                      plDeleteParent AS LOGICAL).
 
     /*------------------------------------------------------------------------------
         Purpose: Processes the write of a child buffer 
@@ -132,6 +132,6 @@ INTERFACE Consultingwerk.SmartFramework.IRelationService:
         Purpose: Refreshes the Cache used by the service  
         Notes:   When no cache is used by the service, this method should not throw an error
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID RefreshCache ().
+    METHOD PUBLIC VOID RefreshCache ().
 
 END INTERFACE.

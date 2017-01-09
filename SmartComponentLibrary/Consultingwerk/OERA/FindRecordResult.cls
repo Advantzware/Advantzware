@@ -32,17 +32,17 @@ CLASS Consultingwerk.OERA.FindRecordResult:
         Purpose: Returns if a previous batch is available 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY PreviousBatchAvailable AS LOGICAL INITIAL TRUE NO-UNDO 
-	GET.
-	PRIVATE SET. 
+    DEFINE PUBLIC PROPERTY PreviousBatchAvailable AS LOGICAL INITIAL TRUE NO-UNDO 
+    GET.
+    PRIVATE SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the Restart ROWID's 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY RestartRowids AS IQueryRowIdentifier NO-UNDO 
-	GET.
-	PRIVATE SET. 
+    DEFINE PUBLIC PROPERTY RestartRowids AS IQueryRowIdentifier NO-UNDO 
+    GET.
+    PRIVATE SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the FindRecordResult class
@@ -50,13 +50,13 @@ CLASS Consultingwerk.OERA.FindRecordResult:
         @param proRestartRowids The IQueryRowIdentifier instance for this instance
         @param plPreviousBatchAvailable The value for the PreviousBatchAvailable property
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC FindRecordResult (proRestartRowids AS IQueryRowIdentifier,
-	                                     plPreviousBatchAvailable AS LOGICAL):
-		SUPER ().
-		
-		ASSIGN THIS-OBJECT:RestartRowids          = proRestartRowids
-		       THIS-OBJECT:PreviousBatchAvailable = plPreviousBatchAvailable .
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC FindRecordResult (proRestartRowids AS IQueryRowIdentifier,
+                                         plPreviousBatchAvailable AS LOGICAL):
+        SUPER ().
+        
+        ASSIGN THIS-OBJECT:RestartRowids          = proRestartRowids
+               THIS-OBJECT:PreviousBatchAvailable = plPreviousBatchAvailable .
+        
+    END CONSTRUCTOR.
 
 END CLASS.

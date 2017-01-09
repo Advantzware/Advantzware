@@ -33,20 +33,20 @@ CLASS Consultingwerk.Framework.SystemDescription IMPLEMENTS ISystemDescription:
         Purpose: Returns the description of the current system 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Description AS CHARACTER NO-UNDO 
-	GET.
-	SET.
-	 
+    DEFINE PUBLIC PROPERTY Description AS CHARACTER NO-UNDO 
+    GET.
+    SET.
+     
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the SystemDescription class
         Notes:   
         @param pcDescription The description of the current system
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC SystemDescription (pcDescription AS CHARACTER):
-		SUPER ().
-		
-		THIS-OBJECT:Description = pcDescription . 
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC SystemDescription (pcDescription AS CHARACTER):
+        SUPER ().
+        
+        THIS-OBJECT:Description = pcDescription . 
+        
+    END CONSTRUCTOR.
 
 END CLASS.

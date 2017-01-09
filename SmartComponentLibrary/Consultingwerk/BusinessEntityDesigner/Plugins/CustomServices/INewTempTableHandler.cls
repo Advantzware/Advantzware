@@ -36,7 +36,7 @@ INTERFACE Consultingwerk.BusinessEntityDesigner.Plugins.CustomServices.INewTempT
         @param pcTempTableName The name of the new temp-table
         @param dsBusinessEntity INPUT-OUTPUT DATASET The Businesss Entity Dataset (should be passed BY-REFERENCE)
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID HandleNewTempTable (pcTempTableName AS CHARACTER,
-	                                       INPUT-OUTPUT DATASET dsBusinessEntity).
+    METHOD PUBLIC VOID HandleNewTempTable (pcTempTableName AS CHARACTER,
+                                           INPUT-OUTPUT DATASET dsBusinessEntity).
 
 END INTERFACE.

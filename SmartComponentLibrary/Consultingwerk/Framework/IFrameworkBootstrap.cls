@@ -29,14 +29,14 @@ INTERFACE Consultingwerk.Framework.IFrameworkBootstrap:
                  already been executed                                                                      
         Notes:                                                                        
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY IsInitialized AS LOGICAL NO-UNDO 
-	GET.
+    DEFINE PUBLIC PROPERTY IsInitialized AS LOGICAL NO-UNDO 
+    GET.
 
-	/*------------------------------------------------------------------------------
-		Purpose: Executes the framework bootstrap  																	  
-		Notes:   The IsInitialized method is supposed to return True after the 
-		         bootstrap has been executed																  
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID Initialize ().	 
+    /*------------------------------------------------------------------------------
+        Purpose: Executes the framework bootstrap                                                                        
+        Notes:   The IsInitialized method is supposed to return True after the 
+                 bootstrap has been executed                                                                  
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC VOID Initialize ().     
 
 END INTERFACE.

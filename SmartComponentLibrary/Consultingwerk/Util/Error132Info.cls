@@ -12,18 +12,18 @@
 /*------------------------------------------------------------------------
     File        : Error132Info
     Purpose     : A holder class for details about error 132
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Fri Nov 27 01:15:43 CEST 2012
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 {Consultingwerk/products.i}
 
-USING Consultingwerk.* FROM PROPATH .  
+USING Consultingwerk.* FROM PROPATH .
 USING Progress.Lang.*  FROM PROPATH .
 
 CLASS Consultingwerk.Util.Error132Info
@@ -31,37 +31,37 @@ CLASS Consultingwerk.Util.Error132Info
     INHERITS XmlSerializable
 &ELSE
     INHERITS JsonSerializable
-&ENDIF    
-    {&SERIALIZABLE}: 
+&ENDIF
+    {&SERIALIZABLE}:
 
     {Consultingwerk/JsonSerializableProperty.i TableName CHARACTER} .
     {Consultingwerk/JsonSerializableProperty.i FieldValues CHARACTER} .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Constructor for the Error132Info class                                                                     
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Constructor for the Error132Info class
+     * Notes:
+     */
     CONSTRUCTOR PUBLIC Error132Info ():
         SUPER ().
-        
+
         THIS-OBJECT:AddSerializableProperties ("{&SerializableProperties}":U) .
 
     END CONSTRUCTOR.
-    
-    /*------------------------------------------------------------------------------
-        Purpose: Constructor for the CharacterHolder class                                                                     
-        Notes:        
-        @param pcTableName The initial Value for TableName
-        @param pcFieldValues The initial Value for FieldValues
-    ------------------------------------------------------------------------------*/
+
+    /**
+     * Purpose: Constructor for the CharacterHolder class
+     * Notes:
+     * @param pcTableName The initial Value for TableName
+     * @param pcFieldValues The initial Value for FieldValues
+     */
     CONSTRUCTOR PUBLIC Error132Info (pcTableName AS CHARACTER,
                                      pcFieldValues AS CHARACTER):
-        
+
         THIS-OBJECT () .
-        
-        ASSIGN THIS-OBJECT:TableName   = pcTableName 
-               THIS-OBJECT:FieldValues = pcFieldValues . 
-        
+
+        ASSIGN THIS-OBJECT:TableName   = pcTableName
+               THIS-OBJECT:FieldValues = pcFieldValues .
+
     END CONSTRUCTOR.
 
 END CLASS.

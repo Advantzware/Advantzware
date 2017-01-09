@@ -37,25 +37,25 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.ControlGeneratorDidNotRetu
         Purpose: Returns the type name fo the Control Generator 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY ControlGeneratorType AS CHARACTER NO-UNDO 
-	GET.
-	PRIVATE SET. 
+    DEFINE PUBLIC PROPERTY ControlGeneratorType AS CHARACTER NO-UNDO 
+    GET.
+    PRIVATE SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the name of the current control
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY ControlName AS CHARACTER NO-UNDO 
-	GET.
-	PRIVATE SET. 
+    DEFINE PUBLIC PROPERTY ControlName AS CHARACTER NO-UNDO 
+    GET.
+    PRIVATE SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the name of the method that returned no (valid) source code 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY MethodName AS CHARACTER NO-UNDO 
-	GET.
-	PRIVATE SET. 
+    DEFINE PUBLIC PROPERTY MethodName AS CHARACTER NO-UNDO 
+    GET.
+    PRIVATE SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the ControlGeneratorDidNotReturnCodeException class
@@ -64,19 +64,19 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.ControlGeneratorDidNotRetu
         @param pcControlGeneratorType The type name of the Control generator
         @param pcMethodName The name of the method that returned no valid source code
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ControlGeneratorDidNotReturnCodeException (pcControlName AS CHARACTER,
-	                                                              pcControlGeneratorType AS CHARACTER,
-	                                                              pcMethodName AS CHARACTER):
-	                                                                  
-		SUPER (SUBSTITUTE ("The method &1 of &2 did not return source code for control &3."{&TRAN},
-		                   pcMethodName,
-		                   pcControlGeneratorType,
-		                   pcControlName), 0).
-		
-		ASSIGN THIS-OBJECT:ControlName          = pcControlName
-		       THIS-OBJECT:ControlGeneratorType = pcControlGeneratorType 
-		       THIS-OBJECT:MethodName           = pcMethodName . 
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC ControlGeneratorDidNotReturnCodeException (pcControlName AS CHARACTER,
+                                                                  pcControlGeneratorType AS CHARACTER,
+                                                                  pcMethodName AS CHARACTER):
+                                                                      
+        SUPER (SUBSTITUTE ("The method &1 of &2 did not return source code for control &3."{&TRAN},
+                           pcMethodName,
+                           pcControlGeneratorType,
+                           pcControlName), 0).
+        
+        ASSIGN THIS-OBJECT:ControlName          = pcControlName
+               THIS-OBJECT:ControlGeneratorType = pcControlGeneratorType 
+               THIS-OBJECT:MethodName           = pcMethodName . 
+        
+    END CONSTRUCTOR.
 
 END CLASS.

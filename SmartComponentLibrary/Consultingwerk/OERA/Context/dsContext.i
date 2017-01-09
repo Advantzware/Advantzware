@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2006-2014 by Consultingwerk Ltd. ("CW") -            *
+ * Copyright (C) 2006-2016 by Consultingwerk Ltd. ("CW") -            *
  * www.consultingwerk.de and other contributors as listed             *
  * below.  All Rights Reserved.                                       *
  *                                                                    *
@@ -18,7 +18,7 @@
     Description : 
 
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
-    Created     : 26.09.2014 15:48:43
+    Created     : 31.05.2016 14:13:09
     Notes       :
   ----------------------------------------------------------------------*/
 
@@ -33,6 +33,8 @@
 { Consultingwerk/OERA/Context/eContextProperties.i &NO-BEFORE=YES }
 { Consultingwerk/OERA/Context/eSessionContext.i &NO-BEFORE=YES }
 
+
+@BusinessEntityGenerator (entityname="Consultingwerk.OERA.Context.ContextBusinessEntity", type="Dataset") .
 
 DEFINE {&ACCESS} DATASET dsContext{&SUFFIX} {&REFERENCE-ONLY} FOR eContextProperties{&SUFFIX}, eSessionContext{&SUFFIX} 
 

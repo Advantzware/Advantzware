@@ -36,9 +36,9 @@ CLASS Consultingwerk.Framework.Exceptions.AuthenticationException
         Purpose: Returns the Error message title
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Title AS CHARACTER NO-UNDO INIT "Authentication Error"{&TRAN}
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY Title AS CHARACTER NO-UNDO INITIAL "Authentication Error"{&TRAN}
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the AuthenticationException class

@@ -26,11 +26,11 @@ USING Progress.Lang.*                                    FROM PROPATH .
 
 INTERFACE Consultingwerk.BusinessEntityDesigner.Validation.IFieldValidationTypeProvider:  
   
-	/*------------------------------------------------------------------------------
-	    Purpose: Returns the list of available validation types
-	    Notes:
-	    @return The list of Validation Types 
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC ListNameValuePair GetFieldValidationTypes ().
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the list of available validation types
+        Notes:
+        @return The list of Validation Types 
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC ListNameValuePair GetFieldValidationTypes ().
 
 END INTERFACE.

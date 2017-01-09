@@ -34,7 +34,7 @@ INTERFACE Consultingwerk.IJsonDateTypeFormatter:
         @param pcProperty The name of the property in the JsonObject
         @param pdtDate The date value
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID Add (poJsonObject AS JsonObject,
+    METHOD PUBLIC VOID Add (poJsonObject AS JsonObject,
                             pcProperty AS CHARACTER,
                             pdtDate AS DATE).
 

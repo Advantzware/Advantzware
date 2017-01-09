@@ -32,6 +32,6 @@ INTERFACE Consultingwerk.Windows.Framework.IImageProvider:
         @param pcKey The key to return the Image for
         @return The Image object for the specified key or ?
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC System.Drawing.Bitmap ImageForKey (pcKey AS CHARACTER).
+    METHOD PUBLIC System.Drawing.Bitmap ImageForKey (pcKey AS CHARACTER).
 
 END INTERFACE.

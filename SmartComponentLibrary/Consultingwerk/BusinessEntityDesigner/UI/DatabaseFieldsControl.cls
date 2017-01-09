@@ -13,52 +13,52 @@
     File        : DatabaseFieldsControl
     Purpose     : User Control that allows dragging individual database
                   fields to the Business Entity Design Canvas
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Fri Oct 12 16:28:04 CEST 2012
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Consultingwerk.BusinessEntityDesigner.Services.* FROM PROPATH . 
-USING Consultingwerk.BusinessEntityDesigner.UI.*       FROM PROPATH .  
-USING Consultingwerk.Util.*                            FROM PROPATH . 
-USING Infragistics.Win.UltraWinExplorerBar.*           FROM ASSEMBLY . 
-USING Infragistics.Win.UltraWinListView.*              FROM ASSEMBLY . 
+USING Consultingwerk.BusinessEntityDesigner.Services.* FROM PROPATH .
+USING Consultingwerk.BusinessEntityDesigner.UI.*       FROM PROPATH .
+USING Consultingwerk.Util.*                            FROM PROPATH .
+USING Infragistics.Win.UltraWinExplorerBar.*           FROM ASSEMBLY .
+USING Infragistics.Win.UltraWinListView.*              FROM ASSEMBLY .
 USING Progress.Lang.*                                  FROM PROPATH .
 USING Progress.Windows.UserControl                     FROM ASSEMBLY .
 
-CLASS Consultingwerk.BusinessEntityDesigner.UI.DatabaseFieldsControl 
-    INHERITS UserControl: 
+CLASS Consultingwerk.BusinessEntityDesigner.UI.DatabaseFieldsControl
+    INHERITS UserControl:
 
     DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraExplorerBar1 AS Infragistics.Win.UltraWinExplorerBar.UltraExplorerBar NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraExplorerBarContainerControl1 AS Infragistics.Win.UltraWinExplorerBar.UltraExplorerBarContainerControl NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraListView1 AS Infragistics.Win.UltraWinListView.UltraListView NO-UNDO.
-    
-    /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the reference to the DatabaseSchemaDatasetController 
-                 instance
-        Notes:   
-    ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY DatabaseSchemaDatasetController AS DatabaseSchemaDatasetController NO-UNDO 
-    GET.
-    SET. 
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the DatabaseFieldsControl class 
-        Notes:   
+        Purpose: Gets and sets the reference to the DatabaseSchemaDatasetController
+                 instance
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY DatabaseSchemaDatasetController AS DatabaseSchemaDatasetController NO-UNDO
+    GET.
+    SET.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the DatabaseFieldsControl class
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC DatabaseFieldsControl ():
-        
-        
+
+
         SUPER().
         InitializeComponent().
-        
-        THIS-OBJECT:ultraExplorerBar1:Groups[0]:Visible = FALSE . 
-        
+
+        THIS-OBJECT:ultraExplorerBar1:Groups[0]:Visible = FALSE .
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
@@ -67,70 +67,75 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.DatabaseFieldsControl
 
     /*------------------------------------------------------------------------------
         Purpose: Shows the fields of the given database tables
-        Notes:   
+        Notes:
         @param pcDatabaseName The name of the database
         @param pcTableName The name of the database table
     ------------------------------------------------------------------------------*/
-    METHOD PUBLIC VOID SelectTable (pcDatabaseName AS CHARACTER, 
+    METHOD PUBLIC VOID SelectTable (pcDatabaseName AS CHARACTER,
                                     pcTableName AS CHARACTER):
-        
+
         DEFINE VARIABLE hDataset AS HANDLE               NO-UNDO.
         DEFINE VARIABLE hQuery   AS HANDLE               NO-UNDO.
-        
-        DEFINE VARIABLE oItem    AS UltraListViewItem    NO-UNDO . 
-        
-        THIS-OBJECT:ultraExplorerBar1:Groups[0]:Visible = TRUE . 
+
+        DEFINE VARIABLE oItem    AS UltraListViewItem    NO-UNDO .
+
+        THIS-OBJECT:ultraExplorerBar1:Groups[0]:Visible = TRUE .
         THIS-OBJECT:ultraExplorerBar1:Groups[0]:Text = SUBSTITUTE ("&1.&2":U,
                                                                    pcDatabaseName,
                                                                    pcTableName) .
-        
-        THIS-OBJECT:ultraListView1:Items:Clear () .        
-        
-        IF NOT VALID-OBJECT (THIS-OBJECT:DatabaseSchemaDatasetController) THEN 
-            LEAVE . 
-           
+
+        THIS-OBJECT:ultraListView1:Items:Clear () .
+
+        IF NOT VALID-OBJECT (THIS-OBJECT:DatabaseSchemaDatasetController) THEN
+            LEAVE .
+
            hDataset = THIS-OBJECT:DatabaseSchemaDatasetController:GetTableSchema (pcDatabaseName,
                                                                                   pcTableName) .
-        
+
         hQuery = QueryHelper:CreatePreparedQuery (hDataset::eField) .
-        
+
         DO WHILE NOT hQuery:QUERY-OFF-END:
-            oItem = ultraListView1:Items:Add 
+            oItem = ultraListView1:Items:Add
                       (SUBSTITUTE ("field.&1.&2.&3":U,
                                    pcDatabaseName,
                                    pcTableName,
                                    hDataset::eField::FieldName),
                        hDataset::eField::FieldName) .
-                       
-            oItem:Tag = BOX (SUBSTITUTE ("&1&5&2&5&3&5&4":U, 
+
+            oItem:Tag = BOX (SUBSTITUTE ("&1&9&2&9&3&9&4&9&5":U,
                                          hDataset::eField::FieldDataType,
                                          hDataset::eField::FieldInitial,
                                          hDataset::eField::FieldLabel,
                                          hDataset::eField::FieldFormat,
+                                         hDataset::eField::FieldExtent,
+                                         "":U,
+                                         "":U,
+                                         "":U,
                                          CHR (1))) .
-            
+
             hQuery:GET-NEXT () .
         END.
-        
+
         FINALLY:
             GarbageCollectorHelper:DeleteObject (hDataset) .
-            GarbageCollectorHelper:DeleteObject (hQuery) .        
+            GarbageCollectorHelper:DeleteObject (hQuery) .
         END FINALLY.
-        
+
 
     END METHOD .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE resources AS Progress.Util.ResourceManager NO-UNDO.
@@ -207,28 +212,32 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.DatabaseFieldsControl
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the mouse down event of the UltraListView Control
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The MouseEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PROTECTED VOID ultraListView1_MouseDown (sender AS System.Object, 
+    METHOD PROTECTED VOID ultraListView1_MouseDown (sender AS System.Object,
                                                     e AS System.Windows.Forms.MouseEventArgs):
-        
-        DEFINE VARIABLE oListViewItem AS UltraListViewItem NO-UNDO . 
-        
+
+        DEFINE VARIABLE oListViewItem AS UltraListViewItem NO-UNDO .
+
         oListViewItem = ultraListView1:ItemFromPoint (e:Location) .
-        
-        IF VALID-OBJECT (oListViewItem) THEN 
-            ultraListView1:DoDragDrop (oListViewItem, 
+
+        IF VALID-OBJECT (oListViewItem) THEN
+            ultraListView1:DoDragDrop (oListViewItem,
                                   CAST (Progress.Util.EnumHelper:Or (System.Windows.Forms.DragDropEffects:Copy,
                                                                      System.Windows.Forms.DragDropEffects:Link),
-                                        System.Windows.Forms.DragDropEffects)) . 
+                                        System.Windows.Forms.DragDropEffects)) .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the DatabaseFieldsControl class 
-        Notes:   
+        Purpose: Destructor for the DatabaseFieldsControl class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC DatabaseFieldsControl ():
 

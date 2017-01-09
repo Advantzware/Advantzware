@@ -11,141 +11,142 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : ResourceTranslationMaintenanceForm
-    Purpose     : Translation of Localizable resx files 
-    Syntax      : 
-    Description : 
+    Purpose     : Translation of Localizable resx files
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Thu May 09 22:54:49 CEST 2013
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Consultingwerk.Framework.Session.*              FROM PROPATH . 
+USING Consultingwerk.Framework.Session.*              FROM PROPATH .
 USING Consultingwerk.SmartFramework.*                 FROM PROPATH .
 USING Consultingwerk.SmartComponents.Base.*           FROM PROPATH .
-USING Consultingwerk.SmartComponents.Enum.*           FROM PROPATH . 
+USING Consultingwerk.SmartComponents.Enum.*           FROM PROPATH .
 USING Consultingwerk.SmartFramework.Localization.*    FROM PROPATH .
-USING Consultingwerk.Util.*                           FROM PROPATH .   
+USING Consultingwerk.Util.*                           FROM PROPATH .
 USING Consultingwerk.Windows.Framework.*              FROM PROPATH .
 USING Consultingwerk.Windows.Framework.Localization.* FROM PROPATH .
 USING Progress.Lang.*                                 FROM PROPATH .
 
 {Consultingwerk/products.i}
 
-CLASS Consultingwerk.Windows.Framework.Localization.ResourceTranslationMaintenanceForm INHERITS SmartWindowForm: 
+CLASS Consultingwerk.Windows.Framework.Localization.ResourceTranslationMaintenanceForm INHERITS SmartWindowForm:
 
     DEFINE PRIVATE VARIABLE bindingSource1 AS Progress.Data.BindingSource NO-UNDO.
     DEFINE PRIVATE VARIABLE m_ResourceTranslationMaintenanceForm_Toolbars_Dock_Area_Top AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_ResourceTranslationMaintenanceForm_Toolbars_Dock_Area_Right AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_ResourceTranslationMaintenanceForm_Toolbars_Dock_Area_Left AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_ResourceTranslationMaintenanceForm_Toolbars_Dock_Area_Bottom AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE smartTempTableAdapter1 AS Consultingwerk.SmartComponents.Implementation.SmartTempTableAdapter NO-UNDO.
     DEFINE PRIVATE VARIABLE smartToolbarController1 AS Consultingwerk.SmartComponents.Implementation.SmartToolbarController NO-UNDO.
     DEFINE PRIVATE VARIABLE ResourceTranslationMaintenanceForm_Fill_Panel AS Infragistics.Win.Misc.UltraPanel NO-UNDO.
     DEFINE PRIVATE VARIABLE smartUpdatableBrowser1 AS Consultingwerk.SmartComponents.Implementation.SmartUpdatableBrowser NO-UNDO.
 
     DEFINE VARIABLE cBaseTitle          AS CHARACTER                        NO-UNDO .
-    DEFINE VARIABLE oResourceTranslator AS ResourceTranslator               NO-UNDO . 
-    DEFINE VARIABLE oTranslationService AS IUserInterfaceTranslationService NO-UNDO . 
+    DEFINE VARIABLE oResourceTranslator AS ResourceTranslator               NO-UNDO .
+    DEFINE VARIABLE oTranslationService AS IUserInterfaceTranslationService NO-UNDO .
     DEFINE PRIVATE VARIABLE ultraLabel1 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraPanel1 AS Infragistics.Win.Misc.UltraPanel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraPictureBox1 AS Infragistics.Win.UltraWinEditors.UltraPictureBox NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraTextEditor1 AS Infragistics.Win.UltraWinEditors.UltraTextEditor NO-UNDO.
-    
+
 
     { Consultingwerk/Util/TempTables/ttClassNames.i }
     { Consultingwerk/SmartFramework/Localization/eStringResources.i }
-    { Consultingwerk/SmartFramework/ttLanguage.i &NO-BEFORE &REFERENCE-ONLY=REFERENCE-ONLY }  
+    { Consultingwerk/SmartFramework/ttLanguage.i &NO-BEFORE &REFERENCE-ONLY=REFERENCE-ONLY }
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the name of the UI class that is being translated file name
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY ClassName AS CHARACTER NO-UNDO 
+    DEFINE PUBLIC PROPERTY ClassName AS CHARACTER NO-UNDO
     GET.
-    PROTECTED SET. 
-    
-    /*------------------------------------------------------------------------------
-        Purpose: Returns the current resource file name
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY ResourceFileName AS CHARACTER NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    PROTECTED SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the ResourceTranslationMaintenanceForm class                                                                        
-        Notes:      
+        Purpose: Returns the current resource file name
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ResourceTranslationMaintenanceForm ():
-		
+    DEFINE PUBLIC PROPERTY ResourceFileName AS CHARACTER NO-UNDO
+    GET.
+    PROTECTED SET.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the ResourceTranslationMaintenanceForm class
+        Notes:
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC ResourceTranslationMaintenanceForm ():
+
         SUPER().
-        
+
         InitializeComponent().
-        
+
         ASSIGN cBaseTitle = THIS-OBJECT:Text .
-        
+
         oTranslationService = {Consultingwerk/get-service.i Consultingwerk.SmartFramework.Localization.IUserInterfaceTranslationService
-                                                            "NEW Consultingwerk.SmartFramework.Localization.UserInterfaceTranslationService()"} .  
-    
+                                                            "NEW Consultingwerk.SmartFramework.Localization.UserInterfaceTranslationService()"} .
+
         smartTempTableAdapter1:TempTableHandle = TEMP-TABLE eStringResources:HANDLE.
         smartTempTableAdapter1:RetrieveData () .
-        
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Filters out non localizable Controls 
-        Notes:   
+        Purpose: Filters out non localizable Controls
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID FilterLocalizableControls ():
+    METHOD PROTECTED VOID FilterLocalizableControls ():
 
         DEFINE VARIABLE cResourceFileName AS CHARACTER NO-UNDO.
-        
+
         DEFINE VARIABLE iIndex            AS INTEGER   NO-UNDO.
-		
-		FOR EACH ttClassNames:
-        
+
+        FOR EACH ttClassNames:
+
             ASSIGN cResourceFileName = LocalizationHelper:ClassNameToResourceFileName (ttClassNames.ClassName) .
-        
-            FILE-INFO:FILE-NAME = cResourceFileName .
-        
-            IF FILE-INFO:FULL-PATHNAME = ? THEN DO:
+
+            FILE-INFORMATION:FILE-NAME = cResourceFileName .
+
+            IF FILE-INFORMATION:FULL-PATHNAME = ? THEN DO:
                 DELETE ttClassNames .
-                NEXT . 
+                NEXT .
             END.
-        
-            oResourceTranslator = NEW ResourceTranslator (FILE-INFO:FULL-PATHNAME) .
-        
+
+            oResourceTranslator = NEW ResourceTranslator (FILE-INFORMATION:FULL-PATHNAME) .
+
             IF NOT oResourceTranslator:IsLocalizable THEN DO:
-                DELETE ttClassNames . 
-                NEXT . 
-            END .  
-		    
-		    CATCH err AS Progress.Lang.Error:
-            	DELETE ttClassNames . 
-            	NEXT . 	
+                DELETE ttClassNames .
+                NEXT .
+            END .
+
+            CATCH err AS Progress.Lang.Error:
+                DELETE ttClassNames .
+                NEXT .
             END CATCH.
-		END.
+        END.
 
-	END METHOD .
+    END METHOD .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -1173,178 +1174,124 @@ CLASS Consultingwerk.Windows.Framework.Localization.ResourceTranslationMaintenan
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Raises the Load event
-        Notes:   
+        Notes:
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
-        
-        DEFINE VARIABLE oList             AS Infragistics.Win.ValueList NO-UNDO . 
+
+        DEFINE VARIABLE oList             AS Infragistics.Win.ValueList NO-UNDO .
         DEFINE VARIABLE oImageProvider    AS IImageProvider             NO-UNDO .
-        DEFINE VARIABLE oLanguageProvider AS ILanguageProvider          NO-UNDO . 
-        
+        DEFINE VARIABLE oLanguageProvider AS ILanguageProvider          NO-UNDO .
+
         SUPER:OnLoad (e) .
-        
+
         THIS-OBJECT:smartUpdatableBrowser1:DisplayLayout:Bands[0]:Columns["TranslationType":U]:ValueList =
             ValueLists:GetTranslationTypeValueList () .
 
-        ASSIGN oLanguageProvider = {Consultingwerk/get-service.i Consultingwerk.SmartFramework.ILanguageProvider} 
+        ASSIGN oLanguageProvider = {Consultingwerk/get-service.i Consultingwerk.SmartFramework.ILanguageProvider}
                oImageProvider = {Consultingwerk/get-service.i Consultingwerk.Windows.Framework.IImageProvider}.
-        
+
         oLanguageProvider:GetAvailableLanguages (OUTPUT TABLE ttLanguage) .
-        
+
         FIND ttLanguage WHERE ttLanguage.LanguageKey = SessionManager:LanguageKey NO-ERROR .
-        
+
         IF AVAILABLE ttLanguage THEN DO:
             ultraTextEditor1:Text = ttLanguage.LanguageName .
-            
-            IF VALID-OBJECT (oImageProvider) THEN 
-                ultraPictureBox1:Image = oImageProvider:ImageForKey (ttLanguage.LanguageImage) .  
+
+            IF VALID-OBJECT (oImageProvider) THEN
+                ultraPictureBox1:Image = oImageProvider:ImageForKey (ttLanguage.LanguageImage) .
         END.
-        ELSE DO: 
+        ELSE DO:
             IF SessionManager:LanguageDisplayName > "":U THEN
                 ultraTextEditor1:Text = SessionManager:LanguageDisplayName .
-            ELSE 
-                ultraTextEditor1:Text = SessionManager:LanguageIsoCode .                                
+            ELSE
+                ultraTextEditor1:Text = SessionManager:LanguageIsoCode .
         END.
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Opens a dialog to select a class of the given type
-        Notes:   
+        Notes:
         @param pcTypeName The base class to search for
         @param pcDesktopAlertTitle The title of the UltraDesktopAlert
         @param pcDesktopAlertText The text of the UltraDesktopAlert
         @param pcDialogText The text for the dialog form to select the class name
         @return The selected class name
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED CHARACTER OpenClass (pcTypeName AS CHARACTER,
-	                                      pcDesktopAlertTitle AS CHARACTER,
-	                                      pcDesktopAlertText AS CHARACTER,
-	                                      pcDialogText AS CHARACTER):
-		
+    METHOD PROTECTED CHARACTER OpenClass (pcTypeName AS CHARACTER,
+                                          pcDesktopAlertTitle AS CHARACTER,
+                                          pcDesktopAlertText AS CHARACTER,
+                                          pcDialogText AS CHARACTER):
+
         DEFINE VARIABLE oForm            AS Consultingwerk.SmartComponents.Support.BusinessEntityPickerForm NO-UNDO .
         DEFINE VARIABLE oDialogResult    AS System.Windows.Forms.DialogResult                               NO-UNDO .
 
-        DEFINE VARIABLE oInfo            AS Infragistics.Win.Misc.UltraDesktopAlertWindowInfo               NO-UNDO . 
+        DEFINE VARIABLE oInfo            AS Infragistics.Win.Misc.UltraDesktopAlertWindowInfo               NO-UNDO .
 
         DEFINE VARIABLE lLocalizableOnly AS LOGICAL                                                         NO-UNDO .
 
         oInfo = Consultingwerk.SmartComponents.Support.DesktopAlertHelper:Show (pcDesktopAlertTitle,
                                                                                 pcDesktopAlertText) .
 
-        Consultingwerk.Util.ClassHelper:GetClassNamesInClassPath (pcTypeName, 
-                                                                  FALSE, 
+        Consultingwerk.Util.ClassHelper:GetClassNamesInClassPath (pcTypeName,
+                                                                  FALSE,
                                                                   OUTPUT TABLE ttClassNames BY-REFERENCE) .
 
         oInfo:Close () .
-    
-        ASSIGN lLocalizableOnly = UltraToolbarsHelper:GetStateButtonToolChecked (smartToolbarController1, 
+
+        ASSIGN lLocalizableOnly = UltraToolbarsHelper:GetStateButtonToolChecked (smartToolbarController1,
                                                                                  "Localizable Only":U) .
 
-        IF lLocalizableOnly THEN 
+        IF lLocalizableOnly THEN
             THIS-OBJECT:FilterLocalizableControls () .
 
         oForm = NEW Consultingwerk.SmartComponents.Support.BusinessEntityPickerForm () .
         oForm:Text = pcDialogText .
-        
-        IF lLocalizableOnly THEN 
+
+        IF lLocalizableOnly THEN
             oForm:Remarks = "Note: Only Localizable Controls are shown."{&TRAN} .
-        
+
         oForm:ReceiveBusinessEntityNames (TABLE ttClassNames) .
-        
+
         /* Mike Fechner, Consultingwerk Ltd. 14.07.2010
            WAIT-FOR Workaround */
         ASSIGN oDialogResult = Consultingwerk.SmartComponents.FormHelper:ShowDialog(oForm) .
-        
+
         IF Progress.Util.EnumHelper:AreEqual(oDialogResult,
                                              System.Windows.Forms.DialogResult:Ok) THEN
-                                             
+
             RETURN oForm:GetSelectedBusinessEntityName() .
-            
-        RETURN ? .                                              
+
+        RETURN ? .
 
         FINALLY:
-            IF VALID-OBJECT (oForm) THEN 
+            IF VALID-OBJECT (oForm) THEN
                 oForm:Dispose() .
-                
-            GarbageCollectorHelper:DeleteObject (oForm) .		
+
+            GarbageCollectorHelper:DeleteObject (oForm) .
         END FINALLY.
-    
-	END METHOD .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Opens a Form for translation 
-        Notes:   
+        Purpose: Opens a Form for translation
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID OpenForm ():
-		
-		DEFINE VARIABLE cClassName AS CHARACTER NO-UNDO.
-		
-		ASSIGN cClassName = THIS-OBJECT:OpenClass ("System.Windows.Forms.Form":U,
+    METHOD PROTECTED VOID OpenForm ():
+
+        DEFINE VARIABLE cClassName AS CHARACTER NO-UNDO.
+
+        ASSIGN cClassName = THIS-OBJECT:OpenClass ("System.Windows.Forms.Form":U,
                                                    "SmartFramework"{&TRAN},
                                                    "Scanning Project Folder(s) for Forms."{&TRAN},
                                                    "Select Form Class"{&TRAN}) .
-		
-		IF Consultingwerk.CharacterType:IsNullOrEmpty (cClassName) THEN 
-		    RETURN .
-		
-        THIS-OBJECT:OpenResourceFile (cClassName) .
 
-        THIS-OBJECT:UpdateTitle (cClassName) .
-
-	END METHOD .
-
-    /*------------------------------------------------------------------------------
-        Purpose: Opens the resource file for the given UI class
-        Notes:   
-        @param pcClassName The UI class name to process the resx file for
-    ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID OpenResourceFile (pcClassName AS CHARACTER):
-
-        DEFINE VARIABLE cResourceFileName AS CHARACTER NO-UNDO.
-        
-		DEFINE VARIABLE iIndex            AS INTEGER   NO-UNDO.
-		
-		ASSIGN cResourceFileName = LocalizationHelper:ClassNameToResourceFileName (pcClassName) .
-		
-		FILE-INFO:FILE-NAME = cResourceFileName .
-		
-		oResourceTranslator = NEW ResourceTranslator (FILE-INFO:FULL-PATHNAME) .
-		
-		THIS-OBJECT:ResourceFileName = cResourceFileName .
-		
-		IF NOT oResourceTranslator:IsLocalizable THEN 
-		    UNDO, THROW NEW AppError ("The selected class is not Localizable. Please turn on the Localizable flag in the Visual Designer before proceeding."{&TRAN}, 0) .
-
-        ASSIGN THIS-OBJECT:ClassName = pcClassName . 
-
-        oTranslationService:GetTranslationsForObject (pcClassName,
-                                                      oResourceTranslator:GetResourceStrings(),
-                                                      OUTPUT TABLE eStringResources) .
-        
-        smartTempTableAdapter1:RetrieveData () .
-		
-	END METHOD .
-
-    /*------------------------------------------------------------------------------
-        Purpose: Opens a User Control for translation 
-        Notes:   
-    ------------------------------------------------------------------------------*/
-    METHOD PROTECTED VOID OpenUserControl ():
-        
-        DEFINE VARIABLE cClassName AS CHARACTER NO-UNDO.
-        
-        ASSIGN cClassName = THIS-OBJECT:OpenClass ("System.Windows.Forms.UserControl":U,
-                                                   "SmartFramework"{&TRAN},
-                                                   "Scanning Project Folder(s) for User Controls."{&TRAN},
-                                                   "Select User Control Class"{&TRAN}) .
-
-        IF Consultingwerk.CharacterType:IsNullOrEmpty (cClassName) THEN 
+        IF Consultingwerk.CharacterType:IsNullOrEmpty (cClassName) THEN
             RETURN .
 
         THIS-OBJECT:OpenResourceFile (cClassName) .
@@ -1354,67 +1301,121 @@ CLASS Consultingwerk.Windows.Framework.Localization.ResourceTranslationMaintenan
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Saves the current translations 
-        Notes:   
+        Purpose: Opens the resource file for the given UI class
+        Notes:
+        @param pcClassName The UI class name to process the resx file for
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID SaveTranslations ():
-		
-		IF smartUpdatableBrowser1:SmartTableIOState = TableIOStateEnum:ModifyingData THEN     
-		    smartUpdatableBrowser1:SaveChanges () .
+    METHOD PROTECTED VOID OpenResourceFile (pcClassName AS CHARACTER):
+
+        DEFINE VARIABLE cResourceFileName AS CHARACTER NO-UNDO.
+
+        DEFINE VARIABLE iIndex            AS INTEGER   NO-UNDO.
+
+        ASSIGN cResourceFileName = LocalizationHelper:ClassNameToResourceFileName (pcClassName) .
+
+        FILE-INFORMATION:FILE-NAME = cResourceFileName .
+
+        oResourceTranslator = NEW ResourceTranslator (FILE-INFORMATION:FULL-PATHNAME) .
+
+        THIS-OBJECT:ResourceFileName = cResourceFileName .
+
+        IF NOT oResourceTranslator:IsLocalizable THEN
+            UNDO, THROW NEW AppError ("The selected class is not Localizable. Please turn on the Localizable flag in the Visual Designer before proceeding."{&TRAN}, 0) .
+
+        ASSIGN THIS-OBJECT:ClassName = pcClassName .
+
+        oTranslationService:GetTranslationsForObject (pcClassName,
+                                                      oResourceTranslator:GetResourceStrings(),
+                                                      OUTPUT TABLE eStringResources) .
+
+        smartTempTableAdapter1:RetrieveData () .
+
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Opens a User Control for translation
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID OpenUserControl ():
+
+        DEFINE VARIABLE cClassName AS CHARACTER NO-UNDO.
+
+        ASSIGN cClassName = THIS-OBJECT:OpenClass ("System.Windows.Forms.UserControl":U,
+                                                   "SmartFramework"{&TRAN},
+                                                   "Scanning Project Folder(s) for User Controls."{&TRAN},
+                                                   "Select User Control Class"{&TRAN}) .
+
+        IF Consultingwerk.CharacterType:IsNullOrEmpty (cClassName) THEN
+            RETURN .
+
+        THIS-OBJECT:OpenResourceFile (cClassName) .
+
+        THIS-OBJECT:UpdateTitle (cClassName) .
+
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Saves the current translations
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID SaveTranslations ():
+
+        IF smartUpdatableBrowser1:SmartTableIOState = TableIOStateEnum:ModifyingData THEN
+            smartUpdatableBrowser1:SaveChanges () .
 
         oTranslationService:StoreTranslationsForObject (THIS-OBJECT:ClassName,
                                                         INPUT-OUTPUT TABLE eStringResources) .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the ToolClick event of the smartToolbarController1  
-        Notes:   
+        Purpose: Event handler for the ToolClick event of the smartToolbarController1
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The ToolClickEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID smartToolbarController1_ToolClick (sender AS System.Object, 
-	                                                       e AS Infragistics.Win.UltraWinToolbars.ToolClickEventArgs):
-		
-		CASE e:Tool:Key:
-		    
-		    WHEN "OpenForm":U THEN 
-		        THIS-OBJECT:OpenForm () .
-		        
-		    WHEN "OpenUserControl":U THEN 
-		        THIS-OBJECT:OpenUserControl () .
-	
-	        WHEN "SaveTranslations":U THEN 
-	            THIS-OBJECT:SaveTranslations () .
-		    
-		END CASE.
+    METHOD PRIVATE VOID smartToolbarController1_ToolClick (sender AS System.Object,
+                                                           e AS Infragistics.Win.UltraWinToolbars.ToolClickEventArgs):
+
+        CASE e:Tool:Key:
+
+            WHEN "OpenForm":U THEN
+                THIS-OBJECT:OpenForm () .
+
+            WHEN "OpenUserControl":U THEN
+                THIS-OBJECT:OpenUserControl () .
+
+            WHEN "SaveTranslations":U THEN
+                THIS-OBJECT:SaveTranslations () .
+
+        END CASE.
 
         CATCH err AS Progress.Lang.Error:
-        	ErrorHelper:ShowErrorMessage (err) .
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Updates the title of the Form
-        Notes:   
+        Notes:
         @param pcClassName The class name to show in the title
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID UpdateTitle (pcClassName AS CHARACTER):
-		
-		IF THIS-OBJECT:ResourceFileName > "":U THEN 
-		    ASSIGN THIS-OBJECT:Text = SUBSTITUTE ("&1 <&2>":U,
-		                                          cBaseTitle,
-		                                          pcClassName) . 
+    METHOD PROTECTED VOID UpdateTitle (pcClassName AS CHARACTER):
 
-        ELSE 
-            ASSIGN THIS-OBJECT:Text = cBaseTitle . 
+        IF THIS-OBJECT:ResourceFileName > "":U THEN
+            ASSIGN THIS-OBJECT:Text = SUBSTITUTE ("&1 <&2>":U,
+                                                  cBaseTitle,
+                                                  pcClassName) .
 
-	END METHOD .
+        ELSE
+            ASSIGN THIS-OBJECT:Text = cBaseTitle .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the ResourceTranslationMaintenanceForm class 
-        Notes:   
+        Purpose: Destructor for the ResourceTranslationMaintenanceForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC ResourceTranslationMaintenanceForm ():
 

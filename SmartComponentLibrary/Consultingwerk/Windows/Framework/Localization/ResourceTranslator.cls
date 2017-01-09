@@ -39,8 +39,8 @@ CLASS Consultingwerk.Windows.Framework.Localization.ResourceTranslator:
         Notes:   Based on the value and availbility of the $this.Localizable 
                  meta entry
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY IsLocalizable AS LOGICAL NO-UNDO 
-	GET:
+    DEFINE PUBLIC PROPERTY IsLocalizable AS LOGICAL NO-UNDO 
+    GET:
 
         DEFINE VARIABLE oMetaEnumerator AS IDictionaryEnumerator NO-UNDO .
         DEFINE VARIABLE oMetaEntry      AS DictionaryEntry       NO-UNDO .
@@ -54,45 +54,45 @@ CLASS Consultingwerk.Windows.Framework.Localization.ResourceTranslator:
 
             IF UNBOX (oMetaEntry:Key) = "$this.Localizable":U THEN 
                 RETURN UNBOX (oMetaEntry:Value) .         
-        END .	
+        END .    
         
         RETURN FALSE . 
-        	
-	END GET.
+            
+    END GET.
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the current resource file name
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY ResourceFileName AS CHARACTER NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    DEFINE PUBLIC PROPERTY ResourceFileName AS CHARACTER NO-UNDO 
+    GET.
+    PROTECTED SET. 
 
-	/*------------------------------------------------------------------------------
-		Purpose: Constructor for the ResourceTranslator class  																	  
-		Notes:  											
-		@param pcResourceFile The name of the source resource file to work with						  
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ResourceTranslator (pcResourceFile AS CHARACTER):
-		SUPER ().
-		
-		FileAssert:Exists (pcResourceFile) .
-		
-		ASSIGN oResourceReader              = NEW ResXResourceReader (FileHelper:FindFile (pcResourceFile)) 
-		       THIS-OBJECT:ResourceFileName = pcResourceFile .
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the ResourceTranslator class                                                                        
+        Notes:                                              
+        @param pcResourceFile The name of the source resource file to work with                          
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC ResourceTranslator (pcResourceFile AS CHARACTER):
+        SUPER ().
+        
+        FileAssert:Exists (pcResourceFile) .
+        
+        ASSIGN oResourceReader              = NEW ResXResourceReader (FileHelper:FindFile (pcResourceFile)) 
+               THIS-OBJECT:ResourceFileName = pcResourceFile .
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
-	/*------------------------------------------------------------------------------
-		Purpose: Returns a CharacterList of the Names of the System.String resources								  
-		Notes: 
-		@return The CharacterList of String resource names																	  
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC CharacterList GetResourceNames ():
-		
-		DEFINE VARIABLE oList AS CharacterList NO-UNDO . 
-		
-		oList = NEW CharacterList ("":U, CHR (1)) . 
+    /*------------------------------------------------------------------------------
+        Purpose: Returns a CharacterList of the Names of the System.String resources                                  
+        Notes: 
+        @return The CharacterList of String resource names                                                                      
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC CharacterList GetResourceNames ():
+        
+        DEFINE VARIABLE oList AS CharacterList NO-UNDO . 
+        
+        oList = NEW CharacterList ("":U, CHR (1)) . 
 
         {Consultingwerk/foreach.i DictionaryEntry oEntry in oResourceReader}
 
@@ -103,7 +103,7 @@ CLASS Consultingwerk.Windows.Framework.Localization.ResourceTranslator:
 
         RETURN oList . 
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Returns a CharacterDictionary of the System.String resources                                  
@@ -149,23 +149,23 @@ CLASS Consultingwerk.Windows.Framework.Localization.ResourceTranslator:
 
     END METHOD.
     
-	/*------------------------------------------------------------------------------
-		Purpose: Translates the Resource File using the given Translation Dictionary  																	  
-		Notes:  		
-		@param pcTargetFile The file name of the output file
-		@param poTranslations The CharacterDictionary with the translations by key															  
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID Translate (pcTargetFile AS CHARACTER,
-	                              poTranslations AS CharacterDictionary):
-		
-		DEFINE VARIABLE oResourceWriter  AS ResXResourceWriter    NO-UNDO . 
-		DEFINE VARIABLE oMetaEnumerator  AS IDictionaryEnumerator NO-UNDO .
-		DEFINE VARIABLE oMetaEntry       AS DictionaryEntry       NO-UNDO .
-		DEFINE VARIABLE cKey             AS CHARACTER             NO-UNDO .
-		
-		ObjectAssert:IsValid (poTranslations, "Translation Dictionary":U) .
-		
-		oResourceWriter = NEW ResXResourceWriter (pcTargetFile) .
+    /*------------------------------------------------------------------------------
+        Purpose: Translates the Resource File using the given Translation Dictionary                                                                        
+        Notes:          
+        @param pcTargetFile The file name of the output file
+        @param poTranslations The CharacterDictionary with the translations by key                                                              
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC VOID Translate (pcTargetFile AS CHARACTER,
+                                  poTranslations AS CharacterDictionary):
+        
+        DEFINE VARIABLE oResourceWriter  AS ResXResourceWriter    NO-UNDO . 
+        DEFINE VARIABLE oMetaEnumerator  AS IDictionaryEnumerator NO-UNDO .
+        DEFINE VARIABLE oMetaEntry       AS DictionaryEntry       NO-UNDO .
+        DEFINE VARIABLE cKey             AS CHARACTER             NO-UNDO .
+        
+        ObjectAssert:IsValid (poTranslations, "Translation Dictionary":U) .
+        
+        oResourceWriter = NEW ResXResourceWriter (pcTargetFile) .
 
         oMetaEnumerator = oResourceReader:GetMetadataEnumerator () .
         oMetaEnumerator:Reset () .
@@ -195,7 +195,7 @@ CLASS Consultingwerk.Windows.Framework.Localization.ResourceTranslator:
         oResourceWriter:Close () .
         oResourceWriter:Dispose () .
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Translates the Resource File using the given Translation Dictionary                                                                      

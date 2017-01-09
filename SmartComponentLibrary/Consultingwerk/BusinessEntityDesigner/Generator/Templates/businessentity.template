@@ -16,6 +16,14 @@ USING Consultingwerk.OERA.*           FROM PROPATH .
 USING Consultingwerk.Util.*           FROM PROPATH . 
 USING Progress.Lang.*                 FROM PROPATH .
 
+/* Sample Annotations - see http://confluence.consultingwerkcloud.com/wiki/display/SCL/The+Annotation+based+Type+Descriptor
+@BusinessEntityView (name="order", isdefault="true", entitytable="eOrder", entityview="eCustomer", 
+                     listcolumns="eOrder.OrderNum,eOrder.OrderDate,eOrder.CustNum,eCustomer.Name",
+                     viewercolumns="eOrder.OrderNum,eOrder.OrderDate,eOrder.CustNum,eCustomer.Name,eOrder.OrderStatus") .
+@BusinessEntityTable (name="eOrder", mandatoryColumns="ordernum,orderstatus", readonlyColumns="ordernum") .
+@BusinessEntityTable (name="eCustomer", mandatoryColumns="ordernum,orderstatus", readonly="true") .
+*/
+
 @FILEANNOTATION@
 
 CLASS &2.&1 

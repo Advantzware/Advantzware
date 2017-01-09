@@ -38,7 +38,7 @@ History:
     fernando    Mar 14, 2006  Handle case with too many tables selected - bug 20050930-006. 
     fernando    Jun 19, 2007  Support for large files
     fernando    Dec 12, 2007  Improved how we use user_env[4].
-    rkamboj 	11/11/2011 Fixed issue of dump data for Lob field. bug OE00214956.
+    rkamboj     11/11/2011 Fixed issue of dump data for Lob field. bug OE00214956.
 */
 /*h-*/
 
@@ -115,8 +115,8 @@ function validDirectory returns logical ( cValue as char):
            */ 
         if not (cValue begins "/":U or cvalue begins "~\":U or index(cValue,":":U) <> 0) then
             cValue = "./":U + cValue.  
-        ASSIGN FILE-INFO:FILE-NAME = cValue. 
-        return SUBSTRING(FILE-INFO:FILE-TYPE,1,1) = "D":U.
+        ASSIGN FILE-INFORMATION:FILE-NAME = cValue. 
+        return SUBSTRING(FILE-INFORMATION:FILE-TYPE,1,1) = "D":U.
     END.
         
     return true.
@@ -253,7 +253,7 @@ IF user_env[5] = " ":U OR user_env[5] = ?  THEN
 /* Used in numformat output */
 CodeOut = IF user_env[5] = "<internal defaults apply>":U 
           THEN SESSION:CPINTERNAL
-	      ELSE user_env[5].
+          ELSE user_env[5].
 
 RUN "prodict/_dctyear.p":U (OUTPUT mdy,OUTPUT yy).
 
@@ -656,9 +656,9 @@ DO ON STOP UNDO, LEAVE:
         IF lobdir > "":U THEN 
             ASSIGN cLobDir = lobdir . 
         ELSE DO:
-            FILE-INFO:FILE-NAME = fil .
+            FILE-INFORMATION:FILE-NAME = fil .
             
-            ASSIGN cFile = REPLACE (FILE-INFO:FULL-PATHNAME, "~\":U, "/":U) . 
+            ASSIGN cFile = REPLACE (FILE-INFORMATION:FULL-PATHNAME, "~\":U, "/":U) . 
                    
             IF R-INDEX (cFile, "/":U) > 0 THEN 
                 cLobDir = SUBSTRING (cFile, 1, R-INDEX (cFile, "/":U)) .
@@ -767,9 +767,9 @@ DO ON STOP UNDO, LEAVE:
                           ""timestamp="":U  stamp SKIP
                           ""numformat="":U
                        STRING(ASC(
-    		   SESSION:NUMERIC-SEPARATOR,CodeOut,SESSION:CPINTERNAL))     +
+               SESSION:NUMERIC-SEPARATOR,CodeOut,SESSION:CPINTERNAL))     +
                        "","":U                                                      +                   STRING(ASC(
-    		   SESSION:NUMERIC-DECIMAL-POINT,CodeOut,SESSION:CPINTERNAL))
+               SESSION:NUMERIC-DECIMAL-POINT,CodeOut,SESSION:CPINTERNAL))
                             SKIP
                             ""dateformat="":U mdy STRING(- yy) SKIP.
                         IF user_env[3] = ""NO-MAP"":U THEN
@@ -807,7 +807,7 @@ DO ON STOP UNDO, LEAVE:
                                       "":U /* detail */).
         /* this block has on error, undo next, so handle error so we can throw in case we are running silent */
         catch e as Progress.Lang.Error :
-        	run handleError(e).	
+            run handleError(e).    
         end catch.      
     END. /* DO FOR DICTDB._File ix = 1 to numCount ON ERROR UNDO,NEXT:*/
 
@@ -860,7 +860,7 @@ end.     /* output WITH alert-box */
 RETURN.
 
 catch e as Progress.Lang.Error :
-	run handleError(e).	
+    run handleError(e).    
 end catch.
 
 finally:

@@ -42,11 +42,11 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.ViewerFieldSpec
     {Consultingwerk/JsonSerializableProperty.i FieldLabel CHARACTER} .
     {Consultingwerk/JsonSerializableProperty.i ListItems CHARACTER} .
     {Consultingwerk/JsonSerializableProperty.i ListItemPairs CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i NoLabel LOGICAL "INIT FALSE"} .
+    {Consultingwerk/JsonSerializableProperty.i NoLabel LOGICAL "INITIAL FALSE"} .
     {Consultingwerk/JsonSerializableProperty.i PrivateData CHARACTER} .
     {Consultingwerk/JsonSerializableProperty.i RadioButtons CHARACTER} .
     {Consultingwerk/JsonSerializableProperty.i ViewAs CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i WidgetType CHARACTER "INIT ""FILL-IN"":U"} .
+    {Consultingwerk/JsonSerializableProperty.i WidgetType CHARACTER "INITIAL ""FILL-IN"":U"} .
     {Consultingwerk/JsonSerializableProperty.i WidgetValue CHARACTER} .
     
     {Consultingwerk/JsonSerializableProperty.i Left INTEGER} .
@@ -76,12 +76,12 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.ViewerFieldSpec
         Purpose: Constructor for the ViewerFieldSpec class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ViewerFieldSpec ():
-		SUPER ().
+    CONSTRUCTOR PUBLIC ViewerFieldSpec ():
+        SUPER ().
 
         THIS-OBJECT:AddSerializableProperties ("{&SerializableProperties}":U) .
-		
-	END CONSTRUCTOR.
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the ViewerFieldSpec class

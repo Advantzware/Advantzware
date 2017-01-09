@@ -36,12 +36,12 @@ CLASS Consultingwerk.WindowIntegrationKit.MenubarTreeviewLoader:
         @param phMenubar The HANDLE of the ABL Menubar
         @param poTreeView The UltraTree Control to load the menu into
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID Load (phMenubar AS HANDLE,
-	                         poTreeView AS UltraTree):
-		
-		{Consultingwerk/Assertion/HandleAssert/WidgetType.i phMenubar WidgetTypeEnum:Menu} .
-		                                                  
-        Consultingwerk.Assertion.ObjectAssert:IsValid (poTreeView) .		                                                  
+    METHOD PUBLIC VOID Load (phMenubar AS HANDLE,
+                             poTreeView AS UltraTree):
+        
+        {Consultingwerk/Assertion/HandleAssert/WidgetType.i phMenubar WidgetTypeEnum:Menu} .
+                                                          
+        Consultingwerk.Assertion.ObjectAssert:IsValid (poTreeView) .                                                          
 
         THIS-OBJECT:Load (phMenubar,
                           poTreeView:Nodes) .
@@ -51,7 +51,7 @@ CLASS Consultingwerk.WindowIntegrationKit.MenubarTreeviewLoader:
             oNode:Expanded = TRUE . 
         END.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Loads an ABL menu into an UltraTree 

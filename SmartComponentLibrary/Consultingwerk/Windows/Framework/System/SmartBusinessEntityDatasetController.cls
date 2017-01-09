@@ -58,24 +58,24 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityDatasetControll
         
     END CONSTRUCTOR.
     
-	/*------------------------------------------------------------------------------
-	    Purpose: Creates the dependet tables for the BusinessEntity
-	    Notes:
-	    @param pcBusinessEntityName The BusinessEntity name
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID CreateSmartBusinessEntityTable (pcBusinessEntityName AS CHARACTER):
-		
-		DEFINE VARIABLE hDataset AS HANDLE NO-UNDO.
+    /*------------------------------------------------------------------------------
+        Purpose: Creates the dependet tables for the BusinessEntity
+        Notes:
+        @param pcBusinessEntityName The BusinessEntity name
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC VOID CreateSmartBusinessEntityTable (pcBusinessEntityName AS CHARACTER):
+        
+        DEFINE VARIABLE hDataset AS HANDLE NO-UNDO.
         DEFINE VARIABLE iBuffer AS INTEGER NO-UNDO.
         
         DEFINE BUFFER eSmartBusinessEntityTable FOR eSmartBusinessEntityTable . 
         
-		Consultingwerk.Framework.FrameworkSettings:ServiceAdapter:FetchDataset ("":U, 
-		                                                                        pcBusinessEntityName, 
-		                                                                        OUTPUT DATASET-HANDLE hDataset).
-		
-		Consultingwerk.Util.DatasetHelper:SetTrackingChanges (DATASET dsSmartBusinessEntity:HANDLE, TRUE).
-		
+        Consultingwerk.Framework.FrameworkSettings:ServiceAdapter:FetchDataset ("":U, 
+                                                                                pcBusinessEntityName, 
+                                                                                OUTPUT DATASET-HANDLE hDataset).
+        
+        Consultingwerk.Util.DatasetHelper:SetTrackingChanges (DATASET dsSmartBusinessEntity:HANDLE, TRUE).
+        
         DO iBuffer = 1 TO hDataset:NUM-BUFFERS ON ERROR UNDO, THROW:
             
             CREATE eSmartBusinessEntityTable.
@@ -87,17 +87,19 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityDatasetControll
                 eSmartBusinessEntityTable.BusinessEntityTableGuid = ? /* allow more than a single record */
                 .
         END.
-		
-		SmartBusinessEntityAdapterSettings:FromDatasetController (THIS-OBJECT):SubmitChanges ().
-		
-		IF VALID-OBJECT (oChildTableAdapter) THEN 
-		    oChildTableAdapter:RetrieveData() . 
-		
-		FINALLY:
-		    Consultingwerk.Util.GarbageCollectorHelper:DeleteObject (hDataset).
-		END FINALLY.
-	
-	END METHOD.
+        
+        SmartBusinessEntityAdapterSettings:FromDatasetController (THIS-OBJECT):SubmitChanges ().
+        
+        IF VALID-OBJECT (oChildTableAdapter) THEN DO:
+            oChildTableAdapter:QueryHandle:QUERY-OPEN () .
+            oChildTableAdapter:BindingSource:RefreshAll () .
+        END.
+        
+        FINALLY:
+            Consultingwerk.Util.GarbageCollectorHelper:DeleteObject (hDataset).
+        END FINALLY.
+    
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Invoked by SmartBusinessEntityAdapter and SmartDatasetChildAdapter

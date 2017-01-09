@@ -45,10 +45,10 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Frame.FrameParser
         Purpose: Constructor for the FrameParser class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC FrameParser ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC FrameParser ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Recursively parses the given file for FORM statements with named
@@ -57,9 +57,9 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Frame.FrameParser
         @param poNode The JPNode to process
         @param poList The list to add the FORM names to
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID GetFormNames (poNode AS JPNode,
-	                                    poList AS CharacterList):
-		
+    METHOD PROTECTED VOID GetFormNames (poNode AS JPNode,
+                                        poList AS CharacterList):
+        
         DEFINE VARIABLE oNode  AS JPNode    NO-UNDO .
         DEFINE VARIABLE oWith  AS JPNode    NO-UNDO . 
         DEFINE VARIABLE oFrame AS JPNode    NO-UNDO . 
@@ -101,9 +101,9 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Frame.FrameParser
             END.
 
             oNode = oNode:nextSibling () . 
-        END.		
+        END.        
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Parses the given file for the given frame name in FORM statements 
@@ -111,9 +111,9 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Frame.FrameParser
         @param pcFrameName The name of the frame to return the widgets for
         @param poNode The JPNode to parse
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID GetFormWidgets (pcFrameName AS CHARACTER, 
-	                                      poNode AS JPNode):
-		
+    METHOD PROTECTED VOID GetFormWidgets (pcFrameName AS CHARACTER, 
+                                          poNode AS JPNode):
+        
         DEFINE VARIABLE oNode  AS JPNode NO-UNDO .
         DEFINE VARIABLE oWith  AS JPNode NO-UNDO . 
         DEFINE VARIABLE oFrame AS JPNode NO-UNDO . 
@@ -152,7 +152,7 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Frame.FrameParser
             oNode = oNode:nextSibling () . 
         END.        
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Parses the given file and returns a list of FRAME names
@@ -160,17 +160,17 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Frame.FrameParser
         @param pcFileName The name of the file to parse
         @return The CharacterList of Frame names
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC CharacterList GetFrameNames (pcFileName AS CHARACTER):
-		
+    METHOD PUBLIC CharacterList GetFrameNames (pcFileName AS CHARACTER):
+        
         DEFINE VARIABLE oParseUnit   AS ParseUnit         NO-UNDO . 
         DEFINE VARIABLE oNodeWrapper AS JPNodesWrapper    NO-UNDO . 
         DEFINE VARIABLE oEnumerator  AS JPNodesEnumerator NO-UNDO . 
         DEFINE VARIABLE oList        AS CharacterList     NO-UNDO . 
         DEFINE VARIABLE cId          AS CHARACTER         NO-UNDO .
-		
-		oList = NEW CharacterList () .
-		
-	    THIS-OBJECT:Initialize () .
+        
+        oList = NEW CharacterList () .
+        
+        THIS-OBJECT:Initialize () .
 
         THIS-OBJECT:PublishStatus ("Parsing source code.":U) . 
         
@@ -196,10 +196,10 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Frame.FrameParser
 
         FINALLY:
             GarbageCollectorHelper:DeleteObject (oNodeWrapper) .
-            GarbageCollectorHelper:DeleteObject (oParseUnit) .		
+            GarbageCollectorHelper:DeleteObject (oParseUnit) .        
         END FINALLY.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Parses the given file for the given frame name and returns a temp-table
@@ -209,10 +209,10 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Frame.FrameParser
         @param pcFrameName The name of the frame to return the widgets for
         @param ttFrameWidget OUTPUT TABLE The temp-table with the frame widget information
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID GetFrameWidgets (pcFileName AS CHARACTER,
-	                                    pcFrameName AS CHARACTER,
-	                                    OUTPUT TABLE ttFrameWidget):
-		
+    METHOD PUBLIC VOID GetFrameWidgets (pcFileName AS CHARACTER,
+                                        pcFrameName AS CHARACTER,
+                                        OUTPUT TABLE ttFrameWidget):
+        
         DEFINE VARIABLE oParseUnit        AS ParseUnit                 NO-UNDO . 
         DEFINE VARIABLE oNodeWrapper      AS JPNodesWrapper            NO-UNDO . 
         DEFINE VARIABLE oFormatNode       AS JPNode                    NO-UNDO .  
@@ -386,17 +386,17 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Frame.FrameParser
             EMPTY TEMP-TABLE ttWidget .
         END FINALLY.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Parses a DEFINE FRAME or FORM statement node
         Notes:   
         @param poNode The Node to process
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID ProcessFrameWidgets (poNode AS JPNode):
-		
+    METHOD PROTECTED VOID ProcessFrameWidgets (poNode AS JPNode):
+        
         DEFINE VARIABLE oFrameNodeWrapper AS JPNodesWrapper            NO-UNDO .
-		
+        
         DEFINE VARIABLE oCurrentNode      AS JPNode                    NO-UNDO .  
         DEFINE VARIABLE oFormatNode       AS JPNode                    NO-UNDO .  
         DEFINE VARIABLE oViewAsNode       AS JPNode                    NO-UNDO .  
@@ -412,7 +412,7 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Frame.FrameParser
         DEFINE VARIABLE oBufferFieldName  AS BufferFieldName           NO-UNDO .
         DEFINE VARIABLE hBuffer           AS HANDLE                    NO-UNDO .
         DEFINE VARIABLE hField            AS HANDLE                    NO-UNDO .
-		
+        
         ASSIGN oFrameNodeWrapper = NEW JPNodesWrapper (poNode) 
                oFrameNodeWrapper:NodeTypeFilter = "Form_Item":U .
         
@@ -536,7 +536,7 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Frame.FrameParser
             RELEASE ttFrameWidget .
         END.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Destructor for the FrameParser class 

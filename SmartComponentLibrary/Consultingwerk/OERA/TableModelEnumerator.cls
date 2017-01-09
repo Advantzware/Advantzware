@@ -12,8 +12,8 @@
 /*------------------------------------------------------------------------
     File        : TableModelEnumerator
     Purpose     : Enumerator for TableModel instances
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Thu Jun 11 03:46:04 CEST 2015
     Notes       : SCL-844
@@ -21,74 +21,74 @@
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
+USING Consultingwerk.Assertion.*      FROM PROPATH .
 USING Consultingwerk.Framework.Base.* FROM PROPATH .
-USING Consultingwerk.OERA.*           FROM PROPATH .  
+USING Consultingwerk.OERA.*           FROM PROPATH .
 USING Progress.Lang.*                 FROM PROPATH .
-USING Consultingwerk.Assertion.* FROM PROPATH.
 
-CLASS Consultingwerk.OERA.TableModelEnumerator 
-    IMPLEMENTS IEnumerator: 
+CLASS Consultingwerk.OERA.TableModelEnumerator
+    IMPLEMENTS IEnumerator:
 
-    DEFINE VARIABLE lGetNext AS LOGICAL NO-UNDO INIT FALSE .
-
-    /*------------------------------------------------------------------------------
-        Purpose: Returns the current item of the enumeration                                                                     
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Current AS Progress.Lang.Object NO-UNDO 
-	GET:
-	    RETURN THIS-OBJECT:TableModel .
-	END GET . 
+    DEFINE VARIABLE lGetNext AS LOGICAL NO-UNDO INITIAL FALSE .
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns the TableModel this enumerator is enumerating 
-        Notes:   
+        Purpose: Returns the current item of the enumeration
+        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY TableModel AS TableModel NO-UNDO 
-	GET.
-	PRIVATE SET. 
+    DEFINE PUBLIC PROPERTY Current AS Progress.Lang.Object NO-UNDO
+    GET:
+        RETURN THIS-OBJECT:TableModel .
+    END GET .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the TableModel this enumerator is enumerating
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY TableModel AS TableModel NO-UNDO
+    GET.
+    PRIVATE SET.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the TableModelEnumerator class
-        Notes:   
+        Notes:
         @param poTableModel The TableModel this enumerator is enumerating
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC TableModelEnumerator (poTableModel AS TableModel):
-		SUPER ().
-		
-		{Consultingwerk/Assertion/ObjectAssert/IsValid.i  poTableModel """poTableModel"":U"} .
-		
-		ASSIGN THIS-OBJECT:TableModel = poTableModel .
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC TableModelEnumerator (poTableModel AS TableModel):
+        SUPER ().
+
+        {Consultingwerk/Assertion/ObjectAssert/IsValid.i  poTableModel """poTableModel"":U"} .
+
+        ASSIGN THIS-OBJECT:TableModel = poTableModel .
+
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Moves the enumerator to the next item                                                                        
-        Notes:                      
-        @return True when the next item is available, false when not.                                                  
+        Purpose: Moves the enumerator to the next item
+        Notes:
+        @return True when the next item is available, false when not.
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL MoveNext ():
+    METHOD PUBLIC LOGICAL MoveNext ():
 
-		IF NOT lGetNext THEN  
-	        RETURN THIS-OBJECT:TableModel:Available .
-		ELSE 
-		    RETURN THIS-OBJECT:TableModel:GetNext () .
+        IF NOT lGetNext THEN
+            RETURN THIS-OBJECT:TableModel:Available .
+        ELSE
+            RETURN THIS-OBJECT:TableModel:GetNext () .
 
         FINALLY:
-            ASSIGN lGetNext = TRUE . 
+            ASSIGN lGetNext = TRUE .
         END FINALLY.
-		
-	END METHOD .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Resets the Enumerator (starts enumerating from the first item on)                                                                       
-        Notes:                                                                        
+        Purpose: Resets the Enumerator (starts enumerating from the first item on)
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID Reset ():
-		
-		THIS-OBJECT:TableModel:GetFirst() .
-		ASSIGN lGetNext = FALSE . 
+    METHOD PUBLIC VOID Reset ():
 
-	END METHOD .
+        THIS-OBJECT:TableModel:GetFirst() .
+        ASSIGN lGetNext = FALSE .
+
+    END METHOD .
 
 END CLASS.

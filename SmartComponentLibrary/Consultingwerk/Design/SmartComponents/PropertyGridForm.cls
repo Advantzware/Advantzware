@@ -8,15 +8,15 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/  
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : PropertyGridForm
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Tue Nov 09 23:00:09 CET 2010
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 USING Progress.Lang.*.
@@ -24,41 +24,42 @@ USING Consultingwerk.Forms.BaseForm.
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-CLASS Consultingwerk.Design.SmartComponents.PropertyGridForm INHERITS BaseForm: 
-    
+CLASS Consultingwerk.Design.SmartComponents.PropertyGridForm INHERITS BaseForm:
+
     DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE propertyGrid1 AS System.Windows.Forms.PropertyGrid NO-UNDO.
 
-        
-    DEFINE PUBLIC PROPERTY PropertyGrid AS System.Windows.Forms.PropertyGrid NO-UNDO 
+
+    DEFINE PUBLIC PROPERTY PropertyGrid AS System.Windows.Forms.PropertyGrid NO-UNDO
     GET.
-    PRIVATE SET. 
+    PRIVATE SET.
 
     CONSTRUCTOR PUBLIC PropertyGridForm (  ):
-        
-        
+
+
         SUPER().
         InitializeComponent().
-        
-        THIS-OBJECT:PropertyGrid = THIS-OBJECT:propertyGrid1 . 
-        
+
+        THIS-OBJECT:PropertyGrid = THIS-OBJECT:propertyGrid1 .
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
     END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:propertyGrid1 = NEW System.Windows.Forms.PropertyGrid().
         THIS-OBJECT:SuspendLayout().

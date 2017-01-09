@@ -11,15 +11,15 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : IServiceCreator
-    Purpose     : Supports lazy loading of service requested from the 
+    Purpose     : Supports lazy loading of service requested from the
                   Service Container (Consultingwerk/get-service.i)
-    Syntax      : 
+    Syntax      :
     Description : Classes implementing the IServiceCreator interface may
                   act as a factory for services loaded at first request
                   rather than during application startup. The ServiceContainer
-                  will call into the IServiceCreator registered as a service 
-                  to instantiate the service. As a logical consequence, 
-                  classes implementing the IServiceCreator interface can 
+                  will call into the IServiceCreator registered as a service
+                  to instantiate the service. As a logical consequence,
+                  classes implementing the IServiceCreator interface can
                   never be used as an actual service - but that's a limitation
                   which is considered to be acceptable
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
@@ -28,18 +28,18 @@
                   SCL-573
   ----------------------------------------------------------------------*/
 
-USING Consultingwerk.Framework.* FROM PROPATH .  
-USING Progress.Lang.* FROM PROPATH.
+USING Consultingwerk.Framework.* FROM PROPATH .
+USING Progress.Lang.*            FROM PROPATH .
 
-INTERFACE Consultingwerk.Framework.IServiceCreator:  
-  
-    /*------------------------------------------------------------------------------
-        Purpose: Creates a service instance 
-        Notes:   Factory method for services referenced by the provided service type
-                 (typically an interface)
-        @param poType The service type to create an instance of
-        @return The created service instance
-    ------------------------------------------------------------------------------*/
-	METHOD PUBLIC Progress.Lang.Object CreateInstance (poType AS Progress.Lang.Class).
+INTERFACE Consultingwerk.Framework.IServiceCreator:
+
+    /**
+     * Purpose: Creates a service instance
+     * Notes:   Factory method for services referenced by the provided service type
+     *          (typically an interface)
+     * @param poType The service type to create an instance of
+     * @return The created service instance
+     */
+    METHOD PUBLIC Progress.Lang.Object CreateInstance (poType AS Progress.Lang.Class).
 
 END INTERFACE.

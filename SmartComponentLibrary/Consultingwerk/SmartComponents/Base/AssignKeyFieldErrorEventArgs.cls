@@ -49,9 +49,9 @@ CLASS Consultingwerk.SmartComponents.Base.AssignKeyFieldErrorEventArgs
         Purpose: Returns the Error associated with this event 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Error AS Progress.Lang.Error NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    DEFINE PUBLIC PROPERTY Error AS Progress.Lang.Error NO-UNDO 
+    GET.
+    PROTECTED SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the AssignKeyFieldErrorEventArgs class
@@ -60,15 +60,15 @@ CLASS Consultingwerk.SmartComponents.Base.AssignKeyFieldErrorEventArgs
         @param pcBufferName The name of the buffer that cause the issue
         @param pcFieldName The name of the field that caused the issue
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC AssignKeyFieldErrorEventArgs (err AS Progress.Lang.Error,
-	                                                 pcBufferName AS CHARACTER, 
-	                                                 pcFieldName AS CHARACTER):
-		SUPER ().
-		
-		ASSIGN THIS-OBJECT:Error      = err 
-		       THIS-OBJECT:BufferName = pcBufferName 
-		       THIS-OBJECT:FieldName  = pcFieldName . 
-				
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC AssignKeyFieldErrorEventArgs (err AS Progress.Lang.Error,
+                                                     pcBufferName AS CHARACTER, 
+                                                     pcFieldName AS CHARACTER):
+        SUPER ().
+        
+        ASSIGN THIS-OBJECT:Error      = err 
+               THIS-OBJECT:BufferName = pcBufferName 
+               THIS-OBJECT:FieldName  = pcFieldName . 
+                
+    END CONSTRUCTOR.
 
 END CLASS.

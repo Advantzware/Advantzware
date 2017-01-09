@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2006-2014 by Consultingwerk Ltd. ("CW") -            *
+ * Copyright (C) 2006-2016 by Consultingwerk Ltd. ("CW") -            *
  * www.consultingwerk.de and other contributors as listed             *
  * below.  All Rights Reserved.                                       *
  *                                                                    *
@@ -18,11 +18,13 @@
     Description :  
 
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
-    Created     : 26.09.2014 15:48:43
+    Created     : 31.05.2016 14:13:09
     Notes       :
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
+
+@BusinessEntityGenerator (entityname="Consultingwerk.OERA.Context.ContextBusinessEntity", type="TempTable") .
 
 DEFINE {&ACCESS} TEMP-TABLE eContextProperties{&SUFFIX} NO-UNDO {&REFERENCE-ONLY} &IF DEFINED (NO-BEFORE) EQ 0 &THEN BEFORE-TABLE eContextPropertyBefore{&SUFFIX} &ENDIF
     FIELD PropertyName AS CHARACTER FORMAT "X(40)":U

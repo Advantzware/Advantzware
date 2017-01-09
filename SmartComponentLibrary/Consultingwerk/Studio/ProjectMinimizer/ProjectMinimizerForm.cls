@@ -8,16 +8,16 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : ProjectMinimizerForm
-    Purpose     : Provides an user interface that provides a minimized      
-                  file set to run a program function             
-    Syntax      : 
-    Description : 
+    Purpose     : Provides an user interface that provides a minimized
+                  file set to run a program function
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sun Jul 03 08:31:09 CEST 2011
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -30,12 +30,12 @@ USING Consultingwerk.Studio.ProjectMinimizer.* FROM PROPATH .
 USING Consultingwerk.Util.*                    FROM PROPATH .
 USING Progress.Lang.*                          FROM PROPATH .
 
-CLASS Consultingwerk.Studio.ProjectMinimizer.ProjectMinimizerForm 
+CLASS Consultingwerk.Studio.ProjectMinimizer.ProjectMinimizerForm
 &IF DEFINED (DotNetAccessible) NE 0 &THEN
     INHERITS BaseForm
 &ENDIF
-    : 
-    
+    :
+
 &IF DEFINED (DotNetAccessible) NE 0 &THEN
     DEFINE PRIVATE VARIABLE bindingSource1 AS Progress.Data.BindingSource NO-UNDO.
     DEFINE PRIVATE VARIABLE m_ProjectMinimizerForm_Toolbars_Dock_Area_Top AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
@@ -49,23 +49,23 @@ CLASS Consultingwerk.Studio.ProjectMinimizer.ProjectMinimizerForm
     DEFINE PRIVATE VARIABLE ultraToolbarsManager1 AS Infragistics.Win.UltraWinToolbars.UltraToolbarsManager NO-UNDO.
     DEFINE PRIVATE VARIABLE ProjectMinimizerForm_Fill_Panel AS System.Windows.Forms.Panel NO-UNDO.
 
-    DEFINE VARIABLE oParser AS LogFileParser NO-UNDO . 
-        
-    DEFINE VARIABLE oProgressBarInfo AS Infragistics.Win.UltraWinStatusBar.ProgressBarInfo NO-UNDO .     
-        
-    DEFINE VARIABLE hQuery AS HANDLE NO-UNDO.        
-        
+    DEFINE VARIABLE oParser AS LogFileParser NO-UNDO .
+
+    DEFINE VARIABLE oProgressBarInfo AS Infragistics.Win.UltraWinStatusBar.ProgressBarInfo NO-UNDO .
+
+    DEFINE VARIABLE hQuery AS HANDLE NO-UNDO.
+
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the ProjectMinimizerForm class                                                                         
-        Notes:                                                                        
+        Purpose: Constructor for the ProjectMinimizerForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC ProjectMinimizerForm ():
-        
+
         SUPER().
         InitializeComponent().
-        
+
         oProgressBarInfo = THIS-OBJECT:ultraStatusBar1:Panels ["progress":U]:ProgressBarInfo .
-         
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
@@ -73,50 +73,51 @@ CLASS Consultingwerk.Studio.ProjectMinimizer.ProjectMinimizerForm
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Closes the log file                                                                       
-        Notes:                                                                        
+        Purpose: Closes the log file
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID CloseLogFile ():
-        
+
         THIS-OBJECT:ultraStatusBar1:Panels ["progress":U]:Visible = FALSE .
         SetStatus ("Log file closed."{&TRAN}) .
 
         THIS-OBJECT:ultraToolbarsManager1:Tools["Open":U]:SharedProps:Enabled = TRUE .
         THIS-OBJECT:ultraToolbarsManager1:Tools["Close":U]:SharedProps:Enabled = FALSE .
-        
+
         hQuery:QUERY-PREPARE ("for each ttProcedures where RunName = ?":U) .
         hQuery:QUERY-OPEN ().
-        
+
         bindingSource1:RefreshAll() .
-        
+
         ultraGrid1:Enabled = FALSE .
-        
-        IF VALID-OBJECT (oParser) THEN 
+
+        IF VALID-OBJECT (oParser) THEN
             DELETE OBJECT oParser .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Closes the Form                                                                       
-        Notes:                                                                        
+        Purpose: Closes the Form
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID Exit ():
-        
+
         THIS-OBJECT:Close () .
 
     END METHOD.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -531,20 +532,20 @@ CLASS Consultingwerk.Studio.ProjectMinimizer.ProjectMinimizerForm
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Opens a log file                                                                       
-        Notes:                                                                        
+        Purpose: Opens a log file
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID OpenLogFile ():
-        
-        DEFINE VARIABLE oDialogResult AS System.Windows.Forms.DialogResult NO-UNDO . 
-        
-        WAIT-FOR openFileDialog1:ShowDialog (THIS-OBJECT) SET oDialogResult . 
-        
-        {Consultingwerk/check-dialogresult-ok.i oDialogResult} . 
 
-        ultraToolbarsManager1:Enabled = FALSE . 
+        DEFINE VARIABLE oDialogResult AS System.Windows.Forms.DialogResult NO-UNDO .
 
-        SetStatus (openFileDialog1:FileName) . 
+        WAIT-FOR openFileDialog1:ShowDialog (THIS-OBJECT) SET oDialogResult .
+
+        {Consultingwerk/check-dialogresult-ok.i oDialogResult} .
+
+        ultraToolbarsManager1:Enabled = FALSE .
+
+        SetStatus (openFileDialog1:FileName) .
 
         THIS-OBJECT:ultraToolbarsManager1:Tools["Open":U]:SharedProps:Enabled = FALSE .
         THIS-OBJECT:ultraToolbarsManager1:Tools["Close":U]:SharedProps:Enabled = TRUE .
@@ -552,53 +553,53 @@ CLASS Consultingwerk.Studio.ProjectMinimizer.ProjectMinimizerForm
         ASSIGN oParser = NEW LogFileParser (openFileDialog1:FileName) .
 
         oParser:ProgressChanged:Subscribe (ParserProgressChangedHandler) .
-        oParser:ParseLogFile() .            
+        oParser:ParseLogFile() .
 
         hQuery = Consultingwerk.Util.QueryHelper:CreatePreparedQuery (oParser:TempTableBuffer) .
-        
-        bindingSource1:HANDLE = hQuery . 
+
+        bindingSource1:HANDLE = hQuery .
 
         ultraGrid1:Enabled = TRUE .
 
         CATCH err AS Progress.Lang.Error:
             ErrorHelper:ShowErrorMessage (err) .
-            
-            CloseLogFile() .    
+
+            CloseLogFile() .
         END CATCH.
 
         FINALLY:
-            ultraToolbarsManager1:Enabled = TRUE .        
-            THIS-OBJECT:ultraStatusBar1:Panels ["progress":U]:Visible = FALSE .    
+            ultraToolbarsManager1:Enabled = TRUE .
+            THIS-OBJECT:ultraStatusBar1:Panels ["progress":U]:Visible = FALSE .
         END FINALLY.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the ProgressChangedHandler event of the parser instance                                                                        
-        Notes:                                                                        
+        Purpose: Event handler for the ProgressChangedHandler event of the parser instance
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The ProgressChangedEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID ParserProgressChangedHandler (sender AS Progress.Lang.Object,
                                                         e AS ProgressChangedEventArgs):
 
-        ASSIGN         
+        ASSIGN
             oProgressBarInfo:Value = e:Value
             oProgressBarInfo:Maximum= e:Maximum .
-            
-        PROCESS EVENTS . 
-                     
+
+        PROCESS EVENTS .
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Sets the status bar text                                                                        
-        Notes:                            
-        @param pcStatus The text for the status bar                                            
+        Purpose: Sets the status bar text
+        Notes:
+        @param pcStatus The text for the status bar
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID SetStatus (pcStatus AS CHARACTER):
-        
+
         THIS-OBJECT:ultraStatusBar1:Panels ["status":U]:Text = pcStatus .
-        PROCESS EVENTS . 
+        PROCESS EVENTS .
 
     END METHOD.
 
@@ -606,28 +607,28 @@ CLASS Consultingwerk.Studio.ProjectMinimizer.ProjectMinimizerForm
         Purpose: Event handler for the ToolClick event of the ultraToolbarsManager1
         Notes:
         @param sender The reference to the object that raised the event
-        @param e The ToolClickEventArgs with the data for this event                                                                        
+        @param e The ToolClickEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraToolbarsManager1_ToolClick (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraToolbarsManager1_ToolClick (sender AS System.Object,
                                                          e AS Infragistics.Win.UltraWinToolbars.ToolClickEventArgs):
-        
+
         CASE e:Tool:Key:
-            WHEN "Open":U THEN 
+            WHEN "Open":U THEN
                 OpenLogFile () .
-            
-            WHEN "Close":U THEN  
+
+            WHEN "Close":U THEN
                 CloseLogFile () .
-            
+
             WHEN "Exit":U THEN
                 Exit () .
-                               
-        END CASE . 
+
+        END CASE .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the ProjectMinimizerForm class                                                                         
-        Notes:                                                                        
+        Purpose: Destructor for the ProjectMinimizerForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC ProjectMinimizerForm ( ):
 

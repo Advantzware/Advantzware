@@ -116,13 +116,113 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"/>
+  <data name="ultraExplorerBar1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 18</value>
+  </data>
+  <data name="ultraExplorerBar1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>205, 399</value>
+  </data>
+  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="ultraExplorerBar1.TabIndex" type="System.Int32, mscorlib">
+    <value>5</value>
+  </data>
+  <data name="&gt;&gt;ultraExplorerBar1.Name" xml:space="preserve">
+    <value>ultraExplorerBar1</value>
+  </data>
+  <data name="&gt;&gt;ultraExplorerBar1.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinExplorerBar.UltraExplorerBar, Infragistics4.Win.UltraWinExplorerBar.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraExplorerBar1.Parent" xml:space="preserve">
+    <value>dockableWindow1</value>
+  </data>
+  <data name="&gt;&gt;ultraExplorerBar1.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="ultraGridColumnChooser1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 18</value>
+  </data>
+  <data name="ultraGridColumnChooser1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>199, 373</value>
+  </data>
+  <data name="ultraGridColumnChooser1.TabIndex" type="System.Int32, mscorlib">
+    <value>20</value>
+  </data>
+  <data name="ultraGridColumnChooser1.Text" xml:space="preserve">
+    <value>Column Chooser</value>
+  </data>
+  <data name="&gt;&gt;ultraGridColumnChooser1.Name" xml:space="preserve">
+    <value>ultraGridColumnChooser1</value>
+  </data>
+  <data name="&gt;&gt;ultraGridColumnChooser1.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinGrid.UltraGridColumnChooser, Infragistics4.Win.UltraWinGrid.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraGridColumnChooser1.Parent" xml:space="preserve">
+    <value>dockableWindow6</value>
+  </data>
+  <data name="&gt;&gt;ultraGridColumnChooser1.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="logManagerSettings1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 18</value>
+  </data>
+  <data name="logManagerSettings1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>179, 398</value>
+  </data>
+  <data name="logManagerSettings1.TabIndex" type="System.Int32, mscorlib">
+    <value>29</value>
+  </data>
+  <data name="&gt;&gt;logManagerSettings1.Name" xml:space="preserve">
+    <value>logManagerSettings1</value>
+  </data>
+  <data name="&gt;&gt;logManagerSettings1.Type" xml:space="preserve">
+    <value>Consultingwerk.Windows.Util.Controls.LogManagerSettings, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;logManagerSettings1.Parent" xml:space="preserve">
+    <value>dockableWindow3</value>
+  </data>
+  <data name="&gt;&gt;logManagerSettings1.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="backgroundJobMonitorControl1.AutoScroll" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="backgroundJobMonitorControl1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>21, 171</value>
+  </data>
+  <data name="backgroundJobMonitorControl1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>847, 77</value>
+  </data>
+  <data name="backgroundJobMonitorControl1.TabIndex" type="System.Int32, mscorlib">
+    <value>42</value>
+  </data>
+  <data name="&gt;&gt;backgroundJobMonitorControl1.Name" xml:space="preserve">
+    <value>backgroundJobMonitorControl1</value>
+  </data>
+  <data name="&gt;&gt;backgroundJobMonitorControl1.Type" xml:space="preserve">
+    <value>Consultingwerk.Windows.BackgroundOperation.BackgroundJobMonitorControl, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;backgroundJobMonitorControl1.Parent" xml:space="preserve">
+    <value>dockableWindow4</value>
+  </data>
+  <data name="&gt;&gt;backgroundJobMonitorControl1.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
   <metadata name="ultraTabbedMdiManager1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
+  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing">
+    <value>884, 612</value>
+  </data>
+  <data name="dockableWindow6.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 0</value>
+  </data>
   <metadata name="ultraDockManager1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>198, 17</value>
   </metadata>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"/>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance1.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6
@@ -141,6 +241,9 @@
         9+OzdacYlC1/b/h3SCQ/AXpP1iEadBjoAAAAAElFTkSuQmCC
 </value>
   </data>
+  <data name="dockableControlPane1.Text" xml:space="preserve">
+    <value>Application Menu</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance2.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAL
@@ -155,6 +258,9 @@
         ooMA3jE7zbBdGJYLTVw1neHO1N0S4Uz+3bHQ1sJD5EAQIPMRDAhdDhi2rHJo2HG8MpEd6D41gZYkn0nM
         KY5wJLMCGYzr6Mie96wcGiX347K/kSsc/wGALEojnUpTAgAAAABJRU5ErkJggg==
 </value>
+  </data>
+  <data name="dockableControlPane2.Text" xml:space="preserve">
+    <value>Column Chooser</value>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance3.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
@@ -176,6 +282,9 @@
         OF8VfY6CxfoFPLpmSLQ3itkAAAAASUVORK5CYII=
 </value>
   </data>
+  <data name="dockableControlPane3.Text" xml:space="preserve">
+    <value>Logfile Settings</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance4.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAL
@@ -190,6 +299,96 @@
         946oUdSY6cRVNn0xhHIwj7/aWkpe3GnZq1EhLCdeJ7dyZcbPfLm8WaQzDWrPf/JvJ/oNam6ASFdKne8A
         AAAASUVORK5CYII=
 </value>
+  </data>
+  <data name="dockableControlPane4.Text" xml:space="preserve">
+    <value>Job Monitor</value>
+  </data>
+  <data name="dockableWindow6.Size" type="System.Drawing.Size, System.Drawing">
+    <value>205, 392</value>
+  </data>
+  <data name="dockableWindow6.TabIndex" type="System.Int32, mscorlib">
+    <value>50</value>
+  </data>
+  <data name="&gt;&gt;dockableWindow6.Name" xml:space="preserve">
+    <value>dockableWindow6</value>
+  </data>
+  <data name="&gt;&gt;dockableWindow6.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinDock.DockableWindow, Infragistics4.Win.UltraWinDock.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;dockableWindow6.Parent" xml:space="preserve">
+    <value>m_CustomerExplorerAutoHideControl</value>
+  </data>
+  <data name="&gt;&gt;dockableWindow6.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="dockableWindow3.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="dockableWindow3.Size" type="System.Drawing.Size, System.Drawing">
+    <value>205, 392</value>
+  </data>
+  <data name="dockableWindow3.TabIndex" type="System.Int32, mscorlib">
+    <value>51</value>
+  </data>
+  <data name="&gt;&gt;dockableWindow3.Name" xml:space="preserve">
+    <value>dockableWindow3</value>
+  </data>
+  <data name="&gt;&gt;dockableWindow3.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinDock.DockableWindow, Infragistics4.Win.UltraWinDock.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;dockableWindow3.Parent" xml:space="preserve">
+    <value>m_CustomerExplorerAutoHideControl</value>
+  </data>
+  <data name="&gt;&gt;dockableWindow3.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="dockableWindow4.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="dockableWindow4.Size" type="System.Drawing.Size, System.Drawing">
+    <value>205, 418</value>
+  </data>
+  <data name="dockableWindow4.TabIndex" type="System.Int32, mscorlib">
+    <value>52</value>
+  </data>
+  <data name="&gt;&gt;dockableWindow4.Name" xml:space="preserve">
+    <value>dockableWindow4</value>
+  </data>
+  <data name="&gt;&gt;dockableWindow4.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinDock.DockableWindow, Infragistics4.Win.UltraWinDock.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;dockableWindow4.Parent" xml:space="preserve">
+    <value>m_CustomerExplorerAutoHideControl</value>
+  </data>
+  <data name="&gt;&gt;dockableWindow4.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="m_CustomerExplorerAutoHideControl.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 8.25pt</value>
+  </data>
+  <data name="m_CustomerExplorerAutoHideControl.Location" type="System.Drawing.Point, System.Drawing">
+    <value>841, 177</value>
+  </data>
+  <data name="m_CustomerExplorerAutoHideControl.Size" type="System.Drawing.Size, System.Drawing">
+    <value>14, 391</value>
+  </data>
+  <data name="m_CustomerExplorerAutoHideControl.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="&gt;&gt;m_CustomerExplorerAutoHideControl.Name" xml:space="preserve">
+    <value>m_CustomerExplorerAutoHideControl</value>
+  </data>
+  <data name="&gt;&gt;m_CustomerExplorerAutoHideControl.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinDock.AutoHideControl, Infragistics4.Win.UltraWinDock.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;m_CustomerExplorerAutoHideControl.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;m_CustomerExplorerAutoHideControl.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="ultraPictureBox1.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="ultraPictureBox1.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
@@ -363,9 +562,310 @@
         0cfu0UYGRsikgT7yPRXy+ZYSUMTKNCl7nS12mrKzv1utX5vpserhaylSTqT97rey166H/9k=
 </value>
   </data>
+  <data name="ultraPictureBox1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>1051, 63</value>
+  </data>
+  <data name="ultraPictureBox1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>133, 32</value>
+  </data>
+  <data name="ultraPictureBox1.TabIndex" type="System.Int32, mscorlib">
+    <value>36</value>
+  </data>
+  <data name="&gt;&gt;ultraPictureBox1.Name" xml:space="preserve">
+    <value>ultraPictureBox1</value>
+  </data>
+  <data name="&gt;&gt;ultraPictureBox1.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraPictureBox, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraPictureBox1.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraPictureBox1.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="windowDockingArea2.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Right</value>
+  </data>
+  <data name="windowDockingArea2.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 8.25pt</value>
+  </data>
+  <data name="windowDockingArea2.Location" type="System.Drawing.Point, System.Drawing">
+    <value>651, 152</value>
+  </data>
+  <data name="windowDockingArea2.Size" type="System.Drawing.Size, System.Drawing">
+    <value>204, 416</value>
+  </data>
+  <data name="windowDockingArea2.TabIndex" type="System.Int32, mscorlib">
+    <value>8</value>
+  </data>
+  <data name="&gt;&gt;windowDockingArea2.Name" xml:space="preserve">
+    <value>windowDockingArea2</value>
+  </data>
+  <data name="&gt;&gt;windowDockingArea2.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinDock.WindowDockingArea, Infragistics4.Win.UltraWinDock.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;windowDockingArea2.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;windowDockingArea2.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="windowDockingArea5.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Right</value>
+  </data>
+  <data name="windowDockingArea5.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 8.25pt</value>
+  </data>
+  <data name="windowDockingArea5.Location" type="System.Drawing.Point, System.Drawing">
+    <value>671, 164</value>
+  </data>
+  <data name="windowDockingArea5.Size" type="System.Drawing.Size, System.Drawing">
+    <value>184, 404</value>
+  </data>
+  <data name="windowDockingArea5.TabIndex" type="System.Int32, mscorlib">
+    <value>30</value>
+  </data>
+  <data name="&gt;&gt;windowDockingArea5.Name" xml:space="preserve">
+    <value>windowDockingArea5</value>
+  </data>
+  <data name="&gt;&gt;windowDockingArea5.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinDock.WindowDockingArea, Infragistics4.Win.UltraWinDock.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;windowDockingArea5.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;windowDockingArea5.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="windowDockingArea6.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Bottom</value>
+  </data>
+  <data name="windowDockingArea6.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 8.25pt</value>
+  </data>
+  <data name="windowDockingArea6.Location" type="System.Drawing.Point, System.Drawing">
+    <value>218, 468</value>
+  </data>
+  <data name="windowDockingArea6.Size" type="System.Drawing.Size, System.Drawing">
+    <value>637, 100</value>
+  </data>
+  <data name="windowDockingArea6.TabIndex" type="System.Int32, mscorlib">
+    <value>43</value>
+  </data>
+  <data name="&gt;&gt;windowDockingArea6.Name" xml:space="preserve">
+    <value>windowDockingArea6</value>
+  </data>
+  <data name="&gt;&gt;windowDockingArea6.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinDock.WindowDockingArea, Infragistics4.Win.UltraWinDock.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;windowDockingArea6.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;windowDockingArea6.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <data name="dockableWindow1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="dockableWindow1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>205, 417</value>
+  </data>
+  <data name="dockableWindow1.TabIndex" type="System.Int32, mscorlib">
+    <value>49</value>
+  </data>
+  <data name="&gt;&gt;dockableWindow1.Name" xml:space="preserve">
+    <value>dockableWindow1</value>
+  </data>
+  <data name="&gt;&gt;dockableWindow1.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinDock.DockableWindow, Infragistics4.Win.UltraWinDock.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;dockableWindow1.Parent" xml:space="preserve">
+    <value>windowDockingArea1</value>
+  </data>
+  <data name="&gt;&gt;dockableWindow1.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="windowDockingArea1.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Left</value>
+  </data>
+  <data name="windowDockingArea1.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 8.25pt</value>
+  </data>
+  <data name="windowDockingArea1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>8, 151</value>
+  </data>
+  <data name="windowDockingArea1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>210, 417</value>
+  </data>
+  <data name="windowDockingArea1.TabIndex" type="System.Int32, mscorlib">
+    <value>7</value>
+  </data>
+  <data name="&gt;&gt;windowDockingArea1.Name" xml:space="preserve">
+    <value>windowDockingArea1</value>
+  </data>
+  <data name="&gt;&gt;windowDockingArea1.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinDock.WindowDockingArea, Infragistics4.Win.UltraWinDock.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;windowDockingArea1.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;windowDockingArea1.ZOrder" xml:space="preserve">
+    <value>6</value>
+  </data>
+  <data name="m_CustomerExplorerUnpinnedTabAreaTop.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Top</value>
+  </data>
+  <data name="m_CustomerExplorerUnpinnedTabAreaTop.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 8.25pt</value>
+  </data>
+  <data name="m_CustomerExplorerUnpinnedTabAreaTop.Location" type="System.Drawing.Point, System.Drawing">
+    <value>8, 151</value>
+  </data>
+  <data name="m_CustomerExplorerUnpinnedTabAreaTop.Size" type="System.Drawing.Size, System.Drawing">
+    <value>847, 0</value>
+  </data>
+  <data name="m_CustomerExplorerUnpinnedTabAreaTop.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="&gt;&gt;m_CustomerExplorerUnpinnedTabAreaTop.Name" xml:space="preserve">
+    <value>m_CustomerExplorerUnpinnedTabAreaTop</value>
+  </data>
+  <data name="&gt;&gt;m_CustomerExplorerUnpinnedTabAreaTop.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinDock.UnpinnedTabArea, Infragistics4.Win.UltraWinDock.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;m_CustomerExplorerUnpinnedTabAreaTop.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;m_CustomerExplorerUnpinnedTabAreaTop.ZOrder" xml:space="preserve">
+    <value>7</value>
+  </data>
+  <data name="m_CustomerExplorerUnpinnedTabAreaBottom.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Bottom</value>
+  </data>
+  <data name="m_CustomerExplorerUnpinnedTabAreaBottom.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 8.25pt</value>
+  </data>
+  <data name="m_CustomerExplorerUnpinnedTabAreaBottom.Location" type="System.Drawing.Point, System.Drawing">
+    <value>8, 568</value>
+  </data>
+  <data name="m_CustomerExplorerUnpinnedTabAreaBottom.Size" type="System.Drawing.Size, System.Drawing">
+    <value>847, 21</value>
+  </data>
+  <data name="m_CustomerExplorerUnpinnedTabAreaBottom.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="&gt;&gt;m_CustomerExplorerUnpinnedTabAreaBottom.Name" xml:space="preserve">
+    <value>m_CustomerExplorerUnpinnedTabAreaBottom</value>
+  </data>
+  <data name="&gt;&gt;m_CustomerExplorerUnpinnedTabAreaBottom.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinDock.UnpinnedTabArea, Infragistics4.Win.UltraWinDock.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;m_CustomerExplorerUnpinnedTabAreaBottom.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;m_CustomerExplorerUnpinnedTabAreaBottom.ZOrder" xml:space="preserve">
+    <value>8</value>
+  </data>
+  <data name="m_CustomerExplorerUnpinnedTabAreaLeft.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Left</value>
+  </data>
+  <data name="m_CustomerExplorerUnpinnedTabAreaLeft.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 8.25pt</value>
+  </data>
+  <data name="m_CustomerExplorerUnpinnedTabAreaLeft.Location" type="System.Drawing.Point, System.Drawing">
+    <value>8, 151</value>
+  </data>
+  <data name="m_CustomerExplorerUnpinnedTabAreaLeft.Size" type="System.Drawing.Size, System.Drawing">
+    <value>0, 438</value>
+  </data>
+  <data name="m_CustomerExplorerUnpinnedTabAreaLeft.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="&gt;&gt;m_CustomerExplorerUnpinnedTabAreaLeft.Name" xml:space="preserve">
+    <value>m_CustomerExplorerUnpinnedTabAreaLeft</value>
+  </data>
+  <data name="&gt;&gt;m_CustomerExplorerUnpinnedTabAreaLeft.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinDock.UnpinnedTabArea, Infragistics4.Win.UltraWinDock.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;m_CustomerExplorerUnpinnedTabAreaLeft.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;m_CustomerExplorerUnpinnedTabAreaLeft.ZOrder" xml:space="preserve">
+    <value>9</value>
+  </data>
+  <data name="m_CustomerExplorerUnpinnedTabAreaRight.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Right</value>
+  </data>
+  <data name="m_CustomerExplorerUnpinnedTabAreaRight.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 8.25pt</value>
+  </data>
+  <data name="m_CustomerExplorerUnpinnedTabAreaRight.Location" type="System.Drawing.Point, System.Drawing">
+    <value>855, 151</value>
+  </data>
+  <data name="m_CustomerExplorerUnpinnedTabAreaRight.Size" type="System.Drawing.Size, System.Drawing">
+    <value>21, 438</value>
+  </data>
+  <data name="m_CustomerExplorerUnpinnedTabAreaRight.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="&gt;&gt;m_CustomerExplorerUnpinnedTabAreaRight.Name" xml:space="preserve">
+    <value>m_CustomerExplorerUnpinnedTabAreaRight</value>
+  </data>
+  <data name="&gt;&gt;m_CustomerExplorerUnpinnedTabAreaRight.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinDock.UnpinnedTabArea, Infragistics4.Win.UltraWinDock.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;m_CustomerExplorerUnpinnedTabAreaRight.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;m_CustomerExplorerUnpinnedTabAreaRight.ZOrder" xml:space="preserve">
+    <value>10</value>
+  </data>
+  <data name="m_CustomerExplorer_Toolbars_Dock_Area_Left.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 151</value>
+  </data>
+  <data name="m_CustomerExplorer_Toolbars_Dock_Area_Left.Size" type="System.Drawing.Size, System.Drawing">
+    <value>8, 438</value>
+  </data>
   <metadata name="smartToolbarController1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>497, 17</value>
   </metadata>
+  <data name="contextualTabGroup1.Caption" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="ribbonTab1.Caption" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="ribbonGroup1.Caption" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="ribbonGroup2.Caption" xml:space="preserve">
+    <value>Navigation</value>
+  </data>
+  <data name="ribbonGroup3.Caption" xml:space="preserve">
+    <value>Launch</value>
+  </data>
+  <data name="ribbonTab2.Caption" xml:space="preserve">
+    <value>View</value>
+  </data>
+  <data name="ribbonGroup4.Caption" xml:space="preserve">
+    <value>Windows</value>
+  </data>
+  <data name="ribbonGroup5.Caption" xml:space="preserve">
+    <value>Links</value>
+  </data>
+  <data name="ultraToolbar1.Text" xml:space="preserve">
+    <value>TableIO Toolbar</value>
+  </data>
+  <data name="ultraToolbar2.Text" xml:space="preserve">
+    <value>UltraToolbar1</value>
+  </data>
+  <data name="ultraToolbar3.Text" xml:space="preserve">
+    <value>Navigation Toolbar</value>
+  </data>
+  <data name="ultraToolbar4.Text" xml:space="preserve">
+    <value>View</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance6.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAL
@@ -424,6 +924,15 @@
         AAAASUVORK5CYII=
 </value>
   </data>
+  <data name="buttonTool1.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>First record</value>
+  </data>
+  <data name="buttonTool1.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>First</value>
+  </data>
+  <data name="buttonTool1.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>First record</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance8.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAL
@@ -463,6 +972,15 @@
         OCiziq/CbzFQkGZWIyhD/weWSL4BneHB1LRNvC0AAAAASUVORK5CYII=
 </value>
   </data>
+  <data name="buttonTool6.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Previous record</value>
+  </data>
+  <data name="buttonTool6.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Previous</value>
+  </data>
+  <data name="buttonTool6.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Previous record</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance10.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAL
@@ -501,6 +1019,15 @@
         43fYr76g3Xsla3KYwv8wpLPX6Dz/xtQDYA59EsgGU+iHK2bCWHwBxiM/UTilqpMNpgjlvRztqlh6iME6
         djgeGpe3IqWygwEWCH4BV8nCw3IFu7YAAAAASUVORK5CYII=
 </value>
+  </data>
+  <data name="buttonTool7.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Next record</value>
+  </data>
+  <data name="buttonTool7.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="buttonTool7.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Next record</value>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance12.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
@@ -558,6 +1085,15 @@
         kXgno7mW2SvZ1CSZtHhE0SyxHVEFjSqTFlek0/0Hg9t694xQ7CEAAAAASUVORK5CYII=
 </value>
   </data>
+  <data name="buttonTool8.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Last record</value>
+  </data>
+  <data name="buttonTool8.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Last</value>
+  </data>
+  <data name="buttonTool8.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Last record</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance14.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAL
@@ -593,6 +1129,15 @@
         EHnQexDBWKUaU8I1Ped8UcV9oYK7oJWRzZdxS+0mV8I1tcwdtVwZV5m8FVKJxB/wlKjYVZc8WwAAAABJ
         RU5ErkJggg==
 </value>
+  </data>
+  <data name="buttonTool9.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Add record</value>
+  </data>
+  <data name="buttonTool9.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="buttonTool9.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Add record</value>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance16.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
@@ -638,6 +1183,15 @@
         AShsC9DZwgqFEo5OIhDPzXAoHEWEF4xDIg+FBmXFTQBtW8zkkDrPoVip4ZbOt62h3lIhtU2AZX9Y/wF3
         bFl0+3JHN34e6kzhBjvjRwFPkWUfKI67B/A+m95C31mEAAAAAElFTkSuQmCC
 </value>
+  </data>
+  <data name="buttonTool16.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Copy record</value>
+  </data>
+  <data name="buttonTool16.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="buttonTool16.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Copy record</value>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance18.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
@@ -688,6 +1242,15 @@
         WYRuXRLYOgkxalPi/6o/KYpLuo6eqEJJgQhlssQvR4qT3NZT25PpeWWHNWWDW/PyO6Q7s0r7qw2r6ON/
         xDC/ALw5G/7dTZkbAAAAAElFTkSuQmCC
 </value>
+  </data>
+  <data name="buttonTool17.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Update record</value>
+  </data>
+  <data name="buttonTool17.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Update</value>
+  </data>
+  <data name="buttonTool17.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Update record</value>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance20.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
@@ -750,6 +1313,15 @@
         wWyFRsuSEc5EekYmrHaX/y/YDnCAItiHQgAAAABJRU5ErkJggg==
 </value>
   </data>
+  <data name="buttonTool18.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Save changes</value>
+  </data>
+  <data name="buttonTool18.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="buttonTool18.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Save changes</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance22.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAL
@@ -804,6 +1376,15 @@
         ZAkSCR+B45rkL1DjcuVeCYU6j9icbgpHmkphi1zWU/8FBPEDRbtafeSpQ8oAAAAASUVORK5CYII=
 </value>
   </data>
+  <data name="buttonTool19.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Cancel update</value>
+  </data>
+  <data name="buttonTool19.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="buttonTool19.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Cancel update</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance24.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAL
@@ -857,6 +1438,24 @@
         h7m2uNydReQPiLFB/uRDeL0AAAAASUVORK5CYII=
 </value>
   </data>
+  <data name="buttonTool20.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Delete record</value>
+  </data>
+  <data name="buttonTool20.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="buttonTool20.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Delete record</value>
+  </data>
+  <data name="popupMenuTool6.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>&amp;File</value>
+  </data>
+  <data name="popupMenuTool7.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>&amp;Edit</value>
+  </data>
+  <data name="popupMenuTool8.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>&amp;Options</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance26.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAL
@@ -900,6 +1499,18 @@
         CV6TvynfY8hv5Lc+jHk8l/vJd3iP9rm+vq95Uv5yzDjmzPk/5AeK7vRJMPIAAAAASUVORK5CYII=
 </value>
   </data>
+  <data name="popupMenuTool9.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>&amp;Window</value>
+  </data>
+  <data name="popupMenuTool10.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>&amp;Help</value>
+  </data>
+  <data name="buttonTool22.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>&amp;Exit</value>
+  </data>
+  <data name="mdiWindowListTool2.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>MDIWindowListTool1</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance27.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAL
@@ -931,6 +1542,9 @@
         zoaBrQZUfL2aotJfZfx2cS+S5ev0KGZrPzURrtc1u22ga/7gy1UmLJ3/GfcSSyzxIjo6fwCQx8YZqFjm
         ZgAAAABJRU5ErkJggg==
 </value>
+  </data>
+  <data name="buttonTool34.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Clear</value>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance28.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
@@ -978,6 +1592,9 @@
         B1Aofwf6oFLkIa1CigAAAABJRU5ErkJggg==
 </value>
   </data>
+  <data name="buttonTool36.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Search</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance29.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAL
@@ -1014,6 +1631,12 @@
         DEh55uP3rnTRtbJ/MTbuzsY6kkuBeNRvhEro79ab+bhJGns3rjP2mZM0D4WkQzIkP6HiPSOfxdU6u97+
         v+A3wUB37Wp9d+e1Ojs5q/Xcxt/T87IR33nHO/6XSEj8A++hNygT7hoHAAAAAElFTkSuQmCC
 </value>
+  </data>
+  <data name="popupMenuTool13.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Previous searches</value>
+  </data>
+  <data name="labelTool2.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>(empty)</value>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance30.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
@@ -1086,6 +1709,9 @@
         nrIHBPEbTB4f7Mm+XmsAAAAASUVORK5CYII=
 </value>
   </data>
+  <data name="buttonTool51.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Start new session</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance33.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAL
@@ -1149,6 +1775,9 @@
         rkJggg==
 </value>
   </data>
+  <data name="buttonTool58.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Launch Form</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance35.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
@@ -1190,6 +1819,9 @@
         DC8fobf5SHk2Y7Y8F9fIPC4xEd3d3VDcv38fzc3NaGpq+p+J/e7evcsrqFDw16+pX/mjUPwHQRBe7smA
         dLkAAAAASUVORK5CYII=
 </value>
+  </data>
+  <data name="stateButtonTool27.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Application Menu</value>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance36.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
@@ -1261,6 +1893,102 @@
         XcB9iSXvEZYy1C/9H3yVRcg53OHhq3rvCNUOCOtt65xys4slM4cFIjSE/AlrmKrtzjjPowAAAABJRU5E
         rkJggg==
 </value>
+  </data>
+  <data name="buttonTool35.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Reload Menu</value>
+  </data>
+  <data name="&gt;&gt;m_CustomerExplorer_Toolbars_Dock_Area_Left.Name" xml:space="preserve">
+    <value>m_CustomerExplorer_Toolbars_Dock_Area_Left</value>
+  </data>
+  <data name="&gt;&gt;m_CustomerExplorer_Toolbars_Dock_Area_Left.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;m_CustomerExplorer_Toolbars_Dock_Area_Left.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;m_CustomerExplorer_Toolbars_Dock_Area_Left.ZOrder" xml:space="preserve">
+    <value>11</value>
+  </data>
+  <data name="m_CustomerExplorer_Toolbars_Dock_Area_Right.Location" type="System.Drawing.Point, System.Drawing">
+    <value>876, 151</value>
+  </data>
+  <data name="m_CustomerExplorer_Toolbars_Dock_Area_Right.Size" type="System.Drawing.Size, System.Drawing">
+    <value>8, 438</value>
+  </data>
+  <data name="&gt;&gt;m_CustomerExplorer_Toolbars_Dock_Area_Right.Name" xml:space="preserve">
+    <value>m_CustomerExplorer_Toolbars_Dock_Area_Right</value>
+  </data>
+  <data name="&gt;&gt;m_CustomerExplorer_Toolbars_Dock_Area_Right.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;m_CustomerExplorer_Toolbars_Dock_Area_Right.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;m_CustomerExplorer_Toolbars_Dock_Area_Right.ZOrder" xml:space="preserve">
+    <value>12</value>
+  </data>
+  <data name="m_CustomerExplorer_Toolbars_Dock_Area_Bottom.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 589</value>
+  </data>
+  <data name="m_CustomerExplorer_Toolbars_Dock_Area_Bottom.Size" type="System.Drawing.Size, System.Drawing">
+    <value>884, 0</value>
+  </data>
+  <data name="&gt;&gt;m_CustomerExplorer_Toolbars_Dock_Area_Bottom.Name" xml:space="preserve">
+    <value>m_CustomerExplorer_Toolbars_Dock_Area_Bottom</value>
+  </data>
+  <data name="&gt;&gt;m_CustomerExplorer_Toolbars_Dock_Area_Bottom.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;m_CustomerExplorer_Toolbars_Dock_Area_Bottom.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;m_CustomerExplorer_Toolbars_Dock_Area_Bottom.ZOrder" xml:space="preserve">
+    <value>13</value>
+  </data>
+  <data name="ultraStatusBar1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 589</value>
+  </data>
+  <data name="ultraStatusPanel6.Text" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="ultraStatusBar1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>884, 23</value>
+  </data>
+  <data name="ultraStatusBar1.TabIndex" type="System.Int32, mscorlib">
+    <value>20</value>
+  </data>
+  <data name="ultraStatusBar1.Text" xml:space="preserve">
+    <value>ultraStatusBar1</value>
+  </data>
+  <data name="&gt;&gt;ultraStatusBar1.Name" xml:space="preserve">
+    <value>ultraStatusBar1</value>
+  </data>
+  <data name="&gt;&gt;ultraStatusBar1.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinStatusBar.UltraStatusBar, Infragistics4.Win.UltraWinStatusBar.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraStatusBar1.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraStatusBar1.ZOrder" xml:space="preserve">
+    <value>14</value>
+  </data>
+  <data name="m_CustomerExplorer_Toolbars_Dock_Area_Top.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="m_CustomerExplorer_Toolbars_Dock_Area_Top.Size" type="System.Drawing.Size, System.Drawing">
+    <value>884, 151</value>
+  </data>
+  <data name="&gt;&gt;m_CustomerExplorer_Toolbars_Dock_Area_Top.Name" xml:space="preserve">
+    <value>m_CustomerExplorer_Toolbars_Dock_Area_Top</value>
+  </data>
+  <data name="&gt;&gt;m_CustomerExplorer_Toolbars_Dock_Area_Top.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;m_CustomerExplorer_Toolbars_Dock_Area_Top.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;m_CustomerExplorer_Toolbars_Dock_Area_Top.ZOrder" xml:space="preserve">
+    <value>15</value>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="$this.Icon" type="System.Drawing.Icon, System.Drawing">
     <value>
@@ -1336,9 +2064,72 @@
         AAAAAAAAAAAAAA==
 </value>
   </data>
+  <data name="$this.Text" xml:space="preserve">
+    <value>Consultingwerk SmartComponent Library</value>
+  </data>
+  <data name="$this.WindowPositionRegistryKey" xml:space="preserve">
+    <value>CustomerExplorer</value>
+  </data>
+  <data name="&gt;&gt;ultraTabbedMdiManager1.Name" xml:space="preserve">
+    <value>ultraTabbedMdiManager1</value>
+  </data>
+  <data name="&gt;&gt;ultraTabbedMdiManager1.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinTabbedMdi.UltraTabbedMdiManager, Infragistics4.Win.UltraWinTabbedMdi.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraDockManager1.Name" xml:space="preserve">
+    <value>ultraDockManager1</value>
+  </data>
+  <data name="&gt;&gt;ultraDockManager1.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinDock.UltraDockManager, Infragistics4.Win.UltraWinDock.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;appStylistRuntime1.Name" xml:space="preserve">
+    <value>appStylistRuntime1</value>
+  </data>
+  <data name="&gt;&gt;appStylistRuntime1.Type" xml:space="preserve">
+    <value>Infragistics.Win.AppStyling.Runtime.AppStylistRuntime, Infragistics4.Win.AppStylistSupport.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;smartToolbarController1.Name" xml:space="preserve">
+    <value>smartToolbarController1</value>
+  </data>
+  <data name="&gt;&gt;smartToolbarController1.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartToolbarController, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;ultraDesktopAlert1.Name" xml:space="preserve">
+    <value>ultraDesktopAlert1</value>
+  </data>
+  <data name="&gt;&gt;ultraDesktopAlert1.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraDesktopAlert, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;$this.Name" xml:space="preserve">
+    <value>MainMenuForm</value>
+  </data>
+  <data name="&gt;&gt;$this.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Base.SmartWindowForm, OEProxyAssembly, Version=11.6.0.2, Culture=neutral, PublicKeyToken=null</value>
+  </data>
   <metadata name="appStylistRuntime1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>348, 17</value>
   </metadata>
+  <data name="windowDockingArea4.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Fill</value>
+  </data>
+  <data name="windowDockingArea4.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 8.25pt</value>
+  </data>
+  <data name="windowDockingArea4.Location" type="System.Drawing.Point, System.Drawing">
+    <value>8, 8</value>
+  </data>
+  <data name="windowDockingArea4.Size" type="System.Drawing.Size, System.Drawing">
+    <value>95, 446</value>
+  </data>
+  <data name="windowDockingArea4.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="&gt;&gt;windowDockingArea4.Name" xml:space="preserve">
+    <value>windowDockingArea4</value>
+  </data>
+  <data name="&gt;&gt;windowDockingArea4.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinDock.WindowDockingArea, Infragistics4.Win.UltraWinDock.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
   <metadata name="ultraDesktopAlert1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>671, 17</value>
   </metadata>

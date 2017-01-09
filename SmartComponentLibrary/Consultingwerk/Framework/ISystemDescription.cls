@@ -29,7 +29,7 @@ INTERFACE Consultingwerk.Framework.ISystemDescription:
         Purpose: Returns the description of the current system 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Description AS CHARACTER NO-UNDO 
-	GET.
+    DEFINE PUBLIC PROPERTY Description AS CHARACTER NO-UNDO 
+    GET.
 
 END INTERFACE.

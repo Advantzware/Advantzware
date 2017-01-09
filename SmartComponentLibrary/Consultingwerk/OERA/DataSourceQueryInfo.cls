@@ -54,16 +54,16 @@ CLASS Consultingwerk.OERA.DataSourceQueryInfo
                  class 
     ------------------------------------------------------------------------------*/     
     {Consultingwerk/JsonSerializableProperty.i SourceDefaultQuery CHARACTER} .
-    	 
-	/*------------------------------------------------------------------------------
-	   Purpose: Constructor for the DataSourceQueryInfo class
-	   Notes:
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC DataSourceQueryInfo ():
-		SUPER ().
-		
-		THIS-OBJECT:AddSerializableProperties ("{&SerializableProperties}":U) .
-		
-	END CONSTRUCTOR.
+         
+    /*------------------------------------------------------------------------------
+       Purpose: Constructor for the DataSourceQueryInfo class
+       Notes:
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC DataSourceQueryInfo ():
+        SUPER ().
+        
+        THIS-OBJECT:AddSerializableProperties ("{&SerializableProperties}":U) .
+        
+    END CONSTRUCTOR.
 
 END CLASS.

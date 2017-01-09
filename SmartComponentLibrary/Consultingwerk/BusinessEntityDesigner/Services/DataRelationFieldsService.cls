@@ -114,7 +114,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Services.DataRelationFieldsService I
     
         childindexloop: 
         FOR EACH b_ChildTableIndex OF b_ChildTable
-            WHERE NOT b_ChildTableIndex.IndexWord BY b_ChildTableIndex.IndexOrder:
+            WHERE NOT b_ChildTableIndex.IndexWordIndex BY b_ChildTableIndex.IndexOrder:
             
             DO i = 1 TO NUM-ENTRIES (b_ChildTableIndex.FieldNames):
                  IF NOT CAN-FIND (b_ParentTableField OF b_ParentTable 
@@ -142,7 +142,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Services.DataRelationFieldsService I
            When there was not matching ChildTable's index, try the other way around */
         parentindexloop: 
         FOR EACH b_ParentTableIndex OF b_ParentTable
-            WHERE NOT b_ParentTableIndex.IndexWord BY b_ParentTableIndex.IndexOrder:
+            WHERE NOT b_ParentTableIndex.IndexWordIndex BY b_ParentTableIndex.IndexOrder:
             
             DO i = 1 TO NUM-ENTRIES (b_ParentTableIndex.FieldNames):
                  IF NOT CAN-FIND (b_ChildTableField OF b_ChildTable WHERE 

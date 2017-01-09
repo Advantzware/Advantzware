@@ -11,66 +11,67 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : BackgroundJobProgressControl
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sun Nov 04 01:16:00 CET 2012
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Progress.Windows.UserControl.
 
-USING Consultingwerk.Windows.BackgroundOperation.* FROM PROPATH .  
+USING Consultingwerk.Windows.BackgroundOperation.* FROM PROPATH .
 USING Progress.Lang.* FROM PROPATH .
 
-CLASS Consultingwerk.Windows.BackgroundOperation.BackgroundJobProgressControl INHERITS UserControl: 
+CLASS Consultingwerk.Windows.BackgroundOperation.BackgroundJobProgressControl INHERITS UserControl:
 
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraButton1 AS Infragistics.Win.Misc.UltraButton NO-UNDO.
     DEFINE PRIVATE VARIABLE lbJobName AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
-    
-    /*------------------------------------------------------------------------------
-        Purpose: Gets the reference to the Background Job visualized by this Control
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY BackgroundJob AS BackgroundJob NO-UNDO 
-	GET.
-	PRIVATE SET. 
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the BackgroundJobProgressControl class 
-        Notes:   
+        Purpose: Gets the reference to the Background Job visualized by this Control
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC BackgroundJobProgressControl ():
-		
-		
+    DEFINE PUBLIC PROPERTY BackgroundJob AS BackgroundJob NO-UNDO
+    GET.
+    PRIVATE SET.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the BackgroundJobProgressControl class
+        Notes:
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC BackgroundJobProgressControl ():
+
+
         SUPER().
         InitializeComponent().
-        
+
         &IF NOT PROVERSION BEGINS "10.2":U AND NOT PROVERSION BEGINS "11.0" &THEN
         THIS-OBJECT:ComponentsCollection:ADD(THIS-OBJECT:components).
         &ENDIF
-        
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance1 AS Infragistics.Win.Appearance NO-UNDO.
@@ -117,67 +118,67 @@ CLASS Consultingwerk.Windows.BackgroundOperation.BackgroundJobProgressControl IN
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Initializes the Job Monitor for the given job 
-        Notes:   
+        Purpose: Initializes the Job Monitor for the given job
+        Notes:
         @param poJob The Background Job
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID InitializeJobMonitor (poJob AS BackgroundJob):
-		
-		DEFINE VARIABLE oMonitor AS BackgroundJobMonitorControl NO-UNDO . 
-		
-		oMonitor = {Consultingwerk/get-service.i Consultingwerk.Windows.BackgroundOperation.BackgroundJobMonitorControl} . 
-		
-		{Consultingwerk/Assertion/ObjectAssert/IsValid.i oMonitor """The Job Monitor Control"":U"} .
-		
-		THIS-OBJECT:BackgroundJob = poJob .
+    METHOD PUBLIC VOID InitializeJobMonitor (poJob AS BackgroundJob):
 
-        IF poJob:JobTitle > "":U THEN 
+        DEFINE VARIABLE oMonitor AS BackgroundJobMonitorControl NO-UNDO .
+
+        oMonitor = {Consultingwerk/get-service.i Consultingwerk.Windows.BackgroundOperation.BackgroundJobMonitorControl} .
+
+        {Consultingwerk/Assertion/ObjectAssert/IsValid.i oMonitor """The Job Monitor Control"":U"} .
+
+        THIS-OBJECT:BackgroundJob = poJob .
+
+        IF poJob:JobTitle > "":U THEN
             THIS-OBJECT:lbJobName:Text = poJob:JobTitle .
-        ELSE 
+        ELSE
             THIS-OBJECT:lbJobName:Text = poJob:ProcedureName .
 
         poJob:ProcessFinished:Subscribe (JobFinishedHandler) .
 
         oMonitor:AddJobProgressControl (THIS-OBJECT) .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the ProcessFinished event of the Job  
-        Notes:   
+        Purpose: Event handler for the ProcessFinished event of the Job
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The Consultingwerk.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID JobFinishedHandler (sender AS Progress.Lang.Object,
-	                                          e AS Consultingwerk.EventArgs):
-		
-		THIS-OBJECT:Parent:Controls:Remove (THIS-OBJECT) .
-		
-		THIS-OBJECT:BackgroundJob:ProcessFinished:Unsubscribe (JobFinishedHandler) .
-		
-		DELETE OBJECT THIS-OBJECT . 
+    METHOD PROTECTED VOID JobFinishedHandler (sender AS Progress.Lang.Object,
+                                              e AS Consultingwerk.EventArgs):
 
-	END METHOD .
+        THIS-OBJECT:Parent:Controls:Remove (THIS-OBJECT) .
+
+        THIS-OBJECT:BackgroundJob:ProcessFinished:Unsubscribe (JobFinishedHandler) .
+
+        DELETE OBJECT THIS-OBJECT .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the Click event of the ultraButton1 
-        Notes:   
+        Purpose: Event handler for the Click event of the ultraButton1
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraButton1_Click (INPUT sender AS System.Object, INPUT e AS System.EventArgs):
-		
-		IF VALID-OBJECT (THIS-OBJECT:BackgroundJob) THEN 
-		    THIS-OBJECT:BackgroundJob:Stop () .
+    METHOD PRIVATE VOID ultraButton1_Click (INPUT sender AS System.Object, INPUT e AS System.EventArgs):
 
-	END METHOD .
+        IF VALID-OBJECT (THIS-OBJECT:BackgroundJob) THEN
+            THIS-OBJECT:BackgroundJob:Stop () .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the BackgroundJobProgressControl class 
-        Notes:   
+        Purpose: Destructor for the BackgroundJobProgressControl class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC BackgroundJobProgressControl ():
 

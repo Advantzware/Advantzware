@@ -28,8 +28,8 @@ INTERFACE Consultingwerk.BusinessEntityDesigner.Generator.Viewer.IHasValueChange
         Purpose: Code block for the ValueChanged (VALUE-CHANGED) event
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY ValueChangedTriggerBlock AS LONGCHAR NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY ValueChangedTriggerBlock AS LONGCHAR NO-UNDO 
+    GET.
+    SET. 
 
 END INTERFACE.

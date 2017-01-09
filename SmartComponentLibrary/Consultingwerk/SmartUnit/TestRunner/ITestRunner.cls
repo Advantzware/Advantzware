@@ -33,6 +33,6 @@ INTERFACE Consultingwerk.SmartUnit.TestRunner.ITestRunner:
         @param poTestSuite The ITestSuite to execute
         @return Logical value, when set to false halt will be signalled to the caller (ANT script)  
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL Execute (poTestSuite AS ITestSuite).
+    METHOD PUBLIC LOGICAL Execute (poTestSuite AS ITestSuite).
 
 END INTERFACE.

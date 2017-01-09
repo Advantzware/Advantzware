@@ -28,10 +28,10 @@ USING Progress.Lang.*       FROM PROPATH .
 CLASS Consultingwerk.Web.Kendo.Grid.Pageable 
     INHERITS JsonSerializable: 
 
-    {Consultingwerk/JsonSerializableProperty.i refresh LOGICAL "INIT ?"} .
-    {Consultingwerk/JsonSerializableProperty.i pageSizes "INTEGER EXTENT"} .
-    {Consultingwerk/JsonSerializableProperty.i pageSize INTEGER "INIT ?"} .
-    {Consultingwerk/JsonSerializableProperty.i buttonCount INTEGER "INIT ?"} .
+    {Consultingwerk/JsonSerializableProperty11.i refresh LOGICAL "INIT ?"} .
+    {Consultingwerk/JsonSerializableProperty11.i pageSizes "INTEGER EXTENT"} .
+    {Consultingwerk/JsonSerializableProperty11.i pageSize INTEGER "INIT ?"} .
+    {Consultingwerk/JsonSerializableProperty11.i buttonCount INTEGER "INIT ?"} .
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the Pageable class                                                                     

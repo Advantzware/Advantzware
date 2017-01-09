@@ -28,9 +28,9 @@ INTERFACE Consultingwerk.OERA.IDataSourceQueryInfo:
         Purpose: Gets and sets the client query of the current request
         Notes:   This is the query string that was provided by the consumer 
     ------------------------------------------------------------------------------*/  
-	DEFINE PUBLIC PROPERTY ClientQuery AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY ClientQuery AS CHARACTER NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets query that was used to prepare the data source query
@@ -38,16 +38,16 @@ INTERFACE Consultingwerk.OERA.IDataSourceQueryInfo:
                  the source default query
     ------------------------------------------------------------------------------*/  
     DEFINE PUBLIC PROPERTY PrepareQuery AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the source default query
         Notes:   This is the query string that is maintained by the actual data access
                  class 
     ------------------------------------------------------------------------------*/  
-	DEFINE PUBLIC PROPERTY SourceDefaultQuery AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY SourceDefaultQuery AS CHARACTER NO-UNDO 
+    GET.
+    SET. 
 
 END INTERFACE.

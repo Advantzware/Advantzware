@@ -282,8 +282,8 @@ CLASS Consultingwerk.Util.KeyboardHelper:
                                                                                    pcKey2 AS CHARACTER,
                                                                                    pcKey3 AS CHARACTER):
         
-        DEFINE VARIABLE cABL    AS CHARACTER   NO-UNDO INIT "ALT,SHIFT,CTRL":U.
-        DEFINE VARIABLE cDotNet AS CHARACTER   NO-UNDO INIT "Alt,Shift,Control":U.
+        DEFINE VARIABLE cABL    AS CHARACTER   NO-UNDO INITIAL "ALT,SHIFT,CTRL":U.
+        DEFINE VARIABLE cDotNet AS CHARACTER   NO-UNDO INITIAL "Alt,Shift,Control":U.
         DEFINE VARIABLE i       AS INTEGER     NO-UNDO.
 
         DEFINE VARIABLE oKey    AS Keys        NO-UNDO EXTENT 3 .
@@ -334,10 +334,10 @@ CLASS Consultingwerk.Util.KeyboardHelper:
         @param poKeys The System.Windows.Forms.Keys to translate
         @return The ABL Keyboard Event Label or ? for an unknown/unmatches key
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC CHARACTER SpecialKeyToAblEventLabel (poKeys AS Keys):
-		
-		IF EnumHelper:AreEqual (poKeys, Keys:Back)        THEN RETURN "BACKSPACE":U . 
-        IF EnumHelper:AreEqual (poKeys, Keys:Tab)         THEN RETURN "TAB":U . 		
+    METHOD PUBLIC STATIC CHARACTER SpecialKeyToAblEventLabel (poKeys AS Keys):
+        
+        IF EnumHelper:AreEqual (poKeys, Keys:Back)        THEN RETURN "BACKSPACE":U . 
+        IF EnumHelper:AreEqual (poKeys, Keys:Tab)         THEN RETURN "TAB":U .         
         IF EnumHelper:AreEqual (poKeys, Keys:Return)      THEN RETURN "RETURN":U .       
         IF EnumHelper:AreEqual (poKeys, Keys:Enter)       THEN RETURN "RETURN":U .       
         IF EnumHelper:AreEqual (poKeys, Keys:Escape)      THEN RETURN "END-ERROR":U .       
@@ -373,10 +373,10 @@ CLASS Consultingwerk.Util.KeyboardHelper:
         IF EnumHelper:AreEqual (poKeys, Keys:F22)         THEN RETURN "F22":U .       
         IF EnumHelper:AreEqual (poKeys, Keys:F23)         THEN RETURN "F23":U .       
         IF EnumHelper:AreEqual (poKeys, Keys:F24)         THEN RETURN "F24":U .       
-		
-		RETURN ? .
+        
+        RETURN ? .
 
-	END METHOD .
+    END METHOD .
 &ENDIF
 
 END CLASS.

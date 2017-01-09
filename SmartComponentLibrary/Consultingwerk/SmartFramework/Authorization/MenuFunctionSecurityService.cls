@@ -40,10 +40,10 @@ CLASS Consultingwerk.SmartFramework.Authorization.MenuFunctionSecurityService
         Purpose: Constructor for the MenuFunctionSecurityService class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC MenuFunctionSecurityService ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC MenuFunctionSecurityService ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Assigns the properties of the SmartBusinessEntityLookupDescriptor 
@@ -51,9 +51,9 @@ CLASS Consultingwerk.SmartFramework.Authorization.MenuFunctionSecurityService
         Notes:   
         @param poLookupDescriptor The reference to the SmartBusinessEntityLookupDescriptor to assign the properties to 
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID AssignLookupDescriptorProperties (poLookupDescriptor AS SmartBusinessEntityLookupDescriptor):
-		
-		ASSIGN poLookupDescriptor:AppServerPartition          = "":U
+    METHOD PUBLIC VOID AssignLookupDescriptorProperties (poLookupDescriptor AS SmartBusinessEntityLookupDescriptor):
+        
+        ASSIGN poLookupDescriptor:AppServerPartition          = "":U
                poLookupDescriptor:LookupBrowserFields         = "FunctionName,FunctionDescription":U
                poLookupDescriptor:LookupControls              = "":U
                poLookupDescriptor:LookupDialogClassName       = "":U
@@ -72,7 +72,7 @@ CLASS Consultingwerk.SmartFramework.Authorization.MenuFunctionSecurityService
                poLookupDescriptor:LookupQueryString           = "FOR EACH eSmartFunction WHERE eSmartFunction.FunctionName BEGINS ~"&1~"":U
                .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the Description for the security item 
@@ -80,8 +80,8 @@ CLASS Consultingwerk.SmartFramework.Authorization.MenuFunctionSecurityService
         @param pcItemKey The unique key of the security item
         @return The description of the security item
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC CHARACTER GetDescription (pcItemKey AS CHARACTER):
-		
+    METHOD PUBLIC CHARACTER GetDescription (pcItemKey AS CHARACTER):
+        
         FIND SmartFunction WHERE SmartFunction.FunctionGuid = pcItemKey NO-LOCK NO-ERROR .
         
         IF AVAILABLE SmartFunction THEN 
@@ -89,7 +89,7 @@ CLASS Consultingwerk.SmartFramework.Authorization.MenuFunctionSecurityService
         ELSE 
             RETURN "":U .  
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Validates the security item key  
@@ -97,10 +97,10 @@ CLASS Consultingwerk.SmartFramework.Authorization.MenuFunctionSecurityService
         @param pcItemKey The unique key of the security item
         @return Logical value indicating if the security item key is valid
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL ValidateKey (pcItemKey AS CHARACTER):
-		
-		RETURN CAN-FIND (SmartFunction WHERE SmartFunction.FunctionGuid = pcItemKey) .
+    METHOD PUBLIC LOGICAL ValidateKey (pcItemKey AS CHARACTER):
+        
+        RETURN CAN-FIND (SmartFunction WHERE SmartFunction.FunctionGuid = pcItemKey) .
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

@@ -54,11 +54,11 @@ CLASS Consultingwerk.SessionInfo
         Notes:   Replaces -sectok and -P parameters with ********   
         @return The Agent startup parameters 
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED CHARACTER GetStartupParameters ():
-		
-		DEFINE VARIABLE cStartupParameters AS CHARACTER NO-UNDO .
-		DEFINE VARIABLE cEntry             AS CHARACTER NO-UNDO CASE-SENSITIVE .
-		DEFINE VARIABLE i                  AS INTEGER   NO-UNDO .
+    METHOD PROTECTED CHARACTER GetStartupParameters ():
+        
+        DEFINE VARIABLE cStartupParameters AS CHARACTER NO-UNDO .
+        DEFINE VARIABLE cEntry             AS CHARACTER NO-UNDO CASE-SENSITIVE .
+        DEFINE VARIABLE i                  AS INTEGER   NO-UNDO .
 
         ASSIGN cStartupParameters = SESSION:STARTUP-PARAMETERS .
 
@@ -75,39 +75,39 @@ CLASS Consultingwerk.SessionInfo
 
         RETURN cStartupParameters . 
 
-	END METHOD .
+    END METHOD .
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Initializes the SessionInfo instance with the current session values
-	    Notes:
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID Initialize ():
-				
+    /*------------------------------------------------------------------------------
+        Purpose: Initializes the SessionInfo instance with the current session values
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC VOID Initialize ():
+                
         THIS-OBJECT:PopulateAvm () .
         THIS-OBJECT:PopulateDatabases() .
-		THIS-OBJECT:PopulateSession () .
-		    
-	END METHOD.
+        THIS-OBJECT:PopulateSession () .
+            
+    END METHOD.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Populates AVM properties
-	    Notes:
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID PopulateAvm ():
-		
+    /*------------------------------------------------------------------------------
+        Purpose: Populates AVM properties
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID PopulateAvm ():
+        
         THIS-OBJECT:Properties:Add ("AVM:PROPATH":U,    PROPATH) .
         THIS-OBJECT:Properties:Add ("AVM:PROVERSION":U, PROVERSION) .
         THIS-OBJECT:Properties:Add ("AVM:STARTUP-PARAMETERS":U, GetStartupParameters()) .
 
-	END METHOD.
+    END METHOD.
 
-	/*------------------------------------------------------------------------------
-	 Purpose: Populates the Database connection information
-	 Notes:
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID PopulateDatabases ():
-		
-		DEFINE VARIABLE i AS INTEGER NO-UNDO.
+    /*------------------------------------------------------------------------------
+     Purpose: Populates the Database connection information
+     Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID PopulateDatabases ():
+        
+        DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
         DO i = 1 TO NUM-DBS:
         
@@ -115,14 +115,14 @@ CLASS Consultingwerk.SessionInfo
                                         DBPARAM (i)) .
         END.
 
-	END METHOD.
+    END METHOD.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Populates Session Properties
-	    Notes:
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID PopulateSession ():
-		
+    /*------------------------------------------------------------------------------
+        Purpose: Populates Session Properties
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID PopulateSession ():
+        
         DEFINE VARIABLE cProperties AS CHARACTER         NO-UNDO.
         DEFINE VARIABLE cProperty   AS CHARACTER         NO-UNDO .
         DEFINE VARIABLE iEntry      AS INTEGER           NO-UNDO .
@@ -166,6 +166,6 @@ CLASS Consultingwerk.SessionInfo
             END FINALLY.
         END.
 
-	END METHOD.
+    END METHOD.
 
 END CLASS.

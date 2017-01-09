@@ -8,15 +8,15 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : RibbonTemplateForm
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Tue Nov 16 07:28:21 CET 2010
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 USING Progress.Lang.*.
@@ -24,8 +24,8 @@ USING Progress.Windows.Form.
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-CLASS Consultingwerk.SmartComponents.Resources.RibbonTemplateForm INHERITS Form: 
-    
+CLASS Consultingwerk.SmartComponents.Resources.RibbonTemplateForm INHERITS Form:
+
     DEFINE PRIVATE VARIABLE m_RibbonTemplateForm_Toolbars_Dock_Area_Top AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_RibbonTemplateForm_Toolbars_Dock_Area_Right AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_RibbonTemplateForm_Toolbars_Dock_Area_Left AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
@@ -34,10 +34,10 @@ CLASS Consultingwerk.SmartComponents.Resources.RibbonTemplateForm INHERITS Form:
     DEFINE PRIVATE VARIABLE smartToolbarController1 AS Consultingwerk.SmartComponents.Implementation.SmartToolbarController NO-UNDO.
     DEFINE PRIVATE VARIABLE RibbonTemplateForm_Fill_Panel AS System.Windows.Forms.Panel NO-UNDO.
 
-        
+
     CONSTRUCTOR PUBLIC RibbonTemplateForm (  ):
-        
-        
+
+
         SUPER().
         InitializeComponent().
         CATCH e AS Progress.Lang.Error:
@@ -46,17 +46,18 @@ CLASS Consultingwerk.SmartComponents.Resources.RibbonTemplateForm INHERITS Form:
 
     END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).

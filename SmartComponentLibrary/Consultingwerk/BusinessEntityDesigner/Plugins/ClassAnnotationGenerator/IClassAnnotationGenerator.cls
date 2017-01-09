@@ -30,7 +30,7 @@ INTERFACE Consultingwerk.BusinessEntityDesigner.Plugins.ClassAnnotationGenerator
         @param pcDirectory The directory to generate the class annotations from 
         @param pcFileMask The file mask of the .cls files to process
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID GenerateClassAnnotations (pcDirectory AS CHARACTER, 
-	                                             pcFileMask AS CHARACTER).
+    METHOD PUBLIC VOID GenerateClassAnnotations (pcDirectory AS CHARACTER, 
+                                                 pcFileMask AS CHARACTER).
 
 END INTERFACE.

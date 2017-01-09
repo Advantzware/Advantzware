@@ -28,8 +28,8 @@ INTERFACE Consultingwerk.Windows.ListAndLabel.ILlExportModule:
         Purpose: Returns the key of the Export Module
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY ExportModule AS CHARACTER NO-UNDO 
-	GET.
+    DEFINE PUBLIC PROPERTY ExportModule AS CHARACTER NO-UNDO 
+    GET.
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the list of the export module properties
@@ -43,6 +43,6 @@ INTERFACE Consultingwerk.Windows.ListAndLabel.ILlExportModule:
         Notes:   
         @param piJob The List & Label job handle
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID SetExportProperties (piJob AS INTEGER) .
+    METHOD PUBLIC VOID SetExportProperties (piJob AS INTEGER) .
 
 END INTERFACE.

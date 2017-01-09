@@ -35,7 +35,7 @@ CLASS Consultingwerk.Framework.FrameworkBootstrap
                  already been executed                                                                      
         Notes:                                                                        
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY IsInitialized AS LOGICAL NO-UNDO INIT FALSE  
+    DEFINE PUBLIC PROPERTY IsInitialized AS LOGICAL NO-UNDO INITIAL FALSE
     GET.
     PRIVATE SET .
 

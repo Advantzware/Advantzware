@@ -57,13 +57,13 @@ CLASS Consultingwerk.Design.WinKit.DesignManager:
         DEFINE VARIABLE oMenuItem AS System.Windows.Forms.MenuItem NO-UNDO .
         
         IF NOT VALID-OBJECT (oNotifyIcon) THEN DO:
-            FILE-INFO:FILE-NAME = "Consultingwerk/Design/WinKit/monitor_brush.ico":U .
+            FILE-INFORMATION:FILE-NAME = "Consultingwerk/Design/WinKit/monitor_brush.ico":U .
 
-            IF FILE-INFO:FULL-PATHNAME = ? THEN 
+            IF FILE-INFORMATION:FULL-PATHNAME = ? THEN 
                 UNDO, THROW NEW AppError ("Unable to find icon monitor_brush.ico for NotifyIcon."{&TRAN}, 0) .            
             
             oNotifyIcon = NEW NotifyIcon () .
-            oNotifyIcon:Icon = NEW System.Drawing.Icon (FILE-INFO:FULL-PATHNAME) .
+            oNotifyIcon:Icon = NEW System.Drawing.Icon (FILE-INFORMATION:FULL-PATHNAME) .
             oNotifyIcon:Visible = TRUE .
             
             oNotifyIcon:ShowBalloonTip (10000, 

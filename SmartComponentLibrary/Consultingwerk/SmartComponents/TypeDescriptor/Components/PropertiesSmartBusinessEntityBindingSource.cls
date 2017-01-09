@@ -32,11 +32,11 @@ CLASS Consultingwerk.SmartComponents.TypeDescriptor.Components.PropertiesSmartBu
         Purpose: Constructor for the PropertiesSmartDatasetAdapter class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC PropertiesSmartBusinessEntityBindingSource ():
-	    
-	    DEFINE VARIABLE oProperty  AS IPropertyDescriptor NO-UNDO . 
-		
-		SUPER ().
+    CONSTRUCTOR PUBLIC PropertiesSmartBusinessEntityBindingSource ():
+        
+        DEFINE VARIABLE oProperty  AS IPropertyDescriptor NO-UNDO . 
+        
+        SUPER ().
 
         THIS-OBJECT:TypeName = "Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource":U . 
 
@@ -70,6 +70,6 @@ CLASS Consultingwerk.SmartComponents.TypeDescriptor.Components.PropertiesSmartBu
         oProperty:Attributes:Add (NEW System.ComponentModel.DescriptionAttribute ("List of Tables to read with the EntityTable.")) .
         oProperty:Attributes:Add (NEW System.ComponentModel.LocalizableAttribute (FALSE)) .
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
 END CLASS.

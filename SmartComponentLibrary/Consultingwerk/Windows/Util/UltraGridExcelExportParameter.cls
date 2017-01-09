@@ -35,9 +35,9 @@ CLASS Consultingwerk.Windows.Util.UltraGridExcelExportParameter
         Purpose: Returns the FileName for the Excel Export 
         Notes:   
     ------------------------------------------------------------------------------*/    
-	DEFINE PUBLIC PROPERTY FileName AS CHARACTER NO-UNDO INIT "":U
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY FileName AS CHARACTER NO-UNDO INIT "":U
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Returns if the user should be prompted for retrieving additional
@@ -57,9 +57,9 @@ CLASS Consultingwerk.Windows.Util.UltraGridExcelExportParameter
         Purpose: Returns if the user should be prompted to overwrite an existing file 
         Notes:   
     ------------------------------------------------------------------------------*/    
-	DEFINE PUBLIC PROPERTY PromptForOverwrite AS LOGICAL NO-UNDO INIT TRUE 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY PromptForOverwrite AS LOGICAL NO-UNDO INIT TRUE 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Get and sets the Excel file format that should be used by the export serivce 
@@ -69,20 +69,20 @@ CLASS Consultingwerk.Windows.Util.UltraGridExcelExportParameter
     GET.
     SET.
     
-	/*------------------------------------------------------------------------------
-		Purpose: Constructor for the UltraGridExcelExportParameter class 																	  
-		Notes:  																	  
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC UltraGridExcelExportParameter ():
-		SUPER ().
-		
-		&IF PROVERSION BEGINS "10.2":U &THEN
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the UltraGridExcelExportParameter class                                                                       
+        Notes:                                                                        
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC UltraGridExcelExportParameter ():
+        SUPER ().
+        
+        &IF PROVERSION BEGINS "10.2":U &THEN
         THIS-OBJECT:WorkbookFormat = Infragistics.Excel.WorkbookFormat:Excel2007 .
-		&ELSE
-		THIS-OBJECT:WorkbookFormat = Infragistics.Documents.Excel.WorkbookFormat:Excel2007 .
-		&ENDIF
-		
-	END CONSTRUCTOR.
+        &ELSE
+        THIS-OBJECT:WorkbookFormat = Infragistics.Documents.Excel.WorkbookFormat:Excel2007 .
+        &ENDIF
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the UltraGridExcelExportParameter class                                                                      

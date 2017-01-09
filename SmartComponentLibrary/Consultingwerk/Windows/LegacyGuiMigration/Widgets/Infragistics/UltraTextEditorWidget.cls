@@ -49,32 +49,32 @@ CLASS Consultingwerk.Windows.LegacyGuiMigration.Widgets.Infragistics.UltraTextEd
         Notes:   The value for the INPUT-VALUE attribute is the unformatted 
                  SCREEN-VALUE of a widget                          
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY INPUT-VALUE AS CHARACTER NO-UNDO 
-	GET:
-	    RETURN UNBOX (oControl:Value) . 
-	END GET .
-	SET (arg AS CHARACTER):
-	    ASSIGN oControl:Value = BOX (arg) . 
-	END SET . 
+    DEFINE PUBLIC PROPERTY INPUT-VALUE AS CHARACTER NO-UNDO 
+    GET:
+        RETURN UNBOX (oControl:Value) . 
+    END GET .
+    SET (arg AS CHARACTER):
+        ASSIGN oControl:Value = BOX (arg) . 
+    END SET . 
 
-	/*------------------------------------------------------------------------------
+    /*------------------------------------------------------------------------------
         Purpose: The type of a handle
-	    Notes:   FILL-IN
-	------------------------------------------------------------------------------*/
-	DEFINE PUBLIC OVERRIDE PROPERTY TYPE AS CHARACTER NO-UNDO INIT "FILL-IN":U 
-	GET .
-	PROTECTED SET . 
+        Notes:   FILL-IN
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC OVERRIDE PROPERTY TYPE AS CHARACTER NO-UNDO INIT "FILL-IN":U 
+    GET .
+    PROTECTED SET . 
 
-	/*------------------------------------------------------------------------------
-	   Purpose: Constructor for the UltraTextEditorWidget class
-	   Notes:
-	   @param poEditor The reference to the UltraTextEditor this instance should represent
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC UltraTextEditorWidget (poEditor AS UltraTextEditor):
-		SUPER (poEditor).
+    /*------------------------------------------------------------------------------
+       Purpose: Constructor for the UltraTextEditorWidget class
+       Notes:
+       @param poEditor The reference to the UltraTextEditor this instance should represent
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC UltraTextEditorWidget (poEditor AS UltraTextEditor):
+        SUPER (poEditor).
 
         ASSIGN oControl = poEditor .
         
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
 END CLASS.

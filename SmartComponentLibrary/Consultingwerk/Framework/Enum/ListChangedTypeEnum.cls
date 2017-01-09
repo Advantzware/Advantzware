@@ -8,102 +8,88 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
  /*------------------------------------------------------------------------
     File        : ListChangedTypeEnum
     Purpose     : Describes the possible values for the type of modification
-                  that occured to an item of a List
-    Syntax      : 
-    Description : 
+                  that occurred to an item of a List
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Thu Jan 19 21:55:49 CET 2012
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 {Consultingwerk/products.i}
 
-&IF DEFINED (NativeEnums) NE 0 &THEN
-&GLOBAL-DEFINE CLASS ENUM
-&ELSE
-&GLOBAL-DEFINE CLASS CLASS
-&ENDIF
-
 USING Consultingwerk.Enum                    FROM PROPATH .
 USING Consultingwerk.Framework.Collections.* FROM PROPATH .
-USING Consultingwerk.Framework.Enum.*        FROM PROPATH . 
+USING Consultingwerk.Framework.Enum.*        FROM PROPATH .
 USING Progress.Lang.*                        FROM PROPATH .
 
-{&CLASS} Consultingwerk.Framework.Enum.ListChangedTypeEnum 
-    &IF "{&CLASS}" EQ "CLASS" &THEN
-    INHERITS Enum
-    &ENDIF    
-        : 
+&IF DEFINED (NativeEnums) NE 0 &THEN
+ENUM Consultingwerk.Framework.Enum.ListChangedTypeEnum:
 
-&IF "{&CLASS}" EQ "ENUM" &THEN
-    DEFINE ENUM
-&ENDIF    
+    DEFINE ENUM ListItemAdded ListItemRemoved ListItemChanged ListCleared .
+
+END ENUM .
+
+&ELSE
+CLASS Consultingwerk.Framework.Enum.ListChangedTypeEnum
+    INHERITS Consultingwerk.Enum:
 
     /*------------------------------------------------------------------------------
-        Purpose: An Item was added to the List                                                                    
-        Notes:                                                                        
+        Purpose: An Item was added to the List
+        Notes:
     ------------------------------------------------------------------------------*/
-    {Consultingwerk/EnumMember.i ListItemAdded 1 ListChangedTypeEnum}  
+    {Consultingwerk/EnumMember.i ListItemAdded 1 ListChangedTypeEnum}
 
     /*------------------------------------------------------------------------------
-        Purpose: An Item was removed from the List                                                                      
-        Notes:                                                                        
+        Purpose: An Item was removed from the List
+        Notes:
     ------------------------------------------------------------------------------*/
-    {Consultingwerk/EnumMember.i ListItemRemoved 2 ListChangedTypeEnum}  
+    {Consultingwerk/EnumMember.i ListItemRemoved 2 ListChangedTypeEnum}
 
     /*------------------------------------------------------------------------------
-        Purpose: The an Item has changed 
-        Notes:                                                                        
+        Purpose: The an Item has changed
+        Notes:
     ------------------------------------------------------------------------------*/
-    {Consultingwerk/EnumMember.i ListItemChanged 3 ListChangedTypeEnum}  
+    {Consultingwerk/EnumMember.i ListItemChanged 3 ListChangedTypeEnum}
 
     /*------------------------------------------------------------------------------
-        Purpose: The List was cleared                                                                     
-        Notes:                                                                        
+        Purpose: The List was cleared
+        Notes:
     ------------------------------------------------------------------------------*/
-    {Consultingwerk/EnumMember.i ListCleared 4 ListChangedTypeEnum}  
+    {Consultingwerk/EnumMember.i ListCleared 4 ListChangedTypeEnum}
 
-&IF "{&CLASS}" EQ "ENUM" &THEN
-    .
-&ENDIF    
-
-&IF "{&CLASS}" EQ "CLASS" &THEN
     /*------------------------------------------------------------------------------
-        Purpose: Private Constructor for the enum member instances                                                                     
-        Notes:    
+        Purpose: Private Constructor for the enum member instances
+        Notes:
         @param piValue The internal (numeric) representation of the Enumeration member
         @param pcLabel The text label of the Enumaration member
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PRIVATE ListChangedTypeEnum (piValue AS INTEGER, pcLabel AS CHARACTER):
         SUPER ().
-        
+
         ASSIGN THIS-OBJECT:Value = piValue
-               THIS-OBJECT:Label = pcLabel . 
-        
+               THIS-OBJECT:Label = pcLabel .
+
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns a CharacterList with the names of the Enum members 
-        Notes:   
+        Purpose: Returns a CharacterList with the names of the Enum members
+        Notes:
         @return The CharacterList with the names of the Enum members
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CharacterList GetNames ():
-        
-        DEFINE VARIABLE oReturn AS CharacterList NO-UNDO . 
-        
+
         RETURN NEW CharacterList ('{&EnumMembers}':U).
 
     END METHOD .
-    
+
     {Consultingwerk/EnumFromString.i Consultingwerk.Framework.Enum.ListChangedTypeEnum}
-        
+
+END CLASS .
 &ENDIF
-        
-END {&CLASS} .
-    

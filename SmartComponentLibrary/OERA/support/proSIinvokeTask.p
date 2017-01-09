@@ -8,14 +8,14 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/  
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : proSIinvokeTask.p
-    Purpose     : 
+    Purpose     :
 
     Syntax      :
 
-    Description : 
+    Description :
 
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Mon Sep 20 21:10:58 CEST 2010
@@ -37,13 +37,13 @@ DEFINE INPUT-OUTPUT PARAMETER DATASET-HANDLE phDataSet5 .
 DEFINE INPUT-OUTPUT PARAMETER plcParameter AS LONGCHAR NO-UNDO .
 DEFINE INPUT-OUTPUT PARAMETER DATASET-HANDLE phContextDataset .
 
-DEFINE VARIABLE lContextDatasetAssigned AS LOGICAL NO-UNDO INIT FALSE .
+DEFINE VARIABLE lContextDatasetAssigned AS LOGICAL NO-UNDO INITIAL FALSE .
 
 { Consultingwerk/products.i }
 
 /* Mike Fechner, Consultingwerk Ltd. 08.05.2013
-   Support for custom include files to the proSI... procedures. 
-   This allows adding SHARED variable definitions that may be 
+   Support for custom include files to the proSI... procedures.
+   This allows adding SHARED variable definitions that may be
    required to execute legacy database triggers */
 &IF "{&ProSIcustomIncludeDirectory}":U NE "":U &THEN
 { {&ProSIcustomIncludeDirectory}/proSIinvokeTaskCustom.i }
@@ -51,8 +51,8 @@ DEFINE VARIABLE lContextDatasetAssigned AS LOGICAL NO-UNDO INIT FALSE .
 
 /* ***************************  Main Block  *************************** */
 
-IF VALID-HANDLE (phContextDataset) THEN 
-    ASSIGN Consultingwerk.Framework.Session.SessionManager:ContextDataset = phContextDataset 
+IF VALID-HANDLE (phContextDataset) THEN
+    ASSIGN Consultingwerk.Framework.Session.SessionManager:ContextDataset = phContextDataset
            lContextDatasetAssigned                                        = TRUE .
 
 Consultingwerk.OERA.ServiceInterface:InvokeTask (pcTaskName,
@@ -63,28 +63,27 @@ Consultingwerk.OERA.ServiceInterface:InvokeTask (pcTaskName,
                                                  INPUT-OUTPUT DATASET-HANDLE phDataset3 BY-REFERENCE,
                                                  INPUT-OUTPUT DATASET-HANDLE phDataset4 BY-REFERENCE,
                                                  INPUT-OUTPUT DATASET-HANDLE phDataset5 BY-REFERENCE,
-                                                 INPUT-OUTPUT plcParameter). 
-                        
+                                                 INPUT-OUTPUT plcParameter).
+
 { {&OERASI}/sicatch.i }
-              
+
 FINALLY:
-    IF VALID-HANDLE (phDataset1) THEN                                                    
+    IF VALID-HANDLE (phDataset1) THEN
         DELETE OBJECT phDataset1 .
-    IF VALID-HANDLE (phDataset2) THEN                                                    
+    IF VALID-HANDLE (phDataset2) THEN
         DELETE OBJECT phDataset2 .
-    IF VALID-HANDLE (phDataset3) THEN                                                    
+    IF VALID-HANDLE (phDataset3) THEN
         DELETE OBJECT phDataset3 .
-    IF VALID-HANDLE (phDataset4) THEN                                                    
+    IF VALID-HANDLE (phDataset4) THEN
         DELETE OBJECT phDataset4 .
-    IF VALID-HANDLE (phDataset5) THEN                                                    
+    IF VALID-HANDLE (phDataset5) THEN
         DELETE OBJECT phDataset5 .
-    IF VALID-HANDLE (phContextDataset) THEN 
-        DELETE OBJECT phContextDataset NO-ERROR . 
+    IF VALID-HANDLE (phContextDataset) THEN
+        DELETE OBJECT phContextDataset NO-ERROR .
 
     /* Mike Fechner, Consultingwerk Ltd. 23.10.2011
        Only reset the ContextDataset when it was set by this instance
        (avoid issues with call nesting) */
-    IF lContextDatasetAssigned AND SESSION:REMOTE THEN 
+    IF lContextDatasetAssigned AND SESSION:REMOTE THEN
         Consultingwerk.Framework.Session.SessionManager:ContextDataset = ?  .
-END FINALLY.          
-                                                          
+END FINALLY.

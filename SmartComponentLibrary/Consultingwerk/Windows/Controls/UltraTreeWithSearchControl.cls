@@ -8,12 +8,12 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : UltraTreeWithSearchControl
-    Purpose     : Menu Tree with Search Capability 
-    Syntax      : 
-    Description : 
+    Purpose     : Menu Tree with Search Capability
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Wed Dec 15 17:43:28 CET 2010
     Notes       : Used for the Menubar Band of SmartExplorerBar2
@@ -21,16 +21,16 @@
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Consultingwerk.Util.*                 FROM PROPATH . 
+USING Consultingwerk.Util.*                 FROM PROPATH .
 USING Consultingwerk.Windows.Controls.*     FROM PROPATH .
-USING Infragistics.Win.UltraWinListView.*   FROM ASSEMBLY . 
+USING Infragistics.Win.UltraWinListView.*   FROM ASSEMBLY .
 USING Infragistics.Win.UltraWinTree.*       FROM ASSEMBLY .
-USING Progress.Lang.*                       FROM PROPATH .  
+USING Progress.Lang.*                       FROM PROPATH .
 USING Progress.Windows.UserControl          FROM ASSEMBLY .
 USING System.Windows.Forms.*                FROM ASSEMBLY .
 
-CLASS Consultingwerk.Windows.Controls.UltraTreeWithSearchControl INHERITS UserControl: 
-    
+CLASS Consultingwerk.Windows.Controls.UltraTreeWithSearchControl INHERITS UserControl:
+
     DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE timer1 AS System.Windows.Forms.Timer NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraListView1 AS Infragistics.Win.UltraWinListView.UltraListView NO-UNDO.
@@ -39,73 +39,73 @@ CLASS Consultingwerk.Windows.Controls.UltraTreeWithSearchControl INHERITS UserCo
 
     /*------------------------------------------------------------------------------
         Purpose: Event raised when the user selectes a TreeNode or the corresponding
-                 item in the UltraListView                                                                   
-        Notes:                            
+                 item in the UltraListView
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The TreeNodeSelectedEventArgs with the dat for this event                                              
+        @param e The TreeNodeSelectedEventArgs with the dat for this event
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC EVENT TreeNodeSelected SIGNATURE VOID 
+    DEFINE PUBLIC EVENT TreeNodeSelected SIGNATURE VOID
        (sender AS System.Object, e AS TreeNodeSelectedEventArgs).
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets if the parent nodes (if present) Text should be included 
-                 in the text shown for the search results 
+        Purpose: Gets and sets if the parent nodes (if present) Text should be included
+                 in the text shown for the search results
         Notes:   When true, the ParentNodeTextSubstitute is used to compute the text
                  used in the search results, &1 for the parent nodes text, &2 for the
-                 actual node  
+                 actual node
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY IncludeParentNodeTextIntoSearchResult AS LOGICAL NO-UNDO INIT FALSE  
+    DEFINE PUBLIC PROPERTY IncludeParentNodeTextIntoSearchResult AS LOGICAL NO-UNDO INIT FALSE
     GET.
-    SET. 
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the substitute pattern used for the search result texts 
+        Purpose: Gets and sets the substitute pattern used for the search result texts
                  when IncludeParentNodeTextIntoSearchResult is set to true
         Notes:   &1 for the parent nodes text, &2 for the
-                 actual node  
+                 actual node
     ------------------------------------------------------------------------------*/
     DEFINE PUBLIC PROPERTY ParentNodeTextSubstitute AS CHARACTER NO-UNDO INIT "&1 / &2":U
     GET.
-    SET. 
-    
-    /*------------------------------------------------------------------------------
-        Purpose: Gets the reference to the contained UltraTree                                                                     
-        Notes:   Used by SmartExplorerBar2 to render the menu structure                                                                        
-    ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY UltraTree AS Infragistics.Win.UltraWinTree.UltraTree NO-UNDO 
-    GET.
-    PROTECTED SET. 
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets the reference to the contained UltraListView                                                                     
-        Notes:   Used by SmartExplorerBar2 to render the menu structure                                                                        
+        Purpose: Gets the reference to the contained UltraTree
+        Notes:   Used by SmartExplorerBar2 to render the menu structure
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY UltraListView AS Infragistics.Win.UltraWinListView.UltraListView NO-UNDO 
+    DEFINE PUBLIC PROPERTY UltraTree AS Infragistics.Win.UltraWinTree.UltraTree NO-UNDO
     GET.
-    PROTECTED SET. 
+    PROTECTED SET.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Gets the reference to the contained UltraListView
+        Notes:   Used by SmartExplorerBar2 to render the menu structure
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY UltraListView AS Infragistics.Win.UltraWinListView.UltraListView NO-UNDO
+    GET.
+    PROTECTED SET.
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets if the double click should be used for selecting items
-                 in the UltraTree 
-        Notes:   Previously the single click was used to select items. This property 
+                 in the UltraTree
+        Notes:   Previously the single click was used to select items. This property
                  is to achieve backwards compatibility
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY UseDoubleClickForItemSelect AS LOGICAL NO-UNDO INIT TRUE 
+    DEFINE PUBLIC PROPERTY UseDoubleClickForItemSelect AS LOGICAL NO-UNDO INIT TRUE
     GET.
-    SET. 
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the UltraTreeWithSearchControl class                                                                     
-        Notes:                                                                           
+        Purpose: Constructor for the UltraTreeWithSearchControl class
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC UltraTreeWithSearchControl ():
-        
+
         SUPER().
         InitializeComponent().
-        
+
         THIS-OBJECT:UltraTree = ultraTree1 .
         THIS-OBJECT:UltraListView = ultraListView1.
-        
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
@@ -113,40 +113,40 @@ CLASS Consultingwerk.Windows.Controls.UltraTreeWithSearchControl INHERITS UserCo
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Searches the Tree View Nodes for a Search String                                                                       
+        Purpose: Searches the Tree View Nodes for a Search String
         Notes:   Populates the search results in the ultraListView1 instance, recursive method
         @param pcSearchString The string to search for
-        @param poNodes The current iteration of the TreeNodesCollection                                                                    
+        @param poNodes The current iteration of the TreeNodesCollection
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID FindNodes (pcSearchString AS CHARACTER,
                                      poNodes AS Infragistics.Win.UltraWinTree.TreeNodesCollection):
-        
+
         DEFINE VARIABLE oEnumerator AS System.Collections.IEnumerator NO-UNDO .
         DEFINE VARIABLE oNode       AS UltraTreeNode                  NO-UNDO .
-        DEFINE VARIABLE oItem       AS UltraListViewItem              NO-UNDO . 
-        
+        DEFINE VARIABLE oItem       AS UltraListViewItem              NO-UNDO .
+
         oEnumerator = poNodes:GetEnumerator() .
         oEnumerator:Reset() .
-        
+
         DO WHILE oEnumerator:MoveNext():
             oNode = CAST (oEnumerator:Current, UltraTreeNode) .
-    
-            IF oNode:HasNodes THEN 
-               FindNodes (pcSearchString, oNode:Nodes) . 
-            ELSE IF oNode:Text MATCHES SUBSTITUTE ("*&1*":U, pcSearchString) THEN DO: 
+
+            IF oNode:HasNodes THEN
+               FindNodes (pcSearchString, oNode:Nodes) .
+            ELSE IF oNode:Text MATCHES SUBSTITUTE ("*&1*":U, pcSearchString) THEN DO:
                 oItem = ultraListView1:Items:Add (oNode:Key) .
-                
-                IF THIS-OBJECT:IncludeParentNodeTextIntoSearchResult = TRUE AND VALID-OBJECT (oNode:Parent) THEN 
-                    oItem:Value = SUBSTITUTE (THIS-OBJECT:ParentNodeTextSubstitute, 
-                                              oNode:Parent:Text, oNode:Text) .  
-                ELSE             
-                    oItem:Value = oNode:Text . 
-                
-                IF oNode:LeftImages:Count > 0 THEN 
-                   oItem:Appearance:Image = oNode:LeftImages[0] . 
-                   
-                oItem:Enabled = oNode:Enabled .     
-                oItem:Tag = oNode .                   
+
+                IF THIS-OBJECT:IncludeParentNodeTextIntoSearchResult = TRUE AND VALID-OBJECT (oNode:Parent) THEN
+                    oItem:Value = SUBSTITUTE (THIS-OBJECT:ParentNodeTextSubstitute,
+                                              oNode:Parent:Text, oNode:Text) .
+                ELSE
+                    oItem:Value = oNode:Text .
+
+                IF oNode:LeftImages:Count > 0 THEN
+                   oItem:Appearance:Image = oNode:LeftImages[0] .
+
+                oItem:Enabled = oNode:Enabled .
+                oItem:Tag = oNode .
             END.
         END.
 
@@ -154,26 +154,27 @@ CLASS Consultingwerk.Windows.Controls.UltraTreeWithSearchControl INHERITS UserCo
 
     /*------------------------------------------------------------------------------
         Purpose: Puts the Focus into the Search Field
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID FocusSearchField ():
-        
+
         ultraTextEditor1:Focus () .
         ultraTextEditor1:SelectAll () .
 
     END METHOD .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent(  ):
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -294,41 +295,41 @@ CLASS Consultingwerk.Windows.Controls.UltraTreeWithSearchControl INHERITS UserCo
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the TreeNodeSelected event if the given Node is enabled                                                                       
-        Notes:                                                                 
-        @param poNode The UltraTreeNode to raise the TreeNodeSelected event for       
+        Purpose: Raises the TreeNodeSelected event if the given Node is enabled
+        Notes:
+        @param poNode The UltraTreeNode to raise the TreeNodeSelected event for
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID ItemSelected (poNode AS UltraTreeNode):
-    
-        IF poNode:Enabled THEN 
-            OnTreeNodeSelected (NEW TreeNodeSelectedEventArgs (poNode:Key)) .    
+
+        IF poNode:Enabled THEN
+            OnTreeNodeSelected (NEW TreeNodeSelectedEventArgs (poNode:Key)) .
 
         CATCH err AS Progress.Lang.Error :
-            ErrorHelper:ShowErrorMessage (err) .    
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the ItemSelected event for the UltraTreeNode that correspondents 
-                 to the currently selected ListViewItem                                                                        
-        Notes:                                         
+        Purpose: Raises the ItemSelected event for the UltraTreeNode that correspondents
+                 to the currently selected ListViewItem
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID ListViewItemSelected ():
-        
-        IF ultraListView1:SelectedItems:Count > 0 AND ultraListView1:SelectedItems[0]:Enabled THEN 
+
+        IF ultraListView1:SelectedItems:Count > 0 AND ultraListView1:SelectedItems[0]:Enabled THEN
             ItemSelected (CAST (ultraListView1:SelectedItems[0]:Tag, UltraTreeNode)) .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the TreeNodeSelected event                                                                        
-        Notes:                                                                        
+        Purpose: Raises the TreeNodeSelected event
+        Notes:
         @param e The TreeNodeSelectedEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID OnTreeNodeSelected (e AS TreeNodeSelectedEventArgs):
-        
-        IF NOT VALID-OBJECT (e) THEN 
+
+        IF NOT VALID-OBJECT (e) THEN
             UNDO, THROW NEW AppError ("Unable to raise the TreeNodeSelected event without event argument.":U, 0) .
 
         THIS-OBJECT:TreeNodeSelected:Publish (THIS-OBJECT, e) .
@@ -336,271 +337,277 @@ CLASS Consultingwerk.Windows.Controls.UltraTreeWithSearchControl INHERITS UserCo
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Performs the search                                                                       
-        Notes:                                                                        
+        Purpose: Performs the search
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID PerformSearch ():
-        
+
         DEFINE VARIABLE cText AS CHARACTER NO-UNDO.
-        
+
         THIS-OBJECT:timer1:Enabled = FALSE .
-        
+
         ASSIGN cText = ultraTextEditor1:Text .
-        
+
         IF cText > "":U THEN DO:
-            ultraListView1:Visible = TRUE .   
-            ultraTree1:Visible = FALSE .          
+            ultraListView1:Visible = TRUE .
+            ultraTree1:Visible = FALSE .
             ultraListView1:Items:Clear () .
-            
+
             FindNodes (cText, ultraTree1:Nodes) .
         END .
         ELSE DO:
             ultraListView1:Visible = FALSE .
-            ultraTree1:Visible = TRUE .              
+            ultraTree1:Visible = TRUE .
             ultraListView1:Items:Clear () .
-        END . 
-    
+        END .
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Eventhandler for the Tick Event of the timer Component                                                                        
-        Notes:   Calls PerformSearch ()                                                                       
+        Purpose: Eventhandler for the Tick Event of the timer Component
+        Notes:   Calls PerformSearch ()
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID timer1_Tick (sender AS System.Object, 
+    METHOD PRIVATE VOID timer1_Tick (sender AS System.Object,
                                      e AS System.EventArgs):
-        
+
         PerformSearch () .
 
         CATCH err AS Progress.Lang.Error:
-        	ErrorHelper:ShowErrorMessage (err) .	
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the DoubleClick Event of the ultraListView1
-        Notes:                                                                          
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraListView1_DoubleClick (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraListView1_DoubleClick (sender AS System.Object,
                                                     e AS System.EventArgs):
-                                                        
-        IF ultraListView1:SelectedItems:Count > 0 THEN 
+
+        IF ultraListView1:SelectedItems:Count > 0 THEN
             ListViewItemSelected () .
-            
+
         CATCH err AS Progress.Lang.Error:
-            ErrorHelper:ShowErrorMessage (err) .    
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
-            
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the KeyDown Event of the ultraListView1
-        Notes:                                                                          
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The KeyEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraListView1_KeyDown (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraListView1_KeyDown (sender AS System.Object,
                                                 e AS System.Windows.Forms.KeyEventArgs):
-        
-        IF Progress.Util.EnumHelper:AreEqual (e:KeyCode, Keys:Return) OR 
-           Progress.Util.EnumHelper:AreEqual (e:KeyCode, Keys:Enter) THEN 
-          
+
+        IF Progress.Util.EnumHelper:AreEqual (e:KeyCode, Keys:Return) OR
+           Progress.Util.EnumHelper:AreEqual (e:KeyCode, Keys:Enter) THEN
+
             ListViewItemSelected () .
 
         CATCH err AS Progress.Lang.Error:
-            ErrorHelper:ShowErrorMessage (err) .    
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the MouseDown Event of the ultraListView1
-        Notes:                                                                          
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The MouseEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraListView1_MouseDown (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraListView1_MouseDown (sender AS System.Object,
                                                   e AS System.Windows.Forms.MouseEventArgs):
 
         DEFINE VARIABLE oListViewItem AS UltraListViewItem NO-UNDO .
-    
+
         IF (e:Button:Equals(System.Windows.Forms.MouseButtons:Right)) THEN DO:
             oListViewItem = ultraListView1:ItemFromPoint (e:Location) .
             IF oListViewItem:Enabled THEN DO:
                 ultraListView1:SelectedItems:Clear ().
-                ultraListView1:SelectedItems:Add (oListViewItem) .  
+                ultraListView1:SelectedItems:Add (oListViewItem) .
             END.
         END.
-        
+
         CATCH err AS Progress.Lang.Error:
-            ErrorHelper:ShowErrorMessage (err) .    
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
-        
+
     END METHOD.
-    
+
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the EditorButtonClick Event of the ultraTextEditor1
-        Notes:                                                                          
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The EditorButtonEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraTextEditor1_EditorButtonClick (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraTextEditor1_EditorButtonClick (sender AS System.Object,
                                                             e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs ):
-        
+
         ultraTextEditor1:Text = "":U .
-        timer1:Enabled = FALSE . 
-        PerformSearch() . 
+        timer1:Enabled = FALSE .
+        PerformSearch() .
 
         CATCH err AS Progress.Lang.Error:
-            ErrorHelper:ShowErrorMessage (err) .    
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the KeyDown Event of the ultraTextEditor1
-        Notes:                                                                          
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The KeyEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraTextEditor1_KeyDown (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraTextEditor1_KeyDown (sender AS System.Object,
                                                   e AS System.Windows.Forms.KeyEventArgs):
-        
+
         IF Progress.Util.EnumHelper:AreEqual (e:KeyCode, System.Windows.Forms.Keys:Escape) THEN DO:
-            
+
             ultraTextEditor1:Text = "":U .
             timer1:Enabled = FALSE .
             PerformSearch() .
-            e:Handled = TRUE . 
-            
-            RETURN . 
-        END. 
-        
-        IF Progress.Util.EnumHelper:AreEqual (e:KeyCode, System.Windows.Forms.Keys:Down) AND 
-           ultraListView1:Visible AND 
-           ultraListView1:Items:Count > 0 
+            e:Handled = TRUE .
+
+            RETURN .
+        END.
+
+        IF Progress.Util.EnumHelper:AreEqual (e:KeyCode, System.Windows.Forms.Keys:Down) AND
+           ultraListView1:Visible AND
+           ultraListView1:Items:Count > 0
             THEN DO:
-            
+
             timer1:Enabled = FALSE .
             ultraListView1:SelectedItems:Clear() .
-            ultraListView1:SelectedItems:Add (ultraListView1:Items[0]) . 
+            ultraListView1:SelectedItems:Add (ultraListView1:Items[0]) .
             ultraListView1:Items[0]:Activate() .
             ultraListView1:Focus() .
             e:Handled = TRUE .
-            
-            RETURN .  
-        END.   
 
-        IF Progress.Util.EnumHelper:AreEqual (e:KeyCode, System.Windows.Forms.Keys:Up) AND 
-           ultraListView1:Visible AND 
-           ultraListView1:Items:Count > 0 
+            RETURN .
+        END.
+
+        IF Progress.Util.EnumHelper:AreEqual (e:KeyCode, System.Windows.Forms.Keys:Up) AND
+           ultraListView1:Visible AND
+           ultraListView1:Items:Count > 0
             THEN DO:
-            
+
             timer1:Enabled = FALSE .
             ultraListView1:SelectedItems:Clear() .
-            ultraListView1:SelectedItems:Add (ultraListView1:Items[ultraListView1:Items:Count - 1]) . 
+            ultraListView1:SelectedItems:Add (ultraListView1:Items[ultraListView1:Items:Count - 1]) .
             ultraListView1:Items[ultraListView1:Items:Count - 1]:Activate() .
             ultraListView1:Focus() .
             e:Handled = TRUE .
-            
-            RETURN .  
-        END.   
-                
+
+            RETURN .
+        END.
+
         CATCH err AS Progress.Lang.Error:
-            ErrorHelper:ShowErrorMessage (err) .    
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
-                
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the KeyPress Event of the ultraTextEditor1
-        Notes:                                                                          
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The KeyPressEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraTextEditor1_KeyPress (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraTextEditor1_KeyPress (sender AS System.Object,
                                                    e AS System.Windows.Forms.KeyPressEventArgs):
-        
+
         /* Reset timer */
         timer1:Enabled = FALSE .
-        timer1:Enabled = TRUE .        
+        timer1:Enabled = TRUE .
 
         CATCH err AS Progress.Lang.Error:
-            ErrorHelper:ShowErrorMessage (err) .    
-        END CATCH . 
-        
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH .
+
     END METHOD.
 
-	/*------------------------------------------------------------------------------
-	   Purpose: Event handler for the AfterExpand event handler of the ultraTree1 
-	            instance
-	   Notes:   Ensures that the expanded node and child nodes are visible
-	   @param sender The reference to the object that raised this event
-	   @param e The NodeEventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraTree1_AfterExpand (sender AS System.Object,   
-	                                            e AS Infragistics.Win.UltraWinTree.NodeEventArgs):
-	                                                
+    /*------------------------------------------------------------------------------
+       Purpose: Event handler for the AfterExpand event handler of the ultraTree1
+                instance
+       Notes:   Ensures that the expanded node and child nodes are visible
+       @param sender The reference to the object that raised this event
+       @param e The NodeEventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID ultraTree1_AfterExpand (sender AS System.Object,
+                                                e AS Infragistics.Win.UltraWinTree.NodeEventArgs):
+
         /* Mike Fechner, Consultingwerk Ltd. 23.06.2014
            WINKIT-6: Bring the node child nodes into view when expanding a node */
-        
+
         IF e:TreeNode:Expanded THEN
             e:TreeNode:BringIntoView (YES).
 
-	END METHOD.
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the KeyDown Event of the ultraTree1
-        Notes:                                                                          
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The KeyEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraTree1_KeyDown (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraTree1_KeyDown (sender AS System.Object,
                                             e AS System.Windows.Forms.KeyEventArgs):
-        
-        IF Progress.Util.EnumHelper:AreEqual (e:KeyCode, Keys:Return) OR 
-           Progress.Util.EnumHelper:AreEqual (e:KeyCode, Keys:Enter) THEN DO: 
 
-            IF VALID-OBJECT (ultraTree1:ActiveNode) AND NOT ultraTree1:ActiveNode:HasNodes AND ultraTree1:ActiveNode:Enabled THEN 
-                
-                ItemSelected (ultraTree1:ActiveNode) . 
+        IF Progress.Util.EnumHelper:AreEqual (e:KeyCode, Keys:Return) OR
+           Progress.Util.EnumHelper:AreEqual (e:KeyCode, Keys:Enter) THEN DO:
+
+            IF VALID-OBJECT (ultraTree1:ActiveNode) AND NOT ultraTree1:ActiveNode:HasNodes AND ultraTree1:ActiveNode:Enabled THEN
+
+                ItemSelected (ultraTree1:ActiveNode) .
         END.
 
         CATCH err AS Progress.Lang.Error:
-            ErrorHelper:ShowErrorMessage (err) .    
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the MouseClick Event of the ultraTree1
-        Notes:                                                                          
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The MouseEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraTree1_MouseClick (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraTree1_MouseClick (sender AS System.Object,
                                                e AS System.Windows.Forms.MouseEventArgs):
-        
-        DEFINE VARIABLE oNode      AS UltraTreeNode              NO-UNDO .
-        DEFINE VARIABLE oUIElement AS Infragistics.Win.UIElement NO-UNDO . 
 
-        IF UseDoubleClickForItemSelect = TRUE THEN 
-            RETURN . 
+        DEFINE VARIABLE oNode      AS UltraTreeNode              NO-UNDO .
+        DEFINE VARIABLE oUIElement AS Infragistics.Win.UIElement NO-UNDO .
+
+        IF UseDoubleClickForItemSelect = TRUE THEN
+            RETURN .
 
         /* Mike Fechner, Consultingwerk Ltd. 12.08.2014
-           SCL-391: Disregard click on Expansion indicator 
+           SCL-391: Disregard click on Expansion indicator
                      http://www.infragistics.com/community/forums/t/72064.aspx */
         oUIElement = ultraTree1:UIElement:LastElementEntered .
-  
-        IF NOT VALID-OBJECT (oUIElement) THEN RETURN . 
+
+        IF NOT VALID-OBJECT (oUIElement) THEN
+            RETURN .
 
         oUIElement = oUIElement:GetAncestor (Progress.Util.TypeHelper:GetType ("Infragistics.Win.UltraWinTree.NodeSelectableAreaUIElement":U)) .
 
-        IF NOT VALID-OBJECT (oUIElement) THEN RETURN . 
+        IF NOT VALID-OBJECT (oUIElement) THEN
+            RETURN .
 
         oNode = ultraTree1:GetNodeFromPoint (e:Location) .
 
@@ -612,28 +619,28 @@ CLASS Consultingwerk.Windows.Controls.UltraTreeWithSearchControl INHERITS UserCo
            we moved the clicked node up. In this case the node at the current location is a child node rather than the
            original node we clicked on...  */
 
-        IF VALID-OBJECT (oNode) AND NOT ultraTree1:ActiveNode:HasNodes AND ultraTree1:ActiveNode:Enabled THEN 
-            ItemSelected (ultraTree1:ActiveNode) .        
+        IF VALID-OBJECT (oNode) AND NOT ultraTree1:ActiveNode:HasNodes AND ultraTree1:ActiveNode:Enabled THEN
+            ItemSelected (ultraTree1:ActiveNode) .
 
         CATCH err AS Progress.Lang.Error:
-            ErrorHelper:ShowErrorMessage (err) .    
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the MouseDoubleClick Event of the ultraTree1
-        Notes:                                                                          
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The MouseEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraTree1_MouseDoubleClick (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraTree1_MouseDoubleClick (sender AS System.Object,
                                                      e AS System.Windows.Forms.MouseEventArgs):
-        
+
         DEFINE VARIABLE oNode AS UltraTreeNode NO-UNDO .
 
-        IF UseDoubleClickForItemSelect = FALSE THEN 
-            RETURN . 
+        IF UseDoubleClickForItemSelect = FALSE THEN
+            RETURN .
 
         oNode = ultraTree1:GetNodeFromPoint (e:Location) .
 
@@ -645,14 +652,18 @@ CLASS Consultingwerk.Windows.Controls.UltraTreeWithSearchControl INHERITS UserCo
            we moved the clicked node up. In this case the node at the current location is a child node rather than the
            original node we clicked on...  */
 
-        IF VALID-OBJECT (oNode) AND NOT ultraTree1:ActiveNode:HasNodes AND ultraTree1:ActiveNode:Enabled THEN 
-            ItemSelected (ultraTree1:ActiveNode) .        
+        IF VALID-OBJECT (oNode) AND NOT ultraTree1:ActiveNode:HasNodes AND ultraTree1:ActiveNode:Enabled THEN
+            ItemSelected (ultraTree1:ActiveNode) .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the MenuTreeViewControl class 
-        Notes:   
+        Purpose: Destructor for the MenuTreeViewControl class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC UltraTreeWithSearchControl ( ):
 

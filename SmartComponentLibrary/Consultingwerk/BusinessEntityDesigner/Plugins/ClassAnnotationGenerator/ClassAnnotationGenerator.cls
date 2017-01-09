@@ -21,6 +21,8 @@
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
+USING Consultingwerk.*                                                         FROM PROPATH .
+USING Consultingwerk.BusinessEntityDesigner.*                                  FROM PROPATH .
 USING Consultingwerk.BusinessEntityDesigner.Plugins.ClassAnnotationGenerator.* FROM PROPATH .  
 USING Consultingwerk.Exceptions.*                                              FROM PROPATH .
 USING Consultingwerk.Windows.Util.Forms.*                                      FROM PROPATH .
@@ -40,28 +42,34 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.ClassAnnotationGenerator.Cla
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID GenerateClassAnnotations (pcDirectory AS CHARACTER, 
                                                  pcFileMask AS CHARACTER):
-		
+        
         DEFINE VARIABLE cEntityFileName AS CHARACTER NO-UNDO .
         DEFINE VARIABLE cCommandLine    AS CHARACTER NO-UNDO .
+        DEFINE VARIABLE cAntBat         AS CHARACTER NO-UNDO .
 
         DEFINE VARIABLE oExecuteDialog AS ExecuteShellCommandDialog NO-UNDO .
 
         ASSIGN cEntityFileName = SUBSTITUTE ("&1/&2":U,
                                              pcDirectory,
-                                             pcFileMask) .
+                                             pcFileMask) 
+               cAntBat = BusinessEntityDesignerSettings:ApacheAntCommandLine .
+
+        IF CharacterType:IsNullOrEmpty (cAntBat) THEN 
+            ASSIGN cAntBat = "ant.bat":U .
 
         IF NOT FileHelper:Exists (cEntityFileName) THEN
             UNDO, THROW NEW ExceptionWithTitle ("Business Entity not found. Please generate source code first."{&TRAN},
                                                 0,
                                                 "Class Annotation Generator Plugin"{&TRAN}) .
 
-        ASSIGN cCommandLine = SUBSTITUTE ('~"C:\Progress\PCT\ant\bin\ant.bat~" ExtractClassAnnotationsWithParameters -Ddirectory=~"&1~" -DfileMask=~"&2~"':U,
+        ASSIGN cCommandLine = SUBSTITUTE ('~"&1~" ExtractClassAnnotationsWithParameters -Ddirectory=~"&2~" -DfileMask=~"&3~"':U,
+                                          cAntBat,
                                           pcDirectory,
                                           pcFileMask) .
 
         oExecuteDialog = NEW ExecuteShellCommandDialog () .
         oExecuteDialog:Execute (cCommandLine) .
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

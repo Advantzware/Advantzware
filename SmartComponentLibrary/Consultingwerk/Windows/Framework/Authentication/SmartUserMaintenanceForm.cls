@@ -11,12 +11,12 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : SmartUserMaintenanceForm
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Marko Rüterbories / Consultingwerk Ltd.
     Created     : Thu Oct 11 21:12:49 CEST 2012
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -28,13 +28,13 @@ USING Consultingwerk.SmartComponents.Implementation.*     FROM PROPATH .
 USING Consultingwerk.SmartComponents.Interfaces.*         FROM PROPATH .
 USING Consultingwerk.SmartFramework.Authorization.*       FROM PROPATH .
 USING Consultingwerk.Util.*                               FROM PROPATH .
-USING Consultingwerk.Windows.Framework.Authentication.*   FROM PROPATH .  
+USING Consultingwerk.Windows.Framework.Authentication.*   FROM PROPATH .
 USING Progress.Lang.*                                     FROM PROPATH .
 
-CLASS Consultingwerk.Windows.Framework.Authentication.SmartUserMaintenanceForm 
+CLASS Consultingwerk.Windows.Framework.Authentication.SmartUserMaintenanceForm
     INHERITS SmartWindowForm
-    IMPLEMENTS IDefaultActionSubscriber: 
-    
+    IMPLEMENTS IDefaultActionSubscriber:
+
     DEFINE PRIVATE VARIABLE ButtonUnAssignUserFromGroup AS Infragistics.Win.Misc.UltraButton NO-UNDO.
     DEFINE PRIVATE VARIABLE ButtonAssignUserToGroup AS Infragistics.Win.Misc.UltraButton NO-UNDO.
     DEFINE PRIVATE VARIABLE m_SmartUserMaintenanceForm_Toolbars_Dock_Area_Top    AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea                        NO-UNDO.
@@ -65,10 +65,10 @@ CLASS Consultingwerk.Windows.Framework.Authentication.SmartUserMaintenanceForm
     DEFINE PRIVATE VARIABLE lPendingChangesInUserGroupAssignement AS LOGICAL                    NO-UNDO INIT FALSE.
 
     CONSTRUCTOR PUBLIC SmartUserMaintenanceForm ():
-        
+
         SUPER ().
         InitializeComponent ().
-        
+
         /* Marko Rüterbories, Consultingwerk Ltd. 05.02.2013
            Register the DefaultActionSubscriber to the SmartDataBrowser controls
            to enable the user to assign or unassign a group to/from a user. */
@@ -82,89 +82,96 @@ CLASS Consultingwerk.Windows.Framework.Authentication.SmartUserMaintenanceForm
 
     /*------------------------------------------------------------------------------
         Purpose: Adds an assignement to a Group for a User
-        Notes:   
+        Notes:
         @param sender Reference to the calling Object
         @param e An EventArgs that contains no event data
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ButtonAssignUserToGroup_Click (sender AS System.Object, 
+    METHOD PRIVATE VOID ButtonAssignUserToGroup_Click (sender AS System.Object,
                                                        e      AS System.EventArgs):
-        
-        IF NOT VALID-OBJECT (oUserGroupDatasetController) THEN 
+
+        IF NOT VALID-OBJECT (oUserGroupDatasetController) THEN
             UNDO, THROW NEW AppError ("No DatasteController registered for UserGroups!":U, 0).
-    
+
         /* Marko Rüterbories, Consultingwerk Ltd. 05.10.2013
            Do not try to assign from an empty list. */
-        IF PossibleAssignementsBindingSource:Count = 0 THEN RETURN.
-        
+        IF PossibleAssignementsBindingSource:Count = 0 THEN
+            RETURN.
+
         oUserGroupDatasetController:AssignUserToGroup (PossibleAssignementsTableAdapter:GetFieldValues("UserGroupGuid":U)).
-        
+
         UserGroupAdapter:SubmitChanges ().
-        
+
         UserGroupAdapter:QueryHandle:QUERY-OPEN ().
         UserGroupAdapter:BindingSource:RefreshAll ().
-        
+
         PossibleAssignementsTableAdapter:RetrieveData ().
 
         /* Marko Rüterbories, Consultingwerk Ltd. 12.10.2013
            Refresh Assignment button sensitivity */
         SetAssignmentButtonState ().
-        
-        CATCH ple AS Progress.Lang.Error :
-            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (ple).
+
+        CATCH ple AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (ple).
         END CATCH.
+
         FINALLY:
             lPendingChangesInUserGroupAssignement = TRUE.
         END FINALLY.
+
     END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Removes the assignement of a User to a Group
-        Notes:   
+        Notes:
         @param sender Reference to the calling Object
         @param e An EventArgs that contains no event data
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ButtonUnAssignUserFromGroup_Click (sender AS System.Object, 
+    METHOD PRIVATE VOID ButtonUnAssignUserFromGroup_Click (sender AS System.Object,
                                                            e      AS System.EventArgs):
-        
-        IF NOT VALID-OBJECT (oUserGroupDatasetController) THEN 
+
+        IF NOT VALID-OBJECT (oUserGroupDatasetController) THEN
             UNDO, THROW NEW AppError ("No DatasteController registered for UserGroups!":U, 0).
-        
+
         /* Marko Rüterbories, Consultingwerk Ltd. 05.10.2013
            Do not try to assign from an empty list. */
-        IF UserGroupBindingSource:Count = 0 THEN RETURN.
+        IF UserGroupBindingSource:Count = 0 THEN
+            RETURN.
 
         oUserGroupDatasetController:UnAssignUserFromGroup ().
-        
+
         UserGroupAdapter:SubmitChanges ().
-        
+
         UserGroupAdapter:QueryHandle:QUERY-OPEN ().
         UserGroupAdapter:BindingSource:RefreshAll ().
-        
+
         PossibleAssignementsTableAdapter:RetrieveData ().
 
         /* Marko Rüterbories, Consultingwerk Ltd. 12.10.2013
            Refresh Assignment button sensitivity */
         SetAssignmentButtonState ().
-        
-        CATCH ple AS Progress.Lang.Error :
-            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (ple).
+
+        CATCH ple AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (ple).
         END CATCH.
+
         FINALLY:
             lPendingChangesInUserGroupAssignement = TRUE.
         END FINALLY.
+
     END METHOD .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -1511,189 +1518,208 @@ CLASS Consultingwerk.Windows.Framework.Authentication.SmartUserMaintenanceForm
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Override of the OnShown Method to first show the form and then 
+        Purpose: Override of the OnShown Method to first show the form and then
                  initiate reading data.
-        Notes:   
+        Notes:
         @param e An EventArgs that contains no event data
     ------------------------------------------------------------------------------*/
     METHOD OVERRIDE PROTECTED VOID OnShown (e AS System.EventArgs):
-        
+
         SUPER:OnShown (e).
 
         Consultingwerk.Util.UserInterfaceHelper:ProcessEvents() .
 
         UserAdapter:RetrieveData ().
 
-        IF VALID-OBJECT (UserGroupAdapter:DatasetController) AND 
-           TYPE-OF (UserGroupAdapter:DatasetController, Consultingwerk.SmartFramework.Authorization.UserGroupDatasetController) THEN 
+        IF VALID-OBJECT (UserGroupAdapter:DatasetController) AND
+           TYPE-OF (UserGroupAdapter:DatasetController, Consultingwerk.SmartFramework.Authorization.UserGroupDatasetController) THEN
             oUserGroupDatasetController = CAST (UserGroupAdapter:DatasetController, Consultingwerk.SmartFramework.Authorization.UserGroupDatasetController).
-        
+
         PROCESS EVENTS.
-        
+
     END METHOD .
 
-	/*------------------------------------------------------------------------------
-		Purpose: Set Assignment buttons en or disabled according to the availability
-		         of data to be assigned
-		Notes:   
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID SetAssignmentButtonState ():
-		
-		ASSIGN 
-    		ButtonAssignUserToGroup:Enabled     = PossibleAssignementsBindingSource:Count > 0
+    /*------------------------------------------------------------------------------
+        Purpose: Set Assignment buttons en or disabled according to the availability
+                 of data to be assigned
+        Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID SetAssignmentButtonState ():
+
+        ASSIGN
+            ButtonAssignUserToGroup:Enabled     = PossibleAssignementsBindingSource:Count > 0
             ButtonUnAssignUserFromGroup:Enabled = UserGroupBindingSource:Count > 0
             .
-		
-	END METHOD.
+
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Save or reject pending changes of the UserGroupAdapter if required
-        Notes:   
+        Notes:
         @param sender The source of the event
-        @param e An EventArgs that contains the data for the event 
+        @param e An EventArgs that contains the data for the event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID smartDataBrowser1_BeforeSelectChange (sender AS System.Object, 
+    METHOD PRIVATE VOID smartDataBrowser1_BeforeSelectChange (sender AS System.Object,
                                                               e      AS Infragistics.Win.UltraWinGrid.BeforeSelectChangeEventArgs):
-        
+
         DEFINE VARIABLE oMessageProvider AS Consultingwerk.SmartFramework.IMessageProvider NO-UNDO.
         DEFINE VARIABLE oMessage         AS Consultingwerk.SmartFramework.Message          NO-UNDO.
-        
-        IF UserGroupAdapter:SmartTransactionState <> TransactionStateEnum:PendingChanges THEN RETURN.
-            
+
+        IF UserGroupAdapter:SmartTransactionState <> TransactionStateEnum:PendingChanges THEN
+            RETURN.
+
         oMessageProvider = {Consultingwerk/get-service.i Consultingwerk.SmartFramework.IMessageProvider} .
-        IF VALID-OBJECT (oMessageProvider) THEN 
-        DO ON ERROR UNDO, THROW:
+
+        IF VALID-OBJECT (oMessageProvider) THEN DO:
             oMessage = oMessageProvider:GetMessage ("SFR":U, 2) .
-            IF MessageFormHelper:ShowMessage (oMessage) = DialogResultEnum:DialogResultYes THEN DO:
+
+            IF MessageFormHelper:ShowMessage (oMessage) = DialogResultEnum:DialogResultYes THEN
                 UserGroupAdapter:CommitTransaction ().
-            END.
-            ELSE DO:
+            ELSE
                 UserGroupAdapter:RejectTransaction ().
-            END.
-            CATCH err AS Progress.Lang.Error :
-                e:Cancel = TRUE.
-                ErrorHelper:ShowErrorMessage (err) .    
-            END CATCH.
+
         END.
+
+        CATCH err AS Progress.Lang.Error:
+            e:Cancel = TRUE.
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Assign or unassign a Group from a User
-        Notes:   
+        Notes:
         @param sender The reference to the Instance of the SmartDataBrowser which has invoked the Method
-        @param e The System.EventArgs with the data for this event 
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PUBLIC VOID SmartDataBrowserDefaultActionHandler (sender AS SmartDataBrowser, 
+    METHOD PUBLIC VOID SmartDataBrowserDefaultActionHandler (sender AS SmartDataBrowser,
                                                              e      AS System.EventArgs):
 
         CASE sender:
             WHEN smartDataBrowser2 THEN ButtonUnAssignUserFromGroup_Click (sender, e).
             WHEN smartDataBrowser3 THEN ButtonAssignUserToGroup_Click (sender, e).
-        END CASE.        
-    
+        END CASE.
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
     END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: When switching to the UserAssignement tab the contextual tab for
                  this purpose gets shown
-        Notes:   
+        Notes:
         @param sender Reference to the calling Object
         @param e An EventArgs that contains the SelectedTabChanged event data
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraTabControl1_SelectedTabChanged (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraTabControl1_SelectedTabChanged (sender AS System.Object,
                                                              e      AS Infragistics.Win.UltraWinTabControl.SelectedTabChangedEventArgs):
-        
+
         IF e:Tab:Key = "GroupAssignement":U THEN DO:
             smartToolbarController1:Ribbon:ContextualTabGroups["GroupAssignement":U]:Visible = TRUE.
             smartToolbarController1:Ribbon:SelectedTab = smartToolbarController1:Ribbon:Tabs["GroupAssignement":U].
         END.
-        ELSE 
+        ELSE
             smartToolbarController1:Ribbon:ContextualTabGroups["GroupAssignement":U]:Visible = FALSE.
-            
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Refresh the Assignment button sensitivity after rejecting changes                                                                    
-        Notes:                                                                        
+        Purpose: Refresh the Assignment button sensitivity after rejecting changes
+        Notes:
         @param sender Reference to the calling Object
         @param e An EventArgs that contains no event data
     ------------------------------------------------------------------------------*/
     METHOD PRIVATE VOID UserGroupAdapter_AfterRejectTransaction (sender AS System.Object,
                                                                  e      AS System.EventArgs):
-        
+
         /* Marko Rüterbories, Consultingwerk Ltd. 12.10.2013
            Refresh Assignment button sensitivity */
         SetAssignmentButtonState ().
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Refreshes the PossibleAssignement Browser after new Data has been 
+        Purpose: Refreshes the PossibleAssignement Browser after new Data has been
                  read by the UserGroupAdapter
-        Notes:   
+        Notes:
         @param sender Reference to the calling Object
         @param e An EventArgs that contains no event data
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID UserGroupAdapter_AfterRetrieveData (sender AS System.Object, 
+    METHOD PRIVATE VOID UserGroupAdapter_AfterRetrieveData (sender AS System.Object,
                                                             e      AS System.EventArgs):
-        
-        IF NOT VALID-HANDLE (PossibleAssignementsTableAdapter:BufferHandle) AND  
-           VALID-HANDLE (UserGroupAdapter:DataSet) THEN 
+
+        IF NOT VALID-HANDLE (PossibleAssignementsTableAdapter:BufferHandle) AND
+           VALID-HANDLE (UserGroupAdapter:DataSet) THEN
             PossibleAssignementsTableAdapter:TempTableHandle = UserGroupAdapter:DataSet::ePossibleAssignments.
-    
+
         PossibleAssignementsTableAdapter:RetrieveData ().
-        
+
         /* Marko Rüterbories, Consultingwerk Ltd. 12.10.2013
            Refresh Assignment button sensitivity */
         SetAssignmentButtonState ().
-        
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
     END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Sets then CustomerContext just before executing the RetrieveData
                  Method of the UserGroupAdapter
-        Notes:   
+        Notes:
         @param sender Reference to the calling Object
         @param e An EventArgs that contains the Cancelable event data
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID UserGroupAdapter_BeforeRetrieveData (sender AS System.Object, 
+    METHOD PRIVATE VOID UserGroupAdapter_BeforeRetrieveData (sender AS System.Object,
                                                              e      AS System.ComponentModel.CancelEventArgs):
-        
+
         UserGroupAdapter:CustomContext = SUBSTITUTE ("LoginCompany=&1|GroupAssignment=yes":U,
                                                      UserAdapter:GetFieldValues("LoginCompanyGuid":U)).
-    
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
     END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Makes sure that the PossibleAssignement Browser shows the correct
                  data
-        Notes:   
+        Notes:
         @param sender Reference to the calling Object
         @param e An EventArgs that contains no event data
     ------------------------------------------------------------------------------*/
     METHOD PRIVATE VOID UserGroupAdapter_SmartTransactionStateChanged (sender AS System.Object,
                                                                        e      AS System.EventArgs):
-        
-        IF lPendingChangesInUserGroupAssignement AND 
-           UserGroupAdapter:SmartTransactionState = TransactionStateEnum:NoPendingChanges THEN 
+
+        IF lPendingChangesInUserGroupAssignement AND
+           UserGroupAdapter:SmartTransactionState = TransactionStateEnum:NoPendingChanges THEN
             PossibleAssignementsTableAdapter:RetrieveData ().
 
         /* Marko Rüterbories, Consultingwerk Ltd. 12.10.2013
            Refresh Assignment button sensitivity */
         SetAssignmentButtonState ().
-        
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
         FINALLY:
             lPendingChangesInUserGroupAssignement = FALSE.
         END FINALLY.
+
     END METHOD .
-
-    /*------------------------------------------------------------------------------
-        Purpose: Destructor for the SmartUserMaintenanceForm class 
-        Notes:   
-    ------------------------------------------------------------------------------*/
-    DESTRUCTOR PUBLIC SmartUserMaintenanceForm ():
-
-    END DESTRUCTOR .
 
 END CLASS.

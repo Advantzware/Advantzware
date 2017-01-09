@@ -39,18 +39,18 @@ CLASS Consultingwerk.Studio.OpenEdgeDocs.ParseIndexXmlForAttributes
         
     DEFINE VARIABLE hSaxHandler AS HANDLE NO-UNDO.
 
-	/*------------------------------------------------------------------------------
+    /*------------------------------------------------------------------------------
         Purpose: Constructor for the ParseIndexXmlForAttributes class
         Notes:   Starts parsing and writes output to ./widgetattributes.xml
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ParseIndexXmlForAttributes ():
-		SUPER ().
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC ParseIndexXmlForAttributes ():
+        SUPER ().
 
         DEFINE VARIABLE hSaxReader AS HANDLE NO-UNDO.
 
         RUN Consultingwerk/sax-reader-handler.p 
             PERSISTENT SET hSaxHandler (THIS-OBJECT) .
-            		        
+                            
         CREATE SAX-READER hSaxReader . 
         hSaxReader:HANDLER = hSaxHandler . 
 
@@ -63,9 +63,9 @@ CLASS Consultingwerk.Studio.OpenEdgeDocs.ParseIndexXmlForAttributes
         FINALLY:
             IF VALID-HANDLE (hSaxReader) THEN 
                 DELETE OBJECT hSaxReader . 
-        END FINALLY.            		
-            		
-	END CONSTRUCTOR.
+        END FINALLY.                    
+                    
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Invoked when the XML parser detects character data.                                                                      
@@ -76,10 +76,10 @@ CLASS Consultingwerk.Studio.OpenEdgeDocs.ParseIndexXmlForAttributes
         @param plcCharData A LONGCHAR that contains a chunk of character data.
         @param piNumChars The number of characters contained in the MEMPTR.
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID SaxCharacters (plcCharData AS LONGCHAR, 
-	                                  piNumChars AS INTEGER):
+    METHOD PUBLIC VOID SaxCharacters (plcCharData AS LONGCHAR, 
+                                      piNumChars AS INTEGER):
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Invoked when the XML parser detects the end of an XML document.                                                                     
@@ -88,11 +88,11 @@ CLASS Consultingwerk.Studio.OpenEdgeDocs.ParseIndexXmlForAttributes
         @param pcLocalName A character string indicating the non-prefixed element name. If namespace processing is not enabled, the string is of length zero.
         @param pcName A character string indicating the actual name of the element in the XML source. If the name has a prefix, qName includes it, whether or not namespace processing is enabled.
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID SaxEndElement (pcNamespaceURI AS CHARACTER, 
-	                                  pcLocalName AS CHARACTER, 
-	                                  pcName AS CHARACTER):
+    METHOD PUBLIC VOID SaxEndElement (pcNamespaceURI AS CHARACTER, 
+                                      pcLocalName AS CHARACTER, 
+                                      pcName AS CHARACTER):
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Invoked when the XML parser detects the beginning of an element.                                                                     
@@ -102,36 +102,36 @@ CLASS Consultingwerk.Studio.OpenEdgeDocs.ParseIndexXmlForAttributes
         @param pcName A character string indicating the actual name of the element in the XML source. If the name has a prefix, qName includes it, whether or not namespace processing is enabled.
         @param phAttributes A handle to a SAX-attributes object, which provides access to all attributes specified for the element. If the element has no attributes, attributes is still a valid handle, and the NUM-ITEMS attribute is zero.      
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID SaxStartElement (pcNamespaceURI AS CHARACTER, 
-	                                    pcLocalName AS CHARACTER, 
-	                                    pcName AS CHARACTER, 
-	                                    phAttributes AS HANDLE):
-		
-		DEFINE VARIABLE cKeyword AS CHARACTER NO-UNDO.
-		
-		IF pcName <> "entry":U THEN
-		    RETURN .
-		    
+    METHOD PUBLIC VOID SaxStartElement (pcNamespaceURI AS CHARACTER, 
+                                        pcLocalName AS CHARACTER, 
+                                        pcName AS CHARACTER, 
+                                        phAttributes AS HANDLE):
+        
+        DEFINE VARIABLE cKeyword AS CHARACTER NO-UNDO.
+        
+        IF pcName <> "entry":U THEN
+            RETURN .
+            
         ASSIGN cKeyword = phAttributes:GET-VALUE-BY-QNAME ("keyword":U) .
         
         IF NUM-ENTRIES (cKeyword, " ":U) = 2 AND 
-            ENTRY (2, cKeyword, " ":U) = "attribute":U THEN DO: 		      
-		
-		    IF NOT CAN-FIND (ttWidgetAttributes WHERE ttWidgetAttributes.AttributeName = ENTRY (1, cKeyword, " ":U)) THEN DO:
-    		    CREATE ttWidgetAttributes.
-    		    ASSIGN ttWidgetAttributes.AttributeName = ENTRY (1, cKeyword, " ":U) .
-		    END.
-		END.
-	END METHOD.
+            ENTRY (2, cKeyword, " ":U) = "attribute":U THEN DO:               
+        
+            IF NOT CAN-FIND (ttWidgetAttributes WHERE ttWidgetAttributes.AttributeName = ENTRY (1, cKeyword, " ":U)) THEN DO:
+                CREATE ttWidgetAttributes.
+                ASSIGN ttWidgetAttributes.AttributeName = ENTRY (1, cKeyword, " ":U) .
+            END.
+        END.
+    END METHOD.
 
-	/*------------------------------------------------------------------------------
-	 Purpose:
-	 Notes:
-	------------------------------------------------------------------------------*/
-	DESTRUCTOR PUBLIC ParseIndexXmlForAttributes ():
-	    
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DESTRUCTOR PUBLIC ParseIndexXmlForAttributes ():
+        
         GarbageCollectorHelper:DeleteObject (hSaxHandler) .
         
-	END DESTRUCTOR.
+    END DESTRUCTOR.
 
 END CLASS.

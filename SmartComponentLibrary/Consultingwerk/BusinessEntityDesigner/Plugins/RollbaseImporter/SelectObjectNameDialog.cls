@@ -11,42 +11,42 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : SelectObjectNameDialog
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Thu May 29 07:57:47 CEST 2014
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.Forms.BaseForm.
-USING Consultingwerk.BusinessEntityDesigner.Plugins.RollbaseImporter.* FROM PROPATH .  
+USING Consultingwerk.BusinessEntityDesigner.Plugins.RollbaseImporter.* FROM PROPATH .
 USING Progress.Lang.* FROM PROPATH .
 
-CLASS Consultingwerk.BusinessEntityDesigner.Plugins.RollbaseImporter.SelectObjectNameDialog INHERITS BaseForm: 
+CLASS Consultingwerk.BusinessEntityDesigner.Plugins.RollbaseImporter.SelectObjectNameDialog INHERITS BaseForm:
 
     DEFINE PRIVATE VARIABLE btnOk AS Infragistics.Win.Misc.UltraButton NO-UNDO.
     DEFINE PRIVATE VARIABLE btnCancel AS Infragistics.Win.Misc.UltraButton NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE smartBusinessEntityLookup1 AS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityLookup NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraLabel1 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns the selected integration name  
-        Notes:   
+        Purpose: Returns the selected integration name
+        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY IntegrationName AS CHARACTER NO-UNDO 
-	GET.
-    PRIVATE SET . 
+    DEFINE PUBLIC PROPERTY IntegrationName AS CHARACTER NO-UNDO
+    GET.
+    PRIVATE SET .
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the SelectObjectNameDialog class  
-        Notes:   
+        Purpose: Constructor for the SelectObjectNameDialog class
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC SelectObjectNameDialog ():
-		
+    CONSTRUCTOR PUBLIC SelectObjectNameDialog ():
+
         SUPER().
         InitializeComponent().
 
@@ -58,19 +58,20 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.RollbaseImporter.SelectObjec
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design  
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -226,32 +227,32 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.RollbaseImporter.SelectObjec
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the FormClosing event 
-        Notes:   
+        Purpose: Raises the FormClosing event
+        Notes:
         @param e The FormClosingEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED OVERRIDE VOID OnFormClosing (e AS System.Windows.Forms.FormClosingEventArgs):
-		
-	    ASSIGN THIS-OBJECT:IntegrationName = smartBusinessEntityLookup1:Text  .
-	    
-		SUPER:OnFormClosing (e) .
+    METHOD PROTECTED OVERRIDE VOID OnFormClosing (e AS System.Windows.Forms.FormClosingEventArgs):
 
-	END METHOD .
+        ASSIGN THIS-OBJECT:IntegrationName = smartBusinessEntityLookup1:Text  .
+
+        SUPER:OnFormClosing (e) .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the ValueChanged event of the smartBusinessEntityLookup1
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised this event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID smartBusinessEntityLookup1_ValueChanged (sender AS System.Object,  
-	                                                             e AS System.EventArgs):
-		
-		ASSIGN btnOk:Enabled = (smartBusinessEntityLookup1:Text > "":U) .
+    METHOD PRIVATE VOID smartBusinessEntityLookup1_ValueChanged (sender AS System.Object,
+                                                                 e AS System.EventArgs):
 
-	END METHOD .
+        ASSIGN btnOk:Enabled = (smartBusinessEntityLookup1:Text > "":U) .
+
+    END METHOD .
 
 END CLASS.

@@ -27,7 +27,7 @@ USING Progress.Lang.*             FROM PROPATH .
 CLASS Consultingwerk.Web2.Views.SerializableToolbarElement 
     INHERITS SerializableLayoutElement: 
 
-    {Consultingwerk/JsonSerializableProperty.i Groups Consultingwerk.Web2.Views.ListSerializableToolbarGroup} .
+    {Consultingwerk/JsonSerializableProperty11.i Groups Consultingwerk.Web2.Views.ListSerializableToolbarGroup} .
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the SerializableLayoutElement class

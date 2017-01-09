@@ -11,13 +11,13 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : InitializeViewerLogicObjectException
-    Purpose     : Exception thrown when there was an error initializing 
+    Purpose     : Exception thrown when there was an error initializing
                   a SmartViewerControls Logic Object
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Mon Jun 30 14:08:22 CEST 2014
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -25,39 +25,39 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 {Consultingwerk/products.i}
 
 USING Consultingwerk.Exceptions.*           FROM PROPATH .
-USING Consultingwerk.SmartComponents.Base.* FROM PROPATH .  
+USING Consultingwerk.SmartComponents.Base.* FROM PROPATH .
 USING Progress.Lang.*                       FROM PROPATH .
 
-CLASS Consultingwerk.SmartComponents.Base.InitializeViewerLogicObjectException 
+CLASS Consultingwerk.SmartComponents.Base.InitializeViewerLogicObjectException
     INHERITS Exception
-    {&SERIALIZABLE}:  
+    {&SERIALIZABLE}:
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the name of the Viewer Logic Class that was attempted to be
                  initialized
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY ViewerLogicClass AS CHARACTER NO-UNDO 
-	GET.
-	PRIVATE SET. 
+    DEFINE PUBLIC PROPERTY ViewerLogicClass AS CHARACTER NO-UNDO
+    GET.
+    PRIVATE SET.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the InitializeViewerLogicObjectException class
-        Notes:                          
+        Notes:
         @param poInnerException The reference to the original error
         @param pcViewerLogicClass The value for the ViewerLogicClass property
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC InitializeViewerLogicObjectException (poInnerException AS Progress.Lang.Error,
-	                                                         pcViewerLogicClass AS CHARACTER):
-		SUPER (INPUT poInnerException).
-		
-		THIS-OBJECT:AddMessage ("Error initializing the Viewer Logic Class", 0) .
+    CONSTRUCTOR PUBLIC InitializeViewerLogicObjectException (poInnerException AS Progress.Lang.Error,
+                                                             pcViewerLogicClass AS CHARACTER):
+        SUPER (INPUT poInnerException).
 
-        IF poInnerException:NumMessages > 0 THEN 
+        THIS-OBJECT:AddMessage ("Error initializing the Viewer Logic Class"{&TRAN}, 0) .
+
+        IF poInnerException:NumMessages > 0 THEN
             THIS-OBJECT:AddMessage (poInnerException:GetMessage (1), poInnerException:GetMessageNum (0)) .
-            
-        ASSIGN THIS-OBJECT:ViewerLogicClass = pcViewerLogicClass . 
-		
-	END CONSTRUCTOR.
+
+        ASSIGN THIS-OBJECT:ViewerLogicClass = pcViewerLogicClass .
+
+    END CONSTRUCTOR.
 
 END CLASS.

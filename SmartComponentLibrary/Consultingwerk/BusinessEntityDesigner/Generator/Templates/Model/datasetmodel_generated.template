@@ -25,7 +25,7 @@ CLASS &2.&1DatasetModel_Generated
         Purpose: Returns the name of the Business Entity this model belongs to 
         Notes:   
     ------------------------------------------------------------------------------*/
-    DEFINE OVERRIDE PUBLIC PROPERTY EntityName AS CHARACTER NO-UNDO INIT "&6.&7":U
+    DEFINE OVERRIDE PUBLIC PROPERTY EntityName AS CHARACTER NO-UNDO INITIAL "&6.&7":U
     GET.
     PROTECTED SET.
 

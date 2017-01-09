@@ -11,12 +11,12 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : CustomPropertiesScopeEnum
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Mon May 19 18:21:05 CEST 2014
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -33,18 +33,18 @@ USING Consultingwerk.Enum.
 
 USING Consultingwerk.Framework.Collections.* FROM PROPATH .
 
-USING Consultingwerk.BusinessEntityDesigner.Services.* FROM PROPATH .  
+USING Consultingwerk.BusinessEntityDesigner.Services.* FROM PROPATH .
 USING Progress.Lang.* FROM PROPATH .
 
-{&CLASS} Consultingwerk.BusinessEntityDesigner.Services.CustomPropertiesScopeEnum 
+{&CLASS} Consultingwerk.BusinessEntityDesigner.Services.CustomPropertiesScopeEnum
     &IF "{&CLASS}" EQ "CLASS" &THEN
     INHERITS Enum
-    &ENDIF    
-        : 
+    &ENDIF
+        :
 
 &IF "{&CLASS}" EQ "ENUM" &THEN
     DEFINE ENUM
-&ENDIF    
+&ENDIF
 
     {Consultingwerk/EnumMember.i BusinessEntity 0 CustomPropertiesScopeEnum}
     {Consultingwerk/EnumMember.i TempTable 1 CustomPropertiesScopeEnum}
@@ -54,7 +54,7 @@ USING Progress.Lang.* FROM PROPATH .
 
 &IF "{&CLASS}" EQ "ENUM" &THEN
     .
-&ENDIF    
+&ENDIF
 
 &IF "{&CLASS}" EQ "CLASS" &THEN
 
@@ -66,26 +66,24 @@ USING Progress.Lang.* FROM PROPATH .
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PRIVATE CustomPropertiesScopeEnum (piValue AS INTEGER, pcLabel AS CHARACTER):
         SUPER ().
- 
+
         ASSIGN THIS-OBJECT:Value = piValue
                THIS-OBJECT:Label = pcLabel .
- 
+
     END CONSTRUCTOR.
- 
+
     /*------------------------------------------------------------------------------
         Purpose: Returns a CharacterList with the names of the Enum members
-        Notes:   
+        Notes:
         @return The CharacterList with the names of the Enum members
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CharacterList GetNames ():
- 
-        DEFINE VARIABLE oReturn AS CharacterList NO-UNDO . 
- 
+
         RETURN NEW CharacterList ('{&EnumMembers}':U).
- 
+
     END METHOD .
 
-    {Consultingwerk/EnumFromString.i Consultingwerk.BusinessEntityDesigner.Services.CustomPropertiesScopeEnum} 
+    {Consultingwerk/EnumFromString.i Consultingwerk.BusinessEntityDesigner.Services.CustomPropertiesScopeEnum}
 
 &ENDIF
 

@@ -23,14 +23,14 @@ USING Progress.Lang.*.
 
 INTERFACE Consultingwerk.Framework.Authorization.IFormAuthorizationProvider:  
   
-	/*------------------------------------------------------------------------------
-		Purpose: Provides authorization for launching Forms 																	  
-		Notes:  											
-		@param poRequestor The reference to the requesting object
-		@param pcClassName The Form class name to launch
-		@return Logical value indicating if the Form startup is restricted						  
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL IsFormStartupRestricted (poRequestor AS Progress.Lang.Object,
+    /*------------------------------------------------------------------------------
+        Purpose: Provides authorization for launching Forms                                                                       
+        Notes:                                              
+        @param poRequestor The reference to the requesting object
+        @param pcClassName The Form class name to launch
+        @return Logical value indicating if the Form startup is restricted                          
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC LOGICAL IsFormStartupRestricted (poRequestor AS Progress.Lang.Object,
                                                    pcClassName AS CHARACTER).
 
 END INTERFACE.

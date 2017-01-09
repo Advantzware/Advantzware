@@ -35,8 +35,8 @@ CLASS Consultingwerk.OERA.BusinessEntityDescriptor.InvokableMethodDescriptor
     IMPLEMENTS IInvokableMethodDescriptor
     {&SERIALIZABLE}:
 
-    {Consultingwerk/JsonSerializableProperty.i DatasetInput LOGICAL "INIT TRUE"} .
-    {Consultingwerk/JsonSerializableProperty.i DatasetOutput LOGICAL "INIT TRUE"} .
+    {Consultingwerk/JsonSerializableProperty.i DatasetInput LOGICAL "INITIAL TRUE"} .
+    {Consultingwerk/JsonSerializableProperty.i DatasetOutput LOGICAL "INITIAL TRUE"} .
     {Consultingwerk/JsonSerializableProperty.i Name CHARACTER} .
     {Consultingwerk/JsonSerializableProperty.i ParameterClassName CHARACTER} .
 

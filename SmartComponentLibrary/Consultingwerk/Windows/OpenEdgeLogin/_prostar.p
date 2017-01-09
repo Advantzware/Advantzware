@@ -4,7 +4,7 @@
 * contributed by participants of Possenet.                           *
 *                                                                    *
 *********************************************************************/
-/******************************************************************************* 
+/*******************************************************************************
 *
 *   PROGRAM:  prostart.p
 *
@@ -29,7 +29,7 @@ DEFINE VARIABLE i        AS INTEGER.
 DEFINE VARIABLE login_window AS WIDGET-HANDLE.
 &ENDIF
 
-/******************************************************************************* 
+/*******************************************************************************
 * tty specific banners
 *******************************************************************************/
 
@@ -56,7 +56,7 @@ END.
 HIDE ALL NO-PAUSE.
 &ENDIF
 
-/******************************************************************************* 
+/*******************************************************************************
 * main
 *******************************************************************************/
 
@@ -65,7 +65,7 @@ HIDE ALL NO-PAUSE.
 /* Non Progress databases MUST supply userid/passwd using -U and -P   */
 /* startup parameters.            */
 
-IF NUM-DBS > 0 THEN 
+IF NUM-DBS > 0 THEN
     savedb = LDBNAME("DICTDB":U).
 
 IF NUM-DBS > 1 AND savedb = "DICTDB":U THEN DO:
@@ -82,22 +82,23 @@ IF NUM-DBS > 1 AND savedb = "DICTDB":U THEN DO:
 END.
 ELSE IF NUM-DBS > 0 THEN DO:
     DO i = 1 to NUM-DBS:
-        IF DBTYPE(i) <> "PROGRESS":U THEN NEXT.
+        IF DBTYPE(i) <> "PROGRESS":U THEN
+            NEXT.
         CREATE ALIAS DICTDB FOR DATABASE VALUE( LDBNAME(i) ).
-	&IF "{&WINDOW-SYSTEM}" <> "TTY" &THEN
-/*	IF login_window = ? THEN    */
-/*	    RUN create_login_window.*/
-	&ENDIF
+    &IF "{&WINDOW-SYSTEM}" <> "TTY" &THEN
+/*    IF login_window = ? THEN    */
+/*        RUN create_login_window.*/
+    &ENDIF
         RUN Consultingwerk/Windows/OpenEdgeLogin/_login.p (false).
     END.
-    /************************************************************************** 
+    /**************************************************************************
        Be certain the database assigned DICTDB by Progress is still connected.
        If not, assign DICTDB to first db still connected.  This can happen if
        PROGRESS runs -p startup procedure, connects to more than one database,
        and then before the -p routine completes, the first connected database
        (DICTDB) gets disconnected.
     **************************************************************************/
-    IF ( savedb <> ? ) 
+    IF ( savedb <> ? )
         THEN CREATE ALIAS DICTDB FOR DATABASE VALUE( savedb ).
         ELSE CREATE ALIAS DICTDB FOR DATABASE VALUE( LDBNAME(1) ).
 END.
@@ -108,10 +109,10 @@ HIDE ALL NO-PAUSE.
 /*RUN destroy_login_window.*/
 &ENDIF
 
-/******************************************************************************* 
+/*******************************************************************************
 * create_login_window
 * destroy_login_window
-* 
+*
 * Create a special window for the login frame when running under a GUI.
 *******************************************************************************/
 

@@ -44,9 +44,9 @@ CLASS Consultingwerk.SmartFramework.Authorization.AuthorizationMaintenanceServic
         @param dsAuthorizationMaintenance The dataset with the resulting authorization assignments
         @param poParameter The AuthorizationMaintenanceServiceParameter with the parameters for this call
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID GetAuthorization (INPUT-OUTPUT DATASET dsAuthorizationMaintenance,
-	                                     poParameter AS AuthorizationMaintenanceServiceParameter):
-		
+    METHOD PUBLIC VOID GetAuthorization (INPUT-OUTPUT DATASET dsAuthorizationMaintenance,
+                                         poParameter AS AuthorizationMaintenanceServiceParameter):
+        
         DEFINE VARIABLE iEntry                AS INTEGER                      NO-UNDO .
         DEFINE VARIABLE lIsUser               AS LOGICAL                      NO-UNDO .
         DEFINE VARIABLE cEntry                AS CHARACTER                    NO-UNDO .
@@ -65,49 +65,49 @@ CLASS Consultingwerk.SmartFramework.Authorization.AuthorizationMaintenanceServic
         DEFINE VARIABLE oGroup                AS GroupDatasetModel                NO-UNDO . 
         DEFINE VARIABLE oRealm                AS SecurityRealmDatasetModel        NO-UNDO . 
         DEFINE VARIABLE oRealmLookupParameter AS SecurityRealmLookupParameter     NO-UNDO . 
-		DEFINE VARIABLE oRequest              AS FetchDataRequest                 NO-UNDO . 
-		DEFINE VARIABLE oSecurityService      AS ISecurityService                 NO-UNDO . 
-		
-		DEFINE VARIABLE hDataset AS HANDLE NO-UNDO .
-		DEFINE VARIABLE hQuery   AS HANDLE NO-UNDO .
-		DEFINE VARIABLE hBuffer  AS HANDLE NO-UNDO .
-		
-		ObjectAssert:IsValid (poParameter, "poParameter":U) .
-		{Consultingwerk/Assertion/Assert/NotNullOrEmpty.i poParameter:SecurityRealmGuid "'poParameter:SecurityRealmGuid':U"} .
+        DEFINE VARIABLE oRequest              AS FetchDataRequest                 NO-UNDO . 
+        DEFINE VARIABLE oSecurityService      AS ISecurityService                 NO-UNDO . 
+        
+        DEFINE VARIABLE hDataset AS HANDLE NO-UNDO .
+        DEFINE VARIABLE hQuery   AS HANDLE NO-UNDO .
+        DEFINE VARIABLE hBuffer  AS HANDLE NO-UNDO .
+        
+        ObjectAssert:IsValid (poParameter, "poParameter":U) .
+        {Consultingwerk/Assertion/Assert/NotNullOrEmpty.i poParameter:SecurityRealmGuid "'poParameter:SecurityRealmGuid':U"} .
         {Consultingwerk/Assertion/Assert/NotNullOrEmpty.i poParameter:OwnerGuids "'poParameter:OwnerGuids':U"} .
-		
-		oRealm = NEW SecurityRealmDatasetModel (poParameter:SecurityRealmGuid) .
-		
-		IF NOT oRealm:SmartSecurityRealm:Available THEN 
-            UNDO, THROW NEW InvalidValueException (poParameter:SecurityRealmGuid, "poParameter:SecurityRealmGuid":U) .		  
-		
-		IF oRealm:SmartSecurityRealm:CompanyDependent = TRUE THEN DO:
-		    IF poParameter:AlternativeLoginCompanyKey > "":U THEN 
-		        ASSIGN cCompanyKey = poParameter:AlternativeLoginCompanyKey .
-		    ELSE  
-		        ASSIGN cCompanyKey = Consultingwerk.Framework.Session.SessionManager:LoginCompanyKey .
-		END.
-		ELSE 
-		    ASSIGN cCompanyKey = "":U .  
-		
-		oSecurityService = {Consultingwerk/get-service.i Consultingwerk.SmartFramework.Authorization.ISecurityService
-		                                                 "NEW Consultingwerk.SmartFramework.Authorization.SecurityService ()"} .
-		
-		/* Retrieve realm items */
-		oRealmLookupParameter = NEW SecurityRealmLookupParameter (poParameter:SecurityRealmGuid) .
-		
-		ServiceInterface:InvokeTask ("Consultingwerk.SmartFramework.Authorization.SecurityRealmInfoService":U,
-		                             "GetSecurityRealmLookupParameter":U,
-		                             oRealmLookupParameter) .
-		
-		/* Populate record list */
-		DO ON ERROR UNDO, THROW:
-    		oRequest = NEW FetchDataRequest (oRealmLookupParameter:LookupDescriptor:LookupEntityTable,
-    		                                 oRealmLookupParameter:LookupDescriptor:LookupDialogQueryString) .
-    		
-    		ServiceInterface:FetchData (oRealmLookupParameter:LookupDescriptor:LookupEntityName,
-    		                            oRequest,
-    		                            OUTPUT DATASET-HANDLE hDataset) .
+        
+        oRealm = NEW SecurityRealmDatasetModel (poParameter:SecurityRealmGuid) .
+        
+        IF NOT oRealm:SmartSecurityRealm:Available THEN 
+            UNDO, THROW NEW InvalidValueException (poParameter:SecurityRealmGuid, "poParameter:SecurityRealmGuid":U) .          
+        
+        IF oRealm:SmartSecurityRealm:CompanyDependent = TRUE THEN DO:
+            IF poParameter:AlternativeLoginCompanyKey > "":U THEN 
+                ASSIGN cCompanyKey = poParameter:AlternativeLoginCompanyKey .
+            ELSE  
+                ASSIGN cCompanyKey = Consultingwerk.Framework.Session.SessionManager:LoginCompanyKey .
+        END.
+        ELSE 
+            ASSIGN cCompanyKey = "":U .  
+        
+        oSecurityService = {Consultingwerk/get-service.i Consultingwerk.SmartFramework.Authorization.ISecurityService
+                                                         "NEW Consultingwerk.SmartFramework.Authorization.SecurityService ()"} .
+        
+        /* Retrieve realm items */
+        oRealmLookupParameter = NEW SecurityRealmLookupParameter (poParameter:SecurityRealmGuid) .
+        
+        ServiceInterface:InvokeTask ("Consultingwerk.SmartFramework.Authorization.SecurityRealmInfoService":U,
+                                     "GetSecurityRealmLookupParameter":U,
+                                     oRealmLookupParameter) .
+        
+        /* Populate record list */
+        DO ON ERROR UNDO, THROW:
+            oRequest = NEW FetchDataRequest (oRealmLookupParameter:LookupDescriptor:LookupEntityTable,
+                                             oRealmLookupParameter:LookupDescriptor:LookupDialogQueryString) .
+            
+            ServiceInterface:FetchData (oRealmLookupParameter:LookupDescriptor:LookupEntityName,
+                                        oRequest,
+                                        OUTPUT DATASET-HANDLE hDataset) .
 
             ASSIGN hBuffer = hDataset:GET-BUFFER-HANDLE (oRealmLookupParameter:LookupDescriptor:LookupEntityTable)
                    hQuery  = QueryHelper:CreatePreparedQuery (hBuffer) .
@@ -123,10 +123,10 @@ CLASS Consultingwerk.SmartFramework.Authorization.AuthorizationMaintenanceServic
             FINALLY:
                 GarbageCollectorHelper:DeleteObject (hQuery) .
                 GarbageCollectorHelper:DeleteObject (hDataset) .
-                ASSIGN hDataset = ? .		
+                ASSIGN hDataset = ? .        
             END FINALLY.
-        END.		
-		
+        END.        
+        
         DO iEntry = 1 TO NUM-ENTRIES (poParameter:OwnerGuids):
 
             ASSIGN cEntry = ENTRY (iEntry, poParameter:OwnerGuids) .
@@ -220,9 +220,9 @@ CLASS Consultingwerk.SmartFramework.Authorization.AuthorizationMaintenanceServic
                                                                                                                               cGroupGuids,
                                                                                                                               cCompanyKey) .  
             END.                 
-	    END.
+        END.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Stores the security assignment based on the dsAuthorizationMaintenance 
@@ -352,8 +352,8 @@ CLASS Consultingwerk.SmartFramework.Authorization.AuthorizationMaintenanceServic
                 UNDO, THROW NEW AppError (DatasetHelper:DatasetErrorStrings (hDataset), 0) .                                          
                                           
             FINALLY:
-                GarbageCollectorHelper:DeleteObject (hDataset) .	
-                ErrorHelper:ResetErrorStatus() .	
+                GarbageCollectorHelper:DeleteObject (hDataset) .    
+                ErrorHelper:ResetErrorStatus() .    
             END FINALLY.                                          
         END.        
     END METHOD . 

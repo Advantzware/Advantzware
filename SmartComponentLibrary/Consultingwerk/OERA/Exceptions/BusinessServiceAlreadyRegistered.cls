@@ -35,23 +35,23 @@ CLASS Consultingwerk.OERA.Exceptions.BusinessServiceAlreadyRegistered
         Purpose: Returns the name of the Business Service that is already registered
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY BusinessServiceName AS CHARACTER NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    DEFINE PUBLIC PROPERTY BusinessServiceName AS CHARACTER NO-UNDO 
+    GET.
+    PROTECTED SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the BusinessServiceAlreadyRegistered class
         Notes:   
         @param pcServiceName The name of the Business Service that is already registered
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC BusinessServiceAlreadyRegistered (pcServiceName AS CHARACTER):
-		
-		SUPER (SUBSTITUTE("The service name &1 is already regsitered with the ServiceManager."{&TRAN},
+    CONSTRUCTOR PUBLIC BusinessServiceAlreadyRegistered (pcServiceName AS CHARACTER):
+        
+        SUPER (SUBSTITUTE("The service name &1 is already regsitered with the ServiceManager."{&TRAN},
                           pcServiceName), 
                0).
-		
-		THIS-OBJECT:BusinessServiceName = pcServiceName .
-		
-	END CONSTRUCTOR.
+        
+        THIS-OBJECT:BusinessServiceName = pcServiceName .
+        
+    END CONSTRUCTOR.
 
 END CLASS.

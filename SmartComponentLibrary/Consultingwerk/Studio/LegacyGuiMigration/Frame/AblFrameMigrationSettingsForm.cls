@@ -8,15 +8,15 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : AblFrameMigrationSettingsForm
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Thu Nov 27 20:54:13 CET 2014
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 USING Consultingwerk.Forms.*                           FROM PROPATH .
@@ -29,22 +29,22 @@ USING System.Windows.Forms.*                           FROM ASSEMBLY .
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-CLASS Consultingwerk.Studio.LegacyGuiMigration.Frame.AblFrameMigrationSettingsForm INHERITS BaseForm: 
-	
+CLASS Consultingwerk.Studio.LegacyGuiMigration.Frame.AblFrameMigrationSettingsForm INHERITS BaseForm:
+
     DEFINE PRIVATE VARIABLE btnOK AS System.Windows.Forms.Button NO-UNDO.
     DEFINE PRIVATE VARIABLE btnCancel AS System.Windows.Forms.Button NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE label1 AS System.Windows.Forms.Label NO-UNDO.
     DEFINE PRIVATE VARIABLE panel1 AS System.Windows.Forms.Panel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraTextEditor1 AS Infragistics.Win.UltraWinEditors.UltraTextEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraLabel1 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the AblFrameMigrationSettingsForm class 
-        Notes:   
+        Purpose: Constructor for the AblFrameMigrationSettingsForm class
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC AblFrameMigrationSettingsForm ():
-		
+    CONSTRUCTOR PUBLIC AblFrameMigrationSettingsForm ():
+
         SUPER().
 
         InitializeComponent().
@@ -53,41 +53,42 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Frame.AblFrameMigrationSettingsFo
         THIS-OBJECT:ComponentsCollection:Add (THIS-OBJECT:components).
         &ENDIF
 
-        ASSIGN ultraTextEditor1:Text = AblFrameMigrationSettings:CustomServices 
+        ASSIGN ultraTextEditor1:Text = AblFrameMigrationSettings:CustomServices
                label1:Text           = AblFrameMigrationSettings:SettingsFile .
 
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Event handler for the Click event of the btnOK
-	    Notes:
-	    @param sender The reference to the object that raised the event
-	    @param e The System.EventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID btnOK_Click (sender AS System.Object, 
-	                                 e AS System.EventArgs):
-		
-		ASSIGN AblFrameMigrationSettings:CustomServices = ultraTextEditor1:Text .
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the Click event of the btnOK
+        Notes:
+        @param sender The reference to the object that raised the event
+        @param e The System.EventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID btnOK_Click (sender AS System.Object,
+                                     e AS System.EventArgs):
+
+        ASSIGN AblFrameMigrationSettings:CustomServices = ultraTextEditor1:Text .
 
         AblFrameMigrationSettings:SaveSettings () .
 
-	END METHOD.
+    END METHOD.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design 
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE editorButton1 AS Infragistics.Win.UltraWinEditors.EditorButton NO-UNDO.
@@ -202,71 +203,71 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Frame.AblFrameMigrationSettingsFo
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the KeyDown handler of the Text boxes with an 
+        Purpose: Event handler for the KeyDown handler of the Text boxes with an
                  EditorButton (Lookup)
         Notes:   Maps F3 to EditorButtonClick
         @param sender The reference to the object that raised the event
         @param e The KeyEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID LookupKeyDownHandler (sender AS System.Object, 
+    METHOD PRIVATE VOID LookupKeyDownHandler (sender AS System.Object,
                                               e AS System.Windows.Forms.KeyEventArgs):
 
         DEFINE VARIABLE cControlName AS CHARACTER NO-UNDO.
-        
-        IF e:Handled = FALSE AND Progress.Util.EnumHelper:AreEqual (e:KeyCode, SmartLookupSettings:ShortcutKey) 
+
+        IF e:Handled = FALSE AND Progress.Util.EnumHelper:AreEqual (e:KeyCode, SmartLookupSettings:ShortcutKey)
             AND THIS-OBJECT:Enabled THEN DO:
 
             ASSIGN cControlName = CAST (sender, System.Windows.Forms.Control):Name .
 
-            DYNAMIC-INVOKE (THIS-OBJECT, 
-                            SUBSTITUTE ("&1_EditorButtonClick":U, cControlName), 
-                            sender, 
+            DYNAMIC-INVOKE (THIS-OBJECT,
+                            SUBSTITUTE ("&1_EditorButtonClick":U, cControlName),
+                            sender,
                             NEW EditorButtonEventArgs (?, ?)) .
         END.
 
         CATCH err AS Progress.Lang.Error:
-            ErrorHelper:ShowErrorMessage (err) .                
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
     END METHOD .
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Event handler for the EditorButtonClick event of the ultraTextEditor1
-	    Notes:
-	    @param sender The reference to the object that raised the event
-	    @param e The EditorButtonEventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraTextEditor1_EditorButtonClick (sender AS System.Object,   
-	                                                        e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
-		
-		DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO .
-        DEFINE VARIABLE lOk       AS LOGICAL   NO-UNDO .		
-		
-		ASSIGN cFileName = ultraTextEditor1:Text .
-		
-	    SYSTEM-DIALOG GET-FILE cFileName 
-	       FILTERS "XML Files (*.xml)":U "*.xml":U
-	       INITIAL-FILTER 1
-	       MUST-EXIST
-	       RETURN-TO-START-DIR
-	       TITLE "Open Custom Services File":U
-	       USE-FILENAME
-	       UPDATE lOk.	
-		
-		IF lOk THEN 
-		  ASSIGN ultraTextEditor1:Text = cFileName . 
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the EditorButtonClick event of the ultraTextEditor1
+        Notes:
+        @param sender The reference to the object that raised the event
+        @param e The EditorButtonEventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID ultraTextEditor1_EditorButtonClick (sender AS System.Object,
+                                                            e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
 
-	END METHOD.
+        DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO .
+        DEFINE VARIABLE lOk       AS LOGICAL   NO-UNDO .
+
+        ASSIGN cFileName = ultraTextEditor1:Text .
+
+        SYSTEM-DIALOG GET-FILE cFileName
+           FILTERS "XML Files (*.xml)":U "*.xml":U
+           INITIAL-FILTER 1
+           MUST-EXIST
+           RETURN-TO-START-DIR
+           TITLE "Open Custom Services File":U
+           USE-FILENAME
+           UPDATE lOk.
+
+        IF lOk THEN
+          ASSIGN ultraTextEditor1:Text = cFileName .
+
+    END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the AblFrameMigrationSettingsForm class 
-        Notes:   
+        Purpose: Destructor for the AblFrameMigrationSettingsForm class
+        Notes:
     ------------------------------------------------------------------------------*/
-	DESTRUCTOR PUBLIC AblFrameMigrationSettingsForm ():
+    DESTRUCTOR PUBLIC AblFrameMigrationSettingsForm ():
 
-	END DESTRUCTOR.
+    END DESTRUCTOR.
 
 END CLASS.

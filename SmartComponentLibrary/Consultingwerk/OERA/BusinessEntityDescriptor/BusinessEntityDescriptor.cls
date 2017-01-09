@@ -46,19 +46,19 @@ CLASS Consultingwerk.OERA.BusinessEntityDescriptor.BusinessEntityDescriptor
         Purpose: Returns the descriptor of the default View of the Business Entity
         Notes:   Returns ? when no default view is defined
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY DefaultView AS IBusinessEntityViewDescriptor NO-UNDO 
-	GET:
-		IF THIS-OBJECT:DefaultViewName > "":U THEN DO:
-		    
-		    IF THIS-OBJECT:Views:ContainsName (THIS-OBJECT:DefaultViewName) THEN 
-		        RETURN THIS-OBJECT:Views:GetItem (THIS-OBJECT:DefaultViewName) .
-		    ELSE 
-		        RETURN ? . 
-		END.
-		
-		RETURN ? .
-		
-	END GET.
+    DEFINE PUBLIC PROPERTY DefaultView AS IBusinessEntityViewDescriptor NO-UNDO 
+    GET:
+        IF THIS-OBJECT:DefaultViewName > "":U THEN DO:
+            
+            IF THIS-OBJECT:Views:ContainsName (THIS-OBJECT:DefaultViewName) THEN 
+                RETURN THIS-OBJECT:Views:GetItem (THIS-OBJECT:DefaultViewName) .
+            ELSE 
+                RETURN ? . 
+        END.
+        
+        RETURN ? .
+        
+    END GET.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the BusinessEntityDescriptor class

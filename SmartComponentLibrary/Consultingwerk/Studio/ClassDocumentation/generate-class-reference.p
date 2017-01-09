@@ -8,7 +8,7 @@
  *     http://www.apache.org/licenses/LICENSE-2.0                     *
  *                                                                    *
  * Unless required by applicable law or agreed to in writing,         *
- * software distributed under the License is distributed on an        * 
+ * software distributed under the License is distributed on an        *
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,       *
  * either express or implied. See the License for the specific        *
  * language governing permissions and limitations under the License.  *
@@ -16,19 +16,19 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : Consultingwerk/Studio/ClassDocumentation/generate-class-reference.p
-    Purpose     : Executes the ClassDocumentationWriter to generate 
-                  html class reference documentation  
+    Purpose     : Executes the ClassDocumentationWriter to generate
+                  html class reference documentation
 
-    Syntax      : Parameters passed using <Parameter name="" value="" /> 
+    Syntax      : Parameters passed using <Parameter name="" value="" />
                   properties of the ANT/PCT PCTRun task:
-                      
+
                   <Parameter name="TargetDir" value="html"/>
                   <Parameter name="SourceDir" value="classdoc"/>
                   <Parameter name="TemplateSourceDir" value="Consultingwerk/Studio/ClassDocumentation/Templates"/>
                   <Parameter name="ResourceDir" value="resources"/>
                   <Parameter name="Services" value="Consultingwerk/Studio/SmartDox/services.xml"/>
 
-    Description : 
+    Description :
 
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Mon Dec 17 13:35:22 UTC 2012
@@ -39,14 +39,12 @@
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Consultingwerk.Framework.*                 FROM PROPATH . 
-USING Consultingwerk.Studio.ClassDocumentation.* FROM PROPATH . 
-USING Consultingwerk.Util.*                      FROM PROPATH . 
+USING Consultingwerk.Framework.*                 FROM PROPATH .
+USING Consultingwerk.Studio.ClassDocumentation.* FROM PROPATH .
+USING Consultingwerk.Util.*                      FROM PROPATH .
 
 DEFINE VARIABLE oDoc                         AS Consultingwerk.Studio.ClassDocumentation.DocumentationWriter      NO-UNDO .
 DEFINE VARIABLE oParameter                   AS Consultingwerk.Studio.ClassDocumentation.IDocumentWriterParameter NO-UNDO .
-
-DEFINE VARIABLE oRelationProvider            AS Consultingwerk.Studio.ClassDocumentation.IClassRelationProvider   NO-UNDO . 
 
 DEFINE VARIABLE oServiceLoader               AS ServiceLoader                                                     NO-UNDO .
 
@@ -60,86 +58,88 @@ DEFINE VARIABLE lGenerateTreeViewOverview    AS LOGICAL                         
 
 /* ***************************  Main Block  *************************** */
 
-SESSION:ERROR-STACK-TRACE = TRUE . 
+SESSION:ERROR-STACK-TRACE = TRUE .
 
 ASSIGN cTargetDir                = DYNAMIC-FUNCTION("getParameter":U IN SOURCE-PROCEDURE, INPUT "TargetDir":U)
        cSourceDir                = DYNAMIC-FUNCTION("getParameter":U IN SOURCE-PROCEDURE, INPUT "SourceDir":U)
-       cTemplateSourceDir        = DYNAMIC-FUNCTION("getParameter":U IN SOURCE-PROCEDURE, INPUT "TemplateSourceDir":U) 
+       cTemplateSourceDir        = DYNAMIC-FUNCTION("getParameter":U IN SOURCE-PROCEDURE, INPUT "TemplateSourceDir":U)
        cResourceDir              = DYNAMIC-FUNCTION("getParameter":U IN SOURCE-PROCEDURE, INPUT "ResourceDir":U)
        cServices                 = DYNAMIC-FUNCTION("getParameter":U IN SOURCE-PROCEDURE, INPUT "Services":U)
        lGenerateTreeViewOverview = DYNAMIC-FUNCTION("getParameter":U IN SOURCE-PROCEDURE, INPUT "GenerateTreeViewOverview":U)
        lPreloadClasses           = DataTypeHelper:ToLogical (DYNAMIC-FUNCTION("getParameter":U IN SOURCE-PROCEDURE, INPUT "PreloadClasses":U))
-      
+
        PctSupport:PctLibrary = SOURCE-PROCEDURE
     .
 
 MESSAGE "Source Directory:":U cSourceDir .
 MESSAGE "Target Directory:":U cTargetDir .
-MESSAGE "Template Source: ":U cTemplateSourceDir . 
-MESSAGE "Resource Source: ":U cResourceDir . 
-MESSAGE "Custom Services: ":U cServices . 
-MESSAGE "GenerateTreeViewOverview: ":U lGenerateTreeViewOverview . 
+MESSAGE "Template Source: ":U cTemplateSourceDir .
+MESSAGE "Resource Source: ":U cResourceDir .
+MESSAGE "Custom Services: ":U cServices .
+MESSAGE "GenerateTreeViewOverview: ":U lGenerateTreeViewOverview .
 
 oParameter = NEW Consultingwerk.Studio.ClassDocumentation.DocumentWriterParameter ().
 
 IF cServices > "":U THEN DO ON ERROR UNDO, THROW:
-    oServiceLoader = NEW ServiceLoader () .    
+    oServiceLoader = NEW ServiceLoader () .
     oServiceLoader:Load (cServices) .
-    
-    DELETE OBJECT oServiceLoader .     
+
+    DELETE OBJECT oServiceLoader .
 END.
 
 ASSIGN oParameter:DocumentationTitle       = "SmartComponent Library":U
-       oParameter:GenerateTreeViewOverview = lGenerateTreeViewOverview 
+       oParameter:GenerateTreeViewOverview = lGenerateTreeViewOverview
        .
 
-FILE-INFO:FILE-NAME = cTargetDir .
-IF FILE-INFO:FULL-PATHNAME > "":U THEN 
-    ASSIGN oParameter:TargetDir = FILE-INFO:FULL-PATHNAME .
-ELSE 
-    UNDO, THROW NEW Consultingwerk.Exceptions.InvalidParameterValueException ("TargetDir":U, 
+FILE-INFORMATION:FILE-NAME = cTargetDir .
+IF FILE-INFORMATION:FULL-PATHNAME > "":U THEN
+    ASSIGN oParameter:TargetDir = FILE-INFORMATION:FULL-PATHNAME .
+ELSE
+    UNDO, THROW NEW Consultingwerk.Exceptions.InvalidParameterValueException ("TargetDir":U,
                                                                               cTargetDir,
                                                                               "Consultingwerk.Studio.ClassDocumentation.DocumentWriterParameter":U) .
 
-FILE-INFO:FILE-NAME = cSourceDir .
-IF FILE-INFO:FULL-PATHNAME > "":U THEN 
-    ASSIGN oParameter:SourceDir = FILE-INFO:FULL-PATHNAME .
-ELSE 
-    UNDO, THROW NEW Consultingwerk.Exceptions.InvalidParameterValueException ("SourceDir":U, 
+FILE-INFORMATION:FILE-NAME = cSourceDir .
+IF FILE-INFORMATION:FULL-PATHNAME > "":U THEN
+    ASSIGN oParameter:SourceDir = FILE-INFORMATION:FULL-PATHNAME .
+ELSE
+    UNDO, THROW NEW Consultingwerk.Exceptions.InvalidParameterValueException ("SourceDir":U,
                                                                               cSourceDir,
                                                                               "Consultingwerk.Studio.ClassDocumentation.DocumentWriterParameter":U) .
 
-FILE-INFO:FILE-NAME = cTemplateSourceDir .
-IF FILE-INFO:FULL-PATHNAME > "":U THEN 
-    ASSIGN oParameter:TemplateSourceDir = FILE-INFO:FULL-PATHNAME .
-ELSE 
-    UNDO, THROW NEW Consultingwerk.Exceptions.InvalidParameterValueException ("TemplateSourceDir":U, 
+FILE-INFORMATION:FILE-NAME = cTemplateSourceDir .
+IF FILE-INFORMATION:FULL-PATHNAME > "":U THEN
+    ASSIGN oParameter:TemplateSourceDir = FILE-INFORMATION:FULL-PATHNAME .
+ELSE
+    UNDO, THROW NEW Consultingwerk.Exceptions.InvalidParameterValueException ("TemplateSourceDir":U,
                                                                               cTemplateSourceDir,
                                                                               "Consultingwerk.Studio.ClassDocumentation.DocumentWriterParameter":U) .
 
 IF cResourceDir > "":U THEN DO:
-    FILE-INFO:FILE-NAME = cResourceDir .
-    IF FILE-INFO:FULL-PATHNAME > "":U THEN 
-        ASSIGN oParameter:ResourceDir = FILE-INFO:FULL-PATHNAME .
-    ELSE 
-        UNDO, THROW NEW Consultingwerk.Exceptions.InvalidParameterValueException ("ResourceDir":U, 
+    FILE-INFORMATION:FILE-NAME = cResourceDir .
+    IF FILE-INFORMATION:FULL-PATHNAME > "":U THEN
+        ASSIGN oParameter:ResourceDir = FILE-INFORMATION:FULL-PATHNAME .
+    ELSE
+        UNDO, THROW NEW Consultingwerk.Exceptions.InvalidParameterValueException ("ResourceDir":U,
                                                                                   cResourceDir,
                                                                                   "Consultingwerk.Studio.ClassDocumentation.DocumentWriterParameter":U) .
 END.
 
 /* Mike Fechner, Consultingwerk Ltd. 25.03.2013
    Prevent AVM crash during documentation generation */
-IF lPreloadClasses THEN 
+IF lPreloadClasses THEN
     Consultingwerk.Studio.ClassDocumentation.BaseClassListProvider:PreloadClasses (".":U).
 
-oRelationProvider = {Consultingwerk/get-service.i Consultingwerk.Studio.ClassDocumentation.IClassRelationProvider
-                                                  "NEW Consultingwerk.Studio.ClassDocumentation.ClassRelationProvider (oParameter)"} .
+{Consultingwerk/get-service.i Consultingwerk.Studio.ClassDocumentation.IClassRelationProvider
+                              "NEW Consultingwerk.Studio.ClassDocumentation.ClassRelationProvider (oParameter)"} .
 
 oDoc = NEW Consultingwerk.Studio.ClassDocumentation.DocumentationWriter ().
 oDoc:GenerateDocumentation (oParameter).
 
-RETURN "0":U . 
+RETURN "0":U .
 
-CATCH err AS Progress.Lang.Error :
-    MESSAGE Consultingwerk.Util.ErrorHelper:FormattedErrorMessagesExt (err) . 
+CATCH err AS Progress.Lang.Error:
+    MESSAGE Consultingwerk.Util.ErrorHelper:FormattedErrorMessagesExt (err) .
+
+    RETURN "1":U .
 END CATCH.

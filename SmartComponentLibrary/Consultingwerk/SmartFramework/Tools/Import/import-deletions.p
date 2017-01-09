@@ -50,8 +50,8 @@ ASSIGN cFileName       = DYNAMIC-FUNCTION ("getParameter":U IN SOURCE-PROCEDURE,
 
 Consultingwerk.Assertion.FileAssert:Exists (cFileName) .
 
-FILE-INFO:FILE-NAME = cFileName . 
-cFileName = FILE-INFO:FULL-PATHNAME . 
+FILE-INFORMATION:FILE-NAME = cFileName . 
+cFileName = FILE-INFORMATION:FULL-PATHNAME . 
 
 PUT UNFORMATTED "Importing deletions from: "{&TRAN} cFileName SKIP (0).
 
@@ -71,11 +71,11 @@ FOR EACH eSmartDeletion TRANSACTION ON ERROR UNDO, THROW:
     hBuffer:BUFFER-DELETE () .
     
     CATCH notavailex AS RecordNotAvailableException:
-    	/* ignore */	
+        /* ignore */    
     END CATCH.
     
     FINALLY:
-        GarbageCollectorHelper:DeleteObject (hBuffer) .		
+        GarbageCollectorHelper:DeleteObject (hBuffer) .        
     END FINALLY.
 END.
 

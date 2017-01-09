@@ -8,91 +8,100 @@
  *     http://www.apache.org/licenses/LICENSE-2.0                     *
  *                                                                    *
  * Unless required by applicable law or agreed to in writing,         *
- * software distributed under the License is distributed on an        * 
+ * software distributed under the License is distributed on an        *
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,       *
  * either express or implied. See the License for the specific        *
  * language governing permissions and limitations under the License.  *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : ExtendedClassReferenceLinkProvider
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Thu Feb 14 19:41:49 CET 2013
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
+USING Consultingwerk.Assertion.*                 FROM PROPATH .
 USING Consultingwerk.Studio.ClassDocumentation.* FROM PROPATH .
-USING Consultingwerk.Studio.SmartDox.*           FROM PROPATH . 
+USING Consultingwerk.Studio.SmartDox.*           FROM PROPATH .
+USING Consultingwerk.Util.*                      FROM PROPATH.
 USING Progress.Lang.*                            FROM PROPATH .
 
-CLASS Consultingwerk.Studio.SmartDox.ExtendedClassReferenceLinkProvider 
-    INHERITS ClassReferenceLinkProvider: 
-	
-	{Consultingwerk/Studio/OpenEdgeDocs/ttClassDocumentation.i}
-	
-	DEFINE VARIABLE cOpenEdgeBaseLink    AS CHARACTER NO-UNDO.
-	DEFINE VARIABLE cOpenEdgeDocFileName AS CHARACTER NO-UNDO.
-	
-	/*------------------------------------------------------------------------------
-		Purpose: Constructor for the ExtendedClassReferenceLinkProvider class 																	  
-		Notes:  																	  
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ExtendedClassReferenceLinkProvider ():
-		SUPER ().
-		
-        ASSIGN cOpenEdgeDocFileName = DYNAMIC-FUNCTION("getParameter":U IN PctSupport:PctLibrary, "OpenEdgeDocFileName":U)
-               cOpenEdgeBaseLink    = DYNAMIC-FUNCTION("getParameter":U IN PctSupport:PctLibrary, "OpenEdgeBaseLink":U) 
-               .                
+CLASS Consultingwerk.Studio.SmartDox.ExtendedClassReferenceLinkProvider
+    INHERITS ClassReferenceLinkProvider:
 
-		IF cOpenEdgeDocFileName > "":U THEN 
-		    TEMP-TABLE ttClassDocumentation:READ-XML ("file":U, 
-		                                              cOpenEdgeDocFileName,
-		                                              "empty":U,
-		                                              ?,
-		                                              ?) .
+    {Consultingwerk/Studio/OpenEdgeDocs/ttClassDocumentation.i}
 
-	END CONSTRUCTOR.
+    DEFINE VARIABLE cOpenEdgeBaseLink    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cOpenEdgeDocFileName AS CHARACTER NO-UNDO.
 
     /*------------------------------------------------------------------------------
-        Purpose: Provides customizable functionaltity to return hyperlinks to 
-                 the class reference for a specific class 
-        Notes:   May result in a link to MSDN, the Infragistics reference, etc.
-                 When this methods returns a link, it is expected that the link will 
-                 be opened in a new browser window
-        @param pcClassName The name of the class to provide a hyperlink for 
-        @return The hyperlink to the class reference page or ? when the class is part of the SmartDox generated ABL class reference  
+        Purpose: Constructor for the ExtendedClassReferenceLinkProvider class
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD OVERRIDE PUBLIC CHARACTER GetClassReferenceLink (pcClassName AS CHARACTER):
-		
-		DEFINE VARIABLE lcLink AS CHARACTER NO-UNDO.
-		
-		ASSIGN lcLink = SUPER:GetClassReferenceLink (pcClassName).
+    CONSTRUCTOR PUBLIC ExtendedClassReferenceLinkProvider ():
+        SUPER ().
 
-        IF lcLink > "":U THEN   
-            RETURN lcLink . 
+        DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO.
+
+        ASSIGN cOpenEdgeDocFileName = DYNAMIC-FUNCTION ("getParameter":U IN PctSupport:PctLibrary, "OpenEdgeDocFileName":U)
+               cOpenEdgeBaseLink    = DYNAMIC-FUNCTION ("getParameter":U IN PctSupport:PctLibrary, "OpenEdgeBaseLink":U)
+               .
+
+        IF cOpenEdgeDocFileName > "":U THEN DO:
+            FileAssert:Exists (cOpenEdgeDocFileName) .
+
+            ASSIGN cFileName = FileHelper:FindFile (cOpenEdgeDocFileName) .
+
+            TEMP-TABLE ttClassDocumentation:READ-XML ("file":U,
+                                                      cFileName,
+                                                      "empty":U,
+                                                      ?,
+                                                      ?) .
+        END.
+
+    END CONSTRUCTOR.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Provides customizable functionaltity to return hyperlinks to
+                 the class reference for a specific class
+        Notes:   May result in a link to MSDN, the Infragistics reference, etc.
+                 When this methods returns a link, it is expected that the link will
+                 be opened in a new browser window
+        @param pcClassName The name of the class to provide a hyperlink for
+        @return The hyperlink to the class reference page or ? when the class is part of the SmartDox generated ABL class reference
+    ------------------------------------------------------------------------------*/
+    METHOD OVERRIDE PUBLIC CHARACTER GetClassReferenceLink (pcClassName AS CHARACTER):
+
+        DEFINE VARIABLE lcLink AS CHARACTER NO-UNDO.
+
+        ASSIGN lcLink = SUPER:GetClassReferenceLink (pcClassName).
+
+        IF lcLink > "":U THEN
+            RETURN lcLink .
 
         IF pcClassName BEGINS "Progress.":U THEN DO:
-            
-            FIND ttClassDocumentation WHERE ttClassDocumentation.ClassName = pcClassName NO-ERROR . 
-            
-            IF AVAILABLE ttClassDocumentation THEN 
+
+            FIND ttClassDocumentation WHERE ttClassDocumentation.ClassName = pcClassName NO-ERROR .
+
+            IF AVAILABLE ttClassDocumentation THEN
                 RETURN SUBSTITUTE ("&1&2":U,
                                    cOpenEdgeBaseLink,
                                    ttClassDocumentation.FileName) .
         END.
-        ELSE IF pcClassName BEGINS "com.joanju.":U OR 
-                pcClassName BEGINS "org.prorefactor.":U THEN 
-                
+        ELSE IF pcClassName BEGINS "com.joanju.":U OR
+                pcClassName BEGINS "org.prorefactor.":U THEN
+
             RETURN SUBSTITUTE ("http://www.joanju.com/analyst/javadoc/index.html?&1.html":U,
                                REPLACE (pcClassName, ".":U, "/":U)) .
 
-        RETURN ? . 
+        RETURN ? .
 
-	END METHOD.
+    END METHOD.
 
 END CLASS.

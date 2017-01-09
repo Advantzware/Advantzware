@@ -36,9 +36,9 @@ CLASS Consultingwerk.Windows.Framework.Menu.MenuFunctionLauncherException
         Purpose: Returns the Title to be used in the Error Dialog or Message Box 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Title AS CHARACTER NO-UNDO 
-	GET.
-	PRIVATE SET. 
+    DEFINE PUBLIC PROPERTY Title AS CHARACTER NO-UNDO 
+    GET.
+    PRIVATE SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the MenuFunctionLauncherException class
@@ -46,15 +46,15 @@ CLASS Consultingwerk.Windows.Framework.Menu.MenuFunctionLauncherException
         @param poInnerException The reference to the original error
         @param pcErrorString The error message associated with this Exception object
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC MenuFunctionLauncherException (poInnerException AS Progress.Lang.Error,
-	                                                  pcErrorString AS CHARACTER):
-		
-		SUPER (poInnerException, pcErrorString).
+    CONSTRUCTOR PUBLIC MenuFunctionLauncherException (poInnerException AS Progress.Lang.Error,
+                                                      pcErrorString AS CHARACTER):
+        
+        SUPER (poInnerException, pcErrorString).
 
         THIS-OBJECT:Title = {Consultingwerk/translate.i &string="'Error':U"} . 
-		
-	END CONSTRUCTOR.
-	
+        
+    END CONSTRUCTOR.
+    
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the MenuFunctionLauncherException class
         Notes:                          
@@ -62,67 +62,67 @@ CLASS Consultingwerk.Windows.Framework.Menu.MenuFunctionLauncherException
         @param pcErrorString The error message associated with this Exception object
         @param piMessageNumber The error message number associated with this Exception object
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC MenuFunctionLauncherException (poInnerException AS Progress.Lang.Error, 
-	                                                  pcErrorString AS CHARACTER, 
-	                                                  piMessageNumber AS INTEGER):
-	
-		SUPER (poInnerException, pcErrorString, piMessageNumber).
+    CONSTRUCTOR PUBLIC MenuFunctionLauncherException (poInnerException AS Progress.Lang.Error, 
+                                                      pcErrorString AS CHARACTER, 
+                                                      piMessageNumber AS INTEGER):
+    
+        SUPER (poInnerException, pcErrorString, piMessageNumber).
 
         THIS-OBJECT:Title = {Consultingwerk/translate.i &string="'Error':U"} . 
-		
-	END CONSTRUCTOR.
-	
+        
+    END CONSTRUCTOR.
+    
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the MenuFunctionLauncherException class
         Notes:                          
         @param poInnerException The reference to the original error
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC MenuFunctionLauncherException (poInnerException AS Progress.Lang.Error):
-	
-		SUPER (poInnerException).
+    CONSTRUCTOR PUBLIC MenuFunctionLauncherException (poInnerException AS Progress.Lang.Error):
+    
+        SUPER (poInnerException).
 
         THIS-OBJECT:Title = {Consultingwerk/translate.i &string="'Error':U"} . 
-		
-	END CONSTRUCTOR.
-	
+        
+    END CONSTRUCTOR.
+    
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the MenuFunctionLauncherException class
         Notes:                          
         @param pcErrorString The error message associated with this Exception object
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC MenuFunctionLauncherException (pcErrorString AS CHARACTER):
-	
-		SUPER (pcErrorString).
+    CONSTRUCTOR PUBLIC MenuFunctionLauncherException (pcErrorString AS CHARACTER):
+    
+        SUPER (pcErrorString).
 
         THIS-OBJECT:Title = {Consultingwerk/translate.i &string="'Error':U"} . 
-		
-	END CONSTRUCTOR.
-	
+        
+    END CONSTRUCTOR.
+    
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the MenuFunctionLauncherException class
         Notes:                          
         @param pcErrorString The error message associated with this Exception object
         @param piMessageNumber The error message number associated with this Exception object
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC MenuFunctionLauncherException (pcErrorString AS CHARACTER, 
-	                                                  piMessageNumber AS INTEGER):
-	                                                      
-		SUPER (pcErrorString, piMessageNumber).
+    CONSTRUCTOR PUBLIC MenuFunctionLauncherException (pcErrorString AS CHARACTER, 
+                                                      piMessageNumber AS INTEGER):
+                                                          
+        SUPER (pcErrorString, piMessageNumber).
 
         THIS-OBJECT:Title = {Consultingwerk/translate.i &string="'Error':U"} . 
-		
-	END CONSTRUCTOR.
-	
+        
+    END CONSTRUCTOR.
+    
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the MenuFunctionLauncherException class
         Notes:                          
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC MenuFunctionLauncherException ():
-	
-		SUPER ().
+    CONSTRUCTOR PUBLIC MenuFunctionLauncherException ():
+    
+        SUPER ().
 
         THIS-OBJECT:Title = {Consultingwerk/translate.i &string="'Error':U"} . 
-		
-	END CONSTRUCTOR.
+        
+    END CONSTRUCTOR.
 
 END CLASS.

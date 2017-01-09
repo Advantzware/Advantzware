@@ -32,26 +32,26 @@ CLASS Consultingwerk.Windows.ProDatasetObjectMapping.ChildTableMapping
         Purpose: Gets and sets the name of the ChildRelation for the mapped temp-table  
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY ChildRelationName AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY ChildRelationName AS CHARACTER NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the name of the .NET List<T> property with the objects 
                  for the records from the child relation   
         Notes:   Only applicable for child tables
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY PropertyName AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY PropertyName AS CHARACTER NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the TableMapping class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ChildTableMapping ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC ChildTableMapping ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
 END CLASS.

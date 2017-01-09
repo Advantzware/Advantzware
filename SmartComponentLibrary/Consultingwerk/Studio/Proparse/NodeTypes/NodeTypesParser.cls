@@ -38,10 +38,10 @@ CLASS Consultingwerk.Studio.Proparse.NodeTypes.NodeTypesParser:
         @param pcSourceFile The path of the Java source code to parse
         @param ttNodeTypes OUTPUT The ouptut para
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID ParseNodeTypesJava (pcSourceFile AS CHARACTER,
-	                                       OUTPUT TABLE ttNodeTypes):
+    METHOD PUBLIC VOID ParseNodeTypesJava (pcSourceFile AS CHARACTER,
+                                           OUTPUT TABLE ttNodeTypes):
 
-        DEFINE VARIABLE cFileName   AS CHARACTER NO-UNDO .		
+        DEFINE VARIABLE cFileName   AS CHARACTER NO-UNDO .        
         DEFINE VARIABLE i           AS INTEGER   NO-UNDO .
         DEFINE VARIABLE cLine       AS CHARACTER NO-UNDO .
                                     
@@ -58,13 +58,13 @@ CLASS Consultingwerk.Studio.Proparse.NodeTypes.NodeTypesParser:
         EMPTY TEMP-TABLE ttNodeTypes .
 
         REPEAT:
-		    IMPORT UNFORMATTED cLine . 
-		
-		    IF TRIM (cLine) = "static ~{":U THEN 
-		      LEAVE .  
-		END.
-		
-		REPEAT:
+            IMPORT UNFORMATTED cLine . 
+        
+            IF TRIM (cLine) = "static ~{":U THEN 
+              LEAVE .  
+        END.
+        
+        REPEAT:
             IMPORT UNFORMATTED cLine . 
 
             ASSIGN cLine = TRIM (cLine) .
@@ -91,6 +91,6 @@ CLASS Consultingwerk.Studio.Proparse.NodeTypes.NodeTypesParser:
 
         END.
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

@@ -37,9 +37,9 @@ CLASS Consultingwerk.OERA.Query.InvalidSourceMappingException
         Purpose: Returns the Column Name that is responsible for raising this error
         Notes:                          
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY ColumnName AS CHARACTER NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    DEFINE PUBLIC PROPERTY ColumnName AS CHARACTER NO-UNDO 
+    GET.
+    PROTECTED SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the InvalidSourceMappingException class

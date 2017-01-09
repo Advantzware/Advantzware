@@ -37,9 +37,9 @@ CLASS Consultingwerk.OERA.Query.InvalidSourceQueryException
         Purpose: Returns the Buffer Name for which this Exception is raised
         Notes:                          
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY BufferName AS CHARACTER NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    DEFINE PUBLIC PROPERTY BufferName AS CHARACTER NO-UNDO 
+    GET.
+    PROTECTED SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the InvalidSourceMappingException class

@@ -8,30 +8,31 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : BusinessEntityQueryForm
-    Purpose     : Shows data from a single business entity within the 
+    Purpose     : Shows data from a single business entity within the
                   BusinessEntityBrowserForm
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Tue Feb 14 23:57:15 CET 2012
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.Forms.*                                          FROM PROPATH .
-USING Consultingwerk.SmartComponents.Tools.OERABusinessEntityTester.* FROM PROPATH . 
-USING Consultingwerk.Util.*                                           FROM PROPATH . 
-USING Infragistics.Win.UltraWinToolbars.*                             FROM ASSEMBLY . 
+USING Consultingwerk.SmartComponents.Tools.BusinessEntityBrowser.*    FROM PROPATH .
+USING Consultingwerk.SmartComponents.Tools.OERABusinessEntityTester.* FROM PROPATH .
+USING Consultingwerk.Util.*                                           FROM PROPATH .
+USING Infragistics.Win.UltraWinToolbars.*                             FROM ASSEMBLY .
 USING Progress.Lang.*                                                 FROM PROPATH .
 
-CLASS Consultingwerk.SmartComponents.Tools.BusinessEntityBrowser.BusinessEntityQueryForm 
+CLASS Consultingwerk.SmartComponents.Tools.BusinessEntityBrowser.BusinessEntityQueryForm
     INHERITS BaseForm
-    IMPLEMENTS IOERABusinessEntityTesterForm: 
-    
+    IMPLEMENTS IOERABusinessEntityTesterForm:
+
     DEFINE PROTECTED VARIABLE imageList1 AS System.Windows.Forms.ImageList NO-UNDO.
     DEFINE PRIVATE VARIABLE m_BusinessEntityQueryForm_Toolbars_Dock_Area_Top AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_BusinessEntityQueryForm_Toolbars_Dock_Area_Right AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
@@ -44,24 +45,48 @@ CLASS Consultingwerk.SmartComponents.Tools.BusinessEntityBrowser.BusinessEntityQ
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the name of the Business Entity
-        Notes:   
-    ------------------------------------------------------------------------------*/        
-    DEFINE PUBLIC PROPERTY BusinessEntityName AS CHARACTER NO-UNDO 
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY BusinessEntityName AS CHARACTER NO-UNDO
     GET.
-    PROTECTED SET. 
+    PROTECTED SET.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Gets and sets the text fo the StatusBar
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY StatusBarText AS CHARACTER NO-UNDO
+    GET:
+        RETURN oeraBusinessEntityTesterUserControl1:StatusBarText .
+    END GET .
+    SET (arg AS CHARACTER):
+        ASSIGN oeraBusinessEntityTesterUserControl1:StatusBarText = arg.
+    END.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Gets and sets the visibility of the Status Bar
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY StatusBarVisible AS LOGICAL NO-UNDO
+    GET:
+        RETURN oeraBusinessEntityTesterUserControl1:StatusBarVisible .
+    END GET .
+    SET (arg AS LOGICAL):
+        ASSIGN oeraBusinessEntityTesterUserControl1:StatusBarVisible = arg.
+    END.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the BusinessEntityQueryForm Class
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC BusinessEntityQueryForm ():
-                
+
         SUPER().
         InitializeComponent().
-        
-        oeraBusinessEntityTesterUserControl1:OERABusinessEntityTesterForm = THIS-OBJECT . 
+
+        oeraBusinessEntityTesterUserControl1:OERABusinessEntityTesterForm = THIS-OBJECT .
         oeraBusinessEntityTesterUserControl1:ImageList = THIS-OBJECT:imageList1.
-        
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
@@ -71,11 +96,11 @@ CLASS Consultingwerk.SmartComponents.Tools.BusinessEntityBrowser.BusinessEntityQ
     /*------------------------------------------------------------------------------
         Purpose: Set the tools (ToolButton and MenuItem) disabled.
                  Enforced by the Interface IOERABusinessEntityTesterForm
-        Notes:   
+        Notes:
         @param pcToolName The key of the Tool to Disable
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID DisableTool (pcToolName AS CHARACTER):
-        
+
         IF THIS-OBJECT:ultraToolbarsManager1:Tools:Exists(pcToolName) THEN DO:
             THIS-OBJECT:ultraToolbarsManager1:Tools[pcToolName]:SharedProps:Enabled = FALSE.
         END.
@@ -84,28 +109,29 @@ CLASS Consultingwerk.SmartComponents.Tools.BusinessEntityBrowser.BusinessEntityQ
     /*------------------------------------------------------------------------------
         Purpose: Set the tools (ToolButton and MenuItem) enabled.
                  Enforced by the Interface IOERABusinessEntityTesterForm
-        Notes:   
+        Notes:
         @param pcToolName The key of the Tool to Enable
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID EnableTool (pcToolName AS CHARACTER):
-        
+
         IF THIS-OBJECT:ultraToolbarsManager1:Tools:Exists(pcToolName) THEN DO:
             THIS-OBJECT:ultraToolbarsManager1:Tools[pcToolName]:SharedProps:Enabled = TRUE.
         END.
-        
+
     END METHOD.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -708,48 +734,48 @@ CLASS Consultingwerk.SmartComponents.Tools.BusinessEntityBrowser.BusinessEntityQ
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Selects all nodes in the Business Entity Tester Control                                                                     
-        Notes:                                                                        
+        Purpose: Selects all nodes in the Business Entity Tester Control
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID SelectAll ():
-        
+
         oeraBusinessEntityTesterUserControl1:SelectAll () .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Deselects all nodes in the Busienss Entity Tester Control                                                                       
-        Notes:                                                                        
+        Purpose: Deselects all nodes in the Busienss Entity Tester Control
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID SelectNone ():
-        
+
         oeraBusinessEntityTesterUserControl1:SelectNone () .
 
     END METHOD.
-    
+
     /*------------------------------------------------------------------------------
         Purpose: Set's the Business Entity
-        Notes:                                                  
-        @param pcClassName The name of the Business Entity class                  
+        Notes:
+        @param pcClassName The name of the Business Entity class
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID SetBusinessEntity (pcClassName AS CHARACTER):
-        
+
         oeraBusinessEntityTesterUserControl1:FetchEntity (pcClassName) .
-    
-        ASSIGN 
-            THIS-OBJECT:BusinessEntityName = pcClassName    
-            THIS-OBJECT:Text               = pcClassName . 
+
+        ASSIGN
+            THIS-OBJECT:BusinessEntityName = pcClassName
+            THIS-OBJECT:Text               = pcClassName .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handle for the ToolClick event of the ultraToolbarsManager 
+        Purpose: Event handle for the ToolClick event of the ultraToolbarsManager
                  instance
-        Notes:   
+        Notes:
         @param sender The refence to the sender that raised the event
         @param e The ToolClickEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraToolbarsManager_ToolClick (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraToolbarsManager_ToolClick (sender AS System.Object,
                                                         e      AS Infragistics.Win.UltraWinToolbars.ToolClickEventArgs):
         DEFINE VARIABLE cValue AS CHARACTER NO-UNDO.
         DEFINE VARIABLE iValue AS INTEGER NO-UNDO.
@@ -758,36 +784,39 @@ CLASS Consultingwerk.SmartComponents.Tools.BusinessEntityBrowser.BusinessEntityQ
 
             WHEN "GetData":U THEN DO:
 /*                IF NOT CAST (THIS-OBJECT:ultraToolbarsManager1:Tools["EntityName":U], ComboBoxTool):Text > "":U THEN RETURN.*/
-        
-                ASSIGN cValue = CAST(ultraToolbarsManager1:Tools["BatchSize":U], Infragistics.Win.UltraWinToolbars.ComboBoxTool):Text 
+
+                ASSIGN cValue = CAST(ultraToolbarsManager1:Tools["BatchSize":U], Infragistics.Win.UltraWinToolbars.ComboBoxTool):Text
                        iValue = INTEGER (cValue) NO-ERROR .
-                   
-                IF iValue > 0 THEN . 
-                ELSE 
-                   iValue = 0 .  
-        
+
+                IF iValue > 0 THEN .
+                ELSE
+                   iValue = 0 .
+
                 THIS-OBJECT:oeraBusinessEntityTesterUserControl1:BatchSize = iValue .
 
-                ASSIGN cValue = CAST(ultraToolbarsManager1:Tools["StopAfter":U], Infragistics.Win.UltraWinToolbars.ComboBoxTool):Text 
+                ASSIGN cValue = CAST(ultraToolbarsManager1:Tools["StopAfter":U], Infragistics.Win.UltraWinToolbars.ComboBoxTool):Text
                        iValue = INTEGER (cValue) NO-ERROR .
-                   
-                IF iValue > 0 THEN . 
-                ELSE 
-                   iValue = 0 .  
+
+                IF iValue > 0 THEN .
+                ELSE
+                   iValue = 0 .
 
                 THIS-OBJECT:oeraBusinessEntityTesterUserControl1:StopAfter = iValue .
 
                 THIS-OBJECT:oeraBusinessEntityTesterUserControl1:CustomContext = CAST (ultraToolbarsManager1:Tools["tbCustomContext"], TextBoxTool):Text .
-                 
+
                 THIS-OBJECT:oeraBusinessEntityTesterUserControl1:FetchDataFromBackend (THIS-OBJECT:BusinessEntityName).
+
+                IF VALID-OBJECT (THIS-OBJECT:MdiParent) AND TYPE-OF (THIS-OBJECT:MdiParent, BusinessEntityBrowserForm) THEN
+                    CAST (THIS-OBJECT:MdiParent, BusinessEntityBrowserForm):UpdateStatusBarText ().
             END.
             WHEN "Filter":U THEN THIS-OBJECT:oeraBusinessEntityTesterUserControl1:ShowFilterDialog ().
             WHEN "RemoveFilter":U THEN THIS-OBJECT:oeraBusinessEntityTesterUserControl1:RemoveFilter ().
             WHEN "StopEntities":U THEN oeraBusinessEntityTesterUserControl1:ShutDownBusinessEntities () .
             WHEN "SelectAll":U THEN SelectAll () .
             WHEN "SelectNone":U THEN SelectNone () .
-            WHEN "Data Source Query Info":U THEN 
-                oeraBusinessEntityTesterUserControl1:ShowDataSourceQueryInfo () .            
+            WHEN "Data Source Query Info":U THEN
+                oeraBusinessEntityTesterUserControl1:ShowDataSourceQueryInfo () .
             WHEN "Exit":U THEN THIS-OBJECT:Close ().
         END CASE.
 
@@ -795,10 +824,10 @@ CLASS Consultingwerk.SmartComponents.Tools.BusinessEntityBrowser.BusinessEntityQ
             ErrorHelper:ShowErrorMessage (ple, SUBSTITUTE ("Error while performing the task &1!", QUOTER (e:Tool:Key))) .
         END CATCH.
     END METHOD.
-    
+
     /*------------------------------------------------------------------------------
         Purpose: Destructor of the BusinessEntityQueryForm Class
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC BusinessEntityQueryForm ( ):
 

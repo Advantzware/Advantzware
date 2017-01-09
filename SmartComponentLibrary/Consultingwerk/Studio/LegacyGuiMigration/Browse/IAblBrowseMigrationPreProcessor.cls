@@ -46,7 +46,7 @@ INTERFACE Consultingwerk.Studio.LegacyGuiMigration.Browse.IAblBrowseMigrationPre
         @param ttSelectedBrowseColumn INPUT-OUTPUT TABLE The temp-table with the Browse widget information
         @param poBrowseSettings INPUT-OUTPUT The reference to the BrowseSettings instance with the parameters related to the BindingSource settings and browse or form name  
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID PreProcessBrowseColumns (pcFileName AS CHARACTER,
+    METHOD PUBLIC VOID PreProcessBrowseColumns (pcFileName AS CHARACTER,
                                                 pcBrowseName AS CHARACTER,
                                                 INPUT-OUTPUT TABLE ttSelectedBrowseColumn,
                                                 INPUT-OUTPUT poBrowseSettings AS BrowseSettings).

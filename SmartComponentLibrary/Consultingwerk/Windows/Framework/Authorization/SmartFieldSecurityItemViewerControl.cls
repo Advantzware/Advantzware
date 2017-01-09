@@ -8,15 +8,15 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/   
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : SmartFieldSecurityItemViewerControl
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : 18.08.2014 11:00:02
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -27,9 +27,9 @@ USING Consultingwerk.SmartComponents.Implementation.* FROM PROPATH .
 USING Consultingwerk.Util.*                           FROM PROPATH .
 USING Progress.Lang.*                                 FROM PROPATH .
 
-CLASS Consultingwerk.Windows.Framework.Authorization.SmartFieldSecurityItemViewerControl 
-    INHERITS SmartViewerControl: 
-    
+CLASS Consultingwerk.Windows.Framework.Authorization.SmartFieldSecurityItemViewerControl
+    INHERITS SmartViewerControl:
+
     DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
 
     DEFINE PRIVATE VARIABLE smartBusinessEntityBindingSource1 AS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource NO-UNDO.
@@ -44,30 +44,31 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartFieldSecurityItemViewe
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the SmartFieldSecurityItemViewerControl class
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC SmartFieldSecurityItemViewerControl ():
-                
+
         SUPER().
         InitializeComponent().
-        
+
         &IF NOT PROVERSION BEGINS "10.2":U AND NOT PROVERSION BEGINS "11.0" &THEN
         THIS-OBJECT:ComponentsCollection:Add (THIS-OBJECT:components).
         &ENDIF
-                
+
     END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design
-        Notes:   
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -343,7 +344,7 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartFieldSecurityItemViewe
 
     /*------------------------------------------------------------------------------
         Purpose: Destructor for the SmartFieldSecurityItemViewerControl class
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC SmartFieldSecurityItemViewerControl ( ):
 

@@ -41,40 +41,40 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.KendoUI.KendoUiBuilderProvid
         Notes:   
         @return The ListNameValuePair with the available Grid Builder classes
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC ListNameValuePair GetAvailableGridBuilders ():
-		
-		DEFINE VARIABLE oList AS ListNameValuePair NO-UNDO .
-		
-		oList = NEW ListNameValuePair () . 
-		
-		oList:Add ("Consultingwerk.BusinessEntityDesigner.Generator.KendoUI.UpdatableGridBuilder":U, "Updatable":U) . 
+    METHOD PUBLIC ListNameValuePair GetAvailableGridBuilders ():
+        
+        DEFINE VARIABLE oList AS ListNameValuePair NO-UNDO .
+        
+        oList = NEW ListNameValuePair () . 
+        
+        oList:Add ("Consultingwerk.BusinessEntityDesigner.Generator.KendoUI.UpdatableGridBuilder":U, "Updatable":U) . 
         oList:Add ("Consultingwerk.BusinessEntityDesigner.Generator.KendoUI.ReadOnlyGridBuilder":U, "Read-Only":U) . 
 
         RETURN oList . 
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the List of the available Page Template Names 
         Notes:   
         @return The ListNameValuePair with the available Page Template Names
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC Consultingwerk.ListNameValuePair GetAvailableTemplates ():
-		
+    METHOD PUBLIC Consultingwerk.ListNameValuePair GetAvailableTemplates ():
+        
         EMPTY TEMP-TABLE ttFileNames . 
-		
-		IF REPLACE (BusinessEntityDesignerSettings:TemplateFolder, "~\":U, "/":U) <> 
-		  "Consultingwerk/BusinessEntityDesigner/Generator/Templates":U AND 
-		  FileHelper:Exists (BusinessEntityDesignerSettings:TemplateFolder + "/Web/KendoUiGrid":U) THEN 
-		  
+        
+        IF REPLACE (BusinessEntityDesignerSettings:TemplateFolder, "~\":U, "/":U) <> 
+          "Consultingwerk/BusinessEntityDesigner/Generator/Templates":U AND 
+          FileHelper:Exists (BusinessEntityDesignerSettings:TemplateFolder + "/Web/KendoUiGrid":U) THEN 
+          
             FileHelper:GetFileList (BusinessEntityDesignerSettings:TemplateFolder + "/Web/KendoUiGrid":U,
                                     "*.template":U,
                                     OUTPUT TABLE ttFileNames) .
-    		
-		FileHelper:GetFileList ("Consultingwerk/BusinessEntityDesigner/Generator/Templates/Web/KendoUiGrid":U,
-		                        "*.template":U,
-		                        OUTPUT TABLE ttFileNames APPEND) .
-		
+            
+        FileHelper:GetFileList ("Consultingwerk/BusinessEntityDesigner/Generator/Templates/Web/KendoUiGrid":U,
+                                "*.template":U,
+                                OUTPUT TABLE ttFileNames APPEND) .
+        
         DEFINE VARIABLE oList AS ListNameValuePair NO-UNDO .
         
         oList = NEW ListNameValuePair () . 
@@ -86,6 +86,6 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.KendoUI.KendoUiBuilderProvid
         
         RETURN oList  .
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

@@ -40,45 +40,45 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartDynamicUpdatableBrowser
         Purpose: The key of the Browser's layout in the repository 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY BrowserKey AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY BrowserKey AS CHARACTER NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the SmartDynamicBrowser class                                                                       
         Notes:                                                                              
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC SmartDynamicUpdatableBrowser ():
-		SUPER ().
+    CONSTRUCTOR PUBLIC SmartDynamicUpdatableBrowser ():
+        SUPER ().
 
         IF THIS-OBJECT:DesignTime = FALSE THEN DO: 
             oRepository = {Consultingwerk/get-service.i Consultingwerk.Framework.RepositoryServices.IDynamicBrowserRepository} .
             
             {Consultingwerk/Assertion/ObjectAssert/IsValid.i oRepository """DynamicBrowserRepository"":U"} .
-    		
-    		oRenderer = {Consultingwerk/get-service.i Consultingwerk.SmartComponents.Implementation.IDynamicBrowserRenderer
-    		                                          "NEW Consultingwerk.SmartComponents.Implementation.DynamicBrowserRenderer ()"} . 
+            
+            oRenderer = {Consultingwerk/get-service.i Consultingwerk.SmartComponents.Implementation.IDynamicBrowserRenderer
+                                                      "NEW Consultingwerk.SmartComponents.Implementation.DynamicBrowserRenderer ()"} . 
         END.
-		
-	END CONSTRUCTOR.
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Raises the InitializeLayout event
         Notes:   
         @param e The InitializeLayoutEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD OVERRIDE PROTECTED VOID OnInitializeLayout (e AS InitializeLayoutEventArgs):
-		
+    METHOD OVERRIDE PROTECTED VOID OnInitializeLayout (e AS InitializeLayoutEventArgs):
+        
         IF THIS-OBJECT:DesignTime = FALSE THEN DO: 
-    		oRepository:LoadSettings (THIS-OBJECT:BrowserKey,
-    		                          OUTPUT DATASET dsDynamicBrowser BY-REFERENCE) .
-    		oRenderer:RenderDynamicBrowser (THIS-OBJECT:BrowserKey,
-    		                                THIS-OBJECT,
-    		                                DATASET dsDynamicBrowser BY-REFERENCE) .
+            oRepository:LoadSettings (THIS-OBJECT:BrowserKey,
+                                      OUTPUT DATASET dsDynamicBrowser BY-REFERENCE) .
+            oRenderer:RenderDynamicBrowser (THIS-OBJECT:BrowserKey,
+                                            THIS-OBJECT,
+                                            DATASET dsDynamicBrowser BY-REFERENCE) .
         END.
-        		
-		SUPER:OnInitializeLayout(INPUT e).
+                
+        SUPER:OnInitializeLayout(INPUT e).
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

@@ -31,8 +31,8 @@ USING Progress.Lang.* FROM PROPATH .
 CLASS Consultingwerk.Web2.Views.SerializableToolbarItem 
     INHERITS JsonSerializable:
 
-    {Consultingwerk/JsonSerializableProperty.i Name CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i Caption CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i Name CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i Caption CHARACTER} .
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the SerializableToolbarItem class
@@ -66,11 +66,11 @@ CLASS Consultingwerk.Web2.Views.SerializableToolbarItem
         Notes:   
         @param pcName The value for the Name
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC SerializableToolbarItem (pcName AS CHARACTER):
-		THIS-OBJECT ().
-		
-		ASSIGN THIS-OBJECT:Name = pcName .  
-		  
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC SerializableToolbarItem (pcName AS CHARACTER):
+        THIS-OBJECT ().
+        
+        ASSIGN THIS-OBJECT:Name = pcName .  
+          
+    END CONSTRUCTOR.
 
 END CLASS.

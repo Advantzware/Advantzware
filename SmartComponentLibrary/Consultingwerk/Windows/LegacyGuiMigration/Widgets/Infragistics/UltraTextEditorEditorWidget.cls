@@ -29,16 +29,16 @@ USING Progress.Lang.*                                                  FROM PROP
 CLASS Consultingwerk.Windows.LegacyGuiMigration.Widgets.Infragistics.UltraTextEditorEditorWidget 
     INHERITS UltraTextEditorWidget: 
 
-	/*------------------------------------------------------------------------------
-	   Purpose: Constructor for the UltraTextEditorEditorWidget class
-	   Notes:
-	   @param poEditor The reference to the UltraTextEditor this instance should represent
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC UltraTextEditorEditorWidget (poEditor AS UltraTextEditor):
-		SUPER (poEditor).
-		
-		THIS-OBJECT:TYPE = "EDITOR":U . 
-		
-	END CONSTRUCTOR.
+    /*------------------------------------------------------------------------------
+       Purpose: Constructor for the UltraTextEditorEditorWidget class
+       Notes:
+       @param poEditor The reference to the UltraTextEditor this instance should represent
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC UltraTextEditorEditorWidget (poEditor AS UltraTextEditor):
+        SUPER (poEditor).
+        
+        THIS-OBJECT:TYPE = "EDITOR":U . 
+        
+    END CONSTRUCTOR.
     
 END CLASS.

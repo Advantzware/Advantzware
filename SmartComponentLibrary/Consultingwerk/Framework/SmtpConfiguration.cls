@@ -51,7 +51,7 @@ CLASS Consultingwerk.Framework.SmtpConfiguration
         Purpose: Returns the SMTP Port Number 
         Notes:   Return ? to use the default port number
     ------------------------------------------------------------------------------*/
-    {Consultingwerk/JsonSerializableProperty.i SmtpPortNumber INTEGER "INIT ?"} .
+    {Consultingwerk/JsonSerializableProperty.i SmtpPortNumber INTEGER "INITIAL ?"} .
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the sender of the emails 
@@ -69,11 +69,11 @@ CLASS Consultingwerk.Framework.SmtpConfiguration
         Purpose: Constructor for the SmtpConfiguration class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC SmtpConfiguration ():
-		SUPER ().
+    CONSTRUCTOR PUBLIC SmtpConfiguration ():
+        SUPER ().
 
         THIS-OBJECT:AddSerializableProperties ("{&SerializableProperties}":U) .
-		
-	END CONSTRUCTOR.
+        
+    END CONSTRUCTOR.
 
 END CLASS.

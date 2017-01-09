@@ -35,26 +35,26 @@ CLASS Consultingwerk.Framework.TempFileManager
         Purpose: Deletes all temp-files 
         Notes:   Typically called when ending the ABL session
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID CleanUp ():
-		
-		FOR EACH ttTempFiles ON ERROR UNDO, NEXT:
+    METHOD PUBLIC VOID CleanUp ():
+        
+        FOR EACH ttTempFiles ON ERROR UNDO, NEXT:
             
             OS-DELETE VALUE (ttTempFiles.TempFileName) NO-ERROR .
         
         END.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Registers a temp-file for delete when the session ends 
         Notes:   
         @param pcFileName The name of the temp-file to delete
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID RegisterTempFile (pcFileName AS CHARACTER):
-		
-		CREATE ttTempFiles .
-		ASSIGN ttTempFiles.TempFileName = pcFileName .
+    METHOD PUBLIC VOID RegisterTempFile (pcFileName AS CHARACTER):
+        
+        CREATE ttTempFiles .
+        ASSIGN ttTempFiles.TempFileName = pcFileName .
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

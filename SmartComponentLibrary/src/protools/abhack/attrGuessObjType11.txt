@@ -1,0 +1,65 @@
+# attrGuessObjType<X>.txt to define how ABHack can guess the object/widget
+# type of variable names, in order to filter the attribute/method popup list.
+# Note that lines that begins with a '#' are taken as comments
+#
+# ABHack will select the longest pattern that matches a variable name to guess
+# its corresponding object type.  So do not hesitate to define multiple patterns
+# to help him to find the most appropriate widget type
+#
+# We could define a default pattern of '*' for the FILL-IN object type.  Another
+# option is to define no pattern for this object type, so ABHack will not find any
+# type for a variable like 'myVar', resulting in no filtering at all.
+#
+# For pseudo widget like the System Handles SESSION or CLIPBOARD, we should
+# define a pattern with the system Handle name
+#
+# /* 09-FEB-2007 sla: the point of this line is to make ABHack filter on Frame for the FOCUS System handle ;) */               
+               FOCUS
+               SELF
+BROWSE         hbr*,h*browse,*browse*,br*
+# browse-column are handled like fill-in's
+BROWSE-COLUMN
+BUFFER         hbuf*,hb*,b*
+BUFFER-FIELD   hbf*,hField*,h*Field
+BUTTON         hbut*,but*,btn*,BUTTON*
+CALL           hcall*
+CLIPBOARD      CLIPBOARD
+COLOR-TABLE    COLOR-TABLE
+COMBO-BOX      cb*,h*combo
+COMPILER       COMPILER        
+CONTROL-FRAME  *CtrlFrame*,ch*  
+DATA-RELATION  hrel*,dr*
+DATA-SOURCE    hd*source,sc*,src*
+DATASET        h*set,ds*,hds*,*Dataset*,*ds,phds*
+DEBUGGER       DEBUGGER        
+DIALOG-BOX     g*frame,g*dialog,Dialog-Frame
+EDITOR         ed*,edt*,*editor,editor*
+ERROR-STATUS   ERROR-STATUS   
+FILE-INFO      FILE-INFO
+FILL-IN        FILL-IN*
+FONT-TABLE     FONT-TABLE
+FRAME          fMain,DEFAULT-FRAME,f*,*frame,h*frame,hf*
+IMAGE          img,*image,h*img,*pic*        
+LAST-EVENT     LAST-EVENT
+LITERAL        
+MENU           *menu
+MENU-ITEM      m_*,*menu*item*        
+PROCEDURE      h*proc,h*lib,h*plip,TARGET-PROCEDURE,SOURCE-PROCEDURE,THIS-PROCEDURE
+QUERY          q*,hq*,*query*
+RADIO-SET      rs*,RADIO-SET-*
+RCODE-INFO     RCODE-INFO        
+RECTANGLE      RECT*        
+SAX-READER     saxr*,hsaxr*        
+SAX-ATTRIBUTES saxa*,hsaxa*        
+SAX-WRITER     saxw*,hsaxw*        
+SELECTION-LIST SELECT*,sel*   
+SERVER         hAS*,ghAS*,gshAS*,gsh*AS,gh*AS,h*AS,h*AppServer,gh*AppServer,gsh*AppServer
+SESSION        SESSION        
+SLIDER         SLIDER*          
+SUB-MENU       m_sub*,*sub*menu*
+TEMP-TABLE     tt*,htt*       
+TEXT           *txt*       
+TOGGLE-BOX     tg*,TOGGLE*       
+WINDOW         *win,{&WINDOW-NAME}       
+X-DOCUMENT     h*xdo*,xdo*
+X-NODEREF      h*no*,xno*

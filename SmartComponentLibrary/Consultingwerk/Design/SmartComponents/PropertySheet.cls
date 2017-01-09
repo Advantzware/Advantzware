@@ -8,25 +8,25 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : PropertySheet
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Thu Sep 15 22:59:25 CEST 2011
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Consultingwerk.Design.Controls.* FROM PROPATH . 
+USING Consultingwerk.Design.Controls.* FROM PROPATH .
 USING Progress.Lang.*                  FROM PROPATH .
 USING Progress.Windows.UserControl     FROM ASSEMBLY  .
 
-CLASS Consultingwerk.Design.SmartComponents.PropertySheet INHERITS UserControl: 
-    
+CLASS Consultingwerk.Design.SmartComponents.PropertySheet INHERITS UserControl:
+
     DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE lbLookup AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE lbTabs AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
@@ -36,47 +36,47 @@ CLASS Consultingwerk.Design.SmartComponents.PropertySheet INHERITS UserControl:
     DEFINE PRIVATE VARIABLE ultraLabel1 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE tbText AS Infragistics.Win.UltraWinEditors.UltraTextEditor NO-UNDO.
 
-        
-    /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the reference to the SmartViewerDesignerControl                                                                        
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY Designer AS Consultingwerk.Design.SmartComponents.Viewer.SmartViewerDesignerControl NO-UNDO 
-    GET.
-    SET. 
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns the reference to the selected control                                                                        
-        Notes:                                                                        
+        Purpose: Gets and sets the reference to the SmartViewerDesignerControl
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY SelectedControl AS System.Windows.Forms.Control NO-UNDO 
+    DEFINE PUBLIC PROPERTY Designer AS Consultingwerk.Design.SmartComponents.Viewer.SmartViewerDesignerControl NO-UNDO
     GET.
-    PROTECTED SET. 
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the reference to the SelectionService                                                                        
-        Notes:                                                                        
+        Purpose: Returns the reference to the selected control
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY SelectionService AS System.ComponentModel.Design.ISelectionService NO-UNDO 
+    DEFINE PUBLIC PROPERTY SelectedControl AS System.Windows.Forms.Control NO-UNDO
+    GET.
+    PROTECTED SET.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Gets and sets the reference to the SelectionService
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY SelectionService AS System.ComponentModel.Design.ISelectionService NO-UNDO
     GET.
     SET (INPUT arg AS System.ComponentModel.Design.ISelectionService):
-                
-        IF VALID-OBJECT (THIS-OBJECT:SelectionService) THEN 
-            THIS-OBJECT:SelectionService:SelectionChanged:Unsubscribe (SelectionChangedHandler) NO-ERROR .              
 
-        THIS-OBJECT:SelectionService = arg . 
-        
-        IF VALID-OBJECT (arg) THEN 
-            arg:SelectionChanged:Subscribe (SelectionChangedHandler) .                
-                
+        IF VALID-OBJECT (THIS-OBJECT:SelectionService) THEN
+            THIS-OBJECT:SelectionService:SelectionChanged:Unsubscribe (SelectionChangedHandler) NO-ERROR .
+
+        THIS-OBJECT:SelectionService = arg .
+
+        IF VALID-OBJECT (arg) THEN
+            arg:SelectionChanged:Subscribe (SelectionChangedHandler) .
+
     END SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the PropertySheet class                                                                        
-        Notes:                                                                        
+        Purpose: Constructor for the PropertySheet class
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC PropertySheet ():
-        
+
         SUPER().
 
         InitializeComponent().
@@ -87,17 +87,18 @@ CLASS Consultingwerk.Design.SmartComponents.PropertySheet INHERITS UserControl:
 
     END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -233,24 +234,25 @@ CLASS Consultingwerk.Design.SmartComponents.PropertySheet INHERITS UserControl:
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Reads the Tabs of a TabControl                                                                       
-        Notes:                                                                        
+        Purpose: Reads the Tabs of a TabControl
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID ReadCurrentTabs ():
-        
+
         DEFINE VARIABLE oTab  AS System.Windows.Forms.TabControl NO-UNDO .
         DEFINE VARIABLE cTabs AS CHARACTER                       NO-UNDO.
-                
+
         IF NOT TYPE-OF (THIS-OBJECT:SelectedControl,
-                        System.Windows.Forms.TabControl) THEN RETURN . 
+                        System.Windows.Forms.TabControl) THEN
+            RETURN .
 
         oTab = CAST (THIS-OBJECT:SelectedControl,
                      System.Windows.Forms.TabControl) .
 
         {Consultingwerk/foreach.i System.Windows.Forms.TabPage oTabPage in oTab:TabPages}
-        
+
             ASSIGN cTabs = cTabs + oTabPage:Text + "|":U .
-        
+
         END.
 
         THIS-OBJECT:tbTabs:Text = TRIM (cTabs, "|":U) .
@@ -258,168 +260,169 @@ CLASS Consultingwerk.Design.SmartComponents.PropertySheet INHERITS UserControl:
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the SelectionChanged event of the SelectionService                                                                       
-        Notes:                                                                       
+        Purpose: Event handler for the SelectionChanged event of the SelectionService
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event 
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID SelectionChangedHandler (sender AS System.Object,
                                                    e AS System.EventArgs):
-        
-        DEFINE VARIABLE oSelection  AS System.Collections.ICollection NO-UNDO . 
+
+        DEFINE VARIABLE oSelection  AS System.Collections.ICollection NO-UNDO .
         DEFINE VARIABLE oEnumerator AS System.Collections.IEnumerator NO-UNDO .
-        
+
         oSelection = THIS-OBJECT:SelectionService:GetSelectedComponents() .
-        
+
         oEnumerator = oSelection:GetEnumerator() .
         oEnumerator:Reset().
-        
+
         IF oEnumerator:MoveNext() AND TYPE-OF (oEnumerator:Current,
                                                System.Windows.Forms.Control) THEN DO:
-            
+
             THIS-OBJECT:SelectedControl = CAST (oEnumerator:Current,
                                                 System.Windows.Forms.Control) .
-            
-            THIS-OBJECT:tbText:Text = THIS-OBJECT:SelectedControl:Text . 
-            
-            IF THIS-OBJECT:Designer:SubstituteDesignerControls:ContainsKey (THIS-OBJECT:SelectedControl) THEN 
+
+            THIS-OBJECT:tbText:Text = THIS-OBJECT:SelectedControl:Text .
+
+            IF THIS-OBJECT:Designer:SubstituteDesignerControls:ContainsKey (THIS-OBJECT:SelectedControl) THEN
                 THIS-OBJECT:tbLookupName:Text = THIS-OBJECT:Designer:SubstituteDesignerControls [THIS-OBJECT:SelectedControl] .
             ELSE
-                THIS-OBJECT:tbLookupName:Text = "":U .  
-            
+                THIS-OBJECT:tbLookupName:Text = "":U .
+
             IF TYPE-OF (oEnumerator:Current,
                         System.Windows.Forms.TextBox) THEN DO:
-                
-                tbMultiline:Visible = TRUE . 
+
+                tbMultiline:Visible = TRUE .
                 tbMultiline:Checked  = CAST (oEnumerator:Current,
-                                             System.Windows.Forms.TextBox):Multiline . 
+                                             System.Windows.Forms.TextBox):Multiline .
                 tbLookupName:Visible = TRUE .
-                lbLookup:Visible = TRUE .                                               
+                lbLookup:Visible = TRUE .
             END.
             ELSE DO:
-                tbMultiline:Visible = FALSE . 
+                tbMultiline:Visible = FALSE .
                 tbLookupName:Visible = FALSE .
-                lbLookup:Visible = FALSE .                                               
+                lbLookup:Visible = FALSE .
 
             END.
 
             IF TYPE-OF (oEnumerator:Current,
                         System.Windows.Forms.TabControl) THEN DO:
-                            
-                ASSIGN THIS-OBJECT:tbTabs:Visible = TRUE 
+
+                ASSIGN THIS-OBJECT:tbTabs:Visible = TRUE
                        THIS-OBJECT:lbTabs:Visible = TRUE .
-                       
-                THIS-OBJECT:tbTabs:BringToFront() .                                        
+
+                THIS-OBJECT:tbTabs:BringToFront() .
                 THIS-OBJECT:ReadCurrentTabs () .
-            END. 
-            ELSE 
-                ASSIGN THIS-OBJECT:tbTabs:Visible = FALSE 
-                       THIS-OBJECT:lbTabs:Visible = FALSE .                                                                     
-        END.     
+            END.
+            ELSE
+                ASSIGN THIS-OBJECT:tbTabs:Visible = FALSE
+                       THIS-OBJECT:lbTabs:Visible = FALSE .
+        END.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the LookupComplete event of the tbLookupName                                                                       
-        Notes:                                                                       
+        Purpose: Event handler for the LookupComplete event of the tbLookupName
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event 
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID tbLookupName_LookupComplete (sender AS System.Object, 
+    METHOD PRIVATE VOID tbLookupName_LookupComplete (sender AS System.Object,
                                                      e AS System.EventArgs):
-        
+
         Consultingwerk.Framework.FrameworkSettings:AllowDesignFeatures = FALSE .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the ShowLookupDialog event of the tbLookupName                                                                         
-        Notes:                                                                   
+        Purpose: Event handler for the ShowLookupDialog event of the tbLookupName
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The CancelEventArgs with the data for this event 
+        @param e The CancelEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID tbLookupName_ShowLookupDialog (sender AS System.Object, 
+    METHOD PRIVATE VOID tbLookupName_ShowLookupDialog (sender AS System.Object,
                                                        e AS System.ComponentModel.CancelEventArgs):
-        
+
         Consultingwerk.Framework.FrameworkSettings:AllowDesignFeatures = TRUE .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the TextChanged event of the tbLookupName                                                                         
-        Notes:                                                                   
+        Purpose: Event handler for the TextChanged event of the tbLookupName
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event 
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID tbLookupName_TextChanged (sender AS System.Object, 
+    METHOD PRIVATE VOID tbLookupName_TextChanged (sender AS System.Object,
                                                   e AS System.EventArgs):
-        
-        IF NOT VALID-OBJECT (THIS-OBJECT:SelectedControl) THEN 
-            NEXT . 
-        
-        IF THIS-OBJECT:Designer:SubstituteDesignerControls:ContainsKey (THIS-OBJECT:SelectedControl) THEN 
+
+        IF NOT VALID-OBJECT (THIS-OBJECT:SelectedControl) THEN
+            NEXT .
+
+        IF THIS-OBJECT:Designer:SubstituteDesignerControls:ContainsKey (THIS-OBJECT:SelectedControl) THEN
             THIS-OBJECT:Designer:SubstituteDesignerControls:Remove(THIS-OBJECT:SelectedControl) .
-            
+
         IF THIS-OBJECT:tbLookupName:Text > "":U THEN
-            THIS-OBJECT:Designer:SubstituteDesignerControls:Add (THIS-OBJECT:SelectedControl, THIS-OBJECT:tbLookupName:Text) .   
-              
+            THIS-OBJECT:Designer:SubstituteDesignerControls:Add (THIS-OBJECT:SelectedControl, THIS-OBJECT:tbLookupName:Text) .
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the CheckedChanged event of the tbLookupName                                                                         
-        Notes:                                                                   
+        Purpose: Event handler for the CheckedChanged event of the tbLookupName
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event 
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID tbMultiline_CheckedChanged (sender AS System.Object, 
+    METHOD PRIVATE VOID tbMultiline_CheckedChanged (sender AS System.Object,
                                                     e AS System.EventArgs):
-        
-        IF VALID-OBJECT (THIS-OBJECT:SelectedControl) AND TYPE-OF (THIS-OBJECT:SelectedControl, System.Windows.Forms.TextBox) THEN 
+
+        IF VALID-OBJECT (THIS-OBJECT:SelectedControl) AND TYPE-OF (THIS-OBJECT:SelectedControl, System.Windows.Forms.TextBox) THEN
             CAST (THIS-OBJECT:SelectedControl, System.Windows.Forms.TextBox):Multiline = tbMultiline:Checked .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the TextChanged event of the tbTabs                                                                         
-        Notes:                                                                   
+        Purpose: Event handler for the TextChanged event of the tbTabs
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event 
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID tbTabs_TextChanged (sender AS System.Object, 
+    METHOD PRIVATE VOID tbTabs_TextChanged (sender AS System.Object,
                                             e AS System.EventArgs):
-        
-        IF THIS-OBJECT:tbTabs:Focused THEN 
+
+        IF THIS-OBJECT:tbTabs:Focused THEN
             THIS-OBJECT:WriteTabs () .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the TextChanged event of the tbText                                                                         
-        Notes:                                                                   
+        Purpose: Event handler for the TextChanged event of the tbText
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event 
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID tbText_TextChanged (sender AS System.Object, 
+    METHOD PRIVATE VOID tbText_TextChanged (sender AS System.Object,
                                             e AS System.EventArgs):
-        
-        IF VALID-OBJECT (THIS-OBJECT:SelectedControl) THEN 
+
+        IF VALID-OBJECT (THIS-OBJECT:SelectedControl) THEN
             THIS-OBJECT:SelectedControl:Text = THIS-OBJECT:tbText:Text .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Writes the Tab labels back to the Control                                                                       
-        Notes:                                                                        
+        Purpose: Writes the Tab labels back to the Control
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID WriteTabs ():
-        
+
         DEFINE VARIABLE oTab  AS System.Windows.Forms.TabControl NO-UNDO .
 
         DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
         DEFINE VARIABLE i AS INTEGER NO-UNDO.
-                
+
         IF NOT TYPE-OF (THIS-OBJECT:SelectedControl,
-                        System.Windows.Forms.TabControl) THEN RETURN . 
+                        System.Windows.Forms.TabControl) THEN
+            RETURN .
 
         oTab = CAST (THIS-OBJECT:SelectedControl,
                      System.Windows.Forms.TabControl) .
@@ -428,23 +431,23 @@ CLASS Consultingwerk.Design.SmartComponents.PropertySheet INHERITS UserControl:
 
         DO i = iCount + 1 TO NUM-ENTRIES (THIS-OBJECT:tbTabs:Text, "|":U):
             oTab:TabPages:Add ("":U) .
-        END. 
+        END.
 
         DO WHILE oTab:TabPages:Count > NUM-ENTRIES (THIS-OBJECT:tbTabs:Text, "|":U):
             oTab:TabPages:RemoveAt (oTab:TabPages:Count - 1) .
-        END. 
-        
+        END.
+
         DO i = 1 TO NUM-ENTRIES (THIS-OBJECT:tbTabs:Text, "|":U):
-            
+
             oTab:TabPages[i - 1]:Text = ENTRY (i, THIS-OBJECT:tbTabs:Text, "|":U) .
-            
-        END. 
+
+        END.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor of the PropertySheet class                                                                       
-        Notes:                                                                        
+        Purpose: Destructor of the PropertySheet class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC PropertySheet ():
 

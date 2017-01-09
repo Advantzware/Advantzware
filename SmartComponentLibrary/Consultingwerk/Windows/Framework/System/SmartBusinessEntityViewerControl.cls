@@ -58,16 +58,16 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityViewerControl
         
     END CONSTRUCTOR.
     
-	/*------------------------------------------------------------------------------
-	    Purpose: Open a file dialog to select a BusinessEntity
-	    Notes:
-	    @param sender The reference to the object that raised the event
+    /*------------------------------------------------------------------------------
+        Purpose: Open a file dialog to select a BusinessEntity
+        Notes:
+        @param sender The reference to the object that raised the event
         @param e The EditorButtonEventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID eSmartBusinessEntity_BusinessEntityName_EditorButtonClick (sender AS System.Object, 
-	                                                                               e      AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs ):
-		
-		DEFINE VARIABLE oOpenFileDialog AS System.Windows.Forms.OpenFileDialog NO-UNDO .
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID eSmartBusinessEntity_BusinessEntityName_EditorButtonClick (sender AS System.Object, 
+                                                                                   e      AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs ):
+        
+        DEFINE VARIABLE oOpenFileDialog AS System.Windows.Forms.OpenFileDialog NO-UNDO .
         DEFINE VARIABLE oDialogResult   AS System.Windows.Forms.DialogResult   NO-UNDO . 
         
         oOpenFileDialog = NEW System.Windows.Forms.OpenFileDialog () .
@@ -86,13 +86,14 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityViewerControl
         {Consultingwerk/check-dialogresult-ok.i oDialogResult} .
         
         THIS-OBJECT:SplitBusinessEntity (oOpenFileDialog:FILENAME).
-		
-	END METHOD.
+        
+    END METHOD.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design
-        Notes:   
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
         
         /* NOTE: The following method is automatically generated.
@@ -108,6 +109,9 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityViewerControl
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance1 AS Infragistics.Win.Appearance NO-UNDO.
         appearance1 = NEW Infragistics.Win.Appearance().
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE resources AS Progress.Util.ResourceManager NO-UNDO.
+        resources = NEW Progress.Util.ResourceManager("Consultingwerk.Windows.Framework.System.SmartBusinessEntityViewerControl":U).
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance2 AS Infragistics.Win.Appearance NO-UNDO.
         appearance2 = NEW Infragistics.Win.Appearance().
@@ -167,50 +171,32 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityViewerControl
         /*  */
         appearance1:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:eSmartBusinessEntity_BusinessEntityPackage_Label:Appearance = appearance1.
-        THIS-OBJECT:eSmartBusinessEntity_BusinessEntityPackage_Label:AutoSize = TRUE.
-        THIS-OBJECT:eSmartBusinessEntity_BusinessEntityPackage_Label:Location = NEW System.Drawing.Point(20, 50).
+        resources:ApplyResources(THIS-OBJECT:eSmartBusinessEntity_BusinessEntityPackage_Label, "eSmartBusinessEntity_BusinessEntityPackage_Label":U).
         THIS-OBJECT:eSmartBusinessEntity_BusinessEntityPackage_Label:Name = "eSmartBusinessEntity_BusinessEntityPackage_Label":U.
-        THIS-OBJECT:eSmartBusinessEntity_BusinessEntityPackage_Label:Size = NEW System.Drawing.Size(51, 14).
-        THIS-OBJECT:eSmartBusinessEntity_BusinessEntityPackage_Label:TabIndex = 1.
-        THIS-OBJECT:eSmartBusinessEntity_BusinessEntityPackage_Label:Text = "Package:":U.
         /*  */
         /* eSmartBusinessEntity_BusinessEntityPackage */
         /*  */
-        DEFINE VARIABLE nestedvar0 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar0 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:eSmartBusinessEntity_BusinessEntityPackage:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar0, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:eSmartBusinessEntity_BusinessEntityPackage, "eSmartBusinessEntity_BusinessEntityPackage":U).
         THIS-OBJECT:eSmartBusinessEntity_BusinessEntityPackage:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "BusinessEntityPackage":U, TRUE)).
         THIS-OBJECT:eSmartBusinessEntity_BusinessEntityPackage:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:eSmartBusinessEntity_BusinessEntityPackage:Location = NEW System.Drawing.Point(130, 46).
         THIS-OBJECT:eSmartBusinessEntity_BusinessEntityPackage:Name = "eSmartBusinessEntity_BusinessEntityPackage":U.
-        THIS-OBJECT:eSmartBusinessEntity_BusinessEntityPackage:Size = NEW System.Drawing.Size(571, 21).
-        THIS-OBJECT:eSmartBusinessEntity_BusinessEntityPackage:TabIndex = 1.
         /*  */
         /* eSmartBusinessEntity_BusinessEntityName_Label */
         /*  */
         appearance2:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:eSmartBusinessEntity_BusinessEntityName_Label:Appearance = appearance2.
-        THIS-OBJECT:eSmartBusinessEntity_BusinessEntityName_Label:AutoSize = TRUE.
-        THIS-OBJECT:eSmartBusinessEntity_BusinessEntityName_Label:Location = NEW System.Drawing.Point(20, 23).
+        resources:ApplyResources(THIS-OBJECT:eSmartBusinessEntity_BusinessEntityName_Label, "eSmartBusinessEntity_BusinessEntityName_Label":U).
         THIS-OBJECT:eSmartBusinessEntity_BusinessEntityName_Label:Name = "eSmartBusinessEntity_BusinessEntityName_Label":U.
-        THIS-OBJECT:eSmartBusinessEntity_BusinessEntityName_Label:Size = NEW System.Drawing.Size(38, 14).
-        THIS-OBJECT:eSmartBusinessEntity_BusinessEntityName_Label:TabIndex = 3.
-        THIS-OBJECT:eSmartBusinessEntity_BusinessEntityName_Label:Text = "Name:":U.
         /*  */
         /* eSmartBusinessEntity_BusinessEntityName */
         /*  */
-        DEFINE VARIABLE nestedvar1 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar1 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:eSmartBusinessEntity_BusinessEntityName:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar1, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:eSmartBusinessEntity_BusinessEntityName, "eSmartBusinessEntity_BusinessEntityName":U).
         editorButton1:Key = "btnSelectBusinessEntity":U.
-        editorButton1:Text = "...":U.
+        resources:ApplyResources(editorButton1, "editorButton1":U).
         THIS-OBJECT:eSmartBusinessEntity_BusinessEntityName:ButtonsRight:Add(editorButton1).
         THIS-OBJECT:eSmartBusinessEntity_BusinessEntityName:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "BusinessEntityName":U, TRUE)).
         THIS-OBJECT:eSmartBusinessEntity_BusinessEntityName:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:eSmartBusinessEntity_BusinessEntityName:Location = NEW System.Drawing.Point(130, 19).
         THIS-OBJECT:eSmartBusinessEntity_BusinessEntityName:Name = "eSmartBusinessEntity_BusinessEntityName":U.
-        THIS-OBJECT:eSmartBusinessEntity_BusinessEntityName:Size = NEW System.Drawing.Size(571, 21).
-        THIS-OBJECT:eSmartBusinessEntity_BusinessEntityName:TabIndex = 0.
         THIS-OBJECT:eSmartBusinessEntity_BusinessEntityName:EditorButtonClick:Subscribe(THIS-OBJECT:eSmartBusinessEntity_BusinessEntityName_EditorButtonClick).
         THIS-OBJECT:eSmartBusinessEntity_BusinessEntityName:KeyDown:Subscribe(THIS-OBJECT:LookupKeyDownHandler).
         /*  */
@@ -218,72 +204,48 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityViewerControl
         /*  */
         appearance3:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:eSmartBusinessEntity_BusinessEntityPurpose_Label:Appearance = appearance3.
-        THIS-OBJECT:eSmartBusinessEntity_BusinessEntityPurpose_Label:AutoSize = TRUE.
-        THIS-OBJECT:eSmartBusinessEntity_BusinessEntityPurpose_Label:Location = NEW System.Drawing.Point(20, 103).
+        resources:ApplyResources(THIS-OBJECT:eSmartBusinessEntity_BusinessEntityPurpose_Label, "eSmartBusinessEntity_BusinessEntityPurpose_Label":U).
         THIS-OBJECT:eSmartBusinessEntity_BusinessEntityPurpose_Label:Name = "eSmartBusinessEntity_BusinessEntityPurpose_Label":U.
-        THIS-OBJECT:eSmartBusinessEntity_BusinessEntityPurpose_Label:Size = NEW System.Drawing.Size(50, 14).
-        THIS-OBJECT:eSmartBusinessEntity_BusinessEntityPurpose_Label:TabIndex = 5.
-        THIS-OBJECT:eSmartBusinessEntity_BusinessEntityPurpose_Label:Text = "Purpose:":U.
         /*  */
         /* eSmartBusinessEntity_BusinessEntityPurpose */
         /*  */
-        DEFINE VARIABLE nestedvar2 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar2 = CAST(Progress.Util.EnumHelper:Or(CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Bottom), System.Windows.Forms.AnchorStyles), System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:eSmartBusinessEntity_BusinessEntityPurpose:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar2, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:eSmartBusinessEntity_BusinessEntityPurpose, "eSmartBusinessEntity_BusinessEntityPurpose":U).
         THIS-OBJECT:eSmartBusinessEntity_BusinessEntityPurpose:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "BusinessEntityPurpose":U, TRUE)).
         THIS-OBJECT:eSmartBusinessEntity_BusinessEntityPurpose:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:eSmartBusinessEntity_BusinessEntityPurpose:Location = NEW System.Drawing.Point(130, 99).
-        THIS-OBJECT:eSmartBusinessEntity_BusinessEntityPurpose:Multiline = TRUE.
         THIS-OBJECT:eSmartBusinessEntity_BusinessEntityPurpose:Name = "eSmartBusinessEntity_BusinessEntityPurpose":U.
-        THIS-OBJECT:eSmartBusinessEntity_BusinessEntityPurpose:Size = NEW System.Drawing.Size(571, 198).
-        THIS-OBJECT:eSmartBusinessEntity_BusinessEntityPurpose:TabIndex = 3.
         /*  */
         /* eSmartBusinessEntity_DBRequired_Label */
         /*  */
         appearance4:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:eSmartBusinessEntity_DBRequired_Label:Appearance = appearance4.
-        THIS-OBJECT:eSmartBusinessEntity_DBRequired_Label:AutoSize = TRUE.
-        THIS-OBJECT:eSmartBusinessEntity_DBRequired_Label:Location = NEW System.Drawing.Point(20, 77).
+        resources:ApplyResources(THIS-OBJECT:eSmartBusinessEntity_DBRequired_Label, "eSmartBusinessEntity_DBRequired_Label":U).
         THIS-OBJECT:eSmartBusinessEntity_DBRequired_Label:Name = "eSmartBusinessEntity_DBRequired_Label":U.
-        THIS-OBJECT:eSmartBusinessEntity_DBRequired_Label:Size = NEW System.Drawing.Size(72, 14).
-        THIS-OBJECT:eSmartBusinessEntity_DBRequired_Label:TabIndex = 7.
-        THIS-OBJECT:eSmartBusinessEntity_DBRequired_Label:Text = "DB Required:":U.
         /*  */
         /* eSmartBusinessEntity_DBRequired */
         /*  */
-        THIS-OBJECT:eSmartBusinessEntity_DBRequired:AutoSize = TRUE.
+        resources:ApplyResources(THIS-OBJECT:eSmartBusinessEntity_DBRequired, "eSmartBusinessEntity_DBRequired":U).
         THIS-OBJECT:eSmartBusinessEntity_DBRequired:DataBindings:Add(NEW System.Windows.Forms.Binding("CheckedValue":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "DBRequired":U, TRUE)).
-        THIS-OBJECT:eSmartBusinessEntity_DBRequired:Location = NEW System.Drawing.Point(130, 78).
         THIS-OBJECT:eSmartBusinessEntity_DBRequired:Name = "eSmartBusinessEntity_DBRequired":U.
-        THIS-OBJECT:eSmartBusinessEntity_DBRequired:Size = NEW System.Drawing.Size(14, 13).
-        THIS-OBJECT:eSmartBusinessEntity_DBRequired:TabIndex = 2.
         THIS-OBJECT:eSmartBusinessEntity_DBRequired:UseMnemonics = TRUE.
         /*  */
         /* eSmartBusinessEntity_TrackDeletions_Label */
         /*  */
         appearance5:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:eSmartBusinessEntity_TrackDeletions_Label:Appearance = appearance5.
-        THIS-OBJECT:eSmartBusinessEntity_TrackDeletions_Label:AutoSize = TRUE.
-        THIS-OBJECT:eSmartBusinessEntity_TrackDeletions_Label:Location = NEW System.Drawing.Point(188, 77).
+        resources:ApplyResources(THIS-OBJECT:eSmartBusinessEntity_TrackDeletions_Label, "eSmartBusinessEntity_TrackDeletions_Label":U).
         THIS-OBJECT:eSmartBusinessEntity_TrackDeletions_Label:Name = "eSmartBusinessEntity_TrackDeletions_Label":U.
-        THIS-OBJECT:eSmartBusinessEntity_TrackDeletions_Label:Size = NEW System.Drawing.Size(86, 14).
-        THIS-OBJECT:eSmartBusinessEntity_TrackDeletions_Label:TabIndex = 9.
-        THIS-OBJECT:eSmartBusinessEntity_TrackDeletions_Label:Text = "&Track Deletions:":U.
         /*  */
         /* eSmartBusinessEntity_TrackDeletions */
         /*  */
-        THIS-OBJECT:eSmartBusinessEntity_TrackDeletions:AutoSize = TRUE.
+        resources:ApplyResources(THIS-OBJECT:eSmartBusinessEntity_TrackDeletions, "eSmartBusinessEntity_TrackDeletions":U).
         THIS-OBJECT:eSmartBusinessEntity_TrackDeletions:DataBindings:Add(NEW System.Windows.Forms.Binding("CheckedValue":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "TrackDeletions":U, TRUE)).
-        THIS-OBJECT:eSmartBusinessEntity_TrackDeletions:Location = NEW System.Drawing.Point(280, 77).
         THIS-OBJECT:eSmartBusinessEntity_TrackDeletions:Name = "eSmartBusinessEntity_TrackDeletions":U.
-        THIS-OBJECT:eSmartBusinessEntity_TrackDeletions:Size = NEW System.Drawing.Size(14, 13).
-        THIS-OBJECT:eSmartBusinessEntity_TrackDeletions:TabIndex = 10.
         THIS-OBJECT:eSmartBusinessEntity_TrackDeletions:ThreeState = TRUE.
         /*  */
         /* SmartBusinessEntityViewerControl */
         /*  */
         THIS-OBJECT:AllowDrop = TRUE.
-        THIS-OBJECT:AutoScaleDimensions = NEW System.Drawing.SizeF(Progress.Util.CastUtil:ToSingle(6), Progress.Util.CastUtil:ToSingle(13)).
+        resources:ApplyResources(THIS-OBJECT, "$this":U).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:eSmartBusinessEntity_BusinessEntityPackage_Label).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:eSmartBusinessEntity_BusinessEntityPackage).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:eSmartBusinessEntity_BusinessEntityName_Label).
@@ -295,8 +257,6 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityViewerControl
         THIS-OBJECT:Controls:Add(THIS-OBJECT:eSmartBusinessEntity_TrackDeletions_Label).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:eSmartBusinessEntity_TrackDeletions).
         THIS-OBJECT:Name = "SmartBusinessEntityViewerControl":U.
-        THIS-OBJECT:Size = NEW System.Drawing.Size(722, 314).
-        THIS-OBJECT:SmartTableIOState = "NoDataSource":U.
         THIS-OBJECT:DragDrop:Subscribe(THIS-OBJECT:SmartBusinessEntityViewerControl_DragDrop).
         THIS-OBJECT:DragEnter:Subscribe(THIS-OBJECT:SmartBusinessEntityViewerControl_DragEnter).
         CAST(THIS-OBJECT:smartBusinessEntityBindingSource1, System.ComponentModel.ISupportInitialize):EndInit().
@@ -342,19 +302,19 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityViewerControl
 
     END METHOD .
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Allow to drop a BusinessEntity on the viewer control
-	    Notes:
-	    @param sender The reference to the object that raised the event
+    /*------------------------------------------------------------------------------
+        Purpose: Allow to drop a BusinessEntity on the viewer control
+        Notes:
+        @param sender The reference to the object that raised the event
         @param e The DragEventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID SmartBusinessEntityViewerControl_DragDrop (sender AS System.Object, 
-	                                                               e      AS System.Windows.Forms.DragEventArgs ):
-		
-		DEFINE VARIABLE oArray        AS System.Array           NO-UNDO . 
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID SmartBusinessEntityViewerControl_DragDrop (sender AS System.Object, 
+                                                                   e      AS System.Windows.Forms.DragEventArgs ):
+        
+        DEFINE VARIABLE oArray        AS System.Array           NO-UNDO . 
         DEFINE VARIABLE cFileName     AS CHARACTER              NO-UNDO .
-        		
-		IF e:Data:GetDataPresent (System.Windows.Forms.DataFormats:FileDrop) THEN DO:
+                
+        IF e:Data:GetDataPresent (System.Windows.Forms.DataFormats:FileDrop) THEN DO:
             oArray = CAST (e:Data:GetData(System.Windows.Forms.DataFormats:FileDrop),
                            System.Array) .
                            
@@ -368,81 +328,81 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityViewerControl
             END .
 
         END.
-		
-	END METHOD.
+        
+    END METHOD.
 
-	/*------------------------------------------------------------------------------
+    /*------------------------------------------------------------------------------
          Purpose: Set the drag & drop effect
          Notes:
          @param sender The reference to the object that raised the event
          @param e The DragEventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID SmartBusinessEntityViewerControl_DragEnter (sender AS System.Object, 
-	                                                                e      AS System.Windows.Forms.DragEventArgs ):
-		
-		/* Sebastian Düngel, Consultingwerk Ltd. 31.10.2013
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID SmartBusinessEntityViewerControl_DragEnter (sender AS System.Object, 
+                                                                    e      AS System.Windows.Forms.DragEventArgs ):
+        
+        /* Sebastian Düngel, Consultingwerk Ltd. 31.10.2013
            The viewer Control is not disabled */
-		IF THIS-OBJECT:eSmartBusinessEntity_BusinessEntityName:Enabled = FALSE THEN DO:
-		    ASSIGN e:Effect = System.Windows.Forms.DragDropEffects:NONE.
-		    RETURN.
-		END. 
-		
-		IF Consultingwerk.Util.DragAndDropHelper:IsFileDrop (e:Data) THEN
+        IF THIS-OBJECT:eSmartBusinessEntity_BusinessEntityName:Enabled = FALSE THEN DO:
+            ASSIGN e:Effect = System.Windows.Forms.DragDropEffects:NONE.
+            RETURN.
+        END. 
+        
+        IF Consultingwerk.Util.DragAndDropHelper:IsFileDrop (e:Data) THEN
             ASSIGN e:Effect = System.Windows.Forms.DragDropEffects:COPY.
         ELSE
             ASSIGN e:Effect = System.Windows.Forms.DragDropEffects:NONE.
 
-	END METHOD.
+    END METHOD.
 
-	/*------------------------------------------------------------------------------
-	 Purpose: Split the BusinessEntity name in Name and Package
-	 Notes:
-	 @param cFileName The BusinessEntityName
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID SplitBusinessEntity (cFileName AS CHARACTER).
-		
-		DEFINE VARIABLE cBusinessEntity    AS CHARACTER NO-UNDO.
-		DEFINE VARIABLE cPackageName       AS CHARACTER NO-UNDO.
-		DEFINE VARIABLE i                  AS INTEGER   NO-UNDO.
-		DEFINE VARIABLE lResult            AS LOGICAL   NO-UNDO.
-		DEFINE VARIABLE oMessageProvider   AS Consultingwerk.SmartFramework.IMessageProvider NO-UNDO.
-		DEFINE VARIABLE oMessage           AS Consultingwerk.SmartFramework.Message NO-UNDO.
-		DEFINE VARIABLE oClass             AS Progress.Lang.Class NO-UNDO.
-		
-		IF ClassHelper:FileNameToClass (cFileName) = ? THEN
-		    RETURN.
-		
-		ASSIGN
-		    oClass          = ClassHelper:FileNameToClass (cFileName)
-		    cBusinessEntity = oClass:TypeName
-		    .
-		
+    /*------------------------------------------------------------------------------
+     Purpose: Split the BusinessEntity name in Name and Package
+     Notes:
+     @param cFileName The BusinessEntityName
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC VOID SplitBusinessEntity (cFileName AS CHARACTER).
+        
+        DEFINE VARIABLE cBusinessEntity    AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE cPackageName       AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE i                  AS INTEGER   NO-UNDO.
+        DEFINE VARIABLE lResult            AS LOGICAL   NO-UNDO.
+        DEFINE VARIABLE oMessageProvider   AS Consultingwerk.SmartFramework.IMessageProvider NO-UNDO.
+        DEFINE VARIABLE oMessage           AS Consultingwerk.SmartFramework.Message NO-UNDO.
+        DEFINE VARIABLE oClass             AS Progress.Lang.Class NO-UNDO.
+        
+        IF ClassHelper:FileNameToClass (cFileName) = ? THEN
+            RETURN.
+        
+        ASSIGN
+            oClass          = ClassHelper:FileNameToClass (cFileName)
+            cBusinessEntity = oClass:TypeName
+            .
+        
         DO i = 1 TO NUM-ENTRIES (cBusinessEntity, ".":U) - 1:
             ASSIGN cPackageName = SUBSTITUTE ("&1.&2":U, cPackageName, ENTRY (i, cBusinessEntity, ".":U)).     
         END. 
-		
-		ASSIGN 
-		    cPackageName     = SUBSTRING (cPackageName, 2)
-		    cBusinessEntity  = ENTRY (NUM-ENTRIES (cBusinessEntity, ".":U), cBusinessEntity, ".":U)
-		    .
-		
-		ASSIGN lResult = Consultingwerk.Framework.FrameworkSettings:ServiceAdapter:ValidateEntityName ("":U, SUBSTITUTE ("&1.&2":U, cPackageName, cBusinessEntity)).
-		
-		IF NOT lResult THEN DO:
-		   oMessageProvider = {Consultingwerk/get-service.i Consultingwerk.SmartFramework.IMessageProvider} .
-		   
+        
+        ASSIGN 
+            cPackageName     = SUBSTRING (cPackageName, 2)
+            cBusinessEntity  = ENTRY (NUM-ENTRIES (cBusinessEntity, ".":U), cBusinessEntity, ".":U)
+            .
+        
+        ASSIGN lResult = Consultingwerk.Framework.FrameworkSettings:ServiceAdapter:ValidateEntityName ("":U, SUBSTITUTE ("&1.&2":U, cPackageName, cBusinessEntity)).
+        
+        IF NOT lResult THEN DO:
+           oMessageProvider = {Consultingwerk/get-service.i Consultingwerk.SmartFramework.IMessageProvider} .
+           
            IF VALID-OBJECT (oMessageProvider) THEN DO:
-		      oMessage = oMessageProvider:GetMessage ("SFR":U, 1).
-		      MessageFormHelper:ShowMessage (oMessage).
-		   END. 
+              oMessage = oMessageProvider:GetMessage ("SFR":U, 1).
+              MessageFormHelper:ShowMessage (oMessage).
+           END. 
 
-		END. 
-		ELSE
-		    ASSIGN eSmartBusinessEntity_BusinessEntityName:TEXT    = cBusinessEntity
+        END. 
+        ELSE
+            ASSIGN eSmartBusinessEntity_BusinessEntityName:TEXT    = cBusinessEntity
                    eSmartBusinessEntity_BusinessEntityPackage:TEXT = cPackageName
                    .
-		
-	END METHOD.
+        
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Destructor for the SmartBusinessEntityViewerControl class

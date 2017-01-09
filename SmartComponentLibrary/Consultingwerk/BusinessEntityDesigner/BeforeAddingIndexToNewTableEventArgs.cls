@@ -35,9 +35,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.BeforeAddingIndexToNewTableEventArgs
         Purpose: Returns the Database Name associated with the event 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY DatabaseName AS CHARACTER NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    DEFINE PUBLIC PROPERTY DatabaseName AS CHARACTER NO-UNDO 
+    GET.
+    PROTECTED SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the Sort of the Index Fields associated with the event 
@@ -107,25 +107,25 @@ CLASS Consultingwerk.BusinessEntityDesigner.BeforeAddingIndexToNewTableEventArgs
         @param plUniqueIndex Is the index unique
         @param plWordIndex Is the index a word index 
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC BeforeAddingIndexToNewTableEventArgs (pcDatabaseName AS CHARACTER,
-	                                                         pcTableName AS CHARACTER,
-	                                                         pcIndexName AS CHARACTER,
-	                                                         pcIndexFields AS CHARACTER,
-	                                                         pcFieldSort AS CHARACTER,
-	                                                         plPrimaryIndex AS LOGICAL,
-	                                                         plUniqueIndex AS LOGICAL,
-	                                                         plWordIndex AS LOGICAL):
-		SUPER ().
-		
-		ASSIGN THIS-OBJECT:DatabaseName = pcDatabaseName
-		       THIS-OBJECT:TableName    = pcTableName
-		       THIS-OBJECT:IndexName    = pcIndexName
-		       THIS-OBJECT:IndexFields  = pcIndexFields
-		       THIS-OBJECT:FieldSort    = pcFieldSort 
-		       THIS-OBJECT:IndexPrimary = plPrimaryIndex
-		       THIS-OBJECT:IndexUnique  = plUniqueIndex
-		       THIS-OBJECT:IndexWord    = plWordIndex . 
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC BeforeAddingIndexToNewTableEventArgs (pcDatabaseName AS CHARACTER,
+                                                             pcTableName AS CHARACTER,
+                                                             pcIndexName AS CHARACTER,
+                                                             pcIndexFields AS CHARACTER,
+                                                             pcFieldSort AS CHARACTER,
+                                                             plPrimaryIndex AS LOGICAL,
+                                                             plUniqueIndex AS LOGICAL,
+                                                             plWordIndex AS LOGICAL):
+        SUPER ().
+        
+        ASSIGN THIS-OBJECT:DatabaseName = pcDatabaseName
+               THIS-OBJECT:TableName    = pcTableName
+               THIS-OBJECT:IndexName    = pcIndexName
+               THIS-OBJECT:IndexFields  = pcIndexFields
+               THIS-OBJECT:FieldSort    = pcFieldSort 
+               THIS-OBJECT:IndexPrimary = plPrimaryIndex
+               THIS-OBJECT:IndexUnique  = plUniqueIndex
+               THIS-OBJECT:IndexWord    = plWordIndex . 
+        
+    END CONSTRUCTOR.
 
 END CLASS.

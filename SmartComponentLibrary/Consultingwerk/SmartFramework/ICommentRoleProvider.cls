@@ -32,7 +32,7 @@ INTERFACE Consultingwerk.SmartFramework.ICommentRoleProvider:
         Notes:   
         @param ttCommentRole OUTPUT Temp-Table with the list of available comment roles
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID GetCommentRoles (OUTPUT TABLE ttCommentRole).
+    METHOD PUBLIC VOID GetCommentRoles (OUTPUT TABLE ttCommentRole).
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the Count of Comment Roles

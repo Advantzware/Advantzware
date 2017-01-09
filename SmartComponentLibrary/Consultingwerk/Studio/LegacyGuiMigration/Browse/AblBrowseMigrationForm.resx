@@ -134,7 +134,7 @@
     <value>NoControl</value>
   </data>
   <data name="ultraLabel5.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 462</value>
+    <value>6, 487</value>
   </data>
   <data name="ultraLabel5.Size" type="System.Drawing.Size, System.Drawing">
     <value>100, 23</value>
@@ -150,7 +150,7 @@
     <value>ultraLabel5</value>
   </data>
   <data name="&gt;&gt;ultraLabel5.Type" xml:space="preserve">
-    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ultraLabel5.Parent" xml:space="preserve">
     <value>AblBrowseMigrationForm_Fill_Panel.ClientArea</value>
@@ -165,7 +165,7 @@
     <value>NoControl</value>
   </data>
   <data name="ultraLabel4.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 435</value>
+    <value>6, 460</value>
   </data>
   <data name="ultraLabel4.Size" type="System.Drawing.Size, System.Drawing">
     <value>100, 23</value>
@@ -180,7 +180,7 @@
     <value>ultraLabel4</value>
   </data>
   <data name="&gt;&gt;ultraLabel4.Type" xml:space="preserve">
-    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ultraLabel4.Parent" xml:space="preserve">
     <value>AblBrowseMigrationForm_Fill_Panel.ClientArea</value>
@@ -192,7 +192,7 @@
     <value>Bottom, Left, Right</value>
   </data>
   <data name="ultraTextEditor4.Location" type="System.Drawing.Point, System.Drawing">
-    <value>144, 458</value>
+    <value>144, 483</value>
   </data>
   <data name="ultraTextEditor4.Size" type="System.Drawing.Size, System.Drawing">
     <value>939, 21</value>
@@ -204,7 +204,7 @@
     <value>ultraTextEditor4</value>
   </data>
   <data name="&gt;&gt;ultraTextEditor4.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ultraTextEditor4.Parent" xml:space="preserve">
     <value>AblBrowseMigrationForm_Fill_Panel.ClientArea</value>
@@ -235,7 +235,7 @@
 </value>
   </data>
   <data name="ultraTextEditor3.Location" type="System.Drawing.Point, System.Drawing">
-    <value>144, 431</value>
+    <value>144, 456</value>
   </data>
   <data name="ultraTextEditor3.Size" type="System.Drawing.Size, System.Drawing">
     <value>939, 21</value>
@@ -247,7 +247,7 @@
     <value>ultraTextEditor3</value>
   </data>
   <data name="&gt;&gt;ultraTextEditor3.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ultraTextEditor3.Parent" xml:space="preserve">
     <value>AblBrowseMigrationForm_Fill_Panel.ClientArea</value>
@@ -278,7 +278,7 @@
 </value>
   </data>
   <data name="ultraTextEditor2.Location" type="System.Drawing.Point, System.Drawing">
-    <value>144, 404</value>
+    <value>144, 429</value>
   </data>
   <data name="ultraTextEditor2.Size" type="System.Drawing.Size, System.Drawing">
     <value>939, 21</value>
@@ -290,7 +290,7 @@
     <value>ultraTextEditor2</value>
   </data>
   <data name="&gt;&gt;ultraTextEditor2.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ultraTextEditor2.Parent" xml:space="preserve">
     <value>AblBrowseMigrationForm_Fill_Panel.ClientArea</value>
@@ -321,7 +321,7 @@
 </value>
   </data>
   <data name="ultraTextEditor1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>144, 377</value>
+    <value>144, 402</value>
   </data>
   <data name="ultraTextEditor1.Size" type="System.Drawing.Size, System.Drawing">
     <value>939, 21</value>
@@ -333,7 +333,7 @@
     <value>ultraTextEditor1</value>
   </data>
   <data name="&gt;&gt;ultraTextEditor1.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ultraTextEditor1.Parent" xml:space="preserve">
     <value>AblBrowseMigrationForm_Fill_Panel.ClientArea</value>
@@ -348,7 +348,7 @@
     <value>NoControl</value>
   </data>
   <data name="ultraLabel3.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 408</value>
+    <value>6, 433</value>
   </data>
   <data name="ultraLabel3.Size" type="System.Drawing.Size, System.Drawing">
     <value>132, 23</value>
@@ -363,7 +363,7 @@
     <value>ultraLabel3</value>
   </data>
   <data name="&gt;&gt;ultraLabel3.Type" xml:space="preserve">
-    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ultraLabel3.Parent" xml:space="preserve">
     <value>AblBrowseMigrationForm_Fill_Panel.ClientArea</value>
@@ -378,7 +378,7 @@
     <value>NoControl</value>
   </data>
   <data name="ultraLabel2.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 381</value>
+    <value>6, 406</value>
   </data>
   <data name="ultraLabel2.Size" type="System.Drawing.Size, System.Drawing">
     <value>132, 23</value>
@@ -393,7 +393,7 @@
     <value>ultraLabel2</value>
   </data>
   <data name="&gt;&gt;ultraLabel2.Type" xml:space="preserve">
-    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ultraLabel2.Parent" xml:space="preserve">
     <value>AblBrowseMigrationForm_Fill_Panel.ClientArea</value>
@@ -420,7 +420,7 @@
     <value>ultraLabel1</value>
   </data>
   <data name="&gt;&gt;ultraLabel1.Type" xml:space="preserve">
-    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ultraLabel1.Parent" xml:space="preserve">
     <value>AblBrowseMigrationForm_Fill_Panel.ClientArea</value>
@@ -444,7 +444,7 @@
     <value>coBrowseName</value>
   </data>
   <data name="&gt;&gt;coBrowseName.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinEditors.UltraComboEditor, Infragistics4.Win.UltraWinEditors.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinEditors.UltraComboEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;coBrowseName.Parent" xml:space="preserve">
     <value>AblBrowseMigrationForm_Fill_Panel.ClientArea</value>
@@ -458,12 +458,6 @@
   <metadata name="bindingSource1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>324, 17</value>
   </metadata>
-  <data name="smartUpdatableBrowser1.DisabledColumnsForAdd" xml:space="preserve">
-    <value>Order,FieldName,FieldDataType,WidgetType,FieldFormat,AtRow,AtColumn,ViewAs,ViewAsWidth,ViewAsHeight,WidgetValue</value>
-  </data>
-  <data name="smartUpdatableBrowser1.DisabledColumnsForUpdate" xml:space="preserve">
-    <value>Order,FieldName,FieldDataType,WidgetType,FieldFormat,AtRow,AtColumn,ViewAs,ViewAsWidth,ViewAsHeight,WidgetValue</value>
-  </data>
   <data name="ultraGridColumn14.Header.Caption" xml:space="preserve">
     <value>Selected</value>
   </data>
@@ -506,9 +500,6 @@
   <data name="appearance13.TextHAlignAsString" xml:space="preserve">
     <value>Left</value>
   </data>
-  <data name="smartUpdatableBrowser1.ExcludeColumnsFromCopy" xml:space="preserve">
-    <value/>
-  </data>
   <data name="smartUpdatableBrowser1.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt</value>
   </data>
@@ -518,14 +509,8 @@
   <data name="smartUpdatableBrowser1.Location" type="System.Drawing.Point, System.Drawing">
     <value>6, 37</value>
   </data>
-  <data name="smartUpdatableBrowser1.SecurityKey" xml:space="preserve">
-    <value/>
-  </data>
-  <data name="smartUpdatableBrowser1.SettingsKey" xml:space="preserve">
-    <value>80c976fc-fc07-30b9-d813-07a334c88da3</value>
-  </data>
   <data name="smartUpdatableBrowser1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>1077, 334</value>
+    <value>1077, 359</value>
   </data>
   <data name="smartUpdatableBrowser1.TabIndex" type="System.Int32, mscorlib">
     <value>5</value>
@@ -537,7 +522,7 @@
     <value>smartUpdatableBrowser1</value>
   </data>
   <data name="&gt;&gt;smartUpdatableBrowser1.Type" xml:space="preserve">
-    <value>Consultingwerk.SmartComponents.Implementation.SmartUpdatableBrowser, OEProxyAssembly, Version=11.5.0.0, Culture=neutral, PublicKeyToken=null</value>
+    <value>Consultingwerk.SmartComponents.Implementation.SmartUpdatableBrowser, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;smartUpdatableBrowser1.Parent" xml:space="preserve">
     <value>AblBrowseMigrationForm_Fill_Panel.ClientArea</value>
@@ -549,7 +534,7 @@
     <value>AblBrowseMigrationForm_Fill_Panel.ClientArea</value>
   </data>
   <data name="&gt;&gt;AblBrowseMigrationForm_Fill_Panel.ClientArea.Type" xml:space="preserve">
-    <value>Infragistics.Win.Misc.UltraPanelClientAreaUnsafe, Infragistics4.Win.Misc.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.Misc.UltraPanelClientAreaUnsafe, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;AblBrowseMigrationForm_Fill_Panel.ClientArea.Parent" xml:space="preserve">
     <value>AblBrowseMigrationForm_Fill_Panel</value>
@@ -561,10 +546,10 @@
     <value>Fill</value>
   </data>
   <data name="AblBrowseMigrationForm_Fill_Panel.Location" type="System.Drawing.Point, System.Drawing">
-    <value>8, 176</value>
+    <value>8, 151</value>
   </data>
   <data name="AblBrowseMigrationForm_Fill_Panel.Size" type="System.Drawing.Size, System.Drawing">
-    <value>1089, 511</value>
+    <value>1089, 536</value>
   </data>
   <data name="AblBrowseMigrationForm_Fill_Panel.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -573,7 +558,7 @@
     <value>AblBrowseMigrationForm_Fill_Panel</value>
   </data>
   <data name="&gt;&gt;AblBrowseMigrationForm_Fill_Panel.Type" xml:space="preserve">
-    <value>Infragistics.Win.Misc.UltraPanel, Infragistics4.Win.Misc.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.Misc.UltraPanel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;AblBrowseMigrationForm_Fill_Panel.Parent" xml:space="preserve">
     <value>$this</value>
@@ -582,16 +567,16 @@
     <value>0</value>
   </data>
   <data name="m_AblBrowseMigrationForm_Toolbars_Dock_Area_Left.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 176</value>
+    <value>0, 151</value>
   </data>
   <data name="m_AblBrowseMigrationForm_Toolbars_Dock_Area_Left.Size" type="System.Drawing.Size, System.Drawing">
-    <value>8, 511</value>
+    <value>8, 536</value>
   </data>
   <data name="&gt;&gt;m_AblBrowseMigrationForm_Toolbars_Dock_Area_Left.Name" xml:space="preserve">
     <value>m_AblBrowseMigrationForm_Toolbars_Dock_Area_Left</value>
   </data>
   <data name="&gt;&gt;m_AblBrowseMigrationForm_Toolbars_Dock_Area_Left.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;m_AblBrowseMigrationForm_Toolbars_Dock_Area_Left.Parent" xml:space="preserve">
     <value>$this</value>
@@ -600,16 +585,16 @@
     <value>1</value>
   </data>
   <data name="m_AblBrowseMigrationForm_Toolbars_Dock_Area_Right.Location" type="System.Drawing.Point, System.Drawing">
-    <value>1097, 176</value>
+    <value>1097, 151</value>
   </data>
   <data name="m_AblBrowseMigrationForm_Toolbars_Dock_Area_Right.Size" type="System.Drawing.Size, System.Drawing">
-    <value>8, 511</value>
+    <value>8, 536</value>
   </data>
   <data name="&gt;&gt;m_AblBrowseMigrationForm_Toolbars_Dock_Area_Right.Name" xml:space="preserve">
     <value>m_AblBrowseMigrationForm_Toolbars_Dock_Area_Right</value>
   </data>
   <data name="&gt;&gt;m_AblBrowseMigrationForm_Toolbars_Dock_Area_Right.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;m_AblBrowseMigrationForm_Toolbars_Dock_Area_Right.Parent" xml:space="preserve">
     <value>$this</value>
@@ -627,7 +612,7 @@
     <value>m_AblBrowseMigrationForm_Toolbars_Dock_Area_Bottom</value>
   </data>
   <data name="&gt;&gt;m_AblBrowseMigrationForm_Toolbars_Dock_Area_Bottom.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;m_AblBrowseMigrationForm_Toolbars_Dock_Area_Bottom.Parent" xml:space="preserve">
     <value>$this</value>
@@ -654,7 +639,7 @@
     <value>ultraStatusBar1</value>
   </data>
   <data name="&gt;&gt;ultraStatusBar1.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinStatusBar.UltraStatusBar, Infragistics4.Win.UltraWinStatusBar.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinStatusBar.UltraStatusBar, Infragistics4.Win.UltraWinStatusBar.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;ultraStatusBar1.Parent" xml:space="preserve">
     <value>$this</value>
@@ -666,13 +651,13 @@
     <value>0, 0</value>
   </data>
   <data name="m_AblBrowseMigrationForm_Toolbars_Dock_Area_Top.Size" type="System.Drawing.Size, System.Drawing">
-    <value>1105, 176</value>
+    <value>1105, 151</value>
   </data>
   <data name="&gt;&gt;m_AblBrowseMigrationForm_Toolbars_Dock_Area_Top.Name" xml:space="preserve">
     <value>m_AblBrowseMigrationForm_Toolbars_Dock_Area_Top</value>
   </data>
   <data name="&gt;&gt;m_AblBrowseMigrationForm_Toolbars_Dock_Area_Top.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;m_AblBrowseMigrationForm_Toolbars_Dock_Area_Top.Parent" xml:space="preserve">
     <value>$this</value>
@@ -2253,19 +2238,19 @@
     <value>smartToolbarController1</value>
   </data>
   <data name="&gt;&gt;smartToolbarController1.Type" xml:space="preserve">
-    <value>Consultingwerk.SmartComponents.Implementation.SmartToolbarController, OEProxyAssembly, Version=11.5.0.0, Culture=neutral, PublicKeyToken=null</value>
+    <value>Consultingwerk.SmartComponents.Implementation.SmartToolbarController, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;bindingSource1.Name" xml:space="preserve">
     <value>bindingSource1</value>
   </data>
   <data name="&gt;&gt;bindingSource1.Type" xml:space="preserve">
-    <value>Progress.Data.BindingSource, Progress.NetUI, Version=11.5.0.1190, Culture=neutral, PublicKeyToken=null</value>
+    <value>Progress.Data.BindingSource, Progress.NetUI, Version=11.6.0.1233, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;smartTempTableAdapter1.Name" xml:space="preserve">
     <value>smartTempTableAdapter1</value>
   </data>
   <data name="&gt;&gt;smartTempTableAdapter1.Type" xml:space="preserve">
-    <value>Consultingwerk.SmartComponents.Implementation.SmartTempTableAdapter, OEProxyAssembly, Version=11.5.0.0, Culture=neutral, PublicKeyToken=null</value>
+    <value>Consultingwerk.SmartComponents.Implementation.SmartTempTableAdapter, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;openFileDialog1.Name" xml:space="preserve">
     <value>openFileDialog1</value>
@@ -2279,11 +2264,17 @@
   <data name="&gt;&gt;saveFileDialog1.Type" xml:space="preserve">
     <value>System.Windows.Forms.SaveFileDialog, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="&gt;&gt;openFileDialog2.Name" xml:space="preserve">
+    <value>openFileDialog2</value>
+  </data>
+  <data name="&gt;&gt;openFileDialog2.Type" xml:space="preserve">
+    <value>System.Windows.Forms.OpenFileDialog, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="&gt;&gt;$this.Name" xml:space="preserve">
     <value>AblBrowseMigrationForm</value>
   </data>
   <data name="&gt;&gt;$this.Type" xml:space="preserve">
-    <value>Consultingwerk.SmartComponents.Base.SmartWindowForm, OEProxyAssembly, Version=11.5.0.0, Culture=neutral, PublicKeyToken=null</value>
+    <value>Consultingwerk.SmartComponents.Base.SmartWindowForm, OEProxyAssembly, Version=11.6.0.1, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="ribbonTab1.Caption" xml:space="preserve">
     <value>Start</value>
@@ -3102,6 +3093,50 @@
   <data name="buttonTool6.SharedPropsInternal.Caption" xml:space="preserve">
     <value>New Business Entity</value>
   </data>
+  <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance47.Image" type="System.Drawing.Bitmap, System.Drawing">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAACt0RVh0Q29w
+        eXJpZ2h0AENvcHlyaWdodCCpIDIwMDgtMjAxMSBJTkNPUlMgR21iSBCOIU8AAASbSURBVFhHvZV7TFtV
+        HMebzMU4ZzAhRqfZXCBRcZEQhIm8X6W8ymstY21hbLDSwtohbwaD8SiWlvb2SQeIQGAUeYdHININNhhY
+        EXW6ZeKmmOFQIwHZGPK8P0+b4/9KuPv8dc/v+zv3e87v/s65tP+CQqNTSYgr5sQTdftx6NkhkxBH6hoa
+        l1V9MyQnW1Z/MleTHZWtfh3Le0dmueGN1BKtiS5WFB0XaLMtMaW+xtTcMUj2TM3Cp3dI0Iw8gARiEIIu
+        EGLrJIxCo3lTotDpi+XE7hcmUSp5CuMIiFpvg4uo9i+at8M+mVJHlDcNk+eGNyH35g6Iex6Cc7L8Zl6l
+        8tVKtWFKqVY0SOXEKZ2hZv5KpwlEJQQHv+7/U6Gq/k0/OgeyrwEiS1q3GFmEsyWeVyY3ym8sQtHwI6ia
+        fAzHzsi7aitrbGoar64O3l2Eq/3XoH/2CeS3TgPzoyqm9WW74WOiOqBMWTvPk7ZvCi9re8MK9Ict8bRS
+        fSdb1kcyzsuGi9UNi6wCw7Qljnaub7k1B8QMgGqGBMngfThbqLobmqMJsui7gn9Z68+5qGfhoRVOrt4x
+        8II2wvIcKpC8cLJYdZBxrX9ffrnquur6PGSMbkHW2AZc+gKgaHwNwi42kj5iwsU6mSoEhcosaYeZzDGt
+        QPmNFdB+BxAsM5HOfOIHN6G60iO9+ABOpQZ2viHWV6wZczorbc2oqP79swcAjnz1T1im7XcIZNKOenfQ
+        7DxGnnsrUE57m/EalvaeHKkuqsDQRboK1UbL+EUXVrGNv5AMlAwDXTEFh7gEHHBlL7zsdcbOOoEKeHlq
+        FjtbZ2/rz3/HNjhjO1I7BQPfLkC7+SEEVI7BUUEjvOKb1IvTqeNIeIbIIasbTrfch8mfV2Dkx2U4UX8P
+        XBR3wI5bsYbTqMOeW5H+oeIbYHU9hcKxNcgfXQN2zypEdG7Ae+c/Wcdp1MFgRkqTSuug/CuA0lvbUDq5
+        CdIvScj5fAk+4FcN4zRqCAsLE6cKBeT01ASU1bSB8d4O9P4CYBhfgFOXapbo6epjOHXvCQ8PP4fYMZvN
+        kJ6eDuEhjO2EHOmEoEhz+3S+qj4hV2aPU/cetHNuYmLi9uTkJIjFYoiIiNjy9vbmYZlakHk0j8fbHB8f
+        t5ozmcxNHx+fOCxTS2hoaDCXy10fHR0FkUhkNff19WVjmVpQmX3j4uKemkwmSEtLA7SYDXd392gsUwva
+        qVtsbOzK0NAQpKamAvoM615eXta/JeWEhIQ4sVispYGBARAKhYDGfyPzMCxTS3Bw8LsxMTF/9PX1gUAg
+        sJR9DZkzsEwt6JzbR0dHP+ru7oaUlBRAi1lFDUfHMrUgs8NRUVFz7e3tgC4bi/kT1HB+WKYWtPNDbDZ7
+        1mg0/mv+GJXdG8vUEh8fb4uO2vdtbW3A5/MhKChoxcPDwxPL1ILOuQ2Hw5luaWmBpKQkoNPpy56enm5Y
+        phZ0zg+i63WiubnZWvaAgIAl1HDHsUwtrq6uz6Mfi6mpqQmSk5Mt5ovobn8fy9STmZkZajAYrGX38/P7
+        EzWcE5aeDSUlJS+hTjejBfyKquGIwxRCo/0DbiM7F2j8r3sAAAAASUVORK5CYII=
+</value>
+  </data>
+  <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance48.Image" type="System.Drawing.Bitmap, System.Drawing">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAACt0RVh0Q29w
+        eXJpZ2h0AENvcHlyaWdodCCpIDIwMDgtMjAxMSBJTkNPUlMgR21iSBCOIU8AAAIGSURBVDhPY0AHrc3N
+        0tOnz6x2ze7cGFLSJwYVxg8mT50ZElw57a117tQrS5YsXbTw1Mv/pUtP/g+tnPp85pyZplFl/XtrJ8wP
+        hirHBNl1E75PO/H+v2X2xP+xZT3Pa3c8++/XsuF/YHHv/7jWJU9Xnrj/P6J+7i//illaUC2owCuv09Mu
+        d+KTqu4Z2v4VU8OM0/rPprfMsAss7EqaePDp//pT///nrb713zhn2vfkuEQVC1NjLqhW/MCtYk63bdGs
+        t33brv3XiGl5lVDUsCipafZ/ec/MtzwmoZ5QZfhBWWEPl2XOpB2SfhVbLWvX/z/z6Mt/975j/yX9y99B
+        lRAHzGMqDsatf/u/9ujf/zn7///XzZz+EypFEDCFh4XN3rh+7f/4pNT/3jWL/zsWzvjrUzKxBCqPG7i6
+        urIEBwevPHbs2P+09Iz/RkZGD1Kqe9wSGicqQ5XgBtbW1pxBQUFbjh8//j8rK/u/oZHJJSsrKz6oNH7g
+        7+/PFxISsm/Xrl3/AwID/1tYWm0xNzdnhUrjB+7u7sJhYWEnV61a9d/T0+sf0ButUCnCICUlRTItLe3K
+        3Llz/zs7u/wFGpYGlSIMMjIyFAoKCu729fX9d3Bw/Aa02QcqRRjU1NRwt7S0PGlra/tva2f31tnZ2Qwq
+        RRyIj4/niImJuezk7PLU3t5eFSpMBGBgAAC9odlvj6tiHAAAAABJRU5ErkJggg==
+</value>
+  </data>
+  <data name="buttonTool28.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Add to Existing Business Entity</value>
+  </data>
   <metadata name="openFileDialog1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>191, 17</value>
   </metadata>
@@ -3119,5 +3154,14 @@
   </data>
   <data name="saveFileDialog1.Title" xml:space="preserve">
     <value>Save Temp-Table As</value>
+  </data>
+  <metadata name="openFileDialog2.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>149, 54</value>
+  </metadata>
+  <data name="openFileDialog2.Filter" xml:space="preserve">
+    <value>Business Entities (*.bedgm)|*.bedgm|All Files (*.*)|*,*</value>
+  </data>
+  <data name="openFileDialog2.Title" xml:space="preserve">
+    <value>Open Existing Business Entity</value>
   </data>
 </root>

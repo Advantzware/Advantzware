@@ -12,43 +12,43 @@
 /*------------------------------------------------------------------------
     File        : FileAssert
     Purpose     : Provides routines for validating file system files
-    Syntax      : 
+    Syntax      :
     Description : Routines in this class typically raise an error condition
                   when the condition is not met.
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Tue Jan 01 19:50:05 CET 2013
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Consultingwerk.Assertion.* FROM PROPATH .  
+USING Consultingwerk.Assertion.* FROM PROPATH .
 USING Progress.Lang.*            FROM PROPATH .
 
-CLASS Consultingwerk.Assertion.FileAssert: 
+CLASS Consultingwerk.Assertion.FileAssert:
 
-    /*------------------------------------------------------------------------------
-        Purpose: Constructor for the FileAssert class
-        Notes:   Disallow instance creation   
-    ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PRIVATE FileAssert ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    /**
+     * Purpose: Constructor for the FileAssert class
+     * Notes:   Disallow instance creation
+     */
+    CONSTRUCTOR PRIVATE FileAssert ():
+        SUPER ().
 
-    /*------------------------------------------------------------------------------
-        Purpose: Verifies that the file exists
-        Notes:   
-        Throws:  Consultingwerk.Assertion.AssertException            
-        @param pcFileName The file name to verify
-    ------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC VOID Exists (pcFileName AS CHARACTER):
-		
-        FILE-INFO:FILE-NAME = pcFileName . 
-        IF FILE-INFO:FULL-PATHNAME = ? THEN 
-            UNDO, THROW NEW AssertException (SUBSTITUTE ("Invalid file name: &1":U, 
+    END CONSTRUCTOR.
+
+    /**
+     * Purpose: Verifies that the file exists
+     * Notes:
+     * Throws:  Consultingwerk.Assertion.AssertException
+     * @param pcFileName The file name to verify
+     */
+    METHOD PUBLIC STATIC VOID Exists (pcFileName AS CHARACTER):
+
+        FILE-INFORMATION:FILE-NAME = pcFileName .
+        IF FILE-INFORMATION:FULL-PATHNAME = ? THEN
+            UNDO, THROW NEW AssertException (SUBSTITUTE ("Invalid file name: &1":U,
                                                          pcFileName),
                                              0) .
-	END METHOD .
+    END METHOD .
 
 END CLASS.

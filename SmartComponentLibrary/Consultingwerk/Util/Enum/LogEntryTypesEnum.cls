@@ -12,13 +12,13 @@
 /*------------------------------------------------------------------------
     File        : LogEntryTypesEnum
     Purpose     : Enum of ABL Log Entry Types
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Thu Mar 14 09:52:12 CET 2013
     Notes       : Entries starting with "4" start with Four
                   . in the entry name is replaced with _
-                  * in the entry name is replaced with #  
+                  * in the entry name is replaced with #
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -33,18 +33,18 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.*                       FROM PROPATH .
 USING Consultingwerk.Framework.Collections.* FROM PROPATH .
-USING Consultingwerk.Util.Enum.*             FROM PROPATH .  
+USING Consultingwerk.Util.Enum.*             FROM PROPATH .
 USING Progress.Lang.*                        FROM PROPATH .
 
-{&CLASS} Consultingwerk.Util.Enum.LogEntryTypesEnum 
+{&CLASS} Consultingwerk.Util.Enum.LogEntryTypesEnum
     &IF "{&CLASS}" EQ "CLASS" &THEN
     INHERITS Enum
-    &ENDIF    
-        : 
+    &ENDIF
+        :
 
 &IF "{&CLASS}" EQ "ENUM" &THEN
     DEFINE ENUM
-&ENDIF    
+&ENDIF
 
     {Consultingwerk/EnumMember.i FourGLMessages 0 LogEntryTypesEnum}
     {Consultingwerk/EnumMember.i FourGLTrace 1 LogEntryTypesEnum}
@@ -58,26 +58,26 @@ USING Progress.Lang.*                        FROM PROPATH .
     {Consultingwerk/EnumMember.i DB_Encryption 9 LogEntryTypesEnum}
     {Consultingwerk/EnumMember.i DS_# 10 LogEntryTypesEnum}
     {Consultingwerk/EnumMember.i DS_Cursor 11 LogEntryTypesEnum}
-    {Consultingwerk/EnumMember.i DS_QryInfo 12 LogEntryTypesEnum} 
+    {Consultingwerk/EnumMember.i DS_QryInfo 12 LogEntryTypesEnum}
     {Consultingwerk/EnumMember.i DS_Performance 13 LogEntryTypesEnum}
     {Consultingwerk/EnumMember.i DynObjects_# 14 LogEntryTypesEnum}
     {Consultingwerk/EnumMember.i DynObjects_Class 15 LogEntryTypesEnum}
-    {Consultingwerk/EnumMember.i DynObjects_DB 16 LogEntryTypesEnum} 
+    {Consultingwerk/EnumMember.i DynObjects_DB 16 LogEntryTypesEnum}
     {Consultingwerk/EnumMember.i DynObjects_Other 17 LogEntryTypesEnum}
-    {Consultingwerk/EnumMember.i DynObjects_UI 18 LogEntryTypesEnum} 
+    {Consultingwerk/EnumMember.i DynObjects_UI 18 LogEntryTypesEnum}
     {Consultingwerk/EnumMember.i DynObjects_XML 19 LogEntryTypesEnum}
-    {Consultingwerk/EnumMember.i FileID 20 LogEntryTypesEnum} 
+    {Consultingwerk/EnumMember.i FileID 20 LogEntryTypesEnum}
     {Consultingwerk/EnumMember.i IgnoredOps 21 LogEntryTypesEnum}
     {Consultingwerk/EnumMember.i MSASAdmin 22 LogEntryTypesEnum}
-    {Consultingwerk/EnumMember.i MSASSessions 23 LogEntryTypesEnum} 
+    {Consultingwerk/EnumMember.i MSASSessions 23 LogEntryTypesEnum}
     {Consultingwerk/EnumMember.i MSASSignals 24 LogEntryTypesEnum}
     {Consultingwerk/EnumMember.i MSASSockets 25 LogEntryTypesEnum}
     {Consultingwerk/EnumMember.i ProEvents_# 26 LogEntryTypesEnum}
-    {Consultingwerk/EnumMember.i ProEvents_UI_# 27 LogEntryTypesEnum} 
+    {Consultingwerk/EnumMember.i ProEvents_UI_# 27 LogEntryTypesEnum}
     {Consultingwerk/EnumMember.i ProEvents_UI_Char 28 LogEntryTypesEnum}
     {Consultingwerk/EnumMember.i ProEvents_UI_Command 29 LogEntryTypesEnum}
     {Consultingwerk/EnumMember.i ProEvents_Other 30 LogEntryTypesEnum}
-    {Consultingwerk/EnumMember.i QryInfo 31 LogEntryTypesEnum} 
+    {Consultingwerk/EnumMember.i QryInfo 31 LogEntryTypesEnum}
     {Consultingwerk/EnumMember.i SAX 32 LogEntryTypesEnum}
     {Consultingwerk/EnumMember.i Temp-Tables 33 LogEntryTypesEnum}
     {Consultingwerk/EnumMember.i TTStats 34 LogEntryTypesEnum}
@@ -85,7 +85,7 @@ USING Progress.Lang.*                        FROM PROPATH .
 
 &IF "{&CLASS}" EQ "ENUM" &THEN
     .
-&ENDIF    
+&ENDIF
 
 &IF "{&CLASS}" EQ "CLASS" &THEN
 
@@ -97,26 +97,24 @@ USING Progress.Lang.*                        FROM PROPATH .
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PRIVATE LogEntryTypesEnum (piValue AS INTEGER, pcLabel AS CHARACTER):
         SUPER ().
- 
+
         ASSIGN THIS-OBJECT:Value = piValue
                THIS-OBJECT:Label = pcLabel .
- 
+
     END CONSTRUCTOR.
- 
+
     /*------------------------------------------------------------------------------
         Purpose: Returns a CharacterList with the names of the Enum members
-        Notes:   
+        Notes:
         @return The CharacterList with the names of the Enum members
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CharacterList GetNames ():
- 
-        DEFINE VARIABLE oReturn AS CharacterList NO-UNDO . 
- 
+
         RETURN NEW CharacterList ('{&EnumMembers}':U).
- 
+
     END METHOD .
 
-    {Consultingwerk/EnumFromString.i Consultingwerk.Util.Enum.LogEntryTypesEnum}    
+    {Consultingwerk/EnumFromString.i Consultingwerk.Util.Enum.LogEntryTypesEnum}
 
 &ENDIF
 

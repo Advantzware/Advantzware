@@ -33,31 +33,31 @@ CLASS Consultingwerk.SmartComponents.Implementation.MergeChangesEventArgs
         Purpose: Returns the handle of the dataset with changes 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY ChangeDataset AS HANDLE NO-UNDO 
-	GET.
-	PRIVATE SET. 
+    DEFINE PUBLIC PROPERTY ChangeDataset AS HANDLE NO-UNDO 
+    GET.
+    PRIVATE SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the handle of the original dataset
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY OriginalDataset AS HANDLE NO-UNDO 
-	GET.
-	PRIVATE SET.
-	
-	/*------------------------------------------------------------------------------
+    DEFINE PUBLIC PROPERTY OriginalDataset AS HANDLE NO-UNDO 
+    GET.
+    PRIVATE SET.
+    
+    /*------------------------------------------------------------------------------
         Purpose: Constructor for the MergeChangesEventArgs class
         Notes:   
         @param phChangeDataset The handle of the dataset with changes  
         @param phOriginalDataset The handle of the original dataset
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC MergeChangesEventArgs (phChangeDataset AS HANDLE,
-	                                          phOriginalDataset AS HANDLE):
-		SUPER ().
-		
-		ASSIGN THIS-OBJECT:ChangeDataset   = phChangeDataset
-		       THIS-OBJECT:OriginalDataset = phOriginalDataset .
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC MergeChangesEventArgs (phChangeDataset AS HANDLE,
+                                              phOriginalDataset AS HANDLE):
+        SUPER ().
+        
+        ASSIGN THIS-OBJECT:ChangeDataset   = phChangeDataset
+               THIS-OBJECT:OriginalDataset = phOriginalDataset .
+        
+    END CONSTRUCTOR.
 
 END CLASS.

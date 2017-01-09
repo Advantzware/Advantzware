@@ -38,6 +38,6 @@ INTERFACE Consultingwerk.Studio.ClassDocumentation.IClassReferenceLinkProvider:
         @param pcClassName The name of the class to provide a hyperlink for 
         @return The hyperlink to the class reference page or ? when the class is part of the SmartDox generated ABL class reference  
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC CHARACTER GetClassReferenceLink (pcClassName AS CHARACTER).
+    METHOD PUBLIC CHARACTER GetClassReferenceLink (pcClassName AS CHARACTER).
 
 END INTERFACE.

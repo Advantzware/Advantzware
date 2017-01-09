@@ -8,15 +8,15 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/   
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : SmartSecurityRealmViewerControl
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : 28.07.2013 13:46:34
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -30,9 +30,9 @@ USING Progress.Lang.*                                 FROM PROPATH .
 
 {Consultingwerk/products.i}
 
-CLASS Consultingwerk.Windows.Framework.Authorization.SmartSecurityRealmViewerControl 
-    INHERITS SmartViewerControl: 
-    
+CLASS Consultingwerk.Windows.Framework.Authorization.SmartSecurityRealmViewerControl
+    INHERITS SmartViewerControl:
+
     DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
 
     DEFINE PRIVATE VARIABLE eSmartSecurityRealm_CompanyDependent AS Infragistics.Win.UltraWinEditors.UltraCheckEditor NO-UNDO.
@@ -49,67 +49,68 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartSecurityRealmViewerCon
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the SmartSecurityRealmViewerControl class
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC SmartSecurityRealmViewerControl ():
-                
+
         SUPER().
         InitializeComponent().
-        
+
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the EditorButtonClick event of the eSmartSecurityRealm_SecurityRealmService
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The EditorButtonEventArgs with the data for this event 
+        @param e The EditorButtonEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID eSmartSecurityRealm_SecurityRealmService_EditorButtonClick (sender AS System.Object, 
-	                                                                                e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
-		
+    METHOD PRIVATE VOID eSmartSecurityRealm_SecurityRealmService_EditorButtonClick (sender AS System.Object,
+                                                                                    e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
+
         DEFINE VARIABLE oForm         AS Consultingwerk.SmartComponents.Support.BusinessEntityPickerForm NO-UNDO .
         DEFINE VARIABLE oDialogResult AS System.Windows.Forms.DialogResult                               NO-UNDO .
 
-        DEFINE VARIABLE oInfo         AS Infragistics.Win.Misc.UltraDesktopAlertWindowInfo               NO-UNDO . 
+        DEFINE VARIABLE oInfo         AS Infragistics.Win.Misc.UltraDesktopAlertWindowInfo               NO-UNDO .
 
         oInfo = Consultingwerk.SmartComponents.Support.DesktopAlertHelper:Show ("SmartFramework"{&TRAN},
                                                                                 "Scanning Project Folder(s) for Security Realm Services."{&TRAN}) .
 
-        Consultingwerk.Util.ClassHelper:GetClassNamesInClassPath ("Consultingwerk.SmartFramework.Authorization.ISecurityRealmService"{&TRAN}, 
-                                                                  FALSE, 
+        Consultingwerk.Util.ClassHelper:GetClassNamesInClassPath ("Consultingwerk.SmartFramework.Authorization.ISecurityRealmService"{&TRAN},
+                                                                  FALSE,
                                                                   OUTPUT TABLE ttClassNames BY-REFERENCE) .
 
         oInfo:Close () .
 
         oForm = NEW Consultingwerk.SmartComponents.Support.BusinessEntityPickerForm () .
         oForm:Text = "Select Security Realm Service"{&TRAN} .
-        
+
         oForm:ReceiveBusinessEntityNames (TABLE ttClassNames) .
-        
+
 /*        WAIT-FOR oForm:ShowDialog () SET oDialogResult .*/
 
         /* Mike Fechner, Consultingwerk Ltd. 14.07.2010
            WAIT-FOR Workaround */
         ASSIGN oDialogResult = Consultingwerk.SmartComponents.FormHelper:ShowDialog(oForm) .
-        
-        IF Progress.Util.EnumHelper:AreEqual(oDialogResult, 
-                                             System.Windows.Forms.DialogResult:Ok) THEN 
-                                    
-            ASSIGN THIS-OBJECT:eSmartSecurityRealm_SecurityRealmService:Text = oForm:GetSelectedBusinessEntityName () .
-        
-	END METHOD .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design
-        Notes:   
-    ------------------------------------------------------------------------------*/
+        IF Progress.Util.EnumHelper:AreEqual(oDialogResult,
+                                             System.Windows.Forms.DialogResult:Ok) THEN
+
+            ASSIGN THIS-OBJECT:eSmartSecurityRealm_SecurityRealmService:Text = oForm:GetSelectedBusinessEntityName () .
+
+    END METHOD .
+
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -390,18 +391,18 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartSecurityRealmViewerCon
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the KeyDown handler of the Text boxes with an 
+        Purpose: Event handler for the KeyDown handler of the Text boxes with an
                  EditorButton (Lookup)
         Notes:   Maps F3 to EditorButtonClick
         @param sender The reference to the object that raised the event
         @param e The KeyEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID LookupKeyDownHandler (sender AS System.Object, 
+    METHOD PRIVATE VOID LookupKeyDownHandler (sender AS System.Object,
                                               e AS System.Windows.Forms.KeyEventArgs):
 
         DEFINE VARIABLE cControlName AS CHARACTER NO-UNDO.
-        
-        IF e:Handled = FALSE AND Progress.Util.EnumHelper:AreEqual (e:KeyCode, SmartLookupSettings:ShortcutKey) 
+
+        IF e:Handled = FALSE AND Progress.Util.EnumHelper:AreEqual (e:KeyCode, SmartLookupSettings:ShortcutKey)
             AND THIS-OBJECT:Enabled THEN DO:
 
 &IF NOT PROVERSION BEGINS "10" &THEN
@@ -411,25 +412,25 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartSecurityRealmViewerCon
                             SUBSTITUTE ("&1_EditorButtonClick":U, cControlName),
                             sender,
                             NEW EditorButtonEventArgs (?, ?)) .
-&ELSE 
+&ELSE
             /* Mike Fechner, Consultingwerk Ltd. 17.08.2015
                DYNAMIC-INVOKE seems to crash here on 10.2B */
             CASE sender:
-                WHEN eSmartSecurityRealm_SecurityRealmService 
+                WHEN eSmartSecurityRealm_SecurityRealmService
                     THEN THIS-OBJECT:eSmartSecurityRealm_SecurityRealmService_EditorButtonClick (sender, NEW EditorButtonEventArgs (?, ?)) .
-            END CASE . 
-&ENDIF 
+            END CASE .
+&ENDIF
         END.
 
         CATCH err AS Progress.Lang.Error:
-            ErrorHelper:ShowErrorMessage (err) .                
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Destructor for the SmartSecurityRealmViewerControl class
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC SmartSecurityRealmViewerControl ( ):
 

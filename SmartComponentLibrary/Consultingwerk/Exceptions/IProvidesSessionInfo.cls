@@ -12,25 +12,25 @@
 /*------------------------------------------------------------------------
     File        : IProvidesSessionInfo
     Purpose     : Interface for error classes that provide the SessionInfo
-                  property 
-    Syntax      : 
-    Description : 
+                  property
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Mon Oct 13 21:27:16 CEST 2014
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
-USING Consultingwerk.*            FROM PROPATH . 
-USING Consultingwerk.Exceptions.* FROM PROPATH . 
+USING Consultingwerk.*            FROM PROPATH .
+USING Consultingwerk.Exceptions.* FROM PROPATH .
 USING Progress.Lang.*             FROM PROPATH .
 
-INTERFACE Consultingwerk.Exceptions.IProvidesSessionInfo:  
-  
-    /*------------------------------------------------------------------------------
-        Purpose: Returns the Information aboult the Session the error occured in 
-        Notes:                          
-    ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY SessionInfo AS SessionInfo NO-UNDO 
+INTERFACE Consultingwerk.Exceptions.IProvidesSessionInfo:
+
+    /**
+     * Purpose: Returns the Information about the Session the error occurred in
+     * Notes:
+     */
+    DEFINE PUBLIC PROPERTY SessionInfo AS SessionInfo NO-UNDO
     GET.
-      
+
 END INTERFACE.

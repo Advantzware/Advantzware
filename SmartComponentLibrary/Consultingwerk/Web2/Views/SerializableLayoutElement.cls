@@ -35,14 +35,14 @@ CLASS Consultingwerk.Web2.Views.SerializableLayoutElement
 &ENDIF
     IMPLEMENTS ISerializableLayoutElement:
 
-    {Consultingwerk/JsonSerializableProperty.i Name CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i Template CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i InstanceId CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i Type Consultingwerk.Web2.Views.LayoutElementType} .
-    {Consultingwerk/JsonSerializableProperty.i DataSourceId CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i NavigationId CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i TableIOSourceId CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i Elements Consultingwerk.Web2.Views.ListSerializableLayoutElement} .
+    {Consultingwerk/JsonSerializableProperty11.i Name CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i Template CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i InstanceId CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i Type Consultingwerk.Web2.Views.LayoutElementType} .
+    {Consultingwerk/JsonSerializableProperty11.i DataSourceId CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i NavigationId CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i TableIOSourceId CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i Elements Consultingwerk.Web2.Views.ListSerializableLayoutElement} .
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the SerializableLayoutElement class

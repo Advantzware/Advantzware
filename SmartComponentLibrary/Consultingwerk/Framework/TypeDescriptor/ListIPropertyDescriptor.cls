@@ -12,48 +12,79 @@
 /*------------------------------------------------------------------------
     File        : ListIPropertyDescriptor
     Purpose     : Generic List of IPropertyDescriptor instances
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Wed Apr 29 07:00:36 CEST 2015
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.Framework.Base.*           FROM PROPATH .
-USING Consultingwerk.Framework.TypeDescriptor.* FROM PROPATH .  
+USING Consultingwerk.Framework.TypeDescriptor.* FROM PROPATH .
 USING Progress.Lang.*                           FROM PROPATH .
 
-CLASS Consultingwerk.Framework.TypeDescriptor.ListIPropertyDescriptor 
-    INHERITS GenericList: 
+CLASS Consultingwerk.Framework.TypeDescriptor.ListIPropertyDescriptor
+    INHERITS GenericList:
 
     {Consultingwerk/Framework/Base/GenericList.i IPropertyDescriptor}
 
-    /*------------------------------------------------------------------------------
-        Purpose: Adds a new PropertyDescriptor to the List
-        Notes:
-        @param pcDefiningTypeName The name of the class that defines this property
-        @param pcPropertyName The name for the property
-        @return The new PropertyDescriptor instance
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Adds a new PropertyDescriptor to the List
+     * Notes:
+     * @param pcDefiningTypeName The name of the class that defines this property
+     * @param pcPropertyName The name for the property
+     * @param pcPropertyLabel The label for the property
+     * @param plVisible If the property should be visible
+     * @param plEditable If the property should be editable
+     * @param poEditorType The type of editor to use for the property
+     * @param pcListItemPairs The list item pairs (comma delimited) to use for this property
+     * @return The new PropertyDescriptor instance
+     */
+    METHOD PUBLIC PropertyDescriptor Add (pcDefiningTypeName AS CHARACTER,
+                                          pcPropertyName AS CHARACTER,
+                                          pcPropertyLabel AS CHARACTER,
+                                          plVisible AS LOGICAL,
+                                          plEditable AS LOGICAL,
+                                          poEditorType AS EditorTypeEnum,
+                                          pcListItemPairs AS CHARACTER):
+
+        RETURN CAST (THIS-OBJECT:Add (NEW PropertyDescriptor (pcDefiningTypeName,
+                                                              pcPropertyName,
+                                                              pcPropertyLabel,
+                                                              plVisible,
+                                                              plEditable,
+                                                              poEditorType,
+                                                              pcListItemPairs)),
+                     PropertyDescriptor) .
+
+    END METHOD.
+
+    /**
+     * Purpose: Adds a new PropertyDescriptor to the List
+     * Notes:
+     * @param pcDefiningTypeName The name of the class that defines this property
+     * @param pcPropertyName The name for the property
+     * @return The new PropertyDescriptor instance
+     */
     METHOD PUBLIC PropertyDescriptor Add (pcDefiningTypeName AS CHARACTER,
                                           pcPropertyName AS CHARACTER):
-                                              
+
         RETURN CAST (THIS-OBJECT:Add (NEW PropertyDescriptor (pcDefiningTypeName,
                                                               pcPropertyName)),
                      PropertyDescriptor) .
 
-    END METHOD. 
+    END METHOD.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Adds a new PropertyDescriptor to the List
-        Notes:
-        @param pcDefiningTypeName The name of the class that defines this property
-        @param pcPropertyName The name for the property
-        @param pcPropertyLabel The label for the property
-        @return The new PropertyDescriptor instance
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Adds a new PropertyDescriptor to the List
+     * Notes:
+     * @param pcDefiningTypeName The name of the class that defines this property
+     * @param pcPropertyName The name for the property
+     * @param pcPropertyLabel The label for the property
+     * @return The new PropertyDescriptor instance
+     */
     METHOD PUBLIC PropertyDescriptor Add (pcDefiningTypeName AS CHARACTER,
                                           pcPropertyName AS CHARACTER,
                                           pcPropertyLabel AS CHARACTER):
@@ -63,63 +94,63 @@ CLASS Consultingwerk.Framework.TypeDescriptor.ListIPropertyDescriptor
                                                               pcPropertyLabel)),
                      PropertyDescriptor) .
 
-    END METHOD. 
+    END METHOD.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Adds a new PropertyDescriptor to the List
-        Notes:
-        @param pcDefiningTypeName The name of the class that defines this property
-        @param pcPropertyName The name for the property
-        @param plVisible If the property should be visible
-        @param plEditable If the property should be editable
-        @return The new PropertyDescriptor instance
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Adds a new PropertyDescriptor to the List
+     * Notes:
+     * @param pcDefiningTypeName The name of the class that defines this property
+     * @param pcPropertyName The name for the property
+     * @param plVisible If the property should be visible
+     * @param plEditable If the property should be editable
+     * @return The new PropertyDescriptor instance
+     */
     METHOD PUBLIC PropertyDescriptor Add (pcDefiningTypeName AS CHARACTER,
                                           pcPropertyName AS CHARACTER,
-                                          plVisible AS LOGICAL, 
+                                          plVisible AS LOGICAL,
                                           plEditable AS LOGICAL):
 
         RETURN CAST (THIS-OBJECT:Add (NEW PropertyDescriptor (pcDefiningTypeName,
                                                               pcPropertyName,
-                                                              plVisible, 
+                                                              plVisible,
                                                               plEditable)),
                      PropertyDescriptor) .
 
-    END METHOD. 
+    END METHOD.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Adds a new PropertyDescriptor to the List
-        Notes:
-        @param pcDefiningTypeName The name of the class that defines this property
-        @param pcPropertyName The name for the property
-        @param pcPropertyLabel The label for the property
-        @param plVisible If the property should be visible
-        @param plEditable If the property should be editable
-        @return The new PropertyDescriptor instance
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Adds a new PropertyDescriptor to the List
+     * Notes:
+     * @param pcDefiningTypeName The name of the class that defines this property
+     * @param pcPropertyName The name for the property
+     * @param pcPropertyLabel The label for the property
+     * @param plVisible If the property should be visible
+     * @param plEditable If the property should be editable
+     * @return The new PropertyDescriptor instance
+     */
     METHOD PUBLIC PropertyDescriptor Add (pcDefiningTypeName AS CHARACTER,
                                           pcPropertyName AS CHARACTER,
                                           pcPropertyLabel AS CHARACTER,
-                                          plVisible AS LOGICAL, 
+                                          plVisible AS LOGICAL,
                                           plEditable AS LOGICAL):
 
         RETURN CAST (THIS-OBJECT:Add (NEW PropertyDescriptor (pcDefiningTypeName,
                                                               pcPropertyName,
                                                               pcPropertyLabel,
-                                                              plVisible, 
+                                                              plVisible,
                                                               plEditable)),
                      PropertyDescriptor) .
 
-    END METHOD. 
+    END METHOD.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Adds a new PropertyDescriptor to the List
-        Notes:
-        @param pcDefiningTypeName The name of the class that defines this property
-        @param pcPropertyName The name for the property
-        @param poEditorType The type of editor to use for the property
-        @return The new PropertyDescriptor instance
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Adds a new PropertyDescriptor to the List
+     * Notes:
+     * @param pcDefiningTypeName The name of the class that defines this property
+     * @param pcPropertyName The name for the property
+     * @param poEditorType The type of editor to use for the property
+     * @return The new PropertyDescriptor instance
+     */
     METHOD PUBLIC PropertyDescriptor Add (pcDefiningTypeName AS CHARACTER,
                                           pcPropertyName AS CHARACTER,
                                           poEditorType AS EditorTypeEnum):
@@ -129,17 +160,17 @@ CLASS Consultingwerk.Framework.TypeDescriptor.ListIPropertyDescriptor
                                                               poEditorType)),
                      PropertyDescriptor) .
 
-    END METHOD. 
+    END METHOD.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Adds a new PropertyDescriptor to the List
-        Notes:
-        @param pcDefiningTypeName The name of the class that defines this property
-        @param pcPropertyName The name for the property
-        @param pcPropertyLabel The label for the property
-        @param poEditorType The type of editor to use for the property
-        @return The new PropertyDescriptor instance
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Adds a new PropertyDescriptor to the List
+     * Notes:
+     * @param pcDefiningTypeName The name of the class that defines this property
+     * @param pcPropertyName The name for the property
+     * @param pcPropertyLabel The label for the property
+     * @param poEditorType The type of editor to use for the property
+     * @return The new PropertyDescriptor instance
+     */
     METHOD PUBLIC PropertyDescriptor Add (pcDefiningTypeName AS CHARACTER,
                                           pcPropertyName AS CHARACTER,
                                           pcPropertyLabel AS CHARACTER,
@@ -151,45 +182,45 @@ CLASS Consultingwerk.Framework.TypeDescriptor.ListIPropertyDescriptor
                                                               poEditorType)),
                      PropertyDescriptor) .
 
-    END METHOD. 
+    END METHOD.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Adds a new PropertyDescriptor to the List
-        Notes:
-        @param pcDefiningTypeName The name of the class that defines this property
-        @param pcPropertyName The name for the property
-        @param pcPropertyLabel The label for the property
-        @param plVisible If the property should be visible
-        @param plEditable If the property should be editable
-        @param poEditorType The type of editor to use for the property
-        @return The new PropertyDescriptor instance
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Adds a new PropertyDescriptor to the List
+     * Notes:
+     * @param pcDefiningTypeName The name of the class that defines this property
+     * @param pcPropertyName The name for the property
+     * @param pcPropertyLabel The label for the property
+     * @param plVisible If the property should be visible
+     * @param plEditable If the property should be editable
+     * @param poEditorType The type of editor to use for the property
+     * @return The new PropertyDescriptor instance
+     */
     METHOD PUBLIC PropertyDescriptor Add (pcDefiningTypeName AS CHARACTER,
                                           pcPropertyName AS CHARACTER,
                                           pcPropertyLabel AS CHARACTER,
-                                          plVisible AS LOGICAL, 
+                                          plVisible AS LOGICAL,
                                           plEditable AS LOGICAL,
                                           poEditorType AS EditorTypeEnum):
 
         RETURN CAST (THIS-OBJECT:Add (NEW PropertyDescriptor (pcDefiningTypeName,
                                                               pcPropertyName,
                                                               pcPropertyLabel,
-                                                              plVisible, 
+                                                              plVisible,
                                                               plEditable,
                                                               poEditorType)),
                      PropertyDescriptor) .
 
-    END METHOD. 
+    END METHOD.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Adds a new PropertyDescriptor to the List
-        Notes:
-        @param pcDefiningTypeName The name of the class that defines this property
-        @param pcPropertyName The name for the property
-        @param pcPropertyLabel The label for the property
-        @param pcListItemPairs The list item pairs (comma delimited) to use for this property
-        @return The new PropertyDescriptor instance
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Adds a new PropertyDescriptor to the List
+     * Notes:
+     * @param pcDefiningTypeName The name of the class that defines this property
+     * @param pcPropertyName The name for the property
+     * @param pcPropertyLabel The label for the property
+     * @param pcListItemPairs The list item pairs (comma delimited) to use for this property
+     * @return The new PropertyDescriptor instance
+     */
     METHOD PUBLIC PropertyDescriptor Add (pcDefiningTypeName AS CHARACTER,
                                           pcPropertyName AS CHARACTER,
                                           pcPropertyLabel AS CHARACTER,
@@ -201,45 +232,45 @@ CLASS Consultingwerk.Framework.TypeDescriptor.ListIPropertyDescriptor
                                                               pcListItemPairs)),
                      PropertyDescriptor) .
 
-    END METHOD. 
+    END METHOD.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Adds a new PropertyDescriptor to the List
-        Notes:
-        @param pcDefiningTypeName The name of the class that defines this property
-        @param pcPropertyName The name for the property
-        @param pcPropertyLabel The label for the property
-        @param plVisible If the property should be visible
-        @param plEditable If the property should be editable
-        @param pcListItemPairs The list item pairs (comma delimited) to use for this property
-        @return The new PropertyDescriptor instance
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Adds a new PropertyDescriptor to the List
+     * Notes:
+     * @param pcDefiningTypeName The name of the class that defines this property
+     * @param pcPropertyName The name for the property
+     * @param pcPropertyLabel The label for the property
+     * @param plVisible If the property should be visible
+     * @param plEditable If the property should be editable
+     * @param pcListItemPairs The list item pairs (comma delimited) to use for this property
+     * @return The new PropertyDescriptor instance
+     */
     METHOD PUBLIC PropertyDescriptor Add (pcDefiningTypeName AS CHARACTER,
                                           pcPropertyName AS CHARACTER,
                                           pcPropertyLabel AS CHARACTER,
-                                          plVisible AS LOGICAL, 
+                                          plVisible AS LOGICAL,
                                           plEditable AS LOGICAL,
                                           pcListItemPairs AS CHARACTER):
 
         RETURN CAST (THIS-OBJECT:Add (NEW PropertyDescriptor (pcDefiningTypeName,
                                                               pcPropertyName,
                                                               pcPropertyLabel,
-                                                              plVisible, 
+                                                              plVisible,
                                                               plEditable,
                                                               pcListItemPairs)),
                      PropertyDescriptor) .
 
-    END METHOD. 
+    END METHOD.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Adds a new PropertyDescriptor to the List
-        Notes:
-        @param pcDefiningTypeName The name of the class that defines this property
-        @param pcPropertyName The name for the property
-        @param poEditorType The type of editor to use for the property
-        @param pcListItemPairs The list item pairs (comma delimited) to use for this property
-        @return The new PropertyDescriptor instance
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Adds a new PropertyDescriptor to the List
+     * Notes:
+     * @param pcDefiningTypeName The name of the class that defines this property
+     * @param pcPropertyName The name for the property
+     * @param poEditorType The type of editor to use for the property
+     * @param pcListItemPairs The list item pairs (comma delimited) to use for this property
+     * @return The new PropertyDescriptor instance
+     */
     METHOD PUBLIC PropertyDescriptor Add (pcDefiningTypeName AS CHARACTER,
                                           pcPropertyName AS CHARACTER,
                                           poEditorType AS EditorTypeEnum,
@@ -251,18 +282,18 @@ CLASS Consultingwerk.Framework.TypeDescriptor.ListIPropertyDescriptor
                                                               pcListItemPairs)),
                      PropertyDescriptor) .
 
-    END METHOD. 
+    END METHOD.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Adds a new PropertyDescriptor to the List
-        Notes:
-        @param pcDefiningTypeName The name of the class that defines this property
-        @param pcPropertyName The name for the property
-        @param pcPropertyLabel The label for the property
-        @param poEditorType The type of editor to use for the property
-        @param pcListItemPairs The list item pairs (comma delimited) to use for this property
-        @return The new PropertyDescriptor instance
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Adds a new PropertyDescriptor to the List
+     * Notes:
+     * @param pcDefiningTypeName The name of the class that defines this property
+     * @param pcPropertyName The name for the property
+     * @param pcPropertyLabel The label for the property
+     * @param poEditorType The type of editor to use for the property
+     * @param pcListItemPairs The list item pairs (comma delimited) to use for this property
+     * @return The new PropertyDescriptor instance
+     */
     METHOD PUBLIC PropertyDescriptor Add (pcDefiningTypeName AS CHARACTER,
                                           pcPropertyName AS CHARACTER,
                                           pcPropertyLabel AS CHARACTER,
@@ -276,37 +307,6 @@ CLASS Consultingwerk.Framework.TypeDescriptor.ListIPropertyDescriptor
                                                               pcListItemPairs)),
                      PropertyDescriptor) .
 
-    END METHOD. 
-
-    /*------------------------------------------------------------------------------
-        Purpose: Adds a new PropertyDescriptor to the List
-        Notes:
-        @param pcDefiningTypeName The name of the class that defines this property
-        @param pcPropertyName The name for the property
-        @param pcPropertyLabel The label for the property
-        @param plVisible If the property should be visible
-        @param plEditable If the property should be editable
-        @param poEditorType The type of editor to use for the property
-        @param pcListItemPairs The list item pairs (comma delimited) to use for this property
-        @return The new PropertyDescriptor instance
-    ------------------------------------------------------------------------------*/
-    METHOD PUBLIC PropertyDescriptor Add (pcDefiningTypeName AS CHARACTER,
-                                          pcPropertyName AS CHARACTER,
-                                          pcPropertyLabel AS CHARACTER,
-                                          plVisible AS LOGICAL, 
-                                          plEditable AS LOGICAL,
-                                          poEditorType AS EditorTypeEnum,
-                                          pcListItemPairs AS CHARACTER):
-
-        RETURN CAST (THIS-OBJECT:Add (NEW PropertyDescriptor (pcDefiningTypeName,
-                                                              pcPropertyName,
-                                                              pcPropertyLabel,
-                                                              plVisible, 
-                                                              plEditable,
-                                                              poEditorType,
-                                                              pcListItemPairs)),
-                     PropertyDescriptor) .
-
-    END METHOD. 
+    END METHOD.
 
 END CLASS.

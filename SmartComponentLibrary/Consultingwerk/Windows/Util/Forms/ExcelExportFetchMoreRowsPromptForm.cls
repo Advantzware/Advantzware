@@ -11,69 +11,69 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : ExcelExportFetchMoreRowsPromptForm
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Thu Dec 20 09:42:33 CET 2012
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Consultingwerk.Forms.BaseForm.
+USING Consultingwerk.Forms.*              FROM PROPATH .
+USING Consultingwerk.Util.*               FROM PROPATH .
+USING Consultingwerk.Windows.Util.Forms.* FROM PROPATH .
+USING Progress.Lang.*                     FROM PROPATH .
 
-
-USING Consultingwerk.Windows.Util.Forms.* FROM PROPATH .  
-USING Progress.Lang.* FROM PROPATH .
-
-CLASS Consultingwerk.Windows.Util.Forms.ExcelExportFetchMoreRowsPromptForm INHERITS BaseForm: 
+CLASS Consultingwerk.Windows.Util.Forms.ExcelExportFetchMoreRowsPromptForm INHERITS BaseForm:
 
     DEFINE PRIVATE VARIABLE btnOk AS Infragistics.Win.Misc.UltraButton NO-UNDO.
     DEFINE PRIVATE VARIABLE btnCancel AS Infragistics.Win.Misc.UltraButton NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE tbNumRows AS Infragistics.Win.UltraWinEditors.UltraNumericEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraCalcManager1 AS Infragistics.Win.UltraWinCalcManager.UltraCalcManager NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraLabel1 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraTrackBar1 AS Infragistics.Win.UltraWinEditors.UltraTrackBar NO-UNDO.
 
-    DEFINE VARIABLE iNumberOfRecords AS INTEGER NO-UNDO EXTENT 9 
+    DEFINE VARIABLE iNumberOfRecords AS INTEGER NO-UNDO EXTENT 9
         INIT [0, 100, 250, 500, 1000, 2500, 5000, 10000, 25000].
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns the users selection for the number of rows 
-        Notes:   
+        Purpose: Returns the users selection for the number of rows
+        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Value AS INTEGER NO-UNDO 
-	GET():
-		RETURN UNBOX (THIS-OBJECT:tbNumRows:Value) .
-	END GET.
+    DEFINE PUBLIC PROPERTY Value AS INTEGER NO-UNDO
+    GET():
+        RETURN UNBOX (THIS-OBJECT:tbNumRows:Value) .
+    END GET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the ExcelExportFetchMoreRowsPromptForm class 
-        Notes:   
+        Purpose: Constructor for the ExcelExportFetchMoreRowsPromptForm class
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ExcelExportFetchMoreRowsPromptForm ():
-		
+    CONSTRUCTOR PUBLIC ExcelExportFetchMoreRowsPromptForm ():
+
         SUPER().
         InitializeComponent().
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -173,31 +173,35 @@ CLASS Consultingwerk.Windows.Util.Forms.ExcelExportFetchMoreRowsPromptForm INHER
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the ValueChanged event of the ultraTrackBar1 
-        Notes:   
+        Purpose: Event handler for the ValueChanged event of the ultraTrackBar1
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraTrackBar1_ValueChanged (sender AS System.Object, 
-	                                                 e AS System.EventArgs):
-		
-		tbNumRows:Value = BOX (iNumberOfRecords [ultraTrackBar1:Value]) . 
-		
-		IF ultraTrackBar1:Value < 5 THEN 
-		    tbNumRows:Appearance:ForeColor = System.Drawing.Color:Empty .
-		ELSE IF ultraTrackBar1:Value < 7 THEN 
+    METHOD PRIVATE VOID ultraTrackBar1_ValueChanged (sender AS System.Object,
+                                                     e AS System.EventArgs):
+
+        tbNumRows:Value = BOX (iNumberOfRecords [ultraTrackBar1:Value]) .
+
+        IF ultraTrackBar1:Value < 5 THEN
+            tbNumRows:Appearance:ForeColor = System.Drawing.Color:Empty .
+        ELSE IF ultraTrackBar1:Value < 7 THEN
             tbNumRows:Appearance:ForeColor = System.Drawing.Color:Orange .
-        ELSE 
+        ELSE
             tbNumRows:Appearance:ForeColor = System.Drawing.Color:Red .
 
-	END METHOD .
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the ExcelExportFetchMoreRowsPromptForm class 
-        Notes:   
+        Purpose: Destructor for the ExcelExportFetchMoreRowsPromptForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC ExcelExportFetchMoreRowsPromptForm ():
 

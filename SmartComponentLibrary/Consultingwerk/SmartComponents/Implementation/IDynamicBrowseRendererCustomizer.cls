@@ -35,8 +35,8 @@ INTERFACE Consultingwerk.SmartComponents.Implementation.IDynamicBrowseRendererCu
         @param poBrowser The reference to the SmartDataBrowser instance
         @param hBrowserProperties The handle of the current ttBrowserProperties record
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID AssignBrowserProperties (poBrowser AS SmartDataBrowser,
-	                                            hBrowserProperties AS HANDLE).
+    METHOD PUBLIC VOID AssignBrowserProperties (poBrowser AS SmartDataBrowser,
+                                                hBrowserProperties AS HANDLE).
 
     /*------------------------------------------------------------------------------
         Purpose: Allows assignment of custom properties to a Grid Column 

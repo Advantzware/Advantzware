@@ -105,10 +105,11 @@ CLASS Consultingwerk.Windows.Framework.System.SmartLoginCompanyViewer
         
     END METHOD .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
         
         /* NOTE: The following method is automatically generated.
@@ -118,6 +119,9 @@ CLASS Consultingwerk.Windows.Framework.System.SmartLoginCompanyViewer
         
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE resources AS Progress.Util.ResourceManager NO-UNDO.
+        resources = NEW Progress.Util.ResourceManager("Consultingwerk.Windows.Framework.System.SmartLoginCompanyViewer":U).
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE tableDesc1 AS Progress.Data.TableDesc NO-UNDO.
         tableDesc1 = NEW Progress.Data.TableDesc("eSmartLoginCompany":U).
@@ -196,49 +200,32 @@ CLASS Consultingwerk.Windows.Framework.System.SmartLoginCompanyViewer
         THIS-OBJECT:ultraPanel1:ClientArea:Controls:Add(THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageSmall).
         THIS-OBJECT:ultraPanel1:ClientArea:Controls:Add(THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyTenantDomain_Label).
         THIS-OBJECT:ultraPanel1:ClientArea:Controls:Add(THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyTenantDomain).
-        THIS-OBJECT:ultraPanel1:Dock = System.Windows.Forms.DockStyle:Fill.
-        THIS-OBJECT:ultraPanel1:Location = NEW System.Drawing.Point(0, 0).
+        resources:ApplyResources(THIS-OBJECT:ultraPanel1, "ultraPanel1":U).
         THIS-OBJECT:ultraPanel1:Name = "ultraPanel1":U.
-        THIS-OBJECT:ultraPanel1:Size = NEW System.Drawing.Size(568, 436).
-        THIS-OBJECT:ultraPanel1:TabIndex = 0.
         /*  */
         /* ultraGroupBox1 */
         /*  */
-        DEFINE VARIABLE nestedvar0 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar0 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:ultraGroupBox1:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar0, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:ultraGroupBox1, "ultraGroupBox1":U).
         THIS-OBJECT:ultraGroupBox1:Controls:Add(THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceChar).
         THIS-OBJECT:ultraGroupBox1:Controls:Add(THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceInteger).
         THIS-OBJECT:ultraGroupBox1:Controls:Add(THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceInteger_Label).
         THIS-OBJECT:ultraGroupBox1:Controls:Add(THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceDecimal).
         THIS-OBJECT:ultraGroupBox1:Controls:Add(THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceDecimal_Label).
         THIS-OBJECT:ultraGroupBox1:Controls:Add(THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceChar_Label).
-        THIS-OBJECT:ultraGroupBox1:Location = NEW System.Drawing.Point(15, 163).
         THIS-OBJECT:ultraGroupBox1:Name = "ultraGroupBox1":U.
-        THIS-OBJECT:ultraGroupBox1:Size = NEW System.Drawing.Size(539, 110).
-        THIS-OBJECT:ultraGroupBox1:TabIndex = 16.
-        THIS-OBJECT:ultraGroupBox1:Text = "Foreign References":U.
         /*  */
         /* LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceChar */
         /*  */
-        DEFINE VARIABLE nestedvar1 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar1 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceChar:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar1, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceChar, "LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceChar":U).
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceChar:DataBindings:Add(NEW System.Windows.Forms.Binding("Value":U, THIS-OBJECT:LoginCompanyBindingSource, "LoginCompanyReferenceChar":U, TRUE)).
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceChar:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceChar:Location = NEW System.Drawing.Point(131, 19).
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceChar:Name = "LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceChar":U.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceChar:Size = NEW System.Drawing.Size(402, 21).
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceChar:TabIndex = 9.
         /*  */
         /* LoginCompanyBindingSource */
         /*  */
-        THIS-OBJECT:LoginCompanyBindingSource:AddFields = FALSE.
         THIS-OBJECT:LoginCompanyBindingSource:BindTo = "QUERY":U.
-        THIS-OBJECT:LoginCompanyBindingSource:ClearSchema = FALSE.
         THIS-OBJECT:LoginCompanyBindingSource:EntityName = "Consultingwerk.SmartFramework.System.LoginCompanyBusinessEntity":U.
         THIS-OBJECT:LoginCompanyBindingSource:EntityTable = "eSmartLoginCompany":U.
-        THIS-OBJECT:LoginCompanyBindingSource:ImportSchema = FALSE.
         THIS-OBJECT:LoginCompanyBindingSource:MaxDataGuess = 0.
         THIS-OBJECT:LoginCompanyBindingSource:NoLOBs = FALSE.
         tableDesc1:ChildTables = ?.
@@ -258,132 +245,83 @@ CLASS Consultingwerk.Windows.Framework.System.SmartLoginCompanyViewer
         /*  */
         /* LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceInteger */
         /*  */
-        DEFINE VARIABLE nestedvar2 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar2 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceInteger:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar2, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceInteger, "LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceInteger":U).
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceInteger:DataBindings:Add(NEW System.Windows.Forms.Binding("Value":U, THIS-OBJECT:LoginCompanyBindingSource, "LoginCompanyReferenceInteger":U, TRUE)).
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceInteger:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceInteger:Location = NEW System.Drawing.Point(131, 46).
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceInteger:Name = "LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceInteger":U.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceInteger:Size = NEW System.Drawing.Size(402, 21).
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceInteger:TabIndex = 13.
         /*  */
         /* LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceInteger_Label */
         /*  */
         appearance1:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceInteger_Label:Appearance = appearance1.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceInteger_Label:AutoSize = TRUE.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceInteger_Label:Location = NEW System.Drawing.Point(16, 50).
+        resources:ApplyResources(THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceInteger_Label, "LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceInteger_Label":U).
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceInteger_Label:Name = "LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceInteger_Label":U.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceInteger_Label:Size = NEW System.Drawing.Size(43, 14).
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceInteger_Label:TabIndex = 12.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceInteger_Label:Text = "&Integer:":U.
         /*  */
         /* LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceDecimal */
         /*  */
-        DEFINE VARIABLE nestedvar3 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar3 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceDecimal:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar3, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceDecimal, "LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceDecimal":U).
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceDecimal:DataBindings:Add(NEW System.Windows.Forms.Binding("Value":U, THIS-OBJECT:LoginCompanyBindingSource, "LoginCompanyReferenceDecimal":U, TRUE)).
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceDecimal:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceDecimal:Location = NEW System.Drawing.Point(131, 73).
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceDecimal:Name = "LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceDecimal":U.
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceDecimal:NumericType = Infragistics.Win.UltraWinEditors.NumericType:Double.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceDecimal:Size = NEW System.Drawing.Size(402, 21).
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceDecimal:TabIndex = 11.
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceDecimal:TabNavigation = Infragistics.Win.UltraWinMaskedEdit.MaskedEditTabNavigation:NextControl.
         /*  */
         /* LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceDecimal_Label */
         /*  */
         appearance2:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceDecimal_Label:Appearance = appearance2.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceDecimal_Label:AutoSize = TRUE.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceDecimal_Label:Location = NEW System.Drawing.Point(16, 77).
+        resources:ApplyResources(THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceDecimal_Label, "LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceDecimal_Label":U).
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceDecimal_Label:Name = "LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceDecimal_Label":U.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceDecimal_Label:Size = NEW System.Drawing.Size(48, 14).
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceDecimal_Label:TabIndex = 10.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceDecimal_Label:Text = "&Decimal:":U.
         /*  */
         /* LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceChar_Label */
         /*  */
         appearance3:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceChar_Label:Appearance = appearance3.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceChar_Label:AutoSize = TRUE.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceChar_Label:Location = NEW System.Drawing.Point(16, 23).
+        resources:ApplyResources(THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceChar_Label, "LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceChar_Label":U).
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceChar_Label:Name = "LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceChar_Label":U.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceChar_Label:Size = NEW System.Drawing.Size(57, 14).
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceChar_Label:TabIndex = 8.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyReferenceChar_Label:Text = "&Character:":U.
         /*  */
         /* LoginCompanyBindingSource_eSmartLoginCompany_Name */
         /*  */
-        DEFINE VARIABLE nestedvar4 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar4 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_Name:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar4, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_Name, "LoginCompanyBindingSource_eSmartLoginCompany_Name":U).
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_Name:DataBindings:Add(NEW System.Windows.Forms.Binding("Value":U, THIS-OBJECT:LoginCompanyBindingSource, "LoginCompanyName":U, TRUE)).
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_Name:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_Name:Location = NEW System.Drawing.Point(146, 19).
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_Name:Name = "LoginCompanyBindingSource_eSmartLoginCompany_Name":U.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_Name:Size = NEW System.Drawing.Size(408, 21).
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_Name:TabIndex = 3.
         /*  */
         /* LoginCompanyBindingSource_eSmartLoginCompany_Name_Label */
         /*  */
         appearance4:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_Name_Label:Appearance = appearance4.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_Name_Label:AutoSize = TRUE.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_Name_Label:Location = NEW System.Drawing.Point(18, 23).
+        resources:ApplyResources(THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_Name_Label, "LoginCompanyBindingSource_eSmartLoginCompany_Name_Label":U).
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_Name_Label:Name = "LoginCompanyBindingSource_eSmartLoginCompany_Name_Label":U.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_Name_Label:Size = NEW System.Drawing.Size(38, 14).
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_Name_Label:TabIndex = 2.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_Name_Label:Text = "&Name:":U.
         /*  */
         /* LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyShort_Label */
         /*  */
         appearance5:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyShort_Label:Appearance = appearance5.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyShort_Label:AutoSize = TRUE.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyShort_Label:Location = NEW System.Drawing.Point(18, 50).
+        resources:ApplyResources(THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyShort_Label, "LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyShort_Label":U).
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyShort_Label:Name = "LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyShort_Label":U.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyShort_Label:Size = NEW System.Drawing.Size(68, 14).
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyShort_Label:TabIndex = 2.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyShort_Label:Text = "&Short Name:":U.
         /*  */
         /* LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyShort */
         /*  */
-        DEFINE VARIABLE nestedvar5 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar5 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyShort:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar5, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyShort, "LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyShort":U).
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyShort:DataBindings:Add(NEW System.Windows.Forms.Binding("Value":U, THIS-OBJECT:LoginCompanyBindingSource, "LoginCompanyShort":U, TRUE)).
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyShort:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyShort:Location = NEW System.Drawing.Point(146, 46).
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyShort:Name = "LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyShort":U.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyShort:Size = NEW System.Drawing.Size(408, 21).
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyShort:TabIndex = 3.
         /*  */
         /* LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageLarge_Label */
         /*  */
         appearance6:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageLarge_Label:Appearance = appearance6.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageLarge_Label:AutoSize = TRUE.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageLarge_Label:Location = NEW System.Drawing.Point(15, 77).
+        resources:ApplyResources(THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageLarge_Label, "LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageLarge_Label":U).
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageLarge_Label:Name = "LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageLarge_Label":U.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageLarge_Label:Size = NEW System.Drawing.Size(71, 14).
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageLarge_Label:TabIndex = 4.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageLarge_Label:Text = "&Large Image:":U.
         /*  */
         /* LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageLarge */
         /*  */
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageLarge:AllowDrop = TRUE.
-        DEFINE VARIABLE nestedvar6 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar6 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageLarge:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar6, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageLarge, "LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageLarge":U).
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageLarge:DataBindings:Add(NEW System.Windows.Forms.Binding("Value":U, THIS-OBJECT:LoginCompanyBindingSource, "LoginCompanyImageLarge":U, TRUE)).
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageLarge:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageLarge:Location = NEW System.Drawing.Point(146, 73).
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageLarge:Name = "LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageLarge":U.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageLarge:Size = NEW System.Drawing.Size(408, 21).
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageLarge:TabIndex = 5.
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageLarge:DragDrop:Subscribe(THIS-OBJECT:ImageSelection_DragDrop).
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageLarge:DragEnter:Subscribe(THIS-OBJECT:ImageSelection_DragEnter).
         /*  */
@@ -391,25 +329,16 @@ CLASS Consultingwerk.Windows.Framework.System.SmartLoginCompanyViewer
         /*  */
         appearance7:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageSmall_Label:Appearance = appearance7.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageSmall_Label:AutoSize = TRUE.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageSmall_Label:Location = NEW System.Drawing.Point(15, 104).
+        resources:ApplyResources(THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageSmall_Label, "LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageSmall_Label":U).
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageSmall_Label:Name = "LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageSmall_Label":U.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageSmall_Label:Size = NEW System.Drawing.Size(70, 14).
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageSmall_Label:TabIndex = 6.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageSmall_Label:Text = "&Small Image:":U.
         /*  */
         /* LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageSmall */
         /*  */
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageSmall:AllowDrop = TRUE.
-        DEFINE VARIABLE nestedvar7 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar7 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageSmall:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar7, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageSmall, "LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageSmall":U).
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageSmall:DataBindings:Add(NEW System.Windows.Forms.Binding("Value":U, THIS-OBJECT:LoginCompanyBindingSource, "LoginCompanyImageSmall":U, TRUE)).
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageSmall:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageSmall:Location = NEW System.Drawing.Point(146, 100).
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageSmall:Name = "LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageSmall":U.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageSmall:Size = NEW System.Drawing.Size(408, 21).
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageSmall:TabIndex = 7.
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageSmall:DragDrop:Subscribe(THIS-OBJECT:ImageSelection_DragDrop).
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyImageSmall:DragEnter:Subscribe(THIS-OBJECT:ImageSelection_DragEnter).
         /*  */
@@ -417,31 +346,21 @@ CLASS Consultingwerk.Windows.Framework.System.SmartLoginCompanyViewer
         /*  */
         appearance8:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyTenantDomain_Label:Appearance = appearance8.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyTenantDomain_Label:AutoSize = TRUE.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyTenantDomain_Label:Location = NEW System.Drawing.Point(15, 131).
+        resources:ApplyResources(THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyTenantDomain_Label, "LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyTenantDomain_Label":U).
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyTenantDomain_Label:Name = "LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyTenantDomain_Label":U.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyTenantDomain_Label:Size = NEW System.Drawing.Size(121, 14).
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyTenantDomain_Label:TabIndex = 14.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyTenantDomain_Label:Text = "&Multi-Tenancy Domain:":U.
         /*  */
         /* LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyTenantDomain */
         /*  */
-        DEFINE VARIABLE nestedvar8 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar8 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyTenantDomain:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar8, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyTenantDomain, "LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyTenantDomain":U).
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyTenantDomain:DataBindings:Add(NEW System.Windows.Forms.Binding("Value":U, THIS-OBJECT:LoginCompanyBindingSource, "LoginCompanyTenantDomain":U, TRUE)).
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyTenantDomain:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyTenantDomain:Location = NEW System.Drawing.Point(146, 127).
         THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyTenantDomain:Name = "LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyTenantDomain":U.
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyTenantDomain:Size = NEW System.Drawing.Size(408, 21).
-        THIS-OBJECT:LoginCompanyBindingSource_eSmartLoginCompany_LoginCompanyTenantDomain:TabIndex = 15.
         /*  */
         /* SmartLoginCompanyViewer */
         /*  */
-        THIS-OBJECT:AutoScaleDimensions = NEW System.Drawing.SizeF(Progress.Util.CastUtil:ToSingle(6), Progress.Util.CastUtil:ToSingle(13)).
+        resources:ApplyResources(THIS-OBJECT, "$this":U).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:ultraPanel1).
         THIS-OBJECT:Name = "SmartLoginCompanyViewer":U.
-        THIS-OBJECT:Size = NEW System.Drawing.Size(568, 436).
         THIS-OBJECT:ultraPanel1:ClientArea:ResumeLayout(FALSE).
         THIS-OBJECT:ultraPanel1:ClientArea:PerformLayout().
         THIS-OBJECT:ultraPanel1:ResumeLayout(FALSE).

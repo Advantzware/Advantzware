@@ -19,6 +19,7 @@
     <GenerateBusinessEntity>false</GenerateBusinessEntity>
     <GenerateDataAccess>false</GenerateDataAccess>
     <GenerateDatasetController>false</GenerateDatasetController>
+    <DistinctTempTableIncludeFiles>true</DistinctTempTableIncludeFiles>
   </eBusinessEntity>
   <eTable>
     <BusinessEntityName>ContextBusinessEntity</BusinessEntityName>
@@ -26,6 +27,7 @@
     <SourceTableNames/>
     <SourceBufferNames/>
     <SourceDefaultQuery/>
+    <SourceBufferKeys/>
     <TempTablePurpose>General purpose name/value pairs</TempTablePurpose>
     <TempTableDescription/>
     <TempTablePath>Consultingwerk\OERA\Context</TempTablePath>
@@ -49,6 +51,7 @@
     <SourceTableNames/>
     <SourceBufferNames/>
     <SourceDefaultQuery/>
+    <SourceBufferKeys/>
     <TempTablePurpose>General purpose Context Temp-Table</TempTablePurpose>
     <TempTableDescription/>
     <TempTablePath>Consultingwerk\OERA\Context</TempTablePath>
@@ -56,7 +59,7 @@
     <LayoutColumn>360</LayoutColumn>
     <LayoutRow>40</LayoutRow>
     <LayoutWidth>240</LayoutWidth>
-    <LayoutHeight>490</LayoutHeight>
+    <LayoutHeight>510</LayoutHeight>
     <NamespaceUri/>
     <NamespacePrefix/>
     <XmlNodeName/>
@@ -74,6 +77,7 @@
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription/>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel/>
     <FieldFormat>X(40)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -88,6 +92,7 @@
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
     <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
   </eField>
   <eField>
     <BusinessEntityName>ContextBusinessEntity</BusinessEntityName>
@@ -97,6 +102,7 @@
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription/>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel/>
     <FieldFormat>X(80)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -111,6 +117,7 @@
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
     <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
   </eField>
   <eField>
     <BusinessEntityName>ContextBusinessEntity</BusinessEntityName>
@@ -120,6 +127,7 @@
     <FieldDataType>DATE</FieldDataType>
     <FieldDescription/>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel/>
     <FieldFormat>99.99.9999</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -134,6 +142,7 @@
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
     <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
   </eField>
   <eField>
     <BusinessEntityName>ContextBusinessEntity</BusinessEntityName>
@@ -143,6 +152,7 @@
     <FieldDataType>DATETIME-TZ</FieldDataType>
     <FieldDescription/>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel/>
     <FieldFormat/>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -157,6 +167,7 @@
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
     <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
   </eField>
   <eField>
     <BusinessEntityName>ContextBusinessEntity</BusinessEntityName>
@@ -166,6 +177,7 @@
     <FieldDataType>DECIMAL</FieldDataType>
     <FieldDescription/>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel/>
     <FieldFormat>&gt;&gt;&gt;,&gt;&gt;&gt;,&gt;&gt;9.999</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -180,6 +192,7 @@
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
     <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
   </eField>
   <eField>
     <BusinessEntityName>ContextBusinessEntity</BusinessEntityName>
@@ -189,6 +202,7 @@
     <FieldDataType>INT64</FieldDataType>
     <FieldDescription/>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel/>
     <FieldFormat>&gt;&gt;&gt;,&gt;&gt;&gt;,&gt;&gt;9</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -203,6 +217,7 @@
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
     <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
   </eField>
   <eField>
     <BusinessEntityName>ContextBusinessEntity</BusinessEntityName>
@@ -212,6 +227,7 @@
     <FieldDataType>INTEGER</FieldDataType>
     <FieldDescription/>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel/>
     <FieldFormat>&gt;&gt;&gt;,&gt;&gt;&gt;,&gt;&gt;9</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -226,6 +242,7 @@
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
     <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
   </eField>
   <eField>
     <BusinessEntityName>ContextBusinessEntity</BusinessEntityName>
@@ -235,6 +252,7 @@
     <FieldDataType>LOGICAL</FieldDataType>
     <FieldDescription/>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel/>
     <FieldFormat>yes/no</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -249,6 +267,7 @@
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
     <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
   </eField>
   <eField>
     <BusinessEntityName>ContextBusinessEntity</BusinessEntityName>
@@ -258,6 +277,7 @@
     <FieldDataType>CLOB</FieldDataType>
     <FieldDescription/>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel/>
     <FieldFormat>X(800)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -272,6 +292,7 @@
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
     <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
   </eField>
   <eField>
     <BusinessEntityName>ContextBusinessEntity</BusinessEntityName>
@@ -281,6 +302,7 @@
     <FieldDataType>RAW</FieldDataType>
     <FieldDescription/>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel/>
     <FieldFormat/>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -295,15 +317,17 @@
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
     <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
   </eField>
   <eField>
     <BusinessEntityName>ContextBusinessEntity</BusinessEntityName>
     <TempTableName>eSessionContext</TempTableName>
     <FieldName>AppServerProVersion</FieldName>
-    <FieldOrder>18</FieldOrder>
+    <FieldOrder>19</FieldOrder>
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription/>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>AppServer OpenEdge Version</FieldLabel>
     <FieldFormat>X(8)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -318,15 +342,17 @@
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
     <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
   </eField>
   <eField>
     <BusinessEntityName>ContextBusinessEntity</BusinessEntityName>
     <TempTableName>eSessionContext</TempTableName>
     <FieldName>AppServerType</FieldName>
-    <FieldOrder>20</FieldOrder>
+    <FieldOrder>21</FieldOrder>
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription/>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>App Server Type</FieldLabel>
     <FieldFormat>X(8)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -341,15 +367,17 @@
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
     <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
   </eField>
   <eField>
     <BusinessEntityName>ContextBusinessEntity</BusinessEntityName>
     <TempTableName>eSessionContext</TempTableName>
     <FieldName>ClientPrincipal</FieldName>
-    <FieldOrder>3</FieldOrder>
+    <FieldOrder>4</FieldOrder>
     <FieldDataType>RAW</FieldDataType>
     <FieldDescription/>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel/>
     <FieldFormat/>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -364,15 +392,17 @@
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
     <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
   </eField>
   <eField>
     <BusinessEntityName>ContextBusinessEntity</BusinessEntityName>
     <TempTableName>eSessionContext</TempTableName>
     <FieldName>ClientProVersion</FieldName>
-    <FieldOrder>17</FieldOrder>
+    <FieldOrder>18</FieldOrder>
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription/>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>Client OpenEdge Version</FieldLabel>
     <FieldFormat>X(8)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -387,15 +417,17 @@
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
     <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
   </eField>
   <eField>
     <BusinessEntityName>ContextBusinessEntity</BusinessEntityName>
     <TempTableName>eSessionContext</TempTableName>
     <FieldName>ClientType</FieldName>
-    <FieldOrder>19</FieldOrder>
+    <FieldOrder>20</FieldOrder>
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription/>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>Client Type</FieldLabel>
     <FieldFormat>X(8)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -410,15 +442,17 @@
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
     <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
   </eField>
   <eField>
     <BusinessEntityName>ContextBusinessEntity</BusinessEntityName>
     <TempTableName>eSessionContext</TempTableName>
     <FieldName>LanguageDisplayName</FieldName>
-    <FieldOrder>9</FieldOrder>
+    <FieldOrder>10</FieldOrder>
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription/>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel/>
     <FieldFormat>X(8)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -433,15 +467,17 @@
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
     <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
   </eField>
   <eField>
     <BusinessEntityName>ContextBusinessEntity</BusinessEntityName>
     <TempTableName>eSessionContext</TempTableName>
     <FieldName>LanguageIsoCode</FieldName>
-    <FieldOrder>10</FieldOrder>
+    <FieldOrder>11</FieldOrder>
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription/>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel/>
     <FieldFormat>X(8)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -456,15 +492,17 @@
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
     <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
   </eField>
   <eField>
     <BusinessEntityName>ContextBusinessEntity</BusinessEntityName>
     <TempTableName>eSessionContext</TempTableName>
     <FieldName>LanguageKey</FieldName>
-    <FieldOrder>11</FieldOrder>
+    <FieldOrder>12</FieldOrder>
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription/>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel/>
     <FieldFormat>X(8)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -479,15 +517,17 @@
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
     <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
   </eField>
   <eField>
     <BusinessEntityName>ContextBusinessEntity</BusinessEntityName>
     <TempTableName>eSessionContext</TempTableName>
     <FieldName>LoginCompanyKey</FieldName>
-    <FieldOrder>4</FieldOrder>
+    <FieldOrder>5</FieldOrder>
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription/>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel/>
     <FieldFormat>X(8)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -502,15 +542,17 @@
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
     <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
   </eField>
   <eField>
     <BusinessEntityName>ContextBusinessEntity</BusinessEntityName>
     <TempTableName>eSessionContext</TempTableName>
     <FieldName>LoginCompanyName</FieldName>
-    <FieldOrder>2</FieldOrder>
+    <FieldOrder>3</FieldOrder>
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription/>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel/>
     <FieldFormat>X(80)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -525,15 +567,17 @@
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
     <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
   </eField>
   <eField>
     <BusinessEntityName>ContextBusinessEntity</BusinessEntityName>
     <TempTableName>eSessionContext</TempTableName>
     <FieldName>LoginCompanyReferenceChar</FieldName>
-    <FieldOrder>6</FieldOrder>
+    <FieldOrder>7</FieldOrder>
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription/>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel/>
     <FieldFormat>X(8)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -548,15 +592,17 @@
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
     <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
   </eField>
   <eField>
     <BusinessEntityName>ContextBusinessEntity</BusinessEntityName>
     <TempTableName>eSessionContext</TempTableName>
     <FieldName>LoginCompanyReferenceDecimal</FieldName>
-    <FieldOrder>7</FieldOrder>
+    <FieldOrder>8</FieldOrder>
     <FieldDataType>DECIMAL</FieldDataType>
     <FieldDescription/>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel/>
     <FieldFormat>&gt;&gt;&gt;,&gt;&gt;&gt;,&gt;&gt;9.9999</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -571,15 +617,17 @@
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
     <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
   </eField>
   <eField>
     <BusinessEntityName>ContextBusinessEntity</BusinessEntityName>
     <TempTableName>eSessionContext</TempTableName>
     <FieldName>LoginCompanyReferenceInteger</FieldName>
-    <FieldOrder>8</FieldOrder>
+    <FieldOrder>9</FieldOrder>
     <FieldDataType>INTEGER</FieldDataType>
     <FieldDescription/>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel/>
     <FieldFormat>&gt;&gt;&gt;,&gt;&gt;&gt;,&gt;&gt;9</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -594,15 +642,17 @@
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
     <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
   </eField>
   <eField>
     <BusinessEntityName>ContextBusinessEntity</BusinessEntityName>
     <TempTableName>eSessionContext</TempTableName>
     <FieldName>LoginCompanyShortName</FieldName>
-    <FieldOrder>5</FieldOrder>
+    <FieldOrder>6</FieldOrder>
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription/>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel/>
     <FieldFormat>X(8)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -617,15 +667,17 @@
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
     <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
   </eField>
   <eField>
     <BusinessEntityName>ContextBusinessEntity</BusinessEntityName>
     <TempTableName>eSessionContext</TempTableName>
     <FieldName>ServerCustomLogEntries</FieldName>
-    <FieldOrder>15</FieldOrder>
+    <FieldOrder>16</FieldOrder>
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription/>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel/>
     <FieldFormat>X(60)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -640,15 +692,17 @@
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
     <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
   </eField>
   <eField>
     <BusinessEntityName>ContextBusinessEntity</BusinessEntityName>
     <TempTableName>eSessionContext</TempTableName>
     <FieldName>ServerDebugMode</FieldName>
-    <FieldOrder>16</FieldOrder>
+    <FieldOrder>17</FieldOrder>
     <FieldDataType>LOGICAL</FieldDataType>
     <FieldDescription/>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel>Debug Mode</FieldLabel>
     <FieldFormat>yes/no</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -662,16 +716,18 @@
     <FieldSetAccess>PUBLIC</FieldSetAccess>
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
-    <FieldCustomControlName xsi:nil="true"/>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
   </eField>
   <eField>
     <BusinessEntityName>ContextBusinessEntity</BusinessEntityName>
     <TempTableName>eSessionContext</TempTableName>
     <FieldName>ServerLogEntryTypes</FieldName>
-    <FieldOrder>14</FieldOrder>
+    <FieldOrder>15</FieldOrder>
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription/>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel/>
     <FieldFormat>X(60)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -686,15 +742,17 @@
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
     <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
   </eField>
   <eField>
     <BusinessEntityName>ContextBusinessEntity</BusinessEntityName>
     <TempTableName>eSessionContext</TempTableName>
     <FieldName>UserGroupKeys</FieldName>
-    <FieldOrder>12</FieldOrder>
+    <FieldOrder>13</FieldOrder>
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription/>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel/>
     <FieldFormat>X(8)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -709,15 +767,17 @@
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
     <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
   </eField>
   <eField>
     <BusinessEntityName>ContextBusinessEntity</BusinessEntityName>
     <TempTableName>eSessionContext</TempTableName>
     <FieldName>UserGroupNames</FieldName>
-    <FieldOrder>13</FieldOrder>
+    <FieldOrder>14</FieldOrder>
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription/>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel/>
     <FieldFormat>X(8)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -732,6 +792,32 @@
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
     <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+  </eField>
+  <eField>
+    <BusinessEntityName>ContextBusinessEntity</BusinessEntityName>
+    <TempTableName>eSessionContext</TempTableName>
+    <FieldName>UserKey</FieldName>
+    <FieldOrder>2</FieldOrder>
+    <FieldDataType>CHARACTER</FieldDataType>
+    <FieldDescription/>
+    <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
+    <FieldLabel>User Key</FieldLabel>
+    <FieldFormat>X(36)</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource/>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
   </eField>
   <eField>
     <BusinessEntityName>ContextBusinessEntity</BusinessEntityName>
@@ -741,6 +827,7 @@
     <FieldDataType>CHARACTER</FieldDataType>
     <FieldDescription/>
     <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
     <FieldLabel/>
     <FieldFormat>X(80)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
@@ -755,6 +842,7 @@
     <FieldCalcExpression/>
     <FieldCaseSensitive>false</FieldCaseSensitive>
     <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
   </eField>
   <eIndex>
     <BusinessEntityName>ContextBusinessEntity</BusinessEntityName>

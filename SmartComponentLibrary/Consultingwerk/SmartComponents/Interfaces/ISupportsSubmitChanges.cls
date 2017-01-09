@@ -8,34 +8,34 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/  
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : ISupportsSubmitChanges
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Thu Jan 28 18:14:54 CET 2010
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 USING Progress.Lang.*.
 
-INTERFACE Consultingwerk.SmartComponents.Interfaces.ISupportsSubmitChanges:  
+INTERFACE Consultingwerk.SmartComponents.Interfaces.ISupportsSubmitChanges:
 
-    /*------------------------------------------------------------------------------
-        Purpose: Assigns the internal flag that data is being saved                                                                      
-        Notes:   Enforced by ISupportsSubmitChanges                                                   
-        @param plSaving The new value for the flag that data is being saved                   
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Assigns the internal flag that data is being saved
+     * Notes:   Enforced by ISupportsSubmitChanges
+     * @param plSaving The new value for the flag that data is being saved
+     */
     METHOD PUBLIC VOID SetSavingData (plSaving AS LOGICAL) .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Creates a dataset containing the modifications of the 
-                 dataset and submits the changes dataset to the service adapter 
-                 (and then to the Business Entity).                                                                        
-        Notes:   Used from UpdateRow after every modification from the UI.                                                                        
-    ------------------------------------------------------------------------------*/
-    METHOD PUBLIC VOID SubmitChanges () .  
+    /**
+     * Purpose: Creates a dataset containing the modifications of the
+     *          dataset and submits the changes dataset to the service adapter
+     *          (and then to the Business Entity).
+     * Notes:   Used from UpdateRow after every modification from the UI.
+     */
+    METHOD PUBLIC VOID SubmitChanges () .
 
 END INTERFACE.

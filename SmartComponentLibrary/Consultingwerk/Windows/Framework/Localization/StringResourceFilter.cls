@@ -34,15 +34,15 @@ CLASS Consultingwerk.Windows.Framework.Localization.StringResourceFilter
         Purpose: Constructor for the StringResourceFilter class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC StringResourceFilter ():
-		SUPER ().
-		
+    CONSTRUCTOR PUBLIC StringResourceFilter ():
+        SUPER ().
+        
         oTranslationService = {Consultingwerk/get-service.i Consultingwerk.SmartFramework.Localization.IUserInterfaceTranslationService
                                                             "NEW Consultingwerk.SmartFramework.Localization.UserInterfaceTranslationService()"} .  
 
-        oTranslationService:FilterStringResource:Subscribe (FilterStringResourceHandler) .		
-		
-	END CONSTRUCTOR.
+        oTranslationService:FilterStringResource:Subscribe (FilterStringResourceHandler) .        
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the FilterStringResource event of the 
@@ -51,12 +51,12 @@ CLASS Consultingwerk.Windows.Framework.Localization.StringResourceFilter
         @param sender The reference to the object that raised the event
         @param e The FilterStringResourceEventArgs with the data for this event 
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID FilterStringResourceHandler (sender AS Progress.Lang.Object,
-	                                                   e AS FilterStringResourceEventArgs):
-		
+    METHOD PROTECTED VOID FilterStringResourceHandler (sender AS Progress.Lang.Object,
+                                                       e AS FilterStringResourceEventArgs):
+        
         DEFINE VARIABLE i         AS INTEGER   NO-UNDO.
-		DEFINE VARIABLE cPatterns AS CHARACTER NO-UNDO INIT 
-		    ">>*,*.TextHAlignAsString,*.TextVAlignAsString,$this.WindowPositionRegistryKey,~
+        DEFINE VARIABLE cPatterns AS CHARACTER NO-UNDO INIT 
+            ">>*,*.TextHAlignAsString,*.TextVAlignAsString,$this.WindowPositionRegistryKey,~
 *.AppServerPartition,*.BindingSourceExcludeFields,*.BindingSourceIncludeFields,*.QuerySort,~
 *.QueryString,*.DisabledColumnsForAdd,*.DisabledColumnsForUpdate,*.SecurityKey,*.SettingsKey,~
 *.SmartTableIOState,*.VisibleGridColumns,*.BindTo,*.EntityJoin,*.EntityName,*.EntityTable,~
@@ -65,14 +65,14 @@ CLASS Consultingwerk.Windows.Framework.Localization.StringResourceFilter
 *.LookupDialogClassName,*.LookupDialogFilterFields,*.LookupDialogFilterOperators,*.LookupFields,~
 *.LookupKeyField,*.LookupKeyValue,*.LookupKeyValueColumn,*.ViewerLogicClass,*.CursorPositionFormat,~
 *.DateTimeFormat":U.
-		
+        
         DO i = 1 TO NUM-ENTRIES (cPatterns) ON ERROR UNDO, THROW:
-    		IF e:ResourceKey MATCHES ENTRY (i, cPatterns) THEN DO:
-    		    e:Filtered = TRUE . 
-    		    RETURN . 
-    		END.
+            IF e:ResourceKey MATCHES ENTRY (i, cPatterns) THEN DO:
+                e:Filtered = TRUE . 
+                RETURN . 
+            END.
         END.
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

@@ -34,35 +34,35 @@ CLASS Consultingwerk.SmartFramework.Localization.StoreTranslationEventArgs
         Purpose: Gets and sets if the translation was handled
         Notes:   Set this to TRUE when you do not wish to store the translation
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Handled AS LOGICAL INITIAL FALSE NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY Handled AS LOGICAL INITIAL FALSE NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the name of the user control or form that is being processed
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY ObjectName AS CHARACTER NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    DEFINE PUBLIC PROPERTY ObjectName AS CHARACTER NO-UNDO 
+    GET.
+    PROTECTED SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the original string of the element that the event is raised
                  for 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY OriginalString AS CHARACTER NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    DEFINE PUBLIC PROPERTY OriginalString AS CHARACTER NO-UNDO 
+    GET.
+    PROTECTED SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the Resource Key for the element that the event is raised 
                  for 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY ResourceKey AS CHARACTER NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    DEFINE PUBLIC PROPERTY ResourceKey AS CHARACTER NO-UNDO 
+    GET.
+    PROTECTED SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Get and sets the partial match of the Resource Key that was used to
@@ -72,27 +72,27 @@ CLASS Consultingwerk.SmartFramework.Localization.StoreTranslationEventArgs
                  The IUserinterfaceTranslationService is expected to replace numbers
                  in the resource key with * here
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY ResourceKeyPartial AS CHARACTER NO-UNDO INIT ?
-	GET.
-	SET. 	
+    DEFINE PUBLIC PROPERTY ResourceKeyPartial AS CHARACTER NO-UNDO INIT ?
+    GET.
+    SET.     
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the translated string for the element that the event 
                  is raised for
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY TranslatedString AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY TranslatedString AS CHARACTER NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the TranslationType that was used to obtain the 
                  translation
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY TranslationType AS CHARACTER NO-UNDO 
-	GET.
-	SET. 	
+    DEFINE PUBLIC PROPERTY TranslationType AS CHARACTER NO-UNDO 
+    GET.
+    SET.     
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the ObtainTranslationEventArgs class
@@ -104,24 +104,24 @@ CLASS Consultingwerk.SmartFramework.Localization.StoreTranslationEventArgs
         @param pcTranslatedString The translated string of the element that the event is raised for
         @param pcTranslationType The type of the translation
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC StoreTranslationEventArgs (pcObjectName AS CHARACTER,
-	                                              pcResourceKey AS CHARACTER,
-	                                              pcResourceKeyPartial AS CHARACTER,
-	                                              pcOriginalString AS CHARACTER,
-	                                              pcTranslatedString AS CHARACTER, 
-	                                              pcTranslationType AS CHARACTER):
-		SUPER ().
-		
-		{Consultingwerk/Assertion/Assert/NotNullOrEmpty.i pcObjectName} .
+    CONSTRUCTOR PUBLIC StoreTranslationEventArgs (pcObjectName AS CHARACTER,
+                                                  pcResourceKey AS CHARACTER,
+                                                  pcResourceKeyPartial AS CHARACTER,
+                                                  pcOriginalString AS CHARACTER,
+                                                  pcTranslatedString AS CHARACTER, 
+                                                  pcTranslationType AS CHARACTER):
+        SUPER ().
+        
+        {Consultingwerk/Assertion/Assert/NotNullOrEmpty.i pcObjectName} .
         {Consultingwerk/Assertion/Assert/NotNullOrEmpty.i pcResourceKey} .
 
-		ASSIGN THIS-OBJECT:ObjectName         = pcObjectName
-		       THIS-OBJECT:ResourceKey        = pcResourceKey
-		       THIS-OBJECT:ResourceKeyPartial = pcResourceKeyPartial
-		       THIS-OBJECT:OriginalString     = pcOriginalString 
-		       THIS-OBJECT:TranslatedString   = pcTranslatedString
-		       THIS-OBJECT:TranslationType    = pcTranslationType .
-		
-	END CONSTRUCTOR.
+        ASSIGN THIS-OBJECT:ObjectName         = pcObjectName
+               THIS-OBJECT:ResourceKey        = pcResourceKey
+               THIS-OBJECT:ResourceKeyPartial = pcResourceKeyPartial
+               THIS-OBJECT:OriginalString     = pcOriginalString 
+               THIS-OBJECT:TranslatedString   = pcTranslatedString
+               THIS-OBJECT:TranslationType    = pcTranslationType .
+        
+    END CONSTRUCTOR.
 
 END CLASS.

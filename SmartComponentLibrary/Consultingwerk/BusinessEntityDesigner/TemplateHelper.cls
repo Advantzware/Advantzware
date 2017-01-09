@@ -34,10 +34,10 @@ CLASS Consultingwerk.BusinessEntityDesigner.TemplateHelper:
         Purpose: Private constructor for the TemplateHelper class
         Notes:   Disallow instance creation
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PRIVATE TemplateHelper ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PRIVATE TemplateHelper ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Locates a template file either in the custom template folder or
@@ -46,16 +46,16 @@ CLASS Consultingwerk.BusinessEntityDesigner.TemplateHelper:
         @param pcTemplate The relative name of the template file
         @return The absolute file name of the template
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC CHARACTER Find (pcTemplate AS CHARACTER):
-		
-		DEFINE VARIABLE cTemplate AS CHARACTER NO-UNDO.
-		
-		ASSIGN cTemplate = FileHelper:FindFile (SUBSTITUTE ("&1/&2":U, 
-                    		                                BusinessEntityDesignerSettings:TemplateFolder,
-                    		                                pcTemplate)) . 
-		
-		IF cTemplate <> ? THEN 
-		    RETURN cTemplate .
+    METHOD PUBLIC STATIC CHARACTER Find (pcTemplate AS CHARACTER):
+        
+        DEFINE VARIABLE cTemplate AS CHARACTER NO-UNDO.
+        
+        ASSIGN cTemplate = FileHelper:FindFile (SUBSTITUTE ("&1/&2":U, 
+                                                            BusinessEntityDesignerSettings:TemplateFolder,
+                                                            pcTemplate)) . 
+        
+        IF cTemplate <> ? THEN 
+            RETURN cTemplate .
 
         ASSIGN cTemplate = FileHelper:FindFile (SUBSTITUTE ("Consultingwerk/BusinessEntityDesigner/Generator/Templates/&1":U, 
                                                             pcTemplate)) . 
@@ -63,8 +63,8 @@ CLASS Consultingwerk.BusinessEntityDesigner.TemplateHelper:
         IF cTemplate <> ? THEN 
             RETURN cTemplate .
 
-		UNDO, THROW NEW AppError (SUBSTITUTE ("The template &1 could not be found!"{&TRAN}, pcTemplate), 0) . 
+        UNDO, THROW NEW AppError (SUBSTITUTE ("The template &1 could not be found!"{&TRAN}, pcTemplate), 0) . 
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

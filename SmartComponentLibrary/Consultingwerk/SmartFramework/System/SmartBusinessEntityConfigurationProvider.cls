@@ -12,123 +12,123 @@
 /*------------------------------------------------------------------------
     File        : SmartBusinessEntityConfigurationProvider
     Purpose     : Default ISmartBusinessEntityConfiguration service
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Thu Sep 03 19:28:56 CEST 2015
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.*                       FROM PROPATH .
-USING Consultingwerk.Assertion.*             FROM PROPATH . 
+USING Consultingwerk.Assertion.*             FROM PROPATH .
 USING Consultingwerk.Framework.*             FROM PROPATH .
-USING Consultingwerk.SmartFramework.System.* FROM PROPATH .  
-USING Consultingwerk.OERA.*                  FROM PROPATH . 
+USING Consultingwerk.SmartFramework.System.* FROM PROPATH .
+USING Consultingwerk.OERA.*                  FROM PROPATH .
 USING Progress.Lang.*                        FROM PROPATH .
 USING Consultingwerk.Util.* FROM PROPATH.
 
-CLASS Consultingwerk.SmartFramework.System.SmartBusinessEntityConfigurationProvider IMPLEMENTS ISmartBusinessEntityConfigurationProvider: 
- 
+CLASS Consultingwerk.SmartFramework.System.SmartBusinessEntityConfigurationProvider IMPLEMENTS ISmartBusinessEntityConfigurationProvider:
+
     {Consultingwerk/SmartFramework/System/dsSmartBusinessEntity.i}
- 
-    DEFINE VARIABLE lInitialized AS LOGICAL NO-UNDO INIT FALSE . 
- 
-    /*------------------------------------------------------------------------------
-        Purpose: Constructor for the SmartBusinessEntityConfigurationProvider class
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC SmartBusinessEntityConfigurationProvider ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+
+    DEFINE VARIABLE lInitialized AS LOGICAL NO-UNDO INIT FALSE .
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns the ISmartBusinessEntityConfiguration instance for the a 
+        Purpose: Constructor for the SmartBusinessEntityConfigurationProvider class
+        Notes:
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC SmartBusinessEntityConfigurationProvider ():
+        SUPER ().
+
+    END CONSTRUCTOR.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the ISmartBusinessEntityConfiguration instance for the a
                  Business Entity
         Notes:   Returns ? when no configuration exists
         @param pcBusinessEntityName The full class name (including package) of the SmartBusinessEntity
         @return The ISmartBusinessEntityConfiguration instance for the requested Business Entity
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC ISmartBusinessEntityConfiguration GetSmartBusinessEntityConfiguration (pcBusinessEntityName AS CHARACTER):
-		
+    METHOD PUBLIC ISmartBusinessEntityConfiguration GetSmartBusinessEntityConfiguration (pcBusinessEntityName AS CHARACTER):
+
         DEFINE VARIABLE oClassName      AS ClassName                             NO-UNDO .
         DEFINE VARIABLE oBusinessEntity AS SmartBusinessEntityConfiguration      NO-UNDO .
-        DEFINE VARIABLE oTable          AS SmartBusinessEntityTableConfiguration NO-UNDO .  
-		
-		IF NOT lInitialized THEN 
-		    THIS-OBJECT:ResetCache () .
-		
-		Assert:NotNullOrEmpty (pcBusinessEntityName, "pcBusinessEntityName":U) .
+        DEFINE VARIABLE oTable          AS SmartBusinessEntityTableConfiguration NO-UNDO .
 
-        oClassName = ClassHelper:SplitClassName (pcBusinessEntityName) .        
+        IF NOT lInitialized THEN
+            THIS-OBJECT:ResetCache () .
+
+        Assert:NotNullOrEmpty (pcBusinessEntityName, "pcBusinessEntityName":U) .
+
+        oClassName = ClassHelper:SplitClassName (pcBusinessEntityName) .
 
         IF NOT CAN-FIND (eSmartBusinessEntity WHERE eSmartBusinessEntity.BusinessEntityPackage = oClassName:PackageName
-                                                AND eSmartBusinessEntity.BusinessEntityName    = oClassName:ClassName) THEN 
-            RETURN ? .                                                     
+                                                AND eSmartBusinessEntity.BusinessEntityName    = oClassName:ClassName) THEN
+            RETURN ? .
 
         FIND eSmartBusinessEntity WHERE eSmartBusinessEntity.BusinessEntityPackage = oClassName:PackageName
-                                    AND eSmartBusinessEntity.BusinessEntityName    = oClassName:ClassName . 
+                                    AND eSmartBusinessEntity.BusinessEntityName    = oClassName:ClassName .
 
-        oBusinessEntity = NEW SmartBusinessEntityConfiguration () . 
+        oBusinessEntity = NEW SmartBusinessEntityConfiguration () .
 
         ASSIGN oBusinessEntity:BusinessEntityPackage = eSmartBusinessEntity.BusinessEntityPackage
-               oBusinessEntity:BusinessEntityName    = eSmartBusinessEntity.BusinessEntityName   
+               oBusinessEntity:BusinessEntityName    = eSmartBusinessEntity.BusinessEntityName
                oBusinessEntity:BusinessEntityPurpose = eSmartBusinessEntity.BusinessEntityPurpose
-               oBusinessEntity:DBRequired            = eSmartBusinessEntity.DBRequired           
-               oBusinessEntity:TrackDeletions        = eSmartBusinessEntity.TrackDeletions       
+               oBusinessEntity:DBRequired            = eSmartBusinessEntity.DBRequired
+               oBusinessEntity:TrackDeletions        = eSmartBusinessEntity.TrackDeletions
                .
 
         FOR EACH eSmartBusinessEntityTable OF eSmartBusinessEntity ON ERROR UNDO, THROW:
-           
-            ASSIGN oTable = NEW SmartBusinessEntityTableConfiguration () . 
-            
-            ASSIGN oTable:TableName          = eSmartBusinessEntityTable.TableName         
-                   oTable:TableOrder         = eSmartBusinessEntityTable.TableOrder                      
+
+            ASSIGN oTable = NEW SmartBusinessEntityTableConfiguration () .
+
+            ASSIGN oTable:TableName          = eSmartBusinessEntityTable.TableName
+                   oTable:TableOrder         = eSmartBusinessEntityTable.TableOrder
                    oTable:TableLabelSingular = eSmartBusinessEntityTable.TableLabelSingular
-                   oTable:TableLabelPlural   = eSmartBusinessEntityTable.TableLabelPlural  
-                   oTable:BatchSize          = eSmartBusinessEntityTable.BatchSize         
-                   oTable:ShouldUseBatching  = eSmartBusinessEntityTable.ShouldUseBatching 
-                   oTable:AllowCreate        = eSmartBusinessEntityTable.AllowCreate       
-                   oTable:AllowDelete        = eSmartBusinessEntityTable.AllowDelete       
-                   oTable:AllowUpdate        = eSmartBusinessEntityTable.AllowUpdate       
+                   oTable:TableLabelPlural   = eSmartBusinessEntityTable.TableLabelPlural
+                   oTable:BatchSize          = eSmartBusinessEntityTable.BatchSize
+                   oTable:ShouldUseBatching  = eSmartBusinessEntityTable.ShouldUseBatching
+                   oTable:AllowCreate        = eSmartBusinessEntityTable.AllowCreate
+                   oTable:AllowDelete        = eSmartBusinessEntityTable.AllowDelete
+                   oTable:AllowUpdate        = eSmartBusinessEntityTable.AllowUpdate
                    .
-                   
-            oBusinessEntity:Tables:Add (oTable) .                  
-        END. 
+
+            oBusinessEntity:Tables:Add (oTable) .
+        END.
 
         RETURN oBusinessEntity .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Resets the services cache (if present) 
-        Notes:   
+        Purpose: Resets the services cache (if present)
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID ResetCache ():
 
-        DEFINE VARIABLE oRequest AS FetchDataRequest NO-UNDO . 
+        DEFINE VARIABLE oRequest AS FetchDataRequest NO-UNDO .
 
         DATASET dsSmartBusinessEntity:EMPTY-DATASET () .
 
-        ASSIGN oRequest     = NEW FetchDataRequest ("*":U, 0) 
+        ASSIGN oRequest     = NEW FetchDataRequest ("*":U, 0)
                lInitialized = TRUE .
 
-        IF CONNECTED ("SmartDB":U) THEN 
+        IF CONNECTED (&IF DEFINED (SmartDB) NE 0 &THEN "{&SmartDB}":U &ELSE "SmartDB":U &ENDIF) THEN
             ServiceInterface:FetchData ("Consultingwerk.SmartFramework.System.SmartBusinessEntityBusinessEntity":U,
-                                        oRequest, 
+                                        oRequest,
                                         OUTPUT DATASET dsSmartBusinessEntity) .
-        ELSE 
+        ELSE
             FrameworkSettings:ServiceAdapter:RetrieveData("":U,
                                                           "Consultingwerk.SmartFramework.System.SmartBusinessEntityBusinessEntity":U,
-                                                          oRequest, 
+                                                          oRequest,
                                                           OUTPUT DATASET dsSmartBusinessEntity) .
-    END METHOD . 
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the SmartBusinessEntityConfigurationProvider class 
-        Notes:   
+        Purpose: Destructor for the SmartBusinessEntityConfigurationProvider class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC SmartBusinessEntityConfigurationProvider ():
 

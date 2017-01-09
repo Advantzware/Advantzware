@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2006-2014 by Consultingwerk Ltd. ("CW") -            *
+ * Copyright (C) 2006-2016 by Consultingwerk Ltd. ("CW") -            *
  * www.consultingwerk.de and other contributors as listed             *
  * below.  All Rights Reserved.                                       *
  *                                                                    *
@@ -18,13 +18,14 @@
     Description :  
 
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
-    Created     : 17.04.2015 15:13:00
+    Created     : 06.11.2016 18:48:16
     Notes       :
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
 
 @BusinessEntityGenerator (entityname="Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityBusinessEntity", type="TempTable") .
+@openapi.openedge.entity.primarykey (fields="TempTableName").
 
 DEFINE {&ACCESS} TEMP-TABLE eTable{&SUFFIX} NO-UNDO {&REFERENCE-ONLY} &IF DEFINED (NO-BEFORE) EQ 0 &THEN BEFORE-TABLE eTableBefore{&SUFFIX} &ENDIF
     FIELD BusinessEntityName AS CHARACTER FORMAT "X(8)":U
@@ -51,6 +52,9 @@ DEFINE {&ACCESS} TEMP-TABLE eTable{&SUFFIX} NO-UNDO {&REFERENCE-ONLY} &IF DEFINE
     FIELD DeletedFields AS CHARACTER FORMAT "X(60)":U LABEL "Deleted Fields":T
 
     INDEX TempTableName AS UNIQUE PRIMARY TempTableName ASCENDING
+    INDEX BusinessEntity BusinessEntityName ASCENDING TempTableName ASCENDING
+    INDEX TempTablePath TempTablePath ASCENDING
+    INDEX EntityPackageName EntityPackageName ASCENDING
 
     .
 

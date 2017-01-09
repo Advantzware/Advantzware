@@ -44,24 +44,24 @@ CLASS Consultingwerk.Studio.SmartDox.ClassReferenceWriter:
         Purpose: Gets and sets if verbose messages should be generated 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Verbose AS LOGICAL INITIAL FALSE NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY Verbose AS LOGICAL INITIAL FALSE NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Generates the xml class reference file for OEA.
         Notes:   
         @param poParameter The ISmartDoxParameter instance with the arguments for that routine
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID GenerateClassReference (poParameter AS ISmartDoxParameter):
+    METHOD PUBLIC VOID GenerateClassReference (poParameter AS ISmartDoxParameter):
 
         DEFINE VARIABLE lok         AS LOGICAL  NO-UNDO.
         DEFINE VARIABLE lcComment   AS LONGCHAR NO-UNDO.  
 
         IF THIS-OBJECT:Verbose THEN 
             MESSAGE "[ClassReferenceWriter] Getting list of files":U  .
-		
-		Consultingwerk.Util.FileHelper:GetFileList (poParameter:SourceDir,
+        
+        Consultingwerk.Util.FileHelper:GetFileList (poParameter:SourceDir,
                                                     "*.xml":U,
                                                     OUTPUT TABLE ttFileNames BY-REFERENCE) .
 

@@ -8,16 +8,16 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/  
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : Splash
-    Purpose     : Splash screen for SmartComponent Library tools and 
-                  samples 
-    Syntax      : 
-    Description : 
+    Purpose     : Splash screen for SmartComponent Library tools and
+                  samples
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Mon Nov 02 06:42:17 CET 2009
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 USING Consultingwerk.*                    FROM PROPATH .
@@ -27,65 +27,66 @@ USING Progress.Lang.*                     FROM PROPATH .
 USING Progress.Windows.*                  FROM ASSEMBLY .
 USING Consultingwerk.* FROM PROPATH.
 
-CLASS Consultingwerk.SmartComponents.Support.Splash.Splash INHERITS Form   : 
-    
+CLASS Consultingwerk.SmartComponents.Support.Splash.Splash INHERITS Form   :
+
     DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
 
     DEFINE PRIVATE VARIABLE pictureBox1 AS System.Windows.Forms.PictureBox NO-UNDO.
 
-    DEFINE VARIABLE oFullWindowDragManager AS FullWindowDragManager NO-UNDO . 
+    DEFINE VARIABLE oFullWindowDragManager AS FullWindowDragManager NO-UNDO .
     DEFINE PRIVATE VARIABLE ultraLabel1 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraLabel3 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraLabel2 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the Title of the Application 
-        Notes:   
+        Purpose: Gets and sets the Title of the Application
+        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY ApplicationTitle AS CHARACTER NO-UNDO 
-	GET:
-	    RETURN ultraLabel2:Text . 
-	END GET .  
-	SET (arg AS CHARACTER):
-	    ASSIGN ultraLabel2:Text = arg .  
-	END. 
+    DEFINE PUBLIC PROPERTY ApplicationTitle AS CHARACTER NO-UNDO
+    GET:
+        RETURN ultraLabel2:Text .
+    END GET .
+    SET (arg AS CHARACTER):
+        ASSIGN ultraLabel2:Text = arg .
+    END.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the Splash class                                                                        
-        Notes:      
+        Purpose: Constructor for the Splash class
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC Splash ():
-        
-        DEFINE VARIABLE oFrameworkVersion AS FrameworkVersion NO-UNDO . 
-        
+
+        DEFINE VARIABLE oFrameworkVersion AS FrameworkVersion NO-UNDO .
+
         SUPER().
 
         InitializeComponent().
-        
+
         oFullWindowDragManager = NEW FullWindowDragManager (pictureBox1) .
 
-        oFrameworkVersion = NEW FrameworkVersion () . 
+        oFrameworkVersion = NEW FrameworkVersion () .
 
-        ultraLabel1:Text = oFrameworkVersion:GetVersionString () . 
-        ultraLabel3:Text = oFrameworkVersion:GetCopyRights () . 
-         
+        ultraLabel1:Text = oFrameworkVersion:GetVersionString () .
+        ultraLabel3:Text = oFrameworkVersion:GetCopyRights () .
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
     END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE resources AS Progress.Util.ResourceManager NO-UNDO.
@@ -176,7 +177,7 @@ CLASS Consultingwerk.SmartComponents.Support.Splash.Splash INHERITS Form   :
     END METHOD.
 
 
- 
+
 
     DESTRUCTOR PUBLIC Splash ( ):
 

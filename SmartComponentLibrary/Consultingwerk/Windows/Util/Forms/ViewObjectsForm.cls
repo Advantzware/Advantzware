@@ -8,25 +8,26 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/   
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : ViewObjectsForm
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sun Mar 27 15:31:26 CEST 2011
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
+USING Consultingwerk.Util.* FROM PROPATH .
 USING Progress.Lang.*       FROM PROPATH .
-USING Progress.Windows.Form FROM ASSEMBLY .
+USING Progress.Windows.*    FROM ASSEMBLY .
 
-CLASS Consultingwerk.Windows.Util.Forms.ViewObjectsForm 
-    INHERITS Form: 
-    
+CLASS Consultingwerk.Windows.Util.Forms.ViewObjectsForm
+    INHERITS Form:
+
     DEFINE PRIVATE VARIABLE m_ViewObjectsForm_Toolbars_Dock_Area_Top AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_ViewObjectsForm_Toolbars_Dock_Area_Right AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_ViewObjectsForm_Toolbars_Dock_Area_Left AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
@@ -37,11 +38,11 @@ CLASS Consultingwerk.Windows.Util.Forms.ViewObjectsForm
     DEFINE PRIVATE VARIABLE ViewObjectsForm_Fill_Panel AS System.Windows.Forms.Panel NO-UNDO.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the ViewObjectsForm class                                                                      
-        Notes:                                                                        
+        Purpose: Constructor for the ViewObjectsForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC ViewObjectsForm ():
-        
+
         SUPER().
         InitializeComponent().
         CATCH e AS Progress.Lang.Error:
@@ -51,36 +52,37 @@ CLASS Consultingwerk.Windows.Util.Forms.ViewObjectsForm
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Clears the output                                                                       
-        Notes:                                                                        
+        Purpose: Clears the output
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID Clear ():
-        
+
         THIS-OBJECT:ultraTextEditor1:Clear() .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Closes the Form                                                                       
-        Notes:                                                                        
+        Purpose: Closes the Form
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID Exit ():
-        
+
         THIS-OBJECT:Exit () .
 
     END METHOD.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                           
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -379,12 +381,12 @@ CLASS Consultingwerk.Windows.Util.Forms.ViewObjectsForm
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the Load event                                                                        
-        Notes:                                                                        
+        Purpose: Raises the Load event
+        Notes:
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD OVERRIDE PROTECTED VOID OnLoad (e AS System.EventArgs):
-        
+
         SUPER:OnLoad(INPUT e).
 
         THIS-OBJECT:RefreshObjects () .
@@ -392,61 +394,61 @@ CLASS Consultingwerk.Windows.Util.Forms.ViewObjectsForm
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the Shown event                                                                       
-        Notes:                         
-        @param e The System.EventArgs with the data for this event                                               
+        Purpose: Raises the Shown event
+        Notes:
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
-        
+
         SUPER:OnShown (e) .
 
-        IF VALID-OBJECT (THIS-OBJECT:ultraToolbarsManager1:MdiParentManager) AND 
-           THIS-OBJECT:ultraToolbarsManager1:MdiParentManager:Ribbon:Visible = TRUE THEN 
-           
-           THIS-OBJECT:ultraToolbarsManager1:MdiParentManager:Ribbon:SelectedTab = 
-                THIS-OBJECT:ultraToolbarsManager1:Ribbon:Tabs[0]:AttachedParentTab . 
+        IF VALID-OBJECT (THIS-OBJECT:ultraToolbarsManager1:MdiParentManager) AND
+           THIS-OBJECT:ultraToolbarsManager1:MdiParentManager:Ribbon:Visible = TRUE THEN
+
+           THIS-OBJECT:ultraToolbarsManager1:MdiParentManager:Ribbon:SelectedTab =
+                THIS-OBJECT:ultraToolbarsManager1:Ribbon:Tabs[0]:AttachedParentTab .
 
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Refreshes the List of objects                                                                        
-        Notes:                                                                        
+        Purpose: Refreshes the List of objects
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID RefreshObjects ():
-        
+
         DEFINE VARIABLE oObject AS Progress.Lang.Object NO-UNDO .
         DEFINE VARIABLE cLine   AS CHARACTER            NO-UNDO .
         DEFINE VARIABLE i       AS INTEGER              NO-UNDO .
         DEFINE VARIABLE cFilter AS CHARACTER            NO-UNDO .
-        
+
         THIS-OBJECT:Clear () .
-        
-        ASSIGN cFilter = CAST (ultraToolbarsManager1:Tools["tbFilter":U], 
+
+        ASSIGN cFilter = CAST (ultraToolbarsManager1:Tools["tbFilter":U],
                                Infragistics.Win.UltraWinToolbars.TextBoxTool):Text .
-        
+
         oObject = SESSION:FIRST-OBJECT .
-        
+
         DO WHILE VALID-OBJECT (oObject) ON ERROR UNDO, NEXT:
-        
-            ASSIGN i = i + 1 
+
+            ASSIGN i = i + 1
                    cLine = "":U  .
-        
-            IF TYPE-OF (oObject, System.Object) THEN 
+
+            IF TYPE-OF (oObject, System.Object) THEN
                 ASSIGN cLine = CAST (oObject, System.Object):GetType ():FullName + " ":U .
             ELSE DO:
-                DEFINE VARIABLE oClass AS Progress.Lang.Class NO-UNDO . 
-                
+                DEFINE VARIABLE oClass AS Progress.Lang.Class NO-UNDO .
+
 /*                ASSIGN cLine = STRING (oObject:GetClass()) .*/
-                
+
                 /* Mike Fechner, Consultingwerk Ltd. 28.03.2011
                    Accessing GetClass() may lead to crash - looks
                    like an OpenEdge issue! */
-                
+
                 oClass = oObject:GetClass () .
 
-                ASSIGN cLine = "ABL":U + " (":U + oClass:TypeName + ")":U.     
-            END.    
+                ASSIGN cLine = "ABL":U + " (":U + oClass:TypeName + ")":U.
+            END.
 
             IF TYPE-OF (oObject, System.Windows.Forms.Control) AND oObject <> THIS-OBJECT:ultraTextEditor1 THEN
                 cLine = SUBSTITUTE ("&1 ~"&2~"":U, cLine, CAST (oObject, System.Windows.Forms.Control):Text) .
@@ -454,20 +456,20 @@ CLASS Consultingwerk.Windows.Util.Forms.ViewObjectsForm
             ASSIGN cLine = SUBSTITUTE ("&1 &2":U,
                                        cLine,
                                        oObject:ToString ()) .
-        
-            IF cFilter = "":U OR cLine MATCHES SUBSTITUTE ("*&1*":U, cFilter) THEN DO: 
-        
+
+            IF cFilter = "":U OR cLine MATCHES SUBSTITUTE ("*&1*":U, cFilter) THEN DO:
+
                 ASSIGN cLine = SUBSTITUTE ("&1 &2":U,
                                            i,
                                            cLine) .
-            
-                THIS-OBJECT:ultraTextEditor1:AppendText (cLine + 
-                                                         System.Environment:NewLine) . 
-                
+
+                THIS-OBJECT:ultraTextEditor1:AppendText (cLine +
+                                                         System.Environment:NewLine) .
+
             END.
-            
+
             FINALLY:
-                oObject = oObject:NEXT-SIBLING .            
+                oObject = oObject:NEXT-SIBLING .
             END FINALLY.
         END.
 
@@ -475,27 +477,31 @@ CLASS Consultingwerk.Windows.Util.Forms.ViewObjectsForm
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the ToolClick event of the UltraToolbarsManager
-                 intance                                                                        
+                 intance
         Notes:
         @param sender The reference to the object that raised the event
-        @param e The ToolClickEventArgs with the data for this event                                                                        
+        @param e The ToolClickEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraToolbarsManager1_ToolClick (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraToolbarsManager1_ToolClick (sender AS System.Object,
                                                          e AS Infragistics.Win.UltraWinToolbars.ToolClickEventArgs):
-        
+
         CASE e:Tool:Key:
-            WHEN "Refresh":U THEN 
+            WHEN "Refresh":U THEN
                 THIS-OBJECT:RefreshObjects () .
-            WHEN "Clear":U THEN 
+            WHEN "Clear":U THEN
                 THIS-OBJECT:Clear () .
-            WHEN "Exit":U THEN 
+            WHEN "Exit":U THEN
                 THIS-OBJECT:Exit () .
-        END CASE .             
+        END CASE .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the ViewObjectsForm class 
+        Purpose: Destructor for the ViewObjectsForm class
         Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC ViewObjectsForm ():

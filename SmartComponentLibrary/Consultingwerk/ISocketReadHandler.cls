@@ -33,6 +33,6 @@ INTERFACE Consultingwerk.ISocketReadHandler:
                  closed its end of the socket. In this procedure, the SELF handle 
                  identifies the affected socket object.
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID ReadResponseHandler ().
+    METHOD PUBLIC VOID ReadResponseHandler ().
 
 END INTERFACE.

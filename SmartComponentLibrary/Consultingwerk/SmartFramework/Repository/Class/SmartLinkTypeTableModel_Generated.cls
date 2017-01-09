@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2006-2014 by Consultingwerk Ltd. ("CW") -            *
+ * Copyright (C) 2006-2016 by Consultingwerk Ltd. ("CW") -            *
  * www.consultingwerk.de and other contributors as listed             *
  * below.  All Rights Reserved.                                       *
  *                                                                    *
@@ -15,7 +15,7 @@
     Syntax      : 
     Description : 
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
-    Created     : 06/03/2015 12:52:25,579+01:00
+    Created     : 03/05/2016 23:33:54,099+02:00
     Notes       : 
   ----------------------------------------------------------------------*/
 
@@ -43,6 +43,19 @@ CLASS Consultingwerk.SmartFramework.Repository.Class.SmartLinkTypeTableModel_Gen
     END SET .
 
     /*------------------------------------------------------------------------------
+        Purpose: Returns the value of the LinkTypeGuid field when a record is available
+        Notes:   Returns the default value, when no record
+        @param pDefaultValue The default value to return when no record is available
+        @return The field value or the default value when no record is available
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC CHARACTER LinkTypeGuidWhenAvailable (pDefaultValue AS CHARACTER):
+        IF THIS-OBJECT:BufferHandle:AVAILABLE THEN 
+            RETURN THIS-OBJECT:BufferHandle:BUFFER-FIELD ("LinkTypeGuid":U):BUFFER-VALUE .
+        ELSE 
+            RETURN pDefaultValue .
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
         Purpose: Gets and sets the current LinkName value
         Notes:   
     ------------------------------------------------------------------------------*/
@@ -53,6 +66,19 @@ CLASS Consultingwerk.SmartFramework.Repository.Class.SmartLinkTypeTableModel_Gen
     PUBLIC SET (arg AS CHARACTER):
         THIS-OBJECT:SetCharacterFieldValue ("LinkName":U, arg) .
     END SET .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the value of the LinkName field when a record is available
+        Notes:   Returns the default value, when no record
+        @param pDefaultValue The default value to return when no record is available
+        @return The field value or the default value when no record is available
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC CHARACTER LinkNameWhenAvailable (pDefaultValue AS CHARACTER):
+        IF THIS-OBJECT:BufferHandle:AVAILABLE THEN 
+            RETURN THIS-OBJECT:BufferHandle:BUFFER-FIELD ("LinkName":U):BUFFER-VALUE .
+        ELSE 
+            RETURN pDefaultValue .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the current SourcePropertyName value
@@ -67,6 +93,19 @@ CLASS Consultingwerk.SmartFramework.Repository.Class.SmartLinkTypeTableModel_Gen
     END SET .
 
     /*------------------------------------------------------------------------------
+        Purpose: Returns the value of the SourcePropertyName field when a record is available
+        Notes:   Returns the default value, when no record
+        @param pDefaultValue The default value to return when no record is available
+        @return The field value or the default value when no record is available
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC CHARACTER SourcePropertyNameWhenAvailable (pDefaultValue AS CHARACTER):
+        IF THIS-OBJECT:BufferHandle:AVAILABLE THEN 
+            RETURN THIS-OBJECT:BufferHandle:BUFFER-FIELD ("SourcePropertyName":U):BUFFER-VALUE .
+        ELSE 
+            RETURN pDefaultValue .
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
         Purpose: Gets and sets the current SourceHandshakeMethod value
         Notes:   
     ------------------------------------------------------------------------------*/
@@ -77,6 +116,19 @@ CLASS Consultingwerk.SmartFramework.Repository.Class.SmartLinkTypeTableModel_Gen
     PUBLIC SET (arg AS CHARACTER):
         THIS-OBJECT:SetCharacterFieldValue ("SourceHandshakeMethod":U, arg) .
     END SET .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the value of the SourceHandshakeMethod field when a record is available
+        Notes:   Returns the default value, when no record
+        @param pDefaultValue The default value to return when no record is available
+        @return The field value or the default value when no record is available
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC CHARACTER SourceHandshakeMethodWhenAvailable (pDefaultValue AS CHARACTER):
+        IF THIS-OBJECT:BufferHandle:AVAILABLE THEN 
+            RETURN THIS-OBJECT:BufferHandle:BUFFER-FIELD ("SourceHandshakeMethod":U):BUFFER-VALUE .
+        ELSE 
+            RETURN pDefaultValue .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the current TargetPropertyName value
@@ -91,6 +143,19 @@ CLASS Consultingwerk.SmartFramework.Repository.Class.SmartLinkTypeTableModel_Gen
     END SET .
 
     /*------------------------------------------------------------------------------
+        Purpose: Returns the value of the TargetPropertyName field when a record is available
+        Notes:   Returns the default value, when no record
+        @param pDefaultValue The default value to return when no record is available
+        @return The field value or the default value when no record is available
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC CHARACTER TargetPropertyNameWhenAvailable (pDefaultValue AS CHARACTER):
+        IF THIS-OBJECT:BufferHandle:AVAILABLE THEN 
+            RETURN THIS-OBJECT:BufferHandle:BUFFER-FIELD ("TargetPropertyName":U):BUFFER-VALUE .
+        ELSE 
+            RETURN pDefaultValue .
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
         Purpose: Gets and sets the current TargetHandshakeMethod value
         Notes:   
     ------------------------------------------------------------------------------*/
@@ -101,6 +166,19 @@ CLASS Consultingwerk.SmartFramework.Repository.Class.SmartLinkTypeTableModel_Gen
     PUBLIC SET (arg AS CHARACTER):
         THIS-OBJECT:SetCharacterFieldValue ("TargetHandshakeMethod":U, arg) .
     END SET .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the value of the TargetHandshakeMethod field when a record is available
+        Notes:   Returns the default value, when no record
+        @param pDefaultValue The default value to return when no record is available
+        @return The field value or the default value when no record is available
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC CHARACTER TargetHandshakeMethodWhenAvailable (pDefaultValue AS CHARACTER):
+        IF THIS-OBJECT:BufferHandle:AVAILABLE THEN 
+            RETURN THIS-OBJECT:BufferHandle:BUFFER-FIELD ("TargetHandshakeMethod":U):BUFFER-VALUE .
+        ELSE 
+            RETURN pDefaultValue .
+    END METHOD .
 
 
 

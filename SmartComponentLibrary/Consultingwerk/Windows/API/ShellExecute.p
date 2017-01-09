@@ -8,10 +8,10 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/  
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : ShellExecute.p
-    Purpose     : 
+    Purpose     :
 
     Syntax      :
 
@@ -44,6 +44,6 @@ PROCEDURE ShellExecuteA EXTERNAL "shell32" :
     DEFINE INPUT PARAMETER lpDirectory AS CHARACTER.
     DEFINE INPUT PARAMETER nShowCmd AS LONG.
     DEFINE RETURN PARAMETER hInstance AS LONG.
-END.
+END PROCEDURE .
 
 RUN ShellExecuteA (piHwnd, pcOperation, pcFile, pcParameter, pcDirectory, nShowCmd, OUTPUT piInstance) .

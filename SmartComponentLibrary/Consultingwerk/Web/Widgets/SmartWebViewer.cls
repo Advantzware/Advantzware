@@ -49,9 +49,9 @@ CLASS Consultingwerk.Web.Widgets.SmartWebViewer
         Purpose: Gets and sets the title of the viewer                                                                      
         Notes:                                                                        
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY ViewerTitle AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY ViewerTitle AS CHARACTER NO-UNDO 
+    GET.
+    SET. 
     
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the SmartWebViewer class                                                                        

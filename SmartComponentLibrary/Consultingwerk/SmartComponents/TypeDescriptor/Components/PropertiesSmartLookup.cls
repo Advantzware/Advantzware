@@ -34,11 +34,11 @@ CLASS Consultingwerk.SmartComponents.TypeDescriptor.Components.PropertiesSmartLo
         Purpose: Constructor for the PropertiesSmartLookup class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC PropertiesSmartLookup ():
-	    
-	    DEFINE VARIABLE oProperty AS IPropertyDescriptor NO-UNDO . 
-		
-		SUPER ().
+    CONSTRUCTOR PUBLIC PropertiesSmartLookup ():
+        
+        DEFINE VARIABLE oProperty AS IPropertyDescriptor NO-UNDO . 
+        
+        SUPER ().
 
         THIS-OBJECT:TypeName = "Consultingwerk.SmartComponents.Base.SmartLookup":U . 
 
@@ -93,6 +93,6 @@ CLASS Consultingwerk.SmartComponents.TypeDescriptor.Components.PropertiesSmartLo
         oProperty:Attributes:Add (NEW System.ComponentModel.DescriptionAttribute ("Allows to completely disable the lookup timer functioanlity.":U)) .
         oProperty:Attributes:Add (NEW System.ComponentModel.DefaultValueAttribute (BOX (FALSE))) .
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
 END CLASS.

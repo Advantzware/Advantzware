@@ -15,9 +15,9 @@
 
     Syntax      :
 
-    Description : 
+    Description :
 
-    Author(s)   : 
+    Author(s)   :
     Created     : Wed Aug 05 01:24:12 CEST 2015
     Notes       :
   ----------------------------------------------------------------------*/
@@ -31,10 +31,13 @@ USING Consultingwerk.Assertion.*  FROM PROPATH .
 USING Consultingwerk.Exceptions.* FROM PROPATH .
 USING Progress.Lang.*             FROM PROPATH .
 
-CLASS Consultingwerk.{&ClassNamePrefix}ArrayHolder 
+CLASS Consultingwerk.{&ClassNamePrefix}ArrayHolder
 &IF '{&FrameworkSerializationType}' EQ 'JSON' &THEN
     INHERITS JsonSerializable
 &ENDIF
+
+    &IF DEFINED (CommonComponentSpecification) NE 0 AND "{&ClassNamePrefix}" <> "Object" &THEN IMPLEMENTS Ccs.Common.Support.I{&ClassNamePrefix}ArrayHolder &ENDIF
+
     {&SERIALIZABLE}:
 
     {Consultingwerk/JsonSerializableProperty.i Value "{&DataType} EXTENT"} .
@@ -47,9 +50,9 @@ CLASS Consultingwerk.{&ClassNamePrefix}ArrayHolder
     CONSTRUCTOR PUBLIC {&ClassNamePrefix}ArrayHolder (pValue AS {&DataType} EXTENT):
         THIS-OBJECT ().
 
-        THIS-OBJECT:Value = pValue . 
+        THIS-OBJECT:Value = pValue .
 
-    END CONSTRUCTOR. 
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the ArrayHolder class
@@ -59,21 +62,21 @@ CLASS Consultingwerk.{&ClassNamePrefix}ArrayHolder
         SUPER ().
         THIS-OBJECT:AddSerializableProperties ('{&SerializableProperties}':U) .
 
-    END CONSTRUCTOR. 
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Removes the last element from an array and returns that element 
-        Notes:   
+        Purpose: Removes the last element from an array and returns that element
+        Notes:
         @return The removed element from the array
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC {&DataType} Pop ():
-        
+
         DEFINE VARIABLE xNewArray AS {&DataType} EXTENT NO-UNDO .
         DEFINE VARIABLE xElement  AS {&DataType}        NO-UNDO .
         DEFINE VARIABLE i         AS INTEGER            NO-UNDO .
 
         IF EXTENT (THIS-OBJECT:Value) >= 1 THEN .
-        ELSE 
+        ELSE
             UNDO, THROW NEW InvalidValueException (STRING (EXTENT (THIS-OBJECT:Value)), "extent size of array"{&TRAN}) .
 
         ASSIGN xElement = THIS-OBJECT:Value[EXTENT (THIS-OBJECT:Value)] .
@@ -94,20 +97,20 @@ CLASS Consultingwerk.{&ClassNamePrefix}ArrayHolder
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Adds one element to the end of an array and returns the new length 
-                 of the array. 
-        Notes:   
+        Purpose: Adds one element to the end of an array and returns the new length
+                 of the array.
+        Notes:
         @param pNewElement The new element to add to the array
         @return The new length of the array
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC INTEGER Push (pNewElement AS {&DataType}):
-        
+
         DEFINE VARIABLE xNewArray AS {&DataType} EXTENT NO-UNDO .
         DEFINE VARIABLE i         AS INTEGER            NO-UNDO .
 
-        IF EXTENT (THIS-OBJECT:Value) >= 1 THEN 
+        IF EXTENT (THIS-OBJECT:Value) >= 1 THEN
             EXTENT (xNewArray) = EXTENT (THIS-OBJECT:Value) + 1 .
-        ELSE 
+        ELSE
             EXTENT (xNewArray) = 1 .
 
         DO i = 1 TO EXTENT (xNewArray) - 1:
@@ -120,37 +123,37 @@ CLASS Consultingwerk.{&ClassNamePrefix}ArrayHolder
 
         RETURN EXTENT (xNewArray) .
 
-    END METHOD .    
-        
+    END METHOD .
+
     /*------------------------------------------------------------------------------
         Purpose: Replaces the array
-        Notes:   Avoids the need to re-initialize the array to extent ? when the array 
-                 size changes. Assigning Value directly is only possible when the 
-                 array size remains 
+        Notes:   Avoids the need to re-initialize the array to extent ? when the array
+                 size changes. Assigning Value directly is only possible when the
+                 array size remains
         @param pNewValue The new array
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID Replace (pNewValue AS {&DataType} EXTENT):
-        
-        EXTENT (THIS-OBJECT:Value) = ? . 
-        
-        ASSIGN THIS-OBJECT:Value = pNewValue . 
+
+        EXTENT (THIS-OBJECT:Value) = ? .
+
+        ASSIGN THIS-OBJECT:Value = pNewValue .
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Removes the first element from an array and returns that element. 
-                 This method changes the length of the array. 
-        Notes:   
+        Purpose: Removes the first element from an array and returns that element.
+                 This method changes the length of the array.
+        Notes:
         @return The removed element from the array
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC {&DataType} Shift ():
-        
+
         DEFINE VARIABLE xNewArray AS {&DataType} EXTENT NO-UNDO .
         DEFINE VARIABLE xElement  AS {&DataType}        NO-UNDO .
         DEFINE VARIABLE i         AS INTEGER            NO-UNDO .
 
         IF EXTENT (THIS-OBJECT:Value) >= 1 THEN .
-        ELSE 
+        ELSE
             UNDO, THROW NEW InvalidValueException (STRING (EXTENT (THIS-OBJECT:Value)), "extent size of array"{&TRAN}) .
 
         ASSIGN xElement = THIS-OBJECT:Value[1] .
@@ -171,20 +174,20 @@ CLASS Consultingwerk.{&ClassNamePrefix}ArrayHolder
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Adds one element to the beginning of an array and returns the new 
-                 length of the array. 
-        Notes:   
+        Purpose: Adds one element to the beginning of an array and returns the new
+                 length of the array.
+        Notes:
         @param pNewElement The new element to add to the array
         @return The new length of the array
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC INTEGER Unshift (pNewElement AS {&DataType}):
-        
+
         DEFINE VARIABLE xNewArray AS {&DataType} EXTENT NO-UNDO .
         DEFINE VARIABLE i         AS INTEGER            NO-UNDO .
 
-        IF EXTENT (THIS-OBJECT:Value) >= 1 THEN 
+        IF EXTENT (THIS-OBJECT:Value) >= 1 THEN
             EXTENT (xNewArray) = EXTENT (THIS-OBJECT:Value) + 1 .
-        ELSE 
+        ELSE
             EXTENT (xNewArray) = 1 .
 
         DO i = 1 TO EXTENT (THIS-OBJECT:Value):

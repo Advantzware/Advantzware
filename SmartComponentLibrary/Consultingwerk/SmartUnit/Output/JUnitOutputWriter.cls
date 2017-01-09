@@ -37,10 +37,10 @@ CLASS Consultingwerk.SmartUnit.Output.JUnitOutputWriter:
         @param plcLongchar The longchar value to cleanup
         @return The cleaned up longchar value
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED LONGCHAR ReplaceInvalidXmlCharacter (plcLongchar AS LONGCHAR):
-		
+    METHOD PROTECTED LONGCHAR ReplaceInvalidXmlCharacter (plcLongchar AS LONGCHAR):
+        
         DEFINE VARIABLE iValue  AS INTEGER  NO-UNDO.
-		
+        
         DO iValue = 1 TO 31 ON ERROR UNDO, THROW:
             IF iValue <> 10 AND iValue <> 13 THEN 
                 plcLongchar = REPLACE (plcLongchar, CHR (iValue), SUBSTITUTE ("&&#&1;":U, STRING (iValue, "9999":U))) .
@@ -48,10 +48,10 @@ CLASS Consultingwerk.SmartUnit.Output.JUnitOutputWriter:
         
         ASSIGN plcLongchar = REPLACE (plcLongchar, "<":U, "&lt;":U)
                plcLongchar = REPLACE (plcLongchar, ">":U, "&gt;":U) .
-		
-		RETURN plcLongchar .
+        
+        RETURN plcLongchar .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Writes a dsTestsuites to an XML file using SAX  
@@ -59,8 +59,8 @@ CLASS Consultingwerk.SmartUnit.Output.JUnitOutputWriter:
         @param pcTargetFile The target file to write to
         @param dsTestsuites INPUT The Dataset dsTestsuites
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID WriteTo (pcTargetFile AS CHARACTER,
-	                            INPUT DATASET dsTestsuites):
+    METHOD PUBLIC VOID WriteTo (pcTargetFile AS CHARACTER,
+                                INPUT DATASET dsTestsuites):
         
         DEFINE VARIABLE hSaxWriter  AS HANDLE        NO-UNDO .
         DEFINE VARIABLE hAttributes AS HANDLE        NO-UNDO . 
@@ -80,8 +80,8 @@ CLASS Consultingwerk.SmartUnit.Output.JUnitOutputWriter:
         hSaxWriter:SET-OUTPUT-DESTINATION ("file":U, pcTargetFile).
 
         hSaxWriter:START-DOCUMENT () . 
-		hSaxWriter:START-ELEMENT ("testsuites":U).
-		
+        hSaxWriter:START-ELEMENT ("testsuites":U).
+        
         FOR EACH eTestsuite ON ERROR UNDO, THROW:
 
             hSaxWriter:START-ELEMENT ("testsuite":U).
@@ -142,7 +142,7 @@ CLASS Consultingwerk.SmartUnit.Output.JUnitOutputWriter:
                     hSaxWriter:WRITE-EMPTY-ELEMENT ("testcase":U, ?, hAttributes).
                     
                     FINALLY:
-                        GarbageCollectorHelper:DeleteObject (hAttributes) .		
+                        GarbageCollectorHelper:DeleteObject (hAttributes) .        
                     END FINALLY.
                 END.                
             END.
@@ -179,6 +179,6 @@ CLASS Consultingwerk.SmartUnit.Output.JUnitOutputWriter:
             Consultingwerk.Util.SessionHelper:SetNumericFormat (oFormat) .   
         END FINALLY.
         
-	END METHOD .
+    END METHOD .
 
 END CLASS.

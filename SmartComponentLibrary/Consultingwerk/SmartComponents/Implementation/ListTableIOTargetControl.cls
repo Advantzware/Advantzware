@@ -33,22 +33,22 @@ CLASS Consultingwerk.SmartComponents.Implementation.ListTableIOTargetControl
 
     { Consultingwerk/Framework/Base/GenericList.i TableIOTargetControl }
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Returns the TableIOTargetControl instance for the given TableIOTarget
-	    Notes:
-	    @param poTableIOTarget The reference to the TableIOTarget
-	    @return The TableIOTargetControl instance for the given TableIOTarget
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC TableIOTargetControl FindByTableIOTarget (poTableIOTarget AS ISmartTableIOTarget):
-		
-		{Consultingwerk/foreachABL.i TableIOTargetControl oControl in THIS-OBJECT}
-		    IF oControl:SmartTableIOTarget = poTableIOTarget THEN 
-		        RETURN oControl . 
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the TableIOTargetControl instance for the given TableIOTarget
+        Notes:
+        @param poTableIOTarget The reference to the TableIOTarget
+        @return The TableIOTargetControl instance for the given TableIOTarget
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC TableIOTargetControl FindByTableIOTarget (poTableIOTarget AS ISmartTableIOTarget):
+        
+        {Consultingwerk/foreachABL.i TableIOTargetControl oControl in THIS-OBJECT}
+            IF oControl:SmartTableIOTarget = poTableIOTarget THEN 
+                RETURN oControl . 
         END.
         
         RETURN ? . 
 
-	END METHOD.
+    END METHOD.
 
 END CLASS . 
    

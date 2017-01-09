@@ -37,15 +37,15 @@ CLASS Consultingwerk.Windows.WebClient.ProWcAppParser.ProWcAppParser:
         Notes:   
         @param dsProWcApp OUTPUT The dataset with the .prowcapp file contents
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID ParseProWcAppFile (OUTPUT DATASET dsProWcApp):
-		
-		DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO.
+    METHOD PUBLIC VOID ParseProWcAppFile (OUTPUT DATASET dsProWcApp):
+        
+        DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO.
 
         ASSIGN cFileName = StartupParameterHelper:GetStartupParameterValue ("prowcapp":U) .
 
         THIS-OBJECT:ParseProWcAppFile (cFileName, OUTPUT DATASET dsProWcApp) .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Parses the .prowcapp file with the given file name

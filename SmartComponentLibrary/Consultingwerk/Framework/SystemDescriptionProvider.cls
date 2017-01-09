@@ -11,45 +11,46 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : SystemDescriptionProvider
-    Purpose     : Provides access to the Description of the current system 
-                  (e.g. Dev, Test, Prod) based on the "systemDescription" 
+    Purpose     : Provides access to the Description of the current system
+                  (e.g. Dev, Test, Prod) based on the "systemDescription"
                   setting from the IConfigurationProvider instance
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Wed Jun 26 07:52:36 CEST 2013
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
-USING Consultingwerk.Framework.* FROM PROPATH .  
+USING Consultingwerk.Framework.* FROM PROPATH .
 USING Progress.Lang.*            FROM PROPATH.
 
 CLASS Consultingwerk.Framework.SystemDescriptionProvider
-    IMPLEMENTS ISystemDescriptionProvider:  
-  
+    IMPLEMENTS ISystemDescriptionProvider:
+
     /*------------------------------------------------------------------------------
         Purpose: Returns the ISystemDescription instance that describes the current
-                 system 
-        Notes:   May return ? when no system description is available, should not 
+                 system
+        Notes:   May return ? when no system description is available, should not
                  throw an error in that case
-        @return The ISystemDescription instance that describes the current system or ? 
+        @return The ISystemDescription instance that describes the current system or ?
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC ISystemDescription GetSystemDescription ():
-        
+
         DEFINE VARIABLE cDescription           AS CHARACTER              NO-UNDO.
         DEFINE VARIABLE oConfigurationProvider AS IConfigurationProvider NO-UNDO .
-        
+
         oConfigurationProvider = {Consultingwerk/get-service.i Consultingwerk.Framework.IConfigurationProvider} .
-        
-        IF NOT VALID-OBJECT (oConfigurationProvider) THEN RETURN ? .
-    
-        cDescription = oConfigurationProvider:GetValue ("systemDescription":U) .        
-        
-        IF cDescription > "":U THEN 
+
+        IF NOT VALID-OBJECT (oConfigurationProvider) THEN
+            RETURN ? .
+
+        cDescription = oConfigurationProvider:GetValue ("systemDescription":U) .
+
+        IF cDescription > "":U THEN
             RETURN NEW SystemDescription (cDescription) .
-        ELSE 
-            RETURN ? .    
-        
+        ELSE
+            RETURN ? .
+
     END METHOD .
 
 END CLASS.

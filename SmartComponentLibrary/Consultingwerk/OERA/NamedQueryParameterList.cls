@@ -44,14 +44,14 @@ CLASS Consultingwerk.OERA.NamedQueryParameterList
         @param pcValue The value for the parameter
         @return The list itself (for fluent style coding)
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC NamedQueryParameterList Add (pcName AS CHARACTER, 
-	                                           pcValue AS CHARACTER):
-		
-		THIS-OBJECT:Add (NEW NamedQueryParameterEntry (pcName, NEW CharacterHolder (pcValue))) . 
-		
-		RETURN THIS-OBJECT .
+    METHOD PUBLIC NamedQueryParameterList Add (pcName AS CHARACTER, 
+                                               pcValue AS CHARACTER):
+        
+        THIS-OBJECT:Add (NEW NamedQueryParameterEntry (pcName, NEW CharacterHolder (pcValue))) . 
+        
+        RETURN THIS-OBJECT .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Adds a Date parameter to the list
@@ -188,16 +188,16 @@ CLASS Consultingwerk.OERA.NamedQueryParameterList
         @return Logical value indicating if the object is contained in the Dictionary                                                            
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC LOGICAL ContainsKey (pcKey AS CHARACTER):
-		
-		{Consultingwerk/linqABL.i NamedQueryParameterEntry oItem in this-object where Name = pcKey}
+        
+        {Consultingwerk/linqABL.i NamedQueryParameterEntry oItem in this-object where Name = pcKey}
 
             RETURN TRUE . 
-		
-		END.
+        
+        END.
 
         RETURN FALSE . 
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Retrieves the value of an item from the list

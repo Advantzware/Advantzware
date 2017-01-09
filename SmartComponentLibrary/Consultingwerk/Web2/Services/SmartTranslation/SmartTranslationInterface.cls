@@ -64,32 +64,32 @@ CLASS Consultingwerk.Web2.Services.SmartTranslation.SmartTranslationInterface:
         @param pcLanguageKey The Langauge Key to return
         @param dsTranslation OUTPUT Dataset with translations
     ------------------------------------------------------------------------------*/
-	@openapi.openedge.export(type="REST", useReturnValue="false", writeDataSetBeforeImage="false").
-	METHOD PUBLIC VOID GetTranslations (pcLanguageKey AS CHARACTER,
-	                                    OUTPUT DATASET dsTranslation):
-		
-		DEFINE BUFFER beSmartTranslation FOR eSmartTranslation . 
-		
-		DEFINE VARIABLE oRequest AS FetchDataRequest NO-UNDO . 
-		
-		oRequest = NEW FetchDataRequest ("eSmartTranslation":U,
-		                                 SUBSTITUTE ("for each eSmartTranslation WHERE eSmartTranslation.TranslationKey > '' AND eSmartTranslation.LanguageGuid = &1 ~
-		                                                                            OR eSmartTranslation.TranslationKey > '' AND eSmartTranslation.LanguageGuid = ''":U,
-		                                             QUOTER (pcLanguageKey))) . 
-		
+    @openapi.openedge.export(type="REST", useReturnValue="false", writeDataSetBeforeImage="false").
+    METHOD PUBLIC VOID GetTranslations (pcLanguageKey AS CHARACTER,
+                                        OUTPUT DATASET dsTranslation):
+        
+        DEFINE BUFFER beSmartTranslation FOR eSmartTranslation . 
+        
+        DEFINE VARIABLE oRequest AS FetchDataRequest NO-UNDO . 
+        
+        oRequest = NEW FetchDataRequest ("eSmartTranslation":U,
+                                         SUBSTITUTE ("for each eSmartTranslation WHERE eSmartTranslation.TranslationKey > '' AND eSmartTranslation.LanguageGuid = &1 ~
+                                                                                    OR eSmartTranslation.TranslationKey > '' AND eSmartTranslation.LanguageGuid = ''":U,
+                                                     QUOTER (pcLanguageKey))) . 
+        
         ServiceInterface:FetchData ("Consultingwerk.SmartFramework.System.TranslationBusinessEntity":U,
                                     oRequest,
-                                    OUTPUT DATASET dsTranslation)  .		
-		
-		FOR EACH eSmartTranslation WHERE eSmartTranslation.LanguageGuid = "":U 
-		                             AND CAN-FIND (beSmartTranslation WHERE beSmartTranslation.TranslationScope = eSmartTranslation.TranslationScope
-		                                                                AND beSmartTranslation.TranslationKey   = eSmartTranslation.TranslationKey
-		                                                                AND beSmartTranslation.LanguageGuid     = pcLanguageKey):  
+                                    OUTPUT DATASET dsTranslation)  .        
+        
+        FOR EACH eSmartTranslation WHERE eSmartTranslation.LanguageGuid = "":U 
+                                     AND CAN-FIND (beSmartTranslation WHERE beSmartTranslation.TranslationScope = eSmartTranslation.TranslationScope
+                                                                        AND beSmartTranslation.TranslationKey   = eSmartTranslation.TranslationKey
+                                                                        AND beSmartTranslation.LanguageGuid     = pcLanguageKey):  
 
             DELETE eSmartTranslation .
-		
-		END.
-		
-	END METHOD .
+        
+        END.
+        
+    END METHOD .
 
 END CLASS.

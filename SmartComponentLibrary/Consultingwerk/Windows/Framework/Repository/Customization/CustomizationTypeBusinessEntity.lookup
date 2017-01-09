@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<ttSmartBusinessEntityLookup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ttSmartBusinessEntityLookupRow>
+    <AdapterType/>
+    <AppServerPartition/>
+    <LookupBrowserFields>CustomizationTypeCode,CustomizationTypeDescription,ServiceTypeName</LookupBrowserFields>
+    <LookupControls/>
+    <LookupDialogClassName/>
+    <LookupDialogFilterFields>CustomizationTypeCode,ServiceTypeName,ServiceMethodName</LookupDialogFilterFields>
+    <LookupDialogFilterOperators>BEGINSMATCHES,BEGINSMATCHES,BEGINSMATCHES</LookupDialogFilterOperators>
+    <LookupDialogQuerySort/>
+    <LookupDialogQueryString/>
+    <LookupDialogTitle>Customization Type Lookup</LookupDialogTitle>
+    <LookupEntityName>Consultingwerk.SmartFramework.Repository.Customization.CustomizationTypeBusinessEntity</LookupEntityName>
+    <LookupEntityTable>eSmartCustomizationType</LookupEntityTable>
+    <LookupEntityView/>
+    <LookupFields/>
+    <LookupKeyField>CustomizationTypeCode</LookupKeyField>
+    <LookupKeyValueColumn>CustomizationTypeGuid</LookupKeyValueColumn>
+    <LookupQuerySort/>
+    <LookupQueryString>FOR EACH eSmartCustomizationType WHERE eSmartCustomizationType.CustomizationTypeCode BEGINS &quot;&amp;1&quot;</LookupQueryString>
+    <LookupTimerDelay>750</LookupTimerDelay>
+  </ttSmartBusinessEntityLookupRow>
+</ttSmartBusinessEntityLookup>

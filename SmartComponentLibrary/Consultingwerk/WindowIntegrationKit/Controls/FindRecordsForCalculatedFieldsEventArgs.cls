@@ -34,28 +34,28 @@ CLASS Consultingwerk.WindowIntegrationKit.Controls.FindRecordsForCalculatedField
         Purpose: Indicates if the Event was handled
         Notes:   The subscribed of this event is expected to set this to true 
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Handled AS LOGICAL INITIAL FALSE NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY Handled AS LOGICAL INITIAL FALSE NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the reference to the UltraGridRow 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Row AS Infragistics.Win.UltraWinGrid.UltraGridRow NO-UNDO 
-	GET.
-	PRIVATE SET. 
+    DEFINE PUBLIC PROPERTY Row AS Infragistics.Win.UltraWinGrid.UltraGridRow NO-UNDO 
+    GET.
+    PRIVATE SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the FindRecordsForCalculatedFieldsEventArgs class
         Notes:   
         @param poRow The reference to the current UltraGridRow
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC FindRecordsForCalculatedFieldsEventArgs (poRow AS Infragistics.Win.UltraWinGrid.UltraGridRow):
-		SUPER ().
-		
-		THIS-OBJECT:Row = poRow . 
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC FindRecordsForCalculatedFieldsEventArgs (poRow AS Infragistics.Win.UltraWinGrid.UltraGridRow):
+        SUPER ().
+        
+        THIS-OBJECT:Row = poRow . 
+        
+    END CONSTRUCTOR.
 
 END CLASS.

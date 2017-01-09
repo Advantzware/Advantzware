@@ -31,9 +31,9 @@ INTERFACE Consultingwerk.IQueryParser:
                  field references 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY BufferName AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY BufferName AS CHARACTER NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Parses an ABL Query String for a single buffer info an IQueryExpression  
@@ -41,6 +41,6 @@ INTERFACE Consultingwerk.IQueryParser:
         @param pcQueryString The ABL QueryString to parse
         @return The IQueryExpression instance representing the query string
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC IQueryExpression ParseQueryString (pcQueryString AS CHARACTER).
+    METHOD PUBLIC IQueryExpression ParseQueryString (pcQueryString AS CHARACTER).
 
 END INTERFACE.

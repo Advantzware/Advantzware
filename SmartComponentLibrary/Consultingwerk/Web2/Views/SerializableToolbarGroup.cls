@@ -30,20 +30,20 @@ USING Progress.Lang.*             FROM PROPATH .
 CLASS Consultingwerk.Web2.Views.SerializableToolbarGroup 
     INHERITS JsonSerializable:
 
-    {Consultingwerk/JsonSerializableProperty.i Name CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i Items ListSerializableToolbarItem} .
+    {Consultingwerk/JsonSerializableProperty11.i Name CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i Items ListSerializableToolbarItem} .
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the SerializableToolbarGroup class
         Notes:   
         @param pcName The value for the Name
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC SerializableToolbarGroup (pcName AS CHARACTER):
-		THIS-OBJECT ().
-		
-		THIS-OBJECT:Name = pcName . 
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC SerializableToolbarGroup (pcName AS CHARACTER):
+        THIS-OBJECT ().
+        
+        THIS-OBJECT:Name = pcName . 
+        
+    END CONSTRUCTOR.
 
 
     /*------------------------------------------------------------------------------

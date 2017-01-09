@@ -85,9 +85,9 @@ CLASS Consultingwerk.SmartComponents.Support.SmartWindowFormDesignerSupport:
                 DELETE OBJECT oInstance .             
                 
                 CATCH err AS Progress.Lang.Error:
-                	MESSAGE err:GetMessage (1) SKIP 
-                	        err:CallStack
-                        VIEW-AS ALERT-BOX ERROR TITLE "Error initializing design time instance of "{&TRAN} + QUOTER (cClassName) .	
+                    MESSAGE err:GetMessage (1) SKIP 
+                            err:CallStack
+                        VIEW-AS ALERT-BOX ERROR TITLE "Error initializing design time instance of "{&TRAN} + QUOTER (cClassName) .    
                 
                     RETURN . 
                 END CATCH.

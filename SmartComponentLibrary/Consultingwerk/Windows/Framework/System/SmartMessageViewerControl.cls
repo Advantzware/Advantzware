@@ -65,10 +65,11 @@ CLASS Consultingwerk.Windows.Framework.System.SmartMessageViewerControl
         
     END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design
-        Notes:   
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
         
         /* NOTE: The following method is automatically generated.
@@ -84,6 +85,9 @@ CLASS Consultingwerk.Windows.Framework.System.SmartMessageViewerControl
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance1 AS Infragistics.Win.Appearance NO-UNDO.
         appearance1 = NEW Infragistics.Win.Appearance().
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE resources AS Progress.Util.ResourceManager NO-UNDO.
+        resources = NEW Progress.Util.ResourceManager("Consultingwerk.Windows.Framework.System.SmartMessageViewerControl":U).
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance2 AS Infragistics.Win.Appearance NO-UNDO.
         appearance2 = NEW Infragistics.Win.Appearance().
@@ -147,137 +151,93 @@ CLASS Consultingwerk.Windows.Framework.System.SmartMessageViewerControl
         /*  */
         appearance1:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:tbMessageGroup_Label:Appearance = appearance1.
-        THIS-OBJECT:tbMessageGroup_Label:AutoSize = TRUE.
-        THIS-OBJECT:tbMessageGroup_Label:Location = NEW System.Drawing.Point(20, 24).
+        resources:ApplyResources(THIS-OBJECT:tbMessageGroup_Label, "tbMessageGroup_Label":U).
         THIS-OBJECT:tbMessageGroup_Label:Name = "tbMessageGroup_Label":U.
-        THIS-OBJECT:tbMessageGroup_Label:Size = NEW System.Drawing.Size(88, 14).
-        THIS-OBJECT:tbMessageGroup_Label:TabIndex = 0.
-        THIS-OBJECT:tbMessageGroup_Label:Text = "Message Group:":U.
         /*  */
         /* tbMessageGroup */
         /*  */
         THIS-OBJECT:tbMessageGroup:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "MessageGroup":U, TRUE)).
         THIS-OBJECT:tbMessageGroup:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:tbMessageGroup:Location = NEW System.Drawing.Point(130, 20).
+        resources:ApplyResources(THIS-OBJECT:tbMessageGroup, "tbMessageGroup":U).
         THIS-OBJECT:tbMessageGroup:Name = "tbMessageGroup":U.
-        THIS-OBJECT:tbMessageGroup:Size = NEW System.Drawing.Size(150, 21).
-        THIS-OBJECT:tbMessageGroup:TabIndex = 1.
         /*  */
         /* tbMessageNumber_Label */
         /*  */
         appearance2:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:tbMessageNumber_Label:Appearance = appearance2.
-        THIS-OBJECT:tbMessageNumber_Label:AutoSize = TRUE.
-        THIS-OBJECT:tbMessageNumber_Label:Location = NEW System.Drawing.Point(300, 24).
+        resources:ApplyResources(THIS-OBJECT:tbMessageNumber_Label, "tbMessageNumber_Label":U).
         THIS-OBJECT:tbMessageNumber_Label:Name = "tbMessageNumber_Label":U.
-        THIS-OBJECT:tbMessageNumber_Label:Size = NEW System.Drawing.Size(48, 14).
-        THIS-OBJECT:tbMessageNumber_Label:TabIndex = 2.
-        THIS-OBJECT:tbMessageNumber_Label:Text = "Number:":U.
         /*  */
         /* tbMessageNumber */
         /*  */
         THIS-OBJECT:tbMessageNumber:DataBindings:Add(NEW System.Windows.Forms.Binding("Value":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "MessageNumber":U, TRUE)).
         THIS-OBJECT:tbMessageNumber:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:tbMessageNumber:Location = NEW System.Drawing.Point(356, 20).
+        resources:ApplyResources(THIS-OBJECT:tbMessageNumber, "tbMessageNumber":U).
         THIS-OBJECT:tbMessageNumber:Name = "tbMessageNumber":U.
-        THIS-OBJECT:tbMessageNumber:Size = NEW System.Drawing.Size(134, 21).
-        THIS-OBJECT:tbMessageNumber:TabIndex = 3.
         /*  */
         /* tbLanguageGuid_Label */
         /*  */
         appearance3:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:tbLanguageGuid_Label:Appearance = appearance3.
-        THIS-OBJECT:tbLanguageGuid_Label:AutoSize = TRUE.
-        THIS-OBJECT:tbLanguageGuid_Label:Location = NEW System.Drawing.Point(20, 51).
+        resources:ApplyResources(THIS-OBJECT:tbLanguageGuid_Label, "tbLanguageGuid_Label":U).
         THIS-OBJECT:tbLanguageGuid_Label:Name = "tbLanguageGuid_Label":U.
-        THIS-OBJECT:tbLanguageGuid_Label:Size = NEW System.Drawing.Size(58, 14).
-        THIS-OBJECT:tbLanguageGuid_Label:TabIndex = 4.
-        THIS-OBJECT:tbLanguageGuid_Label:Text = "Language:":U.
         /*  */
         /* tbMessageText_Label */
         /*  */
         appearance4:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:tbMessageText_Label:Appearance = appearance4.
-        THIS-OBJECT:tbMessageText_Label:AutoSize = TRUE.
-        THIS-OBJECT:tbMessageText_Label:Location = NEW System.Drawing.Point(20, 78).
+        resources:ApplyResources(THIS-OBJECT:tbMessageText_Label, "tbMessageText_Label":U).
         THIS-OBJECT:tbMessageText_Label:Name = "tbMessageText_Label":U.
-        THIS-OBJECT:tbMessageText_Label:Size = NEW System.Drawing.Size(29, 14).
-        THIS-OBJECT:tbMessageText_Label:TabIndex = 8.
-        THIS-OBJECT:tbMessageText_Label:Text = "Text:":U.
         /*  */
         /* tbMessageText */
         /*  */
-        DEFINE VARIABLE nestedvar0 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar0 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:tbMessageText:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar0, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:tbMessageText, "tbMessageText":U).
         THIS-OBJECT:tbMessageText:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "MessageText":U, TRUE)).
         THIS-OBJECT:tbMessageText:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:tbMessageText:Location = NEW System.Drawing.Point(130, 74).
-        THIS-OBJECT:tbMessageText:Multiline = TRUE.
         THIS-OBJECT:tbMessageText:Name = "tbMessageText":U.
         THIS-OBJECT:tbMessageText:Scrollbars = System.Windows.Forms.ScrollBars:Both.
-        THIS-OBJECT:tbMessageText:Size = NEW System.Drawing.Size(360, 57).
-        THIS-OBJECT:tbMessageText:TabIndex = 9.
         /*  */
         /* tbMessageDetail_Label */
         /*  */
         appearance5:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:tbMessageDetail_Label:Appearance = appearance5.
-        THIS-OBJECT:tbMessageDetail_Label:AutoSize = TRUE.
-        THIS-OBJECT:tbMessageDetail_Label:Location = NEW System.Drawing.Point(20, 139).
+        resources:ApplyResources(THIS-OBJECT:tbMessageDetail_Label, "tbMessageDetail_Label":U).
         THIS-OBJECT:tbMessageDetail_Label:Name = "tbMessageDetail_Label":U.
-        THIS-OBJECT:tbMessageDetail_Label:Size = NEW System.Drawing.Size(36, 14).
-        THIS-OBJECT:tbMessageDetail_Label:TabIndex = 10.
-        THIS-OBJECT:tbMessageDetail_Label:Text = "Detail:":U.
         /*  */
         /* tbMessageDetail */
         /*  */
-        DEFINE VARIABLE nestedvar1 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar1 = CAST(Progress.Util.EnumHelper:Or(CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Bottom), System.Windows.Forms.AnchorStyles), System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:tbMessageDetail:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar1, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:tbMessageDetail, "tbMessageDetail":U).
         THIS-OBJECT:tbMessageDetail:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "MessageDetail":U, TRUE)).
         THIS-OBJECT:tbMessageDetail:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:tbMessageDetail:Location = NEW System.Drawing.Point(130, 137).
-        THIS-OBJECT:tbMessageDetail:Multiline = TRUE.
         THIS-OBJECT:tbMessageDetail:Name = "tbMessageDetail":U.
         THIS-OBJECT:tbMessageDetail:Scrollbars = System.Windows.Forms.ScrollBars:Both.
-        THIS-OBJECT:tbMessageDetail:Size = NEW System.Drawing.Size(360, 165).
-        THIS-OBJECT:tbMessageDetail:TabIndex = 11.
         /*  */
         /* tbMessageType_Label */
         /*  */
         appearance6:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:tbMessageType_Label:Appearance = appearance6.
-        THIS-OBJECT:tbMessageType_Label:AutoSize = TRUE.
-        THIS-OBJECT:tbMessageType_Label:Location = NEW System.Drawing.Point(300, 51).
+        resources:ApplyResources(THIS-OBJECT:tbMessageType_Label, "tbMessageType_Label":U).
         THIS-OBJECT:tbMessageType_Label:Name = "tbMessageType_Label":U.
-        THIS-OBJECT:tbMessageType_Label:Size = NEW System.Drawing.Size(33, 14).
-        THIS-OBJECT:tbMessageType_Label:TabIndex = 6.
-        THIS-OBJECT:tbMessageType_Label:Text = "Type:":U.
         /*  */
         /* ultraComboEditor1 */
         /*  */
         THIS-OBJECT:ultraComboEditor1:DataBindings:Add(NEW System.Windows.Forms.Binding("Value":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "LanguageGuid":U, TRUE)).
         THIS-OBJECT:ultraComboEditor1:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
         THIS-OBJECT:ultraComboEditor1:DropDownStyle = Infragistics.Win.DropDownStyle:DropDownList.
-        THIS-OBJECT:ultraComboEditor1:Location = NEW System.Drawing.Point(130, 47).
+        resources:ApplyResources(THIS-OBJECT:ultraComboEditor1, "ultraComboEditor1":U).
         THIS-OBJECT:ultraComboEditor1:Name = "ultraComboEditor1":U.
-        THIS-OBJECT:ultraComboEditor1:Size = NEW System.Drawing.Size(150, 21).
-        THIS-OBJECT:ultraComboEditor1:TabIndex = 5.
         /*  */
         /* ultraComboEditor2 */
         /*  */
         THIS-OBJECT:ultraComboEditor2:DataBindings:Add(NEW System.Windows.Forms.Binding("Value":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "MessageType":U, TRUE)).
         THIS-OBJECT:ultraComboEditor2:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
         THIS-OBJECT:ultraComboEditor2:DropDownStyle = Infragistics.Win.DropDownStyle:DropDownList.
-        THIS-OBJECT:ultraComboEditor2:Location = NEW System.Drawing.Point(356, 47).
+        resources:ApplyResources(THIS-OBJECT:ultraComboEditor2, "ultraComboEditor2":U).
         THIS-OBJECT:ultraComboEditor2:Name = "ultraComboEditor2":U.
-        THIS-OBJECT:ultraComboEditor2:Size = NEW System.Drawing.Size(134, 21).
-        THIS-OBJECT:ultraComboEditor2:TabIndex = 7.
         /*  */
         /* SmartMessageViewerControl */
         /*  */
-        THIS-OBJECT:AutoScaleDimensions = NEW System.Drawing.SizeF(Progress.Util.CastUtil:ToSingle(6), Progress.Util.CastUtil:ToSingle(13)).
+        resources:ApplyResources(THIS-OBJECT, "$this":U).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:ultraComboEditor2).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:ultraComboEditor1).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:tbMessageGroup_Label).
@@ -291,7 +251,6 @@ CLASS Consultingwerk.Windows.Framework.System.SmartMessageViewerControl
         THIS-OBJECT:Controls:Add(THIS-OBJECT:tbMessageDetail).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:tbMessageType_Label).
         THIS-OBJECT:Name = "SmartMessageViewerControl":U.
-        THIS-OBJECT:Size = NEW System.Drawing.Size(493, 305).
         CAST(THIS-OBJECT:smartBusinessEntityBindingSource1, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:tbMessageGroup, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:tbMessageNumber, System.ComponentModel.ISupportInitialize):EndInit().

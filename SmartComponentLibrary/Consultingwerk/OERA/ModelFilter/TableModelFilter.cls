@@ -12,59 +12,70 @@
 /*------------------------------------------------------------------------
     File        : TableModelFilter
     Purpose     : Abstract base class for generated TableModelFilter classes
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sat Jun 15 07:36:37 CEST 2013
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Consultingwerk.OERA.*             FROM PROPATH . 
-USING Consultingwerk.OERA.ModelFilter.* FROM PROPATH .  
+USING Consultingwerk.OERA.*             FROM PROPATH .
+USING Consultingwerk.OERA.ModelFilter.* FROM PROPATH .
 USING Progress.Lang.*                   FROM PROPATH .
 
 CLASS Consultingwerk.OERA.ModelFilter.TableModelFilter
-    ABSTRACT USE-WIDGET-POOL: 
+    ABSTRACT USE-WIDGET-POOL:
 
-    DEFINE VARIABLE oTableModel AS TableModel NO-UNDO . 
+    DEFINE VARIABLE oTableModel AS TableModel NO-UNDO .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Constructor for the TableModelFilter class
-        Notes:   
-        @param poTableModel The reference to the TableModel that this Filter instance belongs to
-    ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC TableModelFilter (poTableModel AS TableModel):
-		SUPER ().
-		
-		ASSIGN oTableModel = poTableModel .
-		
-	END CONSTRUCTOR.
+    /**
+     * Purpose: Constructor for the TableModelFilter class
+     * Notes:
+     * @param poTableModel The reference to the TableModel that this Filter instance belongs to
+     */
+    CONSTRUCTOR PUBLIC TableModelFilter (poTableModel AS TableModel):
+        SUPER ().
 
-    /*------------------------------------------------------------------------------
-        Purpose: Clears the Filters currently present for the TableModel
-        Notes:   
-        @return The reference to the TableModelFilter instance 
-    ------------------------------------------------------------------------------*/
-	METHOD PUBLIC TableModelFilter Reset ():
-		
-		oTableModel:ClearFilter () .
-		
-		RETURN THIS-OBJECT .
+        ASSIGN oTableModel = poTableModel .
 
-	END METHOD .
+    END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Executes the Filter 
-        Notes:   Invokes the Fill method of the TableModel instance
-        @return The reference to the TableModel instance 
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Returns if a record meeting the current Filter criteria can be found
+     * Notes:   Invokes the CanFind() method of the TableModel instance
+     * @return The reference to the TableModel instance
+     */
+    METHOD PUBLIC LOGICAL CanFind ():
+
+        RETURN oTableModel:CanFind() .
+
+    END METHOD .
+
+    /**
+     * Purpose: Clears the Filters currently present for the TableModel
+     * Notes:
+     * @return The reference to the TableModelFilter instance
+     */
+    METHOD PUBLIC TableModelFilter Reset ():
+
+        oTableModel:ClearFilter () .
+
+        RETURN THIS-OBJECT .
+
+    END METHOD .
+
+    /**
+     * Purpose: Executes the Filter
+     * Notes:   Invokes the Fill method of the TableModel instance
+     * @return The reference to the TableModel instance
+     */
     METHOD PUBLIC TableModel Run ():
-        
+
         oTableModel:Fill () .
-        
-        RETURN oTableModel . 
+
+        RETURN oTableModel .
 
     END METHOD .
 

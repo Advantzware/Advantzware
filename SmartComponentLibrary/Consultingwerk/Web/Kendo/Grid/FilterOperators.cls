@@ -28,9 +28,9 @@ USING Progress.Lang.*                 FROM PROPATH .
 CLASS Consultingwerk.Web.Kendo.Grid.FilterOperators 
     INHERITS JsonSerializable: 
 
-    {Consultingwerk/JsonSerializableProperty.i string FilterOperatorsString} .
-    {Consultingwerk/JsonSerializableProperty.i number FilterOperatorsNumber} .
-    {Consultingwerk/JsonSerializableProperty.i date FilterOperatorsDate} .
+    {Consultingwerk/JsonSerializableProperty11.i string FilterOperatorsString} .
+    {Consultingwerk/JsonSerializableProperty11.i number FilterOperatorsNumber} .
+    {Consultingwerk/JsonSerializableProperty11.i date FilterOperatorsDate} .
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the Filterable class                                                                     

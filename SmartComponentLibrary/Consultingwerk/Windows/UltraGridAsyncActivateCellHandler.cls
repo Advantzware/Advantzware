@@ -40,9 +40,9 @@ CLASS Consultingwerk.Windows.UltraGridAsyncActivateCellHandler:
         @param poGrid The reference to the Grid 
         @param pcColumn The key of the Column that should be activated after a 1 msec Timer
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC UltraGridAsyncActivateCellHandler (poGrid AS UltraGrid,
-	                                                      pcColumn AS CHARACTER):
-		SUPER ().
+    CONSTRUCTOR PUBLIC UltraGridAsyncActivateCellHandler (poGrid AS UltraGrid,
+                                                          pcColumn AS CHARACTER):
+        SUPER ().
 
         ASSIGN oGrid   = poGrid
                cColumn = pcColumn . 
@@ -51,8 +51,8 @@ CLASS Consultingwerk.Windows.UltraGridAsyncActivateCellHandler:
         oTimer:Tick:Subscribe (TickHandler) .
         oTimer:Interval = 1 .
         oTimer:Enabled = TRUE .  
-		
-	END CONSTRUCTOR.
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Handler for the Tick event
@@ -60,11 +60,11 @@ CLASS Consultingwerk.Windows.UltraGridAsyncActivateCellHandler:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID TickHandler (sender AS System.Object,
-	                                   e AS System.EventArgs):
-		
-		oTimer:Enabled = FALSE . 
-		
+    METHOD PROTECTED VOID TickHandler (sender AS System.Object,
+                                       e AS System.EventArgs):
+        
+        oTimer:Enabled = FALSE . 
+        
         oGrid:Focus () .
         oGrid:ActiveRow:Cells[cColumn]:Activate () .
         oGrid:PerformAction (UltraGridAction:EnterEditMode) .
@@ -73,6 +73,6 @@ CLASS Consultingwerk.Windows.UltraGridAsyncActivateCellHandler:
         DELETE OBJECT oTimer .
         DELETE OBJECT THIS-OBJECT . 
         
-	END METHOD .
+    END METHOD .
 
 END CLASS.

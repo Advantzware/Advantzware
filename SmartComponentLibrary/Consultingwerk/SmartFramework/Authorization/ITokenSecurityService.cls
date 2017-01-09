@@ -30,6 +30,6 @@ INTERFACE Consultingwerk.SmartFramework.Authorization.ITokenSecurityService:
         @param pcSecurityTokenCode The code of the security token
         @return Logical value indicating if the given token is restricted for the current user, TRUE means the user does not have access to the token
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL IsTokenRestricted (pcSecurityTokenCode AS CHARACTER).
+    METHOD PUBLIC LOGICAL IsTokenRestricted (pcSecurityTokenCode AS CHARACTER).
 
 END INTERFACE.

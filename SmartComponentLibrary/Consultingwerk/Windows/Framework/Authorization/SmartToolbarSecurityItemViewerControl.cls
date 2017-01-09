@@ -8,15 +8,15 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/   
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : SmartToolbarSecurityItemViewerControl
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : 20.04.2014 11:46:13
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -24,14 +24,14 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 USING Consultingwerk.SmartComponents.Base.*            FROM PROPATH .
 USING Consultingwerk.SmartComponents.Enum.*            FROM PROPATH .
 USING Consultingwerk.SmartComponents.Implementation.*  FROM PROPATH .
-USING Consultingwerk.Windows.Framework.Authorization.* FROM PROPATH . 
+USING Consultingwerk.Windows.Framework.Authorization.* FROM PROPATH .
 USING Consultingwerk.Util.*                            FROM PROPATH .
 USING Infragistics.Win.UltraWinEditors.*               FROM ASSEMBLY .
 USING Progress.Lang.*                                  FROM PROPATH .
 
-CLASS Consultingwerk.Windows.Framework.Authorization.SmartToolbarSecurityItemViewerControl 
-    INHERITS SmartViewerControl: 
-    
+CLASS Consultingwerk.Windows.Framework.Authorization.SmartToolbarSecurityItemViewerControl
+    INHERITS SmartViewerControl:
+
     DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
 
     DEFINE PRIVATE VARIABLE smartBusinessEntityBindingSource1 AS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource NO-UNDO.
@@ -44,39 +44,40 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartToolbarSecurityItemVie
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the SmartToolbarSecurityItemViewerControl class
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC SmartToolbarSecurityItemViewerControl ():
-                
+
         SUPER().
         InitializeComponent().
-        
+
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the EditorButtonClick event of the eSmartToolbarSecurityItem_ObjectName
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised this event
-        @param e The EditorButtonEventArgs with the data for this event  
+        @param e The EditorButtonEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID eSmartToolbarSecurityItem_ObjectName_EditorButtonClick (sender AS System.Object,   
-	                                                                            e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
-		
-		THIS-OBJECT:LookupToolItemContainer () .
+    METHOD PRIVATE VOID eSmartToolbarSecurityItem_ObjectName_EditorButtonClick (sender AS System.Object,
+                                                                                e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
 
-	END METHOD .
+        THIS-OBJECT:LookupToolItemContainer () .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design
-        Notes:   
-    ------------------------------------------------------------------------------*/
+    END METHOD .
+
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -316,18 +317,18 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartToolbarSecurityItemVie
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the KeyDown handler of the Text boxes with an 
+        Purpose: Event handler for the KeyDown handler of the Text boxes with an
                  EditorButton (Lookup)
         Notes:   Maps F3 to EditorButtonClick
         @param sender The reference to the object that raised the event
         @param e The KeyEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID LookupKeyDownHandler (sender AS System.Object, 
+    METHOD PRIVATE VOID LookupKeyDownHandler (sender AS System.Object,
                                               e AS System.Windows.Forms.KeyEventArgs):
 
         DEFINE VARIABLE cControlName AS CHARACTER NO-UNDO.
-        
-        IF e:Handled = FALSE AND Progress.Util.EnumHelper:AreEqual (e:KeyCode, SmartLookupSettings:ShortcutKey) 
+
+        IF e:Handled = FALSE AND Progress.Util.EnumHelper:AreEqual (e:KeyCode, SmartLookupSettings:ShortcutKey)
             AND THIS-OBJECT:Enabled THEN DO:
 
 &IF NOT PROVERSION BEGINS "10" &THEN
@@ -337,104 +338,104 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartToolbarSecurityItemVie
                             SUBSTITUTE ("&1_EditorButtonClick":U, cControlName),
                             sender,
                             NEW EditorButtonEventArgs (?, ?)) .
-&ELSE 
+&ELSE
             /* Mike Fechner, Consultingwerk Ltd. 17.08.2015
                DYNAMIC-INVOKE seems to crash here on 10.2B */
             CASE sender:
-                WHEN eSmartToolbarSecurityItem_ObjectName 
+                WHEN eSmartToolbarSecurityItem_ObjectName
                     THEN THIS-OBJECT:eSmartToolbarSecurityItem_ObjectName_EditorButtonClick (sender, NEW EditorButtonEventArgs (?, ?)) .
-            END CASE . 
-&ENDIF 
+            END CASE .
+&ENDIF
         END.
 
         CATCH err AS Progress.Lang.Error:
-            ErrorHelper:ShowErrorMessage (err) .                
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Performs a lookup for a Tool Item Container 
-        Notes:   
+        Purpose: Performs a lookup for a Tool Item Container
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID LookupToolItemContainer ():
-		
-        DEFINE VARIABLE oForm         AS ToolbarContainerLookupDialog      NO-UNDO . 
-        DEFINE VARIABLE oDialogResult AS System.Windows.Forms.DialogResult NO-UNDO . 
-		DEFINE VARIABLE i             AS INTEGER                           NO-UNDO .
-		
-		oForm = NEW ToolbarContainerLookupDialog () . 
-		
-		WAIT-FOR oForm:ShowDialog () SET oDialogResult . 
-		
-		{Consultingwerk/check-dialogresult-ok.i oDialogResult} .
-		
-		IF oForm:SelectedObject > "":U THEN DO:
-		    
-		    ASSIGN THIS-OBJECT:eSmartToolbarSecurityItem_ObjectName:Text = oForm:SelectedObject . 
-		         
-		    IF THIS-OBJECT:SmartTableIOState = Consultingwerk.SmartComponents.Enum.TableIOStateEnum:FieldsEnabled THEN 
-		        THIS-OBJECT:SmartTableIOState = Consultingwerk.SmartComponents.Enum.TableIOStateEnum:ModifyingData .
-		        
-		    ultraComboEditor1:ValueList:ValueListItems:Clear () .
-		    
-		    CASE oForm:ToolbarContainerType:
-		        WHEN ToolbarContainerTypeEnum:Form THEN DO:
-		            
-		            ultraComboEditor1:ValueList:ValueListItems:Clear () .
-		    
-		            IF VALID-OBJECT (oForm:SelectedToolbarController) THEN DO:
-		                {Consultingwerk/foreach.i Infragistics.Win.UltraWinToolbars.ToolBase oTool in oForm:SelectedToolbarController:Tools}
-                            IF NOT ListHelper:EntryIsInList (oTool:Key, Consultingwerk.SmartComponents.Base.Const:TABLEIO_TOOLS) AND 
-                               NOT ListHelper:EntryIsInList (oTool:Key, Consultingwerk.SmartComponents.Base.Const:NAVIGATION_TOOLS) AND 
-                               NOT ListHelper:EntryIsInList (oTool:Key, Consultingwerk.SmartComponents.Base.Const:TRANSACTION_TOOLS) THEN 
-		                        ultraComboEditor1:ValueList:ValueListItems:Add (oTool:Key, oTool:SharedProps:Caption) .
-		                END.
-		            END.
-		        END.
-                WHEN ToolbarContainerTypeEnum:TableIOTarget THEN DO:
-                    
+    METHOD PROTECTED VOID LookupToolItemContainer ():
+
+        DEFINE VARIABLE oForm         AS ToolbarContainerLookupDialog      NO-UNDO .
+        DEFINE VARIABLE oDialogResult AS System.Windows.Forms.DialogResult NO-UNDO .
+        DEFINE VARIABLE i             AS INTEGER                           NO-UNDO .
+
+        oForm = NEW ToolbarContainerLookupDialog () .
+
+        WAIT-FOR oForm:ShowDialog () SET oDialogResult .
+
+        {Consultingwerk/check-dialogresult-ok.i oDialogResult} .
+
+        IF oForm:SelectedObject > "":U THEN DO:
+
+            ASSIGN THIS-OBJECT:eSmartToolbarSecurityItem_ObjectName:Text = oForm:SelectedObject .
+
+            IF THIS-OBJECT:SmartTableIOState = Consultingwerk.SmartComponents.Enum.TableIOStateEnum:FieldsEnabled THEN
+                THIS-OBJECT:SmartTableIOState = Consultingwerk.SmartComponents.Enum.TableIOStateEnum:ModifyingData .
+
+            ultraComboEditor1:ValueList:ValueListItems:Clear () .
+
+            CASE oForm:ToolbarContainerType:
+                WHEN ToolbarContainerTypeEnum:Form THEN DO:
+
                     ultraComboEditor1:ValueList:ValueListItems:Clear () .
-                    
+
+                    IF VALID-OBJECT (oForm:SelectedToolbarController) THEN DO:
+                        {Consultingwerk/foreach.i Infragistics.Win.UltraWinToolbars.ToolBase oTool in oForm:SelectedToolbarController:Tools}
+                            IF NOT ListHelper:EntryIsInList (oTool:Key, Consultingwerk.SmartComponents.Base.Const:TABLEIO_TOOLS) AND
+                               NOT ListHelper:EntryIsInList (oTool:Key, Consultingwerk.SmartComponents.Base.Const:NAVIGATION_TOOLS) AND
+                               NOT ListHelper:EntryIsInList (oTool:Key, Consultingwerk.SmartComponents.Base.Const:TRANSACTION_TOOLS) THEN
+                                ultraComboEditor1:ValueList:ValueListItems:Add (oTool:Key, oTool:SharedProps:Caption) .
+                        END.
+                    END.
+                END.
+                WHEN ToolbarContainerTypeEnum:TableIOTarget THEN DO:
+
+                    ultraComboEditor1:ValueList:ValueListItems:Clear () .
+
                     DO i = 1 TO NUM-ENTRIES (Consultingwerk.SmartComponents.Base.Const:TABLEIO_TOOLS):
                         ultraComboEditor1:ValueList:ValueListItems:Add (ENTRY (i, Consultingwerk.SmartComponents.Base.Const:TABLEIO_TOOLS)) .
                     END.
-                END.		         
-		    END CASE .
-		    
-		    ultraComboEditor1:Focus () .
-		    ultraComboEditor1:DropDown() .
-		END.
+                END.
+            END CASE .
+
+            ultraComboEditor1:Focus () .
+            ultraComboEditor1:DropDown() .
+        END.
 
         GarbageCollectorHelper:DeleteObject (oForm) .
 
-	END METHOD .
+    END METHOD .
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Event handler for the ValueChanged event of the ultraComboEditor1
-	    Notes:
-	    @param sender The reference to the object that raised the event
-	    @param e The System.EventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraComboEditor1_ValueChanged (sender AS System.Object,
-	                                                    e AS System.EventArgs):
-		
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the ValueChanged event of the ultraComboEditor1
+        Notes:
+        @param sender The reference to the object that raised the event
+        @param e The System.EventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID ultraComboEditor1_ValueChanged (sender AS System.Object,
+                                                        e AS System.EventArgs):
+
         DEFINE VARIABLE cStackTrace AS CHARACTER NO-UNDO.
 
-        ASSIGN cStackTrace = System.Environment:StackTrace . 
-                                      
-        IF cStackTrace MATCHES "*Progress.Data.DataSource.OnListChanged*":U  OR 
-           cStackTrace MATCHES "*System.Windows.Forms.Binding.PushData*":U 
+        ASSIGN cStackTrace = System.Environment:StackTrace .
+
+        IF cStackTrace MATCHES "*Progress.Data.DataSource.OnListChanged*":U  OR
+           cStackTrace MATCHES "*System.Windows.Forms.Binding.PushData*":U
             THEN RETURN .
 
-		IF ultraComboEditor1:Focused THEN 
-		    eSmartToolbarSecurityItem_Description:Text = ultraComboEditor1:Text .  
+        IF ultraComboEditor1:Focused THEN
+            eSmartToolbarSecurityItem_Description:Text = ultraComboEditor1:Text .
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Destructor for the SmartToolbarSecurityItemViewerControl class
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC SmartToolbarSecurityItemViewerControl ( ):
 

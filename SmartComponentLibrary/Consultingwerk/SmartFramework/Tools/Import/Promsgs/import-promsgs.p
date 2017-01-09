@@ -15,9 +15,9 @@
 
     Syntax      :
 
-    Description : 
+    Description :
 
-    Author(s)   : 
+    Author(s)   :
     Created     : Sun Aug 17 00:26:07 CEST 2014
     Notes       :
   ----------------------------------------------------------------------*/
@@ -36,36 +36,36 @@ DEFINE VARIABLE cMsgDescription AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFlag1          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFlag2          AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE oRequest AS Consultingwerk.OERA.FetchDataRequest NO-UNDO . 
+DEFINE VARIABLE oRequest AS Consultingwerk.OERA.FetchDataRequest NO-UNDO .
 
 /* ***************************  Main Block  *************************** */
 
-Consultingwerk.Util.FileHelper:GetFileList (Consultingwerk.Util.SessionHelper:DLC + 
-                                            "\prohelp\msgdata":U,
+Consultingwerk.Util.FileHelper:GetFileList (Consultingwerk.Util.SessionHelper:DLC +
+                                            "/prohelp/msgdata":U,
                                             "*.":U,
                                             OUTPUT TABLE ttFileNames) .
 FOR EACH ttFileNames ON ERROR UNDO, THROW:
-    INPUT FROM VALUE (ttFileNames.FileName) . 
+    INPUT FROM VALUE (ttFileNames.FileName) .
 
     REPEAT ON ERROR UNDO, THROW:
-        IMPORT iMsgNum cMsgText cMsgDescription cFlag1 cFlag2 . 
+        IMPORT iMsgNum cMsgText cMsgDescription cFlag1 cFlag2 .
 
         IF iMsgNum > 0 THEN DO:
-            CREATE ttPromsgs . 
+            CREATE ttPromsgs .
             ASSIGN ttPromsgs.MsgNum         = iMsgNum
-                   ttPromsgs.MsgText        = cMsgText 
-                   ttPromsgs.MsgDescription = cMsgDescription . 
-            RELEASE ttPromsgs . 
+                   ttPromsgs.MsgText        = cMsgText
+                   ttPromsgs.MsgDescription = cMsgDescription .
+            RELEASE ttPromsgs .
         END.
-        
+
         CATCH syserr AS Progress.Lang.SysError :
-        	IF syserr:GetMessageNum (1) = 76 THEN 
-        	   NEXT . 
+            IF syserr:GetMessageNum (1) = 76 THEN
+               NEXT .
         END CATCH.
     END .
-    
+
     FINALLY:
-        INPUT CLOSE . 		
+        INPUT CLOSE .
     END FINALLY.
 END.
 
@@ -76,32 +76,32 @@ Consultingwerk.OERA.ServiceInterface:FetchData ("Consultingwerk.SmartFramework.S
                                                 oRequest,
                                                 OUTPUT DATASET dsMessage) .
 
-Consultingwerk.Util.DatasetHelper:SetTrackingChanges (DATASET dsMessage:HANDLE, TRUE). 
+Consultingwerk.Util.DatasetHelper:SetTrackingChanges (DATASET dsMessage:HANDLE, TRUE).
 
 FOR EACH ttPromsgs:
-    FIND eSmartMessage WHERE eSmartMessage.MessageNumber = ttPromsgs.MsgNum 
+    FIND eSmartMessage WHERE eSmartMessage.MessageNumber = ttPromsgs.MsgNum
                          AND eSmartMessage.MessageGroup  = "OpenEdge":U
                          AND eSmartMessage.LanguageGuid  = "":U NO-ERROR .
-                         
+
     IF NOT AVAILABLE eSmartMessage THEN DO:
         CREATE eSmartMessage.
-        ASSIGN eSmartMessage.MessageGuid   = ? 
-               eSmartMessage.MessageNumber = ttPromsgs.MsgNum 
+        ASSIGN eSmartMessage.MessageGuid   = ?
+               eSmartMessage.MessageNumber = ttPromsgs.MsgNum
                eSmartMessage.MessageGroup  = "OpenEdge":U
                eSmartMessage.LanguageGuid  = "":U .
     END.
-    
+
     ASSIGN eSmartMessage.MessageText   = ttPromsgs.MsgText
-           eSmartMessage.MessageDetail = ttPromsgs.MsgDescription . 
+           eSmartMessage.MessageDetail = ttPromsgs.MsgDescription .
 END.
 
 Consultingwerk.OERA.ServiceInterface:SaveChanges ("Consultingwerk.SmartFramework.System.MessageBusinessEntity":U,
                                                   INPUT-OUTPUT DATASET dsMessage) .
-                                                  
-IF NOT SESSION:BATCH-MODE THEN                                                   
+
+IF NOT SESSION:BATCH-MODE THEN
     MESSAGE "Done.":U
         VIEW-AS ALERT-BOX.
 
 CATCH err AS Progress.Lang.Error:
-	Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .	
+    Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .
 END CATCH.

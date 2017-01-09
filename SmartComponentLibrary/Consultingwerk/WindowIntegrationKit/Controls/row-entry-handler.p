@@ -11,11 +11,11 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : row-entry-handler.p
-    Purpose     : 
+    Purpose     :
 
     Syntax      :
 
-    Description : 
+    Description :
 
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Wed Aug 10 06:49:04 CEST 2011
@@ -34,6 +34,7 @@ DEFINE INPUT  PARAMETER phBrowse AS HANDLE NO-UNDO.
 
 {Consultingwerk/Assertion/HandleAssert/WidgetType.i phBrowse ""BROWSE"":U} .
 
-ON "ROW-ENTRY":U OF phBrowse DO:
+ON "ROW-ENTRY":U OF phBrowse
+DO:
     /* disabled temporarily */
-END. 
+END.

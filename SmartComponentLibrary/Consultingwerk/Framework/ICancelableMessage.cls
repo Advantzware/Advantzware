@@ -30,8 +30,8 @@ INTERFACE Consultingwerk.Framework.ICancelableMessage:
         Purpose: Gets and sets if the message has been cancelled 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Cancel AS LOGICAL NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY Cancel AS LOGICAL NO-UNDO 
+    GET.
+    SET. 
 
 END INTERFACE.

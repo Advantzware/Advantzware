@@ -8,27 +8,29 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
  /*------------------------------------------------------------------------
     File        : UltraGridColumnChooserForm
     Purpose     : Provides a generic UI with the UltraGrid Column Chooser
                   functionality
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Tue Dec 13 06:39:06 CET 2011
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
+
 USING Consultingwerk.Forms.BaseForm      FROM PROPATH .
-USING Consultingwerk.Windows.Resources.* FROM PROPATH . 
+USING Consultingwerk.Util.*              FROM PROPATH .
+USING Consultingwerk.Windows.Resources.* FROM PROPATH .
 USING Progress.Lang.*                    FROM PROPATH .
 
-CLASS Consultingwerk.Windows.Forms.UltraGridColumnChooserForm 
+CLASS Consultingwerk.Windows.Forms.UltraGridColumnChooserForm
     INHERITS BaseForm
-    IMPLEMENTS Consultingwerk.Windows.Forms.IUltraGridColumnChooserForm: 
-    
+    IMPLEMENTS Consultingwerk.Windows.Forms.IUltraGridColumnChooserForm:
+
     DEFINE PRIVATE VARIABLE m_UltraGridColumnChooserForm_Toolbars_Dock_Area_Top AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_UltraGridColumnChooserForm_Toolbars_Dock_Area_Right AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_UltraGridColumnChooserForm_Toolbars_Dock_Area_Left AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
@@ -40,43 +42,44 @@ CLASS Consultingwerk.Windows.Forms.UltraGridColumnChooserForm
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the reference to the Column Chooser Control
-        Notes:                                      
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY ColumnChooser AS Infragistics.Win.UltraWinGrid.UltraGridColumnChooser NO-UNDO 
+    DEFINE PUBLIC PROPERTY ColumnChooser AS Infragistics.Win.UltraWinGrid.UltraGridColumnChooser NO-UNDO
     GET.
-    PRIVATE SET. 
+    PRIVATE SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the UltraGridColumnChooserForm class 
-        Notes:                                      
+        Purpose: Constructor for the UltraGridColumnChooserForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC UltraGridColumnChooserForm ():
-        
+
         SUPER().
         InitializeComponent().
 
         THIS-OBJECT:ColumnChooser = ultraGridColumnChooser1 .
-        
+
         THIS-OBJECT:Text = WindowsCustomizer:ColumnChooserFormCaption .
         THIS-OBJECT:ultraToolbarsManager1:Tools["Close":U]:SharedProps:Caption = WindowsCustomizer:ColumnChooserCloseButtonCaption .
-        
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
     END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -251,23 +254,27 @@ CLASS Consultingwerk.Windows.Forms.UltraGridColumnChooserForm
         Purpose: Event handler for the ToolClick event of the ultraToolbarsManager1
         Notes:
         @param sender The reference to the object that raised the event
-        @param e The ToolClickEventArgs with the data for this event                                                                        
+        @param e The ToolClickEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraToolbarsManager1_ToolClick (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraToolbarsManager1_ToolClick (sender AS System.Object,
                                                          e AS Infragistics.Win.UltraWinToolbars.ToolClickEventArgs):
-        
+
         CASE e:Tool:Key:
-            
-            WHEN "Close":U THEN 
+
+            WHEN "Close":U THEN
                 THIS-OBJECT:Close () .
-            
-        END CASE . 
+
+        END CASE .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the UltraGridColumnChooserForm class 
-        Notes:                                      
+        Purpose: Destructor for the UltraGridColumnChooserForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC UltraGridColumnChooserForm ( ):
 

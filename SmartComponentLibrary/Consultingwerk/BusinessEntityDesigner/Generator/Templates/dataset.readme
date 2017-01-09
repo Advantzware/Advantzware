@@ -6,3 +6,4 @@
 &6      purpose
 &7      description
 @USER@  the current user name
+@USERID@      the current user id

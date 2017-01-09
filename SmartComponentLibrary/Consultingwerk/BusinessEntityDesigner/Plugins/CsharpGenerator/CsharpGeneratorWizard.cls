@@ -12,8 +12,8 @@
 /*------------------------------------------------------------------------
     File        : CsharpGeneratorWizard
     Purpose     : Wrapper wizard to the xsd.exe utility
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sun Dec 21 14:50:56 CET 2014
     Notes       : http://msdn.microsoft.com/en-us/library/x6c1kb0s(v=vs.100).aspx
@@ -21,7 +21,7 @@
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Consultingwerk.BusinessEntityDesigner.Plugins.CsharpGenerator.* FROM PROPATH .  
+USING Consultingwerk.BusinessEntityDesigner.Plugins.CsharpGenerator.* FROM PROPATH .
 USING Consultingwerk.BusinessEntityDesigner.Services.*                FROM PROPATH .
 USING Consultingwerk.Framework.*                                      FROM PROPATH .
 USING Consultingwerk.SmartComponents.Base.*                           FROM PROPATH .
@@ -31,9 +31,9 @@ USING Infragistics.Win.UltraWinEditors.*                              FROM ASSEM
 USING Progress.Lang.*                                                 FROM PROPATH .
 USING System.Windows.Forms.*                                          FROM ASSEMBLY.
 
-CLASS Consultingwerk.BusinessEntityDesigner.Plugins.CsharpGenerator.CsharpGeneratorWizard INHERITS BaseDialogForm: 
+CLASS Consultingwerk.BusinessEntityDesigner.Plugins.CsharpGenerator.CsharpGeneratorWizard INHERITS BaseDialogForm:
 
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE folderBrowserDialog1 AS System.Windows.Forms.FolderBrowserDialog NO-UNDO.
     DEFINE PRIVATE VARIABLE linkLabel1 AS System.Windows.Forms.LinkLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE openFileDialog1 AS System.Windows.Forms.OpenFileDialog NO-UNDO.
@@ -51,26 +51,26 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.CsharpGenerator.CsharpGenera
     DEFINE PRIVATE VARIABLE ultraLabel3 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraLabel2 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraLabel1 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
-    
+
     DEFINE VARIABLE cGenerate AS CHARACTER NO-UNDO.
-    
+
     { Consultingwerk/BusinessEntityDesigner/Services/dsBusinessEntity.i &REFERENCE-ONLY="REFERENCE-ONLY" }
-    
-    /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the reference to the DatasetController of the 
-                 Business Entity Designer
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY BusinessEntityDatasetController AS BusinessEntityDatasetController NO-UNDO 
-	GET.
-	SET. 
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the CsharpGeneratorWizard class 
-        Notes:   
+        Purpose: Gets and sets the reference to the DatasetController of the
+                 Business Entity Designer
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC CsharpGeneratorWizard ():
-		
+    DEFINE PUBLIC PROPERTY BusinessEntityDatasetController AS BusinessEntityDatasetController NO-UNDO
+    GET.
+    SET.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Destructor for the CsharpGeneratorWizard class
+        Notes:
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC CsharpGeneratorWizard ():
+
         SUPER().
         InitializeComponent().
 
@@ -82,130 +82,135 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.CsharpGenerator.CsharpGenera
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the Click event of the ButtonOk 
-        Notes:   
+        Purpose: Event handler for the Click event of the ButtonOk
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ButtonOk_Click (sender AS System.Object, 
-	                                    e AS System.EventArgs):
-		
-    	THIS-OBJECT:SetSetting ("CsharpGenerator.OutputFolder":U,        tbOutputFolder:Text) .  	
-        THIS-OBJECT:SetSetting ("CsharpGenerator.Generate":U,            UNBOX (osGenerate:Value)) .    
-        THIS-OBJECT:SetSetting ("CsharpGenerator.Namespace":U,           tbNamespace:Text) .    
-        THIS-OBJECT:SetSetting ("CsharpGenerator.AdditionalParameter":U, tbAdditionalParameters:Text) .    
+    METHOD PRIVATE VOID ButtonOk_Click (sender AS System.Object,
+                                        e AS System.EventArgs):
+
+        THIS-OBJECT:SetSetting ("CsharpGenerator.OutputFolder":U,        tbOutputFolder:Text) .
+        THIS-OBJECT:SetSetting ("CsharpGenerator.Generate":U,            UNBOX (osGenerate:Value)) .
+        THIS-OBJECT:SetSetting ("CsharpGenerator.Namespace":U,           tbNamespace:Text) .
+        THIS-OBJECT:SetSetting ("CsharpGenerator.AdditionalParameter":U, tbAdditionalParameters:Text) .
 
         /* Option Set Value not available when Dialog is closed */
-        ASSIGN cGenerate = UNBOX (osGenerate:Value) . 
-    
-	END METHOD .
+        ASSIGN cGenerate = UNBOX (osGenerate:Value) .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns the additional parameters  
-        Notes:   
-        @return The additional parameters  
+        Purpose: Returns the additional parameters
+        Notes:
+        @return The additional parameters
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC CHARACTER GetAdditionalParameter ():
-		
-		RETURN tbAdditionalParameters:Text .
+    METHOD PUBLIC CHARACTER GetAdditionalParameter ():
 
-	END METHOD .
+        RETURN tbAdditionalParameters:Text .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Binds to the Business Entity Designer Dataset
         Notes:
-        @param dsBusinessEntity The dataset to bind to 
+        @param dsBusinessEntity The dataset to bind to
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID GetDatasetHandle (DATASET dsBusinessEntity BIND):
 
         /* Noop */
-        
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns if dataset or classes should be generated 
-        Notes:   
-        @return dataset/classes  
+        Purpose: Returns if dataset or classes should be generated
+        Notes:
+        @return dataset/classes
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC CHARACTER GetGenerate ():
-		
-		RETURN cGenerate .
+    METHOD PUBLIC CHARACTER GetGenerate ():
 
-	END METHOD .
+        RETURN cGenerate .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns the namespace 
-        Notes:   
-        @return The namespace 
+        Purpose: Returns the namespace
+        Notes:
+        @return The namespace
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC CHARACTER GetNamespace ():
-		
-		RETURN tbNamespace:Text .
+    METHOD PUBLIC CHARACTER GetNamespace ():
 
-	END METHOD .
+        RETURN tbNamespace:Text .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the output folder
-        Notes:   
-        @return The output folder  
+        Notes:
+        @return The output folder
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC CHARACTER GetOutputFolder ():
-		
-		RETURN tbOutputFolder:Text .
+    METHOD PUBLIC CHARACTER GetOutputFolder ():
 
-	END METHOD .
+        RETURN tbOutputFolder:Text .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets a setting for this wizard from either the Business Entity 
-                 Model or the Windows Registry 
-        Notes:   
+        Purpose: Gets a setting for this wizard from either the Business Entity
+                 Model or the Windows Registry
+        Notes:
         @param pcSetting The key for the setting
         @return The value for the setting
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED CHARACTER GetSetting (pcSetting AS CHARACTER):
+    METHOD PROTECTED CHARACTER GetSetting (pcSetting AS CHARACTER):
 
         DEFINE VARIABLE oSettingService AS ISettingsService NO-UNDO .
-		
-		FIND eBusinessEntityProperties WHERE eBusinessEntityProperties.PropertyName = pcSetting
-		    NO-ERROR . 
-		    
-		IF AVAILABLE eBusinessEntityProperties THEN
-		    RETURN eBusinessEntityProperties.PropertyValue . 
-		
-		oSettingService = {Consultingwerk/get-service.i Consultingwerk.Framework.ISettingsService} .
-		
-		pcSetting = oSettingService:GetSetting ("CsharpGenerator":U, pcSetting) . 
 
-        IF pcSetting > "":U THEN 
-            RETURN pcSetting . 
+        FIND eBusinessEntityProperties WHERE eBusinessEntityProperties.PropertyName = pcSetting
+            NO-ERROR .
 
-	END METHOD .
+        IF AVAILABLE eBusinessEntityProperties THEN
+            RETURN eBusinessEntityProperties.PropertyValue .
+
+        oSettingService = {Consultingwerk/get-service.i Consultingwerk.Framework.ISettingsService} .
+
+        pcSetting = oSettingService:GetSetting ("CsharpGenerator":U, pcSetting) .
+
+        IF pcSetting > "":U THEN
+            RETURN pcSetting .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns the path to xsd.exe 
-        Notes:   
+        Purpose: Returns the path to xsd.exe
+        Notes:
         @return The path to xsd.exe
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC CHARACTER GetXsdExe ():
-		
-		RETURN tbXsdPath:Text .
+    METHOD PUBLIC CHARACTER GetXsdExe ():
 
-	END METHOD .
+        RETURN tbXsdPath:Text .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design 
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    END METHOD .
+
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE editorButton2 AS Infragistics.Win.UltraWinEditors.EditorButton NO-UNDO.
@@ -482,260 +487,283 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.CsharpGenerator.CsharpGenera
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the KeyDown handler of the Text boxes with an 
+        Purpose: Event handler for the KeyDown handler of the Text boxes with an
                  EditorButton (Lookup)
         Notes:   Maps F3 to EditorButtonClick
         @param sender The reference to the object that raised the event
         @param e The KeyEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID LookupKeyDownHandler (sender AS System.Object, 
+    METHOD PRIVATE VOID LookupKeyDownHandler (sender AS System.Object,
                                               e AS System.Windows.Forms.KeyEventArgs):
 
         DEFINE VARIABLE cControlName AS CHARACTER NO-UNDO.
-        
-        IF e:Handled = FALSE AND Progress.Util.EnumHelper:AreEqual (e:KeyCode, SmartLookupSettings:ShortcutKey) 
+
+        IF e:Handled = FALSE AND Progress.Util.EnumHelper:AreEqual (e:KeyCode, SmartLookupSettings:ShortcutKey)
             AND THIS-OBJECT:Enabled THEN DO:
 
             ASSIGN cControlName = CAST (sender, System.Windows.Forms.Control):Name .
 
-            DYNAMIC-INVOKE (THIS-OBJECT, 
-                            SUBSTITUTE ("&1_EditorButtonClick":U, cControlName), 
-                            sender, 
+            DYNAMIC-INVOKE (THIS-OBJECT,
+                            SUBSTITUTE ("&1_EditorButtonClick":U, cControlName),
+                            sender,
                             NEW EditorButtonEventArgs (?, ?)) .
         END.
 
         CATCH err AS Progress.Lang.Error:
-            ErrorHelper:ShowErrorMessage (err) .                
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the LinkClicked event of the linkLabel1 Control 
+        Purpose: Event handler for the LinkClicked event of the linkLabel1 Control
         Notes:   Opens the MSDN Reference entry for the xsd.exe utility
                  http://msdn.microsoft.com/en-us/library/x6c1kb0s(v=vs.100).aspx
         @param sender The reference to the object that raised the event
         @param e The LinkLabelLinkClickedEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID linkLabel1_LinkClicked (sender AS System.Object, 
-	                                            e AS System.Windows.Forms.LinkLabelLinkClickedEventArgs):
-		
-        Consultingwerk.Windows.API.Win32:ShellExecute ("open":U, 
-                                                       "http://msdn.microsoft.com/en-us/library/x6c1kb0s(v=vs.100).aspx":U) .		
+    METHOD PRIVATE VOID linkLabel1_LinkClicked (sender AS System.Object,
+                                                e AS System.Windows.Forms.LinkLabelLinkClickedEventArgs):
 
-	END METHOD .
+        Consultingwerk.Windows.API.Win32:ShellExecute ("open":U,
+                                                       "http://msdn.microsoft.com/en-us/library/x6c1kb0s(v=vs.100).aspx":U) .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the Load event 
-        Notes:   
+        Purpose: Raises the Load event
+        Notes:
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
-		
-		DEFINE VARIABLE cSetting AS CHARACTER NO-UNDO.
-		
-		SUPER:OnLoad (e) .
+    METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
+
+        DEFINE VARIABLE cSetting AS CHARACTER NO-UNDO.
+
+        SUPER:OnLoad (e) .
 
         cSetting = THIS-OBJECT:GetSetting ("CsharpGenerator.XsdPath":U) .
-        
-        IF cSetting > "":U THEN tbXsdPath:Text = cSetting . 
-         
+
+        IF cSetting > "":U THEN tbXsdPath:Text = cSetting .
+
         cSetting = THIS-OBJECT:GetSetting ("CsharpGenerator.OutputFolder":U) .
-        
-        IF cSetting > "":U THEN tbOutputFolder:Text = cSetting . 
-        
+
+        IF cSetting > "":U THEN tbOutputFolder:Text = cSetting .
+
         cSetting = THIS-OBJECT:GetSetting ("CsharpGenerator.Generate":U) .
-        
-        IF cSetting > "":U THEN osGenerate:Value = BOX (cSetting) . 
+
+        IF cSetting > "":U THEN osGenerate:Value = BOX (cSetting) .
 
         cSetting = THIS-OBJECT:GetSetting ("CsharpGenerator.Namespace":U) .
-        
-        IF cSetting > "":U THEN tbNamespace:Text = cSetting . 
+
+        IF cSetting > "":U THEN tbNamespace:Text = cSetting .
         ELSE DO:
             cSetting = THIS-OBJECT:BusinessEntityDatasetController:BusinessEntityViewerControl:SmartDataSource:GetFieldValues ("BusinessEntityPackage":U) .
-            
+
             IF cSetting > "":U THEN tbNamespace:Text = cSetting .
         END.
-        
-        cSetting = THIS-OBJECT:GetSetting ("CsharpGenerator.AdditionalParameter":U) .
-        
-        IF cSetting > "":U THEN tbAdditionalParameters:Value = BOX (cSetting) . 
 
-	END METHOD .
+        cSetting = THIS-OBJECT:GetSetting ("CsharpGenerator.AdditionalParameter":U) .
+
+        IF cSetting > "":U THEN tbAdditionalParameters:Value = BOX (cSetting) .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Sets a setting default in the Windows Registry
-        Notes:   
+        Notes:
         @param pcKey The settings key to store
         @param pcValue The settings value to store
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID SetDefaultSetting (pcKey AS CHARACTER, 
-	                                         pcValue AS CHARACTER):
-		
-        DEFINE VARIABLE oSettingService AS ISettingsService NO-UNDO .
-        
-        oSettingService = {Consultingwerk/get-service.i Consultingwerk.Framework.ISettingsService} .
-        
-        oSettingService:StoreSetting ("CsharpGenerator":U, pcKey, pcValue) . 
+    METHOD PROTECTED VOID SetDefaultSetting (pcKey AS CHARACTER,
+                                             pcValue AS CHARACTER):
 
-	END METHOD .
+        DEFINE VARIABLE oSettingService AS ISettingsService NO-UNDO .
+
+        oSettingService = {Consultingwerk/get-service.i Consultingwerk.Framework.ISettingsService} .
+
+        oSettingService:StoreSetting ("CsharpGenerator":U, pcKey, pcValue) .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Sets a setting  in the Business Entity Design
-        Notes:   
+        Notes:
         @param pcKey The settings key to store
         @param pcValue The settings value to store
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID SetSetting (pcKey AS CHARACTER, 
+    METHOD PUBLIC VOID SetSetting (pcKey AS CHARACTER,
                                    pcValue AS CHARACTER):
-		
-		FIND eBusinessEntityProperties WHERE eBusinessEntityProperties.PropertyName = pcKey NO-ERROR . 
-		
-		IF AVAILABLE eBusinessEntityProperties THEN DO:
-		    IF eBusinessEntityProperties.PropertyValue = pcValue THEN 
-		      RETURN . 
-		END . 
-		ELSE DO:
-		    CREATE eBusinessEntityProperties.
-		    ASSIGN eBusinessEntityProperties.PropertyName = pcKey .  
-	    END.  
-		
-		ASSIGN eBusinessEntityProperties.PropertyValue                    = pcValue 
-		       THIS-OBJECT:BusinessEntityDatasetController:UnsavedChanges = TRUE . 
 
-	END METHOD .
+        FIND eBusinessEntityProperties WHERE eBusinessEntityProperties.PropertyName = pcKey NO-ERROR .
+
+        IF AVAILABLE eBusinessEntityProperties THEN DO:
+            IF eBusinessEntityProperties.PropertyValue = pcValue THEN
+              RETURN .
+        END .
+        ELSE DO:
+            CREATE eBusinessEntityProperties.
+            ASSIGN eBusinessEntityProperties.PropertyName = pcKey .
+        END.
+
+        ASSIGN eBusinessEntityProperties.PropertyValue                    = pcValue
+               THIS-OBJECT:BusinessEntityDatasetController:UnsavedChanges = TRUE .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the EditorButtonClick event of the tbOutputFolder
-        Notes:   
+        Notes:
         @param sender The reference to the obejct that raised this event
-        @param e The EditorButtonEventArgs with the data for this event 
+        @param e The EditorButtonEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID tbOutputFolder_EditorButtonClick (sender AS System.Object, 
-	                                                      e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
-		
-		DEFINE VARIABLE oDialogResult AS DialogResult NO-UNDO .
-		
-		IF tbOutputFolder:Text > "":U THEN 
-		    folderBrowserDialog1:SelectedPath = tbOutputFolder:Text . 
+    METHOD PRIVATE VOID tbOutputFolder_EditorButtonClick (sender AS System.Object,
+                                                          e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
+
+        DEFINE VARIABLE oDialogResult AS DialogResult NO-UNDO .
+
+        IF tbOutputFolder:Text > "":U THEN
+            folderBrowserDialog1:SelectedPath = tbOutputFolder:Text .
 
         WAIT-FOR folderBrowserDialog1:ShowDialog () SET oDialogResult .
-         
-        {Consultingwerk/check-dialogresult-ok.i oDialogResult} .
-        
-        tbOutputFolder:Text = folderBrowserDialog1:SelectedPath . 
 
-	END METHOD .
+        {Consultingwerk/check-dialogresult-ok.i oDialogResult} .
+
+        tbOutputFolder:Text = folderBrowserDialog1:SelectedPath .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the EditorButtonClick event of the tbXsdPath
-        Notes:   
+        Notes:
         @param sender The reference to the obejct that raised this event
-        @param e The EditorButtonEventArgs with the data for this event 
+        @param e The EditorButtonEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID tbXsdPath_EditorButtonClick (sender AS System.Object, 
-	                                                 e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
-		
-        DEFINE VARIABLE oDialogResult AS DialogResult NO-UNDO .
-        
-        IF tbXsdPath:Text > "":U THEN 
-            openFileDialog1:FileName = tbXsdPath:Text . 
+    METHOD PRIVATE VOID tbXsdPath_EditorButtonClick (sender AS System.Object,
+                                                     e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
 
-        WAIT-FOR openFileDialog1:ShowDialog () SET oDialogResult . 
+        DEFINE VARIABLE oDialogResult AS DialogResult NO-UNDO .
+
+        IF tbXsdPath:Text > "":U THEN
+            openFileDialog1:FileName = tbXsdPath:Text .
+
+        WAIT-FOR openFileDialog1:ShowDialog () SET oDialogResult .
 
         {Consultingwerk/check-dialogresult-ok.i oDialogResult} .
-        
-        tbXsdPath:Text = openFileDialog1:FileName . 
-		
 
-	END METHOD .
+        tbXsdPath:Text = openFileDialog1:FileName .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the ValueChanged event of the controls 
+        Purpose: Event handler for the ValueChanged event of the controls
         Notes:   Validates input and enables/disables ButtonOk
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID tbXsdPath_ValueChanged (sender AS System.Object, e AS System.EventArgs):
-		
-		DEFINE VARIABLE lXsdExeValid AS LOGICAL NO-UNDO .
-		DEFINE VARIABLE lPathValid   AS LOGICAL NO-UNDO .
-		
-		ASSIGN lXsdExeValid = tbXsdPath:Text > "":U AND FileHelper:Exists (tbXsdPath:Text) 
-		       lPathValid   = tbOutputFolder:Text > "":U AND FileHelper:Exists (tbOutputFolder:Text) . 
-		
-		ASSIGN ButtonOk:Enabled = lXsdExeValid AND lPathValid AND 
-		                          UNBOX (osGenerate:VALUE) <> ? AND 
-		                          tbNamespace:Text > "":U .  
-	END METHOD .
+    METHOD PRIVATE VOID tbXsdPath_ValueChanged (sender AS System.Object, e AS System.EventArgs):
+
+        DEFINE VARIABLE lXsdExeValid AS LOGICAL NO-UNDO .
+        DEFINE VARIABLE lPathValid   AS LOGICAL NO-UNDO .
+
+        ASSIGN lXsdExeValid = tbXsdPath:Text > "":U AND FileHelper:Exists (tbXsdPath:Text)
+               lPathValid   = tbOutputFolder:Text > "":U AND FileHelper:Exists (tbOutputFolder:Text) .
+
+        ASSIGN ButtonOk:Enabled = lXsdExeValid AND lPathValid AND
+                                  UNBOX (osGenerate:VALUE) <> ? AND
+                                  tbNamespace:Text > "":U .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the Click event of the ultraButton1   
-        Notes:   
+        Purpose: Event handler for the Click event of the ultraButton1
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraButton1_Click (sender AS System.Object, 
-	                                        e AS System.EventArgs):
-		
-		THIS-OBJECT:SetDefaultSetting ("CsharpGenerator.XsdPath":U,
-		                               tbXsdPath:Text) .
+    METHOD PRIVATE VOID ultraButton1_Click (sender AS System.Object,
+                                            e AS System.EventArgs):
 
-	END METHOD .
+        THIS-OBJECT:SetDefaultSetting ("CsharpGenerator.XsdPath":U,
+                                       tbXsdPath:Text) .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the Click event of the ultraButton2 
-        Notes:   
+        Purpose: Event handler for the Click event of the ultraButton2
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraButton2_Click (sender AS System.Object, 
-	                                        e AS System.EventArgs):
+    METHOD PRIVATE VOID ultraButton2_Click (sender AS System.Object,
+                                            e AS System.EventArgs):
 
         THIS-OBJECT:SetDefaultSetting ("CsharpGenerator.OutputFolder":U,
-                                       tbOutputFolder:Text) .		
-		
+                                       tbOutputFolder:Text) .
 
-	END METHOD .
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the Click event of the ultraButton3 
-        Notes:   
+        Purpose: Event handler for the Click event of the ultraButton3
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraButton3_Click (sender AS System.Object, e AS System.EventArgs):
-		
-		IF UNBOX (osGenerate:Value) > "":U THEN 
-		
+    METHOD PRIVATE VOID ultraButton3_Click (sender AS System.Object, e AS System.EventArgs):
+
+        IF UNBOX (osGenerate:Value) > "":U THEN
+
         THIS-OBJECT:SetDefaultSetting ("CsharpGenerator.Generate":U,
-                                       UNBOX (osGenerate:Value)) .        
+                                       UNBOX (osGenerate:Value)) .
 
-	END METHOD .
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the Click event of the ultraButton3 
-        Notes:   
+        Purpose: Event handler for the Click event of the ultraButton3
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraButton4_Click (sender AS System.Object, 
-	                                        e AS System.EventArgs):
-		
-		THIS-OBJECT:SetDefaultSetting ("CsharpGenerator.AdditionalParameter":U,
-                                       tbAdditionalParameters:Text) .  
+    METHOD PRIVATE VOID ultraButton4_Click (sender AS System.Object,
+                                            e AS System.EventArgs):
 
-	END METHOD .
+        THIS-OBJECT:SetDefaultSetting ("CsharpGenerator.AdditionalParameter":U,
+                                       tbAdditionalParameters:Text) .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Destructor for the CsharpGeneratorWizard class 
-        Notes:   
-    ------------------------------------------------------------------------------*/
-    DESTRUCTOR PUBLIC CsharpGeneratorWizard ():
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
 
-    END DESTRUCTOR .
+    END METHOD .
 
 END CLASS.

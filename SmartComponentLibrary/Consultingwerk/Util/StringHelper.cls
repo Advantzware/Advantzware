@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2006-2013 by Consultingwerk Ltd. ("CW") -            *
+ * Copyright (C) 2006-2016 by Consultingwerk Ltd. ("CW") -            *
  * www.consultingwerk.de and other contributors as listed             *
  * below.  All Rights Reserved.                                       *
  *                                                                    *
@@ -12,11 +12,11 @@
 /*------------------------------------------------------------------------
     File        : StringHelper
     Purpose     : Routines to support string (CHARACTER) operations
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Wed Oct 24 12:34:34 CEST 2012
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -24,46 +24,46 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 {Consultingwerk/products.i}
 
 USING Consultingwerk.*                       FROM PROPATH .
-USING Consultingwerk.Assertion.*             FROM PROPATH .  
+USING Consultingwerk.Assertion.*             FROM PROPATH .
 USING Consultingwerk.Exceptions.*            FROM PROPATH .
-USING Consultingwerk.Framework.Collections.* FROM PROPATH .  
-USING Consultingwerk.Util.*                  FROM PROPATH .  
+USING Consultingwerk.Framework.Collections.* FROM PROPATH .
+USING Consultingwerk.Util.*                  FROM PROPATH .
 USING Progress.Lang.*                        FROM PROPATH .
 
-CLASS Consultingwerk.Util.StringHelper: 
+CLASS Consultingwerk.Util.StringHelper:
 
     /*------------------------------------------------------------------------------
         Purpose: Disallow instance creation
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PROTECTED StringHelper ():
         SUPER ().
-        
+
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: CamelCases a string from "Camel case" to "CamelCase"
-        Notes:   Does support standard letters (ASCII only), no Umlaute 
+        Notes:   Does support standard letters (ASCII only), no Umlaute
         @param pcString The string containing a single word to camelcase
-        @return The CamelCased version of the string 
+        @return The CamelCased version of the string
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CHARACTER CamelCaseWords (pcString AS CHARACTER):
-        
+
         DEFINE VARIABLE i      AS INTEGER NO-UNDO.
         DEFINE VARIABLE cEntry AS CHARACTER NO-UNDO.
 
         DO i = 1 TO NUM-ENTRIES (pcString, " ":U):
-            
+
             ASSIGN cEntry = ENTRY (i, pcString, " ":U) .
-            
+
             IF cEntry > "":U THEN DO:
                 cEntry = StringHelper:CamelCaseWord (cEntry) .
 
                 ENTRY (i, pcString, " ":U) = cEntry .
-            END . 
+            END .
         END.
 
-        RETURN REPLACE (pcString, " ":U, "":U) . 
+        RETURN REPLACE (pcString, " ":U, "":U) .
 
     END METHOD .
 
@@ -71,96 +71,117 @@ CLASS Consultingwerk.Util.StringHelper:
         Purpose: CamelCases a string from "Camel case" to "CamelCase"
         Notes:   Does support standard letters (ASCII only), no Umlaute
                  This version of CamelCaseWords does only enforece uppercase on the
-                 first letter of each word and does not change the case of any other 
-                 character - so existing upper case chars stay upper case (which is 
-                 different from the method CamelCaseWords) 
+                 first letter of each word and does not change the case of any other
+                 character - so existing upper case chars stay upper case (which is
+                 different from the method CamelCaseWords)
         @param pcString The string containing a single word to camelcase
-        @return The CamelCased version of the string 
+        @return The CamelCased version of the string
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CHARACTER CamelCaseWords2 (pcString AS CHARACTER):
-    
-        DEFINE VARIABLE iAsc   AS INTEGER   NO-UNDO.        
+
+        DEFINE VARIABLE iAsc   AS INTEGER   NO-UNDO.
         DEFINE VARIABLE i      AS INTEGER   NO-UNDO.
         DEFINE VARIABLE cEntry AS CHARACTER NO-UNDO.
 
         DO i = 1 TO NUM-ENTRIES (pcString, " ":U):
-            
+
             ASSIGN cEntry = ENTRY (i, pcString, " ":U) .
-            
+
             ASSIGN iAsc = ASC (SUBSTRING (cEntry, 1, 1)) .
-            
+
             IF iAsc >= 97 AND iAsc <= 122 THEN DO:
-                iAsc = iAsc - 32 . 
+                iAsc = iAsc - 32 .
                 SUBSTRING (cEntry, 1, 1) = CHR (iAsc) .
-            END. 
-            
+            END.
+
             ENTRY (i, pcString, " ":U) = cEntry .
         END.
 
-        RETURN REPLACE (pcString, " ":U, "":U) . 
+        RETURN REPLACE (pcString, " ":U, "":U) .
 
     END METHOD .
-    
+
     /*------------------------------------------------------------------------------
         Purpose: CamelCases a single word
-        Notes:   Does support standard letters (ASCII only), no Umlaute 
+        Notes:   Does support standard letters (ASCII only), no Umlaute
         @param pcWord The string containing a single word to camelcase
-        @return The CamelCased version of the word 
+        @return The CamelCased version of the word
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CHARACTER CamelCaseWord (pcWord AS CHARACTER):
 
         DEFINE VARIABLE iPos AS INTEGER NO-UNDO.
         DEFINE VARIABLE iAsc AS INTEGER NO-UNDO.
-    
+
         ASSIGN pcWord = TRIM (pcWord) .
-    
-        {Consultingwerk/Assertion/Assert/NotNullOrEmpty.i pcWord} .        
+
+        {Consultingwerk/Assertion/Assert/NotNullOrEmpty.i pcWord} .
         ListAssert:NumEntries (pcWord, " ":U, 1) .
-        
+
         iAsc = ASC (SUBSTRING (pcWord, 1, 1)) .
-        
+
         IF iAsc >= 97 AND iAsc <= 122 THEN DO:
-            iAsc = iAsc - 32 . 
+            iAsc = iAsc - 32 .
             SUBSTRING (pcWord, 1, 1) = CHR (iAsc) .
-        END. 
-        
-        DO iPos = 2 TO LENGTH (pcWord):
-            iAsc = ASC (SUBSTRING (pcWord, iPos, 1)) .
-            
-            IF iAsc >= 65 AND iAsc <= 90 THEN DO:
-                iAsc = iAsc + 32 . 
-                SUBSTRING (pcWord, iPos, 1) = CHR (iAsc) .
-            END. 
         END.
 
-        RETURN pcWord . 
+        DO iPos = 2 TO LENGTH (pcWord):
+            iAsc = ASC (SUBSTRING (pcWord, iPos, 1)) .
+
+            IF iAsc >= 65 AND iAsc <= 90 THEN DO:
+                iAsc = iAsc + 32 .
+                SUBSTRING (pcWord, iPos, 1) = CHR (iAsc) .
+            END.
+        END.
+
+        RETURN pcWord .
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Capitalizes the first letter of a given string 
-        Notes:   
+        Purpose: Capitalizes the first letter of a given string
+        Notes:
         @param pcString The string in which to capitalize the first letter
         @return The string with the first letter capitalized
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CHARACTER CapitalizeFirstLetter (pcString AS CHARACTER):
-        
+
         DEFINE VARIABLE cFirst AS CHARACTER NO-UNDO.
-        
-        IF pcString = "":U OR pcString = ? THEN 
-            RETURN pcString . 
-            
+
+        IF pcString = "":U OR pcString = ? THEN
+            RETURN pcString .
+
         ASSIGN cFirst = SUBSTRING (pcString, 1, 1) .
-        
-        IF ASC (cFirst) = ASC (LC (cFirst)) THEN DO: 
+
+        IF ASC (cFirst) = ASC (LC (cFirst)) THEN DO:
             cFirst = CHR (ASC (cFirst) - 32) .
-          
+
             SUBSTRING (pcString, 1, 1) = cFirst .
         END.
-        
+
         RETURN pcString .
 
     END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Returns true when the source string contains at least one of the target strings
+        Notes:
+        @param pcSourceString The string to locate the target strings in
+        @param pcTargetStrings The array of strings to locate in the target string
+        @return Logical value indicating if the source string contains at least on of the target strings
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC STATIC LOGICAL ContainsAnyStringOf (pcSourceString AS LONGCHAR,
+                                                      pcTargetStrings AS CHARACTER EXTENT):
+
+        DEFINE VARIABLE i AS INTEGER NO-UNDO.
+
+        DO i = 1 TO EXTENT (pcTargetStrings):
+            IF INDEX (pcSourceString, pcTargetStrings[i]) > 0 THEN
+                RETURN TRUE .
+        END.
+
+        RETURN FALSE .
+
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Counts the occurences of the given target string in the source string
@@ -173,43 +194,43 @@ CLASS Consultingwerk.Util.StringHelper:
                                                     pcSourceString AS CHARACTER):
 
         DEFINE VARIABLE iCount  AS INTEGER   NO-UNDO .
-        DEFINE VARIABLE iPos    AS INTEGER   NO-UNDO INIT 1.
+        DEFINE VARIABLE iPos    AS INTEGER   NO-UNDO INITIAL 1.
         DEFINE VARIABLE iLength AS INTEGER   NO-UNDO .
         DEFINE VARIABLE cChar   AS CHARACTER NO-UNDO .
-        
+
         Assert:Equals (1, LENGTH (pcTargetString)) .
-        
-        ASSIGN iLength = LENGTH (pcSourceString) . 
-        
+
+        ASSIGN iLength = LENGTH (pcSourceString) .
+
         DO WHILE iPos <= iLength ON ERROR UNDO, THROW:
-            ASSIGN cChar = SUBSTRING (pcSourceString, iPos, 1) .    
-            
+            ASSIGN cChar = SUBSTRING (pcSourceString, iPos, 1) .
+
             CASE cChar:
-                WHEN pcTargetString THEN 
+                WHEN pcTargetString THEN
                     iCount = iCount + 1 .
-                WHEN "'":U OR WHEN '"':U THEN 
+                WHEN "'":U OR WHEN '"':U THEN
                     ASSIGN iPos = StringHelper:FindClosingQuote (pcSourceString, iPos) .
-            END CASE . 
-            
+            END CASE .
+
             iPos = iPos + 1 .
         END.
-        
+
         RETURN iCount .
 
     END METHOD.
-    
+
     /*------------------------------------------------------------------------------
-        Purpose: Returns TRUE when the given source string ends in the ending string 
+        Purpose: Returns TRUE when the given source string ends in the ending string
         Notes:   Equivalint to the ABL BEGINS operator / function
         @param pcSourceString The source string to check if it ends with the ending string
         @param pcEndingString The string to check if the source string ends with
         @return Logical value indicating if the given source string ends in the ending string
     ------------------------------------------------------------------------------*/
-    METHOD PUBLIC STATIC LOGICAL Ends (pcSourceString AS CHARACTER, 
+    METHOD PUBLIC STATIC LOGICAL Ends (pcSourceString AS CHARACTER,
                                        pcEndingString AS CHARACTER):
-        
-        IF pcSourceString MATCHES SUBSTITUTE ("*&1":U, pcEndingString) THEN 
-            RETURN TRUE . 
+
+        IF pcSourceString MATCHES SUBSTITUTE ("*&1":U, pcEndingString) THEN
+            RETURN TRUE .
 
         RETURN FALSE .
 
@@ -217,130 +238,139 @@ CLASS Consultingwerk.Util.StringHelper:
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the position of the closing bracket for the bracket opened
-                 at the given position in the String 
+                 at the given position in the String
         Notes:   Ignores brackets that are within a quote
         Throws:  Consultingwerk.Exceptions.UnmatchedBracketException, Consultingwerk.Exceptions.InvalidParameterValueException
-        @param pcString The LONGCHAR string to locate the closing bracket in 
+        @param pcString The LONGCHAR string to locate the closing bracket in
         @param piPosition The position of the opening bracket in the string
         @return The position of the closing quote
     ------------------------------------------------------------------------------*/
-    METHOD PUBLIC STATIC INTEGER FindClosingBracket (pcString AS LONGCHAR, 
+    METHOD PUBLIC STATIC INTEGER FindClosingBracket (pcString AS LONGCHAR,
                                                      piPosition AS INTEGER):
-        
-        DEFINE VARIABLE cBracket        AS CHARACTER     NO-UNDO INIT "":U.
+
+        DEFINE VARIABLE cBracket        AS CHARACTER     NO-UNDO INITIAL "":U.
         DEFINE VARIABLE cClosingBracket AS CHARACTER NO-UNDO.
         DEFINE VARIABLE iPos            AS INTEGER       NO-UNDO .
         DEFINE VARIABLE cChar           AS CHARACTER     NO-UNDO .
         DEFINE VARIABLE iLevel          AS INTEGER       NO-UNDO .
 
         ASSIGN cBracket = SUBSTRING (pcString, piPosition, 1) .
-        
+
         CASE cBracket:
-            WHEN "(":U THEN 
-                ASSIGN cClosingBracket = ")":U . 
-            WHEN "~{":U THEN 
-                ASSIGN cClosingBracket = "}":U . 
-            WHEN "[":U THEN 
-                ASSIGN cClosingBracket = "]":U . 
-            OTHERWISE 
+            WHEN "(":U THEN
+                ASSIGN cClosingBracket = ")":U .
+            WHEN "~{":U THEN
+                ASSIGN cClosingBracket = "}":U .
+            WHEN "[":U THEN
+                ASSIGN cClosingBracket = "]":U .
+            OTHERWISE
                 UNDO, THROW NEW InvalidParameterValueException ("piPosition":U,
                                                                 STRING (piPosition),
                                                                 "Consultingwerk.Util.StringHelper":U) .
-        END CASE . 
-        
+        END CASE .
+
         DO iPos = piPosition TO LENGTH (pcString):
             ASSIGN cChar = SUBSTRING (pcString, iPos, 1) .
 
-            IF cChar = cBracket THEN 
-                ASSIGN iLevel = iLevel + 1 . 
-            ELSE IF cChar = cClosingBracket THEN 
-                ASSIGN iLevel = iLevel - 1 . 
-            ELSE IF cChar = "~"":U OR cChar = "'":U THEN 
+            IF cChar = cBracket THEN
+                ASSIGN iLevel = iLevel + 1 .
+            ELSE IF cChar = cClosingBracket THEN
+                ASSIGN iLevel = iLevel - 1 .
+            ELSE IF cChar = "~"":U OR cChar = "'":U THEN
                 ASSIGN iPos = StringHelper:FindClosingQuote (pcString, iPos) .
-        
-            IF iLevel = 0 THEN 
-                RETURN iPos . 
+
+            IF iLevel = 0 THEN
+                RETURN iPos .
         END .
-        
+
         UNDO, THROW NEW UnmatchedBracketException (pcString, cBracket, piPosition) .
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the position of the closing comment for the comment opened
-                 at the given position in the String 
-        Notes:   Returns the position of a / of the comment terminator star slash, 
-                 Comments in quotes are ignored, it is however expected that the 
+                 at the given position in the String
+        Notes:   Returns the position of a / of the comment terminator star slash,
+                 Comments in quotes are ignored, it is however expected that the
                  opening comment is not inside a quote
         Throws:  Consultingwerk.Exceptions.UnmatchedCommentException, Consultingwerk.Exceptions.InvalidParameterValueException
-        @param pcString The LONGCHAR string to locate the closing bracket in 
+        @param pcString The LONGCHAR string to locate the closing bracket in
         @param piPosition The position of the opening bracket in the string
         @return The position of the closing quote
     ------------------------------------------------------------------------------*/
-    METHOD PUBLIC STATIC INTEGER FindClosingComment (pcString AS LONGCHAR, 
+    METHOD PUBLIC STATIC INTEGER FindClosingComment (pcString AS LONGCHAR,
                                                      piPosition AS INTEGER):
-        
-        DEFINE VARIABLE cOpeningComment AS CHARACTER     NO-UNDO INIT "":U.
-        DEFINE VARIABLE cClosingComment AS CHARACTER     NO-UNDO INIT "*/":U.
+
+        DEFINE VARIABLE cOpeningComment AS CHARACTER     NO-UNDO INITIAL "":U.
+        DEFINE VARIABLE cClosingComment AS CHARACTER     NO-UNDO INITIAL "*/":U.
         DEFINE VARIABLE iPos            AS INTEGER       NO-UNDO .
         DEFINE VARIABLE cChar           AS CHARACTER     NO-UNDO .
         DEFINE VARIABLE cChar2          AS CHARACTER     NO-UNDO .
         DEFINE VARIABLE iLevel          AS INTEGER       NO-UNDO .
 
         ASSIGN cOpeningComment = SUBSTRING (pcString, piPosition, 2) .
-        
-        IF cOpeningComment <> "/*":U THEN  
+
+        IF cOpeningComment <> "/*":U THEN
                 UNDO, THROW NEW InvalidParameterValueException ("piPosition":U,
                                                                 STRING (piPosition),
                                                                 "Consultingwerk.Util.StringHelper":U) .
-        
+
         DO iPos = piPosition TO LENGTH (pcString) - 1:
-            ASSIGN cChar  = SUBSTRING (pcString, iPos, 1) 
+            ASSIGN cChar  = SUBSTRING (pcString, iPos, 1)
                    cChar2 = SUBSTRING (pcString, iPos, 2).
 
-            IF cChar2 = cOpeningComment THEN 
-                ASSIGN iLevel = iLevel + 1 . 
-            ELSE IF cChar2 = cClosingComment THEN 
-                ASSIGN iLevel = iLevel - 1 . 
-            ELSE IF cChar = "~"":U OR cChar = "'":U THEN 
-                ASSIGN iPos = StringHelper:FindClosingQuote (pcString, iPos) .
-        
-            IF iLevel = 0 THEN 
-                RETURN iPos + 1 . 
+            IF cChar2 = cOpeningComment THEN
+                ASSIGN iLevel = iLevel + 1 .
+            ELSE IF cChar2 = cClosingComment THEN
+                ASSIGN iLevel = iLevel - 1 .
+            /* A quote character within an open comment does not escape
+               a closing comment */
+/*            ELSE IF cChar = "~"":U OR cChar = "'":U THEN                      */
+/*                ASSIGN iPos = StringHelper:FindClosingQuote (pcString, iPos) .*/
+
+            IF iLevel = 0 THEN
+                RETURN iPos + 1 .
+
+            /* Mike Fechner, Consultingwerk Ltd. 07.06.2016
+               SCL-1347: Issue parsing two closing comments without a space
+                         inbetween. The 2nd and 3rd character might be recognized
+                         as an opening comment adding 1 to iLevel */
+            IF cChar2 = cOpeningComment OR cChar2 = cClosingComment THEN
+                ASSIGN iPos = iPos + 1 .
         END .
-        
+
         UNDO, THROW NEW UnmatchedCommentException (pcString, piPosition) .
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns the position of the closing quote sign (either " or ') in a String 
-        Notes:   
+        Purpose: Returns the position of the closing quote sign (either " or ') in a String
+        Notes:
         Throws:  Consultingwerk.Exceptions.UnmatchedQuoteException, Consultingwerk.Exceptions.InvalidParameterValueException
-        @param pcString The LONGCHAR string to locate the closing quote in 
+        @param pcString The LONGCHAR string to locate the closing quote in
         @param piPosition The position of the opening quote in the string
         @return The position of the closing quote
     ------------------------------------------------------------------------------*/
-    METHOD PUBLIC STATIC INTEGER FindClosingQuote (pcString AS LONGCHAR, 
+    METHOD PUBLIC STATIC INTEGER FindClosingQuote (pcString AS LONGCHAR,
                                                    piPosition AS INTEGER):
-        
-        DEFINE VARIABLE cQuoteChar AS CHARACTER     NO-UNDO INIT "":U.
+
+        DEFINE VARIABLE cQuoteChar AS CHARACTER     NO-UNDO INITIAL "":U.
         DEFINE VARIABLE iPos       AS INTEGER       NO-UNDO .
         DEFINE VARIABLE cChar      AS CHARACTER     NO-UNDO .
-        DEFINE VARIABLE lInQuote   AS LOGICAL       NO-UNDO INIT FALSE .
+        DEFINE VARIABLE lInQuote   AS LOGICAL       NO-UNDO INITIAL FALSE .
 
         ASSIGN cQuoteChar = SUBSTRING (pcString, piPosition, 1) .
-        
-        IF cQuoteChar <> "~"":U AND cQuoteChar <> "'":U THEN 
+
+        IF cQuoteChar <> "~"":U AND cQuoteChar <> "'":U THEN
             UNDO, THROW NEW InvalidParameterValueException ("piPosition":U,
                                                             STRING (piPosition),
                                                             "Consultingwerk.Util.StringHelper":U) .
         pcString = TRIM (pcString) .
-        
-        DO iPos = piPosition + 1 TO LENGTH (pcString):
-            ASSIGN cChar = SUBSTRING (pcString, iPos, 1) .  
 
-            IF cChar = "~"":U OR 
+        DO iPos = piPosition + 1 TO LENGTH (pcString):
+            ASSIGN cChar = SUBSTRING (pcString, iPos, 1) .
+
+            IF cChar = "~"":U OR
                cChar = "'":U THEN DO:
                 IF cQuoteChar = "":U THEN DO:
                     ASSIGN cQuoteChar = cChar
@@ -350,7 +380,7 @@ CLASS Consultingwerk.Util.StringHelper:
                     ASSIGN lInQuote   = FALSE
                            cQuoteChar = "":U .
 
-                    RETURN iPos . 
+                    RETURN iPos .
                 END.
             END. /* " or ' */
         END.
@@ -360,8 +390,8 @@ CLASS Consultingwerk.Util.StringHelper:
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns the first non empty string of the parameter list 
-        Notes:   
+        Purpose: Returns the first non empty string of the parameter list
+        Notes:
         @param pcString1 The first string
         @param pcString2 The second string
         @return The first non empty string of the parameter list
@@ -369,16 +399,16 @@ CLASS Consultingwerk.Util.StringHelper:
     METHOD PUBLIC STATIC CHARACTER FirstNonEmptyString (pcString1 AS CHARACTER,
                                                         pcString2 AS CHARACTER):
 
-        IF pcString1 > "":U THEN RETURN pcString1 . 
-        IF pcString2 > "":U THEN RETURN pcString2 . 
-        
+        IF pcString1 > "":U THEN RETURN pcString1 .
+        IF pcString2 > "":U THEN RETURN pcString2 .
+
         RETURN "":U.
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns the first non empty string of the parameter list 
-        Notes:   
+        Purpose: Returns the first non empty string of the parameter list
+        Notes:
         @param pcString1 The first string
         @param pcString2 The second string
         @param pcString3 The third string
@@ -388,17 +418,17 @@ CLASS Consultingwerk.Util.StringHelper:
                                                         pcString2 AS CHARACTER,
                                                         pcString3 AS CHARACTER):
 
-        IF pcString1 > "":U THEN RETURN pcString1 . 
-        IF pcString2 > "":U THEN RETURN pcString2 . 
-        IF pcString3 > "":U THEN RETURN pcString3 . 
-        
+        IF pcString1 > "":U THEN RETURN pcString1 .
+        IF pcString2 > "":U THEN RETURN pcString2 .
+        IF pcString3 > "":U THEN RETURN pcString3 .
+
         RETURN "":U.
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns the first non empty string of the parameter list 
-        Notes:   
+        Purpose: Returns the first non empty string of the parameter list
+        Notes:
         @param pcString1 The first string
         @param pcString2 The second string
         @param pcString3 The third string
@@ -410,18 +440,18 @@ CLASS Consultingwerk.Util.StringHelper:
                                                         pcString3 AS CHARACTER,
                                                         pcString4 AS CHARACTER):
 
-        IF pcString1 > "":U THEN RETURN pcString1 . 
-        IF pcString2 > "":U THEN RETURN pcString2 . 
-        IF pcString3 > "":U THEN RETURN pcString3 . 
-        IF pcString4 > "":U THEN RETURN pcString4 . 
-        
+        IF pcString1 > "":U THEN RETURN pcString1 .
+        IF pcString2 > "":U THEN RETURN pcString2 .
+        IF pcString3 > "":U THEN RETURN pcString3 .
+        IF pcString4 > "":U THEN RETURN pcString4 .
+
         RETURN "":U.
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns the first non empty string of the parameter list 
-        Notes:   
+        Purpose: Returns the first non empty string of the parameter list
+        Notes:
         @param pcString1 The first string
         @param pcString2 The second string
         @param pcString3 The third string
@@ -435,19 +465,19 @@ CLASS Consultingwerk.Util.StringHelper:
                                                         pcString4 AS CHARACTER,
                                                         pcString5 AS CHARACTER):
 
-        IF pcString1 > "":U THEN RETURN pcString1 . 
-        IF pcString2 > "":U THEN RETURN pcString2 . 
-        IF pcString3 > "":U THEN RETURN pcString3 . 
-        IF pcString4 > "":U THEN RETURN pcString4 . 
-        IF pcString5 > "":U THEN RETURN pcString5 . 
-        
+        IF pcString1 > "":U THEN RETURN pcString1 .
+        IF pcString2 > "":U THEN RETURN pcString2 .
+        IF pcString3 > "":U THEN RETURN pcString3 .
+        IF pcString4 > "":U THEN RETURN pcString4 .
+        IF pcString5 > "":U THEN RETURN pcString5 .
+
         RETURN "":U.
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns the first non empty string of the parameter list 
-        Notes:   
+        Purpose: Returns the first non empty string of the parameter list
+        Notes:
         @param pcString1 The first string
         @param pcString2 The second string
         @param pcString3 The third string
@@ -463,20 +493,20 @@ CLASS Consultingwerk.Util.StringHelper:
                                                         pcString5 AS CHARACTER,
                                                         pcString6 AS CHARACTER):
 
-        IF pcString1 > "":U THEN RETURN pcString1 . 
-        IF pcString2 > "":U THEN RETURN pcString2 . 
-        IF pcString3 > "":U THEN RETURN pcString3 . 
-        IF pcString4 > "":U THEN RETURN pcString4 . 
-        IF pcString5 > "":U THEN RETURN pcString5 . 
-        IF pcString6 > "":U THEN RETURN pcString6 . 
-        
+        IF pcString1 > "":U THEN RETURN pcString1 .
+        IF pcString2 > "":U THEN RETURN pcString2 .
+        IF pcString3 > "":U THEN RETURN pcString3 .
+        IF pcString4 > "":U THEN RETURN pcString4 .
+        IF pcString5 > "":U THEN RETURN pcString5 .
+        IF pcString6 > "":U THEN RETURN pcString6 .
+
         RETURN "":U.
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns the first non empty string of the parameter list 
-        Notes:   
+        Purpose: Returns the first non empty string of the parameter list
+        Notes:
         @param pcString1 The first string
         @param pcString2 The second string
         @param pcString3 The third string
@@ -494,21 +524,21 @@ CLASS Consultingwerk.Util.StringHelper:
                                                         pcString6 AS CHARACTER,
                                                         pcString7 AS CHARACTER):
 
-        IF pcString1 > "":U THEN RETURN pcString1 . 
-        IF pcString2 > "":U THEN RETURN pcString2 . 
-        IF pcString3 > "":U THEN RETURN pcString3 . 
-        IF pcString4 > "":U THEN RETURN pcString4 . 
-        IF pcString5 > "":U THEN RETURN pcString5 . 
-        IF pcString6 > "":U THEN RETURN pcString6 . 
-        IF pcString7 > "":U THEN RETURN pcString7 . 
-        
+        IF pcString1 > "":U THEN RETURN pcString1 .
+        IF pcString2 > "":U THEN RETURN pcString2 .
+        IF pcString3 > "":U THEN RETURN pcString3 .
+        IF pcString4 > "":U THEN RETURN pcString4 .
+        IF pcString5 > "":U THEN RETURN pcString5 .
+        IF pcString6 > "":U THEN RETURN pcString6 .
+        IF pcString7 > "":U THEN RETURN pcString7 .
+
         RETURN "":U.
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns the first non empty string of the parameter list 
-        Notes:   
+        Purpose: Returns the first non empty string of the parameter list
+        Notes:
         @param pcString1 The first string
         @param pcString2 The second string
         @param pcString3 The third string
@@ -528,22 +558,22 @@ CLASS Consultingwerk.Util.StringHelper:
                                                         pcString7 AS CHARACTER,
                                                         pcString8 AS CHARACTER):
 
-        IF pcString1 > "":U THEN RETURN pcString1 . 
-        IF pcString2 > "":U THEN RETURN pcString2 . 
-        IF pcString3 > "":U THEN RETURN pcString3 . 
-        IF pcString4 > "":U THEN RETURN pcString4 . 
-        IF pcString5 > "":U THEN RETURN pcString5 . 
-        IF pcString6 > "":U THEN RETURN pcString6 . 
-        IF pcString7 > "":U THEN RETURN pcString7 . 
-        IF pcString8 > "":U THEN RETURN pcString8 . 
-        
+        IF pcString1 > "":U THEN RETURN pcString1 .
+        IF pcString2 > "":U THEN RETURN pcString2 .
+        IF pcString3 > "":U THEN RETURN pcString3 .
+        IF pcString4 > "":U THEN RETURN pcString4 .
+        IF pcString5 > "":U THEN RETURN pcString5 .
+        IF pcString6 > "":U THEN RETURN pcString6 .
+        IF pcString7 > "":U THEN RETURN pcString7 .
+        IF pcString8 > "":U THEN RETURN pcString8 .
+
         RETURN "":U.
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns the first non empty string of the parameter list 
-        Notes:   
+        Purpose: Returns the first non empty string of the parameter list
+        Notes:
         @param pcString1 The first string
         @param pcString2 The second string
         @param pcString3 The third string
@@ -565,23 +595,23 @@ CLASS Consultingwerk.Util.StringHelper:
                                                         pcString8 AS CHARACTER,
                                                         pcString9 AS CHARACTER):
 
-        IF pcString1 > "":U THEN RETURN pcString1 . 
-        IF pcString2 > "":U THEN RETURN pcString2 . 
-        IF pcString3 > "":U THEN RETURN pcString3 . 
-        IF pcString4 > "":U THEN RETURN pcString4 . 
-        IF pcString5 > "":U THEN RETURN pcString5 . 
-        IF pcString6 > "":U THEN RETURN pcString6 . 
-        IF pcString7 > "":U THEN RETURN pcString7 . 
-        IF pcString8 > "":U THEN RETURN pcString8 . 
-        IF pcString9 > "":U THEN RETURN pcString9 . 
-        
+        IF pcString1 > "":U THEN RETURN pcString1 .
+        IF pcString2 > "":U THEN RETURN pcString2 .
+        IF pcString3 > "":U THEN RETURN pcString3 .
+        IF pcString4 > "":U THEN RETURN pcString4 .
+        IF pcString5 > "":U THEN RETURN pcString5 .
+        IF pcString6 > "":U THEN RETURN pcString6 .
+        IF pcString7 > "":U THEN RETURN pcString7 .
+        IF pcString8 > "":U THEN RETURN pcString8 .
+        IF pcString9 > "":U THEN RETURN pcString9 .
+
         RETURN "":U.
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns the first non empty string of the parameter list 
-        Notes:   
+        Purpose: Returns the first non empty string of the parameter list
+        Notes:
         @param pcString1 The first string
         @param pcString2 The second string
         @param pcString3 The third string
@@ -594,37 +624,37 @@ CLASS Consultingwerk.Util.StringHelper:
         @param pcString10 The tenth string
         @return The first non empty string of the parameter list
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC CHARACTER FirstNonEmptyString (pcString1 AS CHARACTER,
-	                                                    pcString2 AS CHARACTER,
-	                                                    pcString3 AS CHARACTER,
-	                                                    pcString4 AS CHARACTER,
-	                                                    pcString5 AS CHARACTER,
-	                                                    pcString6 AS CHARACTER,
-	                                                    pcString7 AS CHARACTER,
-	                                                    pcString8 AS CHARACTER,
-	                                                    pcString9 AS CHARACTER,
-	                                                    pcString10 AS CHARACTER):
+    METHOD PUBLIC STATIC CHARACTER FirstNonEmptyString (pcString1 AS CHARACTER,
+                                                        pcString2 AS CHARACTER,
+                                                        pcString3 AS CHARACTER,
+                                                        pcString4 AS CHARACTER,
+                                                        pcString5 AS CHARACTER,
+                                                        pcString6 AS CHARACTER,
+                                                        pcString7 AS CHARACTER,
+                                                        pcString8 AS CHARACTER,
+                                                        pcString9 AS CHARACTER,
+                                                        pcString10 AS CHARACTER):
 
-        IF pcString1 > "":U THEN RETURN pcString1 . 
-        IF pcString2 > "":U THEN RETURN pcString2 . 
-        IF pcString3 > "":U THEN RETURN pcString3 . 
-        IF pcString4 > "":U THEN RETURN pcString4 . 
-        IF pcString5 > "":U THEN RETURN pcString5 . 
-        IF pcString6 > "":U THEN RETURN pcString6 . 
-        IF pcString7 > "":U THEN RETURN pcString7 . 
-        IF pcString8 > "":U THEN RETURN pcString8 . 
-        IF pcString9 > "":U THEN RETURN pcString9 . 
-        IF pcString10 > "":U THEN RETURN pcString10 . 
-		
-		RETURN "":U.
+        IF pcString1 > "":U THEN RETURN pcString1 .
+        IF pcString2 > "":U THEN RETURN pcString2 .
+        IF pcString3 > "":U THEN RETURN pcString3 .
+        IF pcString4 > "":U THEN RETURN pcString4 .
+        IF pcString5 > "":U THEN RETURN pcString5 .
+        IF pcString6 > "":U THEN RETURN pcString6 .
+        IF pcString7 > "":U THEN RETURN pcString7 .
+        IF pcString8 > "":U THEN RETURN pcString8 .
+        IF pcString9 > "":U THEN RETURN pcString9 .
+        IF pcString10 > "":U THEN RETURN pcString10 .
 
-	END METHOD .
+        RETURN "":U.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns the first non empty string of the provided array 
-        Notes:   
+        Purpose: Returns the first non empty string of the provided array
+        Notes:
         @param pcStrings The first string
-        @return The first non empty string of the array 
+        @return The first non empty string of the array
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CHARACTER FirstNonEmptyString (pcStrings AS CHARACTER EXTENT):
 
@@ -633,73 +663,73 @@ CLASS Consultingwerk.Util.StringHelper:
         DO i = 1 TO EXTENT (pcStrings):
             IF pcStrings[i] > "":U THEN pcStrings[i] .
         END.
-        
+
         RETURN "":U.
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns the first position of any of the given characters in the 
-                 source string 
+        Purpose: Returns the first position of any of the given characters in the
+                 source string
         Notes:   Returns 0 when none of the characters can be found
         @param pcSourceString The source string
         @param pcCharacters The comma-delimited list of characters
         @return The first position of any of the given characters
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC INTEGER FirstOccurenceOf (pcSourceString AS CHARACTER, 
-	                                               pcCharacters   AS CHARACTER):
-		   
+    METHOD PUBLIC STATIC INTEGER FirstOccurenceOf (pcSourceString AS CHARACTER,
+                                                   pcCharacters   AS CHARACTER):
+
         RETURN StringHelper:FirstOccurenceOf (pcSourceString, pcCharacters, 0) .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns the first position of any of the given characters in the 
-                 source string 
+        Purpose: Returns the first position of any of the given characters in the
+                 source string
         Notes:   Returns 0 when none of the characters can be found
         @param pcSourceString The source string
         @param pcCharacters The comma-delimited list of characters
         @param piStarting An integer that specifies at which left-most position in the string to start the search
         @return The first position of any of the given characters
     ------------------------------------------------------------------------------*/
-    METHOD PUBLIC STATIC INTEGER FirstOccurenceOf (pcSourceString AS CHARACTER, 
+    METHOD PUBLIC STATIC INTEGER FirstOccurenceOf (pcSourceString AS CHARACTER,
                                                    pcCharacters   AS CHARACTER,
                                                    piStarting     AS INTEGER):
-        
+
         DEFINE VARIABLE i         AS INTEGER NO-UNDO .
         DEFINE VARIABLE iCount    AS INTEGER NO-UNDO .
-        DEFINE VARIABLE iPosition AS INTEGER NO-UNDO INIT 0.
+        DEFINE VARIABLE iPosition AS INTEGER NO-UNDO INITIAL 0.
         DEFINE VARIABLE iTmp      AS INTEGER NO-UNDO .
-        
+
         ASSIGN iCount = NUM-ENTRIES (pcCharacters) .
-    
+
         DO i = 1 TO iCount:
-            IF piStarting > 0 THEN 
+            IF piStarting > 0 THEN
                 ASSIGN iTmp = INDEX (pcSourceString, ENTRY (i, pcCharacters), piStarting) .
-            ELSE 
+            ELSE
                 ASSIGN iTmp = INDEX (pcSourceString, ENTRY (i, pcCharacters)) .
-            
-            IF iTmp = 0 THEN 
-                NEXT . 
-                
-            IF iPosition = 0 THEN 
-                ASSIGN iPosition = iTmp . 
-            ELSE 
-                ASSIGN iPosition = MIN (iTmp, iPosition) . 
+
+            IF iTmp = 0 THEN
+                NEXT .
+
+            IF iPosition = 0 THEN
+                ASSIGN iPosition = iTmp .
+            ELSE
+                ASSIGN iPosition = MINIMUM (iTmp, iPosition) .
         END.
-    
+
         RETURN iPosition .
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Fixes the line ending characters of the given longchar 
+        Purpose: Fixes the line ending characters of the given longchar
         Notes:   Line Ending will be set to Consultingwerk.Environment:NewLine
         @param plcString The Longchar to fix the line ending at
         @return The Longchar value with the fixed line ending characters
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC LONGCHAR FixLineEnding (plcString AS LONGCHAR):
-        
+
 
         ASSIGN plcString = REPLACE (plcString, CHR(13), "":U)
                plcString = REPLACE (plcString, CHR(10), Consultingwerk.Environment:NewLine) .
@@ -710,19 +740,19 @@ CLASS Consultingwerk.Util.StringHelper:
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the CHARACTER representation of a new UUID
-        Notes:   
+        Notes:
         @return The CHARACTER representation of the new UUID
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CHARACTER GenerateUuid ():
-        
+
         DEFINE VARIABLE rUuid       AS RAW       NO-UNDO .
-        DEFINE VARIABLE cBase64Uuid AS CHARACTER NO-UNDO . 
-        
-        ASSIGN   
-            rUuid       = GENERATE-UUID  
+        DEFINE VARIABLE cBase64Uuid AS CHARACTER NO-UNDO .
+
+        ASSIGN
+            rUuid       = GENERATE-UUID
             cBase64Uuid = BASE64-ENCODE (rUuid).
 
-        IF cBase64Uuid MATCHES "*==":U THEN 
+        IF cBase64Uuid MATCHES "*==":U THEN
             RETURN SUBSTRING (cBase64Uuid, 1, LENGTH (cBase64Uuid) - 2) .
 
         RETURN cBase64Uuid .
@@ -730,16 +760,16 @@ CLASS Consultingwerk.Util.StringHelper:
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Indents a string by inserting a SPACE character at the beginning 
+        Purpose: Indents a string by inserting a SPACE character at the beginning
                  of every line
-        Notes:   
+        Notes:
         @param pcString The string to indent
         @param piIndent The number of characters to indent the string
         @return The indented string
     ------------------------------------------------------------------------------*/
-    METHOD PUBLIC STATIC CHARACTER Indent (pcString AS CHARACTER,  
+    METHOD PUBLIC STATIC CHARACTER Indent (pcString AS CHARACTER,
                                            piIndent AS INTEGER):
-        
+
         DEFINE VARIABLE cResult AS CHARACTER NO-UNDO .
         DEFINE VARIABLE i       AS INTEGER   NO-UNDO .
         DEFINE VARIABLE iLines  AS INTEGER   NO-UNDO .
@@ -748,12 +778,12 @@ CLASS Consultingwerk.Util.StringHelper:
         ASSIGN iLines = NUM-ENTRIES (pcString, CHR (10)) .
 
         DO i = 1 TO iLines:
-            
-            ASSIGN cLine = ENTRY (i, pcString, CHR (10)) 
-                    
-                   cResult = cResult + 
-                             FILL (" ":U, piIndent) + 
-                             cLine + 
+
+            ASSIGN cLine = ENTRY (i, pcString, CHR (10))
+
+                   cResult = cResult +
+                             FILL (" ":U, piIndent) +
+                             cLine +
                              (IF i < iLines THEN CHR (10) ELSE "":U) .
         END.
 
@@ -762,16 +792,16 @@ CLASS Consultingwerk.Util.StringHelper:
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Indents a string by inserting a SPACE character at the beginning 
+        Purpose: Indents a string by inserting a SPACE character at the beginning
                  of every line
-        Notes:   
+        Notes:
         @param plcString The string to indent
         @param piIndent The number of characters to indent the string
         @return The indented string
     ------------------------------------------------------------------------------*/
-    METHOD PUBLIC STATIC CHARACTER Indent (plcString AS LONGCHAR,  
+    METHOD PUBLIC STATIC CHARACTER Indent (plcString AS LONGCHAR,
                                            piIndent AS INTEGER):
-        
+
         DEFINE VARIABLE cResult AS CHARACTER NO-UNDO .
         DEFINE VARIABLE i       AS INTEGER   NO-UNDO .
         DEFINE VARIABLE iLines  AS INTEGER   NO-UNDO .
@@ -780,12 +810,12 @@ CLASS Consultingwerk.Util.StringHelper:
         ASSIGN iLines = NUM-ENTRIES (plcString, CHR (10)) .
 
         DO i = 1 TO iLines:
-            
-            ASSIGN cLine = ENTRY (i, plcString, CHR (10)) 
-                    
-                   cResult = cResult + 
-                             FILL (" ":U, piIndent) + 
-                             cLine + 
+
+            ASSIGN cLine = ENTRY (i, plcString, CHR (10))
+
+                   cResult = cResult +
+                             FILL (" ":U, piIndent) +
+                             cLine +
                              (IF i < iLines THEN CHR (10) ELSE "":U) .
         END.
 
@@ -795,123 +825,184 @@ CLASS Consultingwerk.Util.StringHelper:
 
     /*------------------------------------------------------------------------------
         Purpose: Inserts a string into another string at a give position
-        Notes:   
+        Notes:
         @param pcSourceString The source string, into which you want to insert another string
         @param piPosition The position at which you want to insert the target string
         @param pcTargetString The target string, which will be inserted into the source string
         @return The Source String with the Target string inserted
     ------------------------------------------------------------------------------*/
-    METHOD PUBLIC STATIC CHARACTER Insert (pcSourceString AS CHARACTER, 
-                                           piPosition AS INTEGER, 
+    METHOD PUBLIC STATIC CHARACTER Insert (pcSourceString AS CHARACTER,
+                                           piPosition AS INTEGER,
                                            pcTargetString AS CHARACTER):
-        
+
         DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
 
-        IF piPosition > 1 THEN 
+        IF piPosition > 1 THEN
             cResult = SUBSTRING (pcSourceString, 1, piPosition - 1) .
 
-        ASSIGN cResult = cResult + 
-                         pcTargetString + 
+        ASSIGN cResult = cResult +
+                         pcTargetString +
                          SUBSTRING (pcSourceString, piPosition) .
 
-        RETURN cResult . 
+        RETURN cResult .
 
     END METHOD .
-    
+
     /*------------------------------------------------------------------------------
         Purpose: Inserts a string into another string at a give position
-        Notes:   
+        Notes:
         @param pcSourceString The source string, into which you want to insert another string
         @param piPosition The position at which you want to insert the target string
         @param pcTargetString The target string, which will be inserted into the source string
         @return The Source String with the Target string inserted
     ------------------------------------------------------------------------------*/
-    METHOD PUBLIC STATIC LONGCHAR Insert (pcSourceString AS LONGCHAR, 
-                                          piPosition AS INTEGER, 
+    METHOD PUBLIC STATIC LONGCHAR Insert (pcSourceString AS LONGCHAR,
+                                          piPosition AS INTEGER,
                                           pcTargetString AS CHARACTER):
-        
+
         DEFINE VARIABLE cResult AS LONGCHAR NO-UNDO.
 
-        IF piPosition > 1 THEN 
+        IF piPosition > 1 THEN
             cResult = SUBSTRING (pcSourceString, 1, piPosition - 1) .
 
-        ASSIGN cResult = cResult + 
-                         pcTargetString + 
+        ASSIGN cResult = cResult +
+                         pcTargetString +
                          SUBSTRING (pcSourceString, piPosition) .
 
-        RETURN cResult . 
+        RETURN cResult .
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns true when the given character is UPPERCASE 
-        Notes:   
+        Purpose: Returns true when the given character is UPPERCASE
+        Notes:
         @param pcCharacter The character to test
-        @return True when the given character is UPPERCASE 
+        @return True when the given character is UPPERCASE
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC LOGICAL IsLowercaseCharacter (pcCharacter AS CHARACTER):
-        
+
         DEFINE VARIABLE cCharacter AS CHARACTER NO-UNDO.
-        
-        IF LENGTH (pcCharacter) > 0 THEN . 
-        ELSE  
+
+        IF LENGTH (pcCharacter) > 0 THEN .
+        ELSE
             UNDO, THROW NEW AppError (SUBSTITUTE ("Invalid Character &1."{&TRAN}, pcCharacter), 0) .
-        
+
         ASSIGN cCharacter = SUBSTRING (pcCharacter, 1, 1) .
-        
-        RETURN ASC (cCharacter) = ASC (LC (cCharacter)) . 
+
+        RETURN ASC (cCharacter) = ASC (LC (cCharacter)) .
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns true when the given character is UPPERCASE 
-        Notes:   
+        Purpose: Returns true when the given character is UPPERCASE
+        Notes:
         @param pcCharacter The character to test
-        @return True when the given character is UPPERCASE 
+        @return True when the given character is UPPERCASE
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC LOGICAL IsUppercaseCharacter (pcCharacter AS CHARACTER):
-        
+
         DEFINE VARIABLE cCharacter AS CHARACTER NO-UNDO.
-        
-        IF LENGTH (pcCharacter) > 0 THEN . 
-        ELSE  
+
+        IF LENGTH (pcCharacter) > 0 THEN .
+        ELSE
             UNDO, THROW NEW AppError (SUBSTITUTE ("Invalid Character &1."{&TRAN}, pcCharacter), 0) .
-        
+
         ASSIGN cCharacter = SUBSTRING (pcCharacter, 1, 1) .
-        
-        RETURN ASC (cCharacter) = ASC (UPPER (cCharacter)) . 
+
+        RETURN ASC (cCharacter) = ASC (UPPER (cCharacter)) .
+
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Returns position of the next non whispace character
+        Notes:   Returns the starting position, when that's not a white space
+        @param pcSourceString The string to search in
+        @return The position of the next non white space character
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC STATIC INTEGER NextNonWhiteSpaceCharacter (pcSourceString AS LONGCHAR):
+
+        RETURN StringHelper:NextNonWhiteSpaceCharacter (pcSourceString, 1) .
+
+    END METHOD .
+
+    /**
+     * Purpose: Ensures the first character is lower case
+     * Notes:
+     * @param pcString The input string
+     * @return The string with the first letter lowercased
+     */
+    METHOD PUBLIC STATIC CHARACTER LowercaseFirstLetter (pcString AS CHARACTER):
+
+        DEFINE VARIABLE i AS INTEGER NO-UNDO.
+
+        ASSIGN i = ASC (SUBSTRING (pcString, 1, 1)) .
+
+        IF i >= 65 AND i <= 90 THEN
+            ASSIGN SUBSTRING (pcString, 1, 1) = CHR (i + 32) .
+
+        RETURN pcString .
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Returns position of the next non whispace character
+        Notes:   Returns the starting position, when that's not a white space, returns ?
+                 when no non whitespace character was found
+        @param pcSourceString The string to search in
+        @param piStartingPosition The position to start searching at
+        @return The position of the next non white space character
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC STATIC INTEGER NextNonWhiteSpaceCharacter (pcSourceString AS LONGCHAR,
+                                                             piStartingPosition AS INTEGER):
+
+        DEFINE VARIABLE iLength AS INTEGER NO-UNDO .
+        DEFINE VARIABLE i       AS INTEGER NO-UNDO .
+        DEFINE VARIABLE cChar   AS CHARACTER NO-UNDO.
+
+        ASSIGN iLength = LENGTH (pcSourceString) .
+
+        DO i = piStartingPosition TO iLength:
+
+            ASSIGN cChar = SUBSTRING (pcSourceString, i, 1) .
+
+            IF cChar <> CHR (9) AND cChar <> CHR (10) AND cChar <> CHR (13) AND cChar <> CHR (32) THEN
+                RETURN i .
+
+        END.
+
+        RETURN ? .
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Prefixes every line in the given LONGCHAR with a given CHARACTR
-        Notes:   Useful for formatted log-file output  
+        Notes:   Useful for formatted log-file output
         @param plcLongchar The source LONGCHAR value
         @param pcPrefix The prefix to add to each line from the source LONGCHAR
         @return The new LONGCHAR value
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC LONGCHAR PrefixLines (plcLongchar AS LONGCHAR,
                                                pcPrefix AS CHARACTER):
-        
+
         DEFINE VARIABLE cResult AS LONGCHAR  NO-UNDO .
         DEFINE VARIABLE i       AS INTEGER   NO-UNDO .
         DEFINE VARIABLE iLines  AS INTEGER   NO-UNDO .
         DEFINE VARIABLE cLine   AS CHARACTER NO-UNDO .
 
-        IF IS-CODEPAGE-FIXED (plcLongchar) THEN 
-            FIX-CODEPAGE (cResult) = GET-CODEPAGE (plcLongchar) . 
+        IF IS-CODEPAGE-FIXED (plcLongchar) THEN
+            FIX-CODEPAGE (cResult) = GET-CODEPAGE (plcLongchar) .
 
-        ASSIGN plcLongchar = TRIM (TRIM(plcLongchar, CHR (13)), CHR(10)) . 
+        ASSIGN plcLongchar = TRIM (TRIM(plcLongchar, CHR (13)), CHR(10)) .
 
         ASSIGN iLines = NUM-ENTRIES (plcLongchar, CHR (10)) .
 
         DO i = 1 TO iLines:
-            
-            ASSIGN cLine = TRIM(ENTRY (i, plcLongchar, CHR (10)), CHR(13))  
-                    
-                   cResult = cResult + 
-                             pcPrefix + 
-                             cLine + 
+
+            ASSIGN cLine = TRIM(ENTRY (i, plcLongchar, CHR (10)), CHR(13))
+
+                   cResult = cResult +
+                             pcPrefix +
+                             cLine +
                              Consultingwerk.Environment:NewLine .
         END.
 
@@ -921,131 +1012,131 @@ CLASS Consultingwerk.Util.StringHelper:
 
     /*------------------------------------------------------------------------------
         Purpose: Returns an CharacterList of the Entries in a delimited String
-        Notes:   This method is similar to the ABL ENTRY/NUM-ENTRIES functions, but 
+        Notes:   This method is similar to the ABL ENTRY/NUM-ENTRIES functions, but
                  does consider " or ' and ( ) when parsing the string
         @param pcString The delimited string
         @return The CharacterList with the entries from the source delimited string
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CharacterList QuoteAndBracketSafeEntriesToList (pcString AS CHARACTER):
-        
+
         RETURN QuoteAndBracketSafeEntriesToList (pcString, ",":U).
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Returns an CharacterList of the Entries in a delimited String
-        Notes:   This method is similar to the ABL ENTRY/NUM-ENTRIES functions, but 
+        Notes:   This method is similar to the ABL ENTRY/NUM-ENTRIES functions, but
                  does consider " or ' and ( ) when parsing the string
         @param pcString The delimited string
         @param pcDelimiter The string delimiter (single char)
         @return The CharacterList with the entries from the source delimited string
     ------------------------------------------------------------------------------*/
-    METHOD PUBLIC STATIC CharacterList QuoteAndBracketSafeEntriesToList (pcString AS CHARACTER, 
+    METHOD PUBLIC STATIC CharacterList QuoteAndBracketSafeEntriesToList (pcString AS CHARACTER,
                                                                          pcDelimiter AS CHARACTER):
-        
+
         DEFINE VARIABLE oList  AS CharacterList NO-UNDO .
         DEFINE VARIABLE iPos   AS INTEGER       NO-UNDO .
-        DEFINE VARIABLE iStart AS INTEGER       NO-UNDO INIT 1.
+        DEFINE VARIABLE iStart AS INTEGER       NO-UNDO INITIAL 1.
         DEFINE VARIABLE cChar  AS CHARACTER     NO-UNDO .
         DEFINE VARIABLE cPart  AS CHARACTER     NO-UNDO .
-    
-        IF LENGTH (pcDelimiter) <> 1 THEN 
-            UNDO, THROW NEW AppError ("The delimiter must be exactly a single character."{&TRAN}, 0) . 
-        
+
+        IF LENGTH (pcDelimiter) <> 1 THEN
+            UNDO, THROW NEW AppError ("The delimiter must be exactly a single character."{&TRAN}, 0) .
+
         oList = NEW CharacterList ("":U, CHR(1)) .
 
         DO iPos = 1 TO LENGTH (pcString):
-        
+
             ASSIGN cChar = SUBSTRING (pcString, iPos, 1) .
 
             IF cChar = pcDelimiter THEN DO:
-            
-                ASSIGN cPart = SUBSTRING (pcString, iStart, iPos - iStart) . 
-            
-                IF cPart = "":U THEN cPart = " ":U . 
-        
-                oList:Add (cPart) .  
-                iStart = iPos + 1 .               
-                
-                NEXT. 
+
+                ASSIGN cPart = SUBSTRING (pcString, iStart, iPos - iStart) .
+
+                IF cPart = "":U THEN cPart = " ":U .
+
+                oList:Add (cPart) .
+                iStart = iPos + 1 .
+
+                NEXT.
             END.
-            
-            IF cChar = "'":U OR cChar = '"':U THEN 
+
+            IF cChar = "'":U OR cChar = '"':U THEN
                 ASSIGN iPos = StringHelper:FindClosingQuote (pcString, iPos) .
-             
-            IF cChar = "(":U THEN 
+
+            IF cChar = "(":U THEN
                 ASSIGN iPos = StringHelper:FindClosingBracket (pcString, iPos) .
-        END. 
+        END.
 
         oList:Add (SUBSTRING (pcString, iStart, iPos - iStart)) .
 
         RETURN oList.
 
     END METHOD.
-    
+
     /*------------------------------------------------------------------------------
         Purpose: Returns an CharacterList of the Entries in a delimited String
-        Notes:   This method is similar to the ABL ENTRY/NUM-ENTRIES functions, but 
+        Notes:   This method is similar to the ABL ENTRY/NUM-ENTRIES functions, but
                  does consider " or ' when parsing the string
         @param pcString The delimited string
         @return The CharacterList with the entries from the source delimited string
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CharacterList QuoteSafeEntriesToList (pcString AS CHARACTER):
-        
+
         RETURN QuoteSafeEntriesToList (pcString, ",":U).
 
     END METHOD.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Returns an CharacterList of the Entries in a delimited String
-	    Notes:   This method is similar to the ABL ENTRY/NUM-ENTRIES functions, but 
-	             does consider " or ' when parsing the string
-	    @param pcString The delimited string
-	    @param pcDelimiter The string delimiter (single char)
-	    @return The CharacterList with the entries from the source delimited string
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC CharacterList QuoteSafeEntriesToList (pcString AS CHARACTER, 
-	                                                           pcDelimiter AS CHARACTER):
-		
-		DEFINE VARIABLE oList  AS CharacterList NO-UNDO .
+    /*------------------------------------------------------------------------------
+        Purpose: Returns an CharacterList of the Entries in a delimited String
+        Notes:   This method is similar to the ABL ENTRY/NUM-ENTRIES functions, but
+                 does consider " or ' when parsing the string
+        @param pcString The delimited string
+        @param pcDelimiter The string delimiter (single char)
+        @return The CharacterList with the entries from the source delimited string
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC STATIC CharacterList QuoteSafeEntriesToList (pcString AS CHARACTER,
+                                                               pcDelimiter AS CHARACTER):
+
+        DEFINE VARIABLE oList  AS CharacterList NO-UNDO .
         DEFINE VARIABLE iPos   AS INTEGER       NO-UNDO .
-        DEFINE VARIABLE iStart AS INTEGER       NO-UNDO INIT 1.
+        DEFINE VARIABLE iStart AS INTEGER       NO-UNDO INITIAL 1.
         DEFINE VARIABLE cChar  AS CHARACTER     NO-UNDO .
         DEFINE VARIABLE cPart  AS CHARACTER     NO-UNDO .
-    
-        IF LENGTH (pcDelimiter) <> 1 THEN 
-            UNDO, THROW NEW AppError ("The delimiter must be exactly a single character."{&TRAN}, 0) . 
-        
+
+        IF LENGTH (pcDelimiter) <> 1 THEN
+            UNDO, THROW NEW AppError ("The delimiter must be exactly a single character."{&TRAN}, 0) .
+
         oList = NEW CharacterList ("":U, CHR(1)) .
 
         DO iPos = 1 TO LENGTH (pcString):
-        
+
             ASSIGN cChar = SUBSTRING (pcString, iPos, 1) .
 
             IF cChar = pcDelimiter THEN DO:
-            
-                ASSIGN cPart = SUBSTRING (pcString, iStart, iPos - iStart) . 
-            
-                IF cPart = "":U THEN cPart = " ":U . 
-        
-                oList:Add (cPart) .  
-                iStart = iPos + 1 .               
-                
-                NEXT. 
+
+                ASSIGN cPart = SUBSTRING (pcString, iStart, iPos - iStart) .
+
+                IF cPart = "":U THEN cPart = " ":U .
+
+                oList:Add (cPart) .
+                iStart = iPos + 1 .
+
+                NEXT.
             END.
-            
-            IF cChar = "'":U OR cChar = '"':U THEN 
+
+            IF cChar = "'":U OR cChar = '"':U THEN
                 ASSIGN iPos = StringHelper:FindClosingQuote (pcString, iPos) .
-        END. 
+        END.
 
         oList:Add (SUBSTRING (pcString, iStart, iPos - iStart)) .
 
-		RETURN oList.
+        RETURN oList.
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Removes the given prefix at the beginning of the passed in String  
+        Purpose: Removes the given prefix at the beginning of the passed in String
         Notes:   When the String does not begin with the prefix, the original string
                  is returned
         @param pcSourceString The source string to remove the prefix from
@@ -1054,16 +1145,16 @@ CLASS Consultingwerk.Util.StringHelper:
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CHARACTER RemovePrefix (pcSourceString AS CHARACTER,
                                                  pcPrefixString AS CHARACTER):
-        
-        IF pcSourceString BEGINS pcPrefixString THEN 
+
+        IF pcSourceString BEGINS pcPrefixString THEN
             RETURN SUBSTRING (pcSourceString, LENGTH (pcPrefixString) + 1) .
-        
-        RETURN pcSourceString . 
+
+        RETURN pcSourceString .
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Removes the given suffix at the beginning of the passed in String  
+        Purpose: Removes the given suffix at the beginning of the passed in String
         Notes:   When the String does not begin with the suffix, the original string
                  is returned
         @param pcSourceString The source string to remove the suffix from
@@ -1072,166 +1163,185 @@ CLASS Consultingwerk.Util.StringHelper:
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CHARACTER RemoveSuffix (pcSourceString AS CHARACTER,
                                                  pcSuffixString AS CHARACTER):
-        
-        IF StringHelper:Ends (pcSourceString, pcSuffixString) THEN 
+
+        IF StringHelper:Ends (pcSourceString, pcSuffixString) THEN
             RETURN SUBSTRING (pcSourceString, 1, LENGTH (pcSourceString) - LENGTH (pcSuffixString)) .
-        
+
         RETURN pcSourceString .
     END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Removes quotes from a Character String
-        Notes:   
+        Notes:
         @param pcString The source string to remove quotes
         @return The string without the quotes
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CHARACTER Unquote (pcString AS CHARACTER):
-        
+
         DEFINE VARIABLE iIndex     AS INTEGER   NO-UNDO .
         DEFINE VARIABLE cQuoteChar AS CHARACTER NO-UNDO .
-        
-        IF pcString = ? THEN 
+
+        IF pcString = ? THEN
             RETURN ? .
-        
+
         ASSIGN pcString = TRIM (pcString) .
-            
-        IF LENGTH (pcString) < 2 THEN 
+
+        IF LENGTH (pcString) < 2 THEN
             RETURN pcString .
-        
+
         ASSIGN cQuoteChar = SUBSTRING (pcString, 1, 1) .
-        
-        IF cQuoteChar <> "'":U AND cQuoteChar <> "~"":U THEN 
-            RETURN pcString . 
-        
+
+        IF cQuoteChar <> "'":U AND cQuoteChar <> "~"":U THEN
+            RETURN pcString .
+
         ASSIGN iIndex = R-INDEX (pcString, cQuoteChar) .
-        
-        IF iIndex > 1 THEN 
-            RETURN SUBSTRING (pcString, 2, iIndex - 2) .    
-            
+
+        IF iIndex > 1 THEN
+            RETURN SUBSTRING (pcString, 2, iIndex - 2) .
+
         UNDO, THROW NEW AppError ("Unmatched QUOTE Character found in source string."{&TRAN}, 0) .
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Removes quotes from a Longchar String
-        Notes:   
+        Notes:
         @param pcString The source string to remove quotes
         @return The string without the quotes
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC LONGCHAR Unquote (pcString AS LONGCHAR):
-        
+
         DEFINE VARIABLE iIndex     AS INTEGER   NO-UNDO .
         DEFINE VARIABLE cQuoteChar AS CHARACTER NO-UNDO .
-        
-        IF pcString = ? THEN 
+
+        IF pcString = ? THEN
             RETURN ? .
-        
+
         ASSIGN pcString = TRIM (pcString) .
-            
-        IF LENGTH (pcString) < 2 THEN 
+
+        IF LENGTH (pcString) < 2 THEN
             RETURN pcString .
-        
+
         ASSIGN cQuoteChar = SUBSTRING (pcString, 1, 1) .
-        
-        IF cQuoteChar <> "'":U AND cQuoteChar <> "~"":U THEN 
-            RETURN pcString . 
-        
+
+        IF cQuoteChar <> "'":U AND cQuoteChar <> "~"":U THEN
+            RETURN pcString .
+
         ASSIGN iIndex = R-INDEX (pcString, cQuoteChar) .
-        
-        IF iIndex > 1 THEN 
-            RETURN SUBSTRING (pcString, 2, iIndex - 2) .    
-            
+
+        IF iIndex > 1 THEN
+            RETURN SUBSTRING (pcString, 2, iIndex - 2) .
+
         UNDO, THROW NEW AppError ("Unmatched QUOTE Character found in source string."{&TRAN}, 0) .
 
     END METHOD .
 
+    /**
+     * Purpose: Ensures the first character is UPPER case
+     * Notes:
+     * @param pcString The input string
+     * @return The string with the first letter uppercased
+     */
+    METHOD PUBLIC STATIC CHARACTER UppercaseFirstLetter (pcString AS CHARACTER):
+
+        DEFINE VARIABLE i AS INTEGER NO-UNDO.
+
+        ASSIGN i = ASC (SUBSTRING (pcString, 1, 1)) .
+
+        IF i >= 97 AND i <= 122 THEN
+            ASSIGN SUBSTRING (pcString, 1, 1) = CHR (i - 32) .
+
+        RETURN pcString .
+
+    END METHOD.
+
     /*------------------------------------------------------------------------------
-        Purpose: Encodes unsafe characters in a URL as per RFC 1738 section 2.2. 
-                 http://ds.internic.net/rfc/rfc1738.txt 
+        Purpose: Encodes unsafe characters in a URL as per RFC 1738 section 2.2.
+                 http://ds.internic.net/rfc/rfc1738.txt
         Notes:   See Progress K-Base 000042261, http://knowledgebase.progress.com/articles/Article/000042261
         @param pcValue Character string to encode
         @param pcEnctype Encoding option where "query", "cookie", "default" or any specified string of characters are valid
-        @return Encoded string (unkown value is returned as blank) 
+        @return Encoded string (unkown value is returned as blank)
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CHARACTER UrlEncode (pcValue AS CHARACTER,
                                               pcEnctype AS CHARACTER):
-        
-        DEFINE VARIABLE cHex        AS CHARACTER   NO-UNDO INITIAL "0123456789ABCDEF":U. 
-        DEFINE VARIABLE cEncodeList AS CHARACTER   NO-UNDO INITIAL "query":U.
-         
-        DEFINE VARIABLE iCounter    AS INTEGER     NO-UNDO. 
-        DEFINE VARIABLE cChar       AS INTEGER     NO-UNDO. 
-         
-        /* Unsafe characters that must be encoded in URL's.  See RFC 1738 Sect 2.2. */
-        DEFINE VARIABLE cUnsafe   AS CHARACTER NO-UNDO 
-               INITIAL " <>~"#%~{}|~\^~~[]`":U.
-         
-        /* Reserved characters that normally are not encoded in URL's */
-        DEFINE VARIABLE cReserved AS CHARACTER NO-UNDO 
-               INITIAL "~;/?:@=&":U.
-         
-        /* Don't bother with blank or unknown */ 
-        IF LENGTH(pcValue) = 0 OR pcValue = ? THEN 
-            RETURN "":U. 
-         
-        /* What kind of encoding should be used? */ 
-        CASE pcEnctype: 
-            WHEN "query":U THEN /* QUERY_STRING name=value parts */ 
-                cEncodeList = cUnsafe + cReserved + "+":U. 
-            WHEN "cookie":U THEN /* Persistent Cookies */ 
-                cEncodeList = cUnsafe + " ,~;":U. 
-            WHEN "default":U OR WHEN "":U THEN /* Standard URL encoding */ 
-                cEncodeList = cUnsafe. 
-            OTHERWISE 
-                cEncodeList = cUnsafe + pcEnctype. /* user specified ... */ 
-        END CASE. 
-         
-        /* Loop through entire input string */ 
-        iCounter = 0. 
-        DO WHILE TRUE: 
-            ASSIGN iCounter = iCounter + 1 
-                   /* ASCII value of character using single byte codepage */ 
-                   cChar = ASC(SUBSTRING(pcValue, iCounter, 1, "RAW":U), 
-                               "1252":U, 
-                               "1252":U). 
-            IF cChar LE 31  OR 
-               cChar GE 127 OR 
-               INDEX(cEncodeList, CHR(cChar)) GT 0 THEN DO: 
-                   /* Replace character with %hh hexidecimal triplet */ 
-                   SUBSTRING(pcValue, iCounter, 1, "RAW":U) = "%":U + 
-                      SUBSTRING(cHex, INTEGER(TRUNCATE(cChar / 16, 0)) + 1, 1, "RAW":U) + /* high */ 
-                      SUBSTRING(cHex, cChar MODULO 16 + 1, 1, "RAW":U). /* low digit */ 
-          
-                   iCounter = iCounter + 2. /* skip over hex triplet just inserted */ 
-            END. 
-            IF iCounter EQ LENGTH(pcValue,"RAW":U) THEN LEAVE. 
-        END. 
 
-        RETURN pcValue . 
+        DEFINE VARIABLE cHex        AS CHARACTER   NO-UNDO INITIAL "0123456789ABCDEF":U.
+        DEFINE VARIABLE cEncodeList AS CHARACTER   NO-UNDO INITIAL "query":U.
+
+        DEFINE VARIABLE iCounter    AS INTEGER     NO-UNDO.
+        DEFINE VARIABLE cChar       AS INTEGER     NO-UNDO.
+
+        /* Unsafe characters that must be encoded in URL's.  See RFC 1738 Sect 2.2. */
+        DEFINE VARIABLE cUnsafe   AS CHARACTER NO-UNDO
+               INITIAL " <>~"#%~{}|~\^~~[]`":U.
+
+        /* Reserved characters that normally are not encoded in URL's */
+        DEFINE VARIABLE cReserved AS CHARACTER NO-UNDO
+               INITIAL "~;/?:@=&":U.
+
+        /* Don't bother with blank or unknown */
+        IF LENGTH(pcValue) = 0 OR pcValue = ? THEN
+            RETURN "":U.
+
+        /* What kind of encoding should be used? */
+        CASE pcEnctype:
+            WHEN "query":U THEN /* QUERY_STRING name=value parts */
+                cEncodeList = cUnsafe + cReserved + "+":U.
+            WHEN "cookie":U THEN /* Persistent Cookies */
+                cEncodeList = cUnsafe + " ,~;":U.
+            WHEN "default":U OR WHEN "":U THEN /* Standard URL encoding */
+                cEncodeList = cUnsafe.
+            OTHERWISE
+                cEncodeList = cUnsafe + pcEnctype. /* user specified ... */
+        END CASE.
+
+        /* Loop through entire input string */
+        iCounter = 0.
+        DO WHILE TRUE:
+            ASSIGN iCounter = iCounter + 1
+                   /* ASCII value of character using single byte codepage */
+                   cChar = ASC(SUBSTRING(pcValue, iCounter, 1, "RAW":U),
+                               "1252":U,
+                               "1252":U).
+            IF cChar LE 31  OR
+               cChar GE 127 OR
+               INDEX(cEncodeList, CHR(cChar)) GT 0 THEN DO:
+                   /* Replace character with %hh hexidecimal triplet */
+                   SUBSTRING(pcValue, iCounter, 1, "RAW":U) = "%":U +
+                      SUBSTRING(cHex, INTEGER(TRUNCATE(cChar / 16, 0)) + 1, 1, "RAW":U) + /* high */
+                      SUBSTRING(cHex, cChar MODULO 16 + 1, 1, "RAW":U). /* low digit */
+
+                   iCounter = iCounter + 2. /* skip over hex triplet just inserted */
+            END.
+            IF iCounter EQ LENGTH(pcValue,"RAW":U) THEN LEAVE.
+        END.
+
+        RETURN pcValue .
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Turns a CamelCased string into a well formed sentence (Camel Cased) 
-        Notes:   
+        Purpose: Turns a CamelCased string into a well formed sentence (Camel Cased)
+        Notes:
         @param pcSource The source String
         @return The well formed string
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CHARACTER WellFormFromCamelCase (pcSource AS CHARACTER):
-        
+
         DEFINE VARIABLE cResult AS CHARACTER NO-UNDO .
         DEFINE VARIABLE i       AS INTEGER   NO-UNDO .
-        
+
         ASSIGN cResult = SUBSTRING (pcSource, 1, 1) .
-        
+
         DO i = 2 TO LENGTH (pcSource):
-            
-             IF SUBSTRING (pcSource, i, 1) <> " ":U AND 
+
+             IF SUBSTRING (pcSource, i, 1) <> " ":U AND
                 SUBSTRING (pcSource, i - 1, 1) <> " ":U AND
-                IsUppercaseCharacter (SUBSTRING (pcSource, i, 1)) AND 
-                IsLowercaseCharacter (SUBSTRING (pcSource, i - 1, 1)) THEN 
-                  
-                 cResult = cResult + " ":U . 
-        
+                IsUppercaseCharacter (SUBSTRING (pcSource, i, 1)) AND
+                IsLowercaseCharacter (SUBSTRING (pcSource, i - 1, 1)) THEN
+
+                 cResult = cResult + " ":U .
+
              ASSIGN cResult = cResult + SUBSTRING (pcSource, i, 1) .
         END .
 

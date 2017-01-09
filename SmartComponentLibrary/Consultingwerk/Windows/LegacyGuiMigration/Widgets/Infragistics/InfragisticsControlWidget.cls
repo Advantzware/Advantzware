@@ -39,13 +39,13 @@ CLASS Consultingwerk.Windows.LegacyGuiMigration.Widgets.Infragistics.Infragistic
         Notes:   
         @param poControl The UltraControlBase reference of the target Control
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PROTECTED InfragisticsControlWidget (poControl AS UltraControlBase):
-		SUPER (poControl).
-		
+    CONSTRUCTOR PROTECTED InfragisticsControlWidget (poControl AS UltraControlBase):
+        SUPER (poControl).
+        
         ObjectAssert:IsValid (poControl, "poControl":U) .
-		
-		IF TYPE-OF (poControl, UltraCheckEditor) THEN 
-		    CAST (poControl, UltraCheckEditor):CheckedChanged:Subscribe (ValueChangedHandler) .
+        
+        IF TYPE-OF (poControl, UltraCheckEditor) THEN 
+            CAST (poControl, UltraCheckEditor):CheckedChanged:Subscribe (ValueChangedHandler) .
         ELSE IF TYPE-OF (poControl, TextEditorControlBase) THEN 
             CAST (poControl, TextEditorControlBase):ValueChanged:Subscribe (ValueChangedHandler) . 
         ELSE IF TYPE-OF (poControl, UltraNumericEditorBase) THEN 
@@ -56,8 +56,8 @@ CLASS Consultingwerk.Windows.LegacyGuiMigration.Widgets.Infragistics.Infragistic
         ELSE 
             MESSAGE "Unable to subscribe to ValueChanged event for: "{&TRAN} + poControl:GetType():FullName 
                 VIEW-AS ALERT-BOX WARNING .
-		
-	END CONSTRUCTOR.
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the ValueChanged event of the .NET Control 

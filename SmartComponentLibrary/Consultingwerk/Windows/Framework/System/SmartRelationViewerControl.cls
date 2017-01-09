@@ -85,10 +85,11 @@ CLASS Consultingwerk.Windows.Framework.System.SmartRelationViewerControl
         
     END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design
-        Notes:   
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
         
         /* NOTE: The following method is automatically generated.
@@ -104,6 +105,9 @@ CLASS Consultingwerk.Windows.Framework.System.SmartRelationViewerControl
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance1 AS Infragistics.Win.Appearance NO-UNDO.
         appearance1 = NEW Infragistics.Win.Appearance().
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE resources AS Progress.Util.ResourceManager NO-UNDO.
+        resources = NEW Progress.Util.ResourceManager("Consultingwerk.Windows.Framework.System.SmartRelationViewerControl":U).
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance2 AS Infragistics.Win.Appearance NO-UNDO.
         appearance2 = NEW Infragistics.Win.Appearance().
@@ -204,250 +208,201 @@ CLASS Consultingwerk.Windows.Framework.System.SmartRelationViewerControl
         /*  */
         appearance1:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:tbParentTableGUID_Label:Appearance = appearance1.
-        THIS-OBJECT:tbParentTableGUID_Label:AutoSize = TRUE.
-        THIS-OBJECT:tbParentTableGUID_Label:Location = NEW System.Drawing.Point(9, 110).
+        resources:ApplyResources(THIS-OBJECT:tbParentTableGUID_Label, "tbParentTableGUID_Label":U).
         THIS-OBJECT:tbParentTableGUID_Label:Name = "tbParentTableGUID_Label":U.
-        THIS-OBJECT:tbParentTableGUID_Label:Size = NEW System.Drawing.Size(72, 14).
-        THIS-OBJECT:tbParentTableGUID_Label:TabIndex = 5.
-        THIS-OBJECT:tbParentTableGUID_Label:Text = "Parent Table:":U.
         /*  */
         /* tbChildTableGUID_Label */
         /*  */
         appearance2:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:tbChildTableGUID_Label:Appearance = appearance2.
-        THIS-OBJECT:tbChildTableGUID_Label:AutoSize = TRUE.
-        THIS-OBJECT:tbChildTableGUID_Label:Location = NEW System.Drawing.Point(9, 136).
+        resources:ApplyResources(THIS-OBJECT:tbChildTableGUID_Label, "tbChildTableGUID_Label":U).
         THIS-OBJECT:tbChildTableGUID_Label:Name = "tbChildTableGUID_Label":U.
-        THIS-OBJECT:tbChildTableGUID_Label:Size = NEW System.Drawing.Size(65, 14).
-        THIS-OBJECT:tbChildTableGUID_Label:TabIndex = 10.
-        THIS-OBJECT:tbChildTableGUID_Label:Text = "Child Table:":U.
         /*  */
         /* tbRelationName_Label */
         /*  */
         appearance3:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:tbRelationName_Label:Appearance = appearance3.
-        THIS-OBJECT:tbRelationName_Label:AutoSize = TRUE.
-        THIS-OBJECT:tbRelationName_Label:Location = NEW System.Drawing.Point(9, 7).
+        resources:ApplyResources(THIS-OBJECT:tbRelationName_Label, "tbRelationName_Label":U).
         THIS-OBJECT:tbRelationName_Label:Name = "tbRelationName_Label":U.
-        THIS-OBJECT:tbRelationName_Label:Size = NEW System.Drawing.Size(38, 14).
-        THIS-OBJECT:tbRelationName_Label:TabIndex = 0.
-        THIS-OBJECT:tbRelationName_Label:Text = "Name:":U.
         /*  */
         /* tbRelationName */
         /*  */
-        DEFINE VARIABLE nestedvar0 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar0 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:tbRelationName:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar0, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:tbRelationName, "tbRelationName":U).
         THIS-OBJECT:tbRelationName:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "RelationName":U, TRUE)).
         THIS-OBJECT:tbRelationName:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:tbRelationName:Location = NEW System.Drawing.Point(119, 3).
         THIS-OBJECT:tbRelationName:Name = "tbRelationName":U.
-        THIS-OBJECT:tbRelationName:Size = NEW System.Drawing.Size(441, 21).
-        THIS-OBJECT:tbRelationName:TabIndex = 1.
         /*  */
         /* tbRelationDescription_Label */
         /*  */
         appearance4:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:tbRelationDescription_Label:Appearance = appearance4.
-        THIS-OBJECT:tbRelationDescription_Label:AutoSize = TRUE.
-        THIS-OBJECT:tbRelationDescription_Label:Location = NEW System.Drawing.Point(9, 33).
+        resources:ApplyResources(THIS-OBJECT:tbRelationDescription_Label, "tbRelationDescription_Label":U).
         THIS-OBJECT:tbRelationDescription_Label:Name = "tbRelationDescription_Label":U.
-        THIS-OBJECT:tbRelationDescription_Label:Size = NEW System.Drawing.Size(64, 14).
-        THIS-OBJECT:tbRelationDescription_Label:TabIndex = 3.
-        THIS-OBJECT:tbRelationDescription_Label:Text = "Description:":U.
         /*  */
         /* tbRelationDescription */
         /*  */
-        DEFINE VARIABLE nestedvar1 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar1 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:tbRelationDescription:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar1, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:tbRelationDescription, "tbRelationDescription":U).
         THIS-OBJECT:tbRelationDescription:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "RelationDescription":U, TRUE)).
         THIS-OBJECT:tbRelationDescription:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:tbRelationDescription:Location = NEW System.Drawing.Point(119, 30).
-        THIS-OBJECT:tbRelationDescription:Multiline = TRUE.
         THIS-OBJECT:tbRelationDescription:Name = "tbRelationDescription":U.
         THIS-OBJECT:tbRelationDescription:Scrollbars = System.Windows.Forms.ScrollBars:Both.
-        THIS-OBJECT:tbRelationDescription:Size = NEW System.Drawing.Size(597, 70).
-        THIS-OBJECT:tbRelationDescription:TabIndex = 4.
         /*  */
         /* tbRelationFieldPair_Label */
         /*  */
         appearance5:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:tbRelationFieldPair_Label:Appearance = appearance5.
-        THIS-OBJECT:tbRelationFieldPair_Label:AutoSize = TRUE.
-        THIS-OBJECT:tbRelationFieldPair_Label:Location = NEW System.Drawing.Point(9, 163).
+        resources:ApplyResources(THIS-OBJECT:tbRelationFieldPair_Label, "tbRelationFieldPair_Label":U).
         THIS-OBJECT:tbRelationFieldPair_Label:Name = "tbRelationFieldPair_Label":U.
-        THIS-OBJECT:tbRelationFieldPair_Label:Size = NEW System.Drawing.Size(107, 14).
-        THIS-OBJECT:tbRelationFieldPair_Label:TabIndex = 15.
-        THIS-OBJECT:tbRelationFieldPair_Label:Text = "RelationFieldPair(s):":U.
         /*  */
         /* tbRelationFieldPair */
         /*  */
-        DEFINE VARIABLE nestedvar2 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar2 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:tbRelationFieldPair:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar2, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:tbRelationFieldPair, "tbRelationFieldPair":U).
         THIS-OBJECT:tbRelationFieldPair:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "RelationFieldPair":U, TRUE)).
         THIS-OBJECT:tbRelationFieldPair:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:tbRelationFieldPair:Location = NEW System.Drawing.Point(119, 159).
         THIS-OBJECT:tbRelationFieldPair:Name = "tbRelationFieldPair":U.
-        THIS-OBJECT:tbRelationFieldPair:Size = NEW System.Drawing.Size(597, 21).
-        THIS-OBJECT:tbRelationFieldPair:TabIndex = 16.
         /*  */
         /* tbParentRoleDescription_Label */
         /*  */
         appearance6:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:tbParentRoleDescription_Label:Appearance = appearance6.
-        THIS-OBJECT:tbParentRoleDescription_Label:AutoSize = TRUE.
-        THIS-OBJECT:tbParentRoleDescription_Label:Location = NEW System.Drawing.Point(358, 106).
+        resources:ApplyResources(THIS-OBJECT:tbParentRoleDescription_Label, "tbParentRoleDescription_Label":U).
         THIS-OBJECT:tbParentRoleDescription_Label:Name = "tbParentRoleDescription_Label":U.
-        THIS-OBJECT:tbParentRoleDescription_Label:Size = NEW System.Drawing.Size(127, 14).
-        THIS-OBJECT:tbParentRoleDescription_Label:TabIndex = 8.
-        THIS-OBJECT:tbParentRoleDescription_Label:Text = "Parent Role Description:":U.
         /*  */
         /* tbParentRoleDescription */
         /*  */
-        DEFINE VARIABLE nestedvar3 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar3 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:tbParentRoleDescription:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar3, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:tbParentRoleDescription, "tbParentRoleDescription":U).
         THIS-OBJECT:tbParentRoleDescription:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "ParentRoleDescription":U, TRUE)).
         THIS-OBJECT:tbParentRoleDescription:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:tbParentRoleDescription:Location = NEW System.Drawing.Point(491, 106).
         THIS-OBJECT:tbParentRoleDescription:Name = "tbParentRoleDescription":U.
-        THIS-OBJECT:tbParentRoleDescription:Size = NEW System.Drawing.Size(225, 21).
-        THIS-OBJECT:tbParentRoleDescription:TabIndex = 9.
         /*  */
         /* tbChildRoleDescription_Label */
         /*  */
         appearance7:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:tbChildRoleDescription_Label:Appearance = appearance7.
-        THIS-OBJECT:tbChildRoleDescription_Label:AutoSize = TRUE.
-        THIS-OBJECT:tbChildRoleDescription_Label:Location = NEW System.Drawing.Point(358, 132).
+        resources:ApplyResources(THIS-OBJECT:tbChildRoleDescription_Label, "tbChildRoleDescription_Label":U).
         THIS-OBJECT:tbChildRoleDescription_Label:Name = "tbChildRoleDescription_Label":U.
-        THIS-OBJECT:tbChildRoleDescription_Label:Size = NEW System.Drawing.Size(119, 14).
-        THIS-OBJECT:tbChildRoleDescription_Label:TabIndex = 13.
-        THIS-OBJECT:tbChildRoleDescription_Label:Text = "Child Role Description:":U.
         /*  */
         /* tbChildRoleDescription */
         /*  */
-        DEFINE VARIABLE nestedvar4 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar4 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:tbChildRoleDescription:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar4, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:tbChildRoleDescription, "tbChildRoleDescription":U).
         THIS-OBJECT:tbChildRoleDescription:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "ChildRoleDescription":U, TRUE)).
         THIS-OBJECT:tbChildRoleDescription:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:tbChildRoleDescription:Location = NEW System.Drawing.Point(491, 132).
         THIS-OBJECT:tbChildRoleDescription:Name = "tbChildRoleDescription":U.
-        THIS-OBJECT:tbChildRoleDescription:Size = NEW System.Drawing.Size(225, 21).
-        THIS-OBJECT:tbChildRoleDescription:TabIndex = 14.
         /*  */
         /* tbOnParentDelete_Label */
         /*  */
         appearance8:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:tbOnParentDelete_Label:Appearance = appearance8.
-        THIS-OBJECT:tbOnParentDelete_Label:AutoSize = TRUE.
-        THIS-OBJECT:tbOnParentDelete_Label:Location = NEW System.Drawing.Point(9, 190).
+        resources:ApplyResources(THIS-OBJECT:tbOnParentDelete_Label, "tbOnParentDelete_Label":U).
         THIS-OBJECT:tbOnParentDelete_Label:Name = "tbOnParentDelete_Label":U.
-        THIS-OBJECT:tbOnParentDelete_Label:Size = NEW System.Drawing.Size(95, 14).
-        THIS-OBJECT:tbOnParentDelete_Label:TabIndex = 17.
-        THIS-OBJECT:tbOnParentDelete_Label:Text = "On Parent Delete:":U.
         /*  */
         /* cbParentCardinality */
         /*  */
         THIS-OBJECT:cbParentCardinality:DataBindings:Add(NEW System.Windows.Forms.Binding("Value":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "ParentCardinality":U, TRUE)).
         THIS-OBJECT:cbParentCardinality:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
         THIS-OBJECT:cbParentCardinality:DropDownStyle = Infragistics.Win.DropDownStyle:DropDownList.
-        THIS-OBJECT:cbParentCardinality:Location = NEW System.Drawing.Point(275, 106).
+        resources:ApplyResources(THIS-OBJECT:cbParentCardinality, "cbParentCardinality":U).
         THIS-OBJECT:cbParentCardinality:Name = "cbParentCardinality":U.
-        THIS-OBJECT:cbParentCardinality:Size = NEW System.Drawing.Size(77, 21).
-        THIS-OBJECT:cbParentCardinality:TabIndex = 7.
         /*  */
         /* cbChildCardinality */
         /*  */
         THIS-OBJECT:cbChildCardinality:DataBindings:Add(NEW System.Windows.Forms.Binding("Value":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "ChildCardinality":U, TRUE)).
         THIS-OBJECT:cbChildCardinality:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
         THIS-OBJECT:cbChildCardinality:DropDownStyle = Infragistics.Win.DropDownStyle:DropDownList.
-        THIS-OBJECT:cbChildCardinality:Location = NEW System.Drawing.Point(275, 132).
+        resources:ApplyResources(THIS-OBJECT:cbChildCardinality, "cbChildCardinality":U).
         THIS-OBJECT:cbChildCardinality:Name = "cbChildCardinality":U.
-        THIS-OBJECT:cbChildCardinality:Size = NEW System.Drawing.Size(77, 21).
-        THIS-OBJECT:cbChildCardinality:TabIndex = 12.
         /*  */
         /* cbOnParentDelete */
         /*  */
         THIS-OBJECT:cbOnParentDelete:DataBindings:Add(NEW System.Windows.Forms.Binding("Value":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "OnParentDelete":U, TRUE)).
         THIS-OBJECT:cbOnParentDelete:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
         THIS-OBJECT:cbOnParentDelete:DropDownStyle = Infragistics.Win.DropDownStyle:DropDownList.
-        THIS-OBJECT:cbOnParentDelete:Location = NEW System.Drawing.Point(119, 186).
+        resources:ApplyResources(THIS-OBJECT:cbOnParentDelete, "cbOnParentDelete":U).
         THIS-OBJECT:cbOnParentDelete:Name = "cbOnParentDelete":U.
-        THIS-OBJECT:cbOnParentDelete:Size = NEW System.Drawing.Size(233, 21).
-        THIS-OBJECT:cbOnParentDelete:TabIndex = 18.
         /*  */
         /* smartBusinessEntityLookup1 */
         /*  */
         editorButton1:Key = "ShowLookupDialog":U.
-        editorButton1:Text = "...":U.
+        resources:ApplyResources(editorButton1, "editorButton1":U).
         THIS-OBJECT:smartBusinessEntityLookup1:ButtonsRight:Add(editorButton1).
         THIS-OBJECT:smartBusinessEntityLookup1:DataBindings:Add(NEW System.Windows.Forms.Binding("LookupKeyValue":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "ParentTableGUID":U, TRUE)).
         THIS-OBJECT:smartBusinessEntityLookup1:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "ParentTableName":U, TRUE)).
         THIS-OBJECT:smartBusinessEntityLookup1:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:smartBusinessEntityLookup1:Location = NEW System.Drawing.Point(119, 106).
+        resources:ApplyResources(THIS-OBJECT:smartBusinessEntityLookup1, "smartBusinessEntityLookup1":U).
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupAdditionalFields = "":U.
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupBrowserExcludeFields = "":U.
         THIS-OBJECT:smartBusinessEntityLookup1:LookupBrowserFields = "DatabaseName,TableName,TableDescription":U.
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupCascade = FALSE.
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupControls = "":U.
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupDialogClassName = "":U.
         THIS-OBJECT:smartBusinessEntityLookup1:LookupDialogFilterFields = "DatabaseName,TableName":U.
         THIS-OBJECT:smartBusinessEntityLookup1:LookupDialogFilterOperators = "BEGINS,BEGINS":U.
-        THIS-OBJECT:smartBusinessEntityLookup1:LookupDialogTitle = "Lookup Database Table":U.
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupDialogOpenQuery = TRUE.
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupDialogQuerySort = "":U.
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupDialogQueryString = "":U.
         THIS-OBJECT:smartBusinessEntityLookup1:LookupEntityName = "Consultingwerk.SmartFramework.System.TableBusinessEntity":U.
         THIS-OBJECT:smartBusinessEntityLookup1:LookupEntityTable = "eSmartTable":U.
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupEntityView = "":U.
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupFields = "":U.
         THIS-OBJECT:smartBusinessEntityLookup1:LookupKeyField = "QualifiedTableName":U.
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupKeyValue = "":U.
         THIS-OBJECT:smartBusinessEntityLookup1:LookupKeyValueColumn = "TableGUID":U.
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupQuerySort = "":U.
         THIS-OBJECT:smartBusinessEntityLookup1:LookupQueryString = "FOR EACH eSmartTable WHERE eSmartTable.QualifiedTableName BEGINS ~"&1~"":U.
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupTimerDelay = 750.
+        THIS-OBJECT:smartBusinessEntityLookup1:LookupTimerDisabled = FALSE.
         THIS-OBJECT:smartBusinessEntityLookup1:Name = "smartBusinessEntityLookup1":U.
-        THIS-OBJECT:smartBusinessEntityLookup1:Size = NEW System.Drawing.Size(150, 21).
-        THIS-OBJECT:smartBusinessEntityLookup1:TabIndex = 6.
+        THIS-OBJECT:smartBusinessEntityLookup1:OwningGrid = ?.
         /*  */
         /* smartBusinessEntityLookup2 */
         /*  */
         editorButton2:Key = "ShowLookupDialog":U.
-        editorButton2:Text = "...":U.
+        resources:ApplyResources(editorButton2, "editorButton2":U).
         THIS-OBJECT:smartBusinessEntityLookup2:ButtonsRight:Add(editorButton2).
         THIS-OBJECT:smartBusinessEntityLookup2:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "ChildTableName":U, TRUE)).
         THIS-OBJECT:smartBusinessEntityLookup2:DataBindings:Add(NEW System.Windows.Forms.Binding("LookupKeyValue":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "ChildTableGUID":U, TRUE)).
         THIS-OBJECT:smartBusinessEntityLookup2:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:smartBusinessEntityLookup2:Location = NEW System.Drawing.Point(119, 132).
+        resources:ApplyResources(THIS-OBJECT:smartBusinessEntityLookup2, "smartBusinessEntityLookup2":U).
+        THIS-OBJECT:smartBusinessEntityLookup2:LookupAdditionalFields = "":U.
+        THIS-OBJECT:smartBusinessEntityLookup2:LookupBrowserExcludeFields = "":U.
         THIS-OBJECT:smartBusinessEntityLookup2:LookupBrowserFields = "DatabaseName,TableName,TableDescription":U.
+        THIS-OBJECT:smartBusinessEntityLookup2:LookupCascade = FALSE.
+        THIS-OBJECT:smartBusinessEntityLookup2:LookupControls = "":U.
+        THIS-OBJECT:smartBusinessEntityLookup2:LookupDialogClassName = "":U.
         THIS-OBJECT:smartBusinessEntityLookup2:LookupDialogFilterFields = "DatabaseName,TableName":U.
         THIS-OBJECT:smartBusinessEntityLookup2:LookupDialogFilterOperators = "BEGINS,BEGINS":U.
-        THIS-OBJECT:smartBusinessEntityLookup2:LookupDialogTitle = "Lookup Database Table":U.
+        THIS-OBJECT:smartBusinessEntityLookup2:LookupDialogOpenQuery = TRUE.
+        THIS-OBJECT:smartBusinessEntityLookup2:LookupDialogQuerySort = "":U.
+        THIS-OBJECT:smartBusinessEntityLookup2:LookupDialogQueryString = "":U.
         THIS-OBJECT:smartBusinessEntityLookup2:LookupEntityName = "Consultingwerk.SmartFramework.System.TableBusinessEntity":U.
         THIS-OBJECT:smartBusinessEntityLookup2:LookupEntityTable = "eSmartTable":U.
+        THIS-OBJECT:smartBusinessEntityLookup2:LookupEntityView = "":U.
+        THIS-OBJECT:smartBusinessEntityLookup2:LookupFields = "":U.
         THIS-OBJECT:smartBusinessEntityLookup2:LookupKeyField = "QualifiedTableName":U.
+        THIS-OBJECT:smartBusinessEntityLookup2:LookupKeyValue = "":U.
         THIS-OBJECT:smartBusinessEntityLookup2:LookupKeyValueColumn = "TableGUID":U.
+        THIS-OBJECT:smartBusinessEntityLookup2:LookupQuerySort = "":U.
         THIS-OBJECT:smartBusinessEntityLookup2:LookupQueryString = "FOR EACH eSmartTable WHERE eSmartTable.QualifiedTableName BEGINS ~"&1~"":U.
+        THIS-OBJECT:smartBusinessEntityLookup2:LookupTimerDelay = 750.
+        THIS-OBJECT:smartBusinessEntityLookup2:LookupTimerDisabled = FALSE.
         THIS-OBJECT:smartBusinessEntityLookup2:Name = "smartBusinessEntityLookup2":U.
-        THIS-OBJECT:smartBusinessEntityLookup2:Size = NEW System.Drawing.Size(150, 21).
-        THIS-OBJECT:smartBusinessEntityLookup2:TabIndex = 11.
+        THIS-OBJECT:smartBusinessEntityLookup2:OwningGrid = ?.
         /*  */
         /* smartBusinessEntityBindingSource1_eSmartRelation_DefaultParentRelation */
         /*  */
-        DEFINE VARIABLE nestedvar5 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar5 = System.Windows.Forms.AnchorStyles:Top.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartRelation_DefaultParentRelation:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar5, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartRelation_DefaultParentRelation, "smartBusinessEntityBindingSource1_eSmartRelation_DefaultParentRelation":U).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartRelation_DefaultParentRelation:DataBindings:Add(NEW System.Windows.Forms.Binding("CheckedValue":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "DefaultParentRelation":U, TRUE)).
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartRelation_DefaultParentRelation:Location = NEW System.Drawing.Point(566, 4).
         THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartRelation_DefaultParentRelation:Name = "smartBusinessEntityBindingSource1_eSmartRelation_DefaultParentRelation":U.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartRelation_DefaultParentRelation:Size = NEW System.Drawing.Size(150, 20).
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartRelation_DefaultParentRelation:TabIndex = 2.
-        THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartRelation_DefaultParentRelation:Text = "Default Parent Relation":U.
         /*  */
         /* eSmartRelation_Inactive */
         /*  */
         THIS-OBJECT:eSmartRelation_Inactive:DataBindings:Add(NEW System.Windows.Forms.Binding("CheckedValue":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "Inactive":U, TRUE)).
-        THIS-OBJECT:eSmartRelation_Inactive:Location = NEW System.Drawing.Point(119, 213).
+        resources:ApplyResources(THIS-OBJECT:eSmartRelation_Inactive, "eSmartRelation_Inactive":U).
         THIS-OBJECT:eSmartRelation_Inactive:Name = "eSmartRelation_Inactive":U.
-        THIS-OBJECT:eSmartRelation_Inactive:Size = NEW System.Drawing.Size(150, 20).
-        THIS-OBJECT:eSmartRelation_Inactive:TabIndex = 19.
-        THIS-OBJECT:eSmartRelation_Inactive:Text = "Inactive":U.
         /*  */
         /* SmartRelationViewerControl */
         /*  */
-        THIS-OBJECT:AutoScaleDimensions = NEW System.Drawing.SizeF(Progress.Util.CastUtil:ToSingle(6), Progress.Util.CastUtil:ToSingle(13)).
+        resources:ApplyResources(THIS-OBJECT, "$this":U).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:smartBusinessEntityLookup2).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:smartBusinessEntityLookup1).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:cbOnParentDelete).
@@ -469,7 +424,6 @@ CLASS Consultingwerk.Windows.Framework.System.SmartRelationViewerControl
         THIS-OBJECT:Controls:Add(THIS-OBJECT:smartBusinessEntityBindingSource1_eSmartRelation_DefaultParentRelation).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:eSmartRelation_Inactive).
         THIS-OBJECT:Name = "SmartRelationViewerControl":U.
-        THIS-OBJECT:Size = NEW System.Drawing.Size(719, 469).
         CAST(THIS-OBJECT:smartBusinessEntityBindingSource1, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:tbRelationName, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:tbRelationDescription, System.ComponentModel.ISupportInitialize):EndInit().

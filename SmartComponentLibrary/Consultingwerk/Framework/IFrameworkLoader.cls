@@ -27,11 +27,11 @@ USING Progress.Lang.*            FROM PROPATH .
 
 INTERFACE Consultingwerk.Framework.IFrameworkLoader:  
   
-	/*------------------------------------------------------------------------------
-		Purpose: Performs the framework initialization 																	  
-		Notes:  									
-		@param poConfigurationProvider The IConfigurationProvider with the configuration for the framework								  
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID Initialize (poConfigurationProvider AS IConfigurationProvider).
+    /*------------------------------------------------------------------------------
+        Purpose: Performs the framework initialization                                                                       
+        Notes:                                      
+        @param poConfigurationProvider The IConfigurationProvider with the configuration for the framework                                  
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC VOID Initialize (poConfigurationProvider AS IConfigurationProvider).
 
 END INTERFACE.

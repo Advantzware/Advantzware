@@ -11,28 +11,28 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : IDefaultActionSubscriber
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Marko Rüterbories / Consultingwerk Ltd.
     Created     : Tue Mar 17 10:57:34 CET 2009
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 USING Consultingwerk.SmartComponents.Implementation.* FROM PROPATH .
 USING Progress.Lang.* FROM ASSEMBLY .
 
-INTERFACE Consultingwerk.SmartComponents.Interfaces.IDefaultActionSubscriber:  
+INTERFACE Consultingwerk.SmartComponents.Interfaces.IDefaultActionSubscriber:
 
-    /*------------------------------------------------------------------------------
-        Purpose: Method to be executed inside the class which implements the Interface
-                 IDefaultActionSubscriber.
-        Notes:   Invoked by the SmartDataBrowser Instance if the DefaultActionHandler 
-                 Method is executed.
-        @param sender The reference to the Instance of the SmartDataBrowser which has invoked the Method
-        @param e The System.EventArgs with the data for this event 
-    ------------------------------------------------------------------------------*/
-    METHOD PUBLIC VOID SmartDataBrowserDefaultActionHandler (sender AS SmartDataBrowser, 
+    /**
+     * Purpose: Method to be executed inside the class which implements the Interface
+     *          IDefaultActionSubscriber.
+     * Notes:   Invoked by the SmartDataBrowser Instance if the DefaultActionHandler
+     *          Method is executed.
+     * @param sender The reference to the Instance of the SmartDataBrowser which has invoked the Method
+     * @param e The System.EventArgs with the data for this event
+     */
+    METHOD PUBLIC VOID SmartDataBrowserDefaultActionHandler (sender AS SmartDataBrowser,
                                                              e AS System.EventArgs).
 
 END INTERFACE.

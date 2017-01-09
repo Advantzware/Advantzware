@@ -30,12 +30,12 @@ USING Progress.Lang.*                 FROM PROPATH .
 CLASS Consultingwerk.Web.Kendo.Grid.FilterOperatorsDate 
     INHERITS JsonSerializable:
 
-    {Consultingwerk/JsonSerializableProperty.i gte CHARACTER "INIT ""Is greater than or equal to"":U"} .
-    {Consultingwerk/JsonSerializableProperty.i gt CHARACTER "INIT ""Is greater than"":U"} .
-    {Consultingwerk/JsonSerializableProperty.i lte CHARACTER "INIT ""Is less than or equal to"":U"} .
-    {Consultingwerk/JsonSerializableProperty.i lt CHARACTER "INIT ""Is less than"":U"} .
-    {Consultingwerk/JsonSerializableProperty.i eq CHARACTER "INIT ""Is equal to"":U"} .
-    {Consultingwerk/JsonSerializableProperty.i neq CHARACTER "INIT ""Is not equal to"":U"} .
+    {Consultingwerk/JsonSerializableProperty11.i gte CHARACTER "INIT ""Is greater than or equal to"":U"} .
+    {Consultingwerk/JsonSerializableProperty11.i gt CHARACTER "INIT ""Is greater than"":U"} .
+    {Consultingwerk/JsonSerializableProperty11.i lte CHARACTER "INIT ""Is less than or equal to"":U"} .
+    {Consultingwerk/JsonSerializableProperty11.i lt CHARACTER "INIT ""Is less than"":U"} .
+    {Consultingwerk/JsonSerializableProperty11.i eq CHARACTER "INIT ""Is equal to"":U"} .
+    {Consultingwerk/JsonSerializableProperty11.i neq CHARACTER "INIT ""Is not equal to"":U"} .
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the FilterOperatorsDate class

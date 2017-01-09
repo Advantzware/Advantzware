@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2006-2013 by Consultingwerk Ltd. ("CW") -            *
+ * Copyright (C) 2006-2016 by Consultingwerk Ltd. ("CW") -            *
  * www.consultingwerk.de and other contributors as listed             *
  * below.  All Rights Reserved.                                       *
  *                                                                    *
@@ -17,8 +17,8 @@
 
     Description : 
 
-    Author(s)   : Mike Fechner
-    Created     : 06.04.2014 13:09:37
+    Author(s)   : Mike Fechner / Consultingwerk Ltd.
+    Created     : 31.12.2016 14:02:54
     Notes       :
   ----------------------------------------------------------------------*/
 
@@ -26,12 +26,15 @@
 
 &SCOPED-DEFINE ACCESS {&ACCESS}
 &SCOPED-DEFINE REFERENCE-ONLY {&REFERENCE-ONLY}
+&SCOPED-DEFINE SUFFIX {&SUFFIX}
 
 &GLOBAL-DEFINE DATASET-NAME dsModule
 
 { Consultingwerk/SmartFramework/Menu/eSmartModule.i }
 
 
-DEFINE {&ACCESS} DATASET dsModule {&REFERENCE-ONLY} FOR eSmartModule 
+@BusinessEntityGenerator (entityname="Consultingwerk.SmartFramework.Menu.ModuleBusinessEntity", type="Dataset") .
+
+DEFINE {&ACCESS} DATASET dsModule{&SUFFIX} {&REFERENCE-ONLY} FOR eSmartModule{&SUFFIX} 
 
     .    

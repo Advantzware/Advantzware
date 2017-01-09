@@ -8,22 +8,27 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/  
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : ISmartDataSourceWithDataset
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Thu Jul 23 21:52:02 CEST 2009
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 USING Progress.Lang.* FROM ASSEMBLY .
 
-INTERFACE Consultingwerk.SmartComponents.Interfaces.ISmartDataSourceWithDataset:  
-  
-    DEFINE PUBLIC PROPERTY DataSet AS HANDLE NO-UNDO 
+INTERFACE Consultingwerk.SmartComponents.Interfaces.ISmartDataSourceWithDataset:
+
+    /**
+     * Purpose: Returns the handle to the ProDataset instance managed by the
+     *          SmartBusinessEntityAdapter
+     * Notes:
+     */
+    DEFINE PUBLIC PROPERTY DataSet AS HANDLE NO-UNDO
     GET.
-  
+
 END INTERFACE.

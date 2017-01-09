@@ -8,29 +8,29 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : DataRelationViewerControl
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sat Oct 16 22:34:33 CEST 2010
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.SmartComponents.Base.*           FROM PROPATH .
-USING Consultingwerk.SmartComponents.Enum.*           FROM PROPATH . 
+USING Consultingwerk.SmartComponents.Enum.*           FROM PROPATH .
 USING Consultingwerk.SmartComponents.Implementation.* FROM PROPATH .
-USING Consultingwerk.Util.*                           FROM PROPATH . 
+USING Consultingwerk.Util.*                           FROM PROPATH .
 USING Infragistics.Win.UltraWinEditors.*              FROM ASSEMBLY .
 USING Progress.Lang.*                                 FROM PROPATH .
 USING System.Windows.Forms.*                          FROM ASSEMBLY .
 
-CLASS Consultingwerk.BusinessEntityDesigner.UI.DataRelationViewerControl INHERITS SmartViewerControl: 
-    
+CLASS Consultingwerk.BusinessEntityDesigner.UI.DataRelationViewerControl INHERITS SmartViewerControl:
+
     DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE smartBusinessEntityBindingSource1_eDataRelation_ChildCardinality_Label AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE smartBusinessEntityBindingSource1_eDataRelation_ChildPropertyName_Label AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
@@ -57,11 +57,11 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.DataRelationViewerControl INHERIT
     DEFINE PRIVATE VARIABLE smartBusinessEntityBindingSource1 AS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource NO-UNDO.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the DataRelationViewerControl class                                                                        
-        Notes:      
+        Purpose: Constructor for the DataRelationViewerControl class
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC DataRelationViewerControl ():
-        
+
         SUPER().
 
         InitializeComponent().
@@ -72,17 +72,18 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.DataRelationViewerControl INHERIT
 
     END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -552,207 +553,227 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.DataRelationViewerControl INHERIT
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the KeyDown handler of the Text boxes with an 
+        Purpose: Event handler for the KeyDown handler of the Text boxes with an
                  EditorButton (Lookup)
         Notes:   Maps F3 to EditorButtonClick
         @param sender The reference to the object that raised the event
         @param e The KeyEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID LookupKeyDownHandler (sender AS System.Object, 
+    METHOD PRIVATE VOID LookupKeyDownHandler (sender AS System.Object,
                                               e AS System.Windows.Forms.KeyEventArgs):
 
         DEFINE VARIABLE cControlName AS CHARACTER NO-UNDO.
-        
-        IF e:Handled = FALSE AND Progress.Util.EnumHelper:AreEqual (e:KeyCode, SmartLookupSettings:ShortcutKey) 
+
+        IF e:Handled = FALSE AND Progress.Util.EnumHelper:AreEqual (e:KeyCode, SmartLookupSettings:ShortcutKey)
             AND THIS-OBJECT:Enabled THEN DO:
 
 &IF NOT PROVERSION BEGINS "10" &THEN
             ASSIGN cControlName = CAST (sender, System.Windows.Forms.Control):Name .
 
-            DYNAMIC-INVOKE (THIS-OBJECT, 
-                            SUBSTITUTE ("&1_EditorButtonClick":U, cControlName), 
-                            sender, 
+            DYNAMIC-INVOKE (THIS-OBJECT,
+                            SUBSTITUTE ("&1_EditorButtonClick":U, cControlName),
+                            sender,
                             NEW EditorButtonEventArgs (?, ?)) .
-&ELSE 
+&ELSE
             /* Mike Fechner, Consultingwerk Ltd. 17.08.2015
                DYNAMIC-INVOKE seems to crash here on 10.2B */
             CASE sender:
-                WHEN smartBusinessEntityBindingSource1_eDataRelation_RelationFields 
+                WHEN smartBusinessEntityBindingSource1_eDataRelation_RelationFields
                     THEN THIS-OBJECT:smartBusinessEntityBindingSource1_eDataRelation_RelationFields_EditorButtonClick (sender, NEW EditorButtonEventArgs (?, ?)) .
-            END CASE . 
+            END CASE .
 &ENDIF
         END.
 
         CATCH err AS Progress.Lang.Error:
-            ErrorHelper:ShowErrorMessage (err) .                
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the CheckedChanged event of the 
-                 smartBusinessEntityBindingSource1_eDataRelation_DataRelationForeignKeyHidden                                                                        
-        Notes:                                                                        
+        Purpose: Event handler for the CheckedChanged event of the
+                 smartBusinessEntityBindingSource1_eDataRelation_DataRelationForeignKeyHidden
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID smartBusinessEntityBindingSource1_eDataRelation_DataRelationForeignKeyHidden_CheckedChanged (sender AS System.Object, 
+    METHOD PRIVATE VOID smartBusinessEntityBindingSource1_eDataRelation_DataRelationForeignKeyHidden_CheckedChanged (sender AS System.Object,
                                                                                                                      e AS System.EventArgs):
-        
+
             IF smartBusinessEntityBindingSource1_eDataRelation_DataRelationForeignKeyHidden:Checked THEN
                 smartBusinessEntityBindingSource1_eDataRelation_DataRelationNested:Checked = TRUE .
 
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the CheckedChanged event of the 
-                 smartBusinessEntityBindingSource1_eDataRelation_DataRelationNested                                                                        
-        Notes:                                                                        
+        Purpose: Event handler for the CheckedChanged event of the
+                 smartBusinessEntityBindingSource1_eDataRelation_DataRelationNested
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID smartBusinessEntityBindingSource1_eDataRelation_DataRelationNested_CheckedChanged (sender AS System.Object, 
+    METHOD PRIVATE VOID smartBusinessEntityBindingSource1_eDataRelation_DataRelationNested_CheckedChanged (sender AS System.Object,
                                                                                                            e AS System.EventArgs):
-        
-        IF THIS-OBJECT:SmartTableIOState = Consultingwerk.SmartComponents.Enum.TableIOStateEnum:FieldsEnabled OR 
+
+        IF THIS-OBJECT:SmartTableIOState = Consultingwerk.SmartComponents.Enum.TableIOStateEnum:FieldsEnabled OR
            THIS-OBJECT:SmartTableIOState = Consultingwerk.SmartComponents.Enum.TableIOStateEnum:ModifyingData THEN DO:
-               
+
             IF smartBusinessEntityBindingSource1_eDataRelation_DataRelationNested:Checked THEN
                 smartBusinessEntityBindingSource1_eDataRelation_DataRelationRecursive:Checked = FALSE .
-            ELSE 
+            ELSE
                 smartBusinessEntityBindingSource1_eDataRelation_DataRelationForeignKeyHidden:Checked = FALSE .
-        END.                  
+        END.
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the CheckedChanged event of the 
-                 smartBusinessEntityBindingSource1_eDataRelation_DataRelationNested                                                                        
-        Notes:                                                                        
+        Purpose: Event handler for the CheckedChanged event of the
+                 smartBusinessEntityBindingSource1_eDataRelation_DataRelationNested
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID smartBusinessEntityBindingSource1_eDataRelation_DataRelationRecursive_CheckedChanged (sender AS System.Object, 
+    METHOD PRIVATE VOID smartBusinessEntityBindingSource1_eDataRelation_DataRelationRecursive_CheckedChanged (sender AS System.Object,
                                                                                                               e AS System.EventArgs):
-        
-        IF THIS-OBJECT:SmartTableIOState = Consultingwerk.SmartComponents.Enum.TableIOStateEnum:FieldsEnabled OR 
+
+        IF THIS-OBJECT:SmartTableIOState = Consultingwerk.SmartComponents.Enum.TableIOStateEnum:FieldsEnabled OR
            THIS-OBJECT:SmartTableIOState = Consultingwerk.SmartComponents.Enum.TableIOStateEnum:ModifyingData THEN DO:
-               
+
             IF smartBusinessEntityBindingSource1_eDataRelation_DataRelationRecursive:Checked THEN
                 smartBusinessEntityBindingSource1_eDataRelation_DataRelationNested:Checked = FALSE .
-        END.                  
+        END.
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the EditorButtonClick event of the 
-                 smartBusinessEntityBindingSource1_eDataRelation_RelationFields                                                                        
-        Notes:                                                                        
+        Purpose: Event handler for the EditorButtonClick event of the
+                 smartBusinessEntityBindingSource1_eDataRelation_RelationFields
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The EditorButtonEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID smartBusinessEntityBindingSource1_eDataRelation_RelationFields_EditorButtonClick (sender AS System.Object, 
+    METHOD PRIVATE VOID smartBusinessEntityBindingSource1_eDataRelation_RelationFields_EditorButtonClick (sender AS System.Object,
                                                                                                           e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
-        
+
         DEFINE VARIABLE oForm         AS Consultingwerk.BusinessEntityDesigner.UI.DataRelationFieldPickerForm NO-UNDO .
-        
+
         DEFINE VARIABLE hParentTable  AS HANDLE                                                               NO-UNDO .
         DEFINE VARIABLE hChildTable   AS HANDLE                                                               NO-UNDO .
         DEFINE VARIABLE hDataset      AS HANDLE                                                               NO-UNDO .
         DEFINE VARIABLE hBuffer       AS HANDLE                                                               NO-UNDO.
-        DEFINE VARIABLE oDialogResult AS System.Windows.Forms.DialogResult                                    NO-UNDO . 
+        DEFINE VARIABLE oDialogResult AS System.Windows.Forms.DialogResult                                    NO-UNDO .
         DEFINE VARIABLE oParent       AS System.Windows.Forms.Form                                            NO-UNDO .
-        
-        oForm = NEW Consultingwerk.BusinessEntityDesigner.UI.DataRelationFieldPickerForm () . 
-        
-        ASSIGN hDataset = CAST (THIS-OBJECT:SmartDataSource, 
-                                Consultingwerk.SmartComponents.Implementation.SmartDatasetChildAdapter):Dataset 
-               hBuffer = hDataset::eTable .         
+
+        oForm = NEW Consultingwerk.BusinessEntityDesigner.UI.DataRelationFieldPickerForm () .
+
+        ASSIGN hDataset = CAST (THIS-OBJECT:SmartDataSource,
+                                Consultingwerk.SmartComponents.Implementation.SmartDatasetChildAdapter):Dataset
+               hBuffer = hDataset::eTable .
 
         CREATE BUFFER hParentTable FOR TABLE hBuffer .
-        CREATE BUFFER hChildTable FOR TABLE hBuffer . 
-        
+        CREATE BUFFER hChildTable FOR TABLE hBuffer .
+
         hParentTable:FIND-FIRST (SUBSTITUTE ("WHERE BusinessEntityName = '&1' AND TempTableName = '&2'":U,
                                  THIS-OBJECT:SmartDataSource:GetFieldValues("BusinessEntityName":U),
-                                 THIS-OBJECT:SmartDataSource:GetFieldValues("ParentTempTableName":U))) . 
-        
+                                 THIS-OBJECT:SmartDataSource:GetFieldValues("ParentTempTableName":U))) .
+
         hChildTable:FIND-FIRST (SUBSTITUTE ("WHERE BusinessEntityName = '&1' AND TempTableName = '&2'":U,
                                 THIS-OBJECT:SmartDataSource:GetFieldValues("BusinessEntityName":U),
-                                THIS-OBJECT:SmartDataSource:GetFieldValues("ChildTempTableName":U))) . 
+                                THIS-OBJECT:SmartDataSource:GetFieldValues("ChildTempTableName":U))) .
 
-        oForm:Dataset = hDataset . 
-        oForm:DeleteOnFormClosed = FALSE . 
-        oForm:ParentTableBuffer = hParentTable . 
-        oForm:ChildTableBuffer = hChildTable . 
+        oForm:Dataset = hDataset .
+        oForm:DeleteOnFormClosed = FALSE .
+        oForm:ParentTableBuffer = hParentTable .
+        oForm:ChildTableBuffer = hChildTable .
         oForm:RelationFields = smartBusinessEntityBindingSource1_eDataRelation_RelationFields:Text .
-            
-        oParent = THIS-OBJECT:FindForm() . 
-        
+
+        oParent = THIS-OBJECT:FindForm() .
+
         WAIT-FOR oForm:ShowDialog (oParent) SET oDialogResult.
 
-        IF Progress.Util.EnumHelper:AreEqual (oDialogResult, System.Windows.Forms.DialogResult:Ok) THEN 
-            ASSIGN smartBusinessEntityBindingSource1_eDataRelation_RelationFields:Text = oForm:RelationFields 
-                   THIS-OBJECT:SmartTableIOState = TableIOStateEnum:ModifyingData .   
+        IF Progress.Util.EnumHelper:AreEqual (oDialogResult, System.Windows.Forms.DialogResult:Ok) THEN
+            ASSIGN smartBusinessEntityBindingSource1_eDataRelation_RelationFields:Text = oForm:RelationFields
+                   THIS-OBJECT:SmartTableIOState = TableIOStateEnum:ModifyingData .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
 
         FINALLY:
-            GarbageCollectorHelper:DeleteObject (hParentTable) . 
+            GarbageCollectorHelper:DeleteObject (hParentTable) .
             GarbageCollectorHelper:DeleteObject (hChildTable) .
-            GarbageCollectorHelper:DeleteObject (oForm) .         
+            GarbageCollectorHelper:DeleteObject (oForm) .
         END FINALLY.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the ValueChanged event of the ultraComboEditor1                                                                        
-        Notes:                                                                        
+        Purpose: Event handler for the ValueChanged event of the ultraComboEditor1
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraComboEditor1_ValueChanged (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraComboEditor1_ValueChanged (sender AS System.Object,
                                                         e AS System.EventArgs):
-        
+
         DEFINE VARIABLE cChildTable   AS CHARACTER NO-UNDO.
         DEFINE VARIABLE cPropertyName AS CHARACTER NO-UNDO.
         DEFINE VARIABLE hDataset      AS HANDLE    NO-UNDO.
         DEFINE VARIABLE hBuffer       AS HANDLE    NO-UNDO.
-        
-        IF NOT CAST (sender, System.Windows.Forms.Control):Enabled THEN 
-            RETURN . 
-        
-        /* Only populate child relation name when previously set */ 
-        IF smartBusinessEntityBindingSource1_eDataRelation_ChildPropertyName:Text > "":U THEN .
-            ELSE RETURN .  
-        
-        ASSIGN hDataset = CAST (THIS-OBJECT:SmartDataSource, 
-                                Consultingwerk.SmartComponents.Implementation.SmartDatasetChildAdapter):Dataset 
-               hBuffer = hDataset::eBusinessEntity .         
-        
-        CREATE BUFFER hBuffer FOR TABLE hBuffer . 
-        
-        ASSIGN cChildTable = smartBusinessEntityBindingSource1_eDataRelation_ChildTempTableName:Text . 
-        
-        hBuffer:FIND-FIRST () .
-        
-        IF hBuffer::DefaultTablePrefix > "":U AND cChildTable BEGINS hBuffer::DefaultTablePrefix THEN 
-            cPropertyName = SUBSTRING (cChildTable, 1 + LENGTH (hBuffer::DefaultTablePrefix)) NO-ERROR . 
 
-        IF NOT cPropertyName > "":U THEN 
-            ASSIGN cPropertyName = cChildTable . 
-            
-        IF UNBOX (ultraComboEditor1:Value) = "MANY":U THEN 
-            ASSIGN cPropertyName = cPropertyName + "s":U .                  
+        IF NOT CAST (sender, System.Windows.Forms.Control):Enabled THEN
+            RETURN .
+
+        /* Only populate child relation name when previously set */
+        IF smartBusinessEntityBindingSource1_eDataRelation_ChildPropertyName:Text > "":U THEN .
+            ELSE RETURN .
+
+        ASSIGN hDataset = CAST (THIS-OBJECT:SmartDataSource,
+                                Consultingwerk.SmartComponents.Implementation.SmartDatasetChildAdapter):Dataset
+               hBuffer = hDataset::eBusinessEntity .
+
+        CREATE BUFFER hBuffer FOR TABLE hBuffer .
+
+        ASSIGN cChildTable = smartBusinessEntityBindingSource1_eDataRelation_ChildTempTableName:Text .
+
+        hBuffer:FIND-FIRST () .
+
+        IF hBuffer::DefaultTablePrefix > "":U AND cChildTable BEGINS hBuffer::DefaultTablePrefix THEN
+            cPropertyName = SUBSTRING (cChildTable, 1 + LENGTH (hBuffer::DefaultTablePrefix, "CHARACTER":U), -1, "CHARACTER":U) NO-ERROR .
+
+        IF NOT cPropertyName > "":U THEN
+            ASSIGN cPropertyName = cChildTable .
+
+        IF UNBOX (ultraComboEditor1:Value) = "MANY":U THEN
+            ASSIGN cPropertyName = cPropertyName + "s":U .
 
         ASSIGN smartBusinessEntityBindingSource1_eDataRelation_ChildPropertyName:Text = cPropertyName .
 
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
         FINALLY:
-            GarbageCollectorHelper:DeleteObject (hBuffer) .        
+            GarbageCollectorHelper:DeleteObject (hBuffer) .
         END FINALLY.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the DataRelationViewerControl class                                                                        
-        Notes:      
+        Purpose: Destructor for the DataRelationViewerControl class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC DataRelationViewerControl ():
 

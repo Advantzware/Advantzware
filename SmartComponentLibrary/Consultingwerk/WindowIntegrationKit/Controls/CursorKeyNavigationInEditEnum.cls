@@ -11,12 +11,12 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : CursorKeyNavigationInEditEnum
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Tue Dec 04 10:05:51 CET 2012
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -31,18 +31,18 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.*                               FROM PROPATH .
 USING Consultingwerk.Framework.Collections.*         FROM PROPATH .
-USING Consultingwerk.WindowIntegrationKit.Controls.* FROM PROPATH .  
+USING Consultingwerk.WindowIntegrationKit.Controls.* FROM PROPATH .
 USING Progress.Lang.*                                FROM PROPATH .
 
-{&CLASS} Consultingwerk.WindowIntegrationKit.Controls.CursorKeyNavigationInEditEnum 
+{&CLASS} Consultingwerk.WindowIntegrationKit.Controls.CursorKeyNavigationInEditEnum
     &IF "{&CLASS}" EQ "CLASS" &THEN
     INHERITS Enum
-    &ENDIF    
-        : 
+    &ENDIF
+        :
 
 &IF "{&CLASS}" EQ "ENUM" &THEN
     DEFINE ENUM
-&ENDIF    
+&ENDIF
 
     {Consultingwerk/EnumMember.i UpDownLeftRight 0 CursorKeyNavigationInEditEnum}
     {Consultingwerk/EnumMember.i UpDown 1 CursorKeyNavigationInEditEnum}
@@ -50,7 +50,7 @@ USING Progress.Lang.*                                FROM PROPATH .
 
 &IF "{&CLASS}" EQ "ENUM" &THEN
     .
-&ENDIF    
+&ENDIF
 
 &IF "{&CLASS}" EQ "CLASS" &THEN
 
@@ -62,27 +62,25 @@ USING Progress.Lang.*                                FROM PROPATH .
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PRIVATE CursorKeyNavigationInEditEnum (piValue AS INTEGER, pcLabel AS CHARACTER):
         SUPER ().
- 
+
         ASSIGN THIS-OBJECT:Value = piValue
                THIS-OBJECT:Label = pcLabel .
- 
+
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns a CharacterList with the names of the Enum members 
-        Notes:   
+        Purpose: Returns a CharacterList with the names of the Enum members
+        Notes:
         @return The CharacterList with the names of the Enum members
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CharacterList GetNames ():
-        
-        DEFINE VARIABLE oReturn AS CharacterList NO-UNDO . 
-        
+
         RETURN NEW CharacterList ('{&EnumMembers}':U).
 
     END METHOD .
-    
-    {Consultingwerk/EnumFromString.i Consultingwerk.WindowIntegrationKit.Controls.CursorKeyNavigationInEditEnum}    
-    
+
+    {Consultingwerk/EnumFromString.i Consultingwerk.WindowIntegrationKit.Controls.CursorKeyNavigationInEditEnum}
+
 &ENDIF
-    
+
 END {&CLASS} .

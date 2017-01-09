@@ -46,9 +46,9 @@ INTERFACE Consultingwerk.Windows.LegacyGuiMigration.Widgets.IWidgetFacade:
         Purpose: Indicates whether to "hide" a widget
         Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY HIDDEN AS LOGICAL NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY HIDDEN AS LOGICAL NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Indicates whether the value of the SCREEN-VALUE attribute for the 
@@ -74,9 +74,9 @@ INTERFACE Consultingwerk.Windows.LegacyGuiMigration.Widgets.IWidgetFacade:
                  to TRUE, you enable the fill-in for further input and the MODIFIED 
                  attribute is reset to FALSE.
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY MODIFIED AS LOGICAL NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY MODIFIED AS LOGICAL NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: A string identifier for the specified object or widget
@@ -98,31 +98,31 @@ INTERFACE Consultingwerk.Windows.LegacyGuiMigration.Widgets.IWidgetFacade:
         Purpose: The data value in the screen buffer associated with the widget
         Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY SCREEN-VALUE AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY SCREEN-VALUE AS CHARACTER NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Indicates whether a widget can receive input focus or events
         Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY SENSITIVE AS LOGICAL NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY SENSITIVE AS LOGICAL NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: The type of a handle
         Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY TYPE AS CHARACTER NO-UNDO 
-	GET.
+    DEFINE PUBLIC PROPERTY TYPE AS CHARACTER NO-UNDO 
+    GET.
 
     /*------------------------------------------------------------------------------
         Purpose: Indicates whether a widget is currently visible on the display
         Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY VISIBLE AS LOGICAL NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY VISIBLE AS LOGICAL NO-UNDO 
+    GET.
+    SET. 
 
 END INTERFACE.

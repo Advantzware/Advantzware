@@ -31,10 +31,10 @@ CLASS Consultingwerk.WindowIntegrationKit.WidgetHandle:
         Purpose: Private Constructor for the WidgetHandle class
         Notes:   Disallow instance creation   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PRIVATE WidgetHandle ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PRIVATE WidgetHandle ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the Widget-Handle value that is stored in a Control's Tag 
@@ -43,25 +43,25 @@ CLASS Consultingwerk.WindowIntegrationKit.WidgetHandle:
         @param poControl The Control that contains the Widget-Handle in the Tag property
         @return The Widget-Handle or ? 
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC HANDLE FromControl (poControl AS System.Windows.Forms.Control):
-		
-		DEFINE VARIABLE hWidget AS HANDLE NO-UNDO.
-		
-		{Consultingwerk/Assertion/ObjectAssert/IsValid.i poControl """Control"":U"} .
-		
-		DO ON ERROR UNDO, THROW:
-		
-		    ASSIGN hWidget = WIDGET-HANDLE (UNBOX (poControl:Tag)) .
-		
-		    RETURN hWidget . 
-		
+    METHOD PUBLIC STATIC HANDLE FromControl (poControl AS System.Windows.Forms.Control):
+        
+        DEFINE VARIABLE hWidget AS HANDLE NO-UNDO.
+        
+        {Consultingwerk/Assertion/ObjectAssert/IsValid.i poControl """Control"":U"} .
+        
+        DO ON ERROR UNDO, THROW:
+        
+            ASSIGN hWidget = WIDGET-HANDLE (UNBOX (poControl:Tag)) .
+        
+            RETURN hWidget . 
+        
             CATCH err AS Progress.Lang.Error:
-            	RETURN ? .	
+                RETURN ? .    
             END CATCH.
         END.
 
         RETURN ? . 
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

@@ -1,0 +1,2 @@
+To add abhack to your protools palette, you may just insert the following line at the top of your %dlc%\gui\protools\protools.dat:
+"abhack" "protools/abhack/abhackwin.w" "protools/abhack/tux.bmp" yes yes 5 no

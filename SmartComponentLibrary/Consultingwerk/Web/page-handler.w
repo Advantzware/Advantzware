@@ -71,9 +71,9 @@ END PROCEDURE.
  
 PROCEDURE OutputJavaScriptLibraries:
     /*------------------------------------------------------------------------------
-    	Purpose: Writes the references to the project JavaScriptLibraries to the 
-    	         WebStream  																	  
-    	Notes:  																	  
+        Purpose: Writes the references to the project JavaScriptLibraries to the 
+                 WebStream                                                                        
+        Notes:                                                                        
     ------------------------------------------------------------------------------*/
 
     DEFINE INPUT PARAMETER oPage AS Progress.Lang.Object NO-UNDO . 
@@ -182,9 +182,9 @@ PROCEDURE process-web-request :
       oPage = DYNAMIC-NEW (cPageName) () . 
 
       CATCH err AS Progress.Lang.Error:
-      	  Consultingwerk.Web.WebErrorHelper:ShowErrorMessage (err, "Error loading page.":U) .
-      	  
-      	  RETURN . 
+            Consultingwerk.Web.WebErrorHelper:ShowErrorMessage (err, "Error loading page.":U) .
+            
+            RETURN . 
       END CATCH.
   END.
 

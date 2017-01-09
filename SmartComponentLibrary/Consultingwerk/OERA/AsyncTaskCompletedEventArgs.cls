@@ -34,9 +34,9 @@ CLASS Consultingwerk.OERA.AsyncTaskCompletedEventArgs
                  async task that was completed 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Context AS Progress.Lang.Object NO-UNDO 
-	GET.
-	PRIVATE SET. 
+    DEFINE PUBLIC PROPERTY Context AS Progress.Lang.Object NO-UNDO 
+    GET.
+    PRIVATE SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the reference to the parameter object instance returned by 
@@ -51,9 +51,9 @@ CLASS Consultingwerk.OERA.AsyncTaskCompletedEventArgs
         Purpose: Returns the handle of the async-request that was completed 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY RequestHandle AS HANDLE NO-UNDO 
-	GET.
-	PRIVATE SET. 
+    DEFINE PUBLIC PROPERTY RequestHandle AS HANDLE NO-UNDO 
+    GET.
+    PRIVATE SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the AsyncTaskCompletedEventArgs class
@@ -62,15 +62,15 @@ CLASS Consultingwerk.OERA.AsyncTaskCompletedEventArgs
         @param phRequestHandle The handle of the async request
         @param poParameter The reference to the parameter object instance returned by the task
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC AsyncTaskCompletedEventArgs (poContext AS Progress.Lang.Object,
-	                                                phRequestHandle AS HANDLE,
-	                                                poParameter AS ISerializable):
-		SUPER ().
-		
-		ASSIGN THIS-OBJECT:Context       = poContext
-		       THIS-OBJECT:RequestHandle = phRequestHandle
-		       THIS-OBJECT:Parameter     = poParameter . 
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC AsyncTaskCompletedEventArgs (poContext AS Progress.Lang.Object,
+                                                    phRequestHandle AS HANDLE,
+                                                    poParameter AS ISerializable):
+        SUPER ().
+        
+        ASSIGN THIS-OBJECT:Context       = poContext
+               THIS-OBJECT:RequestHandle = phRequestHandle
+               THIS-OBJECT:Parameter     = poParameter . 
+        
+    END CONSTRUCTOR.
 
 END CLASS.

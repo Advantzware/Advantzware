@@ -60,10 +60,10 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Viewer.ControlGenerator
                                     "        @param e The &3 with the data for this event~n":U +
                                     "    ------------------------------------------------------------------------------*/~n":U +
                                     BusinessEntityGenerator:CaseKeywords ("    METHOD PRIVATE VOID &4 (sender AS System.Object, e AS &3):~n":U, "(sender ":U + CHR (1) + " System.Object, e":U) +
-                                    "~n" +        
-                                    "&5~n" +
+                                    "~n":U +        
+                                    "&5~n":U +
                                     BusinessEntityGenerator:CaseKeywords ("    END METHOD.~n":U) +
-                                    "~n",
+                                    "~n":U,
                                     pcEvent,
                                     pcControlName,
                                     pcEventArgs,

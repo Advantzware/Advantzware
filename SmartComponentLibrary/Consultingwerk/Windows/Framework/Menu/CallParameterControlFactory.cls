@@ -39,8 +39,8 @@ CLASS Consultingwerk.Windows.Framework.Menu.CallParameterControlFactory
         @param poCallParameterType The class referenceof the CallParameter for which a UserControl should be provided 
         @return The specialized CallParameterControl instance
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC System.Windows.Forms.UserControl GetCallParameterControl (poCallParameterType AS Progress.Lang.Class):
-	    
+    METHOD PUBLIC System.Windows.Forms.UserControl GetCallParameterControl (poCallParameterType AS Progress.Lang.Class):
+        
         DEFINE VARIABLE cUserControlClassName AS CHARACTER NO-UNDO.
 
         Consultingwerk.Assertion.ObjectAssert:IsValid (poCallParameterType) .
@@ -60,9 +60,9 @@ CLASS Consultingwerk.Windows.Framework.Menu.CallParameterControlFactory
 
         Consultingwerk.Assertion.Assert:NotNullOrEmpty (cUserControlClassName, "User Control Class Name":U) .
 
-		RETURN InternalGetControl (cUserControlClassName).
+        RETURN InternalGetControl (cUserControlClassName).
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Internal Method to handle the creation an caching of control instances
@@ -70,14 +70,14 @@ CLASS Consultingwerk.Windows.Framework.Menu.CallParameterControlFactory
         @param pcUserControlClassName The full type name of the user control class naem
         @return The CallParameterControl instance
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE System.Windows.Forms.UserControl InternalGetControl (pcUserControlClassName AS CHARACTER):
-		
-		DEFINE VARIABLE oUserControl AS System.Windows.Forms.UserControl NO-UNDO.
-		
+    METHOD PRIVATE System.Windows.Forms.UserControl InternalGetControl (pcUserControlClassName AS CHARACTER):
+        
+        DEFINE VARIABLE oUserControl AS System.Windows.Forms.UserControl NO-UNDO.
+        
         oUserControl = DYNAMIC-NEW (pcUserControlClassName) ().
         
-		RETURN oUserControl.
+        RETURN oUserControl.
 
-	END METHOD .
+    END METHOD .
     
 END CLASS.

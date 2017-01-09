@@ -52,12 +52,12 @@ CLASS Consultingwerk.SmartFramework.System.GetValueListEntryByKeyParameter
         Purpose: Constructor for the GetValueListEntryByKeyParameter class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC GetValueListEntryByKeyParameter ():
-		SUPER ().
-		
-		THIS-OBJECT:AddSerializableProperties ("{&SerializableProperties}":U) .
+    CONSTRUCTOR PUBLIC GetValueListEntryByKeyParameter ():
+        SUPER ().
+        
+        THIS-OBJECT:AddSerializableProperties ("{&SerializableProperties}":U) .
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the GetValueListEntryByKeyParameter class

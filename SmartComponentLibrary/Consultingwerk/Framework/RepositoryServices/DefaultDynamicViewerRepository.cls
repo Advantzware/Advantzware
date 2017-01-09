@@ -39,11 +39,11 @@ CLASS Consultingwerk.Framework.RepositoryServices.DefaultDynamicViewerRepository
     METHOD PUBLIC VOID LoadSettings (pcSettingsKey AS CHARACTER, 
                                      OUTPUT TABLE FOR ttViewerDesign):
         
-        FILE-INFO:FILE-NAME = SUBSTITUTE ("viewer_&1.xml":U, pcSettingsKey) . 
+        FILE-INFORMATION:FILE-NAME = SUBSTITUTE ("viewer_&1.xml":U, pcSettingsKey) . 
         
-        IF FILE-INFO:FULL-PATHNAME > "":U THEN 
+        IF FILE-INFORMATION:FULL-PATHNAME > "":U THEN 
             TEMP-TABLE ttViewerDesign:READ-XML ("FILE":U, 
-                                                FILE-INFO:FULL-PATHNAME, 
+                                                FILE-INFORMATION:FULL-PATHNAME, 
                                                 "EMPTY":U, 
                                                 ?, 
                                                 FALSE) .

@@ -56,16 +56,16 @@ DEFINE {1} SHARED TEMP-TABLE _BC
    FIELD _FONT           AS INTEGER   INITIAL ?      /* Like _L._FONT            */
    FIELD _FORMAT         AS CHARACTER CASE-SENSITIVE /* Like _U._FORMAT          */
    FIELD _FORMAT-ATTR    AS CHARACTER FORMAT "X(5)" INITIAL "U"
-   		LABEL "FORMAT String Attributes"     /* Like _U._FORMAT-ATTR */
+           LABEL "FORMAT String Attributes"     /* Like _U._FORMAT-ATTR */
    FIELD _HAS-DATAFIELD-MASTER  AS LOGICAL           /* Has datafield master defined */
    FIELD _HELP           AS CHARACTER CASE-SENSITIVE /* Like _U._HELP            */
    FIELD _HELP-ATTR      AS CHARACTER FORMAT "X(5)" INITIAL ""
-   		LABEL "HELP String Attributes"       /* Like _U._HELP-ATTR */
+           LABEL "HELP String Attributes"       /* Like _U._HELP-ATTR */
    FIELD _INSTANCE-LEVEL AS LOGICAL                  /* Store DataField Instance */
    FIELD _STATUS         AS CHARACTER                /* Status of calc field column (STATIC or NEWCALC with new calc field data) */
    FIELD _LABEL          AS CHARACTER CASE-SENSITIVE /* Like  _U._LABEL          */
    FIELD _LABEL-ATTR     AS CHARACTER   FORMAT "X(5)" INITIAL ""
-   		LABEL "Label String Attributes"       /* Like _F._LABEL-ATTR */
+           LABEL "Label String Attributes"       /* Like _F._LABEL-ATTR */
    FIELD _LABEL-BGCOLOR  AS INTEGER   INITIAL ?      /* Like _L._LABEL-BGCOLOR   */
    FIELD _LABEL-FGCOLOR  AS INTEGER   INITIAL ?      /* Like _L._LABEL-FGCOLOR   */
    FIELD _LABEL-FONT     AS INTEGER   INITIAL ?      /* Like _L._LABEL-FONT      */

@@ -67,12 +67,12 @@ CLASS Consultingwerk.SmartFramework.Authentication.ChangePasswordParameter
         Purpose: Constructor for the ChangePasswordParameter class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ChangePasswordParameter ():
-		SUPER ().
-		
+    CONSTRUCTOR PUBLIC ChangePasswordParameter ():
+        SUPER ().
+        
         THIS-OBJECT:AddSerializableProperties ("{&SerializableProperties}":U) .
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the ChangePasswordParameter class

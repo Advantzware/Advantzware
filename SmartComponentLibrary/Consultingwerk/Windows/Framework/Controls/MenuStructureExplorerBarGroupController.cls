@@ -78,12 +78,12 @@ CLASS Consultingwerk.Windows.Framework.Controls.MenuStructureExplorerBarGroupCon
         @param pcLargeImageKey The key of the large Group Image
         @param piPosition The position of the Explorer Bar Group or ?
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC MenuStructureExplorerBarGroupController (poExplorerBar AS UltraExplorerBar,
-    	                                                        poOwner AS Progress.Lang.Object,
-    	                                                        pcGroupKey AS CHARACTER,
+    CONSTRUCTOR PUBLIC MenuStructureExplorerBarGroupController (poExplorerBar AS UltraExplorerBar,
+                                                                poOwner AS Progress.Lang.Object,
+                                                                pcGroupKey AS CHARACTER,
                                                                 pcGroupTitle AS CHARACTER,
                                                                 pcMenuStructureKey AS CHARACTER,
-    	                                                        pcSmallImageKey AS CHARACTER,
+                                                                pcSmallImageKey AS CHARACTER,
                                                                 pcLargeImageKey AS CHARACTER,
                                                                 piPosition AS INTEGER):
         
@@ -118,7 +118,7 @@ CLASS Consultingwerk.Windows.Framework.Controls.MenuStructureExplorerBarGroupCon
         
         poExplorerBar:ItemClick:Subscribe (ItemClickHandler) .
         
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Fills the explorer bar group 
@@ -162,9 +162,9 @@ CLASS Consultingwerk.Windows.Framework.Controls.MenuStructureExplorerBarGroupCon
         @param sender The reference to object that raised the event
         @param e The ItemEventArgs instance with the data for this event                                                                      
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ItemClickHandler (sender AS System.Object, 
+    METHOD PRIVATE VOID ItemClickHandler (sender AS System.Object, 
                                           e AS ItemEventArgs):
-		
+        
         DEFINE VARIABLE oLauncher AS IMenuFunctionLauncher NO-UNDO . 
         DEFINE VARIABLE cKey      AS CHARACTER             NO-UNDO.
 
@@ -188,6 +188,6 @@ CLASS Consultingwerk.Windows.Framework.Controls.MenuStructureExplorerBarGroupCon
             Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .    
         END CATCH.
 
-	END METHOD .
+    END METHOD .
     
 END CLASS.

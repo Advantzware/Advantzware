@@ -13,23 +13,29 @@
 /*------------------------------------------------------------------------
     File        : IsAvailable.i
     Purpose     : Include File base Assertion for IsAvailable
-            
+
     Syntax      : {Consultingwerk/Assertion/BufferAssert/IsAvailable.i hBuffer}
                   {Consultingwerk/Assertion/BufferAssert/IsAvailable.i "BUFFER Customer:HANDLE"}
 
-    Description : Reduces runtime overhead of using the IsAvailable assertion 
+    Description : Reduces runtime overhead of using the IsAvailable assertion
 
-    Author(s)   : 
+    Author(s)   :
     Created     : Thu Jun 25 21:33:03 CEST 2015
     Notes       : SCL-875
   ----------------------------------------------------------------------*/
 &ENDIF
 
     DO:
-        {Consultingwerk/Assertion/HandleAssert/WidgetType.i "{1}" Consultingwerk.WidgetTypeEnum:Buffer} .
-    
-        IF NOT {1}:AVAILABLE THEN 
+        /* Mike Fechner, Consultingwerk Ltd. 23.06.2015
+           As this is fairly frequently called, don't call into ValidHandle */
+        IF NOT VALID-HANDLE ({1}) THEN
+            UNDO, THROW NEW Consultingwerk.Exceptions.InvalidHandleException ("BUFFER":U) .
+
+        IF {1}:TYPE <> "BUFFER":U THEN
+            UNDO, THROW NEW Consultingwerk.Exceptions.InvalidTypeException ("BUFFER":U, {1}:TYPE) .
+
+        IF NOT {1}:AVAILABLE THEN
             UNDO, THROW NEW Consultingwerk.Assertion.AssertException (SUBSTITUTE ("No record is available in buffer &1."{&TRAN},
                                                                                   {1}:NAME),
-                                                                      0) .  
+                                                                      0) .
     END.

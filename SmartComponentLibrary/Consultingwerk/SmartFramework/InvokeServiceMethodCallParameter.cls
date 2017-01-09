@@ -47,15 +47,15 @@ CLASS Consultingwerk.SmartFramework.InvokeServiceMethodCallParameter
                  Viewer 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC STATIC PROPERTY EditorControl AS CHARACTER NO-UNDO INIT "Consultingwerk.Windows.Framework.Menu.InvokeServiceMethodCallParameterControl":U 
-	GET.
+    DEFINE PUBLIC STATIC PROPERTY EditorControl AS CHARACTER NO-UNDO INIT "Consultingwerk.Windows.Framework.Menu.InvokeServiceMethodCallParameterControl":U 
+    GET.
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the image representing this Function Call Parameter
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC STATIC PROPERTY ImageKey AS CHARACTER INITIAL "Consultingwerk/Windows/Framework/Images/FunctionCallParameter/gears.png":U NO-UNDO 
-	GET.
+    DEFINE PUBLIC STATIC PROPERTY ImageKey AS CHARACTER INITIAL "Consultingwerk/Windows/Framework/Images/FunctionCallParameter/gears.png":U NO-UNDO 
+    GET.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the InvokeStaticMethodCallParameter class                                                                     

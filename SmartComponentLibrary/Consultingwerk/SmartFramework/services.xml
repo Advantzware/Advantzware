@@ -136,6 +136,12 @@
     <ServiceClassName>Consultingwerk.Windows.Framework.SmartDataBrowserColumnCustomizer</ServiceClassName>
   </ttServiceLoaderRow> 
 
+  <ttServiceLoaderRow>
+    <Order>100</Order>
+    <ServiceTypeName>Consultingwerk.Windows.Framework.Repository.ISmartRepositoryAttributeLookupService</ServiceTypeName>
+    <ServiceClassName>Consultingwerk.Windows.Framework.Repository.SmartRepositoryAttributeLookupService</ServiceClassName>
+  </ttServiceLoaderRow> 
+  
 </ttServiceLoader>
 
 

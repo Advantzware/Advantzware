@@ -33,9 +33,9 @@ CLASS Consultingwerk.OERA.BusinessEntityDescriptor.Exceptions.MissingAnnotationA
         Purpose: Returns the name of the missing annotation attribute 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY AnnotationAttributeName AS CHARACTER NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    DEFINE PUBLIC PROPERTY AnnotationAttributeName AS CHARACTER NO-UNDO 
+    GET.
+    PROTECTED SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the BusinessEntityDescriptorException class
@@ -45,15 +45,15 @@ CLASS Consultingwerk.OERA.BusinessEntityDescriptor.Exceptions.MissingAnnotationA
         @param pcBusinessEntityName The name of the Business Entity associated with this error
         @param pcAttributeName The name of the missing annotation attribute
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC MissingAnnotationAttributeException (pcErrorString AS CHARACTER, 
-	                                                        piMessageNumber AS INTEGER, 
-	                                                        pcBusinessEntityName AS CHARACTER,
-	                                                        pcAttributeName AS CHARACTER):
-		
-		SUPER (pcErrorString, piMessageNumber, pcBusinessEntityName).
-		
-		THIS-OBJECT:AnnotationAttributeName = pcAttributeName . 
-	
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC MissingAnnotationAttributeException (pcErrorString AS CHARACTER, 
+                                                            piMessageNumber AS INTEGER, 
+                                                            pcBusinessEntityName AS CHARACTER,
+                                                            pcAttributeName AS CHARACTER):
+        
+        SUPER (pcErrorString, piMessageNumber, pcBusinessEntityName).
+        
+        THIS-OBJECT:AnnotationAttributeName = pcAttributeName . 
+    
+    END CONSTRUCTOR.
 
 END CLASS.

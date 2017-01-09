@@ -27,14 +27,14 @@ USING Progress.Lang.*                          FROM PROPATH .
 
 CLASS Consultingwerk.SmartFramework.RequestAuthorizationProvider IMPLEMENTS IRequestAuthorizationProvider: 
 
-	/*------------------------------------------------------------------------------
-		Purpose: Constructror for the RequestAuthorizationProvider class  																	  
-		Notes:  																	  
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC RequestAuthorizationProvider ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    /*------------------------------------------------------------------------------
+        Purpose: Constructror for the RequestAuthorizationProvider class                                                                        
+        Notes:                                                                        
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC RequestAuthorizationProvider ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Provides Authorization for FetchData Requests                                                                    
@@ -43,17 +43,17 @@ CLASS Consultingwerk.SmartFramework.RequestAuthorizationProvider IMPLEMENTS IReq
         @param poRequest The IFetchDataRequest instance with the parameter for the FetchData request   
         @return Logical value indicating if the FetchData request is restricted                               
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL IsFetchDataRestricted (pcEntityName AS CHARACTER, 
-	                                             poRequest AS IFetchDataRequest):
-		
-		/* Mike Fechner, Consultingwerk Ltd. 24.11.2012
+    METHOD PUBLIC LOGICAL IsFetchDataRestricted (pcEntityName AS CHARACTER, 
+                                                 poRequest AS IFetchDataRequest):
+        
+        /* Mike Fechner, Consultingwerk Ltd. 24.11.2012
            Don't restrict FetchData Requests on the SmartFramework itself */
-		IF pcEntityName BEGINS "Consultingwerk.SmartFramework.Authentication":U THEN 
-		    RETURN FALSE . 
-		
-		RETURN FALSE .
+        IF pcEntityName BEGINS "Consultingwerk.SmartFramework.Authentication":U THEN 
+            RETURN FALSE . 
+        
+        RETURN FALSE .
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Provides Authorization for InvokeMethod Requests                                                                    
@@ -64,14 +64,14 @@ CLASS Consultingwerk.SmartFramework.RequestAuthorizationProvider IMPLEMENTS IReq
         @param poParameter The reference to the parameter object
         @return Logical value indicating if the InvokeMethod request is restricted                               
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL IsInvokeMethodRestricted (pcEntityName AS CHARACTER, 
-	                                                pcMethodName AS CHARACTER, 
-	                                                phDataset AS HANDLE, 
+    METHOD PUBLIC LOGICAL IsInvokeMethodRestricted (pcEntityName AS CHARACTER, 
+                                                    pcMethodName AS CHARACTER, 
+                                                    phDataset AS HANDLE, 
                                                     poParameter AS Progress.Lang.Object):
-		
-		RETURN FALSE .
+        
+        RETURN FALSE .
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Provides Authorization for InvokeTask Requests                                                                    
@@ -87,7 +87,7 @@ CLASS Consultingwerk.SmartFramework.RequestAuthorizationProvider IMPLEMENTS IReq
         @param poParameter The reference to the parameter object
         @return Logical value indicating if the InvokeTask request is restricted                               
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL IsInvokeTaskRestricted (pcTaskName AS CHARACTER, 
+    METHOD PUBLIC LOGICAL IsInvokeTaskRestricted (pcTaskName AS CHARACTER, 
                                                   pcMethodName AS CHARACTER, 
                                                   piNumDatasets AS INTEGER, 
                                                   phDataset1 AS HANDLE, 
@@ -96,10 +96,10 @@ CLASS Consultingwerk.SmartFramework.RequestAuthorizationProvider IMPLEMENTS IReq
                                                   phDataset4 AS HANDLE, 
                                                   phDataset5 AS HANDLE, 
                                                   poParameter AS Progress.Lang.Object):
-		
-		RETURN FALSE .
+        
+        RETURN FALSE .
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Provides Authorization for SaveChanges Requests                                                                    
@@ -108,11 +108,11 @@ CLASS Consultingwerk.SmartFramework.RequestAuthorizationProvider IMPLEMENTS IReq
         @param phDataset The Handle of the Dataset received
         @return Logical value indicating if the Save Changes request is restricted                               
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL IsSaveChangesRestricted (pcEntityName AS CHARACTER, 
+    METHOD PUBLIC LOGICAL IsSaveChangesRestricted (pcEntityName AS CHARACTER, 
                                                    phDataset AS HANDLE):
-		
-		RETURN FALSE .
+        
+        RETURN FALSE .
 
-	END METHOD.
+    END METHOD.
 
 END CLASS.

@@ -31,7 +31,7 @@ INTERFACE Consultingwerk.Web.Widgets.IPageWithCustomJavaScript:
                  need to be outputted with the Page 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY CustomJavaScriptLibraries AS CHARACTER NO-UNDO 
-	GET.
+    DEFINE PUBLIC PROPERTY CustomJavaScriptLibraries AS CHARACTER NO-UNDO 
+    GET.
 
 END INTERFACE.

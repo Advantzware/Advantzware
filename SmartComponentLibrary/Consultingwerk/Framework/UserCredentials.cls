@@ -76,15 +76,15 @@ CLASS Consultingwerk.Framework.UserCredentials IMPLEMENTS IUserCredentials:
         @param pcPassword The Password
         @param pcCompanyKey The Company Key
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC UserCredentials (pcUserName AS CHARACTER,
-	                                    pcPassword AS CHARACTER,
-	                                    pcCompanyKey AS CHARACTER):
-		THIS-OBJECT ().
-		
-		ASSIGN THIS-OBJECT:UserName   = pcUserName
-		       THIS-OBJECT:Password   = pcPassword
-		       THIS-OBJECT:CompanyKey = pcCompanyKey .
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC UserCredentials (pcUserName AS CHARACTER,
+                                        pcPassword AS CHARACTER,
+                                        pcCompanyKey AS CHARACTER):
+        THIS-OBJECT ().
+        
+        ASSIGN THIS-OBJECT:UserName   = pcUserName
+               THIS-OBJECT:Password   = pcPassword
+               THIS-OBJECT:CompanyKey = pcCompanyKey .
+        
+    END CONSTRUCTOR.
 
 END CLASS.

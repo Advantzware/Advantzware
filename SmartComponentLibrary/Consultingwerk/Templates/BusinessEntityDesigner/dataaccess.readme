@@ -9,3 +9,4 @@
 &9      Source Default Query block
 @DATE@  time stamp
 @USER@  the current user name
+@AssignSkipDictionary@  the SkipDictionay per Buffer

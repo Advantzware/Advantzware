@@ -11,12 +11,12 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : PermissionEnum
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sun Nov 03 13:24:40 CET 2013
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -31,30 +31,30 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.*                       FROM PROPATH .
 USING Consultingwerk.Framework.Collections.* FROM PROPATH .
-USING Consultingwerk.RollbaseAdapter.*       FROM PROPATH .  
+USING Consultingwerk.RollbaseAdapter.*       FROM PROPATH .
 USING Progress.Lang.*                        FROM PROPATH .
 
-{&CLASS} Consultingwerk.RollbaseAdapter.PermissionEnum 
+{&CLASS} Consultingwerk.RollbaseAdapter.PermissionEnum
     &IF "{&CLASS}" EQ "CLASS" &THEN
     INHERITS Enum
-    &ENDIF    
-        : 
+    &ENDIF
+        :
 
 &IF "{&CLASS}" EQ "ENUM" &THEN
     DEFINE ENUM
-&ENDIF    
+&ENDIF
 
     {Consultingwerk/EnumMember.i View 0 PermissionEnum}
     {Consultingwerk/EnumMember.i Create 1 PermissionEnum}
     {Consultingwerk/EnumMember.i Edit 2 PermissionEnum}
     {Consultingwerk/EnumMember.i Delete 3 PermissionEnum}
-    
+
 &IF "{&CLASS}" EQ "ENUM" &THEN
     .
-&ENDIF    
+&ENDIF
 
 &IF "{&CLASS}" EQ "CLASS" &THEN
-    
+
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the PermissionEnum members
         Notes:
@@ -63,28 +63,26 @@ USING Progress.Lang.*                        FROM PROPATH .
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PRIVATE PermissionEnum (piValue AS INTEGER, pcLabel AS CHARACTER):
         SUPER ().
- 
+
         ASSIGN THIS-OBJECT:Value = piValue
                THIS-OBJECT:Label = pcLabel .
- 
+
     END CONSTRUCTOR.
 
- 
+
     /*------------------------------------------------------------------------------
         Purpose: Returns a CharacterList with the names of the Enum members
-        Notes:   
+        Notes:
         @return The CharacterList with the names of the Enum members
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CharacterList GetNames ():
- 
-        DEFINE VARIABLE oReturn AS CharacterList NO-UNDO . 
- 
-        RETURN NEW CharacterList ('{&EnumMembers}':U).
- 
-    END METHOD .
-	
 
-    {Consultingwerk/EnumFromString.i Consultingwerk.RollbaseAdapter.PermissionEnum} 
+        RETURN NEW CharacterList ('{&EnumMembers}':U).
+
+    END METHOD .
+
+
+    {Consultingwerk/EnumFromString.i Consultingwerk.RollbaseAdapter.PermissionEnum}
 
 &ENDIF
 

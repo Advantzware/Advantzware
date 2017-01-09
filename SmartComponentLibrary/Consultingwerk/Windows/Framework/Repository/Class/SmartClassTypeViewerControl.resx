@@ -119,4 +119,147 @@
   <metadata name="smartBusinessEntityBindingSource1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
+  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="eSmartClassType_ClassTypeName_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"/>
+  <data name="eSmartClassType_ClassTypeName_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>20, 24</value>
+  </data>
+  <data name="eSmartClassType_ClassTypeName_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>97, 14</value>
+  </data>
+  <data name="eSmartClassType_ClassTypeName_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="eSmartClassType_ClassTypeName_Label.Text" xml:space="preserve">
+    <value>Class Type Name:</value>
+  </data>
+  <data name="&gt;&gt;eSmartClassType_ClassTypeName_Label.Name" xml:space="preserve">
+    <value>eSmartClassType_ClassTypeName_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartClassType_ClassTypeName_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartClassType_ClassTypeName_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartClassType_ClassTypeName_Label.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="eSmartClassType_ClassTypeName.Location" type="System.Drawing.Point, System.Drawing">
+    <value>130, 20</value>
+  </data>
+  <data name="eSmartClassType_ClassTypeName.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 21</value>
+  </data>
+  <data name="eSmartClassType_ClassTypeName.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="&gt;&gt;eSmartClassType_ClassTypeName.Name" xml:space="preserve">
+    <value>eSmartClassType_ClassTypeName</value>
+  </data>
+  <data name="&gt;&gt;eSmartClassType_ClassTypeName.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartClassType_ClassTypeName.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartClassType_ClassTypeName.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="eSmartClassType_ClassTypeDescription_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartClassType_ClassTypeDescription_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>20, 50</value>
+  </data>
+  <data name="eSmartClassType_ClassTypeDescription_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>64, 14</value>
+  </data>
+  <data name="eSmartClassType_ClassTypeDescription_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="eSmartClassType_ClassTypeDescription_Label.Text" xml:space="preserve">
+    <value>Description:</value>
+  </data>
+  <data name="&gt;&gt;eSmartClassType_ClassTypeDescription_Label.Name" xml:space="preserve">
+    <value>eSmartClassType_ClassTypeDescription_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartClassType_ClassTypeDescription_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartClassType_ClassTypeDescription_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartClassType_ClassTypeDescription_Label.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="eSmartClassType_ClassTypeDescription.Location" type="System.Drawing.Point, System.Drawing">
+    <value>130, 46</value>
+  </data>
+  <data name="eSmartClassType_ClassTypeDescription.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 21</value>
+  </data>
+  <data name="eSmartClassType_ClassTypeDescription.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="&gt;&gt;eSmartClassType_ClassTypeDescription.Name" xml:space="preserve">
+    <value>eSmartClassType_ClassTypeDescription</value>
+  </data>
+  <data name="&gt;&gt;eSmartClassType_ClassTypeDescription.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartClassType_ClassTypeDescription.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartClassType_ClassTypeDescription.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="eSmartClassType_AvmType.Location" type="System.Drawing.Point, System.Drawing">
+    <value>130, 72</value>
+  </data>
+  <data name="eSmartClassType_AvmType.Size" type="System.Drawing.Size, System.Drawing">
+    <value>177, 20</value>
+  </data>
+  <data name="eSmartClassType_AvmType.TabIndex" type="System.Int32, mscorlib">
+    <value>6</value>
+  </data>
+  <data name="eSmartClassType_AvmType.Text" xml:space="preserve">
+    <value>AVM Type (accessible in ABL)</value>
+  </data>
+  <data name="&gt;&gt;eSmartClassType_AvmType.Name" xml:space="preserve">
+    <value>eSmartClassType_AvmType</value>
+  </data>
+  <data name="&gt;&gt;eSmartClassType_AvmType.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraCheckEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartClassType_AvmType.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartClassType_AvmType.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing">
+    <value>6, 13</value>
+  </data>
+  <data name="$this.Size" type="System.Drawing.Size, System.Drawing">
+    <value>321, 300</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1.Name" xml:space="preserve">
+    <value>smartBusinessEntityBindingSource1</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;$this.Name" xml:space="preserve">
+    <value>SmartClassTypeViewerControl</value>
+  </data>
+  <data name="&gt;&gt;$this.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Base.SmartViewerControl, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
 </root>

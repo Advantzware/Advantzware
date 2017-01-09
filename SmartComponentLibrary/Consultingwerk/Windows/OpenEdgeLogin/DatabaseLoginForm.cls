@@ -31,7 +31,7 @@ CLASS Consultingwerk.Windows.OpenEdgeLogin.DatabaseLoginForm
 
     DEFINE PROTECTED VARIABLE buOk AS Infragistics.Win.Misc.UltraButton NO-UNDO.
     DEFINE PROTECTED VARIABLE buCancel AS Infragistics.Win.Misc.UltraButton NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE lblDatabase AS System.Windows.Forms.Label NO-UNDO.
     DEFINE PRIVATE VARIABLE label5 AS System.Windows.Forms.Label NO-UNDO.
     DEFINE PRIVATE VARIABLE label4 AS System.Windows.Forms.Label NO-UNDO.
@@ -43,20 +43,20 @@ CLASS Consultingwerk.Windows.OpenEdgeLogin.DatabaseLoginForm
     DEFINE PRIVATE VARIABLE txtPassword AS System.Windows.Forms.TextBox NO-UNDO.
     DEFINE PRIVATE VARIABLE txtDomain AS System.Windows.Forms.TextBox NO-UNDO.
     DEFINE PROTECTED VARIABLE ultraGroupBox1 AS Infragistics.Win.Misc.UltraGroupBox NO-UNDO.
-	
+    
     DEFINE VARIABLE oClearButtonProvider   AS Consultingwerk.Windows.Controls.ClearButtonProvider NO-UNDO EXTENT 3 .        
-	
+    
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the current database name 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY DatabaseName AS CHARACTER NO-UNDO 
-	GET:
-		RETURN lblDatabase:Text . 
-	END GET.
-	SET (arg AS CHARACTER):
-		ASSIGN lblDatabase:Text = arg . 		
-	END SET.
+    DEFINE PUBLIC PROPERTY DatabaseName AS CHARACTER NO-UNDO 
+    GET:
+        RETURN lblDatabase:Text . 
+    END GET.
+    SET (arg AS CHARACTER):
+        ASSIGN lblDatabase:Text = arg .         
+    END SET.
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the current domain name 
@@ -74,13 +74,13 @@ CLASS Consultingwerk.Windows.OpenEdgeLogin.DatabaseLoginForm
         Purpose: Gets and sets the current domain name 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY OptOut AS LOGICAL NO-UNDO 
-	GET:
-		RETURN tgOptOut:Checked . 
-	END GET.
-	SET (arg AS LOGICAL):
-		ASSIGN tgOptOut:Checked = arg .  		
-	END SET.
+    DEFINE PUBLIC PROPERTY OptOut AS LOGICAL NO-UNDO 
+    GET:
+        RETURN tgOptOut:Checked . 
+    END GET.
+    SET (arg AS LOGICAL):
+        ASSIGN tgOptOut:Checked = arg .          
+    END SET.
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the current password value 
@@ -111,7 +111,7 @@ CLASS Consultingwerk.Windows.OpenEdgeLogin.DatabaseLoginForm
         Notes:   
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC DatabaseLoginForm ():
-		
+        
         SUPER().
 
         InitializeComponent().
@@ -132,14 +132,15 @@ CLASS Consultingwerk.Windows.OpenEdgeLogin.DatabaseLoginForm
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+        
         /* NOTE: The following method is automatically generated.
         
         We strongly suggest that the contents of this method only be modified using the
@@ -506,20 +507,20 @@ CLASS Consultingwerk.Windows.OpenEdgeLogin.DatabaseLoginForm
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Raises the Load event 
         Notes:   
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
-		
-		SUPER:OnLoad (e) .
+    METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
+        
+        SUPER:OnLoad (e) .
 
         THIS-OBJECT:MinimumSize = THIS-OBJECT:Size .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Destructor for the DatabaseLoginForm class 

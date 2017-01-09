@@ -32,33 +32,33 @@ USING Progress.Lang.*                 FROM PROPATH .
 CLASS Consultingwerk.Web.Kendo.Data.DataSource 
     INHERITS JsonSerializable
     IMPLEMENTS IDataSource: 
-	
-    {Consultingwerk/JsonSerializableProperty.i type CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i transport Consultingwerk.Web.Kendo.Data.ITransport} .
-    {Consultingwerk/JsonSerializableProperty.i schema Consultingwerk.Web.Kendo.Data.Schema} .
-    {Consultingwerk/JsonSerializableProperty.i error Consultingwerk.Web.Kendo.Data.ErrorJavaScriptReference} .    
-    {Consultingwerk/JsonSerializableProperty.i pageSize INTEGER "INIT ?"} .
-    {Consultingwerk/JsonSerializableProperty.i serverPaging LOGICAL "INIT ?"} .
-    {Consultingwerk/JsonSerializableProperty.i serverFiltering LOGICAL "INIT ?"} .
-    {Consultingwerk/JsonSerializableProperty.i serverSorting LOGICAL "INIT ?"} .    
-    {Consultingwerk/JsonSerializableProperty.i filter Consultingwerk.Web.Kendo.Data.Filter} .    
-    {Consultingwerk/JsonSerializableProperty.i filters Consultingwerk.Web.Kendo.Data.ListFilter} .    
-    {Consultingwerk/JsonSerializableProperty.i sort Consultingwerk.Web.Kendo.Data.Sort} .    
+    
+    {Consultingwerk/JsonSerializableProperty11.i type CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i transport Consultingwerk.Web.Kendo.Data.ITransport} .
+    {Consultingwerk/JsonSerializableProperty11.i schema Consultingwerk.Web.Kendo.Data.Schema} .
+    {Consultingwerk/JsonSerializableProperty11.i error Consultingwerk.Web.Kendo.Data.ErrorJavaScriptReference} .    
+    {Consultingwerk/JsonSerializableProperty11.i pageSize INTEGER "INIT ?"} .
+    {Consultingwerk/JsonSerializableProperty11.i serverPaging LOGICAL "INIT ?"} .
+    {Consultingwerk/JsonSerializableProperty11.i serverFiltering LOGICAL "INIT ?"} .
+    {Consultingwerk/JsonSerializableProperty11.i serverSorting LOGICAL "INIT ?"} .    
+    {Consultingwerk/JsonSerializableProperty11.i filter Consultingwerk.Web.Kendo.Data.Filter} .    
+    {Consultingwerk/JsonSerializableProperty11.i filters Consultingwerk.Web.Kendo.Data.ListFilter} .    
+    {Consultingwerk/JsonSerializableProperty11.i sort Consultingwerk.Web.Kendo.Data.Sort} .    
 
-	/*------------------------------------------------------------------------------
+    /*------------------------------------------------------------------------------
         Purpose: Constructor for the DataSource class                                                                     
         Notes:                                                                        
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC DataSource ():
-		SUPER ().
-		
-		THIS-OBJECT:UseSerializedTypeInformation = FALSE . 
-		THIS-OBJECT:SerializeEmptyLists = FALSE . 
-		
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC DataSource ():
+        SUPER ().
+        
+        THIS-OBJECT:UseSerializedTypeInformation = FALSE . 
+        THIS-OBJECT:SerializeEmptyLists = FALSE . 
+        
         THIS-OBJECT:AddSerializableProperties ("{&SerializableProperties}":U) .
-		
-		THIS-OBJECT:filters = NEW ListFilter () . 
-		
-	END CONSTRUCTOR.
+        
+        THIS-OBJECT:filters = NEW ListFilter () . 
+        
+    END CONSTRUCTOR.
 
 END CLASS.

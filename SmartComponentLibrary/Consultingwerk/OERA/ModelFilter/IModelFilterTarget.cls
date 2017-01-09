@@ -11,27 +11,28 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : IModelFilterTarget
-    Purpose     : Abstracts the access from the ModelFilter classes to the 
+    Purpose     : Abstracts the access from the ModelFilter classes to the
                   TableModel for invoking the Filter
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Mon Jun 17 23:47:23 CEST 2013
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
-USING Consultingwerk.*                  FROM PROPATH . 
-USING Consultingwerk.OERA.ModelFilter.* FROM PROPATH .  
-USING Progress.Lang.*                   FROM PROPATH.
+USING Consultingwerk.*                  FROM PROPATH .
+USING Consultingwerk.OERA.*             FROM PROPATH .
+USING Consultingwerk.OERA.ModelFilter.* FROM PROPATH .
+USING Progress.Lang.*                   FROM PROPATH .
 
-INTERFACE Consultingwerk.OERA.ModelFilter.IModelFilterTarget:  
-  
-    /*------------------------------------------------------------------------------
-        Purpose: Retrieves data using the QueryExpression
-        Notes:   
-        @param poQueryExpression The QueryExpression to retrieve data data for
-    ------------------------------------------------------------------------------*/
-    METHOD PUBLIC VOID AddQueryExpression (poQueryExpression AS IQueryExpression) . 
-  
-  
+INTERFACE Consultingwerk.OERA.ModelFilter.IModelFilterTarget:
+
+    /**
+     * Purpose: Retrieves data using the QueryExpression
+     * Notes:
+     * @param poQueryExpression The QueryExpression to retrieve data data for
+     * @return The reference to the TableModel itself
+     */
+    METHOD PUBLIC TableModel AddQueryExpression (poQueryExpression AS IQueryExpression) .
+
 END INTERFACE.

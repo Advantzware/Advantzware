@@ -11,11 +11,11 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : ContextWrapperProperty.i
-    Purpose     : 
+    Purpose     :
 
     Syntax      :
 
-    Description : 
+    Description :
 
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Wed Jul 20 01:09:21 CEST 2011
@@ -25,29 +25,31 @@
 /* ***************************  Main Block  *************************** */
 
     /*------------------------------------------------------------------------------
-        Purpose: Get's a {1} property from the eContextProperties table                                                                     
-        Notes:               
+        Purpose: Get's a {1} property from the eContextProperties table
+        Notes:
         @param pcPropertyName The name of the property
-        @return The property value                                                          
+        @return The property value
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC {1} Get{1}ContextProperty (pcPropertyName AS CHARACTER):
-        
-    
+
+
         DEFINE VARIABLE hBuffer    AS HANDLE    NO-UNDO .
         DEFINE VARIABLE cFieldName AS CHARACTER NO-UNDO .
-        
+
+        {Consultingwerk/Assertion/HandleAssert/ValidHandle.i SessionManager:ContextDataset "'Context Dataset'{&TRAN}"} .
+
         DatasetAssert:HasBuffer (SessionManager:ContextDataset,
-                                 "eContextProperties":U) . 
-                                 
-        ASSIGN hBuffer    = SessionManager:ContextDataset::eContextProperties 
+                                 "eContextProperties":U) .
+
+        ASSIGN hBuffer    = SessionManager:ContextDataset::eContextProperties
                cFieldName = "Value{1}":U .
 
-        BufferAssert:HasField (hBuffer, cFieldName) . 
+        BufferAssert:HasField (hBuffer, cFieldName) .
 
         hBuffer:FIND-UNIQUE  (SUBSTITUTE ("WHERE eContextProperties.PropertyName = &1":U,
-                              QUOTER (pcPropertyName))) NO-ERROR . 
-        
-        IF NOT hBuffer:AVAILABLE THEN DO: 
+                              QUOTER (pcPropertyName))) NO-ERROR .
+
+        IF NOT hBuffer:AVAILABLE THEN DO:
             hBuffer:BUFFER-CREATE () .
             hBuffer::PropertyName = pcPropertyName .
         END.
@@ -58,30 +60,32 @@
 
 
     /*------------------------------------------------------------------------------
-        Purpose: Set's a {1} property value in the eContextProperties table                                                                     
-        Notes:              
+        Purpose: Set's a {1} property value in the eContextProperties table
+        Notes:
         @param pcPropertyName The name of the property
-        @param pxPropertyValue The value of the property                                                          
+        @param pxPropertyValue The value of the property
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC VOID Set{1}ContextProperty (pcPropertyName  AS CHARACTER,
                                                      pxPropertyValue AS {1}):
-        
-    
+
+
         DEFINE VARIABLE hBuffer    AS HANDLE    NO-UNDO .
         DEFINE VARIABLE cFieldName AS CHARACTER NO-UNDO .
-        
+
+        {Consultingwerk/Assertion/HandleAssert/ValidHandle.i SessionManager:ContextDataset "'Context Dataset'{&TRAN}"} .
+
         DatasetAssert:HasBuffer (SessionManager:ContextDataset,
-                                 "eContextProperties":U) . 
-                                 
-        ASSIGN hBuffer    = SessionManager:ContextDataset::eContextProperties 
+                                 "eContextProperties":U) .
+
+        ASSIGN hBuffer    = SessionManager:ContextDataset::eContextProperties
                cFieldName = "Value{1}":U .
 
-        BufferAssert:HasField (hBuffer, cFieldName) . 
+        BufferAssert:HasField (hBuffer, cFieldName) .
 
         hBuffer:FIND-UNIQUE  (SUBSTITUTE ("WHERE eContextProperties.PropertyName = &1":U,
-                              QUOTER (pcPropertyName))) NO-ERROR . 
-        
-        IF NOT hBuffer:AVAILABLE THEN DO: 
+                              QUOTER (pcPropertyName))) NO-ERROR .
+
+        IF NOT hBuffer:AVAILABLE THEN DO:
             hBuffer:BUFFER-CREATE () .
             hBuffer::PropertyName = pcPropertyName .
         END.

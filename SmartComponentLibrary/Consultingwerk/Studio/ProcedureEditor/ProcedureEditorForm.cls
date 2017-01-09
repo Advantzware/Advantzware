@@ -11,10 +11,10 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : ProcedureEditorForm
-    Purpose     : Uses the WinKit to embed the ADE Procedure Editor into 
+    Purpose     : Uses the WinKit to embed the ADE Procedure Editor into
                   a .NET Form
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Fri Dec 18 22:28:25 CET 2009
     Notes       : This class is only accessible on Windows
@@ -25,21 +25,21 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 {Consultingwerk/products.i}
 
 &IF DEFINED (WinKit) NE 0 &THEN
-USING Consultingwerk.Studio.ProcedureEditor.*     FROM PROPATH . 
+USING Consultingwerk.Studio.ProcedureEditor.*     FROM PROPATH .
 USING Consultingwerk.WindowIntegrationKit.Forms.* FROM PROPATH .
 USING Progress.Lang.*                             FROM PROPATH .
 USING Progress.Windows.*                          FROM ASSEMBLY .
 USING System.Drawing.*                            FROM ASSEMBLY .
-USING System.Windows.Forms.*                      FROM ASSEMBLY . 
+USING System.Windows.Forms.*                      FROM ASSEMBLY .
 &ENDIF
 
-CLASS Consultingwerk.Studio.ProcedureEditor.ProcedureEditorForm 
+CLASS Consultingwerk.Studio.ProcedureEditor.ProcedureEditorForm
 &IF DEFINED (WinKit) NE 0 &THEN
     INHERITS ProcedureEditorBaseForm
     IMPLEMENTS IEmbeddedWindowForm
-&ENDIF        
-    : 
-    
+&ENDIF
+    :
+
 &IF DEFINED (WinKit) NE 0 &THEN
     DEFINE PRIVATE VARIABLE m_ProcedureEditorForm_Toolbars_Dock_Area_Top AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_ProcedureEditorForm_Toolbars_Dock_Area_Right AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
@@ -47,239 +47,240 @@ CLASS Consultingwerk.Studio.ProcedureEditor.ProcedureEditorForm
     DEFINE PRIVATE VARIABLE m_ProcedureEditorForm_Toolbars_Dock_Area_Bottom AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraToolbarsManager1 AS Infragistics.Win.UltraWinToolbars.UltraToolbarsManager NO-UNDO.
-   
-    DEFINE VARIABLE WinContainer AS Progress.Windows.WindowContainer NO-UNDO . 
-    
+
+    DEFINE VARIABLE WinContainer AS Progress.Windows.WindowContainer NO-UNDO .
+
     /*------------------------------------------------------------------------------
-        Purpose: Returns the reference to the main client are of the IEmbeddedWindowForm 
-        Notes:   Read-Only                                                                         
+        Purpose: Returns the reference to the main client are of the IEmbeddedWindowForm
+        Notes:   Read-Only
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY ClientArea AS System.Windows.Forms.Control NO-UNDO 
+    DEFINE PUBLIC PROPERTY ClientArea AS System.Windows.Forms.Control NO-UNDO
     GET:
         RETURN THIS-OBJECT .
     END GET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns logical value indicating if the current Editor requires 
+        Purpose: Returns logical value indicating if the current Editor requires
                  to be saved
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY IsModified AS LOGICAL NO-UNDO 
-	GET():
+    DEFINE PUBLIC PROPERTY IsModified AS LOGICAL NO-UNDO
+    GET():
         DEFINE VARIABLE lModified AS LOGICAL   NO-UNDO .
         DEFINE VARIABLE hEditor   AS HANDLE    NO-UNDO .
         DEFINE VARIABLE hWindow   AS HANDLE    NO-UNDO .
-        
+
         ASSIGN hWindow = THIS-OBJECT:EmbeddedWindow .
-        
-        IF NOT VALID-HANDLE (hWindow) THEN  
-            RETURN FALSE . 
-        
-        RUN adecomm/_pwgeteh.p (hWindow , OUTPUT hEditor).        
-		
-		IF NOT VALID-HANDLE (hEditor) THEN 
-		    RETURN FALSE .
-	
-		IF CAN-QUERY (hEditor, "MODIFIED":U) AND
-		   CAN-QUERY (hEditor, "EMPTY":U) AND
-           CAN-QUERY (hEditor, "NAME":U) THEN .
-        ELSE 
+
+        IF NOT VALID-HANDLE (hWindow) THEN
             RETURN FALSE .
-		
+
+        RUN adecomm/_pwgeteh.p (hWindow , OUTPUT hEditor).
+
+        IF NOT VALID-HANDLE (hEditor) THEN
+            RETURN FALSE .
+
+        IF CAN-QUERY (hEditor, "MODIFIED":U) AND
+           CAN-QUERY (hEditor, "EMPTY":U) AND
+           CAN-QUERY (hEditor, "NAME":U) THEN .
+        ELSE
+            RETURN FALSE .
+
         RUN adecomm/_pwfmod.p (hEditor, OUTPUT lModified).
-        
-        RETURN lModified . 		
-	END GET.
-	 
+
+        RETURN lModified .
+    END GET.
+
     /*------------------------------------------------------------------------------
         Purpose: Returns logical value indicating if the current Editor is read-only
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY IsReadOnly AS LOGICAL NO-UNDO 
-	GET:
+    DEFINE PUBLIC PROPERTY IsReadOnly AS LOGICAL NO-UNDO
+    GET:
         DEFINE VARIABLE lReadOnly AS LOGICAL   NO-UNDO .
         DEFINE VARIABLE hEditor   AS HANDLE    NO-UNDO .
         DEFINE VARIABLE hWindow   AS HANDLE    NO-UNDO .
-        
+
         ASSIGN hWindow = THIS-OBJECT:EmbeddedWindow .
-        
-        IF NOT VALID-HANDLE (hWindow) THEN  
-            RETURN FALSE . 
-        
-        RUN adecomm/_pwgeteh.p (hWindow , OUTPUT hEditor).        
-        
-        IF NOT VALID-HANDLE (hEditor) THEN 
+
+        IF NOT VALID-HANDLE (hWindow) THEN
             RETURN FALSE .
-    
-        IF CAN-QUERY (hEditor, "READ-ONLY":U) THEN 
+
+        RUN adecomm/_pwgeteh.p (hWindow , OUTPUT hEditor).
+
+        IF NOT VALID-HANDLE (hEditor) THEN
+            RETURN FALSE .
+
+        IF CAN-QUERY (hEditor, "READ-ONLY":U) THEN
             RETURN hEditor:READ-ONLY .
-        ELSE 
+        ELSE
             RETURN FALSE .
-        
-	END GET . 
+
+    END GET .
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and Sets the Col offset used when positioning the 
-                 WindowContainer control in this .NET Form.      
-        Notes:   Not supported by this class                                                                           
-    ------------------------------------------------------------------------------*/    
-    DEFINE PUBLIC PROPERTY WindowContainerColOffset AS INTEGER NO-UNDO 
+        Purpose: Gets and Sets the Col offset used when positioning the
+                 WindowContainer control in this .NET Form.
+        Notes:   Not supported by this class
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY WindowContainerColOffset AS INTEGER NO-UNDO
     GET:
         UNDO, THROW NEW Progress.Lang.AppError("Property getter for WindowContainerColOffset has not been implemented"{&TRAN}).
     END GET.
     SET (arg AS INTEGER):
-        UNDO, THROW NEW Progress.Lang.AppError("Property setter for WindowContainerColOffset has not been implemented"{&TRAN}).        
+        UNDO, THROW NEW Progress.Lang.AppError("Property setter for WindowContainerColOffset has not been implemented"{&TRAN}).
     END SET.
-     
+
     /*------------------------------------------------------------------------------
-        Purpose: Gets and Sets the default Row offset used when positioning the 
-                 WindowContainer control in this .NET Form.      
-        Notes:   Not supported by this class                                                                           
-    ------------------------------------------------------------------------------*/            
-    DEFINE PUBLIC PROPERTY WindowContainerRowOffset AS INTEGER NO-UNDO 
+        Purpose: Gets and Sets the default Row offset used when positioning the
+                 WindowContainer control in this .NET Form.
+        Notes:   Not supported by this class
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY WindowContainerRowOffset AS INTEGER NO-UNDO
     GET():
         UNDO, THROW NEW Progress.Lang.AppError("Property getter for WindowContainerRowOffset has not been implemented"{&TRAN}).
     END GET.
     SET(INPUT arg AS INTEGER):
-        UNDO, THROW NEW Progress.Lang.AppError("Property setter for WindowContainerRowOffset has not been implemented"{&TRAN}).        
+        UNDO, THROW NEW Progress.Lang.AppError("Property setter for WindowContainerRowOffset has not been implemented"{&TRAN}).
     END SET.
-          
+
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the ProcedureEditorForm class                                                                         
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/    
-     CONSTRUCTOR PUBLIC ProcedureEditorForm ():                
+        Purpose: Constructor for the ProcedureEditorForm class
+        Notes:
+    ------------------------------------------------------------------------------*/
+     CONSTRUCTOR PUBLIC ProcedureEditorForm ():
         SUPER().
         InitializeComponent().
-        
+
         THIS-OBJECT:FormClosing:Subscribe(FormClosingHandler) .
-        
+
         THIS-OBJECT:ToolbarsManager = ultraToolbarsManager1 .
-        
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
     END CONSTRUCTOR.
-    
+
     /*------------------------------------------------------------------------------
-        Purpose: Checks the Syntax of the current source code 
-        Notes:   
+        Purpose: Checks the Syntax of the current source code
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID CheckSyntax ():
-		
-		RUN adecommx/_pwrun.p (THIS-OBJECT:EmbeddedWindow,
-		                       "CHECK-SYNTAX":U) .
+    METHOD PUBLIC VOID CheckSyntax ():
 
-	END METHOD .
+        RUN adecommx/_pwrun.p (THIS-OBJECT:EmbeddedWindow,
+                               "CHECK-SYNTAX":U) .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Closes the Form after unsubscribing it's own FormClosing event handle                                                                        
+        Purpose: Closes the Form after unsubscribing it's own FormClosing event handle
         Notes:   Invoked from src/winkit/closewindow.i after the ABL window WINDOW-CLOSE
-                 event handler has not cancelled the closing of the WINDOW and Form                                                                           
+                 event handler has not cancelled the closing of the WINDOW and Form
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID CloseFromCode ():
-        
+
         THIS-OBJECT:FormClosing:Unsubscribe(FormClosingHandler) .
-        
+
         THIS-OBJECT:Close () .
 
     END METHOD.
-    
+
     /*------------------------------------------------------------------------------
-        Purpose: Creates a new instance of the Progress.Windows.WindowContainer 
-                 instance and embeds the given window widget in that instance - 
-                 but does not parent the WindowContainer instance in the Form 
-                 (THIS-OBJECT). This is delayed till later.    
-        Notes:   Required due to incombatibily issues with the Infragistics 
+        Purpose: Creates a new instance of the Progress.Windows.WindowContainer
+                 instance and embeds the given window widget in that instance -
+                 but does not parent the WindowContainer instance in the Form
+                 (THIS-OBJECT). This is delayed till later.
+        Notes:   Required due to incombatibily issues with the Infragistics
                  UltraTabbedMdiManager.
-        @param phWindow The handle of the WINDOW widget to embed                                                                         
-    ------------------------------------------------------------------------------*/    
+        @param phWindow The handle of the WINDOW widget to embed
+    ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID EmbedWindow (phWindow AS HANDLE):
-        
-        THIS-OBJECT:EmbeddedWindow = phWindow . 
-        
+
+        THIS-OBJECT:EmbeddedWindow = phWindow .
+
         WinContainer = NEW Progress.Windows.WindowContainer( ).
-        
+
         THIS-OBJECT:Size = NEW Size (phWindow:WIDTH-PIXELS, phWindow:HEIGHT-PIXELS).
         WinContainer:Size = NEW Size(phWindow:WIDTH-PIXELS, phWindow:HEIGHT-PIXELS).
-        
+
         WinContainer:EmbeddedWindow = phWindow.
         WinContainer:Dock = System.Windows.Forms.DockStyle:Fill .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Finalize the embedding of an ABL window widget by parenting 
+        Purpose: Finalize the embedding of an ABL window widget by parenting
                  the Progress.Windows.WindowContainer instance in the Form
-                 (THIS-OBJECT). Sets the Form Text property and applies the 
-                 window-resized event to the window widget.     
-        Notes:   Required due to incombatibily issues with the Infragistics 
-                 UltraTabbedMdiManager.                                                                         
-    ------------------------------------------------------------------------------*/    
+                 (THIS-OBJECT). Sets the Form Text property and applies the
+                 window-resized event to the window widget.
+        Notes:   Required due to incombatibily issues with the Infragistics
+                 UltraTabbedMdiManager.
+    ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID FinalizeEmbedding ():
         DEFINE VARIABLE hWindow AS HANDLE NO-UNDO.
-        
+
         WinContainer:Parent = THIS-OBJECT.
         WinContainer:Size = NEW System.Drawing.Size (THIS-OBJECT:Width,
                                                      THIS-OBJECT:Height).
-        
-        ASSIGN THIS-OBJECT:EmbeddedWindow:WIDTH-PIXELS  = WinContainer:WIDTH 
+
+        ASSIGN THIS-OBJECT:EmbeddedWindow:WIDTH-PIXELS  = WinContainer:WIDTH
                THIS-OBJECT:EmbeddedWindow:HEIGHT-PIXELS = WinContainer:HEIGHT .
 
         THIS-OBJECT:UpdateWindowAttributes () .
-        
+
         /* Mike Fechner, Consultingwerk Ltd. 18.12.2009
            APPLY won't work with THIS-OBJECT:EmbeddedWindow  */
-        
+
         ASSIGN hWindow = THIS-OBJECT:EmbeddedWindow .
 
-        APPLY "window-resized":U TO hWindow.            
+        APPLY "window-resized":U TO hWindow.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Event Handler for the FormClosing event of the Form. When a window
-                 is embedded, the FormClosing event will be cancelled and the 
-                 WINDOW-CLOSE event to the window will be applied.                                                                        
-        Notes:   The window is responsible for deleting the Form.  
+                 is embedded, the FormClosing event will be cancelled and the
+                 WINDOW-CLOSE event to the window will be applied.
+        Notes:   The window is responsible for deleting the Form.
                  {src/adecommx/closewindow.i} can be used in the ON CLOSE OF THIS-
                  PROCEDURE trigger for that purpose
         @param sender The System.Object that raised the event
-        @param e The FormClosingEventArgs with the data for this event                                                                       
-    ------------------------------------------------------------------------------*/    
-    METHOD PUBLIC VOID FormClosingHandler (sender AS System.Object, 
+        @param e The FormClosingEventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC VOID FormClosingHandler (sender AS System.Object,
                                            e AS FormClosingEventArgs):
 
         DEFINE VARIABLE hWindow AS HANDLE NO-UNDO.
-        
-        IF Progress.Util.EnumHelper:AreEqual(e:CloseReason,
-                                             CloseReason:UserClosing) THEN 
-            IF VALID-HANDLE(THIS-OBJECT:EmbeddedWindow) THEN DO:
-                ASSIGN hWindow  = THIS-OBJECT:EmbeddedWindow 
-                       e:Cancel = TRUE .
-                
-                APPLY "window-close":U TO hWindow .         
-            END.        
 
-            IF NOT VALID-HANDLE (hWindow) THEN 
-                e:Cancel = FALSE . 
+        IF Progress.Util.EnumHelper:AreEqual(e:CloseReason,
+                                             CloseReason:UserClosing) THEN
+            IF VALID-HANDLE(THIS-OBJECT:EmbeddedWindow) THEN DO:
+                ASSIGN hWindow  = THIS-OBJECT:EmbeddedWindow
+                       e:Cancel = TRUE .
+
+                APPLY "window-close":U TO hWindow .
+            END.
+
+            IF NOT VALID-HANDLE (hWindow) THEN
+                e:Cancel = FALSE .
 
         RETURN.
 
     END METHOD.
-    
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -514,26 +515,26 @@ CLASS Consultingwerk.Studio.ProcedureEditor.ProcedureEditorForm
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Inserts text in the Procedure Editor at the given line 
-        Notes:   
+        Purpose: Inserts text in the Procedure Editor at the given line
+        Notes:
         @param pcText The text to insert
-        @param piLine The line number to insert the text 
+        @param piLine The line number to insert the text
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID InsertText (pcText AS CHARACTER,
-	                               piLine AS INTEGER):
-		
+    METHOD PUBLIC VOID InsertText (pcText AS CHARACTER,
+                                   piLine AS INTEGER):
+
         DEFINE VARIABLE hWindow AS HANDLE NO-UNDO .
         DEFINE VARIABLE hEditor AS HANDLE NO-UNDO .
-        
+
         ASSIGN hWindow = THIS-OBJECT:EmbeddedWindow .
-        
-        RUN adecomm/_pwgeteh.p (hWindow , OUTPUT hEditor).        
+
+        RUN adecomm/_pwgeteh.p (hWindow , OUTPUT hEditor).
 
         THIS-OBJECT:MoveCursor (piLine).
 
         hEditor:INSERT-STRING (pcText) .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Moves editor cursor to a specified line number, column 1.
@@ -541,102 +542,104 @@ CLASS Consultingwerk.Studio.ProcedureEditor.ProcedureEditorForm
                  move to EOF.
         @param piLine The line number to move the cursor to
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID MoveCursor (piLine AS INTEGER):
-		
+    METHOD PUBLIC VOID MoveCursor (piLine AS INTEGER):
+
         DEFINE VARIABLE hWindow    AS HANDLE  NO-UNDO .
         DEFINE VARIABLE hEditor    AS HANDLE  NO-UNDO .
 
         DEFINE VARIABLE lMoveToEof AS LOGICAL NO-UNDO .
 
         ASSIGN hWindow = THIS-OBJECT:EmbeddedWindow .
-        
-        RUN adecomm/_pwgeteh.p (hWindow , OUTPUT hEditor).        
 
-        IF hEditor:EMPTY THEN RETURN.
-        
+        RUN adecomm/_pwgeteh.p (hWindow , OUTPUT hEditor).
+
+        IF hEditor:EMPTY THEN
+            RETURN.
+
         /* If entered line is greater than number of lines in buffer, then
            move to EOF. */
-        IF piLine > hEditor:NUM-LINES
-            THEN ASSIGN lMoveToEof = hEditor:MOVE-TO-EOF().
+        IF piLine > hEditor:NUM-LINES THEN
+            ASSIGN lMoveToEof = hEditor:MOVE-TO-EOF().
         ELSE DO:
             /* If entered line 0, goto line 1. */
-            IF ( piLine < 1 ) THEN ASSIGN piLine = 1.
-    
+            IF piLine < 1 THEN
+                ASSIGN piLine = 1.
+
             ASSIGN hEditor:CURSOR-LINE = piLine.
         END.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Refreshes the state of all overlay buttons in the IEmbeddedWindowForm                                                                      
-        Notes:   Actually this method has no functionally, but is required for the 
-                 implementation of the Interface IEmbeddedWindowForm                                                                     
+        Purpose: Refreshes the state of all overlay buttons in the IEmbeddedWindowForm
+        Notes:   Actually this method has no functionally, but is required for the
+                 implementation of the Interface IEmbeddedWindowForm
     ------------------------------------------------------------------------------*/
-    METHOD PUBLIC VOID RefreshButtons ():  
-        
+    METHOD PUBLIC VOID RefreshButtons ():
+
         /* NOOP */
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Saves the Editor contents
-        Notes:   
-        @return The name of the file  
+        Notes:
+        @return The name of the file
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC CHARACTER Save ():
-        
+
         DEFINE VARIABLE hEditor   AS HANDLE    NO-UNDO .
         DEFINE VARIABLE hWindow   AS HANDLE    NO-UNDO .
-        
+
         ASSIGN hWindow = THIS-OBJECT:EmbeddedWindow .
-        
-        RUN adecomm/_pwgeteh.p (hWindow , OUTPUT hEditor).        
+
+        RUN adecomm/_pwgeteh.p (hWindow , OUTPUT hEditor).
 
         RUN adecomm/_pwsave.p (hEditor) .
 
-        IF RETURN-VALUE = "ERROR":U THEN 
-            RETURN ? . 
+        IF RETURN-VALUE = "ERROR":U THEN
+            RETURN ? .
 
         RETURN hEditor:NAME .
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Saves the Editor contents to a temporary file 
+        Purpose: Saves the Editor contents to a temporary file
         Notes:   Useful for parsing with Proparse
-        @return The name of the temporary file  
+        @return The name of the temporary file
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC CHARACTER SaveToTemporaryFile ():
-		
+    METHOD PUBLIC CHARACTER SaveToTemporaryFile ():
+
         DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO .
         DEFINE VARIABLE lModified AS LOGICAL   NO-UNDO .
         DEFINE VARIABLE hEditor   AS HANDLE    NO-UNDO .
         DEFINE VARIABLE hWindow   AS HANDLE    NO-UNDO .
-        
-        ASSIGN hWindow = THIS-OBJECT:EmbeddedWindow .
-        
-        RUN adecomm/_pwgeteh.p (hWindow , OUTPUT hEditor).        
 
-        ASSIGN cFileName = SESSION:TEMP-DIRECTORY + Consultingwerk.Util.FileHelper:ShortFileName (hEditor:NAME) . 
-               lModified = hEditor:MODIFIED . 
+        ASSIGN hWindow = THIS-OBJECT:EmbeddedWindow .
+
+        RUN adecomm/_pwgeteh.p (hWindow , OUTPUT hEditor).
+
+        ASSIGN cFileName = SESSION:TEMP-DIRECTORY + Consultingwerk.Util.FileHelper:ShortFileName (hEditor:NAME) .
+               lModified = hEditor:MODIFIED .
 
         hEditor:SAVE-FILE (cFileName) .
 
-        ASSIGN hEditor:MODIFIED = lModified . 
+        ASSIGN hEditor:MODIFIED = lModified .
 
-		RETURN cFileName .
+        RETURN cFileName .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the ToolClick event of the ultraToolbarsManager1
         Notes:
         @param sender The reference to the object that raised the event
-        @param e The ToolClickEventArgs with the data for this event                                                                        
+        @param e The ToolClickEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraToolbarsManager1_ToolClick (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraToolbarsManager1_ToolClick (sender AS System.Object,
                                                          e AS Infragistics.Win.UltraWinToolbars.ToolClickEventArgs):
-        
+
         CASE e:Tool:Key:
             WHEN "Find":U THEN
                 RUN adecommx/_pwsrch.p ("FIND":U, THIS-OBJECT:EmbeddedWindow).
@@ -646,30 +649,30 @@ CLASS Consultingwerk.Studio.ProcedureEditor.ProcedureEditorForm
                 RUN adecommx/_pwsrch.p ("FIND-PREV":U, THIS-OBJECT:EmbeddedWindow).
             WHEN "Replace":U THEN
                 RUN adecommx/_pwsrch.p ("REPLACE":U, THIS-OBJECT:EmbeddedWindow).
-            WHEN "GotoLine":U THEN  
+            WHEN "GotoLine":U THEN
                 RUN adecommx/_pwsrch.p ("GOTO-LINE":U, THIS-OBJECT:EmbeddedWindow).
         END CASE.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Update Form properties with Properties from the WindowWidget                                                                        
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/    
+        Purpose: Update Form properties with Properties from the WindowWidget
+        Notes:
+    ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID UpdateWindowAttributes ():
-        
-        IF VALID-HANDLE (THIS-OBJECT:EmbeddedWindow) THEN 
+
+        IF VALID-HANDLE (THIS-OBJECT:EmbeddedWindow) THEN
           THIS-OBJECT:Text = ENTRY (NUM-ENTRIES (REPLACE (THIS-OBJECT:EmbeddedWindow:Title, "/":U, "~\":U),
                                                  "~\":U),
                                     REPLACE (THIS-OBJECT:EmbeddedWindow:Title, "/":U, "~\":U),
-                                    "~\":U) .   
+                                    "~\":U) .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the ProcedureEditorForm class                                                                         
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/    
+        Purpose: Constructor for the ProcedureEditorForm class
+        Notes:
+    ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC ProcedureEditorForm ():
 
         IF VALID-OBJECT(components) THEN DO:

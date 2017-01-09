@@ -45,18 +45,18 @@ IF VALID-OBJECT (oForm) AND NOT oForm:Finalized THEN DO:
         RUN finalizeEmbedding . 
         
         CATCH err AS Progress.Lang.Error :
-        	Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .	
+            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .    
         END CATCH.
     END.
     
     /* Mike Fechner, Consultingwerk Ltd. 22.07.2010
        Load custom toolbar design */    
-    ASSIGN FILE-INFO:FILE-NAME    = THIS-PROCEDURE:FILE-NAME 
-           cWinKitToolbarFileName = FILE-INFO:FULL-PATHNAME          
+    ASSIGN FILE-INFORMATION:FILE-NAME    = THIS-PROCEDURE:FILE-NAME 
+           cWinKitToolbarFileName = FILE-INFORMATION:FULL-PATHNAME          
            cWinKitToolbarFileName = SUBSTRING (cWinKitToolbarFileName, 1, R-INDEX (cWinKitToolbarFileName, ".":U) - 1) + "_toolbar.xml":U .
 
-    FILE-INFO:FILE-NAME = cWinKitToolbarFileName . 
-    IF FILE-INFO:FULL-PATHNAME > "":U THEN 
+    FILE-INFORMATION:FILE-NAME = cWinKitToolbarFileName . 
+    IF FILE-INFORMATION:FULL-PATHNAME > "":U THEN 
         oForm:ToolbarsManager:LoadFromXml (cWinKitToolbarFileName) .             
    
     /* Mike Fechner, Consultingwerk Ltd. 11.11.2010
@@ -64,7 +64,7 @@ IF VALID-OBJECT (oForm) AND NOT oForm:Finalized THEN DO:
        for dynamic menus */
     IF VALID-HANDLE (oForm:MENU-BAR) THEN 
         IF TYPE-OF (oForm, Consultingwerk.Framework.IFormWithUltraToolbarsManager) THEN 
-            Consultingwerk.Util.UltratoolbarsHelper:BuildUltraToolbarMenu (CAST(oForm, Consultingwerk.Framework.IFormWithUltraToolbarsManager)) .
+            Consultingwerk.Util.UltraToolbarsHelper:BuildUltraToolbarMenu (CAST(oForm, Consultingwerk.Framework.IFormWithUltraToolbarsManager)) .
 
     /* Mike Fechner, Consultingwerk Ltd. 28.02.2012
        Hook to refine toolbar before the Form is shown */

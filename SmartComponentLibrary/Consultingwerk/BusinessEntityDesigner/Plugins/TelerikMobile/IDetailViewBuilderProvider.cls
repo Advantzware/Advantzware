@@ -32,13 +32,13 @@ INTERFACE Consultingwerk.BusinessEntityDesigner.Plugins.TelerikMobile.IDetailVie
         Notes:   
         @return The ListNameValuePair with the available Grid Builder classes
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC ListNameValuePair GetAvailableDetailViewBuilders ().
+    METHOD PUBLIC ListNameValuePair GetAvailableDetailViewBuilders ().
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the List of the available Page Template Names 
         Notes:   
         @return The ListNameValuePair with the available Page Template Names
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC ListNameValuePair GetAvailableTemplates ().
+    METHOD PUBLIC ListNameValuePair GetAvailableTemplates ().
 
 END INTERFACE.

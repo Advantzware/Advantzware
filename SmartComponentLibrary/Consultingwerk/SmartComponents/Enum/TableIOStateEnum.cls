@@ -79,10 +79,10 @@ CLASS Consultingwerk.SmartComponents.Enum.TableIOStateEnum:
         Purpose: Constructor for the TableIOStateEnum class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PRIVATE TableIOStateEnum ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PRIVATE TableIOStateEnum ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Validates a character against the list of valid TableIOStateEnum

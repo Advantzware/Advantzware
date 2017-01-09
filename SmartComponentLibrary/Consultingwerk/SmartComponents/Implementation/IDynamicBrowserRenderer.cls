@@ -33,8 +33,8 @@ INTERFACE Consultingwerk.SmartComponents.Implementation.IDynamicBrowserRenderer:
         @param poBrowser The reference to the SmartDataBrowser to apply the settings to
         @param dsDynamicBrowser DATASET The dataset with the browser layout information
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID RenderDynamicBrowser (pcBrowserKey AS CHARACTER,
-	                                         poBrowser AS SmartDataBrowser,
-	                                         DATASET dsDynamicBrowser).
+    METHOD PUBLIC VOID RenderDynamicBrowser (pcBrowserKey AS CHARACTER,
+                                             poBrowser AS SmartDataBrowser,
+                                             DATASET dsDynamicBrowser).
 
 END INTERFACE.

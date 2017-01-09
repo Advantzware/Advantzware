@@ -119,4 +119,469 @@
   <metadata name="smartBusinessEntityBindingSource1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
+  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="eSmartBusinessEntityTable_TableOrder_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"/>
+  <data name="eSmartBusinessEntityTable_TableOrder_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>20, 132</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_TableOrder_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>68, 14</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_TableOrder_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_TableOrder_Label.Text" xml:space="preserve">
+    <value>Table Order:</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_TableOrder_Label.Name" xml:space="preserve">
+    <value>eSmartBusinessEntityTable_TableOrder_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_TableOrder_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_TableOrder_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_TableOrder_Label.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_TableOrder.Location" type="System.Drawing.Point, System.Drawing">
+    <value>147, 128</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_TableOrder.Size" type="System.Drawing.Size, System.Drawing">
+    <value>75, 21</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_TableOrder.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_TableOrder.Name" xml:space="preserve">
+    <value>eSmartBusinessEntityTable_TableOrder</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_TableOrder.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraNumericEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_TableOrder.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_TableOrder.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_TableName_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_TableName_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>20, 25</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_TableName_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>38, 14</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_TableName_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_TableName_Label.Text" xml:space="preserve">
+    <value>Name:</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_TableName_Label.Name" xml:space="preserve">
+    <value>eSmartBusinessEntityTable_TableName_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_TableName_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_TableName_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_TableName_Label.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="eSmartBusinessEntityTable_TableName.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_TableName.Location" type="System.Drawing.Point, System.Drawing">
+    <value>147, 21</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_TableName.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 21</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_TableName.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_TableName.Name" xml:space="preserve">
+    <value>eSmartBusinessEntityTable_TableName</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_TableName.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_TableName.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_TableName.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_TableLabelSingular_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_TableLabelSingular_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>20, 52</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_TableLabelSingular_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>111, 14</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_TableLabelSingular_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>5</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_TableLabelSingular_Label.Text" xml:space="preserve">
+    <value>Table Label Singular:</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_TableLabelSingular_Label.Name" xml:space="preserve">
+    <value>eSmartBusinessEntityTable_TableLabelSingular_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_TableLabelSingular_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_TableLabelSingular_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_TableLabelSingular_Label.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_TableLabelSingular.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_TableLabelSingular.Location" type="System.Drawing.Point, System.Drawing">
+    <value>147, 48</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_TableLabelSingular.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 21</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_TableLabelSingular.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_TableLabelSingular.Name" xml:space="preserve">
+    <value>eSmartBusinessEntityTable_TableLabelSingular</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_TableLabelSingular.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_TableLabelSingular.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_TableLabelSingular.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_TableLabelPlural_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_TableLabelPlural_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>20, 78</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_TableLabelPlural_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>99, 14</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_TableLabelPlural_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>7</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_TableLabelPlural_Label.Text" xml:space="preserve">
+    <value>Table Label Plural:</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_TableLabelPlural_Label.Name" xml:space="preserve">
+    <value>eSmartBusinessEntityTable_TableLabelPlural_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_TableLabelPlural_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_TableLabelPlural_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_TableLabelPlural_Label.ZOrder" xml:space="preserve">
+    <value>6</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_TableLabelPlural.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_TableLabelPlural.Location" type="System.Drawing.Point, System.Drawing">
+    <value>147, 74</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_TableLabelPlural.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 21</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_TableLabelPlural.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_TableLabelPlural.Name" xml:space="preserve">
+    <value>eSmartBusinessEntityTable_TableLabelPlural</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_TableLabelPlural.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_TableLabelPlural.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_TableLabelPlural.ZOrder" xml:space="preserve">
+    <value>7</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_ShouldUseBatching_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_ShouldUseBatching_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>20, 158</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_ShouldUseBatching_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>111, 14</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_ShouldUseBatching_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>9</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_ShouldUseBatching_Label.Text" xml:space="preserve">
+    <value>Should use Batching:</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_ShouldUseBatching_Label.Name" xml:space="preserve">
+    <value>eSmartBusinessEntityTable_ShouldUseBatching_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_ShouldUseBatching_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_ShouldUseBatching_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_ShouldUseBatching_Label.ZOrder" xml:space="preserve">
+    <value>8</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_ShouldUseBatching.Location" type="System.Drawing.Point, System.Drawing">
+    <value>147, 155</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_ShouldUseBatching.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 20</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_ShouldUseBatching.TabIndex" type="System.Int32, mscorlib">
+    <value>5</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_ShouldUseBatching.Name" xml:space="preserve">
+    <value>eSmartBusinessEntityTable_ShouldUseBatching</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_ShouldUseBatching.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraCheckEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_ShouldUseBatching.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_ShouldUseBatching.ZOrder" xml:space="preserve">
+    <value>9</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_BatchSize_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_BatchSize_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>20, 105</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_BatchSize_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>61, 14</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_BatchSize_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>11</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_BatchSize_Label.Text" xml:space="preserve">
+    <value>Batch Size:</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_BatchSize_Label.Name" xml:space="preserve">
+    <value>eSmartBusinessEntityTable_BatchSize_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_BatchSize_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_BatchSize_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_BatchSize_Label.ZOrder" xml:space="preserve">
+    <value>10</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_BatchSize.Location" type="System.Drawing.Point, System.Drawing">
+    <value>147, 101</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_BatchSize.Size" type="System.Drawing.Size, System.Drawing">
+    <value>75, 21</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_BatchSize.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_BatchSize.Name" xml:space="preserve">
+    <value>eSmartBusinessEntityTable_BatchSize</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_BatchSize.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraNumericEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_BatchSize.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_BatchSize.ZOrder" xml:space="preserve">
+    <value>11</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_AllowDelete_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_AllowDelete_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>20, 184</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_AllowDelete_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>70, 14</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_AllowDelete_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>13</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_AllowDelete_Label.Text" xml:space="preserve">
+    <value>Allow Delete:</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_AllowDelete_Label.Name" xml:space="preserve">
+    <value>eSmartBusinessEntityTable_AllowDelete_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_AllowDelete_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_AllowDelete_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_AllowDelete_Label.ZOrder" xml:space="preserve">
+    <value>12</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_AllowDelete.Location" type="System.Drawing.Point, System.Drawing">
+    <value>147, 181</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_AllowDelete.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 20</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_AllowDelete.TabIndex" type="System.Int32, mscorlib">
+    <value>6</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_AllowDelete.Name" xml:space="preserve">
+    <value>eSmartBusinessEntityTable_AllowDelete</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_AllowDelete.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraCheckEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_AllowDelete.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_AllowDelete.ZOrder" xml:space="preserve">
+    <value>13</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_AllowCreate_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_AllowCreate_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>20, 210</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_AllowCreate_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>72, 14</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_AllowCreate_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>15</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_AllowCreate_Label.Text" xml:space="preserve">
+    <value>Allow Create:</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_AllowCreate_Label.Name" xml:space="preserve">
+    <value>eSmartBusinessEntityTable_AllowCreate_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_AllowCreate_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_AllowCreate_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_AllowCreate_Label.ZOrder" xml:space="preserve">
+    <value>14</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_AllowCreate.Location" type="System.Drawing.Point, System.Drawing">
+    <value>147, 207</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_AllowCreate.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 20</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_AllowCreate.TabIndex" type="System.Int32, mscorlib">
+    <value>7</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_AllowCreate.Name" xml:space="preserve">
+    <value>eSmartBusinessEntityTable_AllowCreate</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_AllowCreate.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraCheckEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_AllowCreate.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_AllowCreate.ZOrder" xml:space="preserve">
+    <value>15</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_AllowUpdate_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_AllowUpdate_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>20, 236</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_AllowUpdate_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>74, 14</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_AllowUpdate_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>17</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_AllowUpdate_Label.Text" xml:space="preserve">
+    <value>Allow Update:</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_AllowUpdate_Label.Name" xml:space="preserve">
+    <value>eSmartBusinessEntityTable_AllowUpdate_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_AllowUpdate_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_AllowUpdate_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_AllowUpdate_Label.ZOrder" xml:space="preserve">
+    <value>16</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_AllowUpdate.Location" type="System.Drawing.Point, System.Drawing">
+    <value>147, 233</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_AllowUpdate.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 20</value>
+  </data>
+  <data name="eSmartBusinessEntityTable_AllowUpdate.TabIndex" type="System.Int32, mscorlib">
+    <value>8</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_AllowUpdate.Name" xml:space="preserve">
+    <value>eSmartBusinessEntityTable_AllowUpdate</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_AllowUpdate.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraCheckEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_AllowUpdate.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartBusinessEntityTable_AllowUpdate.ZOrder" xml:space="preserve">
+    <value>17</value>
+  </data>
+  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing">
+    <value>6, 13</value>
+  </data>
+  <data name="$this.Size" type="System.Drawing.Size, System.Drawing">
+    <value>312, 271</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1.Name" xml:space="preserve">
+    <value>smartBusinessEntityBindingSource1</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;$this.Name" xml:space="preserve">
+    <value>SmartBusinessEntityTableViewerControl</value>
+  </data>
+  <data name="&gt;&gt;$this.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Base.SmartViewerControl, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
 </root>

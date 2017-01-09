@@ -30,25 +30,25 @@ INTERFACE Consultingwerk.OERA.IValidateDataContext:
         Notes:   Typically the field that caused the validation during a Leave event
                  May be empty
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY CurrentFieldName AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY CurrentFieldName AS CHARACTER NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the comma delimited list of fields that have been 
                  processed by the user and thus should be validated
         Notes:   May be empty
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY ProcessedFields AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY ProcessedFields AS CHARACTER NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the comma delimited list of names of the tables to validate
         Notes:   CAN-DO Style syntax, e.g. *
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Tables AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY Tables AS CHARACTER NO-UNDO 
+    GET.
+    SET. 
 
 END INTERFACE.

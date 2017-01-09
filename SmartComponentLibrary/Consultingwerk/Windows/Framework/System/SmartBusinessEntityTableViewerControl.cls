@@ -63,10 +63,11 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityTableViewerCont
         
     END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design
-        Notes:   
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
         
         /* NOTE: The following method is automatically generated.
@@ -82,6 +83,9 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityTableViewerCont
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance1 AS Infragistics.Win.Appearance NO-UNDO.
         appearance1 = NEW Infragistics.Win.Appearance().
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE resources AS Progress.Util.ResourceManager NO-UNDO.
+        resources = NEW Progress.Util.ResourceManager("Consultingwerk.Windows.Framework.System.SmartBusinessEntityTableViewerControl":U).
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance2 AS Infragistics.Win.Appearance NO-UNDO.
         appearance2 = NEW Infragistics.Win.Appearance().
@@ -140,13 +144,10 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityTableViewerCont
         /*  */
         /* smartBusinessEntityBindingSource1 */
         /*  */
-        THIS-OBJECT:smartBusinessEntityBindingSource1:AddFields = FALSE.
         THIS-OBJECT:smartBusinessEntityBindingSource1:BindTo = "QUERY":U.
-        THIS-OBJECT:smartBusinessEntityBindingSource1:ClearSchema = FALSE.
         THIS-OBJECT:smartBusinessEntityBindingSource1:EntityJoin = "YES":U.
         THIS-OBJECT:smartBusinessEntityBindingSource1:EntityName = "Consultingwerk.SmartFramework.System.SmartBusinessEntityBusinessEntity":U.
         THIS-OBJECT:smartBusinessEntityBindingSource1:EntityTable = "eSmartBusinessEntityTable":U.
-        THIS-OBJECT:smartBusinessEntityBindingSource1:ImportSchema = FALSE.
         THIS-OBJECT:smartBusinessEntityBindingSource1:MaxDataGuess = 0.
         THIS-OBJECT:smartBusinessEntityBindingSource1:NoLOBs = FALSE.
         tableDesc1:ChildTables = ?.
@@ -170,194 +171,131 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityTableViewerCont
         /*  */
         appearance1:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:eSmartBusinessEntityTable_TableOrder_Label:Appearance = appearance1.
-        THIS-OBJECT:eSmartBusinessEntityTable_TableOrder_Label:AutoSize = TRUE.
-        THIS-OBJECT:eSmartBusinessEntityTable_TableOrder_Label:Location = NEW System.Drawing.Point(20, 132).
+        resources:ApplyResources(THIS-OBJECT:eSmartBusinessEntityTable_TableOrder_Label, "eSmartBusinessEntityTable_TableOrder_Label":U).
         THIS-OBJECT:eSmartBusinessEntityTable_TableOrder_Label:Name = "eSmartBusinessEntityTable_TableOrder_Label":U.
-        THIS-OBJECT:eSmartBusinessEntityTable_TableOrder_Label:Size = NEW System.Drawing.Size(68, 14).
-        THIS-OBJECT:eSmartBusinessEntityTable_TableOrder_Label:TabIndex = 1.
-        THIS-OBJECT:eSmartBusinessEntityTable_TableOrder_Label:Text = "Table Order:":U.
         /*  */
         /* eSmartBusinessEntityTable_TableOrder */
         /*  */
         THIS-OBJECT:eSmartBusinessEntityTable_TableOrder:DataBindings:Add(NEW System.Windows.Forms.Binding("Value":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "TableOrder":U, TRUE)).
         THIS-OBJECT:eSmartBusinessEntityTable_TableOrder:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:eSmartBusinessEntityTable_TableOrder:Location = NEW System.Drawing.Point(147, 128).
+        resources:ApplyResources(THIS-OBJECT:eSmartBusinessEntityTable_TableOrder, "eSmartBusinessEntityTable_TableOrder":U).
         THIS-OBJECT:eSmartBusinessEntityTable_TableOrder:Name = "eSmartBusinessEntityTable_TableOrder":U.
-        THIS-OBJECT:eSmartBusinessEntityTable_TableOrder:Size = NEW System.Drawing.Size(75, 21).
-        THIS-OBJECT:eSmartBusinessEntityTable_TableOrder:TabIndex = 4.
         /*  */
         /* eSmartBusinessEntityTable_TableName_Label */
         /*  */
         appearance2:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:eSmartBusinessEntityTable_TableName_Label:Appearance = appearance2.
-        THIS-OBJECT:eSmartBusinessEntityTable_TableName_Label:AutoSize = TRUE.
-        THIS-OBJECT:eSmartBusinessEntityTable_TableName_Label:Location = NEW System.Drawing.Point(20, 25).
+        resources:ApplyResources(THIS-OBJECT:eSmartBusinessEntityTable_TableName_Label, "eSmartBusinessEntityTable_TableName_Label":U).
         THIS-OBJECT:eSmartBusinessEntityTable_TableName_Label:Name = "eSmartBusinessEntityTable_TableName_Label":U.
-        THIS-OBJECT:eSmartBusinessEntityTable_TableName_Label:Size = NEW System.Drawing.Size(38, 14).
-        THIS-OBJECT:eSmartBusinessEntityTable_TableName_Label:TabIndex = 3.
-        THIS-OBJECT:eSmartBusinessEntityTable_TableName_Label:Text = "Name:":U.
         /*  */
         /* eSmartBusinessEntityTable_TableName */
         /*  */
-        DEFINE VARIABLE nestedvar0 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar0 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:eSmartBusinessEntityTable_TableName:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar0, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:eSmartBusinessEntityTable_TableName, "eSmartBusinessEntityTable_TableName":U).
         THIS-OBJECT:eSmartBusinessEntityTable_TableName:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "TableName":U, TRUE)).
         THIS-OBJECT:eSmartBusinessEntityTable_TableName:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:eSmartBusinessEntityTable_TableName:Location = NEW System.Drawing.Point(147, 21).
         THIS-OBJECT:eSmartBusinessEntityTable_TableName:Name = "eSmartBusinessEntityTable_TableName":U.
-        THIS-OBJECT:eSmartBusinessEntityTable_TableName:Size = NEW System.Drawing.Size(150, 21).
-        THIS-OBJECT:eSmartBusinessEntityTable_TableName:TabIndex = 0.
         /*  */
         /* eSmartBusinessEntityTable_TableLabelSingular_Label */
         /*  */
         appearance3:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:eSmartBusinessEntityTable_TableLabelSingular_Label:Appearance = appearance3.
-        THIS-OBJECT:eSmartBusinessEntityTable_TableLabelSingular_Label:AutoSize = TRUE.
-        THIS-OBJECT:eSmartBusinessEntityTable_TableLabelSingular_Label:Location = NEW System.Drawing.Point(20, 52).
+        resources:ApplyResources(THIS-OBJECT:eSmartBusinessEntityTable_TableLabelSingular_Label, "eSmartBusinessEntityTable_TableLabelSingular_Label":U).
         THIS-OBJECT:eSmartBusinessEntityTable_TableLabelSingular_Label:Name = "eSmartBusinessEntityTable_TableLabelSingular_Label":U.
-        THIS-OBJECT:eSmartBusinessEntityTable_TableLabelSingular_Label:Size = NEW System.Drawing.Size(111, 14).
-        THIS-OBJECT:eSmartBusinessEntityTable_TableLabelSingular_Label:TabIndex = 5.
-        THIS-OBJECT:eSmartBusinessEntityTable_TableLabelSingular_Label:Text = "Table Label Singular:":U.
         /*  */
         /* eSmartBusinessEntityTable_TableLabelSingular */
         /*  */
-        DEFINE VARIABLE nestedvar1 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar1 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:eSmartBusinessEntityTable_TableLabelSingular:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar1, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:eSmartBusinessEntityTable_TableLabelSingular, "eSmartBusinessEntityTable_TableLabelSingular":U).
         THIS-OBJECT:eSmartBusinessEntityTable_TableLabelSingular:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "TableLabelSingular":U, TRUE)).
         THIS-OBJECT:eSmartBusinessEntityTable_TableLabelSingular:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:eSmartBusinessEntityTable_TableLabelSingular:Location = NEW System.Drawing.Point(147, 48).
         THIS-OBJECT:eSmartBusinessEntityTable_TableLabelSingular:Name = "eSmartBusinessEntityTable_TableLabelSingular":U.
-        THIS-OBJECT:eSmartBusinessEntityTable_TableLabelSingular:Size = NEW System.Drawing.Size(150, 21).
-        THIS-OBJECT:eSmartBusinessEntityTable_TableLabelSingular:TabIndex = 1.
         /*  */
         /* eSmartBusinessEntityTable_TableLabelPlural_Label */
         /*  */
         appearance4:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:eSmartBusinessEntityTable_TableLabelPlural_Label:Appearance = appearance4.
-        THIS-OBJECT:eSmartBusinessEntityTable_TableLabelPlural_Label:AutoSize = TRUE.
-        THIS-OBJECT:eSmartBusinessEntityTable_TableLabelPlural_Label:Location = NEW System.Drawing.Point(20, 78).
+        resources:ApplyResources(THIS-OBJECT:eSmartBusinessEntityTable_TableLabelPlural_Label, "eSmartBusinessEntityTable_TableLabelPlural_Label":U).
         THIS-OBJECT:eSmartBusinessEntityTable_TableLabelPlural_Label:Name = "eSmartBusinessEntityTable_TableLabelPlural_Label":U.
-        THIS-OBJECT:eSmartBusinessEntityTable_TableLabelPlural_Label:Size = NEW System.Drawing.Size(99, 14).
-        THIS-OBJECT:eSmartBusinessEntityTable_TableLabelPlural_Label:TabIndex = 7.
-        THIS-OBJECT:eSmartBusinessEntityTable_TableLabelPlural_Label:Text = "Table Label Plural:":U.
         /*  */
         /* eSmartBusinessEntityTable_TableLabelPlural */
         /*  */
-        DEFINE VARIABLE nestedvar2 AS System.Windows.Forms.AnchorStyles NO-UNDO.
-        nestedvar2 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:eSmartBusinessEntityTable_TableLabelPlural:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar2, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        resources:ApplyResources(THIS-OBJECT:eSmartBusinessEntityTable_TableLabelPlural, "eSmartBusinessEntityTable_TableLabelPlural":U).
         THIS-OBJECT:eSmartBusinessEntityTable_TableLabelPlural:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "TableLabelPlural":U, TRUE)).
         THIS-OBJECT:eSmartBusinessEntityTable_TableLabelPlural:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:eSmartBusinessEntityTable_TableLabelPlural:Location = NEW System.Drawing.Point(147, 74).
         THIS-OBJECT:eSmartBusinessEntityTable_TableLabelPlural:Name = "eSmartBusinessEntityTable_TableLabelPlural":U.
-        THIS-OBJECT:eSmartBusinessEntityTable_TableLabelPlural:Size = NEW System.Drawing.Size(150, 21).
-        THIS-OBJECT:eSmartBusinessEntityTable_TableLabelPlural:TabIndex = 2.
         /*  */
         /* eSmartBusinessEntityTable_ShouldUseBatching_Label */
         /*  */
         appearance5:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:eSmartBusinessEntityTable_ShouldUseBatching_Label:Appearance = appearance5.
-        THIS-OBJECT:eSmartBusinessEntityTable_ShouldUseBatching_Label:AutoSize = TRUE.
-        THIS-OBJECT:eSmartBusinessEntityTable_ShouldUseBatching_Label:Location = NEW System.Drawing.Point(20, 158).
+        resources:ApplyResources(THIS-OBJECT:eSmartBusinessEntityTable_ShouldUseBatching_Label, "eSmartBusinessEntityTable_ShouldUseBatching_Label":U).
         THIS-OBJECT:eSmartBusinessEntityTable_ShouldUseBatching_Label:Name = "eSmartBusinessEntityTable_ShouldUseBatching_Label":U.
-        THIS-OBJECT:eSmartBusinessEntityTable_ShouldUseBatching_Label:Size = NEW System.Drawing.Size(111, 14).
-        THIS-OBJECT:eSmartBusinessEntityTable_ShouldUseBatching_Label:TabIndex = 9.
-        THIS-OBJECT:eSmartBusinessEntityTable_ShouldUseBatching_Label:Text = "Should use Batching:":U.
         /*  */
         /* eSmartBusinessEntityTable_ShouldUseBatching */
         /*  */
         THIS-OBJECT:eSmartBusinessEntityTable_ShouldUseBatching:DataBindings:Add(NEW System.Windows.Forms.Binding("CheckedValue":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "ShouldUseBatching":U, TRUE)).
-        THIS-OBJECT:eSmartBusinessEntityTable_ShouldUseBatching:Location = NEW System.Drawing.Point(147, 155).
+        resources:ApplyResources(THIS-OBJECT:eSmartBusinessEntityTable_ShouldUseBatching, "eSmartBusinessEntityTable_ShouldUseBatching":U).
         THIS-OBJECT:eSmartBusinessEntityTable_ShouldUseBatching:Name = "eSmartBusinessEntityTable_ShouldUseBatching":U.
-        THIS-OBJECT:eSmartBusinessEntityTable_ShouldUseBatching:Size = NEW System.Drawing.Size(150, 20).
-        THIS-OBJECT:eSmartBusinessEntityTable_ShouldUseBatching:TabIndex = 5.
         THIS-OBJECT:eSmartBusinessEntityTable_ShouldUseBatching:UseMnemonics = TRUE.
         /*  */
         /* eSmartBusinessEntityTable_BatchSize_Label */
         /*  */
         appearance6:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:eSmartBusinessEntityTable_BatchSize_Label:Appearance = appearance6.
-        THIS-OBJECT:eSmartBusinessEntityTable_BatchSize_Label:AutoSize = TRUE.
-        THIS-OBJECT:eSmartBusinessEntityTable_BatchSize_Label:Location = NEW System.Drawing.Point(20, 105).
+        resources:ApplyResources(THIS-OBJECT:eSmartBusinessEntityTable_BatchSize_Label, "eSmartBusinessEntityTable_BatchSize_Label":U).
         THIS-OBJECT:eSmartBusinessEntityTable_BatchSize_Label:Name = "eSmartBusinessEntityTable_BatchSize_Label":U.
-        THIS-OBJECT:eSmartBusinessEntityTable_BatchSize_Label:Size = NEW System.Drawing.Size(61, 14).
-        THIS-OBJECT:eSmartBusinessEntityTable_BatchSize_Label:TabIndex = 11.
-        THIS-OBJECT:eSmartBusinessEntityTable_BatchSize_Label:Text = "Batch Size:":U.
         /*  */
         /* eSmartBusinessEntityTable_BatchSize */
         /*  */
         THIS-OBJECT:eSmartBusinessEntityTable_BatchSize:DataBindings:Add(NEW System.Windows.Forms.Binding("Value":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "BatchSize":U, TRUE)).
         THIS-OBJECT:eSmartBusinessEntityTable_BatchSize:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:eSmartBusinessEntityTable_BatchSize:Location = NEW System.Drawing.Point(147, 101).
+        resources:ApplyResources(THIS-OBJECT:eSmartBusinessEntityTable_BatchSize, "eSmartBusinessEntityTable_BatchSize":U).
         THIS-OBJECT:eSmartBusinessEntityTable_BatchSize:Name = "eSmartBusinessEntityTable_BatchSize":U.
-        THIS-OBJECT:eSmartBusinessEntityTable_BatchSize:Size = NEW System.Drawing.Size(75, 21).
-        THIS-OBJECT:eSmartBusinessEntityTable_BatchSize:TabIndex = 3.
         /*  */
         /* eSmartBusinessEntityTable_AllowDelete_Label */
         /*  */
         appearance7:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:eSmartBusinessEntityTable_AllowDelete_Label:Appearance = appearance7.
-        THIS-OBJECT:eSmartBusinessEntityTable_AllowDelete_Label:AutoSize = TRUE.
-        THIS-OBJECT:eSmartBusinessEntityTable_AllowDelete_Label:Location = NEW System.Drawing.Point(20, 184).
+        resources:ApplyResources(THIS-OBJECT:eSmartBusinessEntityTable_AllowDelete_Label, "eSmartBusinessEntityTable_AllowDelete_Label":U).
         THIS-OBJECT:eSmartBusinessEntityTable_AllowDelete_Label:Name = "eSmartBusinessEntityTable_AllowDelete_Label":U.
-        THIS-OBJECT:eSmartBusinessEntityTable_AllowDelete_Label:Size = NEW System.Drawing.Size(70, 14).
-        THIS-OBJECT:eSmartBusinessEntityTable_AllowDelete_Label:TabIndex = 13.
-        THIS-OBJECT:eSmartBusinessEntityTable_AllowDelete_Label:Text = "Allow Delete:":U.
         /*  */
         /* eSmartBusinessEntityTable_AllowDelete */
         /*  */
         THIS-OBJECT:eSmartBusinessEntityTable_AllowDelete:DataBindings:Add(NEW System.Windows.Forms.Binding("CheckedValue":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "AllowDelete":U, TRUE)).
-        THIS-OBJECT:eSmartBusinessEntityTable_AllowDelete:Location = NEW System.Drawing.Point(147, 181).
+        resources:ApplyResources(THIS-OBJECT:eSmartBusinessEntityTable_AllowDelete, "eSmartBusinessEntityTable_AllowDelete":U).
         THIS-OBJECT:eSmartBusinessEntityTable_AllowDelete:Name = "eSmartBusinessEntityTable_AllowDelete":U.
-        THIS-OBJECT:eSmartBusinessEntityTable_AllowDelete:Size = NEW System.Drawing.Size(150, 20).
-        THIS-OBJECT:eSmartBusinessEntityTable_AllowDelete:TabIndex = 6.
         THIS-OBJECT:eSmartBusinessEntityTable_AllowDelete:UseMnemonics = TRUE.
         /*  */
         /* eSmartBusinessEntityTable_AllowCreate_Label */
         /*  */
         appearance8:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:eSmartBusinessEntityTable_AllowCreate_Label:Appearance = appearance8.
-        THIS-OBJECT:eSmartBusinessEntityTable_AllowCreate_Label:AutoSize = TRUE.
-        THIS-OBJECT:eSmartBusinessEntityTable_AllowCreate_Label:Location = NEW System.Drawing.Point(20, 210).
+        resources:ApplyResources(THIS-OBJECT:eSmartBusinessEntityTable_AllowCreate_Label, "eSmartBusinessEntityTable_AllowCreate_Label":U).
         THIS-OBJECT:eSmartBusinessEntityTable_AllowCreate_Label:Name = "eSmartBusinessEntityTable_AllowCreate_Label":U.
-        THIS-OBJECT:eSmartBusinessEntityTable_AllowCreate_Label:Size = NEW System.Drawing.Size(72, 14).
-        THIS-OBJECT:eSmartBusinessEntityTable_AllowCreate_Label:TabIndex = 15.
-        THIS-OBJECT:eSmartBusinessEntityTable_AllowCreate_Label:Text = "Allow Create:":U.
         /*  */
         /* eSmartBusinessEntityTable_AllowCreate */
         /*  */
         THIS-OBJECT:eSmartBusinessEntityTable_AllowCreate:DataBindings:Add(NEW System.Windows.Forms.Binding("CheckedValue":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "AllowCreate":U, TRUE)).
-        THIS-OBJECT:eSmartBusinessEntityTable_AllowCreate:Location = NEW System.Drawing.Point(147, 207).
+        resources:ApplyResources(THIS-OBJECT:eSmartBusinessEntityTable_AllowCreate, "eSmartBusinessEntityTable_AllowCreate":U).
         THIS-OBJECT:eSmartBusinessEntityTable_AllowCreate:Name = "eSmartBusinessEntityTable_AllowCreate":U.
-        THIS-OBJECT:eSmartBusinessEntityTable_AllowCreate:Size = NEW System.Drawing.Size(150, 20).
-        THIS-OBJECT:eSmartBusinessEntityTable_AllowCreate:TabIndex = 7.
         THIS-OBJECT:eSmartBusinessEntityTable_AllowCreate:UseMnemonics = TRUE.
         /*  */
         /* eSmartBusinessEntityTable_AllowUpdate_Label */
         /*  */
         appearance9:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:eSmartBusinessEntityTable_AllowUpdate_Label:Appearance = appearance9.
-        THIS-OBJECT:eSmartBusinessEntityTable_AllowUpdate_Label:AutoSize = TRUE.
-        THIS-OBJECT:eSmartBusinessEntityTable_AllowUpdate_Label:Location = NEW System.Drawing.Point(20, 236).
+        resources:ApplyResources(THIS-OBJECT:eSmartBusinessEntityTable_AllowUpdate_Label, "eSmartBusinessEntityTable_AllowUpdate_Label":U).
         THIS-OBJECT:eSmartBusinessEntityTable_AllowUpdate_Label:Name = "eSmartBusinessEntityTable_AllowUpdate_Label":U.
-        THIS-OBJECT:eSmartBusinessEntityTable_AllowUpdate_Label:Size = NEW System.Drawing.Size(74, 14).
-        THIS-OBJECT:eSmartBusinessEntityTable_AllowUpdate_Label:TabIndex = 17.
-        THIS-OBJECT:eSmartBusinessEntityTable_AllowUpdate_Label:Text = "Allow Update:":U.
         /*  */
         /* eSmartBusinessEntityTable_AllowUpdate */
         /*  */
         THIS-OBJECT:eSmartBusinessEntityTable_AllowUpdate:DataBindings:Add(NEW System.Windows.Forms.Binding("CheckedValue":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "AllowUpdate":U, TRUE)).
-        THIS-OBJECT:eSmartBusinessEntityTable_AllowUpdate:Location = NEW System.Drawing.Point(147, 233).
+        resources:ApplyResources(THIS-OBJECT:eSmartBusinessEntityTable_AllowUpdate, "eSmartBusinessEntityTable_AllowUpdate":U).
         THIS-OBJECT:eSmartBusinessEntityTable_AllowUpdate:Name = "eSmartBusinessEntityTable_AllowUpdate":U.
-        THIS-OBJECT:eSmartBusinessEntityTable_AllowUpdate:Size = NEW System.Drawing.Size(150, 20).
-        THIS-OBJECT:eSmartBusinessEntityTable_AllowUpdate:TabIndex = 8.
         THIS-OBJECT:eSmartBusinessEntityTable_AllowUpdate:UseMnemonics = TRUE.
         /*  */
         /* SmartBusinessEntityTableViewerControl */
         /*  */
-        THIS-OBJECT:AutoScaleDimensions = NEW System.Drawing.SizeF(Progress.Util.CastUtil:ToSingle(6), Progress.Util.CastUtil:ToSingle(13)).
+        resources:ApplyResources(THIS-OBJECT, "$this":U).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:eSmartBusinessEntityTable_TableOrder_Label).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:eSmartBusinessEntityTable_TableOrder).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:eSmartBusinessEntityTable_TableName_Label).
@@ -377,7 +315,6 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityTableViewerCont
         THIS-OBJECT:Controls:Add(THIS-OBJECT:eSmartBusinessEntityTable_AllowUpdate_Label).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:eSmartBusinessEntityTable_AllowUpdate).
         THIS-OBJECT:Name = "SmartBusinessEntityTableViewerControl":U.
-        THIS-OBJECT:Size = NEW System.Drawing.Size(312, 271).
         CAST(THIS-OBJECT:smartBusinessEntityBindingSource1, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:eSmartBusinessEntityTable_TableOrder, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:eSmartBusinessEntityTable_TableName, System.ComponentModel.ISupportInitialize):EndInit().

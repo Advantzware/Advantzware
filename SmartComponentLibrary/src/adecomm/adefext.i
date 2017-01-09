@@ -10,8 +10,8 @@
 File: adefext.i
 
 Description:
-	
-	Defines all the product names and file extensions.
+    
+    Defines all the product names and file extensions.
 
 Author: David Lee
 

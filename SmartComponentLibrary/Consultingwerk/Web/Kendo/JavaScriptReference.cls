@@ -29,28 +29,28 @@ USING Progress.Lang.*            FROM PROPATH .
 CLASS Consultingwerk.Web.Kendo.JavaScriptReference 
     INHERITS JsonSerializable: 
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Constructor for the JavaScriptReference class
-	    Notes:
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC JavaScriptReference ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the JavaScriptReference class
+        Notes:
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC JavaScriptReference ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Fixes a JavaScript reference in the JSON Document by inserting  
-	             unquoted JavaScript source code 
-	    Notes:   The JSON object model quotes every string - which would not be 
-	             accepted as JavaScript source code by the browser
-	    @param plcJson INPUT-OUTPUT The JSON string to correct
-	    @param pcPropertyName The name of the JSON property to fix
-	    @param pcPropertyValue The property value to insert
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID FixJavaScriptReference (INPUT-OUTPUT plcJson AS LONGCHAR,
-	                                           pcPropertyName AS CHARACTER,
-	                                           pcPropertyValue AS CHARACTER):
-		
+    /*------------------------------------------------------------------------------
+        Purpose: Fixes a JavaScript reference in the JSON Document by inserting  
+                 unquoted JavaScript source code 
+        Notes:   The JSON object model quotes every string - which would not be 
+                 accepted as JavaScript source code by the browser
+        @param plcJson INPUT-OUTPUT The JSON string to correct
+        @param pcPropertyName The name of the JSON property to fix
+        @param pcPropertyValue The property value to insert
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC VOID FixJavaScriptReference (INPUT-OUTPUT plcJson AS LONGCHAR,
+                                               pcPropertyName AS CHARACTER,
+                                               pcPropertyValue AS CHARACTER):
+        
         DEFINE VARIABLE iIndex  AS INTEGER NO-UNDO.
         DEFINE VARIABLE iIndex2 AS INTEGER NO-UNDO.
 
@@ -65,6 +65,6 @@ CLASS Consultingwerk.Web.Kendo.JavaScriptReference
                 SUBSTRING (plcJson, iIndex, iIndex2 - iIndex + 1) = pcPropertyValue .
         END.
 
-	END METHOD.
+    END METHOD.
 
 END CLASS.

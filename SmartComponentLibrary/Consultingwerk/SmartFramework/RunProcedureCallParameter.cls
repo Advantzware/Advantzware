@@ -36,7 +36,7 @@ CLASS Consultingwerk.SmartFramework.RunProcedureCallParameter
     INHERITS JsonSerializable
 &ENDIF    
     IMPLEMENTS IFunctionCallParameter: 
-	
+    
     {Consultingwerk/JsonSerializableProperty.i AllowMultiple LOGICAL} .
     {Consultingwerk/JsonSerializableProperty.i CharacterParameterValue CHARACTER} .
     {Consultingwerk/JsonSerializableProperty.i InitializeInternalProcedure CHARACTER} .
@@ -46,7 +46,7 @@ CLASS Consultingwerk.SmartFramework.RunProcedureCallParameter
     {Consultingwerk/JsonSerializableProperty.i ReactivateInternalProcedureParameter CHARACTER} .
     {Consultingwerk/JsonSerializableProperty.i RunPersistent LOGICAL} .
     {Consultingwerk/JsonSerializableProperty.i UseCharacterParameterValue LOGICAL} .
-	
+    
     /*------------------------------------------------------------------------------
         Purpose: Returns the name of the Editor Control used by the Function maintenance
                  Viewer 
@@ -61,40 +61,40 @@ CLASS Consultingwerk.SmartFramework.RunProcedureCallParameter
     ------------------------------------------------------------------------------*/
     DEFINE PUBLIC STATIC PROPERTY ImageKey AS CHARACTER INITIAL "Consultingwerk/Windows/Framework/Images/FunctionCallParameter/media_play_green.png":U NO-UNDO 
     GET.
-	
+    
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the InvokeStaticMethodCallParameter class                                                                     
         Notes:                                                                        
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC RunProcedureCallParameter ():
-		SUPER ().
-		
+    CONSTRUCTOR PUBLIC RunProcedureCallParameter ():
+        SUPER ().
+        
         THIS-OBJECT:AddSerializableProperties ("{&SerializableProperties}":U) .
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Locates an already running instance of the procedure 
         Notes:   
         @return The handle of the already running instance of the procedure 
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED HANDLE FindProcedure ():
-		
-		DEFINE VARIABLE hProcedure AS HANDLE NO-UNDO.
-		
-		ASSIGN hProcedure = SESSION:FIRST-PROCEDURE .
-		
-		DO WHILE VALID-HANDLE (hProcedure):
+    METHOD PROTECTED HANDLE FindProcedure ():
+        
+        DEFINE VARIABLE hProcedure AS HANDLE NO-UNDO.
+        
+        ASSIGN hProcedure = SESSION:FIRST-PROCEDURE .
+        
+        DO WHILE VALID-HANDLE (hProcedure):
         
             IF hProcedure:FILE-NAME = THIS-OBJECT:ProcedureName THEN 
-		        RETURN hProcedure .  
-		    
-		    hProcedure = hProcedure:NEXT-SIBLING . 
-		END.
+                RETURN hProcedure .  
+            
+            hProcedure = hProcedure:NEXT-SIBLING . 
+        END.
 
-		RETURN ? .
+        RETURN ? .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Invokes/Starts the function associated with the IFunctionCallParameter 
@@ -168,28 +168,28 @@ CLASS Consultingwerk.SmartFramework.RunProcedureCallParameter
             
         END.
     
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Returns true when the function is currently active (runninng) 
         Notes:   
         @return True when the function is currently active (runninng)
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL IsActive ():
-		
+    METHOD PUBLIC LOGICAL IsActive ():
+        
         RETURN VALID-HANDLE (THIS-OBJECT:FindProcedure()) .
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: ReActivates the function 
         Notes:   
         @return True when the function was successfully reactivated
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL ReActivate ():
-		
-		DEFINE VARIABLE hProcedure AS HANDLE NO-UNDO.
-		
+    METHOD PUBLIC LOGICAL ReActivate ():
+        
+        DEFINE VARIABLE hProcedure AS HANDLE NO-UNDO.
+        
         /* If there should only be a single instance of this Form,
            reactivate when there is already a Form instance */
         IF THIS-OBJECT:RunPersistent AND 
@@ -206,9 +206,9 @@ CLASS Consultingwerk.SmartFramework.RunProcedureCallParameter
                 RETURN TRUE .            
             END. 
         END .
-		
-		RETURN FALSE . 
-		
-	END METHOD.
+        
+        RETURN FALSE . 
+        
+    END METHOD.
 
 END CLASS.

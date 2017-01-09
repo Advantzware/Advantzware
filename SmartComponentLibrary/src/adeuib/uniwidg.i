@@ -68,13 +68,13 @@ DEFINE {1} SHARED TEMP-TABLE _U
    FIELD _ENABLE                  AS LOGICAL  LABEL "ENABLE"          INITIAL TRUE
    FIELD _HELP                    AS CHAR     LABEL "Help"            FORMAT "X(78)"
    FIELD _HELP-ATTR               AS CHAR     FORMAT "X(5)"           INITIAL ""
-   					LABEL "HELP String Attributes" 
+                       LABEL "HELP String Attributes" 
    FIELD _HELP-SOURCE             AS CHAR     LABEL "HELP Source"     INITIAL "E" 
    FIELD _HIDDEN                  AS LOGICAL  LABEL "HIDDEN"          INITIAL FALSE
    FIELD _LABEL                   AS CHAR     LABEL "Label"           INITIAL ?
                                         FORMAT "X(256)"
    FIELD _LABEL-ATTR              AS CHAR     FORMAT "X(5)" INITIAL ""
-   					LABEL "Label String Attributes" 
+                       LABEL "Label String Attributes" 
    FIELD _LABEL-SOURCE            AS CHAR     LABEL "Label Source"    INITIAL "E" 
    FIELD _LAYOUT-UNIT             AS LOGICAL  LABEL "Layout Unit"     INITIAL TRUE
                                         FORMAT "Columns/Pixels"
@@ -111,7 +111,7 @@ DEFINE {1} SHARED TEMP-TABLE _U
    FIELD _TAB-ORDER               AS INTEGER  LABEL "Tab Order"
    FIELD _TOOLTIP                 AS CHAR     LABEL "Tooltip"
    FIELD _TOOLTIP-ATTR            AS CHAR     FORMAT "X(5)" INITIAL ""
-   					LABEL "Tooltip String Attributes" 
+                       LABEL "Tooltip String Attributes" 
    FIELD _TYPE                    AS CHAR     LABEL "Type"            INITIAL ?
    FIELD _User-List               AS LOGICAL  EXTENT {&MaxUserLists}  INITIAL NO
                             /* Array of User defined lists.  */
@@ -122,7 +122,7 @@ DEFINE {1} SHARED TEMP-TABLE _U
    FIELD _WIN-TYPE                AS LOGICAL  LABEL "Window Type"     INITIAL ?
    FIELD _l-recid                 AS RECID    LABEL "RECID of Linked UW"
                                                          /* eg. FILLIN LABELS */
-   FIELD _x-recid	                AS RECID    LABEL "RECID of eXtension _U, _F or _M"
+   FIELD _x-recid                    AS RECID    LABEL "RECID of eXtension _U, _F or _M"
    FIELD _PRIVATE-DATA-ATTR       AS CHAR     LABEL "Private Data String Attributes"
  INDEX _HANDLE     IS PRIMARY UNIQUE _HANDLE
  INDEX _NAME       _NAME _TYPE
@@ -255,7 +255,7 @@ DEFINE {1} SHARED TEMP-TABLE _F
    FIELD _FORMAT                  AS CHAR     LABEL "Format"          INITIAL ?
                                         FORMAT "X(40)"
    FIELD _FORMAT-ATTR             AS CHAR     FORMAT "X(5)" INITIAL "U"
-   					LABEL "FORMAT String Attributes" 
+                       LABEL "FORMAT String Attributes" 
    FIELD _FORMAT-SOURCE           AS CHAR     LABEL "FORMAT Source"   INITIAL "E" 
    FIELD _FRAME                   AS WIDGET   LABEL "Frame"
    FIELD _FREQUENCY               AS INTEGER  LABEL "Freq"            INITIAL 0
@@ -285,7 +285,7 @@ DEFINE {1} SHARED TEMP-TABLE _F
    FIELD _RETURN-INSERTED         AS LOGICAL  LABEL "RETURN-INSERTED"
    FIELD _SCREEN-VALUE            AS CHAR     LABEL "Screen Value"    INITIAL ""
    FIELD _SCREEN-VALUE-ATTR       AS CHAR     FORMAT "X(5)" INITIAL ""
-   					LABEL "Screen VALUE String Attributes" 
+                       LABEL "Screen VALUE String Attributes" 
    FIELD _SCROLLBAR-H             AS LOGICAL  LABEL "Horizontal Scrollbar"
    FIELD _SIZE-SOURCE             AS CHAR     LABEL "SIZE Source"     INITIAL "E" 
    FIELD _SORT                    AS LOGICAL  LABEL "SORT"
@@ -315,9 +315,9 @@ DEFINE {1} SHARED TEMP-TABLE _F
               Contains attributes found in the menu widgets
               (Windows, Browse Widgets , and Frames)                       */
 DEFINE {1} SHARED TEMP-TABLE _M
-   FIELD _parent-recid	          AS RECID    LABEL "RECID of parent menu"  INITIAL ?
-   FIELD _child-recid	            AS RECID    LABEL "RECID of 1st child"    INITIAL ?
-   FIELD _sibling-recid           AS RECID	LABEL "RECID of next sibling" INITIAL ?
+   FIELD _parent-recid              AS RECID    LABEL "RECID of parent menu"  INITIAL ?
+   FIELD _child-recid                AS RECID    LABEL "RECID of 1st child"    INITIAL ?
+   FIELD _sibling-recid           AS RECID    LABEL "RECID of next sibling" INITIAL ?
    FIELD _ACCELERATOR             AS CHAR     LABEL "Accelerator"  FORMAT "X(40)" 
    FIELD _SUB-MENU-HELP           AS LOGICAL  LABEL "SUB-MENU-HELP"  
    .
@@ -397,7 +397,7 @@ DEFINE {1} SHARED TEMP-TABLE _P
 DEFINE {1} SHARED TEMP-TABLE _Q
    FIELD _OpenQury                AS LOGICAL  LABEL "Open Query Automatically"
                                         INITIAL YES
-   					VIEW-AS TOGGLE-BOX   					 
+                       VIEW-AS TOGGLE-BOX                        
    FIELD _4GLQury                 AS CHAR     /* 4GL code defining query           */
    FIELD _TblList                 AS CHAR     /* List of tables in query           */
    FIELD _FldList                 AS CHAR     /* List of fields selected for browse*/
@@ -407,7 +407,7 @@ DEFINE {1} SHARED TEMP-TABLE _Q
                                   /* List of fields enabled for editting     */
    FIELD _FldLabelList            AS CHAR     EXTENT {&MaxFld}         INITIAL ?
                                   /* List of fields labels selected for browse*/
-   FIELD _FldFormatList	          AS CHAR     EXTENT {&MaxFld}         INITIAL ?
+   FIELD _FldFormatList              AS CHAR     EXTENT {&MaxFld}         INITIAL ?
                                  /* List of fields formats selected for browse*/
    FIELD _OrdList                 AS CHAR     /* List of fields in BREAK BY phrase */
    FIELD _OptionList              AS CHAR     /* Query/Browse Options eg. INDEX-REP */

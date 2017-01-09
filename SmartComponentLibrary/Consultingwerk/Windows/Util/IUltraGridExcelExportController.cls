@@ -27,13 +27,13 @@ USING Progress.Lang.*                 FROM PROPATH .
 
 INTERFACE Consultingwerk.Windows.Util.IUltraGridExcelExportController:  
 
-	/*------------------------------------------------------------------------------
-		Purpose: Exports an UltraGrid	  
-		Notes:  	
-		@param poGrid The UltraGrid to export
-		@return The filename of the exported document
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC CHARACTER Export (poGrid AS UltraGrid).
+    /*------------------------------------------------------------------------------
+        Purpose: Exports an UltraGrid      
+        Notes:      
+        @param poGrid The UltraGrid to export
+        @return The filename of the exported document
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC CHARACTER Export (poGrid AS UltraGrid).
 
     /*------------------------------------------------------------------------------
         Purpose: Exports an UltraGrid                                                                     

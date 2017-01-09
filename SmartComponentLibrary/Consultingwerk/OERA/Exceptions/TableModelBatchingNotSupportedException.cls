@@ -32,38 +32,38 @@ USING Progress.Lang.*                  FROM PROPATH .
 CLASS Consultingwerk.OERA.Exceptions.TableModelBatchingNotSupportedException 
     INHERITS DatasetModelException
     {&SERIALIZABLE}: 
-		
+        
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the Exception class
         Notes:                          
-    ------------------------------------------------------------------------------*/		
-	CONSTRUCTOR PUBLIC TableModelBatchingNotSupportedException ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    ------------------------------------------------------------------------------*/        
+    CONSTRUCTOR PUBLIC TableModelBatchingNotSupportedException ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the Exception class
         Notes:                          
         @param pcErrorString The error message associated with this Exception object
         @param piMessageNumber The error message number associated with this Exception object
-    ------------------------------------------------------------------------------*/		
-	CONSTRUCTOR PUBLIC TableModelBatchingNotSupportedException (pcErrorString AS CHARACTER, 
-	                                                            piMessageNumber AS INTEGER):
-		
-		SUPER (INPUT pcErrorString, INPUT piMessageNumber).
-		
-	END CONSTRUCTOR.
+    ------------------------------------------------------------------------------*/        
+    CONSTRUCTOR PUBLIC TableModelBatchingNotSupportedException (pcErrorString AS CHARACTER, 
+                                                                piMessageNumber AS INTEGER):
+        
+        SUPER (INPUT pcErrorString, INPUT piMessageNumber).
+        
+    END CONSTRUCTOR.
                                               
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the Exception class
         Notes:                          
         @param pcErrorString The error message associated with this Exception object
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC TableModelBatchingNotSupportedException (pcErrorString AS CHARACTER):
-		
-		SUPER (INPUT pcErrorString).
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC TableModelBatchingNotSupportedException (pcErrorString AS CHARACTER):
+        
+        SUPER (INPUT pcErrorString).
+        
+    END CONSTRUCTOR.
 
 END CLASS.

@@ -8,20 +8,20 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : MultipleItemPickerControl
     Purpose     : Control that allows selecting multiple items from a list
                   of items
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Fri Aug 22 14:35:01 CEST 2014
     Notes       : SCL-417
                   This Control uses a TableLayoutPanel for layout purposes.
                   As this Control does not require to be localizable we
-                  do not expect to see the issues described in SCL-205 
-                  here   
+                  do not expect to see the issues described in SCL-205
+                  here
   ----------------------------------------------------------------------*/
 
 
@@ -34,115 +34,115 @@ USING Consultingwerk.Util.* FROM PROPATH.
 USING Progress.Windows.* FROM ASSEMBLY.
 USING Infragistics.Win.UltraWinListView.* FROM ASSEMBLY.
 
-CLASS Consultingwerk.Windows.Controls.MultipleItemPickerControl INHERITS UserControl USE-WIDGET-POOL: 
-	
+CLASS Consultingwerk.Windows.Controls.MultipleItemPickerControl INHERITS UserControl USE-WIDGET-POOL:
+
     DEFINE PRIVATE VARIABLE btnAdd AS Infragistics.Win.Misc.UltraButton NO-UNDO.
     DEFINE PRIVATE VARIABLE btnRemove AS Infragistics.Win.Misc.UltraButton NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE lvSelected AS Infragistics.Win.UltraWinListView.UltraListView NO-UNDO.
     DEFINE PRIVATE VARIABLE lvAvailable AS Infragistics.Win.UltraWinListView.UltraListView NO-UNDO.
     DEFINE PRIVATE VARIABLE lblSelected AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE lblAvailable AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE tableLayoutPanel1 AS System.Windows.Forms.TableLayoutPanel NO-UNDO.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Raised whenever the List of selected items changes
-        Notes:   
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Raised whenever the List of selected items changes
+     * Notes:
+     */
     DEFINE PUBLIC EVENT SelectedItemsChanged DELEGATE System.EventHandler .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the names of the fields that shall be used for the 
-                 Display text of the items
-        Notes:   Comma delimited list
-    ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY DisplayFields AS CHARACTER NO-UNDO INIT "":U 
+    /**
+     * Purpose: Gets and sets the names of the fields that shall be used for the
+     *          Display text of the items
+     * Notes:   Comma delimited list
+     */
+    DEFINE PUBLIC PROPERTY DisplayFields AS CHARACTER NO-UNDO INIT "":U
     GET.
-    SET. 
+    SET.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the pattern to be used (SUBSTITUTE function) to build 
-                 the Display text of the items from the values of the fields in the 
-                 DisplayFields property
-        Notes:   
-    ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY DisplayFieldSubstitute AS CHARACTER NO-UNDO INIT "&1":U 
+    /**
+     * Purpose: Gets and sets the pattern to be used (SUBSTITUTE function) to build
+     *          the Display text of the items from the values of the fields in the
+     *          DisplayFields property
+     * Notes:
+     */
+    DEFINE PUBLIC PROPERTY DisplayFieldSubstitute AS CHARACTER NO-UNDO INIT "&1":U
     GET.
-    SET. 
-		
-    /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the name of the field that returns the Image Key
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY ImageKeyField AS CHARACTER NO-UNDO INIT "":U 
-	GET.
-	SET. 
+    SET.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the name of the field that returns the Key Value
-        Notes:   
-    ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY KeyField AS CHARACTER NO-UNDO INIT "":U 
+    /**
+     * Purpose: Gets and sets the name of the field that returns the Image Key
+     * Notes:
+     */
+    DEFINE PUBLIC PROPERTY ImageKeyField AS CHARACTER NO-UNDO INIT "":U
     GET.
-    SET. 
+    SET.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the label for the available items
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY LabelAvailableItems AS CHARACTER NO-UNDO INIT "Available Items:":U
-	GET:
-		RETURN lblAvailable:Text .
-	END GET.
-	SET (arg AS CHARACTER):
-		lblAvailable:Text = arg . 	
-	END SET.
-	 
-    /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the label for the selected items
-        Notes:   
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Gets and sets the name of the field that returns the Key Value
+     * Notes:
+     */
+    DEFINE PUBLIC PROPERTY KeyField AS CHARACTER NO-UNDO INIT "":U
+    GET.
+    SET.
+
+    /**
+     * Purpose: Gets and sets the label for the available items
+     * Notes:
+     */
+    DEFINE PUBLIC PROPERTY LabelAvailableItems AS CHARACTER NO-UNDO INIT "Available Items:":U
+    GET:
+        RETURN lblAvailable:Text .
+    END GET.
+    SET (arg AS CHARACTER):
+        lblAvailable:Text = arg .
+    END SET.
+
+    /**
+     * Purpose: Gets and sets the label for the selected items
+     * Notes:
+     */
     DEFINE PUBLIC PROPERTY LabelSelectedItems AS CHARACTER NO-UNDO INIT "Selected Items:":U
     GET:
         RETURN lblSelected:Text .
     END GET.
     SET (arg AS CHARACTER):
-        lblSelected:Text = arg .   
+        lblSelected:Text = arg .
     END SET.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Constructor for the MultipleItemPickerControl class
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC MultipleItemPickerControl ():
-		
+    /**
+     * Purpose: Constructor for the MultipleItemPickerControl class
+     * Notes:
+     */
+    CONSTRUCTOR PUBLIC MultipleItemPickerControl ():
+
         SUPER().
         InitializeComponent().
-        
+
         lvAvailable:MainColumn:Sorting = Sorting:Ascending .
         lvSelected:MainColumn:Sorting = Sorting:Ascending .
-        
+
         &IF NOT PROVERSION BEGINS "10.2":U AND NOT PROVERSION BEGINS "11.0" &THEN
         THIS-OBJECT:ComponentsCollection:Add (THIS-OBJECT:components).
         &ENDIF
-        
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
-	/*------------------------------------------------------------------------------
-	   Purpose: Adds selected items
-	   Notes:
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID AddSelectedItems ():
-		
-		DEFINE VARIABLE oItems AS "UltraListViewItem[]" NO-UNDO . 
+    /**
+     * Purpose: Adds selected items
+     * Notes:
+     */
+    METHOD PROTECTED VOID AddSelectedItems ():
 
-        oItems = {Consultingwerk/new-array.i Infragistics.Win.UltraWinListView.UltraListViewItem lvAvailable:SelectedItems:Count} .     
-            
-        lvAvailable:SelectedItems:CopyTo (oItems, 0) .                   
+        DEFINE VARIABLE oItems AS "UltraListViewItem[]" NO-UNDO .
+
+        oItems = {Consultingwerk/new-array.i Infragistics.Win.UltraWinListView.UltraListViewItem lvAvailable:SelectedItems:Count} .
+
+        lvAvailable:SelectedItems:CopyTo (oItems, 0) .
 
         {Consultingwerk/foreach.i UltraListViewItem oItem in oItems}
             lvAvailable:Items:Remove (oItem) .
@@ -150,43 +150,51 @@ CLASS Consultingwerk.Windows.Controls.MultipleItemPickerControl INHERITS UserCon
         END.
 
         OnSelectedItemsChanged (System.EventArgs:Empty) .
-        
-	END METHOD.
 
-	/*------------------------------------------------------------------------------
-	   Purpose: Event handler for the Click event of the btnAdd
-	   Notes:
-	   @param sender The reference to the Control that raised the event
-	   @param e The System.EventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID btnAdd_Click (sender AS System.Object, 
-	                                  e AS System.EventArgs):
-		
-		THIS-OBJECT:AddSelectedItems () . 
+    END METHOD.
 
-	END METHOD.
+    /**
+     * Purpose: Event handler for the Click event of the btnAdd
+     * Notes:
+     * @param sender The reference to the Control that raised the event
+     * @param e The System.EventArgs with the data for this event
+     */
+    METHOD PRIVATE VOID btnAdd_Click (sender AS System.Object,
+                                      e AS System.EventArgs):
 
-    /*------------------------------------------------------------------------------
-       Purpose: Event handler for the Click event of the btnRemove
-       Notes:
-       @param sender The reference to the Control that raised the event
-       @param e The System.EventArgs with the data for this event
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID btnRemove_Click (sender AS System.Object, 
-	                                     e AS System.EventArgs):
-		
-		THIS-OBJECT:RemoveSelectedItems () . 
+        THIS-OBJECT:AddSelectedItems () .
 
-	END METHOD.
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
 
-	/*------------------------------------------------------------------------------
-	   Purpose: Returns the List of selected Items 
-	   Notes:   Uses a CHR(1) delimited CharacterList
-	   @return The CharacterList with the seelcted items
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC CharacterList GetSelectedItems ():
-		
-		DEFINE VARIABLE oList AS CharacterList NO-UNDO.
+    END METHOD.
+
+    /**
+     * Purpose: Event handler for the Click event of the btnRemove
+     * Notes:
+     * @param sender The reference to the Control that raised the event
+     * @param e The System.EventArgs with the data for this event
+     */
+    METHOD PRIVATE VOID btnRemove_Click (sender AS System.Object,
+                                         e AS System.EventArgs):
+
+        THIS-OBJECT:RemoveSelectedItems () .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD.
+
+    /**
+     * Purpose: Returns the List of selected Items
+     * Notes:   Uses a CHR(1) delimited CharacterList
+     * @return The CharacterList with the seelcted items
+     */
+    METHOD PUBLIC CharacterList GetSelectedItems ():
+
+        DEFINE VARIABLE oList AS CharacterList NO-UNDO.
 
         ASSIGN oList = NEW CharacterList ("":U, CHR (1)) .
 
@@ -194,21 +202,22 @@ CLASS Consultingwerk.Windows.Controls.MultipleItemPickerControl INHERITS UserCon
             oList:Add (oItem:Key) .
         END.
 
-		RETURN oList.
+        RETURN oList.
 
-	END METHOD.
+    END METHOD.
 
-    /*------------------------------------------------------------------------------
-       Purpose: Initializes the Visual Design
-       Notes:
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance1 AS Infragistics.Win.Appearance NO-UNDO.
@@ -283,6 +292,7 @@ CLASS Consultingwerk.Windows.Controls.MultipleItemPickerControl INHERITS UserCon
         THIS-OBJECT:lvAvailable:TabIndex = 2.
         THIS-OBJECT:lvAvailable:Text = "ultraListView1":U.
         THIS-OBJECT:lvAvailable:View = Infragistics.Win.UltraWinListView.UltraListViewStyle:List.
+        THIS-OBJECT:lvAvailable:ViewSettingsList:MultiColumn = FALSE.
         THIS-OBJECT:lvAvailable:ItemDoubleClick:Subscribe(THIS-OBJECT:lvAvailable_ItemDoubleClick).
         THIS-OBJECT:lvAvailable:ItemSelectionChanged:Subscribe(THIS-OBJECT:lvAvailable_ItemSelectionChanged).
         /*  */
@@ -342,116 +352,132 @@ CLASS Consultingwerk.Windows.Controls.MultipleItemPickerControl INHERITS UserCon
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD.
+    END METHOD.
 
-	/*------------------------------------------------------------------------------
-       Purpose: Event handler for the ItemDoubleClick event of the lvAvailable 
-       Notes:
-       @param sender The reference to the Control that raised the event
-       @param e The ItemDoubleClickEventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID lvAvailable_ItemDoubleClick (sender AS System.Object, 
-	                                                 e AS ItemDoubleClickEventArgs ):
-		
-		THIS-OBJECT:AddSelectedItems () .
+    /**
+     * Purpose: Event handler for the ItemDoubleClick event of the lvAvailable
+     * Notes:
+     * @param sender The reference to the Control that raised the event
+     * @param e The ItemDoubleClickEventArgs with the data for this event
+     */
+    METHOD PRIVATE VOID lvAvailable_ItemDoubleClick (sender AS System.Object,
+                                                     e AS ItemDoubleClickEventArgs ):
 
-	END METHOD.
+        THIS-OBJECT:AddSelectedItems () .
 
-	/*------------------------------------------------------------------------------
-	   Purpose: Event handler for the ItemSelectionChanged event of the lvAvailable
-	   Notes:
-	   @param sender The reference to the Control that raised the event
-	   @param e The ItemSelectionChangedEventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID lvAvailable_ItemSelectionChanged (sender AS System.Object, 
-	                                                      e AS ItemSelectionChangedEventArgs):
-		
-		ASSIGN btnAdd:Enabled = lvAvailable:SelectedItems:Count > 0 . 
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
 
-	END METHOD.
+    END METHOD.
 
-	/*------------------------------------------------------------------------------
-	   Purpose: Event handler for the ItemDoubleClick event of the lvSelected 
-	   Notes:
-	   @param sender The reference to the Control that raised the event
-	   @param e The ItemDoubleClickEventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID lvSelected_ItemDoubleClick (sender AS System.Object, 
-	                                                e AS ItemDoubleClickEventArgs):
-		
-		THIS-OBJECT:RemoveSelectedItems() .
+    /**
+     * Purpose: Event handler for the ItemSelectionChanged event of the lvAvailable
+     * Notes:
+     * @param sender The reference to the Control that raised the event
+     * @param e The ItemSelectionChangedEventArgs with the data for this event
+     */
+    METHOD PRIVATE VOID lvAvailable_ItemSelectionChanged (sender AS System.Object,
+                                                          e AS ItemSelectionChangedEventArgs):
 
-	END METHOD.
+        ASSIGN btnAdd:Enabled = lvAvailable:SelectedItems:Count > 0 .
 
-	/*------------------------------------------------------------------------------
-       Purpose: Event handler for the ItemSelectionChanged event of the lvSelected
-       Notes:
-       @param sender The reference to the Control that raised the event
-       @param e The ItemSelectionChangedEventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID lvSelected_ItemSelectionChanged (sender AS System.Object, 
-	                                                     e AS ItemSelectionChangedEventArgs):
-		
-		ASSIGN btnRemove:Enabled = lvSelected:SelectedItems:Count > 0 . 
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
 
-	END METHOD.
-  
-    /*------------------------------------------------------------------------------
-        Purpose: Raises the SelectedItemsChanged
-        Notes:   
-        @param e The System.EventArgs with the data for the event
-    ------------------------------------------------------------------------------*/
+    END METHOD.
+
+    /**
+     * Purpose: Event handler for the ItemDoubleClick event of the lvSelected
+     * Notes:
+     * @param sender The reference to the Control that raised the event
+     * @param e The ItemDoubleClickEventArgs with the data for this event
+     */
+    METHOD PRIVATE VOID lvSelected_ItemDoubleClick (sender AS System.Object,
+                                                    e AS ItemDoubleClickEventArgs):
+
+        THIS-OBJECT:RemoveSelectedItems() .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD.
+
+    /**
+     * Purpose: Event handler for the ItemSelectionChanged event of the lvSelected
+     * Notes:
+     * @param sender The reference to the Control that raised the event
+     * @param e The ItemSelectionChangedEventArgs with the data for this event
+     */
+    METHOD PRIVATE VOID lvSelected_ItemSelectionChanged (sender AS System.Object,
+                                                         e AS ItemSelectionChangedEventArgs):
+
+        ASSIGN btnRemove:Enabled = lvSelected:SelectedItems:Count > 0 .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD.
+
+    /**
+     * Purpose: Raises the SelectedItemsChanged
+     * Notes:
+     * @param e The System.EventArgs with the data for the event
+     */
     METHOD PROTECTED VOID OnSelectedItemsChanged (e AS System.EventArgs):
-        
-        IF NOT VALID-OBJECT (e) THEN 
-            e = System.EventArgs:Empty . 
-  
+
+        IF NOT VALID-OBJECT (e) THEN
+            e = System.EventArgs:Empty .
+
         THIS-OBJECT:SelectedItemsChanged:Publish (THIS-OBJECT, e) .
-  
+
     END METHOD .
 
-	/*------------------------------------------------------------------------------
-	   Purpose: Removes selected items 
-	   Notes:
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID RemoveSelectedItems ():
-		
-        DEFINE VARIABLE oItems AS "UltraListViewItem[]" NO-UNDO . 
+    /**
+     * Purpose: Removes selected items
+     * Notes:
+     */
+    METHOD PROTECTED VOID RemoveSelectedItems ():
 
-        oItems = {Consultingwerk/new-array.i Infragistics.Win.UltraWinListView.UltraListViewItem lvSelected:SelectedItems:Count} .     
-            
-        lvSelected:SelectedItems:CopyTo (oItems, 0) .                   
+        DEFINE VARIABLE oItems AS "UltraListViewItem[]" NO-UNDO .
+
+        oItems = {Consultingwerk/new-array.i Infragistics.Win.UltraWinListView.UltraListViewItem lvSelected:SelectedItems:Count} .
+
+        lvSelected:SelectedItems:CopyTo (oItems, 0) .
 
         {Consultingwerk/foreach.i UltraListViewItem oItem in oItems}
             lvSelected:Items:Remove (oItem) .
             lvAvailable:Items:Add (oItem) .
         END.
-        
-        OnSelectedItemsChanged (System.EventArgs:Empty) .
-        
-	END METHOD.
 
-	/*------------------------------------------------------------------------------
-	   Purpose: Initializes the Selection lists based on the given temp-table and
-	            CharcaterList of selected values 
-	   Notes:
-	   @param phTempTable The handle (NOT TABLE-HANDLE) of the tmep-table containing all values
-	   @param poSelectedItems The CharacterList of selected items
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID SetListItems (phTempTable AS HANDLE,
-	                                 poSelectedItems AS CharacterList):
-		
+        OnSelectedItemsChanged (System.EventArgs:Empty) .
+
+    END METHOD.
+
+    /**
+     * Purpose: Initializes the Selection lists based on the given temp-table and
+     *          CharcaterList of selected values
+     * Notes:
+     * @param phTempTable The handle (NOT TABLE-HANDLE) of the temp-table containing all values
+     * @param poSelectedItems The CharacterList of selected items
+     */
+    METHOD PUBLIC VOID SetListItems (phTempTable AS HANDLE,
+                                     poSelectedItems AS CharacterList):
+
         DEFINE VARIABLE hBuffer AS HANDLE            NO-UNDO .
         DEFINE VARIABLE hQuery  AS HANDLE            NO-UNDO .
-        DEFINE VARIABLE oItem   AS UltraListViewItem NO-UNDO .  
+        DEFINE VARIABLE oItem   AS UltraListViewItem NO-UNDO .
 
-        DEFINE VARIABLE oImageProvider AS Consultingwerk.Windows.Framework.IImageProvider NO-UNDO . 
-        
+        DEFINE VARIABLE oImageProvider AS Consultingwerk.Windows.Framework.IImageProvider NO-UNDO .
+
         {Consultingwerk/Assertion/HandleAssert/WidgetType.i phTempTable WidgetTypeEnum:TempTable} .
         ObjectAssert:IsValid (poSelectedItems, "poSelectedItems":U) .
 
         lvAvailable:Items:Clear () .
-        lvSelected:Items:Clear () . 
+        lvSelected:Items:Clear () .
 
         CREATE BUFFER hBuffer FOR TABLE phTempTable .
 
@@ -459,43 +485,39 @@ CLASS Consultingwerk.Windows.Controls.MultipleItemPickerControl INHERITS UserCon
 
         IF THIS-OBJECT:ImageKeyField > "":U THEN DO:
             BufferAssert:HasField (hBuffer, THIS-OBJECT:ImageKeyField) .
-            
+
             ASSIGN oImageProvider = {Consultingwerk/get-service.i Consultingwerk.Windows.Framework.IImageProvider
                                                                   "NEW Consultingwerk.Windows.Framework.ImageProvider ()"  } .
-        
+
         END.
 
-        hQuery = QueryHelper:CreatePreparedQuery (hBuffer) . 
+        hQuery = QueryHelper:CreatePreparedQuery (hBuffer) .
 
         DO WHILE NOT hQuery:QUERY-OFF-END ON ERROR UNDO, THROW:
-            
-            oItem = NEW UltraListViewItem (BufferHelper:BufferFieldSubstitute (hBuffer,   
-                                                                               THIS-OBJECT:DisplayFields, 
+
+            oItem = NEW UltraListViewItem (BufferHelper:BufferFieldSubstitute (hBuffer,
+                                                                               THIS-OBJECT:DisplayFields,
                                                                                THIS-OBJECT:DisplayFieldSubstitute), ?, ?) .
             oItem:Key = hBuffer:BUFFER-FIELD (THIS-OBJECT:KeyField):BUFFER-VALUE .
-            
-            IF THIS-OBJECT:ImageKeyField > "":U THEN 
-                oItem:Appearance:Image = oImageProvider:ImageForKey (hBuffer:BUFFER-FIELD (THIS-OBJECT:ImageKeyField):BUFFER-VALUE) . 
-            
-            IF NOT poSelectedItems:ContainsValue (oItem:Key) THEN 
+
+            IF THIS-OBJECT:ImageKeyField > "":U THEN
+                oItem:Appearance:Image = oImageProvider:ImageForKey (hBuffer:BUFFER-FIELD (THIS-OBJECT:ImageKeyField):BUFFER-VALUE) .
+
+            IF NOT poSelectedItems:ContainsValue (oItem:Key) THEN
                 lvAvailable:Items:Add (oItem) .
-            ELSE 
-                lvSelected:Items:Add (oItem) . 
-            
+            ELSE
+                lvSelected:Items:Add (oItem) .
+
             FINALLY:
-                hQuery:GET-NEXT () . 		
-            END FINALLY. 
+                hQuery:GET-NEXT () .
+            END FINALLY.
         END.
 
         FINALLY:
-            GarbageCollectorHelper:DeleteObject (hQuery) . 
-            GarbageCollectorHelper:DeleteObject (hBuffer) .		
+            GarbageCollectorHelper:DeleteObject (hQuery) .
+            GarbageCollectorHelper:DeleteObject (hBuffer) .
         END FINALLY.
 
-	END METHOD.
-
-	DESTRUCTOR PUBLIC MultipleItemPickerControl ( ):
-
-	END DESTRUCTOR.
+    END METHOD.
 
 END CLASS.

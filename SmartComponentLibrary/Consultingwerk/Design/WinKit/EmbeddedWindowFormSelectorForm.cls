@@ -8,28 +8,28 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : EmbeddedWindowFormSelectorForm
     Purpose     : Provides an user interface to select an embedded window
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Mon Jul 12 14:19:45 CEST 2010
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
-USING Consultingwerk.WindowIntegrationKit.Forms.* FROM PROPATH . 
+USING Consultingwerk.WindowIntegrationKit.Forms.* FROM PROPATH .
 USING Progress.Lang.*                             FROM PROPATH .
 USING Progress.Windows.Form                       FROM ASSEMBLY .
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-CLASS Consultingwerk.Design.WinKit.EmbeddedWindowFormSelectorForm 
-    INHERITS Form: 
-	
+CLASS Consultingwerk.Design.WinKit.EmbeddedWindowFormSelectorForm
+    INHERITS Form:
+
     DEFINE PRIVATE VARIABLE bindingSource1 AS Progress.Data.BindingSource NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraGrid1 AS Infragistics.Win.UltraWinGrid.UltraGrid NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraTabSharedControlsPage1 AS Infragistics.Win.UltraWinTabControl.UltraTabSharedControlsPage NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraTabPageControl1 AS Infragistics.Win.UltraWinTabControl.UltraTabPageControl NO-UNDO.
@@ -37,49 +37,50 @@ CLASS Consultingwerk.Design.WinKit.EmbeddedWindowFormSelectorForm
     DEFINE PRIVATE VARIABLE ultraButton2 AS Infragistics.Win.Misc.UltraButton NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraButton1 AS Infragistics.Win.Misc.UltraButton NO-UNDO.
 
-    {Consultingwerk/Design/WinKit/ttEmbeddedWindows.i &ACCESS = "PRIVATE"}    		
-		
-    DEFINE PRIVATE QUERY qEmbeddedWindows FOR ttEmbeddedWindows SCROLLING .		
-		
-    /*------------------------------------------------------------------------------
-        Purpose: Returns the reference to the selected IEmbeddedWindowForm instance                                                        
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY SelectedEmbeddedWindowForm AS IEmbeddedWindowForm NO-UNDO 
-    GET:
-	    IF NOT AVAILABLE ttEmbeddedWindows THEN 
-	       RETURN ? .
-	       
-	    ELSE RETURN 
-	        CAST (ttEmbeddedWindows.EmbeddedWindow, 
-	              Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWindowForm) . 
-	END GET.
+    {Consultingwerk/Design/WinKit/ttEmbeddedWindows.i &ACCESS = "PRIVATE"}
+
+    DEFINE PRIVATE QUERY qEmbeddedWindows FOR ttEmbeddedWindows SCROLLING .
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the EmbeddedWindowFormSelectorForm class                                                        
-        Notes:                                                                        
+        Purpose: Returns the reference to the selected IEmbeddedWindowForm instance
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC EmbeddedWindowFormSelectorForm (  ):
-		
+    DEFINE PUBLIC PROPERTY SelectedEmbeddedWindowForm AS IEmbeddedWindowForm NO-UNDO
+    GET:
+        IF NOT AVAILABLE ttEmbeddedWindows THEN
+           RETURN ? .
+
+        ELSE RETURN
+            CAST (ttEmbeddedWindows.EmbeddedWindow,
+                  Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWindowForm) .
+    END GET.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the EmbeddedWindowFormSelectorForm class
+        Notes:
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC EmbeddedWindowFormSelectorForm (  ):
+
         SUPER().
         InitializeComponent().
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent(  ):
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -336,49 +337,49 @@ CLASS Consultingwerk.Design.WinKit.EmbeddedWindowFormSelectorForm
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD.
-
-	/*------------------------------------------------------------------------------
-		Purpose: Receives the temp-table  																	  
-		Notes:  																	  
-        @param ttEmbeddedWindows TABLE The temp-table with the embedded windows                                                                  
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID ReceiveEmbeddedWindows (TABLE ttEmbeddedWindows):
-		
-		OPEN QUERY qEmbeddedWindows 
-		    PRESELECT EACH ttEmbeddedWindows .
-		    
-        bindingSource1:HANDLE = QUERY qEmbeddedWindows:HANDLE.		     
-
-        IF bindingSource1:COUNT > 0 THEN 
-            THIS-OBJECT:ultraButton1:Enabled = TRUE . 
-
-	END METHOD.
-
-	/*------------------------------------------------------------------------------
-        Purpose: Event handler for the DoubleClickRow event of the ultraGrid1 
-			Notes:  																	  
-        @param sender The reference to the object that raised the event
-        @param e The DoubleClickRowEventArgs instance with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraGrid1_DoubleClickRow (sender AS System.Object, 
-	                                               e AS Infragistics.Win.UltraWinGrid.DoubleClickRowEventArgs):
-		
-		THIS-OBJECT:DialogResult = System.Windows.Forms.DialogResult:OK . 
-		THIS-OBJECT:Close () .
-
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the EmbeddedWindowFormSelectorForm class                                                        
-        Notes:                                                                        
+        Purpose: Receives the temp-table
+        Notes:
+        @param ttEmbeddedWindows TABLE The temp-table with the embedded windows
     ------------------------------------------------------------------------------*/
-	DESTRUCTOR PUBLIC EmbeddedWindowFormSelectorForm ( ):
+    METHOD PUBLIC VOID ReceiveEmbeddedWindows (TABLE ttEmbeddedWindows):
 
-		IF VALID-OBJECT(components) THEN DO:
-			CAST(components, System.IDisposable):Dispose().
-		END.
+        OPEN QUERY qEmbeddedWindows
+            PRESELECT EACH ttEmbeddedWindows .
 
-	END DESTRUCTOR.
+        bindingSource1:HANDLE = QUERY qEmbeddedWindows:HANDLE.
+
+        IF bindingSource1:COUNT > 0 THEN
+            THIS-OBJECT:ultraButton1:Enabled = TRUE .
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the DoubleClickRow event of the ultraGrid1
+            Notes:
+        @param sender The reference to the object that raised the event
+        @param e The DoubleClickRowEventArgs instance with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID ultraGrid1_DoubleClickRow (sender AS System.Object,
+                                                   e AS Infragistics.Win.UltraWinGrid.DoubleClickRowEventArgs):
+
+        THIS-OBJECT:DialogResult = System.Windows.Forms.DialogResult:OK .
+        THIS-OBJECT:Close () .
+
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Destructor for the EmbeddedWindowFormSelectorForm class
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DESTRUCTOR PUBLIC EmbeddedWindowFormSelectorForm ( ):
+
+        IF VALID-OBJECT(components) THEN DO:
+            CAST(components, System.IDisposable):Dispose().
+        END.
+
+    END DESTRUCTOR.
 
 END CLASS.

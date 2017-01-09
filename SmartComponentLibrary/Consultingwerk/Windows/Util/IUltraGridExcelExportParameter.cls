@@ -30,8 +30,8 @@ INTERFACE Consultingwerk.Windows.Util.IUltraGridExcelExportParameter:
         Purpose: Returns the FileName for the Excel Export 
         Notes:   
     ------------------------------------------------------------------------------*/    
-	DEFINE PUBLIC PROPERTY FileName AS CHARACTER NO-UNDO 
-	GET.
+    DEFINE PUBLIC PROPERTY FileName AS CHARACTER NO-UNDO 
+    GET.
 
     /*------------------------------------------------------------------------------
         Purpose: Returns if the user should be prompted for retrieving additional
@@ -40,19 +40,19 @@ INTERFACE Consultingwerk.Windows.Util.IUltraGridExcelExportParameter:
     ------------------------------------------------------------------------------*/    
     DEFINE PUBLIC PROPERTY PromptForAdditionalRows AS LOGICAL NO-UNDO 
     GET.
-    	
+        
     /*------------------------------------------------------------------------------
         Purpose: Returns if the user should be prompted to overwrite an existing file 
         Notes:   
     ------------------------------------------------------------------------------*/    
     DEFINE PUBLIC PROPERTY PromptForOverwrite AS LOGICAL NO-UNDO 
     GET.
-	
+    
     /*------------------------------------------------------------------------------
         Purpose: Returns if the user should be prompted to overwrite an existing file 
         Notes:   
     ------------------------------------------------------------------------------*/    
     DEFINE PUBLIC PROPERTY WorkbookFormat AS WorkbookFormat NO-UNDO 
     GET.
- 	
+     
 END INTERFACE.

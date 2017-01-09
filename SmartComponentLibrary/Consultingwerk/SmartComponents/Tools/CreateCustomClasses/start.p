@@ -11,11 +11,11 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : start.p
-    Purpose     : 
+    Purpose     :
 
     Syntax      :
 
-    Description : 
+    Description :
 
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Tue Apr 23 22:49:28 CEST 2013
@@ -40,38 +40,38 @@ DEFINE VARIABLE cAuthor                 AS CHARACTER NO-UNDO INIT "Customer Name
 DEFINE VARIABLE cOERA                   AS CHARACTER NO-UNDO INIT "OERA:":U                  FORMAT "x(30)":U .
 DEFINE VARIABLE cSmartComponentLibrary  AS CHARACTER NO-UNDO INIT "SmartComponent Libray:":U FORMAT "x(30)":U .
 
-DEFAULT-WINDOW:WIDTH = 150 . 
+DEFAULT-WINDOW:WIDTH = 150 .
 
-ASSIGN cBaseFolder = Consultingwerk.Util.SessionHelper:CurrentDirectory() . 
+ASSIGN cBaseFolder = Consultingwerk.Util.SessionHelper:CurrentDirectory() .
 
-FORM cBaseFolder             LABEL "Base Folder":U FORMAT "x(80)":U SKIP (2) 
+FORM cBaseFolder             LABEL "Base Folder":U FORMAT "x(80)":U SKIP (2)
      cOERA                   NO-LABEL                               SKIP (0)
-     cOERAPackage            LABEL "Package":U     FORMAT "x(80)":U SKIP         
-     cOERAPrefix             LABEL "Prefix":U      FORMAT "x(20)":U SKIP (2)      
+     cOERAPackage            LABEL "Package":U     FORMAT "x(80)":U SKIP
+     cOERAPrefix             LABEL "Prefix":U      FORMAT "x(20)":U SKIP (2)
      cSmartComponentLibrary  NO-LABEL                               SKIP (0)
-     cSmartComponentsPackage LABEL "Package":U     FORMAT "x(80)":U SKIP 
-     cSmartComponentsPrefix  LABEL "Prefix":U      FORMAT "x(20)":U SKIP (2) 
-       
+     cSmartComponentsPackage LABEL "Package":U     FORMAT "x(80)":U SKIP
+     cSmartComponentsPrefix  LABEL "Prefix":U      FORMAT "x(20)":U SKIP (2)
+
      cAuthor                 LABEL "Author":U      FORMAT "x(80)":U
-       
-     WITH WIDTH 140 SIDE-LABEL 1 DOWN .
 
-DISPL cOERA cSmartComponentLibrary .
+     WITH WIDTH 140 SIDE-LABELS 1 DOWN .
 
-UPDATE cBaseFolder             LABEL "Base Folder":U FORMAT "x(80)":U SKIP (2) 
-       cOERAPackage            LABEL "Package":U     FORMAT "x(80)":U SKIP         
-       cOERAPrefix             LABEL "Prefix":U      FORMAT "x(20)":U SKIP (2)      
-       cSmartComponentsPackage LABEL "Package":U     FORMAT "x(80)":U SKIP 
-       cSmartComponentsPrefix  LABEL "Prefix":U      FORMAT "x(20)":U SKIP (2) 
-       
+DISPLAY cOERA cSmartComponentLibrary .
+
+UPDATE cBaseFolder             LABEL "Base Folder":U FORMAT "x(80)":U SKIP (2)
+       cOERAPackage            LABEL "Package":U     FORMAT "x(80)":U SKIP
+       cOERAPrefix             LABEL "Prefix":U      FORMAT "x(20)":U SKIP (2)
+       cSmartComponentsPackage LABEL "Package":U     FORMAT "x(80)":U SKIP
+       cSmartComponentsPrefix  LABEL "Prefix":U      FORMAT "x(20)":U SKIP (2)
+
        cAuthor                 LABEL "Author":U      FORMAT "x(80)":U
-       
-       WITH WIDTH 140 SIDE-LABEL 1 DOWN .
-       
-       
-NEW Consultingwerk.SmartComponents.Tools.CreateCustomClasses.CustomClassGenerator (cBaseFolder, 
-                                                                                   cOERAPackage, 
-                                                                                   cOERAPrefix, 
-                                                                                   cSmartComponentsPackage, 
-                                                                                   cSmartComponentsPrefix, 
-                                                                                   cAuthor) . 
+
+       WITH WIDTH 140 SIDE-LABELS 1 DOWN .
+
+
+NEW Consultingwerk.SmartComponents.Tools.CreateCustomClasses.CustomClassGenerator (cBaseFolder,
+                                                                                   cOERAPackage,
+                                                                                   cOERAPrefix,
+                                                                                   cSmartComponentsPackage,
+                                                                                   cSmartComponentsPrefix,
+                                                                                   cAuthor) .

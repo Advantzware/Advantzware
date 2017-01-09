@@ -35,7 +35,7 @@ CLASS Consultingwerk.OERA.BusinessEntityDescriptor.GetBusinessEntityDescriptorPa
     {&SERIALIZABLE}:
 
     {Consultingwerk/JsonSerializableProperty.i Descriptor Consultingwerk.OERA.BusinessEntityDescriptor.IBusinessEntityDescriptor}        
-    {Consultingwerk/JsonSerializableProperty.i ReturnDataset LOGICAL "INIT FALSE"}        
+    {Consultingwerk/JsonSerializableProperty.i ReturnDataset LOGICAL "INITIAL FALSE"}
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the GetBusinessEntityDescriptorParameter class

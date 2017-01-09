@@ -8,108 +8,108 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : SmartWebDialog
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Thu Apr 12 20:11:58 CEST 2012
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 {Consultingwerk/products.i}
 
-USING Consultingwerk.*             FROM PROPATH . 
+USING Consultingwerk.*             FROM PROPATH .
 USING Consultingwerk.Web.Widgets.* FROM PROPATH .
 USING Progress.Lang.*              FROM PROPATH .
 
-CLASS Consultingwerk.Web.Widgets.SmartWebDialog INHERITS Control: 
+CLASS Consultingwerk.Web.Widgets.SmartWebDialog INHERITS Control:
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the List of the Dialog Buttons                                                                    
-        Notes:   Name as the internal value (key), Value for the Label                                                                        
+        Purpose: Gets and sets the List of the Dialog Buttons
+        Notes:   Name as the internal value (key), Value for the Label
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY Buttons AS Consultingwerk.ListNameValuePair NO-UNDO 
+    DEFINE PUBLIC PROPERTY Buttons AS Consultingwerk.ListNameValuePair NO-UNDO
     GET.
-    PROTECTED SET. 
+    PROTECTED SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the Text for this Dialog's Detail section                                                                    
-        Notes:                                                                        
+        Purpose: Gets and sets the Text for this Dialog's Detail section
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY DetailText AS CHARACTER NO-UNDO 
+    DEFINE PUBLIC PROPERTY DetailText AS CHARACTER NO-UNDO
     GET.
-    SET.   
-         
+    SET.
+
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the Title for this Dialog's Detail section                                                                    
-        Notes:                                                                        
+        Purpose: Gets and sets the Title for this Dialog's Detail section
+        Notes:
     ------------------------------------------------------------------------------*/
     DEFINE PUBLIC PROPERTY DetailTitle AS CHARACTER NO-UNDO INIT "Details"{&TRAN}
     GET.
-    SET. 
-    
+    SET.
+
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the Text for this Dialog                                                                    
-        Notes:                                                                        
+        Purpose: Gets and sets the Text for this Dialog
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY DialogText AS CHARACTER NO-UNDO 
+    DEFINE PUBLIC PROPERTY DialogText AS CHARACTER NO-UNDO
     GET.
-    SET.     
-        
+    SET.
+
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the Title for this Dialog                                                                    
-        Notes:                                                                        
+        Purpose: Gets and sets the Title for this Dialog
+        Notes:
     ------------------------------------------------------------------------------*/
     DEFINE PUBLIC PROPERTY DialogTitle AS CHARACTER NO-UNDO INIT "Information"{&TRAN}
     GET.
-    SET. 
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the Image Url for this Dialog                                                                    
-        Notes:                                                                        
+        Purpose: Gets and sets the Image Url for this Dialog
+        Notes:
     ------------------------------------------------------------------------------*/
     DEFINE PUBLIC PROPERTY ImageUrl AS CHARACTER NO-UNDO INIT "/SmartComponentsWeb/Images/MessageDialog/information.png":U
     GET.
-    SET. 
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor of the SmartWebDialog class                                                                    
-        Notes:               
-        @param pcName The name of the Dialog Control instance                                                         
+        Purpose: Constructor of the SmartWebDialog class
+        Notes:
+        @param pcName The name of the Dialog Control instance
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC SmartWebDialog (pcName AS CHARACTER):
         SUPER (INPUT pcName).
-        
+
         THIS-OBJECT:Buttons = NEW ListNameValuePair () .
-        
-        THIS-OBJECT:InitializeButtons () . 
-        
+
+        THIS-OBJECT:InitializeButtons () .
+
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor of the SmartWebDialog class                                                                    
-        Notes:                                                                        
-        @param pcName The name of the Dialog Control instance                                                         
+        Purpose: Constructor of the SmartWebDialog class
+        Notes:
+        @param pcName The name of the Dialog Control instance
         @param pcDialogText The DialogText for the new Dialog instance
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC SmartWebDialog (pcName AS CHARACTER,
                                        pcDialogText AS CHARACTER):
 
         THIS-OBJECT (pcName) .
-        
-        THIS-OBJECT:DialogText = pcDialogText . 
 
-    END.
+        THIS-OBJECT:DialogText = pcDialogText .
+
+    END CONSTRUCTOR .
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor of the SmartWebDialog class                                                                    
-        Notes:                                                                        
-        @param pcName The name of the Dialog Control instance                                                         
+        Purpose: Constructor of the SmartWebDialog class
+        Notes:
+        @param pcName The name of the Dialog Control instance
         @param pcDialogText The Dialog Text for the new Dialog instance
         @param pcDetailText The detail text for the new Dialog instance
     ------------------------------------------------------------------------------*/
@@ -118,44 +118,44 @@ CLASS Consultingwerk.Web.Widgets.SmartWebDialog INHERITS Control:
                                        pcDetailText AS CHARACTER):
 
         THIS-OBJECT (pcName, pcDialogText) .
-        
-        THIS-OBJECT:DetailText = pcDetailText . 
 
-    END.
+        THIS-OBJECT:DetailText = pcDetailText .
+
+    END CONSTRUCTOR .
 
     /*------------------------------------------------------------------------------
-        Purpose:                                                                        
-        Notes:                                                                        
+        Purpose:
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID InitializeButtons ():
-        
+
         THIS-OBJECT:Buttons:Add ("ok":U, "OK"{&TRAN}) .
         THIS-OBJECT:Buttons:Add ("cancel":U, "Cancel"{&TRAN}) .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Performs the Output for the Web Widget                                                                       
-        Notes:                                                                        
+        Purpose: Performs the Output for the Web Widget
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD OVERRIDE PUBLIC VOID PerformOutput ():
-        
+
         DEFINE VARIABLE cButtons      AS CHARACTER NO-UNDO.
         DEFINE VARIABLE cDetailButton AS CHARACTER NO-UNDO.
-        
+
         {Consultingwerk/foreachABL.i NameValuePair oPair in THIS-OBJECT:Buttons}
-        
+
             ASSIGN cButtons = cButtons + SUBSTITUTE ('                <button type="Button" value="&1">&2</button>~n':U,
                                                      oPair:Name,
                                                      oPair:Value) .
-        
+
         END.
-        
-        IF THIS-OBJECT:DetailText > "":U THEN 
+
+        IF THIS-OBJECT:DetailText > "":U THEN
             ASSIGN cDetailButton = '            <div class="DetailButton">~n':U +
                                    '                <button type="Button" value="details"><img src="/SmartComponentsWeb/Images/MessageDialog/arrow_down_blue.png" width="16px" height="16px"></button>~n':U +
                                    '            </div>~n':U .
-        
+
         THIS-OBJECT:OUTPUT (SUBSTITUTE ('    <div class="SmartDialog show">~n':U +
                                         '        <div class="Overlay">~n':U +
                                         '        </div>~n':U +
@@ -186,7 +186,7 @@ CLASS Consultingwerk.Web.Widgets.SmartWebDialog INHERITS Control:
                                         THIS-OBJECT:DetailText,
                                         THIS-OBJECT:ImageUrl,
                                         cButtons,
-                                        cDetailButton), TRUE) . 
+                                        cDetailButton), TRUE) .
 
     END METHOD.
 

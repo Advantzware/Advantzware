@@ -32,26 +32,26 @@ CLASS Consultingwerk.Windows.WebClient.ProWcAppPropertiesForm
     DEFINE PRIVATE VARIABLE bindingSource2 AS Progress.Data.BindingSource NO-UNDO.
     DEFINE PRIVATE VARIABLE bindingSource1 AS Progress.Data.BindingSource NO-UNDO.
     DEFINE PRIVATE VARIABLE button1 AS System.Windows.Forms.Button NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE panel1 AS System.Windows.Forms.Panel NO-UNDO.
     DEFINE PRIVATE VARIABLE smartTempTableAdapter2 AS Consultingwerk.SmartComponents.Implementation.SmartTempTableAdapter NO-UNDO.
     DEFINE PRIVATE VARIABLE smartTempTableAdapter1 AS Consultingwerk.SmartComponents.Implementation.SmartTempTableAdapter NO-UNDO.
     DEFINE PRIVATE VARIABLE smartDataBrowser2 AS Consultingwerk.SmartComponents.Implementation.SmartDataBrowser NO-UNDO.
     DEFINE PRIVATE VARIABLE smartDataBrowser1 AS Consultingwerk.SmartComponents.Implementation.SmartDataBrowser NO-UNDO.
     DEFINE PRIVATE VARIABLE tableLayoutPanel1 AS System.Windows.Forms.TableLayoutPanel NO-UNDO.
-	
+    
     DEFINE VARIABLE oFullWindowDragManager1 AS Consultingwerk.Windows.Util.Forms.FullWindowDragManager NO-UNDO . 
     DEFINE PRIVATE VARIABLE ultraLabel2 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraLabel1 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
-	
+    
     { Consultingwerk/Windows/WebClient/ProWcAppParser/dsProWcApp.i }
-	
+    
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the ProWcAppPropertiesForm class 
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ProWcAppPropertiesForm ():
-		
+    CONSTRUCTOR PUBLIC ProWcAppPropertiesForm ():
+        
         SUPER().
         InitializeComponent().
 
@@ -68,7 +68,7 @@ CLASS Consultingwerk.Windows.WebClient.ProWcAppPropertiesForm
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the Click event of the button1
@@ -76,18 +76,19 @@ CLASS Consultingwerk.Windows.WebClient.ProWcAppPropertiesForm
         @param sender The System.Object that raised the event
         @param e The System.EventArgs with the data for this event 
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID button1_Click (INPUT sender AS System.Object, INPUT e AS System.EventArgs):
-		
-		THIS-OBJECT:Close () . 
+    METHOD PRIVATE VOID button1_Click (INPUT sender AS System.Object, INPUT e AS System.EventArgs):
+        
+        THIS-OBJECT:Close () . 
 
-	END METHOD .
+    END METHOD .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design 
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+        
         /* NOTE: The following method is automatically generated.
         
         We strongly suggest that the contents of this method only be modified using the
@@ -544,26 +545,26 @@ CLASS Consultingwerk.Windows.WebClient.ProWcAppPropertiesForm
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Loads a prowcapp file from the given location 
         Notes:   
         @param pcFileName The name of the file to load
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID LoadFrom (pcFileName AS CHARACTER):
-		
-		DEFINE VARIABLE oParser AS ProWcAppParser NO-UNDO .
-		
+    METHOD PUBLIC VOID LoadFrom (pcFileName AS CHARACTER):
+        
+        DEFINE VARIABLE oParser AS ProWcAppParser NO-UNDO .
+        
         oParser = NEW ProWcAppParser () . 
 
         oParser:ParseProWcAppFile (pcFileName, 
                                    OUTPUT DATASET dsProWcApp) .
-		
-		smartTempTableAdapter1:RetrieveData() .
+        
+        smartTempTableAdapter1:RetrieveData() .
         smartTempTableAdapter2:RetrieveData() .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Destructor for the ProWcAppPropertiesForm class 

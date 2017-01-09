@@ -55,7 +55,7 @@
     <NamespacePrefix/>
     <XmlNodeName/>
     <SerializeName/>
-    <NoBeforeTable>false</NoBeforeTable>
+    <NoBeforeTable>true</NoBeforeTable>
     <EntityPackageName>Consultingwerk.SmartFramework.Repository.Class</EntityPackageName>
     <EntityClassName>SmartAttribute</EntityClassName>
     <DeletedFields/>
@@ -96,9 +96,9 @@
     <FieldLabel>Description</FieldLabel>
     <FieldFormat>x(400)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>AttributeDesription</FieldSerializeName>
-    <FieldXmlDataType>string</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttribute.AttributeDesription</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -121,9 +121,9 @@
     <FieldLabel>AttributeGroupGuid</FieldLabel>
     <FieldFormat>x(36)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>AttributeGroupGuid</FieldSerializeName>
-    <FieldXmlDataType>string</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttribute.AttributeGroupGuid</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -171,9 +171,9 @@
     <FieldLabel>AttributeGuid</FieldLabel>
     <FieldFormat>x(36)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>AttributeGuid</FieldSerializeName>
-    <FieldXmlDataType>string</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttribute.AttributeGuid</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -196,9 +196,9 @@
     <FieldLabel>Attribute Label</FieldLabel>
     <FieldFormat>x(40)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>AttributeLabel</FieldSerializeName>
-    <FieldXmlDataType>string</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttribute.AttributeLabel</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -221,9 +221,9 @@
     <FieldLabel>Constant Level</FieldLabel>
     <FieldFormat>x(10)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>ConstantLevel</FieldSerializeName>
-    <FieldXmlDataType>string</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttribute.ConstantLevel</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -246,9 +246,9 @@
     <FieldLabel>Lookup Type</FieldLabel>
     <FieldFormat>x(12)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>LookupType</FieldSerializeName>
-    <FieldXmlDataType>string</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttribute.LookupType</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -271,9 +271,9 @@
     <FieldLabel>Lookup Values</FieldLabel>
     <FieldFormat>x(400)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>LookupValues</FieldSerializeName>
-    <FieldXmlDataType>string</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttribute.LookupValues</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -296,9 +296,9 @@
     <FieldLabel>PropertyOrEvent</FieldLabel>
     <FieldFormat>Property/Event</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>PropertyOrEvent</FieldSerializeName>
-    <FieldXmlDataType>boolean</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttribute.PropertyOrEvent</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -321,9 +321,9 @@
     <FieldLabel>Property Type</FieldLabel>
     <FieldFormat>x(80)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>PropertyType</FieldSerializeName>
-    <FieldXmlDataType>string</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttribute.PropertyType</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -346,9 +346,9 @@
     <FieldLabel>Repository Type</FieldLabel>
     <FieldFormat>x(12)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>RepositoryType</FieldSerializeName>
-    <FieldXmlDataType>string</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttribute.RepositoryType</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -371,9 +371,9 @@
     <FieldLabel>Runtime Only</FieldLabel>
     <FieldFormat>yes/no</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>RuntimeOnly</FieldSerializeName>
-    <FieldXmlDataType>boolean</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttribute.RuntimeOnly</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -396,9 +396,9 @@
     <FieldLabel>SET Service Type Name</FieldLabel>
     <FieldFormat>x(80)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>SetServiceType</FieldSerializeName>
-    <FieldXmlDataType>string</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttribute.SetServiceType</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -421,9 +421,9 @@
     <FieldLabel>Technical Name</FieldLabel>
     <FieldFormat>x(40)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>TechnicalName</FieldSerializeName>
-    <FieldXmlDataType>string</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttribute.TechnicalName</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -446,9 +446,9 @@
     <FieldLabel>Virtual</FieldLabel>
     <FieldFormat>yes/no</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>VirtualProperty</FieldSerializeName>
-    <FieldXmlDataType>boolean</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttribute.VirtualProperty</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -471,9 +471,9 @@
     <FieldLabel>AppliesAtRuntime</FieldLabel>
     <FieldFormat>yes/no</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>AppliesAtRuntime</FieldSerializeName>
-    <FieldXmlDataType>boolean</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttributeValue.AppliesAtRuntime</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -496,9 +496,9 @@
     <FieldLabel>Attribute Label</FieldLabel>
     <FieldFormat>x(40)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>AttributeLabel</FieldSerializeName>
-    <FieldXmlDataType>string</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttributeValue.AttributeLabel</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -521,9 +521,9 @@
     <FieldLabel>AttributeValueGuid</FieldLabel>
     <FieldFormat>x(36)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>AttributeValueGuid</FieldSerializeName>
-    <FieldXmlDataType>string</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttributeValue.AttributeValueGuid</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -546,9 +546,9 @@
     <FieldLabel>Character Value</FieldLabel>
     <FieldFormat>x(80)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>CharacterValue</FieldSerializeName>
-    <FieldXmlDataType>string</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttributeValue.CharacterValue</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -571,9 +571,9 @@
     <FieldLabel>Constant Value</FieldLabel>
     <FieldFormat>yes/no</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>ConstantValue</FieldSerializeName>
-    <FieldXmlDataType>boolean</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttributeValue.ConstantValue</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -596,9 +596,9 @@
     <FieldLabel>ContainerObjectMasterGuid</FieldLabel>
     <FieldFormat>x(36)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>ContainerObjectMasterGuid</FieldSerializeName>
-    <FieldXmlDataType>string</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttributeValue.ContainerObjectMasterGuid</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -616,14 +616,14 @@
     <FieldOrder>13</FieldOrder>
     <FieldDataType>DATETIME-TZ</FieldDataType>
     <FieldDescription>DateTime-TZ Value</FieldDescription>
-    <FieldInitial xsi:nil="true"/>
+    <FieldInitial/>
     <FieldInitialUnknownValue>true</FieldInitialUnknownValue>
     <FieldLabel>DateTime-TZ Value</FieldLabel>
     <FieldFormat>99/99/9999 HH:MM:SS.SSS+HH:MM</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>DateTimeTzValue</FieldSerializeName>
-    <FieldXmlDataType>dateTime</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttributeValue.DateTimeTzValue</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -641,14 +641,14 @@
     <FieldOrder>12</FieldOrder>
     <FieldDataType>DATETIME</FieldDataType>
     <FieldDescription>DateTime Value</FieldDescription>
-    <FieldInitial xsi:nil="true"/>
+    <FieldInitial/>
     <FieldInitialUnknownValue>true</FieldInitialUnknownValue>
     <FieldLabel>DateTime Value</FieldLabel>
     <FieldFormat>99/99/9999 HH:MM:SS.SSS</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>DateTimeValue</FieldSerializeName>
-    <FieldXmlDataType>dateTime</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttributeValue.DateTimeValue</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -666,14 +666,14 @@
     <FieldOrder>11</FieldOrder>
     <FieldDataType>DATE</FieldDataType>
     <FieldDescription>Date Value</FieldDescription>
-    <FieldInitial xsi:nil="true"/>
+    <FieldInitial/>
     <FieldInitialUnknownValue>true</FieldInitialUnknownValue>
     <FieldLabel>Date Value</FieldLabel>
     <FieldFormat>99/99/9999</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>DateValue</FieldSerializeName>
-    <FieldXmlDataType>date</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttributeValue.DateValue</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -696,9 +696,9 @@
     <FieldLabel>Decimal Value</FieldLabel>
     <FieldFormat>-&gt;&gt;,&gt;&gt;9.99</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>DecimalValue</FieldSerializeName>
-    <FieldXmlDataType>decimal</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttributeValue.DecimalValue</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -721,9 +721,9 @@
     <FieldLabel>Int64 value</FieldLabel>
     <FieldFormat>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>Int64Value</FieldSerializeName>
-    <FieldXmlDataType>long</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttributeValue.Int64Value</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -746,9 +746,9 @@
     <FieldLabel>Integer Value</FieldLabel>
     <FieldFormat>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>IntegerValue</FieldSerializeName>
-    <FieldXmlDataType>int</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttributeValue.IntegerValue</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -771,9 +771,9 @@
     <FieldLabel>Logical Value</FieldLabel>
     <FieldFormat>yes/no</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>LogicalValue</FieldSerializeName>
-    <FieldXmlDataType>boolean</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttributeValue.LogicalValue</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -796,9 +796,9 @@
     <FieldLabel>ObjectInstanceGuid</FieldLabel>
     <FieldFormat>x(36)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>ObjectInstanceGuid</FieldSerializeName>
-    <FieldXmlDataType>string</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttributeValue.ObjectInstanceGuid</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -821,9 +821,9 @@
     <FieldLabel>ObjectMasterGuid</FieldLabel>
     <FieldFormat>x(36)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>ObjectMasterGuid</FieldSerializeName>
-    <FieldXmlDataType>string</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttributeValue.ObjectMasterGuid</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -846,9 +846,9 @@
     <FieldLabel>ObjectTypeGuid</FieldLabel>
     <FieldFormat>x(36)</FieldFormat>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>ObjectTypeGuid</FieldSerializeName>
-    <FieldXmlDataType>string</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttributeValue.ObjectTypeGuid</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -867,13 +867,13 @@
     <FieldDataType>RAW</FieldDataType>
     <FieldDescription>Raw value</FieldDescription>
     <FieldInitial/>
-    <FieldInitialUnknownValue>true</FieldInitialUnknownValue>
-    <FieldLabel>Raw value</FieldLabel>
-    <FieldFormat>x(8)</FieldFormat>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
+    <FieldLabel/>
+    <FieldFormat/>
     <FieldSerializeHidden>false</FieldSerializeHidden>
-    <FieldSerializeName>RawValue</FieldSerializeName>
-    <FieldXmlDataType>base64Binary</FieldXmlDataType>
-    <FieldXmlNodeType>ELEMENT</FieldXmlNodeType>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
     <FieldXmlNodeName/>
     <FieldSource>SmartAttributeValue.RawValue</FieldSource>
     <FieldExtent>0</FieldExtent>
@@ -942,7 +942,7 @@
     <IndexWordIndex>false</IndexWordIndex>
     <FieldNames>AttributeValueGuid</FieldNames>
     <FieldSort>ASCENDING</FieldSort>
-    <DefaultSearchCodeGeneration>true</DefaultSearchCodeGeneration>
+    <DefaultSearchCodeGeneration>false</DefaultSearchCodeGeneration>
   </eIndex>
   <eIndex>
     <BusinessEntityName>AttributeValueBusinessEntity</BusinessEntityName>

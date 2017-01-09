@@ -31,7 +31,7 @@ INTERFACE Consultingwerk.WindowIntegrationKit.IButtonClickHandler:
         @param phWidget The related ABL Widget
         @return Logical Value indicating if the Click event has been handled
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL HandleClickEvent (poControl AS System.Windows.Forms.Control, 
-	                                        phWidget AS HANDLE).
+    METHOD PUBLIC LOGICAL HandleClickEvent (poControl AS System.Windows.Forms.Control, 
+                                            phWidget AS HANDLE).
 
 END INTERFACE.

@@ -8,60 +8,62 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : LoginCompanyBusinessEntity
     Purpose     : Business Entity for LoginCompany
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner
     Created     : 08.01.2013 20:09:32
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.OERA.*                  FROM PROPATH .
-USING Consultingwerk.SmartFramework.*        FROM PROPATH . 
+USING Consultingwerk.SmartFramework.*        FROM PROPATH .
 USING Consultingwerk.SmartFramework.System.* FROM PROPATH .
-USING Consultingwerk.Util.*                  FROM PROPATH . 
+USING Consultingwerk.Util.*                  FROM PROPATH .
 USING Progress.Lang.*                        FROM PROPATH .
 
-CLASS Consultingwerk.SmartFramework.System.LoginCompanyBusinessEntity 
-    INHERITS SmartBusinessEntity: 
+@BusinessEntityTable (name="eSmartLoginCompany", MandatoryColumns="LoginCompanyName", DefaultSort="BY eSmartLoginCompany.LoginCompanyName") .
+
+CLASS Consultingwerk.SmartFramework.System.LoginCompanyBusinessEntity
+    INHERITS SmartBusinessEntity:
 
     { Consultingwerk/SmartFramework/System/dsLoginCompany.i }
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor of the LoginCompanyBusinessEntity class                                                                     
-        Notes:   Passes the handle of the dataset instance to the base class and 
-                 sets the default DataAccessName                                                                        
+        Purpose: Constructor of the LoginCompanyBusinessEntity class
+        Notes:   Passes the handle of the dataset instance to the base class and
+                 sets the default DataAccessName
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC LoginCompanyBusinessEntity ():
         SUPER (DATASET dsLoginCompany:HANDLE).
-        
+
         THIS-OBJECT:DataAccessName = "Consultingwerk.SmartFramework.System.LoginCompanyDataAccess":U .
 
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Provides a hook to modify data in the ProDataset after Read and 
-                 Update operations (i.e. population of aggregated values)                                                                     
-        Notes:   Invoked during FetchData () and SaveChanges ()                                                                     
+        Purpose: Provides a hook to modify data in the ProDataset after Read and
+                 Update operations (i.e. population of aggregated values)
+        Notes:   Invoked during FetchData () and SaveChanges ()
     ------------------------------------------------------------------------------*/
     METHOD OVERRIDE PUBLIC VOID ReceiveData ():
-        
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Provides a hook for high level data validation before Update 
-                 operations                                                                     
+        Purpose: Provides a hook for high level data validation before Update
+                 operations
         Notes:   Invoked during SaveChanges (). When the ERROR flag of the ProDataset
                  is set, the Update operation will be cancelled before writing back
-                 the data to the database using the DataAccess object                                                                      
+                 the data to the database using the DataAccess object
     ------------------------------------------------------------------------------*/
     METHOD OVERRIDE PUBLIC VOID ValidateData ():
-        
+
     END METHOD.
 
 END CLASS.

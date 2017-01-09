@@ -51,23 +51,23 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.WriteFileEventArgs
         Purpose: Gets and sets a new file name 
         Notes:   Allows redirecting the output to a new file
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY NewFileName AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY NewFileName AS CHARACTER NO-UNDO 
+    GET.
+    SET. 
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Constructor for the WriteFileEventArgs class
-	    Notes:
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the WriteFileEventArgs class
+        Notes:
         @param pcFilePurpose The purpose of the file being written
         @param pcFileName The name of the file being written
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC WriteFileEventArgs (pcFilePurpose AS CHARACTER,
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC WriteFileEventArgs (pcFilePurpose AS CHARACTER,
                                            pcFileName AS CHARACTER):
-		SUPER ().
-		
-		ASSIGN THIS-OBJECT:FilePurpose = pcFilePurpose 
-		       THIS-OBJECT:FileName    = pcFileName .  
-		
-	END CONSTRUCTOR.
+        SUPER ().
+        
+        ASSIGN THIS-OBJECT:FilePurpose = pcFilePurpose 
+               THIS-OBJECT:FileName    = pcFileName .  
+        
+    END CONSTRUCTOR.
 
 END CLASS.

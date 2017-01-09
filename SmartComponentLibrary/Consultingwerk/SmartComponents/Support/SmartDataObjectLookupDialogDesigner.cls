@@ -8,27 +8,28 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/  
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : SmartDataObjectLookupDialogDesigner
     Purpose     : Designer class for the SmartDataObjectLookupDialog
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Thu Jun 24 23:01:03 CEST 2010
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
+USING Consultingwerk.Util.*  FROM PROPATH .
 USING Progress.Lang.*        FROM ASSEMBLY .
 USING Progress.Windows.Form  FROM ASSEMBLY .
 USING System.Windows.Forms.* FROM ASSEMBLY .
 USING System.Drawing.*       FROM ASSEMBLY .
 
-CLASS Consultingwerk.SmartComponents.Support.SmartDataObjectLookupDialogDesigner 
-    INHERITS Form : 
-    
+CLASS Consultingwerk.SmartComponents.Support.SmartDataObjectLookupDialogDesigner
+    INHERITS Form :
+
     DEFINE PROTECTED VARIABLE cbFilterField AS Infragistics.Win.UltraWinEditors.UltraComboEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
 
@@ -38,42 +39,43 @@ CLASS Consultingwerk.SmartComponents.Support.SmartDataObjectLookupDialogDesigner
     DEFINE PROTECTED VARIABLE smartNavigationPanel1 AS Consultingwerk.SmartComponents.Implementation.SmartNavigationPanel NO-UNDO.
     DEFINE PROTECTED VARIABLE smartDataBrowser1 AS Consultingwerk.SmartComponents.Implementation.SmartDataBrowser NO-UNDO.
     DEFINE PROTECTED VARIABLE tbSearchField AS Infragistics.Win.UltraWinEditors.UltraTextEditor NO-UNDO.
-        
+
     /*------------------------------------------------------------------------------
         Purpose: Returns if the Search Field still contains the Search Prompt
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY SearchPromptInSearchField AS LOGICAL INITIAL TRUE NO-UNDO 
+    DEFINE PUBLIC PROPERTY SearchPromptInSearchField AS LOGICAL INITIAL TRUE NO-UNDO
     GET.
     PROTECTED SET.
-    
+
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the SmartDataObjectLookupDialogDesigner class 
-        Notes:   
+        Purpose: Constructor for the SmartDataObjectLookupDialogDesigner class
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC SmartDataObjectLookupDialogDesigner ():
-        
+
         SUPER().
-        
+
         InitializeComponent().
-        
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-        
+
     END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance1 AS Infragistics.Win.Appearance NO-UNDO.
@@ -309,27 +311,27 @@ CLASS Consultingwerk.SmartComponents.Support.SmartDataObjectLookupDialogDesigner
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the Load event                                                                        
-        Notes:                                                                        
+        Purpose: Raises the Load event
+        Notes:
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD OVERRIDE PROTECTED VOID OnLoad (e AS System.EventArgs):
-        
+
         SUPER:OnLoad(INPUT e).
 
         IF Consultingwerk.Framework.FrameworkSettings:ExtendedTransparency AND
            Consultingwerk.Windows.API.AeroGlass:IsGlassSupported ()  THEN DO:
-               
+
             SetGlassRegion () .
-    
-            Invalidate (). 
+
+            Invalidate ().
         END.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the PaintBackground event                                                                        
-        Notes:                                                                        
+        Purpose: Raises the PaintBackground event
+        Notes:
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED OVERRIDE VOID OnPaintBackground (e AS PaintEventArgs):
@@ -338,23 +340,23 @@ CLASS Consultingwerk.SmartComponents.Support.SmartDataObjectLookupDialogDesigner
         DEFINE VARIABLE b AS Brush NO-UNDO .
 
         SUPER:OnPaintBackground (e) .
-        
-        IF Consultingwerk.Framework.FrameworkSettings:ExtendedTransparency AND        
-           Consultingwerk.Windows.API.AeroGlass:IsGlassSupported () THEN DO: 
+
+        IF Consultingwerk.Framework.FrameworkSettings:ExtendedTransparency AND
+           Consultingwerk.Windows.API.AeroGlass:IsGlassSupported () THEN DO:
             THIS-OBJECT:TransparencyKey = System.Drawing.Color:FromArgb (255, 221, 220, 220) .
-            
+
             e:Graphics:Clear(System.Drawing.Color:FromArgb (255, 221, 220, 220)) .
-            
+
             /* put back the original form background for non-glass area */
             clientArea = NEW System.Drawing.Rectangle (0,
                                                        50,
                                                        THIS-OBJECT:ClientRectangle:Width,
                                                        THIS-OBJECT:ClientRectangle:Height) .
-    
+
             b = NEW SolidBrush (THIS-OBJECT:BackColor).
             e:Graphics:FillRectangle (b, clientArea).
         END.
-        ELSE DO: 
+        ELSE DO:
             e:Graphics:Clear(THIS-OBJECT:BackColor) .
 
             /* put back the original form background for non-glass area */
@@ -365,51 +367,55 @@ CLASS Consultingwerk.SmartComponents.Support.SmartDataObjectLookupDialogDesigner
 
             b = NEW SolidBrush (THIS-OBJECT:BackColor).
             e:Graphics:FillRectangle (b, clientArea).
-        END.         
-         
-    END METHOD . 
+        END.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Defines the transparent region                                                                       
-        Notes:                                                                        
+        Purpose: Defines the transparent region
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID SetGlassRegion ():
 
-        IF Consultingwerk.Framework.FrameworkSettings:ExtendedTransparency AND        
-           Consultingwerk.Windows.API.AeroGlass:IsGlassSupported () THEN 
+        IF Consultingwerk.Framework.FrameworkSettings:ExtendedTransparency AND
+           Consultingwerk.Windows.API.AeroGlass:IsGlassSupported () THEN
 
             Consultingwerk.Windows.API.AeroGlass:SetGlassMargins
-                (THIS-OBJECT:Handle:ToInt32(), 0, 0, 50, 0) . 
-                                              
+                (THIS-OBJECT:Handle:ToInt32(), 0, 0, 50, 0) .
+
     END METHOD.
 
      /*------------------------------------------------------------------------------
-        Purpose: Event handler for the Enter event of the ultraTextEditor1                                                                         
-        Notes:  
+        Purpose: Event handler for the Enter event of the ultraTextEditor1
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event                                                                                
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraTextEditor1_Enter (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraTextEditor1_Enter (sender AS System.Object,
                                                 e AS System.EventArgs):
-        
+
         IF THIS-OBJECT:SearchPromptInSearchField THEN DO:
             THIS-OBJECT:tbSearchField:TEXT = "":U .
             THIS-OBJECT:tbSearchField:Appearance:ResetFontData() .
             THIS-OBJECT:tbSearchField:Appearance:ResetForeColor() .
         END.
-        
+
         THIS-OBJECT:tbSearchField:SelectionStart = 0 NO-ERROR .
         THIS-OBJECT:tbSearchField:SelectionLength = LENGTH (THIS-OBJECT:tbSearchField:Text) NO-ERROR .
-        
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
         FINALLY:
-            THIS-OBJECT:SearchPromptInSearchField = FALSE .     
+            THIS-OBJECT:SearchPromptInSearchField = FALSE .
         END FINALLY.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the SmartDataObjectLookupDialogDesigner class 
-        Notes:   
+        Purpose: Destructor for the SmartDataObjectLookupDialogDesigner class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC SmartDataObjectLookupDialogDesigner ( ):
         IF VALID-OBJECT(components) THEN DO:

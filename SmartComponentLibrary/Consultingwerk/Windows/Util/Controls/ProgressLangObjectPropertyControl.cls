@@ -8,13 +8,13 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : ProgressLangObjectPropertyControl
     Purpose     : Visualizes properties on a Progress.Lang.Object instance
                   in a GUI for .NET Control
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sat Dec 05 08:21:09 CET 2015
     Notes       : Relies on reflection, so requires OpenEdge 11.6 or above
@@ -33,34 +33,34 @@ USING Progress.Windows.*              FROM ASSEMBLY .
 
 {Consultingwerk/products.i}
 
-CLASS Consultingwerk.Windows.Util.Controls.ProgressLangObjectPropertyControl 
-    INHERITS UserControl: 
-	
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+CLASS Consultingwerk.Windows.Util.Controls.ProgressLangObjectPropertyControl
+    INHERITS UserControl:
+
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraTree1 AS Infragistics.Win.UltraWinTree.UltraTree NO-UNDO.
-		
+
     DEFINE PRIVATE VARIABLE oUltraTreeColumnResizeHelper AS UltraTreeColumnResizeHelper NO-UNDO.
-		
+
     /*------------------------------------------------------------------------------
         Purpose: Propery flags if the current instance of the SmartBindingSource
-                 is running at design time or runtime.                                                                        
-        Notes:   Set during constructor using a check at the 
-                 System.ComponentModel.LicenseManager                                                                        
-    ------------------------------------------------------------------------------*/        
-    DEFINE PUBLIC PROPERTY DesignTime AS LOGICAL NO-UNDO 
+                 is running at design time or runtime.
+        Notes:   Set during constructor using a check at the
+                 System.ComponentModel.LicenseManager
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY DesignTime AS LOGICAL NO-UNDO
     GET.
     PRIVATE SET.
-		
+
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the ProgressLangObjectPropertyControl class  
-        Notes:   
+        Purpose: Constructor for the ProgressLangObjectPropertyControl class
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ProgressLangObjectPropertyControl ():
-		
+    CONSTRUCTOR PUBLIC ProgressLangObjectPropertyControl ():
+
         SUPER().
 
         THIS-OBJECT:DesignTime = Progress.Util.EnumHelper:AreEqual(System.ComponentModel.LicenseManager:UsageMode,
-                                                                   System.ComponentModel.LicenseUsageMode:Designtime) .          
+                                                                   System.ComponentModel.LicenseUsageMode:Designtime) .
 
         InitializeComponent().
 
@@ -81,37 +81,37 @@ CLASS Consultingwerk.Windows.Util.Controls.ProgressLangObjectPropertyControl
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Displays the properties of the passed in object in the property grid
-	    Notes:
-	    @param poObject The object to visualize
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID DisplayObjectProperties (poObject AS Progress.Lang.Object):
-		
+    /*------------------------------------------------------------------------------
+        Purpose: Displays the properties of the passed in object in the property grid
+        Notes:
+        @param poObject The object to visualize
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC VOID DisplayObjectProperties (poObject AS Progress.Lang.Object):
+
 &IF DEFINED (AblReflection) NE 0 &THEN
-		
-		DEFINE VARIABLE oNode AS UltraTreeNode NO-UNDO .
-		
+
+        DEFINE VARIABLE oNode AS UltraTreeNode NO-UNDO .
+
         GarbageCollectorHelper:ClearUltraTreeNodes (ultraTree1) .
 
         oNode = ultraTree1:Nodes:Add ("root":U) .
 
-        IF VALID-OBJECT (poObject) THEN DO: 
-            oNode:Cells ["PropertyLabel":U]:Value = BOX (poObject:GetClass():TypeName) . 
-            oNode:Cells ["PropertyValue":U]:Value = BOX (THIS-OBJECT:GetToStringValue (poObject)) . 
-            
+        IF VALID-OBJECT (poObject) THEN DO:
+            oNode:Cells ["PropertyLabel":U]:Value = BOX (poObject:GetClass():TypeName) .
+            oNode:Cells ["PropertyValue":U]:Value = BOX (THIS-OBJECT:GetToStringValue (poObject)) .
+
             THIS-OBJECT:DisplayObjectProperties (poObject, oNode:Nodes) .
         END.
         ELSE DO:
-            oNode:Cells ["PropertyLabel":U]:Value = "<invalue object reference>":U . 
+            oNode:Cells ["PropertyLabel":U]:Value = "<invalue object reference>":U .
         END.
-        
-        oNode:Expanded = TRUE .
-&ENDIF 
 
-	END METHOD.
+        oNode:Expanded = TRUE .
+&ENDIF
+
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Displays the properties of the passed in object in the property grid
@@ -124,150 +124,152 @@ CLASS Consultingwerk.Windows.Util.Controls.ProgressLangObjectPropertyControl
 
 &IF DEFINED (AblReflection) NE 0 &THEN
 
-        DEFINE VARIABLE oProperty   AS Progress.Reflect.Property NO-UNDO . 
+        DEFINE VARIABLE oProperty   AS Progress.Reflect.Property NO-UNDO .
         DEFINE VARIABLE oProperties AS Progress.Reflect.Property NO-UNDO EXTENT .
         DEFINE VARIABLE i           AS INTEGER                   NO-UNDO .
         DEFINE VARIABLE cType       AS CHARACTER                 NO-UNDO .
         DEFINE VARIABLE cValue      AS CHARACTER                 NO-UNDO .
         DEFINE VARIABLE cName       AS CHARACTER                 NO-UNDO .
         DEFINE VARIABLE oValue      AS Progress.Lang.Object      NO-UNDO .
-        DEFINE VARIABLE oNode       AS UltraTreeNode             NO-UNDO .  
+        DEFINE VARIABLE oNode       AS UltraTreeNode             NO-UNDO .
         DEFINE VARIABLE iIndex      AS INTEGER                   NO-UNDO .
-        DEFINE VARIABLE oItemNode   AS UltraTreeNode             NO-UNDO .     
+        DEFINE VARIABLE oItemNode   AS UltraTreeNode             NO-UNDO .
 
-        IF VALID-OBJECT (poTreeNodes:ParentNode) THEN 
+        IF VALID-OBJECT (poTreeNodes:ParentNode) THEN
             oUltraTreeColumnResizeHelper:InitializeColumnResizing (poTreeNodes:ParentNode:Level + 1).
-        
+
         IF NOT VALID-OBJECT (poObject:GetClass()) THEN DO:
             oNode = poTreeNodes:Add (GUID) .
-    
-            oNode:Cells ["PropertyLabel":U]:Value = "?":U . 
-            oNode:Cells ["PropertyValue":U]:Value = "Unable to reflect .NET object.":U .                
-                
-            RETURN . 
+
+            oNode:Cells ["PropertyLabel":U]:Value = "?":U .
+            oNode:Cells ["PropertyValue":U]:Value = "Unable to reflect .NET object.":U .
+
+            RETURN .
         END.
-        
+
         oProperties = poObject:GetClass ():GetProperties(Progress.Reflect.Flags:Public:SetFlag (Progress.Reflect.Flags:Instance)) .
-        
+
+        propertiesLoop:
         DO i = 1 TO EXTENT (oProperties):
-            ASSIGN oProperty = oProperties [i] 
-                   cValue    = ? 
+            ASSIGN oProperty = oProperties [i]
+                   cValue    = ?
                    cName     = oProperty:Name
                    oValue    = ?.
-            
+
             /* Skip Next-Sibling and Prev-Sibling */
-            IF oProperty:Name = "Next-Sibling":U OR oProperty:Name = "Prev-Sibling":U THEN  
-                NEXT .              
-            
-            IF VALID-OBJECT (oProperty:DataType) AND oProperty:DataType <> Progress.Reflect.DataType:Object THEN 
+            IF oProperty:Name = "Next-Sibling":U OR oProperty:Name = "Prev-Sibling":U THEN
+                NEXT propertiesLoop .
+
+            IF VALID-OBJECT (oProperty:DataType) AND oProperty:DataType <> Progress.Reflect.DataType:Object THEN
                 ASSIGN cType = STRING (oProperty:DataType) .
-            ELSE 
+            ELSE
                 ASSIGN cType = oProperty:DataTypeName .
 
             CASE oProperty:DataType:
-                
+
                 WHEN Progress.Reflect.DataType:Object THEN DO ON ERROR UNDO, THROW:
                     oValue = oProperty:Get (poObject) .
-                    
+
                     IF VALID-OBJECT (oValue) THEN DO:
-                        IF TYPE-OF (oValue, System.Object) THEN 
+                        IF TYPE-OF (oValue, System.Object) THEN
                             ASSIGN cName  = SUBSTITUTE ("&1 : &2":U, cName, CAST (oValue, System.Object):GetType():FullName)
-                                   cValue = oValue:ToString () .                         
-                        ELSE 
+                                   cValue = oValue:ToString () .
+                        ELSE
                             ASSIGN cName  = SUBSTITUTE ("&1 : &2":U, cName, oValue:GetClass():TypeName)
                                    cValue = oValue:ToString () .
-                    END.                               
-                    ELSE 
-                        cValue = "<invalid object reference>":U . 
-                    
+                    END.
+                    ELSE
+                        cValue = "<invalid object reference>":U .
+
                     CATCH err AS Progress.Lang.Error :
-                        cValue = SUBSTITUTE ("Error: &1":U, err:GetMessage (1)) .   
+                        cValue = SUBSTITUTE ("Error: &1":U, err:GetMessage (1)) .
                     END CATCH.
                 END .
                 OTHERWISE DO ON ERROR UNDO, THROW:
                     cValue = STRING (oProperty:Get (poObject)) .
-                    
+
                     CATCH err AS Progress.Lang.Error :
-                        cValue = SUBSTITUTE ("Error: &1":U, err:GetMessage (1)) .   
+                        cValue = SUBSTITUTE ("Error: &1":U, err:GetMessage (1)) .
                     END CATCH.
                 END.
-                
+
             END CASE .
-            
+
             oNode = poTreeNodes:Add (GUID) .
-    
-            oNode:Cells ["PropertyLabel":U]:Value = cName . 
-            oNode:Cells ["PropertyValue":U]:Value = cValue . 
-                    
-            IF oProperty:DataTypeName > "":U AND VALID-OBJECT (oValue) THEN 
-                THIS-OBJECT:DisplayObjectProperties (oValue, oNode:Nodes) . 
-             
-            /* Iterate IEnumerable, but not TableModel as that would dump all records */ 
+
+            oNode:Cells ["PropertyLabel":U]:Value = cName .
+            oNode:Cells ["PropertyValue":U]:Value = cValue .
+
+            IF oProperty:DataTypeName > "":U AND VALID-OBJECT (oValue) THEN
+                THIS-OBJECT:DisplayObjectProperties (oValue, oNode:Nodes) .
+
+            /* Iterate IEnumerable, but not TableModel as that would dump all records */
             IF VALID-OBJECT (oValue) AND TYPE-OF (oValue, IEnumerable) AND NOT TYPE-OF (oValue, TableModel) THEN DO:
                 ASSIGN iIndex = 1 .
 
                 {Consultingwerk/foreachABL.i Progress.Lang.Object oItem in oValue}
 
                     oItemNode = oNode:Nodes:Add (GUID) .
-    
+
                     IF NOT VALID-OBJECT (oItem) THEN DO:
-                        oItemNode:Cells ["PropertyLabel":U]:Value = STRING (iIndex) . 
-                        oItemNode:Cells ["PropertyValue":U]:Value = "<invalid object reference>":U . 
+                        oItemNode:Cells ["PropertyLabel":U]:Value = STRING (iIndex) .
+                        oItemNode:Cells ["PropertyValue":U]:Value = "<invalid object reference>":U .
                     END.
                     ELSE DO:
                         DO ON ERROR UNDO, THROW:
-                            ASSIGN cValue = oItem:ToString () . 
-                            
+                            ASSIGN cValue = oItem:ToString () .
+
                             CATCH err AS Progress.Lang.Error :
-                            	cValue = err:GetMessage (1) .	
+                                cValue = err:GetMessage (1) .
                             END CATCH.
                         END.
 
                         oUltraTreeColumnResizeHelper:InitializeColumnResizing (oNode:Level + 1).
 
-                        oItemNode:Cells ["PropertyLabel":U]:Value = SUBSTITUTE ("&1 : &2":U, iIndex, oItem:GetClass():TypeName) . 
-                        oItemNode:Cells ["PropertyValue":U]:Value = cValue . 
+                        oItemNode:Cells ["PropertyLabel":U]:Value = SUBSTITUTE ("&1 : &2":U, iIndex, oItem:GetClass():TypeName) .
+                        oItemNode:Cells ["PropertyValue":U]:Value = cValue .
 
                         /* Avoid infinite recursion caused by objects referencing themselves (circular references) */
-                        IF oNode:Level < 25 THEN 
+                        IF oNode:Level < 25 THEN
                             THIS-OBJECT:DisplayObjectProperties (oItem, oItemNode:Nodes) .
                     END.
-                
-                    ASSIGN iIndex = iIndex + 1 . 
+
+                    ASSIGN iIndex = iIndex + 1 .
                 END.
             END.
         END.
-&ENDIF        
+&ENDIF
 
-    END METHOD . 
-
-	/*------------------------------------------------------------------------------
-	    Purpose: Returns the string representation of an object instance
-	    Notes:
-	    @param poObject The reference to the object to return the string representation for
-	    @return The character value representing the object
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED CHARACTER GetToStringValue (poObject AS Progress.Lang.Object):
-		
-		RETURN poObject:ToString () .
-
-        CATCH err AS Progress.Lang.Error:
-        	RETURN err:GetMessage (1) .	
-        END CATCH.
-    
-	END METHOD.
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design  
-        Notes:   
+        Purpose: Returns the string representation of an object instance
+        Notes:
+        @param poObject The reference to the object to return the string representation for
+        @return The character value representing the object
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    METHOD PROTECTED CHARACTER GetToStringValue (poObject AS Progress.Lang.Object):
+
+        RETURN poObject:ToString () .
+
+        CATCH err AS Progress.Lang.Error:
+            RETURN err:GetMessage (1) .
+        END CATCH.
+
+    END METHOD.
+
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE ultraTreeColumnSet1 AS Infragistics.Win.UltraWinTree.UltraTreeColumnSet NO-UNDO.
@@ -374,14 +376,14 @@ CLASS Consultingwerk.Windows.Util.Controls.ProgressLangObjectPropertyControl
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the ProgressLangObjectPropertyControl class  
-        Notes:   
+        Purpose: Destructor for the ProgressLangObjectPropertyControl class
+        Notes:
     ------------------------------------------------------------------------------*/
-	DESTRUCTOR PUBLIC ProgressLangObjectPropertyControl ():
+    DESTRUCTOR PUBLIC ProgressLangObjectPropertyControl ():
 
-	END DESTRUCTOR.
+    END DESTRUCTOR.
 
 END CLASS.

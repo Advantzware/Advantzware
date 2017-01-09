@@ -44,12 +44,12 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.CustomServices.SampleNewFiel
     METHOD PUBLIC VOID HandleNewField (pcTempTableName AS CHARACTER,
                                        pcFieldName AS CHARACTER, 
                                        INPUT-OUTPUT DATASET dsBusinessEntity):
-		
+        
         FIND eField WHERE eField.TempTableName = pcTempTableName 
                       AND eField.FieldName     = pcFieldName .   
             
         ASSIGN eField.FieldName = UPPER (eField.FieldName) .
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

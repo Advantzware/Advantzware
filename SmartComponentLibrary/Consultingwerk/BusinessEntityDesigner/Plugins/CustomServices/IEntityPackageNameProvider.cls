@@ -27,14 +27,14 @@ INTERFACE Consultingwerk.BusinessEntityDesigner.Plugins.CustomServices.IEntityPa
   
     { Consultingwerk/BusinessEntityDesigner/Services/dsBusinessEntity.i }
     
-	/*------------------------------------------------------------------------------
-	    Purpose: Provides package information for the Entity Class of a temp-table
-	    Notes:
+    /*------------------------------------------------------------------------------
+        Purpose: Provides package information for the Entity Class of a temp-table
+        Notes:
         @param pcTempTableName The name of the new temp-table
         @param dsBusinessEntity INPUT-OUTPUT DATASET The Businesss Entity Dataset (should be passed BY-REFERENCE)
-        @return The Entity Package name	        
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC CHARACTER GetEntityPackageNameForTable (pcTempTableName AS CHARACTER,
+        @return The Entity Package name            
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC CHARACTER GetEntityPackageNameForTable (pcTempTableName AS CHARACTER,
                                                           INPUT-OUTPUT DATASET dsBusinessEntity).
 
 END INTERFACE.

@@ -46,7 +46,7 @@ INTERFACE Consultingwerk.Studio.LegacyGuiMigration.Frame.IAblFrameMigrationPrePr
         @param ttSelectedFrameWidget INPUT-OUTPUT TABLE The temp-table with the frame widget information
         @param poViewerSettings INPUT-OUTPUT The reference to the ViewerSettings instance with the parameters related to the BindingSource settings and viewer name  
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID PreProcessFrameWidgets (pcFileName AS CHARACTER,
+    METHOD PUBLIC VOID PreProcessFrameWidgets (pcFileName AS CHARACTER,
                                                pcFrameName AS CHARACTER,
                                                INPUT-OUTPUT TABLE ttSelectedFrameWidget,
                                                INPUT-OUTPUT poViewerSettings AS ViewerSettings).

@@ -8,15 +8,15 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : EntryTypeEnum
     Purpose     : Enum used by ProcedureHelper:HasEntry
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sun Mar 18 16:10:31 CET 2012
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -36,14 +36,14 @@ USING Progress.Lang.*                        FROM PROPATH .
 {&CLASS} Consultingwerk.EntryTypeEnum
     &IF "{&CLASS}" EQ "CLASS" &THEN
     INHERITS Enum
-    &ENDIF    
-        : 
+    &ENDIF
+        :
 
 &IF "{&CLASS}" EQ "ENUM" &THEN
     DEFINE ENUM
-&ENDIF    
+&ENDIF
 
-    /* Static members */  
+    /* Static members */
     {Consultingwerk/EnumMember.i Procedure 1 EntryTypeEnum}
     {Consultingwerk/EnumMember.i Function 2 EntryTypeEnum}
     {Consultingwerk/EnumMember.i Extern 3 EntryTypeEnum}
@@ -51,59 +51,61 @@ USING Progress.Lang.*                        FROM PROPATH .
 
 &IF "{&CLASS}" EQ "ENUM" &THEN
     .
-&ENDIF    
+&ENDIF
 
 &IF "{&CLASS}" EQ "CLASS" &THEN
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the EntryTypeEnum members                                                                      
-        Notes:                                            
+        Purpose: Constructor for the EntryTypeEnum members
+        Notes:
         @param piValue The internal (numeric) representation of the Enumeration member
-        @param pcLabel The text label of the Enumaration member                             
+        @param pcLabel The text label of the Enumaration member
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PRIVATE EntryTypeEnum (piValue AS INTEGER, pcLabel AS CHARACTER):
         SUPER ().
-        
+
         ASSIGN THIS-OBJECT:Value = piValue
-               THIS-OBJECT:Label = pcLabel . 
-        
+               THIS-OBJECT:Label = pcLabel .
+
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns the string representation of the Enum member                                                                        
-        Notes:                                                      
-        @return The CHARACTER value representing this enum member                   
+        Purpose: Returns the string representation of the Enum member
+        Notes:
+        @return The CHARACTER value representing this enum member
     ------------------------------------------------------------------------------*/
     METHOD OVERRIDE PUBLIC CHARACTER ToString ():
-        
+
         CASE THIS-OBJECT:Value:
-            WHEN 1 THEN RETURN "PROCEDURE":U . 
-            WHEN 2 THEN RETURN "FUNCTION":U .
-            WHEN 3 THEN RETURN "EXTERN":U . 
-            WHEN 4 THEN RETURN "DLL-ENTRY":U . 
-        END CASE . 
-        
+            WHEN 1 THEN
+                RETURN "PROCEDURE":U .
+            WHEN 2 THEN
+                RETURN "FUNCTION":U .
+            WHEN 3 THEN
+                RETURN "EXTERN":U .
+            WHEN 4 THEN
+                RETURN "DLL-ENTRY":U .
+        END CASE .
+
         UNDO, THROW NEW Consultingwerk.Exceptions.InvalidValueException
                             (STRING (THIS-OBJECT:Value),
                              "EntryTypeEnum":U) .
 
-    END METHOD.    
-    
+    END METHOD.
+
     /*------------------------------------------------------------------------------
-        Purpose: Returns a CharacterList with the names of the Enum members 
-        Notes:   
+        Purpose: Returns a CharacterList with the names of the Enum members
+        Notes:
         @return The CharacterList with the names of the Enum members
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CharacterList GetNames ():
-        
-        DEFINE VARIABLE oReturn AS CharacterList NO-UNDO . 
-        
+
         RETURN NEW CharacterList ('{&EnumMembers}':U).
 
     END METHOD .
-    
-    {Consultingwerk/EnumFromString.i Consultingwerk.EntryTypeEnum}    
-        
+
+    {Consultingwerk/EnumFromString.i Consultingwerk.EntryTypeEnum}
+
 &ENDIF
-        
+
 END {&CLASS} .

@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2006-2015 by Consultingwerk Ltd. ("CW") -            *
+ * Copyright (C) 2006-2016 by Consultingwerk Ltd. ("CW") -            *
  * www.consultingwerk.de and other contributors as listed             *
  * below.  All Rights Reserved.                                       *
  *                                                                    *
@@ -11,7 +11,7 @@
  **********************************************************************/ 
 /*------------------------------------------------------------------------
     File        : &1
-    Purpose     : 
+    Purpose     : Data Access Component 
     Syntax      : 
     Description : 
     Author(s)   : @USER@ / Consultingwerk Ltd.
@@ -56,7 +56,8 @@ CLASS &2.&1
         
         /* Fields that are not assigned to the database record when a new record is created. */
         /* THIS-OBJECT:AssignSkipList = "<key fields>":U. */
-
+        @AssignSkipDictionary@
+        
         /* Mike Fechner, Consultingwerk Ltd. 01.07.2014
            SCL-334: By default, prepare queries of joined data source 
                     queries. This behavior is the new default, and should
@@ -125,7 +126,7 @@ CLASS &2.&1
         Consultingwerk.Util.DatasetHelper:SetTrackingChanges (DATASET &3:HANDLE, FALSE) .
     
         @DetachDataSourcesStart.
-&7        
+&7
         @DetachDataSourcesEnd.
         
     END METHOD.
@@ -149,7 +150,7 @@ CLASS &2.&1
         @SourceColumnCaseBlock.
         CASE pcTable:
 &8
-        END.
+        END CASE .
      
         ASSIGN iPos = LOOKUP(pcColumn, cMap) .
         
@@ -175,7 +176,7 @@ CLASS &2.&1
         @SourceDefaultQueryCaseBlock.
         CASE pcTable:
 &9
-        END. 
+        END CASE . 
         
     END METHOD.
 

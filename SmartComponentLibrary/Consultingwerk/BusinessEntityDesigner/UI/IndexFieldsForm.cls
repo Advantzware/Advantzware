@@ -11,19 +11,19 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : IndexFieldsForm
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike
     Created     : Mon Oct 26 20:44:28 CET 2015
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.Forms.*                           FROM PROPATH .
 USING Consultingwerk.BusinessEntityDesigner.Services.* FROM PROPATH.
-USING Consultingwerk.BusinessEntityDesigner.UI.*       FROM PROPATH .  
+USING Consultingwerk.BusinessEntityDesigner.UI.*       FROM PROPATH .
 USING Consultingwerk.Util.*                            FROM PROPATH .
 USING Consultingwerk.Windows.Controls.*                FROM PROPATH .
 USING Progress.Lang.*                                  FROM PROPATH .
@@ -31,65 +31,65 @@ USING Infragistics.Win.UltraWinListView.* FROM ASSEMBLY.
 USING System.Runtime.InteropServices.* FROM ASSEMBLY.
 USING System.Windows.Forms.* FROM ASSEMBLY.
 
-CLASS Consultingwerk.BusinessEntityDesigner.UI.IndexFieldsForm 
-    INHERITS BaseForm: 
+CLASS Consultingwerk.BusinessEntityDesigner.UI.IndexFieldsForm
+    INHERITS BaseForm:
 
     { Consultingwerk/BusinessEntityDesigner/Services/dsBusinessEntity.i &REFERENCE-ONLY=REFERENCE-ONLY}
 
     DEFINE PRIVATE VARIABLE btnRemove AS Infragistics.Win.Misc.UltraButton NO-UNDO.
     DEFINE PRIVATE VARIABLE btnAdd AS Infragistics.Win.Misc.UltraButton NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE lvIndexFields AS Infragistics.Win.UltraWinListView.UltraListView NO-UNDO.
     DEFINE PRIVATE VARIABLE lvBusinessEntityFields AS Infragistics.Win.UltraWinListView.UltraListView NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraButton2 AS Infragistics.Win.Misc.UltraButton NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraButton1 AS Infragistics.Win.Misc.UltraButton NO-UNDO.
     DEFINE PRIVATE VARIABLE panel1 AS System.Windows.Forms.Panel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraOptionSet1 AS Infragistics.Win.UltraWinEditors.UltraOptionSet NO-UNDO.
-	
-	DEFINE VARIABLE oUltraListViewOrderController AS UltraListViewOrderController NO-UNDO . 
-	DEFINE VARIABLE oUltraListViewLeftRightController AS UltraListViewLeftRightController NO-UNDO . 
-	
+
+    DEFINE VARIABLE oUltraListViewOrderController AS UltraListViewOrderController NO-UNDO .
+    DEFINE VARIABLE oUltraListViewLeftRightController AS UltraListViewLeftRightController NO-UNDO .
+
     /*------------------------------------------------------------------------------
-        Purpose: Returns the Index Fields 
-        Notes:   
+        Purpose: Returns the Index Fields
+        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY IndexFields AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY IndexFields AS CHARACTER NO-UNDO
+    GET.
+    SET.
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the Index Sort
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY IndexSort AS CHARACTER NO-UNDO 
+    DEFINE PUBLIC PROPERTY IndexSort AS CHARACTER NO-UNDO
     GET.
-    SET. 
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the IndexFieldsForm class 
-        Notes:   
+        Purpose: Constructor for the IndexFieldsForm class
+        Notes:
         @param pcBusinessEntityName The name of the business entity
         @param pcTempTableName The name of the temp-table
         @param pcIndexName The name of the index
         @param pcFieldNames The comma delimited list of index field
-        @param pcFieldSort The current sort order of the index fields 
+        @param pcFieldSort The current sort order of the index fields
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC IndexFieldsForm (pcBusinessEntityName AS CHARACTER, 
-	                                    pcTempTableName AS CHARACTER, 
-	                                    pcIndexName AS CHARACTER, 
-	                                    pcFieldNames AS CHARACTER,
-	                                    pcFieldSort AS CHARACTER):
-		
-        DEFINE VARIABLE oImage AS System.Drawing.Image NO-UNDO .  
+    CONSTRUCTOR PUBLIC IndexFieldsForm (pcBusinessEntityName AS CHARACTER,
+                                        pcTempTableName AS CHARACTER,
+                                        pcIndexName AS CHARACTER,
+                                        pcFieldNames AS CHARACTER,
+                                        pcFieldSort AS CHARACTER):
+
+        DEFINE VARIABLE oImage AS System.Drawing.Image NO-UNDO .
         DEFINE VARIABLE hDataset AS HANDLE NO-UNDO.
-        DEFINE VARIABLE oController AS BusinessEntityDatasetController NO-UNDO . 
-		
+        DEFINE VARIABLE oController AS BusinessEntityDatasetController NO-UNDO .
+
         SUPER().
 
         InitializeComponent().
-    
-        ASSIGN oImage                                               = ImageHelper:Load ("Consultingwerk\BusinessEntityDesigner\UI\Images\table2_selection_column.png":U) 
-               lvBusinessEntityFields:ItemSettings:Appearance:Image = oImage 
+
+        ASSIGN oImage                                               = ImageHelper:Load ("Consultingwerk/BusinessEntityDesigner/UI/Images/table2_selection_column.png":U)
+               lvBusinessEntityFields:ItemSettings:Appearance:Image = oImage
                lvIndexFields:ItemSettings:Appearance:Image          = oImage
                 .
 
@@ -99,74 +99,83 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.IndexFieldsForm
 
         THIS-OBJECT:BindDataset (DATASET-HANDLE hDataset BIND) .
 
-        THIS-OBJECT:PopulateListViews (pcBusinessEntityName, 
-                                       pcTempTableName, 
-                                       pcIndexName, 
+        THIS-OBJECT:PopulateListViews (pcBusinessEntityName,
+                                       pcTempTableName,
+                                       pcIndexName,
                                        pcFieldNames,
-                                       pcFieldSort) .       
+                                       pcFieldSort) .
 
 
         oUltraListViewOrderController = NEW UltraListViewOrderController (lvBusinessEntityFields) .
-        
+
         oUltraListViewLeftRightController = NEW UltraListViewLeftRightController (lvBusinessEntityFields,
                                                                                   lvIndexFields,
                                                                                   btnAdd,
                                                                                   btnRemove)  .
-    
-    
-	END CONSTRUCTOR.
+
+
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Binds the Dataset Handle 
-        Notes:   
+        Purpose: Binds the Dataset Handle
+        Notes:
         @param dsBusinessEntity The dataset to bind to
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID BindDataset (DATASET dsBusinessEntity BIND):
+    METHOD PROTECTED VOID BindDataset (DATASET dsBusinessEntity BIND):
 
         /* noop */
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the Client event of the Add button 
-        Notes:   
+        Purpose: Event handler for the Client event of the Add button
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID btnAdd_Click (INPUT sender AS System.Object, INPUT e AS System.EventArgs):
-		
+    METHOD PRIVATE VOID btnAdd_Click (INPUT sender AS System.Object, INPUT e AS System.EventArgs):
+
         {Consultingwerk/foreach.i Infragistics.Win.UltraWinListView.UltraListViewItem oItem in lvBusinessEntityFields:SelectedItems}
             oItem:Value = SUBSTITUTE ("&1 (ASCENDING)":U, oItem:Key) .
-        END.  
+        END.
 
-	END METHOD .
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the Client event of the Remove button 
-        Notes:   
+        Purpose: Event handler for the Client event of the Remove button
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event 
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID btnRemove_Click (sender AS System.Object, 
-	                                     e AS System.EventArgs):
-		
+    METHOD PRIVATE VOID btnRemove_Click (sender AS System.Object,
+                                         e AS System.EventArgs):
+
         {Consultingwerk/foreach.i Infragistics.Win.UltraWinListView.UltraListViewItem oItem in lvIndexFields:SelectedItems}
             oItem:Value = oItem:Key .
-        END.  
+        END.
 
-	END METHOD .
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design  
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    END METHOD .
+
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE valueListItem1 AS Infragistics.Win.ValueListItem NO-UNDO.
@@ -324,120 +333,131 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.IndexFieldsForm
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Evemt handler for the ItemSelectionChanged event of the lvIndexFields
-        Notes:   
+        Notes:
         @param sender The System.Object with the data for this event
         @param e The ItemSelectionChangedEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID lvIndexFields_ItemSelectionChanged (sender AS System.Object, 
-	                                                        e AS Infragistics.Win.UltraWinListView.ItemSelectionChangedEventArgs):
-		
-		IF lvIndexFields:SelectedItems:Count = 0 THEN DO:  
-            ultraOptionSet1:Value = ? . 
-            RETURN . 
-        END.
-    
-        IF UNBOX (lvIndexFields:SelectedItems[0]:Value) MATCHES ("*(ASCENDING)*":U) THEN DO: 
-            ultraOptionSet1:CheckedIndex = 0 . 
-            RETURN . 
-        END.
-            
-        IF UNBOX (lvIndexFields:SelectedItems[0]:Value) MATCHES ("*(DESCENDING)*":U) THEN DO: 
-            ultraOptionSet1:CheckedIndex = 1 . 
-            RETURN . 
+    METHOD PRIVATE VOID lvIndexFields_ItemSelectionChanged (sender AS System.Object,
+                                                            e AS Infragistics.Win.UltraWinListView.ItemSelectionChangedEventArgs):
+
+        IF lvIndexFields:SelectedItems:Count = 0 THEN DO:
+            ultraOptionSet1:Value = ? .
+            RETURN .
         END.
 
-        ultraOptionSet1:Value = ? . 
+        IF UNBOX (lvIndexFields:SelectedItems[0]:Value) MATCHES ("*(ASCENDING)*":U) THEN DO:
+            ultraOptionSet1:CheckedIndex = 0 .
+            RETURN .
+        END.
 
-	END METHOD .
+        IF UNBOX (lvIndexFields:SelectedItems[0]:Value) MATCHES ("*(DESCENDING)*":U) THEN DO:
+            ultraOptionSet1:CheckedIndex = 1 .
+            RETURN .
+        END.
+
+        ultraOptionSet1:Value = ? .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Populates the list views 
-        Notes:   
+        Purpose: Populates the list views
+        Notes:
         @param pcBusinessEntityName The name of the business entity
         @param pcTempTableName The name of the temp-table
         @param pcIndexName The name of the index
         @param pcFieldNames The comma delimited list of index field
-        @param pcFieldSort The current sort order of the index fields 
+        @param pcFieldSort The current sort order of the index fields
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID PopulateListViews (pcBusinessEntityName AS CHARACTER, 
-                                             pcTempTableName AS CHARACTER, 
-                                             pcIndexName AS CHARACTER, 
+    METHOD PROTECTED VOID PopulateListViews (pcBusinessEntityName AS CHARACTER,
+                                             pcTempTableName AS CHARACTER,
+                                             pcIndexName AS CHARACTER,
                                              pcFieldNames AS CHARACTER,
                                              pcFieldSort AS CHARACTER):
-	
-		DEFINE VARIABLE oItem AS UltraListViewItem NO-UNDO . 
+
         DEFINE VARIABLE i     AS INTEGER           NO-UNDO .
-		
-		FOR EACH eField WHERE eField.BusinessEntityName = pcBusinessEntityName 
-		                  AND eField.TempTableName      = pcTempTableName
-		                  BY eField.FieldOrder ON ERROR UNDO, THROW:
+
+        FOR EACH eField WHERE eField.BusinessEntityName = pcBusinessEntityName
+                          AND eField.TempTableName      = pcTempTableName
+                          BY eField.FieldOrder ON ERROR UNDO, THROW:
 
             IF NOT ListHelper:EntryIsInList (eField.FieldName, pcFieldNames) THEN DO:
-                lvBusinessEntityFields:Items:Add (eField.FieldName, 
-                                                  eField.FieldName) .            
+                lvBusinessEntityFields:Items:Add (eField.FieldName,
+                                                  eField.FieldName) .
             END.
         END.
 
         DO i = 1 TO NUM-ENTRIES (pcFieldNames):
-                oItem = lvIndexFields:Items:Add (ENTRY (i, pcFieldNames),
-                                                 SUBSTITUTE ("&1 (&2)":U,
-                                                             ENTRY (i, pcFieldNames), 
-                                                             ENTRY (i, pcFieldSort))) .
+            lvIndexFields:Items:Add (ENTRY (i, pcFieldNames),
+                                     SUBSTITUTE ("&1 (&2)":U,
+                                                 ENTRY (i, pcFieldNames),
+                                                 ENTRY (i, pcFieldSort))) .
         END.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the Click evnet of the ultraButton1
-        Notes:   
-        @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event 
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraButton1_Click (INPUT sender AS System.Object, INPUT e AS System.EventArgs):
-	
-	    ASSIGN THIS-OBJECT:IndexFields = "":U 
-	           THIS-OBJECT:IndexSort   = "":U . 
-	           
-        {Consultingwerk/foreach.i Infragistics.Win.UltraWinListView.UltraListViewItem oItem in lvIndexFields:Items}
-	
-            ASSIGN THIS-OBJECT:IndexFields = THIS-OBJECT:IndexFields + ",":U + oItem:Key 
-                   THIS-OBJECT:IndexSort   = THIS-OBJECT:IndexSort + ",":U + 
-                                             (IF UNBOX (oItem:Value) MATCHES "*(DESCENDING)*":U THEN "DESCENDING":U ELSE "ASCENDING":U) . 
-        END .	
-
-        ASSIGN THIS-OBJECT:IndexFields = TRIM (THIS-OBJECT:IndexFields, ",":U)
-               THIS-OBJECT:IndexSort   = TRIM (THIS-OBJECT:IndexSort, ",":U) .
-		
-		GarbageCollectorHelper:DeleteObject (oUltraListViewOrderController) .
-		GarbageCollectorHelper:DeleteObject (oUltraListViewLeftRightController) . 
-
-	END METHOD .
-
-    /*------------------------------------------------------------------------------
-        Purpose: Event handler for the ValueChanged event of the ultraOptionSet1
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraOptionSet1_ValueChanged (sender AS System.Object, 
-	                                                  e AS System.EventArgs):
+    METHOD PRIVATE VOID ultraButton1_Click (INPUT sender AS System.Object, INPUT e AS System.EventArgs):
 
-        IF ultraOptionSet1:Value <> ? THEN DO:
-		
-            {Consultingwerk/foreach.i Infragistics.Win.UltraWinListView.UltraListViewItem oItem in lvIndexFields:SelectedItems}
-                oItem:Value = SUBSTITUTE ("&1 (&2)":U, oItem:Key, UNBOX (ultraOptionSet1:CheckedItem:DataValue)) .
-            END.  
-        END.
-        
-	END METHOD .
+        ASSIGN THIS-OBJECT:IndexFields = "":U
+               THIS-OBJECT:IndexSort   = "":U .
+
+        {Consultingwerk/foreach.i Infragistics.Win.UltraWinListView.UltraListViewItem oItem in lvIndexFields:Items}
+
+            ASSIGN THIS-OBJECT:IndexFields = THIS-OBJECT:IndexFields + ",":U + oItem:Key
+                   THIS-OBJECT:IndexSort   = THIS-OBJECT:IndexSort + ",":U +
+                                             (IF UNBOX (oItem:Value) MATCHES "*(DESCENDING)*":U THEN "DESCENDING":U ELSE "ASCENDING":U) .
+        END .
+
+        ASSIGN THIS-OBJECT:IndexFields = TRIM (THIS-OBJECT:IndexFields, ",":U)
+               THIS-OBJECT:IndexSort   = TRIM (THIS-OBJECT:IndexSort, ",":U) .
+
+        GarbageCollectorHelper:DeleteObject (oUltraListViewOrderController) .
+        GarbageCollectorHelper:DeleteObject (oUltraListViewLeftRightController) .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the IndexFieldsForm class 
-        Notes:   
+        Purpose: Event handler for the ValueChanged event of the ultraOptionSet1
+        Notes:
+        @param sender The reference to the object that raised the event
+        @param e The System.EventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID ultraOptionSet1_ValueChanged (sender AS System.Object,
+                                                      e AS System.EventArgs):
+
+        IF ultraOptionSet1:Value <> ? THEN DO:
+
+            {Consultingwerk/foreach.i Infragistics.Win.UltraWinListView.UltraListViewItem oItem in lvIndexFields:SelectedItems}
+                oItem:Value = SUBSTITUTE ("&1 (&2)":U, oItem:Key, UNBOX (ultraOptionSet1:CheckedItem:DataValue)) .
+            END.
+        END.
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Destructor for the IndexFieldsForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC IndexFieldsForm ():
 

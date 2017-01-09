@@ -33,25 +33,25 @@ CLASS Consultingwerk.BusinessEntityDesigner.Services.GetCustomPropertyValuesEven
         Purpose: Returns the name of the current custom property 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY PropertyName AS CHARACTER NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    DEFINE PUBLIC PROPERTY PropertyName AS CHARACTER NO-UNDO 
+    GET.
+    PROTECTED SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the list of possible values 
         Notes:   Event Subscribes are supposed to add property values to the list
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY PropertyValues AS CharacterList NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    DEFINE PUBLIC PROPERTY PropertyValues AS CharacterList NO-UNDO 
+    GET.
+    PROTECTED SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the current property scope
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Scope AS CustomPropertiesScopeEnum NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    DEFINE PUBLIC PROPERTY Scope AS CustomPropertiesScopeEnum NO-UNDO 
+    GET.
+    PROTECTED SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the GetCustomPropertyValuesEventArgs class
@@ -60,15 +60,15 @@ CLASS Consultingwerk.BusinessEntityDesigner.Services.GetCustomPropertyValuesEven
         @param pcPropertyName The name of the custom property 
         @param poList The list to add values to
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC GetCustomPropertyValuesEventArgs (poCustomPropertiesScope AS CustomPropertiesScopeEnum,
-	                                                     pcPropertyName AS CHARACTER,
-	                                                     poList AS CharacterList):
-		SUPER ().
-		
-		ASSIGN THIS-OBJECT:Scope          = poCustomPropertiesScope
-		       THIS-OBJECT:PropertyName   = pcPropertyName 
-		       THIS-OBJECT:PropertyValues = poList . 
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC GetCustomPropertyValuesEventArgs (poCustomPropertiesScope AS CustomPropertiesScopeEnum,
+                                                         pcPropertyName AS CHARACTER,
+                                                         poList AS CharacterList):
+        SUPER ().
+        
+        ASSIGN THIS-OBJECT:Scope          = poCustomPropertiesScope
+               THIS-OBJECT:PropertyName   = pcPropertyName 
+               THIS-OBJECT:PropertyValues = poList . 
+        
+    END CONSTRUCTOR.
 
 END CLASS.

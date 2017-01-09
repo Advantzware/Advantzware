@@ -33,9 +33,9 @@ INTERFACE Consultingwerk.Framework.Authorization.IToolbarAuthorizationProvider:
         @param pcLinkedObjectSecurityKey The security key of the linked object
         @return Logical value indicating if the Form startup is restricted                        
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL IsToolbarActionRestricted (poRequestor AS Progress.Lang.Object,
-	                                                 pcToolbarActionKey AS CHARACTER, 
-	                                                 pcFormClassName AS CHARACTER,
-	                                                 pcLinkedObjectSecurityKey AS CHARACTER).
+    METHOD PUBLIC LOGICAL IsToolbarActionRestricted (poRequestor AS Progress.Lang.Object,
+                                                     pcToolbarActionKey AS CHARACTER, 
+                                                     pcFormClassName AS CHARACTER,
+                                                     pcLinkedObjectSecurityKey AS CHARACTER).
 
 END INTERFACE.

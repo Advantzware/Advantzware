@@ -46,6 +46,6 @@ INTERFACE Consultingwerk.Framework.IAuthenticationService:
         @param poCredentials The Credentials to be validated
         @return Logical value indicating if the user has been authenficated
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL ValidateUser (poCredentials AS IUserCredentials).
+    METHOD PUBLIC LOGICAL ValidateUser (poCredentials AS IUserCredentials).
 
 END INTERFACE.

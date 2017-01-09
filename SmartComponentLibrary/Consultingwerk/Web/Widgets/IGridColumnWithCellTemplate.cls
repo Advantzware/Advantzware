@@ -24,10 +24,10 @@ USING Progress.Lang.*              FROM PROPATH .
 
 INTERFACE Consultingwerk.Web.Widgets.IGridColumnWithCellTemplate:  
   
-	/*------------------------------------------------------------------------------
-	    Purpose: Returns the Column Template (Kendo.UI) for Cells of the Column
-	    Notes:
-	------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the Column Template (Kendo.UI) for Cells of the Column
+        Notes:
+    ------------------------------------------------------------------------------*/
     DEFINE PUBLIC PROPERTY ColumnTemplate AS CHARACTER NO-UNDO 
     GET.
 

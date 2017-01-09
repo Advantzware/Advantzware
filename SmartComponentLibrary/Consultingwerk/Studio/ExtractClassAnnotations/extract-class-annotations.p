@@ -11,14 +11,14 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : extract-class-annotations.p
-    Purpose     : Startup procedure (from PCT ANT Task) for invoking the 
+    Purpose     : Startup procedure (from PCT ANT Task) for invoking the
                   ClassAnnotationExtract class
 
     Syntax      : Executed via PCTRun / ANT
 
-    Description : 
+    Description :
 
-    Author(s)   : 
+    Author(s)   :
     Created     : Wed Jul 01 14:39:41 CEST 2015
     Notes       : http://confluence.consultingwerkcloud.com/wiki/display/SCL/The+Annotation+based+Type+Descriptor
   ----------------------------------------------------------------------*/
@@ -31,40 +31,48 @@ USING Consultingwerk.Util.*                           FROM PROPATH .
 USING Consultingwerk.Studio.ExtractClassAnnotations.* FROM PROPATH .
 USING Consultingwerk.Studio.ClassDocumentation.* FROM PROPATH.
 
-DEFINE VARIABLE oParameter AS ExtractClassAnnotationsParameter NO-UNDO . 
-DEFINE VARIABLE oJob       AS ExtractClassAnnotationsJob       NO-UNDO . 
+DEFINE VARIABLE oParameter AS ExtractClassAnnotationsParameter NO-UNDO .
+DEFINE VARIABLE oJob       AS ExtractClassAnnotationsJob       NO-UNDO .
 
 /* ***************************  Main Block  *************************** */
 
-SESSION:ERROR-STACK-TRACE = TRUE . 
+SESSION:ERROR-STACK-TRACE = TRUE .
 
-oParameter = NEW ExtractClassAnnotationsParameter () . 
+oParameter = NEW ExtractClassAnnotationsParameter () .
 
-ASSIGN oParameter:Directory               = DYNAMIC-FUNCTION("getParameter":U IN SOURCE-PROCEDURE, INPUT "directory":U)
+ASSIGN oParameter:BuildFiles              = DYNAMIC-FUNCTION("getParameter":U IN SOURCE-PROCEDURE, INPUT "buildFiles":U)
+       oParameter:Directory               = DYNAMIC-FUNCTION("getParameter":U IN SOURCE-PROCEDURE, INPUT "directory":U)
        oParameter:FileMask                = DYNAMIC-FUNCTION("getParameter":U IN SOURCE-PROCEDURE, INPUT "fileMask":U)
-       oParameter:ExcludeAnnotations      = DYNAMIC-FUNCTION("getParameter":U IN SOURCE-PROCEDURE, INPUT "excludeAnnotations":U) 
+       oParameter:ExcludeAnnotations      = DYNAMIC-FUNCTION("getParameter":U IN SOURCE-PROCEDURE, INPUT "excludeAnnotations":U)
+       oParameter:OnlyWriteModified       = DataTypeHelper:ToLogical(DYNAMIC-FUNCTION("getParameter":U IN SOURCE-PROCEDURE, INPUT "OnlyWriteModified":U))
        oParameter:OverwriteWriteProtected = DataTypeHelper:ToLogical(DYNAMIC-FUNCTION("getParameter":U IN SOURCE-PROCEDURE, INPUT "overwriteWriteProtected":U))
        oParameter:Verbose                 = DataTypeHelper:ToLogical(DYNAMIC-FUNCTION("getParameter":U IN SOURCE-PROCEDURE, INPUT "verbose":U))
-      
+
        PctSupport:PctLibrary = SOURCE-PROCEDURE
     .
 
-FILE-INFO:FILE-NAME = ".":U .
+IF oParameter:OnlyWriteModified = ? THEN
+    ASSIGN oParameter:OnlyWriteModified = TRUE .
 
-IF oParameter:Verbose THEN 
-    MESSAGE "[ExtractClassParameter] Working-Directoy:       ":U FILE-INFO:FULL-PATHNAME SKIP
-            "[ExtractClassParameter] Directoy:               ":U oParameter:Directory SKIP  
-            "[ExtractClassParameter] FileMask:               ":U oParameter:FileMask SKIP
-            "[ExtractClassParameter] ExcludeAnnotations:     ":U oParameter:ExcludeAnnotations SKIP
-            "[ExtractClassParameter] OverwriteWriteProtected:":U oParameter:OverwriteWriteProtected SKIP .
+FILE-INFORMATION:FILE-NAME = ".":U .
+
+IF oParameter:Verbose THEN
+    MESSAGE "[ExtractClassParameter] Working-Directoy:       ":U FILE-INFORMATION:FULL-PATHNAME                    SKIP
+            "[ExtractClassParameter] Directoy:               ":U oParameter:Directory                       SKIP
+            "[ExtractClassParameter] FileMask:               ":U oParameter:FileMask                        SKIP
+            "[ExtractClassParameter] Build Files:            ":U oParameter:BuildFiles                      SKIP
+            "[ExtractClassParameter] # Build Files:          ":U NUM-ENTRIES (oParameter:BuildFiles, " ":U) SKIP
+            "[ExtractClassParameter] ExcludeAnnotations:     ":U oParameter:ExcludeAnnotations              SKIP
+            "[ExtractClassParameter] OnlyWriteModified:      ":U oParameter:OnlyWriteModified               SKIP
+            "[ExtractClassParameter] OverwriteWriteProtected:":U oParameter:OverwriteWriteProtected         SKIP .
 
 
-oJob = NEW ExtractClassAnnotationsJob () . 
+oJob = NEW ExtractClassAnnotationsJob () .
 
 oJob:Run (oParameter) .
-    
-RETURN "0":U . 
+
+RETURN "0":U .
 
 CATCH err AS Progress.Lang.Error :
-    MESSAGE Consultingwerk.Util.ErrorHelper:FormattedErrorMessagesExt (err) . 
+    MESSAGE Consultingwerk.Util.ErrorHelper:FormattedErrorMessagesExt (err) .
 END CATCH.

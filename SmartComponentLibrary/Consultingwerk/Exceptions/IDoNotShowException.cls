@@ -12,11 +12,11 @@
 /*------------------------------------------------------------------------
     File        : IDoNotShowException
     Purpose     : Interface for Error classes that should not be causing
-                  a message box/dialog when passed to the 
+                  a message box/dialog when passed to the
                   Consultingwerk.Util.ErrorHelper methods. Those errors
                   could still be handled using then IErrorHandler implementation
-    Syntax      : 
-    Description : Useful for errors where the actual error message might 
+    Syntax      :
+    Description : Useful for errors where the actual error message might
                   already have been shown to the user and the error is just
                   thrown to cancel further processing
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
@@ -25,9 +25,9 @@
                   needed for tagging error classes
   ----------------------------------------------------------------------*/
 
-USING Consultingwerk.Exceptions.* FROM PROPATH .  
+USING Consultingwerk.Exceptions.* FROM PROPATH .
 USING Progress.Lang.*             FROM PROPATH .
 
-INTERFACE Consultingwerk.Exceptions.IDoNotShowException:  
-  
+INTERFACE Consultingwerk.Exceptions.IDoNotShowException:
+
 END INTERFACE.

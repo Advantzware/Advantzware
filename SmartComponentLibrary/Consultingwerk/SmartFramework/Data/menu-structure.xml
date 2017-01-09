@@ -1,6 +1,21 @@
 <?xml version="1.0"?>
 <dsMenu xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <eSmartMenu>
+    <MenuGuid>8257dca5-9139-62a4-1d14-49a764659133</MenuGuid>
+    <ParentMenuGuid>a3154157-acbe-d391-e211-8240f7ef034b</ParentMenuGuid>
+    <MenuName>Modified State</MenuName>
+    <MenuStructureType>ITEM</MenuStructureType>
+    <MenuBeginsAGroup>false</MenuBeginsAGroup>
+    <MenuSmallImage>Consultingwerk/Windows/Framework/Images/documents_exchange_16.png</MenuSmallImage>
+    <MenuLargeImage>Consultingwerk/Windows/Framework/Images/documents_exchange_32.png</MenuLargeImage>
+    <MenuSequence>8</MenuSequence>
+    <FunctionGuid>8257dca5-9139-62a4-1d14-43a77890f9ff</FunctionGuid>
+    <HasChild>false</HasChild>
+    <FunctionName/>
+    <MenuStyleGuid/>
+    <MenuStyleCode/>
+  </eSmartMenu>
+  <eSmartMenu>
     <MenuGuid>88e05c9c-6243-808f-e211-7ef71eff5234</MenuGuid>
     <ParentMenuGuid>a3154157-acbe-d391-e211-8240060acb3d</ParentMenuGuid>
     <MenuName>Security Realm Maintenance</MenuName>
@@ -38,7 +53,7 @@
     <MenuBeginsAGroup>false</MenuBeginsAGroup>
     <MenuSmallImage>Consultingwerk/Windows/Framework/Images/SmartFramework/earth_16.png</MenuSmallImage>
     <MenuLargeImage>Consultingwerk/Windows/Framework/Images/SmartFramework/earth_32.png</MenuLargeImage>
-    <MenuSequence>11</MenuSequence>
+    <MenuSequence>12</MenuSequence>
     <FunctionGuid>8d4ebc9b-2ab2-7b8d-e211-315bf8404435</FunctionGuid>
     <HasChild>false</HasChild>
     <FunctionName/>
@@ -128,7 +143,7 @@
     <MenuBeginsAGroup>false</MenuBeginsAGroup>
     <MenuSmallImage>Consultingwerk/Windows/Framework/Images/SmartFramework/tables_16.png</MenuSmallImage>
     <MenuLargeImage>Consultingwerk/Windows/Framework/Images/SmartFramework/tables_32.png</MenuLargeImage>
-    <MenuSequence>10</MenuSequence>
+    <MenuSequence>11</MenuSequence>
     <FunctionGuid>9182ee5f-be51-118c-d613-d42d58fd48fd</FunctionGuid>
     <HasChild>false</HasChild>
     <FunctionName/>
@@ -158,7 +173,7 @@
     <MenuBeginsAGroup>false</MenuBeginsAGroup>
     <MenuSmallImage>Consultingwerk/Windows/Framework/Images/SmartFramework/flag_generic_16.png</MenuSmallImage>
     <MenuLargeImage>Consultingwerk/Windows/Framework/Images/SmartFramework/flag_generic_32.png</MenuLargeImage>
-    <MenuSequence>12</MenuSequence>
+    <MenuSequence>13</MenuSequence>
     <FunctionGuid>9796a179-18e8-4793-e211-26bb7e661d79</FunctionGuid>
     <HasChild>false</HasChild>
     <FunctionName/>
@@ -173,7 +188,7 @@
     <MenuBeginsAGroup>false</MenuBeginsAGroup>
     <MenuSmallImage>Consultingwerk/Windows/Framework/Images/SmartFramework/flag_generic_16.png</MenuSmallImage>
     <MenuLargeImage>Consultingwerk/Windows/Framework/Images/SmartFramework/flag_generic_32.png</MenuLargeImage>
-    <MenuSequence>8</MenuSequence>
+    <MenuSequence>9</MenuSequence>
     <FunctionGuid>989f8abf-6a99-18be-e211-87b90ce74388</FunctionGuid>
     <HasChild>false</HasChild>
     <FunctionName/>
@@ -188,7 +203,7 @@
     <MenuBeginsAGroup>false</MenuBeginsAGroup>
     <MenuSmallImage>Consultingwerk/Windows/Framework/Images/SmartFramework/link_16.png</MenuSmallImage>
     <MenuLargeImage>Consultingwerk/Windows/Framework/Images/SmartFramework/link_32.png</MenuLargeImage>
-    <MenuSequence>9</MenuSequence>
+    <MenuSequence>10</MenuSequence>
     <FunctionGuid>98d9df57-f901-35aa-e211-4f9fcad548e0</FunctionGuid>
     <HasChild>false</HasChild>
     <FunctionName/>
@@ -205,6 +220,66 @@
     <MenuLargeImage>Consultingwerk/Windows/Framework/Images/SmartFramework/smartcard_32.png</MenuLargeImage>
     <MenuSequence>6</MenuSequence>
     <FunctionGuid>99c76236-bd65-aeb8-e013-2afcd46cd5f1</FunctionGuid>
+    <HasChild>false</HasChild>
+    <FunctionName/>
+    <MenuStyleGuid/>
+    <MenuStyleCode/>
+  </eSmartMenu>
+  <eSmartMenu>
+    <MenuGuid>9a5e4efe-746d-d0b0-1014-ba9d8c2e9b8d</MenuGuid>
+    <ParentMenuGuid>d5f16ac1-54ae-52b7-e211-391384a9e03a</ParentMenuGuid>
+    <MenuName>Scheduler</MenuName>
+    <MenuStructureType>Menu</MenuStructureType>
+    <MenuBeginsAGroup>false</MenuBeginsAGroup>
+    <MenuSmallImage>Consultingwerk/Windows/Framework/Images/calendar_16.png</MenuSmallImage>
+    <MenuLargeImage>Consultingwerk/Windows/Framework/Images/calendar_32.png</MenuLargeImage>
+    <MenuSequence>2</MenuSequence>
+    <FunctionGuid/>
+    <HasChild>false</HasChild>
+    <FunctionName/>
+    <MenuStyleGuid>de6f067b-02e8-c084-d613-3e5d340f33eb</MenuStyleGuid>
+    <MenuStyleCode/>
+  </eSmartMenu>
+  <eSmartMenu>
+    <MenuGuid>9a5e4efe-746d-d0b0-1014-bd9d24e4ddc7</MenuGuid>
+    <ParentMenuGuid>9a5e4efe-746d-d0b0-1014-ba9d8c2e9b8d</ParentMenuGuid>
+    <MenuName>Scheduler Job Plan Maintenance</MenuName>
+    <MenuStructureType>ITEM</MenuStructureType>
+    <MenuBeginsAGroup>false</MenuBeginsAGroup>
+    <MenuSmallImage>Consultingwerk/Windows/Framework/Images/calendar_16.png</MenuSmallImage>
+    <MenuLargeImage>Consultingwerk/Windows/Framework/Images/calendar_32.png</MenuLargeImage>
+    <MenuSequence>2</MenuSequence>
+    <FunctionGuid>9a5e4efe-746d-d0b0-1014-b19df48e144b</FunctionGuid>
+    <HasChild>false</HasChild>
+    <FunctionName/>
+    <MenuStyleGuid/>
+    <MenuStyleCode/>
+  </eSmartMenu>
+  <eSmartMenu>
+    <MenuGuid>9a5e4efe-746d-d0b0-1014-bd9d782db56c</MenuGuid>
+    <ParentMenuGuid>9a5e4efe-746d-d0b0-1014-ba9d8c2e9b8d</ParentMenuGuid>
+    <MenuName>Scheduler Job Maintenance</MenuName>
+    <MenuStructureType>ITEM</MenuStructureType>
+    <MenuBeginsAGroup>false</MenuBeginsAGroup>
+    <MenuSmallImage>Consultingwerk/Windows/Framework/Images/worker_16.png</MenuSmallImage>
+    <MenuLargeImage>Consultingwerk/Windows/Framework/Images/worker_32.png</MenuLargeImage>
+    <MenuSequence>1</MenuSequence>
+    <FunctionGuid>9a5e4efe-746d-d0b0-1014-b69d20f680a0</FunctionGuid>
+    <HasChild>false</HasChild>
+    <FunctionName/>
+    <MenuStyleGuid/>
+    <MenuStyleCode/>
+  </eSmartMenu>
+  <eSmartMenu>
+    <MenuGuid>9a5e4efe-746d-d0b0-1014-be9d9cadc223</MenuGuid>
+    <ParentMenuGuid>9a5e4efe-746d-d0b0-1014-ba9d8c2e9b8d</ParentMenuGuid>
+    <MenuName>Scheduler Job Status Monitor</MenuName>
+    <MenuStructureType>ITEM</MenuStructureType>
+    <MenuBeginsAGroup>false</MenuBeginsAGroup>
+    <MenuSmallImage>Consultingwerk/Windows/Framework/Images/alarmclock_16.png</MenuSmallImage>
+    <MenuLargeImage>Consultingwerk/Windows/Framework/Images/alarmclock_32.png</MenuLargeImage>
+    <MenuSequence>3</MenuSequence>
+    <FunctionGuid>9a5e4efe-746d-d0b0-1014-b49d5478ef96</FunctionGuid>
     <HasChild>false</HasChild>
     <FunctionName/>
     <MenuStyleGuid/>
@@ -248,11 +323,41 @@
     <MenuBeginsAGroup>false</MenuBeginsAGroup>
     <MenuSmallImage>Consultingwerk/Windows/Framework/Images/SmartFramework/environment_16.png</MenuSmallImage>
     <MenuLargeImage>Consultingwerk/Windows/Framework/Images/SmartFramework/environment_32.png</MenuLargeImage>
-    <MenuSequence>2</MenuSequence>
+    <MenuSequence>3</MenuSequence>
     <FunctionGuid/>
     <HasChild>false</HasChild>
     <FunctionName/>
     <MenuStyleGuid>c1280dd2-fbba-93af-d613-9c2e7099be56</MenuStyleGuid>
+    <MenuStyleCode/>
+  </eSmartMenu>
+  <eSmartMenu>
+    <MenuGuid>a5b5ad7f-8ef9-3084-1014-e039c064d71b</MenuGuid>
+    <ParentMenuGuid>bb9d44fc-5ad7-1aa8-e313-521d90a8b28b</ParentMenuGuid>
+    <MenuName>Object Master Designer</MenuName>
+    <MenuStructureType>Item</MenuStructureType>
+    <MenuBeginsAGroup>false</MenuBeginsAGroup>
+    <MenuSmallImage>Consultingwerk/Windows/Framework/Images/cubes_blue_16.png</MenuSmallImage>
+    <MenuLargeImage>Consultingwerk/Windows/Framework/Images/cubes_blue_32.png</MenuLargeImage>
+    <MenuSequence>8</MenuSequence>
+    <FunctionGuid>a5b5ad7f-8ef9-3084-1014-dc39c4be129f</FunctionGuid>
+    <HasChild>false</HasChild>
+    <FunctionName/>
+    <MenuStyleGuid/>
+    <MenuStyleCode/>
+  </eSmartMenu>
+  <eSmartMenu>
+    <MenuGuid>a8fbc5a3-5ed0-eeab-1a14-cd6468f3e801</MenuGuid>
+    <ParentMenuGuid>bb9d44fc-5ad7-1aa8-e313-521d90a8b28b</ParentMenuGuid>
+    <MenuName>Entity Field Mapping Maintenance</MenuName>
+    <MenuStructureType>ITEM</MenuStructureType>
+    <MenuBeginsAGroup>false</MenuBeginsAGroup>
+    <MenuSmallImage>Consultingwerk/Windows/Framework/Images/SmartFramework/table2_view_16.png</MenuSmallImage>
+    <MenuLargeImage>Consultingwerk/Windows/Framework/Images/SmartFramework/table2_view_32.png</MenuLargeImage>
+    <MenuSequence>5</MenuSequence>
+    <FunctionGuid>a8fbc5a3-5ed0-eeab-1a14-c66460a99774</FunctionGuid>
+    <HasChild>false</HasChild>
+    <FunctionName/>
+    <MenuStyleGuid/>
     <MenuStyleCode/>
   </eSmartMenu>
   <eSmartMenu>
@@ -308,8 +413,23 @@
     <MenuBeginsAGroup>false</MenuBeginsAGroup>
     <MenuSmallImage>Consultingwerk/Windows/Framework/Images/SmartFramework/text_list_bullets_16.png</MenuSmallImage>
     <MenuLargeImage>Consultingwerk/Windows/Framework/Images/SmartFramework/text_list_bullets_32.png</MenuLargeImage>
-    <MenuSequence>13</MenuSequence>
+    <MenuSequence>14</MenuSequence>
     <FunctionGuid>b55e817e-8b64-d9a5-e211-038856a3e3c0</FunctionGuid>
+    <HasChild>false</HasChild>
+    <FunctionName/>
+    <MenuStyleGuid/>
+    <MenuStyleCode/>
+  </eSmartMenu>
+  <eSmartMenu>
+    <MenuGuid>b5fa0a89-ffe4-0e98-1e14-ee0cd46e6aad</MenuGuid>
+    <ParentMenuGuid>bb9d44fc-5ad7-1aa8-e313-521d90a8b28b</ParentMenuGuid>
+    <MenuName>Export and Import Repository Objects</MenuName>
+    <MenuStructureType>Item</MenuStructureType>
+    <MenuBeginsAGroup>false</MenuBeginsAGroup>
+    <MenuSmallImage>Consultingwerk/Windows/Framework/Images/hand_paper_16.png</MenuSmallImage>
+    <MenuLargeImage>Consultingwerk/Windows/Framework/Images/hand_paper_32.png</MenuLargeImage>
+    <MenuSequence>6</MenuSequence>
+    <FunctionGuid>b5fa0a89-ffe4-0e98-1e14-e40c8c70bdff</FunctionGuid>
     <HasChild>false</HasChild>
     <FunctionName/>
     <MenuStyleGuid/>
@@ -323,7 +443,7 @@
     <MenuBeginsAGroup>false</MenuBeginsAGroup>
     <MenuSmallImage>Consultingwerk/Windows/Framework/Images/SmartFramework/window_objects_16.png</MenuSmallImage>
     <MenuLargeImage>Consultingwerk/Windows/Framework/Images/SmartFramework/window_objects_32.png</MenuLargeImage>
-    <MenuSequence>3</MenuSequence>
+    <MenuSequence>4</MenuSequence>
     <FunctionGuid/>
     <HasChild>false</HasChild>
     <FunctionName/>
@@ -353,7 +473,7 @@
     <MenuBeginsAGroup>false</MenuBeginsAGroup>
     <MenuSmallImage>Consultingwerk/Windows/Framework/Images/SmartFramework/link_16.png</MenuSmallImage>
     <MenuLargeImage>Consultingwerk/Windows/Framework/Images/SmartFramework/link_32.png</MenuLargeImage>
-    <MenuSequence>4</MenuSequence>
+    <MenuSequence>7</MenuSequence>
     <FunctionGuid>bb9d44fc-5ad7-1aa8-e313-651df07debfa</FunctionGuid>
     <HasChild>false</HasChild>
     <FunctionName/>
@@ -383,7 +503,7 @@
     <MenuBeginsAGroup>false</MenuBeginsAGroup>
     <MenuSmallImage>Consultingwerk/Windows/Framework/Images/SmartFramework/objects_16.png</MenuSmallImage>
     <MenuLargeImage>Consultingwerk/Windows/Framework/Images/SmartFramework/objects_32.png</MenuLargeImage>
-    <MenuSequence>3</MenuSequence>
+    <MenuSequence>4</MenuSequence>
     <FunctionGuid>cf27aad9-f42a-74b7-e313-7d1d70ce0800</FunctionGuid>
     <HasChild>false</HasChild>
     <FunctionName/>
@@ -413,7 +533,7 @@
     <MenuBeginsAGroup>false</MenuBeginsAGroup>
     <MenuSmallImage>Consultingwerk/Windows/Framework/Images/compasses_16.png</MenuSmallImage>
     <MenuLargeImage>Consultingwerk/Windows/Framework/Images/compasses_32.png</MenuLargeImage>
-    <MenuSequence>5</MenuSequence>
+    <MenuSequence>9</MenuSequence>
     <FunctionGuid>d17d66d0-9600-eb97-0214-9483ccf6df8e</FunctionGuid>
     <HasChild>false</HasChild>
     <FunctionName/>
@@ -505,6 +625,21 @@
     <MenuLargeImage xsi:nil="true"/>
     <MenuSequence>3</MenuSequence>
     <FunctionGuid>b174abd1-cfd3-c2ba-e311-c1002dc7cd6e</FunctionGuid>
+    <HasChild>false</HasChild>
+    <FunctionName/>
+    <MenuStyleGuid/>
+    <MenuStyleCode/>
+  </eSmartMenu>
+  <eSmartMenu>
+    <MenuGuid>e72f30d4-0caa-a388-0e14-6e2c3cf6f557</MenuGuid>
+    <ParentMenuGuid>bb9d44fc-5ad7-1aa8-e313-521d90a8b28b</ParentMenuGuid>
+    <MenuName>Customization Maintenance</MenuName>
+    <MenuStructureType>ITEM</MenuStructureType>
+    <MenuBeginsAGroup>false</MenuBeginsAGroup>
+    <MenuSmallImage>Consultingwerk/Windows/Framework/Images/objects_edit16.png</MenuSmallImage>
+    <MenuLargeImage>Consultingwerk/Windows/Framework/Images/objects_edit32.png</MenuLargeImage>
+    <MenuSequence>3</MenuSequence>
+    <FunctionGuid>e72f30d4-0caa-a388-0e14-642c7406e65b</FunctionGuid>
     <HasChild>false</HasChild>
     <FunctionName/>
     <MenuStyleGuid/>
@@ -931,6 +1066,24 @@
     <MenuStyleCode/>
   </eSmartMenu>
   <eSmartFunction>
+    <FunctionGuid>8257dca5-9139-62a4-1d14-43a77890f9ff</FunctionGuid>
+    <FunctionName>Modified State</FunctionName>
+    <FunctionDescription>Consultingwerk.Windows.Framework.System.SmartModifiedStateForm</FunctionDescription>
+    <FunctionSmallImage>Consultingwerk/Windows/Framework/Images/documents_exchange_16.png</FunctionSmallImage>
+    <FunctionLargeImage>Consultingwerk/Windows/Framework/Images/documents_exchange_32.png</FunctionLargeImage>
+    <FunctionCallParameter>{
+  &quot;SerializedType&quot;: &quot;Consultingwerk.Windows.Framework.LaunchFormCallParameter&quot;,
+  &quot;AllowMultiple&quot;: false,
+  &quot;ClassName&quot;: &quot;Consultingwerk.Windows.Framework.System.SmartModifiedStateForm&quot;,
+  &quot;FormStartType&quot;: &quot;SeparateForm&quot;,
+  &quot;UseCharacterParameterValue&quot;: false
+}
+</FunctionCallParameter>
+    <FunctionModuleGuid>a7d2db79-496b-1fa5-e211-953fc621b1d1</FunctionModuleGuid>
+    <ModuleName/>
+    <ExternalId/>
+  </eSmartFunction>
+  <eSmartFunction>
     <FunctionGuid>88e05c9c-6243-808f-e211-7df7d7f63796</FunctionGuid>
     <FunctionName>Security Realm Maintenance</FunctionName>
     <FunctionDescription>Consultingwerk.Windows.Framework.Authorization.SmartSecurityRealmForm</FunctionDescription>
@@ -1146,6 +1299,57 @@
     <ExternalId/>
   </eSmartFunction>
   <eSmartFunction>
+    <FunctionGuid>9a5e4efe-746d-d0b0-1014-b19df48e144b</FunctionGuid>
+    <FunctionName>Scheduler Job Plan Maintenance</FunctionName>
+    <FunctionDescription>Consultingwerk.Windows.Framework.Scheduler.SmartSchedulerJobPlanForm</FunctionDescription>
+    <FunctionSmallImage>Consultingwerk/Windows/Framework/Images/calendar_16.png</FunctionSmallImage>
+    <FunctionLargeImage>Consultingwerk/Windows/Framework/Images/calendar_32.png</FunctionLargeImage>
+    <FunctionCallParameter>{
+  &quot;SerializedType&quot;: &quot;Consultingwerk.Windows.Framework.LaunchFormCallParameter&quot;,
+  &quot;AllowMultiple&quot;: false,
+  &quot;ClassName&quot;: &quot;Consultingwerk.Windows.Framework.Scheduler.SmartSchedulerJobPlanForm&quot;,
+  &quot;UseCharacterParameterValue&quot;: false
+}
+</FunctionCallParameter>
+    <FunctionModuleGuid>a7d2db79-496b-1fa5-e211-953fc621b1d1</FunctionModuleGuid>
+    <ModuleName/>
+    <ExternalId/>
+  </eSmartFunction>
+  <eSmartFunction>
+    <FunctionGuid>9a5e4efe-746d-d0b0-1014-b49d5478ef96</FunctionGuid>
+    <FunctionName>Scheduler Job Status Monitor</FunctionName>
+    <FunctionDescription>Consultingwerk.Windows.Framework.Scheduler.SmartSchedulerJobStatusForm</FunctionDescription>
+    <FunctionSmallImage>Consultingwerk/Windows/Framework/Images/alarmclock_16.png</FunctionSmallImage>
+    <FunctionLargeImage>Consultingwerk/Windows/Framework/Images/alarmclock_32.png</FunctionLargeImage>
+    <FunctionCallParameter>{
+  &quot;SerializedType&quot;: &quot;Consultingwerk.Windows.Framework.LaunchFormCallParameter&quot;,
+  &quot;AllowMultiple&quot;: false,
+  &quot;ClassName&quot;: &quot;Consultingwerk.Windows.Framework.Scheduler.SmartSchedulerJobStatusForm&quot;,
+  &quot;UseCharacterParameterValue&quot;: false
+}
+</FunctionCallParameter>
+    <FunctionModuleGuid>a7d2db79-496b-1fa5-e211-953fc621b1d1</FunctionModuleGuid>
+    <ModuleName/>
+    <ExternalId/>
+  </eSmartFunction>
+  <eSmartFunction>
+    <FunctionGuid>9a5e4efe-746d-d0b0-1014-b69d20f680a0</FunctionGuid>
+    <FunctionName>Scheduler Job Maintenance</FunctionName>
+    <FunctionDescription>Consultingwerk.Windows.Framework.Scheduler.SmartSchedulerJobForm</FunctionDescription>
+    <FunctionSmallImage>Consultingwerk/Windows/Framework/Images/worker_16.png</FunctionSmallImage>
+    <FunctionLargeImage>Consultingwerk/Windows/Framework/Images/worker_32.png</FunctionLargeImage>
+    <FunctionCallParameter>{
+  &quot;SerializedType&quot;: &quot;Consultingwerk.Windows.Framework.LaunchFormCallParameter&quot;,
+  &quot;AllowMultiple&quot;: false,
+  &quot;ClassName&quot;: &quot;Consultingwerk.Windows.Framework.Scheduler.SmartSchedulerJobForm&quot;,
+  &quot;UseCharacterParameterValue&quot;: false
+}
+</FunctionCallParameter>
+    <FunctionModuleGuid>a7d2db79-496b-1fa5-e211-953fc621b1d1</FunctionModuleGuid>
+    <ModuleName/>
+    <ExternalId/>
+  </eSmartFunction>
+  <eSmartFunction>
     <FunctionGuid>9dbad2b4-1848-81bd-f613-8da9dcfba66d</FunctionGuid>
     <FunctionName>Deletion Maintenance</FunctionName>
     <FunctionDescription>Consultingwerk.Windows.Framework.System.SmartDeletionForm</FunctionDescription>
@@ -1155,6 +1359,42 @@
   &quot;SerializedType&quot;: &quot;Consultingwerk.Windows.Framework.LaunchFormCallParameter&quot;,
   &quot;AllowMultiple&quot;: false,
   &quot;ClassName&quot;: &quot;Consultingwerk.Windows.Framework.System.SmartDeletionForm&quot;,
+  &quot;UseCharacterParameterValue&quot;: false
+}
+</FunctionCallParameter>
+    <FunctionModuleGuid>a7d2db79-496b-1fa5-e211-953fc621b1d1</FunctionModuleGuid>
+    <ModuleName/>
+    <ExternalId/>
+  </eSmartFunction>
+  <eSmartFunction>
+    <FunctionGuid>a5b5ad7f-8ef9-3084-1014-dc39c4be129f</FunctionGuid>
+    <FunctionName>Object Master Designer</FunctionName>
+    <FunctionDescription>Consultingwerk.Windows.Framework.Repository.Object.SmartObjectMasterForm</FunctionDescription>
+    <FunctionSmallImage>Consultingwerk/Windows/Framework/Images/cubes_blue_16.png</FunctionSmallImage>
+    <FunctionLargeImage>Consultingwerk/Windows/Framework/Images/cubes_blue_32.png</FunctionLargeImage>
+    <FunctionCallParameter>{
+  &quot;SerializedType&quot;: &quot;Consultingwerk.Windows.Framework.LaunchFormCallParameter&quot;,
+  &quot;AllowMultiple&quot;: true,
+  &quot;ClassName&quot;: &quot;Consultingwerk.Windows.Framework.Repository.Object.SmartObjectMasterForm&quot;,
+  &quot;FormStartType&quot;: &quot;SeparateForm&quot;,
+  &quot;UseCharacterParameterValue&quot;: false
+}
+</FunctionCallParameter>
+    <FunctionModuleGuid>a7d2db79-496b-1fa5-e211-953fc621b1d1</FunctionModuleGuid>
+    <ModuleName/>
+    <ExternalId/>
+  </eSmartFunction>
+  <eSmartFunction>
+    <FunctionGuid>a8fbc5a3-5ed0-eeab-1a14-c66460a99774</FunctionGuid>
+    <FunctionName>Entity Field Mapping Maintenance</FunctionName>
+    <FunctionDescription>Consultingwerk.Windows.Framework.Repository.Field.SmartEntityFieldMappingForm</FunctionDescription>
+    <FunctionSmallImage>Consultingwerk/Windows/Framework/Images/SmartFramework/table2_view_16.png</FunctionSmallImage>
+    <FunctionLargeImage>Consultingwerk/Windows/Framework/Images/SmartFramework/table2_view_32.png</FunctionLargeImage>
+    <FunctionCallParameter>{
+  &quot;SerializedType&quot;: &quot;Consultingwerk.Windows.Framework.LaunchFormCallParameter&quot;,
+  &quot;AllowMultiple&quot;: false,
+  &quot;ClassName&quot;: &quot;Consultingwerk.Windows.Framework.Repository.Field.SmartEntityFieldMappingForm&quot;,
+  &quot;FormStartType&quot;: &quot;SeparateForm&quot;,
   &quot;UseCharacterParameterValue&quot;: false
 }
 </FunctionCallParameter>
@@ -1241,6 +1481,24 @@
   &quot;SerializedType&quot;: &quot;Consultingwerk.Windows.Framework.LaunchFormCallParameter&quot;,
   &quot;AllowMultiple&quot;: true,
   &quot;ClassName&quot;: &quot;Consultingwerk.Windows.Framework.System.SmartValueListForm&quot;,
+  &quot;FormStartType&quot;: &quot;SeparateForm&quot;,
+  &quot;UseCharacterParameterValue&quot;: false
+}
+</FunctionCallParameter>
+    <FunctionModuleGuid>a7d2db79-496b-1fa5-e211-953fc621b1d1</FunctionModuleGuid>
+    <ModuleName/>
+    <ExternalId/>
+  </eSmartFunction>
+  <eSmartFunction>
+    <FunctionGuid>b5fa0a89-ffe4-0e98-1e14-e40c8c70bdff</FunctionGuid>
+    <FunctionName>Export and Import Repository Objects</FunctionName>
+    <FunctionDescription>Consultingwerk.Windows.Framework.Repository.ExportImport.ExportImportForm</FunctionDescription>
+    <FunctionSmallImage>Consultingwerk/Windows/Framework/Images/hand_paper_16.png</FunctionSmallImage>
+    <FunctionLargeImage>Consultingwerk/Windows/Framework/Images/hand_paper_32.png</FunctionLargeImage>
+    <FunctionCallParameter>{
+  &quot;SerializedType&quot;: &quot;Consultingwerk.Windows.Framework.LaunchFormCallParameter&quot;,
+  &quot;AllowMultiple&quot;: false,
+  &quot;ClassName&quot;: &quot;Consultingwerk.Windows.Framework.Repository.ExportImport.ExportImportForm&quot;,
   &quot;FormStartType&quot;: &quot;SeparateForm&quot;,
   &quot;UseCharacterParameterValue&quot;: false
 }
@@ -1561,6 +1819,24 @@
   &quot;SerializedType&quot;: &quot;Consultingwerk.Windows.Framework.LaunchFormCallParameter&quot;,
   &quot;AllowMultiple&quot;: false,
   &quot;ClassName&quot;: &quot;Consultingwerk.Windows.Framework.Authorization.SmartToolbarSecurityItemForm&quot;,
+  &quot;FormStartType&quot;: &quot;SeparateForm&quot;,
+  &quot;UseCharacterParameterValue&quot;: false
+}
+</FunctionCallParameter>
+    <FunctionModuleGuid>a7d2db79-496b-1fa5-e211-953fc621b1d1</FunctionModuleGuid>
+    <ModuleName/>
+    <ExternalId/>
+  </eSmartFunction>
+  <eSmartFunction>
+    <FunctionGuid>e72f30d4-0caa-a388-0e14-642c7406e65b</FunctionGuid>
+    <FunctionName>Customization Maintenance</FunctionName>
+    <FunctionDescription>Consultingwerk.Windows.Framework.Repository.Customization.SmartCustomizationForm</FunctionDescription>
+    <FunctionSmallImage>Consultingwerk/Windows/Framework/Images/objects_edit16.png</FunctionSmallImage>
+    <FunctionLargeImage>Consultingwerk/Windows/Framework/Images/objects_edit32.png</FunctionLargeImage>
+    <FunctionCallParameter>{
+  &quot;SerializedType&quot;: &quot;Consultingwerk.Windows.Framework.LaunchFormCallParameter&quot;,
+  &quot;AllowMultiple&quot;: false,
+  &quot;ClassName&quot;: &quot;Consultingwerk.Windows.Framework.Repository.Customization.SmartCustomizationForm&quot;,
   &quot;FormStartType&quot;: &quot;SeparateForm&quot;,
   &quot;UseCharacterParameterValue&quot;: false
 }

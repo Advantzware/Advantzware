@@ -33,7 +33,7 @@ CLASS Consultingwerk.Sequence
         Purpose: Returns the current sequence value
         Notes:   
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY CurrentValue AS INT64 INIT 0 NO-UNDO 
+    DEFINE PUBLIC PROPERTY CurrentValue AS INT64 INITIAL 0 NO-UNDO
     GET.
     PRIVATE SET .
 
@@ -41,26 +41,26 @@ CLASS Consultingwerk.Sequence
         Purpose: Returns the sequence increment 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Increment AS INTEGER INITIAL 1 NO-UNDO 
-	GET.
-	PRIVATE SET. 
+    DEFINE PUBLIC PROPERTY Increment AS INTEGER INITIAL 1 NO-UNDO 
+    GET.
+    PRIVATE SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Retusn the sequence initial value 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Initial AS INT64 INITIAL 0 NO-UNDO 
-	GET.
-	PRIVATE SET. 
+    DEFINE PUBLIC PROPERTY Initial AS INT64 INITIAL 0 NO-UNDO 
+    GET.
+    PRIVATE SET. 
     
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the Sequence class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC Sequence ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PUBLIC Sequence ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the Sequence class

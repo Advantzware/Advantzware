@@ -31,9 +31,9 @@ CLASS Consultingwerk.Web.SmartWeb:
         Purpose: Returns the JavaScriptLibraries for this project 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC STATIC PROPERTY JavaScriptLibraries AS CHARACTER NO-UNDO 
-	GET.
-	PROTECTED SET. 
+    DEFINE PUBLIC STATIC PROPERTY JavaScriptLibraries AS CHARACTER NO-UNDO 
+    GET.
+    PROTECTED SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the JavaScriptLibraries for this project 
@@ -47,22 +47,22 @@ CLASS Consultingwerk.Web.SmartWeb:
         Purpose: Initializes the SmartComponets.Web 
         Notes:   
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC VOID Initialize ():
-		
-		DEFINE VARIABLE oConfig AS ConfigurationProvider NO-UNDO .
+    METHOD PUBLIC STATIC VOID Initialize ():
+        
+        DEFINE VARIABLE oConfig AS ConfigurationProvider NO-UNDO .
         DEFINE VARIABLE cValue  AS CHARACTER             NO-UNDO .
-		
-		FILE-INFO:FILE-NAME = ".webconfig":U . 
-		
-		IF FILE-INFO:FULL-PATHNAME > "":U THEN DO:
-		    
-		    oConfig = NEW ConfigurationProvider (FILE-INFO:FULL-PATHNAME) . 
-		    
-		    cValue = oConfig:GetValue ("javaScriptLibraries":U) .
-		    
-		    IF cValue > "":U THEN 
-		        SmartWeb:JavaScriptLibraries = cValue .
-		        
+        
+        FILE-INFORMATION:FILE-NAME = ".webconfig":U . 
+        
+        IF FILE-INFORMATION:FULL-PATHNAME > "":U THEN DO:
+            
+            oConfig = NEW ConfigurationProvider (FILE-INFORMATION:FULL-PATHNAME) . 
+            
+            cValue = oConfig:GetValue ("javaScriptLibraries":U) .
+            
+            IF cValue > "":U THEN 
+                SmartWeb:JavaScriptLibraries = cValue .
+                
             cValue = oConfig:GetValue ("styleSheetFiles":U) .
 
             IF cValue > "":U THEN 
@@ -84,8 +84,8 @@ CLASS Consultingwerk.Web.SmartWeb:
                FrameworkSettings:ServiceContainer:AddService (Progress.Lang.Class:GetClass ("Consultingwerk.Framework.ISmtpConfiguration":U),
                                                               oSmtpConfiguration) .
             END.                   
-		END.
+        END.
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

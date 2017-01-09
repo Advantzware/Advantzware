@@ -8,15 +8,15 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/   
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : BusinessEntityPickerForm
     Purpose     : Selectes a Business Entity
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Wed Jul 14 14:18:42 CEST 2010
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 USING Progress.Lang.*.
@@ -24,8 +24,8 @@ USING Progress.Windows.Form.
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-CLASS Consultingwerk.SmartComponents.Support.BusinessEntityPickerForm INHERITS Form: 
-    
+CLASS Consultingwerk.SmartComponents.Support.BusinessEntityPickerForm INHERITS Form:
+
     DEFINE PRIVATE VARIABLE bindingSource1 AS Progress.Data.BindingSource NO-UNDO.
     DEFINE PRIVATE VARIABLE btnRefresh AS System.Windows.Forms.Button NO-UNDO.
     DEFINE PRIVATE VARIABLE buttonOK AS System.Windows.Forms.Button NO-UNDO.
@@ -39,45 +39,45 @@ CLASS Consultingwerk.SmartComponents.Support.BusinessEntityPickerForm INHERITS F
     DEFINE PRIVATE VARIABLE ultraGrid1 AS Infragistics.Win.UltraWinGrid.UltraGrid NO-UNDO.
 
     {Consultingwerk/Util/TempTables/ttClassNames.i &ACCESS="PRIVATE"}
-        
-    DEFINE PRIVATE QUERY qClassNames FOR ttClassNames SCROLLING .     
-        
+
+    DEFINE PRIVATE QUERY qClassNames FOR ttClassNames SCROLLING .
+
     /*------------------------------------------------------------------------------
         Purpose: Raised when the Refresh Button has been clicked
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
     DEFINE PUBLIC EVENT RefreshButtonClick DELEGATE System.EventHandler .
-            
-    /*------------------------------------------------------------------------------
-        Purpose: Toggles the visibility of the Refresh Button 
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY RefreshButtonVisible AS LOGICAL NO-UNDO 
-	GET:
-		RETURN btnRefresh:Visible .
-	END GET.
-	SET (arg AS LOGICAL):
-		ASSIGN btnRefresh:Visible = arg . 		
-	END SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the text shown in the "Remarks" field 
-        Notes:   
+        Purpose: Toggles the visibility of the Refresh Button
+        Notes:
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Remarks AS CHARACTER NO-UNDO 
-	GET:
-		RETURN lbRemarks:Text .
-	END GET.
-	SET (arg AS CHARACTER):
-		ASSIGN lbRemarks:Text = arg . 		
-	END SET.
+    DEFINE PUBLIC PROPERTY RefreshButtonVisible AS LOGICAL NO-UNDO
+    GET:
+        RETURN btnRefresh:Visible .
+    END GET.
+    SET (arg AS LOGICAL):
+        ASSIGN btnRefresh:Visible = arg .
+    END SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the BusinessEntityPickerForm class                                                                        
-        Notes:                                                                        
+        Purpose: Gets and sets the text shown in the "Remarks" field
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY Remarks AS CHARACTER NO-UNDO
+    GET:
+        RETURN lbRemarks:Text .
+    END GET.
+    SET (arg AS CHARACTER):
+        ASSIGN lbRemarks:Text = arg .
+    END SET.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the BusinessEntityPickerForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC BusinessEntityPickerForm ():
-        
+
         SUPER().
         InitializeComponent().
         CATCH e AS Progress.Lang.Error:
@@ -87,43 +87,44 @@ CLASS Consultingwerk.SmartComponents.Support.BusinessEntityPickerForm INHERITS F
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: 
-        Notes:   
+        Purpose:
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID btnRefresh_Click (sender AS System.Object, 
-	                                      e AS System.EventArgs):
-		
-	    THIS-OBJECT:OnRefreshButtonClick (System.EventArgs:Empty) .	
+    METHOD PRIVATE VOID btnRefresh_Click (sender AS System.Object,
+                                          e AS System.EventArgs):
 
-	END METHOD .
+        THIS-OBJECT:OnRefreshButtonClick (System.EventArgs:Empty) .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns the selected Business Entity Name                                                                        
+        Purpose: Returns the selected Business Entity Name
         Notes:
-        @return The selected Business Entity Name                                                                        
+        @return The selected Business Entity Name
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC CHARACTER GetSelectedBusinessEntityName ():
-    
-        IF AVAILABLE ttClassNames THEN 
+
+        IF AVAILABLE ttClassNames THEN
             RETURN ttClassNames.ClassName .
-        ELSE 
-            RETURN ? . 
-            
+        ELSE
+            RETURN ? .
+
     END METHOD.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -421,110 +422,110 @@ CLASS Consultingwerk.SmartComponents.Support.BusinessEntityPickerForm INHERITS F
 
     /*------------------------------------------------------------------------------
         Purpose: Raises the RefreshButtonClick
-        Notes:   
+        Notes:
         @param e The System.EventArgs with the data for the event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID OnRefreshButtonClick (e AS System.EventArgs):
-            
-        IF NOT VALID-OBJECT (e) THEN 
-            e = System.EventArgs:Empty . 
-    
+
+        IF NOT VALID-OBJECT (e) THEN
+            e = System.EventArgs:Empty .
+
         THIS-OBJECT:RefreshButtonClick:Publish (THIS-OBJECT, e) .
-    
-    END METHOD .    
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the Shown event 
-        Notes:   
+        Purpose: Raises the Shown event
+        Notes:
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
-		
-		SUPER:OnShown (e) .
+    METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
+
+        SUPER:OnShown (e) .
 
         THIS-OBJECT:textBox1:Focus () .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the Click event of the pictureBoxHeader                                                                          
-        Notes:                                                             
+        Purpose: Event handler for the Click event of the pictureBoxHeader
+        Notes:
         @param sender The reference to the object Object that raised the event
-        @param e The System.EventArgs with the data for this event            
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID pictureBoxHeader_Click (sender AS System.Object, 
+    METHOD PRIVATE VOID pictureBoxHeader_Click (sender AS System.Object,
                                                 e AS System.EventArgs):
-        
-        Consultingwerk.Windows.API.Win32:ShellExecute ("open":U, "http://www.facebook.com/Consultingwerk":U) . 
+
+        Consultingwerk.Windows.API.Win32:ShellExecute ("open":U, "http://www.facebook.com/Consultingwerk":U) .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Receives the temp-table with the business entity names                                                                        
-        Notes:                                                         
-        @param ttClassNames The temp-table with the class names               
+        Purpose: Receives the temp-table with the business entity names
+        Notes:
+        @param ttClassNames The temp-table with the class names
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID ReceiveBusinessEntityNames (TABLE ttClassNames):
 
-        OPEN QUERY qClassNames PRESELECT EACH ttClassNames NO-LOCK . 
-    
-        THIS-OBJECT:ultraGrid1:Selected:Rows:Clear () . 
-        
+        OPEN QUERY qClassNames PRESELECT EACH ttClassNames NO-LOCK .
+
+        THIS-OBJECT:ultraGrid1:Selected:Rows:Clear () .
+
         bindingSource1:HANDLE = QUERY qClassNames:HANDLE .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the KeyDown event of the textBox1                                                                        
-        Notes:                                                      
+        Purpose: Event handler for the KeyDown event of the textBox1
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The KeyEventArgs with the data for this event                  
+        @param e The KeyEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID textBox1_KeyDown (sender AS System.Object, 
+    METHOD PRIVATE VOID textBox1_KeyDown (sender AS System.Object,
                                           e AS System.Windows.Forms.KeyEventArgs):
-        
+
         IF Progress.Util.EnumHelper:AreEqual (e:KeyCode,
                                               System.Windows.Forms.Keys:Down) THEN
-                                               
-            THIS-OBJECT:ultraGrid1:Focus () .                                               
+
+            THIS-OBJECT:ultraGrid1:Focus () .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the TextChanged event of the TextBox1                                                                         
-        Notes:   Re-Opens the Query using MATCHES  
+        Purpose: Event handler for the TextChanged event of the TextBox1
+        Notes:   Re-Opens the Query using MATCHES
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event                                                                      
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID textBox1_TextChanged (sender AS System.Object, 
+    METHOD PRIVATE VOID textBox1_TextChanged (sender AS System.Object,
                                               e AS System.EventArgs):
-        
-        OPEN QUERY qClassNames PRESELECT EACH ttClassNames NO-LOCK 
+
+        OPEN QUERY qClassNames PRESELECT EACH ttClassNames NO-LOCK
             WHERE ttClassNames.ClassName MATCHES SUBSTITUTE ("*&1*":U,
-                                                             textBox1:Text). 
+                                                             textBox1:Text).
 
         bindingSource1:RefreshAll() .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the DoubleClickRow event of the ultraGrid1 
-        Notes:   
+        Purpose: Event handler for the DoubleClickRow event of the ultraGrid1
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The DoubleClickRowEventArgs instance with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraGrid1_DoubleClickRow (sender AS System.Object,    
+    METHOD PRIVATE VOID ultraGrid1_DoubleClickRow (sender AS System.Object,
                                                    e AS Infragistics.Win.UltraWinGrid.DoubleClickRowEventArgs):
-        
-        THIS-OBJECT:DialogResult = System.Windows.Forms.DialogResult:OK . 
-        
+
+        THIS-OBJECT:DialogResult = System.Windows.Forms.DialogResult:OK .
+
         THIS-OBJECT:Close () .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the BusinessEntityPickerForm class                                                                        
-        Notes:                                                                        
+        Purpose: Destructor for the BusinessEntityPickerForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC BusinessEntityPickerForm ( ):
 

@@ -42,7 +42,7 @@ CLASS Consultingwerk.DatasetBufferCallbackEnum:
                  created.                                                                     
         Notes:                                                                        
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC STATIC PROPERTY AfterFill AS CHARACTER NO-UNDO INIT "AFTER-FILL":U
+    DEFINE PUBLIC STATIC PROPERTY AfterFill AS CHARACTER NO-UNDO INITIAL "AFTER-FILL":U
     GET. 
 
     /*------------------------------------------------------------------------------
@@ -57,7 +57,7 @@ CLASS Consultingwerk.DatasetBufferCallbackEnum:
                  child buffers, if any.                                                                     
         Notes:                                                                        
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC STATIC PROPERTY AfterRowFill AS CHARACTER NO-UNDO INIT "AFTER-ROW-FILL":U  
+    DEFINE PUBLIC STATIC PROPERTY AfterRowFill AS CHARACTER NO-UNDO INITIAL "AFTER-ROW-FILL":U  
     GET. 
 
 
@@ -73,7 +73,7 @@ CLASS Consultingwerk.DatasetBufferCallbackEnum:
                  developer to adjust the query for the child table, or cancel the 
                  FILL for that parent altogether.                                                                        
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC STATIC PROPERTY BeforeFill AS CHARACTER NO-UNDO INIT "BEFORE-FILL":U
+    DEFINE PUBLIC STATIC PROPERTY BeforeFill AS CHARACTER NO-UNDO INITIAL "BEFORE-FILL":U
     GET. 
 
     /*------------------------------------------------------------------------------
@@ -83,7 +83,7 @@ CLASS Consultingwerk.DatasetBufferCallbackEnum:
                  and decide not to create the record, using a RETURN NO-APPLY statement.                                                                      
         Notes:                                                                        
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC STATIC PROPERTY BeforeRowFill AS CHARACTER NO-UNDO INIT "BEFORE-ROW-FILL":U 
+    DEFINE PUBLIC STATIC PROPERTY BeforeRowFill AS CHARACTER NO-UNDO INITIAL "BEFORE-ROW-FILL":U 
     GET. 
 
     /*------------------------------------------------------------------------------
@@ -95,7 +95,7 @@ CLASS Consultingwerk.DatasetBufferCallbackEnum:
                  the creation by deleting the new temp-table record.                                                                      
         Notes:                                                                        
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC STATIC PROPERTY RowCreate AS CHARACTER NO-UNDO INIT "ROW-CREATE":U 
+    DEFINE PUBLIC STATIC PROPERTY RowCreate AS CHARACTER NO-UNDO INITIAL "ROW-CREATE":U 
     GET. 
 
     /*------------------------------------------------------------------------------
@@ -110,7 +110,7 @@ CLASS Consultingwerk.DatasetBufferCallbackEnum:
                  there to be looked at.                                                                      
         Notes:                                                                        
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC STATIC PROPERTY RowDelete AS CHARACTER NO-UNDO INIT  "ROW-DELETE":U 
+    DEFINE PUBLIC STATIC PROPERTY RowDelete AS CHARACTER NO-UNDO INITIAL  "ROW-DELETE":U 
     GET.   
   
     /*------------------------------------------------------------------------------
@@ -135,7 +135,7 @@ CLASS Consultingwerk.DatasetBufferCallbackEnum:
                  another record, use a different buffer to avoid disturbing the record 
                  you are currently updating.  
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC STATIC PROPERTY RowUpdate AS CHARACTER NO-UNDO INIT "ROW-UPDATE":U
+    DEFINE PUBLIC STATIC PROPERTY RowUpdate AS CHARACTER NO-UNDO INITIAL "ROW-UPDATE":U
     GET.   
     
     /*------------------------------------------------------------------------------

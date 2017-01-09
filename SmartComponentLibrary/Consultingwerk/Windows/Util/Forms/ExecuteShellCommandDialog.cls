@@ -11,9 +11,9 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : ExecuteShellCommandDialog
-    Purpose     : 
+    Purpose     :
     Syntax      : oDialog:Execute ("DIR c:\Windows") .
-    Description : Dialog that can launch a Windows Shell Command (DOS Command) 
+    Description : Dialog that can launch a Windows Shell Command (DOS Command)
                   and display the output in an Editor Control
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sun Dec 21 12:00:44 CET 2014
@@ -26,33 +26,33 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.Util.*               FROM PROPATH .
 USING Consultingwerk.Windows.BaseForms.*  FROM PROPATH .
-USING Consultingwerk.Windows.Util.Forms.* FROM PROPATH .  
+USING Consultingwerk.Windows.Util.Forms.* FROM PROPATH .
 USING Consultingwerk.Support.*            FROM ASSEMBLY.
 USING Progress.Lang.*                     FROM PROPATH .
 
 {Consultingwerk/products.i}
 
-CLASS Consultingwerk.Windows.Util.Forms.ExecuteShellCommandDialog 
-    INHERITS BaseDialogForm: 
+CLASS Consultingwerk.Windows.Util.Forms.ExecuteShellCommandDialog
+    INHERITS BaseDialogForm:
 
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE label1 AS System.Windows.Forms.Label NO-UNDO.
     DEFINE PRIVATE VARIABLE richTextBox1 AS System.Windows.Forms.RichTextBox NO-UNDO.
-    
+
     DEFINE VARIABLE cCommand   AS CHARACTER NO-UNDO .
     DEFINE VARIABLE cParameter AS CHARACTER NO-UNDO .
     DEFINE VARIABLE cTitle     AS CHARACTER NO-UNDO .
-    
-    DEFINE VARIABLE oProcess AS System.Diagnostics.Process NO-UNDO . 
-    DEFINE VARIABLE oDataReader AS ProcessOutputReader     NO-UNDO . 
+
+    DEFINE VARIABLE oProcess AS System.Diagnostics.Process NO-UNDO .
+    DEFINE VARIABLE oDataReader AS ProcessOutputReader     NO-UNDO .
     DEFINE PRIVATE VARIABLE ultraTrackBar1 AS Infragistics.Win.UltraWinEditors.UltraTrackBar NO-UNDO.
-    
+
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the ExecuteShellCommandDialog class 
-        Notes:   
+        Purpose: Constructor for the ExecuteShellCommandDialog class
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ExecuteShellCommandDialog ():
-		
+    CONSTRUCTOR PUBLIC ExecuteShellCommandDialog ():
+
         SUPER().
         InitializeComponent().
 
@@ -66,86 +66,86 @@ CLASS Consultingwerk.Windows.Util.Forms.ExecuteShellCommandDialog
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Executes a Windows Shell Command (DOS Command)
         Notes:   Executes this Form via ShowDialog
         @param pcCommand The command to execute
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID Execute (pcCommand AS CHARACTER):
-		
-		DEFINE VARIABLE iPos AS INTEGER NO-UNDO.
-		
-		IF pcCommand BEGINS "~"":U THEN DO:
-		    ASSIGN iPos = StringHelper:FindClosingQuote (pcCommand, 1) .
-		    
-		    ASSIGN cCommand   = StringHelper:Unquote(SUBSTRING (pcCommand, 1, iPos)) 
-		           cParameter = SUBSTRING (pcCommand, iPos + 1).
-		END.
-		ELSE DO:
-		    ASSIGN cCommand = ENTRY (1, pcCommand, "":U)
-		           iPos     = INDEX (pcCommand, " ":U) .
-		           
-		    IF iPos > 0 THEN 
-		        cParameter = SUBSTRING (pcCommand, iPos + 1) .
-		END.
-		
-		WAIT-FOR THIS-OBJECT:ShowDialog () . 
+    METHOD PUBLIC VOID Execute (pcCommand AS CHARACTER):
+
+        DEFINE VARIABLE iPos AS INTEGER NO-UNDO.
+
+        IF pcCommand BEGINS "~"":U THEN DO:
+            ASSIGN iPos = StringHelper:FindClosingQuote (pcCommand, 1) .
+
+            ASSIGN cCommand   = StringHelper:Unquote(SUBSTRING (pcCommand, 1, iPos))
+                   cParameter = SUBSTRING (pcCommand, iPos + 1).
+        END.
+        ELSE DO:
+            ASSIGN cCommand = ENTRY (1, pcCommand, "":U)
+                   iPos     = INDEX (pcCommand, " ":U) .
+
+            IF iPos > 0 THEN
+                cParameter = SUBSTRING (pcCommand, iPos + 1) .
+        END.
+
+        WAIT-FOR THIS-OBJECT:ShowDialog () .
 
         CATCH err AS Progress.Lang.Error:
-        	ErrorHelper:ShowErrorMessage (err) .
-        	
-        	ButtonOk:Enabled = TRUE . 	
+            ErrorHelper:ShowErrorMessage (err) .
+
+            ButtonOk:Enabled = TRUE .
         END CATCH.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Executes the command 
-        Notes:   Enables the OK Button when donw    
+        Purpose: Executes the command
+        Notes:   Enables the OK Button when donw
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID ExecuteCommand ():
-		
-		DEFINE VARIABLE cOutput AS CHARACTER NO-UNDO.
+    METHOD PROTECTED VOID ExecuteCommand ():
+
+        DEFINE VARIABLE cOutput AS CHARACTER NO-UNDO.
 
         THIS-OBJECT:Text = SUBSTITUTE ("&1 &2":U,
                                        cTitle, cCommand) .
 
         richTextBox1:Clear() .
-		
-		richTextBox1:AppendText (SUBSTITUTE  ("&1 &2 &3":U,
-    		                                  cCommand,
-    		                                  cParameter,
-    		                                  System.Environment:NewLine)) .
-		
-        oProcess = NEW System.Diagnostics.Process () .      
-        
-        oProcess:StartInfo:FileName  = cCommand . 		
-		oProcess:StartInfo:Arguments = cParameter . 
-		
+
+        richTextBox1:AppendText (SUBSTITUTE  ("&1 &2 &3":U,
+                                              cCommand,
+                                              cParameter,
+                                              System.Environment:NewLine)) .
+
+        oProcess = NEW System.Diagnostics.Process () .
+
+        oProcess:StartInfo:FileName  = cCommand .
+        oProcess:StartInfo:Arguments = cParameter .
+
         oProcess:StartInfo:WorkingDirectory = System.Environment:CurrentDirectory .
-        
+
         /* obtain access to stdout of the process */
         oProcess:StartInfo:RedirectStandardOutput = TRUE .
         oProcess:StartInfo:RedirectStandardError = TRUE  .
-        
-        oProcess:StartInfo:UseShellExecute = FALSE . 
-        oProcess:StartInfo:CreateNoWindow = TRUE . 
 
-        oProcess:StartInfo:ErrorDialog = TRUE . 
-        
+        oProcess:StartInfo:UseShellExecute = FALSE .
+        oProcess:StartInfo:CreateNoWindow = TRUE .
+
+        oProcess:StartInfo:ErrorDialog = TRUE .
+
         /* start process, get "reference" */
 
-        oProcess:Start () .       
+        oProcess:Start () .
 
         IF NOT VALID-OBJECT (oProcess) THEN DO:
-            MessageFormHelper:ShowMessage ("Invalid process reference."{&TRAN}, 
+            MessageFormHelper:ShowMessage ("Invalid process reference."{&TRAN},
                                            MessageFormImages:ImageWarning) .
-            ButtonOk:Enabled = TRUE .                                            
+            ButtonOk:Enabled = TRUE .
         END.
 
-        PROCESS EVENTS . 
+        PROCESS EVENTS .
 
         oDataReader = NEW ProcessOutputReader (oProcess) .
         THIS-OBJECT:Controls:Add (oDataReader) .
@@ -154,19 +154,20 @@ CLASS Consultingwerk.Windows.Util.Forms.ExecuteShellCommandDialog
         oDataReader:ErrorDataAvailable:Subscribe (THIS-OBJECT:ProcessErrorDataAvailableHandler) .
         oDataReader:ProcessExited:Subscribe (THIS-OBJECT:ProcessExitedHandler) .
 
-	END METHOD .
+    END METHOD .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design 
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE resources AS Progress.Util.ResourceManager NO-UNDO.
@@ -265,97 +266,127 @@ CLASS Consultingwerk.Windows.Util.Forms.ExecuteShellCommandDialog
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the Shown event 
-        Notes:   
+        Purpose: Raises the Shown event
+        Notes:
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
-		
-		SUPER:OnShown (e) .
-		
-		PROCESS EVENTS . 
-		
-		THIS-OBJECT:ExecuteCommand () .
+    METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
 
-	END METHOD .
+        SUPER:OnShown (e) .
+
+        PROCESS EVENTS .
+
+        THIS-OBJECT:ExecuteCommand () .
+
+        CATCH ex AS System.Exception:
+            richTextBox1:AppendText (ex:Message) .
+            richTextBox1:AppendText ("~n") .
+
+            ButtonOk:Enabled = TRUE .
+        END CATCH.
+
+        CATCH err AS Progress.Lang.Error:
+            richTextBox1:AppendText (err:GetMessage (1)) .
+            richTextBox1:AppendText ("~n") .
+
+            ButtonOk:Enabled = TRUE .
+        END CATCH.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the DataAvailable event of the 
-                 Consultingwerk.Support.ProcessOutputReader control instance   
-        Notes:   Raises the ProcessOutputChanged event of the BackgroundJob instance 
+        Purpose: Event handler for the DataAvailable event of the
+                 Consultingwerk.Support.ProcessOutputReader control instance
+        Notes:   Raises the ProcessOutputChanged event of the BackgroundJob instance
         @param sender The reference to the object that raised the event
         @param e The default System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PRIVATE VOID ProcessDataAvailableHandler (sender AS System.Object,
                                                      e AS System.EventArgs):
-		
-		DEFINE VARIABLE cData AS CHARACTER NO-UNDO.
-		
-		ASSIGN cData = oDataReader:GetCurrentData (TRUE) . 
-		
-		IF cData > "":U THEN 
-		    richTextBox1:AppendText (cData) .
 
-	END METHOD .
+        DEFINE VARIABLE cData AS CHARACTER NO-UNDO.
+
+        ASSIGN cData = oDataReader:GetCurrentData (TRUE) .
+
+        IF cData > "":U THEN
+            richTextBox1:AppendText (cData) .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the ErrorDataAvailable event of the 
-                 Consultingwerk.Support.ProcessOutputReader control instance   
-        Notes:   Raises the ProcessOutputChanged event of the BackgroundJob instance 
+        Purpose: Event handler for the ErrorDataAvailable event of the
+                 Consultingwerk.Support.ProcessOutputReader control instance
+        Notes:   Raises the ProcessOutputChanged event of the BackgroundJob instance
         @param sender The reference to the object that raised the event
         @param e The default System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PRIVATE VOID ProcessErrorDataAvailableHandler (sender AS System.Object,
                                                           e AS System.EventArgs):
-        
+
         DEFINE VARIABLE cData AS CHARACTER NO-UNDO.
-                      
-        ASSIGN cData = oDataReader:GetCurrentErrorData (TRUE) . 
-        
+
+        ASSIGN cData = oDataReader:GetCurrentErrorData (TRUE) .
+
         IF cData > "":U THEN DO:
-            RtfEditorSupport:SetSelectionBoldOn (richTextBox1). 
-            richTextBox1:SelectionColor = System.Drawing.Color:Red . 
-            
+            RtfEditorSupport:SetSelectionBoldOn (richTextBox1).
+            richTextBox1:SelectionColor = System.Drawing.Color:Red .
+
             richTextBox1:AppendText (cData) .
 
-            RtfEditorSupport:SetSelectionBoldOff (richTextBox1). 
-            richTextBox1:SelectionColor = richTextBox1:ForeColor . 
+            RtfEditorSupport:SetSelectionBoldOff (richTextBox1).
+            richTextBox1:SelectionColor = richTextBox1:ForeColor .
         END.
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the Exited event of the Process 
-        Notes:   
+        Purpose: Event handler for the Exited event of the Process
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PRIVATE VOID ProcessExitedHandler (sender AS System.Object,
                                               e AS System.EventArgs):
 
-        ButtonOk:Enabled = TRUE .    
+        ButtonOk:Enabled = TRUE .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the ValueChanged event of the ultraTrackBar1
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraTrackBar1_ValueChanged (sender AS System.Object, 
-	                                                 e AS System.EventArgs):
-		
-		richTextBox1:ZoomFactor = ultraTrackBar1:Value / 10 .  
+    METHOD PRIVATE VOID ultraTrackBar1_ValueChanged (sender AS System.Object,
+                                                     e AS System.EventArgs):
 
-	END METHOD .
+        richTextBox1:ZoomFactor = ultraTrackBar1:Value / 10 .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the ExecuteShellCommandDialog class 
-        Notes:   
+        Purpose: Destructor for the ExecuteShellCommandDialog class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC ExecuteShellCommandDialog ():
 

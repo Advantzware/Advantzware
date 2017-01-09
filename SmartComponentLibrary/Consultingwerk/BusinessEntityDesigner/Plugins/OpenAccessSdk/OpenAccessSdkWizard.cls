@@ -13,11 +13,11 @@
     File        : OpenAccessSdkWizard
     Purpose     : Wizard for generating OpenAccess interface procedures
                   and JSON Catalog files
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Mon Nov 03 20:42:03 CET 2014
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -26,7 +26,7 @@ USING Consultingwerk.Exceptions.*                                   FROM PROPATH
 USING Consultingwerk.Forms.*                                        FROM PROPATH .
 USING Consultingwerk.BusinessEntityDesigner.Plugins.OpenAccessSdk.* FROM PROPATH .
 USING Consultingwerk.SmartComponents.Base.*                         FROM PROPATH .
-USING Consultingwerk.Windows.*                                      FROM PROPATH .   
+USING Consultingwerk.Windows.*                                      FROM PROPATH .
 USING Consultingwerk.Windows.Util.Forms.*                           FROM PROPATH .
 USING Consultingwerk.Util.*                                         FROM PROPATH.
 USING Infragistics.Win.UltraWinEditors.*                            FROM ASSEMBLY.
@@ -35,15 +35,15 @@ USING System.Windows.Forms.*                                        FROM ASSEMBL
 
 {Consultingwerk/products.i}
 
-CLASS Consultingwerk.BusinessEntityDesigner.Plugins.OpenAccessSdk.OpenAccessSdkWizard 
+CLASS Consultingwerk.BusinessEntityDesigner.Plugins.OpenAccessSdk.OpenAccessSdkWizard
     INHERITS BaseForm
-    USE-WIDGET-POOL: 
+    USE-WIDGET-POOL:
 
     DEFINE PRIVATE VARIABLE btnOk AS Infragistics.Win.Misc.UltraButton NO-UNDO.
     DEFINE PRIVATE VARIABLE btnCancel AS Infragistics.Win.Misc.UltraButton NO-UNDO.
     DEFINE PRIVATE VARIABLE cbStopAfter AS Infragistics.Win.UltraWinEditors.UltraComboEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE cbBatchSize AS Infragistics.Win.UltraWinEditors.UltraComboEditor NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE folderBrowserDialog1 AS System.Windows.Forms.FolderBrowserDialog NO-UNDO.
     DEFINE PRIVATE VARIABLE panel1 AS System.Windows.Forms.Panel NO-UNDO.
     DEFINE PRIVATE VARIABLE tbRelativeFolder AS Infragistics.Win.UltraWinEditors.UltraTextEditor NO-UNDO.
@@ -64,160 +64,162 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.OpenAccessSdk.OpenAccessSdkW
     { Consultingwerk/BusinessEntityDesigner/Services/dsBusinessEntity.i &REFERENCE-ONLY="REFERENCE-ONLY" }
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the Business Entity Name 
-        Notes:   
+        Purpose: Gets and sets the Business Entity Name
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY BusinessEntityName AS CHARACTER NO-UNDO 
+    DEFINE PUBLIC PROPERTY BusinessEntityName AS CHARACTER NO-UNDO
     GET.
-    SET. 
-    
-    /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the Business Entity Package 
-        Notes:   
-    ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY BusinessEntityPackage AS CHARACTER NO-UNDO 
-    GET.
-    SET. 
+    SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the OpenAccessSdkWizard class 
-        Notes:   
+        Purpose: Gets and sets the Business Entity Package
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC OpenAccessSdkWizard ():
-		
+    DEFINE PUBLIC PROPERTY BusinessEntityPackage AS CHARACTER NO-UNDO
+    GET.
+    SET.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the OpenAccessSdkWizard class
+        Notes:
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC OpenAccessSdkWizard ():
+
         SUPER().
-        
+
         InitializeComponent().
-        
+
         &IF NOT PROVERSION BEGINS "10.2":U AND NOT PROVERSION BEGINS "11.0" &THEN
         THIS-OBJECT:ComponentsCollection:Add (THIS-OBJECT:components).
         &ENDIF
-        
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the Click event of the btnOk 
-        Notes:   
+        Purpose: Event handler for the Click event of the btnOk
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID btnOk_Click (sender AS System.Object, 
-	                                 e AS System.EventArgs):
-		
-        DEFINE VARIABLE oGenerator   AS OpenAccessSdkGenerator NO-UNDO . 
+    METHOD PRIVATE VOID btnOk_Click (sender AS System.Object,
+                                     e AS System.EventArgs):
+
+        DEFINE VARIABLE oGenerator   AS OpenAccessSdkGenerator NO-UNDO .
         DEFINE VARIABLE cEntityTable AS CHARACTER              NO-UNDO.
         DEFINE VARIABLE cEntityView  AS CHARACTER              NO-UNDO.
-		
+
         DEFINE VARIABLE iBatchSize   AS INTEGER                NO-UNDO.
         DEFINE VARIABLE iStopAfter   AS INTEGER                NO-UNDO.
-		
-		DEFINE BUFFER bEntity FOR eBusinessEntity .          
-		
-		ASSIGN cEntityTable = THIS-OBJECT:GetSelectedTopBuffer (cEntityView) .
-		
-		FIND FIRST bEntity . 
-		
-		oGenerator = NEW OpenAccessSdkGenerator () . 
-		
-		ASSIGN iBatchSize = INTEGER (UNBOX(cbBatchSize:Value)) 
-		       iStopAfter = INTEGER (UNBOX(cbStopAfter:Value)) . 
-		
-		oGenerator:Generate (TRIM (SUBSTITUTE ("&1.&2":U,
-		                                       THIS-OBJECT:BusinessEntityPackage,
-		                                       THIS-OBJECT:BusinessEntityName), ".":U),
-		                     cEntityTable,
-		                     cEntityView,
-		                     tbInterfaceName:Text,
-		                     tbAppServerFolder:Text,
-		                     tbRelativeFolder:Text,
-		                     tbCatalogFolder:Text,
-		                     iBatchSize,
-		                     iStopAfter,
-		                     tgOuterJoin:Checked,
-		                     hDataset,
-		                     SUBSTITUTE ("&1/&2.i":U,
-		                                 bEntity.DatasetPath,
-		                                 bEntity.DatasetName)) .
+
+        DEFINE BUFFER bEntity FOR eBusinessEntity .
+
+        ASSIGN cEntityTable = THIS-OBJECT:GetSelectedTopBuffer (cEntityView) .
+
+        FIND FIRST bEntity .
+
+        oGenerator = NEW OpenAccessSdkGenerator () .
+
+        ASSIGN iBatchSize = INTEGER (UNBOX(cbBatchSize:Value))
+               iStopAfter = INTEGER (UNBOX(cbStopAfter:Value)) .
+
+        oGenerator:Generate (TRIM (SUBSTITUTE ("&1.&2":U,
+                                               THIS-OBJECT:BusinessEntityPackage,
+                                               THIS-OBJECT:BusinessEntityName), ".":U),
+                             cEntityTable,
+                             cEntityView,
+                             tbInterfaceName:Text,
+                             tbAppServerFolder:Text,
+                             tbRelativeFolder:Text,
+                             tbCatalogFolder:Text,
+                             iBatchSize,
+                             iStopAfter,
+                             tgOuterJoin:Checked,
+                             hDataset,
+                             SUBSTITUTE ("&1/&2.i":U,
+                                         bEntity.DatasetPath,
+                                         bEntity.DatasetName)) .
 
         THIS-OBJECT:Close ().
 
         CATCH err AS Progress.Lang.Error:
-        	ErrorHelper:ShowErrorMessage (err) .	
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Walk though the Dataset TopBuffers and add all of them with their 
+        Purpose: Walk though the Dataset TopBuffers and add all of them with their
                  childs to the TreeView
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PRIVATE VOID FillTreeViewWithTableNames ():
-        
-        DEFINE VARIABLE oFactory AS TreeNodeFromDatasetStructureFactory NO-UNDO . 
-        
-        IF THIS-OBJECT:treeView1:Nodes:Count > 0 THEN RETURN . 
-        
-        oFactory = NEW TreeNodeFromDatasetStructureFactory () . 
-        
+
+        DEFINE VARIABLE oFactory AS TreeNodeFromDatasetStructureFactory NO-UNDO .
+
+        IF THIS-OBJECT:treeView1:Nodes:Count > 0 THEN
+            RETURN .
+
+        oFactory = NEW TreeNodeFromDatasetStructureFactory () .
+
         oFactory:CreateTreeNodes (THIS-OBJECT:treeView1,
                                   hDataset) .
-                 
+
     END METHOD.
-    
+
     /*------------------------------------------------------------------------------
         Purpose: Binds to the Business Entity Designer Dataset
         Notes:
-        @param dsBusinessEntity The dataset to bind to 
+        @param dsBusinessEntity The dataset to bind to
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID GetDatasetHandle (DATASET dsBusinessEntity BIND):
 
         /* Noop */
-        
+
     END METHOD.
-    
+
     /*------------------------------------------------------------------------------
-        Purpose: Returns the first selected table to display in DataView and builds 
+        Purpose: Returns the first selected table to display in DataView and builds
                  a list of all selected child tables from the given selected node
-        Notes:   Returns the name of the SelectedTopBuffer with a list of checked 
+        Notes:   Returns the name of the SelectedTopBuffer with a list of checked
                  nodes or returns the TreeNode object of the SelectedTopBuffer
         @param cCheckedNodes The list of all selected child tables from the given selected node
-        @return The name of the first selected table to display in DataView 
+        @return The name of the first selected table to display in DataView
     ------------------------------------------------------------------------------*/
     METHOD PRIVATE CHARACTER GetSelectedTopBuffer (OUTPUT cCheckedNodes AS CHARACTER):
-        
+
         DEFINE VARIABLE oChildResult AS TreeNode NO-UNDO.
-        
+
         oChildResult = RecurseTreeNodes (THIS-OBJECT:treeView1:Nodes).
-        
+
         IF VALID-OBJECT (oChildResult) THEN DO:
-            ASSIGN 
+            ASSIGN
                 cCheckedNodes = RecurseTreeNodeNames (oChildResult:Nodes).
-            
+
             RETURN oChildResult:Text.
         END.
         ELSE DO:
-            cCheckedNodes = "":U. 
+            cCheckedNodes = "":U.
             RETURN "":U.
         END.
-    
+
     END METHOD.
-        
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE valueListItem6 AS Infragistics.Win.ValueListItem NO-UNDO.
@@ -568,173 +570,173 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.OpenAccessSdk.OpenAccessSdkW
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the KeyDown handler of the Text boxes with an 
+        Purpose: Event handler for the KeyDown handler of the Text boxes with an
                  EditorButton (Lookup)
         Notes:   Maps F3 to EditorButtonClick
         @param sender The reference to the object that raised the event
         @param e The KeyEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID LookupKeyDownHandler (sender AS System.Object, 
+    METHOD PRIVATE VOID LookupKeyDownHandler (sender AS System.Object,
                                               e AS System.Windows.Forms.KeyEventArgs):
 
         DEFINE VARIABLE cControlName AS CHARACTER NO-UNDO.
-        
-        IF e:Handled = FALSE AND Progress.Util.EnumHelper:AreEqual (e:KeyCode, SmartLookupSettings:ShortcutKey) 
+
+        IF e:Handled = FALSE AND Progress.Util.EnumHelper:AreEqual (e:KeyCode, SmartLookupSettings:ShortcutKey)
             AND THIS-OBJECT:Enabled THEN DO:
 
             ASSIGN cControlName = CAST (sender, System.Windows.Forms.Control):Name .
 
-            DYNAMIC-INVOKE (THIS-OBJECT, 
-                            SUBSTITUTE ("&1_EditorButtonClick":U, cControlName), 
-                            sender, 
+            DYNAMIC-INVOKE (THIS-OBJECT,
+                            SUBSTITUTE ("&1_EditorButtonClick":U, cControlName),
+                            sender,
                             NEW EditorButtonEventArgs (?, ?)) .
         END.
 
         CATCH err AS Progress.Lang.Error:
-            ErrorHelper:ShowErrorMessage (err) .                
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the Shown event 
-        Notes:   
+        Purpose: Raises the Shown event
+        Notes:
         @param e The System.EventArgs with the data for the Shown event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
-        
+
         DEFINE VARIABLE cClassName AS CHARACTER NO-UNDO .
         DEFINE VARIABLE oException AS Exception NO-UNDO .
-        
+
         SUPER:OnShown (e) .
 
-        IF Consultingwerk.CharacterType:IsNotNullOrEmpty (THIS-OBJECT:BusinessEntityPackage) THEN 
+        IF Consultingwerk.CharacterType:IsNotNullOrEmpty (THIS-OBJECT:BusinessEntityPackage) THEN
             ASSIGN cClassName = SUBSTITUTE ("&1.&2":U,
                                             THIS-OBJECT:BusinessEntityPackage,
                                             THIS-OBJECT:BusinessEntityName) .
-        ELSE 
+        ELSE
             ASSIGN cClassName = THIS-OBJECT:BusinessEntityName .
 
         DO ON ERROR UNDO, THROW:
             Consultingwerk.OERA.ServiceManager:StopAllBusinessServices() .
-            Consultingwerk.Framework.FrameworkSettings:ServiceAdapter:FetchDataset ("":U, 
+            Consultingwerk.Framework.FrameworkSettings:ServiceAdapter:FetchDataset ("":U,
                                                                                     cClassName,
-                                                                                    OUTPUT DATASET-HANDLE hDataset) . 
+                                                                                    OUTPUT DATASET-HANDLE hDataset) .
             CATCH beerr AS Progress.Lang.Error :
-                oException = NEW Exception (beerr, 
+                oException = NEW Exception (beerr,
                                             "The Business Entity Schema cannot be loaded."{&TRAN},
-                                            0) . 
-                
+                                            0) .
+
                 Consultingwerk.Util.ErrorHelper:ShowErrorMessage (oException) .
-                
+
                 THIS-OBJECT:Close () .
-                RETURN .     
+                RETURN .
             END CATCH.
-        
+
         END.
 
-        THIS-OBJECT:FillTreeViewWithTableNames () . 
-        
-        THIS-OBJECT:cbBatchSize:Value  = THIS-OBJECT:cbBatchSize:ValueList:ValueListItems[0]:DataValue . 
-        THIS-OBJECT:cbStopAfter:Value  = THIS-OBJECT:cbStopAfter:ValueList:ValueListItems[0]:DataValue . 
+        THIS-OBJECT:FillTreeViewWithTableNames () .
+
+        THIS-OBJECT:cbBatchSize:Value  = THIS-OBJECT:cbBatchSize:ValueList:ValueListItems[0]:DataValue .
+        THIS-OBJECT:cbStopAfter:Value  = THIS-OBJECT:cbStopAfter:ValueList:ValueListItems[0]:DataValue .
 
         /* Mike Fechner, Consultingwerk Ltd. 30.05.2013
            By default, select first node */
-        IF THIS-OBJECT:treeView1:Nodes:Count > 0 THEN 
-            THIS-OBJECT:treeView1:Nodes[0]:Checked = TRUE .     
-    
+        IF THIS-OBJECT:treeView1:Nodes:Count > 0 THEN
+            THIS-OBJECT:treeView1:Nodes[0]:Checked = TRUE .
+
         CATCH err AS Progress.Lang.Error:
             Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .
-            
-            THIS-OBJECT:Close () .    
+
+            THIS-OBJECT:Close () .
         END CATCH.
-        
+
     END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the first selected table to display in DataView
-        Notes:   
+        Notes:
         @param oNodeCollection The collection of tree nodes
         @return The first selected TreeNode
     ------------------------------------------------------------------------------*/
     METHOD PRIVATE TreeNode RecurseTreeNodes (oNodeCollection  AS TreeNodeCollection):
-        
+
         DEFINE VARIABLE i            AS INTEGER  NO-UNDO.
         DEFINE VARIABLE oChildResult AS TreeNode NO-UNDO.
-        
+
         IF oNodeCollection:COUNT > 0 THEN
             DO i = 0 TO oNodeCollection:Count - 1:
-                IF oNodeCollection:Item[i]:Checked THEN 
+                IF oNodeCollection:Item[i]:Checked THEN
                     RETURN oNodeCollection:Item[i].
                 ELSE DO:
                     oChildResult = RecurseTreeNodes (oNodeCollection:Item[i]:Nodes).
-                    IF VALID-OBJECT (oChildResult) THEN  
+                    IF VALID-OBJECT (oChildResult) THEN
                         RETURN oChildResult.
                 END.
         END.
-    
+
         RETURN ?.
-        
+
     END METHOD.
-    
+
     /*------------------------------------------------------------------------------
         Purpose: Builds a list of all selected child tables from the given selected
                  node
-        Notes:   
+        Notes:
         @param oNodeCollection The collection of tree nodes
         @return The comma delimited list of selected child tables of in the nodes collection
     ------------------------------------------------------------------------------*/
     METHOD PRIVATE CHARACTER RecurseTreeNodeNames (oNodeCollection AS TreeNodeCollection):
-        
+
         DEFINE VARIABLE i           AS INTEGER   NO-UNDO.
         DEFINE VARIABLE cEntityList AS CHARACTER NO-UNDO.
-        
+
         DO i = 0 TO oNodeCollection:Count - 1:
             IF oNodeCollection:Item[i]:Checked THEN
                 cEntityList = TRIM (cEntityList + ",":U + oNodeCollection:Item[i]:Text, ",":U).
-            
+
             cEntityList = TRIM (cEntityList + ",":U + RecurseTreeNodeNames (oNodeCollection:Item[i]:Nodes), ",":U).
-            
+
         END.
-        
+
         RETURN cEntityList.
-        
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Restortes the Form Settings
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD OVERRIDE PROTECTED VOID RestoreWindowPosition ():
+    METHOD OVERRIDE PROTECTED VOID RestoreWindowPosition ():
 
         DEFINE VARIABLE i AS INTEGER NO-UNDO.
-		
-		SUPER:RestoreWindowPosition().
+
+        SUPER:RestoreWindowPosition().
 
         tbCatalogFolder:Text   = THIS-OBJECT:LoadSettings ("CatalogFolder":U) .
         tbAppServerFolder:Text = THIS-OBJECT:LoadSettings ("AppServerFolder":U) .
         tbRelativeFolder:Text  = THIS-OBJECT:LoadSettings ("RelativeFolder":U) .
 
-        ASSIGN i = INTEGER (THIS-OBJECT:LoadSettings ("BatchSize":U)) NO-ERROR . 
-        
+        ASSIGN i = INTEGER (THIS-OBJECT:LoadSettings ("BatchSize":U)) NO-ERROR .
+
         IF i > 0 THEN cbBatchSize:Value = BOX (i) .
 
-        ASSIGN i = INTEGER (THIS-OBJECT:LoadSettings ("StopAfter":U)) NO-ERROR . 
-        
+        ASSIGN i = INTEGER (THIS-OBJECT:LoadSettings ("StopAfter":U)) NO-ERROR .
+
         IF i > 0 THEN cbStopAfter:Value = BOX (i) .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Stores Form settings in the Registry
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD OVERRIDE PROTECTED VOID StoreWindowPosition ():
-		
-		SUPER:StoreWindowPosition().
+    METHOD OVERRIDE PROTECTED VOID StoreWindowPosition ():
+
+        SUPER:StoreWindowPosition().
 
         THIS-OBJECT:StoreSettings (tbCatalogFolder:Text,"CatalogFolder":U) .
         THIS-OBJECT:StoreSettings (tbAppServerFolder:Text,"AppServerFolder":U) .
@@ -743,108 +745,105 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.OpenAccessSdk.OpenAccessSdkW
         THIS-OBJECT:StoreSettings (UNBOX (cbBatchSize:Value),"BatchSize":U) .
         THIS-OBJECT:StoreSettings (UNBOX (cbStopAfter:Value),"StopAfter":U) .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the EditorButtonClick event of the tbCatalogFolder
-                 and tbAppServerFolder 
-        Notes:   
+                 and tbAppServerFolder
+        Notes:
         @param sender The reference to the control that raised the event
         @param e The EditorButtonEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID tbCatalogFolder_EditorButtonClick (sender AS System.Object, 
-	                                                       e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
-		
-		DEFINE VARIABLE oControl      AS UltraTextEditor NO-UNDO . 
-		DEFINE VARIABLE oDialogResult AS DialogResult    NO-UNDO . 
+    METHOD PRIVATE VOID tbCatalogFolder_EditorButtonClick (sender AS System.Object,
+                                                           e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
 
-        DEFINE VARIABLE cPath AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE oControl      AS UltraTextEditor NO-UNDO .
+        DEFINE VARIABLE oDialogResult AS DialogResult    NO-UNDO .
 
-        ASSIGN oControl = CAST (sender, UltraTextEditor) . 
-    
-        ASSIGN FILE-INFO:FILE-NAME = oControl:Text .
-    
-        IF FILE-INFO:FULL-PATHNAME > "":U AND FILE-INFO:FILE-TYPE MATCHES "*D*":U THEN 
-            folderBrowserDialog1:SelectedPath = FILE-INFO:FULL-PATHNAME . 
+        ASSIGN oControl = CAST (sender, UltraTextEditor) .
 
-        IF oControl = tbCatalogFolder THEN 
+        ASSIGN FILE-INFORMATION:FILE-NAME = oControl:Text .
+
+        IF FILE-INFORMATION:FULL-PATHNAME > "":U AND FILE-INFORMATION:FILE-TYPE MATCHES "*D*":U THEN
+            folderBrowserDialog1:SelectedPath = FILE-INFORMATION:FULL-PATHNAME .
+
+        IF oControl = tbCatalogFolder THEN
             folderBrowserDialog1:Description = "Select JSON Catalog Folder"{&TRAN} .
-        ELSE  
+        ELSE
             folderBrowserDialog1:Description = "Select AppServer Code base Folder"{&TRAN} .
-            
+
         WAIT-FOR folderBrowserDialog1:ShowDialog () SET oDialogResult .
-        
+
         {Consultingwerk/check-dialogresult-ok.i oDialogResult} .
-        
+
         ASSIGN oControl:Text = folderBrowserDialog1:SelectedPath .
 
         CATCH err AS Progress.Lang.Error:
-        	ErrorHelper:ShowErrorMessage (err) .	
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the EditorButtonClick event of the tbRelativeFolder
-        Notes:   
+        Notes:
         @param sender The reference to the control that raised the event
         @param e The EditorButtonEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID tbRelativeFolder_EditorButtonClick (sender AS System.Object, 
-	                                                        e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
-		
-        DEFINE VARIABLE oDialog       AS FolderBrowserForm NO-UNDO . 
-        DEFINE VARIABLE oDialogResult AS DialogResult      NO-UNDO . 
-        
-        oDialog = NEW FolderBrowserForm () . 
-        
-        FILE-INFO:FILE-NAME = tbAppServerFolder:Text .
-        IF FILE-INFO:FULL-PATHNAME = ? THEN 
-            UNDO, THROW NEW ExceptionWithTitle ("AppServer Code Base folder is not valid."{&TRAN}, 
-                                                0, 
-                                                THIS-OBJECT:Text) .           
-        
-        oDialog:RootFolder     = FILE-INFO:FULL-PATHNAME .
+    METHOD PRIVATE VOID tbRelativeFolder_EditorButtonClick (sender AS System.Object,
+                                                            e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
 
-        WAIT-FOR oDialog:ShowDialog () SET oDialogResult . 
+        DEFINE VARIABLE oDialog       AS FolderBrowserForm NO-UNDO .
+        DEFINE VARIABLE oDialogResult AS DialogResult      NO-UNDO .
+
+        oDialog = NEW FolderBrowserForm () .
+
+        FILE-INFORMATION:FILE-NAME = tbAppServerFolder:Text .
+        IF FILE-INFORMATION:FULL-PATHNAME = ? THEN
+            UNDO, THROW NEW ExceptionWithTitle ("AppServer Code Base folder is not valid."{&TRAN},
+                                                0,
+                                                THIS-OBJECT:Text) .
+
+        oDialog:RootFolder     = FILE-INFORMATION:FULL-PATHNAME .
+
+        WAIT-FOR oDialog:ShowDialog () SET oDialogResult .
 
         {Consultingwerk/check-dialogresult-ok.i oDialogResult} .
-        
+
         ASSIGN tbRelativeFolder:Text = oDialog:SelectedFolder .
 
-        IF tbRelativeFolder:Text BEGINS tbAppServerFolder:Text + "~\":U THEN 
-            tbRelativeFolder:Text = SUBSTRING (oDialog:SelectedFolder, LENGTH (tbAppServerFolder:Text) + 2) .   
+        IF tbRelativeFolder:Text BEGINS tbAppServerFolder:Text + "~\":U THEN
+            tbRelativeFolder:Text = SUBSTRING (oDialog:SelectedFolder, LENGTH (tbAppServerFolder:Text, "CHARACTER":U) + 2, -1, "CHARACTER":U) .
 
         CATCH err AS Progress.Lang.Error:
-            ErrorHelper:ShowErrorMessage (err) .    
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the AfterCheck event of the treeView1 
-        Notes:   
+        Purpose: Event handler for the AfterCheck event of the treeView1
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The TreeViewEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID treeView1_AfterCheck (sender AS System.Object, 
-	                                          e AS System.Windows.Forms.TreeViewEventArgs):
-		
-		DEFINE VARIABLE cTopBuffer   AS CHARACTER NO-UNDO.
-		DEFINE VARIABLE cChildBuffer AS CHARACTER NO-UNDO.
-		
-		cTopBuffer = THIS-OBJECT:GetSelectedTopBuffer (OUTPUT cChildBuffer) .
-		
-        IF cChildBuffer > "":U THEN 
-            THIS-OBJECT:tgOuterJoin:Enabled = TRUE . 
-        ELSE 
-            THIS-OBJECT:tgOuterJoin:Enabled = FALSE . 
+    METHOD PRIVATE VOID treeView1_AfterCheck (sender AS System.Object,
+                                              e AS System.Windows.Forms.TreeViewEventArgs):
 
-	END METHOD .
+        DEFINE VARIABLE cChildBuffer AS CHARACTER NO-UNDO.
+
+        THIS-OBJECT:GetSelectedTopBuffer (OUTPUT cChildBuffer) .
+
+        IF cChildBuffer > "":U THEN
+            THIS-OBJECT:tgOuterJoin:Enabled = TRUE .
+        ELSE
+            THIS-OBJECT:tgOuterJoin:Enabled = FALSE .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the OpenAccessSdkWizard class 
-        Notes:   
+        Purpose: Destructor for the OpenAccessSdkWizard class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC OpenAccessSdkWizard ():
 

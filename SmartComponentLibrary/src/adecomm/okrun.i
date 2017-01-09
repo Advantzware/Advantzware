@@ -67,8 +67,8 @@ eff_frame_width = {&FRAME}:WIDTH-CHARS -
                                        {&CANCEL}:WIDTH-CHARS IN {&FRAME} - 
                                        {&HM_DBTNG}) / 2.
         {&CANCEL}:COLUMN IN {&FRAME} = {&OK}:COLUMN IN {&FRAME} + 
-  	                             {&OK}:WIDTH-CHARS IN {&FRAME} + 
-  	                             {&HM_DBTNG}.
+                                   {&OK}:WIDTH-CHARS IN {&FRAME} + 
+                                   {&HM_DBTNG}.
       &ELSE
         {&OK}:COLUMN IN {&FRAME}     = (eff_frame_width -
                                        {&OK}:WIDTH-CHARS IN {&FRAME}) / 2.

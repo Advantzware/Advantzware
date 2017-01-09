@@ -42,40 +42,40 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.TelerikMobile.DetailViewBuil
         @return The ListNameValuePair with the available Grid Builder classes
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC ListNameValuePair GetAvailableDetailViewBuilders ():
-		
-		DEFINE VARIABLE oList AS ListNameValuePair NO-UNDO .
-		
-		oList = NEW ListNameValuePair () . 
-		
+        
+        DEFINE VARIABLE oList AS ListNameValuePair NO-UNDO .
+        
+        oList = NEW ListNameValuePair () . 
+        
         oList:Add ("Consultingwerk.BusinessEntityDesigner.Generator.TelerikMobile.ReadOnlyDetailViewBuilder":U, "Read-Only":U) . 
-		oList:Add ("Consultingwerk.BusinessEntityDesigner.Generator.TelerikMobile.UpdatableDetailViewBuilder":U, "Updatable":U) . 
+        oList:Add ("Consultingwerk.BusinessEntityDesigner.Generator.TelerikMobile.UpdatableDetailViewBuilder":U, "Updatable":U) . 
 
         RETURN oList . 
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the List of the available Page Template Names 
         Notes:   
         @return The ListNameValuePair with the available Page Template Names
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC Consultingwerk.ListNameValuePair GetAvailableTemplates ():
-		
-		EMPTY TEMP-TABLE ttFileNames . 
-		
-		IF REPLACE (BusinessEntityDesignerSettings:TemplateFolder, "~\":U, "/":U) <> 
-		  "Consultingwerk/BusinessEntityDesigner/Generator/Templates":U AND 
-		  
-		  FileHelper:Exists (BusinessEntityDesignerSettings:TemplateFolder + "/TelerikMobile/DetailView":U) THEN 
-		  
+    METHOD PUBLIC Consultingwerk.ListNameValuePair GetAvailableTemplates ():
+        
+        EMPTY TEMP-TABLE ttFileNames . 
+        
+        IF REPLACE (BusinessEntityDesignerSettings:TemplateFolder, "~\":U, "/":U) <> 
+          "Consultingwerk/BusinessEntityDesigner/Generator/Templates":U AND 
+          
+          FileHelper:Exists (BusinessEntityDesignerSettings:TemplateFolder + "/TelerikMobile/DetailView":U) THEN 
+          
             FileHelper:GetFileList (BusinessEntityDesignerSettings:TemplateFolder + "/TelerikMobile/DetailView":U,
                                     "*.template":U,
                                     OUTPUT TABLE ttFileNames) .
-    		
-		FileHelper:GetFileList ("Consultingwerk/BusinessEntityDesigner/Generator/Templates/TelerikMobile/DetailView":U,
-		                        "*.template":U,
-		                        OUTPUT TABLE ttFileNames APPEND) .
-		
+            
+        FileHelper:GetFileList ("Consultingwerk/BusinessEntityDesigner/Generator/Templates/TelerikMobile/DetailView":U,
+                                "*.template":U,
+                                OUTPUT TABLE ttFileNames APPEND) .
+        
         DEFINE VARIABLE oList AS ListNameValuePair NO-UNDO .
         
         oList = NEW ListNameValuePair () . 
@@ -87,6 +87,6 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.TelerikMobile.DetailViewBuil
         
         RETURN oList  .
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

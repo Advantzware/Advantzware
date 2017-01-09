@@ -8,16 +8,16 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/    
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : TableIOActionEnum
     Purpose     : Enumeration describing the Tools of a TableIO Panel/Toolbar
-    Syntax      : 
-    Description : Used by SmartToolbarController:SetTableIOActionDisabled as 
+    Syntax      :
+    Description : Used by SmartToolbarController:SetTableIOActionDisabled as
                   a parameter
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Mon Jun 14 21:29:09 CEST 2010
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -37,80 +37,80 @@ USING Progress.Lang.*                       FROM PROPATH .
 {&CLASS} Consultingwerk.SmartComponents.Enum.TableIOActionEnum
     &IF "{&CLASS}" EQ "CLASS" &THEN
     INHERITS Enum
-    &ENDIF    
-        : 
+    &ENDIF
+        :
 
 &IF "{&CLASS}" EQ "ENUM" &THEN
     DEFINE ENUM
-&ENDIF    
+&ENDIF
 
     /*------------------------------------------------------------------------------
-        Purpose: The Add button                                                                   
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/    
-    {Consultingwerk/EnumMember.i Add 1 TableIOActionEnum}  
+        Purpose: The Add button
+        Notes:
+    ------------------------------------------------------------------------------*/
+    {Consultingwerk/EnumMember.i Add 1 TableIOActionEnum}
 
     /*------------------------------------------------------------------------------
-        Purpose: The Cancel button                                                                   
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/    
-    {Consultingwerk/EnumMember.i Cancel 2 TableIOActionEnum}  
+        Purpose: The Cancel button
+        Notes:
+    ------------------------------------------------------------------------------*/
+    {Consultingwerk/EnumMember.i Cancel 2 TableIOActionEnum}
 
     /*------------------------------------------------------------------------------
-        Purpose: The copy button                                                                   
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/    
-    {Consultingwerk/EnumMember.i Copy 3 TableIOActionEnum}  
+        Purpose: The copy button
+        Notes:
+    ------------------------------------------------------------------------------*/
+    {Consultingwerk/EnumMember.i Copy 3 TableIOActionEnum}
 
     /*------------------------------------------------------------------------------
-        Purpose: The Delete button                                                                   
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/    
-    {Consultingwerk/EnumMember.i Delete 4 TableIOActionEnum}  
+        Purpose: The Delete button
+        Notes:
+    ------------------------------------------------------------------------------*/
+    {Consultingwerk/EnumMember.i Delete 4 TableIOActionEnum}
 
     /*------------------------------------------------------------------------------
-        Purpose: The Save button                                                                   
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/    
-    {Consultingwerk/EnumMember.i Save 5 TableIOActionEnum}  
+        Purpose: The Save button
+        Notes:
+    ------------------------------------------------------------------------------*/
+    {Consultingwerk/EnumMember.i Save 5 TableIOActionEnum}
 
     /*------------------------------------------------------------------------------
-        Purpose: The Update button                                                                   
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/    
-    {Consultingwerk/EnumMember.i Update 6 TableIOActionEnum}  
+        Purpose: The Update button
+        Notes:
+    ------------------------------------------------------------------------------*/
+    {Consultingwerk/EnumMember.i Update 6 TableIOActionEnum}
 
     /*------------------------------------------------------------------------------
-        Purpose: All functions                                                               
-        Notes:                                                                        
-    ------------------------------------------------------------------------------*/    
-    {Consultingwerk/EnumMember.i All 7 TableIOActionEnum}  
+        Purpose: All functions
+        Notes:
+    ------------------------------------------------------------------------------*/
+    {Consultingwerk/EnumMember.i All 7 TableIOActionEnum}
 
 &IF "{&CLASS}" EQ "ENUM" &THEN
     .
-&ENDIF    
+&ENDIF
 
 &IF "{&CLASS}" EQ "CLASS" &THEN
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the TableIOActionEnum class                                                                         
-        Notes:                                              
+        Purpose: Constructor for the TableIOActionEnum class
+        Notes:
         @param piValue The Enum member value
-        @param pcLabel The Enum member label                           
+        @param pcLabel The Enum member label
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PRIVATE TableIOActionEnum (piValue AS INTEGER, pcLabel AS CHARACTER):
         SUPER ().
-        
-        ASSIGN THIS-OBJECT:Value = piValue 
-               THIS-OBJECT:Label = pcLabel . 
-        
+
+        ASSIGN THIS-OBJECT:Value = piValue
+               THIS-OBJECT:Label = pcLabel .
+
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Deserialization of an Enum value                                                                      
+        Purpose: Deserialization of an Enum value
         Notes:
         @param pcCharacterValue The serialized character value of an enum member
-        @return The TableIOActionEnum member                                                                            
+        @return The TableIOActionEnum member
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC TableIOActionEnum FromString (pcCharacterValue AS CHARACTER):
 
@@ -128,11 +128,11 @@ USING Progress.Lang.*                       FROM PROPATH .
             WHEN "Update":U THEN
                 RETURN TableIOActionEnum:Update .
             OTHERWISE
-                UNDO, THROW NEW AppError (SUBSTITUTE ("Invalid Enum value &1", pcCharacterValue), 0) .
+                UNDO, THROW NEW AppError (SUBSTITUTE ("Invalid Enum value &1":U, pcCharacterValue), 0) .
         END CASE .
-        
+
     END METHOD.
-    
+
 &ENDIF
-    
+
 END {&CLASS} .

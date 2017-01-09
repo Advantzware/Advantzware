@@ -8,12 +8,12 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : SmartTabFolderForm
-    Purpose     : Base Class for SmartTabFolderFrom based controls 
-    Syntax      : 
-    Description : 
+    Purpose     : Base Class for SmartTabFolderFrom based controls
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Mon Apr 20 16:55:18 CEST 2015
     Notes       : SCL-782
@@ -22,7 +22,7 @@
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.SmartComponents.Base.*                FROM PROPATH .
-USING Consultingwerk.SmartComponents.BaseForms.TabFolder.* FROM PROPATH . 
+USING Consultingwerk.SmartComponents.BaseForms.TabFolder.* FROM PROPATH .
 USING Consultingwerk.SmartComponents.Interfaces.*          FROM PROPATH .
 USING Consultingwerk.Util.*                                FROM PROPATH .
 USING Infragistics.Win.Misc.*                              FROM ASSEMBLY .
@@ -30,25 +30,25 @@ USING Infragistics.Win.UltraWinTabControl.*                FROM ASSEMBLY .
 USING Progress.Lang.*                                      FROM PROPATH .
 USING System.Windows.Forms.*                               FROM ASSEMBLY .
 
-CLASS Consultingwerk.SmartComponents.BaseForms.TabFolder.SmartTabFolderForm 
-    INHERITS SmartWindowForm: 
-	
+CLASS Consultingwerk.SmartComponents.BaseForms.TabFolder.SmartTabFolderForm
+    INHERITS SmartWindowForm:
+
     DEFINE PRIVATE VARIABLE m_SmartTabFolderForm_Toolbars_Dock_Area_Top AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_SmartTabFolderForm_Toolbars_Dock_Area_Right AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_SmartTabFolderForm_Toolbars_Dock_Area_Left AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_SmartTabFolderForm_Toolbars_Dock_Area_Bottom AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE smartToolbarController1 AS Consultingwerk.SmartComponents.Implementation.SmartToolbarController NO-UNDO.
     DEFINE PRIVATE VARIABLE SmartTabFolderForm_Fill_Panel AS Infragistics.Win.Misc.UltraPanel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraTabSharedControlsPage1 AS Infragistics.Win.UltraWinTabControl.UltraTabSharedControlsPage NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraTabControl1 AS Infragistics.Win.UltraWinTabControl.UltraTabControl NO-UNDO.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the SmartTabFolderForm class 
+        Purpose: Constructor for the SmartTabFolderForm class
         Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC SmartTabFolderForm ():
-		
+    CONSTRUCTOR PUBLIC SmartTabFolderForm ():
+
         SUPER().
 
         InitializeComponent().
@@ -61,15 +61,15 @@ CLASS Consultingwerk.SmartComponents.BaseForms.TabFolder.SmartTabFolderForm
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Adds an additional ISmartTabFolderPage based Control to an existing 
+        Purpose: Adds an additional ISmartTabFolderPage based Control to an existing
                  Tabfolder Page
         Notes:   The tab page with the given key must already exist
-        @param poTabFolderPage The reference to the ISmartTabFolderPage to add to the tab page 
+        @param poTabFolderPage The reference to the ISmartTabFolderPage to add to the tab page
         @param pcPageKey  The key of the tab folder (see CreateTabPage) to add the control to
-        @param pcTabKey  The key for the ISmartTabFolder Page 
+        @param pcTabKey  The key for the ISmartTabFolder Page
         @param poDataSource  The reference to the ISmartDataSource to pass through to the ISmartTabFolderPage
         @param poTableIOSource The reference to the ISmartTableIOSource to pass through to the ISmartTabFolderPage
         @param poNavigationSource The reference to the ISmartNavigationSource to pass through to the ISmartTabFolderPage
@@ -81,43 +81,43 @@ CLASS Consultingwerk.SmartComponents.BaseForms.TabFolder.SmartTabFolderForm
                                                        poDataSource AS ISmartDataSource,
                                                        poTableIOSource AS ISmartTableIOSource,
                                                        poNavigationSource AS ISmartNavigationSource):
-        
+
         DEFINE VARIABLE oControl AS System.Windows.Forms.Control NO-UNDO .
-        DEFINE VARIABLE oTab     AS UltraTab                     NO-UNDO . 
-        
-        IF NOT THIS-OBJECT:ultraTabControl1:Tabs:Exists (pcPageKey) THEN 
-            UNDO, THROW NEW AppError ("Invalid tab page key.", 0) .
-        
+        DEFINE VARIABLE oTab     AS UltraTab                     NO-UNDO .
+
+        IF NOT THIS-OBJECT:ultraTabControl1:Tabs:Exists (pcPageKey) THEN
+            UNDO, THROW NEW AppError ("Invalid tab page key.":U, 0) .
+
         oTab = THIS-OBJECT:ultraTabControl1:Tabs [pcPageKey] .
 
-        oControl = NEW UltraSplitter () . 
-        oControl:Dock = DockStyle:Bottom . 
-        
+        oControl = NEW UltraSplitter () .
+        oControl:Dock = DockStyle:Bottom .
+
         oTab:TabPage:Controls:Add (oControl) .
 
         oControl = CAST (CAST (poTabFolderPage, Progress.Lang.Object), System.Windows.Forms.Control) .
-        
+
         oControl:Dock = DockStyle:Bottom .
         oControl:Name = pcTabKey .
-        
+
         oTab:TabPage:Controls:Add (oControl) .
-        
-        poTabFolderPage:InitializeSmartTabFolderPage (poDataSource, 
-                                                      poTableIOSource, 
+
+        poTabFolderPage:InitializeSmartTabFolderPage (poDataSource,
+                                                      poTableIOSource,
                                                       poNavigationSource) .
-                
+
         RETURN poTabFolderPage .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Adds an additional ISmartTabFolderPage based Control to an existing 
+        Purpose: Adds an additional ISmartTabFolderPage based Control to an existing
                  Tabfolder Page
         Notes:   The tab page with the given key must already exist
                  Links to the default SmartToolbarController instance for TableIO and Navigation Links
-        @param poTabFolderPage The reference to the ISmartTabFolderPage to add to the tab page 
+        @param poTabFolderPage The reference to the ISmartTabFolderPage to add to the tab page
         @param pcPageKey  The key of the tab folder (see CreateTabPage) to add the control to
-        @param pcTabKey  The key for the ISmartTabFolder Page 
+        @param pcTabKey  The key for the ISmartTabFolder Page
         @param poDataSource  The reference to the ISmartDataSource to pass through to the ISmartTabFolderPage
         @return The reference to the added ISmartTabFolderPage (fluid coding style)
     ------------------------------------------------------------------------------*/
@@ -125,7 +125,7 @@ CLASS Consultingwerk.SmartComponents.BaseForms.TabFolder.SmartTabFolderForm
                                                        pcPageKey AS CHARACTER,
                                                        pcTabKey AS CHARACTER,
                                                        poDataSource AS ISmartDataSource):
-        
+
         RETURN THIS-OBJECT:AddToTabPage (poTabFolderPage,
                                          pcPageKey,
                                          pcTabKey,
@@ -136,51 +136,51 @@ CLASS Consultingwerk.SmartComponents.BaseForms.TabFolder.SmartTabFolderForm
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Creates a new Tabfolder page and adds the provided ISmartTabFolderPage 
-                 based Control 
-        Notes:   
-        @param poTabFolderPage The reference to the ISmartTabFolderPage to add to the tab page 
+        Purpose: Creates a new Tabfolder page and adds the provided ISmartTabFolderPage
+                 based Control
+        Notes:
+        @param poTabFolderPage The reference to the ISmartTabFolderPage to add to the tab page
         @param pcTabLabel  The label to assign to the new Tabfolder page
-        @param pcTabKey  The key used for the ISmartTabFolder Page and the Control 
+        @param pcTabKey  The key used for the ISmartTabFolder Page and the Control
         @param poDataSource  The reference to the ISmartDataSource to pass through to the ISmartTabFolderPage
         @param poTableIOSource The reference to the ISmartTableIOSource to pass through to the ISmartTabFolderPage
         @param poNavigationSource The reference to the ISmartNavigationSource to pass through to the ISmartTabFolderPage
         @return The reference to the added ISmartTabFolderPage (fluid coding style)
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED ISmartTabFolderPage CreateTabPage (poTabFolderPage AS ISmartTabFolderPage,
-            	                                        pcTabLabel AS CHARACTER,
-            	                                        pcTabKey AS CHARACTER,
-            	                                        poDataSource AS ISmartDataSource,
-            	                                        poTableIOSource AS ISmartTableIOSource,
-            	                                        poNavigationSource AS ISmartNavigationSource):
-		
+    METHOD PROTECTED ISmartTabFolderPage CreateTabPage (poTabFolderPage AS ISmartTabFolderPage,
+                                                        pcTabLabel AS CHARACTER,
+                                                        pcTabKey AS CHARACTER,
+                                                        poDataSource AS ISmartDataSource,
+                                                        poTableIOSource AS ISmartTableIOSource,
+                                                        poNavigationSource AS ISmartNavigationSource):
+
         DEFINE VARIABLE oControl AS System.Windows.Forms.Control NO-UNDO .
-        DEFINE VARIABLE oTab     AS UltraTab                     NO-UNDO . 
-		
-		oControl = CAST (CAST (poTabFolderPage, Progress.Lang.Object), System.Windows.Forms.Control) .
-		
-		oTab = THIS-OBJECT:ultraTabControl1:Tabs:Add (pcTabKey, pcTabLabel) .
+        DEFINE VARIABLE oTab     AS UltraTab                     NO-UNDO .
+
+        oControl = CAST (CAST (poTabFolderPage, Progress.Lang.Object), System.Windows.Forms.Control) .
+
+        oTab = THIS-OBJECT:ultraTabControl1:Tabs:Add (pcTabKey, pcTabLabel) .
 
         oControl:Dock = DockStyle:Fill .
         oControl:Name = pcTabKey .
-        
+
         oTab:TabPage:Controls:Add (oControl) .
-        
-        poTabFolderPage:InitializeSmartTabFolderPage (poDataSource, 
-                                                     poTableIOSource, 
+
+        poTabFolderPage:InitializeSmartTabFolderPage (poDataSource,
+                                                     poTableIOSource,
                                                      poNavigationSource) .
-        
+
         RETURN poTabFolderPage .
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Creates a new Tabfolder page and adds the provided ISmartTabFolderPage 
-                 based Control 
+        Purpose: Creates a new Tabfolder page and adds the provided ISmartTabFolderPage
+                 based Control
         Notes:   Links to the default SmartToolbarController instance for TableIO and Navigation Links
-        @param poTabFolderPage The reference to the ISmartTabFolderPage to add to the tab page 
+        @param poTabFolderPage The reference to the ISmartTabFolderPage to add to the tab page
         @param pcTabLabel  The label to assign to the new Tabfolder page
-        @param pcTabKey  The key used for the ISmartTabFolder Page and the Control 
+        @param pcTabKey  The key used for the ISmartTabFolder Page and the Control
         @param poDataSource  The reference to the ISmartDataSource to pass through to the ISmartTabFolderPage
         @return The reference to the added ISmartTabFolderPage (fluid coding style)
     ------------------------------------------------------------------------------*/
@@ -188,7 +188,7 @@ CLASS Consultingwerk.SmartComponents.BaseForms.TabFolder.SmartTabFolderForm
                                          pcTabLabel AS CHARACTER,
                                          pcTabKey AS CHARACTER,
                                          poDataSource AS ISmartDataSource):
-        
+
         RETURN THIS-OBJECT:CreateTabPage (poTabFolderPage,
                                           pcTabLabel,
                                           pcTabKey,
@@ -198,39 +198,40 @@ CLASS Consultingwerk.SmartComponents.BaseForms.TabFolder.SmartTabFolderForm
 
     END METHOD.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Returns the reference to the ISmartTabFolderPage Control with the 
-	             given key
-	    Notes:
-	    @param pcTabKey The key of the ISmartTabFolderPage to return
-	    @return The reference to the ISmartTabFolderPage control or ? 
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC ISmartTabFolderPage GetSmartTabFolderPage (pcTabKey AS CHARACTER):
-		
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the reference to the ISmartTabFolderPage Control with the
+                 given key
+        Notes:
+        @param pcTabKey The key of the ISmartTabFolderPage to return
+        @return The reference to the ISmartTabFolderPage control or ?
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC ISmartTabFolderPage GetSmartTabFolderPage (pcTabKey AS CHARACTER):
+
         {Consultingwerk/foreach.i UltraTab oTab in THIS-OBJECT:ultraTabControl1:Tabs}
 
             {Consultingwerk/foreach.i System.Windows.Forms.Control oControl in oTab:TabPage:Controls}
-            
-                IF oControl:Name = pcTabKey AND TYPE-OF (oControl, ISmartTabFolderPage) THEN 
-                    RETURN CAST (oControl, ISmartTabFolderPage) . 
+
+                IF oControl:Name = pcTabKey AND TYPE-OF (oControl, ISmartTabFolderPage) THEN
+                    RETURN CAST (oControl, ISmartTabFolderPage) .
             END.
         END.
 
-	    RETURN ? . 
-		
-	END METHOD.
+        RETURN ? .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initilaizes the visual design
-        Notes:
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent(  ):
-		
+    END METHOD.
+
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -773,36 +774,36 @@ CLASS Consultingwerk.SmartComponents.BaseForms.TabFolder.SmartTabFolderForm
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD.
+    END METHOD.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Event handler for the SelectedTabChanged event of the ultraTabControl1 
-	    Notes:
-	    @param sender The reference to the object that raised the event
-	    @param e The SelectedTabChangedEventArgs with the data for this event
-	------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraTabControl1_SelectedTabChanged (sender AS System.Object, 
-	                                                         e AS SelectedTabChangedEventArgs):
-		
-		DEFINE VARIABLE oFramesetPage AS ISmartTabFolderPage NO-UNDO . 
-		
-		oFramesetPage = THIS-OBJECT:GetSmartTabFolderPage (e:Tab:Key) .
+    /*------------------------------------------------------------------------------
+        Purpose: Event handler for the SelectedTabChanged event of the ultraTabControl1
+        Notes:
+        @param sender The reference to the object that raised the event
+        @param e The SelectedTabChangedEventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE VOID ultraTabControl1_SelectedTabChanged (sender AS System.Object,
+                                                             e AS SelectedTabChangedEventArgs):
 
-        IF VALID-OBJECT (oFramesetPage) THEN 
+        DEFINE VARIABLE oFramesetPage AS ISmartTabFolderPage NO-UNDO .
+
+        oFramesetPage = THIS-OBJECT:GetSmartTabFolderPage (e:Tab:Key) .
+
+        IF VALID-OBJECT (oFramesetPage) THEN
             oFramesetPage:Activate() .
 
         CATCH err AS Progress.Lang.Error:
-        	ErrorHelper:ShowErrorMessage (err) .	
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the SmartTabFolderForm class 
+        Purpose: Destructor for the SmartTabFolderForm class
         Notes:
     ------------------------------------------------------------------------------*/
-	DESTRUCTOR PUBLIC SmartTabFolderForm ():
+    DESTRUCTOR PUBLIC SmartTabFolderForm ():
 
-	END DESTRUCTOR.
+    END DESTRUCTOR.
 
 END CLASS.

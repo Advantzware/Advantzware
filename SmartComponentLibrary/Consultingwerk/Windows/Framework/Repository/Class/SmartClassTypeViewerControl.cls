@@ -54,10 +54,11 @@ CLASS Consultingwerk.Windows.Framework.Repository.Class.SmartClassTypeViewerCont
                 
     END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design
-        Notes:   
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
         
         /* NOTE: The following method is automatically generated.
@@ -73,6 +74,9 @@ CLASS Consultingwerk.Windows.Framework.Repository.Class.SmartClassTypeViewerCont
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance1 AS Infragistics.Win.Appearance NO-UNDO.
         appearance1 = NEW Infragistics.Win.Appearance().
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE resources AS Progress.Util.ResourceManager NO-UNDO.
+        resources = NEW Progress.Util.ResourceManager("Consultingwerk.Windows.Framework.Repository.Class.SmartClassTypeViewerControl":U).
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance2 AS Infragistics.Win.Appearance NO-UNDO.
         appearance2 = NEW Infragistics.Win.Appearance().
@@ -110,63 +114,46 @@ CLASS Consultingwerk.Windows.Framework.Repository.Class.SmartClassTypeViewerCont
         /*  */
         appearance1:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:eSmartClassType_ClassTypeName_Label:Appearance = appearance1.
-        THIS-OBJECT:eSmartClassType_ClassTypeName_Label:AutoSize = TRUE.
-        THIS-OBJECT:eSmartClassType_ClassTypeName_Label:Location = NEW System.Drawing.Point(20, 24).
+        resources:ApplyResources(THIS-OBJECT:eSmartClassType_ClassTypeName_Label, "eSmartClassType_ClassTypeName_Label":U).
         THIS-OBJECT:eSmartClassType_ClassTypeName_Label:Name = "eSmartClassType_ClassTypeName_Label":U.
-        THIS-OBJECT:eSmartClassType_ClassTypeName_Label:Size = NEW System.Drawing.Size(97, 14).
-        THIS-OBJECT:eSmartClassType_ClassTypeName_Label:TabIndex = 1.
-        THIS-OBJECT:eSmartClassType_ClassTypeName_Label:Text = "Class Type Name:":U.
         /*  */
         /* eSmartClassType_ClassTypeName */
         /*  */
         THIS-OBJECT:eSmartClassType_ClassTypeName:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "ClassTypeName":U, TRUE)).
         THIS-OBJECT:eSmartClassType_ClassTypeName:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:eSmartClassType_ClassTypeName:Location = NEW System.Drawing.Point(130, 20).
+        resources:ApplyResources(THIS-OBJECT:eSmartClassType_ClassTypeName, "eSmartClassType_ClassTypeName":U).
         THIS-OBJECT:eSmartClassType_ClassTypeName:Name = "eSmartClassType_ClassTypeName":U.
-        THIS-OBJECT:eSmartClassType_ClassTypeName:Size = NEW System.Drawing.Size(150, 21).
-        THIS-OBJECT:eSmartClassType_ClassTypeName:TabIndex = 2.
         /*  */
         /* eSmartClassType_ClassTypeDescription_Label */
         /*  */
         appearance2:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:eSmartClassType_ClassTypeDescription_Label:Appearance = appearance2.
-        THIS-OBJECT:eSmartClassType_ClassTypeDescription_Label:AutoSize = TRUE.
-        THIS-OBJECT:eSmartClassType_ClassTypeDescription_Label:Location = NEW System.Drawing.Point(20, 50).
+        resources:ApplyResources(THIS-OBJECT:eSmartClassType_ClassTypeDescription_Label, "eSmartClassType_ClassTypeDescription_Label":U).
         THIS-OBJECT:eSmartClassType_ClassTypeDescription_Label:Name = "eSmartClassType_ClassTypeDescription_Label":U.
-        THIS-OBJECT:eSmartClassType_ClassTypeDescription_Label:Size = NEW System.Drawing.Size(64, 14).
-        THIS-OBJECT:eSmartClassType_ClassTypeDescription_Label:TabIndex = 3.
-        THIS-OBJECT:eSmartClassType_ClassTypeDescription_Label:Text = "Description:":U.
         /*  */
         /* eSmartClassType_ClassTypeDescription */
         /*  */
         THIS-OBJECT:eSmartClassType_ClassTypeDescription:DataBindings:Add(NEW System.Windows.Forms.Binding("Text":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "ClassTypeDescription":U, TRUE)).
         THIS-OBJECT:eSmartClassType_ClassTypeDescription:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:eSmartClassType_ClassTypeDescription:Location = NEW System.Drawing.Point(130, 46).
+        resources:ApplyResources(THIS-OBJECT:eSmartClassType_ClassTypeDescription, "eSmartClassType_ClassTypeDescription":U).
         THIS-OBJECT:eSmartClassType_ClassTypeDescription:Name = "eSmartClassType_ClassTypeDescription":U.
-        THIS-OBJECT:eSmartClassType_ClassTypeDescription:Size = NEW System.Drawing.Size(150, 21).
-        THIS-OBJECT:eSmartClassType_ClassTypeDescription:TabIndex = 4.
         /*  */
         /* eSmartClassType_AvmType */
         /*  */
         THIS-OBJECT:eSmartClassType_AvmType:DataBindings:Add(NEW System.Windows.Forms.Binding("CheckedValue":U, THIS-OBJECT:smartBusinessEntityBindingSource1, "AvmType":U, TRUE)).
-        THIS-OBJECT:eSmartClassType_AvmType:Location = NEW System.Drawing.Point(130, 72).
+        resources:ApplyResources(THIS-OBJECT:eSmartClassType_AvmType, "eSmartClassType_AvmType":U).
         THIS-OBJECT:eSmartClassType_AvmType:Name = "eSmartClassType_AvmType":U.
-        THIS-OBJECT:eSmartClassType_AvmType:Size = NEW System.Drawing.Size(177, 20).
-        THIS-OBJECT:eSmartClassType_AvmType:TabIndex = 6.
-        THIS-OBJECT:eSmartClassType_AvmType:Text = "AVM Type (accessible in ABL)":U.
         THIS-OBJECT:eSmartClassType_AvmType:UseMnemonics = TRUE.
         /*  */
         /* SmartClassTypeViewerControl */
         /*  */
-        THIS-OBJECT:AutoScaleDimensions = NEW System.Drawing.SizeF(Progress.Util.CastUtil:ToSingle(6), Progress.Util.CastUtil:ToSingle(13)).
+        resources:ApplyResources(THIS-OBJECT, "$this":U).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:eSmartClassType_ClassTypeName_Label).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:eSmartClassType_ClassTypeName).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:eSmartClassType_ClassTypeDescription_Label).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:eSmartClassType_ClassTypeDescription).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:eSmartClassType_AvmType).
         THIS-OBJECT:Name = "SmartClassTypeViewerControl":U.
-        THIS-OBJECT:Size = NEW System.Drawing.Size(321, 300).
-        THIS-OBJECT:SmartTableIOState = "NoDataSource":U.
         CAST(THIS-OBJECT:smartBusinessEntityBindingSource1, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:eSmartClassType_ClassTypeName, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:eSmartClassType_ClassTypeDescription, System.ComponentModel.ISupportInitialize):EndInit().

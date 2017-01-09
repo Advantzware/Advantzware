@@ -64,9 +64,9 @@ CLASS Consultingwerk.SmartComponents.Enum.ControlEnabledEnum   :
         Purpose: Constructor for the ControlEnabledEnum class
         Notes:   Disable instance creation   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PRIVATE ControlEnabledEnum ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PRIVATE ControlEnabledEnum ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
 END CLASS.

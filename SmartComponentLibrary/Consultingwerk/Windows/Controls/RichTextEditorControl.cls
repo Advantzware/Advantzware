@@ -12,46 +12,46 @@
 /*------------------------------------------------------------------------
     File        : RichTextEditorControl
     Purpose     : Provides rich text editing capabilities
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sun Dec 30 22:17:26 CET 2012
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Consultingwerk.Util.*               FROM PROPATH . 
-USING Consultingwerk.Windows.Controls.*   FROM PROPATH .  
-USING Infragistics.Win.UltraWinToolbars.* FROM ASSEMBLY . 
+USING Consultingwerk.Util.*               FROM PROPATH .
+USING Consultingwerk.Windows.Controls.*   FROM PROPATH .
+USING Infragistics.Win.UltraWinToolbars.* FROM ASSEMBLY .
 USING Progress.Lang.*                     FROM PROPATH .
 USING Progress.Windows.UserControl        FROM ASSEMBLY .
 
-CLASS Consultingwerk.Windows.Controls.RichTextEditorControl INHERITS UserControl: 
+CLASS Consultingwerk.Windows.Controls.RichTextEditorControl INHERITS UserControl:
 
-	
+
     DEFINE PRIVATE VARIABLE m_RichTextEditorControl_Toolbars_Dock_Area_Top AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_RichTextEditorControl_Toolbars_Dock_Area_Right AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_RichTextEditorControl_Toolbars_Dock_Area_Left AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_RichTextEditorControl_Toolbars_Dock_Area_Bottom AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE richTextBox1 AS System.Windows.Forms.RichTextBox NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraToolbarsManager1 AS Infragistics.Win.UltraWinToolbars.UltraToolbarsManager NO-UNDO.
 
-    DEFINE VARIABLE iFontSizes AS INTEGER NO-UNDO EXTENT 19 INIT 
+    DEFINE VARIABLE iFontSizes AS INTEGER NO-UNDO EXTENT 19 INIT
         [8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 40, 50, 60, 70, 80].
 
     DEFINE VARIABLE lSettingFormat AS LOGICAL NO-UNDO INIT FALSE .
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the RichTextEditorControl class 
-        Notes:   
+        Purpose: Constructor for the RichTextEditorControl class
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC RichTextEditorControl ():
-		
+    CONSTRUCTOR PUBLIC RichTextEditorControl ():
+
         DEFINE VARIABLE i     AS INTEGER                    NO-UNDO.
         DEFINE VARIABLE oList AS Infragistics.Win.ValueList NO-UNDO .
-		
+
         SUPER().
         InitializeComponent().
 
@@ -60,30 +60,31 @@ CLASS Consultingwerk.Windows.Controls.RichTextEditorControl INHERITS UserControl
         &ENDIF
 
         oList = CAST (ultraToolbarsManager1:Tools["FontSize":U],
-                      ComboBoxTool):ValueList . 
+                      ComboBoxTool):ValueList .
         oList:ValueListItems:Clear () .
-        
+
         DO i = 1 TO EXTENT (iFontSizes):
             oList:ValueListItems:Add (BOX (iFontSizes[i]), STRING (iFontSizes[i])) .
         END.
-        
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -302,123 +303,123 @@ CLASS Consultingwerk.Windows.Controls.RichTextEditorControl INHERITS UserControl
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the SelectionChanged event of the richTextBox1 
-                 control 
-        Notes:   
-        @param sender The reference to the object that raised the event 
+        Purpose: Event handler for the SelectionChanged event of the richTextBox1
+                 control
+        Notes:
+        @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID richTextBox1_SelectionChanged (sender AS System.Object, 
-	                                                   e AS System.EventArgs):
-		
-		IF VALID-OBJECT (richTextBox1:SelectionFont) THEN DO:
-    	    UltraToolbarsHelper:SetStateButtonToolChecked (ultraToolbarsManager1, "Bold":U, richTextBox1:SelectionFont:Bold) .
+    METHOD PRIVATE VOID richTextBox1_SelectionChanged (sender AS System.Object,
+                                                       e AS System.EventArgs):
+
+        IF VALID-OBJECT (richTextBox1:SelectionFont) THEN DO:
+            UltraToolbarsHelper:SetStateButtonToolChecked (ultraToolbarsManager1, "Bold":U, richTextBox1:SelectionFont:Bold) .
             UltraToolbarsHelper:SetStateButtonToolChecked (ultraToolbarsManager1, "Italic":U, richTextBox1:SelectionFont:Italic) .
             UltraToolbarsHelper:SetStateButtonToolChecked (ultraToolbarsManager1, "Underline":U, richTextBox1:SelectionFont:Underline) .
 
-            CAST (ultraToolbarsManager1:Tools["FontList":U], FontListTool):Text = richTextBox1:SelectionFont:OriginalFontName . 
-            
+            CAST (ultraToolbarsManager1:Tools["FontList":U], FontListTool):Text = richTextBox1:SelectionFont:OriginalFontName .
+
             CAST (ultraToolbarsManager1:Tools["FontSize":U], ComboBoxTool):Text = STRING (richTextBox1:SelectionFont:SizeInPoints) .
         END.
 
         CATCH err AS Progress.Lang.Error :
-        	Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .	
+            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Toggles the FontFace 
-        Notes:   
+        Purpose: Toggles the FontFace
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID ToggleFontFace ():
-		
-		DEFINE VARIABLE cFont AS CHARACTER NO-UNDO.
-		
-		ASSIGN cFont = CAST (ultraToolbarsManager1:Tools["FontList":U], FontListTool):Text .
-		
-		IF Consultingwerk.CharacterType:IsNullOrEmpty (cFont) THEN 
-		    RETURN . 
-		
-        IF lSettingFormat = TRUE THEN 
-            RETURN . 
-            
+    METHOD PROTECTED VOID ToggleFontFace ():
+
+        DEFINE VARIABLE cFont AS CHARACTER NO-UNDO.
+
+        ASSIGN cFont = CAST (ultraToolbarsManager1:Tools["FontList":U], FontListTool):Text .
+
+        IF Consultingwerk.CharacterType:IsNullOrEmpty (cFont) THEN
+            RETURN .
+
+        IF lSettingFormat = TRUE THEN
+            RETURN .
+
         DO ON ERROR UNDO, THROW:
-            ASSIGN lSettingFormat = TRUE . 
+            ASSIGN lSettingFormat = TRUE .
 
             Consultingwerk.Support.RtfEditorSupport:SetFontFace (cFont, richTextBox1) .
-        
+
             FINALLY:
-                ASSIGN lSettingFormat = FALSE .         
+                ASSIGN lSettingFormat = FALSE .
             END FINALLY.
         END.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Toggles the setting of a format 
-        Notes:   
+        Purpose: Toggles the setting of a format
+        Notes:
         @param pcFormat The format (Bold, Italic, Underline) to Toggle
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID ToggleFormat (pcFormat AS CHARACTER):
-		
-		IF lSettingFormat = TRUE THEN 
-		    RETURN . 
-		    
-		DO ON ERROR UNDO, THROW:
-		    ASSIGN lSettingFormat = TRUE . 
-		    
-    		IF pcFormat = "Bold":U THEN 
-    		    IF UltraToolbarsHelper:GetStateButtonToolChecked (ultraToolbarsManager1, "Bold":U) THEN 
-    		        Consultingwerk.Support.RtfEditorSupport:SetSelectionBoldOn (richTextBox1) .
-    		    ELSE 
-    		        Consultingwerk.Support.RtfEditorSupport:SetSelectionBoldOff (richTextBox1) .
-    
-            IF pcFormat = "Italic":U THEN 
-                IF UltraToolbarsHelper:GetStateButtonToolChecked (ultraToolbarsManager1, "Italic":U) THEN 
+    METHOD PROTECTED VOID ToggleFormat (pcFormat AS CHARACTER):
+
+        IF lSettingFormat = TRUE THEN
+            RETURN .
+
+        DO ON ERROR UNDO, THROW:
+            ASSIGN lSettingFormat = TRUE .
+
+            IF pcFormat = "Bold":U THEN
+                IF UltraToolbarsHelper:GetStateButtonToolChecked (ultraToolbarsManager1, "Bold":U) THEN
+                    Consultingwerk.Support.RtfEditorSupport:SetSelectionBoldOn (richTextBox1) .
+                ELSE
+                    Consultingwerk.Support.RtfEditorSupport:SetSelectionBoldOff (richTextBox1) .
+
+            IF pcFormat = "Italic":U THEN
+                IF UltraToolbarsHelper:GetStateButtonToolChecked (ultraToolbarsManager1, "Italic":U) THEN
                     Consultingwerk.Support.RtfEditorSupport:SetSelectionItalicOn (richTextBox1) .
-                ELSE 
+                ELSE
                     Consultingwerk.Support.RtfEditorSupport:SetSelectionItalicOff (richTextBox1) .
-    
-            IF pcFormat = "Underline":U THEN 
-                IF UltraToolbarsHelper:GetStateButtonToolChecked (ultraToolbarsManager1, "Underline":U) THEN 
+
+            IF pcFormat = "Underline":U THEN
+                IF UltraToolbarsHelper:GetStateButtonToolChecked (ultraToolbarsManager1, "Underline":U) THEN
                     Consultingwerk.Support.RtfEditorSupport:SetSelectionUnderlineOn (richTextBox1) .
                 ELSE
-                    Consultingwerk.Support.RtfEditorSupport:SetSelectionUnderlineOff (richTextBox1) . 
-        
+                    Consultingwerk.Support.RtfEditorSupport:SetSelectionUnderlineOff (richTextBox1) .
+
             FINALLY:
-                ASSIGN lSettingFormat = FALSE . 		
+                ASSIGN lSettingFormat = FALSE .
             END FINALLY.
         END.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Toggles the FontSize
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID ToggleFontSize ():
-        
+
         DEFINE VARIABLE iFontSize AS INTEGER NO-UNDO.
-        
+
         ASSIGN iFontSize = INTEGER (CAST (ultraToolbarsManager1:Tools["FontSize":U], ComboBoxTool):TEXT) .
-        
-        IF Consultingwerk.IntegerType:IsNullOrEmpty (iFontSize) THEN 
-            RETURN . 
-        
-        IF lSettingFormat = TRUE THEN 
-            RETURN . 
-            
+
+        IF Consultingwerk.IntegerType:IsNullOrEmpty (iFontSize) THEN
+            RETURN .
+
+        IF lSettingFormat = TRUE THEN
+            RETURN .
+
         DO ON ERROR UNDO, THROW:
-            ASSIGN lSettingFormat = TRUE . 
+            ASSIGN lSettingFormat = TRUE .
 
             Consultingwerk.Support.RtfEditorSupport:SetFontSize (iFontSize * 20, richTextBox1) .
-        
+
             FINALLY:
-                ASSIGN lSettingFormat = FALSE .         
+                ASSIGN lSettingFormat = FALSE .
             END FINALLY.
         END.
 
@@ -428,50 +429,55 @@ CLASS Consultingwerk.Windows.Controls.RichTextEditorControl INHERITS UserControl
         Purpose: Event handler for the ToolClick event of the ultraToolbarsManager1
         Notes:
         @param sender The reference to the object that raised the event
-        @param e The ToolClickEventArgs with the data for this event                                                                        
+        @param e The ToolClickEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraToolbarsManager1_ToolClick (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraToolbarsManager1_ToolClick (sender AS System.Object,
                                                          e AS Infragistics.Win.UltraWinToolbars.ToolClickEventArgs):
-		
+
         CASE e:Tool:Key:
-            
-            WHEN "Bold":U THEN 
-                ToggleFormat (e:Tool:Key) .    
-                
-            WHEN "Italic":U THEN 
+
+            WHEN "Bold":U THEN
                 ToggleFormat (e:Tool:Key) .
 
-            WHEN "Underline":U THEN 
+            WHEN "Italic":U THEN
                 ToggleFormat (e:Tool:Key) .
-        END.
+
+            WHEN "Underline":U THEN
+                ToggleFormat (e:Tool:Key) .
+
+        END CASE.
 
         CATCH err AS Progress.Lang.Error :
-            Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .    
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the ToolValueChanged event of the ultraToolbarsManager1
         Notes:
         @param sender The reference to the object that raised the event
-        @param e The ToolEventArgs with the data for this event                                                                        
+        @param e The ToolEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraToolbarsManager1_ToolValueChanged (sender AS System.Object, 
-	                                                            e AS Infragistics.Win.UltraWinToolbars.ToolEventArgs):
-		
-		CASE e:Tool:Key:
-		    WHEN "FontList":U THEN 
-		        ToggleFontFace () .
-            WHEN "FontSize":U THEN 
-                ToggleFontSize () .
-		END CASE . 
+    METHOD PRIVATE VOID ultraToolbarsManager1_ToolValueChanged (sender AS System.Object,
+                                                                e AS Infragistics.Win.UltraWinToolbars.ToolEventArgs):
 
-	END METHOD .
+        CASE e:Tool:Key:
+            WHEN "FontList":U THEN
+                ToggleFontFace () .
+            WHEN "FontSize":U THEN
+                ToggleFontSize () .
+        END CASE .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the RichTextEditorControl class 
-        Notes:   
+        Purpose: Destructor for the RichTextEditorControl class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC RichTextEditorControl ():
 

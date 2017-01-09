@@ -12,62 +12,62 @@
 /*------------------------------------------------------------------------
     File        : WebBrowserForm
     Purpose     : Container for the .NET WebBrowser Control
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sat Nov 02 00:12:33 CET 2013
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Progress.Windows.Form.
+USING Consultingwerk.Util.*          FROM PROPATH .
+USING Consultingwerk.Windows.Forms.* FROM PROPATH .
+USING Progress.Lang.*                FROM PROPATH .
+USING Progress.Windows.*             FROM ASSEMBLY .
 
-
-USING Consultingwerk.Windows.Forms.* FROM PROPATH .  
-USING Progress.Lang.* FROM PROPATH .
-
-CLASS Consultingwerk.Windows.Forms.WebBrowserForm INHERITS Form: 
+CLASS Consultingwerk.Windows.Forms.WebBrowserForm INHERITS Form:
 
     DEFINE PRIVATE VARIABLE m_WebBrowserForm_Toolbars_Dock_Area_Top AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_WebBrowserForm_Toolbars_Dock_Area_Right AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_WebBrowserForm_Toolbars_Dock_Area_Left AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_WebBrowserForm_Toolbars_Dock_Area_Bottom AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraToolbarsManager1 AS Infragistics.Win.UltraWinToolbars.UltraToolbarsManager NO-UNDO.
     DEFINE PRIVATE VARIABLE webBrowser1 AS System.Windows.Forms.WebBrowser NO-UNDO.
     DEFINE PRIVATE VARIABLE WebBrowserForm_Fill_Panel AS Infragistics.Win.Misc.UltraPanel NO-UNDO.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the WebBrowserForm class 
-        Notes:   
+        Purpose: Constructor for the WebBrowserForm class
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC WebBrowserForm ():
-		
+    CONSTRUCTOR PUBLIC WebBrowserForm ():
+
         SUPER().
         InitializeComponent().
 
         &IF NOT PROVERSION BEGINS "10.2":U AND NOT PROVERSION BEGINS "11.0" &THEN
         THIS-OBJECT:ComponentsCollection:Add (THIS-OBJECT:components).
         &ENDIF
-        
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design 
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -371,82 +371,98 @@ CLASS Consultingwerk.Windows.Forms.WebBrowserForm INHERITS Form:
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Navigates to the given web location 
-        Notes:   
+        Purpose: Navigates to the given web location
+        Notes:
         @param pcUri The web location to navigate to
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID Navigate (pcUri AS CHARACTER):
-		
-		THIS-OBJECT:webBrowser1:Navigate (pcUri) .
-        THIS-OBJECT:Text = pcUri . 
+    METHOD PUBLIC VOID Navigate (pcUri AS CHARACTER):
 
-	END METHOD .
+        THIS-OBJECT:webBrowser1:Navigate (pcUri) .
+        THIS-OBJECT:Text = pcUri .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the ToolClick event of the WebBrowserControl
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the ToolClick event
         @param e The ToolClickEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraToolbarsManager1_ToolClick (sender AS System.Object, 
-	                                                     e AS Infragistics.Win.UltraWinToolbars.ToolClickEventArgs):
-		
-		CASE e:Tool:Key:
-		    
-		    WHEN "Stop":U THEN 
-		        webBrowser1:Stop () . 
-            WHEN "Back":U THEN 
-                webBrowser1:GoBack () . 
-            WHEN "Forward":U THEN 
-                webBrowser1:GoForward () . 
-		    
-		END CASE . 
+    METHOD PRIVATE VOID ultraToolbarsManager1_ToolClick (sender AS System.Object,
+                                                         e AS Infragistics.Win.UltraWinToolbars.ToolClickEventArgs):
 
-	END METHOD .
+        CASE e:Tool:Key:
+
+            WHEN "Stop":U THEN
+                webBrowser1:Stop () .
+            WHEN "Back":U THEN
+                webBrowser1:GoBack () .
+            WHEN "Forward":U THEN
+                webBrowser1:GoForward () .
+
+        END CASE .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the DocumentCompleted event of the WebBrowserControl
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the DocumentCompleted event
         @param e The WebBrowserDocumentCompletedEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID webBrowser1_DocumentCompleted (sender AS System.Object, 
-	                                                   e AS System.Windows.Forms.WebBrowserDocumentCompletedEventArgs):
-		
-		THIS-OBJECT:Text = webBrowser1:Document:Title .
+    METHOD PRIVATE VOID webBrowser1_DocumentCompleted (sender AS System.Object,
+                                                       e AS System.Windows.Forms.WebBrowserDocumentCompletedEventArgs):
 
-	END METHOD .
+        THIS-OBJECT:Text = webBrowser1:Document:Title .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the Navigated event of the WebBrowserControl
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the Navigated event
         @param e The WebBrowserNavigatedEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID webBrowser1_Navigated (sender AS System.Object, 
-	                                           e AS System.Windows.Forms.WebBrowserNavigatedEventArgs):
-		
-		ultraToolbarsManager1:Tools ["Stop":U]:SharedProps:Enabled = FALSE . 
+    METHOD PRIVATE VOID webBrowser1_Navigated (sender AS System.Object,
+                                               e AS System.Windows.Forms.WebBrowserNavigatedEventArgs):
 
-        ultraToolbarsManager1:Tools ["Back":U]:SharedProps:Enabled = webBrowser1:CanGoBack . 
-        ultraToolbarsManager1:Tools ["Forward":U]:SharedProps:Enabled = webBrowser1:CanGoForward . 
+        ultraToolbarsManager1:Tools ["Stop":U]:SharedProps:Enabled = FALSE .
 
-	END METHOD .
+        ultraToolbarsManager1:Tools ["Back":U]:SharedProps:Enabled = webBrowser1:CanGoBack .
+        ultraToolbarsManager1:Tools ["Forward":U]:SharedProps:Enabled = webBrowser1:CanGoForward .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the Navigating event of the WebBrowserControl
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the Navigating event
         @param e The WebBrowserNavigatedEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID webBrowser1_Navigating (sender AS System.Object, 
-	                                            e AS System.Windows.Forms.WebBrowserNavigatingEventArgs):
-		
-        ultraToolbarsManager1:Tools ["Stop":U]:SharedProps:Enabled = TRUE . 
+    METHOD PRIVATE VOID webBrowser1_Navigating (sender AS System.Object,
+                                                e AS System.Windows.Forms.WebBrowserNavigatingEventArgs):
 
-	END METHOD .
+        ultraToolbarsManager1:Tools ["Stop":U]:SharedProps:Enabled = TRUE .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
+    END METHOD .
 
 END CLASS.

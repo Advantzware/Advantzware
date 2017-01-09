@@ -12,42 +12,42 @@
 /*------------------------------------------------------------------------
     File        : ReadOnlyDetailViewBuilder
     Purpose     : Builder for an read-only detail view
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Mon Oct 17 16:44:00 CET 2015
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Consultingwerk.BusinessEntityDesigner.Generator.TelerikMobile.* FROM PROPATH .  
+USING Consultingwerk.BusinessEntityDesigner.Generator.TelerikMobile.* FROM PROPATH .
 USING Progress.Lang.*                                                 FROM PROPATH .
 
-CLASS Consultingwerk.BusinessEntityDesigner.Generator.TelerikMobile.ReadOnlyDetailViewBuilder 
-    INHERITS BaseDetailViewBuilder: 
+CLASS Consultingwerk.BusinessEntityDesigner.Generator.TelerikMobile.ReadOnlyDetailViewBuilder
+    INHERITS BaseDetailViewBuilder:
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the source code for the the View Columns
-        Notes:   
+        Notes:
         @return The html5 string describing the view columns
     ------------------------------------------------------------------------------*/
-	METHOD OVERRIDE PUBLIC LONGCHAR GetViewColumns ():
-		
-        DEFINE VARIABLE lcView AS LONGCHAR NO-UNDO . 
-        
+    METHOD OVERRIDE PUBLIC LONGCHAR GetViewColumns ():
+
+        DEFINE VARIABLE lcView AS LONGCHAR NO-UNDO .
+
         {Consultingwerk/foreachABL.i Column oColumn in THIS-OBJECT:Columns}
 
-            ASSIGN lcView = lcView + SUBSTITUTE ('            <li>~n' +
-                                                 '                <label>&2:</label>~n' +
-                                                 '                <span data-bind="text: &1" style="float: right"></span>~n' +                                                
-                                                 '            </li>~n',
+            ASSIGN lcView = lcView + SUBSTITUTE ('            <li>~n':U +
+                                                 '                <label>&2:</label>~n':U +
+                                                 '                <span data-bind="text: &1" style="float: right"></span>~n':U +
+                                                 '            </li>~n':U,
                                                  oColumn:ColumnName,
                                                  oColumn:ColumnLabel) .
         END.
-		
-        RETURN lcView . 
 
-	END METHOD .
+        RETURN lcView .
+
+    END METHOD .
 
 END CLASS.

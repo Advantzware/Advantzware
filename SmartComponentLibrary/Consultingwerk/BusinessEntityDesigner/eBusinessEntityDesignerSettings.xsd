@@ -26,14 +26,19 @@
               <xsd:element name="CompileDatasetController" type="xsd:boolean" nillable="true" default="true"/>
               <xsd:element name="CustomServices" type="xsd:string" nillable="true"/>
               <xsd:element name="PromptForSaveBeforeGenerate" type="xsd:boolean" nillable="true"/>
+              <xsd:element name="SynchronizeTempTablesOnOpen" type="xsd:boolean" nillable="true"/>
               <xsd:element name="LauncherCommandLine" type="xsd:string" nillable="true"/>
+              <xsd:element name="LauncherProversion" type="xsd:string" nillable="true"/>
               <xsd:element name="DistinctTempTableIncludeFiles" type="xsd:boolean" nillable="true" default="true"/>
               <xsd:element name="ReplaceHyphenInTableName" type="xsd:boolean" nillable="true"/>
               <xsd:element name="ReplaceUnderScoreInTableName" type="xsd:boolean" nillable="true"/>
               <xsd:element name="UseLocalFileHistory" type="xsd:boolean" nillable="true"/>
               <xsd:element name="SplitArrayFields" type="xsd:boolean" nillable="true"/>
               <xsd:element name="GenerateDatasetController" type="xsd:boolean" nillable="true" default="true"/>
-              <xsd:element name="KeywordCAsing" type="xsd:string" nillable="true" default="UPPER"/>
+              <xsd:element name="KeywordCasing" type="xsd:string" nillable="true" default="UPPER"/>
+              <xsd:element name="ApacheAntCommandLine" type="xsd:string" nillable="true" default="ant.bat"/>
+              <xsd:element name="ViewUnderscoreTables" type="xsd:boolean" nillable="true"/>
+              <xsd:element name="ShowConfirmation" type="xsd:boolean" nillable="true" default="true"/>
             </xsd:sequence>
           </xsd:complexType>
         </xsd:element>

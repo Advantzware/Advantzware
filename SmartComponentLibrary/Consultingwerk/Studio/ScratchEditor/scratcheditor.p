@@ -30,9 +30,9 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 /* ***************************  Main Block  *************************** */
 
-FILE-INFO:FILE-NAME = "Consultingwerk/Studio/ScratchEditor/empty.p":U .
+FILE-INFORMATION:FILE-NAME = "Consultingwerk/Studio/ScratchEditor/empty.p":U .
 
-IF FILE-INFO:FULL-PATHNAME > "":U THEN . 
+IF FILE-INFORMATION:FULL-PATHNAME > "":U THEN . 
 ELSE DO:
     MESSAGE "Unable to find scratch editor template empty.p":U
         VIEW-AS ALERT-BOX ERROR .
@@ -42,7 +42,7 @@ END.
 
 openEditor  
      (?,
-      FILE-INFO:FULL-PATHNAME,
+      FILE-INFORMATION:FULL-PATHNAME,
       "UNTITLED":U,
       ?) .
       

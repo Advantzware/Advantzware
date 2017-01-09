@@ -116,22 +116,402 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="smartBusinessEntityViewerControl.AutoScroll" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="smartBusinessEntityViewerControl.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Fill</value>
+  </data>
   <metadata name="smartBusinessEntityAdapter.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>485, 17</value>
   </metadata>
   <metadata name="smartToolbarController.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
+  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"/>
+  <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing">
+    <value>1012, 737</value>
+  </data>
+  <data name="ultraTabSharedControlsPage1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>-10000, -10000</value>
+  </data>
+  <data name="ultraTabSharedControlsPage1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>679, 552</value>
+  </data>
+  <data name="&gt;&gt;ultraTabSharedControlsPage1.Name" xml:space="preserve">
+    <value>ultraTabSharedControlsPage1</value>
+  </data>
+  <data name="&gt;&gt;ultraTabSharedControlsPage1.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinTabControl.UltraTabSharedControlsPage, Infragistics4.Win.UltraWinTabControl.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraTabSharedControlsPage1.Parent" xml:space="preserve">
+    <value>ultraTabControl1</value>
+  </data>
+  <data name="&gt;&gt;ultraTabSharedControlsPage1.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
   <metadata name="smartBusinessEntityBindingSourceChild.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>535, 17</value>
   </metadata>
+  <data name="ultraGridColumn6.Header.Caption" xml:space="preserve">
+    <value>BusinessEntity Table Guid </value>
+  </data>
+  <data name="ultraGridColumn7.Header.Caption" xml:space="preserve">
+    <value>BusinessEntity Guid </value>
+  </data>
+  <data name="ultraGridColumn8.Header.Caption" xml:space="preserve">
+    <value>Table Order </value>
+  </data>
+  <data name="ultraGridColumn9.Header.Caption" xml:space="preserve">
+    <value>Name </value>
+  </data>
+  <data name="ultraGridColumn10.Header.Caption" xml:space="preserve">
+    <value>Table Label Singular </value>
+  </data>
+  <data name="ultraGridColumn11.Header.Caption" xml:space="preserve">
+    <value>Table Label Plural </value>
+  </data>
+  <data name="ultraGridColumn12.Header.Caption" xml:space="preserve">
+    <value>Should use Batching </value>
+  </data>
+  <data name="ultraGridColumn13.Header.Caption" xml:space="preserve">
+    <value>Batch Size </value>
+  </data>
+  <data name="ultraGridColumn14.Header.Caption" xml:space="preserve">
+    <value>Allow Delete </value>
+  </data>
+  <data name="ultraGridColumn15.Header.Caption" xml:space="preserve">
+    <value>Allow Create </value>
+  </data>
+  <data name="ultraGridColumn16.Header.Caption" xml:space="preserve">
+    <value>Allow Update </value>
+  </data>
+  <data name="appearance10.TextHAlignAsString" xml:space="preserve">
+    <value>Left</value>
+  </data>
+  <data name="smartDataBrowserTable.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Fill</value>
+  </data>
   <metadata name="smartDatasetChildAdapter.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 43</value>
   </metadata>
+  <data name="smartDataBrowserTable.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="smartDataBrowserTable.Size" type="System.Drawing.Size, System.Drawing">
+    <value>679, 283</value>
+  </data>
+  <data name="smartDataBrowserTable.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="smartDataBrowserTable.Text" xml:space="preserve">
+    <value>smartDataBrowser1</value>
+  </data>
+  <data name="&gt;&gt;smartDataBrowserTable.Name" xml:space="preserve">
+    <value>smartDataBrowserTable</value>
+  </data>
+  <data name="&gt;&gt;smartDataBrowserTable.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartDataBrowser, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;smartDataBrowserTable.Parent" xml:space="preserve">
+    <value>ultraTabPageControl2</value>
+  </data>
+  <data name="&gt;&gt;smartDataBrowserTable.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="ultraSplitter2.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Bottom</value>
+  </data>
+  <data name="ultraSplitter2.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 283</value>
+  </data>
+  <data name="ultraSplitter2.Size" type="System.Drawing.Size, System.Drawing">
+    <value>679, 6</value>
+  </data>
+  <data name="ultraSplitter2.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="&gt;&gt;ultraSplitter2.Name" xml:space="preserve">
+    <value>ultraSplitter2</value>
+  </data>
+  <data name="&gt;&gt;ultraSplitter2.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraSplitter, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraSplitter2.Parent" xml:space="preserve">
+    <value>ultraTabPageControl2</value>
+  </data>
+  <data name="&gt;&gt;ultraSplitter2.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="smartBusinessEntityTableViewerControl.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Bottom</value>
+  </data>
+  <data name="smartBusinessEntityTableViewerControl.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 289</value>
+  </data>
+  <data name="smartBusinessEntityTableViewerControl.SecurityKey" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="smartBusinessEntityTableViewerControl.Size" type="System.Drawing.Size, System.Drawing">
+    <value>679, 263</value>
+  </data>
+  <data name="smartBusinessEntityTableViewerControl.SmartTableIOState" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="smartBusinessEntityTableViewerControl.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="smartBusinessEntityTableViewerControl.ViewerLogicClass" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityTableViewerControl.Name" xml:space="preserve">
+    <value>smartBusinessEntityTableViewerControl</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityTableViewerControl.Type" xml:space="preserve">
+    <value>Consultingwerk.Windows.Framework.System.SmartBusinessEntityTableViewerControl, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityTableViewerControl.Parent" xml:space="preserve">
+    <value>ultraTabPageControl2</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityTableViewerControl.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="ultraTabPageControl2.Location" type="System.Drawing.Point, System.Drawing">
+    <value>-10000, -10000</value>
+  </data>
+  <data name="ultraTabPageControl2.Size" type="System.Drawing.Size, System.Drawing">
+    <value>679, 552</value>
+  </data>
+  <data name="&gt;&gt;ultraTabPageControl2.Name" xml:space="preserve">
+    <value>ultraTabPageControl2</value>
+  </data>
+  <data name="&gt;&gt;ultraTabPageControl2.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinTabControl.UltraTabPageControl, Infragistics4.Win.UltraWinTabControl.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraTabPageControl2.Parent" xml:space="preserve">
+    <value>ultraTabControl1</value>
+  </data>
+  <data name="&gt;&gt;ultraTabPageControl2.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="ultraTabControl1.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Fill</value>
+  </data>
+  <data name="ultraTabControl1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>313, 0</value>
+  </data>
+  <data name="ultraTabControl1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>683, 578</value>
+  </data>
+  <data name="ultraTabControl1.TabIndex" type="System.Int32, mscorlib">
+    <value>7</value>
+  </data>
+  <data name="ultraTab1.Text" xml:space="preserve">
+    <value>SmartBusinessEntity</value>
+  </data>
+  <data name="ultraTab2.Text" xml:space="preserve">
+    <value>SmartBusinessEntityTable</value>
+  </data>
+  <data name="&gt;&gt;ultraTabControl1.Name" xml:space="preserve">
+    <value>ultraTabControl1</value>
+  </data>
+  <data name="&gt;&gt;ultraTabControl1.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinTabControl.UltraTabControl, Infragistics4.Win.UltraWinTabControl.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraTabControl1.Parent" xml:space="preserve">
+    <value>SmartBusinessEntityForm_Fill_Panel.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;ultraTabControl1.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="ultraSplitter1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>307, 0</value>
+  </data>
+  <data name="ultraSplitter1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>6, 578</value>
+  </data>
+  <data name="ultraSplitter1.TabIndex" type="System.Int32, mscorlib">
+    <value>6</value>
+  </data>
+  <data name="&gt;&gt;ultraSplitter1.Name" xml:space="preserve">
+    <value>ultraSplitter1</value>
+  </data>
+  <data name="&gt;&gt;ultraSplitter1.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraSplitter, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraSplitter1.Parent" xml:space="preserve">
+    <value>SmartBusinessEntityForm_Fill_Panel.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;ultraSplitter1.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
   <metadata name="smartBusinessEntityBindingSourceMain.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>251, 17</value>
   </metadata>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"/>
+  <data name="ultraGridColumn17.Header.Caption" xml:space="preserve">
+    <value>BusinessEntity Guid </value>
+  </data>
+  <data name="ultraGridColumn18.Header.Caption" xml:space="preserve">
+    <value>Package </value>
+  </data>
+  <data name="ultraGridColumn19.Header.Caption" xml:space="preserve">
+    <value>Name </value>
+  </data>
+  <data name="ultraGridColumn20.Header.Caption" xml:space="preserve">
+    <value>Purpose </value>
+  </data>
+  <data name="ultraGridColumn21.Header.Caption" xml:space="preserve">
+    <value>DB Required </value>
+  </data>
+  <data name="ultraGridColumn1.Header.Caption" xml:space="preserve">
+    <value>Track Deletions </value>
+  </data>
+  <data name="appearance22.TextHAlignAsString" xml:space="preserve">
+    <value>Left</value>
+  </data>
+  <data name="smartDataBrowserSmartBusinessEntity.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Left</value>
+  </data>
+  <data name="smartDataBrowserSmartBusinessEntity.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 8.25pt</value>
+  </data>
+  <data name="smartDataBrowserSmartBusinessEntity.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="smartDataBrowserSmartBusinessEntity.Size" type="System.Drawing.Size, System.Drawing">
+    <value>307, 578</value>
+  </data>
+  <data name="smartDataBrowserSmartBusinessEntity.TabIndex" type="System.Int32, mscorlib">
+    <value>5</value>
+  </data>
+  <data name="smartDataBrowserSmartBusinessEntity.Text" xml:space="preserve">
+    <value>smartDataBrowser1</value>
+  </data>
+  <data name="&gt;&gt;smartDataBrowserSmartBusinessEntity.Name" xml:space="preserve">
+    <value>smartDataBrowserSmartBusinessEntity</value>
+  </data>
+  <data name="&gt;&gt;smartDataBrowserSmartBusinessEntity.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartDataBrowser, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;smartDataBrowserSmartBusinessEntity.Parent" xml:space="preserve">
+    <value>SmartBusinessEntityForm_Fill_Panel.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;smartDataBrowserSmartBusinessEntity.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="&gt;&gt;SmartBusinessEntityForm_Fill_Panel.ClientArea.Name" xml:space="preserve">
+    <value>SmartBusinessEntityForm_Fill_Panel.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;SmartBusinessEntityForm_Fill_Panel.ClientArea.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraPanelClientAreaUnsafe, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;SmartBusinessEntityForm_Fill_Panel.ClientArea.Parent" xml:space="preserve">
+    <value>SmartBusinessEntityForm_Fill_Panel</value>
+  </data>
+  <data name="&gt;&gt;SmartBusinessEntityForm_Fill_Panel.ClientArea.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="SmartBusinessEntityForm_Fill_Panel.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Fill</value>
+  </data>
+  <data name="SmartBusinessEntityForm_Fill_Panel.Location" type="System.Drawing.Point, System.Drawing">
+    <value>8, 151</value>
+  </data>
+  <data name="SmartBusinessEntityForm_Fill_Panel.Size" type="System.Drawing.Size, System.Drawing">
+    <value>996, 578</value>
+  </data>
+  <data name="SmartBusinessEntityForm_Fill_Panel.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="&gt;&gt;SmartBusinessEntityForm_Fill_Panel.Name" xml:space="preserve">
+    <value>SmartBusinessEntityForm_Fill_Panel</value>
+  </data>
+  <data name="&gt;&gt;SmartBusinessEntityForm_Fill_Panel.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraPanel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;SmartBusinessEntityForm_Fill_Panel.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;SmartBusinessEntityForm_Fill_Panel.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="m_SmartBusinessEntityForm_Toolbars_Dock_Area_Left.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 151</value>
+  </data>
+  <data name="m_SmartBusinessEntityForm_Toolbars_Dock_Area_Left.Size" type="System.Drawing.Size, System.Drawing">
+    <value>8, 578</value>
+  </data>
+  <data name="&gt;&gt;m_SmartBusinessEntityForm_Toolbars_Dock_Area_Left.Name" xml:space="preserve">
+    <value>m_SmartBusinessEntityForm_Toolbars_Dock_Area_Left</value>
+  </data>
+  <data name="&gt;&gt;m_SmartBusinessEntityForm_Toolbars_Dock_Area_Left.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;m_SmartBusinessEntityForm_Toolbars_Dock_Area_Left.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;m_SmartBusinessEntityForm_Toolbars_Dock_Area_Left.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="m_SmartBusinessEntityForm_Toolbars_Dock_Area_Right.Location" type="System.Drawing.Point, System.Drawing">
+    <value>1004, 151</value>
+  </data>
+  <data name="m_SmartBusinessEntityForm_Toolbars_Dock_Area_Right.Size" type="System.Drawing.Size, System.Drawing">
+    <value>8, 578</value>
+  </data>
+  <data name="&gt;&gt;m_SmartBusinessEntityForm_Toolbars_Dock_Area_Right.Name" xml:space="preserve">
+    <value>m_SmartBusinessEntityForm_Toolbars_Dock_Area_Right</value>
+  </data>
+  <data name="&gt;&gt;m_SmartBusinessEntityForm_Toolbars_Dock_Area_Right.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;m_SmartBusinessEntityForm_Toolbars_Dock_Area_Right.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;m_SmartBusinessEntityForm_Toolbars_Dock_Area_Right.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="m_SmartBusinessEntityForm_Toolbars_Dock_Area_Bottom.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 729</value>
+  </data>
+  <data name="m_SmartBusinessEntityForm_Toolbars_Dock_Area_Bottom.Size" type="System.Drawing.Size, System.Drawing">
+    <value>1012, 8</value>
+  </data>
+  <data name="&gt;&gt;m_SmartBusinessEntityForm_Toolbars_Dock_Area_Bottom.Name" xml:space="preserve">
+    <value>m_SmartBusinessEntityForm_Toolbars_Dock_Area_Bottom</value>
+  </data>
+  <data name="&gt;&gt;m_SmartBusinessEntityForm_Toolbars_Dock_Area_Bottom.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;m_SmartBusinessEntityForm_Toolbars_Dock_Area_Bottom.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;m_SmartBusinessEntityForm_Toolbars_Dock_Area_Bottom.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="m_SmartBusinessEntityForm_Toolbars_Dock_Area_Top.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="m_SmartBusinessEntityForm_Toolbars_Dock_Area_Top.Size" type="System.Drawing.Size, System.Drawing">
+    <value>1012, 151</value>
+  </data>
+  <data name="&gt;&gt;m_SmartBusinessEntityForm_Toolbars_Dock_Area_Top.Name" xml:space="preserve">
+    <value>m_SmartBusinessEntityForm_Toolbars_Dock_Area_Top</value>
+  </data>
+  <data name="&gt;&gt;m_SmartBusinessEntityForm_Toolbars_Dock_Area_Top.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;m_SmartBusinessEntityForm_Toolbars_Dock_Area_Top.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;m_SmartBusinessEntityForm_Toolbars_Dock_Area_Top.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="$this.Icon" type="System.Drawing.Icon, System.Drawing">
     <value>
         AAABAA8AAAAAAAEABABQLQAA9gAAADAwAAABAAQAaAYAAEYuAAAgIAAAAQAEAOgCAACuNAAAGBgAAAEA
@@ -1156,12 +1536,81 @@
         AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 </value>
   </data>
+  <data name="$this.Text" xml:space="preserve">
+    <value>BusinessEntity Maintenance</value>
+  </data>
+  <data name="$this.WindowPositionRegistryKey" xml:space="preserve">
+    <value>SmartBusinessEntityForm</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityAdapter.Name" xml:space="preserve">
+    <value>smartBusinessEntityAdapter</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityAdapter.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;smartToolbarController.Name" xml:space="preserve">
+    <value>smartToolbarController</value>
+  </data>
+  <data name="&gt;&gt;smartToolbarController.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartToolbarController, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSourceChild.Name" xml:space="preserve">
+    <value>smartBusinessEntityBindingSourceChild</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSourceChild.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;smartDatasetChildAdapter.Name" xml:space="preserve">
+    <value>smartDatasetChildAdapter</value>
+  </data>
+  <data name="&gt;&gt;smartDatasetChildAdapter.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartDatasetChildAdapter, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSourceMain.Name" xml:space="preserve">
+    <value>smartBusinessEntityBindingSourceMain</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSourceMain.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;$this.Name" xml:space="preserve">
+    <value>SmartBusinessEntityForm</value>
+  </data>
+  <data name="&gt;&gt;$this.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Base.SmartWindowForm, OEProxyAssembly, Version=11.6.0.2, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="ribbonTab1.Caption" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="ribbonGroup1.Caption" xml:space="preserve">
+    <value>Navigation</value>
+  </data>
+  <data name="ribbonGroup2.Caption" xml:space="preserve">
+    <value>Maintenance</value>
+  </data>
+  <data name="ultraToolbar1.Text" xml:space="preserve">
+    <value>Navigation Toolbar</value>
+  </data>
+  <data name="ultraToolbar2.Text" xml:space="preserve">
+    <value>TableIO Toolbar</value>
+  </data>
+  <data name="ultraToolbar3.Text" xml:space="preserve">
+    <value>Transaction Toolbar</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance25.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         R0lGODlhEAAQAIMAAACAgMDAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
         ACH/C05FVFNDQVBFMi4wAwEBAAAh+QQBAAABACwAAAAAEAAQAAAIRgADCBxIsKDBgwgTFhRwkKFBhwQF
         QIy4EMDEgRMFALAoUSJGjBtDboToUKPIkCRBnrT4UWVHjwIvarwY8yHNADdvKtyZMCAAOw==
 </value>
+  </data>
+  <data name="buttonTool35.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>First record</value>
+  </data>
+  <data name="buttonTool35.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>First</value>
+  </data>
+  <data name="buttonTool35.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>First record</value>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance26.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
@@ -1170,6 +1619,15 @@
         CgAQUeFEihAhHrwIoGPHig89iqS4ceRHhBczakRJ0iFDkAthupx5MCAAOw==
 </value>
   </data>
+  <data name="buttonTool36.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Previous record</value>
+  </data>
+  <data name="buttonTool36.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Previous</value>
+  </data>
+  <data name="buttonTool36.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Previous record</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance27.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         R0lGODlhEAAQAIMAAACAgMDAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -1177,12 +1635,30 @@
         CgAA8eDDiwAoIpyYsaNGgxw9Zqw4MKRHkiUvckRp8WPDhxElxpwZMyAAOw==
 </value>
   </data>
+  <data name="buttonTool37.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Next record</value>
+  </data>
+  <data name="buttonTool37.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="buttonTool37.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Next record</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance28.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         R0lGODlhEAAQAIMAAACAgMDAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
         ACH/C05FVFNDQVBFMi4wAwEBAAAh+QQBAAABACwAAAAAEAAQAAAIRAADCBxIsKDBgwgTIhRwkKFBAQ4J
         RpQIYGKAiBAzAqgocaCAjSA3YvQYMqRDjCVFevSY8SPHlQ9fwiwI8WHDmwpz6gwIADs=
 </value>
+  </data>
+  <data name="buttonTool38.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Last record</value>
+  </data>
+  <data name="buttonTool38.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Last</value>
+  </data>
+  <data name="buttonTool38.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Last record</value>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance29.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
@@ -1192,12 +1668,30 @@
         hgEBADs=
 </value>
   </data>
+  <data name="buttonTool39.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Add record</value>
+  </data>
+  <data name="buttonTool39.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="buttonTool39.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Add record</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance30.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         R0lGODlhEAAQAIMAAP///8DAwICAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
         ACH/C05FVFNDQVBFMi4wAwEBAAAh+QQBAAABACwAAAAAEAAQAAAIRQADCBxIsKDBgwgTKkwooKHDhw0H
         DBQAoCJFixUBSBR4EUDHjhsDCBhAsqRJkhEnquQ4MKSAlSJbTjxJM+TCmzhz6rwZEAA7
 </value>
+  </data>
+  <data name="buttonTool40.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Copy record</value>
+  </data>
+  <data name="buttonTool40.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="buttonTool40.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Copy record</value>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance31.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
@@ -1219,6 +1713,15 @@
         jTJtKlUaMWJAADs=
 </value>
   </data>
+  <data name="buttonTool41.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Update record</value>
+  </data>
+  <data name="buttonTool41.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Update</value>
+  </data>
+  <data name="buttonTool41.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Update record</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance32.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
@@ -1226,6 +1729,15 @@
         RWgklW6nwEOVvGRPdBlUOmnIrECdRgEwC8D/BRkIUR7q8AXjZ9ywcD9QcIPFagpEFz+p4D10Jz80AAAA
         AElFTkSuQmCC
 </value>
+  </data>
+  <data name="buttonTool42.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Save changes</value>
+  </data>
+  <data name="buttonTool42.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="buttonTool42.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Save changes</value>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance33.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
@@ -1246,12 +1758,30 @@
         CpCY8GFDhRMvKrQIsWJDigs1gsR4cIDJkyhNEhg4IIDLli9dBlgpEGYAmzZpCiDAs6fPniQNBgQAOw==
 </value>
   </data>
+  <data name="buttonTool43.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Cancel update</value>
+  </data>
+  <data name="buttonTool43.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="buttonTool43.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Cancel update</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance34.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         R0lGODlhEAAQAIMAAACAgP///8DAwICAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
         ACH/C05FVFNDQVBFMi4wAwEBAAAh+QQBAAACACwAAAAAEAAQAAAITQAFCBxIsKDBgwgTKgTAsCHDggQE
         OnQYUQCBixEnNqwYsaJFjCAFelQokiTBkSRRIhzAsqVLlh4HBJgpk+bMADFv1gywMybInxhNHgwIADs=
 </value>
+  </data>
+  <data name="buttonTool44.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Delete record</value>
+  </data>
+  <data name="buttonTool44.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="buttonTool44.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Delete record</value>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance35.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
@@ -1260,6 +1790,9 @@
         5wIdsmRPoI8o2RdY8G8B5m8FFvQC/ZCQ8mz0eNv8g+Upkdnv7pQhuCRvBcAkGOs9KENPL+BxAAPfcVEC
         +fywAAAAAElFTkSuQmCC
 </value>
+  </data>
+  <data name="buttonTool45.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>&amp;Exit</value>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance36.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
@@ -1313,6 +1846,15 @@
         3cPaXLSLFljRbx4x1VuOlN/ccaqv8vZwD8Xydqf3H0BmHvnAe+LxAAAAAElFTkSuQmCC
 </value>
   </data>
+  <data name="buttonTool46.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Commit</value>
+  </data>
+  <data name="buttonTool46.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Commit</value>
+  </data>
+  <data name="buttonTool46.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Commit transaction</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance38.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAL
@@ -1363,5 +1905,62 @@
         H5bL0oe38/s6PGePEzQNXRs2N40tSaXSdJ9hoYd8M25cMHd+7d3+2bgpesjAsSJB09oVPQzUNpd/xOFz
         +TlBDNEXTkR6dNS29cE9W1CbYwW70/sPAHMk3NA3uHMAAAAASUVORK5CYII=
 </value>
+  </data>
+  <data name="buttonTool47.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Revert</value>
+  </data>
+  <data name="buttonTool47.SharedPropsInternal.CustomizerCaption" xml:space="preserve">
+    <value>Revert</value>
+  </data>
+  <data name="buttonTool47.SharedPropsInternal.ToolTipText" xml:space="preserve">
+    <value>Revert transaction</value>
+  </data>
+  <data name="smartBusinessEntityViewerControl.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="smartBusinessEntityViewerControl.SecurityKey" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="smartBusinessEntityViewerControl.Size" type="System.Drawing.Size, System.Drawing">
+    <value>679, 552</value>
+  </data>
+  <data name="smartBusinessEntityViewerControl.SmartTableIOState" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="smartBusinessEntityViewerControl.TabIndex" type="System.Int32, mscorlib">
+    <value>5</value>
+  </data>
+  <data name="smartBusinessEntityViewerControl.ViewerLogicClass" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityViewerControl.Name" xml:space="preserve">
+    <value>smartBusinessEntityViewerControl</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityViewerControl.Type" xml:space="preserve">
+    <value>Consultingwerk.Windows.Framework.System.SmartBusinessEntityViewerControl, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityViewerControl.Parent" xml:space="preserve">
+    <value>ultraTabPageControl1</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityViewerControl.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="ultraTabPageControl1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>1, 23</value>
+  </data>
+  <data name="ultraTabPageControl1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>679, 552</value>
+  </data>
+  <data name="&gt;&gt;ultraTabPageControl1.Name" xml:space="preserve">
+    <value>ultraTabPageControl1</value>
+  </data>
+  <data name="&gt;&gt;ultraTabPageControl1.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinTabControl.UltraTabPageControl, Infragistics4.Win.UltraWinTabControl.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraTabPageControl1.Parent" xml:space="preserve">
+    <value>ultraTabControl1</value>
+  </data>
+  <data name="&gt;&gt;ultraTabPageControl1.ZOrder" xml:space="preserve">
+    <value>1</value>
   </data>
 </root>

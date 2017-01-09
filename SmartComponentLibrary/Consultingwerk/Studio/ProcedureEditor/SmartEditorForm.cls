@@ -11,12 +11,13 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : SmartEditorForm
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     : MDI Container for ProcedureEditorForm instances
+    Syntax      :
+    Description : Allows editing of multiple ABL source code files in an
+                  IDE like fashion
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Tue Jun 25 20:33:45 CEST 2013
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -25,18 +26,18 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING com.joanju.proparse.NodeTypes           FROM ASSEMBLY .
 USING Consultingwerk.Forms.*                  FROM PROPATH .
-USING Consultingwerk.Studio.ProcedureEditor.* FROM PROPATH .  
+USING Consultingwerk.Studio.ProcedureEditor.* FROM PROPATH .
 USING Consultingwerk.Studio.Proparse.*        FROM PROPATH .
-USING Consultingwerk.Util.*                   FROM PROPATH . 
-USING Consultingwerk.Windows.Controls.*       FROM PROPATH . 
+USING Consultingwerk.Util.*                   FROM PROPATH .
+USING Consultingwerk.Windows.Controls.*       FROM PROPATH .
 USING org.prorefactor.core.JPNode             FROM ASSEMBLY .
 USING org.prorefactor.treeparser.*            FROM ASSEMBLY .
 USING Progress.Lang.*                         FROM PROPATH .
-USING Infragistics.Win.UltraWinTree.*         FROM ASSEMBLY . 
+USING Infragistics.Win.UltraWinTree.*         FROM ASSEMBLY .
 
-CLASS Consultingwerk.Studio.ProcedureEditor.SmartEditorForm 
-    INHERITS BaseForm: 
-	
+CLASS Consultingwerk.Studio.ProcedureEditor.SmartEditorForm
+    INHERITS BaseForm:
+
     DEFINE PRIVATE VARIABLE dockableWindow1 AS Infragistics.Win.UltraWinDock.DockableWindow NO-UNDO.
     DEFINE PRIVATE VARIABLE m_SmartEditorFormUnpinnedTabAreaTop AS Infragistics.Win.UltraWinDock.UnpinnedTabArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_SmartEditorFormUnpinnedTabAreaRight AS Infragistics.Win.UltraWinDock.UnpinnedTabArea NO-UNDO.
@@ -47,7 +48,7 @@ CLASS Consultingwerk.Studio.ProcedureEditor.SmartEditorForm
     DEFINE PRIVATE VARIABLE m_SmartEditorForm_Toolbars_Dock_Area_Right AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_SmartEditorForm_Toolbars_Dock_Area_Left AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_SmartEditorForm_Toolbars_Dock_Area_Bottom AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE openFileDialog1 AS System.Windows.Forms.OpenFileDialog NO-UNDO.
     DEFINE PRIVATE VARIABLE timer1 AS System.Windows.Forms.Timer NO-UNDO.
     DEFINE PRIVATE VARIABLE timer2 AS System.Windows.Forms.Timer NO-UNDO.
@@ -62,197 +63,197 @@ CLASS Consultingwerk.Studio.ProcedureEditor.SmartEditorForm
 
     DEFINE VARIABLE oParseUnits AS "System.Collections.Generic.Dictionary<System.String, System.Object>":U NO-UNDO .
 
-    DEFINE PUBLIC PROPERTY Nodes AS "System.Collections.Generic.Dictionary<System.Int32, org.prorefactor.core.JPNode>":U NO-UNDO 
+    DEFINE PUBLIC PROPERTY Nodes AS "System.Collections.Generic.Dictionary<System.Int32, org.prorefactor.core.JPNode>":U NO-UNDO
     GET.
-    PRIVATE SET. 
-    
-    DEFINE VARIABLE oEventImage    AS System.Drawing.Image NO-UNDO . 
+    PRIVATE SET.
+
+    DEFINE VARIABLE oEventImage    AS System.Drawing.Image NO-UNDO .
     DEFINE VARIABLE oMethodImage   AS System.Drawing.Image NO-UNDO .
-    DEFINE VARIABLE oPropertyImage AS System.Drawing.Image NO-UNDO . 
-    
-    DEFINE PROTECTED TEMP-TABLE ttMethods NO-UNDO 
-        FIELD NodeNum    AS INTEGER 
-        FIELD MethodName AS CHARACTER 
-        INDEX MethodName MethodName . 
-    
+    DEFINE VARIABLE oPropertyImage AS System.Drawing.Image NO-UNDO .
+
+    DEFINE PROTECTED TEMP-TABLE ttMethods NO-UNDO
+        FIELD NodeNum    AS INTEGER
+        FIELD MethodName AS CHARACTER
+        INDEX MethodName MethodName .
+
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the SmartEditorForm class 
-        Notes:   
+        Purpose: Constructor for the SmartEditorForm class
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC SmartEditorForm ():
-		
+    CONSTRUCTOR PUBLIC SmartEditorForm ():
+
         SUPER().
         InitializeComponent().
 
-        &IF NOT PROVERSION BEGINS "10.":U &THEN          
+        &IF NOT PROVERSION BEGINS "10.":U &THEN
         ultraToolbarsManager1:Style = Infragistics.Win.UltraWinToolbars.ToolbarStyle:Office2010 .
-        ultraToolbarsManager1:Ribbon:ApplicationMenuButtonImage = ? . 
+        ultraToolbarsManager1:Ribbon:ApplicationMenuButtonImage = ? .
         &ENDIF
 
         &IF NOT PROVERSION BEGINS "10.2":U AND NOT PROVERSION BEGINS "11.0" &THEN
         THIS-OBJECT:ComponentsCollection:Add (THIS-OBJECT:components).
         &ENDIF
 
-        Consultingwerk.Framework.FrameworkSettings:MdiContainer = THIS-OBJECT . 
-        Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive = TRUE . 
+        Consultingwerk.Framework.FrameworkSettings:MdiContainer = THIS-OBJECT .
+        Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive = TRUE .
 
-        oEditors = NEW "System.Collections.Generic.Dictionary<System.String, System.Windows.Forms.Form>" () . 
+        oEditors = NEW "System.Collections.Generic.Dictionary<System.String, System.Windows.Forms.Form>" () .
         oParseUnits = NEW "System.Collections.Generic.Dictionary<System.String, System.Object>" () .
-        
-        THIS-OBJECT:Nodes = NEW "System.Collections.Generic.Dictionary<System.Int32, org.prorefactor.core.JPNode>" (). 
-        
+
+        THIS-OBJECT:Nodes = NEW "System.Collections.Generic.Dictionary<System.Int32, org.prorefactor.core.JPNode>" ().
+
         ultraTreeWithSearchControl1:TreeNodeSelected:Subscribe (TreeNodeSelectedHandler) .
-        
+
         oEventImage    = ImageHelper:Load ("Consultingwerk/Studio/ProcedureEditor/Images/event.png":U) .
         oMethodImage   = ImageHelper:Load ("Consultingwerk/Studio/ProcedureEditor/Images/method.png":U) .
         oPropertyImage = ImageHelper:Load ("Consultingwerk/Studio/ProcedureEditor/Images/property.png":U) .
-        
+
         THIS-OBJECT:ultraToolbarsManager1:Tools ["Insert Method":U]:SharedProps:ShortCut
-            = KeyboardHelper:ShortcutFromKeyCombination ("SHIFT":U, "ALT":U, "M":U) . 
-        
+            = KeyboardHelper:ShortcutFromKeyCombination ("SHIFT":U, "ALT":U, "M":U) .
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Performs a syntax check 
-        Notes:   
+        Purpose: Performs a syntax check
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID CheckSyntax ():
-		
-		DEFINE VARIABLE oEditor AS ProcedureEditorForm NO-UNDO . 
+    METHOD PROTECTED VOID CheckSyntax ():
 
-        IF NOT VALID-OBJECT (THIS-OBJECT:ActiveMdiChild) THEN 
-            RETURN . 
-            
+        DEFINE VARIABLE oEditor AS ProcedureEditorForm NO-UNDO .
+
+        IF NOT VALID-OBJECT (THIS-OBJECT:ActiveMdiChild) THEN
+            RETURN .
+
         oEditor = CAST (THIS-OBJECT:ActiveMdiChild,
                         ProcedureEditorForm) .
 
         oEditor:CheckSyntax () .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Closes all open editors and when successful the SmartEditorForm itself
-        Notes:   
-        @return Logical value indicating if the editor was closed 
+        Notes:
+        @return Logical value indicating if the editor was closed
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL CloseAll ():
-		
+    METHOD PUBLIC LOGICAL CloseAll ():
+
         DEFINE VARIABLE oChildForm AS System.Windows.Forms.Form NO-UNDO .
-        
+
         DO WHILE THIS-OBJECT:MdiChildren:Length > 0:
 
             oChildForm = CAST (THIS-OBJECT:MdiChildren:GetValue (0),
-                               System.Windows.Forms.Form) .  
+                               System.Windows.Forms.Form) .
 
             oChildForm:Close () .
 
-            IF VALID-OBJECT (oChildForm) AND oChildForm:Visible THEN DO: 
+            IF VALID-OBJECT (oChildForm) AND oChildForm:Visible THEN DO:
                 RETURN FALSE .
             END.
-        END.        
+        END.
 
-        THIS-OBJECT:Close () . 
+        THIS-OBJECT:Close () .
 
-        RETURN TRUE . 
+        RETURN TRUE .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Deletes a temporary file
-        Notes:   
+        Notes:
         @param pcFileName The name of the temporary file
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID DeleteTemporaryFile (pcFileName AS CHARACTER):
-		
-		DEFINE VARIABLE ex AS Consultingwerk.Exceptions.Exception NO-UNDO . 
-		
-		OS-DELETE VALUE (pcFileName) .
-		
-		IF OS-ERROR > 0 THEN 
-		    UNDO, THROW NEW Consultingwerk.Exceptions.OsErrorException (OS-ERROR) .
-		    
-		CATCH err AS Progress.Lang.Error:
-        	ex = NEW Consultingwerk.Exceptions.Exception (err, SUBSTITUTE ("Unable to delete &1"{&TRAN}, 
-        	                                                               pcFileName), 0) .
-        		
-            ErrorHelper:ShowErrorMessage (err) .         		
-        END CATCH.    
+    METHOD PROTECTED VOID DeleteTemporaryFile (pcFileName AS CHARACTER):
 
-	END METHOD .
+        DEFINE VARIABLE ex AS Consultingwerk.Exceptions.Exception NO-UNDO .
+
+        OS-DELETE VALUE (pcFileName) .
+
+        IF OS-ERROR > 0 THEN
+            UNDO, THROW NEW Consultingwerk.Exceptions.OsErrorException (OS-ERROR) .
+
+        CATCH err AS Progress.Lang.Error:
+            ex = NEW Consultingwerk.Exceptions.Exception (err, SUBSTITUTE ("Unable to delete &1"{&TRAN},
+                                                                           pcFileName), 0) .
+
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Displays status in the status bar                                                                       
-        Notes:                                    
-        @param pcStatus The status to display                                    
+        Purpose: Displays status in the status bar
+        Notes:
+        @param pcStatus The status to display
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID DisplayStatus (pcStatus AS CHARACTER):
-        
-        THIS-OBJECT:ultraStatusBar1:Panels["status":U]:Text = pcStatus . 
-    
-        PROCESS EVENTS . 
-        
+
+        THIS-OBJECT:ultraStatusBar1:Panels["status":U]:Text = pcStatus .
+
+        PROCESS EVENTS .
+
     END METHOD.
-    
+
     /*------------------------------------------------------------------------------
-        Purpose: Event handle for the FormClosedHandler event of the Procedure Editor 
-                 Forms                                                                        
-        Notes:        
+        Purpose: Event handle for the FormClosedHandler event of the Procedure Editor
+                 Forms
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The FormClosedEventArgs with the data for this event                                                                
+        @param e The FormClosedEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID EditorFormClosedHandler (sender AS System.Object,
                                                    e AS System.Windows.Forms.FormClosedEventArgs):
-        
+
         DEFINE VARIABLE oForm AS System.Windows.Forms.Form NO-UNDO .
-        
-        oForm = CAST (sender, System.Windows.Forms.Form) . 
-        
-        IF oEditors:ContainsValue (oForm) THEN DO: 
+
+        oForm = CAST (sender, System.Windows.Forms.Form) .
+
+        IF oEditors:ContainsValue (oForm) THEN DO:
             {Consultingwerk/foreach.i '"System.Collections.Generic.KeyValuePair<System.String, System.Windows.Forms.Form>"' oPair in oEditors}
-            
+
                 IF oPair:Value = oForm THEN DO:
-                    oEditors:Remove (oPair:Key) . 
-                    
-                    LEAVE .                   
-                END. 
+                    oEditors:Remove (oPair:Key) .
+
+                    LEAVE .
+                END.
             END.
-        END . 
+        END .
 
         oForm:FormClosed:Unsubscribe (EditorFormClosedHandler) .
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Determines and sets the Enabled status of the Save button 
-        Notes:   
+        Purpose: Determines and sets the Enabled status of the Save button
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID EvaluateSaveEnabled ():
+    METHOD PROTECTED VOID EvaluateSaveEnabled ():
 
         DEFINE VARIABLE lModified AS LOGICAL             NO-UNDO.
-        DEFINE VARIABLE oEditor   AS ProcedureEditorForm NO-UNDO . 
+        DEFINE VARIABLE oEditor   AS ProcedureEditorForm NO-UNDO .
 
-        IF NOT VALID-OBJECT (THIS-OBJECT:ActiveMdiChild) THEN 
-            ASSIGN lModified = FALSE . 
-        ELSE DO:            
+        IF NOT VALID-OBJECT (THIS-OBJECT:ActiveMdiChild) THEN
+            ASSIGN lModified = FALSE .
+        ELSE DO:
             oEditor = CAST (THIS-OBJECT:ActiveMdiChild,
-                            ProcedureEditorForm) .        
-		
-		    lModified = oEditor:IsModified .
-		END.
-		    
+                            ProcedureEditorForm) .
+
+            lModified = oEditor:IsModified .
+        END.
+
         THIS-OBJECT:ultraToolbarsManager1:Tools["save":U]:SharedProps:Enabled = lModified .
 
         ASSIGN lModified = FALSE .
-        
+
         {Consultingwerk/foreach.i System.Windows.Forms.Form oForm in THIS-OBJECT:MdiChildren}
             oEditor = CAST (oForm,
-                            ProcedureEditorForm) .        
-            
-            IF oEditor:IsModified = TRUE THEN DO: 
+                            ProcedureEditorForm) .
+
+            IF oEditor:IsModified = TRUE THEN DO:
                 lModified = TRUE .
                 LEAVE .
             END.
@@ -260,47 +261,48 @@ CLASS Consultingwerk.Studio.ProcedureEditor.SmartEditorForm
 
         THIS-OBJECT:ultraToolbarsManager1:Tools["save all":U]:SharedProps:Enabled = lModified .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the name of the currently active file
-        Notes:   
-        @return The name of the currently active file 
+        Notes:
+        @return The name of the currently active file
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC CHARACTER GetCurrentFileName ():
-		
-        {Consultingwerk/foreach.i ""System.Collections.Generic.KeyValuePair<System.String,System.Windows.Forms.Form>"" 
+    METHOD PUBLIC CHARACTER GetCurrentFileName ():
+
+        {Consultingwerk/foreach.i ""System.Collections.Generic.KeyValuePair<System.String,System.Windows.Forms.Form>""
                                   oPair in oEditors}
-            
-            IF oPair:Value = THIS-OBJECT:ActiveMdiChild THEN 
+
+            IF oPair:Value = THIS-OBJECT:ActiveMdiChild THEN
                 RETURN oPair:Key .
-        END.            
-            
-	END METHOD .
+        END.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns a JPNode by a node number                                                                       
-        Notes:                                    
+        Purpose: Returns a JPNode by a node number
+        Notes:
         @param piNodeNum The node number to return
-        @return The refernce to the specified JPNode                                    
+        @return The refernce to the specified JPNode
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC JPNode GetJPNode (piNodeNum AS INTEGER):
-        
+
         RETURN THIS-OBJECT:Nodes[piNodeNum] .
-        
+
     END METHOD.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -810,26 +812,26 @@ CLASS Consultingwerk.Studio.ProcedureEditor.SmartEditorForm
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Inserts a method into the source code 
-        Notes:   
+        Purpose: Inserts a method into the source code
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID InsertMethod ():
-		
-		DEFINE VARIABLE cMethodName AS CHARACTER NO-UNDO .
-		DEFINE VARIABLE cTemplate   AS CHARACTER NO-UNDO .
-		DEFINE VARIABLE lcCode      AS LONGCHAR  NO-UNDO .
-		
-		IF Consultingwerk.Util.InputPromptHelper:PromptForCharacterValue ("Insert Method"{&TRAN},
-		                                                                  "Enter the name of the new method to insert:"{&TRAN},
-		                                                                  NEW Consultingwerk.Framework.NotEmptyInputValidator(),
-		                                                                  INPUT-OUTPUT cMethodName) = TRUE THEN . 
-		ELSE 
-		    RETURN . 
+    METHOD PROTECTED VOID InsertMethod ():
 
-        cTemplate = "Consultingwerk\Studio\ProcedureEditor\Templates\method.template":U . 
+        DEFINE VARIABLE cMethodName AS CHARACTER NO-UNDO .
+        DEFINE VARIABLE cTemplate   AS CHARACTER NO-UNDO .
+        DEFINE VARIABLE lcCode      AS LONGCHAR  NO-UNDO .
+
+        IF Consultingwerk.Util.InputPromptHelper:PromptForCharacterValue ("Insert Method"{&TRAN},
+                                                                          "Enter the name of the new method to insert:"{&TRAN},
+                                                                          NEW Consultingwerk.Framework.NotEmptyInputValidator(),
+                                                                          INPUT-OUTPUT cMethodName) = TRUE THEN .
+        ELSE
+            RETURN .
+
+        cTemplate = "Consultingwerk/Studio/ProcedureEditor/Templates/method.template":U .
 
         COPY-LOB FROM FILE cTemplate TO lcCode .
 
@@ -837,7 +839,7 @@ CLASS Consultingwerk.Studio.ProcedureEditor.SmartEditorForm
 
         THIS-OBJECT:InsertMethod (cMethodName, STRING (lcCode)) .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Inserts a method into the current class
@@ -845,562 +847,565 @@ CLASS Consultingwerk.Studio.ProcedureEditor.SmartEditorForm
         @param pcMethodName The name of the method to insert
         @param pcCode The complete code of the method to insert (including comments and the METHOD statement)
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID InsertMethod (pcMethodName AS CHARACTER,
-	                                 pcCode AS CHARACTER):
+    METHOD PUBLIC VOID InsertMethod (pcMethodName AS CHARACTER,
+                                     pcCode AS CHARACTER):
 
-        DEFINE VARIABLE oEditor    AS ProcedureEditorForm NO-UNDO . 
-        DEFINE VARIABLE oNode      AS JPNode              NO-UNDO . 
-        DEFINE VARIABLE oClassNode AS JPNode              NO-UNDO . 
+        DEFINE VARIABLE oEditor    AS ProcedureEditorForm NO-UNDO .
+        DEFINE VARIABLE oNode      AS JPNode              NO-UNDO .
+        DEFINE VARIABLE oClassNode AS JPNode              NO-UNDO .
 
-        IF NOT VALID-OBJECT (THIS-OBJECT:ActiveMdiChild) THEN 
-            RETURN . 
-            
+        IF NOT VALID-OBJECT (THIS-OBJECT:ActiveMdiChild) THEN
+            RETURN .
+
         oEditor = CAST (THIS-OBJECT:ActiveMdiChild,
                         ProcedureEditorForm) .
 
-        FILE-INFO:FILE-NAME = THIS-OBJECT:GetCurrentFileName() .
-        IF NOT FILE-INFO:FILE-TYPE MATCHES "*W*":U THEN 
+        FILE-INFORMATION:FILE-NAME = THIS-OBJECT:GetCurrentFileName() .
+        IF NOT FILE-INFORMATION:FILE-TYPE MATCHES "*W*":U THEN
             RETURN .
 
         THIS-OBJECT:Save () .
 
         IF THIS-OBJECT:Reparse () = TRUE THEN .
-        ELSE RETURN . 
-		
+        ELSE RETURN .
+
         THIS-OBJECT:PopulateMethodTempTable () .
 
         FIND LAST ttMethods WHERE ttMethods.MethodName < pcMethodName NO-ERROR .
 
         IF AVAILABLE ttMethods THEN DO:
             oNode = THIS-OBJECT:GetJPNode (ttMethods.NodeNum):lastChild() .
-        
+
             oEditor:InsertText (pcCode, oNode:getLine () + 1) .
         END.
         ELSE DO:
-            {Consultingwerk/foreach.i ""System.Collections.Generic.KeyValuePair<System.String,System.Windows.Forms.Form>"" 
+            {Consultingwerk/foreach.i ""System.Collections.Generic.KeyValuePair<System.String,System.Windows.Forms.Form>""
                                       oPair2 in oEditors}
-                
+
                 IF oPair2:Value = THIS-OBJECT:ActiveMdiChild THEN DO:
 
-                    IF NOT VALID-OBJECT (oParseUnits [oPair2:Key]) THEN 
+                    IF NOT VALID-OBJECT (oParseUnits [oPair2:Key]) THEN
                         UNDO, THROW NEW AppError ("Unable to insert method, as the file could not be parsed."{&TRAN}, 0) .
 
                     oClassNode = ProparseHelper:FindChildNodeOfNodeType (CAST (oParseUnits [oPair2:Key], ParseUnit):getTopNode(),
-                                                                         "CLASS":U) . 
-                
-                    LEAVE . 
+                                                                         "CLASS":U) .
+
+                    LEAVE .
                 END.
             END.
-            
+
             IF VALID-OBJECT (oClassNode) THEN DO:
-                oNode = oClassNode:lastChild () .            
+                oNode = oClassNode:lastChild () .
 
                 oEditor:InsertText (pcCode, oNode:getLine ()) .
             END.
         END.
-        
+
         DO ON ERROR UNDO, THROW:
             THIS-OBJECT:Reparse () .
-        
+
             FINALLY:
-                THIS-OBJECT:Save () .    	
+                THIS-OBJECT:Save () .
             END FINALLY.
-        END.            
-        
-	END METHOD .
+        END.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the FormClosing event 
-        Notes:   
+        Purpose: Raises the FormClosing event
+        Notes:
         @param e The FormClosingEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED OVERRIDE VOID OnFormClosing (e AS System.Windows.Forms.FormClosingEventArgs):
-		
-		DEFINE VARIABLE oChildForm AS System.Windows.Forms.Form NO-UNDO .
-		
-		SUPER:OnFormClosing (e) .
+    METHOD PROTECTED OVERRIDE VOID OnFormClosing (e AS System.Windows.Forms.FormClosingEventArgs):
+
+        DEFINE VARIABLE oChildForm AS System.Windows.Forms.Form NO-UNDO .
+
+        SUPER:OnFormClosing (e) .
 
         IF NOT e:Cancel THEN DO:
-    
-            THIS-OBJECT:StoreSettings (STRING (UltraToolbarsHelper:GetStateButtonToolChecked (ultraToolbarsManager1, "Parse Automatically":U)), 
-                                       "ParseAutomatically":U) . 
-            
+
+            THIS-OBJECT:StoreSettings (STRING (UltraToolbarsHelper:GetStateButtonToolChecked (ultraToolbarsManager1, "Parse Automatically":U)),
+                                       "ParseAutomatically":U) .
+
             DO WHILE THIS-OBJECT:MdiChildren:Length > 0:
 
                 oChildForm = CAST (THIS-OBJECT:MdiChildren:GetValue (0),
-                                   System.Windows.Forms.Form) .  
-    
+                                   System.Windows.Forms.Form) .
+
                 oChildForm:Close () .
 
-                IF VALID-OBJECT (oChildForm) AND oChildForm:Visible THEN DO: 
+                IF VALID-OBJECT (oChildForm) AND oChildForm:Visible THEN DO:
                     e:Cancel = TRUE .
-                    
+
                     RETURN .
                 END.
-            END.        
-        END.
-
-	END METHOD .
-
-    /*------------------------------------------------------------------------------
-        Purpose: Raises the MdiChildActivate event
-        Notes:   
-        @param e The System.EventArgs with the data for this event
-    ------------------------------------------------------------------------------*/
-	METHOD OVERRIDE PROTECTED VOID OnMdiChildActivate (e AS System.EventArgs):
-		
-		SUPER:OnMdiChildActivate(INPUT e).
-
-        {Consultingwerk/foreach.i ""System.Collections.Generic.KeyValuePair<System.String,System.Windows.Forms.Form>"" 
-                                  oPair in oEditors}
-            
-            IF oPair:Value = THIS-OBJECT:ActiveMdiChild THEN DO:
-            
-                IF oParseUnits:ContainsKey (oPair:Key) AND VALID-OBJECT (oParseUnits [oPair:Key]) THEN DO: 
-                    THIS-OBJECT:PopulateOutline (CAST (oParseUnits [oPair:Key], ParseUnit)) .
-            
-                    RETURN .
-                END. 
             END.
         END.
 
-        THIS-OBJECT:Nodes:Clear () . 
-        
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Raises the MdiChildActivate event
+        Notes:
+        @param e The System.EventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+    METHOD OVERRIDE PROTECTED VOID OnMdiChildActivate (e AS System.EventArgs):
+
+        SUPER:OnMdiChildActivate(INPUT e).
+
+        {Consultingwerk/foreach.i ""System.Collections.Generic.KeyValuePair<System.String,System.Windows.Forms.Form>""
+                                  oPair in oEditors}
+
+            IF oPair:Value = THIS-OBJECT:ActiveMdiChild THEN DO:
+
+                IF oParseUnits:ContainsKey (oPair:Key) AND VALID-OBJECT (oParseUnits [oPair:Key]) THEN DO:
+                    THIS-OBJECT:PopulateOutline (CAST (oParseUnits [oPair:Key], ParseUnit)) .
+
+                    RETURN .
+                END.
+            END.
+        END.
+
+        THIS-OBJECT:Nodes:Clear () .
+
         GarbageCollectorHelper:ClearUltraTreeNodes (ultraTreeWithSearchControl1:UltraTree:Nodes) .
-        
+
         FINALLY:
-            THIS-OBJECT:EvaluateSaveEnabled () .    		
+            THIS-OBJECT:EvaluateSaveEnabled () .
         END FINALLY.
-        
-	END METHOD .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Raises the OnShown event
-        Notes:   
+        Notes:
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
-		
-		DEFINE VARIABLE cParseAutomatically AS CHARACTER NO-UNDO.
-		
-		SUPER:OnShown (e) . 
+    METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
 
-        PROCESS EVENTS . 
-	
-	    ASSIGN cParseAutomatically = THIS-OBJECT:LoadSettings ("ParseAutomatically":U) .
-		
-		IF cParseAutomatically = "no":U THEN DO:
-		    UltraToolbarsHelper:SetStateButtonToolChecked (ultraToolbarsManager1, "Parse Automatically":U, FALSE) . 
-		    THIS-OBJECT:SetTimersEnabled (TRUE) .
-		END.
-		
-	END METHOD .
+        DEFINE VARIABLE cParseAutomatically AS CHARACTER NO-UNDO.
+
+        SUPER:OnShown (e) .
+
+        PROCESS EVENTS .
+
+        ASSIGN cParseAutomatically = THIS-OBJECT:LoadSettings ("ParseAutomatically":U) .
+
+        IF cParseAutomatically = "no":U THEN DO:
+            UltraToolbarsHelper:SetStateButtonToolChecked (ultraToolbarsManager1, "Parse Automatically":U, FALSE) .
+            THIS-OBJECT:SetTimersEnabled (TRUE) .
+        END.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Shows the File Open dialog  
-        Notes:   
+        Purpose: Shows the File Open dialog
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID OpenFile ():
-		
-		DEFINE VARIABLE oDialogResult AS System.Windows.Forms.DialogResult NO-UNDO .
-		
-		WAIT-FOR openFileDialog1:ShowDialog () SET oDialogResult .
-		
-		{Consultingwerk/check-dialogresult-ok.i oDialogResult}   
+    METHOD PROTECTED VOID OpenFile ():
+
+        DEFINE VARIABLE oDialogResult AS System.Windows.Forms.DialogResult NO-UNDO .
+
+        WAIT-FOR openFileDialog1:ShowDialog () SET oDialogResult .
+
+        {Consultingwerk/check-dialogresult-ok.i oDialogResult}
 
         THIS-OBJECT:OpenFile (openFileDialog1:FileName) .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Opens the given file
-        Notes:   
-        @param pcFileName The name of the file to open 
+        Notes:
+        @param pcFileName The name of the file to open
         @return The reference to the ProcedureEditorForm
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC ProcedureEditorForm OpenFile (pcFileName AS CHARACTER):
-		
-        DEFINE VARIABLE oEditorForm   AS ProcedureEditorForm NO-UNDO . 
-        DEFINE VARIABLE oParseUnit    AS ParseUnit           NO-UNDO . 
+    METHOD PUBLIC ProcedureEditorForm OpenFile (pcFileName AS CHARACTER):
+
+        DEFINE VARIABLE oEditorForm   AS ProcedureEditorForm NO-UNDO .
+        DEFINE VARIABLE oParseUnit    AS ParseUnit           NO-UNDO .
 
         DEFINE VARIABLE pw_Window     AS HANDLE              NO-UNDO.
         DEFINE VARIABLE pw_Editor     AS HANDLE              NO-UNDO.
-        DEFINE VARIABLE p_Cursor_Line AS INTEGER             NO-UNDO.
-        
-        DEFINE VARIABLE lcSource      AS LONGCHAR            NO-UNDO . 
-        
+
+        DEFINE VARIABLE lcSource      AS LONGCHAR            NO-UNDO .
+
         THIS-OBJECT:ultraToolbarsManager1:Tools["save":U]:SharedProps:Enabled = FALSE  .
-        
+
+        /* Ensure Editor is using absolute path */
+        ASSIGN pcFileName = FileHelper:FindFile(pcFileName) .
+
         IF oEditors:ContainsKey (pcFileName) THEN DO:
-            
-            oEditorForm = CAST (oEditors[pcFileName], 
+
+            oEditorForm = CAST (oEditors[pcFileName],
                                 ProcedureEditorForm) NO-ERROR .
-                                
-            oEditorForm:Activate () .                                   
+
+            oEditorForm:Activate () .
         END.
 
-        IF NOT VALID-OBJECT (oEditorForm) THEN         
-            RUN adecommx/_pwmain.p ("":U, 
+        IF NOT VALID-OBJECT (oEditorForm) THEN
+            RUN adecommx/_pwmain.p ("":U,
                                     pcFileName,
-                                    "":U, 
-                                    OUTPUT oEditorForm) .   
-        
+                                    "":U,
+                                    OUTPUT oEditorForm) .
+
         IF NOT oEditors:ContainsValue (oEditorForm) THEN DO:
             oEditors:Add (pcFileName, oEditorForm) .
             oEditorForm:FormClosed:Subscribe (EditorFormClosedHandler) .
         END.
-        
+
         RUN adecomm/_pwgetwh.p (oEditorForm:EmbeddedWindow, OUTPUT pw_Window).
         RUN adecomm/_pwgeteh.p (INPUT pw_Window , OUTPUT pw_Editor).
 
         /* Read-Only file? */
-        FILE-INFO:FILE-NAME = pcFileName . 
-        IF NOT FILE-INFO:FILE-TYPE MATCHES "*W*":U THEN 
-            pw_Editor:READ-ONLY = TRUE .  
+        FILE-INFORMATION:FILE-NAME = pcFileName .
+        IF NOT FILE-INFORMATION:FILE-TYPE MATCHES "*W*":U THEN
+            pw_Editor:READ-ONLY = TRUE .
 
         /* Disable the standard file-drop of the procedure editor window */
-        ASSIGN pw_Window:DROP-TARGET = FALSE . 
-        
-        APPLY "ENTRY":U TO pw_Editor .   
+        ASSIGN pw_Window:DROP-TARGET = FALSE .
+
+        APPLY "ENTRY":U TO pw_Editor .
 
         DO ON ERROR UNDO, THROW:
 
             SESSION:SET-WAIT-STATE ("general":U) .
-            
-            THIS-OBJECT:DisplayStatus ("Initializing Proparse environment."{&TRAN}) . 
-            
-            Consultingwerk.Studio.Proparse.ProparseHelper:SetProparseEnvironment() . 
-    
-            THIS-OBJECT:DisplayStatus ("Processing database schema."{&TRAN}) . 
-    
+
+            THIS-OBJECT:DisplayStatus ("Initializing Proparse environment."{&TRAN}) .
+
+            Consultingwerk.Studio.Proparse.ProparseHelper:SetProparseEnvironment() .
+
+            THIS-OBJECT:DisplayStatus ("Processing database schema."{&TRAN}) .
+
             Consultingwerk.Studio.Proparse.ProparseHelper:ExportDatabaseSchema () .
-            
-            THIS-OBJECT:DisplayStatus ("Initializing Proparse."{&TRAN}) . 
-            
+
+            THIS-OBJECT:DisplayStatus ("Initializing Proparse."{&TRAN}) .
+
             Consultingwerk.Studio.Proparse.ProparseHelper:Initialize() .
-    
-            THIS-OBJECT:DisplayStatus ("Parsing source code."{&TRAN}) . 
-            
-            COPY-LOB FROM FILE pcFileName TO lcSource . 
-            
+
+            THIS-OBJECT:DisplayStatus ("Parsing source code."{&TRAN}) .
+
+            COPY-LOB FROM FILE pcFileName TO lcSource .
+
             oParseUnit = Consultingwerk.Studio.Proparse.ProparseHelper:ParseString (lcSource) .
-    
-            IF oParseUnits:ContainsKey (pcFileName) THEN 
+
+            IF oParseUnits:ContainsKey (pcFileName) THEN
                 oParseUnits:Remove (pcFileName) .
-    
+
             oParseUnits:Add (pcFileName, oParseUnit) .
-    
-            THIS-OBJECT:DisplayStatus ("Populating treeview."{&TRAN}) . 
-    
+
+            THIS-OBJECT:DisplayStatus ("Populating treeview."{&TRAN}) .
+
             THIS-OBJECT:PopulateOutline (oParseUnit) .
-    
+
             CATCH err AS Progress.Lang.Error :
-                Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .                
+                Consultingwerk.Util.ErrorHelper:ShowErrorMessage (err) .
             END CATCH.
-    
+
             FINALLY:
-                THIS-OBJECT:DisplayStatus ("":U) . 
-                
+                THIS-OBJECT:DisplayStatus ("":U) .
+
                 SESSION:SET-WAIT-STATE ("":U) .
             END FINALLY.
         END.
 
         RETURN oEditorForm .
-                
-	END METHOD .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Parses the ClassNode 
-        Notes:   
+        Purpose: Parses the ClassNode
+        Notes:
         @param poClassName The JPNode for the Class Node
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID ParseClassMembers (poClassName AS JPNode):
-		
-        DEFINE VARIABLE oCodeBlock  AS JPNode        NO-UNDO .   
-        DEFINE VARIABLE oNode       AS JPNode        NO-UNDO .
-        DEFINE VARIABLE oID         AS JPNode        NO-UNDO .    
-        DEFINE VARIABLE oTreeNode   AS UltraTreeNode NO-UNDO .
-		DEFINE VARIABLE cSignature  AS CHARACTER     NO-UNDO .
+    METHOD PROTECTED VOID ParseClassMembers (poClassName AS JPNode):
 
-        DEFINE VARIABLE oParentNode AS UltraTreeNode NO-UNDO . 
-		
-		oCodeBlock = ProparseHelper:FindChildNodeOfNodeType (poClassName,
+        DEFINE VARIABLE oCodeBlock  AS JPNode        NO-UNDO .
+        DEFINE VARIABLE oNode       AS JPNode        NO-UNDO .
+        DEFINE VARIABLE oID         AS JPNode        NO-UNDO .
+        DEFINE VARIABLE oTreeNode   AS UltraTreeNode NO-UNDO .
+        DEFINE VARIABLE cSignature  AS CHARACTER     NO-UNDO .
+
+        DEFINE VARIABLE oParentNode AS UltraTreeNode NO-UNDO .
+
+        oCodeBlock = ProparseHelper:FindChildNodeOfNodeType (poClassName,
                                                              "Code_block":U) .
 
-        IF NOT VALID-OBJECT (oCodeBlock) THEN 
-            RETURN . 
+        IF NOT VALID-OBJECT (oCodeBlock) THEN
+            RETURN .
 
         oNode = oCodeBlock:firstchild () .
-        
+
         DO WHILE VALID-OBJECT (oNode):
 
-            oTreeNode = ? . 
+            oTreeNode = ? .
 
             CASE NodeTypes:getTypeName(oNode:getType()):
                 WHEN "CONSTRUCTOR":U THEN DO:
                     oParentNode = ultraTreeWithSearchControl1:UltraTree:GetNodeByKey ("Constructors":U) .
-                    
-                    IF NOT VALID-OBJECT (oParentNode) THEN DO: 
+
+                    IF NOT VALID-OBJECT (oParentNode) THEN DO:
                         oParentNode = ultraTreeWithSearchControl1:UltraTree:Nodes:Add ("Constructors":U, "Constructors":U) .
-                        oParentNode:Expanded = TRUE  . 
+                        oParentNode:Expanded = TRUE  .
                     END.
-                    
+
                     oID = ProparseHelper:FindChildNodeOfNodeType (oNode,
                                                                   "TYPE_NAME":U) .
-                                    
-                    ASSIGN cSignature = ProparseHelper:ParseParameterList (oNode) .                                   
-                                    
-                    oTreeNode = oParentNode:Nodes:Add (STRING (oNode:getNodeNum ())) .      
-                    oTreeNode:LeftImages:Add (oMethodImage) .                              
-                    
-                    IF cSignature > "":U THEN 
+
+                    ASSIGN cSignature = ProparseHelper:ParseParameterList (oNode) .
+
+                    oTreeNode = oParentNode:Nodes:Add (STRING (oNode:getNodeNum ())) .
+                    oTreeNode:LeftImages:Add (oMethodImage) .
+
+                    IF cSignature > "":U THEN
                         oTreeNode:Text = SUBSTITUTE ("&1 (&2)":U,
                                                      oID:getText (),
-                                                     cSignature) . 
-                    ELSE 
+                                                     cSignature) .
+                    ELSE
                         oTreeNode:Text = oID:getText () .
                 END.
                 WHEN "DEFINE":U THEN DO:
                     IF ProparseHelper:HasChildNodeOfNodeType (oNode, "PROPERTY":U) THEN DO:
                         oParentNode = ultraTreeWithSearchControl1:UltraTree:GetNodeByKey ("Properties":U) .
-                        
-                        IF NOT VALID-OBJECT (oParentNode) THEN DO: 
+
+                        IF NOT VALID-OBJECT (oParentNode) THEN DO:
                             oParentNode = ultraTreeWithSearchControl1:UltraTree:Nodes:Add ("Properties":U, "Properties":U) .
-                            oParentNode:Expanded = TRUE  . 
+                            oParentNode:Expanded = TRUE  .
                         END.
-                        
+
                         oID = ProparseHelper:FindChildNodeOfNodeType (oNode,
                                                                       "ID":U) .
-                                        
-                        oTreeNode = oParentNode:Nodes:Add (STRING (oNode:getNodeNum ())) .                                    
-                        oTreeNode:LeftImages:Add (oPropertyImage) .                              
+
+                        oTreeNode = oParentNode:Nodes:Add (STRING (oNode:getNodeNum ())) .
+                        oTreeNode:LeftImages:Add (oPropertyImage) .
                         oTreeNode:Text = oID:getText () .
-                    END.    
+                    END.
                     ELSE IF ProparseHelper:HasChildNodeOfNodeType (oNode, "EVENT":U) THEN DO:
                         oParentNode = ultraTreeWithSearchControl1:UltraTree:GetNodeByKey ("Events":U) .
-                        
-                        IF NOT VALID-OBJECT (oParentNode) THEN DO: 
+
+                        IF NOT VALID-OBJECT (oParentNode) THEN DO:
                             oParentNode = ultraTreeWithSearchControl1:UltraTree:Nodes:Add ("Events":U, "Events":U) .
-                            oParentNode:Expanded = TRUE  . 
+                            oParentNode:Expanded = TRUE  .
                         END.
-                        
+
                         oID = ProparseHelper:FindChildNodeOfNodeType (oNode,
                                                                       "ID":U) .
-                                        
-                        oTreeNode = oParentNode:Nodes:Add (STRING (oNode:getNodeNum ())) .     
-                        oTreeNode:LeftImages:Add (oEventImage) .                              
+
+                        oTreeNode = oParentNode:Nodes:Add (STRING (oNode:getNodeNum ())) .
+                        oTreeNode:LeftImages:Add (oEventImage) .
                         oTreeNode:Text = oID:getText () .
-                    END.                        
+                    END.
                 END.
                 WHEN "METHOD":U THEN DO:
                     oParentNode = ultraTreeWithSearchControl1:UltraTree:GetNodeByKey ("Methods":U) .
-                    
-                    IF NOT VALID-OBJECT (oParentNode) THEN DO: 
+
+                    IF NOT VALID-OBJECT (oParentNode) THEN DO:
                         oParentNode = ultraTreeWithSearchControl1:UltraTree:Nodes:Add ("Methods":U, "Methods":U) .
-                        oParentNode:Expanded = TRUE  . 
+                        oParentNode:Expanded = TRUE  .
                     END.
-                    
+
                     oID = ProparseHelper:FindChildNodeOfNodeType (oNode,
                                                                   "ID":U) .
-                                    
-                    ASSIGN cSignature = ProparseHelper:ParseParameterList (oNode) .                                   
-                                    
-                    oTreeNode = oParentNode:Nodes:Add (STRING (oNode:getNodeNum ())) .  
-                    oTreeNode:LeftImages:Add (oMethodImage) .                              
-                    
-                    IF cSignature > "":U THEN 
+
+                    ASSIGN cSignature = ProparseHelper:ParseParameterList (oNode) .
+
+                    oTreeNode = oParentNode:Nodes:Add (STRING (oNode:getNodeNum ())) .
+                    oTreeNode:LeftImages:Add (oMethodImage) .
+
+                    IF cSignature > "":U THEN
                         oTreeNode:Text = SUBSTITUTE ("&1 (&2)":U,
                                                      oID:getText (),
-                                                     cSignature) . 
-                    ELSE 
+                                                     cSignature) .
+                    ELSE
                         oTreeNode:Text = oID:getText () .
                 END.
-            END CASE . 
+            END CASE .
 
-            IF VALID-OBJECT (oTreeNode) THEN     
+            IF VALID-OBJECT (oTreeNode) THEN
                 THIS-OBJECT:Nodes:ADD (oNode:getNodeNum (), oNode) .
-    
-            oNode = oNode:nextSibling () .    
+
+            oNode = oNode:nextSibling () .
         END.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Parses the ProcedureNode 
-        Notes:   
+        Purpose: Parses the ProcedureNode
+        Notes:
         @param poProcedureNode The JPNode for the Procedure Node
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID ParseProcedureMembers (poProcedureNode AS JPNode):
-		
+    METHOD PROTECTED VOID ParseProcedureMembers (poProcedureNode AS JPNode):
+
         DEFINE VARIABLE oNode       AS JPNode        NO-UNDO .
-        DEFINE VARIABLE oID         AS JPNode        NO-UNDO .    
+        DEFINE VARIABLE oID         AS JPNode        NO-UNDO .
         DEFINE VARIABLE oTreeNode   AS UltraTreeNode NO-UNDO .
 
-        DEFINE VARIABLE oParentNode AS UltraTreeNode NO-UNDO . 
-        
+        DEFINE VARIABLE oParentNode AS UltraTreeNode NO-UNDO .
+
         oNode = poProcedureNode:firstchild () .
-        
+
         DO WHILE VALID-OBJECT (oNode):
 
-            oTreeNode = ? . 
+            oTreeNode = ? .
 
             CASE NodeTypes:getTypeName(oNode:getType()):
                 WHEN "PROCEDURE":U THEN DO:
                     oParentNode = ultraTreeWithSearchControl1:UltraTree:GetNodeByKey ("Procedures":U) .
-                    
-                    IF NOT VALID-OBJECT (oParentNode) THEN DO: 
+
+                    IF NOT VALID-OBJECT (oParentNode) THEN DO:
                         oParentNode = ultraTreeWithSearchControl1:UltraTree:Nodes:Add ("Procedures":U, "Procedures":U) .
-                        oParentNode:Expanded = TRUE  . 
+                        oParentNode:Expanded = TRUE  .
                     END.
-                    
+
                     oID = ProparseHelper:FindChildNodeOfNodeType (oNode,
                                                                   "ID":U) .
-                                    
-                    oTreeNode = oParentNode:Nodes:Add (STRING (oNode:getNodeNum ())) .      
-                    oTreeNode:LeftImages:Add (oMethodImage) .                              
+
+                    oTreeNode = oParentNode:Nodes:Add (STRING (oNode:getNodeNum ())) .
+                    oTreeNode:LeftImages:Add (oMethodImage) .
                     oTreeNode:Text = oID:getText () .
                 END.
                 WHEN "FUNCTION":U THEN DO:
                     oParentNode = ultraTreeWithSearchControl1:UltraTree:GetNodeByKey ("Functions":U) .
-                    
-                    IF NOT VALID-OBJECT (oParentNode) THEN DO: 
+
+                    IF NOT VALID-OBJECT (oParentNode) THEN DO:
                         oParentNode = ultraTreeWithSearchControl1:UltraTree:Nodes:Add ("Functions":U, "Functions":U) .
-                        oParentNode:Expanded = TRUE  . 
+                        oParentNode:Expanded = TRUE  .
                     END.
-                    
+
                     oID = ProparseHelper:FindChildNodeOfNodeType (oNode,
                                                                   "ID":U) .
-                                    
-                    oTreeNode = oParentNode:Nodes:Add (STRING (oNode:getNodeNum ())) .  
-                    oTreeNode:LeftImages:Add (oPropertyImage) .          
-                    
-                    IF ProparseHelper:HasChildNodeOfNodeType (oNode, "FORWARDS":U) THEN 
-                        oTreeNode:Text = SUBSTITUTE ("&1 FORWARD":U, oID:getText()) .                                            
-                    ELSE 
+
+                    oTreeNode = oParentNode:Nodes:Add (STRING (oNode:getNodeNum ())) .
+                    oTreeNode:LeftImages:Add (oPropertyImage) .
+
+                    IF ProparseHelper:HasChildNodeOfNodeType (oNode, "FORWARDS":U) THEN
+                        oTreeNode:Text = SUBSTITUTE ("&1 FORWARD":U, oID:getText()) .
+                    ELSE
                         oTreeNode:Text = oID:getText () .
                 END.
-            END CASE . 
+            END CASE .
 
-            IF VALID-OBJECT (oTreeNode) THEN     
+            IF VALID-OBJECT (oTreeNode) THEN
                 THIS-OBJECT:Nodes:ADD (oNode:getNodeNum (), oNode) .
-    
-            oNode = oNode:nextSibling () .    
+
+            oNode = oNode:nextSibling () .
         END.
-        
-	END METHOD .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Parses the current editor contents 
-        Notes:   
+        Purpose: Parses the current editor contents
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID ParseSourceCode ():
-		
+    METHOD PROTECTED VOID ParseSourceCode ():
+
         DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO.
 
         THIS-OBJECT:SetTimersEnabled (FALSE) .
-        
-        IF NOT VALID-OBJECT (THIS-OBJECT:ActiveMdiChild) THEN 
-            RETURN . 
+
+        IF NOT VALID-OBJECT (THIS-OBJECT:ActiveMdiChild) THEN
+            RETURN .
 
         ASSIGN cFileName = THIS-OBJECT:GetCurrentFileName () .
-        
-        FILE-INFO:FILE-NAME = cFileName .
-        IF NOT FILE-INFO:FILE-TYPE MATCHES "*W*":U THEN RETURN .
-        
+
+        FILE-INFORMATION:FILE-NAME = cFileName .
+        IF NOT FILE-INFORMATION:FILE-TYPE MATCHES "*W*":U THEN
+            RETURN .
+
         THIS-OBJECT:DisplayStatus ("Parsing source code..."{&TRAN}) .
-        
+
         DO ON ERROR UNDO, THROW:
             THIS-OBJECT:Reparse () .
 
-            IF oParseUnits:ContainsKey (cFileName) THEN 
-                THIS-OBJECT:PopulateOutline (CAST (oParseUnits [cFileName], ParseUnit)) .         
+            IF oParseUnits:ContainsKey (cFileName) THEN
+                THIS-OBJECT:PopulateOutline (CAST (oParseUnits [cFileName], ParseUnit)) .
 
             FINALLY:
-                THIS-OBJECT:Save () .       
+                THIS-OBJECT:Save () .
             END FINALLY.
         END.
-        
+
         THIS-OBJECT:DisplayStatus ("") .
 
         CATCH err AS Progress.Lang.Error:
-            THIS-OBJECT:DisplayStatus (err:GetMessage (1)) .        
+            THIS-OBJECT:DisplayStatus (err:GetMessage (1)) .
         END CATCH.
 
         FINALLY:
-            THIS-OBJECT:SetTimersEnabled (TRUE) .       
+            THIS-OBJECT:SetTimersEnabled (TRUE) .
         END FINALLY.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Populates the temp-table with the current class methods 
-        Notes:   
+        Purpose: Populates the temp-table with the current class methods
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID PopulateMethodTempTable ():
-		
+    METHOD PROTECTED VOID PopulateMethodTempTable ():
+
         DEFINE VARIABLE oID        AS JPNode              NO-UNDO .
-		
+
         EMPTY TEMP-TABLE ttMethods .
-        
+
         /* Locate the node to insert the method before */
-        {Consultingwerk/foreach.i ""System.Collections.Generic.KeyValuePair<System.Int32,org.prorefactor.core.JPNode>"" 
+        {Consultingwerk/foreach.i ""System.Collections.Generic.KeyValuePair<System.Int32,org.prorefactor.core.JPNode>""
                                   oPair in THIS-OBJECT:Nodes}
 
             IF NodeTypes:getTypeName(oPair:Value:getType()) = "METHOD":U THEN DO:
-                CREATE ttMethods . 
-                
+                CREATE ttMethods .
+
                 oID = ProparseHelper:FindChildNodeOfNodeType (oPair:Value,
                                                               "ID":U) .
-                
-                ASSIGN ttMethods.NodeNum    = oPair:Key 
+
+                ASSIGN ttMethods.NodeNum    = oPair:Key
                        ttMethods.MethodName = oID:getText () .
             END.
         END.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Populates the Outline View
-        Notes:   
+        Notes:
         @param poParseUnit The ParseUnit of the File to parse
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID PopulateOutline (poParseUnit AS ParseUnit):
-		
-		DEFINE VARIABLE oClassNode AS JPNode NO-UNDO .
-		
-		THIS-OBJECT:Nodes:Clear () . 
-		
-		GarbageCollectorHelper:ClearUltraTreeNodes (ultraTreeWithSearchControl1:UltraTree:Nodes) .
-		
-		ultraTreeWithSearchControl1:UltraTree:Override:Sort = Infragistics.Win.UltraWinTree.SortType:Ascending .
-		ultraTreeWithSearchControl1:UltraTree:AutoScrollHorizontal = Infragistics.Win.DefaultableBoolean:False .
-		    
-		oClassNode = ProparseHelper:FindChildNodeOfNodeType (poParseUnit:getTopNode(),
-		                                                     "CLASS":U) . 
+    METHOD PROTECTED VOID PopulateOutline (poParseUnit AS ParseUnit):
 
-        IF VALID-OBJECT (oClassNode) THEN 
-            THIS-OBJECT:ParseClassMembers (oClassNode) . 
-		ELSE 
-            THIS-OBJECT:ParseProcedureMembers (poParseUnit:getTopNode()) . 
+        DEFINE VARIABLE oClassNode AS JPNode NO-UNDO .
 
-	END METHOD .
+        THIS-OBJECT:Nodes:Clear () .
+
+        GarbageCollectorHelper:ClearUltraTreeNodes (ultraTreeWithSearchControl1:UltraTree:Nodes) .
+
+        ultraTreeWithSearchControl1:UltraTree:Override:Sort = Infragistics.Win.UltraWinTree.SortType:Ascending .
+        ultraTreeWithSearchControl1:UltraTree:AutoScrollHorizontal = Infragistics.Win.DefaultableBoolean:False .
+
+        oClassNode = ProparseHelper:FindChildNodeOfNodeType (poParseUnit:getTopNode(),
+                                                             "CLASS":U) .
+
+        IF VALID-OBJECT (oClassNode) THEN
+            THIS-OBJECT:ParseClassMembers (oClassNode) .
+        ELSE
+            THIS-OBJECT:ParseProcedureMembers (poParseUnit:getTopNode()) .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Reparses the current editor contents 
-        Notes:   
+        Purpose: Reparses the current editor contents
+        Notes:
         @return Logical value indicating if the file could be parsed
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED LOGICAL Reparse ():
-		
-		DEFINE VARIABLE cTempFile  AS CHARACTER           NO-UNDO .
-        DEFINE VARIABLE cFileName  AS CHARACTER           NO-UNDO .
-        DEFINE VARIABLE oParseUnit AS ParseUnit           NO-UNDO . 
-        DEFINE VARIABLE oEditor    AS ProcedureEditorForm NO-UNDO . 
-        DEFINE VARIABLE lcSource   AS LONGCHAR            NO-UNDO . 
+    METHOD PROTECTED LOGICAL Reparse ():
 
-        IF NOT VALID-OBJECT (THIS-OBJECT:ActiveMdiChild) THEN 
-            RETURN FALSE . 
-            
+        DEFINE VARIABLE cTempFile  AS CHARACTER           NO-UNDO .
+        DEFINE VARIABLE cFileName  AS CHARACTER           NO-UNDO .
+        DEFINE VARIABLE oParseUnit AS ParseUnit           NO-UNDO .
+        DEFINE VARIABLE oEditor    AS ProcedureEditorForm NO-UNDO .
+        DEFINE VARIABLE lcSource   AS LONGCHAR            NO-UNDO .
+
+        IF NOT VALID-OBJECT (THIS-OBJECT:ActiveMdiChild) THEN
+            RETURN FALSE .
+
         oEditor = CAST (THIS-OBJECT:ActiveMdiChild,
                         ProcedureEditorForm) .
 
@@ -1408,89 +1413,89 @@ CLASS Consultingwerk.Studio.ProcedureEditor.SmartEditorForm
 
         THIS-OBJECT:Nodes:Clear () .
 
-        ASSIGN cFileName = GetCurrentFileName () . 
+        ASSIGN cFileName = GetCurrentFileName () .
 
-        IF oParseUnits:ContainsKey (cFileName) THEN 
+        IF oParseUnits:ContainsKey (cFileName) THEN
             oParseUnits:Remove (cFileName) .
 
         ASSIGN cTempFile = oEditor:SaveToTemporaryFile () .
 
         IF cFileName > "":U THEN .
-        ELSE   
-            RETURN FALSE . 
+        ELSE
+            RETURN FALSE .
 
         SESSION:SET-WAIT-STATE ("general":U) .
 
-        THIS-OBJECT:DisplayStatus ("Initializing Proparse environment."{&TRAN}) . 
-        
-        Consultingwerk.Studio.Proparse.ProparseHelper:SetProparseEnvironment() . 
+        THIS-OBJECT:DisplayStatus ("Initializing Proparse environment."{&TRAN}) .
 
-        THIS-OBJECT:DisplayStatus ("Processing database schema."{&TRAN}) . 
+        Consultingwerk.Studio.Proparse.ProparseHelper:SetProparseEnvironment() .
+
+        THIS-OBJECT:DisplayStatus ("Processing database schema."{&TRAN}) .
 
         Consultingwerk.Studio.Proparse.ProparseHelper:ExportDatabaseSchema () .
-        
-        THIS-OBJECT:DisplayStatus ("Initializing Proparse."{&TRAN}) . 
-        
+
+        THIS-OBJECT:DisplayStatus ("Initializing Proparse."{&TRAN}) .
+
         Consultingwerk.Studio.Proparse.ProparseHelper:Initialize() .
 
-        THIS-OBJECT:DisplayStatus ("Parsing source code."{&TRAN}) . 
-        
-        COPY-LOB FROM FILE cTempFile TO lcSource . 
-        
+        THIS-OBJECT:DisplayStatus ("Parsing source code."{&TRAN}) .
+
+        COPY-LOB FROM FILE cTempFile TO lcSource .
+
         oParseUnit = Consultingwerk.Studio.Proparse.ProparseHelper:ParseString (lcSource) .
 
-        ASSIGN cFileName = GetCurrentFileName () . 
-        
-        IF oParseUnits:ContainsKey (cFileName) THEN 
+        ASSIGN cFileName = GetCurrentFileName () .
+
+        IF oParseUnits:ContainsKey (cFileName) THEN
             oParseUnits:Remove (cFileName) .
         oParseUnits:Add (cFileName, oParseUnit) .
 
-        THIS-OBJECT:DisplayStatus ("Populating treeview."{&TRAN}) . 
-    
+        THIS-OBJECT:DisplayStatus ("Populating treeview."{&TRAN}) .
+
         THIS-OBJECT:PopulateOutline (oParseUnit) .
-        
-        RETURN TRUE . 
-        
+
+        RETURN TRUE .
+
         FINALLY:
-            THIS-OBJECT:DisplayStatus ("":U) . 
-            
+            THIS-OBJECT:DisplayStatus ("":U) .
+
             SESSION:SET-WAIT-STATE ("":U) .
-            
+
             THIS-OBJECT:DeleteTemporaryFile (cTempFile) .
-            
+
             Consultingwerk.Windows.API.Win32:LockWindowUpdate (0) .
-            
+
         END FINALLY.
-        
-	END METHOD .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Saves the current editors 
-        Notes:   
+        Purpose: Saves the current editors
+        Notes:
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID Save ():
-		
-        DEFINE VARIABLE oEditor AS ProcedureEditorForm NO-UNDO . 
+    METHOD PROTECTED VOID Save ():
 
-        IF NOT VALID-OBJECT (THIS-OBJECT:ActiveMdiChild) THEN 
-            RETURN . 
-            
+        DEFINE VARIABLE oEditor AS ProcedureEditorForm NO-UNDO .
+
+        IF NOT VALID-OBJECT (THIS-OBJECT:ActiveMdiChild) THEN
+            RETURN .
+
         oEditor = CAST (THIS-OBJECT:ActiveMdiChild,
                         ProcedureEditorForm) .
 
         oEditor:Save () .
-        
+
         THIS-OBJECT:EvaluateSaveEnabled () .
-        
-	END METHOD .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Saves all open editors 
-        Notes:   
+        Purpose: Saves all open editors
+        Notes:
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID SaveAll ():
-        
-        DEFINE VARIABLE oEditor AS ProcedureEditorForm NO-UNDO . 
+
+        DEFINE VARIABLE oEditor AS ProcedureEditorForm NO-UNDO .
 
         {Consultingwerk/foreach.i System.Windows.Forms.Form oForm in this-object:MdiChildren}
 
@@ -1504,53 +1509,53 @@ CLASS Consultingwerk.Studio.ProcedureEditor.SmartEditorForm
 
     /*------------------------------------------------------------------------------
         Purpose: Raises the DragDrop event
-        Notes:   
-        @param e The DragEventArgs with the data for this event 
+        Notes:
+        @param e The DragEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED OVERRIDE VOID OnDragDrop (e AS System.Windows.Forms.DragEventArgs):
-        
+
         DEFINE VARIABLE cFiles AS CHARACTER NO-UNDO EXTENT .
         DEFINE VARIABLE i      AS INTEGER   NO-UNDO .
 
-        
+
         SUPER:OnDragDrop (e) .
 
         IF Consultingwerk.Util.DragAndDropHelper:IsFileDrop (e:Data) THEN DO:
-            
+
             cFiles = Consultingwerk.Util.DragAndDropHelper:GetDropFileNames (e:Data) .
-            
+
             DO i = 1 TO EXTENT (cFiles):
-                THIS-OBJECT:OpenFile (cFiles[i]) .               
+                THIS-OBJECT:OpenFile (cFiles[i]) .
             END.
-        END. 
+        END.
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Raises the DragEnter event
-        Notes:   
-        @param e The DragEventArgs with the data for this event 
+        Notes:
+        @param e The DragEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED OVERRIDE VOID OnDragEnter (e AS System.Windows.Forms.DragEventArgs):
-		
-		SUPER:OnDragEnter (e) .
+    METHOD PROTECTED OVERRIDE VOID OnDragEnter (e AS System.Windows.Forms.DragEventArgs):
 
-        IF Consultingwerk.Util.DragAndDropHelper:IsFileDrop (e:Data) THEN 
+        SUPER:OnDragEnter (e) .
+
+        IF Consultingwerk.Util.DragAndDropHelper:IsFileDrop (e:Data) THEN
             e:Effect = System.Windows.Forms.DragDropEffects:Copy .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Enables or Disables the Timer Components 
-        Notes:   
+        Purpose: Enables or Disables the Timer Components
+        Notes:
         @param plEnabled Logical value indicating if the timers should be enabled or not
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID SetTimersEnabled (plEnabled AS LOGICAL):
-		
-		ASSIGN timer1:Enabled = plEnabled
-		       timer2:Enabled = plEnabled AND UltraToolbarsHelper:GetStateButtonToolChecked (ultraToolbarsManager1, "Parse Automatically":U).   
+    METHOD PUBLIC VOID SetTimersEnabled (plEnabled AS LOGICAL):
 
-	END METHOD .
+        ASSIGN timer1:Enabled = plEnabled
+               timer2:Enabled = plEnabled AND UltraToolbarsHelper:GetStateButtonToolChecked (ultraToolbarsManager1, "Parse Automatically":U).
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the Tick event of the timer component
@@ -1558,12 +1563,12 @@ CLASS Consultingwerk.Studio.ProcedureEditor.SmartEditorForm
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID timer1_Tick (sender AS System.Object, 
-	                                 e AS System.EventArgs):
-		
-		THIS-OBJECT:EvaluateSaveEnabled () .
+    METHOD PRIVATE VOID timer1_Tick (sender AS System.Object,
+                                     e AS System.EventArgs):
 
-	END METHOD .
+        THIS-OBJECT:EvaluateSaveEnabled () .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the Tick event of the timer component
@@ -1571,114 +1576,116 @@ CLASS Consultingwerk.Studio.ProcedureEditor.SmartEditorForm
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID timer2_Tick (sender AS System.Object,
-	                                 e AS System.EventArgs):
-		
+    METHOD PRIVATE VOID timer2_Tick (sender AS System.Object,
+                                     e AS System.EventArgs):
+
         THIS-OBJECT:ParseSourceCode () .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the treeNodeSelected event of the ultraTreeWithSearchControl1
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The TreeNodeSelectedEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID TreeNodeSelectedHandler (sender AS System.Object,
-	                                               e AS TreeNodeSelectedEventArgs):
-		
+    METHOD PROTECTED VOID TreeNodeSelectedHandler (sender AS System.Object,
+                                                   e AS TreeNodeSelectedEventArgs):
+
         DEFINE VARIABLE iKey          AS INTEGER             NO-UNDO.
-        DEFINE VARIABLE oNode         AS JPNode              NO-UNDO . 
+        DEFINE VARIABLE oNode         AS JPNode              NO-UNDO .
         DEFINE VARIABLE cFileName     AS CHARACTER           NO-UNDO.
-        DEFINE VARIABLE oEditorForm   AS ProcedureEditorForm NO-UNDO . 
+        DEFINE VARIABLE oEditorForm   AS ProcedureEditorForm NO-UNDO .
 
         DEFINE VARIABLE pw_Window     AS HANDLE              NO-UNDO.
         DEFINE VARIABLE pw_Editor     AS HANDLE              NO-UNDO.
         DEFINE VARIABLE p_Cursor_Line AS INTEGER             NO-UNDO.
-        		
-		iKey = INTEGER (e:ItemKey) NO-ERROR  . 	
-		
-		IF iKey > 0 THEN DO: 
+
+        iKey = INTEGER (e:ItemKey) NO-ERROR  .
+
+        IF iKey > 0 THEN DO:
             oNode = THIS-OBJECT:GetJPNode (iKey) .
-            
+
             ASSIGN oEditorForm = CAST (THIS-OBJECT:ActiveMdiChild, ProcedureEditorForm) .
-                        
+
             RUN adecomm/_pwgetwh.p (oEditorForm:EmbeddedWindow, OUTPUT pw_Window).
             RUN adecomm/_pwgeteh.p (INPUT pw_Window , OUTPUT pw_Editor).
-                            
-            ASSIGN p_Cursor_Line = oNode:getLine() . 
-    
-            IF VALID-HANDLE (pw_Editor) THEN DO: 
-                IF pw_Editor:EMPTY THEN RETURN.
+
+            ASSIGN p_Cursor_Line = oNode:getLine() .
+
+            IF VALID-HANDLE (pw_Editor) THEN DO:
+                IF pw_Editor:EMPTY THEN
+                    RETURN.
                 /* If entered line is greater than number of lines in buffer, then
                    move to EOF. */
                 IF p_Cursor_Line > pw_Editor:NUM-LINES
                     THEN pw_Editor:MOVE-TO-EOF().
                 ELSE DO:
                 /* If entered line 0, goto line 1. */
-                    IF ( p_Cursor_Line < 1 ) THEN ASSIGN p_Cursor_Line = 1.
-            
+                    IF ( p_Cursor_Line < 1 ) THEN
+                        ASSIGN p_Cursor_Line = 1.
+
                     ASSIGN pw_Editor:CURSOR-LINE = p_Cursor_Line.
-                    
-                    IF oNode:getColumn () > 0 THEN 
-                        pw_Editor:CURSOR-CHAR = oNode:getColumn () . 
-                END.          
-                
-                APPLY "ENTRY":U TO pw_Editor .   
+
+                    IF oNode:getColumn () > 0 THEN
+                        pw_Editor:CURSOR-CHAR = oNode:getColumn () .
+                END.
+
+                APPLY "ENTRY":U TO pw_Editor .
             END.
-		END .
-		
-	END METHOD .
+        END .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the ToolClick event of the ultraToolbarsManager1
-        Notes:   
+        Notes:
         @param sender The reference to the event that raised this event
-        @param e The ToolClickEventArgs with the data for this event 
+        @param e The ToolClickEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraToolbarsManager1_ToolClick (sender AS System.Object, 
-	                                                     e AS Infragistics.Win.UltraWinToolbars.ToolClickEventArgs):
-		
-		CASE e:Tool:Key:
-		    
-		    WHEN "open":U THEN 
-		        THIS-OBJECT:OpenFile () .
-		    
-		    WHEN "save":U THEN 
-		        THIS-OBJECT:Save () .
-		        
-		    WHEN "save all":U THEN 
-		        THIS-OBJECT:SaveAll () .
-		        		    
-		    WHEN "check syntax":U THEN 
-		        THIS-OBJECT:CheckSyntax () .
-		     
-		    WHEN "search outline":U THEN 
-		        THIS-OBJECT:ultraTreeWithSearchControl1:FocusSearchField() .
-		     
-		    WHEN "Insert Method":U THEN 
-		        THIS-OBJECT:InsertMethod () .
-		     
-		    WHEN "Parse Automatically":U THEN 
-		        THIS-OBJECT:SetTimersEnabled (TRUE) .
+    METHOD PRIVATE VOID ultraToolbarsManager1_ToolClick (sender AS System.Object,
+                                                         e AS Infragistics.Win.UltraWinToolbars.ToolClickEventArgs):
 
-            WHEN "Parse":U THEN 
-                THIS-OBJECT:ParseSourceCode () . 
-		     
-		END CASE . 
+        CASE e:Tool:Key:
+
+            WHEN "open":U THEN
+                THIS-OBJECT:OpenFile () .
+
+            WHEN "save":U THEN
+                THIS-OBJECT:Save () .
+
+            WHEN "save all":U THEN
+                THIS-OBJECT:SaveAll () .
+
+            WHEN "check syntax":U THEN
+                THIS-OBJECT:CheckSyntax () .
+
+            WHEN "search outline":U THEN
+                THIS-OBJECT:ultraTreeWithSearchControl1:FocusSearchField() .
+
+            WHEN "Insert Method":U THEN
+                THIS-OBJECT:InsertMethod () .
+
+            WHEN "Parse Automatically":U THEN
+                THIS-OBJECT:SetTimersEnabled (TRUE) .
+
+            WHEN "Parse":U THEN
+                THIS-OBJECT:ParseSourceCode () .
+
+        END CASE .
 
         CATCH err AS Progress.Lang.Error:
             ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the SmartEditorForm class 
-        Notes:   
+        Purpose: Destructor for the SmartEditorForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC SmartEditorForm ():
 
     END DESTRUCTOR .
-    
+
 END CLASS.

@@ -12,8 +12,8 @@
 /*------------------------------------------------------------------------
     File        : ExtendedNameFormatEnum
     Purpose     : Specifies a format for a directory service object name.
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Mon Jun 18 21:51:52 CEST 2012
     Notes       : http://msdn.microsoft.com/en-us/library/windows/desktop/ms724268(v=vs.85).aspx
@@ -29,20 +29,20 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 &GLOBAL-DEFINE CLASS CLASS
 &ENDIF
 
-USING Consultingwerk.*                       FROM PROPATH .
-USING Consultingwerk.Framework.Collections.* FROM PROPATH .
-USING Consultingwerk.Windows.API.*           FROM PROPATH .  
-USING Progress.Lang.*                        FROM PROPATH .
+USING Consultingwerk.*                       FROM PROPATH.
+USING Consultingwerk.Framework.Collections.* FROM PROPATH.
+USING Consultingwerk.Windows.API.*           FROM PROPATH.
+USING Progress.Lang.*                        FROM PROPATH.
 
-{&CLASS} Consultingwerk.Windows.API.ExtendedNameFormatEnum 
+{&CLASS} Consultingwerk.Windows.API.ExtendedNameFormatEnum
     &IF "{&CLASS}" EQ "CLASS" &THEN
     INHERITS Enum
-    &ENDIF    
-        : 
+    &ENDIF
+        :
 
 &IF "{&CLASS}" EQ "ENUM" &THEN
     DEFINE ENUM
-&ENDIF    
+&ENDIF
 
     {Consultingwerk/EnumMember.i NameUnknown 0 ExtendedNameFormatEnum}
     {Consultingwerk/EnumMember.i NameFullyQualifiedDN 1 ExtendedNameFormatEnum}
@@ -57,7 +57,7 @@ USING Progress.Lang.*                        FROM PROPATH .
 
 &IF "{&CLASS}" EQ "ENUM" &THEN
     .
-&ENDIF    
+&ENDIF
 
 &IF "{&CLASS}" EQ "CLASS" &THEN
 
@@ -69,27 +69,25 @@ USING Progress.Lang.*                        FROM PROPATH .
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PRIVATE ExtendedNameFormatEnum (piValue AS INTEGER, pcLabel AS CHARACTER):
         SUPER ().
- 
+
         ASSIGN THIS-OBJECT:Value = piValue
                THIS-OBJECT:Label = pcLabel .
- 
+
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Returns a CharacterList with the names of the Enum members 
-        Notes:   
+        Purpose: Returns a CharacterList with the names of the Enum members
+        Notes:
         @return The CharacterList with the names of the Enum members
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CharacterList GetNames ():
-        
-        DEFINE VARIABLE oReturn AS CharacterList NO-UNDO . 
-        
+
         RETURN NEW CharacterList ('{&EnumMembers}':U).
 
     END METHOD .
-    
-    {Consultingwerk/EnumFromString.i Consultingwerk.Windows.API.ExtendedNameFormatEnum}    
-    
-&ENDIF    
-    
+
+    {Consultingwerk/EnumFromString.i Consultingwerk.Windows.API.ExtendedNameFormatEnum}
+
+&ENDIF
+
 END {&CLASS} .

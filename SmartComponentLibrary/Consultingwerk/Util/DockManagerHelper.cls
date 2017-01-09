@@ -8,19 +8,19 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/ 
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : DockManagerHelper
     Purpose     : Helper class that supports custom serialization/
-                  deserialization of the Infragistics UltraDockManager 
+                  deserialization of the Infragistics UltraDockManager
                   component
-    Syntax      : Static methods only, private constructor to disallow 
+    Syntax      : Static methods only, private constructor to disallow
                   instance creation
-    Description : 
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Tue Jul 05 20:22:52 CEST 2011
     Notes       : When serializing/deserializing the settings we do assume
-                  that the key of a Pane  
+                  that the key of a Pane
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -33,25 +33,25 @@ USING Infragistics.Win.UltraWinDock.* .
 &ENDIF
 USING Progress.Lang.* FROM PROPATH .
 
-CLASS Consultingwerk.Util.DockManagerHelper: 
+CLASS Consultingwerk.Util.DockManagerHelper:
 
      {Consultingwerk/Util/TempTables/dsDockManagerSettings.i &ACCESS="PRIVATE STATIC"}
 
     /*------------------------------------------------------------------------------
-        Purpose: Disallow instance creation                                                                        
-        Notes:                                                                        
+        Purpose: Disallow instance creation
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PROTECTED DockManagerHelper ():
         SUPER ().
-        
+
     END CONSTRUCTOR.
 
 &IF DEFINED (DotNetAccessible) NE 0 &THEN
     /*------------------------------------------------------------------------------
         Purpose: Ensures that all DockablePanes / DockableGroupPanes in the collection
-                 have a Key. If no Key is present, a GUID will be used                                                                       
-        Notes:   Recursive function. The purpose of this method is to work around 
-                 the fact that the Dockable Panes InternalId is not accessible. When 
+                 have a Key. If no Key is present, a GUID will be used
+        Notes:   Recursive function. The purpose of this method is to work around
+                 the fact that the Dockable Panes InternalId is not accessible. When
                  serializing we assume that the Keys are GUID to serve as InternalId's
                  when deserializing (constructor parameters)
         @param poPanes The DockablePanesCollection to ensure that all panes have a key
@@ -59,54 +59,54 @@ CLASS Consultingwerk.Util.DockManagerHelper:
     METHOD PROTECTED STATIC VOID EnsureKeys (poPanes AS DockablePanesCollection):
 
         {Consultingwerk/foreach.i DockablePaneBase oPane in poPanes}
-        
+
             IF oPane:Key > "":U THEN .
-            ELSE 
+            ELSE
                 oPane:Key = System.Guid:NewGuid ():ToString() .
-                
-            IF TYPE-OF (oPane, DockableGroupPane) THEN 
+
+            IF TYPE-OF (oPane, DockableGroupPane) THEN
                 IF CAST (oPane, DockableGroupPane):Panes:Count > 0 THEN
 
-                    DockManagerHelper:EnsureKeys (CAST (oPane, DockableGroupPane):Panes) .                                      
+                    DockManagerHelper:EnsureKeys (CAST (oPane, DockableGroupPane):Panes) .
         END.
-    END.
-    
+    END METHOD .
+
     /*------------------------------------------------------------------------------
-        Purpose: Ensures that all DockAreaPanes in the UltraDockManager have a Key. 
-                 If no Key is present, a GUID will be used                                                                       
-        Notes:   Recursive function. The purpose of this method is to work around 
-                 the fact that the DockAreaPanes InternalId is not accessible. When 
+        Purpose: Ensures that all DockAreaPanes in the UltraDockManager have a Key.
+                 If no Key is present, a GUID will be used
+        Notes:   Recursive function. The purpose of this method is to work around
+                 the fact that the DockAreaPanes InternalId is not accessible. When
                  serializing we assume that the Keys are GUID to serve as InternalId's
                  when deserializing (constructor parameters)
         @param poDockManager The reference to the UltraDockManager instance
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC VOID EnsureKeys (poDockManager AS UltraDockManager):
-        
+
         {Consultingwerk/foreach.i DockAreaPane oArea in poDockManager:DockAreas}
-        
+
             IF oArea:Key > "":U THEN .
-            ELSE 
+            ELSE
                 oArea:Key = System.Guid:NewGuid ():ToString() .
-                
-            IF oArea:Panes:Count > 0 THEN 
-                DockManagerHelper:EnsureKeys (oArea:Panes) .                                      
+
+            IF oArea:Panes:Count > 0 THEN
+                DockManagerHelper:EnsureKeys (oArea:Panes) .
         END.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Restores the child DockableControlPanes/DockableGroupPanes for the 
-                 given paren (DockableGroupPane).                                                                          
-        Notes:   Since the DockAreaPanes inherit from the DockableGroupPanes this 
+        Purpose: Restores the child DockableControlPanes/DockableGroupPanes for the
+                 given paren (DockableGroupPane).
+        Notes:   Since the DockAreaPanes inherit from the DockableGroupPanes this
                  method is recursively used for DockableControlPanes/DockableGroupPanes
-                 at any given level 
-        @param poPane The reference to the DockableGroupPane                                                                                         
+                 at any given level
+        @param poPane The reference to the DockableGroupPane
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED STATIC VOID RestoreDockablePaneSettings (poPane AS DockableGroupPane):
-        
+
         DEFINE VARIABLE oDockAreaPane AS DockablePaneBase NO-UNDO .
         DEFINE VARIABLE oParentId     AS System.Guid      NO-UNDO.
-        
+
         ASSIGN oParentId = NEW System.Guid (poPane:Key).
 
         FOR EACH ttDockAreas WHERE ttDockAreas.ParentInternalId = poPane:Key
@@ -114,99 +114,99 @@ CLASS Consultingwerk.Util.DockManagerHelper:
 
             CASE ttDockAreas.PaneType:
                 WHEN "DockableControlPane":U THEN DO:
-                    oDockAreaPane = NEW DockableControlPane (NEW System.Guid (ttDockAreas.InternalId), 
-                                                             NEW System.Guid ("00000000-0000-0000-0000-000000000000":U), 
+                    oDockAreaPane = NEW DockableControlPane (NEW System.Guid (ttDockAreas.InternalId),
+                                                             NEW System.Guid ("00000000-0000-0000-0000-000000000000":U),
                                                              -1,
-                                                             oParentId, 
+                                                             oParentId,
                                                              ttDockAreas.PaneIndex) .
-                    ASSIGN 
+                    ASSIGN
                         oDockAreaPane:Key  = ttDockAreas.InternalId
                         oDockAreaPane:Text = ttDockAreas.AreaText
-                        oDockAreaPane:TextTab = IF ttDockAreas.AreaTextTab > "":U 
+                        oDockAreaPane:TextTab = IF ttDockAreas.AreaTextTab > "":U
                                                     THEN ttDockAreas.AreaTextTab
-                                                    ELSE ttDockAreas.AreaText 
+                                                    ELSE ttDockAreas.AreaText
                         .
 
                     IF NUM-ENTRIES (ttDockAreas.Size, ",":U) > 1 THEN
                         oDockAreaPane:Size = NEW System.Drawing.Size (INTEGER (ENTRY (1, ttDockAreas.Size)),
                                                                       INTEGER (ENTRY (2, ttDockAreas.Size))) .
-                                                    
+
                     CAST (oDockAreaPane, DockableControlPane):Control = NEW System.Windows.Forms.Panel () .
                     CAST (oDockAreaPane, DockableControlPane):Control:Text = ttDockAreas.AreaText .
-                                                                        
+
                 END.
                 WHEN "DockableGroupPane":U THEN DO:
-                    oDockAreaPane = NEW DockableGroupPane (NEW System.Guid (ttDockAreas.InternalId), 
-                                                           NEW System.Guid ("00000000-0000-0000-0000-000000000000":U), 
+                    oDockAreaPane = NEW DockableGroupPane (NEW System.Guid (ttDockAreas.InternalId),
+                                                           NEW System.Guid ("00000000-0000-0000-0000-000000000000":U),
                                                            -1,
-                                                           oParentId, 
+                                                           oParentId,
                                                            ttDockAreas.PaneIndex) .
-                    ASSIGN 
+                    ASSIGN
                         oDockAreaPane:Key  = ttDockAreas.InternalId
                         oDockAreaPane:Text = ttDockAreas.AreaText
-                        oDockAreaPane:TextTab = IF ttDockAreas.AreaTextTab > "":U 
+                        oDockAreaPane:TextTab = IF ttDockAreas.AreaTextTab > "":U
                                                     THEN ttDockAreas.AreaTextTab
-                                                    ELSE ttDockAreas.AreaText 
-                        CAST (oDockAreaPane, DockableGroupPane):ChildPaneStyle = {Consultingwerk/parse-enum.i 
+                                                    ELSE ttDockAreas.AreaText
+                        CAST (oDockAreaPane, DockableGroupPane):ChildPaneStyle = {Consultingwerk/parse-enum.i
                                                                                     Infragistics.Win.UltraWinDock.ChildPaneStyle
                                                                                     ttDockAreas.ChildPaneStyle} .
-                        .                
-                    IF NUM-ENTRIES (ttDockAreas.Size, ",":U) > 1 THEN 
+                        .
+                    IF NUM-ENTRIES (ttDockAreas.Size, ",":U) > 1 THEN
                         oDockAreaPane:Size = NEW System.Drawing.Size (INTEGER (ENTRY (1, ttDockAreas.Size)),
                                                                       INTEGER (ENTRY (2, ttDockAreas.Size))) .
                 END.
                 OTHERWISE DO:
-                    UNDO, THROW NEW AppError 
+                    UNDO, THROW NEW AppError
                         (SUBSTITUTE ("Unexpected Pane type &1."{&TRAN}, ttDockAreas.PaneType), 0) .
                 END .
-                
-            END CASE .         
+
+            END CASE .
 
             CAST (poPane, DockableGroupPane):Panes:Add (oDockAreaPane) .
         END.
 
         {Consultingwerk/foreach.i DockablePaneBase oGroupPane in CAST(poPane,DockableGroupPane):Panes}
-        
-             IF TYPE-OF (oGroupPane, DockableGroupPane) THEN 
+
+             IF TYPE-OF (oGroupPane, DockableGroupPane) THEN
                  RestoreDockablePaneSettings (CAST (oGroupPane, DockableGroupPane)) .
-        END.        
+        END.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Restores the DockAreas for the given DockAreasCollection (direct 
-                 childs of the UltraDockManager)                                                                         
-        Notes:   Calls RestoreDockablePaneSettings (poPane AS DockableGroupPane) to 
-                 restore the Panes or the DockAreaPanes  
-        @param poAreas The reference to the DockAreasCollection                                                                                            
+        Purpose: Restores the DockAreas for the given DockAreasCollection (direct
+                 childs of the UltraDockManager)
+        Notes:   Calls RestoreDockablePaneSettings (poPane AS DockableGroupPane) to
+                 restore the Panes or the DockAreaPanes
+        @param poAreas The reference to the DockAreasCollection
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED STATIC VOID RestoreDockAreaSettings (poAreas AS DockAreasCollection):
-        
-        DEFINE VARIABLE oDockAreaPane AS DockAreaPane NO-UNDO . 
-        
+
+        DEFINE VARIABLE oDockAreaPane AS DockAreaPane NO-UNDO .
+
         FOR EACH ttDockAreas WHERE ttDockAreas.ParentInternalId = "":U
                                 BY ttDockAreas.Order:
-                                    
-            oDockAreaPane = NEW DockAreaPane ({Consultingwerk/parse-enum.i 
-                                                Infragistics.Win.UltraWinDock.DockedLocation 
+
+            oDockAreaPane = NEW DockAreaPane ({Consultingwerk/parse-enum.i
+                                                Infragistics.Win.UltraWinDock.DockedLocation
                                                 ttDockAreas.DockedLocation},
                                                NEW System.Guid (ttDockAreas.InternalId)) .
-            
+
             oDockAreaPane:Key = ttDockAreas.InternalId .
-            
-            oDockAreaPane:ChildPaneStyle = {Consultingwerk/parse-enum.i 
+
+            oDockAreaPane:ChildPaneStyle = {Consultingwerk/parse-enum.i
                                                 Infragistics.Win.UltraWinDock.ChildPaneStyle
                                                 ttDockAreas.ChildPaneStyle} .
-            
-            IF NUM-ENTRIES (ttDockAreas.Size, ",":U) > 1 THEN 
+
+            IF NUM-ENTRIES (ttDockAreas.Size, ",":U) > 1 THEN
                 oDockAreaPane:Size = NEW System.Drawing.Size (INTEGER (ENTRY (1, ttDockAreas.Size)),
                                                               INTEGER (ENTRY (2, ttDockAreas.Size))) .
-            
-            IF ttDockAreas.DockedBefore > "":U THEN 
+
+            IF ttDockAreas.DockedBefore > "":U THEN
                 oDockAreaPane:DockedBefore = NEW System.GUID (ttDockAreas.DockedBefore) .
-                     
-            poAreas:Add (oDockAreaPane) .                                       
-        END.                                    
+
+            poAreas:Add (oDockAreaPane) .
+        END.
 
         {Consultingwerk/foreach.i DockAreaPane oDockAreaPane2 in poAreas}
             RestoreDockablePaneSettings (oDockAreaPane2) .
@@ -215,30 +215,30 @@ CLASS Consultingwerk.Util.DockManagerHelper:
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Restores the settings of the UltraDockManager from the given 
-                 dsDockManagerSettins ProDataset                                          
+        Purpose: Restores the settings of the UltraDockManager from the given
+                 dsDockManagerSettins ProDataset
         Notes:
         @param poDockManager The reference to the UltraDockManager instance
-        @param dsDockManagerSettings DATASET with the Dockmanager Settings, from Consultingwerk/Util/TempTables/dsDockManagerSettings.i                                                                                 
+        @param dsDockManagerSettings DATASET with the Dockmanager Settings, from Consultingwerk/Util/TempTables/dsDockManagerSettings.i
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC VOID RestoreDockManagerSettings (poDockManager AS UltraDockManager,
                                                           DATASET FOR dsDockManagerSettings):
-        
+
         CAST(poDockManager, System.ComponentModel.ISupportInitialize):BeginInit().
-        
+
         /* Clear DockAreas */
         poDockManager:DockAreas:Clear() .
-        
+
         FIND FIRST ttDockManager .
-        
-        ASSIGN poDockManager:LayoutStyle = {Consultingwerk/parse-enum.i 
-                                                Infragistics.Win.UltraWinDock.DockAreaLayoutStyle 
+
+        ASSIGN poDockManager:LayoutStyle = {Consultingwerk/parse-enum.i
+                                                Infragistics.Win.UltraWinDock.DockAreaLayoutStyle
                                                 ttDockManager.LayoutStyle}
-               poDockManager:WindowStyle = {Consultingwerk/parse-enum.i 
-                                                Infragistics.Win.UltraWinDock.WindowStyle 
-                                                ttDockManager.WindowStyle}                                                 
-                                                . 
-        
+               poDockManager:WindowStyle = {Consultingwerk/parse-enum.i
+                                                Infragistics.Win.UltraWinDock.WindowStyle
+                                                ttDockManager.WindowStyle}
+                                                .
+
         RestoreDockAreaSettings (poDockManager:DockAreas) .
 
         FINALLY:
@@ -248,59 +248,59 @@ CLASS Consultingwerk.Util.DockManagerHelper:
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Restores the Settings of the UltraDockManager from the ISettingsService                                                                     
-        Notes:   Uses the Key "DockManagerSettings", typically used inside the 
+        Purpose: Restores the Settings of the UltraDockManager from the ISettingsService
+        Notes:   Uses the Key "DockManagerSettings", typically used inside the
                  OnLoad method of a Form
         @param poDockManager The UltraDockManager instance to restore the settings for
-        @param pcSettingsKey The Settings Key (Form Identifier) to load the settings from                                                                    
+        @param pcSettingsKey The Settings Key (Form Identifier) to load the settings from
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC VOID RestoreFromSettingsService (poDockManager AS UltraDockManager,
                                                           pcSettingsKey AS CHARACTER):
-        
-        DEFINE VARIABLE oSettingsServiceLong AS Consultingwerk.Framework.ISettingsServiceLong NO-UNDO . 
-        DEFINE VARIABLE oSettingsService     AS Consultingwerk.Framework.ISettingsService     NO-UNDO . 
+
+        DEFINE VARIABLE oSettingsServiceLong AS Consultingwerk.Framework.ISettingsServiceLong NO-UNDO .
+        DEFINE VARIABLE oSettingsService     AS Consultingwerk.Framework.ISettingsService     NO-UNDO .
         DEFINE VARIABLE cSettings            AS LONGCHAR                                      NO-UNDO .
-        DEFINE VARIABLE oMemoryStream        AS System.IO.MemoryStream                        NO-UNDO . 
-        DEFINE VARIABLE oBytes               AS "System.Byte[]":U                             NO-UNDO . 
-        DEFINE VARIABLE mptr                 AS MEMPTR                                        NO-UNDO . 
+        DEFINE VARIABLE oMemoryStream        AS System.IO.MemoryStream                        NO-UNDO .
+        DEFINE VARIABLE oBytes               AS "System.Byte[]":U                             NO-UNDO .
+        DEFINE VARIABLE mptr                 AS MEMPTR                                        NO-UNDO .
         DEFINE VARIABLE iChunks              AS INTEGER                                       NO-UNDO .
         DEFINE VARIABLE i                    AS INTEGER                                       NO-UNDO .
-        
+
         FIX-CODEPAGE (cSettings) = "utf-8":U .
-        
+
         {Consultingwerk/Assertion/ObjectAssert/IsValid.i poDockManager} .
         Consultingwerk.Assertion.Assert:NotNullOrEmpty (pcSettingsKey, "Settings Key":U) .
-        
+
         oSettingsServiceLong = {Consultingwerk/get-service.i Consultingwerk.Framework.ISettingsServiceLong} .
-        
+
         IF NOT VALID-OBJECT (oSettingsServiceLong) THEN DO:
-        
+
             oSettingsService = {Consultingwerk/get-service.i Consultingwerk.Framework.ISettingsService} .
-        
-            IF NOT VALID-OBJECT (oSettingsService) THEN 
-                RETURN . 
+
+            IF NOT VALID-OBJECT (oSettingsService) THEN
+                RETURN .
         END.
-        
-        IF VALID-OBJECT (oSettingsServiceLong) THEN 
+
+        IF VALID-OBJECT (oSettingsServiceLong) THEN
             cSettings = oSettingsServiceLong:GetSettingLong (pcSettingsKey,
                                                              "DockManagerSettings":U) .
-        ELSE 
+        ELSE
             cSettings = oSettingsService:GetSetting (pcSettingsKey,
                                                      "DockManagerSettings":U) .
 
         ASSIGN iChunks = INTEGER (cSettings) NO-ERROR .
-            
-        IF iChunks > 0 THEN . 
-        ELSE RETURN . 
+
+        IF iChunks > 0 THEN .
+        ELSE RETURN .
 
         ASSIGN cSettings = "":U .
-            
+
         DO i = 1 TO iChunks:
 
-            IF VALID-OBJECT (oSettingsServiceLong) THEN 
+            IF VALID-OBJECT (oSettingsServiceLong) THEN
                 ASSIGN cSettings = cSettings + oSettingsServiceLong:GetSettingLong (pcSettingsKey,
                                                                                     SUBSTITUTE ("DockManagerSettings.&1":U, i)) .
-            ELSE 
+            ELSE
                 ASSIGN cSettings = cSettings + oSettingsService:GetSetting (pcSettingsKey,
                                                                             SUBSTITUTE ("DockManagerSettings.&1":U, i)) .
         END.
@@ -323,6 +323,7 @@ CLASS Consultingwerk.Util.DockManagerHelper:
 
             poDockManager:LoadFromBinary (oMemoryStream) .
 
+            @SuppressUnusedWarnings.
             CATCH ex AS System.Exception:
                 /* noop - Ignore .NET Exception from statement above
                    when the stored settings are using a different set of Infragistics
@@ -332,54 +333,54 @@ CLASS Consultingwerk.Util.DockManagerHelper:
         END.
 
         FINALLY:
-            SET-SIZE (mptr) = 0 . 		
+            SET-SIZE (mptr) = 0 .
         END FINALLY.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Stores the settings of the DockAreaPanes                                                                         
-        Notes:   Recursively calls StoreDockablePaneSettings (oArea:Panes), uses the 
-                 Key as the InternalId (.NET GUID compatibility required) 
-        @param poAreas The reference to the DockAreasCollection                                                                                
+        Purpose: Stores the settings of the DockAreaPanes
+        Notes:   Recursively calls StoreDockablePaneSettings (oArea:Panes), uses the
+                 Key as the InternalId (.NET GUID compatibility required)
+        @param poAreas The reference to the DockAreasCollection
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED STATIC VOID StoreDockAreaSettings (poAreas AS DockAreasCollection):
-        
+
         DEFINE VARIABLE i AS INTEGER NO-UNDO.
-        
+
         {Consultingwerk/foreach.i DockAreaPane oArea in poAreas}
 
             CREATE ttDockAreas .
             ASSIGN i = i + 1
                    ttDockAreas.PaneType = "DockAreaPane":U
                    ttDockAreas.InternalId = oArea:KEY
-                   ttDockAreas.Order = i  
-                   ttDockAreas.DockedLocation = oArea:DockedLocation:ToString () 
+                   ttDockAreas.Order = i
+                   ttDockAreas.DockedLocation = oArea:DockedLocation:ToString ()
                    ttDockAreas.ChildPaneStyle = oArea:ChildPaneStyle:ToString ()
                    ttDockAreas.DockedBefore = oArea:DockedBefore:ToString ()
                    ttDockAreas.Size = SUBSTITUTE ("&1,&2":U, oArea:Size:Width, oArea:Size:Height) .
 
-            IF oArea:Panes:Count > 0 THEN 
-                StoreDockablePaneSettings (oArea:Panes) . 
+            IF oArea:Panes:Count > 0 THEN
+                StoreDockablePaneSettings (oArea:Panes) .
         END.
 
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Stores the settings of the Panes in the given DockablePanesCollection                                                                      
-        Notes:   Uses the Key as the InternalId (.NET GUID compatibility required) 
-        @param poPanes The reference to the DockablePanesCollection                                                                     
+        Purpose: Stores the settings of the Panes in the given DockablePanesCollection
+        Notes:   Uses the Key as the InternalId (.NET GUID compatibility required)
+        @param poPanes The reference to the DockablePanesCollection
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED STATIC VOID StoreDockablePaneSettings (poPanes AS DockablePanesCollection):
-        
+
         DEFINE VARIABLE i AS INTEGER NO-UNDO.
-        
+
         {Consultingwerk/foreach.i DockablePaneBase oPane in poPanes}
 
             CREATE ttDockAreas .
-            ASSIGN i = i + 1 
+            ASSIGN i = i + 1
                    ttDockAreas.PaneType = oPane:GetType():Name
-                   ttDockAreas.InternalId = oPane:Key 
+                   ttDockAreas.InternalId = oPane:Key
                    ttDockAreas.ParentInternalId = oPane:Parent:Key
                    ttDockAreas.Order = i
                    ttDockAreas.AreaText = oPane:Text
@@ -387,33 +388,33 @@ CLASS Consultingwerk.Util.DockManagerHelper:
                    ttDockAreas.PaneIndex = oPane:Index
                    ttDockAreas.Size = SUBSTITUTE ("&1,&2":U, oPane:ActualSize:Width, oPane:ActualSize:Height) .
 
-            /* Special handling for DockableGroupPanes, i.e. recursion */ 
+            /* Special handling for DockableGroupPanes, i.e. recursion */
             IF TYPE-OF (oPane, DockableGroupPane) THEN DO:
-                   ttDockAreas.ChildPaneStyle = CAST (oPane, DockableGroupPane):ChildPaneStyle:ToString () . 
-                
-                IF CAST (oPane, DockableGroupPane):Panes:Count > 0 THEN 
-                    StoreDockablePaneSettings (CAST (oPane, DockableGroupPane):Panes) . 
+                   ttDockAreas.ChildPaneStyle = CAST (oPane, DockableGroupPane):ChildPaneStyle:ToString () .
+
+                IF CAST (oPane, DockableGroupPane):Panes:Count > 0 THEN
+                    StoreDockablePaneSettings (CAST (oPane, DockableGroupPane):Panes) .
             END.
-        END.    
-        
+        END.
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Stores the settings of the UltraDockManager and returns them in the 
-                 dsDockManagerSettings Dataset.                                                                        
-        Notes:            
+        Purpose: Stores the settings of the UltraDockManager and returns them in the
+                 dsDockManagerSettings Dataset.
+        Notes:
         @param poDockManager The reference to the UltraDockManager instance
-        @param dsDockManagerSettings OUTPUT DATASET with the dockmanager settings, from Consultingwerk/Util/TempTables/dsDockManagerSettings.i                                                                        
+        @param dsDockManagerSettings OUTPUT DATASET with the dockmanager settings, from Consultingwerk/Util/TempTables/dsDockManagerSettings.i
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC VOID StoreDockManagerSettings (poDockManager AS UltraDockManager,
                                                         OUTPUT DATASET FOR dsDockManagerSettings):
-        
+
         DockManagerHelper:EnsureKeys (poDockManager) .
-        
-        DATASET dsDockManagerSettings:EMPTY-DATASET () . 
+
+        DATASET dsDockManagerSettings:EMPTY-DATASET () .
 
         CREATE ttDockManager .
-        ASSIGN ttDockManager.LayoutStyle = poDockManager:LayoutStyle:ToString () 
+        ASSIGN ttDockManager.LayoutStyle = poDockManager:LayoutStyle:ToString ()
                ttDockManager.WindowStyle = poDockManager:WindowStyle:ToString ()
                .
 
@@ -422,81 +423,80 @@ CLASS Consultingwerk.Util.DockManagerHelper:
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Stores the current Settings of the UltraDockManager to the 
-                 ISettingsService                                                                       
-        Notes:   Uses the Key "DockManagerSettings", typically used inside the 
+        Purpose: Stores the current Settings of the UltraDockManager to the
+                 ISettingsService
+        Notes:   Uses the Key "DockManagerSettings", typically used inside the
                  OnFormClosing method of a Form
         @param poDockManager The UltraDockManager instance to store the settings from
-        @param pcSettingsKey The Settings Key (Form Identifier) to save the settings under                                                                      
+        @param pcSettingsKey The Settings Key (Form Identifier) to save the settings under
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC VOID StoreToSettingsService (poDockManager AS UltraDockManager,
                                                       pcSettingsKey AS CHARACTER):
-        
-        DEFINE VARIABLE oSettingsServiceLong AS Consultingwerk.Framework.ISettingsServiceLong NO-UNDO . 
-        DEFINE VARIABLE oSettingsService     AS Consultingwerk.Framework.ISettingsService     NO-UNDO . 
-        DEFINE VARIABLE oMemoryStream        AS System.IO.MemoryStream                        NO-UNDO . 
-        DEFINE VARIABLE oStreamReader        AS System.IO.StreamReader                        NO-UNDO .
+
+        DEFINE VARIABLE oSettingsServiceLong AS Consultingwerk.Framework.ISettingsServiceLong NO-UNDO .
+        DEFINE VARIABLE oSettingsService     AS Consultingwerk.Framework.ISettingsService     NO-UNDO .
+        DEFINE VARIABLE oMemoryStream        AS System.IO.MemoryStream                        NO-UNDO .
         DEFINE VARIABLE cSettings            AS LONGCHAR                                      NO-UNDO .
-        DEFINE VARIABLE mptr                 AS MEMPTR                                        NO-UNDO . 
+        DEFINE VARIABLE mptr                 AS MEMPTR                                        NO-UNDO .
         DEFINE VARIABLE iChunks              AS INTEGER                                       NO-UNDO .
         DEFINE VARIABLE i                    AS INTEGER                                       NO-UNDO .
-        
+
         FIX-CODEPAGE (cSettings) = "utf-8":U .
-        
+
         {Consultingwerk/Assertion/ObjectAssert/IsValid.i poDockManager} .
         Consultingwerk.Assertion.Assert:NotNullOrEmpty (pcSettingsKey, "Settings Key":U) .
-        
+
         oSettingsServiceLong = {Consultingwerk/get-service.i Consultingwerk.Framework.ISettingsServiceLong} .
-        
+
         IF NOT VALID-OBJECT (oSettingsServiceLong) THEN DO:
-        
+
             oSettingsService = {Consultingwerk/get-service.i Consultingwerk.Framework.ISettingsService} .
-        
-            IF NOT VALID-OBJECT (oSettingsService) THEN 
-                RETURN . 
+
+            IF NOT VALID-OBJECT (oSettingsService) THEN
+                RETURN .
         END.
-        
-        oMemoryStream = NEW System.IO.MemoryStream () . 
-          
+
+        oMemoryStream = NEW System.IO.MemoryStream () .
+
         poDockManager:SaveAsBinary (oMemoryStream) .
 
-        oMemoryStream:Position = 0 . 
-        
+        oMemoryStream:Position = 0 .
+
         mptr = DataTypeHelper:ByteArrayToMemptr (oMemoryStream:GetBuffer()) .
-        
+
         cSettings = BASE64-ENCODE (mptr) .
 
         ASSIGN iChunks = MathHelper:Roundup (LENGTH (cSettings) / 8192) .
 
-        IF VALID-OBJECT (oSettingsServiceLong) THEN 
+        IF VALID-OBJECT (oSettingsServiceLong) THEN
             oSettingsServiceLong:StoreSettingLong (pcSettingsKey,
                                                    "DockManagerSettings":U,
                                                    STRING (iChunks)) .
-        ELSE         
+        ELSE
             oSettingsService:StoreSetting (pcSettingsKey,
                                            "DockManagerSettings":U,
                                            STRING (iChunks)) .
-        
+
         DO i = 1 TO iChunks:
 
-            IF VALID-OBJECT (oSettingsServiceLong) THEN             
+            IF VALID-OBJECT (oSettingsServiceLong) THEN
                 oSettingsServiceLong:StoreSettingLong (pcSettingsKey,
                                                        SUBSTITUTE ("DockManagerSettings.&1":U, i),
                                                        STRING (SUBSTRING (cSettings,
                                                                           (i - 1) * 8192 + 1,
                                                                           8192))) .
-            ELSE 
+            ELSE
                 oSettingsService:StoreSetting (pcSettingsKey,
                                                SUBSTITUTE ("DockManagerSettings.&1":U, i),
                                                STRING (SUBSTRING (cSettings,
                                                                   (i - 1) * 8192 + 1,
                                                                   8192))) .
         END.
-    
+
         FINALLY:
-            SET-SIZE (mptr) = 0  . 		
-        END FINALLY.               
-                                    
+            SET-SIZE (mptr) = 0  .
+        END FINALLY.
+
     END METHOD.
 
 &ENDIF

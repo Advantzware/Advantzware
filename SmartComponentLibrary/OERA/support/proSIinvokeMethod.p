@@ -8,14 +8,14 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/  
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : proSIinvokeMethod.p
-    Purpose     : 
+    Purpose     :
 
     Syntax      :
 
-    Description : 
+    Description :
 
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Mon Sep 20 21:10:58 CEST 2010
@@ -32,13 +32,13 @@ DEFINE INPUT-OUTPUT PARAMETER DATASET-HANDLE phDataSet .
 DEFINE INPUT-OUTPUT PARAMETER plcParameter AS LONGCHAR NO-UNDO .
 DEFINE INPUT-OUTPUT PARAMETER DATASET-HANDLE phContextDataset .
 
-DEFINE VARIABLE lContextDatasetAssigned AS LOGICAL NO-UNDO INIT FALSE .
+DEFINE VARIABLE lContextDatasetAssigned AS LOGICAL NO-UNDO INITIAL FALSE .
 
 { Consultingwerk/products.i }
 
 /* Mike Fechner, Consultingwerk Ltd. 08.05.2013
-   Support for custom include files to the proSI... procedures. 
-   This allows adding SHARED variable definitions that may be 
+   Support for custom include files to the proSI... procedures.
+   This allows adding SHARED variable definitions that may be
    required to execute legacy database triggers */
 &IF "{&ProSIcustomIncludeDirectory}":U NE "":U &THEN
 { {&ProSIcustomIncludeDirectory}/proSIinvokeMethodCustom.i }
@@ -46,31 +46,30 @@ DEFINE VARIABLE lContextDatasetAssigned AS LOGICAL NO-UNDO INIT FALSE .
 
 /* ***************************  Main Block  *************************** */
 
-IF VALID-HANDLE (phContextDataset) THEN 
-    ASSIGN Consultingwerk.Framework.Session.SessionManager:ContextDataset = phContextDataset 
+IF VALID-HANDLE (phContextDataset) THEN
+    ASSIGN Consultingwerk.Framework.Session.SessionManager:ContextDataset = phContextDataset
            lContextDatasetAssigned                                        = TRUE .
 
 Consultingwerk.OERA.ServiceInterface:InvokeMethod (pcEntityName,
                                                    pcMethodName,
                                                    INPUT-OUTPUT DATASET-HANDLE phDataset BY-REFERENCE,
-                                                   INPUT-OUTPUT plcParameter). 
-              
+                                                   INPUT-OUTPUT plcParameter).
+
 { {&OERASI}/sicatch.i }
-              
+
 FINALLY:
-    IF VALID-HANDLE (phDataset) THEN                                                    
+    IF VALID-HANDLE (phDataset) THEN
         DELETE OBJECT phDataset NO-ERROR .
 
-    IF VALID-HANDLE (phContextDataset) THEN 
-        DELETE OBJECT phContextDataset NO-ERROR . 
+    IF VALID-HANDLE (phContextDataset) THEN
+        DELETE OBJECT phContextDataset NO-ERROR .
 
-    ERROR-STATUS:ERROR = FALSE NO-ERROR . 
+    ERROR-STATUS:ERROR = FALSE NO-ERROR .
 
     /* Mike Fechner, Consultingwerk Ltd. 23.10.2011
        Only reset the ContextDataset when it was set by this instance
        (avoid issues with call nesting) */
-    IF lContextDatasetAssigned AND SESSION:REMOTE THEN 
+    IF lContextDatasetAssigned AND SESSION:REMOTE THEN
         Consultingwerk.Framework.Session.SessionManager:ContextDataset = ?  .
-        
-END FINALLY.          
-                                                          
+
+END FINALLY.

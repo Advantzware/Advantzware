@@ -28,8 +28,8 @@ INTERFACE Consultingwerk.BusinessEntityDesigner.Generator.Viewer.IHasValidatingE
         Purpose: Code block for the Validating (LEAVE) event
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY ValidatingTriggerBlock AS LONGCHAR NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY ValidatingTriggerBlock AS LONGCHAR NO-UNDO 
+    GET.
+    SET. 
 
 END INTERFACE.

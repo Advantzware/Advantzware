@@ -30,8 +30,8 @@ CLASS Consultingwerk.SmartFramework.Localization.TranslationTypeEnum:
         Purpose: Local translation for this container only
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC STATIC PROPERTY LocalByKey AS CHARACTER NO-UNDO INIT "1":U
-	GET.
+    DEFINE PUBLIC STATIC PROPERTY LocalByKey AS CHARACTER NO-UNDO INIT "1":U
+    GET.
 
     /*------------------------------------------------------------------------------
         Purpose: Local translation for this container by partial key and original 
@@ -46,7 +46,7 @@ CLASS Consultingwerk.SmartFramework.Localization.TranslationTypeEnum:
         Notes:   
     ------------------------------------------------------------------------------*/
     DEFINE PUBLIC STATIC PROPERTY LocalByText AS CHARACTER NO-UNDO INIT "3":U
-    GET.    	 
+    GET.         
 
     /*------------------------------------------------------------------------------
         Purpose: Global translation by resource key
@@ -62,21 +62,21 @@ CLASS Consultingwerk.SmartFramework.Localization.TranslationTypeEnum:
     ------------------------------------------------------------------------------*/
     DEFINE PUBLIC STATIC PROPERTY GlobalByPartialKeyAndText AS CHARACTER NO-UNDO INIT "5":U
     GET.
-	 
+     
     /*------------------------------------------------------------------------------
         Purpose: Global translation by original text only
         Notes:   
     ------------------------------------------------------------------------------*/
     DEFINE PUBLIC STATIC PROPERTY GlobalByText AS CHARACTER NO-UNDO INIT "6":U
     GET.
-	 
+     
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the TranslationTypeEnum class
         Notes:   Disallow instance creation   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PRIVATE TranslationTypeEnum ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PRIVATE TranslationTypeEnum ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
 END CLASS.

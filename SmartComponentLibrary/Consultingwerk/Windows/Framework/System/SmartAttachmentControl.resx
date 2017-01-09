@@ -116,43 +116,99 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="ultraNavigationBar1.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Top</value>
+  </data>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"/>
+  <data name="ultraNavigationBar1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 0</value>
+  </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance1.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
-        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
+        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
+        X6CoP9fV4N0PdCSlAAAAAElFTkSuQmCC
 </value>
   </data>
   <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance2.Image" type="System.Drawing.Bitmap, System.Drawing">
     <value>
-        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
+        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
+        eh1QJVgAAwMAWMstaHrgO5sAAAAASUVORK5CYII=
 </value>
+  </data>
+  <data name="ultraNavigationBar1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>752, 24</value>
+  </data>
+  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="ultraNavigationBar1.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="ultraNavigationBar1.Text" xml:space="preserve">
+    <value>ultraNavigationBar1</value>
+  </data>
+  <data name="&gt;&gt;ultraNavigationBar1.Name" xml:space="preserve">
+    <value>ultraNavigationBar1</value>
+  </data>
+  <data name="&gt;&gt;ultraNavigationBar1.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraNavigationBar, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraNavigationBar1.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraNavigationBar1.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="ultraListView1.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Fill</value>
+  </data>
+  <data name="ultraListView1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 24</value>
+  </data>
+  <data name="ultraListView1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>752, 308</value>
+  </data>
+  <data name="ultraListView1.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="ultraListView1.Text" xml:space="preserve">
+    <value>ultraListView1</value>
+  </data>
+  <data name="&gt;&gt;ultraListView1.Name" xml:space="preserve">
+    <value>ultraListView1</value>
+  </data>
+  <data name="&gt;&gt;ultraListView1.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinListView.UltraListView, Infragistics4.Win.UltraWinListView.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraListView1.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraListView1.ZOrder" xml:space="preserve">
+    <value>0</value>
   </data>
   <metadata name="smartBusinessEntityAdapter1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
@@ -160,4 +216,31 @@
   <metadata name="timer1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>217, 17</value>
   </metadata>
+  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing">
+    <value>6, 13</value>
+  </data>
+  <data name="$this.Size" type="System.Drawing.Size, System.Drawing">
+    <value>752, 332</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityAdapter1.Name" xml:space="preserve">
+    <value>smartBusinessEntityAdapter1</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityAdapter1.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;timer1.Name" xml:space="preserve">
+    <value>timer1</value>
+  </data>
+  <data name="&gt;&gt;timer1.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Timer, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;$this.Name" xml:space="preserve">
+    <value>SmartAttachmentControl</value>
+  </data>
+  <data name="&gt;&gt;$this.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Base.SmartUserControl, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
 </root>

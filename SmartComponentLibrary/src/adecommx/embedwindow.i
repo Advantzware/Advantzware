@@ -45,22 +45,22 @@ DEFINE VARIABLE oFormControl AS Consultingwerk.WindowIntegrationKit.Forms.Embedd
 
 &IF DEFINED (winkitactive) NE 0 &THEN
 FUNCTION getEmbeddedWindowForm RETURNS Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWindowForm 
-	(  ) FORWARD.	
-&ENDIF	
+    (  ) FORWARD.    
+&ENDIF    
 
 /* ************************  Function Implementations ***************** */
 
 &IF DEFINED (winkitactive) NE 0 &THEN
 
 FUNCTION getEmbeddedWindowForm RETURNS Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWindowForm 
-	    (  ):
+        (  ):
 /*------------------------------------------------------------------------------
-	Purpose:  																	  
-	Notes:  																	  
-------------------------------------------------------------------------------*/	
+    Purpose:                                                                        
+    Notes:                                                                        
+------------------------------------------------------------------------------*/    
 
-	RETURN oForm .
-		
+    RETURN oForm .
+        
 END FUNCTION.
 &ENDIF
 

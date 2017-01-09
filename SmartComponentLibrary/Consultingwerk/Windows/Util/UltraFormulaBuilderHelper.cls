@@ -34,29 +34,29 @@ CLASS Consultingwerk.Windows.Util.UltraFormulaBuilderHelper:
         Purpose: Constructor for the UltraFormulaBuilderHelper class
         Notes:   Disallow instance creation   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PRIVATE UltraFormulaBuilderHelper ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PRIVATE UltraFormulaBuilderHelper ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Shows the FormulaBuilderDialog
         Notes:   
         @param oFormulaProvider The FormulaProvider to show the Dialog Form
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC VOID ShowFormulaBuilderDialog (oFormulaProvider AS IFormulaProvider):
-		
-		DEFINE VARIABLE oDialog       AS FormulaBuilderDialog NO-UNDO . 
-		DEFINE VARIABLE oDialogResult AS DialogResult         NO-UNDO .
-		
-		oDialog = NEW FormulaBuilderDialog (oFormulaProvider) .
+    METHOD PUBLIC STATIC VOID ShowFormulaBuilderDialog (oFormulaProvider AS IFormulaProvider):
+        
+        DEFINE VARIABLE oDialog       AS FormulaBuilderDialog NO-UNDO . 
+        DEFINE VARIABLE oDialogResult AS DialogResult         NO-UNDO .
+        
+        oDialog = NEW FormulaBuilderDialog (oFormulaProvider) .
 
         WAIT-FOR oDialog:ShowDialog () SET oDialogResult . 
-		
-		{Consultingwerk/check-dialogresult-ok.i oDialogResult} .
+        
+        {Consultingwerk/check-dialogresult-ok.i oDialogResult} .
 
         ASSIGN oFormulaProvider:Formula = oDialog:Formula . 
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

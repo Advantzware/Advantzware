@@ -50,28 +50,28 @@ CLASS Consultingwerk.Windows.Controls.NotificationBar
                  NotificationBar 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Image AS System.Drawing.Image NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY Image AS System.Drawing.Image NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets if a sound should be played when the Control is shown 
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY PlaySoundWhenShown AS LOGICAL INITIAL FALSE NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY PlaySoundWhenShown AS LOGICAL INITIAL FALSE NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the NotificationBar class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC NotificationBar ():
-		SUPER ().
-		
-		ASSIGN oFlashTimer           = NEW Timer () 
-		       oFlashTimer:Interval  = 750 
-		       oCloseButtonSize      = NEW Size (20, 20)  
+    CONSTRUCTOR PUBLIC NotificationBar ():
+        SUPER ().
+        
+        ASSIGN oFlashTimer           = NEW Timer () 
+               oFlashTimer:Interval  = 750 
+               oCloseButtonSize      = NEW Size (20, 20)  
                THIS-OBJECT:BackColor = SystemColors:Info 
                THIS-OBJECT:Dock      = DockStyle:Top .
                .
@@ -80,8 +80,8 @@ CLASS Consultingwerk.Windows.Controls.NotificationBar
 
         THIS-OBJECT:SetStyle (ControlStyles:AllPaintingInWmPaint, TRUE) .
         THIS-OBJECT:SetStyle (ControlStyles:ResizeRedraw, TRUE) .
-		
-	END CONSTRUCTOR.
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Draws the Close Button 
@@ -120,8 +120,8 @@ CLASS Consultingwerk.Windows.Controls.NotificationBar
         Notes:   
         @param e The PaintEventArgs of the Current Paint interaction
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID DrawText (e AS PaintEventArgs):
-		
+    METHOD PROTECTED VOID DrawText (e AS PaintEventArgs):
+        
         DEFINE VARIABLE iLeftPadding  AS INTEGER   NO-UNDO INIT 1 .
         DEFINE VARIABLE oTextSize     AS Size      NO-UNDO .
         DEFINE VARIABLE iMaxTextWidth AS INTEGER   NO-UNDO.
@@ -161,7 +161,7 @@ CLASS Consultingwerk.Windows.Controls.NotificationBar
                                CAST (EnumHelperExt:Or (TextFormatFlags:WordBreak, TextFormatFlags:Left, TextFormatFlags:Top),
                                      TextFormatFlags)) . 
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Flashes the Control for the given number of times and the given interval
@@ -170,17 +170,17 @@ CLASS Consultingwerk.Windows.Controls.NotificationBar
         @param piInterval The interval in milliseconds used for flashing
         @param piNumberOfTimes The number of times the Control is supposed to flash
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID Flash (piInterval AS INTEGER,
-	                          piNumberOfTimes AS INTEGER):
-		
-		ASSIGN iFlashTo   = piNumberOfTimes
-		       iTickCount = 0
-		       
-		       oFlashTimer:Interval = piInterval . 
-		       
-		oFlashTimer:Start () .          
+    METHOD PUBLIC VOID Flash (piInterval AS INTEGER,
+                              piNumberOfTimes AS INTEGER):
+        
+        ASSIGN iFlashTo   = piNumberOfTimes
+               iTickCount = 0
+               
+               oFlashTimer:Interval = piInterval . 
+               
+        oFlashTimer:Start () .          
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Flashes the Control for the given number of times and default interval
@@ -212,8 +212,8 @@ CLASS Consultingwerk.Windows.Controls.NotificationBar
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event  
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID FlashTimerTickHandler (sender AS System.Object,
-	                                             e AS System.EventArgs):
+    METHOD PROTECTED VOID FlashTimerTickHandler (sender AS System.Object,
+                                                 e AS System.EventArgs):
 
         IF lControlHighlighted THEN DO:
 
@@ -235,7 +235,7 @@ CLASS Consultingwerk.Windows.Controls.NotificationBar
         
         THIS-OBJECT:Invalidate () .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Raises the MouseClick event
@@ -289,41 +289,41 @@ CLASS Consultingwerk.Windows.Controls.NotificationBar
         Notes:   
         @param e The PaintEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED OVERRIDE VOID OnPaint (e AS PaintEventArgs):
+    METHOD PROTECTED OVERRIDE VOID OnPaint (e AS PaintEventArgs):
 
         THIS-OBJECT:DrawText (e) .
         THIS-OBJECT:DrawCloseButton (e) .
-		
-		SUPER:OnPaint (e) .
+        
+        SUPER:OnPaint (e) .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Raises the TextChanged event
         Notes:   
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED OVERRIDE VOID OnTextChanged (e AS System.EventArgs):
-		
-		SUPER:OnTextChanged (e) .
-		
-		THIS-OBJECT:Invalidate () .
+    METHOD PROTECTED OVERRIDE VOID OnTextChanged (e AS System.EventArgs):
+        
+        SUPER:OnTextChanged (e) .
+        
+        THIS-OBJECT:Invalidate () .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Raises the VisibleChanged event 
         Notes:   
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED OVERRIDE VOID OnVisibleChanged (e AS System.EventArgs):
-		
-		IF THIS-OBJECT:Visible AND THIS-OBJECT:PlaySoundWhenShown THEN 
-		    
-		    SystemSounds:Beep:Play () . 
-		
+    METHOD PROTECTED OVERRIDE VOID OnVisibleChanged (e AS System.EventArgs):
+        
+        IF THIS-OBJECT:Visible AND THIS-OBJECT:PlaySoundWhenShown THEN 
+            
+            SystemSounds:Beep:Play () . 
+        
         SUPER:OnVisibleChanged(e) .
 
-	END METHOD .
+    END METHOD .
 
 END CLASS.

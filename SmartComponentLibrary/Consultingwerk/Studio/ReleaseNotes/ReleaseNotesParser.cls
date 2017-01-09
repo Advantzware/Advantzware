@@ -40,13 +40,13 @@ CLASS Consultingwerk.Studio.ReleaseNotes.ReleaseNotesParser
         Purpose: Constructor for the ReleaseNotesParser class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ReleaseNotesParser ():
-		SUPER ().
-		
+    CONSTRUCTOR PUBLIC ReleaseNotesParser ():
+        SUPER ().
+        
         RUN Consultingwerk/sax-reader-handler.p 
             PERSISTENT SET hSaxHandler (THIS-OBJECT) .
-		
-	END CONSTRUCTOR.
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Parses the given Atom feed
@@ -54,9 +54,9 @@ CLASS Consultingwerk.Studio.ReleaseNotes.ReleaseNotesParser
         @param pcSourceFile The source file to parse
         @param ttFeed OUTPUT TABLE The temp-table representing the feed
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID ParseAtomFeed (pcSourceFile AS CHARACTER,
-	                                  OUTPUT TABLE ttFeed):
-		
+    METHOD PUBLIC VOID ParseAtomFeed (pcSourceFile AS CHARACTER,
+                                      OUTPUT TABLE ttFeed):
+        
         DEFINE VARIABLE hSaxReader AS HANDLE NO-UNDO.
 
         EMPTY TEMP-TABLE ttFeed . 
@@ -74,7 +74,7 @@ CLASS Consultingwerk.Studio.ReleaseNotes.ReleaseNotesParser
             GarbageCollectorHelper:DeleteObject (hSaxReader) .
         END FINALLY.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Invoked when the XML parser detects character data.                                                                      
@@ -85,11 +85,11 @@ CLASS Consultingwerk.Studio.ReleaseNotes.ReleaseNotesParser
         @param plcCharData A LONGCHAR that contains a chunk of character data.
         @param piNumChars The number of characters contained in the MEMPTR.
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID SaxCharacters (plcCharData AS LONGCHAR, piNumChars AS INTEGER):
-		
+    METHOD PUBLIC VOID SaxCharacters (plcCharData AS LONGCHAR, piNumChars AS INTEGER):
+        
         ASSIGN lcCharacterData = lcCharacterData + plcCharData .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Invoked when the XML parser detects the end of an XML document.                                                                     
@@ -98,19 +98,19 @@ CLASS Consultingwerk.Studio.ReleaseNotes.ReleaseNotesParser
         @param pcLocalName A character string indicating the non-prefixed element name. If namespace processing is not enabled, the string is of length zero.
         @param pcName A character string indicating the actual name of the element in the XML source. If the name has a prefix, qName includes it, whether or not namespace processing is enabled.
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID SaxEndElement (pcNamespaceURI AS CHARACTER, pcLocalName AS CHARACTER, pcName AS CHARACTER):
-		
-		IF NOT lInEntries THEN 
-		    RETURN  .
-		
-		CASE pcName:
-		    WHEN "title":U THEN 
-		        ASSIGN ttFeed.EntryTitle = TRIM (STRING (lcCharacterData)) .
+    METHOD PUBLIC VOID SaxEndElement (pcNamespaceURI AS CHARACTER, pcLocalName AS CHARACTER, pcName AS CHARACTER):
+        
+        IF NOT lInEntries THEN 
+            RETURN  .
+        
+        CASE pcName:
+            WHEN "title":U THEN 
+                ASSIGN ttFeed.EntryTitle = TRIM (STRING (lcCharacterData)) .
             WHEN "published":U THEN 
                 ASSIGN ttFeed.Published = TRIM (STRING (lcCharacterData)) .
         END CASE . 
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Invoked when the XML parser detects the beginning of an element.                                                                     
@@ -120,15 +120,15 @@ CLASS Consultingwerk.Studio.ReleaseNotes.ReleaseNotesParser
         @param pcName A character string indicating the actual name of the element in the XML source. If the name has a prefix, qName includes it, whether or not namespace processing is enabled.
         @param phAttributes A handle to a SAX-attributes object, which provides access to all attributes specified for the element. If the element has no attributes, attributes is still a valid handle, and the NUM-ITEMS attribute is zero.      
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID SaxStartElement (pcNamespaceURI AS CHARACTER, 
-	                                    pcLocalName AS CHARACTER, 
-	                                    pcName AS CHARACTER, 
-	                                    phAttributes AS HANDLE):
+    METHOD PUBLIC VOID SaxStartElement (pcNamespaceURI AS CHARACTER, 
+                                        pcLocalName AS CHARACTER, 
+                                        pcName AS CHARACTER, 
+                                        phAttributes AS HANDLE):
 
         DEFINE VARIABLE cLink     AS CHARACTER NO-UNDO .
         DEFINE VARIABLE cCategory AS CHARACTER NO-UNDO .
 
-		ASSIGN lcCharacterData = "":U .
+        ASSIGN lcCharacterData = "":U .
 
         CASE pcName:
             WHEN "entry":U THEN DO: 
@@ -157,7 +157,7 @@ CLASS Consultingwerk.Studio.ReleaseNotes.ReleaseNotesParser
             
         END CASE . 
          
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Destructor for the ReleaseNotesParser class 

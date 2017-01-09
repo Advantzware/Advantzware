@@ -40,8 +40,8 @@ CLASS Consultingwerk.Windows.Controls.ClearButtonProvider:
         Notes:   
         @param poUltraTextEditor The reference to the UltraTextEditor Control
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC ClearButtonProvider (poUltraTextEditor AS UltraTextEditor):
-		SUPER ().
+    CONSTRUCTOR PUBLIC ClearButtonProvider (poUltraTextEditor AS UltraTextEditor):
+        SUPER ().
     
         DEFINE VARIABLE oEditorButton AS EditorButton NO-UNDO . 
         DEFINE VARIABLE oForm         AS Form         NO-UNDO .
@@ -60,7 +60,7 @@ CLASS Consultingwerk.Windows.Controls.ClearButtonProvider:
         poUltraTextEditor:EditorButtonClick:Subscribe (EditorButtonClickHandler) .
         oForm:FormClosed:Subscribe (FormClosedHandler) .
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the ClearButtonProvider class
@@ -101,13 +101,13 @@ CLASS Consultingwerk.Windows.Controls.ClearButtonProvider:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ButtonClickHandler (sender AS System.Object,
-	                                        e AS System.EventArgs):
-		
+    METHOD PRIVATE VOID ButtonClickHandler (sender AS System.Object,
+                                            e AS System.EventArgs):
+        
         oTextBox:Text = "":U .
         oTextBox:Focus () . 
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the EditorButtonClick event of the UltraTextEditor
@@ -116,15 +116,15 @@ CLASS Consultingwerk.Windows.Controls.ClearButtonProvider:
         @param sender The reference to the object that raised the event
         @param e The EditorButtonEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID EditorButtonClickHandler (sender AS System.Object,
-	                                              e AS EditorButtonEventArgs):
-		
-		IF e:Button:Key = "clear":U THEN DO: 
-		    oUltraTextEditor:Text = "":U .
-		    oUltraTextEditor:Focus () . 
+    METHOD PRIVATE VOID EditorButtonClickHandler (sender AS System.Object,
+                                                  e AS EditorButtonEventArgs):
+        
+        IF e:Button:Key = "clear":U THEN DO: 
+            oUltraTextEditor:Text = "":U .
+            oUltraTextEditor:Focus () . 
         END.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Handles the FormClosed event of the managed Form                                                                        

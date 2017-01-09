@@ -628,9 +628,9 @@ PROCEDURE InsertFile.
     Run Syntax:     RUN InsertFile ( INPUT p_Buffer ).
 
     Parameters:
-	INPUT
-		p_Buffer	WIDGET-HANDLE
-	                Edit Buffer handle to insert file into.
+    INPUT
+        p_Buffer    WIDGET-HANDLE
+                    Edit Buffer handle to insert file into.
 
     Description:
 

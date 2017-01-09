@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2006-2014 by Consultingwerk Ltd. ("CW") -            *
+ * Copyright (C) 2006-2015 by Consultingwerk Ltd. ("CW") -            *
  * www.consultingwerk.de and other contributors as listed             *
  * below.  All Rights Reserved.                                       *
  *                                                                    *
@@ -15,7 +15,7 @@
     Syntax      : 
     Description : 
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
-    Created     : 06/03/2015 12:52:29,841+01:00
+    Created     : 24/03/2016 13:07:27,503+01:00
     Notes       : 
   ----------------------------------------------------------------------*/
 
@@ -30,7 +30,7 @@ USING Progress.Lang.* FROM PROPATH .
 CLASS Consultingwerk.SmartFramework.System.RelationDatasetModel_Generated 
     INHERITS DatasetModel ABSTRACT: 
 
-    { Consultingwerk/SmartFramework/System/dsRelation.i }
+    { Consultingwerk/SmartFramework/System/dsRelation.i &ACCESS=PROTECTED }
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the reference to the SmartRelation table model

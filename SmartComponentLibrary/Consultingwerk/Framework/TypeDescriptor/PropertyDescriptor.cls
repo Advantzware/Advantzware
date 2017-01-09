@@ -11,12 +11,12 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : PropertyDescriptor
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Wed Apr 29 07:26:24 CEST 2015
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -24,12 +24,12 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 {Consultingwerk/products.i}
 
 USING Consultingwerk.*                          FROM PROPATH .
-USING Consultingwerk.Framework.TypeDescriptor.* FROM PROPATH .  
+USING Consultingwerk.Framework.TypeDescriptor.* FROM PROPATH .
 USING Progress.Lang.*                           FROM PROPATH .
 
 &GLOBAL-DEFINE FrameworkSerializationType XML
 
-CLASS Consultingwerk.Framework.TypeDescriptor.PropertyDescriptor IMPLEMENTS IPropertyDescriptor 
+CLASS Consultingwerk.Framework.TypeDescriptor.PropertyDescriptor IMPLEMENTS IPropertyDescriptor
     INHERITS XmlSerializable:
 
     /*------------------------------------------------------------------------------
@@ -42,7 +42,7 @@ CLASS Consultingwerk.Framework.TypeDescriptor.PropertyDescriptor IMPLEMENTS IPro
         Purpose: Gets and sets if the property should be editable in a property sheed
         Notes:
     ------------------------------------------------------------------------------*/
-    {Consultingwerk/JsonSerializableProperty.i Editable LOGICAL "INIT TRUE"} .
+    {Consultingwerk/JsonSerializableProperty.i Editable LOGICAL "INITIAL TRUE"} .
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the type of editor control to use for the property visualization
@@ -52,27 +52,27 @@ CLASS Consultingwerk.Framework.TypeDescriptor.PropertyDescriptor IMPLEMENTS IPro
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets a comma delimited list of name/value pairs for the property
-        Notes:   Applieas to EditorType = EditorTypeEnum:List
+        Notes:   Applies to EditorType = EditorTypeEnum:List
     ------------------------------------------------------------------------------*/
     {Consultingwerk/JsonSerializableProperty.i ListItemPairs CHARACTER} .
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the label for the property 
+        Purpose: Gets and sets the label for the property
         Notes:
     ------------------------------------------------------------------------------*/
     {Consultingwerk/JsonSerializableProperty.i PropertyLabel CHARACTER} .
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets the name of the property 
+        Purpose: Gets and sets the name of the property
         Notes:
     ------------------------------------------------------------------------------*/
     {Consultingwerk/JsonSerializableProperty.i PropertyName CHARACTER} .
 
     /*------------------------------------------------------------------------------
-        Purpose: Gets and sets if the property should be visible in a property sheed
+        Purpose: Gets and sets if the property should be visible in a property sheet
         Notes:
     ------------------------------------------------------------------------------*/
-    {Consultingwerk/JsonSerializableProperty.i Visible LOGICAL "INIT TRUE"} .
+    {Consultingwerk/JsonSerializableProperty.i Visible LOGICAL "INITIAL TRUE"} .
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the PropertyDescriptor class
@@ -82,11 +82,11 @@ CLASS Consultingwerk.Framework.TypeDescriptor.PropertyDescriptor IMPLEMENTS IPro
         SUPER ().
         THIS-OBJECT:AddSerializableProperties ('{&SerializableProperties}':U) .
 
-        ASSIGN THIS-OBJECT:EditorType = EditorTypeEnum:Text 
-               THIS-OBJECT:Editable   = TRUE 
+        ASSIGN THIS-OBJECT:EditorType = EditorTypeEnum:Text
+               THIS-OBJECT:Editable   = TRUE
                THIS-OBJECT:Visible    = TRUE .
 
-    END CONSTRUCTOR. 
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the PropertyDescriptor class
@@ -97,11 +97,11 @@ CLASS Consultingwerk.Framework.TypeDescriptor.PropertyDescriptor IMPLEMENTS IPro
     CONSTRUCTOR PUBLIC PropertyDescriptor (pcDefiningTypeName AS CHARACTER,
                                            pcPropertyName AS CHARACTER):
         THIS-OBJECT ().
-    
+
         ASSIGN THIS-OBJECT:DefiningTypeName = pcDefiningTypeName
                THIS-OBJECT:PropertyName     = pcPropertyName .
 
-    END CONSTRUCTOR. 
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the PropertyDescriptor class
@@ -114,12 +114,12 @@ CLASS Consultingwerk.Framework.TypeDescriptor.PropertyDescriptor IMPLEMENTS IPro
                                            pcPropertyName AS CHARACTER,
                                            pcPropertyLabel AS CHARACTER):
         THIS-OBJECT ().
-    
+
         ASSIGN THIS-OBJECT:DefiningTypeName = pcDefiningTypeName
-               THIS-OBJECT:PropertyName     = pcPropertyName 
+               THIS-OBJECT:PropertyName     = pcPropertyName
                THIS-OBJECT:PropertyLabel    = pcPropertyLabel .
 
-    END CONSTRUCTOR. 
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the PropertyDescriptor class
@@ -131,16 +131,16 @@ CLASS Consultingwerk.Framework.TypeDescriptor.PropertyDescriptor IMPLEMENTS IPro
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC PropertyDescriptor (pcDefiningTypeName AS CHARACTER,
                                            pcPropertyName AS CHARACTER,
-                                           plVisible AS LOGICAL, 
+                                           plVisible AS LOGICAL,
                                            plEditable AS LOGICAL):
         THIS-OBJECT ().
-    
+
         ASSIGN THIS-OBJECT:DefiningTypeName = pcDefiningTypeName
-               THIS-OBJECT:PropertyName     = pcPropertyName 
+               THIS-OBJECT:PropertyName     = pcPropertyName
                THIS-OBJECT:Editable         = plEditable
                THIS-OBJECT:Visible          = plVisible .
 
-    END CONSTRUCTOR. 
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the PropertyDescriptor class
@@ -154,17 +154,17 @@ CLASS Consultingwerk.Framework.TypeDescriptor.PropertyDescriptor IMPLEMENTS IPro
     CONSTRUCTOR PUBLIC PropertyDescriptor (pcDefiningTypeName AS CHARACTER,
                                            pcPropertyName AS CHARACTER,
                                            pcPropertyLabel AS CHARACTER,
-                                           plVisible AS LOGICAL, 
+                                           plVisible AS LOGICAL,
                                            plEditable AS LOGICAL):
         THIS-OBJECT ().
-    
+
         ASSIGN THIS-OBJECT:DefiningTypeName = pcDefiningTypeName
-               THIS-OBJECT:PropertyName     = pcPropertyName 
-               THIS-OBJECT:PropertyLabel    = pcPropertyLabel 
+               THIS-OBJECT:PropertyName     = pcPropertyName
+               THIS-OBJECT:PropertyLabel    = pcPropertyLabel
                THIS-OBJECT:Editable         = plEditable
                THIS-OBJECT:Visible          = plVisible .
 
-    END CONSTRUCTOR. 
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the PropertyDescriptor class
@@ -177,12 +177,12 @@ CLASS Consultingwerk.Framework.TypeDescriptor.PropertyDescriptor IMPLEMENTS IPro
                                            pcPropertyName AS CHARACTER,
                                            poEditorType AS EditorTypeEnum):
         THIS-OBJECT ().
-    
+
         ASSIGN THIS-OBJECT:DefiningTypeName = pcDefiningTypeName
                THIS-OBJECT:PropertyName     = pcPropertyName
                THIS-OBJECT:EditorType       = poEditorType .
 
-    END CONSTRUCTOR. 
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the PropertyDescriptor class
@@ -197,13 +197,13 @@ CLASS Consultingwerk.Framework.TypeDescriptor.PropertyDescriptor IMPLEMENTS IPro
                                            pcPropertyLabel AS CHARACTER,
                                            poEditorType AS EditorTypeEnum):
         THIS-OBJECT ().
-    
+
         ASSIGN THIS-OBJECT:DefiningTypeName = pcDefiningTypeName
-               THIS-OBJECT:PropertyName     = pcPropertyName 
-               THIS-OBJECT:PropertyLabel    = pcPropertyLabel 
+               THIS-OBJECT:PropertyName     = pcPropertyName
+               THIS-OBJECT:PropertyLabel    = pcPropertyLabel
                THIS-OBJECT:EditorType       = poEditorType.
 
-    END CONSTRUCTOR. 
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the PropertyDescriptor class
@@ -218,19 +218,19 @@ CLASS Consultingwerk.Framework.TypeDescriptor.PropertyDescriptor IMPLEMENTS IPro
     CONSTRUCTOR PUBLIC PropertyDescriptor (pcDefiningTypeName AS CHARACTER,
                                            pcPropertyName AS CHARACTER,
                                            pcPropertyLabel AS CHARACTER,
-                                           plVisible AS LOGICAL, 
+                                           plVisible AS LOGICAL,
                                            plEditable AS LOGICAL,
                                            poEditorType AS EditorTypeEnum):
         THIS-OBJECT ().
-    
+
         ASSIGN THIS-OBJECT:DefiningTypeName = pcDefiningTypeName
-               THIS-OBJECT:PropertyName     = pcPropertyName 
-               THIS-OBJECT:PropertyLabel    = pcPropertyLabel 
+               THIS-OBJECT:PropertyName     = pcPropertyName
+               THIS-OBJECT:PropertyLabel    = pcPropertyLabel
                THIS-OBJECT:Editable         = plEditable
-               THIS-OBJECT:Visible          = plVisible 
+               THIS-OBJECT:Visible          = plVisible
                THIS-OBJECT:EditorType       = poEditorType.
 
-    END CONSTRUCTOR. 
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the PropertyDescriptor class
@@ -245,13 +245,13 @@ CLASS Consultingwerk.Framework.TypeDescriptor.PropertyDescriptor IMPLEMENTS IPro
                                            pcPropertyLabel AS CHARACTER,
                                            pcListItemPairs AS CHARACTER):
         THIS-OBJECT ().
-    
+
         ASSIGN THIS-OBJECT:DefiningTypeName = pcDefiningTypeName
-               THIS-OBJECT:PropertyName     = pcPropertyName 
+               THIS-OBJECT:PropertyName     = pcPropertyName
                THIS-OBJECT:PropertyLabel    = pcPropertyLabel
                THIS-OBJECT:ListItemPairs    = pcListItemPairs .
 
-    END CONSTRUCTOR. 
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the PropertyDescriptor class
@@ -266,19 +266,19 @@ CLASS Consultingwerk.Framework.TypeDescriptor.PropertyDescriptor IMPLEMENTS IPro
     CONSTRUCTOR PUBLIC PropertyDescriptor (pcDefiningTypeName AS CHARACTER,
                                            pcPropertyName AS CHARACTER,
                                            pcPropertyLabel AS CHARACTER,
-                                           plVisible AS LOGICAL, 
+                                           plVisible AS LOGICAL,
                                            plEditable AS LOGICAL,
                                            pcListItemPairs AS CHARACTER):
         THIS-OBJECT ().
-    
+
         ASSIGN THIS-OBJECT:DefiningTypeName = pcDefiningTypeName
-               THIS-OBJECT:PropertyName     = pcPropertyName 
-               THIS-OBJECT:PropertyLabel    = pcPropertyLabel 
+               THIS-OBJECT:PropertyName     = pcPropertyName
+               THIS-OBJECT:PropertyLabel    = pcPropertyLabel
                THIS-OBJECT:Editable         = plEditable
                THIS-OBJECT:Visible          = plVisible
                THIS-OBJECT:ListItemPairs    = pcListItemPairs .
 
-    END CONSTRUCTOR. 
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the PropertyDescriptor class
@@ -293,13 +293,13 @@ CLASS Consultingwerk.Framework.TypeDescriptor.PropertyDescriptor IMPLEMENTS IPro
                                            poEditorType AS EditorTypeEnum,
                                            pcListItemPairs AS CHARACTER):
         THIS-OBJECT ().
-    
+
         ASSIGN THIS-OBJECT:DefiningTypeName = pcDefiningTypeName
                THIS-OBJECT:PropertyName     = pcPropertyName
                THIS-OBJECT:EditorType       = poEditorType
                THIS-OBJECT:ListItemPairs    = pcListItemPairs .
 
-    END CONSTRUCTOR. 
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the PropertyDescriptor class
@@ -316,14 +316,14 @@ CLASS Consultingwerk.Framework.TypeDescriptor.PropertyDescriptor IMPLEMENTS IPro
                                            poEditorType AS EditorTypeEnum,
                                            pcListItemPairs AS CHARACTER):
         THIS-OBJECT ().
-    
+
         ASSIGN THIS-OBJECT:DefiningTypeName = pcDefiningTypeName
-               THIS-OBJECT:PropertyName     = pcPropertyName 
-               THIS-OBJECT:PropertyLabel    = pcPropertyLabel 
+               THIS-OBJECT:PropertyName     = pcPropertyName
+               THIS-OBJECT:PropertyLabel    = pcPropertyLabel
                THIS-OBJECT:EditorType       = poEditorType
                THIS-OBJECT:ListItemPairs    = pcListItemPairs.
 
-    END CONSTRUCTOR. 
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the PropertyDescriptor class
@@ -339,20 +339,20 @@ CLASS Consultingwerk.Framework.TypeDescriptor.PropertyDescriptor IMPLEMENTS IPro
     CONSTRUCTOR PUBLIC PropertyDescriptor (pcDefiningTypeName AS CHARACTER,
                                            pcPropertyName AS CHARACTER,
                                            pcPropertyLabel AS CHARACTER,
-                                           plVisible AS LOGICAL, 
+                                           plVisible AS LOGICAL,
                                            plEditable AS LOGICAL,
                                            poEditorType AS EditorTypeEnum,
                                            pcListItemPairs AS CHARACTER):
         THIS-OBJECT ().
-    
+
         ASSIGN THIS-OBJECT:DefiningTypeName = pcDefiningTypeName
-               THIS-OBJECT:PropertyName     = pcPropertyName 
-               THIS-OBJECT:PropertyLabel    = pcPropertyLabel 
+               THIS-OBJECT:PropertyName     = pcPropertyName
+               THIS-OBJECT:PropertyLabel    = pcPropertyLabel
                THIS-OBJECT:Editable         = plEditable
-               THIS-OBJECT:Visible          = plVisible 
+               THIS-OBJECT:Visible          = plVisible
                THIS-OBJECT:EditorType       = poEditorType
                THIS-OBJECT:ListItemPairs    = pcListItemPairs.
 
-    END CONSTRUCTOR. 
+    END CONSTRUCTOR.
 
 END CLASS.

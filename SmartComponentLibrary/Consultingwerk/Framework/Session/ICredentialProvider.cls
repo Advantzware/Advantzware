@@ -30,6 +30,6 @@ INTERFACE Consultingwerk.Framework.Session.ICredentialProvider:
         Notes:   
         @return The IUserCredentials instance with the current credentials to be passed to the IAuthenticationService
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC IUserCredentials GetUserCredentials ().
+    METHOD PUBLIC IUserCredentials GetUserCredentials ().
 
 END INTERFACE.

@@ -13,55 +13,55 @@
     File        : CustomPropertiesEditorForm
     Purpose     : Supports editing custom properties for the Business Entity,
                   Temp-Tables, Data-Relations, Fields and Indexes
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Mon May 19 17:03:24 CEST 2014
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Consultingwerk.Framework.Collections.*           FROM PROPATH . 
+USING Consultingwerk.Framework.Collections.*           FROM PROPATH .
 USING Consultingwerk.SmartComponents.Base.*            FROM PROPATH .
-USING Consultingwerk.SmartComponents.Enum.*            FROM PROPATH . 
-USING Consultingwerk.BusinessEntityDesigner.Services.* FROM PROPATH .  
+USING Consultingwerk.SmartComponents.Enum.*            FROM PROPATH .
+USING Consultingwerk.BusinessEntityDesigner.Services.* FROM PROPATH .
 USING Consultingwerk.BusinessEntityDesigner.UI.*       FROM PROPATH .
-USING Consultingwerk.Util.*                            FROM PROPATH .   
+USING Consultingwerk.Util.*                            FROM PROPATH .
 USING Progress.Lang.*                                  FROM PROPATH .
 
-CLASS Consultingwerk.BusinessEntityDesigner.UI.CustomPropertiesEditorForm 
-    INHERITS SmartWindowForm: 
-	
+CLASS Consultingwerk.BusinessEntityDesigner.UI.CustomPropertiesEditorForm
+    INHERITS SmartWindowForm:
+
     DEFINE PRIVATE VARIABLE m_CustomPropertiesEditorForm_Toolbars_Dock_Area_Top AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_CustomPropertiesEditorForm_Toolbars_Dock_Area_Right AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_CustomPropertiesEditorForm_Toolbars_Dock_Area_Left AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE m_CustomPropertiesEditorForm_Toolbars_Dock_Area_Bottom AS Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea NO-UNDO.
     DEFINE PRIVATE VARIABLE bindingSource1 AS Progress.Data.BindingSource NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE CustomPropertiesEditorForm_Fill_Panel AS Infragistics.Win.Misc.UltraPanel NO-UNDO.
     DEFINE PRIVATE VARIABLE smartTempTableAdapter1 AS Consultingwerk.SmartComponents.Implementation.SmartTempTableAdapter NO-UNDO.
     DEFINE PRIVATE VARIABLE smartToolbarController1 AS Consultingwerk.SmartComponents.Implementation.SmartToolbarController NO-UNDO.
     DEFINE PRIVATE VARIABLE smartUpdatableBrowser1 AS Consultingwerk.SmartComponents.Implementation.SmartUpdatableBrowser NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraButton2 AS Infragistics.Win.Misc.UltraButton NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraButton1 AS Infragistics.Win.Misc.UltraButton NO-UNDO.
-	
-	{Consultingwerk/BusinessEntityDesigner/Services/ttCustomProperties.i}
-	
-    /*------------------------------------------------------------------------------
-        Purpose: Returns the Scope of the Editor
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY Scope AS CustomPropertiesScopeEnum NO-UNDO 
-	GET.
-	PROTECTED SET. 
+
+    {Consultingwerk/BusinessEntityDesigner/Services/ttCustomProperties.i}
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the CustomPropertiesEditorForm class 
-        Notes:   
+        Purpose: Returns the Scope of the Editor
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY Scope AS CustomPropertiesScopeEnum NO-UNDO
+    GET.
+    PROTECTED SET.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the CustomPropertiesEditorForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC CustomPropertiesEditorForm ():
-		
+
         SUPER().
 
         InitializeComponent().
@@ -74,19 +74,20 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.CustomPropertiesEditorForm
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design 
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -781,130 +782,146 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.CustomPropertiesEditorForm
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the Load event                                                                       
+        Purpose: Raises the Load event
         Notes:
-        @param e The System.EventArgs with the data for this event                                                                        
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
 
-        DEFINE VARIABLE oController AS BusinessEntityDatasetController NO-UNDO . 
-        DEFINE VARIABLE oList       AS CharacterList                   NO-UNDO . 
-        DEFINE VARIABLE oValueList  AS Infragistics.Win.ValueList      NO-UNDO . 
+        DEFINE VARIABLE oController AS BusinessEntityDatasetController NO-UNDO .
+        DEFINE VARIABLE oList       AS CharacterList                   NO-UNDO .
+        DEFINE VARIABLE oValueList  AS Infragistics.Win.ValueList      NO-UNDO .
 
         SUPER:OnLoad (e) .
 
-        oController = {Consultingwerk/get-service.i Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityDatasetController} . 
+        oController = {Consultingwerk/get-service.i Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityDatasetController} .
 
         oList = oController:GetCustomPropertyNames (THIS-OBJECT:Scope) .
-        
+
         IF oList:Count > 0 THEN DO:
             oValueList = ValueListHelper:FromList (oList) .
-            
-            smartUpdatableBrowser1:DisplayLayout:Bands[0]:Columns["PropertyName":U]:ValueList = oValueList . 
-        END .  
+
+            smartUpdatableBrowser1:DisplayLayout:Bands[0]:Columns["PropertyName":U]:ValueList = oValueList .
+        END .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the  
-        Notes:   
+        Purpose: Raises the
+        Notes:
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
-		
-		SUPER:OnShown (e) .
+    METHOD PROTECTED OVERRIDE VOID OnShown (e AS System.EventArgs):
 
-        smartTempTableAdapter1:TempTableHandle = TEMP-TABLE ttCustomProperties:HANDLE . 
-        smartTempTableAdapter1:RetrieveData () . 
+        SUPER:OnShown (e) .
 
-	END METHOD .
+        smartTempTableAdapter1:TempTableHandle = TEMP-TABLE ttCustomProperties:HANDLE .
+        smartTempTableAdapter1:RetrieveData () .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the BeforeCellActivate event of the smartUpdatableBrowser1 
+        Purpose: Event handler for the BeforeCellActivate event of the smartUpdatableBrowser1
         Notes:   Populates the value list of possible values based on the property
         @param sender The reference to the object that raised the event
         @param e The CancelableCellEventArgs with the data for this object
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID smartUpdatableBrowser1_BeforeCellActivate (sender AS System.Object, 
-	                                                               e AS Infragistics.Win.UltraWinGrid.CancelableCellEventArgs):
-		
-		DEFINE VARIABLE cPropertyName AS CHARACTER                       NO-UNDO .
-        DEFINE VARIABLE oController   AS BusinessEntityDatasetController NO-UNDO . 
-        DEFINE VARIABLE oList         AS CharacterList                   NO-UNDO . 
-        DEFINE VARIABLE oValueList    AS Infragistics.Win.ValueList      NO-UNDO . 
+    METHOD PRIVATE VOID smartUpdatableBrowser1_BeforeCellActivate (sender AS System.Object,
+                                                                   e AS Infragistics.Win.UltraWinGrid.CancelableCellEventArgs):
 
-        IF e:Cell:Column:Key <> "PropertyValue":U THEN 
+        DEFINE VARIABLE cPropertyName AS CHARACTER                       NO-UNDO .
+        DEFINE VARIABLE oController   AS BusinessEntityDatasetController NO-UNDO .
+        DEFINE VARIABLE oList         AS CharacterList                   NO-UNDO .
+        DEFINE VARIABLE oValueList    AS Infragistics.Win.ValueList      NO-UNDO .
+
+        IF e:Cell:Column:Key <> "PropertyValue":U THEN
             RETURN .
 
-        ASSIGN e:Cell:ValueList = ? 
-               cPropertyName    = UNBOX (e:Cell:Row:Cells ["PropertyName":U]:Value) . 
+        ASSIGN e:Cell:ValueList = ?
+               cPropertyName    = UNBOX (e:Cell:Row:Cells ["PropertyName":U]:Value) .
 
         IF cPropertyName > "":U THEN DO:
-            oController = {Consultingwerk/get-service.i Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityDatasetController} . 
-    
+            oController = {Consultingwerk/get-service.i Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityDatasetController} .
+
             oList = oController:GetCustomPropertyValues (THIS-OBJECT:Scope, cPropertyName) .
-            
+
             IF oList:Count > 0 THEN DO:
                 oValueList = ValueListHelper:FromList (oList) .
-                
-                e:Cell:ValueList = oValueList . 
-            END .  
-        END . 
 
-	END METHOD .
+                e:Cell:ValueList = oValueList .
+            END .
+        END .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the Click event of the ultraButton1 (OK) 
+        Purpose: Event handler for the Click event of the ultraButton1 (OK)
         Notes:   When user clicks OK, save pending changes without prompting
         @param sender The reference to the object that raised the event
-        @param e The System.EventArgs with the data for this event 
+        @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID ultraButton1_Click (sender AS System.Object, 
-	                                        e AS System.EventArgs):
-		
-		IF smartUpdatableBrowser1:SmartTableIOState = TableIOStateEnum:ModifyingData THEN DO:
-		    
-		    smartUpdatableBrowser1:SaveChanges () . 
-		    
-		    IF smartUpdatableBrowser1:SmartTableIOState = TableIOStateEnum:ModifyingData THEN 
-		        RETURN . 
-		END.
+    METHOD PRIVATE VOID ultraButton1_Click (sender AS System.Object,
+                                            e AS System.EventArgs):
 
-        THIS-OBJECT:DialogResult = System.Windows.Forms.DialogResult:OK . 
-        THIS-OBJECT:Close () . 
+        IF smartUpdatableBrowser1:SmartTableIOState = TableIOStateEnum:ModifyingData THEN DO:
 
-	END METHOD .
+            smartUpdatableBrowser1:SaveChanges () .
+
+            IF smartUpdatableBrowser1:SmartTableIOState = TableIOStateEnum:ModifyingData THEN
+                RETURN .
+        END.
+
+        THIS-OBJECT:DialogResult = System.Windows.Forms.DialogResult:OK .
+        THIS-OBJECT:Close () .
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Visualizes the Form for Update and blocks the UI
-        Notes:   
+        Notes:
         @param poScope The Custom properties Scope
         @param ttCustomProperties The temp-table with the custom properties to edit
         @param plOk OUTPUT Logical value indicating if the user has pressed OK or Cancel
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID UpdateCustomProperties (poScope AS CustomPropertiesScopeEnum,
-	                                           INPUT-OUTPUT TABLE FOR ttCustomProperties,
-	                                           OUTPUT plOk AS LOGICAL):
-		
-		DEFINE VARIABLE oDialogResult AS System.Windows.Forms.DialogResult NO-UNDO . 
-		
-		ASSIGN plOk              = FALSE 
-		       THIS-OBJECT:Scope = poScope. 
-		
-		WAIT-FOR THIS-OBJECT:ShowDialog () SET oDialogResult . 
-		
-		{Consultingwerk/check-dialogresult-ok.i oDialogResult}
+    METHOD PUBLIC VOID UpdateCustomProperties (poScope AS CustomPropertiesScopeEnum,
+                                               INPUT-OUTPUT TABLE FOR ttCustomProperties,
+                                               OUTPUT plOk AS LOGICAL):
 
-        ASSIGN plOk = TRUE . 
+        DEFINE VARIABLE oDialogResult AS System.Windows.Forms.DialogResult NO-UNDO .
 
-	END METHOD .
+        ASSIGN plOk              = FALSE
+               THIS-OBJECT:Scope = poScope.
+
+        WAIT-FOR THIS-OBJECT:ShowDialog () SET oDialogResult .
+
+        {Consultingwerk/check-dialogresult-ok.i oDialogResult}
+
+        ASSIGN plOk = TRUE .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the CustomPropertiesEditorForm class 
-        Notes:   
+        Purpose: Destructor for the CustomPropertiesEditorForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC CustomPropertiesEditorForm ():
 

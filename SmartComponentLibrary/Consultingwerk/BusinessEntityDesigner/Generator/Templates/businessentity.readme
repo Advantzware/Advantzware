@@ -8,4 +8,5 @@
 &8            data access name
 &9            data access package
 @USER@        the current user name
+@USERID@      the current user id
 @CALC_FIELDS@ the code block to populate calculated fields (in ReceiveData)

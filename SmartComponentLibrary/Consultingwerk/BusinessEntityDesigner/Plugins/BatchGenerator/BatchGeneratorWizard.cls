@@ -11,12 +11,12 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : BatchGeneratorWizard
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Sat Jul 20 08:58:38 CEST 2013
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -25,23 +25,23 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.*                                               FROM PROPATH .
 USING Consultingwerk.Forms.*                                         FROM PROPATH .
-USING Consultingwerk.BusinessEntityDesigner.Batch.*                  FROM PROPATH . 
-USING Consultingwerk.BusinessEntityDesigner.Plugins.BatchGenerator.* FROM PROPATH .  
+USING Consultingwerk.BusinessEntityDesigner.Batch.*                  FROM PROPATH .
+USING Consultingwerk.BusinessEntityDesigner.Plugins.BatchGenerator.* FROM PROPATH .
 USING Consultingwerk.SmartComponents.Base.*                          FROM PROPATH .
-USING Consultingwerk.Util.*                                          FROM PROPATH . 
-USING Consultingwerk.Windows.Forms.*                                 FROM PROPATH . 
-USING Consultingwerk.Windows.Util.Forms.*                            FROM PROPATH . 
+USING Consultingwerk.Util.*                                          FROM PROPATH .
+USING Consultingwerk.Windows.Forms.*                                 FROM PROPATH .
+USING Consultingwerk.Windows.Util.Forms.*                            FROM PROPATH .
 USING Progress.Lang.*                                                FROM PROPATH .
 USING System.Windows.Forms.*                                         FROM ASSEMBLY .
 USING Infragistics.Win.UltraWinEditors.*                             FROM ASSEMBLY .
 
-CLASS Consultingwerk.BusinessEntityDesigner.Plugins.BatchGenerator.BatchGeneratorWizard INHERITS BaseForm: 
+CLASS Consultingwerk.BusinessEntityDesigner.Plugins.BatchGenerator.BatchGeneratorWizard INHERITS BaseForm:
 
     DEFINE PRIVATE VARIABLE btnOk AS Infragistics.Win.Misc.UltraButton NO-UNDO.
     DEFINE PRIVATE VARIABLE btnCancel AS Infragistics.Win.Misc.UltraButton NO-UNDO.
     DEFINE PRIVATE VARIABLE coDatabaseName AS Infragistics.Win.UltraWinEditors.UltraComboEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE cbForceUpperCase AS Infragistics.Win.UltraWinEditors.UltraCheckEditor NO-UNDO.
-	DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
+    DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE tbTables AS Infragistics.Win.UltraWinEditors.UltraTextEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE tbPackage AS Infragistics.Win.UltraWinEditors.UltraTextEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE tbDatasetControllerNamePattern AS Infragistics.Win.UltraWinEditors.UltraTextEditor NO-UNDO.
@@ -57,15 +57,15 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.BatchGenerator.BatchGenerato
     DEFINE PRIVATE VARIABLE ultraLabel2 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraLabel1 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
 
-    DEFINE VARIABLE oStatusForm AS GenericProcessingStatusWithCancelForm NO-UNDO .  
+    DEFINE VARIABLE oStatusForm AS GenericProcessingStatusWithCancelForm NO-UNDO .
     DEFINE PRIVATE VARIABLE ultraLabel8 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
-    
+
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the BatchGeneratorWizard class  
-        Notes:   
+        Purpose: Constructor for the BatchGeneratorWizard class
+        Notes:
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC BatchGeneratorWizard ():
-		
+    CONSTRUCTOR PUBLIC BatchGeneratorWizard ():
+
         SUPER().
 
         InitializeComponent().
@@ -78,68 +78,69 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.BatchGenerator.BatchGenerato
             UNDO, THROW e.
         END CATCH.
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the Click event of the btnOk 
-        Notes:   
+        Purpose: Event handler for the Click event of the btnOk
+        Notes:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID btnOk_Click (sender AS System.Object, 
-	                                 e AS System.EventArgs):
-	
+    METHOD PRIVATE VOID btnOk_Click (sender AS System.Object,
+                                     e AS System.EventArgs):
+
         DEFINE VARIABLE oGenerator AS BatchGenerator NO-UNDO .
 
-	    DO ON ERROR UNDO, THROW:
-		
+        DO ON ERROR UNDO, THROW:
+
             SESSION:SET-WAIT-STATE ("general":U) .
 
-            oStatusForm = NEW GenericProcessingStatusWithCancelForm () .  
-            oStatusForm:TopMost = TRUE . 
-            oStatusForm:Show () . 
+            oStatusForm = NEW GenericProcessingStatusWithCancelForm () .
+            oStatusForm:TopMost = TRUE .
+            oStatusForm:Show () .
 
             oGenerator = NEW BatchGenerator () .
             oGenerator:StatusChanged:Subscribe (StatusChangedHandler) .
-            
+
             oGenerator:GenerateBusinessEntities (tbPackage:Text,                          /* Package */
-                                                 toCreateSubPackage:Checked,              /* Create sub packages */    
+                                                 toCreateSubPackage:Checked,              /* Create sub packages */
                                                  tbBusinessEntityNamePattern:Text,        /* BE Name Pattern */
                                                  tbDataAccessNamePattern:Text,            /* DA Name Pattern */
                                                  tbDatasetControllerNamePattern:Text,     /* DSC Name Pattern */
                                                  cbForceUpperCase:Checked,                /* Force Uppercase first Name of Table */
                                                  coDatabaseName:Text,                     /* DB Name */
                                                  tbTables:Text,                           /* Table Filter (CAN-DO), i.e. "Cu*,Or*" or "*" or "Customer" */
-                                                 toGenerateDatasetModelClasses:Checked) . /* Generate DatasetModel Classes */                     
-    
+                                                 toGenerateDatasetModelClasses:Checked) . /* Generate DatasetModel Classes */
+
             oGenerator:StatusChanged:Unsubscribe (StatusChangedHandler) .
 
             THIS-OBJECT:Close () .
-    
+
             FINALLY:
-                SESSION:SET-WAIT-STATE ("":U) .	
-                
+                SESSION:SET-WAIT-STATE ("":U) .
+
                 oStatusForm:Close () .
             END FINALLY.
         END.
 
         CATCH err AS Progress.Lang.Error:
-        	ErrorHelper:ShowErrorMessage (err) .
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
-	END METHOD .
+    END METHOD .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design 
-        Notes:   
-    ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID InitializeComponent ():
-		
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
+    METHOD PRIVATE VOID InitializeComponent ():
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE editorButton1 AS Infragistics.Win.UltraWinEditors.EditorButton NO-UNDO.
@@ -419,134 +420,134 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.BatchGenerator.BatchGenerato
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the KeyDown handler of the Text boxes with an 
+        Purpose: Event handler for the KeyDown handler of the Text boxes with an
                  EditorButton (Lookup)
         Notes:   Maps F3 to EditorButtonClick
         @param sender The reference to the object that raised the event
         @param e The KeyEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID LookupKeyDownHandler (sender AS System.Object, 
+    METHOD PRIVATE VOID LookupKeyDownHandler (sender AS System.Object,
                                               e AS System.Windows.Forms.KeyEventArgs):
 
         DEFINE VARIABLE cControlName AS CHARACTER NO-UNDO.
-        
-        IF e:Handled = FALSE AND Progress.Util.EnumHelper:AreEqual (e:KeyCode, SmartLookupSettings:ShortcutKey) 
+
+        IF e:Handled = FALSE AND Progress.Util.EnumHelper:AreEqual (e:KeyCode, SmartLookupSettings:ShortcutKey)
             AND THIS-OBJECT:Enabled THEN DO:
 
             ASSIGN cControlName = CAST (sender, System.Windows.Forms.Control):Name .
 
-            DYNAMIC-INVOKE (THIS-OBJECT, 
-                            SUBSTITUTE ("&1_EditorButtonClick":U, cControlName), 
-                            sender, 
+            DYNAMIC-INVOKE (THIS-OBJECT,
+                            SUBSTITUTE ("&1_EditorButtonClick":U, cControlName),
+                            sender,
                             NEW EditorButtonEventArgs (?, ?)) .
         END.
 
         CATCH err AS Progress.Lang.Error:
-            ErrorHelper:ShowErrorMessage (err) .        		
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Raises the Load event 
-        Notes:   
+        Purpose: Raises the Load event
+        Notes:
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
-		
-		DEFINE VARIABLE i AS INTEGER NO-UNDO.
+    METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
+
+        DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
         DO i = 1 TO NUM-DBS:
             coDatabaseName:ValueList:ValueListItems:Add (BOX (LDBNAME (i))) .
         END.
 
-        IF coDatabaseName:ValueList:ValueListItems:Count > 0 THEN 
+        IF coDatabaseName:ValueList:ValueListItems:Count > 0 THEN
             coDatabaseName:SelectedIndex = 0 .
 
         SUPER:OnLoad (e) .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the StatusChanged event of the BatchGenerator 
+        Purpose: Event handler for the StatusChanged event of the BatchGenerator
                  class
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised this event
         @param e The ProcessingStatusChangedEventArgs instance with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID StatusChangedHandler (sender AS Progress.Lang.Object,
+    METHOD PROTECTED VOID StatusChangedHandler (sender AS Progress.Lang.Object,
                                                 e AS ProcessingStatusChangedEventArgs):
-		
-		IF VALID-OBJECT (oStatusForm) THEN DO:
-		    oStatusForm:StatusText = e:Message .
-		    
-		    IF oStatusForm:Cancelled = TRUE THEN 
-		        e:Cancel = TRUE . 
-		END.
 
-	END METHOD .
+        IF VALID-OBJECT (oStatusForm) THEN DO:
+            oStatusForm:StatusText = e:Message .
+
+            IF oStatusForm:Cancelled = TRUE THEN
+                e:Cancel = TRUE .
+        END.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the EditorButtonClick event of the smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityPackage 
-                 Control                                                                         
-        Notes:     
+        Purpose: Event handler for the EditorButtonClick event of the smartBusinessEntityBindingSource1_eBusinessEntity_BusinessEntityPackage
+                 Control
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The EditorButtonEventArgs with the data for this event                                                                   
+        @param e The EditorButtonEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID tbPackage_EditorButtonClick (sender AS System.Object, 
-	                                                 e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
-		
+    METHOD PRIVATE VOID tbPackage_EditorButtonClick (sender AS System.Object,
+                                                     e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
+
         DEFINE VARIABLE oDialogResult AS System.Windows.Forms.DialogResult NO-UNDO .
-        
-        DEFINE VARIABLE oFolderBrowserDialog AS Consultingwerk.Windows.Util.Forms.FolderBrowserForm NO-UNDO . 
 
-        FILE-INFO:FILE-NAME = ".":U .
+        DEFINE VARIABLE oFolderBrowserDialog AS Consultingwerk.Windows.Util.Forms.FolderBrowserForm NO-UNDO .
 
-        oFolderBrowserDialog = NEW Consultingwerk.Windows.Util.Forms.FolderBrowserForm () . 
-        oFolderBrowserDialog:RootFolder = FILE-INFO:FULL-PATHNAME . 
-                
+        FILE-INFORMATION:FILE-NAME = ".":U .
+
+        oFolderBrowserDialog = NEW Consultingwerk.Windows.Util.Forms.FolderBrowserForm () .
+        oFolderBrowserDialog:RootFolder = FILE-INFORMATION:FULL-PATHNAME .
+
         WAIT-FOR oFolderBrowserDialog:ShowDialog() SET oDialogResult .
-        
+
         IF Progress.Util.EnumHelper:AreEqual (oDialogResult, System.Windows.Forms.DialogResult:Ok) THEN DO:
-            FILE-INFO:FILE-NAME = ".":U .
-            
-            IF oFolderBrowserDialog:SelectedFolder BEGINS FILE-INFO:FULL-PATHNAME THEN 
-                ASSIGN THIS-OBJECT:tbPackage:Text = 
-                        REPLACE (SUBSTRING (oFolderBrowserDialog:SelectedFolder, LENGTH (FILE-INFO:FULL-PATHNAME) + 2), "\":U, ".":U) .   
-            ELSE 
-                Consultingwerk.Util.MessageFormHelper:ShowMessage 
+            FILE-INFORMATION:FILE-NAME = ".":U .
+
+            IF oFolderBrowserDialog:SelectedFolder BEGINS FILE-INFORMATION:FULL-PATHNAME THEN
+                ASSIGN THIS-OBJECT:tbPackage:Text =
+                        REPLACE (SUBSTRING (oFolderBrowserDialog:SelectedFolder, LENGTH (FILE-INFORMATION:FULL-PATHNAME, "CHARACTER":U) + 2, -1, "CHARACTER":U), "~\":U, ".":U) .
+            ELSE
+                Consultingwerk.Util.MessageFormHelper:ShowMessage
                               ("Unable to translate path into package."{&TRAN},
                                "Business Entity Designer"{&TRAN},
                                "Path needs to be relative to working directory."{&TRAN},
                                MessageFormImages:ImageWarning) .
         END.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the TextChanged event of all input controls 
-        Notes:   Verifies that all fields a populated and enables the btnOk  
+        Purpose: Event handler for the TextChanged event of all input controls
+        Notes:   Verifies that all fields a populated and enables the btnOk
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE VOID tbPackage_TextChanged (sender AS System.Object, 
-	                                           e AS System.EventArgs):
-		
-		btnOk:Enabled = (THIS-OBJECT:tbPackage:Text > "":U AND 
-		                 THIS-OBJECT:tbBusinessEntityNamePattern:Text > "":U AND 
-		                 THIS-OBJECT:tbDataAccessNamePattern:Text > "":U AND 
-		                 THIS-OBJECT:tbDatasetControllerNamePattern:Text > "":U AND 
-		                 THIS-OBJECT:coDatabaseName:Text > "":U AND 
-		                 THIS-OBJECT:tbTables:Text > "":U) . 
+    METHOD PRIVATE VOID tbPackage_TextChanged (sender AS System.Object,
+                                               e AS System.EventArgs):
 
-	END METHOD .
+        btnOk:Enabled = (THIS-OBJECT:tbPackage:Text > "":U AND
+                         THIS-OBJECT:tbBusinessEntityNamePattern:Text > "":U AND
+                         THIS-OBJECT:tbDataAccessNamePattern:Text > "":U AND
+                         THIS-OBJECT:tbDatasetControllerNamePattern:Text > "":U AND
+                         THIS-OBJECT:coDatabaseName:Text > "":U AND
+                         THIS-OBJECT:tbTables:Text > "":U) .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the BatchGeneratorWizard class 
-        Notes:   
+        Purpose: Destructor for the BatchGeneratorWizard class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC BatchGeneratorWizard ():
 

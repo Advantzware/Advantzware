@@ -35,6 +35,6 @@ INTERFACE Consultingwerk.Windows.Framework.IValidateFormStart:
         @param poContext The context of the menu function that launched the current object
         @return Logical value indicating if the Form may be started 
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL ValidateFormStart (poContext AS Progress.Lang.Object).
+    METHOD PUBLIC LOGICAL ValidateFormStart (poContext AS Progress.Lang.Object).
 
 END INTERFACE.

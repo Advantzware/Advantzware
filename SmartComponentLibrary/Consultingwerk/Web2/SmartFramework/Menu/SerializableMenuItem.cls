@@ -36,12 +36,12 @@ CLASS Consultingwerk.Web2.SmartFramework.Menu.SerializableMenuItem
 &ENDIF
     {&SERIALIZABLE}:
 
-    {Consultingwerk/JsonSerializableProperty.i Label CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i Image CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i LayoutId CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i Template CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i ViewUrl CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i Items Consultingwerk.Web2.SmartFramework.Menu.ListSerializableMenuItem} .
+    {Consultingwerk/JsonSerializableProperty11.i Label CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i Image CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i LayoutId CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i Template CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i ViewUrl CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty11.i Items Consultingwerk.Web2.SmartFramework.Menu.ListSerializableMenuItem} .
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the SerializableMenuItem class

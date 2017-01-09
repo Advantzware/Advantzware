@@ -44,29 +44,29 @@ CLASS Consultingwerk.SmartComponents.Support.BusinessEntityDesignerSupport:
                  date business entities
                  SCL-887 
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC STATIC PROPERTY DisconnectAppServerAfterEachRequest AS LOGICAL NO-UNDO
-	   INIT FALSE  
-	GET.
-	SET. 
+    DEFINE PUBLIC STATIC PROPERTY DisconnectAppServerAfterEachRequest AS LOGICAL NO-UNDO
+       INIT FALSE  
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Controls if Business Entities are searched on the AppServer 
         Notes:   Useful when the Business Entities are only accessible via an 
                  AppServer call (e.g. UNIX AppServer, different Progress Release) 
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC STATIC PROPERTY SearchBusinessEntititiesOnAppServer AS LOGICAL NO-UNDO 
-	   INIT FALSE
-	GET.
-	SET. 
+    DEFINE PUBLIC STATIC PROPERTY SearchBusinessEntititiesOnAppServer AS LOGICAL NO-UNDO 
+       INIT FALSE
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the BusinessEntityDesignerSupport class
         Notes:   Disallow instance creation   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PRIVATE BusinessEntityDesignerSupport ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    CONSTRUCTOR PRIVATE BusinessEntityDesignerSupport ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Creates a SmartBusinessEntityBindingSource from a SmartBusinessEntityAdapter
@@ -76,42 +76,42 @@ CLASS Consultingwerk.SmartComponents.Support.BusinessEntityDesignerSupport:
         @param pcBindingSourceClassName The name of the ABL class to create the Binding Source of 
         @return The reference to the created SmartBusinessEntityBindingSource instance
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC SmartBusinessEntityBindingSource CreateBindingSourceFromAdapter (poSourceComponent AS System.ComponentModel.Component,
-	                                                                                      pcBindingSourceClassName AS CHARACTER):
-		
-		DEFINE VARIABLE oType                  AS System.Type                      NO-UNDO . 
-		DEFINE VARIABLE oInstance              AS Progress.Lang.Object             NO-UNDO .
-		DEFINE VARIABLE oComponent             AS System.ComponentModel.IComponent NO-UNDO .
-		DEFINE VARIABLE oBindingSource         AS SmartBusinessEntityBindingSource NO-UNDO . 
-		DEFINE VARIABLE oBusinessEntityAdapter AS SmartBusinessEntityAdapter       NO-UNDO . 
-		DEFINE VARIABLE oDatasetsChildAdapter  AS SmartDatasetChildAdapter         NO-UNDO .
-		
-		ObjectAssert:IsValid (poSourceComponent, "poSourceComponent":U) .
-		Assert:NotNullOrEmpty (pcBindingSourceClassName, "pcBindingSourceClassName":U) .
-		
-		oType = Progress.Util.TypeHelper:GetType (pcBindingSourceClassName) .
-		
-		IF NOT VALID-OBJECT (oType) THEN DO:
-		    
-		    oInstance = DYNAMIC-NEW (pcBindingSourceClassName) () . 
-		    
+    METHOD PUBLIC STATIC SmartBusinessEntityBindingSource CreateBindingSourceFromAdapter (poSourceComponent AS System.ComponentModel.Component,
+                                                                                          pcBindingSourceClassName AS CHARACTER):
+        
+        DEFINE VARIABLE oType                  AS System.Type                      NO-UNDO . 
+        DEFINE VARIABLE oInstance              AS Progress.Lang.Object             NO-UNDO .
+        DEFINE VARIABLE oComponent             AS System.ComponentModel.IComponent NO-UNDO .
+        DEFINE VARIABLE oBindingSource         AS SmartBusinessEntityBindingSource NO-UNDO . 
+        DEFINE VARIABLE oBusinessEntityAdapter AS SmartBusinessEntityAdapter       NO-UNDO . 
+        DEFINE VARIABLE oDatasetsChildAdapter  AS SmartDatasetChildAdapter         NO-UNDO .
+        
+        ObjectAssert:IsValid (poSourceComponent, "poSourceComponent":U) .
+        Assert:NotNullOrEmpty (pcBindingSourceClassName, "pcBindingSourceClassName":U) .
+        
+        oType = Progress.Util.TypeHelper:GetType (pcBindingSourceClassName) .
+        
+        IF NOT VALID-OBJECT (oType) THEN DO:
+            
+            oInstance = DYNAMIC-NEW (pcBindingSourceClassName) () . 
+            
             oType = Progress.Util.TypeHelper:GetType (pcBindingSourceClassName) .
-	
-	        DELETE OBJECT oInstance . 	    
-		END.
-		
-		IF NOT VALID-OBJECT (oType) THEN  
-		    UNDO, THROW NEW AppError (SUBSTITUTE ("Unable to create component type: &1"{&TRAN}, 
-		                                          pcBindingSourceClassName), 0) . 
-		
+    
+            DELETE OBJECT oInstance .         
+        END.
+        
+        IF NOT VALID-OBJECT (oType) THEN  
+            UNDO, THROW NEW AppError (SUBSTITUTE ("Unable to create component type: &1"{&TRAN}, 
+                                                  pcBindingSourceClassName), 0) . 
+        
         oComponent = CAST(poSourceComponent:Container,
                           IDesignerHost):CreateComponent (oType)  .        
-		
-		ASSIGN oBindingSource = CAST (oComponent, SmartBusinessEntityBindingSource) .
-		
-		IF TYPE-OF (poSourceComponent, 
-		            SmartBusinessEntityAdapter) THEN DO:
-		                
+        
+        ASSIGN oBindingSource = CAST (oComponent, SmartBusinessEntityBindingSource) .
+        
+        IF TYPE-OF (poSourceComponent, 
+                    SmartBusinessEntityAdapter) THEN DO:
+                        
             ASSIGN oBusinessEntityAdapter = CAST (poSourceComponent, 
                                                   SmartBusinessEntityAdapter) 
                 
@@ -119,9 +119,9 @@ CLASS Consultingwerk.SmartComponents.Support.BusinessEntityDesignerSupport:
                    oBindingSource:EntityTable = oBusinessEntityAdapter:EntityTable
                    oBindingSource:EntityView  = oBusinessEntityAdapter:EntityView 
                    oBindingSource:EntityJoin  = oBusinessEntityAdapter:EntityJoin 
-                   . 		                		                		                
-		END.
-		ELSE DO:
+                   .                                                                         
+        END.
+        ELSE DO:
             ASSIGN oDatasetsChildAdapter = CAST (poSourceComponent, 
                                                  SmartDatasetChildAdapter)  
                 
@@ -132,15 +132,15 @@ CLASS Consultingwerk.SmartComponents.Support.BusinessEntityDesignerSupport:
 
             IF oBindingSource:EntityView > "":U THEN         
                 oBindingSource:EntityJoin  = TRIM (FILL ("yes,":U, NUM-ENTRIES (oDatasetsChildAdapter:EntityView)), ",":U) .
-		END.
+        END.
 
-        /* Finally import the schema */		
+        /* Finally import the schema */        
         IF oBindingSource:EntityName > "":U AND
            oBindingSource:EntityTable > "":U THEN
 
             oBindingSource:DesignerImportSchema (FALSE) .
-		
-	END METHOD .
+        
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the Refresh Button of the Refresh Button of the 
@@ -149,13 +149,13 @@ CLASS Consultingwerk.SmartComponents.Support.BusinessEntityDesignerSupport:
         @param sender The reference to the object that raised the event
         @param e The System.EventArgs with the data for this event 
     ------------------------------------------------------------------------------*/
-	METHOD PRIVATE STATIC VOID RefreshButtonClickHandler (sender AS System.Object, 
-	                                                      e AS System.EventArgs):
+    METHOD PRIVATE STATIC VOID RefreshButtonClickHandler (sender AS System.Object, 
+                                                          e AS System.EventArgs):
         DEFINE VARIABLE oCache        AS IClassCacheProvider      NO-UNDO .  
         DEFINE VARIABLE oForm         AS BusinessEntityPickerForm NO-UNDO .
-		
-		oForm = CAST (sender, BusinessEntityPickerForm) .
-		
+        
+        oForm = CAST (sender, BusinessEntityPickerForm) .
+        
         oCache = {Consultingwerk/get-service.i Consultingwerk.SmartComponents.Support.IClassCacheProvider
                                                "NEW Consultingwerk.SmartComponents.Support.ClassCacheProvider()"} . 
         
@@ -165,7 +165,7 @@ CLASS Consultingwerk.SmartComponents.Support.BusinessEntityDesignerSupport:
 
         oForm:ReceiveBusinessEntityNames (TABLE ttClassNames) .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the Refresh Button of the Refresh Button of the 

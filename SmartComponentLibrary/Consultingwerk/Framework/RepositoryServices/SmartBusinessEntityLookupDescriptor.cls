@@ -58,12 +58,12 @@ CLASS Consultingwerk.Framework.RepositoryServices.SmartBusinessEntityLookupDescr
         Purpose: Constructor for the SmartBusinessEntityLookupDescriptor class
         Notes:   
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC SmartBusinessEntityLookupDescriptor ():
-		SUPER ().
+    CONSTRUCTOR PUBLIC SmartBusinessEntityLookupDescriptor ():
+        SUPER ().
 
         THIS-OBJECT:AddSerializableProperties ("{&SerializableProperties}":U) .
 
-	END CONSTRUCTOR.
+    END CONSTRUCTOR.
 
 &IF DEFINED (SmartComponentLibrary) NE 0 &THEN 
     /*------------------------------------------------------------------------------
@@ -110,8 +110,8 @@ CLASS Consultingwerk.Framework.RepositoryServices.SmartBusinessEntityLookupDescr
         Notes:   
         @param poLookup The reference of the SmartBusinessEntityLookup instance to assign the values to
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID AssignToSmartBusinessEntityLookup (poLookup AS SmartBusinessEntityLookup):
-		
+    METHOD PUBLIC VOID AssignToSmartBusinessEntityLookup (poLookup AS SmartBusinessEntityLookup):
+        
         DEFINE VARIABLE cProperty AS CHARACTER NO-UNDO.
         DEFINE VARIABLE i         AS INTEGER   NO-UNDO.
 
@@ -142,6 +142,6 @@ CLASS Consultingwerk.Framework.RepositoryServices.SmartBusinessEntityLookupDescr
             .
 &ENDIF
 
-	END METHOD .
+    END METHOD .
 &ENDIF
 END CLASS.

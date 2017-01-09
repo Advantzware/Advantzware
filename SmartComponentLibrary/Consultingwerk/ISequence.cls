@@ -29,20 +29,20 @@ INTERFACE Consultingwerk.ISequence:
         Purpose: Returns the current sequence value
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY CurrentValue AS INT64 NO-UNDO 
-	GET.
+    DEFINE PUBLIC PROPERTY CurrentValue AS INT64 NO-UNDO 
+    GET.
 
     /*------------------------------------------------------------------------------
         Purpose: Increments or decrements the sequence and returns the next value
         Notes:   
         @return The new sequence value
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC INT64 NextValue ().
+    METHOD PUBLIC INT64 NextValue ().
 
     /*------------------------------------------------------------------------------
         Purpose: Resets the sequence to its initial value
         Notes:   
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID Reset ().
+    METHOD PUBLIC VOID Reset ().
 
 END INTERFACE.

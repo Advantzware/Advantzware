@@ -48,6 +48,6 @@ CLASS Consultingwerk.DefaultOutputStream IMPLEMENTS IOutputStream:
 
         PUT UNFORMATTED pcText SKIP .    
 
-	END METHOD.
+    END METHOD.
 
 END CLASS.

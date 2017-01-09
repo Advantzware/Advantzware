@@ -65,29 +65,29 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Frame.AblFrameMigrationSettings:
     GET.
     PRIVATE SET. 
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Private constructor for the AblFrameMigrationSettings class
-	    Notes:   Disallow instance creation
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR PRIVATE AblFrameMigrationSettings ():
-		SUPER ().
-		
-	END CONSTRUCTOR.
+    /*------------------------------------------------------------------------------
+        Purpose: Private constructor for the AblFrameMigrationSettings class
+        Notes:   Disallow instance creation
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PRIVATE AblFrameMigrationSettings ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Static constructor for the AblFrameMigrationSettings class
-	    Notes:
-	------------------------------------------------------------------------------*/
-	CONSTRUCTOR STATIC  AblFrameMigrationSettings ():
+    /*------------------------------------------------------------------------------
+        Purpose: Static constructor for the AblFrameMigrationSettings class
+        Notes:
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR STATIC  AblFrameMigrationSettings ():
 
-        FILE-INFO:FILE-NAME = ".AblFrameMigrationSettings.xml":U .
+        FILE-INFORMATION:FILE-NAME = ".AblFrameMigrationSettings.xml":U .
 
-        IF FILE-INFO:FULL-PATHNAME <> ? THEN DO: 
+        IF FILE-INFORMATION:FULL-PATHNAME <> ? THEN DO: 
             TEMP-TABLE ttAblFrameMigrationSettings:READ-XML ("FILE":U, 
-                                                             FILE-INFO:FULL-PATHNAME,
+                                                             FILE-INFORMATION:FULL-PATHNAME,
                                                              "EMPTY":U, ?, ?) .
             
-            ASSIGN AblFrameMigrationSettings:SettingsFile       = FILE-INFO:FULL-PATHNAME 
+            ASSIGN AblFrameMigrationSettings:SettingsFile       = FILE-INFORMATION:FULL-PATHNAME 
                    AblFrameMigrationSettings:SettingsFileLoaded = TRUE .
         END.                                                                 
                                                                  
@@ -100,8 +100,8 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Frame.AblFrameMigrationSettings:
             
             FIND FIRST ttAblFrameMigrationSettings .
         END.
-		
-	END CONSTRUCTOR.
+        
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Saves settings to the file .BusinessEntityDesignerSettings.xml                                                                         
@@ -112,14 +112,14 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Frame.AblFrameMigrationSettings:
         DEFINE VARIABLE oException AS ExceptionWithTitle NO-UNDO . 
         DEFINE VARIABLE cFileName  AS CHARACTER          NO-UNDO .
         
-        FILE-INFO:FILE-NAME = ".AblFrameMigrationSettings.xml":U .
+        FILE-INFORMATION:FILE-NAME = ".AblFrameMigrationSettings.xml":U .
         
-        IF FILE-INFO:FULL-PATHNAME > "":U THEN 
-            cFileName = FILE-INFO:FULL-PATHNAME .
+        IF FILE-INFORMATION:FULL-PATHNAME > "":U THEN 
+            cFileName = FILE-INFORMATION:FULL-PATHNAME .
         ELSE 
             cFileName = ".AblFrameMigrationSettings.xml":U . 
         
-        IF FILE-INFO:FULL-PATHNAME > "":U AND NOT FILE-INFO:FILE-TYPE MATCHES "*W*":U THEN  
+        IF FILE-INFORMATION:FULL-PATHNAME > "":U AND NOT FILE-INFORMATION:FILE-TYPE MATCHES "*W*":U THEN  
             Consultingwerk.Util.MessageFormHelper:ShowMessage ("Unable to store application preferences."{&TRAN},
                                                                "ABL GUI FRAME Widget Migration"{&TRAN},
                                                                "The file .AblFrameMigrationSettings.xml is write protected."{&TRAN},

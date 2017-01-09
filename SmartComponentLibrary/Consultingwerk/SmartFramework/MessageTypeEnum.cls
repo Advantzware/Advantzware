@@ -11,12 +11,12 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : MessageTypeEnum
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Wed Jan 09 22:48:22 CET 2013
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -31,18 +31,18 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.*                       FROM PROPATH .
 USING Consultingwerk.Framework.Collections.* FROM PROPATH .
-USING Consultingwerk.SmartFramework.*        FROM PROPATH .  
+USING Consultingwerk.SmartFramework.*        FROM PROPATH .
 USING Progress.Lang.*                        FROM PROPATH .
 
-{&CLASS} Consultingwerk.SmartFramework.MessageTypeEnum 
+{&CLASS} Consultingwerk.SmartFramework.MessageTypeEnum
     &IF "{&CLASS}" EQ "CLASS" &THEN
     INHERITS Enum
-    &ENDIF    
-        : 
+    &ENDIF
+        :
 
 &IF "{&CLASS}" EQ "ENUM" &THEN
     DEFINE ENUM
-&ENDIF    
+&ENDIF
 
     {Consultingwerk/EnumMember.i Information 0 MessageTypeEnum}
     {Consultingwerk/EnumMember.i Warning 1 MessageTypeEnum}
@@ -51,7 +51,7 @@ USING Progress.Lang.*                        FROM PROPATH .
 
 &IF "{&CLASS}" EQ "ENUM" &THEN
     .
-&ENDIF    
+&ENDIF
 
 &IF "{&CLASS}" EQ "CLASS" &THEN
 
@@ -63,48 +63,46 @@ USING Progress.Lang.*                        FROM PROPATH .
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PRIVATE MessageTypeEnum (piValue AS INTEGER, pcLabel AS CHARACTER):
         SUPER ().
- 
+
         ASSIGN THIS-OBJECT:Value = piValue
                THIS-OBJECT:Label = pcLabel .
- 
+
     END CONSTRUCTOR.
- 
+
     /*------------------------------------------------------------------------------
         Purpose: Returns the MessageTypeEnum value for the provided Character value
-        Notes:   
+        Notes:
         @param pcValue The charcater value to return the MessageTypeEnum for
-        @return 
+        @return
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC STATIC MessageTypeEnum FromString (pcValue AS CHARACTER):
-		
-		IF pcValue BEGINS "I":U THEN 
-		    RETURN MessageTypeEnum:Information .
-        IF pcValue BEGINS "W":U THEN 
+    METHOD PUBLIC STATIC MessageTypeEnum FromString (pcValue AS CHARACTER):
+
+        IF pcValue BEGINS "I":U THEN
+            RETURN MessageTypeEnum:Information .
+        IF pcValue BEGINS "W":U THEN
             RETURN MessageTypeEnum:Warning .
-        IF pcValue BEGINS "E":U THEN 
+        IF pcValue BEGINS "E":U THEN
             RETURN MessageTypeEnum:Error .
-        IF pcValue BEGINS "Q":U THEN 
+        IF pcValue BEGINS "Q":U THEN
             RETURN MessageTypeEnum:Question .
-		     
 
-        UNDO, THROW NEW Consultingwerk.Exceptions.InvalidValueException (pcValue, 
-                                                                         "pcValue":U) . 
 
-	END METHOD .
+        UNDO, THROW NEW Consultingwerk.Exceptions.InvalidValueException (pcValue,
+                                                                         "pcValue":U) .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Returns a CharacterList with the names of the Enum members
-        Notes:   
+        Notes:
         @return The CharacterList with the names of the Enum members
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC STATIC CharacterList GetNames ():
- 
-        DEFINE VARIABLE oReturn AS CharacterList NO-UNDO . 
- 
+
         RETURN NEW CharacterList ('{&EnumMembers}':U).
- 
+
     END METHOD .
-	
-&ENDIF 
+
+&ENDIF
 
 END {&CLASS} .

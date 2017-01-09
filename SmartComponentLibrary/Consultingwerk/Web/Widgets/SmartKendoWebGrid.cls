@@ -68,9 +68,9 @@ CLASS Consultingwerk.Web.Widgets.SmartKendoWebGrid
         Purpose: Gets and sets the reference to the Data Source for the SmartKendoWebGrid
         Notes:   
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY DataSource AS Consultingwerk.Web.Data.JsonDataSource NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY DataSource AS Consultingwerk.Web.Data.JsonDataSource NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Gets and sets the handle of the Query used by the SmartWebGrid                                                                      

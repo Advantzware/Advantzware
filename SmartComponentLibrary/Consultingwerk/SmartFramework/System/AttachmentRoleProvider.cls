@@ -12,52 +12,52 @@
 /*------------------------------------------------------------------------
     File        : AttachmentRoleProvider
     Purpose     : SmartFramework dependent IAttachmentRoleProvider implementation
-                  Retrieves attachment roles from the SmartDB 
-    Syntax      : 
-    Description : 
+                  Retrieves attachment roles from the SmartDB
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Mon Jan 07 23:07:10 CET 2013
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Consultingwerk.Framework.*                            FROM PROPATH . 
-USING Consultingwerk.OERA.*                                 FROM PROPATH . 
+USING Consultingwerk.Framework.*                            FROM PROPATH .
+USING Consultingwerk.OERA.*                                 FROM PROPATH .
 USING Consultingwerk.SmartFramework.IAttachmentRoleProvider FROM PROPATH .
-USING Consultingwerk.Windows.Framework.System.*             FROM PROPATH .  
+USING Consultingwerk.Windows.Framework.System.*             FROM PROPATH .
 USING Progress.Lang.*                                       FROM PROPATH .
 
-CLASS Consultingwerk.SmartFramework.System.AttachmentRoleProvider 
-    IMPLEMENTS IAttachmentRoleProvider: 
+CLASS Consultingwerk.SmartFramework.System.AttachmentRoleProvider
+    IMPLEMENTS IAttachmentRoleProvider:
 
-    {Consultingwerk/SmartFramework/ttAttachmentRole.i &NO-BEFORE}  
+    {Consultingwerk/SmartFramework/ttAttachmentRole.i &NO-BEFORE}
     {Consultingwerk/SmartFramework/System/dsAttachmentRole.i}
-    
+
     DEFINE VARIABLE lReadFromBackend AS LOGICAL NO-UNDO INIT FALSE .
-    
+
     /*------------------------------------------------------------------------------
-        Purpose: Returns the ttAttachmentRole Temp-Table with the list of available 
+        Purpose: Returns the ttAttachmentRole Temp-Table with the list of available
                  attachment roles
-        Notes:   
+        Notes:
         @param ttAttachmentRole OUTPUT Temp-Table with the list of available attachment roles
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID GetAttachmentRoles (OUTPUT TABLE ttAttachmentRole):
-       
-        IF lReadFromBackend THEN 
-            RETURN . 
-       
-        EMPTY TEMP-TABLE ttAttachmentRole . 
-       
-        FrameworkSettings:ServiceAdapter:RetrieveData ("":U, 
+
+        IF lReadFromBackend THEN
+            RETURN .
+
+        EMPTY TEMP-TABLE ttAttachmentRole .
+
+        FrameworkSettings:ServiceAdapter:RetrieveData ("":U,
                                                        "Consultingwerk.SmartFramework.System.AttachmentRoleBusinessEntity":U,
                                                        NEW FetchDataRequest ("eSmartAttachmentRole":U),
                                                        OUTPUT DATASET dsAttachmentRole) .
-        
-        ASSIGN lReadFromBackend = TRUE . 
-        
+
+        ASSIGN lReadFromBackend = TRUE .
+
         FOR EACH eSmartAttachmentRole:
-        
+
             CREATE ttAttachmentRole .
             BUFFER-COPY eSmartAttachmentRole TO ttAttachmentRole
                 ASSIGN ttAttachmentRole.AttachmentRoleKey = eSmartAttachmentRole.AttachmentRoleGuid .
@@ -67,21 +67,21 @@ CLASS Consultingwerk.SmartFramework.System.AttachmentRoleProvider
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the Count of Attachment Roles
-        Notes:   
+        Notes:
         @return The count of attachment roles
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC INTEGER GetCount ():
-         
-        DEFINE VARIABLE i AS INTEGER NO-UNDO. 
-         
-        IF NOT lReadFromBackend THEN 
+
+        DEFINE VARIABLE i AS INTEGER NO-UNDO.
+
+        IF NOT lReadFromBackend THEN
             THIS-OBJECT:GetAttachmentRoles (OUTPUT TABLE ttAttachmentRole) .
-            
+
         FOR EACH ttAttachmentRole:
-            i = i + 1 . 
-        END.        
-            
-        RETURN i .     
-    END.
+            i = i + 1 .
+        END.
+
+        RETURN i .
+    END METHOD .
 
 END CLASS.

@@ -13,21 +13,21 @@
     File        : TableImportForm
     Purpose     : Provides an user interface to select tables to import from
                   ABL source code
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Wed Sep 19 22:55:34 CEST 2012
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
-USING Consultingwerk.Framework.Collections.*     FROM PROPATH . 
-USING Consultingwerk.Forms.*                     FROM PROPATH . 
-USING Consultingwerk.BusinessEntityDesigner.UI.* FROM PROPATH .  
+USING Consultingwerk.Framework.Collections.*     FROM PROPATH .
+USING Consultingwerk.Forms.*                     FROM PROPATH .
+USING Consultingwerk.BusinessEntityDesigner.UI.* FROM PROPATH .
 USING Progress.Lang.*                            FROM PROPATH .
 
-CLASS Consultingwerk.BusinessEntityDesigner.UI.TableImportForm INHERITS BaseForm: 
+CLASS Consultingwerk.BusinessEntityDesigner.UI.TableImportForm INHERITS BaseForm:
 
     DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraListView1 AS Infragistics.Win.UltraWinListView.UltraListView NO-UNDO.
@@ -40,40 +40,41 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.TableImportForm INHERITS BaseForm
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the CharacerList of selected tabels
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY SelectedTables AS CharacterList NO-UNDO 
+    DEFINE PUBLIC PROPERTY SelectedTables AS CharacterList NO-UNDO
     GET.
-    PROTECTED SET. 
+    PROTECTED SET.
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the TableImportForm class                                                                        
-        Notes:      
+        Purpose: Constructor for the TableImportForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC TableImportForm ():
-        
+
         SUPER().
         InitializeComponent().
-        
+
         THIS-OBJECT:SelectedTables = NEW CharacterList () .
-        
+
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
         END CATCH.
 
     END CONSTRUCTOR.
 
-    /*------------------------------------------------------------------------------
-        Purpose: Initializes the Visual Design                                                                        
-        Notes:      
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Initializes the Visual Design
+     * Notes:
+     */
+    @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE appearance1 AS Infragistics.Win.Appearance NO-UNDO.
@@ -207,51 +208,51 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.TableImportForm INHERITS BaseForm
 
     /*------------------------------------------------------------------------------
         Purpose: Sets the Tables for the List View
-        Notes:   
+        Notes:
         @param poTables A CharacterList with the Tables to import
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID SetTables (poTables AS CharacterList):
-        
-        DEFINE VARIABLE oListViewItem AS Infragistics.Win.UltraWinListView.UltraListViewItem NO-UNDO . 
-        
+
+        DEFINE VARIABLE oListViewItem AS Infragistics.Win.UltraWinListView.UltraListViewItem NO-UNDO .
+
         THIS-OBJECT:ultraListView1:Items:Clear () .
-        
+
         {Consultingwerk/foreachPrimitiveList.i Character cTable in poTables}
-        
+
             oListViewItem = THIS-OBJECT:ultraListView1:Items:Add (cTable, cTable) .
-            oListViewItem:Appearance:Image = Consultingwerk.Util.ImageHelper:Load 
+            oListViewItem:Appearance:Image = Consultingwerk.Util.ImageHelper:Load
                     ("Consultingwerk/BusinessEntityDesigner/UI/Images/data_table.png":U) .
-        
+
             ultraListView1:SelectedItems:Add (oListViewItem) .
-        END.        
-        
+        END.
+
     END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the ItemSelectionChanged event of the ultraListView1
                  instance
-        Notes:   
+        Notes:
         @param sender The reference to the object that raised the event
-        @param e The ItemSelectionChangedEventArgs with the data for this event  
+        @param e The ItemSelectionChangedEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ultraListView1_ItemSelectionChanged (sender AS System.Object, 
+    METHOD PRIVATE VOID ultraListView1_ItemSelectionChanged (sender AS System.Object,
                                                              e AS Infragistics.Win.UltraWinListView.ItemSelectionChangedEventArgs):
-        
-        ultraButton1:Enabled = ultraListView1:SelectedItems:Count > 0 . 
+
+        ultraButton1:Enabled = ultraListView1:SelectedItems:Count > 0 .
 
         THIS-OBJECT:SelectedTables:Clear () .
-        
+
         {Consultingwerk/foreach.i Infragistics.Win.UltraWinListView.UltraListViewItem oItem in ultraListView1:SelectedItems}
 
             THIS-OBJECT:SelectedTables:Add (oItem:Key) .
 
-        END . 
+        END .
 
     END METHOD .
 
     /*------------------------------------------------------------------------------
-        Purpose: Destructor for the TableImportForm class                                                                        
-        Notes:      
+        Purpose: Destructor for the TableImportForm class
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC TableImportForm ( ):
 

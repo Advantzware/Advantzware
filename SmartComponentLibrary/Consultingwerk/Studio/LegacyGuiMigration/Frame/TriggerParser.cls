@@ -55,18 +55,18 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Frame.TriggerParser:
         @param poNode The parent node to locate the ID under
         @return The ID value
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED CHARACTER FindId (poNode AS JPNode):
-		
-		DEFINE VARIABLE oNode AS JPNode NO-UNDO . 
-		
-		ASSIGN oNode = ProparseHelper:FindChildNodeOfNodeType (poNode, "ID":U) .
-		
+    METHOD PROTECTED CHARACTER FindId (poNode AS JPNode):
+        
+        DEFINE VARIABLE oNode AS JPNode NO-UNDO . 
+        
+        ASSIGN oNode = ProparseHelper:FindChildNodeOfNodeType (poNode, "ID":U) .
+        
         IF VALID-OBJECT (oNode) THEN 
             RETURN oNode:getText () . 
             
         RETURN ?. 
 
-	END METHOD .
+    END METHOD .
 
      /*------------------------------------------------------------------------------
         Purpose: Initializes the Proparse environment 
@@ -158,11 +158,11 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Frame.TriggerParser:
         Notes:   Creates records in the temp-tables   
         @param poNode The JPNode representing the ON Statement
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID ParseTriggerNode (poNode AS JPNode):
-		
-		DEFINE VARIABLE cEvent  AS CHARACTER NO-UNDO .
-		DEFINE VARIABLE cWidget AS CHARACTER NO-UNDO .
-		DEFINE VARIABLE cFrame  AS CHARACTER NO-UNDO .
+    METHOD PROTECTED VOID ParseTriggerNode (poNode AS JPNode):
+        
+        DEFINE VARIABLE cEvent  AS CHARACTER NO-UNDO .
+        DEFINE VARIABLE cWidget AS CHARACTER NO-UNDO .
+        DEFINE VARIABLE cFrame  AS CHARACTER NO-UNDO .
         
         DEFINE VARIABLE oDoNode AS JPNode NO-UNDO . 
         DEFINE VARIABLE oNode   AS JPNode NO-UNDO . 
@@ -225,7 +225,7 @@ CLASS Consultingwerk.Studio.LegacyGuiMigration.Frame.TriggerParser:
             RELEASE ttTriggerEvent . 
         END FINALLY.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Publishes the a status message 

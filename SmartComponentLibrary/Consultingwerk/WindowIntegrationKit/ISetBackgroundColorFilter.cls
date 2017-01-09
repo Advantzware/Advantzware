@@ -38,7 +38,7 @@ INTERFACE Consultingwerk.WindowIntegrationKit.ISetBackgroundColorFilter:
         @param poParameter The ISetFrameBackgroundColorParameter instance with the parameters for the SetFrameBackgroundColor routine
         @return Logical value indicating if the Widget should be color coded or not, when FALSE the widget will be ignored
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC LOGICAL FilterWidgetForSetBackgroundColor (phWidget AS HANDLE,
-	                                                         poParameter AS ISetFrameBackgroundColorParameter).
+    METHOD PUBLIC LOGICAL FilterWidgetForSetBackgroundColor (phWidget AS HANDLE,
+                                                             poParameter AS ISetFrameBackgroundColorParameter).
 
 END INTERFACE.

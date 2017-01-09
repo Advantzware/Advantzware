@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2006-2014 by Consultingwerk Ltd. ("CW") -            *
+ * Copyright (C) 2006-2016 by Consultingwerk Ltd. ("CW") -            *
  * www.consultingwerk.de and other contributors as listed             *
  * below.  All Rights Reserved.                                       *
  *                                                                    *
@@ -15,7 +15,7 @@
     Syntax      : 
     Description : 
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
-    Created     : 06/03/2015 12:52:25,854+01:00
+    Created     : 03/05/2016 23:33:55,061+02:00
     Notes       : 
   ----------------------------------------------------------------------*/
 
@@ -30,7 +30,7 @@ USING Progress.Lang.* FROM PROPATH .
 CLASS Consultingwerk.SmartFramework.Repository.Class.LinkTypeDatasetModel_Generated 
     INHERITS DatasetModel ABSTRACT: 
 
-    { Consultingwerk/SmartFramework/Repository/Class/dsLinkType.i }
+    { Consultingwerk/SmartFramework/Repository/Class/dsLinkType.i &ACCESS=PROTECTED }
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the reference to the SmartLinkType table model

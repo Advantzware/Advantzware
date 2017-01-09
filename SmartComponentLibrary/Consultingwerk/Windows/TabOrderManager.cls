@@ -36,13 +36,13 @@ CLASS Consultingwerk.Windows.TabOrderManager:
                  purposes 
         Notes:   Logging is implemented within the .NET class Consultingwerk.Support.TabOrderMessageFilter  
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY LogfileName AS CHARACTER NO-UNDO 
-	GET:
-	    RETURN oTabOrderMessageFilter:LogfileName .
-	END GET.
-	SET (arg AS CHARACTER):
-	    oTabOrderMessageFilter:LogfileName = arg . 
-	END SET.
+    DEFINE PUBLIC PROPERTY LogfileName AS CHARACTER NO-UNDO 
+    GET:
+        RETURN oTabOrderMessageFilter:LogfileName .
+    END GET.
+    SET (arg AS CHARACTER):
+        oTabOrderMessageFilter:LogfileName = arg . 
+    END SET.
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the TabOrderManager class                                                                        

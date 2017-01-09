@@ -51,12 +51,12 @@ CLASS Consultingwerk.SmartFramework.System.AttachmentBusinessEntity
         @param dsAttachment INPUT-OUTPUT DATASET The Dataset
         @param poAttachmentKey The CharacterHolder with the Attachment Key
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID GetLargeObjects (INPUT-OUTPUT DATASET dsAttachment,
-	                                    poAttachmentKey AS CharacterHolder):
-		
-		DEFINE VARIABLE oRequest AS FetchDataRequest NO-UNDO . 
-		
-		DATASET dsAttachment:EMPTY-DATASET () .
+    METHOD PUBLIC VOID GetLargeObjects (INPUT-OUTPUT DATASET dsAttachment,
+                                        poAttachmentKey AS CharacterHolder):
+        
+        DEFINE VARIABLE oRequest AS FetchDataRequest NO-UNDO . 
+        
+        DATASET dsAttachment:EMPTY-DATASET () .
 
         ASSIGN oRequest = NEW FetchDataRequest ("eSmartAttachment":U,
                                                 SUBSTITUTE ("for each eSmartAttachment where eSmartAttachment.AttachmentGUID = &1":U,
@@ -67,7 +67,7 @@ CLASS Consultingwerk.SmartFramework.System.AttachmentBusinessEntity
 
         THIS-OBJECT:FetchData (oRequest) .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Provides a hook to modify data in the ProDataset after Read and 

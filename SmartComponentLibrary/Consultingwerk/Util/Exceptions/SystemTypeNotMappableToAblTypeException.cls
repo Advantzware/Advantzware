@@ -44,12 +44,12 @@ CLASS Consultingwerk.Util.Exceptions.SystemTypeNotMappableToAblTypeException
        @param pcErrorMessage The error message for the exception
        @param pcTypeName The type name for the exception
     ------------------------------------------------------------------------------*/
-	CONSTRUCTOR PUBLIC SystemTypeNotMappableToAblTypeException (pcErrorMessage AS CHARACTER,
-	                                                            pcTypeName AS CHARACTER):
-		SUPER (pcErrorMessage, 0).
-	
-	   ASSIGN THIS-OBJECT:TypeName = pcTypeName . 
-		
-	END CONSTRUCTOR.
-		
+    CONSTRUCTOR PUBLIC SystemTypeNotMappableToAblTypeException (pcErrorMessage AS CHARACTER,
+                                                                pcTypeName AS CHARACTER):
+        SUPER (pcErrorMessage, 0).
+    
+       ASSIGN THIS-OBJECT:TypeName = pcTypeName . 
+        
+    END CONSTRUCTOR.
+        
 END CLASS.
