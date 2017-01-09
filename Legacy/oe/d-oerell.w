@@ -175,7 +175,7 @@ DEFINE FRAME Dialog-Frame
           VIEW-AS FILL-IN 
           SIZE 33.6 BY 1
      oe-rell.tag AT ROW 4.76 COLUMN 29.8 COLON-ALIGNED
-          LABEL "Tag" FORMAT "x(8)"
+          LABEL "Tag" FORMAT "x(20)"
           VIEW-AS FILL-IN 
           SIZE 33.6 BY 1
      oe-rell.loc AT ROW 5.91 COLUMN 29.8 COLON-ALIGNED
@@ -824,6 +824,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         IF ip-type EQ "add"  OR ip-type EQ "copy" THEN DO:
             APPLY "entry" TO oe-rell.ord-no  .
         END.
+        oe-rell.cust-no:HIDDEN IN FRAME {&FRAME-NAME}  = TRUE .
     END.
 
     WAIT-FOR GO OF FRAME {&FRAME-NAME}.
