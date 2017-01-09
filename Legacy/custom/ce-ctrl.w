@@ -926,6 +926,7 @@ ON CHOOSE OF Btn_Close IN FRAME DEFAULT-FRAME /* Close */
                 Btn_Update:LABEL   = "&Update".
       
             RUN enable_UI.
+            FIND CURRENT ce-ctrl NO-LOCK NO-ERROR.
         END.
     END.
 
@@ -1243,6 +1244,7 @@ PROCEDURE reftable-values :
             fi_fg-rate-farm = reftable.val[1].
         ELSE
             reftable.val[1] = fi_fg-rate-farm.
+        RELEASE reftable .
     
         FIND FIRST reftable
             WHERE reftable.reftable EQ "ce-ctrl.rm-rate-farm"
@@ -1262,6 +1264,7 @@ PROCEDURE reftable-values :
             fi_rm-rate-farm = reftable.val[1].
         ELSE
             reftable.val[1] = fi_rm-rate-farm.
+        RELEASE reftable .
     
         FIND FIRST reftable
             WHERE reftable.reftable EQ "ce-ctrl.hand-pct-farm"
@@ -1281,6 +1284,7 @@ PROCEDURE reftable-values :
             fi_hand-pct-farm = reftable.val[1].
         ELSE
             reftable.val[1] = fi_hand-pct-farm.
+        RELEASE reftable .
 
         FIND FIRST reftable
             WHERE reftable.reftable EQ "ce-ctrl.fold-pct"
@@ -1300,6 +1304,7 @@ PROCEDURE reftable-values :
             fi_fold-pct = reftable.val[1].
         ELSE
             reftable.val[1] = fi_fold-pct.
+       RELEASE reftable .
 
         FIND FIRST reftable
             WHERE reftable.reftable EQ "ce-ctrl.broker-pct"
@@ -1319,6 +1324,7 @@ PROCEDURE reftable-values :
             fi_broker-pct = reftable.val[1].
         ELSE
             reftable.val[1] = fi_broker-pct.
+        RELEASE reftable .
     END.
 
 END PROCEDURE.
