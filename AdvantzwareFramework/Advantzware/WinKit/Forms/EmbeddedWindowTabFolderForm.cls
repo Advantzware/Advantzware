@@ -37,8 +37,7 @@ USING System.Windows.Forms.*                       FROM ASSEMBLY .
 
 CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderForm
     INHERITS EmbeddedWindowTabFolderFormDesigner
-    IMPLEMENTS IEmbeddedWindowForm, IFormWithUltraToolbarsManager, IEmbeddedWindowTabFolderForm,
-               INotes
+    IMPLEMENTS IEmbeddedWindowForm, IFormWithUltraToolbarsManager, IEmbeddedWindowTabFolderForm
         USE-WIDGET-POOL :
 
     DEFINE VARIABLE WinContainer AS Progress.Windows.WindowContainer NO-UNDO.
@@ -64,77 +63,6 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderForm
         INDEX PageNum IS UNIQUE PRIMARY PageNum .
 
     DEFINE VARIABLE oCustomizer AS Consultingwerk.WindowIntegrationKit.ITabFolderCustomizer NO-UNDO .
-
-    // ******************************************************
-    // Begin Notes etc. implementation
-    // ******************************************************
-
-    /*------------------------------------------------------------------------------
-        Purpose:
-        Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY HasAttachments AS LOGICAL NO-UNDO
-    GET.
-    SET (arg AS LOGICAL):
-        ultraStatusBar1:Panels ["Attachments"]:Checked = arg .
-
-        THIS-OBJECT:HasAttachments = arg .
-    END SET .
-
-    /*------------------------------------------------------------------------------
-        Purpose:
-        Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY HasCustomFields AS LOGICAL NO-UNDO
-    GET.
-    SET (arg AS LOGICAL):
-        ultraStatusBar1:Panels ["CustomFields"]:Checked = arg .
-
-        THIS-OBJECT:HasCustomFields = arg .
-    END SET .
-
-    /*------------------------------------------------------------------------------
-        Purpose:
-        Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE PUBLIC PROPERTY HasNotes AS LOGICAL NO-UNDO
-    GET.
-    SET (arg AS LOGICAL):
-        ultraStatusBar1:Panels ["Notes"]:Checked = arg .
-
-        THIS-OBJECT:HasNotes = arg .
-    END SET .
-
-    /*------------------------------------------------------------------------------
-        Purpose:
-        Notes:
-    ------------------------------------------------------------------------------*/
-    METHOD PUBLIC VOID DisableNotes ():
-
-        ASSIGN ultraStatusBar1:Panels ["Attachments"]:Enabled  = FALSE
-               ultraStatusBar1:Panels ["CustomFields"]:Enabled = FALSE
-               ultraStatusBar1:Panels ["Notes"]:Enabled        = FALSE
-               .
-
-    END METHOD .
-
-    /*------------------------------------------------------------------------------
-        Purpose:
-        Notes:
-    ------------------------------------------------------------------------------*/
-    METHOD PUBLIC VOID EnableNotes ():
-
-        ASSIGN ultraStatusBar1:Panels ["Attachments"]:Enabled  = TRUE
-               ultraStatusBar1:Panels ["CustomFields"]:Enabled = TRUE
-               ultraStatusBar1:Panels ["Notes"]:Enabled        = TRUE
-               .
-
-    END METHOD .
-
-    // ******************************************************
-    // Begin Notes etc. implementation
-    // ******************************************************
-
 
 
 

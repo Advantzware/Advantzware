@@ -588,9 +588,9 @@ CLASS Advantzware.Windows.SmartFramework.Menu.MainMenuForm
         THIS-OBJECT:m_CustomerExplorerUnpinnedTabAreaTop = NEW Infragistics.Win.UltraWinDock.UnpinnedTabArea().
         THIS-OBJECT:m_CustomerExplorerUnpinnedTabAreaBottom = NEW Infragistics.Win.UltraWinDock.UnpinnedTabArea().
         THIS-OBJECT:m_CustomerExplorerAutoHideControl = NEW Infragistics.Win.UltraWinDock.AutoHideControl().
+        THIS-OBJECT:dockableWindow3 = NEW Infragistics.Win.UltraWinDock.DockableWindow().
         THIS-OBJECT:dockableWindow1 = NEW Infragistics.Win.UltraWinDock.DockableWindow().
         THIS-OBJECT:dockableWindow6 = NEW Infragistics.Win.UltraWinDock.DockableWindow().
-        THIS-OBJECT:dockableWindow3 = NEW Infragistics.Win.UltraWinDock.DockableWindow().
         THIS-OBJECT:appStylistRuntime1 = NEW Infragistics.Win.AppStyling.Runtime.AppStylistRuntime(THIS-OBJECT:components).
         THIS-OBJECT:windowDockingArea1 = NEW Infragistics.Win.UltraWinDock.WindowDockingArea().
         THIS-OBJECT:windowDockingArea2 = NEW Infragistics.Win.UltraWinDock.WindowDockingArea().
@@ -609,9 +609,9 @@ CLASS Advantzware.Windows.SmartFramework.Menu.MainMenuForm
         CAST(THIS-OBJECT:ultraTabbedMdiManager1, System.ComponentModel.ISupportInitialize):BeginInit().
         CAST(THIS-OBJECT:ultraDockManager1, System.ComponentModel.ISupportInitialize):BeginInit().
         THIS-OBJECT:m_CustomerExplorerAutoHideControl:SuspendLayout().
+        THIS-OBJECT:dockableWindow3:SuspendLayout().
         THIS-OBJECT:dockableWindow1:SuspendLayout().
         THIS-OBJECT:dockableWindow6:SuspendLayout().
-        THIS-OBJECT:dockableWindow3:SuspendLayout().
         THIS-OBJECT:windowDockingArea1:SuspendLayout().
         CAST(THIS-OBJECT:smartToolbarController1, System.ComponentModel.ISupportInitialize):BeginInit().
         CAST(THIS-OBJECT:ultraStatusBar1, System.ComponentModel.ISupportInitialize):BeginInit().
@@ -791,8 +791,8 @@ CLASS Advantzware.Windows.SmartFramework.Menu.MainMenuForm
         /*  */
         /* m_CustomerExplorerAutoHideControl */
         /*  */
+        THIS-OBJECT:m_CustomerExplorerAutoHideControl:Controls:Add(THIS-OBJECT:dockableWindow1).
         THIS-OBJECT:m_CustomerExplorerAutoHideControl:Controls:Add(THIS-OBJECT:dockableWindow6).
-        THIS-OBJECT:m_CustomerExplorerAutoHideControl:Controls:Add(THIS-OBJECT:dockableWindow3).
         THIS-OBJECT:m_CustomerExplorerAutoHideControl:Font = NEW System.Drawing.Font("Microsoft Sans Serif", Progress.Util.CastUtil:ToSingle(8.25), System.Drawing.FontStyle:Regular, System.Drawing.GraphicsUnit:Point, System.Convert:ToByte(0)).
         THIS-OBJECT:m_CustomerExplorerAutoHideControl:Location = NEW System.Drawing.Point(8, 468).
         THIS-OBJECT:m_CustomerExplorerAutoHideControl:Name = "m_CustomerExplorerAutoHideControl".
@@ -800,36 +800,36 @@ CLASS Advantzware.Windows.SmartFramework.Menu.MainMenuForm
         THIS-OBJECT:m_CustomerExplorerAutoHideControl:Size = NEW System.Drawing.Size(847, 100).
         THIS-OBJECT:m_CustomerExplorerAutoHideControl:TabIndex = 4.
         /*  */
+        /* dockableWindow3 */
+        /*  */
+        THIS-OBJECT:dockableWindow3:Controls:Add(THIS-OBJECT:ultraExplorerBar1).
+        THIS-OBJECT:dockableWindow3:Location = NEW System.Drawing.Point(0, 0).
+        THIS-OBJECT:dockableWindow3:Name = "dockableWindow3".
+        THIS-OBJECT:dockableWindow3:Owner = THIS-OBJECT:ultraDockManager1.
+        THIS-OBJECT:dockableWindow3:Size = NEW System.Drawing.Size(205, 438).
+        THIS-OBJECT:dockableWindow3:TabIndex = 42.
+        /*  */
         /* dockableWindow1 */
         /*  */
-        THIS-OBJECT:dockableWindow1:Controls:Add(THIS-OBJECT:ultraExplorerBar1).
+        THIS-OBJECT:dockableWindow1:Controls:Add(THIS-OBJECT:ultraGridColumnChooser1).
         THIS-OBJECT:dockableWindow1:Location = NEW System.Drawing.Point(0, 0).
         THIS-OBJECT:dockableWindow1:Name = "dockableWindow1".
         THIS-OBJECT:dockableWindow1:Owner = THIS-OBJECT:ultraDockManager1.
         THIS-OBJECT:dockableWindow1:Size = NEW System.Drawing.Size(205, 438).
-        THIS-OBJECT:dockableWindow1:TabIndex = 49.
+        THIS-OBJECT:dockableWindow1:TabIndex = 43.
         /*  */
         /* dockableWindow6 */
         /*  */
-        THIS-OBJECT:dockableWindow6:Controls:Add(THIS-OBJECT:ultraGridColumnChooser1).
+        THIS-OBJECT:dockableWindow6:Controls:Add(THIS-OBJECT:logManagerSettings1).
         THIS-OBJECT:dockableWindow6:Location = NEW System.Drawing.Point(0, 0).
         THIS-OBJECT:dockableWindow6:Name = "dockableWindow6".
         THIS-OBJECT:dockableWindow6:Owner = THIS-OBJECT:ultraDockManager1.
-        THIS-OBJECT:dockableWindow6:Size = NEW System.Drawing.Size(205, 392).
-        THIS-OBJECT:dockableWindow6:TabIndex = 50.
-        /*  */
-        /* dockableWindow3 */
-        /*  */
-        THIS-OBJECT:dockableWindow3:Controls:Add(THIS-OBJECT:logManagerSettings1).
-        THIS-OBJECT:dockableWindow3:Location = NEW System.Drawing.Point(0, 0).
-        THIS-OBJECT:dockableWindow3:Name = "dockableWindow3".
-        THIS-OBJECT:dockableWindow3:Owner = THIS-OBJECT:ultraDockManager1.
-        THIS-OBJECT:dockableWindow3:Size = NEW System.Drawing.Size(205, 392).
-        THIS-OBJECT:dockableWindow3:TabIndex = 51.
+        THIS-OBJECT:dockableWindow6:Size = NEW System.Drawing.Size(205, 413).
+        THIS-OBJECT:dockableWindow6:TabIndex = 44.
         /*  */
         /* windowDockingArea1 */
         /*  */
-        THIS-OBJECT:windowDockingArea1:Controls:Add(THIS-OBJECT:dockableWindow1).
+        THIS-OBJECT:windowDockingArea1:Controls:Add(THIS-OBJECT:dockableWindow3).
         THIS-OBJECT:windowDockingArea1:Dock = System.Windows.Forms.DockStyle:Left.
         THIS-OBJECT:windowDockingArea1:Font = NEW System.Drawing.Font("Microsoft Sans Serif", Progress.Util.CastUtil:ToSingle(8.25), System.Drawing.FontStyle:Regular, System.Drawing.GraphicsUnit:Point, System.Convert:ToByte(0)).
         THIS-OBJECT:windowDockingArea1:Location = NEW System.Drawing.Point(8, 151).
@@ -853,6 +853,7 @@ CLASS Advantzware.Windows.SmartFramework.Menu.MainMenuForm
         THIS-OBJECT:smartToolbarController1:DesignerFlags = 1.
         THIS-OBJECT:smartToolbarController1:DockWithinContainer = THIS-OBJECT.
         THIS-OBJECT:smartToolbarController1:DockWithinContainerBaseType = Progress.Util.TypeHelper:GetType("Consultingwerk.SmartComponents.Base.SmartWindowForm").
+        THIS-OBJECT:smartToolbarController1:Office2007UICompatibility = FALSE.
         optionSet1:AllowAllUp = FALSE.
         THIS-OBJECT:smartToolbarController1:OptionSets:Add(optionSet1).
         @VisualDesigner.FormMember (NeedsInitialize="false", InitializeArray="true").
@@ -965,9 +966,9 @@ CLASS Advantzware.Windows.SmartFramework.Menu.MainMenuForm
         arrayvar16[6] = buttonTool15.
         ultraToolbar1:NonInheritedTools:AddRange(arrayvar16).
         ultraToolbar1:Text = "TableIO Toolbar".
+        ultraToolbar1:Visible = FALSE.
         ultraToolbar2:DockedColumn = 0.
         ultraToolbar2:DockedRow = 0.
-        ultraToolbar2:IsMainMenuBar = TRUE.
         @VisualDesigner.FormMember (NeedsInitialize="false", InitializeArray="true").
         DEFINE VARIABLE arrayvar17 AS Infragistics.Win.UltraWinToolbars.ToolBase EXTENT 5 NO-UNDO.
         arrayvar17[1] = popupMenuTool1.
@@ -977,7 +978,8 @@ CLASS Advantzware.Windows.SmartFramework.Menu.MainMenuForm
         arrayvar17[5] = popupMenuTool5.
         ultraToolbar2:NonInheritedTools:AddRange(arrayvar17).
         ultraToolbar2:Text = "UltraToolbar1".
-        ultraToolbar3:DockedColumn = 1.
+        ultraToolbar2:Visible = FALSE.
+        ultraToolbar3:DockedColumn = 0.
         ultraToolbar3:DockedRow = 1.
         buttonTool2:InstanceProps:IsFirstInGroup = TRUE.
         @VisualDesigner.FormMember (NeedsInitialize="false", InitializeArray="true").
@@ -988,9 +990,11 @@ CLASS Advantzware.Windows.SmartFramework.Menu.MainMenuForm
         arrayvar18[4] = buttonTool5.
         ultraToolbar3:NonInheritedTools:AddRange(arrayvar18).
         ultraToolbar3:Text = "Navigation Toolbar".
-        ultraToolbar4:DockedColumn = 2.
+        ultraToolbar3:Visible = FALSE.
+        ultraToolbar4:DockedColumn = 0.
         ultraToolbar4:DockedRow = 1.
         ultraToolbar4:Text = "View".
+        ultraToolbar4:Visible = FALSE.
         @VisualDesigner.FormMember (NeedsInitialize="false", InitializeArray="true").
         DEFINE VARIABLE arrayvar19 AS Infragistics.Win.UltraWinToolbars.UltraToolbar EXTENT 4 NO-UNDO.
         arrayvar19[1] = ultraToolbar1.
@@ -1305,10 +1309,10 @@ CLASS Advantzware.Windows.SmartFramework.Menu.MainMenuForm
         THIS-OBJECT:Controls:Add(THIS-OBJECT:ultraPictureBox1).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:windowDockingArea2).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:windowDockingArea5).
-        THIS-OBJECT:Controls:Add(THIS-OBJECT:m_CustomerExplorerUnpinnedTabAreaBottom).
-        THIS-OBJECT:Controls:Add(THIS-OBJECT:m_CustomerExplorerUnpinnedTabAreaLeft).
-        THIS-OBJECT:Controls:Add(THIS-OBJECT:m_CustomerExplorerUnpinnedTabAreaTop).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:windowDockingArea1).
+        THIS-OBJECT:Controls:Add(THIS-OBJECT:m_CustomerExplorerUnpinnedTabAreaBottom).
+        THIS-OBJECT:Controls:Add(THIS-OBJECT:m_CustomerExplorerUnpinnedTabAreaTop).
+        THIS-OBJECT:Controls:Add(THIS-OBJECT:m_CustomerExplorerUnpinnedTabAreaLeft).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:m_CustomerExplorerUnpinnedTabAreaRight).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:m_CustomerExplorer_Toolbars_Dock_Area_Left).
         THIS-OBJECT:Controls:Add(THIS-OBJECT:m_CustomerExplorer_Toolbars_Dock_Area_Right).
@@ -1325,9 +1329,9 @@ CLASS Advantzware.Windows.SmartFramework.Menu.MainMenuForm
         CAST(THIS-OBJECT:ultraTabbedMdiManager1, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:ultraDockManager1, System.ComponentModel.ISupportInitialize):EndInit().
         THIS-OBJECT:m_CustomerExplorerAutoHideControl:ResumeLayout(FALSE).
+        THIS-OBJECT:dockableWindow3:ResumeLayout(FALSE).
         THIS-OBJECT:dockableWindow1:ResumeLayout(FALSE).
         THIS-OBJECT:dockableWindow6:ResumeLayout(FALSE).
-        THIS-OBJECT:dockableWindow3:ResumeLayout(FALSE).
         THIS-OBJECT:windowDockingArea1:ResumeLayout(FALSE).
         CAST(THIS-OBJECT:smartToolbarController1, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:ultraStatusBar1, System.ComponentModel.ISupportInitialize):EndInit().
