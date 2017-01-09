@@ -7,6 +7,8 @@ PROCEDURE winReSize:
 
   DEFINE VARIABLE currentWidget AS WIDGET-HANDLE NO-UNDO.
 
+  DEFINE VARIABLE oGrid AS Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseControl NO-UNDO .
+
 // No matter what resizing we need to ensure, the virtual size of the frame
 // is large enough here to contain all widgets
 FRAME {&FRAME-NAME}:FRAME:VIRTUAL-HEIGHT = FRAME {&FRAME-NAME}:WINDOW:HEIGHT .
@@ -46,10 +48,19 @@ FRAME {&FRAME-NAME}:FRAME:WIDTH = FRAME {&FRAME-NAME}:WINDOW:WIDTH .
       &IF DEFINED(repositionBrowse) NE 0 &THEN
       APPLY 'HOME':U TO currentWidget.
       &ENDIF
+      oGrid = Consultingwerk.WindowIntegrationKit.Controls.WinKitControls:FromBrowseHandle (currentWidget) .
+
+      IF VALID-OBJECT (oGrid) THEN DO:
+        //oGrid:Anchor = Progress.Util.DockStyle
+        oGrid:RepositionControl () .
+      END.
+
     END. /* if browse type */
     &IF DEFINED(browseOnly) EQ 0 &THEN
       ELSE currentWidget:ROW = currentWidget:ROW + ipRowDiff.
     &ENDIF
+
+
     currentWidget = currentWidget:NEXT-SIBLING.
   END.
 

@@ -180,29 +180,29 @@ PROCEDURE winkit-initialize:
             IF Consultingwerk.Util.ProcedureHelper:HasEntry (THIS-PROCEDURE, "InitializeGrid") THEN 
                 RUN InitializeGrid IN THIS-PROCEDURE .  
 
-            // Manage Anchoring of the .NET Grid
-            &IF '{&sizeOption}' EQ 'HEIGHT' &THEN
-                // Anchor Top, Left, Bottom
-                oRenderedBrowseControl:Anchor = CAST (Progress.Util.EnumHelper:Or (
-                                                      Progress.Util.EnumHelper:Or (System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Bottom),
-                                                                                   System.Windows.Forms.AnchorStyles:Left),
-                                                                                   System.Windows.Forms.AnchorStyles) .         
-            &ELSEIF '{&sizeOption}' EQ 'WIDTH' &THEN
-                // Anchor Top, Left, Right 
-                oRenderedBrowseControl:Anchor = CAST (Progress.Util.EnumHelper:Or (
-                                                      Progress.Util.EnumHelper:Or (System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left),
-                                                                                   System.Windows.Forms.AnchorStyles:Right),
-                                                                                   System.Windows.Forms.AnchorStyles) .         
-        
-            &ELSE
-                oRenderedBrowseControl:Anchor = CAST (Progress.Util.EnumHelper:Or (
-                                                      Progress.Util.EnumHelper:Or (
-                                                      Progress.Util.EnumHelper:Or (System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left),
-                                                                                   System.Windows.Forms.AnchorStyles:Right),
-                                                                                   System.Windows.Forms.AnchorStyles:Bottom),
-                                                                                   System.Windows.Forms.AnchorStyles) .         
-        
-            &ENDIF            
+/*            // Manage Anchoring of the .NET Grid                                                                                                                    */
+/*            &IF '{&sizeOption}' EQ 'HEIGHT' &THEN                                                                                                                   */
+/*                // Anchor Top, Left, Bottom                                                                                                                         */
+/*                oRenderedBrowseControl:Anchor = CAST (Progress.Util.EnumHelper:Or (                                                                                 */
+/*                                                      Progress.Util.EnumHelper:Or (System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Bottom),*/
+/*                                                                                   System.Windows.Forms.AnchorStyles:Left),                                         */
+/*                                                                                   System.Windows.Forms.AnchorStyles) .                                             */
+/*            &ELSEIF '{&sizeOption}' EQ 'WIDTH' &THEN                                                                                                                */
+/*                // Anchor Top, Left, Right                                                                                                                          */
+/*                oRenderedBrowseControl:Anchor = CAST (Progress.Util.EnumHelper:Or (                                                                                 */
+/*                                                      Progress.Util.EnumHelper:Or (System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left),  */
+/*                                                                                   System.Windows.Forms.AnchorStyles:Right),                                        */
+/*                                                                                   System.Windows.Forms.AnchorStyles) .                                             */
+/*                                                                                                                                                                    */
+/*            &ELSE                                                                                                                                                   */
+/*                oRenderedBrowseControl:Anchor = CAST (Progress.Util.EnumHelper:Or (                                                                                 */
+/*                                                      Progress.Util.EnumHelper:Or (                                                                                 */
+/*                                                      Progress.Util.EnumHelper:Or (System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left),  */
+/*                                                                                   System.Windows.Forms.AnchorStyles:Right),                                        */
+/*                                                                                   System.Windows.Forms.AnchorStyles:Bottom),                                       */
+/*                                                                                   System.Windows.Forms.AnchorStyles) .                                             */
+/*                                                                                                                                                                    */
+/*            &ENDIF                                                                                                                                                  */
             
             /*oRenderedBrowseControl:Dock = System.Windows.Forms.DockStyle:FILL.*/
 

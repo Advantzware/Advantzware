@@ -1,6 +1,6 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12
 &ANALYZE-RESUME
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Include 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Include
 /*--------------------------------------------------------------------------
     File        : windows.i
     Purpose     : Smart Windows Include for Internal Procedures
@@ -36,7 +36,7 @@ DEFINE VARIABLE misc_header_value AS CHARACTER NO-UNDO.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
+&ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -52,7 +52,7 @@ DEFINE VARIABLE misc_header_value AS CHARACTER NO-UNDO.
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: Include
-   Allow: 
+   Allow:
    Frames: 0
    Add Fields to: Neither
    Other Settings: INCLUDE-ONLY
@@ -62,7 +62,7 @@ DEFINE VARIABLE misc_header_value AS CHARACTER NO-UNDO.
 /* *************************  Create Window  ************************** */
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
-/* DESIGN Window definition (used by the UIB) 
+/* DESIGN Window definition (used by the UIB)
   CREATE WINDOW Include ASSIGN
          HEIGHT             = 23.81
          WIDTH              = 46.8.
@@ -70,10 +70,10 @@ DEFINE VARIABLE misc_header_value AS CHARACTER NO-UNDO.
                                                                         */
 &ANALYZE-RESUME
 
- 
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Include 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Include
 
 
 /* ***************************  Main Block  *************************** */
@@ -94,12 +94,12 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Allow-Create Include 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Allow-Create Include
 PROCEDURE Allow-Create :
 /*------------------------------------------------------------------------------
   Purpose:     Check Security Access to Allow Create
   Parameters:  OUTPUT allow-flag
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
   &Scoped-define ACCESSTYPE create
   {methods/template/security.i}
@@ -109,12 +109,12 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Allow-Delete Include 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Allow-Delete Include
 PROCEDURE Allow-Delete :
 /*------------------------------------------------------------------------------
   Purpose:     Check Security Access to Allow Delete
   Parameters:  OUTPUT allow-flag
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
   &Scoped-define ACCESSTYPE delete
   {methods/template/security.i}
@@ -124,12 +124,12 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Allow-Update Include 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Allow-Update Include
 PROCEDURE Allow-Update :
 /*------------------------------------------------------------------------------
   Purpose:     Check Security Access to Allow Update
   Parameters:  OUTPUT allow-flag
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
   &Scoped-define ACCESSTYPE update
   {methods/template/security.i}
@@ -139,12 +139,12 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Get-g_rec_key Include 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Get-g_rec_key Include
 PROCEDURE Get-g_rec_key :
 /*------------------------------------------------------------------------------
   Purpose:     Get rec_key value from g_rec_key string
   Parameters:  op-rec_key
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
   DEFINE OUTPUT PARAMETER op-rec_key AS CHARACTER NO-UNDO.
 
@@ -156,12 +156,12 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Get-Header Include 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Get-Header Include
 PROCEDURE Get-Header :
 /*------------------------------------------------------------------------------
   Purpose:     Get header_value
   Parameters:  op-header
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
   DEFINE OUTPUT PARAMETER op-header AS CHARACTER NO-UNDO.
 
@@ -172,12 +172,12 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Get-Rec-Key Include 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Get-Rec-Key Include
 PROCEDURE Get-Rec-Key :
 /*------------------------------------------------------------------------------
   Purpose:     Get rec_key_value
   Parameters:  op-rec_key
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
   DEFINE OUTPUT PARAMETER op-rec_key AS CHARACTER NO-UNDO.
 
@@ -188,7 +188,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Init-Options-Panel Include 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Init-Options-Panel Include
 PROCEDURE Init-Options-Panel :
 /*------------------------------------------------------------------------------
   Purpose:     Initialize Options Panel Buttons
@@ -246,11 +246,11 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize Include 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize Include
 PROCEDURE local-initialize :
 /*------------------------------------------------------------------------------
   Purpose:     Override standard ADM method
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
@@ -270,7 +270,7 @@ PROCEDURE local-initialize :
       "{&FIRST-EXTERNAL-TABLE}" EQ "oe-ord" &THEN
     {methods/windows/initial/{&FIRST-EXTERNAL-TABLE}.i}
   &ENDIF
-  
+
         /* check if maximized for user */
   IF SEARCH('users/' + USERID('ASI') + '/' + v-prgmname + 'winReSize') NE ? OR
         /* check if maximized for all users */
@@ -283,18 +283,18 @@ PROCEDURE local-initialize :
   END.
 
   {methods/template/local/wndwinit.i}
-    
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE MF-Message Include 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE MF-Message Include
 PROCEDURE MF-Message :
 /*------------------------------------------------------------------------------
   Purpose:     Display Message if Misc Flds Data exists for selected record
   Parameters:  can-find(first mfvalue of selected record)
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ip-misc-flds AS LOGICAL NO-UNDO.
 
@@ -307,12 +307,12 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Notes-Message Include 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Notes-Message Include
 PROCEDURE Notes-Message :
 /*------------------------------------------------------------------------------
   Purpose:     Display Message if Notes exist for selected record
   Parameters:  can-find(first notes of selected record)
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ip-notes AS LOGICAL NO-UNDO.
 
@@ -323,12 +323,12 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Reset-g_rec_key Include 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Reset-g_rec_key Include
 PROCEDURE Reset-g_rec_key :
 /*------------------------------------------------------------------------------
   Purpose:     Reset rec_key by removing last entry from string
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
   IF g_rec_key = "" THEN
   RETURN.
@@ -341,12 +341,12 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Run-Search Include 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Run-Search Include
 PROCEDURE Run-Search :
 /*------------------------------------------------------------------------------
   Purpose:     Run Search program from with record-source (browser) program
-  Parameters:  
-  Notes:       
+  Parameters:
+  Notes:
 ------------------------------------------------------------------------------*/
   IF CAN-DO(g_developer,USERID("ASI")) THEN
   DO:
@@ -366,12 +366,12 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE select_appl Include 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE select_appl Include
 PROCEDURE select_appl :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
 run windows/utillook.w.
 
@@ -380,27 +380,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE select_dept Include 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE select_dept Include
 PROCEDURE select_dept :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
     RUN Get_Procedure IN Persistent-Handle ('specnote.',OUTPUT run-proc,no).
-    IF run-proc NE '' THEN {methods/smartrun.i (rec_key_value,header_value)} .      
+    IF run-proc NE '' THEN {methods/smartrun.i (rec_key_value,header_value)} .
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE select_frac Include 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE select_frac Include
 PROCEDURE select_frac :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
   run windows/d-frac.w.
 END PROCEDURE.
@@ -408,17 +408,17 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE select_help Include 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE select_help Include
 PROCEDURE select_help :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
 /*  run system/asihelp.w.   LATER */
-  
+
   apply "entry" to frame {&frame-name}.
-  
+
   apply keycode("f3") to frame {&frame-name}.
   return no-apply.
 END PROCEDURE.
@@ -426,41 +426,41 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE select_home Include 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE select_home Include
 PROCEDURE select_home :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
  run get-attribute ("IS-Home").
 
  if return-value = ? or return-value = "?" then do:
     run set-attribute-list ("Is-Home = Home ") .
-    {methods/run_link.i "RECORD-SOURCE" "dispatch" "('get-first')"} 
+    {methods/run_link.i "RECORD-SOURCE" "dispatch" "('get-first')"}
  end.
  else do:
       if return-value = "Home" then   do:
           run set-attribute-list ("Is-Home = End ") .
-         {methods/run_link.i "RECORD-SOURCE" "dispatch" "('get-last')"} 
+         {methods/run_link.i "RECORD-SOURCE" "dispatch" "('get-last')"}
       end.
       else do:
            run set-attribute-list ("Is-Home = Home ") .
-           {methods/run_link.i "RECORD-SOURCE" "dispatch" "('get-first')"} 
-      end.     
+           {methods/run_link.i "RECORD-SOURCE" "dispatch" "('get-first')"}
+      end.
  end.
- 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE select_spec Include 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE select_spec Include
 PROCEDURE select_spec :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
   &IF DEFINED(item_spec) &THEN   /* for fg or rm item spec note */
     &IF '{&winMethods}' EQ 'wndwmenu' &THEN
@@ -474,8 +474,8 @@ PROCEDURE select_spec :
       END.
       ELSE DO:
          RUN Get_Procedure IN Persistent-Handle ('specnot2.',OUTPUT run-proc,no).
-         IF INDEX(PROGRAM-NAME(1),"est/w-est") GT 0 OR 
-            index(program-name(1),"oe/w-order") GT 0 OR 
+         IF INDEX(PROGRAM-NAME(1),"est/w-est") GT 0 OR
+            index(program-name(1),"oe/w-order") GT 0 OR
             index(program-name(1),"oeinq/w-ordinq") GT 0 OR
             index(program-name(1),"windows/itemfg") GT 0 THEN
             RUN windows/specnot2.w(rec_key_value,header_value).
@@ -488,24 +488,24 @@ PROCEDURE select_spec :
       ELSE IF "{&item_spec}" = "Vendor" THEN
       RUN Get_Procedure IN Persistent-Handle ('specnot4.',OUTPUT run-proc,no).
       ELSE RUN Get_Procedure IN Persistent-Handle ('specnot2.',OUTPUT run-proc,no).
-      IF run-proc NE '' THEN {methods/smartrun.i (rec_key_value,header_value)} .      
+      IF run-proc NE '' THEN {methods/smartrun.i (rec_key_value,header_value)} .
     &ENDIF
   &ELSE
     RUN Get_Procedure IN Persistent-Handle ('specnote.',OUTPUT run-proc,no).
     IF run-proc NE '' THEN {methods/smartrun.i (rec_key_value,header_value)} .
   &ENDIF
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus Include 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus Include
 PROCEDURE Set-Focus :
 /*------------------------------------------------------------------------------
   Purpose:     Call to RECORD-SOURCE (usually main browser)
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
   {methods/run_link.i "RECORD-SOURCE" "Set-Focus"}
 
@@ -514,17 +514,17 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Misc-Rec-Key_Header Include 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Misc-Rec-Key_Header Include
 PROCEDURE Set-Misc-Rec-Key_Header :
 /*------------------------------------------------------------------------------
   Purpose:     Set rec_key_value from currently selected record's rec_key value
   Parameters:  ip-rec_key
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
   &IF '{&winMethods}' NE 'wndwmnu2' &THEN
     DEFINE INPUT PARAMETER ip-rec_key AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ip-header AS CHARACTER NO-UNDO.
-  
+
     ASSIGN
       misc_rec_key_value = ip-rec_key
       misc_header_value = ip-header.
@@ -535,12 +535,12 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Rec-Key_Header Include 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Rec-Key_Header Include
 PROCEDURE Set-Rec-Key_Header :
 /*------------------------------------------------------------------------------
   Purpose:     Set rec_key_value from currently selected record's rec_key value
   Parameters:  ip-rec_key
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ip-rec_key AS CHARACTER NO-UNDO.
   DEFINE INPUT PARAMETER ip-header AS CHARACTER NO-UNDO.
@@ -554,12 +554,12 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE UDF Include 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE UDF Include
 PROCEDURE UDF :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE isRunning AS LOGICAL NO-UNDO.
 
@@ -581,13 +581,14 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE winReSize Include 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE winReSize Include
 PROCEDURE winReSize PRIVATE :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
+
   &IF DEFINED(winReSize) NE 0 &THEN
     DEFINE VARIABLE hPixels AS INTEGER NO-UNDO.
     DEFINE VARIABLE wPixels AS INTEGER NO-UNDO.
@@ -596,7 +597,13 @@ PROCEDURE winReSize PRIVATE :
     DEFINE VARIABLE screenRatio AS DECIMAL NO-UNDO INITIAL 1.
     DEFINE VARIABLE winReSizeDat AS CHARACTER NO-UNDO.
     DEFINE VARIABLE currentWidget AS HANDLE NO-UNDO.
-    
+
+    DEFINE VARIABLE iOldrowDiff AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iOldcolDiff AS INTEGER NO-UNDO.
+
+    ASSIGN iOldrowDiff = rowDiff
+           iOldcolDiff = colDiff .
+
 /*    IF {&WINDOW-NAME}:WINDOW-STATE NE 1 THEN RETURN.*/
 
     winReSizeDat = 'users/' + USERID('ASI') + '/winReSize.dat'.
@@ -605,12 +612,14 @@ PROCEDURE winReSize PRIVATE :
       IMPORT ^ screenRatio.
       INPUT CLOSE.
     END.
-    
+
     ASSIGN
       hPixels = FRAME {&FRAME-NAME}:HEIGHT-PIXELS
       wPixels = FRAME {&FRAME-NAME}:WIDTH-PIXELS
       rowDiff = FRAME {&FRAME-NAME}:HEIGHT
-      colDiff = FRAME {&FRAME-NAME}:WIDTH
+      colDiff = FRAME {&FRAME-NAME}:WIDTH .
+
+     ASSIGN
       {&WINDOW-NAME}:HEIGHT-PIXELS = hPixels + ({&WINDOW-NAME}:HEIGHT-PIXELS - hPixels) * screenRatio
       {&WINDOW-NAME}:WIDTH-PIXELS = wPixels + ({&WINDOW-NAME}:WIDTH-PIXELS - wPixels) * screenRatio
       {&WINDOW-NAME}:HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS - 40
@@ -624,9 +633,16 @@ PROCEDURE winReSize PRIVATE :
       wPixels = FRAME {&FRAME-NAME}:WIDTH-PIXELS - wPixels
       rowDiff = FRAME {&FRAME-NAME}:HEIGHT - rowDiff
       colDiff = FRAME {&FRAME-NAME}:WIDTH - colDiff
+
       FRAME message-frame:WIDTH-PIXELS = FRAME message-frame:WIDTH-PIXELS + wPixels
 /*      FRAME options-frame:WIDTH-PIXELS = FRAME options-frame:WIDTH-PIXELS + wPixels*/
       .
+
+     IF rowDiff = 0 AND colDiff = 0 THEN DO:
+        ASSIGN rowDiff = iOldrowDiff
+               colDiff = iOldcolDiff .
+        RETURN .
+     END.
 
     IF VALID-HANDLE(h_folder) THEN
     RUN set-size IN h_folder (FRAME {&FRAME-NAME}:HEIGHT - 1,FRAME {&FRAME-NAME}:WIDTH - 1) NO-ERROR.
@@ -643,12 +659,12 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE winSize Include 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE winSize Include
 PROCEDURE winSize :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
   DEFINE OUTPUT PARAMETER opRowDiff AS DECIMAL NO-UNDO.
   DEFINE OUTPUT PARAMETER opColDiff AS DECIMAL NO-UNDO.
