@@ -1,5 +1,10 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS Procedure
+USING Consultingwerk.Framework.Collections.CharacterDictionary FROM PROPATH.
+USING Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl FROM PROPATH.
+
+&ANALYZE-RESUME
 /* Connected Databases 
           asi              PROGRESS
 */
@@ -377,6 +382,51 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ApplyFilterHandler B-table-Win
+PROCEDURE ApplyFilterHandler:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER sender AS System.Object NO-UNDO . 
+  DEFINE INPUT PARAMETER e      AS System.EventArgs NO-UNDO . 
+  
+  DEFINE VARIABLE oFilterValues AS Consultingwerk.Framework.Collections.CharacterDictionary NO-UNDO . 
+ 
+  oFilterValues = CAST (sender, RenderedBrowseWithSearchControl):FilterValues .  
+  
+  MESSAGE oFilterValues:Keys
+  VIEW-AS ALERT-BOX.
+  
+  OPEN QUERY {&BROWSE-NAME}
+  FOR EACH mach no-lock
+      WHERE mach.company EQ cocode
+        AND mach.m-dscr  BEGINS oFilterValues:GetValue ("m-dscr") .  
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CustomizeGrid B-table-Win
+PROCEDURE CustomizeGrid:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/ 
+  oRenderedBrowseControl:DisplayLayout:Bands[0]:Columns["run-spoil"]:FilterOperandStyle = Infragistics.Win.UltraWinGrid.FilterOperandStyle:None .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI B-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :

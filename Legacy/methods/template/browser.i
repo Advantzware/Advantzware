@@ -324,6 +324,14 @@ PROCEDURE local-initialize :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  IF VALID-OBJECT (oRenderedBrowseControl) THEN DO:
+
+      IF Consultingwerk.Util.ProcedureHelper:HasEntry(THIS-PROCEDURE, "ApplyFilterHandler") THEN 
+          CAST (oRenderedBrowseControl, Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl):ApplyFilter:Subscribe ("ApplyFilterHandler") .
+          
+      IF Consultingwerk.Util.ProcedureHelper:HasEntry(THIS-PROCEDURE, "CustomizeGrid") THEN 
+          RUN CustomizeGrid .
+  END.       
     
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
