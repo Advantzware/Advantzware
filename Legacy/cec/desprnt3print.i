@@ -327,10 +327,10 @@ for each ef
      FILE-INFO:FILE-NAME = box-design-hdr.box-image.
      PUT unformatted "<C1><#30><R+25><C+65><IMAGE#30=" FILE-INFO:FULL-PATHNAME ">" .
      PUT UNFORMATTED "<=30>" SKIP.
-     FOR EACH box-design-line OF box-design-hdr NO-LOCK:
+     /*FOR EACH box-design-line OF box-design-hdr NO-LOCK:
          PUT  "<C66>" IF est.metric AND box-design-line.wscore <> "" THEN string( ROUND(({sys/inc/k16bv.i dec(box-design-line.wscore)}) * 25.4,0)) ELSE TRIM(box-design-line.wscore) 
               IF est.metric AND box-design-line.wcum-score <> "" THEN string( ROUND(({sys/inc/k16bv.i dec(box-design-line.wcum-score)}) * 25.4,0)) ELSE TRIM(box-design-line.wcum-score) SKIP.          
-     END.
+     END.*/
      PAGE {1}.
   END. /* else box image */
 
