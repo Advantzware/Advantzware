@@ -219,7 +219,7 @@ for each tt-report where tt-report.term-id eq "" no-lock,
                        NO-LOCK NO-ERROR.
     IF AVAIL loadtag THEN
       FIND FIRST rfidtag OF loadtag NO-LOCK NO-ERROR.
-   
+
     find first fg-bin
           where fg-bin.company eq fg-rcpth.company
             and fg-bin.job-no  eq fg-rcpth.job-no
@@ -285,8 +285,8 @@ for each tt-report where tt-report.term-id eq "" no-lock,
             iBinQtyb = iBinQtyb +  bf-fg-rdtlh.qty  .
 	LEAVE.
         END.
+    
 
-   
     BUFFER bitemfg:FIND-BY-ROWID(ROWID(itemfg), NO-LOCK) .
     ASSIGN cDisplay = ""
            cTmpField = ""

@@ -8,25 +8,25 @@
                                                                                    *
 ---------------------------------------------------------------------------------- */
 
-DEFINE INPUT PARAMETER v-rowid AS ROWID.
+DEF INPUT PARAMETER v-rowid AS ROWID.
 
 {sys/inc/var.i SHARED}.
 {sys/form/s-top.f}
 
-DEFINE VARIABLE v-est-type           LIKE est.est-type NO-UNDO.
-DEFINE VARIABLE v-loc                LIKE fg-bin.loc NO-UNDO.
-DEFINE VARIABLE v-loc-bin            LIKE fg-bin.loc-bin NO-UNDO.
-DEFINE VARIABLE v-qty                AS   INTEGER.
-/*DEFINE VARIABLE choice             AS   LOG NO-UNDO.*/
-DEFINE VARIABLE li-units             AS   INTEGER NO-UNDO.
+DEF VAR v-est-type           LIKE est.est-type NO-UNDO.
+DEF VAR v-loc                LIKE fg-bin.loc NO-UNDO.
+DEF VAR v-loc-bin            LIKE fg-bin.loc-bin NO-UNDO.
+DEF VAR v-qty                AS   INT.
+/*DEF VAR choice               AS   LOG NO-UNDO.*/
+DEF VAR li-units             AS   INT NO-UNDO.
 
-DEFINE VARIABLE v-up AS INTEGER NO-UNDO.
-DEFINE VARIABLE v-out AS INTEGER NO-UNDO.
-DEFINE VARIABLE v-up-hs like eb.num-up NO-UNDO.
-DEFINE VARIABLE v-on like eb.num-up NO-UNDO.
-DEFINE VARIABLE v-update-fg-rec AS LOGICAL INITIAL YES NO-UNDO.
-DEFINE VARIABLE cFGRecptUnit AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+DEF VAR v-up AS INT NO-UNDO.
+DEF VAR v-out AS INT NO-UNDO.
+def var v-up-hs     like eb.num-up NO-UNDO.
+def var v-on        like eb.num-up NO-UNDO.
+DEF VAR v-update-fg-rec AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE cFGRecptUnit AS CHARACTER   NO-UNDO.
+DEFINE VARIABLE lFound AS LOGICAL     NO-UNDO.
 
 {pc/pcprdd4u.i NEW}
 
@@ -44,12 +44,12 @@ IF NOT lFound THEN cFGRecptUnit = "Pallet Counts".
 
 FIND pc-prdd WHERE ROWID(pc-prdd) EQ v-rowid EXCLUSIVE.
 
-IF NOT AVAILABLE pc-prdd THEN RETURN.
+IF NOT AVAIL pc-prdd THEN RETURN.
 
-FIND FIRST mach NO-LOCK
+FIND FIRST mach
     {sys/ref/machW.i}
       AND mach.m-code EQ pc-prdd.m-code
-    NO-ERROR.
+    NO-LOCK NO-ERROR.
 
 FIND FIRST job
     WHERE job.company EQ cocode
@@ -63,10 +63,10 @@ ASSIGN
  v-on  = 1.
 
 IF AVAIL job THEN
-FIND FIRST est NO-LOCK
+FIND FIRST est
     WHERE est.company EQ job.company
-      AND est.est-no  EQ job.est-no NO-ERROR.
-
+      AND est.est-no  EQ job.est-no
+    NO-LOCK NO-ERROR.
 v-est-type = IF AVAIL est THEN est.est-type ELSE 1.
 IF v-est-type GT 4 THEN v-est-type = v-est-type - 4.
 
@@ -158,16 +158,17 @@ IF AVAIL tt-job-hdr THEN DO:
        fg-bin.std-tot-cost = tt-job-hdr.std-tot-cost
        fg-bin.last-cost    = tt-job-hdr.std-tot-cost
        fg-bin.case-count   = itemfg.case-count
-       fg-bin.cases-unit   = itemfg.case-pall 
+       fg-bin.cases-unit   = 1
        fg-bin.unit-count   = fg-bin.case-count * fg-bin.cases-unit.
 
     END.
 
     IF cFGRecptUnit EQ "Order Item Counts" THEN DO:
-        FIND FIRST oe-ordl NO-LOCK
+        FIND FIRST oe-ordl 
             WHERE oe-ordl.company = cocode
               AND oe-ordl.ord-no  = tt-job-hdr.ord-no
-              AND oe-ordl.i-no    = itemfg.i-no NO-ERROR .
+              AND oe-ordl.i-no    = itemfg.i-no 
+            NO-LOCK NO-ERROR .
         IF AVAIL oe-ordl THEN
             ASSIGN 
                 fg-bin.case-count = oe-ordl.cas-cnt 
@@ -192,48 +193,48 @@ IF AVAIL tt-job-hdr THEN DO:
      li-units          = reftable.val[1].
 
     IF AVAIL est AND INDEX("AP",mach.p-type) LE 0 THEN DO:
-      RUN sys/inc/numupi.p (est.company, est.est-no, pc-prdd.frm, pc-prdd.i-no, OUTPUT v-up).
-      FIND FIRST ef
-          WHERE ef.company EQ est.company
-            AND ef.est-no  EQ est.est-no
-            AND ef.form-no EQ pc-prdd.frm
-          NO-LOCK NO-ERROR.
+      run sys/inc/numupi.p (est.company, est.est-no, pc-prdd.frm, pc-prdd.i-no, output v-up).
+      find first ef
+          where ef.company eq est.company
+            and ef.est-no  eq est.est-no
+            and ef.form-no eq pc-prdd.frm
+          no-lock no-error.
 
       IF AVAIL ef THEN DO:
         RUN est/ef-#out.p (ROWID(ef), OUTPUT v-on).
         v-on = v-up * v-on.
       END.
                       
-      FIND FIRST est-op
-          WHERE est-op.company EQ est.company
-            AND est-op.est-no  EQ est.est-no
-            AND est-op.s-num   EQ pc-prdd.frm
-            AND (est-op.b-num  EQ pc-prdd.blank-no OR pc-prdd.blank-no eq 0)
-            AND est-op.m-code  EQ pc-prdd.m-code
-            AND est-op.op-pass EQ pc-prdd.pass
-            AND est-op.dept    EQ pc-prdd.dept
-            AND est-op.line    LT 500
-          NO-LOCK NO-ERROR.
+      find first est-op
+          where est-op.company eq est.company
+            and est-op.est-no  eq est.est-no
+            and est-op.s-num   eq pc-prdd.frm
+            and (est-op.b-num  eq pc-prdd.blank-no OR pc-prdd.blank-no eq 0)
+            and est-op.m-code  eq pc-prdd.m-code
+            and est-op.op-pass eq pc-prdd.pass
+            and est-op.dept    eq pc-prdd.dept
+            and est-op.line    lt 500
+          no-lock no-error.
 
-      IF ((AVAILABLE est-op) AND est-op.op-sb)           OR
-         ((NOT AVAILABLE est-op) AND mach.p-type ne "B") THEN DO:
+      if ((avail est-op) and est-op.op-sb)           or
+         ((not avail est-op) and mach.p-type ne "B") then do:
 
-        IF AVAILABLE est-op THEN RUN sys/inc/numout.p (RECID(est-op), OUTPUT v-out).
-        ELSE v-out = 1.
+        if avail est-op THEN run sys/inc/numout.p (recid(est-op), output v-out).
+        else v-out = 1.
         v-up = v-up * v-out.
-      END.
-      ELSE v-up = 1.
+      end.
+      else v-up = 1.
 
       v-on = v-on / v-up.
-    END.
+    end.
            
     v-up-hs = 1.
 
-    IF pc-prdd.dept eq "HS" AND
-       AVAILABLE est            AND
-       mach.therm           AND
-       mach.p-type eq "S"   THEN
-      RUN sys/inc/numup.p (est.company, est.est-no, pc-prdd.frm, OUTPUT v-up-hs).
+    if pc-prdd.dept eq "HS" and
+       avail est            and
+       mach.therm           and
+       mach.p-type eq "S"   then
+      run sys/inc/numup.p (est.company, est.est-no, pc-prdd.frm, output v-up-hs).
      RUN pc/d-updbin.w (ROWID(fg-bin), pc-prdd.qty / v-up-hs * v-out * v-up,
                        INPUT-OUTPUT li-units).
 

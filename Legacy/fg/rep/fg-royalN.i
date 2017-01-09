@@ -1,9 +1,10 @@
-FOR each itemfg
+FOR EACH ttCustList 
+    WHERE ttCustList.log-fld
+    NO-LOCK,
+    each itemfg
     where itemfg.company eq cocode
-      and itemfg.cust-no ge fcus
-      and itemfg.cust-no le tcus
-      AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq itemfg.cust-no
-         AND ttCustList.log-fld no-lock) else true)
+      /*and itemfg.cust-no ge fcus*/
+      and itemfg.cust-no EQ ttCustList.cust-no
       and itemfg.i-no    ge fitm
       and itemfg.i-no    le titm
       and itemfg.procat  ge fcat

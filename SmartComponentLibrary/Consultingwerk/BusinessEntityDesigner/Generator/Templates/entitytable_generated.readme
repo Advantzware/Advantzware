@@ -1,0 +1,9 @@
+&1      class name
+&2      package name
+&3      entity properties (fields)
+&4      constructor, generate lists
+&5      time stamp
+&6      code for AssignFromBuffer
+&7      code for AssignToBuffer
+&8      destructor, delete childs
+@USER@  the current user name

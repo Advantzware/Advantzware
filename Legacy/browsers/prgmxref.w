@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          nosweat          PROGRESS
+          asi          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
@@ -226,12 +226,12 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "NOSWEAT.prgmxref"
+     _TblList          = "ASI.prgmxref"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
-     _FldNameList[1]   = NOSWEAT.prgmxref.table_name
-     _FldNameList[2]   = NOSWEAT.prgmxref.prgmname
-     _FldNameList[3]   = NOSWEAT.prgmxref.pageno
+     _FldNameList[1]   = ASI.prgmxref.table_name
+     _FldNameList[2]   = ASI.prgmxref.prgmname
+     _FldNameList[3]   = ASI.prgmxref.pageno
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

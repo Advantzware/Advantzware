@@ -273,9 +273,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -442,7 +440,7 @@ DO:
   DEFINE VARIABLE sel-ok AS LOG NO-UNDO.
   DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 
-  init-dir = "users\" + USERID("NOSWEAT").
+  init-dir = "users\" + USERID("ASI").
   selected-name = {&SELF-NAME}:SCREEN-VALUE.
   SYSTEM-DIALOG GET-FILE selected-name
       TITLE      "Choose Mail Merge File to SAVE ..."
@@ -748,8 +746,8 @@ PROCEDURE run-report :
   else assign list-name = "c:\tmp\rpttmp.rpt"
               init-dir = "c:\tmp".
               
-  assign list-name = "users/" + USERID("NOSWEAT") + "~/" + "RFQ_list.rpt"
-         init-dir = "users/" + USERID("NOSWEAT") + "~/".  
+  assign list-name = "users/" + USERID("ASI") + "~/" + "RFQ_list.rpt"
+         init-dir = "users/" + USERID("ASI") + "~/".  
 */ 
   assign list-name = "c:\temp\contlbl.rpt"
          init-dir = "c:\temp".
@@ -873,13 +871,13 @@ for each cust where cust.company eq gcompany
             trim(contact.state) v-delim
             trim(contact.zip) v-delim
             trim(contact.country) v-delim skip.
-        create nosweat.note.
-        assign nosweat.note.rec_key = contact.rec_key
-               nosweat.note.note_date = TODAY
-               nosweat.note.note_time = TIME
-               nosweat.note.user_id = USERID("NOSWEAT")
-               nosweat.note.note_title = FILL-IN-Title
-               nosweat.note.note_text = "Automatic Note Generation from Mail Merge Report. " +
+        create ASI.note.
+        assign ASI.note.rec_key = contact.rec_key
+               ASI.note.note_date = TODAY
+               ASI.note.note_time = TIME
+               ASI.note.user_id = USERID("ASI")
+               ASI.note.note_title = FILL-IN-Title
+               ASI.note.note_text = "Automatic Note Generation from Mail Merge Report. " +
                                         string(note.note_date,"99/99/9999") + " " +
                                         string(note.note_time,"HH:MM:SS AM").
       end.  
@@ -990,13 +988,13 @@ for each cust where cust.company eq gcompany
               trim(contact.state) v-delim
               trim(contact.zip) v-delim
               trim(contact.country) v-delim skip.
-          create nosweat.note.
-          assign nosweat.note.rec_key = contact.rec_key
-               nosweat.note.note_date = TODAY
-               nosweat.note.note_time = TIME
-               nosweat.note.user_id = USERID("NOSWEAT")
-               nosweat.note.note_title = FILL-IN-Title
-               nosweat.note.note_text = "Automatic Note Generation from Mail Merge Report. " +
+          create ASI.note.
+          assign ASI.note.rec_key = contact.rec_key
+               ASI.note.note_date = TODAY
+               ASI.note.note_time = TIME
+               ASI.note.user_id = USERID("ASI")
+               ASI.note.note_title = FILL-IN-Title
+               ASI.note.note_text = "Automatic Note Generation from Mail Merge Report. " +
                                         string(note.note_date,"99/99/9999") + " " +
                                         string(note.note_time,"HH:MM:SS AM").
       end.  /* for each */

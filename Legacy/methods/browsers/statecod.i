@@ -1,5 +1,5 @@
 /* statecod.i
-"NOSWEAT" "statecod"
+"ASI" "statecod"
 "statecod" "State Abbreviation" ""
 "description" "Description" ""
 "fips_code" "FIPS Code" ""

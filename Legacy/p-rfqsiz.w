@@ -160,6 +160,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-WIn 
 /* ************************* Included-Libraries *********************** */
 
+{advantzware/winkit/winkit-panel.i}
 {src/adm/method/panel.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -214,6 +215,11 @@ DO:
      run auto-calc in widget-handle(source-str). 
   END.
 
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:11:11 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -229,6 +235,11 @@ DO:
       btn-auto-calc:sensitive = yes.
       RUN notify ('cancel-record':U).
    END.
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:11:11 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -271,6 +282,11 @@ DO:
          btn-auto-calc:sensitive = yes.
      END.
   END.
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:11:11 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */

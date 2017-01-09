@@ -1,0 +1,26 @@
+/**********************************************************************
+ * Copyright (C) 2006-2015 by Consultingwerk Ltd. ("CW") -            *
+ * www.consultingwerk.de and other contributors as listed             *
+ * below.  All Rights Reserved.                                       *
+ *                                                                    *
+ *  Software is distributed on an "AS IS", WITHOUT WARRANTY OF ANY    *
+ *   KIND, either express or implied.                                 *
+ *                                                                    *
+ *  Contributors:                                                     *
+ *                                                                    *
+ **********************************************************************/ 
+/*------------------------------------------------------------------------
+    File        : &1_Constants.i
+    Purpose     : Dataset Constants for dataset &1
+
+    Syntax      :
+
+    Description : 
+
+    Author(s)   : &2
+    Created     : &3
+    Notes       :
+  ----------------------------------------------------------------------*/
+
+/* ***************************  Definitions  ************************** */
+&4

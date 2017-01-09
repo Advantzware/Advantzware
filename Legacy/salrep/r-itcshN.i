@@ -12,17 +12,19 @@ DEF BUFFER io-oe-retl FOR oe-retl.
   
   IF fcust NE tcust AND fitem EQ titem THEN
   DO:
-     for EACH ar-invl WHERE
+     FOR EACH ttCustList 
+         WHERE ttCustList.log-fld
+         NO-LOCK,
+         EACH ar-invl WHERE
          ar-invl.company EQ cocode AND
          ar-invl.i-no EQ fitem
          NO-LOCK,
          FIRST ar-inv WHERE
                ar-inv.x-no EQ ar-invl.x-no AND
                ar-inv.posted   eq YES AND
-               ar-inv.cust-no  GE fcust and
-               ar-inv.cust-no  LE tcust and 
-               (if lselected then can-find(first ttCustList where ttCustList.cust-no eq ar-inv.cust-no and
-               ttCustList.log-fld no-lock) else true) and
+               /*ar-inv.cust-no  ge fcust AND
+               ar-inv.cust-no  le tcust AND*/
+               ar-inv.cust-no EQ ttCustList.cust-no AND
                ar-inv.inv-date GE fdate AND
                ar-inv.inv-date LE tdate
                AND NOT (NOT v-inc-fc AND ar-inv.type EQ "FC")
@@ -44,12 +46,14 @@ DEF BUFFER io-oe-retl FOR oe-retl.
            RELEASE tt-report.
          END.
      END. /*each ar-invl*/
-     for each cust WHERE
-         cust.company eq cocode 
-          AND cust.cust-no GE fcust
-          AND cust.cust-no LE tcust
-          AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
-          AND ttCustList.log-fld no-lock) else true)
+     FOR EACH ttCustList 
+         WHERE ttCustList.log-fld
+         NO-LOCK,
+         each cust WHERE
+         cust.company eq cocode AND
+         /*cust.cust-no ge fcust AND
+         cust.cust-no le tcust*/
+         cust.cust-no EQ ttCustList.cust-no
          NO-LOCK,
          each ar-cash FIELDS(c-no cust-no) WHERE
              ar-cash.company    eq cocode AND
@@ -83,7 +87,10 @@ DEF BUFFER io-oe-retl FOR oe-retl.
      IF fship EQ "" AND tship BEGINS "zzzzz" AND
         not(fitem EQ "" AND titem BEGINS "zzzzzzzz") THEN
         DO:
-           for EACH itemfg FIELDS(i-no) WHERE
+           FOR EACH ttCustList 
+               WHERE ttCustList.log-fld
+               NO-LOCK,
+               EACH itemfg FIELDS(i-no) WHERE
                itemfg.company EQ cocode AND
                itemfg.i-no GE fitem AND
                itemfg.i-no LE titem
@@ -95,10 +102,9 @@ DEF BUFFER io-oe-retl FOR oe-retl.
                FIRST ar-inv WHERE
                      ar-inv.x-no     EQ ar-invl.x-no AND
                      ar-inv.posted   eq YES AND
-                     ar-inv.cust-no  GE fcust and
-                     ar-inv.cust-no  LE tcust and
-                     (if lselected then can-find(first ttCustList where ttCustList.cust-no eq ar-inv.cust-no and 
-                     ttCustList.log-fld no-lock) else true) and
+                     /*ar-inv.cust-no  ge fcust AND
+                     ar-inv.cust-no  le tcust AND*/
+                     ar-inv.cust-no EQ ttCustList.cust-no AND
                      ar-inv.inv-date GE fdate AND
                      ar-inv.inv-date LE tdate AND
                      NOT (NOT v-inc-fc AND ar-inv.type EQ "FC")
@@ -118,12 +124,14 @@ DEF BUFFER io-oe-retl FOR oe-retl.
                END.
            END. /*end each itemfg*/
 
-           for each cust WHERE
-               cust.company eq cocode 
-               AND cust.cust-no GE fcust
-               AND cust.cust-no LE tcust
-               AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
-               AND ttCustList.log-fld no-lock) else true)
+           FOR EACH ttCustList 
+               WHERE ttCustList.log-fld
+               NO-LOCK,
+               each cust WHERE
+               cust.company eq cocode AND
+               /*cust.cust-no ge fcust AND
+               cust.cust-no le tcust*/
+               cust.cust-no EQ ttCustList.cust-no
                NO-LOCK,
                each ar-cash FIELDS(c-no cust-no) WHERE
                    ar-cash.company    eq cocode AND
@@ -153,13 +161,15 @@ DEF BUFFER io-oe-retl FOR oe-retl.
      ELSE
      DO:
         DO v-loop-date = fdate TO tdate:
-           for each ar-inv
+           FOR EACH ttCustList 
+               WHERE ttCustList.log-fld
+               NO-LOCK,
+               each ar-inv
                where ar-inv.company  eq cocode
                  and ar-inv.posted   eq yes
-                 AND ar-inv.cust-no  GE fcust
-                 AND ar-inv.cust-no  LE tcust
-                 AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq ar-inv.cust-no
-                 AND ttCustList.log-fld no-lock) else true)
+                 /*and ar-inv.cust-no  ge fcust
+                 and ar-inv.cust-no  le tcust*/
+                 AND ar-inv.cust-no EQ ttCustList.cust-no 
                  and ar-inv.inv-date EQ v-loop-date
                  AND NOT (NOT v-inc-fc AND ar-inv.type EQ "FC")
                  USE-INDEX inv-date
@@ -180,12 +190,14 @@ DEF BUFFER io-oe-retl FOR oe-retl.
            end.
         END.
         
-        for each cust
+        FOR EACH ttCustList 
+               WHERE ttCustList.log-fld
+               NO-LOCK,
+            each cust
             where cust.company eq cocode
-              AND cust.cust-no GE fcust
-              AND cust.cust-no LE tcust
-              AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
-              AND ttCustList.log-fld no-lock) else true)              
+              /*and cust.cust-no ge fcust
+              and cust.cust-no le tcust*/
+              AND cust.cust-no EQ ttCustList.cust-no
             NO-LOCK,
             each ar-cash FIELDS(c-no cust-no) WHERE
                 ar-cash.company    eq cocode AND
@@ -217,13 +229,13 @@ DEF BUFFER io-oe-retl FOR oe-retl.
   ELSE /*fcust eq tcust*/
   DO:
      DO v-loop-date = fdate TO tdate:
-        for each ar-inv
+        FOR EACH ttCustList 
+               WHERE ttCustList.log-fld
+               NO-LOCK,
+            each ar-inv
             where ar-inv.company  eq cocode
               and ar-inv.posted   eq yes
-              AND ar-inv.cust-no  GE fcust
-              AND ar-inv.cust-no  LE tcust
-              AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq ar-inv.cust-no
-              AND ttCustList.log-fld no-lock) else true)
+              and ar-inv.cust-no  EQ ttCustList.cust-no
               and ar-inv.inv-date EQ v-loop-date
               AND NOT (NOT v-inc-fc AND ar-inv.type EQ "FC")
             no-lock
@@ -243,12 +255,12 @@ DEF BUFFER io-oe-retl FOR oe-retl.
         end. /*end each ar-inv*/
      END. /*end do v-loop-date*/
        
-     for each ar-cash FIELDS(cust-no c-no) WHERE
+     FOR EACH ttCustList 
+         WHERE ttCustList.log-fld
+         NO-LOCK,
+         each ar-cash FIELDS(cust-no c-no) WHERE
          ar-cash.company    eq cocode AND
-         ar-cash.cust-no  GE fcust and
-         ar-cash.cust-no  LE tcust and 
-         (if lselected then can-find(first ttCustList where ttCustList.cust-no eq ar-cash.cust-no and
-         ttCustList.log-fld no-lock) else true) and
+         ar-cash.cust-no    eq ttCustList.cust-no AND
          ar-cash.check-date GE fdate AND
          ar-cash.check-date LE tdate AND
          ar-cash.posted     eq yes
@@ -798,7 +810,6 @@ if v-det then do:
                  WHEN "v-amt[1]" THEN cVarValue = string(v-amt[1],"->,>>>,>>>,>>9.99").
                  WHEN "rep" THEN cVarValue = string(tt-report.key-05,"X(3)").
                  WHEN "rep-name" THEN cVarValue = IF AVAIL sman THEN string(sman.sname,"X(25)") ELSE "".
-                 WHEN "v-po" THEN cVarValue = IF AVAIL ar-invl THEN string(ar-invl.po-no,"X(15)") ELSE "".
             END CASE.
               
             cExcelVarValue = cVarValue.
@@ -839,7 +850,6 @@ ELSE if (LAST-OF(tt-report.key-01) and v-sort1)     or
                  WHEN "v-amt[1]" THEN cVarValue = string(n-amt,"->,>>>,>>>,>>9.99").
                  WHEN "rep" THEN cVarValue = "".
                  WHEN "rep-name" THEN cVarValue = "".
-                 WHEN "v-po" THEN cVarValue =  "".
             END CASE.  /* Task 11221304  */
               
             cExcelVarValue = cVarValue.
@@ -869,11 +879,37 @@ END.
     if last-of(tt-report.key-03) then do:
       if v-det then do: 
      
+    /* Task 11041302  */
+ /*    PUT UNFORMATTED space(10) FILL('-',104) SKIP.
+        PUT "          SHIP-TO TOTALS " SPACE(30)    "Qty Shipped: " v-qty[2] FORMAT "->>>,>>>,>>9"      
+                "    Invoice Amt: " v-amt[2]  FORMAT "->,>>>,>>>,>>9.99" 
+            SKIP(1). 
+
+      IF tb_excel THEN
+           PUT STREAM excel UNFORMATTED
+               SKIP(1)
+               '"' ""                                   '",'
+               '"' "SHIP-TO TOTALS"                           '",'
+               '"' ""                                   '",'
+               '"' "Qty Shipped: "                             '",'
+               '"' STRING(v-qty[2],"->>>,>>>,>>9")            '",'
+               '"' ""                                   '",'
+               '"' "Invoice Amt:"                             '",'
+               '"' STRING(v-amt[2],"->,>>>,>>>,>>9.99")       '",'
+               '"' ""                                   '",'
+               '"' ""                                   '",'
+               '"' ""                                   '",'
+               '"' ""                                   '",'
+               '"' ""                                   '",'
+               SKIP(1).  /* Task 11041302  */ */
+
           ASSIGN cDisplay = ""
            cTmpField = ""
            cVarValue = ""
            cExcelDisplay = ""
            cExcelVarValue = "".
+
+    
               
               DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                     cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
@@ -896,7 +932,6 @@ END.
                                WHEN "v-amt[1]" THEN cVarValue = string(v-amt[2],"->,>>>,>>>,>>9.99").
                                WHEN "rep" THEN cVarValue = "".
                                WHEN "rep-name" THEN cVarValue = "".
-                               WHEN "v-po" THEN cVarValue =  "".
                          END CASE.
                            
                          cExcelVarValue = cVarValue.
@@ -924,7 +959,30 @@ END.
 
     if last-of(tt-report.key-02) then do:
       if v-det then do:
-      
+      /* Task 11041302  */
+      /*  PUT UNFORMATTED space(10) FILL('-',104) SKIP.*/
+     /*   IF NOT v-sort1 THEN PUT  "          PART NO TOTALS" .
+                   ELSE PUT "          CUSTOMER TOTALS" .
+                   PUT  SPACE(30)    "Qty Shipped: " v-qty[3] FORMAT "->>>,>>>,>>9"      
+                "    Invoice Amt: " v-amt[3]  FORMAT "->,>>>,>>>,>>9.99" 
+            SKIP(1).
+
+
+        IF tb_excel THEN
+           PUT STREAM excel UNFORMATTED
+               '"' ""                                   '",'
+               '"' IF not v-sort1 THEN "PART NO TOTALS"
+                   ELSE "CUSTOMER TOTALS"               '",'
+               '"' ""                                   '",'
+               '"' "Qty Shipped:     "                   '",'
+               '"' STRING(v-qty[3],"->>>,>>>,>>9")      '",'
+               '"' ""                                   '",'
+               '"' "Invoice Amt:"                       '",'
+               '"' STRING(v-amt[3],"->,>>>,>>>,>>9.99") '",'
+               '"' ""                                   '",'
+               '"' ""                                   '",'
+               '"' ""                                   '",'
+               SKIP(1). */
           ASSIGN cDisplay = ""
            cTmpField = ""
            cVarValue = ""
@@ -952,7 +1010,6 @@ END.
                                WHEN "v-amt[1]" THEN cVarValue = string(v-amt[3],"->,>>>,>>>,>>9.99").
                                WHEN "rep" THEN cVarValue = "".
                                WHEN "rep-name" THEN cVarValue = "".
-                               WHEN "v-po" THEN cVarValue =  "".
                          END CASE.
                            
                          cExcelVarValue = cVarValue.
@@ -994,6 +1051,31 @@ END.
     if last-of(tt-report.key-01) then do:
      if v-det then do:
      
+           /* Task 11041302  */ 
+     /*   PUT UNFORMATTED space(10) FILL('-',104) SKIP.
+        IF v-sort1 THEN PUT  "          ITEM TOTALS    " .
+                   ELSE PUT  "          CUSTOMER TOTALS" .
+ 
+                   PUT  SPACE(30)    "Qty Shipped: " v-qty[4] FORMAT "->>>,>>>,>>9"      
+                "    Invoice Amt: " v-amt[4] FORMAT "->,>>>,>>>,>>9.99" 
+            SKIP(1).
+
+        IF tb_excel THEN
+           PUT STREAM excel UNFORMATTED
+               '"' ""                                   '",'
+               '"' IF not v-sort1 THEN "CUSTOMER TOTALS"
+                   ELSE "ITEM TOTALS"                   '",'
+               '"' ""                                   '",'
+               '"' "Qty Shipped: "                      '",'
+               '"' STRING(v-qty[4],"->>>,>>>,>>9")      '",'
+               '"' ""                                   '",'
+               '"' "Invoice Amt:"                        '",'
+               '"' STRING(v-amt[4],"->,>>>,>>>,>>9.99")   '",'
+               '"' ""                                   '",'
+               '"' ""                                   '",'
+               '"' ""                                   '",'
+               SKIP(1).  */
+
          ASSIGN cDisplay = ""
            cTmpField = ""
            cVarValue = ""
@@ -1021,7 +1103,6 @@ END.
                                WHEN "v-amt[1]" THEN cVarValue = string(v-amt[4],"->,>>>,>>>,>>9.99").
                                WHEN "rep" THEN cVarValue = "".
                                WHEN "rep-name" THEN cVarValue = "".
-                               WHEN "v-po" THEN cVarValue =  "".
                          END CASE.
                            
                          cExcelVarValue = cVarValue.
@@ -1062,12 +1143,38 @@ END.
 
     if last(tt-report.key-01) then do:
       put skip(1).
-    
+     /* Task 11041302  */
+    /* PUT UNFORMATTED space(10) FILL('-',104) SKIP.
+        PUT "          Grand Total ".
+                   PUT  SPACE(30)    "Qty Shipped: " v-qty[5] FORMAT "->>>,>>>,>>9" 
+                "    Invoice Amt: " v-amt[5] FORMAT "->,>>>,>>>,>>9.99" 
+            SKIP(1).
+
+      
+      IF tb_excel THEN
+           PUT STREAM excel UNFORMATTED
+               SKIP(1)
+               '"' ""                                   '",'
+               '"' "GRAND TOTALS"                       '",'
+               '"' ""                                   '",'
+               '"' "Qty Shipped:"                        '",'
+               '"' STRING(v-qty[5],"->>>,>>>,>>9")     '",'
+               '"' ""                                   '",'
+               '"' "Invoice Amt:"                      '",'
+               '"' STRING(v-amt[5],"->,>>>,>>>,>>9.99") '",'
+               '"'  ""       '",'
+               '"' ""                                   '",'
+               '"' ""                                   '",'
+               '"' ""      '",'.
+      
+*/
       ASSIGN cDisplay = ""
            cTmpField = ""
            cVarValue = ""
            cExcelDisplay = ""
            cExcelVarValue = "".
+
+    
               
               DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                     cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
@@ -1090,7 +1197,6 @@ END.
                                WHEN "v-amt[1]" THEN cVarValue = string(v-amt[5],"->,>>>,>>>,>>9.99").
                                WHEN "rep" THEN cVarValue = "".
                                WHEN "rep-name" THEN cVarValue = "".
-                               WHEN "v-po" THEN cVarValue =  "".
                          END CASE.
                            
                          cExcelVarValue = cVarValue.

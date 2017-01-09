@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
 /* Connected Databases 
-          nosweat          PROGRESS
+          asi          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &Scoped-define FRAME-NAME Dialog-Frame
@@ -64,7 +64,7 @@ DEF VAR lv-first-time AS LOG INIT YES NO-UNDO.
     IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
        INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
        INDEX(PROGRAM-NAME(1),".ped") NE 0 THEN
-    v-prgmname = USERID("NOSWEAT") + "..".
+    v-prgmname = USERID("ASI") + "..".
     ELSE
     ASSIGN
       period_pos = INDEX(PROGRAM-NAME(1),".")

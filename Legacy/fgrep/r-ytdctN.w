@@ -370,11 +370,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -1468,13 +1464,13 @@ display "" with frame r-top.
 find fg-ctrl where fg-ctrl.company = cocode NO-LOCK.
 
 FOR each itemfg no-lock where
-             itemfg.company = cocode  and
+              itemfg.company = cocode  and
              itemfg.cust-no GE v-cust-no[1] and
              itemfg.cust-no LT v-cust-no[2] and
              (if lselected then can-find(first ttCustList where ttCustList.cust-no eq itemfg.cust-no
              AND ttCustList.log-fld no-lock) else true) AND
              (itemfg.i-no    >= v-i-no[1] and  /* DAR */
-             itemfg.i-no    <= v-i-no[2])
+              itemfg.i-no    <= v-i-no[2])
               use-index customer
               break by itemfg.cust-no by itemfg.i-no:
 

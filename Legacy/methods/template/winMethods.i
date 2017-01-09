@@ -272,7 +272,7 @@ PROCEDURE local-initialize :
   &ENDIF
   
         /* check if maximized for user */
-  IF SEARCH('users/' + USERID('NOSWEAT') + '/' + v-prgmname + 'winReSize') NE ? OR
+  IF SEARCH('users/' + USERID('ASI') + '/' + v-prgmname + 'winReSize') NE ? OR
         /* check if maximized for all users */
      SEARCH('users/' + v-prgmname + 'winReSize') NE ? OR
         /* check if maximized for all users all programs */
@@ -348,7 +348,7 @@ PROCEDURE Run-Search :
   Parameters:  
   Notes:       
 ------------------------------------------------------------------------------*/
-  IF CAN-DO(g_developer,USERID("NOSWEAT")) THEN
+  IF CAN-DO(g_developer,USERID("ASI")) THEN
   DO:
     MESSAGE "Update Search Program?"
         VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE updatesrch AS LOGICAL.
@@ -599,7 +599,7 @@ PROCEDURE winReSize PRIVATE :
     
     IF {&WINDOW-NAME}:WINDOW-STATE NE 1 THEN RETURN.
 
-    winReSizeDat = 'users/' + USERID('NOSWEAT') + '/winReSize.dat'.
+    winReSizeDat = 'users/' + USERID('ASI') + '/winReSize.dat'.
     IF SEARCH(winReSizeDat) NE ? THEN DO:
       INPUT FROM VALUE(winReSizeDat).
       IMPORT ^ screenRatio.

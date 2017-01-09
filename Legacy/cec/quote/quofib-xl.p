@@ -84,7 +84,7 @@ DEF VAR v-dir AS CHAR FORMAT "X(80)" NO-UNDO.
 DEF VAR v-comment-found AS LOG NO-UNDO.
 
 FIND FIRST users WHERE
-     users.user_id EQ USERID("NOSWEAT")
+     users.user_id EQ USERID("ASI")
      NO-LOCK NO-ERROR.
 
 IF AVAIL users AND users.user_program[2] NE "" THEN

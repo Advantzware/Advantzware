@@ -1,15 +1,16 @@
 /* --------------------------------------------------- ar/ar-creg.i 03/97 JLF */
 /* A/R Cash Receipts Edit Register Print Program - A/R Module                 */
 /* -------------------------------------------------------------------------- */
-
-FOR EACH ar-cash
+FOR EACH ttCustList 
+    WHERE ttCustList.log-fld
+    NO-LOCK,
+   EACH ar-cash
       WHERE ar-cash.company    EQ cocode
         AND ar-cash.posted     EQ is-print-posted
         AND ar-cash.memo       EQ NO
-        AND ar-cash.cust-no  GE fcust
-        AND ar-cash.cust-no  LE tcust
-        AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq ar-cash.cust-no
-        AND ttCustList.log-fld no-lock) else true)
+        /*AND ar-cash.cust-no    GE begin_cust
+        AND ar-cash.cust-no    LE END_cust*/
+        AND ar-cash.cust-no    EQ ttCustList.cust-no
         AND ar-cash.check-date GE v-from-date 
         AND ar-cash.check-date LE v-to-date 
         AND CAN-FIND(FIRST cust

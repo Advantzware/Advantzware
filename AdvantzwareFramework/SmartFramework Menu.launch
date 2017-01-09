@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="abl.launchType">
+<intAttribute key="abl.abl.MAX_DATABASE_CONNECTIONS" value="10"/>
+<booleanAttribute key="abl.abl.REREAD_NO_LOCK" value="true"/>
+<intAttribute key="abl.abl.STATEMENT_INPUT_CHARS" value="32000"/>
+<intAttribute key="abl.abl.STATEMENT_TOKENS" value="4000"/>
+<booleanAttribute key="abl.abl.USE_APPLICATION_ALERT" value="true"/>
+<booleanAttribute key="abl.abl.USE_DEBUG_ALERT" value="true"/>
+<booleanAttribute key="abl.abl.USE_SYSTEM_ALERT" value="true"/>
+<booleanAttribute key="abl.client.HIDE_TTY" value="false"/>
+<stringAttribute key="abl.client.PROVERSION" value="11.6 (64-bit)"/>
+<listAttribute key="abl.databases.ABL_DATABASES">
+<listEntry value="nosweat"/>
+<listEntry value="asi"/>
+<listEntry value="SmartDB"/>
+</listAttribute>
+<booleanAttribute key="abl.databases.USE_PROJECT" value="false"/>
+<stringAttribute key="abl.debug.ABL_PROGRAM" value="${workspace_loc:/AdvantzwareFramework/Advantzware/Windows/SmartFramework/Menu/nosweat.p}"/>
+<stringAttribute key="abl.debug.ATTR_ABL_PROJECT_NAME" value="LegacyNet"/>
+<booleanAttribute key="abl.debug.GENERATE_LAUNCHER_PROGRAM" value="true"/>
+<stringAttribute key="abl.debug.PROPATH" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#13;&#10;&lt;propath version=&quot;11.6&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xsi:noNamespaceSchemaLocation=&quot;schema/propath.xsd&quot;&gt;&#13;&#10;&lt;propathentry env=&quot;all&quot; kind=&quot;proj&quot; name=&quot;LegacyNet&quot; path=&quot;LegacyNet&quot; platform=&quot;All&quot;/&gt;&#13;&#10;&lt;propathentry env=&quot;all&quot; kind=&quot;dir&quot; path=&quot;@{WORK}&quot; platform=&quot;All&quot;/&gt;&#13;&#10;&lt;propathentry env=&quot;all&quot; kind=&quot;folder&quot; path=&quot;\SmartComponentLibrary\src&quot; platform=&quot;All&quot;/&gt;&#13;&#10;&lt;/propath&gt;&#13;&#10;"/>
+<booleanAttribute key="abl.debug.PROPATH_USE_DEFAULT" value="false"/>
+<stringAttribute key="abl.i18n.CASE_TABLE" value="Basic"/>
+<stringAttribute key="abl.i18n.COLLATION_TABLE" value="German-Library"/>
+<stringAttribute key="abl.i18n.DATE_FORMAT" value="dmy"/>
+<intAttribute key="abl.i18n.FRACTIONAL_SEP" value="44"/>
+<stringAttribute key="abl.i18n.INTERNAL_CODE_PAGE" value="ISO8859-1"/>
+<stringAttribute key="abl.i18n.STREAM_CODE_PAGE" value="ISO8859-1"/>
+<intAttribute key="abl.i18n.THOUSANDS_SEP" value="46"/>
+<stringAttribute key="abl.logging.CLIENT_LOG" value="C:\OpenEdge\WRK\client.log"/>
+<booleanAttribute key="abl.logging.LOGGING_ENABLED" value="true"/>
+<intAttribute key="abl.logging.LOGGING_THRESHOLD" value="500000"/>
+<intAttribute key="abl.performance.DIRECTORY_SIZE" value="500"/>
+<intAttribute key="abl.performance.MAXIMUM_MEMORY" value="65534"/>
+<intAttribute key="abl.performance.STACK_SIZE" value="200"/>
+<stringAttribute key="abl.performance.TEMP_DIRECTORY" value="${workspace_loc:/Resources}"/>
+<booleanAttribute key="abl.performance.USE_DEFALTS" value="false"/>
+<booleanAttribute key="abl.profiling.ENABLE_LISTING" value="false"/>
+<booleanAttribute key="abl.profiling.ENABLE_PROFILING" value="false"/>
+<booleanAttribute key="abl.profiling.ENABLE_TRACING" value="false"/>
+<stringAttribute key="abl.profiling.PROFILER_DESCRIPTION" value=""/>
+<stringAttribute key="abl.profiling.PROFILER_DIRECTORY" value=""/>
+<booleanAttribute key="abl.startup.ERROR_STACK_TRACE" value="true"/>
+<stringAttribute key="abl.startup.WORKING_DIRECTORY" value="${workspace_loc:/LegacyNet}"/>
+<listAttribute key="logging.LOGGING_ENABLED_TYPES">
+<listEntry value="4GLMessages:4:true"/>
+<listEntry value="4GLTrace:4:true"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/LegacyNet"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="4"/>
+</listAttribute>
+<booleanAttribute key="org.eclipse.debug.core.capture_output" value="false"/>
+<booleanAttribute key="org.eclipse.debug.ui.ATTR_CONSOLE_OUTPUT_ON" value="false"/>
+<booleanAttribute key="org.eclipse.debug.ui.ATTR_LAUNCH_IN_BACKGROUND" value="false"/>
+<booleanAttribute key="org.eclipse.debug.ui.private" value="false"/>
+</launchConfiguration>

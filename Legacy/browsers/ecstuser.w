@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          nosweat          PROGRESS
+          asi          PROGRESS
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
@@ -278,21 +278,21 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "asi.emaildtl OF asi.emailcod ,NOSWEAT.phone WHERE asi.emaildtl ...,asi.cust WHERE NOSWEAT.phone ...,NOSWEAT.users WHERE NOSWEAT.phone ..."
+     _TblList          = "asi.emaildtl OF asi.emailcod ,ASI.phone WHERE asi.emaildtl ...,asi.cust WHERE ASI.phone ...,ASI.users WHERE ASI.phone ..."
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED, USED, FIRST, FIRST"
-     _JoinCode[2]      = "NOSWEAT.phone.rec_key = asi.emaildtl.table_rec_key"
+     _JoinCode[2]      = "ASI.phone.rec_key = asi.emaildtl.table_rec_key"
      _Where[2]         = "~{&KEY-PHRASE}"
-     _JoinCode[3]      = "asi.cust.rec_key = NOSWEAT.phone.table_rec_key"
-     _JoinCode[4]      = "NOSWEAT.users.rec_key = NOSWEAT.phone.titlcode"
+     _JoinCode[3]      = "asi.cust.rec_key = ASI.phone.table_rec_key"
+     _JoinCode[4]      = "ASI.users.rec_key = ASI.phone.titlcode"
      _FldNameList[1]   > asi.cust.cust-no
 "asi.cust.cust-no" ? ? "character" ? ? ? 2 15 ? no "" no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.cust.name
 "asi.cust.name" ? ? "character" ? ? ? 2 15 ? no "" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > NOSWEAT.users.user_id
-"NOSWEAT.users.user_id" "User ID" ? "character" ? ? ? 2 15 ? no "" no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > NOSWEAT.phone.attention
-"NOSWEAT.phone.attention" ? ? "character" ? ? ? 2 15 ? no "" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > ASI.users.user_id
+"ASI.users.user_id" "User ID" ? "character" ? ? ? 2 15 ? no "" no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > ASI.phone.attention
+"ASI.phone.attention" ? ? "character" ? ? ? 2 15 ? no "" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

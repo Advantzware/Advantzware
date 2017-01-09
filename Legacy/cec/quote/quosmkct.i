@@ -545,14 +545,14 @@ DO:
 END. /* DO */
 
 /* PRINT PEN NOTES */
-  FIND FIRST  nosweat.notes NO-LOCK
+  FIND FIRST  ASI.notes NO-LOCK
     WHERE notes.rec_key = xquo.rec_key
       AND TRIM(notes.note_text) NE "" NO-ERROR.
   IF AVAIL notes THEN DO:
     PUT "<B>Notes: </B>" SKIP.
 
     ASSIGN  v-printline = v-printline + 1.
-    FOR EACH nosweat.notes NO-LOCK
+    FOR EACH ASI.notes NO-LOCK
       WHERE notes.rec_key = xquo.rec_key
       BY note_date BY note_time:
 

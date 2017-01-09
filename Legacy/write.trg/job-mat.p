@@ -127,7 +127,7 @@ FIND FIRST b-job WHERE
      EXCLUSIVE-LOCK NO-ERROR.
 
 IF AVAIL b-job THEN
-   b-job.user-id = USERID("NOSWEAT").
+   b-job.user-id = USERID("ASI").
 
 IF TRIM({&TABLENAME}.rec_key) NE "" THEN DO:
   {custom/fibreaud.i}

@@ -23,7 +23,7 @@ END.
 
 IF {&TABLENAME}.line LT 500 THEN DO:
   IF {&TABLENAME}.line NE old-{&TABLENAME}.line THEN
-  FOR EACH {sys/inc/machposwW.i reftable {&TABLENAME}}:
+  FOR EACH {sys/inc/machposw.i reftable {&TABLENAME}}:
     reftable.loc = STRING({&TABLENAME}.line,"9999999999").
   END.
 
@@ -49,7 +49,7 @@ IF {&TABLENAME}.line LT 500 THEN DO:
 
     ASSIGN
      est.updated-date = TODAY
-     est.updated-id   = USERID("nosweat")
+     est.updated-id   = USERID("ASI")
      est.mod-date     = est.updated-date.
   END.
 END.

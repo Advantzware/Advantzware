@@ -110,7 +110,7 @@ tb_runExcel fi_file
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -396,11 +396,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -619,6 +615,7 @@ DO:
   END.
  
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
+  IF NOT tb_cust-list OR NOT AVAIL ttCustList THEN do:
   IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
        EMPTY TEMP-TABLE ttCustList.
        RUN BuildCustList(INPUT cocode,
@@ -1029,6 +1026,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT NO,
                           OUTPUT glCustListActive).
 
+ {sys/inc/chblankcust.i}
  {sys/inc/chblankcust.i ""AR1""}
 
   IF ou-log THEN DO:
@@ -1315,6 +1313,7 @@ assign
  tsman    = end_slsmn
  v-level  = price-level
  v-sort   = rd_sort eq "N"
+ detailed = tb_detailed.
  detailed = tb_detailed
  lSelected  = tb_cust-list.
 
@@ -1385,6 +1384,7 @@ PROCEDURE run-report-contact :
 ------------------------------------------------------------------------------*/
    DEF VAR v-sort AS LOG NO-UNDO.
    DEF VAR excelheader AS CHAR NO-UNDO.
+
    DEF VAR lSelected AS LOG INIT YES NO-UNDO.
    def var fcust as ch init "".
    def var tcust like fcust init "zzzzzzzz".
@@ -1401,6 +1401,7 @@ PROCEDURE run-report-contact :
       str-tit2 = c-win:title
       {sys/inc/ctrtext.i str-tit2 56}
       v-sort   = rd_sort eq "N".
+
    IF lselected THEN DO:
     FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
     IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
@@ -1470,6 +1471,7 @@ PROCEDURE run-report-invoice :
    assign
       str-tit2 = c-win:title
       {sys/inc/ctrtext.i str-tit2 56}
+      v-sort   = rd_sort eq "N".
       v-sort   = rd_sort eq "N"
       lSelected = tb_cust-list.
    IF lselected THEN DO:

@@ -197,17 +197,12 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
-    MESSAGE "Unable to load icon: adeicon\progress"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
-/* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 {methods/template/windows.i}
 
@@ -796,7 +791,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updc&c ).
-       RUN set-position IN h_p-updc&c ( 9.10 , 128.00 ) NO-ERROR.
+       RUN set-position IN h_p-updc&c ( 9.10 , 118.00 ) NO-ERROR.
        RUN set-size IN h_p-updc&c ( 10.24 , 22.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -804,7 +799,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME est:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-navef-2 ).
-       RUN set-position IN h_v-navef-2 ( 22.67 , 117.50 ) NO-ERROR.
+       RUN set-position IN h_v-navef-2 ( 22.67 , 108.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.43 , 42.00 ) */
 
        /* Initialize other pages that this page requires. */

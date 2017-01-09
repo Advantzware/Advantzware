@@ -1596,7 +1596,7 @@ RUN sys/ref/CustList.p (INPUT cocode,
                             INPUT 'EQ',
                             INPUT YES,
                             OUTPUT lActive).
-{sys/inc/chblankcust.i ""EQ""}
+{sys/inc/chblankcust.i}
   IF ou-log THEN do:
     DO WITH FRAME {&FRAME-NAME}:
      IF LOOKUP(quotehd.cust-no:SCREEN-VALUE,custcount) = 0 THEN do:

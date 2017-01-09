@@ -462,11 +462,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -1031,7 +1027,7 @@ DO:
 /*           MESSAGE 'In-House Customer not defined.'                 */
 /*             VIEW-AS ALERT-BOX INFO BUTTONS OK.                     */
 /*           RETURN.                                                  */
-/*         END.                                                       */
+/*          END. */
        END.
 
        ELSE RUN BatchMail (begin_cust, begin_cust).
@@ -1519,7 +1515,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   glPaperless  = GetPaperlessLogical().
   
   FIND FIRST users WHERE
-       users.user_id EQ USERID("NOSWEAT")
+       users.user_id EQ USERID("ASI")
        NO-LOCK NO-ERROR.
 
   IF AVAIL users AND users.user_program[2] NE "" THEN
@@ -1745,7 +1741,7 @@ PROCEDURE BatchMail :
       lEmailed = YES.
     END.
     /* =-=== end of posted invoices =====*/
-    
+
     for each b1-inv-head
        where b1-inv-head.company         eq cocode
          and b1-inv-head.cust-no         ge icBegCustNo
@@ -1773,7 +1769,7 @@ PROCEDURE BatchMail :
         ASSIGN  vlSkipRec = YES
                 vcBegCustNo = b1-inv-head.cust-no
                 vcEndCustNo = b1-inv-head.cust-no.
-        vSoldToNo = "".
+        vSoldToNo = "". 
         if b1-inv-head.multi-invoice then do: 
            find first b2-inv-head 
                       WHERE b2-inv-head.company       EQ b1-inv-head.company
@@ -1822,7 +1818,7 @@ PROCEDURE BatchMail :
         /*AND CAN-FIND(FIRST inv-line OF b1-inv-head)*/
       no-lock
       BREAK BY b2-cust.cust-no :
-  
+      
       IF FIRST-OF (b2-cust.cust-no) THEN DO:
       
         ASSIGN  vlSkipRec = YES
@@ -1976,7 +1972,7 @@ PROCEDURE GenerateEmail :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE INPUT PARAMETER icCustNo AS CHAR NO-UNDO.
-   
+
    DO WITH FRAME {&FRAME-NAME}:
    
       IF vlSkipRec THEN RETURN.
@@ -1993,7 +1989,7 @@ PROCEDURE GenerateEmail :
       IF is-xprint-form THEN DO:
          IF v-print-fmt NE "Southpak-xl" AND v-print-fmt NE "PrystupExcel" THEN
             RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
-                 
+      
             IF cActualPDF ne lv-pdf-file AND SEARCH(cActualPDF) NE ? THEN DO:
               OS-COPY VALUE(cActualPDF) VALUE(lv-pdf-file).
               OS-DELETE VALUE(cActualPDF).           
@@ -2193,7 +2189,7 @@ PROCEDURE output-to-mail :
         END.
      END.
      ELSE /*not posted*/
-     DO:         
+     DO:
         IF CAN-FIND(FIRST sys-ctrl-shipto WHERE
            sys-ctrl-shipto.company = cocode AND
            sys-ctrl-shipto.NAME = "INVPRINT") THEN
@@ -2274,7 +2270,7 @@ PROCEDURE output-to-mail :
                          vSoldToNo = IF AVAIL oe-ord THEN oe-ord.sold-id ELSE "". 
                   END.
                   vShipToNo = buf-inv-head.sold-no.
-                  RUN GenerateEmail(buf-inv-head.cust-no).
+                   RUN GenerateEmail(buf-inv-head.cust-no).
                 END.
            END.
         
@@ -2418,7 +2414,7 @@ if td-show-parm then run show-param.
 
 {sa/sa-sls01.i}
 
-v-term-id = v-term + USERID("nosweat").
+v-term-id = v-term + USERID("ASI").
 
 SESSION:SET-WAIT-STATE ("general").
 
@@ -2906,7 +2902,7 @@ PROCEDURE SendMail-1 :
   DEFINE VARIABLE vcSubject   AS CHARACTER  NO-UNDO.
   DEFINE VARIABLE vcMailBody  AS CHARACTER  NO-UNDO.
   DEFINE VARIABLE vcErrorMsg  AS CHARACTER  NO-UNDO.
- 
+
   ASSIGN  vcSubject   = "INVOICE:" + vcInvNums + '   ' + STRING (TODAY, '99/99/9999') + STRING (TIME, 'HH:MM:SS AM')
           vcSubject   = IF tb_reprint AND NOT tb_email-orig THEN '[REPRINT] ' + vcSubject ELSE vcSubject
           vcMailBody  = "Please review attached Invoice(s) for Invoice #: " + vcInvNums.
@@ -2947,11 +2943,11 @@ PROCEDURE SendMail-1 :
   IF tb_attachBOL THEN
       list-name = list-name + "," + TRIM(vcBOLfiles, ",").
   
-  IF vSoldToNo <> "" THEN 
-     ASSIGN icRecType = "SoldTo"     
+  IF vSoldToNo <> "" THEN
+     ASSIGN icRecType = "SoldTo"
             icIdxKey = icIdxKey + "|" + (vSoldToNo) +
                        if vShipToNo <> "" then "|" + vShipToNo else "".
- RUN custom/xpmail2.p   (input   icRecType,
+  RUN custom/xpmail2.p   (input   icRecType,
                           input   'R-INVPRT.',
                           input   list-name,
                           input   icIdxKey,
@@ -2960,6 +2956,7 @@ PROCEDURE SendMail-1 :
                           OUTPUT  vcErrorMsg).
   /* for email by sold-to: need type "SoldTo" and icIdxKey(cust-no) and new key
      to have sold-no */
+
 
 END PROCEDURE.
 

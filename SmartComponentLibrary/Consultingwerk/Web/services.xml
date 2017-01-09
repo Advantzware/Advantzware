@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<ttServiceLoader xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ttServiceLoaderRow>
+    <Order>1</Order>
+    <ServiceTypeName>Consultingwerk.OERA.Context.IContextDatasetFactory</ServiceTypeName>
+    <ServiceClassName>Consultingwerk.OERA.Context.ContextDatasetFactory</ServiceClassName>
+  </ttServiceLoaderRow>
+  <ttServiceLoaderRow>
+    <Order>2</Order>
+    <ServiceTypeName>Consultingwerk.Web.IRedirectHandler</ServiceTypeName>
+    <ServiceClassName>Consultingwerk.BetGame.Signon.RedirectHandler</ServiceClassName>
+  </ttServiceLoaderRow>
+</ttServiceLoader>

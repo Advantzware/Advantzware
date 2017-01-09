@@ -308,7 +308,7 @@ for each job-hdr
         first est
         where est.company  eq job-hdr.company
           AND est.est-no   EQ job-hdr.est-no
-          /*and est.est-type le 4  */  /* Ticket 15842 */
+          and est.est-type le 4  
         no-lock
 
         break by job-hdr.job

@@ -17,7 +17,7 @@ DO v-count = 1 TO 10:
       old-{&TABLENAME}.setups[v-count] NE {&TABLENAME}.setups[v-count] THEN
       DO:
          ASSIGN
-            e-item-vend.updated-id[1] = USERID("NOSWEAT")
+            e-item-vend.updated-id[1] = USERID("ASI")
             e-item-vend.updated-date[1] = TODAY.
          LEAVE.
       END.

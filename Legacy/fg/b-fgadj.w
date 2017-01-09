@@ -170,13 +170,13 @@ DEFINE BROWSE Browser-Table
             WIDTH 14.4
       STRING(fg-rctd.trans-time,'HH:MM') @ trans-time COLUMN-LABEL "Adjustment!Time"
             WIDTH 14
-      fg-rctd.i-no FORMAT "X(15)":U WIDTH 22
+      fg-rctd.i-no FORMAT "X(15)":U
       fg-rctd.i-name FORMAT "x(30)":U
-      fg-rctd.job-no FORMAT "x(6)":U WIDTH 10
+      fg-rctd.job-no FORMAT "x(6)":U
       fg-rctd.job-no2 FORMAT "99":U
-      fg-rctd.loc COLUMN-LABEL "Whse" FORMAT "x(5)":U WIDTH 8
-      fg-rctd.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U WIDTH 11
-      fg-rctd.tag COLUMN-LABEL "Tag" FORMAT "x(20)":U WIDTH 29
+      fg-rctd.loc COLUMN-LABEL "Whse" FORMAT "x(5)":U
+      fg-rctd.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U
+      fg-rctd.tag COLUMN-LABEL "Tag" FORMAT "x(20)":U
       fg-rctd.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
             WIDTH 12
       fg-rctd.cases COLUMN-LABEL "Units" FORMAT "->>>,>>9":U
@@ -307,19 +307,19 @@ fg-rctd.rita-code = ""A"""
      _FldNameList[3]   > "_<CALC>"
 "STRING(fg-rctd.trans-time,'HH:MM') @ trans-time" "Adjustment!Time" ? ? ? ? ? ? ? ? no ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > asi.fg-rctd.i-no
-"fg-rctd.i-no" ? "X(15)" "character" ? ? ? ? ? ? yes ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.i-no" ? "X(15)" "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > asi.fg-rctd.i-name
 "fg-rctd.i-name" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > asi.fg-rctd.job-no
-"fg-rctd.job-no" ? ? "character" ? ? ? ? ? ? yes ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.job-no" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > asi.fg-rctd.job-no2
 "fg-rctd.job-no2" ? ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > asi.fg-rctd.loc
-"fg-rctd.loc" "Whse" ? "character" ? ? ? ? ? ? yes ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.loc" "Whse" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > asi.fg-rctd.loc-bin
-"fg-rctd.loc-bin" "Bin" ? "character" ? ? ? ? ? ? yes ? no no "11" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.loc-bin" "Bin" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > asi.fg-rctd.tag
-"fg-rctd.tag" "Tag" "x(20)" "character" ? ? ? ? ? ? yes ? no no "29" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.tag" "Tag" "x(20)" "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > ASI.fg-rctd.cust-no
 "fg-rctd.cust-no" "Customer#" ? "character" ? ? ? ? ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > asi.fg-rctd.cases
@@ -689,7 +689,7 @@ DO:
         NO-LOCK NO-ERROR.
    
    IF AVAIL usergrps AND
-      (NOT CAN-DO(usergrps.users,USERID("NOSWEAT")) AND
+      (NOT CAN-DO(usergrps.users,USERID("ASI")) AND
        TRIM(usergrps.users) NE "*") THEN
       ASSIGN
          fg-rctd.ext-cost:VISIBLE IN BROWSE {&BROWSE-NAME} = NO.

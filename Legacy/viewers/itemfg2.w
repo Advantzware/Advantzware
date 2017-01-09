@@ -889,8 +889,7 @@ PROCEDURE local-display-fields :
   DEF VAR v-return AS LOG.
   DEF VAR v-alloc-save AS DEC NO-UNDO.
   DEF VAR i AS INT NO-UNDO.
-  def var v-q-alloc like itemfg.q-alloc NO-UNDO.
-  def var v-q-back  like itemfg.q-back NO-UNDO.
+
 
 
   /* Code placed here will execute PRIOR to standard behavior. */
@@ -912,13 +911,6 @@ PROCEDURE local-display-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
 
-  IF AVAIL itemfg THEN DO:
-      RUN fg/calcqa&b.p (ROWID(itemfg), OUTPUT v-q-alloc,
-                         OUTPUT v-q-back).
-      ASSIGN
-          asi.itemfg.q-alloc:SCREEN-VALUE IN FRAME {&FRAME-NAME} =  STRING(v-q-alloc)
-          asi.itemfg.q-back:SCREEN-VALUE IN FRAME {&FRAME-NAME} =  STRING(v-q-back) .
-  END.
 
   IF v-prior-i-no EQ "" OR v-prior-i-no NE asi.itemfg.i-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}  THEN DO:     
 
@@ -950,7 +942,7 @@ PROCEDURE local-display-fields :
   IF asi.itemfg.q-alloc:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "0" or
      asi.itemfg.q-alloc:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "" THEN DO:
      v-alloc-save = INTEGER(asi.itemfg.q-alloc:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
-     /*asi.itemfg.q-alloc:SCREEN-VALUE IN FRAME {&FRAME-NAME} = string(get-alloc()).*/
+     asi.itemfg.q-alloc:SCREEN-VALUE IN FRAME {&FRAME-NAME} = string(get-alloc()).
      IF v-alloc-save NE INTEGER(asi.itemfg.q-alloc:SCREEN-VALUE IN FRAME {&FRAME-NAME}) THEN DO:
         itemfg.q-avail:SCREEN-VALUE = STRING(DEC(itemfg.q-onh:SCREEN-VALUE) +
                                              DEC(itemfg.q-ono:SCREEN-VALUE) -
@@ -965,23 +957,20 @@ PROCEDURE local-display-fields :
         AND itemfg-loc.i-no EQ itemfg.i-no
         AND itemfg-loc.loc  EQ cbLoc NO-LOCK NO-ERROR.
     
-    IF AVAIL itemfg-loc THEN do:
-        RUN fg/calcqabl.p (ROWID(itemfg), itemfg-loc.loc, OUTPUT v-q-alloc, OUTPUT v-q-back).
-
+    IF AVAIL itemfg-loc THEN
         ASSIGN
         asi.itemfg.ord-level:SCREEN-VALUE =  STRING(itemfg-loc.ord-level)
         asi.itemfg.ord-max:SCREEN-VALUE =  STRING(itemfg-loc.ord-max)
         asi.itemfg.ord-min:SCREEN-VALUE =  STRING(itemfg-loc.ord-min)
         asi.itemfg.lead-days:SCREEN-VALUE = STRING(itemfg-loc.lead-days)
-        asi.itemfg.q-alloc:SCREEN-VALUE =  STRING(v-q-alloc) /*STRING(get-alloc())*/
-        asi.itemfg.q-back:SCREEN-VALUE =   string(v-q-back) /*STRING(itemfg-loc.q-back)*/
+        asi.itemfg.q-alloc:SCREEN-VALUE =  STRING(get-alloc())
+        asi.itemfg.q-back:SCREEN-VALUE =  STRING(itemfg-loc.q-back)
         asi.itemfg.q-onh:SCREEN-VALUE =  STRING(itemfg-loc.q-onh)
         asi.itemfg.q-ono:SCREEN-VALUE =  STRING(itemfg-loc.q-ono).
         itemfg.q-avail:SCREEN-VALUE = STRING(DEC(itemfg.q-onh:SCREEN-VALUE) +
                                              DEC(itemfg.q-ono:SCREEN-VALUE) -
                                              DEC(itemfg.q-alloc:SCREEN-VALUE),
-                                                   itemfg.q-avail:FORMAT).
-    END.
+                                             itemfg.q-avail:FORMAT).
   END.
   ELSE IF AVAIL itemfg THEN DO:
   

@@ -33,10 +33,10 @@ PUT "<R6><C50><FROM><R6><C80><LINE><||3>" SKIP
 PUT "<FArial><P12><=#3><R-2> <B>Invoice #: " inv-head.inv-no "</B><P10>                            Page: " string(PAGE-NUM - v-page-num,">>9") SKIP
     "<=#3> Customer ID             Contact"
     "<=#3><R+2> Telephone                        Fax" 
-    "<=#3><R+4>     Invoice Date                 Cust PO# <FCourier New>"    
+    "<=#3><R+4>     Invoice Date <FCourier New>"    
     "<=3><R+1> " inv-head.cust-no  space(7) cust.contact
     "<=3><R+3> " cust.area-code + cust.phone format "(999)999-9999" space(5) cust.fax
-    "<=3><R+5> "  space(1) v-inv-date SPACE(7) v-po-ord  .
+    "<=3><R+5> " /*v-po-no*/ space(1) v-inv-date .
 
 PUT "<|10><R19><C1><#4><FROM><R22><C80><RECT>" SKIP
     "<R20><C1><FROM><R20><C80><LINE>" SKIP    

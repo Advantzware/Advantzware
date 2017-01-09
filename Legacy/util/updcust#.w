@@ -177,11 +177,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -758,13 +754,12 @@ for each oe-ord
             bf-cust-new.cust-no EQ v-new-cust
             NO-LOCK NO-ERROR.
 
-       IF AVAIL bf-cust-new THEN
-         FOR EACH attach WHERE
-           attach.company = oe-ord.company and
-           attach.rec_key = old-rec-key EXCLUSIVE-LOCK:
-           
+        FOR EACH attach WHERE
+            attach.company = oe-ord.company and
+            attach.rec_key = old-rec-key EXCLUSIVE-LOCK:
+            
            attach.rec_key = bf-cust-new.rec_key .
-         END.
+       END.
 
     find first b-cust
         where b-cust.company eq cocode
@@ -784,33 +779,6 @@ for each oe-ord
     END.
 
 end.
-
-FIND FIRST bf-cust-new WHERE
-    bf-cust-new.company EQ cocode AND
-    bf-cust-new.cust-no EQ v-new-cust
-    NO-LOCK NO-ERROR.
-
- IF AVAIL bf-cust-new THEN do:
-     FIND CURRENT cust NO-ERROR.
-     FOR EACH attach WHERE
-         attach.company = cocode and
-         attach.rec_key = cust.rec_key EXCLUSIVE-LOCK:
-         attach.rec_key = bf-cust-new.rec_key .
-     END.
-
-     FOR EACH phone WHERE 
-         phone.table_rec_key = cust.rec_key EXCLUSIVE-LOCK :
-         phone.table_rec_key =  bf-cust-new.rec_key .
-         IF NOT CAN-FIND (FIRST reftable NO-LOCK
-                          WHERE reftable.rec_key = phone.table_rec_key
-                          AND reftable.CODE    = STRING (phone.rec_key)) 
-         THEN DO:
-                CREATE reftable.
-                ASSIGN reftable.rec_key   = STRING (phone.table_rec_key)
-                       reftable.CODE      = STRING (phone.rec_key).
-         END. /* not avail reftable */
-     END.
- END.
 
 for each oe-relh
     where oe-relh.company eq cocode

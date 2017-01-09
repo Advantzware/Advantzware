@@ -16,5 +16,5 @@ IF oeuserid-log OR ip-update THEN
 FOR EACH oe-ord
     WHERE oe-ord.company EQ ip-company
       AND oe-ord.ord-no  EQ ip-ord-no:
-  oe-ord.user-id = USERID("nosweat").
+  oe-ord.user-id = USERID("ASI").
 END.

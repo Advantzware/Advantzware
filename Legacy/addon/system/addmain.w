@@ -295,7 +295,7 @@ ON CLOSE OF THIS-PROCEDURE
 /*  defined on the window.)                                             */
 ON WINDOW-CLOSE OF {&WINDOW-NAME} DO:
   closeMenu = YES.
-  IF USERID('nosweat')  <> "nosweat" THEN
+  IF USERID("ASI")  <> "ASI" THEN
      MESSAGE 'Exit Add-On~'s?' VIEW-AS ALERT-BOX
         QUESTION BUTTONS YES-NO UPDATE closeMenu.
   IF NOT closeMenu THEN RETURN NO-APPLY.
@@ -479,8 +479,8 @@ PROCEDURE Read_Menus :
      if sys-ctrl.char-fld = "Foldware" then ls-menu-lst = "menu.fol".
   end.
 
-  IF SEARCH(".\usermenu\" + USERID("NOSWEAT") + "\" + ls-menu-lst) <> ? THEN
-    ls-menu-lst = ".\usermenu\" + USERID("NOSWEAT") + "\" + ls-menu-lst.
+  IF SEARCH(".\usermenu\" + USERID("ASI") + "\" + ls-menu-lst) <> ? THEN
+    ls-menu-lst = ".\usermenu\" + USERID("ASI") + "\" + ls-menu-lst.
 
   /* ========== end of mods =========================*/  
   

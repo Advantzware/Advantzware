@@ -196,10 +196,10 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
 /* Query rebuild information for BROWSE BROWSE-1
-     _TblList          = "NOSWEAT.zipcode, WHERE NOSWEAT.zipcode ..."
+     _TblList          = "ASI.zipcode, WHERE ASI.zipcode ..."
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = ", FIRST USED"        
-     _FldNameList[1]   > NOSWEAT.zipcode.city
+     _FldNameList[1]   > ASI.zipcode.city
 "zipcode.city" "City" ? 
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */

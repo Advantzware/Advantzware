@@ -61,9 +61,9 @@ ASSIGN
 
 DEFINE TEMP-TABLE tt-note NO-UNDO
   FIELD employee LIKE emplogin.employee
-  FIELD rec_key LIKE nosweat.notes.rec_key
-  FIELD note_date LIKE nosweat.notes.note_date
-  FIELD note_title LIKE nosweat.notes.note_title
+  FIELD rec_key LIKE ASI.notes.rec_key
+  FIELD note_date LIKE ASI.notes.note_date
+  FIELD note_title LIKE ASI.notes.note_title
   FIELD note_src AS CHARACTER.
 
 /* _UIB-CODE-BLOCK-END */
@@ -262,11 +262,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 

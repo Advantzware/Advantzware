@@ -221,11 +221,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -362,7 +358,7 @@ DO:
 
   ASSIGN
     list-name = screen-file-name + IF screen-file-name NE "" THEN "rpt" ELSE ""
-    init-dir = "users\" + USERID("NOSWEAT").
+    init-dir = "users\" + USERID("ASI").
   SYSTEM-DIALOG GET-FILE list-name
       TITLE      "Choose Listing to OPEN ..."
       FILTERS    "Listing Files (*.rpt)" "*.rpt",
@@ -448,7 +444,7 @@ DO:
 
   ASSIGN
     list-name = screen-file-name + IF screen-file-name NE "" THEN "rpt" ELSE ""
-    init-dir = "users\" + USERID("NOSWEAT").
+    init-dir = "users\" + USERID("ASI").
   SYSTEM-DIALOG GET-FILE list-name
       TITLE      "Enter Listing Name to SAVE AS ..."
       FILTERS    "Listing Files (*.rpt)" "*.rpt",
@@ -552,7 +548,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       
   ASSIGN
     {&WINDOW-NAME}:TITLE = "Screen Viewer - '" + screen-file-name + "'"
-    list-name = "users~/" + USERID("NOSWEAT") + "~/" + screen-file-name
+    list-name = "users~/" + USERID("ASI") + "~/" + screen-file-name
     ldummy = screen-report:READ-FILE(list-name).
   IF NOT ldummy THEN
   APPLY "CHOOSE" TO Btn_Open IN FRAME {&FRAME-NAME}.

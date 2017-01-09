@@ -1166,8 +1166,8 @@ PROCEDURE local-assign-record :
         FIND CURRENT oe-relh EXCLUSIVE-LOCK.
         IF v-date-change-reason GT "" THEN
             ASSIGN oe-relh.spare-char-1:SCREEN-VALUE = v-date-change-reason
-                   oe-relh.spare-char-2:SCREEN-VALUE = USERID("NOSWEAT")
-                   oe-relh.spare-char-2 = USERID("NOSWEAT").
+                   oe-relh.spare-char-2:SCREEN-VALUE = USERID("ASI")
+                   oe-relh.spare-char-2 = USERID("ASI").
         FIND CURRENT oe-relh NO-LOCK.
 
         FOR EACH oe-rell WHERE oe-rell.r-no EQ oe-relh.r-no NO-LOCK:
@@ -1196,7 +1196,7 @@ PROCEDURE local-assign-record :
              /* Update all related oe-rel records with new update reason
                 and copy the note to that rec_key */
              ASSIGN oe-rel.spare-char-2 = v-date-change-reason
-                    oe-rel.spare-char-3 = USERID("NOSWEAT").
+                    oe-rel.spare-char-3 = USERID("ASI").
 
              /* Was already created */
              IF oe-rel.rec_key = v-save-rec-key THEN

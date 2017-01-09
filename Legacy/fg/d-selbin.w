@@ -529,7 +529,7 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
-    cellColumnDat = 'users/' + USERID('nosweat') + '/{&cellColumnDat}.dat'.
+    cellColumnDat = 'users/' + USERID("ASI") + '/{&cellColumnDat}.dat'.
     find first sys-ctrl where sys-ctrl.company eq cocode
                       and sys-ctrl.name    eq "ADDRELSE" no-lock no-error.
 

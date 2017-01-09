@@ -158,14 +158,14 @@ DO:
         RETURN NO-APPLY.
     END.
     
-    IF CONNECTED("nosweat") THEN
+    IF CONNECTED("ASI") THEN
         DISCONNECT nosweat.
 
     CONNECT -db nosweat -S 3810 -H asidc.
     CONNECT -db nosweat -ld "ASINOS" -S 3802 -H asidc.        
 
     RUN util/dumpConfig.p (INPUT lv-file).
-    IF CONNECTED("nosweat") THEN
+    IF CONNECTED("ASI") THEN
       DISCONNECT nosweat.
       
     IF CONNECTED("asinos") THEN 

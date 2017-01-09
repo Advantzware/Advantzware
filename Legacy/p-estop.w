@@ -74,7 +74,7 @@ DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
 
 &Scoped-define ADM-SUPPORTED-LINKS TableIO-Source
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME Panel-Frame
 
 /* Standard List Definitions                                            */
@@ -135,7 +135,7 @@ DEFINE BUTTON btn-save
      FONT 4.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 90 BY 1.76.
 
 
@@ -192,6 +192,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-WIn 
 /* ************************* Included-Libraries *********************** */
 
+{advantzware/winkit/winkit-panel.i}
 {src/adm/method/panel.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -206,7 +207,7 @@ END.
 /* SETTINGS FOR WINDOW C-WIn
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME Panel-Frame
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME Panel-Frame:SCROLLABLE       = FALSE
        FRAME Panel-Frame:HIDDEN           = TRUE.
@@ -245,6 +246,11 @@ DO:
   
   run get-link-handle in adm-broker-hdl (this-procedure,"tableio-target",output char-hdl).
   run set-import-stds in widget-handle(char-hdl) ("add", yes).
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:10:50 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -264,6 +270,11 @@ DO:
   
   run get-link-handle in adm-broker-hdl (this-procedure,"tableio-target",output char-hdl).
   run set-import-stds in widget-handle(char-hdl) ("add", no).
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:10:50 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -280,6 +291,11 @@ DO:
   run get-link-handle in adm-broker-hdl (this-procedure,"tableio-target",output char-hdl).
 
   run build-route in widget-handle(char-hdl).
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:10:50 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -295,6 +311,11 @@ DO:
       RUN notify ('cancel-record':U).
       enable btn-import btn-build with frame {&frame-name}.
    END.
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:10:50 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -311,6 +332,11 @@ DO:
   run get-link-handle in adm-broker-hdl (this-procedure,"tableio-target",output char-hdl).
 
   run op-copy in widget-handle(char-hdl).
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:10:50 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -323,6 +349,11 @@ ON CHOOSE OF btn-delete IN FRAME Panel-Frame /* Delete */
 DO:
    RUN notify ('delete-record':U).  
   /* disable btn-import btn-build with frame {&frame-name}.*/
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:10:50 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -342,6 +373,11 @@ DO:
   disable btn-add-stds btn-import btn-build with frame {&frame-name}.
   run get-link-handle in adm-broker-hdl (this-procedure,"tableio-target",output char-hdl).
   run set-import-stds in widget-handle(char-hdl) ("update", yes).
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:10:50 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -390,6 +426,11 @@ def var char-hdl as cha no-undo.
         RUN notify ('update-record':U).
      END.
   END.
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:10:50 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */

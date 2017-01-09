@@ -381,11 +381,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -1300,7 +1296,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   ASSIGN userLabelPath = bardir-desc
          begin_filename = bardir-desc.
   IF casetag-int = 1 THEN DO:
-       FIND FIRST users WHERE users.user_id EQ USERID("NOSWEAT") NO-LOCK NO-ERROR.
+       FIND FIRST users WHERE users.user_id EQ USERID("ASI") NO-LOCK NO-ERROR.
        IF AVAIL users AND users.user_program[3] NE "" THEN
            ASSIGN begin_filename:SCREEN-VALUE = users.user_program[3]
                   userLabelPath = users.USER_program[3].       
@@ -1318,7 +1314,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {custom/usrprint.i}
     begin_filename:SCREEN-VALUE = bardir-desc.
     IF casetag-int = 1 THEN DO:
-       FIND FIRST users WHERE users.user_id EQ USERID("NOSWEAT") NO-LOCK NO-ERROR.
+       FIND FIRST users WHERE users.user_id EQ USERID("ASI") NO-LOCK NO-ERROR.
        IF AVAIL users AND users.user_program[3] NE "" THEN
           ASSIGN begin_filename:SCREEN-VALUE = users.user_program[3].           
     END.

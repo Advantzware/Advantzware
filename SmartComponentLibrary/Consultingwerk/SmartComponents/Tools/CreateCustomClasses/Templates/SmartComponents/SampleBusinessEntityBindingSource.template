@@ -1,0 +1,39 @@
+/*------------------------------------------------------------------------
+    File        : &2BusinessEntityBindingSource
+    Purpose     : 
+    Syntax      : 
+    Description : 
+    Author(s)   : &3
+    Created     : Sun Aug 07 20:43:00 CEST 2011
+    Notes       : 
+  ----------------------------------------------------------------------*/
+
+ROUTINE-LEVEL ON ERROR UNDO, THROW.
+
+USING Consultingwerk.SmartComponents.Implementation.* FROM PROPATH .
+USING Progress.Lang.*                                 FROM PROPATH .
+
+CLASS &1.&2BusinessEntityBindingSource 
+    INHERITS SmartBusinessEntityBindingSource 
+    USE-WIDGET-POOL: 
+		
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the &2BusinessEntityBindingSource class
+        Notes:   
+        @param poContainer The IContainer to add the &2BusinessEntityBindingSource to                                                                        
+    ------------------------------------------------------------------------------*/
+	CONSTRUCTOR PUBLIC &2BusinessEntityBindingSource (container AS System.ComponentModel.IContainer):
+		SUPER (INPUT container).
+		
+	END CONSTRUCTOR.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the &2BusinessEntityBindingSource class
+        Notes:   
+    ------------------------------------------------------------------------------*/
+	CONSTRUCTOR PUBLIC &2BusinessEntityBindingSource ():
+		SUPER ().
+		
+	END CONSTRUCTOR.
+
+END CLASS.

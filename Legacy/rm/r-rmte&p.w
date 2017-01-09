@@ -448,11 +448,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -964,7 +960,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   FOR EACH rm-rctd
       WHERE rm-rctd.company   EQ cocode
         AND rm-rctd.rita-code NE "C"
-        AND rm-rctd.user-id EQ  USERID("nosweat")
+        AND rm-rctd.user-id EQ  USERID("ASI")
       NO-LOCK,
       FIRST item
       WHERE item.company EQ cocode
@@ -1029,8 +1025,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        v-post-date:SCREEN-VALUE = STRING(TODAY).
 
     ASSIGN
-     begin_userid:SCREEN-VALUE = USERID("nosweat")
-     end_userid:SCREEN-VALUE   = USERID("nosweat").
+     begin_userid:SCREEN-VALUE = USERID("ASI")
+     end_userid:SCREEN-VALUE   = USERID("ASI").
     IF NOT v-uid-sec THEN
       DISABLE begin_userid END_userid.
     ASSIGN fiAutoIssue:SCREEN-VALUE = STRING(v-autoissue)

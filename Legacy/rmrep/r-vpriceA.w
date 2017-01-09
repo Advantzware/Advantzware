@@ -301,11 +301,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -978,9 +974,9 @@ SESSION:SET-WAIT-STATE ("general").
                DO:
                    
                    PUT STREAM st-excel 
-                              e-item.run-qty[i]  FORMAT "ZZZZZZZ9.9999" 
+                              e-item.run-qty[i]  FORMAT "ZZZZZZZ9.99" 
                               v-comma
-                              e-item.run-cost[i] FORMAT "ZZZZZZZ9.9999"
+                              e-item.run-cost[i] FORMAT "ZZZZZZZ9.99"
                               v-comma.
                END.
 
@@ -1073,9 +1069,9 @@ SESSION:SET-WAIT-STATE ("general").
                   
                   IF tb_excel THEN
                      PUT STREAM st-excel
-                         e-item-vend.run-qty[i]  FORMAT "ZZZZZZ9.9999"
+                         e-item-vend.run-qty[i]  FORMAT "ZZZZZZ9.99"
                          v-comma
-                         e-item-vend.run-cost[i] FORMAT "ZZZZZZ9.9999"
+                         e-item-vend.run-cost[i] FORMAT "ZZZZZZ9.99"
                          v-comma.
                  
                   

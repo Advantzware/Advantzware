@@ -61,9 +61,9 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnMoveCol 
-     IMAGE-UP FILE "Graphics/32x32/spreadsheet_column.ico":U
+     IMAGE-UP FILE "Graphics/32x32/spreadsheet_column.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
-     LABEL "Phone" 
+     LABEL "MoveCol" 
      SIZE 7.8 BY 1.81 TOOLTIP "Change Move/Sort Column Mode".
 
 
@@ -111,6 +111,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB s-object 
 /* ************************* Included-Libraries *********************** */
 
+{advantzware/winkit/winkit-panel.i}
 {src/adm/method/smart.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -151,7 +152,7 @@ ASSIGN
 
 &Scoped-define SELF-NAME btnMoveCol
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnMoveCol s-object
-ON CHOOSE OF btnMoveCol IN FRAME F-Main /* Phone */
+ON CHOOSE OF btnMoveCol IN FRAME F-Main /* MoveCol */
 DO:
     DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
 
@@ -196,33 +197,6 @@ PROCEDURE disable_UI :
   /* Hide all frames. */
   HIDE FRAME F-Main.
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE make-insensitive s-object 
-PROCEDURE make-insensitive :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-btnMoveCol:SENSITIVE IN FRAME F-Main = FALSE.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE make-sensitive s-object 
-PROCEDURE make-sensitive :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-btnMoveCol:SENSITIVE IN FRAME F-Main = TRUE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

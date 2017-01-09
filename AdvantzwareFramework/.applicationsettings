@@ -1,0 +1,18 @@
+{
+    "appServerKeepAlivePeriod":"120",
+    "authenticationDb":"asi",
+    "authenticateWithDomainName": "false",
+    "homePageUrl":"http://www.consultingwerk.de",
+    "_frameworkLoader":"Consultingwerk.SmartComponentsDemo.CustomerExplorer.FrameworkLoader",
+    "defaultPartition":"Default",
+    "maintainPasswordInSmartUser":"false",
+    "systemDescription":"Development",
+    "rollbaseRestApiUrl":"https://www.rollbase.com/rest/api/",
+    "SmtpHostName":"mail.consultingwerk.de",
+    "SmtpSenderName":"no-reply@consultingwerk.de",
+    
+    "AnnotationCacheMaxAge": "60",
+    "BusinessEntityDescriptorCacheMaxAge": "60"   ,
+    
+    "InfragisticsStyleSheetFolder": "Advantzware/Windows/Styles"     
+}

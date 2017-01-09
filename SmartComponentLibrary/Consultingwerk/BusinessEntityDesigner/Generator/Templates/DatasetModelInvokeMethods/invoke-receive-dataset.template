@@ -1,0 +1,30 @@
+    /*------------------------------------------------------------------------------
+        Purpose: Invokes the Business Entity Method &1  
+        Notes:   Receives the dataset &1 from the backend
+        @param poParameter The Parameter Object for this method 
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC VOID &1 (poParameter AS &2):
+        
+        DATASET &3:EMPTY-DATASET () .
+        
+        IF THIS-OBJECT:UseInterface = Consultingwerk.OERA.UseInterfaceEnum:ServiceAdapter THEN 
+            Consultingwerk.Framework.FrameworkSettings:ServiceAdapter:InvokeMethod ("":U,
+                                                                                    THIS-OBJECT:EntityName,
+                                                                                    "&1":U,
+                                                                                    INPUT-OUTPUT DATASET &3,
+                                                                                    poParameter) .
+        ELSE 
+            Consultingwerk.OERA.ServiceInterface:InvokeMethod (THIS-OBJECT:EntityName,
+                                                               "&1":U,
+                                                               INPUT-OUTPUT DATASET &3,
+                                                               poParameter) .
+
+        {Consultingwerk/foreachABL.i Consultingwerk.OERA.TableModel oTable in THIS-OBJECT:TableModels}
+            IF VALID-HANDLE (oTable:QueryHandle) THEN DO:
+                oTable:QueryHandle:QUERY-OPEN () .
+                oTable:QueryHandle:GET-FIRST () .
+            END. 
+        END.
+        
+    END METHOD .
+
