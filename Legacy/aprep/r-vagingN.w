@@ -91,12 +91,12 @@ DEF BUFFER b-itemfg FOR itemfg .
 DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 
 
-ASSIGN cTextListToSelect = "CURRENCY,VENDOR#,VENDOR NAME,PHONE,TYPE,TERMS,INVOICE#,DATE,AMOUNT,#DAYS" 
+ASSIGN cTextListToSelect = "CURRENCY,VENDOR#,VENDOR NAME,PHONE,TYPE,TERMS,INVOICE#,DATE,DUE DATE,AMOUNT,#DAYS" 
                            
-       cFieldListToSelect = "curr,vend,vend-name,phone,type,term,inv,date,amt,day" 
+       cFieldListToSelect = "curr,vend,vend-name,phone,type,term,inv,date,due-date,amt,day" 
                            
-       cFieldLength = "8,10,30,15,6,17,12,8,17,6" 
-       cFieldType = "c,c,c,c,c,c,c,c,i,i" 
+       cFieldLength = "8,10,30,15,6,17,12,8,8,17,6" 
+       cFieldType = "c,c,c,c,c,c,c,c,c,i,i" 
     .
 
 {sys/inc/ttRptSel.i}
