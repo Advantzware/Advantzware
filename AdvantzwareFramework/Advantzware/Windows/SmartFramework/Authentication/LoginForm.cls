@@ -216,7 +216,7 @@ CLASS Advantzware.Windows.SmartFramework.Authentication.LoginForm
         /*  */
         appearance2:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:ultraLabel4:Appearance = appearance2.
-        THIS-OBJECT:ultraLabel4:Location = NEW System.Drawing.Point(36, 121).
+        THIS-OBJECT:ultraLabel4:Location = NEW System.Drawing.Point(36, 94).
         THIS-OBJECT:ultraLabel4:Name = "ultraLabel4".
         THIS-OBJECT:ultraLabel4:Size = NEW System.Drawing.Size(127, 23).
         THIS-OBJECT:ultraLabel4:TabIndex = 12.
@@ -235,7 +235,7 @@ CLASS Advantzware.Windows.SmartFramework.Authentication.LoginForm
         DEFINE VARIABLE arrayvar0 AS Infragistics.Win.ValueListItem EXTENT 1 NO-UNDO.
         arrayvar0[1] = valueListItem1.
         THIS-OBJECT:ultraComboEditor2:Items:AddRange(arrayvar0).
-        THIS-OBJECT:ultraComboEditor2:Location = NEW System.Drawing.Point(169, 117).
+        THIS-OBJECT:ultraComboEditor2:Location = NEW System.Drawing.Point(169, 90).
         THIS-OBJECT:ultraComboEditor2:Name = "ultraComboEditor2".
         THIS-OBJECT:ultraComboEditor2:Size = NEW System.Drawing.Size(195, 21).
         THIS-OBJECT:ultraComboEditor2:TabIndex = 11.
@@ -289,11 +289,12 @@ CLASS Advantzware.Windows.SmartFramework.Authentication.LoginForm
         /*  */
         appearance3:BackColorAlpha = Infragistics.Win.Alpha:Transparent.
         THIS-OBJECT:ultraLabel3:Appearance = appearance3.
-        THIS-OBJECT:ultraLabel3:Location = NEW System.Drawing.Point(36, 94).
+        THIS-OBJECT:ultraLabel3:Location = NEW System.Drawing.Point(36, 121).
         THIS-OBJECT:ultraLabel3:Name = "ultraLabel3".
         THIS-OBJECT:ultraLabel3:Size = NEW System.Drawing.Size(100, 23).
         THIS-OBJECT:ultraLabel3:TabIndex = 4.
         THIS-OBJECT:ultraLabel3:Text = "Login company:".
+        THIS-OBJECT:ultraLabel3:Visible = FALSE.
         /*  */
         /* ultraLabel2 */
         /*  */
@@ -328,11 +329,12 @@ CLASS Advantzware.Windows.SmartFramework.Authentication.LoginForm
         DEFINE VARIABLE arrayvar1 AS Infragistics.Win.ValueListItem EXTENT 1 NO-UNDO.
         arrayvar1[1] = valueListItem2.
         THIS-OBJECT:ultraComboEditor1:Items:AddRange(arrayvar1).
-        THIS-OBJECT:ultraComboEditor1:Location = NEW System.Drawing.Point(169, 90).
+        THIS-OBJECT:ultraComboEditor1:Location = NEW System.Drawing.Point(169, 117).
         THIS-OBJECT:ultraComboEditor1:Name = "ultraComboEditor1".
         THIS-OBJECT:ultraComboEditor1:Size = NEW System.Drawing.Size(195, 21).
         THIS-OBJECT:ultraComboEditor1:TabIndex = 5.
         THIS-OBJECT:ultraComboEditor1:Text = "Consultingwerk".
+        THIS-OBJECT:ultraComboEditor1:Visible = FALSE.
         /*  */
         /* ultraTextEditor2 */
         /*  */
