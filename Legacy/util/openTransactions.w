@@ -375,48 +375,48 @@ def var cOutputFile as char format "x(40)" init "c:\tmp\asi\transactionReport.tx
     END.
 
 
-FOR EACH nosweat._trans WHERE  .
+FOR EACH ASI._trans WHERE  .
 
 form
- nosweat._connect._connect-name
- nosweat._connect._connect-device
- nosweat._trans._trans-id 
- nosweat._trans._trans-num 
- nosweat._trans._trans-txtime 
- nosweat._trans._trans-duration 
- nosweat._trans._trans-usrnum
- nosweat._lock._lock-table
- nosweat._file._file-name
+ ASI._connect._connect-name
+ ASI._connect._connect-device
+ ASI._trans._trans-id 
+ ASI._trans._trans-num 
+ ASI._trans._trans-txtime 
+ ASI._trans._trans-duration 
+ ASI._trans._trans-usrnum
+ ASI._lock._lock-table
+ ASI._file._file-name
  with frame xyz width 200 20 down stream-io.
  
-  if nosweat._trans._trans-num eq 0 then leave.
-  if nosweat._trans._trans-num eq ? then next.
+  if ASI._trans._trans-num eq 0 then leave.
+  if ASI._trans._trans-num eq ? then next.
   
-  disp nosweat._trans._trans-id
-       nosweat._trans._trans-num
-       nosweat._trans._trans-txtime
-       nosweat._trans._trans-duration
-       nosweat._trans._trans-usrnum
+  disp ASI._trans._trans-id
+       ASI._trans._trans-num
+       ASI._trans._trans-txtime
+       ASI._trans._trans-duration
+       ASI._trans._trans-usrnum
        with frame xyz.
        
-    find first nosweat._connect where nosweat._connect._connect-usr = nosweat._trans._trans-usrnum no-lock no-error.
+    find first ASI._connect where ASI._connect._connect-usr = ASI._trans._trans-usrnum no-lock no-error.
   
-  if avail nosweat._connect then 
-    disp STREAM s1  nosweat._connect._connect-name nosweat._connect._connect-device with frame xyz .
+  if avail ASI._connect then 
+    disp STREAM s1  ASI._connect._connect-name ASI._connect._connect-device with frame xyz .
  
 
   
-  for each nosweat._lock 
-     where /* nosweat._lock._lock-usr = nosweat._connect._connect-usr  */
+  for each ASI._lock 
+     where /* ASI._lock._lock-usr = ASI._connect._connect-usr  */
      no-lock:
-     IF nosweat._Lock._Lock-Usr = ? THEN LEAVE.
-     if nosweat._lock._lock-usr ne nosweat._connect._connect-usr then 
+     IF ASI._Lock._Lock-Usr = ? THEN LEAVE.
+     if ASI._lock._lock-usr ne ASI._connect._connect-usr then 
        next.
-     /*if nosweat._lock._lock-id eq ? or nosweat._lock._lock-table eq ? then leave. */
-    disp STREAM s1 nosweat._lock._lock-table with frame xyz.
-      if avail nosweat._lock then do:
-        FIND nosweat._file WHERE nosweat._file._file-number = nosweat._lock._lock-table NO-LOCK NO-ERROR.
-        disp STREAM s1 nosweat._file._file-name with frame xyz.
+     /*if ASI._lock._lock-id eq ? or ASI._lock._lock-table eq ? then leave. */
+    disp STREAM s1 ASI._lock._lock-table with frame xyz.
+      if avail ASI._lock then do:
+        FIND ASI._file WHERE ASI._file._file-number = ASI._lock._lock-table NO-LOCK NO-ERROR.
+        disp STREAM s1 ASI._file._file-name with frame xyz.
       end.
     
   end.

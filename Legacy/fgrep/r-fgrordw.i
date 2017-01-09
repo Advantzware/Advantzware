@@ -416,14 +416,15 @@ display statements
 
     END.
 
-for EACH loc WHERE loc.loc GE begin_whse
+FOR EACH ttCustList 
+    WHERE ttCustList.log-fld
+    NO-LOCK,
+  EACH loc WHERE loc.loc GE begin_whse
      AND loc.loc LE end_whse NO-LOCK,
   each itemfg
    where itemfg.company    eq cocode
-     and itemfg.cust-no    ge v-cust[1]
-     and itemfg.cust-no    le v-cust[2]
-     AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq itemfg.cust-no
-          AND ttCustList.log-fld no-lock) else true)
+     and itemfg.cust-no    EQ ttCustList.cust-no /*v-cust[1]
+     and itemfg.cust-no    le v-cust[2]*/
      and itemfg.i-no       ge v-item[1]
      and itemfg.i-no       le v-item[2]
      and itemfg.procat     ge v-cat[1]

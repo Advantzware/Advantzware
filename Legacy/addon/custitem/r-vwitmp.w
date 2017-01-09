@@ -340,11 +340,6 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -795,8 +790,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
      ASSIGN
       FI-beg-usage-date:SCREEN-VALUE = STRING(TODAY) 
-      FI-beg-user-id:SCREEN-VALUE = USERID("nosweat")
-      FI-end-user-id:SCREEN-VALUE   = USERID("nosweat").
+      FI-beg-user-id:SCREEN-VALUE = USERID("ASI")
+      FI-end-user-id:SCREEN-VALUE   = USERID("ASI").
 
     APPLY "entry" TO FI-beg-usage-date.
   END.
@@ -1178,12 +1173,12 @@ FOR EACH tt-vend-whse-trans
 
          TO vend-whse-trans-hist 
          ASSIGN 
-            vend-whse-trans-hist.create-userid = USERID("NOSWEAT")
+            vend-whse-trans-hist.create-userid = USERID("ASI")
             vend-whse-trans-hist.create-date       = TODAY 
             vend-whse-trans-hist.create-time       = TIME
             vend-whse-trans-hist.upd-date          = TODAY
             vend-whse-trans-hist.upd-time          = TIME
-            vend-whse-trans-hist.upd-userid = USERID("NOSWEAT") NO-ERROR.
+            vend-whse-trans-hist.upd-userid = USERID("ASI") NO-ERROR.
 
 
       FIND FIRST b-vend-whse-item WHERE b-vend-whse-item.company           = vend-whse-trans.company 

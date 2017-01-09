@@ -1,0 +1,8 @@
+&1      dataset name
+&2      table names
+&3      temp-table include files
+&4      data-relation block
+&5      time stamp
+&6      purpose
+&7      description
+@USER@  the current user name

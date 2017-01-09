@@ -371,12 +371,6 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
-/* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 
@@ -586,7 +580,7 @@ DO:
   DEFINE VARIABLE get_field AS CHARACTER NO-UNDO.
 
   IF m-lookup-db = "" THEN
-  m-lookup-db = "NOSWEAT".
+  m-lookup-db = "ASI".
   CREATE ALIAS dictdb FOR DATABASE VALUE(m-lookup-db).
   get_field = m-lookup-db:SCREEN-VALUE + "." +
         m-lookup-file:SCREEN-VALUE + "." + 
@@ -709,7 +703,7 @@ DO:
   ASSIGN m-end-include = REPLACE(m-end-include,'"','""').
 
   PUT UNFORMATTED "/* " m_lookup_prgm "p - Generated " TODAY FORMAT "99/99/9999"
-    " - " STRING(TIME,"HH:MM am") " by " USERID("NOSWEAT") SKIP
+    " - " STRING(TIME,"HH:MM am") " by " USERID("ASI") SKIP
     "~"" m_lookup_prgm " ~" ~~" SKIP
     "~"" m-lookup-db " ~" ~~" SKIP
     "~"" m-lookup-file " ~" ~~" SKIP         
@@ -850,7 +844,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m-ui-prgmname C-Win
 ON HELP OF m-ui-prgmname IN FRAME DEFAULT-FRAME /* UI Program */
 DO:
-  CREATE ALIAS dictdb FOR DATABASE NOSWEAT.
+  CREATE ALIAS dictdb FOR DATABASE ASI.
   RUN "lookups/ui_lkup.p".
   ASSIGN
     {&SELF-NAME}:SCREEN-VALUE = g_lookup-var

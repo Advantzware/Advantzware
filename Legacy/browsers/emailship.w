@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          nosweat          PROGRESS
+          asi          PROGRESS
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
@@ -289,24 +289,24 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "asi.emaildtl OF asi.emailcod ,NOSWEAT.phone WHERE asi.emaildtl ...,asi.shipto WHERE NOSWEAT.phone ..."
+     _TblList          = "asi.emaildtl OF asi.emailcod ,ASI.phone WHERE asi.emaildtl ...,asi.shipto WHERE ASI.phone ..."
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED, USED, FIRST"
-     _JoinCode[2]      = "NOSWEAT.phone.rec_key = asi.emaildtl.table_rec_key"
+     _JoinCode[2]      = "ASI.phone.rec_key = asi.emaildtl.table_rec_key"
      _Where[2]         = "~{&KEY-PHRASE}"
-     _JoinCode[3]      = "asi.shipto.rec_key = NOSWEAT.phone.table_rec_key"
-     _Where[3]         = "asi.shipto.rec_key = NOSWEAT.phone.table_rec_key"
+     _JoinCode[3]      = "asi.shipto.rec_key = ASI.phone.table_rec_key"
+     _Where[3]         = "asi.shipto.rec_key = ASI.phone.table_rec_key"
      _FldNameList[1]   > asi.shipto.cust-no
 "asi.shipto.cust-no" ? ? "character" ? ? ? 2 15 ? no ? no no "14" yes no no "C" "" "C"
      _FldNameList[2]   > asi.shipto.ship-id
 "asi.shipto.ship-id" "Ship-To ID" ? "character" ? ? ? 2 15 ? no ? no no "14" yes no no "U" "" ""
      _FldNameList[3]   > ASI.shipto.ship-name
 "ASI.shipto.ship-name" ? ? "character" ? ? ? 2 15 ? no ? no no "38" yes no no "U" "" ""
-     _FldNameList[4]   > NOSWEAT.phone.attention
-"NOSWEAT.phone.attention" ? ? "character" ? ? ? 2 15 ? no ? no no "38" yes no no "U" "" ""
-     _FldNameList[5]   > NOSWEAT.phone.titlcode
-"NOSWEAT.phone.titlcode" "Title" ? "character" ? ? ? 2 15 ? no ? no no "10" yes no no "U" "" ""
-     _FldNameList[6]   = NOSWEAT.phone.rec_key
+     _FldNameList[4]   > ASI.phone.attention
+"ASI.phone.attention" ? ? "character" ? ? ? 2 15 ? no ? no no "38" yes no no "U" "" ""
+     _FldNameList[5]   > ASI.phone.titlcode
+"ASI.phone.titlcode" "Title" ? "character" ? ? ? 2 15 ? no ? no no "10" yes no no "U" "" ""
+     _FldNameList[6]   = ASI.phone.rec_key
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

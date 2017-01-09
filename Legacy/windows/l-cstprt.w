@@ -75,7 +75,7 @@ END.
 {sys/ref/CustList.i NEW}
 {sys/inc/custlistform.i "v-file-name" }
    
-{sys/inc/chblankcust.i "v-file-name"}
+{sys/inc/chblankcust.i}
     IF ou-cust-int = 0 THEN
         custcount = "".
 

@@ -124,7 +124,7 @@ FOR EACH b-mach FIELDS(m-code) WHERE
           ttbl_pc-prdh.m-code = machtran.machine
           ttbl_pc-prdh.shift = INTEGER(machtran.shift)
           ttbl_pc-prdh.trans-date = machtran.end_date
-          ttbl_pc-prdh.user-id = USERID('NOSWEAT')
+          ttbl_pc-prdh.user-id = USERID("ASI")
           ttbl_pc-prdh.dept = b-mach.dept[1].
       END.
       RUN jc/GetItemFromJob.p (INPUT machtran.company,
@@ -286,7 +286,7 @@ FOR EACH b-mach FIELDS(m-code) WHERE
           ttbl_pc-prdh.m-code = machtran.machine
           ttbl_pc-prdh.shift = INTEGER(machtran.shift)
           ttbl_pc-prdh.trans-date = machtran.start_date
-          ttbl_pc-prdh.user-id = USERID('NOSWEAT')
+          ttbl_pc-prdh.user-id = USERID("ASI")
           ttbl_pc-prdh.dept = b-mach.dept[1].
       END.
       RUN jc/GetItemFromJob.p (INPUT machtran.company,
@@ -448,7 +448,7 @@ FOR EACH b-mach FIELDS(m-code) WHERE
           ttbl_pc-prdh.m-code = machtran.machine
           ttbl_pc-prdh.shift = INTEGER(machtran.shift)
           ttbl_pc-prdh.trans-date = machtran.end_date
-          ttbl_pc-prdh.user-id = USERID('NOSWEAT')
+          ttbl_pc-prdh.user-id = USERID("ASI")
           ttbl_pc-prdh.dept = b-mach.dept[1].
       END.
       RUN jc/GetItemFromJob.p (INPUT machtran.company,

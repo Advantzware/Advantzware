@@ -136,7 +136,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -362,11 +362,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -511,7 +507,7 @@ DO:
          
   RUN GetSelectionList.
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
+  IF NOT tb_cust-list OR NOT AVAIL ttCustList THEN do:
       EMPTY TEMP-TABLE ttCustList.
       RUN BuildCustList(INPUT cocode,
                         INPUT tb_cust-list AND glCustListActive,
@@ -930,7 +926,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT NO,
                           OUTPUT glCustListActive).
 
-  {sys/inc/chblankcust.i ""AR10""}
+  {sys/inc/chblankcust.i}
+
   IF ou-log THEN DO:
       ASSIGN 
         tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = NO
@@ -1351,9 +1348,6 @@ DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 {sys/form/r-top5L3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF VAR excelheader AS CHAR NO-UNDO.
-DEF VAR lSelected AS LOG INIT YES NO-UNDO.
-DEF VAR fcust AS CHAR NO-UNDO.
-DEF VAR tcust AS CHAR NO-UNDO.
 
 FORM tt-report.actnum      COLUMN-LABEL "GL Acct#"
      account.dscr          COLUMN-LABEL "Description" FORMAT "x(32)"
@@ -1375,10 +1369,7 @@ FIND FIRST ar-ctrl WHERE ar-ctrl.company EQ cocode NO-LOCK NO-ERROR.
 ASSIGN
  str-tit2 = c-win:TITLE
  {sys/inc/ctrtext.i str-tit2 112}. 
-assign
-     fcust = begin_cust
-     tcust = END_cust 
-     lSelected  = tb_cust-list .
+
 
 DEF VAR cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
@@ -1414,13 +1405,7 @@ IF tb_excel THEN DO:
     OUTPUT STREAM excel TO VALUE(fi_file).
     /*excelHeader = 'GL Acct#,Description,Customer,Inv#,Journal,Run#,Date,Amount'.*/
     PUT STREAM excel UNFORMATTED '"' REPLACE(excelHeader,',','","') '"' SKIP.
-END. /* if tb_excel */
-IF lselected THEN DO:
-    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
-    IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
-    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
-    IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
-END.
+  END. /* if tb_excel */
 
 IF td-show-parm THEN RUN show-param.
 
@@ -1429,14 +1414,14 @@ FOR EACH tt-report:
 END.
 
 DISPLAY "" WITH FRAME r-top.
-FOR EACH ar-ledger
+FOR EACH ttCustList 
+    WHERE ttCustList.log-fld
+    NO-LOCK,
+   EACH ar-ledger
     WHERE ar-ledger.company EQ cocode
       /*AND ar-ledger.cust-no GE begin_cust
       AND ar-ledger.cust-no LE end_cust*/
-      AND ar-ledger.cust-no GE fcust
-      AND ar-ledger.cust-no LE tcust
-      AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq ar-ledger.cust-no
-      AND ttCustList.log-fld no-lock) else true)
+      AND ar-ledger.cust-no EQ ttCustList.cust-no
       AND ar-ledger.cust-no NE ""
       AND ar-ledger.tr-date GE begin_date
       AND ar-ledger.tr-date LE end_date

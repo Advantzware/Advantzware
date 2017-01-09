@@ -6,8 +6,8 @@ DEFINE VARIABLE auditname AS CHARACTER NO-UNDO.
 DEFINE VARIABLE auditout AS CHARACTER NO-UNDO.
 DEFINE VARIABLE auditdata AS CHARACTER NO-UNDO.
 
-IF CAN-FIND(FIRST nosweat.config WHERE CAN-DO(nosweat.config.audit_tables,"{&TABLENAME}")) THEN DO:
-  FIND FIRST nosweat.config NO-LOCK NO-ERROR.
+IF CAN-FIND(FIRST ASI.config WHERE CAN-DO(ASI.config.audit_tables,"{&TABLENAME}")) THEN DO:
+  FIND FIRST ASI.config NO-LOCK NO-ERROR.
   ASSIGN
     auditname = STRING(YEAR(TODAY),"9999") +
                STRING(MONTH(TODAY),"99") +
@@ -15,22 +15,22 @@ IF CAN-FIND(FIRST nosweat.config WHERE CAN-DO(nosweat.config.audit_tables,"{&TAB
                STRING(TIME,"99999")
     auditout = 
 &IF "{&OPSYS}" = "{&UNIX}" &THEN
-               (IF nosweat.config.audit_dir_unix = "" THEN "."
-                ELSE nosweat.config.audit_dir_unix)
+               (IF ASI.config.audit_dir_unix = "" THEN "."
+                ELSE ASI.config.audit_dir_unix)
 &ELSE
-               nosweat.config.audit_dir
+               ASI.config.audit_dir
 &ENDIF
                + "~/" + auditname.
   OUTPUT TO VALUE(auditout) APPEND.
   &IF "{&ACTION}" = "UPDATE" &THEN
   IF old-{&TABLENAME}.rec_key NE "" THEN DO:
-    EXPORT "{&ACTION}" {&DBNAME} "{&TABLENAME}" USERID("NOSWEAT") TODAY TIME.
+    EXPORT "{&ACTION}" {&DBNAME} "{&TABLENAME}" USERID("ASI") TODAY TIME.
     EXPORT old-{&TABLENAME}.
   END.
   ELSE
-  EXPORT "CREATE" {&DBNAME} "{&TABLENAME}" USERID("NOSWEAT") TODAY TIME.
+  EXPORT "CREATE" {&DBNAME} "{&TABLENAME}" USERID("ASI") TODAY TIME.
   &ELSE
-  EXPORT "{&ACTION}" {&DBNAME} "{&TABLENAME}" USERID("NOSWEAT") TODAY TIME.
+  EXPORT "{&ACTION}" {&DBNAME} "{&TABLENAME}" USERID("ASI") TODAY TIME.
   &ENDIF
   EXPORT {&TABLENAME}.
   OUTPUT CLOSE.

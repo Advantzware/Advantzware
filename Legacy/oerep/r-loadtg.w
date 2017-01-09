@@ -691,11 +691,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -2275,7 +2271,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      .
    
     IF bardir-int = 1 THEN DO:
-       FIND FIRST users WHERE users.user_id EQ USERID("NOSWEAT") NO-LOCK NO-ERROR.
+       FIND FIRST users WHERE users.user_id EQ USERID("ASI") NO-LOCK NO-ERROR.
        IF AVAIL users AND users.user_program[3] NE "" THEN
            ASSIGN begin_filename:SCREEN-VALUE = users.user_program[3]
                   userLabelPath = users.USER_program[3].       
@@ -2316,7 +2312,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        begin_filename:SCREEN-VALUE = bardir-desc.
 
     IF bardir-int = 1 THEN DO:
-       FIND FIRST users WHERE users.user_id EQ USERID("NOSWEAT") NO-LOCK NO-ERROR.
+       FIND FIRST users WHERE users.user_id EQ USERID("ASI") NO-LOCK NO-ERROR.
        IF AVAIL users AND users.user_program[3] NE "" THEN
            ASSIGN begin_filename:SCREEN-VALUE = users.user_program[3].                  
     END.
@@ -3419,7 +3415,7 @@ PROCEDURE create-text-file :
   DEF VAR liTagCounter AS INT NO-UNDO.
   DEF VAR cTmpFile AS CHAR NO-UNDO.
 
-  cTmpFile = SESSION:TEMP-DIRECTORY + "/" + USERID("NOSWEAT") + STRING(TIME).
+  cTmpFile = SESSION:TEMP-DIRECTORY + "/" + USERID("ASI") + STRING(TIME).
   FIND FIRST w-ord NO-ERROR.
   DEF BUFFER bf-cust FOR cust.
 
@@ -7384,10 +7380,10 @@ PROCEDURE write-loadtag-line :
     "~"" ipi-pallet-id "~","
      "~"" ipi-counter "~","
      "~"" w-ord.total-tags "~","
-     "~"" replace(w-ord.ship-notes[1],'"', '') "~","
-     "~"" replace(w-ord.ship-notes[2],'"', '') "~","
-     "~"" replace(w-ord.ship-notes[3],'"', '') "~","
-     "~"" replace(w-ord.ship-notes[4],'"', '') "~""
+     "~"" w-ord.ship-notes[1] "~","
+     "~"" w-ord.ship-notes[2] "~","
+     "~"" w-ord.ship-notes[3] "~","
+     "~"" w-ord.ship-notes[4] "~""
       .
  /* rstark - zoho13731 */
  IF lSSCC THEN PUT UNFORMATTED ",~"" w-ord.sscc "~"".

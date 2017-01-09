@@ -1,14 +1,12 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI
+&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
-/* Connected Databases 
-*/
 &Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
 
-  File: userMenu.w
+  File: usermenu.w
 
-  Description: usermenu interface
+  Description: User's Menu Structure
 
   Input Parameters: <none>
 
@@ -16,10 +14,12 @@
 
   Author: Ron Stark
 
-  Created: 7.22.2016
+  Created: 11/13/96
 
+  05/20/03  YSK changed to use usermenu instead users for user's menu
+                due to system performances
 ------------------------------------------------------------------------*/
-/*          This .W file was created with the Progress AppBuilder.      */
+/*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
 
 /* Create an unnamed pool to store all the widgets created 
@@ -28,7 +28,7 @@
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
 
-CREATE WIDGET-POOL.
+CREATE WIDGET-POOL "usermenu".
 
 /* ***************************  Definitions  ************************** */
 
@@ -36,62 +36,35 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-&IF DEFINED(UIB_is_Running) EQ 0 &THEN
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
-&ENDIF
 
-DEFINE VARIABLE sourceMenu AS CHARACTER   NO-UNDO.
+DEFINE VARIABLE popup-ptr AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE menu-bar-ptr AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE sub-menu-ptr AS WIDGET-HANDLE EXTENT 60 NO-UNDO.
+DEFINE VARIABLE menu-item-ptr AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE exit-item-ptr AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE current-widget AS WIDGET-HANDLE NO-UNDO.
 
-DEFINE TEMP-TABLE ttUserMenu NO-UNDO
-    FIELD menuOrder AS INTEGER   LABEL "#"     FORMAT ">>9"
-    FIELD prgmName  AS CHARACTER LABEL "Name"  FORMAT "x(12)"
-    FIELD level     AS CHARACTER EXTENT 3      FORMAT "x(30)"
-    FIELD levelType AS CHARACTER EXTENT 3      FORMAT "x(8)"
-    FIELD mainMenu  AS LOGICAL
-    FIELD isMenu    AS LOGICAL
-    FIELD updated   AS LOGICAL
-        INDEX menuOrder IS PRIMARY
-              menuOrder
-        .
+DEFINE VARIABLE m_item1 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE m_item2 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE m_item AS CHARACTER NO-UNDO.
+DEFINE VARIABLE m_level AS CHARACTER NO-UNDO.
 
-DEFINE BUFFER bttUserMenu FOR ttUserMenu.
+DEFINE VARIABLE i AS INTEGER NO-UNDO.
+DEFINE VARIABLE j AS INTEGER NO-UNDO.
 
-DEFINE TEMP-TABLE ttMenu NO-UNDO
-    FIELD prgmName AS CHARACTER LABEL "Name"      FORMAT "x(12)"
-    FIELD prgTitle AS CHARACTER LABEL "Menu Name" FORMAT "x(40)"
-        INDEX prgTitle IS PRIMARY
-              prgTitle
-        .
+DEFINE TEMP-TABLE wk-ptrs NO-UNDO
+  FIELD menu-name AS CHARACTER
+  FIELD smenu-ptr AS WIDGET-HANDLE.
 
-DEFINE TEMP-TABLE ttItem NO-UNDO
-    FIELD prgmName AS CHARACTER LABEL "Name"      FORMAT "x(12)"
-    FIELD prgTitle AS CHARACTER LABEL "Item Name" FORMAT "x(40)"
-        INDEX prgTitle IS PRIMARY
-              prgTitle
-        .
+DEFINE TEMP-TABLE wk-items NO-UNDO
+  FIELD item-name AS CHARACTER
+  FIELD item-level AS INTEGER.
 
-DEFINE TEMP-TABLE ttblItem NO-UNDO 
-    FIELD menuOrder AS INTEGER 
-    FIELD menu1     AS CHARACTER FORMAT "x(12)"
-    FIELD menu2     AS CHARACTER 
-    FIELD seq       AS INTEGER 
-    FIELD mneumonic AS CHARACTER
-    FIELD adm       AS LOGICAL
-    FIELD mainMenu  AS LOGICAL
-        INDEX ttblItems IS PRIMARY UNIQUE menuOrder menu2
-        INDEX menu2 menu2 menuOrder
-        .
-    
-DEFINE TEMP-TABLE ttblMenu NO-UNDO 
-    FIELD menuName  AS CHARACTER 
-    FIELD menuCount AS INTEGER 
-    FIELD menuGuid  AS CHARACTER 
-    FIELD mneumonic AS CHARACTER 
-        INDEX ttblMenu IS PRIMARY UNIQUE menuName
-        .
+DEFINE BUFFER b-items FOR wk-items.
 
-SESSION:SET-WAIT-STATE('').
+DEFINE VARIABLE ldummy AS LOGICAL NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -106,52 +79,14 @@ SESSION:SET-WAIT-STATE('').
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME DEFAULT-FRAME
-&Scoped-define BROWSE-NAME ttItem
-
-/* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES ttItem ttMenu ttUserMenu
-
-/* Definitions for BROWSE ttItem                                        */
-&Scoped-define FIELDS-IN-QUERY-ttItem ttItem.prgTitle   
-&Scoped-define ENABLED-FIELDS-IN-QUERY-ttItem   
-&Scoped-define SELF-NAME ttItem
-&Scoped-define QUERY-STRING-ttItem FOR EACH ttItem
-&Scoped-define OPEN-QUERY-ttItem OPEN QUERY {&SELF-NAME} FOR EACH ttItem.
-&Scoped-define TABLES-IN-QUERY-ttItem ttItem
-&Scoped-define FIRST-TABLE-IN-QUERY-ttItem ttItem
-
-
-/* Definitions for BROWSE ttMenu                                        */
-&Scoped-define FIELDS-IN-QUERY-ttMenu ttMenu.prgTitle   
-&Scoped-define ENABLED-FIELDS-IN-QUERY-ttMenu   
-&Scoped-define SELF-NAME ttMenu
-&Scoped-define QUERY-STRING-ttMenu FOR EACH ttMenu
-&Scoped-define OPEN-QUERY-ttMenu OPEN QUERY {&SELF-NAME} FOR EACH ttMenu.
-&Scoped-define TABLES-IN-QUERY-ttMenu ttMenu
-&Scoped-define FIRST-TABLE-IN-QUERY-ttMenu ttMenu
-
-
-/* Definitions for BROWSE ttUserMenu                                    */
-&Scoped-define FIELDS-IN-QUERY-ttUserMenu ttUserMenu.menuOrder ttUserMenu.levelType[1] NO-LABEL ttUserMenu.level[1] ttUserMenu.levelType[2] NO-LABEL ttUserMenu.level[2] ttUserMenu.levelType[3] NO-LABEL ttUserMenu.level[3]   
-&Scoped-define ENABLED-FIELDS-IN-QUERY-ttUserMenu   
-&Scoped-define SELF-NAME ttUserMenu
-&Scoped-define QUERY-STRING-ttUserMenu FOR EACH ttUserMenu
-&Scoped-define OPEN-QUERY-ttUserMenu OPEN QUERY {&SELF-NAME} FOR EACH ttUserMenu.
-&Scoped-define TABLES-IN-QUERY-ttUserMenu ttUserMenu
-&Scoped-define FIRST-TABLE-IN-QUERY-ttUserMenu ttUserMenu
-
-
-/* Definitions for FRAME DEFAULT-FRAME                                  */
-&Scoped-define OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME ~
-    ~{&OPEN-QUERY-ttItem}~
-    ~{&OPEN-QUERY-ttMenu}~
-    ~{&OPEN-QUERY-ttUserMenu}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnReset userName showOption filterMenu ~
-ttUserMenu filterItem ttMenu ttItem btnAddItem btnAddMenu btnDefault ~
-btnExit btnMoveDown btnMoveUp btnRemove btnSave btnShiftLeft btnShiftRight 
-&Scoped-Define DISPLAYED-OBJECTS userName showOption filterMenu filterItem 
+&Scoped-Define ENABLED-OBJECTS Btn_Build menu-items menu-names RECT-1 ~
+RECT-2 RECT-3 RECT-5 userName Btn_Add_Menu Btn_Default program-names ~
+Btn_Reset Btn_Save Btn_Cancel Btn_Up Btn_Down Btn_Add_Rule Btn_Add_Skip ~
+Btn_Left Btn_Right Btn_Remove Btn_Add_Program 
+&Scoped-Define DISPLAYED-OBJECTS menu-items menu-names userName ~
+program-names 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -167,179 +102,188 @@ btnExit btnMoveDown btnMoveUp btnRemove btnSave btnShiftLeft btnShiftRight
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btnAddItem 
-     IMAGE-UP FILE "Graphics/32x32/add.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "" 
-     SIZE 8.4 BY 2 TOOLTIP "Add Item"
+DEFINE BUTTON Btn_Add_Menu 
+     LABEL "Add &Menu Item" 
+     SIZE 22.4 BY 1.24
      FONT 4.
 
-DEFINE BUTTON btnAddMenu 
-     IMAGE-UP FILE "Graphics/32x32/add.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "" 
-     SIZE 8.4 BY 2 TOOLTIP "Add Menu"
+DEFINE BUTTON Btn_Add_Program 
+     LABEL "Add &Program Item" 
+     SIZE 22.4 BY 1.24
      FONT 4.
 
-DEFINE BUTTON btnDefault 
+DEFINE BUTTON Btn_Add_Rule 
+     LABEL "R&ule" 
+     SIZE 8.4 BY 1.24
+     FONT 4.
+
+DEFINE BUTTON Btn_Add_Skip 
+     LABEL "S&kip" 
+     SIZE 8.4 BY 1.24
+     FONT 4.
+
+DEFINE BUTTON Btn_Build 
      IMAGE-UP FILE "Graphics/32x32/drop_down_list.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "" 
-     SIZE 8.4 BY 2 TOOLTIP "System Default"
+     LABEL "&Build" 
+     SIZE 8.4 BY 2
      FONT 4.
 
-DEFINE BUTTON btnExit 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "" 
-     SIZE 8.4 BY 2 TOOLTIP "Exit"
+DEFINE BUTTON Btn_Cancel 
+     LABEL "&Cancel" 
+     SIZE 14 BY 1.24
+     BGCOLOR 8 FONT 4.
+
+DEFINE BUTTON Btn_Default 
+     IMAGE-UP FILE "Graphics/32x32/drop_down_list.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "De&fault" 
+     SIZE 8.4 BY 2
      FONT 4.
 
-DEFINE BUTTON btnMoveDown 
-     IMAGE-UP FILE "Graphics/32x32/nav_down.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "" 
-     SIZE 8.4 BY 2 TOOLTIP "Move Down"
+DEFINE BUTTON Btn_Down 
+     LABEL "&Down" 
+     SIZE 8.4 BY 1.24
      FONT 4.
 
-DEFINE BUTTON btnMoveUp 
-     IMAGE-UP FILE "Graphics/32x32/nav_up.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "" 
-     SIZE 8.4 BY 2 TOOLTIP "Move Up"
+DEFINE BUTTON Btn_Left 
+     LABEL "<<" 
+     SIZE 7 BY 1.24
      FONT 4.
 
-DEFINE BUTTON btnRemove 
-     IMAGE-UP FILE "Graphics/32x32/error.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "" 
-     SIZE 8.4 BY 2 TOOLTIP "Remove"
+DEFINE BUTTON Btn_Remove 
+     LABEL "&Remove" 
+     SIZE 14 BY 1.24
      FONT 4.
 
-DEFINE BUTTON btnReset 
-     IMAGE-UP FILE "Graphics/32x32/nav_refresh.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "" 
-     SIZE 8.4 BY 2 TOOLTIP "Reset"
+DEFINE BUTTON Btn_Reset 
+     IMAGE-UP FILE "Graphics/32x32/drop_down_list.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Rese&t" 
+     SIZE 8.4 BY 2
      FONT 4.
 
-DEFINE BUTTON btnSave 
-     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "" 
-     SIZE 8.4 BY 2 TOOLTIP "Save"
+DEFINE BUTTON Btn_Right 
+     LABEL ">>" 
+     SIZE 8.4 BY 1.24
      FONT 4.
 
-DEFINE BUTTON btnShiftLeft 
-     IMAGE-UP FILE "Graphics/32x32/nav_left.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "" 
-     SIZE 8.4 BY 2 TOOLTIP "Shift Left"
+DEFINE BUTTON Btn_Save 
+     IMAGE-UP FILE "Graphics/32x32/drop_down_list.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "&Save" 
+     SIZE 8.4 BY 2
      FONT 4.
 
-DEFINE BUTTON btnShiftRight 
-     IMAGE-UP FILE "Graphics/32x32/nav_right.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "" 
-     SIZE 8.4 BY 2 TOOLTIP "Shift Right"
+DEFINE BUTTON Btn_Up 
+     LABEL "&Up" 
+     SIZE 8.4 BY 1.24
      FONT 4.
-
-DEFINE VARIABLE showOption AS CHARACTER FORMAT "X(256)":U INITIAL "Show Only Unused" 
-     VIEW-AS COMBO-BOX INNER-LINES 5
-     LIST-ITEMS "Show Only Unused","Show All","Show All Menus","Show All Items" 
-     DROP-DOWN-LIST
-     SIZE 24 BY 1 TOOLTIP "Show Option" NO-UNDO.
 
 DEFINE VARIABLE userName AS CHARACTER FORMAT "X(256)":U 
-     LABEL "User" 
      VIEW-AS COMBO-BOX INNER-LINES 10
      DROP-DOWN-LIST
-     SIZE 18 BY 1 TOOLTIP "Select User"
-     BGCOLOR 15  NO-UNDO.
+     SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE filterItem AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Filter" 
-     VIEW-AS FILL-IN 
-     SIZE 39 BY 1 NO-UNDO.
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 8    
+     SIZE 75.6 BY 2.67
+     BGCOLOR 4 .
 
-DEFINE VARIABLE filterMenu AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Filter" 
-     VIEW-AS FILL-IN 
-     SIZE 39 BY 1 NO-UNDO.
+DEFINE RECTANGLE RECT-2
+     EDGE-PIXELS 8    
+     SIZE 49 BY 2.67
+     BGCOLOR 3 .
 
-/* Query definitions                                                    */
-&ANALYZE-SUSPEND
-DEFINE QUERY ttItem FOR 
-      ttItem SCROLLING.
+DEFINE RECTANGLE RECT-3
+     EDGE-PIXELS 8    
+     SIZE 49 BY 2.67
+     BGCOLOR 3 .
 
-DEFINE QUERY ttMenu FOR 
-      ttMenu SCROLLING.
+DEFINE RECTANGLE RECT-5
+     EDGE-PIXELS 8    
+     SIZE 19.6 BY 23.81
+     BGCOLOR 5 .
 
-DEFINE QUERY ttUserMenu FOR 
-      ttUserMenu SCROLLING.
-&ANALYZE-RESUME
+DEFINE VARIABLE menu-items AS CHARACTER 
+     VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
+     SIZE 75.6 BY 21.19
+     FONT 0 NO-UNDO.
 
-/* Browse definitions                                                   */
-DEFINE BROWSE ttItem
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS ttItem C-Win _FREEFORM
-  QUERY ttItem DISPLAY
-      ttItem.prgTitle
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 45 BY 18.81
-         TITLE "<-- Double Click to Add Item <--".
+DEFINE VARIABLE menu-names AS CHARACTER 
+     VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
+     SIZE 49 BY 6.38
+     FONT 0 NO-UNDO.
 
-DEFINE BROWSE ttMenu
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS ttMenu C-Win _FREEFORM
-  QUERY ttMenu DISPLAY
-      ttMenu.prgTitle
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 45 BY 18.81
-         TITLE "--> Double Click to Add Menu -->".
-
-DEFINE BROWSE ttUserMenu
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS ttUserMenu C-Win _FREEFORM
-  QUERY ttUserMenu DISPLAY
-      ttUserMenu.menuOrder
-    ttUserMenu.levelType[1] NO-LABEL
-    ttUserMenu.level[1] LABEL "[Level 1]: Menu"
-    ttUserMenu.levelType[2] NO-LABEL
-    ttUserMenu.level[2] LABEL "[Level 2]: Menu / Item"
-    ttUserMenu.levelType[3] NO-LABEL
-    ttUserMenu.level[3] LABEL "[Level 3]: Item"
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SIZE 128 BY 20
-         TITLE "Double Click to Remove Menu / Item".
+DEFINE VARIABLE program-names AS CHARACTER 
+     VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
+     SIZE 49 BY 12.14 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     btnReset AT ROW 1 COL 47 HELP
-          "RESET Menu Structure from Last Saved File" WIDGET-ID 8
-     userName AT ROW 1.48 COL 63 COLON-ALIGNED HELP
-          "Select User Account ID" WIDGET-ID 4
-     showOption AT ROW 1.48 COL 138 COLON-ALIGNED NO-LABEL WIDGET-ID 38
-     filterMenu AT ROW 3.14 COL 6 COLON-ALIGNED WIDGET-ID 42
-     ttUserMenu AT ROW 3.14 COL 48 WIDGET-ID 200
-     filterItem AT ROW 3.14 COL 181 COLON-ALIGNED WIDGET-ID 40
-     ttMenu AT ROW 4.33 COL 2 WIDGET-ID 300
-     ttItem AT ROW 4.33 COL 177 WIDGET-ID 400
-     btnAddItem AT ROW 1 COL 194 HELP
-          "SAVE Menu Structure" WIDGET-ID 32
-     btnAddMenu AT ROW 1 COL 20 HELP
-          "SAVE Menu Structure" WIDGET-ID 34
-     btnDefault AT ROW 1 COL 1 HELP
-          "Load Menu Structure from System DEFAULT Menu List" WIDGET-ID 6
-     btnExit AT ROW 1 COL 214 HELP
-          "SAVE Menu Structure" WIDGET-ID 20
-     btnMoveDown AT ROW 1 COL 96 HELP
-          "RESET Menu Structure from Last Saved File" WIDGET-ID 28
-     btnMoveUp AT ROW 1 COL 87 HELP
-          "RESET Menu Structure from Last Saved File" WIDGET-ID 30
-     btnRemove AT ROW 1 COL 107 HELP
-          "SAVE Menu Structure" WIDGET-ID 36
-     btnSave AT ROW 1 COL 168 HELP
-          "SAVE Menu Structure" WIDGET-ID 10
-     btnShiftLeft AT ROW 1 COL 118 HELP
-          "RESET Menu Structure from Last Saved File" WIDGET-ID 24
-     btnShiftRight AT ROW 1 COL 127 HELP
-          "RESET Menu Structure from Last Saved File" WIDGET-ID 26
+     Btn_Build AT ROW 4.57 COL 134.8 HELP
+          "BUILD Menu Bar from Menu Structure Items"
+     menu-items AT ROW 1 COL 2.4 HELP
+          "Select Menu Structure Item" NO-LABEL
+     menu-names AT ROW 1 COL 79.4 HELP
+          "Select Available Menu Item" NO-LABEL
+     userName AT ROW 2.43 COL 130 COLON-ALIGNED HELP
+          "Select User Account ID" NO-LABEL
+     Btn_Add_Menu AT ROW 8 COL 94.8 HELP
+          "Add a Menu Item to Menu Structure"
+     Btn_Default AT ROW 9.57 COL 134.8 HELP
+          "Load Menu Structure from System DEFAULT Menu List"
+     program-names AT ROW 10.05 COL 79.4 HELP
+          "Select Available Program Item" NO-LABEL
+     Btn_Reset AT ROW 14.57 COL 134.4 HELP
+          "RESET Menu Structure from Last Saved File"
+     Btn_Save AT ROW 18.86 COL 134.4 HELP
+          "SAVE Menu Structure"
+     Btn_Cancel AT ROW 22.91 COL 132 HELP
+          "CANCEL Menu Structure"
+     Btn_Up AT ROW 23 COL 5.2 HELP
+          "Move Menu Structure Item UP"
+     Btn_Down AT ROW 23 COL 13.6 HELP
+          "Move Menu Structure Item DOWN"
+     Btn_Add_Rule AT ROW 23 COL 23.4 HELP
+          "Add RULE Level to Menu Structure"
+     Btn_Add_Skip AT ROW 23 COL 31.8 HELP
+          "Add SKIP Level to Menu Structure"
+     Btn_Left AT ROW 23 COL 41.6 HELP
+          "Delete Level from Menu Structure Item"
+     Btn_Right AT ROW 23 COL 48.6 HELP
+          "Add Level to Menu Structure Item"
+     Btn_Remove AT ROW 23 COL 61.2 HELP
+          "REMOVE Menu Structure Item"
+     Btn_Add_Program AT ROW 23 COL 94.8 HELP
+          "Add a Program Item to Menu Structure"
+     "Menu" VIEW-AS TEXT
+          SIZE 6 BY .76 AT ROW 7.43 COL 136
+          BGCOLOR 5 FGCOLOR 15 FONT 4
+     "Rese&t Menu" VIEW-AS TEXT
+          SIZE 12.6 BY .76 AT ROW 16.57 COL 133
+          BGCOLOR 5 FGCOLOR 15 FONT 4
+     "(auto save)" VIEW-AS TEXT
+          SIZE 11 BY .76 AT ROW 12.43 COL 133
+          BGCOLOR 5 FGCOLOR 15 FONT 4
+     "&Save Menu" VIEW-AS TEXT
+          SIZE 11.2 BY .76 AT ROW 20.86 COL 133
+          BGCOLOR 5 FGCOLOR 15 FONT 4
+     "&Build Top Bar" VIEW-AS TEXT
+          SIZE 14 BY .76 AT ROW 6.67 COL 132
+          BGCOLOR 5 FGCOLOR 15 FONT 4
+     "User ID" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 1.71 COL 135
+          BGCOLOR 5 FGCOLOR 15 
+     "De&fault Menu" VIEW-AS TEXT
+          SIZE 14 BY .76 AT ROW 11.57 COL 132
+          BGCOLOR 5 FGCOLOR 15 FONT 4
+     RECT-1 AT ROW 22.19 COL 2
+     RECT-2 AT ROW 7.38 COL 79.4
+     RECT-3 AT ROW 22.19 COL 79
+     RECT-5 AT ROW 1 COL 129
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 222.2 BY 22.33 WIDGET-ID 100.
+         SIZE 147.8 BY 24.19.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -358,23 +302,24 @@ DEFINE FRAME DEFAULT-FRAME
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "User Menu"
-         HEIGHT             = 22.33
-         WIDTH              = 222.2
-         MAX-HEIGHT         = 320
-         MAX-WIDTH          = 222.2
-         VIRTUAL-HEIGHT     = 320
-         VIRTUAL-WIDTH      = 222.2
+         TITLE              = "User's Menu Structure"
+         HEIGHT             = 24.19
+         WIDTH              = 149.8
+         MAX-HEIGHT         = 25.29
+         MAX-WIDTH          = 160
+         VIRTUAL-HEIGHT     = 25.29
+         VIRTUAL-WIDTH      = 160
          RESIZE             = no
          SCROLL-BARS        = no
-         STATUS-AREA        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
          THREE-D            = yes
          MESSAGE-AREA       = no
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
+
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -387,43 +332,10 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
-/* BROWSE-TAB ttUserMenu filterMenu DEFAULT-FRAME */
-/* BROWSE-TAB ttMenu filterItem DEFAULT-FRAME */
-/* BROWSE-TAB ttItem ttMenu DEFAULT-FRAME */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+THEN C-Win:HIDDEN = yes.
 
 /* _RUN-TIME-ATTRIBUTES-END */
-&ANALYZE-RESUME
-
-
-/* Setting information for Queries and Browse Widgets fields            */
-
-&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE ttItem
-/* Query rebuild information for BROWSE ttItem
-     _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH ttItem.
-     _END_FREEFORM
-     _Query            is OPENED
-*/  /* BROWSE ttItem */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE ttMenu
-/* Query rebuild information for BROWSE ttMenu
-     _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH ttMenu.
-     _END_FREEFORM
-     _Query            is OPENED
-*/  /* BROWSE ttMenu */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE ttUserMenu
-/* Query rebuild information for BROWSE ttUserMenu
-     _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH ttUserMenu.
-     _END_FREEFORM
-     _Query            is OPENED
-*/  /* BROWSE ttUserMenu */
 &ANALYZE-RESUME
 
  
@@ -434,7 +346,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttUserMenu.
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* User Menu */
+ON END-ERROR OF C-Win /* User's Menu Structure */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -447,7 +359,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* User Menu */
+ON WINDOW-CLOSE OF C-Win /* User's Menu Structure */
 DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -458,243 +370,333 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnAddItem
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAddItem C-Win
-ON CHOOSE OF btnAddItem IN FRAME DEFAULT-FRAME
+&Scoped-define SELF-NAME Btn_Add_Menu
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add_Menu C-Win
+ON CHOOSE OF Btn_Add_Menu IN FRAME DEFAULT-FRAME /* Add Menu Item */
 DO:
-    RUN pInsert (ttItem.prgmName,ttItem.prgTitle,"").
+  RUN Add_Item ("Menu").
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnAddMenu
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAddMenu C-Win
-ON CHOOSE OF btnAddMenu IN FRAME DEFAULT-FRAME
+&Scoped-define SELF-NAME Btn_Add_Program
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add_Program C-Win
+ON CHOOSE OF Btn_Add_Program IN FRAME DEFAULT-FRAME /* Add Program Item */
 DO:
-    RUN pInsert (ttMenu.prgmName,ttMenu.prgTitle,"[MENU]").
+  RUN Add_Item ("Program").
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnDefault
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDefault C-Win
-ON CHOOSE OF btnDefault IN FRAME DEFAULT-FRAME
+&Scoped-define SELF-NAME Btn_Add_Rule
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add_Rule C-Win
+ON CHOOSE OF Btn_Add_Rule IN FRAME DEFAULT-FRAME /* Rule */
+DO:
+  RUN Add_Item ("RULE").
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_Add_Skip
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add_Skip C-Win
+ON CHOOSE OF Btn_Add_Skip IN FRAME DEFAULT-FRAME /* Skip */
+DO:
+  RUN Add_Item ("SKIP").
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_Build
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Build C-Win
+ON CHOOSE OF Btn_Build IN FRAME DEFAULT-FRAME /* Build */
+DO:
+  RUN Check_Menu.
+  IF RETURN-VALUE = "ERROR" THEN
+  RETURN NO-APPLY.
+
+  OUTPUT TO VALUE("usermenu/" + userName + "/menu.tmp").
+  RUN Save_Menu.
+  OUTPUT CLOSE.
+
+  {methods/wait.i}
+  DELETE WIDGET-POOL "menubar" NO-ERROR.
+  FOR EACH wk-ptrs:
+    DELETE wk-ptrs.
+  END.
+  CREATE WIDGET-POOL "menubar" PERSISTENT.
+
+  CREATE MENU popup-ptr IN WIDGET-POOL "menubar"
+    ASSIGN POPUP-ONLY = TRUE.
+  CREATE wk-ptrs.
+  ASSIGN
+    wk-ptrs.menu-name = "popup"
+    wk-ptrs.smenu-ptr = popup-ptr.
+
+  INPUT FROM VALUE("usermenu/" + userName + "/menu.tmp") NO-ECHO.
+  REPEAT:                          
+    IMPORT m_item1 m_item2.
+    IF CAN-DO("RULE,SKIP",m_item1) OR INDEX(m_item1,".") NE 0 THEN
+    NEXT.
+    CREATE wk-ptrs.
+    wk-ptrs.menu-name = m_item1.
+    IF m_item1 NE m_item2 THEN
+    NEXT.
+    CREATE MENU menu-bar-ptr IN WIDGET-POOL "menubar".
+    wk-ptrs.smenu-ptr = menu-bar-ptr.
+  END.
+
+  INPUT FROM VALUE("usermenu/" + userName + "/menu.tmp") NO-ECHO.
+  REPEAT:
+    IMPORT m_item1 m_item2.
+    IF m_item1 = m_item2 THEN
+    NEXT.
+    FIND FIRST wk-ptrs WHERE wk-ptrs.menu-name = m_item2.
+    IF CAN-DO("RULE,SKIP",m_item1) THEN
+    DO:
+      CREATE MENU-ITEM menu-item-ptr IN WIDGET-POOL "menubar"
+        ASSIGN PARENT = wk-ptrs.smenu-ptr
+               SUBTYPE = m_item1
+               PRIVATE-DATA = m_item1.
+      NEXT.
+    END.
+    FIND prgrms WHERE prgrms.prgmname = m_item1 NO-LOCK NO-ERROR.
+    IF NOT AVAILABLE prgrms THEN
+    NEXT.
+    IF INDEX(m_item1,".") NE 0 THEN
+    CREATE MENU-ITEM menu-item-ptr IN WIDGET-POOL "menubar"
+      ASSIGN PARENT = wk-ptrs.smenu-ptr
+             LABEL = prgrms.prgtitle
+             PRIVATE-DATA = m_item1.
+    ELSE
+    DO:
+      CREATE SUB-MENU sub-menu-ptr[1]
+        ASSIGN PARENT = wk-ptrs.smenu-ptr
+               LABEL = prgrms.prgtitle
+               PRIVATE-DATA = m_item1.
+      FIND FIRST wk-ptrs WHERE wk-ptrs.menu-name = m_item1.
+      wk-ptrs.smenu-ptr = sub-menu-ptr[1].
+    END.
+  END.
+  INPUT CLOSE.
+/*   CREATE MENU-ITEM exit-item-ptr IN WIDGET-POOL "menubar" */
+/*     ASSIGN PARENT = menu-bar-ptr:FIRST-CHILD              */
+/*            LABEL = "E&xit".                               */
+  {&WINDOW-NAME}:MENUBAR = menu-bar-ptr:HANDLE.
+  
+  {methods/nowait.i}
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_Cancel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel C-Win
+ON CHOOSE OF Btn_Cancel IN FRAME DEFAULT-FRAME /* Cancel */
+DO:
+  IF SEARCH("usermenu/" + userName + "/menu.tmp") NE ? THEN
+  OS-DELETE VALUE("usermenu/" + userName + "/menu.tmp").
+  APPLY "CLOSE" TO THIS-PROCEDURE.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_Default
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Default C-Win
+ON CHOOSE OF Btn_Default IN FRAME DEFAULT-FRAME /* Default */
 DO:
   OS-COPY "./menu.lst" VALUE("usermenu/" + userName + "/menu.lst").
-  RUN pReset.
+  APPLY "CHOOSE" TO Btn_Reset.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnExit
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnExit C-Win
-ON CHOOSE OF btnExit IN FRAME DEFAULT-FRAME
+&Scoped-define SELF-NAME Btn_Down
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Down C-Win
+ON CHOOSE OF Btn_Down IN FRAME DEFAULT-FRAME /* Down */
 DO:
-    APPLY "CLOSE":U TO THIS-PROCEDURE.
+  RUN Move_Item ("Down").
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnMoveDown
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnMoveDown C-Win
-ON CHOOSE OF btnMoveDown IN FRAME DEFAULT-FRAME
+&Scoped-define SELF-NAME Btn_Left
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Left C-Win
+ON CHOOSE OF Btn_Left IN FRAME DEFAULT-FRAME /* << */
 DO:
-    RUN pMove (1).
+  RUN Shift_Item ("Left").
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnMoveUp
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnMoveUp C-Win
-ON CHOOSE OF btnMoveUp IN FRAME DEFAULT-FRAME
+&Scoped-define SELF-NAME Btn_Remove
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Remove C-Win
+ON CHOOSE OF Btn_Remove IN FRAME DEFAULT-FRAME /* Remove */
 DO:
-    RUN pMove (-1).
+  DO WITH FRAME {&FRAME-NAME}:
+    DO i = 1 TO menu-items:NUM-ITEMS:
+      IF menu-items:IS-SELECTED(i) THEN
+      LEAVE.
+    END.
+    ASSIGN
+      ldummy = menu-items:DELETE(i)
+      i = IF i GT menu-items:NUM-ITEMS THEN menu-items:NUM-ITEMS ELSE i.
+    RUN Select_Item (menu-items:ENTRY(i)).
+  END.
+  APPLY "VALUE-CHANGED" TO menu-items.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnRemove
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRemove C-Win
-ON CHOOSE OF btnRemove IN FRAME DEFAULT-FRAME
+&Scoped-define SELF-NAME Btn_Reset
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Reset C-Win
+ON CHOOSE OF Btn_Reset IN FRAME DEFAULT-FRAME /* Reset */
 DO:
-    RUN pRemove.
+    {methods/wait.i}
+  DO WITH FRAME {&FRAME-NAME}:
+    ASSIGN
+      menu-names:LIST-ITEMS = ""
+      program-names:LIST-ITEMS = ""
+      menu-items:LIST-ITEMS = "".
+    FOR EACH prgrms WHERE
+             prgrms.menu_item AND CAN-DO(prgrms.can_run,userName)
+        NO-LOCK USE-INDEX si-prgtitle:
+      ldummy = IF INDEX(prgrms.prgmname,".") = 0 THEN
+               menu-names:ADD-LAST(prgrms.prgtitle) ELSE
+               program-names:ADD-LAST(prgrms.prgtitle).
+    END.
+    IF SEARCH("usermenu/" + userName + "/menu.lst") NE ? THEN
+    INPUT FROM VALUE("usermenu/" + userName + "/menu.lst") NO-ECHO.
+    ELSE
+    INPUT FROM VALUE("menu.lst") NO-ECHO.
+    RUN Build_Menu_Items.
+    INPUT CLOSE.
+    ASSIGN
+      Btn_Cancel:LABEL IN FRAME {&FRAME-NAME} = "&Cancel"
+      menu-names:SCREEN-VALUE = menu-names:ENTRY(1)
+      program-names:SCREEN-VALUE = program-names:ENTRY(1)
+      menu-items:SCREEN-VALUE = menu-items:ENTRY(1).
+    APPLY "VALUE-CHANGED" TO menu-items.
+  END.
+  APPLY "CHOOSE" TO Btn_Build.
+  {methods/nowait.i}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnReset
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnReset C-Win
-ON CHOOSE OF btnReset IN FRAME DEFAULT-FRAME
+&Scoped-define SELF-NAME Btn_Right
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Right C-Win
+ON CHOOSE OF Btn_Right IN FRAME DEFAULT-FRAME /* >> */
 DO:
-    RUN pReset.
+  RUN Shift_Item ("Right").
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnSave
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSave C-Win
-ON CHOOSE OF btnSave IN FRAME DEFAULT-FRAME
+&Scoped-define SELF-NAME Btn_Save
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Save C-Win
+ON CHOOSE OF Btn_Save IN FRAME DEFAULT-FRAME /* Save */
 DO:
-  RUN pValidate.
+  RUN Check_Menu.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   OUTPUT TO VALUE("usermenu/" + userName + "/menu.lst").
-  RUN pSave.
+  RUN Save_Menu.
   OUTPUT CLOSE.
+
   OS-COPY VALUE("usermenu/" + userName + "/menu.lst") VALUE("usermenu/" + userName + "/menu.fol").
   OS-COPY VALUE("usermenu/" + userName + "/menu.lst") VALUE("usermenu/" + userName + "/menu.cor") .
-  RUN pReset.
+
+  APPLY "CHOOSE" TO Btn_Build.
+  ASSIGN
+    Btn_Cancel:LABEL IN FRAME {&FRAME-NAME} = "&Close"
+    init_menu = YES.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnShiftLeft
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnShiftLeft C-Win
-ON CHOOSE OF btnShiftLeft IN FRAME DEFAULT-FRAME
+&Scoped-define SELF-NAME Btn_Up
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Up C-Win
+ON CHOOSE OF Btn_Up IN FRAME DEFAULT-FRAME /* Up */
 DO:
-    RUN pShift (-1).
+  RUN Move_Item ("Up").
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnShiftRight
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnShiftRight C-Win
-ON CHOOSE OF btnShiftRight IN FRAME DEFAULT-FRAME
+&Scoped-define SELF-NAME menu-items
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL menu-items C-Win
+ON VALUE-CHANGED OF menu-items IN FRAME DEFAULT-FRAME
 DO:
-    RUN pShift (1).
+  DO WITH FRAME {&FRAME-NAME}:
+    i = R-INDEX({&SELF-NAME}:SCREEN-VALUE,"- ").
+    i = IF i = 0 THEN 1 ELSE i + 2.
+    IF i = 1 THEN
+    DISABLE Btn_Left Btn_Add_Rule Btn_Add_Skip.
+    ELSE
+    ENABLE Btn_Left Btn_Add_Rule Btn_Add_Skip.
+    IF menu-items:SCREEN-VALUE = menu-items:ENTRY(1) THEN
+    DISABLE Btn_Up.
+    ELSE
+    ENABLE Btn_Up.
+    IF menu-items:SCREEN-VALUE = menu-items:ENTRY(menu-items:NUM-ITEMS) THEN
+    DISABLE Btn_Down.
+    ELSE
+    ENABLE Btn_Down.
+    IF menu-items:NUM-ITEMS = 0 THEN
+    DISABLE Btn_Remove.
+    ELSE
+    ENABLE Btn_Remove.
+  END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME filterItem
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL filterItem C-Win
-ON ENTRY OF filterItem IN FRAME DEFAULT-FRAME /* Filter */
+&Scoped-define SELF-NAME menu-names
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL menu-names C-Win
+ON DEFAULT-ACTION OF menu-names IN FRAME DEFAULT-FRAME
 DO:
-    {&SELF-NAME}:SET-SELECTION(1,256).
+  APPLY "CHOOSE" TO Btn_Add_Menu.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL filterItem C-Win
-ON LEAVE OF filterItem IN FRAME DEFAULT-FRAME /* Filter */
+&Scoped-define SELF-NAME program-names
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL program-names C-Win
+ON DEFAULT-ACTION OF program-names IN FRAME DEFAULT-FRAME
 DO:
-    ASSIGN {&SELF-NAME}.
-    RUN pGetPrgrms.
-    {&SELF-NAME}:SET-SELECTION(1,256).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL filterItem C-Win
-ON RETURN OF filterItem IN FRAME DEFAULT-FRAME /* Filter */
-DO:
-  APPLY "LEAVE":U TO {&SELF-NAME}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME filterMenu
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL filterMenu C-Win
-ON ENTRY OF filterMenu IN FRAME DEFAULT-FRAME /* Filter */
-DO:
-    {&SELF-NAME}:SET-SELECTION(1,256).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL filterMenu C-Win
-ON LEAVE OF filterMenu IN FRAME DEFAULT-FRAME /* Filter */
-DO:
-    ASSIGN {&SELF-NAME}.
-    RUN pGetPrgrms.
-    {&SELF-NAME}:SET-SELECTION(1,256).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL filterMenu C-Win
-ON RETURN OF filterMenu IN FRAME DEFAULT-FRAME /* Filter */
-DO:
-  APPLY "LEAVE":U TO {&SELF-NAME}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME showOption
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL showOption C-Win
-ON VALUE-CHANGED OF showOption IN FRAME DEFAULT-FRAME
-DO:
-    ASSIGN {&SELF-NAME}.
-    RUN pGetPrgrms.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define BROWSE-NAME ttItem
-&Scoped-define SELF-NAME ttItem
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ttItem C-Win
-ON DEFAULT-ACTION OF ttItem IN FRAME DEFAULT-FRAME /* <-- Double Click to Add Item <-- */
-DO:
-    APPLY "CHOOSE":U TO btnAddItem.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define BROWSE-NAME ttMenu
-&Scoped-define SELF-NAME ttMenu
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ttMenu C-Win
-ON DEFAULT-ACTION OF ttMenu IN FRAME DEFAULT-FRAME /* --> Double Click to Add Menu --> */
-DO:
-    APPLY "CHOOSE":U TO btnAddMenu.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define BROWSE-NAME ttUserMenu
-&Scoped-define SELF-NAME ttUserMenu
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ttUserMenu C-Win
-ON DEFAULT-ACTION OF ttUserMenu IN FRAME DEFAULT-FRAME /* Double Click to Remove Menu / Item */
-DO:
-    RUN pRemove.
+  APPLY "CHOOSE" TO Btn_Add_Program.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -703,17 +705,16 @@ END.
 
 &Scoped-define SELF-NAME userName
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL userName C-Win
-ON VALUE-CHANGED OF userName IN FRAME DEFAULT-FRAME /* User */
+ON VALUE-CHANGED OF userName IN FRAME DEFAULT-FRAME
 DO:
   ASSIGN {&SELF-NAME}.
-  APPLY 'CHOOSE' TO btnReset.
+  APPLY 'CHOOSE' TO Btn_Reset.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define BROWSE-NAME ttItem
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
@@ -738,10 +739,17 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  RUN pReSize.
-  RUN pGetUsers.
+
+/* security check need {methods/prgsecur.i} in definition section */
+  IF access-close THEN DO:
+     APPLY "close" TO THIS-PROCEDURE.
+     RETURN.
+  END.
   RUN enable_UI.
-  RUN pReset.
+  RUN getUserNames.
+  APPLY "CHOOSE" TO Btn_Reset.
+  /*APPLY "CHOOSE" TO Btn_Build.*/
+  {methods/nowait.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -751,6 +759,127 @@ END.
 
 
 /* **********************  Internal Procedures  *********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Add_Item C-Win 
+PROCEDURE Add_Item :
+/* -----------------------------------------------------------
+  Purpose: Add Menu/Program Item to Items List   
+  Parameters: Item Type
+  Notes:       
+-------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER item-type AS CHARACTER NO-UNDO.
+
+  DO WITH FRAME {&FRAME-NAME}:
+    IF menu-items:NUM-ITEMS = 0 THEN
+    ASSIGN
+      j = 0
+      m_level = ""
+      i = 1.
+    ELSE
+    DO i = 1 TO menu-items:NUM-ITEMS:
+      IF NOT menu-items:IS-SELECTED(i) THEN
+      NEXT.
+      ASSIGN
+        j = IF R-INDEX(menu-items:ENTRY(i),"- ") = 0 THEN 0
+            ELSE (R-INDEX(menu-items:ENTRY(i),"- ") + 1) / 2
+        m_level = FILL("- ",j)
+        i = i + 1.
+      LEAVE.
+    END.
+    CASE item-type:
+      WHEN "Menu" THEN
+      ldummy = menu-items:INSERT(m_level + menu-names:SCREEN-VALUE,i).
+      WHEN "Program" THEN
+      ldummy = menu-items:INSERT(m_level + program-names:SCREEN-VALUE,i).
+      OTHERWISE
+      ldummy = menu-items:INSERT(m_level + item-type,i).
+    END CASE.
+    RUN Select_Item (menu-items:ENTRY(i)).
+  END.
+  APPLY "VALUE-CHANGED" TO menu-items.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Build_Menu_Items C-Win 
+PROCEDURE Build_Menu_Items :
+/*------------------------------------------------------------------------------
+  Purpose:     Build Menu Items Selection List.
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  {methods/wait.i}
+  DO WITH FRAME {&FRAME-NAME}:
+    REPEAT:
+      IMPORT m_item1 m_item2.
+      IF INDEX(m_item1,".") = 0 AND NOT CAN-DO("rule,skip",m_item1) THEN DO:
+        CREATE wk-items.
+        wk-items.item-name = m_item1.
+        IF m_item1 NE m_item2 THEN DO:
+          FIND FIRST b-items WHERE b-items.item-name EQ m_item2 NO-ERROR.
+          ASSIGN wk-items.item-level = b-items.item-level + 1 WHEN AVAIL b-items.
+        END.
+      END.
+      IF m_item1 EQ m_item2 THEN NEXT.
+      FIND FIRST wk-items WHERE wk-items.item-name EQ m_item2 NO-ERROR.
+      IF AVAIL wk-items THEN
+        m_level = IF wk-items.item-level EQ 0 THEN ""
+                                              ELSE FILL("- ",wk-items.item-level).
+      FIND prgrms NO-LOCK WHERE prgrms.prgmname EQ m_item1 NO-ERROR.
+      IF AVAILABLE prgrms THEN
+        ldummy = menu-items:ADD-LAST(m_level + prgrms.prgtitle).
+      ELSE
+        IF CAN-DO("rule,skip",m_item1) THEN
+          ldummy = menu-items:ADD-LAST(m_level + CAPS(m_item1)).
+    END.
+  END.
+  {methods/nowait.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Check_Menu C-Win 
+PROCEDURE Check_Menu :
+/*------------------------------------------------------------------------------
+  Purpose:     Check Menu Structure List
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE j AS INTEGER NO-UNDO.
+
+  {methods/wait.i}
+
+  m_item2 = "mainmenu".
+  DO i = 1 TO menu-items:NUM-ITEMS IN FRAME {&FRAME-NAME} WITH FRAME {&FRAME-NAME}:
+    ASSIGN
+      j       = IF R-INDEX(ENTRY(i,menu-items:LIST-ITEMS),"- ") EQ 0 THEN 1
+                ELSE (R-INDEX(ENTRY(i,menu-items:LIST-ITEMS),"- ") + 1) / 2 + 1
+      m_item1 = REPLACE(ENTRY(i,menu-items:LIST-ITEMS),"- ","").
+
+    IF j GT NUM-ENTRIES(m_item2) THEN DO:
+      menu-items:SCREEN-VALUE = menu-items:ENTRY(i).
+      {methods/nowait.i}
+      APPLY "VALUE-CHANGED" TO menu-items.
+      MESSAGE "An ERROR Exists with the Highlighted Menu Item" VIEW-AS ALERT-BOX.
+      RETURN "ERROR".
+    END.
+    IF CAN-DO("RULE,SKIP",m_item1) THEN NEXT.
+    FIND FIRST prgrms NO-LOCK WHERE prgrms.prgtitle EQ m_item1 NO-ERROR.
+    IF INDEX(prgrms.prgmname,".") = 0 THEN
+      IF j LT NUM-ENTRIES(m_item2) THEN ENTRY(j + 1,m_item2) = prgrms.prgmname.
+                                   ELSE m_item2 = m_item2 + "," + prgrms.prgmname.
+  END.
+  {methods/nowait.i}
+  RETURN.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
@@ -782,11 +911,12 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY userName showOption filterMenu filterItem 
+  DISPLAY menu-items menu-names userName program-names 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnReset userName showOption filterMenu ttUserMenu filterItem ttMenu 
-         ttItem btnAddItem btnAddMenu btnDefault btnExit btnMoveDown btnMoveUp 
-         btnRemove btnSave btnShiftLeft btnShiftRight 
+  ENABLE Btn_Build menu-items menu-names RECT-1 RECT-2 RECT-3 RECT-5 userName 
+         Btn_Add_Menu Btn_Default program-names Btn_Reset Btn_Save Btn_Cancel 
+         Btn_Up Btn_Down Btn_Add_Rule Btn_Add_Skip Btn_Left Btn_Right 
+         Btn_Remove Btn_Add_Program 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -795,415 +925,188 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetMenu C-Win 
-PROCEDURE pGetMenu :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getUserNames C-Win 
+PROCEDURE getUserNames :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cPrgrm     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cMenu      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iLength    AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE cMneumonic AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lMainMenu  AS LOGICAL   NO-UNDO.
+  userName:LIST-ITEMS IN FRAME {&FRAME-NAME} = ''.
+  FOR EACH users NO-LOCK:
+    ldummy = userName:ADD-LAST(users.user_id).
+  END.
+  ASSIGN
+    userName:SCREEN-VALUE = USERID("ASI")
+    userName.
+  IF NOT CAN-DO('ASI,NoSweat',USERID("ASI")) THEN
+  DISABLE userName WITH FRAME {&FRAME-NAME}.
 
-    EMPTY TEMP-TABLE ttUserMenu.
-    EMPTY TEMP-TABLE ttblMenu.
-    EMPTY TEMP-TABLE ttblItem.
+END PROCEDURE.
 
-    REPEAT:
-        IMPORT cPrgrm cMenu.
-        
-        IF CAN-DO ("mainmenu,file",cPrgrm) THEN NEXT.
-        IF CAN-DO ("rule,skip",cPrgrm) THEN NEXT.
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
-        lMainMenu = cMenu EQ "mainmenu".
-        IF lMainMenu THEN cMenu = "file".
-        
-        FIND FIRST prgrms NO-LOCK WHERE prgrms.prgmname EQ cPrgrm NO-ERROR.
-        ASSIGN cMneumonic = SUBSTRING (prgrms.prgtitle,1,1) WHEN AVAILABLE prgrms.
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Move_Item C-Win 
+PROCEDURE Move_Item :
+/* -----------------------------------------------------------
+  Purpose: Move Menu Item Up or Down
+  Parameters: Up/Down
+  Notes:       
+-------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER move AS CHARACTER NO-UNDO.
 
-        FIND FIRST ttblMenu WHERE ttblMenu.menuName EQ cMenu NO-ERROR.
-        ASSIGN cMneumonic = ttblMenu.mneumonic + cMneumonic WHEN AVAILABLE ttblMenu.
-
-        IF INDEX (cPrgrm,".") EQ 0 THEN DO:
-            FIND FIRST ttblMenu WHERE ttblMenu.menuName EQ cPrgrm NO-ERROR.
-            IF NOT AVAILABLE ttblMenu THEN DO:         
-                CREATE ttblMenu.
-                ASSIGN
-                    ttblMenu.menuName  = cPrgrm
-                    ttblMenu.mneumonic = cMneumonic 
-                   .
-            END.
-        END.
-    
-        IF NOT AVAILABLE ttblMenu THEN NEXT.
-        
-        IF NOT CAN-FIND (FIRST prgrms WHERE prgrms.prgmname EQ cPrgrm) THEN NEXT.
-
-        IF LENGTH (cMneumonic) EQ 3 THEN
-        ASSIGN cMneumonic = SUBSTRING (cMneumonic,1,2) + STRING (ttblMenu.menuCount).  
-
-        CREATE ttblItem.
-        ASSIGN 
-            idx                = idx + 1
-            ttblMenu.menuCount = ttblMenu.menuCount + 1
-            ttblItem.menuOrder = idx
-            ttblItem.menu1     = cPrgrm
-            ttblItem.menu2     = cMenu
-            ttblItem.mneumonic = cMneumonic
-            ttblItem.mainMenu  = lMainMenu
-            .
-            
-    END. /* repeat */
-    
-    FOR EACH ttblItem USE-INDEX menu2 BREAK BY ttblItem.menu2 :
-        IF FIRST-OF (ttblItem.menu2) THEN ASSIGN idx = 0.
-        ASSIGN
-            idx          = idx + 1
-            ttblItem.seq = idx
-           .
-
-        FIND FIRST prgrms NO-LOCK
-             WHERE prgrms.prgmname EQ ttblItem.menu1
-             NO-ERROR.
-        IF NOT AVAILABLE prgrms THEN NEXT.
-        
-        CREATE ttUserMenu.
-        ASSIGN
-            ttUserMenu.menuOrder = ttblItem.menuOrder
-            ttUserMenu.prgmName  = ttblItem.menu1
-            ttUserMenu.mainMenu  = ttblItem.mainMenu
-            ttUserMenu.isMenu    = INDEX(prgrms.prgmname,".") EQ 0
-            iLength              = LENGTH(ttblItem.mneumonic)
-           .
-        IF iLength GT 3 THEN iLength = 3.
-        ASSIGN
-            ttUserMenu.level[iLength]     = prgrms.prgtitle
-            ttUserMenu.levelType[iLength] = IF ttUserMenu.isMenu THEN "[MENU]"
-                                            ELSE "[" + ttblItem.mneumonic + "]"
-           .
+  DO WITH FRAME {&FRAME-NAME}:
+    DO i = 1 TO menu-items:NUM-ITEMS:
+      IF menu-items:IS-SELECTED(i) THEN
+      LEAVE.
     END.
-    
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetPrgrms C-Win 
-PROCEDURE pGetPrgrms :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE lUsed AS LOGICAL NO-UNDO.
-
-    EMPTY TEMP-TABLE ttMenu.
-    EMPTY TEMP-TABLE ttItem.
-
-    FOR EACH prgrms NO-LOCK
-        WHERE prgrms.prgTitle  GT ""
-          AND prgrms.menu_item EQ TRUE
-        :
-        lUsed = CAN-FIND(FIRST ttUserMenu WHERE ttUserMenu.prgmName EQ prgrms.prgmName).
-        IF showOption EQ "Show Only Unused" AND lUsed THEN NEXT.
-        IF INDEX(prgrms.prgmName,".") EQ 0 THEN DO:
-            IF showOption EQ "Show All Items" AND lUsed THEN NEXT.
-            IF filterMenu NE "" AND NOT prgrms.prgTitle MATCHES("*" + filterMenu + "*") THEN NEXT.
-            CREATE ttMenu.
-            ASSIGN
-                ttMenu.prgmName = prgrms.prgmName
-                ttMenu.prgTitle = prgrms.prgTitle
-                .
-        END. /* menu */
-        ELSE DO:
-            IF showOption EQ "Show All Menus" AND lUsed THEN NEXT.
-            IF filterItem NE "" AND NOT prgrms.prgTitle MATCHES("*" + filterItem + "*") THEN NEXT.
-            CREATE ttItem.
-            ASSIGN
-                ttItem.prgmName = prgrms.prgmName
-                ttItem.prgTitle = prgrms.prgTitle
-                .
-        END. /* item */
-    END. /* each prgrms */
-
-    {&OPEN-QUERY-ttMenu}
-    {&OPEN-QUERY-ttItem}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetUsers C-Win 
-PROCEDURE pGetUsers :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    userName:LIST-ITEMS IN FRAME {&FRAME-NAME} = "".
-    FOR EACH users NO-LOCK:
-        userName:ADD-LAST(users.user_id).
-    END. /* each users */
+    IF move EQ "Down" THEN
     ASSIGN
-        userName:SCREEN-VALUE = USERID("NoSweat")
-        userName.
-    IF NOT CAN-DO("ASI,NoSweat",USERID("NoSweat")) THEN
-    DISABLE userName WITH FRAME {&FRAME-NAME}.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInsert C-Win 
-PROCEDURE pInsert :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcPrgmName AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcPrgTitle AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcType     AS CHARACTER NO-UNDO.
-
-    DEFINE VARIABLE dMenuOrder AS INTEGER NO-UNDO.
-    DEFINE VARIABLE idx        AS INTEGER NO-UNDO.
-    DEFINE VARIABLE rRowID     AS ROWID   NO-UNDO.
-
-    dMenuOrder = ttUserMenu.menuOrder + 1.
-    DO idx = 1 TO EXTENT(ttUserMenu.level):
-        IF ttUserMenu.level[idx] NE "" THEN LEAVE.
-    END. /* do idx */
-    FOR EACH ttUserMenu
-        WHERE ttUserMenu.menuOrder GE dMenuOrder
-          AND ttUserMenu.updated   EQ FALSE
-        :
-        ASSIGN
-            ttUserMenu.menuOrder = ttUserMenu.menuOrder + 1
-            ttUserMenu.updated   = TRUE
-            .
-    END. /* each ttusermenu */
-    IF ipcType EQ "[MENU]" AND idx EQ 3 THEN idx = 2.
-    CREATE ttUserMenu.
+      ldummy = menu-items:INSERT(menu-items:SCREEN-VALUE,i + 2)
+      ldummy = menu-items:DELETE(i)
+      menu-items:SCREEN-VALUE = menu-items:ENTRY(i + 1).
+    ELSE
     ASSIGN
-        ttUserMenu.menuOrder      = dMenuOrder
-        ttUserMenu.prgmName       = ipcPrgmName
-        ttUserMenu.level[idx]     = ipcPrgTitle
-        ttUserMenu.levelType[idx] = ipcType
-        ttUserMenu.isMenu         = ipcType EQ "[MENU]"
-        rRowID                    = ROWID(ttUserMenu)
-        .
-    FOR EACH ttUserMenu:
-        ttUserMenu.updated = FALSE.
-    END. /* each ttusermenu */
-    {&OPEN-QUERY-ttUserMenu}
-    REPOSITION ttUserMenu TO ROWID(rRowID).
-    RUN pGetPrgrms.
+      ldummy = menu-items:INSERT(menu-items:SCREEN-VALUE,i - 1)
+      ldummy = menu-items:DELETE(i + 1)
+      menu-items:SCREEN-VALUE = menu-items:ENTRY(i - 1).
+    Btn_Cancel:LABEL = "&Cancel".
+  END.
+  APPLY "VALUE-CHANGED" TO menu-items.
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pMove C-Win 
-PROCEDURE pMove :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Save_Menu C-Win 
+PROCEDURE Save_Menu :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:     Save Menu Structure to User's directory.
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipiMove AS INTEGER NO-UNDO.
+  DEFINE VARIABLE j AS INTEGER NO-UNDO.
+  DEF BUFFER b-prgrms FOR prgrms.
 
-    DEFINE VARIABLE rRowID AS ROWID NO-UNDO.
+  {methods/wait.i}
+  PUT UNFORMATTED "mainmenu mainmenu" SKIP.
+  m_item2 = "mainmenu".
+  DO i = 1 TO menu-items:NUM-ITEMS IN FRAME {&FRAME-NAME} WITH FRAME {&FRAME-NAME}:
+    ASSIGN
+      j = IF R-INDEX(menu-items:ENTRY(i),"- ") = 0 THEN 1
+          ELSE (R-INDEX(menu-items:ENTRY(i),"- ") + 1) / 2 + 1
+      m_item1 = REPLACE(menu-items:ENTRY(i),"- ","").
 
-    IF NOT AVAILABLE ttUserMenu THEN RETURN.
-    /* already at top */
-    IF ipiMove EQ -1 AND ttUserMenu.menuOrder EQ 1 THEN RETURN.
-    IF ipiMove EQ 1 THEN DO:
-        FIND LAST bttUserMenu NO-ERROR.
-        IF NOT AVAILABLE bttUserMenu THEN RETURN.
-        /* already at bottom */
-        IF bttUserMenu.menuOrder EQ ttUserMenu.menuOrder THEN RETURN.
-    END. /* eq 1 */
-    FIND FIRST bttUserMenu
-         WHERE bttUserMenu.menuOrder EQ ttUserMenu.menuOrder + ipiMove
+    IF CAN-DO("RULE,SKIP",m_item1) THEN DO:
+      PUT UNFORMATTED m_item1 " " ENTRY(j,m_item2) SKIP.
+      NEXT.
+    END.
+    FIND FIRST prgrms NO-LOCK
+         WHERE prgrms.prgtitle EQ m_item1
+           AND prgrms.menu_item EQ YES
          NO-ERROR.
-    IF NOT AVAILABLE bttUserMenu THEN RETURN.
-    ASSIGN
-        bttUserMenu.menuOrder = ttUserMenu.menuOrder
-        ttUserMenu.menuOrder  = ttUserMenu.menuOrder + ipiMove
-        rRowID                = ROWID(ttUserMenu)
-        .
-    {&OPEN-QUERY-ttUserMenu}
-    REPOSITION ttUserMenu TO ROWID(rRowID).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRemove C-Win 
-PROCEDURE pRemove :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE dMenuOrder AS INTEGER NO-UNDO.
-    DEFINE VARIABLE rRowID     AS ROWID   NO-UNDO.
-
-    dMenuOrder = ttUserMenu.menuOrder - 1.
-    DELETE ttUserMenu.
-    FOR EACH ttUserMenu
-        WHERE ttUserMenu.menuOrder GT dMenuOrder
-          AND ttUserMenu.updated   EQ FALSE
-        :
-        ASSIGN
-            ttUserMenu.menuOrder = ttUserMenu.menuOrder - 1
-            ttUserMenu.updated   = TRUE
-            .
-    END. /* each ttusermenu */
-    FOR EACH ttUserMenu:
-        ttUserMenu.updated = FALSE.
-    END. /* each ttusermenu */
-    IF dMenuOrder EQ 0 THEN dMenuOrder = 1.
-    {&OPEN-QUERY-ttUserMenu}
-    FIND FIRST ttUserMenu WHERE ttUserMenu.menuOrder EQ dMenuOrder NO-ERROR.
-    IF NOT AVAILABLE ttUserMenu THEN RETURN.
-    rRowID = ROWID(ttUserMenu).
-    REPOSITION ttUserMenu TO ROWID(rRowID).
-    RUN pGetPrgrms.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReset C-Win 
-PROCEDURE pReset :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DO WITH FRAME {&FRAME-NAME}:
-        sourceMenu = SEARCH("usermenu/" + userName + "/menu.lst").
-        IF sourceMenu EQ ? THEN sourceMenu = SEARCH("menu.lst").
-        INPUT FROM VALUE(sourceMenu) NO-ECHO.
-        RUN pGetMenu.
-        INPUT CLOSE.
-        {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
-        RUN pGetPrgrms.
+    IF NOT AVAILABLE prgrms THEN NEXT.
+    IF m_item1 EQ "Machine File" THEN DO:
+       IF ENTRY(j,m_item2) EQ "ar" THEN
+          PUT UNFORMATTED "r-mach." " " ENTRY(j,m_item2) SKIP.
+       ELSE IF ENTRY(j,m_item2) EQ "af" THEN
+          PUT UNFORMATTED "mach." " " ENTRY(j,m_item2) SKIP.
+       ELSE
+          PUT UNFORMATTED prgrms.prgmname " " ENTRY(j,m_item2) SKIP.
     END.
+    ELSE DO: 
+      IF prgrms.prgmname EQ ENTRY(j,m_item2) THEN DO:
+        /* Handle case where menu name is same as item name */
+        FIND FIRST b-prgrms NO-LOCK
+             WHERE b-prgrms.prgtitle EQ m_item1 
+               AND INDEX(b-prgrms.prgmname,".") NE 0.
+        IF AVAILABLE b-prgrms THEN
+        FIND prgrms NO-LOCK WHERE ROWID(prgrms) EQ ROWID(b-prgrms).
+      END.
+      PUT UNFORMATTED prgrms.prgmname " " ENTRY(j,m_item2) SKIP.
+    END.
+    IF INDEX(prgrms.prgmname,".") = 0 THEN
+      IF j LT NUM-ENTRIES(m_item2) THEN
+        ENTRY(j + 1,m_item2) = prgrms.prgmname.
+      ELSE
+        m_item2 = m_item2 + "," + prgrms.prgmname.
+  END.
+  {methods/nowait.i}
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReSize C-Win 
-PROCEDURE pReSize :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Select_Item C-Win 
+PROCEDURE Select_Item :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:     Make sure the right item is highlighted.
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE iDiff AS INTEGER NO-UNDO.
+  DEFINE INPUT PARAMETER item-name AS CHARACTER NO-UNDO.
 
-    ASSIGN
-        {&WINDOW-NAME}:WINDOW-STATE = 1
-        {&WINDOW-NAME}:HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS - 50
-        {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
-        iDiff = {&WINDOW-NAME}:HEIGHT-PIXELS - FRAME {&FRAME-NAME}:HEIGHT-PIXELS
-        FRAME {&FRAME-NAME}:HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
-        FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
-        ttUserMenu:HEIGHT-PIXELS = ttUserMenu:HEIGHT-PIXELS + iDiff
-        ttMenu:HEIGHT-PIXELS = ttMenu:HEIGHT-PIXELS + iDiff
-        ttItem:HEIGHT-PIXELS = ttItem:HEIGHT-PIXELS + iDiff
-        .
+  DO WHILE TRUE WITH FRAME {&FRAME-NAME}:
+    j = menu-items:LOOKUP(item-name).
+    IF j EQ i THEN
+    LEAVE.
+    ldummy = menu-items:REPLACE("*" + item-name,j).
+  END.
+  ASSIGN
+    menu-items:SCREEN-VALUE = menu-items:ENTRY(i)
+    Btn_Cancel:LABEL = "&Cancel".
+  DO i = 1 TO menu-items:NUM-ITEMS:
+    IF SUBSTR(menu-items:ENTRY(i),1,1) = "*" THEN
+    ldummy = menu-items:REPLACE(item-name,i).
+  END.
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSave C-Win 
-PROCEDURE pSave :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus C-Win 
+PROCEDURE Set-Focus :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:     Set Focus done by calling program
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cLevel AS CHARACTER NO-UNDO EXTENT 3.
-    DEFINE VARIABLE cMenu  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE idx    AS INTEGER   NO-UNDO.
-
-    PUT UNFORMATTED
-        "mainmenu mainmenu" SKIP
-        "file mainmenu" SKIP
-        .
-    cLevel[1] = "file".
-    FOR EACH ttUserMenu:
-        DO idx = 1 TO EXTENT(cLevel):
-            IF ttUserMenu.level[idx] EQ "" THEN NEXT.
-            PUT UNFORMATTED
-                ttUserMenu.prgmName " "
-               (IF ttUserMenu.mainMenu THEN "mainmenu" ELSE cLevel[idx])
-                SKIP
-                .
-            IF ttUserMenu.isMenu THEN
-            cLevel[idx + 1] = ttUserMenu.prgmName.
-        END. /* do idx */
-    END. /* each ttusermenu */
+  {methods/setfocus.i Btn_Cancel}
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pShift C-Win 
-PROCEDURE pShift :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Shift_Item C-Win 
+PROCEDURE Shift_Item :
+/* -----------------------------------------------------------
+  Purpose: Move Menu Item Left or Right
+  Parameters: Left/Right
   Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipiShift AS INTEGER NO-UNDO.
+-------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER move AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE new-item AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE iShift AS INTEGER NO-UNDO.
-    DEFINE VARIABLE idx    AS INTEGER NO-UNDO.
-
-    DO idx = 1 TO EXTENT(ttUserMenu.level):
-        IF ttUserMenu.level[idx] NE "" THEN LEAVE.
-    END. /* do idx */
-    iShift = idx + ipiShift.
-    IF iShift EQ 0 OR iShift EQ 4 THEN RETURN.
-    IF iShift EQ 3 AND ttUserMenu.isMenu THEN RETURN.
-    ASSIGN
-        ttUserMenu.level[iShift]     = ttUserMenu.level[idx]
-        ttUserMenu.levelType[iShift] = ttUserMenu.levelType[idx]
-        ttUserMenu.level[idx]        = ""
-        ttUserMenu.levelType[idx]    = ""
-        .
-    BROWSE ttUserMenu:REFRESH().
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidate C-Win 
-PROCEDURE pValidate :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+  DO WITH FRAME {&FRAME-NAME}:
+    DO i = 1 TO menu-items:NUM-ITEMS:
+      IF menu-items:IS-SELECTED(i) THEN
+      LEAVE.
+    END.
+    new-item = menu-items:ENTRY(i).
+    IF move EQ "Right" THEN
+    new-item = "- " + menu-items:ENTRY(i).
+    ELSE
+    IF SUBSTR(menu-items:ENTRY(i),1,2) EQ "- " THEN
+    new-item = SUBSTR(menu-items:ENTRY(i),3).
+    ldummy = menu-items:REPLACE(new-item,i).
+    RUN Select_Item (new-item).
+  END.
+  APPLY "VALUE-CHANGED" TO menu-items.
 
 END PROCEDURE.
 

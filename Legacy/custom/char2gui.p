@@ -35,7 +35,7 @@ procedure cust-notes:
       notes.note_text = cust-notes
       notes.note_time = time
       notes.note_title = 'Prior Customer Notes'
-      notes.user_id = userid('nosweat')
+      notes.user_id = USERID("ASI")
       notes.viewed = yes
       notes.rec_key = cust.rec_key.
   end.
@@ -72,13 +72,13 @@ end procedure.
 
 procedure users:
   for each usr no-lock:
-    if not can-find(nosweat._user where nosweat._user._userid = usr.uid) then
+    if not can-find(ASI._user where ASI._user._userid = usr.uid) then
     do:
-      create nosweat._user.
+      create ASI._user.
       assign
-        nosweat._user._userid = usr.uid
-        nosweat._user._password = usr.usr-passwd
-        nosweat._user._user-name = usr.usr-name.
+        ASI._user._userid = usr.uid
+        ASI._user._password = usr.usr-passwd
+        ASI._user._user-name = usr.usr-name.
     end.
     if not can-find(users where users.user_id = usr.uid) then
     do:

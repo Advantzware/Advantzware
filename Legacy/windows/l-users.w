@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
 /* Connected Databases 
-          nosweat          PROGRESS
+          asi          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &Scoped-define FRAME-NAME Dialog-Frame
@@ -186,10 +186,10 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
 /* Query rebuild information for BROWSE BROWSE-1
-     _TblList          = "NOSWEAT.users"
+     _TblList          = "ASI.users"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
-     _FldNameList[1]   = NOSWEAT.users.user_id
-     _FldNameList[2]   = NOSWEAT.users.user_name
+     _FldNameList[1]   = ASI.users.user_id
+     _FldNameList[2]   = ASI.users.user_name
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME

@@ -62,25 +62,25 @@ Select_MF_Design Select_Security
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_Font_Color 
-     IMAGE-UP FILE "Graphics/32x32/window_font.ico":U
+     IMAGE-UP FILE "Graphics/32x32/window_font.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Font_Color" 
      SIZE 7.8 BY 1.81 TOOLTIP "Set Font and Colors".
 
 DEFINE BUTTON Select_Menu_Bar 
-     IMAGE-UP FILE "Graphics/32x32/drop_down_list.ico":U
+     IMAGE-UP FILE "Graphics/32x32/drop_down_list.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Menu_Bar" 
      SIZE 7.8 BY 1.81 TOOLTIP "Menu Bar".
 
 DEFINE BUTTON Select_MF_Design 
-     IMAGE-UP FILE "Graphics/32x32/compasses.ico":U
+     IMAGE-UP FILE "Graphics/32x32/compasses.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "MF_Design" 
      SIZE 7.8 BY 1.81 TOOLTIP "Misc Fields Design Screen".
 
 DEFINE BUTTON Select_Security 
-     IMAGE-UP FILE "Graphics/32x32/spy.ico":U
+     IMAGE-UP FILE "Graphics/32x32/spy.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Security" 
      SIZE 7.8 BY 1.81 TOOLTIP "Security".
@@ -133,6 +133,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB s-object 
 /* ************************* Included-Libraries *********************** */
 
+{advantzware/winkit/winkit-panel.i}
 {src/adm/method/smart.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -176,6 +177,11 @@ ASSIGN
 ON CHOOSE OF Select_Font_Color IN FRAME F-Main /* Font_Color */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:13:27 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -187,6 +193,11 @@ END.
 ON CHOOSE OF Select_Menu_Bar IN FRAME F-Main /* Menu_Bar */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:13:27 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -198,6 +209,11 @@ END.
 ON CHOOSE OF Select_MF_Design IN FRAME F-Main /* MF_Design */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:13:27 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -209,6 +225,11 @@ END.
 ON CHOOSE OF Select_Security IN FRAME F-Main /* Security */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:13:27 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */

@@ -259,7 +259,7 @@ PROCEDURE copy-styles :
              FOR EACH stack-flute NO-LOCK WHERE stack-flute.company  = from-company
                                         /*AND ASI.stack-flute.loc  = gloc*/
                                            AND stack-flute.code = flute.CODE :
-                 FIND FIRST usercomp WHERE usercomp.USER_id = USERID('nosweat')
+                 FIND FIRST usercomp WHERE usercomp.USER_id = USERID("ASI")
                                        AND usercomp.company = to-company
                                        AND usercomp.loc_default NO-LOCK NO-ERROR.
                  IF NOT AVAIL usercomp THEN

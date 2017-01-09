@@ -18,7 +18,7 @@ IF {&TABLENAME}.company NE "" AND {&TABLENAME}.r-no NE 0 THEN DO:
 
   IF TRIM({&TABLENAME}.user-id) EQ "" THEN
     ASSIGN
-     {&TABLENAME}.user-id  = USERID("nosweat")
+     {&TABLENAME}.user-id  = USERID("ASI")
      {&TABLENAME}.upd-date = TODAY
      {&TABLENAME}.upd-time = TIME.
 

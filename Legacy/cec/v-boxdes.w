@@ -297,16 +297,6 @@ ON HELP OF box-design-hdr.box-image IN FRAME F-Main /* Image File */
 DO:
    def var ls-filename as cha no-undo.
    def var ll-ok as log no-undo.
-   DEF VAR cInitDir AS CHARACTER NO-UNDO.
-   DEF VAR llInitDir AS CHARACTER NO-UNDO.
-
-   RUN sys/ref/nk1look.p (g_company, "DefaultDir", "C", no, no, "", "", 
-                          Output cInitDir, output llInitDir).
-   IF cInitDir NE "" THEN
-       ASSIGN
-       FILE-INFO:FILE-NAME = cInitDir
-      cInitDir = FILE-INFO:FULL-PATHNAME .
-   IF cInitDir = ? THEN cInitDir = "" .
    
      system-dialog get-file ls-filename 
                  title "Select Image File to insert"
@@ -315,7 +305,7 @@ DO:
                          "JPEG Files   (*.jpeg)" "*.jpeg",
                          "TIF Files    (*.tif)" "*.tif",
                          "All Files    (*.*) " "*.*"
-                 initial-dir cInitDir
+                 initial-dir "boximage\"
                  MUST-EXIST
                  USE-FILENAME
                  UPDATE ll-ok.
@@ -1158,7 +1148,7 @@ PROCEDURE update-image :
    DEF VAR lv-image-file AS cha NO-UNDO.
    DEF VAR tInt As Int No-undo.
 
-   FIND FIRST users WHERE users.USER_id = USERID('nosweat') NO-LOCK NO-ERROR.
+   FIND FIRST users WHERE users.USER_id = USERID("ASI") NO-LOCK NO-ERROR.
    IF AVAIL users AND users.USER_program[1] <> "" /*AND SEARCH(users.USER_program[1]) <> ?*/
                THEN ASSIGN lv-cmd = users.USER_program[1]
                            lv-cmd2 = chr(34) + users.USER_program[1] + CHR(34) .

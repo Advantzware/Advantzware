@@ -3,8 +3,8 @@
 /* Connected Databases 
           asi              PROGRESS
 */
-&SCOPED-DEFINE WINDOW-NAME CURRENT-WINDOW
-&SCOPED-DEFINE FRAME-NAME Dialog-Frame
+&Scoped-define WINDOW-NAME CURRENT-WINDOW
+&Scoped-define FRAME-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Dialog-Frame 
 /*------------------------------------------------------------------------
 
@@ -26,16 +26,16 @@ DEFINE OUTPUT PARAMETER op-recid AS RECID NO-UNDO.   /* output recid */
 DEFINE VARIABLE lv-type-dscr AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lv-first-time AS LOGICAL INITIAL YES NO-UNDO.
 
-&SCOPED-DEFINE SORTBY-1 BY cust.cust-no
-&SCOPED-DEFINE SORTBY-2 BY cust.name {&sortby-1}
-&SCOPED-DEFINE SORTBY-3 BY cust.sman {&sortby-1}
-&SCOPED-DEFINE FLD-NAME-1 cust.cust-no
-&SCOPED-DEFINE FLD-NAME-2 cust.name
-&SCOPED-DEFINE FLD-NAME-3 cust.sman
-&SCOPED-DEFINE IDXNAME1 cust
-&SCOPED-DEFINE IDXNAME2 name
-&SCOPED-DEFINE IDXNAME3 sman
-&SCOPED-DEFINE IAMWHAT LOOKUP
+&scoped-define SORTBY-1 BY cust.cust-no
+&scoped-define SORTBY-2 BY cust.name {&sortby-1}
+&scoped-define SORTBY-3 BY cust.sman {&sortby-1}
+&scoped-define FLD-NAME-1 cust.cust-no
+&scoped-define FLD-NAME-2 cust.name
+&scoped-define FLD-NAME-3 cust.sman
+&scoped-define IDXNAME1 cust
+&scoped-define IDXNAME2 name
+&scoped-define IDXNAME3 sman
+&scoped-define IAMWHAT LOOKUP
 
 {custom/globdefs.i}
 {sys/inc/VAR.i NEW SHARED}
@@ -52,7 +52,7 @@ DEFINE VARIABLE ou-cust-int AS INTEGER NO-UNDO .
 IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
    INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
    INDEX(PROGRAM-NAME(1),".ped") NE 0 THEN
-v-prgmname = USERID("NOSWEAT") + "..".
+v-prgmname = USERID("ASI") + "..".
 ELSE
 ASSIGN
   period_pos = INDEX(PROGRAM-NAME(1),".")
@@ -78,48 +78,48 @@ END.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&SCOPED-DEFINE PROCEDURE-TYPE DIALOG-BOX
-&SCOPED-DEFINE DB-AWARE no
+&Scoped-define PROCEDURE-TYPE DIALOG-BOX
+&Scoped-define DB-AWARE no
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
-&SCOPED-DEFINE FRAME-NAME Dialog-Frame
-&SCOPED-DEFINE BROWSE-NAME BROWSE-1
+&Scoped-define FRAME-NAME Dialog-Frame
+&Scoped-define BROWSE-NAME BROWSE-1
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&SCOPED-DEFINE INTERNAL-TABLES cust sman
+&Scoped-define INTERNAL-TABLES cust sman
 
 /* Define KEY-PHRASE in case it is used by any query. */
-&SCOPED-DEFINE KEY-PHRASE TRUE
+&Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&SCOPED-DEFINE FIELDS-IN-QUERY-BROWSE-1 cust.cust-no cust.name cust.addr[1] ~
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 cust.cust-no cust.name cust.addr[1] ~
 cust.addr[2] cust.city cust.state cust.zip cust.sman sman.sname 
-&SCOPED-DEFINE ENABLED-FIELDS-IN-QUERY-BROWSE-1 
-&SCOPED-DEFINE QUERY-STRING-BROWSE-1 FOR EACH cust WHERE ~{&KEY-PHRASE} ~
+&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
+&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH cust WHERE ~{&KEY-PHRASE} ~
       AND cust.company EQ ip-company AND ~
     ((v-check-page AND ( LOOKUP(cust.cust-no,custcount) NE 0 OR custcount = "")) OR NOT v-check-page) AND ~
 CAN-DO("A,X,S,E",cust.active) NO-LOCK, ~
       EACH sman OF cust OUTER-JOIN NO-LOCK ~
     ~{&SORTBY-PHRASE}
-&SCOPED-DEFINE OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH cust WHERE ~{&KEY-PHRASE} ~
+&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH cust WHERE ~{&KEY-PHRASE} ~
       AND cust.company = ip-company and ~
      ((v-check-page AND ( lookup(cust.cust-no,custcount) <> 0 OR custcount = "")) OR NOT v-check-page) AND ~
 CAN-DO("A,X,S,E",cust.active) NO-LOCK, ~
       EACH sman OF cust OUTER-JOIN NO-LOCK ~
     ~{&SORTBY-PHRASE}.
-&SCOPED-DEFINE TABLES-IN-QUERY-BROWSE-1 cust sman
-&SCOPED-DEFINE FIRST-TABLE-IN-QUERY-BROWSE-1 cust
-&SCOPED-DEFINE SECOND-TABLE-IN-QUERY-BROWSE-1 sman
+&Scoped-define TABLES-IN-QUERY-BROWSE-1 cust sman
+&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 cust
+&Scoped-define SECOND-TABLE-IN-QUERY-BROWSE-1 sman
 
 
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
-&SCOPED-DEFINE OPEN-BROWSERS-IN-QUERY-Dialog-Frame ~
+&Scoped-define OPEN-BROWSERS-IN-QUERY-Dialog-Frame ~
     ~{&OPEN-QUERY-BROWSE-1}
 
 /* Standard List Definitions                                            */
-&SCOPED-DEFINE ENABLED-OBJECTS BROWSE-1 RECT-1 rd-sort bt-clear lv-search ~
+&Scoped-Define ENABLED-OBJECTS BROWSE-1 RECT-1 rd-sort bt-clear lv-search ~
 bt-ok bt-cancel 
-&SCOPED-DEFINE DISPLAYED-OBJECTS rd-sort lv-search 
+&Scoped-Define DISPLAYED-OBJECTS rd-sort lv-search 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -270,7 +270,7 @@ CAN-DO(""A,X,S,E"",cust.active)"
 
 /* ************************  Control Triggers  ************************ */
 
-&SCOPED-DEFINE SELF-NAME Dialog-Frame
+&Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Customer Information */
 DO:
@@ -281,16 +281,16 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE BROWSE-NAME BROWSE-1
-&SCOPED-DEFINE SELF-NAME BROWSE-1
+&Scoped-define BROWSE-NAME BROWSE-1
+&Scoped-define SELF-NAME BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
 ON ANY-PRINTABLE OF BROWSE-1 IN FRAME Dialog-Frame
 DO:
-   IF lv-first-time THEN ASSIGN lv-search:SCREEN-VALUE = ""
-                                lv-first-time = NO.
+   if lv-first-time then assign lv-search:screen-value = ""
+                                lv-first-time = no.
                                 
-   lv-search:SCREEN-VALUE = lv-search:SCREEN-VALUE + KEYLABEL(LASTKEY).
-   APPLY "leave" TO lv-search.
+   lv-search:screen-value = lv-search:screen-value + keylabel(lastkey).
+   apply "leave" to lv-search.
     
 
 END.
@@ -302,11 +302,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
 ON DEFAULT-ACTION OF BROWSE-1 IN FRAME Dialog-Frame
 DO:
-   op-char-val = cust.cust-no:SCREEN-VALUE IN BROWSE {&browse-name} + "," +
-                 cust.name:SCREEN-VALUE IN BROWSE {&browse-name}
+   op-char-val = cust.cust-no:screen-value in browse {&browse-name} + "," +
+                 cust.name:screen-value in browse {&browse-name}
                  .
-   op-recid = RECID(cust).
-   APPLY "window-close" to FRAME {&FRAME-NAME}. 
+   op-recid = recid(cust).
+   apply "window-close" to frame {&frame-name}. 
       
 END.
 
@@ -314,17 +314,17 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME bt-clear
+&Scoped-define SELF-NAME bt-clear
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bt-clear Dialog-Frame
 ON CHOOSE OF bt-clear IN FRAME Dialog-Frame /* Clear Find */
 DO:
-    ASSIGN lv-search:SCREEN-VALUE = "".
+    assign lv-search:screen-value = "".
            lv-search = "".
-    CASE rd-sort:
+    case rd-sort:
         {srtord2.i 1}
         {srtord2.i 2}
         {srtord2.i 3}
-    END.
+    end.
         apply "entry" to {&browse-name}.
 END.
 
@@ -332,15 +332,15 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME bt-ok
+&Scoped-define SELF-NAME bt-ok
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bt-ok Dialog-Frame
 ON CHOOSE OF bt-ok IN FRAME Dialog-Frame /* OK */
 DO:
-   op-char-val = cust.cust-no:SCREEN-VALUE IN BROWSE {&browse-name} + "," +
-                 cust.name:SCREEN-VALUE IN BROWSE {&browse-name}
+   op-char-val = cust.cust-no:screen-value in browse {&browse-name} + "," +
+                 cust.name:screen-value in browse {&browse-name}
                  .
-   op-recid = RECID(cust).
-   APPLY "window-close" TO FRAME {&FRAME-NAME}. 
+   op-recid = recid(cust).
+   apply "window-close" to frame {&frame-name}. 
       
 END.
 
@@ -348,38 +348,38 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME lv-search
+&Scoped-define SELF-NAME lv-search
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-search Dialog-Frame
 ON LEAVE OF lv-search IN FRAME Dialog-Frame /* Search */
-OR RETURN OF lv-search
+or return of lv-search
 DO:
-    ASSIGN rd-sort 
+    assign rd-sort 
            lv-search.
-    &SCOPED-DEFINE IAMWHAT Search
-    &SCOPED-DEFINE fld-name-1 cust.cust-no
-    &SCOPED-DEFINE fld-name-2 cust.name
-    &SCOPED-DEFINE where-statement BEGINS lv-search
-    CASE rd-sort:
+    &scoped-define IAMWHAT Search
+    &scoped-define fld-name-1 cust.cust-no
+    &scoped-define fld-name-2 cust.name
+    &scoped-define where-statement begins lv-search
+    case rd-sort:
         {srtord2.i 1}
         {srtord2.i 2}
         {srtord2.i 3}    
 /*
          WHEN 1 THEN DO:
-              &SCOPED-DEFINE key-phrase {&fld-name-1} {&Where-statement}
+              &scoped-define key-phrase {&fld-name-1} {&Where-statement}
               {&open-query-{&browse-name}}
          END.
          WHEN 2 THEN DO:
-              &SCOPED-DEFINE key-phrase {&fld-name-2} {&Where-statement}
+              &scoped-define key-phrase {&fld-name-2} {&Where-statement}
               {&open-query-{&browse-name}}
          END.
  */        
-    END.      
+    end.      
  /*
     IF ROWID({&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}) = ? THEN
     DO:
         MESSAGE "Record not found beginning with '" + lv-search + "' !!!"
         VIEW-AS ALERT-BOX.
-        lv-search:SCREEN-VALUE = "".
+        lv-search:screen-value = "".
     end.    
   */
 END.
@@ -388,7 +388,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME rd-sort
+&Scoped-define SELF-NAME rd-sort
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-sort Dialog-Frame
 ON VALUE-CHANGED OF rd-sort IN FRAME Dialog-Frame
 DO:     
@@ -506,15 +506,15 @@ PROCEDURE new-rd-sort :
   Notes:       
 ------------------------------------------------------------------------------*/
   /* redefined for lookup */
-  &SCOPED-DEFINE IAMWHAT LOOKUP   
+  &scoped-define IAMWHAT LOOKUP   
          
   DO WITH FRAME {&FRAME-NAME}: 
-    ASSIGN rd-sort.
-    CASE rd-sort:
+    assign rd-sort.
+    case rd-sort:
         {srtord2.i 1}
         {srtord2.i 2}
         {srtord2.i 3}
-    END. 
+    end. 
   END.
 
   DO TRANSACTION:

@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          nosweat          PROGRESS
+          asi          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
@@ -169,7 +169,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartViewer
-   External Tables: NOSWEAT.notes
+   External Tables: ASI.notes
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -481,7 +481,7 @@ PROCEDURE local-display-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN new-note_code.
-  ASSIGN NOSWEAT.notes.note_code:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "RDC" 
+  ASSIGN ASI.notes.note_code:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "RDC" 
          spec-desc:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Release Date Change" .
 
   IF AVAIL notes THEN DO:     

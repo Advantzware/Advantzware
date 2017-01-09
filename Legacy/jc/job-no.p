@@ -40,30 +40,19 @@ ELSE IF v-job-meth = "PLine&Order#" AND
      END.
 ELSE IF v-job-meth EQ "Estimate#" THEN io-job-no = ipcEstNo.  
 
-    IF v-job-meth EQ "Estimate#" THEN DO:
-              FOR EACH job-hdr NO-LOCK WHERE job-hdr.company EQ cocode
-                  AND job-hdr.job-no  EQ io-job-no
-                  USE-INDEX job-no 
-                  BY job-hdr.job-no DESC BY job-hdr.job-no2 DESC:
+IF io-job-no NE "" THEN
+DO WHILE CAN-FIND(FIRST job
+                  WHERE job.company EQ cocode
+                    AND job.job-no  EQ io-job-no
+                    AND job.job-no2 EQ io-job-no2)    OR
+         CAN-FIND(FIRST oe-ord
+                  WHERE oe-ord.company EQ cocode
+                    AND oe-ord.job-no  EQ io-job-no
+                    AND oe-ord.job-no2 EQ io-job-no2) OR
+         CAN-FIND(FIRST oe-ordl
+                  WHERE oe-ordl.company EQ cocode
+                    AND oe-ordl.job-no  EQ io-job-no
+                    AND oe-ordl.job-no2 EQ io-job-no2):
+  io-job-no2 = io-job-no2 + 1.
+END.
 
-                  io-job-no2 = (IF AVAIL job-hdr THEN job-hdr.job-no2 + 1 ELSE 0).
-                  LEAVE .
-              END.
-    END.
-    ELSE DO:
-        IF io-job-no NE "" THEN
-        DO WHILE CAN-FIND(FIRST job
-                          WHERE job.company EQ cocode
-                            AND job.job-no  EQ io-job-no
-                            AND job.job-no2 EQ io-job-no2)    OR
-                 CAN-FIND(FIRST oe-ord
-                          WHERE oe-ord.company EQ cocode
-                            AND oe-ord.job-no  EQ io-job-no
-                            AND oe-ord.job-no2 EQ io-job-no2) OR
-                 CAN-FIND(FIRST oe-ordl
-                          WHERE oe-ordl.company EQ cocode
-                            AND oe-ordl.job-no  EQ io-job-no
-                            AND oe-ordl.job-no2 EQ io-job-no2):
-          io-job-no2 = io-job-no2 + 1.
-        END.
-    END.

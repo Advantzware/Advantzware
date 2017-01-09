@@ -119,7 +119,7 @@ FUNCTION get-iname RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -303,11 +303,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -451,6 +447,7 @@ DO:
   END.
    
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
+  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
   IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
@@ -721,6 +718,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT 'AL3',
                           INPUT NO,
                           OUTPUT glCustListActive).
+  {sys/inc/chblankcust.i}
   {sys/inc/chblankcust.i ""AL3""}
 
   IF ou-log THEN DO:
@@ -949,6 +947,7 @@ DEF VAR fcust AS CHAR NO-UNDO .
 DEF VAR tcust AS CHAR NO-UNDO .
 {custom/statusMsg.i " 'Processing...  '"}
 
+{custom/statusMsg.i " 'Processing...  '"}
     ASSIGN
     lSelected  = tb_cust-list
     fcust      = begin_cust
@@ -989,6 +988,7 @@ IF tb_excel THEN DO:
     excelHeader = 'GL Acct#,Description,Customer,Cust Name,Inv#,PO#,Customer Lot#,Item#,Item Desc,Run#,Date,Amount'.
     PUT STREAM excel UNFORMATTED '"' REPLACE(excelHeader,',','","') '"' SKIP.
   END. /* if tb_excel */
+
   IF lselected THEN DO:
     FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
     IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
@@ -1002,10 +1002,15 @@ FOR EACH tt-report:
 END.
 
 DISPLAY "" WITH FRAME r-top.
+FOR EACH ttCustList 
+    WHERE ttCustList.log-fld
+    NO-LOCK,
+  EACH ar-ledger
 FOR EACH ar-ledger
     WHERE ar-ledger.company EQ cocode
       /*AND ar-ledger.cust-no GE begin_cust
       AND ar-ledger.cust-no LE end_cust*/
+      AND ar-ledger.cust-no EQ ttCustList.cust-no
       AND ar-ledger.cust-no  GE fcust
       AND ar-ledger.cust-no  LE tcust
       AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq ar-ledger.cust-no

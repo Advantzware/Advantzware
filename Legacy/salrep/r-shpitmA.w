@@ -302,10 +302,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+     VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -775,6 +772,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                                OUTPUT ou-log,
                                OUTPUT ou-cust-int) .
   
+  RUN sys/inc/CustListForm.p ( "HR6",cocode, 
+                               OUTPUT ou-log,
+                               OUTPUT ou-cust-int) .
+  
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     APPLY "entry" TO begin_cust-no IN FRAME {&FRAME-NAME}.
@@ -1100,10 +1101,10 @@ SESSION:SET-WAIT-STATE ("general").
 
 EMPTY TEMP-TABLE tt-report.
 
-  FOR each cust
+  for each cust
       where cust.company eq cocode
-        AND cust.cust-no GE fcust
-        AND cust.cust-no LE tcust
+        and cust.cust-no ge fcust
+        and cust.cust-no le tcust
         AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
         AND ttCustList.log-fld no-lock) else true)
       no-lock:

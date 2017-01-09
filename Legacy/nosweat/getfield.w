@@ -28,7 +28,7 @@
 &IF DEFINED(UIB_is_Running) = 0 &THEN
 DEFINE INPUT-OUTPUT PARAMETER m_field AS CHARACTER NO-UNDO.
 &ELSE
-DEFINE VARIABLE m_field AS CHARACTER INITIAL "NOSWEAT.prgrms.prgmname" NO-UNDO.
+DEFINE VARIABLE m_field AS CHARACTER INITIAL "ASI.prgrms.prgmname" NO-UNDO.
 &ENDIF
 
 /* Local Variable Definitions ---                                       */

@@ -210,7 +210,7 @@ DEFINE VARIABLE lCheck AS LOGICAL NO-UNDO.
 
 
 FIND FIRST users WHERE
-     users.user_id EQ USERID("NOSWEAT")
+     users.user_id EQ USERID("ASI")
      NO-LOCK NO-ERROR.
 
    cDir =  SESSION:TEMP-DIRECTORY .

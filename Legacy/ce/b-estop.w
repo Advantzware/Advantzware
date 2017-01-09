@@ -3,7 +3,7 @@
 /* Connected Databases 
           asi              PROGRESS
 */
-&SCOPED-DEFINE WINDOW-NAME CURRENT-WINDOW
+&Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -33,42 +33,42 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 
 {sys/inc/var.i "new shared"}
-ASSIGN
+assign
  cocode = g_company
  locode = g_loc.
        
-DEFINE NEW SHARED buffer xest FOR est.
-DEFINE NEW SHARED buffer xef FOR ef.
-DEFINE NEW SHARED buffer xeb FOR eb.
+def new shared buffer xest for est.
+def new shared buffer xef for ef.
+def new shared buffer xeb for eb.
 
-DEFINE BUFFER xop FOR est-op.
-DEFINE BUFFER op-lock FOR reftable.
+def buffer xop for est-op.
+DEF BUFFER op-lock FOR reftable.
 
-DEFINE NEW SHARED VARIABLE xcal    AS de NO-UNDO.
-DEFINE NEW SHARED VARIABLE sh-wid  AS de NO-UNDO.
-DEFINE NEW SHARED VARIABLE sh-len  AS de NO-UNDO.
-DEFINE NEW SHARED VARIABLE fil_id AS RECID NO-UNDO.
-DEFINE NEW SHARED VARIABLE qty AS INTEGER NO-UNDO.
-DEFINE NEW SHARED VARIABLE v-chk-qty AS DECIMAL NO-UNDO.
-DEFINE NEW SHARED VARIABLE v-sht-qty AS DECIMAL NO-UNDO.
-DEFINE NEW SHARED VARIABLE v-rc-seq AS INT INITIAL 9999 NO-UNDO.
+def new shared var xcal    as de no-undo.
+def new shared var sh-wid  as de no-undo.
+def new shared var sh-len  as de no-undo.
+def new shared var fil_id as recid no-undo.
+DEF NEW SHARED VAR qty AS INT NO-UNDO.
+def NEW shared var v-chk-qty as dec no-undo.
+def NEW shared var v-sht-qty as dec no-undo.
+def NEW shared var v-rc-seq as int init 9999 no-undo.
 
-{ce/mach-ink.i NEW}
+{ce/mach-ink.i new}
 
-DEFINE VARIABLE ll-import-stds AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lv-d-seq LIKE est-op.d-seq NO-UNDO.
-DEFINE VARIABLE lv-dept LIKE est-op.dept NO-UNDO.
-DEFINE VARIABLE lv-op-sb LIKE est-op.op-sb NO-UNDO.
-DEFINE VARIABLE lv-b-num LIKE est-op.b-num NO-UNDO.
-DEFINE VARIABLE lv-n-out LIKE est-op.n-out NO-UNDO.
-DEFINE VARIABLE maxco AS INTEGER NO-UNDO.
-DEFINE VARIABLE v-passes   AS   INTEGER NO-UNDO.
-DEFINE VARIABLE ll-machine-modified AS LOGICAL NO-UNDO.
-DEFINE VARIABLE ll-import-selected AS LOGICAL NO-UNDO.
-DEFINE VARIABLE ll-import-all AS LOGICAL NO-UNDO.
-DEFINE VARIABLE li-cnt AS INTEGER NO-UNDO.
-DEFINE VARIABLE lv-eqty LIKE est-qty.eqty NO-UNDO.
-DEFINE VARIABLE v-override-mode AS LOGICAL NO-UNDO.
+def var ll-import-stds as log no-undo.
+def var lv-d-seq like est-op.d-seq no-undo.
+def var lv-dept like est-op.dept no-undo.
+def var lv-op-sb like est-op.op-sb no-undo.
+def var lv-b-num like est-op.b-num no-undo.
+def var lv-n-out like est-op.n-out no-undo.
+def var maxco as int no-undo.
+def var v-passes   as   int no-undo.
+def var ll-machine-modified as log no-undo.
+DEF VAR ll-import-selected AS LOG NO-UNDO.
+DEF VAR ll-import-all AS LOG NO-UNDO.
+DEF VAR li-cnt AS INT NO-UNDO.
+DEF VAR lv-eqty LIKE est-qty.eqty NO-UNDO.
+DEF VAR v-override-mode AS LOG NO-UNDO.
 
 &SCOPED-DEFINE sortby-phrase BY est-op.line
 
@@ -85,63 +85,63 @@ END.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&SCOPED-DEFINE PROCEDURE-TYPE SmartBrowser
-&SCOPED-DEFINE DB-AWARE NO
+&Scoped-define PROCEDURE-TYPE SmartBrowser
+&Scoped-define DB-AWARE no
 
-&SCOPED-DEFINE ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
+&Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
-&SCOPED-DEFINE FRAME-NAME F-Main
-&SCOPED-DEFINE BROWSE-NAME br_table
+&Scoped-define FRAME-NAME F-Main
+&Scoped-define BROWSE-NAME br_table
 
 /* External Tables                                                      */
-&SCOPED-DEFINE EXTERNAL-TABLES est est-qty
-&SCOPED-DEFINE FIRST-EXTERNAL-TABLE est
+&Scoped-define EXTERNAL-TABLES est est-qty
+&Scoped-define FIRST-EXTERNAL-TABLE est
 
 
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR est, est-qty.
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&SCOPED-DEFINE INTERNAL-TABLES est-op
+&Scoped-define INTERNAL-TABLES est-op
 
 /* Define KEY-PHRASE in case it is used by any query. */
-&SCOPED-DEFINE KEY-PHRASE TRUE
+&Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&SCOPED-DEFINE FIELDS-IN-QUERY-br_table est-op.s-num est-op.b-num ~
+&Scoped-define FIELDS-IN-QUERY-br_table est-op.s-num est-op.b-num ~
 est-op.m-code est-op.m-dscr est-op.n-out est-op.op-mr est-op.op-waste ~
 est-op.op-speed est-op.op-spoil est-op.op-crew[1] est-op.op-crew[2] ~
 est-op.op-rate[1] est-op.op-rate[2] est-op.num-col est-op.num-coat ~
 est-op.plates est-op.fountains 
-&SCOPED-DEFINE ENABLED-FIELDS-IN-QUERY-br_table est-op.s-num est-op.b-num ~
+&Scoped-define ENABLED-FIELDS-IN-QUERY-br_table est-op.s-num est-op.b-num ~
 est-op.m-code est-op.m-dscr est-op.n-out est-op.op-mr est-op.op-waste ~
 est-op.op-speed est-op.op-spoil est-op.op-crew[1] est-op.op-crew[2] ~
 est-op.num-col est-op.num-coat est-op.plates est-op.fountains 
-&SCOPED-DEFINE ENABLED-TABLES-IN-QUERY-br_table est-op
-&SCOPED-DEFINE FIRST-ENABLED-TABLE-IN-QUERY-br_table est-op
-&SCOPED-DEFINE QUERY-STRING-br_table FOR EACH est-op NO-LOCK WHERE est-op.company EQ est-qty.company ~
-  AND est-op.est-no EQ est-qty.est-no ~
-  AND est-op.line LT 500 ~
-      AND ((ASI.est-op.qty EQ est-qty.eqty AND est.est-type EQ 1) OR ~
- (ASI.est-op.qty EQ lv-eqty AND est.est-type NE 1))  ~
-    ~
+&Scoped-define ENABLED-TABLES-IN-QUERY-br_table est-op
+&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table est-op
+&Scoped-define QUERY-STRING-br_table FOR EACH est-op WHERE est-op.company = est-qty.company ~
+  AND est-op.est-no = est-qty.est-no ~
+  AND est-op.line < 500 ~
+      AND ((ASI.est-op.qty eq est-qty.eqty and est.est-type eq 1) or ~
+ (ASI.est-op.qty eq lv-eqty and est.est-type ne 1))  ~
+   NO-LOCK ~
     ~{&SORTBY-PHRASE}
-&SCOPED-DEFINE OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH est-op NO-LOCK WHERE est-op.company EQ est-qty.company ~
-  AND est-op.est-no EQ est-qty.est-no ~
-  AND est-op.line LT 500 ~
-      AND ((ASI.est-op.qty EQ est-qty.eqty AND est.est-type EQ 1) OR ~
- (ASI.est-op.qty EQ lv-eqty AND est.est-type NE 1))  ~
-    ~
+&Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH est-op WHERE est-op.company = est-qty.company ~
+  AND est-op.est-no = est-qty.est-no ~
+  AND est-op.line < 500 ~
+      AND ((ASI.est-op.qty eq est-qty.eqty and est.est-type eq 1) or ~
+ (ASI.est-op.qty eq lv-eqty and est.est-type ne 1))  ~
+   NO-LOCK ~
     ~{&SORTBY-PHRASE}.
-&SCOPED-DEFINE TABLES-IN-QUERY-br_table est-op
-&SCOPED-DEFINE FIRST-TABLE-IN-QUERY-br_table est-op
+&Scoped-define TABLES-IN-QUERY-br_table est-op
+&Scoped-define FIRST-TABLE-IN-QUERY-br_table est-op
 
 
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&SCOPED-DEFINE ENABLED-OBJECTS br_table 
-&SCOPED-DEFINE DISPLAYED-OBJECTS fi_sortby 
+&Scoped-Define ENABLED-OBJECTS br_table 
+&Scoped-Define DISPLAYED-OBJECTS fi_sortby 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -223,12 +223,12 @@ DEFINE BROWSE br_table
       est-op.op-waste FORMAT ">>>>>9":U
       est-op.op-speed FORMAT ">>>>>9":U
       est-op.op-spoil FORMAT ">>9.99":U
-      est-op.op-crew[1] COLUMN-LABEL "MRCrew" FORMAT ">9.99":U WIDTH 9.2
-      est-op.op-crew[2] COLUMN-LABEL "RunCrew" FORMAT ">9.99":U
+      est-op.op-crew[1] COLUMN-LABEL "MRCrew" FORMAT "9.99":U WIDTH 9.2
+      est-op.op-crew[2] COLUMN-LABEL "RunCrew" FORMAT "9.99":U
             WIDTH 9.6
-      est-op.op-rate[1] COLUMN-LABEL "MRate" FORMAT ">>>9.99":U
-            WIDTH 8.6
-      est-op.op-rate[2] COLUMN-LABEL "RRate" FORMAT ">>>9.99":U
+      est-op.op-rate[1] COLUMN-LABEL "MRate" FORMAT ">>9.99":U
+            WIDTH 7.6
+      est-op.op-rate[2] COLUMN-LABEL "RRate" FORMAT ">>9.99":U
       est-op.num-col COLUMN-LABEL "Inks" FORMAT ">>>":U WIDTH 9
       est-op.num-coat COLUMN-LABEL "Varnish" FORMAT ">>>":U WIDTH 12
       est-op.plates FORMAT ">>>":U
@@ -396,23 +396,23 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
-&SCOPED-DEFINE BROWSE-NAME br_table
-&SCOPED-DEFINE SELF-NAME br_table
+&Scoped-define BROWSE-NAME br_table
+&Scoped-define SELF-NAME br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON HELP OF br_table IN FRAME F-Main /* Operations */
 DO:
-   DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
-   CASE FOCUS:NAME:
-       WHEN "m-code" THEN DO:
-          RUN windows/l-mach.w (est.company,est.loc, FOCUS:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT char-val).
-          IF char-val NE "" THEN DO:
-             ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
-                    est-op.m-dscr:SCREEN-VALUE IN BROWSE {&browse-name} = ENTRY(2,char-val).
+   def var char-val as cha no-undo.
+   case focus:name:
+       when "m-code" then do:
+          run windows/l-mach.w (est.company,est.loc, focus:screen-value in browse {&browse-name}, output char-val).
+          if char-val <> "" then DO:
+             assign focus:screen-value = entry(1,char-val)
+                    est-op.m-dscr:screen-value in browse {&browse-name} = entry(2,char-val).
              APPLY "value-changed" TO FOCUS.
           END.          
-       END.
-   END CASE.
-   RETURN NO-APPLY.
+       end.
+   end case.
+   return no-apply.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -465,14 +465,14 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME est-op.s-num
+&Scoped-define SELF-NAME est-op.s-num
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.s-num br_table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF est-op.s-num IN BROWSE br_table /* S */
 DO:
-  IF est.est-type EQ 1 THEN DO:
-    APPLY "tab" TO SELF.
-    RETURN NO-APPLY.
-  END.
+  if est.est-type eq 1 then do:
+    apply "tab" to self.
+    return no-apply.
+  end.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -482,29 +482,30 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.s-num br_table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF est-op.s-num IN BROWSE br_table /* S */
 DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-s-num NO-ERROR.
-    if ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
+  if lastkey ne -1 then do:
+    run valid-s-num NO-ERROR.
+    if ERROR-STATUS:ERROR then return no-apply.
+  end.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME est-op.b-num
+&Scoped-define SELF-NAME est-op.b-num
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.b-num br_table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF est-op.b-num IN BROWSE br_table /* B */
 DO:
-  DEFINE VARIABLE ll-1-blank AS LOGICAL NO-UNDO.
+  DEF VAR ll-1-blank AS LOG NO-UNDO.
 
-  DEFINE BUFFER b-eb FOR eb.
+  DEF BUFFER b-eb FOR eb.
 
 
-  FOR EACH b-eb NO-LOCK
+  FOR EACH b-eb
       WHERE b-eb.company EQ est-qty.company
         AND b-eb.est-no  EQ est-qty.est-no
         AND b-eb.form-no EQ INT(est-op.s-num:SCREEN-VALUE IN BROWSE {&browse-name})
+      NO-LOCK
       BREAK BY b-eb.blank-no:
 
     ll-1-blank = FIRST(b-eb.blank-no) AND LAST(b-eb.blank-no).
@@ -525,17 +526,17 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.b-num br_table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF est-op.b-num IN BROWSE br_table /* B */
 DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-b-num NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
+  if lastkey ne -1 then do:
+    run valid-b-num NO-ERROR.
+    if ERROR-STATUS:ERROR then return no-apply.
+  end.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME est-op.m-code
+&Scoped-define SELF-NAME est-op.m-code
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.m-code br_table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF est-op.m-code IN BROWSE br_table /* Machine */
 DO:
@@ -573,7 +574,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.m-code br_table _BROWSE-COLUMN B-table-Win
 ON VALUE-CHANGED OF est-op.m-code IN BROWSE br_table /* Machine */
 DO:
-  DEFINE VARIABLE li AS INTEGER NO-UNDO.
+  DEF VAR li AS INT NO-UNDO.
 
 
   FIND mach
@@ -602,23 +603,23 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME est-op.m-dscr
+&Scoped-define SELF-NAME est-op.m-dscr
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.m-dscr br_table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF est-op.m-dscr IN BROWSE br_table /* Desc */
 DO:
-  APPLY "tab" TO SELF.
-  RETURN NO-APPLY.
+  apply "tab" to self.
+  return no-apply.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME est-op.n-out
+&Scoped-define SELF-NAME est-op.n-out
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.n-out br_table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF est-op.n-out IN BROWSE br_table /* Out */
 DO:
-  IF NOT (v-ceroute#out-log EQ YES AND INDEX("GL,DC",lv-dept) GT 0) AND
+  IF NOT (v-ceroute#out-log = YES AND INDEX("GL,DC",lv-dept) > 0) AND
      NOT CAN-DO("RC,GU",lv-dept) THEN DO:
      APPLY "tab" TO est-op.n-out IN BROWSE {&browse-name}.
      RETURN NO-APPLY.
@@ -632,9 +633,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.n-out br_table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF est-op.n-out IN BROWSE br_table /* Out */
 DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-mach NO-ERROR.
-    if ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  if lastkey ne -1 then DO:
+    run valid-mach NO-ERROR.
+    if ERROR-STATUS:ERROR then return no-apply.
 
     IF ll-import-stds AND LOOKUP(lv-dept,"RC,GU") NE 0 THEN RUN get-stds.
   END.
@@ -644,9 +645,9 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME est-op.NUM-COL
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.NUM-COL br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF est-op.NUM-COL IN BROWSE br_table /* Inks */
+&Scoped-define SELF-NAME est-op.num-col
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.num-col br_table _BROWSE-COLUMN B-table-Win
+ON ENTRY OF est-op.num-col IN BROWSE br_table /* Inks */
 DO:
   IF lv-dept NE "PR" THEN DO WITH FRAME {&FRAME-NAME}:
     APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
@@ -658,8 +659,8 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.NUM-COL br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF est-op.NUM-COL IN BROWSE br_table /* Inks */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.num-col br_table _BROWSE-COLUMN B-table-Win
+ON LEAVE OF est-op.num-col IN BROWSE br_table /* Inks */
 DO:
   IF LASTKEY NE -1 THEN DO:
     IF ll-import-stds AND lv-dept NE "PR" AND lv-dept NE "CT" THEN RUN get-stds.
@@ -670,7 +671,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME est-op.num-coat
+&Scoped-define SELF-NAME est-op.num-coat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.num-coat br_table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF est-op.num-coat IN BROWSE br_table /* Varnish */
 DO:
@@ -696,11 +697,11 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME est-op.plates
+&Scoped-define SELF-NAME est-op.plates
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.plates br_table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF est-op.plates IN BROWSE br_table /* Plate Changes */
 DO:
-  DEFINE VARIABLE ll AS LOGICAL INITIAL YES NO-UNDO.
+  DEF VAR ll AS LOG INIT YES NO-UNDO.
 
 
   IF lv-dept EQ "PR" THEN
@@ -729,11 +730,11 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME est-op.fountains
+&Scoped-define SELF-NAME est-op.fountains
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.fountains br_table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF est-op.fountains IN BROWSE br_table /* Fountain Changes */
 DO:
-  DEFINE VARIABLE ll AS LOGICAL INITIAL YES NO-UNDO.
+  DEF VAR ll AS LOG INIT YES NO-UNDO.
 
 
   IF lv-dept EQ "PR" THEN
@@ -770,7 +771,7 @@ END.
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3help.i}
 
-&IF DEFINED(UIB_IS_RUNNING) NE 0 &THEN          
+&IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
 
@@ -822,9 +823,9 @@ PROCEDURE build-route :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE ll AS LOGICAL NO-UNDO.
-  DEFINE VARIABLE lv-msg AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE lv-msg1 AS CHARACTER NO-UNDO.
+  DEF VAR ll AS LOG NO-UNDO.
+  DEF VAR lv-msg AS CHAR NO-UNDO.
+  DEF VAR lv-msg1 AS CHAR NO-UNDO.
 
   DEF BUFFER b-est-qty FOR est-qty.
 
@@ -833,19 +834,19 @@ PROCEDURE build-route :
         
   v-override-mode = NO.
 
-  IF CAN-FIND(FIRST est-op
-              WHERE est-op.company EQ est-qty.company
-                AND est-op.est-no  EQ est-qty.est-no
-                AND (est-op.qty    EQ est-qty.eqty OR est.est-type GT 1))
-                THEN DO:
+  if can-find(first est-op
+              where est-op.company eq est-qty.company
+                and est-op.est-no  eq est-qty.est-no
+                and (est-op.qty    eq est-qty.eqty or est.est-type gt 1))
+                then do:
                 
-    lv-msg = IF CAN-FIND(FIRST est-op
-                         WHERE est-op.company EQ est-qty.company
-                           AND est-op.est-no  EQ est-qty.est-no
-                           AND (est-op.qty    EQ est-qty.eqty OR est.est-type GT 1)
-                           AND est-op.auto    EQ YES) THEN
+    lv-msg = if can-find(first est-op
+                         where est-op.company eq est-qty.company
+                           and est-op.est-no  eq est-qty.est-no
+                           and (est-op.qty    eq est-qty.eqty or est.est-type gt 1)
+                           and est-op.auto    eq yes) then
                "(NOTE: This will DELETE any machines NOT manually added)"
-             ELSE
+             else
                "(NOTE: This will NOT DELETE any machines manually added)".
              
     IF INDEX(PROGRAM-NAME(2),"run-goto") EQ 0 THEN
@@ -853,24 +854,24 @@ PROCEDURE build-route :
     ELSE
        lv-msg1 = "Do you want to build a new routing?". 
 
-    MESSAGE lv-msg1 SKIP
+    message lv-msg1 skip
             lv-msg
-            VIEW-AS ALERT-BOX QUESTION
-            BUTTON YES-NO UPDATE ll-ans AS LOGICAL.
-    IF NOT ll-ans THEN RETURN NO-APPLY.
-  END.
+            view-as alert-box question
+            button yes-no update ll-ans as log.
+    if not ll-ans then return no-apply.
+  end.
 
   SESSION:SET-WAIT-STATE("general").
   
-  FIND xest WHERE RECID(xest) EQ RECID(est).
+  find xest where recid(xest) eq recid(est).
 
   IF xest.est-type EQ 1 THEN DO:
     ll = NO.
 
-    FOR EACH b-est-qty NO-LOCK 
+    FOR EACH b-est-qty
         WHERE b-est-qty.company EQ est-qty.company
           AND b-est-qty.est-no  EQ est-qty.est-no
-        BREAK BY b-est-qty.eqty:
+        NO-LOCK BREAK BY b-est-qty.eqty:
 
       IF FIRST(b-est-qty.eqty)    AND
          NOT LAST(b-est-qty.eqty) THEN
@@ -881,20 +882,21 @@ PROCEDURE build-route :
             UPDATE ll.
 
       IF ll OR ROWID(est-qty) EQ ROWID(b-est-qty) THEN DO:  
-        FOR EACH ef NO-LOCK 
+        FOR EACH ef
             WHERE ef.company EQ b-est-qty.company
-              AND ef.est-no  EQ b-est-qty.est-no:
+              AND ef.est-no  EQ b-est-qty.est-no
+            NO-LOCK:
       
           RUN set-lock (ef.form-no, NO).
         END.    
     
-        FIND FIRST xef NO-LOCK  WHERE xef.company EQ b-est-qty.company 
-                         AND xef.est-no EQ b-est-qty.est-no
-                       NO-ERROR.
-        FIND FIRST xeb  NO-LOCK WHERE xeb.company EQ b-est-qty.company 
-                         AND xeb.est-no EQ b-est-qty.est-no
-                         AND xeb.form-no EQ xef.form-no
-                       NO-ERROR.
+        FIND FIRST xef WHERE xef.company = b-est-qty.company 
+                         AND xef.est-no = b-est-qty.est-no
+                       NO-LOCK NO-ERROR.
+        FIND FIRST xeb WHERE xeb.company = b-est-qty.company 
+                         AND xeb.est-no = b-est-qty.est-no
+                         AND xeb.form-no = xef.form-no
+                       NO-LOCK NO-ERROR.
 
         RUN ce/mach-seq.p (b-est-qty.eqty).
       END.
@@ -902,20 +904,21 @@ PROCEDURE build-route :
   END.
 
   ELSE DO:  
-    FOR EACH ef NO-LOCK 
-        WHERE ef.company EQ est-qty.company
-          AND ef.est-no  EQ est-qty.est-no:
+    for each ef
+        where ef.company eq est-qty.company
+          and ef.est-no  eq est-qty.est-no
+        no-lock:
       
-      RUN set-lock (ef.form-no, NO).
-    END.    
+      run set-lock (ef.form-no, no).
+    end.    
     
-    FIND FIRST xef NO-LOCK  WHERE xef.company EQ est-qty.company 
-                     AND xef.est-no EQ est-qty.est-no
-                   NO-ERROR.
-    FIND FIRST xeb NO-LOCK  WHERE xeb.company EQ est-qty.company 
-                     AND xeb.est-no EQ est-qty.est-no
-                     AND xeb.form-no EQ xef.form-no
-                   NO-ERROR.
+    FIND FIRST xef WHERE xef.company = est-qty.company 
+                     AND xef.est-no = est-qty.est-no
+                   NO-LOCK NO-ERROR.
+    FIND FIRST xeb WHERE xeb.company = est-qty.company 
+                     AND xeb.est-no = est-qty.est-no
+                     AND xeb.form-no = xef.form-no
+                   NO-LOCK NO-ERROR.
 
     IF xest.est-type EQ 2 THEN RUN ce/box/mach-seq.p.
 
@@ -927,7 +930,7 @@ PROCEDURE build-route :
 
   RUN release-shared-buffers.
   
-  RUN dispatch ('open-query').
+  run dispatch ('open-query').
 
   SESSION:SET-WAIT-STATE("").
 
@@ -961,32 +964,32 @@ PROCEDURE first-of-mach :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE INPUT  PARAMETER ip-m-code LIKE est-op.m-code NO-UNDO.
-  DEFINE OUTPUT PARAMETER op-first  AS   LOGICAL       NO-UNDO.
+  DEF INPUT  PARAM ip-m-code LIKE est-op.m-code NO-UNDO.
+  DEF OUTPUT PARAM op-first  AS   LOG           NO-UNDO.
   
-  DEFINE BUFFER b-est-op FOR est-op.
-  DEFINE BUFFER b-mach FOR mach.
-  DEFINE BUFFER b2-mach FOR mach.
+  DEF BUFFER b-est-op FOR est-op.
+  DEF BUFFER b-mach FOR mach.
+  DEF BUFFER b2-mach FOR mach.
 
-  DEFINE VARIABLE v-mach-found AS LOGICAL NO-UNDO.
+  DEF VAR v-mach-found AS LOG NO-UNDO.
 
-  IF NOT AVAILABLE est-op THEN
+  IF NOT AVAIL est-op THEN
      LEAVE.
 
-  FOR EACH b-est-op FIELDS(m-code) NO-LOCK WHERE
+  FOR EACH b-est-op FIELDS(m-code) WHERE
       b-est-op.company EQ est-op.company AND
       b-est-op.est-no  EQ est-op.est-no AND
       b-est-op.qty     EQ est-op.qty AND
       b-est-op.line    LT est-op.line
-      ,
-      FIRST b-mach FIELDS(sch-m-code) NO-LOCK WHERE
+      NO-LOCK,
+      FIRST b-mach FIELDS(sch-m-code) WHERE
             b-mach.company EQ est-op.company AND
             b-mach.m-code EQ est-op.m-code
-            ,
-      FIRST b2-mach FIELDS(sch-m-code) NO-LOCK WHERE
+            NO-LOCK,
+      FIRST b2-mach FIELDS(sch-m-code) WHERE
             b2-mach.company EQ est-op.company AND
             b2-mach.m-code EQ b-est-op.m-code
-            :
+            NO-LOCK:
 
       IF b-est-op.m-code EQ ip-m-code OR
          b-mach.sch-m-code EQ b2-mach.sch-m-code THEN
@@ -1010,13 +1013,13 @@ PROCEDURE get-stds :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE chr-handle AS CHARACTER NO-UNDO.
+  def var chr-handle as char no-undo.
   
 
   ll-import-stds = NO.
 
-  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, "tableio-source", OUTPUT chr-handle).
-  RUN finish-new-record IN WIDGET-HANDLE (chr-handle).
+  run get-link-handle in adm-broker-hdl (this-procedure, "tableio-source", output chr-handle).
+  run finish-new-record in widget-handle (chr-handle).
   
 END PROCEDURE.
 
@@ -1039,14 +1042,15 @@ FOR EACH bf-est-op
       AND bf-est-op.LINE LT 500
       AND ROWID(bf-est-op) NE ROWID(est-op)
     EXCLUSIVE-LOCK,
-    FIRST bf-mach NO-LOCK
+    FIRST bf-mach
         WHERE bf-mach.company EQ bf-est-op.company
-        AND bf-mach.m-code EQ bf-est-op.m-code:
+        AND bf-mach.m-code eq bf-est-op.m-code
+      NO-LOCK:
     
     ASSIGN
         bf-est-op.d-seq      = bf-mach.d-seq
         bf-est-op.dept       = bf-mach.dept[1]
-        bf-est-op.op-sb      = bf-mach.p-type NE "B"
+        bf-est-op.op-sb      = bf-mach.p-type ne "B"
         bf-est-op.m-code     = bf-mach.m-code
         bf-est-op.m-dscr     = bf-mach.m-dscr
         bf-est-op.op-rate[1] = bf-mach.mr-trate
@@ -1092,103 +1096,105 @@ PROCEDURE local-assign-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE j          AS INTEGER NO-UNDO.
-  DEFINE VARIABLE v-outw     LIKE xef.n-out NO-UNDO.
-  DEFINE VARIABLE v-outl     LIKE xef.n-out-l NO-UNDO.
-  DEFINE VARIABLE v-rate     LIKE est-op.op-rate NO-UNDO.
-  DEFINE VARIABLE v-recid    AS   RECID NO-UNDO.
+  def var j as int no-undo.
+  def var v-outw     like xef.n-out no-undo.
+  def var v-outl     like xef.n-out-l no-undo.
+  def var v-rate     like est-op.op-rate no-undo.
+  def var v-recid    as   recid no-undo.
   
   /* Code placed here will execute PRIOR to standard behavior. */
-  fil_id = RECID(est-op).  /* for sub-program */
+  fil_id = recid(est-op).  /* for sub-program */
          
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ).
 
   /* Code placed here will execute AFTER standard behavior.    */
-  FIND xest WHERE RECID(xest) EQ RECID(est).
+  find xest where recid(xest) eq recid(est).
   
-  FIND FIRST mach NO-LOCK 
+  find first mach
       {sys/look/machW.i}
-        AND mach.m-code EQ est-op.m-code
-      NO-ERROR.
+        and mach.m-code eq est-op.m-code
+      no-lock no-error.
 
-  FIND FIRST xef NO-LOCK 
-      WHERE xef.company EQ est-op.company
-        AND xef.est-no  EQ est-op.est-no
-        AND xef.form-no EQ est-op.s-num
-       NO-ERROR.
+  find first xef
+      where xef.company eq est-op.company
+        and xef.est-no  eq est-op.est-no
+        and xef.form-no eq est-op.s-num
+      no-lock no-error.
   
   ASSIGN
    est-op.d-seq      = mach.d-seq
    est-op.dept       = mach.dept[1]
-   est-op.op-sb      = mach.p-type NE "B"
+   est-op.op-sb      = mach.p-type ne "B"
    est-op.m-code     = mach.m-code
    est-op.m-dscr     = mach.m-dscr
    est-op.op-rate[1] = mach.mr-trate
    est-op.op-rate[2] = mach.run-trate.
 
-  IF est-op.op-crew[1] EQ 0 OR ll-import-selected THEN
+  if est-op.op-crew[1] eq 0 or ll-import-selected then
     est-op.op-crew[1] = mach.mr-crusiz.
 
-  IF est-op.op-crew[2] EQ 0 OR ll-import-selected  THEN
+  if est-op.op-crew[2] eq 0 or ll-import-selected  then
     est-op.op-crew[2] = mach.run-crusiz.
          
-  IF ll-import-selected THEN 
-    ASSIGN
+  if ll-import-selected then 
+    assign
      est-op.op-spoil = mach.run-spoil
-     est-op.NUM-COL  = 0
+     est-op.num-col  = 0
      est-op.num-coat = 0.
 
  IF ll-import-all THEN
      RUN ImportRouting.
 
-  FOR EACH xop
-      WHERE xop.company EQ est-op.company
-        AND xop.est-no  EQ est-op.est-no
-        AND xop.line    LT 500
-      BREAK BY xop.qty
-            BY xop.s-num
-            BY xop.b-num
-            BY xop.dept
-            BY xop.line:
+  for each xop
+      where xop.company eq est-op.company
+        and xop.est-no  eq est-op.est-no
+        and xop.line    lt 500
+      break by xop.qty
+            by xop.s-num
+            by xop.b-num
+            by xop.dept
+            by xop.line:
             
-    IF FIRST-OF(xop.dept) THEN j = 0.
+    if first-of(xop.dept) then j = 0.
     
-    ASSIGN
+    assign
      j           = j + 1
      xop.op-pass = j.
-  END.
+  end.
 
   j = 0.
-  FOR EACH xop
-      WHERE xop.company EQ est-op.company
+  for each xop
+      where xop.company EQ est-op.company
         AND xop.est-no  EQ est-op.est-no
-        AND xop.line   LT 500
-      BY xop.qty BY xop.s-num BY xop.b-num BY xop.d-seq BY xop.op-pass:
+        and xop.line    lt 500
+      by xop.qty by xop.s-num by xop.b-num by xop.d-seq by xop.op-pass:
 
-    {sys/inc/outstrPL.i xop SHARE}
-    ASSIGN
+    {sys/inc/outstrPL.i xop share}
+    assign
      j        = j + 1
      xop.line = j.
      
-    IF AVAILABLE reftable THEN reftable.loc = STRING(xop.line,"9999999999"). 
-  END.  
+    if avail reftable then reftable.loc = string(xop.line,"9999999999"). 
+  end.  
   
-  ASSIGN
-   fil_id  = RECID(est-op)
+  assign
+   fil_id  = recid(est-op)
    v-recid = fil_id.
 
-  FOR EACH ef NO-LOCK
+  FOR EACH ef 
       WHERE ef.company EQ est-qty.company
-        AND ef.est-no  EQ est-qty.est-no:
+        AND ef.est-no  EQ est-qty.est-no
+      NO-LOCK:
     RUN set-lock (ef.form-no, NOT ll-import-selected).
   END.
 
   RUN ce/mach-rek.p (IF ll-import-all THEN ? ELSE ROWID(est-op)).
 
-  FOR EACH ef NO-LOCK
+  FOR EACH ef 
       WHERE ef.company EQ est-qty.company
-        AND ef.est-no  EQ est-qty.est-no:
+        AND ef.est-no  EQ est-qty.est-no
+      NO-LOCK:
     RUN set-lock (ef.form-no, YES).
   END.
 
@@ -1255,23 +1261,23 @@ PROCEDURE local-create-record :
   /* Code placed here will execute PRIOR to standard behavior. */
 
   i = 1.
-  FOR EACH xop NO-LOCK
-      WHERE xop.company EQ est-qty.company
-        AND xop.est-no  EQ est-qty.est-no
-        AND xop.line    LT 500
-       BY xop.line DESCENDING:
+  for each xop
+      where xop.company eq est-qty.company
+        and xop.est-no  eq est-qty.est-no
+        and xop.line    lt 500
+      NO-LOCK by xop.line descending:
     i = xop.line + 1.
-    LEAVE.
-  END.
+    leave.
+  end.
   
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  ASSIGN
+  assign
    est-op.company = est-qty.company
    est-op.est-no  = est-qty.est-no
-   est-op.auto    = NO
+   est-op.auto    = no
    est-op.line    = i
    est-op.s-num   = 1
    est-op.b-num   = 0
@@ -1289,9 +1295,9 @@ PROCEDURE local-delete-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE BUFFER xop FOR est-op.
+  DEF BUFFER xop FOR est-op.
 
-  DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+  DEF VAR char-hdl AS CHAR NO-UNDO.
 
 
   /* Code placed here will execute PRIOR to standard behavior. */
@@ -1312,12 +1318,12 @@ PROCEDURE local-delete-record :
                   WHERE eb.company EQ est-qty.company
                     AND eb.est-no  EQ est-qty.est-no
                     AND eb.eqty    EQ est-qty.eqty) THEN DO:
-    FIND FIRST xop NO-LOCK
+    FIND FIRST xop
         WHERE xop.company EQ est-qty.company
           AND xop.est-no  EQ est-qty.est-no
           AND xop.qty     EQ est-qty.eqty
-         NO-ERROR.
-    IF NOT AVAILABLE xop THEN DO:
+        NO-LOCK NO-ERROR.
+    IF NOT AVAIL xop THEN DO:
       RUN get-link-handle IN adm-broker-hdl  (THIS-PROCEDURE,'record-source':U,OUTPUT char-hdl).
       RUN dispatch IN WIDGET-HANDLE(char-hdl) ("delete-record").
     END.
@@ -1397,10 +1403,11 @@ PROCEDURE local-open-query :
     IF est.est-type EQ 1 THEN lv-eqty = est-qty.eqty.
 
     ELSE
-    FOR EACH xop NO-LOCK
+    FOR EACH xop
         WHERE xop.company EQ est-qty.company
           AND xop.est-no  EQ est-qty.est-no
           AND xop.line    LT 500
+        NO-LOCK
         BY xop.qty:
       lv-eqty = xop.qty.
       LEAVE.
@@ -1423,7 +1430,7 @@ PROCEDURE local-update-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   /* Code placed here will execute PRIOR to standard behavior. */
-  RUN valid-s-num.
+  run valid-s-num.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
   RUN valid-b-num.
@@ -1529,7 +1536,7 @@ PROCEDURE repo-query :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
+  DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
 
   
   RUN dispatch ("open-query").
@@ -1576,8 +1583,8 @@ PROCEDURE set-import-stds :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ip-add-update  AS   CHARACTER           NO-UNDO.
-  DEFINE INPUT PARAMETER ip-import-stds LIKE ll-import-stds      NO-UNDO.
+  def input parameter ip-add-update  as   char           no-undo.
+  def input parameter ip-import-stds like ll-import-stds no-undo.
 
   IF ip-add-update = "Update" AND ip-import-stds = NO THEN
      v-override-mode = YES.
@@ -1610,9 +1617,9 @@ PROCEDURE set-import-stds :
    ll-import-stds     = ip-import-stds
    ll-import-selected = ip-import-stds.
 
-  IF ip-add-update EQ "update" THEN DO WITH FRAME {&FRAME-NAME}:
-    APPLY "entry" TO est-op.s-num IN BROWSE {&browse-name}.
-  END.
+  if ip-add-update eq "update" then do with frame {&frame-name}:
+    apply "entry" to est-op.s-num in browse {&browse-name}.
+  end.
 
 END PROCEDURE.
 
@@ -1626,16 +1633,16 @@ PROCEDURE set-lock :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ip-form-no LIKE ef.form-no NO-UNDO.
-  DEFINE INPUT PARAMETER ip-op-lock LIKE ef.op-lock NO-UNDO.
+  def input parameter ip-form-no like ef.form-no no-undo.
+  def input parameter ip-op-lock like ef.op-lock no-undo.
   
-  FIND FIRST ef
-      WHERE ef.company EQ est-qty.company
-        AND ef.est-no  EQ est-qty.est-no
-        AND ef.form-no EQ ip-form-no
-      NO-ERROR.
+  find first ef
+      where ef.company eq est-qty.company
+        and ef.est-no  eq est-qty.est-no
+        and ef.form-no eq ip-form-no
+      no-error.
 
-  IF AVAIL ef THEN DO:
+  if avail ef then do:
 
      /*task 020050908*/
      IF ip-op-lock EQ ef.op-lock THEN
@@ -1643,7 +1650,7 @@ PROCEDURE set-lock :
         {est/op-lock.i xest}
         
         ASSIGN
-           op-lock.val[1] = INTEGER(NOT ip-op-lock)
+           op-lock.val[1] = INT(NOT ip-op-lock)
            op-lock.val[2] = op-lock.val[1].
 
         RELEASE op-lock.
@@ -1651,8 +1658,8 @@ PROCEDURE set-lock :
 
      ef.op-lock = ip-op-lock.
 
-     RELEASE ef.
-  END.
+     release ef.
+  end.
   
 END PROCEDURE.
 
@@ -1687,7 +1694,7 @@ PROCEDURE valid-b-num :
   Notes:       
 ------------------------------------------------------------------------------*/
   
-  DO WITH FRAME {&FRAME-NAME}:
+  do with frame {&frame-name}:
     APPLY "value-changed" TO est-op.m-code IN BROWSE {&browse-name}.
 
     FIND FIRST mach
@@ -1696,18 +1703,18 @@ PROCEDURE valid-b-num :
         NO-LOCK NO-ERROR.
 
     IF ((AVAIL mach AND mach.p-type EQ "B") OR
-        INTEGER(est-op.b-num:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0) AND
-       NOT CAN-FIND(FIRST eb
-                    WHERE eb.company  EQ est-qty.company
-                      AND eb.est-no   EQ est-qty.est-no
-                      AND eb.form-no  EQ int(est-op.s-num:SCREEN-VALUE IN BROWSE {&browse-name})
-                      AND eb.blank-no EQ int(est-op.b-num:SCREEN-VALUE IN BROWSE {&browse-name}))
-    THEN DO:
-      MESSAGE "Must enter a valid Blank#" VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO est-op.b-num IN BROWSE {&browse-name}.
+        int(est-op.b-num:screen-value in browse {&browse-name}) NE 0) and
+       not can-find(first eb
+                    where eb.company  eq est-qty.company
+                      and eb.est-no   eq est-qty.est-no
+                      and eb.form-no  eq int(est-op.s-num:screen-value in browse {&browse-name})
+                      and eb.blank-no eq int(est-op.b-num:screen-value in browse {&browse-name}))
+    then do:
+      message "Must enter a valid Blank#" view-as alert-box error.
+      apply "entry" to est-op.b-num in browse {&browse-name}.
       RETURN ERROR.
-    END.
-  END.
+    end.
+  end.
 
 END PROCEDURE.
 
@@ -1721,24 +1728,24 @@ PROCEDURE valid-mach :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE i AS INTEGER NO-UNDO.
-  DEFINE VARIABLE chr-handle AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE ls-tmp AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE v-msg AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE ld AS DECIMAL NO-UNDO.
+  def var i as int no-undo.
+  def var chr-handle as char no-undo.
+  def var ls-tmp as cha no-undo.
+  DEF VAR v-msg AS CHAR NO-UNDO.
+  DEF VAR ld AS DEC NO-UNDO.
 
-  DEFINE BUFFER xop FOR est-op.  
-  DEFINE BUFFER b-ef FOR ef.
-  DEFINE BUFFER b-eb FOR eb.
-  DEFINE BUFFER b-mach FOR mach.
+  DEF BUFFER xop FOR est-op.  
+  DEF BUFFER b-ef FOR ef.
+  DEF BUFFER b-eb FOR eb.
+  DEF BUFFER b-mach FOR mach.
   
 
-  DO WITH FRAME {&FRAME-NAME}:
+  do with frame {&frame-name}:
     FIND FIRST mach
         {sys/look/machW.i}
           AND mach.m-code EQ est-op.m-code:SCREEN-VALUE IN BROWSE {&browse-name}
         NO-LOCK NO-ERROR.
-    IF NOT AVAILABLE mach THEN v-msg = "Must enter a valid Machine Code, try help".
+    IF NOT AVAIL mach THEN v-msg = "Must enter a valid Machine Code, try help".
 
     IF v-msg EQ "" THEN
       IF CAN-FIND(FIRST reftable
@@ -1750,26 +1757,26 @@ PROCEDURE valid-mach :
         v-msg = "Machine is obsolete, please choose a different machine".
 
     IF v-msg EQ "" THEN DO:
-      FIND FIRST b-ef NO-LOCK
+      FIND FIRST b-ef
           WHERE b-ef.company EQ est-qty.company
             AND b-ef.est-no  EQ est-qty.est-no
             AND b-ef.form-no EQ INT(est-op.s-num:SCREEN-VALUE IN BROWSE {&browse-name})
-           NO-ERROR.
+          NO-LOCK NO-ERROR.
 
-      FIND FIRST b-eb NO-LOCK
+      FIND FIRST b-eb
           WHERE b-eb.company  EQ b-ef.company
             AND b-eb.est-no   EQ b-ef.est-no
             AND b-eb.form-no  EQ b-ef.form-no
             AND b-eb.blank-no EQ INT(est-op.b-num:SCREEN-VALUE IN BROWSE {&browse-name})
-           NO-ERROR.
+          NO-LOCK NO-ERROR.
       IF NOT AVAIL b-eb THEN
-      FIND FIRST b-eb NO-LOCK
+      FIND FIRST b-eb
           WHERE b-eb.company  EQ b-ef.company
             AND b-eb.est-no   EQ b-ef.est-no
             AND b-eb.form-no  EQ b-ef.form-no
-           NO-ERROR.
+          NO-LOCK NO-ERROR.
 
-      FIND xest NO-LOCK WHERE RECID(xest) EQ RECID(est) .
+      find xest where recid(xest) eq recid(est) no-lock.
 
       ASSIGN
          lv-d-seq = mach.d-seq
@@ -1777,27 +1784,27 @@ PROCEDURE valid-mach :
 
       IF LOOKUP(lv-dept,"RC,GU") NE 0 AND AVAIL b-ef                     AND
          (adm-adding-record OR
-          INTEGER(est-op.n-out:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0) THEN
+          INT(est-op.n-out:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0) THEN
         est-op.n-out:SCREEN-VALUE IN BROWSE {&browse-name} =
             IF lv-dept EQ "RC" THEN STRING(b-ef.n-out) ELSE STRING(b-ef.n-out-l).
   
-      IF mach.p-type NE "B" THEN
-        ASSIGN
-         lv-op-sb = YES
+      if mach.p-type ne "B" then
+        assign
+         lv-op-sb = yes
          lv-b-num = 0.
        
-      ELSE
-        ASSIGN
-         lv-op-sb = NO
-         lv-b-num = IF INTEGER(est-op.b-num:SCREEN-VALUE) EQ 0 THEN 1 ELSE INTEGER(est-op.b-num:SCREEN-VALUE).
+      else
+        assign
+         lv-op-sb = no
+         lv-b-num = if int(est-op.b-num:screen-value) eq 0 then 1 else int(est-op.b-num:screen-value).
        
-      IF LOOKUP(lv-dept,"RC,GU") EQ 0 THEN lv-n-out = 0.
+      if lookup(lv-dept,"RC,GU") eq 0 then lv-n-out = 0.
 
       IF lv-dept EQ "PR" THEN DO:
         RUN ce/mach-ink.p.
 
         i = INT(adm-new-record).
-        FOR EACH xop NO-LOCK
+        FOR EACH xop
             WHERE xop.company EQ est-op.company
               AND xop.est-no  EQ est-op.est-no
               AND (xop.qty    EQ est-op.qty OR est.est-type GE 2)
@@ -1815,7 +1822,7 @@ PROCEDURE valid-mach :
                                   b-mach.dept[2] EQ "CT" OR
                                   b-mach.dept[3] EQ "CT" OR
                                   b-mach.dept[4] EQ "CT"))
-             BY xop.d-seq BY xop.line:
+            NO-LOCK BY xop.d-seq BY xop.line:
 
           i = i + 1.
           IF ROWID(xop) EQ ROWID(est-op) THEN LEAVE.
@@ -1827,10 +1834,10 @@ PROCEDURE valid-mach :
             NO-ERROR.
 
         IF AVAIL w-ink THEN DO:
-          IF INTEGER(est-op.NUM-COL:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN
-            w-ink.inks = INTEGER(est-op.NUM-COL:SCREEN-VALUE IN BROWSE {&browse-name}).
-          IF INTEGER(est-op.num-coat:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN
-            w-ink.varn = INTEGER(est-op.num-coat:SCREEN-VALUE IN BROWSE {&browse-name}).
+          IF INT(est-op.num-col:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN
+            w-ink.inks = INT(est-op.num-col:SCREEN-VALUE IN BROWSE {&browse-name}).
+          IF INT(est-op.num-coat:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN
+            w-ink.varn = INT(est-op.num-coat:SCREEN-VALUE IN BROWSE {&browse-name}).
 
           IF w-ink.press NE mach.pr-type THEN
             v-msg = "WRONG PRESS TYPE for selected Ink..".
@@ -1886,26 +1893,26 @@ PROCEDURE valid-mach :
                 "!".
 
       IF v-msg EQ ""             AND
-         mach.min-cal GT b-ef.cal THEN
+         mach.min-cal gt b-ef.cal THEN
         v-msg = "BOARD CALIPER too small for Machine!".
 
       IF v-msg EQ ""             AND
-         mach.max-cal LT b-ef.cal THEN
+         mach.max-cal lt b-ef.cal THEN
         v-msg = "BOARD CALIPER too large for Machine!".
 
       qty = est-qty.eqty.
 
-      FIND xef NO-LOCK WHERE  ROWID(xef) EQ ROWID(b-ef)  NO-ERROR.
-      FIND xeb NO-LOCK WHERE  ROWID(xeb) EQ ROWID(b-eb)  NO-ERROR.
+      FIND xef WHERE ROWID(xef) EQ ROWID(b-ef) NO-LOCK NO-ERROR.
+      FIND xeb WHERE ROWID(xeb) EQ ROWID(b-eb) NO-LOCK NO-ERROR.
         
       run ce/mach-qty.p (ROWID(mach)).
 
       IF v-msg EQ ""               AND
-         v-chk-qty LT mach.min-run THEN
+         v-chk-qty lt mach.min-run THEN
         v-msg = "RUN QTY. too small for Machine!".
 
       IF v-msg EQ ""               AND
-         v-chk-qty GT mach.max-run THEN
+         v-chk-qty gt mach.max-run THEN
         v-msg = "RUN QTY. too large for Machine!".
     END.
 
@@ -1931,17 +1938,17 @@ PROCEDURE valid-s-num :
   Notes:       
 ------------------------------------------------------------------------------*/
   
-  DO WITH FRAME {&FRAME-NAME}:
-    IF NOT CAN-FIND(FIRST ef
-                    WHERE ef.company EQ est-qty.company
-                      AND ef.est-no  EQ est-qty.est-no
-                      AND ef.form-no EQ INTEGER(est-op.s-num:SCREEN-VALUE IN BROWSE {&browse-name}))
-    THEN DO:
-      MESSAGE "Must enter a valid Form#" VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO est-op.s-num IN BROWSE {&browse-name}.
+  do with frame {&frame-name}:
+    if not can-find(first ef
+                    where ef.company eq est-qty.company
+                      and ef.est-no  eq est-qty.est-no
+                      and ef.form-no eq int(est-op.s-num:screen-value in browse {&browse-name}))
+    then do:
+      message "Must enter a valid Form#" view-as alert-box error.
+      apply "entry" to est-op.s-num in browse {&browse-name}.
       RETURN ERROR.
-    END.
-  END.
+    end.
+  end.
   
 END PROCEDURE.
 

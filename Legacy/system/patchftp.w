@@ -205,11 +205,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -770,12 +766,12 @@ PROCEDURE runUtility :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  patchhst.user_id = USERID('NOSWEAT').
+  patchhst.user_id = USERID("ASI").
   IF SEARCH(patchhst.utility) NE ? THEN DO:
     IF dependancyOK(patchhst.patch,patchhst.version,
                     patchhst.seq,patchhst.dependancy) THEN DO:
       IF patchhst.utility BEGINS 'db_delta' THEN DO:
-        IF INDEX(DBPARAM('NOSWEAT'),'-1') NE 0 THEN DO:
+        IF INDEX(DBPARAM("ASI"),'-1') NE 0 THEN DO:
           patchhst.returnvalue = timeStamp('Not Yet Implemented').
         END. /* if lookup */
         ELSE patchhst.returnvalue = timeStamp('Multi User Mode').

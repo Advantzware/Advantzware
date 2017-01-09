@@ -38,7 +38,7 @@ DO:
   &ENDIF
   /*APPLY "CHOOSE" TO Btn_Clear_Find.       ** not run any-printable of browse  but reset auto_find value only
                                                run open-query 3 times  */
-  ASSIGN                   
+  ASSIGN
     auto_find = ""
     auto_find:SCREEN-VALUE = "".
 /*  {methods/wait.i}    */            /* ysk set hour-glass */
@@ -70,7 +70,7 @@ DO:
   ASSIGN
     auto_find:SCREEN-VALUE = auto_find
     save-rowid = ROWID({&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}).
-  
+
   IF current-rowid NE save-rowid THEN
   REPOSITION {&BROWSE-NAME} TO ROWID save-rowid.
 

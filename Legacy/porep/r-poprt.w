@@ -372,11 +372,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -965,7 +961,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    vcDefaultForm = v-print-fmt.
    
   FIND FIRST users WHERE
-       users.user_id EQ USERID("NOSWEAT")
+       users.user_id EQ USERID("ASI")
        NO-LOCK NO-ERROR.
 
   IF AVAILABLE users AND users.user_program[2] NE "" THEN
@@ -1019,7 +1015,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     IF v-print-fmt NE "Indiana" THEN
      ASSIGN tb_print-prices:SCREEN-VALUE = "NO"
             tb_print-prices:SENSITIVE = NO.
-    
+
     IF NOT poPaperClip-log THEN 
         ASSIGN tb_attachments:SCREEN-VALUE = "NO"
                tb_attachments:SENSITIVE    = NO.
@@ -1662,8 +1658,8 @@ PROCEDURE SetPOPrintForm :
     WHEN 'Elite'        THEN ASSIGN v-program = "po/po-elite.p"     li-lineperpage = 80.
     WHEN 'CSC'          THEN ASSIGN v-program = "po/po-xcsc.p"      li-lineperpage = 80.
     WHEN 'Xprint' OR  WHEN 'poprint 1'     THEN ASSIGN v-program = "po/po-xprnt.p"     li-lineperpage = 80.
-    WHEN 'StClair'      THEN ASSIGN v-program = "po/po-stclr.p"     li-lineperpage = 80.
-    WHEN 'Boss'         THEN ASSIGN v-program = "po/po-boss.p"     li-lineperpage = 80.
+    WHEN 'StClair'       THEN ASSIGN v-program = "po/po-stclr.p"     li-lineperpage = 80.
+    WHEN 'Boss'       THEN ASSIGN v-program = "po/po-boss.p"     li-lineperpage = 80.
     WHEN 'PPI'          THEN ASSIGN v-program = "po/po-ppi.p"       li-lineperpage = 80.
     WHEN 'FibreX'       THEN ASSIGN v-program = "po/po-fibx.p"      li-lineperpage = 60.
     WHEN 'ConsBox'      THEN ASSIGN v-program = "po/po-consb.p"     li-lineperpage = 80.

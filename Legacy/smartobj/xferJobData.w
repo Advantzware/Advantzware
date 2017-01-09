@@ -61,7 +61,7 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON xferJobData 
-     IMAGE-UP FILE "Graphics/32x32/documents_exchange.ico":U
+     IMAGE-UP FILE "Graphics/32x32/documents_exchange.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Xfer Job Data" 
      SIZE 7.6 BY 1.81 TOOLTIP "Misc Fields"
@@ -112,6 +112,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB s-object 
 /* ************************* Included-Libraries *********************** */
 
+{advantzware/winkit/winkit-panel.i}
 {src/adm/method/smart.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -155,6 +156,11 @@ ASSIGN
 ON CHOOSE OF xferJobData IN FRAME F-Main /* Xfer Job Data */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:13:46 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */

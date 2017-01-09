@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          nosweat          PROGRESS
+          asi          PROGRESS
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
@@ -75,13 +75,13 @@ usr.Usr-Lang
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH users WHERE ~{&KEY-PHRASE} ~
       AND (users.user_id = userid(ldbname(1)) or ~
 userid(ldbname(1)) = "ASI" or ~
-userid(ldbname(1)) = "nosweat") NO-LOCK, ~
+userid(ldbname(1)) = "ASI") NO-LOCK, ~
       FIRST usr WHERE usr.uid EQ users.user_id NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH users WHERE ~{&KEY-PHRASE} ~
       AND (users.user_id = userid(ldbname(1)) or ~
 userid(ldbname(1)) = "ASI" or ~
-userid(ldbname(1)) = "nosweat") NO-LOCK, ~
+userid(ldbname(1)) = "ASI") NO-LOCK, ~
       FIRST usr WHERE usr.uid EQ users.user_id NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table users usr
@@ -248,21 +248,21 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "NOSWEAT.users,asi.usr WHERE NOSWEAT.users ..."
+     _TblList          = "ASI.users,asi.usr WHERE ASI.users ..."
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED, FIRST USED"
-     _Where[1]         = "NOSWEAT.users.user_id = userid(ldbname(1)) or
+     _Where[1]         = "ASI.users.user_id = userid(ldbname(1)) or
 userid(ldbname(1)) = ""ASI"" or
-userid(ldbname(1)) = ""nosweat"""
+userid(ldbname(1)) = ""ASI"""
      _JoinCode[2]      = "usr.uid EQ users.user_id"
-     _FldNameList[1]   = NOSWEAT.users.user_id
-     _FldNameList[2]   = NOSWEAT.users.user_name
-     _FldNameList[3]   = NOSWEAT.users.track_usage
-     _FldNameList[4]   > NOSWEAT.users.use_colors
+     _FldNameList[1]   = ASI.users.user_id
+     _FldNameList[2]   = ASI.users.user_name
+     _FldNameList[3]   = ASI.users.track_usage
+     _FldNameList[4]   > ASI.users.use_colors
 "users.use_colors" "Use Colors" ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > NOSWEAT.users.use_fonts
+     _FldNameList[5]   > ASI.users.use_fonts
 "users.use_fonts" "Use Fonts" ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   = NOSWEAT.users.use_ctrl_keys
+     _FldNameList[6]   = ASI.users.use_ctrl_keys
      _FldNameList[7]   > asi.usr.Usr-Lang
 "usr.Usr-Lang" ? "x(10)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED

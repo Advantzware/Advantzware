@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          nosweat          PROGRESS
+          asi          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
@@ -230,12 +230,12 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "NOSWEAT.usergrps"
+     _TblList          = "ASI.usergrps"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
-     _FldNameList[1]   = NOSWEAT.usergrps.usergrps
-     _FldNameList[2]   = NOSWEAT.usergrps.dscr
-     _FldNameList[3]   = NOSWEAT.usergrps.users
+     _FldNameList[1]   = ASI.usergrps.usergrps
+     _FldNameList[2]   = ASI.usergrps.dscr
+     _FldNameList[3]   = ASI.usergrps.users
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

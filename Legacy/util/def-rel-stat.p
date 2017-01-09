@@ -1,5 +1,5 @@
 DEF VAR a AS INT NO-UNDO.
-IF NOT USERID("nosweat") = "ASI" THEN DO:
+IF NOT USERID("ASI") = "ASI" THEN DO:
     MESSAGE "Must be logged in as ASI to run this utility!" VIEW-AS ALERT-BOX.
     RETURN.
 END.

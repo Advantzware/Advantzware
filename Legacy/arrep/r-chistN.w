@@ -182,7 +182,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -408,11 +408,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -544,9 +540,9 @@ DO:
     ASSIGN {&DISPLAYED-OBJECTS}.
   END.
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
-      EMPTY TEMP-TABLE ttCustList.
-      RUN BuildCustList(INPUT cocode,
+  IF NOT tb_cust-list OR NOT AVAIL ttCustList THEN do:
+  EMPTY TEMP-TABLE ttCustList.
+  RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive,
                     INPUT begin_cust,
                     INPUT END_cust).
@@ -959,7 +955,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT NO,
                           OUTPUT glCustListActive).
 
-  {sys/inc/chblankcust.i ""AL1""}
+  {sys/inc/chblankcust.i}
 
   IF ou-log THEN DO:
       ASSIGN 
@@ -1494,9 +1490,6 @@ DEF VAR v-custno AS CHAR  INIT "" NO-UNDO .
 DEF VAR v-custname AS CHAR  INIT "" NO-UNDO .
 DEF VAR v-amtapp AS DEC  INIT 0 NO-UNDO .
 DEF VAR v-disc AS DEC  INIT 0 NO-UNDO .
-DEF VAR lSelected AS LOG INIT YES NO-UNDO.
-DEF VAR fcust AS CHAR NO-UNDO .
-DEF VAR tcust AS CHAR NO-UNDO .
 /*
 DEF VAR tmp-dir AS cha NO-UNDO. 
 DEF VAR str-tit AS cha FORM "x(50)" NO-UNDO.
@@ -1510,9 +1503,6 @@ SESSION:SET-WAIT-STATE ("general").
 assign sort-by-cust = rd_sort = "customer"
        v-from-date  = begin_date
        v-to-date    = END_date
-       fcust        = begin_cust
-       tcust        = END_cust
-       lSelected    = tb_cust-list
        is-print-posted = YES
        /* is-print-report = tPosted:CHECKED IN FRAME frame-a */
        .
@@ -1587,12 +1577,6 @@ IF td-show-parm THEN RUN show-param.
   DISPLAY "" with frame r-top.
 
   EMPTY TEMP-TABLE tt-post.
-  IF lselected THEN DO:
-    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
-    IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
-    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
-    IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
-  END.
 
   /* This prints the report  */
   if sort-by-cust then do:

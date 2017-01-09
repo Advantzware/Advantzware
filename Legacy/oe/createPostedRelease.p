@@ -273,7 +273,7 @@ if choice then do:
       IF AVAIL oe-relh THEN
         ASSIGN oe-relh.posted  = TRUE
                oe-relh.printed = TRUE
-               oe-relh.spare-char-3 = USERID("NOSWEAT").
+               oe-relh.spare-char-3 = USERID("ASI").
       RELEASE oe-relh.
     END. /* avail oe-rell */
       

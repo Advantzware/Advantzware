@@ -108,7 +108,7 @@ tb_excel tb_runExcel fi_file
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY*/
+DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -355,11 +355,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -546,6 +542,7 @@ DO:
 
   SESSION:SET-WAIT-STATE("general").
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
+  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
   IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
@@ -929,7 +926,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT 'IR3',
                           INPUT NO,
                           OUTPUT glCustListActive).
-  {sys/inc/chblankcust.i ""IR3""}
+  {sys/inc/chblankcust.i}
 
   IF ou-log THEN DO:
       ASSIGN 
@@ -1190,6 +1187,7 @@ def var v-tq-avail    like v-tq-onh.
 def var v-tprice      like v-tq-onh.
 def var v-qty-onh     like itemfg.q-onh.
 DEF VAR v-status      AS CHAR NO-UNDO FORMAT "x(1)".
+
 DEF VAR excelheader AS CHAR NO-UNDO.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 
@@ -1272,6 +1270,7 @@ ASSIGN
  v-prt-cost   = rd_ext-cst EQ "Cost"
  v-custown    = tb_cust-whse
  v-sort-by    = tb_sort
+ v-zero       = tb_zero.
  v-zero       = tb_zero 
  lSelected    = tb_cust-list.
 
@@ -1302,17 +1301,16 @@ IF tb_excel THEN DO:
 END.
                    
   if not v-sho-cost then v-label1 = "".
-IF lselected THEN DO:
-  FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
-      IF AVAIL ttCustList THEN ASSIGN v-cust[1] = ttCustList.cust-no .
-      FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
-      IF AVAIL ttCustList THEN ASSIGN v-cust[2] = ttCustList.cust-no .
-END.
-
-    FOR each itemfg
+  
+  FOR EACH ttCustList 
+    WHERE ttCustList.log-fld
+    NO-LOCK,
+      each itemfg
       where itemfg.company eq cocode
         and itemfg.i-no    ge v-i-no[1]
         and itemfg.i-no    le v-i-no[2]
+        and itemfg.cust-no EQ ttCustList.cust-no /*v-cust[1]
+        and itemfg.cust-no le v-cust[2]*/
         and itemfg.cust-no GE v-cust[1]
         and itemfg.cust-no le v-cust[2]
         AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq itemfg.cust-no

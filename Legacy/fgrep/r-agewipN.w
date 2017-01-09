@@ -85,7 +85,7 @@ IF v-rec-found THEN
 IR12-char = v-rtn-char.
 
 /* Default */
-v-custom-user = USERID("NOSWEAT").
+v-custom-user = USERID("ASI").
 
 DEF VAR v-num-saved AS INT.
 DEF NEW SHARED TEMP-TABLE tt-fg-bin NO-UNDO LIKE fg-bin
@@ -318,7 +318,7 @@ FUNCTION removeChars RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -679,11 +679,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -1524,7 +1520,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT 'IL15',
                           INPUT NO,
                           OUTPUT glCustListActive).
-  {sys/inc/chblankcust.i ""IL15""}
+  {sys/inc/chblankcust.i}
 
   IF ou-log THEN DO:
       ASSIGN 
@@ -3021,7 +3017,7 @@ for each tt-file WHERE
 end. /* each tt-file */
 
 /* If utilizing a special user id, don't save parameters to that record */
-IF v-custom-user EQ USERID("NOSWEAT") THEN DO:
+IF v-custom-user EQ USERID("ASI") THEN DO:
   RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 END.
  IF tb_excel THEN DO:
@@ -3395,15 +3391,14 @@ PROCEDURE produce-report :
                     AND tt-fg-bin.job-no GT ""
         USE-INDEX ITEM 
         NO-LOCK NO-ERROR.
-       
+
         IF tt-fg-bin.job-no GT "" THEN DO:
             FIND FIRST job-hdr WHERE job-hdr.company EQ cocode
                                  AND job-hdr.job-no EQ tt-fg-bin.job-no
                                  AND job-hdr.job-no2 EQ tt-fg-bin.job-no2
-                                 AND job-hdr.i-no EQ tt-fg-bin.i-no 
                                NO-LOCK NO-ERROR.
             IF AVAIL job-hdr THEN
-            DO:  
+            DO:
               FIND FIRST oe-ordl WHERE
               oe-ordl.company EQ job-hdr.company AND
               oe-ordl.ord-no  EQ job-hdr.ord-no AND
@@ -3422,7 +3417,6 @@ PROCEDURE produce-report :
         
 
         END.
-        
         IF avail oe-ordl THEN DO:
 
           ASSIGN v-u-val  = oe-ordl.t-price / oe-ordl.qty

@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          nosweat          PROGRESS
+          asi          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
@@ -87,8 +87,8 @@ acclrtrs.func_key acclrtrs.rec_key
 &BROWSE-NAME
 </KEY-OBJECT>
 <FOREIGN-KEYS>
-rec_key|y|y|NOSWEAT.acclrtrs.rec_key
-acclrtr||y|NOSWEAT.acclrtrs.acclrtr
+rec_key|y|y|ASI.acclrtrs.rec_key
+acclrtr||y|ASI.acclrtrs.acclrtr
 </FOREIGN-KEYS> 
 <EXECUTING-CODE>
 **************************
@@ -222,12 +222,12 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE br_table
 /* Query rebuild information for BROWSE br_table
-     _TblList          = "NOSWEAT.acclrtrs"
+     _TblList          = "ASI.acclrtrs"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
-     _FldNameList[1]   = NOSWEAT.acclrtrs.acclrtr
-     _FldNameList[2]   = NOSWEAT.acclrtrs.ctrl_key
-     _FldNameList[3]   = NOSWEAT.acclrtrs.func_key
-     _FldNameList[4]   = NOSWEAT.acclrtrs.rec_key
+     _FldNameList[1]   = ASI.acclrtrs.acclrtr
+     _FldNameList[2]   = ASI.acclrtrs.ctrl_key
+     _FldNameList[3]   = ASI.acclrtrs.func_key
+     _FldNameList[4]   = ASI.acclrtrs.rec_key
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME

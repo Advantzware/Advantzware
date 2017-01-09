@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+    <title>@PAGE_TITLE@</title>
+    <link rel="stylesheet" href="kendoui/styles/kendo.common.min.css" />
+    <link rel="stylesheet" href="kendoui/styles/kendo.default.min.css" />
+    <link rel="stylesheet" type="text/css" href="consultingwerk/main.css" />
+    <script src="kendoui/js/jquery.min.js"></script>
+    <script src="kendoui/js/kendo.all.min.js"></script>
+    <script src="jsdo40/progress.all.js"></script>   
+  </head>
+  
+  <body>
+    <table border=0>
+      <tr>
+        <td>
+          <img src="images/scl_2012.png" height="64" width="662">
+        </td>
+        <td>
+          <img src="images/kendo.jpg" height="141" width="474">
+        </td>
+      </tr>
+    </table>
+    <div id="example">
+      <div id="grid"></div>
+    </div>
+	<br />
+    <table border=0 width="100%">
+      <tr>
+        <td class="abb">&copy;
+          <a href="http://www.consultingwerk.de" class="abb_link">2006-2015 Consultingwerk Ltd.</a>
+          <a href="mailto:info@consultingwerk.de" class="abb_link">info@consultingwerk.de</a>
+        </td>
+        <td align="right" class="abb">
+          <a href="home/" onfocus="blurLink(this);" class="abb_link">Index</a>&nbsp;&nbsp;&nbsp;
+          <a href="sitemap/" onfocus="blurLink(this);" class="abb_link">Sitemap</a>&nbsp;&nbsp;&nbsp;
+          <a href="contact/" onfocus="blurLink(this);" class="abb_link">Kontakt</a>&nbsp;&nbsp;&nbsp;
+          <a href="impressum/" onfocus="blurLink(this);" class="abb_link">Impressum</a>&nbsp;&nbsp;&nbsp;
+          <a href="legal/" onfocus="blurLink(this);" class="abb_link">Rechtliche Hinweise</a>&nbsp;&nbsp;&nbsp;
+          <a href="teamviewer/" onfocus="blurLink(this);" class="abb_link">TeamViewer</a>&nbsp;&nbsp;&nbsp;
+          <a href="211/" onfocus="blurLink(this);" class="abb_link">Blog</a>&nbsp;&nbsp;&nbsp;
+          <a href="internwiki/" onfocus="blurLink(this);" class="abb_link">Wiki</a>
+        </td>
+      </tr>
+    </table>
+    <script>
+      $(function() {
+      
+                    var jsdosession, dataSource;      
+            	
+                    function createGrid() {
+      				$("#grid").kendoGrid(
+      
+@GRID_DEFINITION@      
+      				); }
+      					
+                    try {
+                        var serviceURI = "http://localhost:8980/SmartJsdoBackendService",
+                            jsdoSettings = {
+                                serviceURI: serviceURI,
+                                catalogURIs: serviceURI + "/rest/SmartJsdoBackendService/Catalog/@DATASOURCE_NAME@"
+                            },                
+                            promise;
+            
+                        // create a new session object
+                        jsdosession = new progress.data.JSDOSession(jsdoSettings);
+                        promise = jsdosession.login("", "");
+                            
+                        promise.done(function(jsdosession, result, info){
+                            jsdosession.addCatalog(jsdoSettings.catalogURIs)
+                                .done(function(jsdosession, result, details){
+            
+                                    dataSource = new kendo.data.DataSource( {
+                                                        type: "jsdo",
+                                                        serverPaging: true,
+                                                        serverFiltering: true,
+                                                        // filter: { field: "Country", operator: "eq", value: "USA" },
+                                                        serverSorting: true,
+                                                        // sort: { field: "State", dir: "desc" },
+                                                        pageSize: 10,
+                                                        transport: {
+                                                            jsdo: "@DATASOURCE_NAME@",
+                                                            tableRef: "@TABLE_NAME@",
+                                                            countFnName: "count"
+                                                        },
+                                                        error: function(e) {
+                                                            console.log ('Error: ', e); 
+                                                        }
+                                                    }
+                                    );
+                                
+                                    createGrid();
+                                })
+                                .fail(function(jsdosession, result, details){
+                                    alert("Error while executing addCatalog().");
+                            });
+                        });
+                        promise.fail(function(jsdosession, result, info){
+                            alert("Error while executing login().");      
+                        });        
+                    }
+                    catch (e) {
+                        alert("Error instantiating objects: " + e);
+                    }      					
+      			});
+    </script>
+  </body>
+
+</html>

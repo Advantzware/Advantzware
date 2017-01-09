@@ -25,7 +25,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEF VAR list-name AS cha NO-UNDO.
+def var list-name as cha no-undo.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 DEF VAR v-dir AS CHAR FORMAT "X(80)" NO-UNDO.
 
@@ -39,7 +39,7 @@ DEF VAR v-dir AS CHAR FORMAT "X(80)" NO-UNDO.
 
 {sys/inc/var.i new shared}
 
-ASSIGN
+assign
  cocode = gcompany
  locode = gloc.
 
@@ -54,7 +54,7 @@ DEF VAR vcDefaultForm AS CHAR NO-UNDO.
 DEF VAR vmDefaultForm AS CHAR NO-UNDO.
 DEF VAR viDefaultLinesPerPage AS INT NO-UNDO.
 DEF VAR lv-termPath AS CHAR NO-UNDO.
-DEF VAR v-fmt-int AS INT INIT 0 NO-UNDO.
+def var v-fmt-int as int init 0 no-undo.
 DEF VAR v-ack-master AS LOG INIT NO NO-UNDO .
 DEF VAR lv-attach-push AS cha NO-UNDO.
 
@@ -65,7 +65,7 @@ DEF VAR lv-attach-push AS cha NO-UNDO.
     DEF TEMP-TABLE tt-specCd NO-UNDO
     FIELD tt-char-val AS CHAR
     INDEX chr-1 tt-char-val.
-DEF NEW SHARED VAR lv-qty AS INT NO-UNDO.
+DEF NEW SHARED VAR lv-qty AS int NO-UNDO.
 DEF NEW SHARED VAR qty AS INT NO-UNDO.
 DEF NEW SHARED VAR v-shared-rel AS INT NO-UNDO.
 
@@ -89,7 +89,7 @@ DEF BUFFER b2-oe-ord FOR oe-ord.
 {jcrep/r-ticket.i "new shared"}
 
 FIND FIRST users WHERE
-     users.user_id EQ USERID("NOSWEAT")
+     users.user_id EQ USERID("ASI")
      NO-LOCK NO-ERROR.
 
 IF AVAIL users AND users.user_program[2] NE "" THEN
@@ -286,112 +286,112 @@ DEFINE VARIABLE sel-attch AS CHARACTER
      SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL 
      SIZE 31.6 BY 3.1 NO-UNDO.
 
-DEFINE VARIABLE tb_act-rel AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_act-rel AS LOGICAL INITIAL no 
      LABEL "Print Actual Releases?" 
      VIEW-AS TOGGLE-BOX
      SIZE 29.2 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_billnotes AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_billnotes AS LOGICAL INITIAL yes 
      LABEL "Print Bill Notes?" 
      VIEW-AS TOGGLE-BOX
      SIZE 22 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_hide_sell AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_hide_sell AS LOGICAL INITIAL no 
      LABEL "Hide Sell Price?" 
      VIEW-AS TOGGLE-BOX
      SIZE 25 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_inst AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_inst AS LOGICAL INITIAL yes 
      LABEL "Print Spec Notes?" 
      VIEW-AS TOGGLE-BOX
      SIZE 22 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_itempo AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_itempo AS LOGICAL INITIAL no 
      LABEL "Print Item PO#s?" 
      VIEW-AS TOGGLE-BOX
      SIZE 20 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_itm-tot AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_itm-tot AS LOGICAL INITIAL no 
      LABEL "Print Item Totals?" 
      VIEW-AS TOGGLE-BOX
      SIZE 20 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_print-component AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_print-component AS LOGICAL INITIAL no 
      LABEL "Print Components" 
      VIEW-AS TOGGLE-BOX
      SIZE 25 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_prt-bom AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_prt-bom AS LOGICAL INITIAL no 
      LABEL "Print Bill of Materials?" 
      VIEW-AS TOGGLE-BOX
      SIZE 25 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_prt-revise AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_prt-revise AS LOGICAL INITIAL no 
      LABEL "Print REVISED?" 
      VIEW-AS TOGGLE-BOX
      SIZE 22 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_reprint AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_reprint AS LOGICAL INITIAL no 
      LABEL "Do you want to reprint Acknowledgements?" 
      VIEW-AS TOGGLE-BOX
      SIZE 46 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_sch-rel AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_sch-rel AS LOGICAL INITIAL yes 
      LABEL "Print Scheduled Releases?" 
      VIEW-AS TOGGLE-BOX
      SIZE 30.2 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_ship-to AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_ship-to AS LOGICAL INITIAL yes 
      LABEL "Print ShipTo Address" 
      VIEW-AS TOGGLE-BOX
      SIZE 26 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_shpnot AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_shpnot AS LOGICAL INITIAL no 
      LABEL "Print Ship Notes per Release?" 
      VIEW-AS TOGGLE-BOX
      SIZE 32 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_terms AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_terms AS LOGICAL INITIAL no 
      LABEL "Print Terms?" 
      VIEW-AS TOGGLE-BOX
      SIZE 20 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_untcnt AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_untcnt AS LOGICAL INITIAL no 
      LABEL "Print Unit Count?" 
      VIEW-AS TOGGLE-BOX
      SIZE 20 BY .81 NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO 
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
 
-DEFINE VARIABLE TG_cons_form AS LOGICAL INITIAL NO 
+DEFINE VARIABLE TG_cons_form AS LOGICAL INITIAL no 
      LABEL "Consolidate Forms ?" 
      VIEW-AS TOGGLE-BOX
      SIZE 25 BY .81 NO-UNDO.
 
-DEFINE VARIABLE TG_eml-push-att AS LOGICAL INITIAL NO 
+DEFINE VARIABLE TG_eml-push-att AS LOGICAL INITIAL no 
      LABEL "Email Push Pin Attachment ?" 
      VIEW-AS TOGGLE-BOX
      SIZE 31.6 BY .81 NO-UNDO.
 
-DEFINE VARIABLE TG_preview AS LOGICAL INITIAL NO 
+DEFINE VARIABLE TG_preview AS LOGICAL INITIAL no 
      LABEL "Show Preview Before Email?" 
      VIEW-AS TOGGLE-BOX
      SIZE 32.4 BY .81 NO-UNDO.
 
-DEFINE VARIABLE TG_print-due-cd AS LOGICAL INITIAL NO 
+DEFINE VARIABLE TG_print-due-cd AS LOGICAL INITIAL no 
      LABEL "Due Date Code?" 
      VIEW-AS TOGGLE-BOX
      SIZE 25 BY .81 NO-UNDO.
 
-DEFINE VARIABLE TG_print-pen-notes AS LOGICAL INITIAL NO 
+DEFINE VARIABLE TG_print-pen-notes AS LOGICAL INITIAL no 
      LABEL "Print Pen Notes?" 
      VIEW-AS TOGGLE-BOX
      SIZE 25 BY .81 NO-UNDO.
 
-DEFINE VARIABLE TG_whs-mths AS LOGICAL INITIAL NO 
+DEFINE VARIABLE TG_whs-mths AS LOGICAL INITIAL no 
      LABEL "Warehouse Months" 
      VIEW-AS TOGGLE-BOX
      SIZE 25 BY .81 NO-UNDO.
@@ -491,22 +491,18 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 280
          VIRTUAL-HEIGHT     = 46.57
          VIRTUAL-WIDTH      = 280
-         RESIZE             = YES
-         SCROLL-BARS        = NO
-         STATUS-AREA        = YES
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -611,7 +607,7 @@ ASSIGN
                 "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -652,7 +648,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no C-Win
 ON LEAVE OF begin_cust-no IN FRAME FRAME-A /* Beginning Customer# */
 DO:
-   ASSIGN {&self-name}.
+   assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -663,7 +659,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_due-date C-Win
 ON LEAVE OF begin_due-date IN FRAME FRAME-A /* Beginning Order Date */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -674,7 +670,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_ord-no C-Win
 ON LEAVE OF begin_ord-no IN FRAME FRAME-A /* Beginning Order# */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -696,7 +692,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
-  APPLY "close" TO THIS-PROCEDURE.
+  apply "close" to this-procedure.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -707,7 +703,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
-  ASSIGN rd-dest tb_inst .
+  assign rd-dest tb_inst .
   ASSIGN {&DISPLAYED-OBJECTS}.
   RUN GetSelected.
 
@@ -739,12 +735,12 @@ DO:
       v-ack-master = IF rd_ack-ordmst = "M" THEN YES ELSE NO .
       ELSE
        v-ack-master = NO .
-       
+
   IF LvOutputSelection = "Email"THEN DO:
      RUN BatchMail. 
   END. 
   ELSE DO:  /* not email */
-    IF v-ack-master = YES THEN DO:
+  IF v-ack-master = YES THEN DO:
 
       IF CAN-FIND(FIRST sys-ctrl-shipto WHERE
      sys-ctrl-shipto.company = cocode AND
@@ -812,10 +808,10 @@ DO:
         RUN GenerateReport(begin_cust-no, end_cust-no).
      END.
 
-    END.  /* end of v-ack-master log = yes */
+  END.  /* end of v-ack-master log = yes */
 
   
-    ELSE DO:
+  ELSE DO:
       IF CAN-FIND(FIRST sys-ctrl-shipto WHERE
      sys-ctrl-shipto.company = cocode AND
      sys-ctrl-shipto.NAME = "ACKHEAD") THEN
@@ -881,7 +877,7 @@ DO:
         RUN GenerateReport(begin_cust-no, end_cust-no).
      END.
 
-    END. /* else of v-ack-master  */
+  END. /* else of v-ack-master  */
   END.  /* NOT output to email */
   
 END.  /* end of btn-ok */
@@ -942,7 +938,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no C-Win
 ON LEAVE OF end_cust-no IN FRAME FRAME-A /* Ending Customer# */
 DO:
-     ASSIGN {&self-name}.
+     assign {&self-name}.
           
      RUN get-cust-attch .
 
@@ -956,7 +952,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_due-date C-Win
 ON LEAVE OF end_due-date IN FRAME FRAME-A /* Ending Order Date */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -967,7 +963,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_ord-no C-Win
 ON LEAVE OF end_ord-no IN FRAME FRAME-A /* Ending Order# */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
   IF begin_ord-no = END_ord-no THEN DO:
      FIND FIRST oe-ord WHERE oe-ord.company = g_company
                          AND oe-ord.ord-no = begin_ord-no NO-LOCK NO-ERROR.
@@ -996,7 +992,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lines-per-page C-Win
 ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1093,7 +1089,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1104,7 +1100,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_ack-ordmst C-Win
 ON VALUE-CHANGED OF rd_ack-ordmst IN FRAME FRAME-A
 DO:
-    ASSIGN {&self-name}.
+    assign {&self-name}.
     IF rd_ack-ordmst = "M"  THEN ASSIGN
     tb_reprint:SENSITIVE = NO 
     TG_cons_form:SENSITIVE = NO 
@@ -1127,7 +1123,7 @@ DO:
     tb_itempo:SENSITIVE = NO                           
     tb_untcnt:SENSITIVE = NO 
     tb_shpnot:SENSITIVE = NO.
-    ELSE DO:  
+    ELSE do:  
         ASSIGN
             tb_reprint:SENSITIVE = YES 
             TG_cons_form:SENSITIVE = YES 
@@ -1257,14 +1253,14 @@ DO:
           lv-termFile:SENSITIVE    = NO.
 
     IF LOOKUP(v-print-fmt,"Soule,SouleUOM,ContSvc") = 0 THEN DO:
-        IF tb_sch-rel:SCREEN-VALUE EQ "NO" AND
+        IF tb_sch-rel:SCREEN-VALUE EQ "NO" and
             tb_act-rel:SCREEN-VALUE EQ "NO" THEN
             ASSIGN
                 tb_ship-to:SENSITIVE = NO
                 tb_ship-to:SCREEN-VALUE = "NO".
     END.
     IF LOOKUP(v-print-fmt,"PremierX") <> 0 THEN DO:
-        IF tb_sch-rel:SCREEN-VALUE EQ "NO" AND
+        IF tb_sch-rel:SCREEN-VALUE EQ "NO" and
             tb_act-rel:SCREEN-VALUE EQ "NO" THEN
             ASSIGN
                 tb_shpnot:SENSITIVE = NO
@@ -1378,7 +1374,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_billnotes C-Win
 ON VALUE-CHANGED OF tb_billnotes IN FRAME FRAME-A /* Print Bill Notes? */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
   IF v-print-fmt EQ "Accord" THEN DO: 
       IF tb_inst THEN
           spec-code:HIDDEN IN FRAME FRAME-A = NO .
@@ -1395,7 +1391,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_hide_sell C-Win
 ON VALUE-CHANGED OF tb_hide_sell IN FRAME FRAME-A /* Hide Sell Price? */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1406,7 +1402,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_inst C-Win
 ON VALUE-CHANGED OF tb_inst IN FRAME FRAME-A /* Print Spec Notes? */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
   IF v-print-fmt EQ "Accord" THEN DO: 
       IF tb_inst THEN
           spec-code:HIDDEN IN FRAME FRAME-A = NO .
@@ -1445,7 +1441,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_print-component C-Win
 ON VALUE-CHANGED OF tb_print-component IN FRAME FRAME-A /* Print Components */
 DO:
-    ASSIGN {&self-name}.
+    assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1456,7 +1452,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_prt-bom C-Win
 ON VALUE-CHANGED OF tb_prt-bom IN FRAME FRAME-A /* Print Bill of Materials? */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1467,7 +1463,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_prt-revise C-Win
 ON VALUE-CHANGED OF tb_prt-revise IN FRAME FRAME-A /* Print REVISED? */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1478,7 +1474,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_reprint C-Win
 ON VALUE-CHANGED OF tb_reprint IN FRAME FRAME-A /* Do you want to reprint Acknowledgements? */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1508,7 +1504,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_ship-to C-Win
 ON VALUE-CHANGED OF tb_ship-to IN FRAME FRAME-A /* Print ShipTo Address */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1556,7 +1552,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-show-parm C-Win
 ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
 DO:
-    ASSIGN {&self-name}.
+    assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1593,7 +1589,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL TG_preview C-Win
 ON VALUE-CHANGED OF TG_preview IN FRAME FRAME-A /* Show Preview Before Email? */
 DO:
-    ASSIGN {&self-name}.
+    assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1604,7 +1600,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL TG_print-due-cd C-Win
 ON VALUE-CHANGED OF TG_print-due-cd IN FRAME FRAME-A /* Due Date Code? */
 DO:
-    ASSIGN {&self-name}.
+    assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1615,7 +1611,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL TG_print-pen-notes C-Win
 ON VALUE-CHANGED OF TG_print-pen-notes IN FRAME FRAME-A /* Print Pen Notes? */
 DO:
-    ASSIGN {&self-name}.
+    assign {&self-name}.
    IF v-print-fmt EQ "Accord" THEN DO: 
        IF TG_print-pen-notes THEN
            dept-code:HIDDEN IN FRAME FRAME-A = NO .
@@ -1675,21 +1671,21 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      RETURN .
   END.
 
-  FIND FIRST sys-ctrl
-      WHERE sys-ctrl.company EQ cocode
-        AND sys-ctrl.name    EQ "ACKHEAD"
-      NO-LOCK NO-ERROR.
+  find first sys-ctrl
+      where sys-ctrl.company eq cocode
+        and sys-ctrl.name    eq "ACKHEAD"
+      no-lock no-error.
 
-  IF NOT AVAIL sys-ctrl THEN DO TRANSACTION:
-    CREATE sys-ctrl.
-    ASSIGN
+  if not avail sys-ctrl then do transaction:
+    create sys-ctrl.
+    assign
      sys-ctrl.company  = cocode
      sys-ctrl.name     = "ACKHEAD"
      sys-ctrl.descrip  = "Print headers on Order Acknowledgement?".
     MESSAGE sys-ctrl.descrip
         VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
         UPDATE sys-ctrl.log-fld.
-  END.
+  end.
    
   ASSIGN
    v-print-fmt  = sys-ctrl.char-fld
@@ -1707,7 +1703,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   DO WITH FRAME {&frame-name}:
     {custom/usrprint.i}
     ASSIGN
-      lines-per-page:SCREEN-VALUE = STRING(viDefaultLinesPerPage)
+      lines-per-page:SCREEN-VALUE = string(viDefaultLinesPerPage)
       lines-per-page = viDefaultLinesPerPage
       RS_whs-mths = "3"
       TG_whs-mths:SCREEN-VALUE      = "No"
@@ -1871,14 +1867,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         
 
     IF LOOKUP(v-print-fmt,"Soule,SouleUOM,ContSvc") = 0 THEN DO:
-        IF tb_sch-rel:SCREEN-VALUE EQ "NO" AND
+        IF tb_sch-rel:SCREEN-VALUE EQ "NO" and
             tb_act-rel:SCREEN-VALUE EQ "NO" THEN
             ASSIGN
                 tb_ship-to:SENSITIVE = NO
                 tb_ship-to:SCREEN-VALUE = "NO".
     END.
     IF LOOKUP(v-print-fmt,"PremierX") <> 0 THEN DO:
-        IF tb_sch-rel:SCREEN-VALUE EQ "NO" AND
+        IF tb_sch-rel:SCREEN-VALUE EQ "NO" and
             tb_act-rel:SCREEN-VALUE EQ "NO" THEN
             ASSIGN
                 tb_shpnot:SENSITIVE = NO
@@ -1903,7 +1899,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
          ASSIGN spec-code:HIDDEN IN FRAME FRAME-A = YES 
                     dept-code:HIDDEN IN FRAME FRAME-A = YES .
 
-         IF AckMst-log = TRUE THEN DO:
+         IF AckMst-log = TRUE THEN do:
              rd_ack-ordmst:HIDDEN IN FRAME {&FRAME-NAME} = NO.
              IF rd_ack-ordmst:SCREEN-VALUE = "M"  THEN ASSIGN
                  tb_reprint:SENSITIVE = NO 
@@ -2353,11 +2349,11 @@ DO WITH FRAME {&FRAME-NAME}:
    DEFINE VARIABLE vcErrorMsg  AS CHARACTER  NO-UNDO.
 DEF VAR gb AS CHAR NO-UNDO .
    IF v-print-fmt NE "Albert" THEN
-      CASE rd-dest:
-         WHEN 1 THEN RUN output-to-printer.
-         WHEN 2 THEN RUN output-to-screen.
-         WHEN 3 THEN RUN output-to-file.
-         WHEN 4 THEN DO:
+      case rd-dest:
+         when 1 then run output-to-printer.
+         when 2 then run output-to-screen.
+         when 3 then run output-to-file.
+         when 4 then do:
              IF is-xprint-form THEN DO:
                 RUN output-to-fax-prt. /* create tif file */              
                 {custom/asifaxm3.i &TYPE="Customer"
@@ -2377,7 +2373,7 @@ DEF VAR gb AS CHAR NO-UNDO .
                                   &end-widget=end_cust-no }
              END.
          END.
-         WHEN 5 THEN DO:
+         when 5 then do:
              IF is-xprint-form THEN DO:
 /*                   RUN printfile (FILE-INFO:FILE-NAME). */
 /*                 def var check-mail as logic init no no-undo.                               */
@@ -2391,7 +2387,7 @@ DEF VAR gb AS CHAR NO-UNDO .
 /*                 if not check-mail then return .                                            */
 /*                 end.                                                                       */
 
-               IF NOT TG_eml-push-att THEN DO:
+               IF NOT TG_eml-push-att THEN do:
                 {custom/asimail2.i &TYPE = "CUSTOMER"
                                &group-title='r-acknow.' /* v-prgmname */
                                &begin_cust=ip-cust-from
@@ -2400,14 +2396,14 @@ DEF VAR gb AS CHAR NO-UNDO .
                                &mail-body="Acknowledgement"
                                &mail-file=lv-pdf-file + ".pdf"}  
                END.
-                ELSE DO:
+                ELSE do:
                      lv-attach-push = lv-attach-push + lv-pdf-file + ".pdf" .
-                     RUN custom/xpmail2.p   (INPUT   "CUSTOMER",
-                          INPUT   'r-acknow.',
-                          INPUT   lv-attach-push,
-                          INPUT   ip-cust-from,
-                          INPUT   "Acknowledgement",
-                          INPUT   "Acknowledgement",
+                     RUN custom/xpmail2.p   (input   "CUSTOMER",
+                          input   'r-acknow.',
+                          input   lv-attach-push,
+                          input   ip-cust-from,
+                          input   "Acknowledgement",
+                          input   "Acknowledgement",
                           OUTPUT  vcErrorMsg). 
                 END.
              END.
@@ -2422,8 +2418,8 @@ DEF VAR gb AS CHAR NO-UNDO .
      
              END.
          END. 
-         WHEN 6 THEN RUN output-to-port.
-      END CASE.
+         WHEN 6 THEN run output-to-port.
+      end case.
       ELSE /*Albert*/
          IF rd-dest EQ 5 THEN
             RUN email-albert(ip-cust-from, ip-cust-to).
@@ -2440,10 +2436,10 @@ PROCEDURE Get-cust-attch :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF VAR v-attch-list AS CHAR NO-UNDO.
+DEF VAR v-attch-list AS CHAR no-undo.
 DO WITH FRAME {&frame-name}:
     
-    IF TG_eml-push-att:SCREEN-VALUE = "YES" THEN DO:
+    IF TG_eml-push-att:SCREEN-VALUE = "YES" THEN do:
         
         FIND FIRST cust WHERE cust.company EQ cocode
             AND cust.cust-no EQ begin_cust-no:SCREEN-VALUE  NO-LOCK NO-ERROR . 
@@ -2472,8 +2468,8 @@ PROCEDURE GetSelected :
 ------------------------------------------------------------------------------*/
 lv-attach-push = "".
 DO WITH FRAME {&frame-name}:
-    DO i = 1 TO sel-attch:NUM-ITEMS:
-      IF sel-attch:IS-SELECTED(i) THEN
+    DO i = 1 to sel-attch:NUM-ITEMS:
+      IF sel-attch:IS-SELECTED(i) then
           lv-attach-push = lv-attach-push + TRIM(sel-attch:ENTRY(i)) + ",".
     END.
 END.
@@ -2726,7 +2722,7 @@ PROCEDURE output-to-screen :
      RUN printfile (FILE-INFO:FILE-NAME).
   END.
   ELSE
-     RUN scr-rpt.w (list-name,c-win:TITLE,int(lv-font-no),lv-ornt). /* open file-name, title */ 
+     run scr-rpt.w (list-name,c-win:title,int(lv-font-no),lv-ornt). /* open file-name, title */ 
   
 END PROCEDURE.
 
@@ -2820,15 +2816,15 @@ IF IS-xprint-form THEN DO:
    CASE rd-dest:
        WHEN 1 THEN PUT  "<PRINTER?>".
        WHEN 2 THEN PUT "<PREVIEW>".        
-       WHEN 4 THEN DO:
+       WHEN 4 THEN do:
              ls-fax-file = "c:\tmp\fx" + STRING(TIME) + ".tif".
              PUT UNFORMATTED "<PRINT=NO><EXPORT=" Ls-fax-file ",BW></PROGRESS>".
        END.        
        WHEN 5 THEN DO:
            IF TG_preview THEN PUT "<PREVIEW>". ELSE PUT "<PRINT=NO>".
-            IF LOOKUP(v-print-fmt,"Century,Unipak,Axis,Soule,SouleUOM,APC,Perform,Fibrex,Allwest,Simkins,HOPX,Carded") > 0 THEN
+            IF lookup(v-print-fmt,"Century,Unipak,Axis,Soule,SouleUOM,APC,Perform,Fibrex,Allwest,Simkins,HOPX,Carded") > 0 THEN
                 PUT "<FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(120)".
-            ELSE IF LOOKUP(v-print-fmt,"Frankstn,3CPack") > 0 THEN /* task 07211402 */
+            ELSE IF lookup(v-print-fmt,"Frankstn,3CPack") > 0 THEN /* task 07211402 */
                  PUT "<PDF-LEFT=2mm><PDF-TOP=5mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(100)".
             ELSE PUT "<PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(100)".
        END.
@@ -2848,7 +2844,7 @@ END.
 
 OUTPUT CLOSE.
 
-FOR EACH report WHERE report.term-id EQ v-term-id:
+FOR EACH report WHERE report.term-id EQ v-term-id: 
    FIND oe-ord WHERE RECID(oe-ord) EQ report.rec-id.
    IF STRING(oe-ord.ack-prnt) <> report.key-01 AND oe-ord.ack-prnt THEN oe-ord.ack-prnt-date = TODAY.
      
@@ -2867,7 +2863,7 @@ RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 SESSION:SET-WAIT-STATE("").
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 
-END PROCEDURE.
+end procedure.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2881,7 +2877,7 @@ PROCEDURE run-report-bom :
 ------------------------------------------------------------------------------*/
      ASSIGN   fjob-no   = FILL(" ",6 - LENGTH(STRING(begin_ord-no))) +
                           STRING(begin_ord-no)
-     tjob-no   = FILL(" ",6 - LENGTH(STRING(end_ord-no))) +
+     tjob-no   = FILL(" ",6 - LENGTH(string(end_ord-no))) +
                  STRING(end_ord-no)
      fjob-no2  = 0
      tjob-no2  = 99
@@ -2989,7 +2985,7 @@ PROCEDURE SetOEAckForm :
        WHEN "Indiana"  THEN ASSIGN v-program = "oe/rep/ackindc.p" is-xprint-form = YES lines-per-page = 65.
        WHEN "Fibrex" THEN ASSIGN v-program = "oe/rep/ackfibrex.p" is-xprint-form = YES lines-per-page = 69.
        WHEN "Albert" THEN ASSIGN v-program = "oe/rep/ackalbert.p" is-xprint-form = NO.
-       WHEN "ContSvc" THEN ASSIGN v-program = "oe/rep/ackcontsvc.p" is-xprint-form = YES lines-per-page = 65.
+       WHEN "ContSvc" then ASSIGN v-program = "oe/rep/ackcontsvc.p" is-xprint-form = YES lines-per-page = 65.
        WHEN "Triad" THEN ASSIGN v-program = "oe/rep/acktriad.p" is-xprint-form = YES lines-per-page = 65.
        WHEN "Packrite" THEN ASSIGN v-program = "oe/rep/ackpkrit.p" is-xprint-form = YES lines-per-page = 65.
        WHEN "Dee" THEN ASSIGN v-program = "oe/rep/ackdee.p" is-xprint-form = YES lines-per-page = 69.
@@ -3045,62 +3041,62 @@ PROCEDURE show-param :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR lv-frame-hdl AS HANDLE NO-UNDO.
-  DEF VAR lv-group-hdl AS HANDLE NO-UNDO.
-  DEF VAR lv-field-hdl AS HANDLE NO-UNDO.
-  DEF VAR lv-field2-hdl AS HANDLE NO-UNDO.
-  DEF VAR parm-fld-list AS cha NO-UNDO.
-  DEF VAR parm-lbl-list AS cha NO-UNDO.
-  DEF VAR i AS INT NO-UNDO.
-  DEF VAR lv-label AS cha.
+  def var lv-frame-hdl as handle no-undo.
+  def var lv-group-hdl as handle no-undo.
+  def var lv-field-hdl as handle no-undo.
+  def var lv-field2-hdl as handle no-undo.
+  def var parm-fld-list as cha no-undo.
+  def var parm-lbl-list as cha no-undo.
+  def var i as int no-undo.
+  def var lv-label as cha.
   
-  lv-frame-hdl = FRAME {&frame-name}:handle.
-  lv-group-hdl = lv-frame-hdl:FIRST-CHILD.
-  lv-field-hdl = lv-group-hdl:FIRST-CHILD .
+  lv-frame-hdl = frame {&frame-name}:handle.
+  lv-group-hdl = lv-frame-hdl:first-child.
+  lv-field-hdl = lv-group-hdl:first-child .
   
-  DO WHILE TRUE:
-     IF NOT VALID-HANDLE(lv-field-hdl) THEN LEAVE.
-     IF LOOKUP(lv-field-hdl:PRIVATE-DATA,"parm") > 0
-        THEN DO:
-           IF lv-field-hdl:LABEL <> ? THEN 
-              ASSIGN parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
-                     parm-lbl-list = parm-lbl-list + lv-field-hdl:LABEL + "," 
+  do while true:
+     if not valid-handle(lv-field-hdl) then leave.
+     if lookup(lv-field-hdl:private-data,"parm") > 0
+        then do:
+           if lv-field-hdl:label <> ? then 
+              assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
+                     parm-lbl-list = parm-lbl-list + lv-field-hdl:label + "," 
                      .
-           ELSE DO:  /* radio set */
-              ASSIGN parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
+           else do:  /* radio set */
+              assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
                      .
-              lv-field2-hdl = lv-group-hdl:FIRST-CHILD.
-              REPEAT:
-                  IF NOT VALID-HANDLE(lv-field2-hdl) THEN LEAVE. 
-                  IF lv-field2-hdl:PRIVATE-DATA = lv-field-hdl:NAME THEN DO:
-                     parm-lbl-list = parm-lbl-list + lv-field2-hdl:SCREEN-VALUE + ",".
-                  END.
-                  lv-field2-hdl = lv-field2-hdl:NEXT-SIBLING.                 
-              END.       
-           END.                 
-        END.            
-     lv-field-hdl = lv-field-hdl:NEXT-SIBLING.   
-  END.
+              lv-field2-hdl = lv-group-hdl:first-child.
+              repeat:
+                  if not valid-handle(lv-field2-hdl) then leave. 
+                  if lv-field2-hdl:private-data = lv-field-hdl:name then do:
+                     parm-lbl-list = parm-lbl-list + lv-field2-hdl:screen-value + ",".
+                  end.
+                  lv-field2-hdl = lv-field2-hdl:next-sibling.                 
+              end.       
+           end.                 
+        end.            
+     lv-field-hdl = lv-field-hdl:next-sibling.   
+  end.
 
-  PUT SPACE(28)
+  put space(28)
       "< Selection Parameters >"
-      SKIP(1).
+      skip(1).
   
-  DO i = 1 TO NUM-ENTRIES(parm-fld-list,","):
-    IF ENTRY(i,parm-fld-list) NE "" OR
-       entry(i,parm-lbl-list) NE "" THEN DO:
+  do i = 1 to num-entries(parm-fld-list,","):
+    if entry(i,parm-fld-list) ne "" or
+       entry(i,parm-lbl-list) ne "" then do:
        
-      lv-label = FILL(" ",34 - length(TRIM(ENTRY(i,parm-lbl-list)))) +
-                 trim(ENTRY(i,parm-lbl-list)) + ":".
+      lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
+                 trim(entry(i,parm-lbl-list)) + ":".
                  
-      PUT lv-label FORMAT "x(35)" AT 5
-          SPACE(1)
-          TRIM(ENTRY(i,parm-fld-list)) FORMAT "x(40)"
-          SKIP.              
-    END.
-  END.
+      put lv-label format "x(35)" at 5
+          space(1)
+          trim(entry(i,parm-fld-list)) format "x(40)"
+          skip.              
+    end.
+  end.
  
-  PUT FILL("-",80) FORMAT "x(80)" SKIP.
+  put fill("-",80) format "x(80)" skip.
   PAGE.
   
 END PROCEDURE.

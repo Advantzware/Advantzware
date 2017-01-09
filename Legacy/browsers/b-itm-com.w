@@ -558,10 +558,10 @@ PROCEDURE import-excel :
                tt-item-comm.company            = cocode
                tt-item-comm.create-date        = TODAY
                tt-item-comm.create-time        = TIME
-               tt-item-comm.create-user-id     = USERID("NOSWEAT")
+               tt-item-comm.create-user-id     = USERID("ASI")
                tt-item-comm.rec_key            = STRING(YEAR(TODAY), "9999") + STRING(MONTH(TODAY), "99") + STRING(DAY(TODAY), "99") + STRING(TIME)
                tt-item-comm.upd-date           = TODAY
-               tt-item-comm.upd-user-id        = USERID("NOSWEAT")
+               tt-item-comm.upd-user-id        = USERID("ASI")
                tt-item-comm.cust-no            = chWorkSheet:Range("A" + STRING(v-RowCount)):VALUE NO-ERROR.
                tt-item-comm.i-no               = chWorkSheet:Range("B" + STRING(v-RowCount)):VALUE NO-ERROR.
                tt-item-comm.set-sales-price    = ValidDec(chWorkSheet:Range("C" + STRING(v-RowCount))).

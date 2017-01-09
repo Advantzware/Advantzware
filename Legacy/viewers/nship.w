@@ -927,14 +927,14 @@ PROCEDURE ship-zip :
 ------------------------------------------------------------------------------*/
    DO WITH FRAME {&FRAME-NAME}:
       IF v-ship-zip:SCREEN-VALUE NE "" THEN
-         FIND FIRST nosweat.zipcode WHERE
-              nosweat.zipcode.zipcode EQ v-ship-zip:SCREEN-VALUE
+         FIND FIRST ASI.zipcode WHERE
+              ASI.zipcode.zipcode EQ v-ship-zip:SCREEN-VALUE
               NO-LOCK NO-ERROR.
 
-      IF AVAIL nosweat.zipcode THEN do:
-         v-ship-state:SCREEN-VALUE = nosweat.zipcode.state.
+      IF AVAIL ASI.zipcode THEN do:
+         v-ship-state:SCREEN-VALUE = ASI.zipcode.state.
          IF v-ship-city:SCREEN-VALUE EQ "" THEN
-            v-ship-city:SCREEN-VALUE = nosweat.zipcode.city.
+            v-ship-city:SCREEN-VALUE = ASI.zipcode.city.
       END.
   END. 
 END PROCEDURE.

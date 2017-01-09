@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="" xmlns:prodata="urn:schemas-progress-com:xml-prodata:0001">
+  <xsd:element name="dsMenu" prodata:proDataSet="true">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="eSmartMenu" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eSmartMenuBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="MenuGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="ParentMenuGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="MenuName" type="xsd:string" nillable="true" prodata:format="x(20)"/>
+              <xsd:element name="MenuStructureType" type="xsd:string" nillable="true" prodata:format="x(12)"/>
+              <xsd:element name="MenuBeginsAGroup" type="xsd:boolean" nillable="true"/>
+              <xsd:element name="MenuSmallImage" type="xsd:string" nillable="true" prodata:format="x(40)"/>
+              <xsd:element name="MenuLargeImage" type="xsd:string" nillable="true" prodata:format="x(40)"/>
+              <xsd:element name="MenuSequence" type="xsd:int" nillable="true"/>
+              <xsd:element name="FunctionGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="HasChild" type="xsd:boolean" nillable="true"/>
+              <xsd:element name="FunctionName" type="xsd:string" nillable="true" prodata:format="x(20)"/>
+              <xsd:element name="MenuStyleGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="MenuStyleCode" type="xsd:string" nillable="true" prodata:label="Menu Style Code"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="eSmartFunction" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eSmartFunctionBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="FunctionGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="FunctionName" type="xsd:string" nillable="true" prodata:format="x(20)"/>
+              <xsd:element name="FunctionDescription" type="xsd:string" nillable="true" prodata:format="x(100)"/>
+              <xsd:element name="FunctionSmallImage" type="xsd:string" nillable="true" prodata:format="x(50)"/>
+              <xsd:element name="FunctionLargeImage" type="xsd:string" nillable="true" prodata:format="x(50)"/>
+              <xsd:element name="FunctionCallParameter" type="xsd:string" nillable="true" prodata:dataType="prodata:clob"/>
+              <xsd:element name="FunctionModuleGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="ModuleName" type="xsd:string" nillable="true" prodata:format="x(30)"/>
+              <xsd:element name="ExternalId" type="xsd:string" nillable="true" prodata:format="x(60)" prodata:label="External ID"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+    <xsd:unique name="MenuGuid" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eSmartMenu"/>
+      <xsd:field xpath="MenuGuid"/>
+    </xsd:unique>
+    <xsd:unique name="FunctionGuid" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eSmartFunction"/>
+      <xsd:field xpath="FunctionGuid"/>
+    </xsd:unique>
+  </xsd:element>
+  <xsd:annotation>
+    <xsd:appinfo>
+      <prodata:index name="ParentMenuGuidSequence">
+        <prodata:table name="eSmartMenu"/>
+        <prodata:field name="ParentMenuGuid"/>
+        <prodata:field name="MenuSequence"/>
+      </prodata:index>
+      <prodata:index name="FunctionName">
+        <prodata:table name="eSmartFunction"/>
+        <prodata:field name="FunctionName"/>
+      </prodata:index>
+      <prodata:index name="ExternalId">
+        <prodata:table name="eSmartFunction"/>
+        <prodata:field name="ExternalId"/>
+      </prodata:index>
+      <prodata:relation name="eSmartMenueSmartFunctionRelation" prodata:parent="eSmartMenu" prodata:child="eSmartFunction" prodata:relationFields="FunctionGuid,FunctionGuid"/>
+    </xsd:appinfo>
+  </xsd:annotation>
+</xsd:schema>

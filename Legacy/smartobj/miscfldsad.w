@@ -61,7 +61,7 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON selectMiscFlds 
-     IMAGE-UP FILE "Graphics/32x32/document_checks.ico":U
+     IMAGE-UP FILE "Graphics/32x32/document_checks.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Misc Fields" 
      SIZE 7.8 BY 1.81 TOOLTIP "Misc Fields".
@@ -111,6 +111,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB s-object 
 /* ************************* Included-Libraries *********************** */
 
+{advantzware/winkit/winkit-panel.i}
 {src/adm/method/smart.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -158,6 +159,11 @@ DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
 
   IF connected("asinos") THEN DISCONNECT value("asinos").
+
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:12:03 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 
 END.
 

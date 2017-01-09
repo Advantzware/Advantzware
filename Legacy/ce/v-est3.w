@@ -691,7 +691,7 @@ DEFINE FRAME fold
           LABEL "Cost/Ea"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     eb.cas-cnt AT ROW 5.1 COL 125 COLON-ALIGNED FORMAT ">>>,>>>"
+     eb.cas-cnt AT ROW 5.1 COL 125 COLON-ALIGNED
           LABEL "Boxes/Code"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1

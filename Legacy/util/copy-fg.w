@@ -189,11 +189,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -621,7 +617,7 @@ PROCEDURE run-process :
       NO-LOCK NO-ERROR.
 
   lv-rec_key = STRING(TODAY,"99999999") +
-               STRING(NEXT-VALUE(rec_key_seq,nosweat),"99999999").
+               STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999").
   CREATE rec_key.
   ASSIGN
    rec_key.rec_key    = lv-rec_key

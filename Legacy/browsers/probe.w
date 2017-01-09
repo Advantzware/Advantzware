@@ -3,7 +3,7 @@
 /* Connected Databases 
           asi              PROGRESS
 */
-&SCOPED-DEFINE WINDOW-NAME CURRENT-WINDOW
+&Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -30,8 +30,8 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-DEFINE VARIABLE voverall AS DECIMAL FORMAT ">>,>>>,>>9.99" NO-UNDO.
-DEFINE VARIABLE vtot-msf AS DECIMAL FORMAT ">>>>9.99" NO-UNDO.
+def var voverall as dec form ">>,>>>,>>9.99" no-undo.
+def var vtot-msf as dec form ">>>>9.99" no-undo.
  
 {jcrep/r-ticket.i "new shared"}
 {cecrep/jobtick.i "new shared"}
@@ -43,104 +43,104 @@ DEFINE VARIABLE vtot-msf AS DECIMAL FORMAT ">>>>9.99" NO-UNDO.
 
 {custom/globdefs.i}
 
-DEFINE BUFFER probe-ref FOR reftable.
-DEFINE BUFFER b-probemk FOR reftable.
+DEF BUFFER probe-ref FOR reftable.
+DEF BUFFER b-probemk FOR reftable.
 
-DEFINE NEW SHARED VARIABLE k_frac AS DECIMAL INITIAL "6.25" NO-UNDO.
-DEFINE NEW SHARED VARIABLE day_str AS CHARACTER FORMAT "x(10)" NO-UNDO.
-DEFINE NEW SHARED VARIABLE tim_str AS CHARACTER FORMAT "x(8)" NO-UNDO.
-DEFINE NEW SHARED VARIABLE maxpage AS INTEGER FORMAT ">9" NO-UNDO.
-DEFINE NEW SHARED VARIABLE tmp-dir AS CHARACTER NO-UNDO.
-DEFINE NEW SHARED VARIABLE col-norm AS CHARACTER INITIAL "White/Blue" NO-UNDO. 
-DEFINE NEW SHARED VARIABLE qty AS INTEGER NO-UNDO.
-DEFINE NEW SHARED VARIABLE v-shared-rel AS INTEGER NO-UNDO.
-DEFINE NEW SHARED VARIABLE v-do-gsa LIKE do-gsa NO-UNDO.
-DEFINE NEW SHARED BUFFER xop FOR est-op.
+def new shared var k_frac as dec init "6.25" no-undo.
+def new shared var day_str as cha form "x(10)" no-undo.
+def new shared var tim_str as cha form "x(8)" no-undo.
+def new shared var maxpage as int form ">9" no-undo.
+def new shared var tmp-dir as cha no-undo.
+def new shared var col-norm as cha init "White/Blue" no-undo. 
+def new shared var qty as int NO-UNDO.
+DEF NEW SHARED VAR v-shared-rel AS INT NO-UNDO.
+def new shared var v-do-gsa like do-gsa no-undo.
+def new shared buffer xop for est-op.
 
 
-DEFINE NEW SHARED VARIABLE v-qtty LIKE qtty NO-UNDO.
-DEFINE NEW SHARED VARIABLE v-drop-rc AS LOGICAL NO-UNDO.
-DEFINE NEW SHARED VARIABLE v-update-qty-gsa AS LOGICAL NO-UNDO.
-DEFINE NEW SHARED VARIABLE ld-gsa-brd AS DECIMAL NO-UNDO.
-DEFINE NEW SHARED VARIABLE ld-gsa-mat AS DECIMAL NO-UNDO.
-DEFINE NEW SHARED VARIABLE ld-gsa-lab AS DECIMAL NO-UNDO.
+def new shared var v-qtty like qtty no-undo.
+def new shared var v-drop-rc as log no-undo.
+DEF NEW SHARED VAR v-update-qty-gsa AS LOG NO-UNDO.
+DEF NEW SHARED VAR ld-gsa-brd AS DEC NO-UNDO.
+DEF NEW SHARED VAR ld-gsa-mat AS DEC NO-UNDO.
+DEF NEW SHARED VAR ld-gsa-lab AS DEC NO-UNDO.
 
-DEFINE VARIABLE v AS INTEGER NO-UNDO.
-DEFINE VARIABLE vn-out LIKE ef.n-out-l INITIAL 1 NO-UNDO.
-DEFINE VARIABLE v-outf AS DECIMAL NO-UNDO.
-DEFINE VARIABLE v-on-f AS DECIMAL NO-UNDO.
-DEFINE VARIABLE v-on-l AS DECIMAL NO-UNDO.
-DEFINE VARIABLE sh-tmp LIKE sh-len NO-UNDO.
-DEFINE VARIABLE v-widp AS LOGICAL NO-UNDO.
-DEFINE VARIABLE v-brd-only LIKE sys-ctrl.log-fld INITIAL NO NO-UNDO.
-DEFINE VARIABLE v-brd-cost AS DECIMAL NO-UNDO.
-DEFINE VARIABLE v-module AS CHARACTER FORMAT "x(60)" NO-UNDO.
-DEFINE NEW SHARED VARIABLE v-prep-mat LIKE tprep-mat NO-UNDO.  /* for probemk cost */
-DEFINE NEW SHARED VARIABLE v-prep-lab LIKE tprep-lab NO-UNDO.
-DEFINE VARIABLE v-bqty AS INTEGER NO-UNDO.
-DEFINE VARIABLE v-gsa AS LOGICAL INITIAL NO NO-UNDO.
-DEFINE VARIABLE ls-outfile AS CHARACTER NO-UNDO.
-DEFINE VARIABLE ls-probetime AS CHARACTER NO-UNDO.  /* time display */
-DEFINE VARIABLE v-tmp-int AS INTEGER NO-UNDO.
-DEFINE VARIABLE v-can-update AS LOGICAL NO-UNDO.
-DEFINE VARIABLE v-orig-gp AS CHARACTER NO-UNDO.
-DEFINE VARIABLE v-orig-cm-pct AS CHARACTER NO-UNDO.
-DEFINE VARIABLE v-ceSellPrice AS CHARACTER NO-UNDO.
+def var v as int no-undo.
+def var vn-out like ef.n-out-l init 1 no-undo.
+def var v-outf as dec no-undo.
+def var v-on-f as dec no-undo.
+def var v-on-l as dec no-undo.
+def var sh-tmp like sh-len no-undo.
+def var v-widp as log no-undo.
+def var v-brd-only like sys-ctrl.log-fld init no no-undo.
+def var v-brd-cost as dec no-undo.
+def var v-module as char format "x(60)" no-undo.
+def new shared var v-prep-mat like tprep-mat no-undo.  /* for probemk cost */
+def new shared var v-prep-lab like tprep-lab no-undo.
+def var v-bqty as int no-undo.
+def var v-gsa as log init no no-undo.
+def var ls-outfile as cha no-undo.
+def var ls-probetime as cha no-undo.  /* time display */
+DEF VAR v-tmp-int AS INT NO-UNDO.
+DEF VAR v-can-update AS LOG NO-UNDO.
+DEF VAR v-orig-gp AS CHAR NO-UNDO.
+DEF VAR v-orig-cm-pct AS CHAR NO-UNDO.
+DEF VAR v-ceSellPrice AS CHAR NO-UNDO.
 
-DEFINE NEW SHARED WORKFILE w-form
-    FIELD form-no LIKE ef.form-no
-    FIELD min-msf AS   LOGICAL INITIAL NO.
+def new shared workfile w-form
+    field form-no like ef.form-no
+    field min-msf as   log init no.
 
-DEFINE TEMP-TABLE w-probeit LIKE probeit
+DEF TEMP-TABLE w-probeit LIKE probeit
     FIELD mat-cost   LIKE probe.mat-cost
     FIELD lab-cost   LIKE probe.lab-cost
     FIELD vo-cost    LIKE probe.vo-cost
     FIELD fo-cost    LIKE probe.fo-cost
     FIELD probe-date LIKE probe.probe-date.
 
-DEFINE TEMP-TABLE q-sort NO-UNDO FIELD qty AS DECIMAL FIELD rel AS INTEGER.
-DEFINE TEMP-TABLE q-sort1 NO-UNDO FIELD qty AS DECIMAL FIELD rel AS INTEGER.
-DEFINE TEMP-TABLE q-sort2 NO-UNDO FIELD qty AS DECIMAL FIELD rel AS INTEGER.
+def TEMP-TABLE q-sort no-undo field qty as dec field rel as int.
+def TEMP-TABLE q-sort1 no-undo field qty as dec field rel as int.
+def TEMP-TABLE q-sort2 no-undo field qty as dec field rel as int.
 
-DEFINE NEW SHARED TEMP-TABLE tt-qtty FIELD qtty LIKE qtty
-                                  FIELD rel LIKE rels.
+def new shared temp-table tt-qtty field qtty like qtty
+                                  field rel like rels.
 
-DEFINE TEMP-TABLE tt-bqty NO-UNDO FIELD tt-bqty AS INTEGER FIELD tt-brel AS INTEGER.
+DEF TEMP-TABLE tt-bqty NO-UNDO FIELD tt-bqty AS INT FIELD tt-brel AS INT.
 
-DEFINE TEMP-TABLE tt-probeit LIKE probeit
+DEF TEMP-TABLE tt-probeit LIKE probeit
                           FIELD row-id AS ROWID.
-DEFINE NEW SHARED TEMP-TABLE tt-est-op LIKE est-op.    
+DEF NEW SHARED TEMP-TABLE tt-est-op LIKE est-op.    
 &SCOPED-DEFINE where-probeit WHERE probeit.company EQ probe.company ~
                                AND probeit.est-no  EQ probe.est-no  ~
                                AND probeit.line    EQ probe.line
 
-DEFINE VARIABLE lv-override AS LOGICAL NO-UNDO. /* probe override or new creatation */
-DEFINE VARIABLE module AS CHARACTER FORMAT "x(60)" NO-UNDO.
-DEFINE VARIABLE lv-changed AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lv-fullc AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lv-gprof AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lv-nprof AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lv-price AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lv-brd-% AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lv-brdcm AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lv-brdc$ AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lv-comm AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hold-value AS CHARACTER NO-UNDO.
-DEFINE VARIABLE ll-use-margin AS LOGICAL NO-UNDO.
-DEFINE VARIABLE v-prt-note AS LOGICAL NO-UNDO.
-DEFINE VARIABLE v-prt-box AS LOGICAL NO-UNDO.
-DEFINE VARIABLE v-from-dept AS CHARACTER NO-UNDO.
-DEFINE VARIABLE v-to-dept AS CHARACTER NO-UNDO.
-DEFINE VARIABLE ll-no-valid AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lv-col-no AS INTEGER NO-UNDO.
-DEFINE VARIABLE lv-int AS INTEGER NO-UNDO.
-DEFINE VARIABLE lv-valid-profit AS CHARACTER NO-UNDO
-    INITIAL "market-price,gross-profit,net-profit".
+DEF VAR lv-override AS LOG NO-UNDO. /* probe override or new creatation */
+DEF VAR module AS cha FORM "x(60)" NO-UNDO.
+DEF VAR lv-changed AS CHAR NO-UNDO.
+DEF VAR lv-fullc AS CHAR NO-UNDO.
+DEF VAR lv-gprof AS CHAR NO-UNDO.
+DEF VAR lv-nprof AS CHAR NO-UNDO.
+DEF VAR lv-price AS CHAR NO-UNDO.
+DEF VAR lv-brd-% AS CHAR NO-UNDO.
+DEF VAR lv-brdcm AS CHAR NO-UNDO.
+DEF VAR lv-brdc$ AS CHAR NO-UNDO.
+DEF VAR lv-comm AS CHAR NO-UNDO.
+DEF VAR hold-value AS CHAR NO-UNDO.
+DEF VAR ll-use-margin AS LOG NO-UNDO.
+DEF VAR v-prt-note AS LOG NO-UNDO.
+DEF VAR v-prt-box AS LOG NO-UNDO.
+DEF VAR v-from-dept AS cha NO-UNDO.
+DEF VAR v-to-dept AS cha NO-UNDO.
+DEF VAR ll-no-valid AS LOG NO-UNDO.
+DEF VAR lv-col-no AS INT NO-UNDO.
+DEF VAR lv-int AS INT NO-UNDO.
+DEF VAR lv-valid-profit AS CHAR NO-UNDO
+    INIT "market-price,gross-profit,net-profit".
 
-DEFINE NEW SHARED VARIABLE lv-cebrowse-dir AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cerunc-dec AS DECIMAL NO-UNDO.
-DEFINE VARIABLE v-dir AS CHARACTER FORMAT "X(80)" NO-UNDO.
-DEFINE VARIABLE v-cestcalc AS CHARACTER NO-UNDO.
+DEF NEW SHARED VAR lv-cebrowse-dir AS CHAR NO-UNDO.
+DEF VAR cerunc-dec AS DEC NO-UNDO.
+DEF VAR v-dir AS CHAR FORMAT "X(80)" NO-UNDO.
+DEF VAR v-cestcalc AS CHAR NO-UNDO.
 
 {custom/xprint.i}
 
@@ -148,39 +148,39 @@ ASSIGN
  cocode = g_company
  locode = g_loc.
 
-FIND FIRST sys-ctrl NO-LOCK WHERE
-    sys-ctrl.company EQ cocode AND
-    sys-ctrl.name    EQ "CESTCALC"
-     NO-ERROR.
+find first sys-ctrl where
+    sys-ctrl.company eq cocode AND
+    sys-ctrl.name    eq "CESTCALC"
+    no-lock no-error.
 
-IF NOT AVAILABLE sys-ctrl THEN DO TRANSACTION:
-  CREATE sys-ctrl.
-  ASSIGN
+if not avail sys-ctrl then DO TRANSACTION:
+  create sys-ctrl.
+  assign
    sys-ctrl.company = cocode
    sys-ctrl.name    = "CESTCALC"
    sys-ctrl.descrip = "Corrugated Estimate Calc"
    sys-ctrl.log-fld = NO
    sys-ctrl.char-fld = ""
    sys-ctrl.int-fld = 0.
-END.
+end.
   v-cestcalc = sys-ctrl.char-fld.
 
 
-FIND FIRST sys-ctrl NO-LOCK WHERE
-    sys-ctrl.company EQ cocode AND
-    sys-ctrl.name    EQ "CEBROWSE"
-     NO-ERROR.
+find first sys-ctrl where
+    sys-ctrl.company eq cocode AND
+    sys-ctrl.name    eq "CEBROWSE"
+    no-lock no-error.
 
-IF NOT AVAILABLE sys-ctrl THEN DO TRANSACTION:
-  CREATE sys-ctrl.
-  ASSIGN
+if not avail sys-ctrl then DO TRANSACTION:
+  create sys-ctrl.
+  assign
    sys-ctrl.company = cocode
    sys-ctrl.name    = "CEBROWSE"
    sys-ctrl.descrip = "# of Records to be displayed in browser"
    sys-ctrl.log-fld = YES
    sys-ctrl.char-fld = "CE"
    sys-ctrl.int-fld = 30.
-END.
+end.
 
 IF sys-ctrl.char-fld NE "" THEN
    tmp-dir = sys-ctrl.char-fld.
@@ -194,20 +194,20 @@ ASSIGN
   tmp-dir = REPLACE(tmp-dir,"/","\").
   lv-cebrowse-dir = tmp-dir.
 
-FIND FIRST users NO-LOCK WHERE
-     users.user_id EQ USERID("NOSWEAT")
-      NO-ERROR.
+FIND FIRST users WHERE
+     users.user_id EQ USERID("ASI")
+     NO-LOCK NO-ERROR.
 
-IF AVAILABLE users AND users.user_program[2] NE "" THEN
+IF AVAIL users AND users.user_program[2] NE "" THEN
    v-dir = users.user_program[2] + "\".
 ELSE
    v-dir = "c:\tmp\".
 
-FIND FIRST company NO-LOCK WHERE company.company EQ cocode NO-ERROR.
-FIND FIRST loc NO-LOCK WHERE loc.loc EQ locode NO-ERROR.
+FIND FIRST company WHERE company.company EQ cocode NO-LOCK NO-ERROR.
+FIND FIRST loc WHERE loc.loc EQ locode NO-LOCK NO-ERROR.
 
 ASSIGN
-   module = IF AVAILABLE company THEN company.NAME ELSE cocode
+   module = IF AVAIL company THEN company.NAME ELSE cocode
    module = module + " - " + IF AVAILABLE loc THEN loc.dscr ELSE locode.
 
 DO TRANSACTION:
@@ -215,8 +215,8 @@ DO TRANSACTION:
   
   ASSIGN
    do-speed  = sys-ctrl.log-fld
-   vmclean   = sys-ctrl.char-fld NE ""
-   vsuthrlnd = LOOKUP(sys-ctrl.char-fld,"Suthrlnd,Clevelnd,Brick") NE 0
+   vmclean   = sys-ctrl.char-fld ne ""
+   vsuthrlnd = lookup(sys-ctrl.char-fld,"Suthrlnd,Clevelnd,Brick") ne 0
    cerunc-dec = sys-ctrl.dec-fld.
 
   {sys/inc/cerun.i F}
@@ -237,30 +237,30 @@ END.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&SCOPED-DEFINE PROCEDURE-TYPE SmartBrowser
-&SCOPED-DEFINE DB-AWARE NO
+&Scoped-define PROCEDURE-TYPE SmartBrowser
+&Scoped-define DB-AWARE no
 
-&SCOPED-DEFINE ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
+&Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
-&SCOPED-DEFINE FRAME-NAME F-Main
-&SCOPED-DEFINE BROWSE-NAME br_table
+&Scoped-define FRAME-NAME F-Main
+&Scoped-define BROWSE-NAME br_table
 
 /* External Tables                                                      */
-&SCOPED-DEFINE EXTERNAL-TABLES est ef eb
-&SCOPED-DEFINE FIRST-EXTERNAL-TABLE est
+&Scoped-define EXTERNAL-TABLES est ef eb
+&Scoped-define FIRST-EXTERNAL-TABLE est
 
 
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR est, ef, eb.
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&SCOPED-DEFINE INTERNAL-TABLES probe reftable
+&Scoped-define INTERNAL-TABLES probe reftable
 
 /* Define KEY-PHRASE in case it is used by any query. */
-&SCOPED-DEFINE KEY-PHRASE TRUE
+&Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&SCOPED-DEFINE FIELDS-IN-QUERY-br_table probe.est-qty probe.fact-cost ~
+&Scoped-define FIELDS-IN-QUERY-br_table probe.est-qty probe.fact-cost ~
 probe.full-cost probe.market-price display-gp (1) @ probe.gross-profit ~
 display-gp (1) @ probe.gross-profit probe.gross-profit reftable.val[11] ~
 probe.comm probe.net-profit probe.sell-price probe.gsh-qty probe.do-quote ~
@@ -268,46 +268,46 @@ voverall(1) @ voverall probe.probe-date reftable.val[2] reftable.val[3] ~
 reftable.val[4] reftable.val[5] probe.probe-user vtot-msf() @ vtot-msf ~
 cvt-time(probe.probe-time) @ ls-probetime reftable.val[8] reftable.val[9] ~
 reftable.val[10] probe.line 
-&SCOPED-DEFINE ENABLED-FIELDS-IN-QUERY-br_table probe.full-cost ~
+&Scoped-define ENABLED-FIELDS-IN-QUERY-br_table probe.full-cost ~
 probe.market-price probe.gross-profit reftable.val[11] probe.net-profit ~
 probe.sell-price probe.do-quote reftable.val[3] reftable.val[4] ~
 reftable.val[5] reftable.val[8] reftable.val[9] reftable.val[10] 
-&SCOPED-DEFINE ENABLED-TABLES-IN-QUERY-br_table probe reftable
-&SCOPED-DEFINE FIRST-ENABLED-TABLE-IN-QUERY-br_table probe
-&SCOPED-DEFINE SECOND-ENABLED-TABLE-IN-QUERY-br_table reftable
-&SCOPED-DEFINE QUERY-STRING-br_table FOR EACH probe NO-LOCK WHERE probe.company EQ eb.company AND ~
-ASI.probe.est-no EQ eb.est-no ~
-      AND probe.probe-date NE ? , ~
-      FIRST reftable NO-LOCK WHERE reftable.reftable EQ "probe.board" AND ~
+&Scoped-define ENABLED-TABLES-IN-QUERY-br_table probe reftable
+&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table probe
+&Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-br_table reftable
+&Scoped-define QUERY-STRING-br_table FOR EACH probe WHERE probe.company = eb.company and ~
+ASI.probe.est-no = eb.est-no ~
+      AND probe.probe-date ne ? NO-LOCK, ~
+      FIRST reftable WHERE reftable.reftable EQ "probe.board" AND ~
 reftable.company  EQ probe.company AND ~
 reftable.loc      EQ ""            AND ~
 reftable.code     EQ probe.est-no  AND ~
-reftable.code2    EQ STRING(probe.line,"9999999999")  ~
+reftable.code2    EQ STRING(probe.line,"9999999999") NO-LOCK ~
     BY probe.company ~
        BY probe.est-no ~
         BY probe.probe-date ~
          BY probe.est-qty
-&SCOPED-DEFINE OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH probe NO-LOCK WHERE probe.company EQ eb.company AND ~
-ASI.probe.est-no EQ eb.est-no ~
-      AND probe.probe-date NE ? , ~
-      FIRST reftable NO-LOCK WHERE reftable.reftable EQ "probe.board" AND ~
+&Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH probe WHERE probe.company = eb.company and ~
+ASI.probe.est-no = eb.est-no ~
+      AND probe.probe-date ne ? NO-LOCK, ~
+      FIRST reftable WHERE reftable.reftable EQ "probe.board" AND ~
 reftable.company  EQ probe.company AND ~
 reftable.loc      EQ ""            AND ~
 reftable.code     EQ probe.est-no  AND ~
-reftable.code2    EQ STRING(probe.line,"9999999999") ~
+reftable.code2    EQ STRING(probe.line,"9999999999") NO-LOCK ~
     BY probe.company ~
        BY probe.est-no ~
         BY probe.probe-date ~
          BY probe.est-qty.
-&SCOPED-DEFINE TABLES-IN-QUERY-br_table probe reftable
-&SCOPED-DEFINE FIRST-TABLE-IN-QUERY-br_table probe
-&SCOPED-DEFINE SECOND-TABLE-IN-QUERY-br_table reftable
+&Scoped-define TABLES-IN-QUERY-br_table probe reftable
+&Scoped-define FIRST-TABLE-IN-QUERY-br_table probe
+&Scoped-define SECOND-TABLE-IN-QUERY-br_table reftable
 
 
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&SCOPED-DEFINE ENABLED-OBJECTS br_table 
+&Scoped-Define ENABLED-OBJECTS br_table 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -334,7 +334,7 @@ RUN set-attribute-list (
      Keys-Supplied = "company"':U).
 
 /* Tell the ADM to use the OPEN-QUERY-CASES. */
-&SCOPED-DEFINE OPEN-QUERY-CASES RUN dispatch ('open-query-cases':U).
+&Scoped-define OPEN-QUERY-CASES RUN dispatch ('open-query-cases':U).
 /**************************
 </EXECUTING-CODE> */
 /* _UIB-CODE-BLOCK-END */
@@ -393,14 +393,14 @@ FUNCTION checkNCBrd RETURNS LOGICAL
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD cvt-time B-table-Win 
 FUNCTION cvt-time RETURNS CHARACTER
-  ( INPUT ip-time AS INTEGER )  FORWARD.
+  ( input ip-time as int )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD display-gp B-table-Win 
 FUNCTION display-gp RETURNS DECIMAL
-  ( INPUT ip-type AS INTEGER )  FORWARD.
+  ( INPUT ip-type AS INT )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -414,7 +414,7 @@ FUNCTION SatisfiedPDies RETURNS LOGICAL
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD voverall B-table-Win 
 FUNCTION voverall RETURNS DECIMAL
-  ( INPUT ip-type AS INTEGER )   FORWARD.
+  ( INPUT ip-type AS INT )   FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -523,7 +523,7 @@ DEFINE FRAME F-Main
  */
 
 /* This procedure should always be RUN PERSISTENT.  Report the error,  */
-/* THEN cleanup and return.                                            */
+/* then cleanup and return.                                            */
 IF NOT THIS-PROCEDURE:PERSISTENT THEN DO:
   MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
           VIEW-AS ALERT-BOX ERROR BUTTONS OK.
@@ -532,7 +532,7 @@ END.
 
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
-/* *************************  CREATE Window  ************************** */
+/* *************************  Create Window  ************************** */
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
@@ -658,21 +658,21 @@ reftable.code2    EQ STRING(probe.line,""9999999999"")"
 
 /* ************************  Control Triggers  ************************ */
 
-&SCOPED-DEFINE BROWSE-NAME br_table
-&SCOPED-DEFINE SELF-NAME br_table
+&Scoped-define BROWSE-NAME br_table
+&Scoped-define SELF-NAME br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON DEFAULT-ACTION OF br_table IN FRAME F-Main /* Estimate  Analysis Per Thousand */
 DO:
    IF v-can-update EQ NO THEN
       LEAVE.
 
-   DEFINE VARIABLE phandle AS WIDGET-HANDLE NO-UNDO.
-   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.   
+   def var phandle as widget-handle no-undo.
+   def var char-hdl as cha no-undo.   
    RUN get-link-handle IN adm-broker-hdl
       (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
    phandle = WIDGET-HANDLE(char-hdl).
    
-   RUN new-state IN phandle ('update-begin':U).
+   RUN new-state in phandle ('update-begin':U).
 
 END.
 
@@ -681,18 +681,18 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
-ON RETURN OF br_table IN FRAME F-Main /* Estimate  Analysis Per Thousand */
-ANYWHERE
+ON return OF br_table IN FRAME F-Main /* Estimate  Analysis Per Thousand */
+anywhere
 DO:
-   RUN GET-ATTRIBUTE ("FIELDS-ENABLED":U).
-   IF RETURN-VALUE EQ "YES" THEN DO:  /* update mode */
-      APPLY "tab" TO SELF.
-      RETURN NO-APPLY.
-   END.
-   ELSE DO:
-       APPLY "default-action" TO BROWSE {&browse-name}.
-       RETURN NO-APPLY. 
-   END.   
+   RUN get-attribute ("FIELDS-ENABLED":U).
+   if return-value = "YES" then do:  /* update mode */
+      apply "tab" to self.
+      return no-apply.
+   end.
+   else do:
+       apply "default-action" to browse {&browse-name}.
+       return no-apply. 
+   end.   
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -716,9 +716,9 @@ DO:
     /* Do not disable this code or no updates will take place except
      by pressing the Save button on an Update SmartPanel. */
    /*{src/adm/template/brsleave.i} */
-     {est/brsleave.i}   /* same but update will be LIKE add */
+     {est/brsleave.i}   /* same but update will be like add */
      
-     IF KEYFUNCTION(LASTKEY) EQ "return" THEN REPOSITION {&browse-name} FORWARD 0.
+     if keyfunction(lastkey) = "return" then reposition {&browse-name} forward 0.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -737,7 +737,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME probe.full-cost
+&Scoped-define SELF-NAME probe.full-cost
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL probe.full-cost br_table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF probe.full-cost IN BROWSE br_table /* Full!Cost */
 DO:
@@ -749,7 +749,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME probe.market-price
+&Scoped-define SELF-NAME probe.market-price
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL probe.market-price br_table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF probe.market-price IN BROWSE br_table /* Margin% */
 DO:
@@ -789,13 +789,13 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME probe.gross-profit
+&Scoped-define SELF-NAME probe.gross-profit
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL probe.gross-profit br_table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF probe.gross-profit IN BROWSE br_table /* Gross% */
 DO:
 
   v-orig-gp = probe.gross-profit:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}.
-  IF ll-use-margin OR v-ceSellPrice EQ "F" THEN DO:
+  IF ll-use-margin OR v-ceSellPrice = "F" THEN DO:
     APPLY "tab" TO probe.gross-profit IN BROWSE {&browse-name}.
     RETURN NO-APPLY.
   END.
@@ -836,7 +836,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME reftable.val[11]
+&Scoped-define SELF-NAME reftable.val[11]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL reftable.val[11] br_table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF reftable.val[11] IN BROWSE br_table /* CM% */
 DO:
@@ -869,7 +869,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL reftable.val[11] br_table _BROWSE-COLUMN B-table-Win
 ON VALUE-CHANGED OF reftable.val[11] IN BROWSE br_table /* CM% */
 DO:
-  IF v-ceSellPrice EQ "F" THEN
+  IF v-ceSellPrice = "F" THEN
     lv-changed = "G".
 END.
 
@@ -877,7 +877,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME probe.net-profit
+&Scoped-define SELF-NAME probe.net-profit
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL probe.net-profit br_table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF probe.net-profit IN BROWSE br_table /* Net% */
 DO:
@@ -917,24 +917,24 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME probe.sell-price
+&Scoped-define SELF-NAME probe.sell-price
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL probe.sell-price br_table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF probe.sell-price IN BROWSE br_table /* Selling!Price */
 DO:
-  DEFINE VARIABLE ld AS DECIMAL NO-UNDO.
+  DEF VAR ld AS DEC NO-UNDO.
 
 
   IF cewhatif-cha EQ "PerMSF" THEN DO:
     ASSIGN
      hold-value = {&self-name}:SCREEN-VALUE IN BROWSE {&browse-name}
-     ld         = DECIMAL(hold-value).
+     ld         = DEC(hold-value).
 
     per-msf:
     DO ON ERROR UNDO, RETRY:
       RUN est/d-whatif.w (ROWID(probe), INPUT-OUTPUT ld) NO-ERROR.
 
       IF NOT ERROR-STATUS:ERROR THEN DO:
-        IF ROUND(ld,2) NE ROUND(DECIMAL(hold-value),2) THEN DO:
+        IF ROUND(ld,2) NE ROUND(DEC(hold-value),2) THEN DO:
           {&self-name}:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(ld).
           RUN new-sell-price.
           RUN calc-fields NO-ERROR.
@@ -972,7 +972,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME reftable.val[3]
+&Scoped-define SELF-NAME reftable.val[3]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL reftable.val[3] br_table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF reftable.val[3] IN BROWSE br_table /* Board% */
 DO:
@@ -999,7 +999,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME reftable.val[4]
+&Scoped-define SELF-NAME reftable.val[4]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL reftable.val[4] br_table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF reftable.val[4] IN BROWSE br_table /* Board!Contrib/M */
 DO:
@@ -1023,7 +1023,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME reftable.val[5]
+&Scoped-define SELF-NAME reftable.val[5]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL reftable.val[5] br_table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF reftable.val[5] IN BROWSE br_table /* Board!Contrib$ */
 DO:
@@ -1055,22 +1055,22 @@ END.
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3help.i}
 
-&IF DEFINED(UIB_IS_RUNNING) NE 0 &THEN          
+&IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
 
 {methods/winReSize.i}
 
-DEFINE VARIABLE lv-col-hand AS HANDLE.
+DEF VAR lv-col-hand AS HANDLE.
 FIND FIRST ce-ctrl {sys/look/ce-ctrlw.i} NO-LOCK.
-IF AVAILABLE ce-ctrl THEN
+IF AVAIL ce-ctrl THEN
   v-ceSellPrice = ce-ctrl.sell-by.
 IF v-ceSellPrice NE "F" THEN DO lv-int = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME} 
     WITH FRAME f-main:
 
   lv-col-hand = BROWSE br_table:GET-BROWSE-COLUMN(lv-int).
 
-  IF  lv-col-hand:LABEL EQ "cm%" THEN DO:
+  IF  lv-col-hand:LABEL = "cm%" THEN DO:
       lv-col-hand:VISIBLE = NO.
 
   END.
@@ -1142,31 +1142,31 @@ PROCEDURE calc-fields :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/  
-  DEFINE VARIABLE ld-marg% AS DECIMAL NO-UNDO.
-  DEFINE VARIABLE ld-commc AS DECIMAL NO-UNDO.
-  DEFINE VARIABLE ld-factc AS DECIMAL NO-UNDO.
-  DEFINE VARIABLE ld-fullc AS DECIMAL NO-UNDO.
-  DEFINE VARIABLE ld-price AS DECIMAL NO-UNDO.
-  DEFINE VARIABLE ld-brd-m AS DECIMAL NO-UNDO.
-  DEFINE VARIABLE ld-brd-% AS DECIMAL NO-UNDO.
-  DEFINE VARIABLE ld-brdcm AS DECIMAL NO-UNDO.
-  DEFINE VARIABLE ld-brdc$ AS DECIMAL NO-UNDO.
-  DEFINE VARIABLE lv-changed2 LIKE lv-changed NO-UNDO.
-  DEFINE VARIABLE v-tmp-set-markup LIKE probe.set-chg NO-UNDO.
-  DEFINE VARIABLE v-tmp-value LIKE probe.set-chg NO-UNDO.
-  DEFINE VARIABLE lv-orig-changed AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE v-freight AS DECIMAL NO-UNDO.
+  DEF VAR ld-marg% AS DEC NO-UNDO.
+  DEF VAR ld-commc AS DEC NO-UNDO.
+  DEF VAR ld-factc AS DEC NO-UNDO.
+  DEF VAR ld-fullc AS DEC NO-UNDO.
+  DEF VAR ld-price AS DEC NO-UNDO.
+  DEF VAR ld-brd-m AS DEC NO-UNDO.
+  DEF VAR ld-brd-% AS DEC NO-UNDO.
+  DEF VAR ld-brdcm AS DEC NO-UNDO.
+  DEF VAR ld-brdc$ AS DEC NO-UNDO.
+  DEF VAR lv-changed2 LIKE lv-changed NO-UNDO.
+  DEF VAR v-tmp-set-markup LIKE probe.set-chg NO-UNDO.
+  DEF VAR v-tmp-value LIKE probe.set-chg NO-UNDO.
+  DEF VAR lv-orig-changed AS CHAR NO-UNDO.
+  DEF VAR v-freight AS DEC NO-UNDO.
 
   {cec/combasis.i}
 
   {sys/inc/ceround.i}
   v-freight = 0.
-  FOR EACH est-summ NO-LOCK
+  FOR EACH est-summ
       WHERE est-summ.company EQ probe.company
         AND est-summ.est-no  EQ probe.est-no
         AND est-summ.e-num   EQ probe.line
         AND SUBSTR(est-summ.summ-tot,31) BEGINS "Freight"
-      USE-INDEX est-qty :
+      USE-INDEX est-qty NO-LOCK:
       v-freight = v-freight + est-summ.per-m.
   END.
   FIND FIRST ce-ctrl {sys/look/ce-ctrlw.i} NO-LOCK.
@@ -1181,21 +1181,21 @@ PROCEDURE calc-fields :
      lv-orig-changed = lv-changed
      v-com = probe.comm
      lv-changed2 = lv-changed
-     ld-price    = DECIMAL(lv-price)
-     ld-marg%    = DECIMAL(probe.market-price:SCREEN-VALUE IN BROWSE {&browse-name})
-     ld-factc    = DECIMAL(probe.fact-cost:SCREEN-VALUE IN BROWSE {&browse-name})
+     ld-price    = DEC(lv-price)
+     ld-marg%    = DEC(probe.market-price:SCREEN-VALUE IN BROWSE {&browse-name})
+     ld-factc    = DEC(probe.fact-cost:SCREEN-VALUE IN BROWSE {&browse-name})
      ld-commc    = (ld-price - (IF v-basis EQ "G" THEN ld-factc ELSE 0)) *
                    (v-com / 100)   
-     ld-fullc    = DECIMAL(probe.full-cost:SCREEN-VALUE IN BROWSE {&browse-name}) -
+     ld-fullc    = DEC(probe.full-cost:SCREEN-VALUE IN BROWSE {&browse-name}) -
                    ld-commc
-     ld-brd-m    = DECIMAL(reftable.val[2]:SCREEN-VALUE IN BROWSE {&browse-name})
-     ld-brd-%    = DECIMAL(reftable.val[3]:SCREEN-VALUE IN BROWSE {&browse-name})
-     ld-brdcm    = DECIMAL(reftable.val[4]:SCREEN-VALUE IN BROWSE {&browse-name})
-     ld-brdc$    = DECIMAL(reftable.val[5]:SCREEN-VALUE IN BROWSE {&browse-name}).
+     ld-brd-m    = DEC(reftable.val[2]:SCREEN-VALUE IN BROWSE {&browse-name})
+     ld-brd-%    = DEC(reftable.val[3]:SCREEN-VALUE IN BROWSE {&browse-name})
+     ld-brdcm    = DEC(reftable.val[4]:SCREEN-VALUE IN BROWSE {&browse-name})
+     ld-brdc$    = DEC(reftable.val[5]:SCREEN-VALUE IN BROWSE {&browse-name}).
 
     IF lv-changed EQ "S" THEN DO:
       ASSIGN
-       ld-price = DECIMAL(probe.sell-price:SCREEN-VALUE IN BROWSE {&browse-name})
+       ld-price = DEC(probe.sell-price:SCREEN-VALUE IN BROWSE {&browse-name})
        ld-commc = (ld-price - (IF v-basis EQ "G" THEN ld-factc ELSE 0)) *
                   (v-com / 100).
         IF ld-price EQ 0 THEN DO:
@@ -1217,24 +1217,24 @@ PROCEDURE calc-fields :
 
       ELSE DO:
         IF lv-changed EQ "G" THEN DO:
-          IF ce-ctrl.sell-by EQ "F" THEN DO:
+          IF ce-ctrl.sell-by = "F" THEN DO:
           
-            IF  DECIMAL(reftable.val[11]:SCREEN-VALUE IN BROWSE {&browse-name}) > 0
+            IF  DEC(reftable.val[11]:SCREEN-VALUE IN BROWSE {&browse-name}) > 0
                THEN
-              v-pct = DECIMAL(reftable.val[11]:SCREEN-VALUE IN BROWSE {&browse-name}).
-            ELSE IF v-pct EQ 0 THEN
-              v-pct = DECIMAL(probe.gross-profit:SCREEN-VALUE IN BROWSE {&browse-name}).
-            IF DECIMAL(reftable.val[11]:SCREEN-VALUE IN BROWSE {&browse-name}) = 0 THEN
+              v-pct = DEC(reftable.val[11]:SCREEN-VALUE IN BROWSE {&browse-name}).
+            ELSE IF v-pct = 0 THEN
+              v-pct = DEC(probe.gross-profit:SCREEN-VALUE IN BROWSE {&browse-name}).
+            IF DEC(reftable.val[11]:SCREEN-VALUE IN BROWSE {&browse-name}) = 0 THEN
                 reftable.val[11]:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(v-pct).
           END.
           ELSE
-            v-pct = DECIMAL(probe.gross-profit:SCREEN-VALUE IN BROWSE {&browse-name}).
+            v-pct = DEC(probe.gross-profit:SCREEN-VALUE IN BROWSE {&browse-name}).
 
           IF ce-ctrl.sell-by EQ "S" THEN lv-changed2 = "S".
           IF ce-ctrl.sell-by EQ "F" THEN lv-changed2 = "F".
         END.
       
-        ELSE v-pct = DECIMAL(probe.net-profit:SCREEN-VALUE IN BROWSE {&browse-name}).
+        ELSE v-pct = DEC(probe.net-profit:SCREEN-VALUE IN BROWSE {&browse-name}).
 
         IF ll-use-margin THEN
           ASSIGN
@@ -1393,10 +1393,10 @@ PROCEDURE check-for-combo :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE OUTPUT PARAMETER op-combo AS LOGICAL NO-UNDO.
+  DEF OUTPUT PARAM op-combo AS LOG NO-UNDO.
   
 
-  op-combo = AVAILABLE est AND est.est-type EQ 8.
+  op-combo = AVAIL est AND est.est-type EQ 8.
 
 END PROCEDURE.
 
@@ -1410,40 +1410,41 @@ PROCEDURE create-mclean :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE li AS INTEGER NO-UNDO.
-  DEFINE VARIABLE lv-summ-tot LIKE est-summ.summ-tot NO-UNDO.
+  DEF VAR li AS INT NO-UNDO.
+  DEF VAR lv-summ-tot LIKE est-summ.summ-tot NO-UNDO.
   
   
   FOR EACH mclean:
     DELETE mclean.
   END.
 
-  FOR EACH probe NO-LOCK
+  FOR EACH probe
       WHERE probe.company    EQ est.company
         AND probe.est-no     EQ est.est-no
-        AND probe.probe-date NE ?:
+        AND probe.probe-date NE ?
+      NO-LOCK:
 
-    FIND FIRST est-summ NO-LOCK
+    FIND FIRST est-summ
         WHERE est-summ.company EQ probe.company
           AND est-summ.est-no  EQ probe.est-no
           AND est-summ.e-num   EQ probe.line
-        USE-INDEX est-qty  NO-ERROR.
+        USE-INDEX est-qty NO-LOCK NO-ERROR.
       
-    DO WHILE AVAILABLE est-summ:
+    DO WHILE AVAIL est-summ:
       CREATE mclean.
       ASSIGN
-       mclean.rec-type = SUBSTRING(est-summ.summ-tot,01,20)
-       mclean.form-no  = INTEGER(SUBSTRING(est-summ.summ-tot,21,10))
-       mclean.descr    = SUBSTRING(est-summ.summ-tot,31).
+       mclean.rec-type = SUBSTR(est-summ.summ-tot,01,20)
+       mclean.form-no  = INT(SUBSTR(est-summ.summ-tot,21,10))
+       mclean.descr    = SUBSTR(est-summ.summ-tot,31).
 
       DO li = 1 TO 28:
         mclean.cost[li] = est-summ.per-m.
 
-        FIND NEXT est-summ NO-LOCK
+        FIND NEXT est-summ
             WHERE est-summ.company EQ probe.company
               AND est-summ.est-no  EQ probe.est-no
               AND est-summ.e-num   EQ probe.line
-            USE-INDEX est-qty  NO-ERROR.
+            USE-INDEX est-qty NO-LOCK NO-ERROR.
       END.
     END.
   END.
@@ -1460,33 +1461,33 @@ PROCEDURE create-quote :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEFINE BUFFER xprobe FOR probe.
-DEFINE BUFFER bf-qhd FOR quotehd.
-DEFINE BUFFER bf-notes FOR notes.
+def buffer xprobe for probe.
+DEF BUFFER bf-qhd FOR quotehd.
+DEF BUFFER bf-notes FOR notes.
 
 /* generating quote record - main code from  quote.a with new table */
 
-DEFINE VARIABLE j AS INTEGER NO-UNDO.
-DEFINE VARIABLE i AS INTEGER NO-UNDO.
+def var j as int no-undo.
+def var i as int no-undo.
 
-DEFINE BUFFER bf-eb FOR eb.
-DEFINE BUFFER bf-ef FOR ef.
-DEFINE BUFFER b-probemk FOR reftable.
+def buffer bf-eb for eb.
+DEF buffer bf-ef for ef.
+DEF BUFFER b-probemk FOR reftable.
 
-DEFINE VARIABLE li-q-no LIKE quotehd.q-no NO-UNDO.
-DEFINE VARIABLE li-line AS INTEGER NO-UNDO .  /* for quoteitm.line */
-DEFINE VARIABLE ll-new-quote AS LOGICAL NO-UNDO.
-DEFINE VARIABLE ll-first AS LOGICAL NO-UNDO.
-DEFINE VARIABLE li-first-qty AS INTEGER NO-UNDO.  /* first qty for quoteitm */
-DEFINE VARIABLE li-prep-qty LIKE quotechg.prep-qty NO-UNDO.
-DEFINE VARIABLE li-cnt AS INTEGER NO-UNDO.
-DEFINE VARIABLE ld-cost AS DECIMAL NO-UNDO.
-DEFINE VARIABLE li-value AS INTEGER NO-UNDO.
-DEFINE VARIABLE lv-quo-price-char AS CHARACTER NO-UNDO.
-DEFINE VARIABLE v-tot-mat AS DECIMAL NO-UNDO.
-DEFINE VARIABLE v-tot-lab AS DECIMAL NO-UNDO.
-DEFINE VARIABLE v-nk-found AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lv-cust LIKE eb.cust-no NO-UNDO.
+def var li-q-no LIKE quotehd.q-no NO-UNDO.
+def var li-line as int no-undo .  /* for quoteitm.line */
+def var ll-new-quote as log no-undo.
+def var ll-first as log no-undo.
+def var li-first-qty as int no-undo.  /* first qty for quoteitm */
+DEF VAR li-prep-qty LIKE quotechg.prep-qty NO-UNDO.
+def var li-cnt as int no-undo.
+def var ld-cost as dec no-undo.
+def var li-value as int no-undo.
+DEF VAR lv-quo-price-char AS CHAR NO-UNDO.
+DEF VAR v-tot-mat AS DEC NO-UNDO.
+DEF VAR v-tot-lab AS DEC NO-UNDO.
+DEF VAR v-nk-found AS LOG NO-UNDO.
+DEF VAR lv-cust LIKE eb.cust-no NO-UNDO.
 DEFINE VARIABLE cNotes LIKE quotehd.comment NO-UNDO.
 {est/checkuse.i}
 
@@ -1503,52 +1504,52 @@ IF CAN-FIND(FIRST xprobe
       WHERE sys-ctrl.company EQ cocode
         AND sys-ctrl.name    EQ "QUOPRICE"
       NO-LOCK NO-ERROR.
-  lv-quo-price-char = IF AVAILABLE sys-ctrl THEN sys-ctrl.char-fld ELSE "M". */
-  FIND FIRST bf-eb NO-LOCK WHERE bf-eb.company EQ cocode
+  lv-quo-price-char = IF AVAIL sys-ctrl THEN sys-ctrl.char-fld ELSE "M". */
+  FIND FIRST bf-eb WHERE bf-eb.company EQ cocode
                      AND bf-eb.est-no  EQ est.est-no
                      AND bf-eb.cust-no GT ""
-                    NO-ERROR.
-  IF AVAILABLE bf-eb THEN
+                   NO-LOCK NO-ERROR.
+  IF AVAIL bf-eb THEN
       lv-cust = bf-eb.cust-no.
   ELSE
       lv-cust = "".
-  RUN sys/ref/nk1look.p    (INPUT cocode,
-                            INPUT "QUOPRICE", /* N-K-1 name */
-                            INPUT "C", /* data type */
-                            INPUT YES, /* use customer values */
-                            INPUT YES, /* shipto or vendor */
+  RUN sys/ref/nk1look.p    (input cocode,
+                            input "QUOPRICE", /* N-K-1 name */
+                            input "C", /* data type */
+                            input YES, /* use customer values */
+                            input YES, /* shipto or vendor */
                             INPUT lv-cust,
-                            INPUT "", /* shipto value */
-                            OUTPUT lv-quo-price-char, /* returned value */
-                            OUTPUT v-nk-found /* was it found? */).
+                            input "", /* shipto value */
+                            output lv-quo-price-char, /* returned value */
+                            output v-nk-found /* was it found? */).
   IF NOT v-nk-found THEN
     lv-quo-price-char = "M".
 
   IF est.est-type EQ 8 THEN DO:
     FIND FIRST xjob NO-ERROR.
-    IF NOT AVAILABLE xjob THEN DO:
+    IF NOT AVAIL xjob THEN DO:
       MESSAGE "You must calculate a combo estimate before creating a quote..."
               VIEW-AS ALERT-BOX ERROR.
       RETURN.
     END.
   END.
 
-  ASSIGN
+  assign
    cocode = est.company
    locode = est.loc.
 
-  FIND LAST quotehd WHERE quotehd.company EQ est.company AND
-                                 quotehd.loc EQ est.loc AND
-                                 quotehd.est-no EQ est.est-no NO-ERROR.
-  IF AVAILABLE quotehd THEN DO:
-     DEFINE VARIABLE li-choice AS INTEGER NO-UNDO.
-     RUN est/d-qtcnfm.w (OUTPUT li-choice).
-     IF li-choice EQ 1 THEN /*update */ ll-new-quote = NO.
-     ELSE IF li-choice EQ 2 THEN /* new */ ll-new-quote = YES.
-     ELSE RETURN. /* cancel */  
-  END.
-  ELSE ll-new-quote = YES.
-  li-q-no = IF AVAILABLE quotehd THEN quotehd.q-no ELSE 1.
+  find last quotehd where quotehd.company = est.company and
+                                 quotehd.loc = est.loc and
+                                 quotehd.est-no = est.est-no no-error.
+  IF AVAIL quotehd THEN DO:
+     def var li-choice as int no-undo.
+     run est/d-qtcnfm.w (output li-choice).
+     if li-choice = 1 then /*update */ ll-new-quote = no.
+     else if li-choice = 2 then /* new */ ll-new-quote = yes.
+     else return. /* cancel */  
+  end.
+  else ll-new-quote = yes.
+  li-q-no = if avail quotehd then quotehd.q-no else 1.
 
   FOR EACH w-probeit:
     DELETE w-probeit.
@@ -1565,25 +1566,25 @@ IF CAN-FIND(FIRST xprobe
             BY w-probeit.part-no
             BY w-probeit.bl-qty:
 
-    FIND FIRST bf-eb NO-LOCK
+    FIND FIRST bf-eb
         WHERE bf-eb.company EQ w-probeit.company
           AND bf-eb.est-no  EQ w-probeit.est-no
           AND bf-eb.cust-no EQ w-probeit.cust-no
           AND bf-eb.part-no EQ w-probeit.part-no
           AND bf-eb.form-no NE 0
-         NO-ERROR.
+        NO-LOCK NO-ERROR.
 
-    IF NOT AVAILABLE bf-eb THEN DO:
-      FIND FIRST bf-eb NO-LOCK
+    IF NOT AVAIL bf-eb THEN DO:
+      FIND FIRST bf-eb
           WHERE bf-eb.company EQ w-probeit.company
             AND bf-eb.est-no  EQ w-probeit.est-no
             AND bf-eb.form-no EQ 0
-           NO-ERROR.
-      FIND FIRST eb NO-LOCK
+          NO-LOCK NO-ERROR.
+      FIND FIRST eb
           WHERE eb.company EQ w-probeit.company
             AND eb.est-no  EQ w-probeit.est-no
             AND eb.form-no NE 0
-           NO-ERROR.
+          NO-LOCK NO-ERROR.
     END.
 
     FIND FIRST quotehd
@@ -1593,7 +1594,7 @@ IF CAN-FIND(FIRST xprobe
         NO-ERROR.
 
     IF FIRST-OF(w-probeit.cust-no) THEN DO:
-      IF ll-new-quote OR NOT FIRST(w-probeit.cust-no) OR NOT AVAILABLE quotehd THEN DO:
+      IF ll-new-quote OR NOT FIRST(w-probeit.cust-no) OR NOT AVAIL quotehd THEN DO:
         CREATE quotehd.
         quotehd.quo-date = TODAY.
         
@@ -1610,7 +1611,7 @@ IF CAN-FIND(FIRST xprobe
        quotehd.part-dscr1 = bf-eb.part-dscr1
        quotehd.upd-date   = TODAY
        quotehd.quo-date   = TODAY
-       quotehd.upd-user   = USERID("nosweat").
+       quotehd.upd-user   = USERID("ASI").
 
       {custom/getrfq.i}
       
@@ -1618,16 +1619,16 @@ IF CAN-FIND(FIRST xprobe
           {sys/look/custW.i}
             AND cust.cust-no EQ quotehd.cust-no
           NO-LOCK NO-ERROR.
-      FIND FIRST shipto NO-LOCK
+      FIND FIRST shipto
           WHERE shipto.company EQ cocode
             AND shipto.cust-no EQ quotehd.cust-no
             AND shipto.ship-id EQ quotehd.ship-id
-           NO-ERROR.
-      FOR EACH soldto NO-LOCK
+          NO-LOCK NO-ERROR.
+      FOR EACH soldto
           WHERE soldto.company EQ cocode
             AND soldto.cust-no EQ quotehd.cust-no
-          
-          BREAK BY soldto.sold-no DESCENDING:
+          NO-LOCK
+          BREAK BY soldto.sold-no DESC:
         IF soldto.sold-no EQ 1 OR LAST-OF(soldto.sold-no) THEN LEAVE.
       END.
 
@@ -1676,7 +1677,7 @@ IF CAN-FIND(FIRST xprobe
           RUN est/GetQuoteDefNotes.p (INPUT quotehd.company,
                                       OUTPUT cNotes).
 /*          FIND FIRST bf-qhd NO-LOCK NO-ERROR. */
-/*          IF AVAILABLE bf-qhd THEN                */
+/*          IF AVAIL bf-qhd THEN                */
              ASSIGN  quotehd.comment[1] = cNotes[1]
                      quotehd.comment[2] = cNotes[2]
                      quotehd.comment[3] = cNotes[3]
@@ -1700,19 +1701,19 @@ IF CAN-FIND(FIRST xprobe
         NO-ERROR.
 
     IF FIRST-OF(w-probeit.part-no) THEN DO:
-      FIND FIRST bf-ef NO-LOCK
+      FIND FIRST bf-ef
           WHERE bf-ef.company  EQ est.company
             AND bf-ef.est-no   EQ est.est-no
             AND (bf-ef.form-no EQ bf-eb.form-no OR est.est-type EQ 6)
-           NO-ERROR.
+          NO-LOCK NO-ERROR.
 
-      IF ll-new-quote OR NOT AVAILABLE quoteitm THEN DO:
-        FOR EACH quoteitm NO-LOCK
+      IF ll-new-quote OR NOT AVAIL quoteitm THEN DO:
+        FOR EACH quoteitm
             WHERE quoteitm.company EQ quotehd.company
               AND quoteitm.loc     EQ quotehd.loc
               AND quoteitm.q-no    EQ quotehd.q-no
-            
-            BY quoteitm.line DESCENDING:
+            NO-LOCK
+            BY quoteitm.line DESC:
           li-line = quoteitm.line + 1.
           LEAVE.
         END.
@@ -1737,7 +1738,7 @@ IF CAN-FIND(FIRST xprobe
        quoteitm.uom        = lv-quo-price-char
        quoteitm.price      = w-probeit.sell-price
        quoteitm.upd-date   = TODAY
-       quoteitm.upd-user   = USERID("nosweat")
+       quoteitm.upd-user   = USERID("ASI")
        /*RCO400 only */
        quoteitm.i-no       = bf-eb.stock-no.
 
@@ -1749,15 +1750,15 @@ IF CAN-FIND(FIRST xprobe
                                quoteitm.price, OUTPUT quoteitm.price).
    
       IF bf-ef.brd-dscr EQ '' THEN DO:
-        FIND FIRST ITEM NO-LOCK
+        FIND FIRST item
             WHERE item.company EQ cocode
               AND item.i-no    EQ bf-ef.board
-             NO-ERROR.
-        IF AVAILABLE ITEM THEN
+            NO-LOCK NO-ERROR.
+        IF AVAIL ITEM THEN
           quoteitm.i-dscr = IF item.i-name   GT "" THEN item.i-name   ELSE
                             IF item.est-dscr GT "" THEN item.est-dscr ELSE
                             item.i-dscr.
-      END. /* IF brd-dscr */
+      END. /* if brd-dscr */
     END.
 
     FIND FIRST quoteqty
@@ -1766,10 +1767,10 @@ IF CAN-FIND(FIRST xprobe
           AND quoteqty.q-no    EQ quoteitm.q-no
           AND quoteqty.LINE    EQ quoteitm.line
           AND quoteqty.qty     EQ w-probeit.bl-qty
-          AND quoteqty.rels    EQ INTEGER(w-probeit.freight)
+          AND quoteqty.rels    EQ INT(w-probeit.freight)
         NO-ERROR.
 
-    IF ll-new-quote OR NOT AVAILABLE quoteqty THEN CREATE quoteqty.
+    IF ll-new-quote OR NOT AVAIL quoteqty THEN CREATE quoteqty.
 
     ASSIGN
      quoteqty.company    = quoteitm.company
@@ -1781,7 +1782,7 @@ IF CAN-FIND(FIRST xprobe
      quoteqty.price      = w-probeit.sell-price
      quoteqty.rels       = w-probeit.freight
      quoteqty.quote-date = /*IF ll-new-quote THEN TODAY ELSE */ w-probeit.probe-date
-     quoteqty.quote-user = USERID("nosweat")
+     quoteqty.quote-user = USERID("ASI")
      quoteqty.prof-on    = w-probeit.prof-on
      quoteqty.mat-cost   = w-probeit.mat-cost
      quoteqty.lab-cost   = w-probeit.lab-cost
@@ -1813,28 +1814,31 @@ IF CAN-FIND(FIRST xprobe
         DELETE quotechg.
       END.
 
-      FOR EACH bf-ef NO-LOCK
+      FOR EACH bf-ef
           WHERE bf-ef.company EQ quotehd.company
-            AND bf-ef.est-no  EQ quotehd.est-no:
+            AND bf-ef.est-no  EQ quotehd.est-no
+          NO-LOCK:
 
         li-prep-qty = 0.
 
         IF est.est-type GE 7 THEN
-        FOR EACH bf-eb FIELDS(bl-qty) NO-LOCK
+        FOR EACH bf-eb FIELDS(bl-qty)
             WHERE bf-eb.company EQ bf-ef.company
               AND bf-eb.est-no  EQ bf-ef.est-no
               AND bf-eb.form-no EQ bf-ef.form-no
-              AND bf-eb.cust-no EQ w-probeit.cust-no:
+              AND bf-eb.cust-no EQ w-probeit.cust-no
+            NO-LOCK:
           li-prep-qty = li-prep-qty + bf-eb.bl-qty.
         END.
 
         ELSE li-prep-qty = w-probeit.bl-qty.
 
-        FOR EACH est-prep NO-LOCK
+        FOR EACH est-prep
             WHERE est-prep.company EQ bf-ef.company
               AND est-prep.est-no  EQ bf-ef.est-no
               AND est-prep.s-num   EQ bf-ef.form-no
-              AND est-prep.simon   EQ "S":
+              AND est-prep.simon   EQ "S"
+            NO-LOCK:
 
           CREATE quotechg.
           ASSIGN
@@ -1846,15 +1850,15 @@ IF CAN-FIND(FIRST xprobe
            quotechg.quote-date = quoteqty.quote-date
            quotechg.CODE     = est-prep.CODE
            quotechg.charge   = est-prep.dscr
-           quotechg.bill     = IF est-prep.ml THEN "M" ELSE "L"
+           quotechg.bill     = if est-prep.ml then "M" else "L"
            quotechg.amt      = IF ceprepprice-chr EQ "Profit" THEN
                                   est-prep.qty * est-prep.cost /
                                   (1 - (est-prep.mkup / 100)) *
-                                  (IF est-prep.amtz NE 0 THEN est-prep.amtz / 100 ELSE 1)
+                                  (if est-prep.amtz ne 0 then est-prep.amtz / 100 else 1)
                                ELSE /*Cost Markup*/
                                   est-prep.qty * est-prep.cost *
                                   (1 + (est-prep.mkup / 100)) *
-                                  (IF est-prep.amtz NE 0 THEN est-prep.amtz / 100 ELSE 1)  
+                                  (if est-prep.amtz ne 0 then est-prep.amtz / 100 else 1)  
            quotechg.mkup     = est-prep.mkup
            quotechg.spare-dec-1    = est-prep.spare-dec-1
            quotechg.cost     = est-prep.cost
@@ -1949,10 +1953,10 @@ IF CAN-FIND(FIRST xprobe
   END.  /* each w-probeit */
 END.
 
-IF AVAILABLE quotechg THEN FIND CURRENT quotechg NO-LOCK NO-ERROR.
-IF AVAILABLE quoteqty THEN FIND CURRENT quoteqty NO-LOCK NO-ERROR.
-IF AVAILABLE quoteitm THEN FIND CURRENT quoteitm NO-LOCK NO-ERROR.
-IF AVAILABLE quotehd  THEN DO:
+IF AVAIL quotechg THEN FIND CURRENT quotechg NO-LOCK NO-ERROR.
+IF AVAIL quoteqty THEN FIND CURRENT quoteqty NO-LOCK NO-ERROR.
+IF AVAIL quoteitm THEN FIND CURRENT quoteitm NO-LOCK NO-ERROR.
+IF AVAIL quotehd  THEN DO:
   FIND CURRENT quotehd  NO-LOCK NO-ERROR.
 
   RELEASE quotechg.
@@ -1994,7 +1998,7 @@ PROCEDURE delete-old-part :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ip-q-no LIKE quotehd.q-no NO-UNDO.
+  DEF INPUT PARAM ip-q-no LIKE quotehd.q-no NO-UNDO.
 
 
   /* delete quoteitm for old part-no */
@@ -2003,8 +2007,8 @@ PROCEDURE delete-old-part :
        WHERE quoteitm.company EQ cocode
          AND quoteitm.loc     EQ locode
          AND quoteitm.q-no    EQ ip-q-no:
-    FIND FIRST w-probeit NO-LOCK WHERE w-probeit.part-no EQ quoteitm.part-no  NO-ERROR.
-    IF NOT AVAILABLE w-probeit THEN DELETE quoteitm.
+    FIND FIRST w-probeit WHERE w-probeit.part-no = quoteitm.part-no NO-LOCK NO-ERROR.
+    IF NOT AVAIL w-probeit THEN DELETE quoteitm.
   END.
   /* end delete quoteitm */
 
@@ -2052,26 +2056,26 @@ PROCEDURE est-summ :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE li AS INTEGER NO-UNDO.
-  DEFINE VARIABLE li1 AS INTEGER NO-UNDO.
+  DEF VAR li AS INT NO-UNDO.
+  DEF VAR li1 AS INT NO-UNDO.
 
   
-  FIND LAST est-summ NO-LOCK
+  FIND LAST est-summ
       WHERE est-summ.company EQ est.company
         AND est-summ.est-no  EQ est.est-no
-      USE-INDEX est-qty  NO-ERROR.
-  li1 = IF AVAILABLE est-summ THEN est-summ.eqty ELSE 0.
+      USE-INDEX est-qty NO-LOCK NO-ERROR.
+  li1 = IF AVAIL est-summ THEN est-summ.eqty ELSE 0.
 
   FOR EACH mclean:
     DO li = 1 TO 28:
-      FOR EACH probe NO-LOCK
+      FOR EACH probe
           WHERE probe.company    EQ est.company
             AND probe.est-no     EQ est.est-no
             AND probe.probe-date EQ TODAY
             AND probe.est-qty    EQ qtty[li]
             AND probe.freight    EQ IF est.est-type LE 6 THEN rels[li] ELSE 1
-          
-          BY probe.probe-time DESCENDING:
+          NO-LOCK
+          BY probe.probe-time DESC:
 
         CREATE est-summ.
         ASSIGN
@@ -2098,18 +2102,18 @@ PROCEDURE est-summ :
   DO li = 1 TO 28:
     IF qtty[li] EQ 0 THEN NEXT.
 
-    FOR EACH probe NO-LOCK
+    FOR EACH probe
         WHERE probe.company    EQ xest.company
           AND probe.est-no     EQ xest.est-no
           AND probe.probe-date EQ TODAY
           AND probe.est-qty    EQ qtty[li]
           AND probe.freight    EQ rels[li]
-        
-        BY probe.probe-time DESCENDING:
+        NO-LOCK
+        BY probe.probe-time DESC:
       LEAVE.
     END.
 
-    IF AVAILABLE probe THEN RUN cec/pr4-mcl1.p (ROWID(probe)).
+    IF AVAIL probe THEN RUN cec/pr4-mcl1.p (ROWID(probe)).
   END.
 
 END PROCEDURE.
@@ -2124,10 +2128,10 @@ PROCEDURE get-dir-proc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEFINE INPUT PARAMETER ip-search AS CHARACTER NO-UNDO.
-   DEFINE OUTPUT PARAMETER op-tmp-dir AS CHARACTER NO-UNDO.
+   DEF INPUT PARAMETER ip-search AS CHAR NO-UNDO.
+   DEF OUTPUT PARAMETER op-tmp-dir AS CHAR NO-UNDO.
 
-   DEFINE VARIABLE viDirCount AS INTEGER NO-UNDO.
+   DEF VAR viDirCount AS INT NO-UNDO.
 
    DO viDirCount = 1 TO 3:
 
@@ -2160,10 +2164,10 @@ PROCEDURE get-est-type :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE OUTPUT PARAMETER op-est-type AS INTEGER.
+  DEF OUTPUT PARAM op-est-type AS INT.
 
 
-  op-est-type = IF AVAILABLE est THEN est.est-type ELSE 0.
+  op-est-type = IF AVAIL est THEN est.est-type ELSE 0.
 
 END PROCEDURE.
 
@@ -2177,10 +2181,10 @@ PROCEDURE import-price :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE lv-price AS DECIMAL DECIMALS 10 NO-UNDO.
-  DEFINE VARIABLE lv-subprice AS DECIMAL DECIMALS 10 NO-UNDO.
-  DEFINE VARIABLE lv-subquantity AS DECIMAL DECIMALS 10 NO-UNDO.
-  DEFINE BUFFER b-eb FOR eb.
+  DEF VAR lv-price AS DEC DECIMALS 10 NO-UNDO.
+  DEF VAR lv-subprice AS DEC DECIMALS 10 NO-UNDO.
+  DEF VAR lv-subquantity AS DEC DECIMALS 10 NO-UNDO.
+  DEF BUFFER b-eb FOR eb.
   
   {est/checkuse.i}
 
@@ -2194,17 +2198,17 @@ PROCEDURE import-price :
           EACH quoteitm OF quotehd NO-LOCK,
          
           EACH quoteqty OF quoteitm
-          NO-LOCK WHERE quoteqty.qty EQ probe.est-qty
-          
+          WHERE quoteqty.qty EQ probe.est-qty
+          NO-LOCK
       
-          BY quoteqty.q-no DESCENDING
-          BY quoteqty.qty  DESCENDING:
+          BY quoteqty.q-no DESC
+          BY quoteqty.qty  DESC:
          
           ASSIGN
            lv-changed = "S"
            lv-price   = IF quoteqty.uom EQ "EA" THEN (quoteqty.price * 1000)
                         ELSE
-                        IF quoteqty.uom EQ "MSF" THEN (quoteqty.price * ROUND(quoteqty.tot-lbs / 1000,2) / ROUND(quoteqty.qty / 1000,2))
+                        IF quoteqty.uom EQ "MSF" THEN (quoteqty.price * ROUND(quoteqty.tot-lbs / 1000,2) / round(quoteqty.qty / 1000,2))
                         ELSE quoteqty.price
            probe.sell-price:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(lv-price).
          
@@ -2217,23 +2221,24 @@ PROCEDURE import-price :
     ELSE /*combo/tandem*/
     DO:
        FOR EACH quotehd OF est NO-LOCK,
-          EACH b-eb OF est NO-LOCK WHERE
-               ,
-          FIRST quoteitm OF quotehd NO-LOCK WHERE
+          EACH b-eb OF est WHERE
+               NO-LOCK,
+          FIRST quoteitm OF quotehd WHERE
                 quoteitm.part-no EQ b-eb.part-no AND
                 quoteitm.i-no EQ b-eb.stock-no
-               ,
+               NO-LOCK,
           
-          FIRST quoteqty OF quoteitm NO-LOCK WHERE
+          FIRST quoteqty OF quoteitm WHERE
                quoteqty.qty EQ b-eb.bl-qty
+          NO-LOCK
       
-           BREAK BY quoteqty.q-no DESCENDING
-                 BY quoteqty.qty  DESCENDING:
+           BREAK BY quoteqty.q-no DESC
+                 BY quoteqty.qty  DESC:
 
           ASSIGN
              lv-price = IF quoteqty.uom EQ "EA" THEN (quoteqty.price * 1000)
                         ELSE
-                        IF quoteqty.uom EQ "MSF" THEN (quoteqty.price * ROUND(quoteqty.tot-lbs / 1000,2) / ROUND(quoteqty.qty / 1000,2))
+                        IF quoteqty.uom EQ "MSF" THEN (quoteqty.price * ROUND(quoteqty.tot-lbs / 1000,2) / round(quoteqty.qty / 1000,2))
                         ELSE quoteqty.price
              lv-subprice = lv-subprice + (lv-price * quoteqty.qty)
              lv-subquantity = lv-subquantity + quoteqty.qty.
@@ -2268,11 +2273,11 @@ PROCEDURE local-assign-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE ld AS DECIMAL NO-UNDO.
-  DEFINE VARIABLE ld-tot-fact AS DECIMAL NO-UNDO.
-  DEFINE VARIABLE ld-tot-full AS DECIMAL NO-UNDO.
-  DEFINE VARIABLE ld-tot-pric AS DECIMAL NO-UNDO.
-  DEFINE VARIABLE lc-calling-progs AS CHARACTER NO-UNDO.
+  DEF VAR ld AS DEC NO-UNDO.
+  DEF VAR ld-tot-fact AS DEC NO-UNDO.
+  DEF VAR ld-tot-full AS DEC NO-UNDO.
+  DEF VAR ld-tot-pric AS DEC NO-UNDO.
+  DEF VAR lc-calling-progs AS CHAR NO-UNDO.
   lc-calling-progs = PROGRAM-NAME(1) 
         + (IF PROGRAM-NAME(2) NE ? THEN "," + PROGRAM-NAME(2) ELSE "")
         + (IF PROGRAM-NAME(3) NE ? THEN "," + PROGRAM-NAME(3) ELSE "")
@@ -2288,7 +2293,7 @@ PROCEDURE local-assign-record :
   /* Code placed here will execute AFTER standard behavior.    */
 
   /*since commission column not enabled, below is necessary*/
-  probe.comm = DECIMAL(probe.comm:SCREEN-VALUE IN BROWSE {&browse-name}).
+  probe.comm = DEC(probe.comm:SCREEN-VALUE IN BROWSE {&browse-name}).
 
   IF ll-use-margin THEN DO:         
     /* Get Commission% */
@@ -2303,7 +2308,7 @@ PROCEDURE local-assign-record :
           AND probe-ref.code     EQ probe.est-no
           AND probe-ref.code2    EQ STRING(probe.line,"9999999999")
         NO-ERROR.
-    IF AVAILABLE probe-ref THEN
+    IF AVAIL probe-ref THEN
     DO:
     
       ASSIGN
@@ -2328,10 +2333,11 @@ PROCEDURE local-assign-record :
   IF ce-ctrl.sell-by EQ "S" THEN
     probe.gross-profit = (1 - (100 / (100 + probe.gross-profit))) * 100.
 
-  FOR EACH probeit NO-LOCK
+  FOR EACH probeit
       WHERE probeit.company EQ probe.company
         AND probeit.est-no  EQ probe.est-no
-        AND probeit.line    EQ probe.line:
+        AND probeit.line    EQ probe.line
+      NO-LOCK:
     ASSIGN
      ld          = (IF est.est-type LT 7 OR
                        probeit.yrprice   THEN probeit.yld-qty
@@ -2343,8 +2349,8 @@ PROCEDURE local-assign-record :
 
   ld = probe.est-qty / 1000.
   IF INDEX(lc-calling-progs, "update-item") EQ 0 THEN DO:
-      /* IF this is a result of update to items, don't 
-         adjust probeit. Should only do this IF probe has
+      /* If this is a result of update to items, don't 
+         adjust probeit. Should only do this if probe has
          been changed */
       FOR EACH probeit
           WHERE probeit.company EQ probe.company
@@ -2372,12 +2378,12 @@ PROCEDURE local-assign-record :
      ld-tot-full = probeit.full-cost  / ld
      ld-tot-pric = probeit.sell-price / ld.
   END.
-  IF v-ceSellPrice EQ "F" THEN DO:
+  IF v-ceSellPrice = "F" THEN DO:
       /* For type 'F', multicell, make correction to gross-profit 
          after it was updated by the db trigger on probe */
       FIND CURRENT probe.
 
-      IF DECIMAL(probe.gross-profit:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})NE probe.gross-profit THEN DO:
+      IF dec(probe.gross-profit:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})NE probe.gross-profit THEN DO:
         ASSIGN probe.gross-profit:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = STRING(probe.gross-profit).
       END.
   END.
@@ -2393,8 +2399,8 @@ PROCEDURE local-delete-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE phandle AS HANDLE NO-UNDO.
+  def var char-hdl as cha no-undo.
+  def var phandle as handle no-undo.
   
   
   /* Code placed here will execute PRIOR to standard behavior. */
@@ -2438,7 +2444,7 @@ PROCEDURE local-enable-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE li AS INTEGER NO-UNDO.
+  DEF VAR li AS INT NO-UNDO.
 
 
   /* Code placed here will execute PRIOR to standard behavior. */
@@ -2499,7 +2505,7 @@ PROCEDURE local-open-query :
 ------------------------------------------------------------------------------*/
  
   /* Code placed here will execute PRIOR to standard behavior. */
-  IF NOT AVAILABLE est THEN RETURN "adm-error".
+  IF NOT AVAIL est THEN RETURN "adm-error".
 
   FOR EACH probe NO-LOCK
       WHERE probe.company EQ est.company
@@ -2511,7 +2517,7 @@ PROCEDURE local-open-query :
           AND reftable.code     EQ probe.est-no
           AND reftable.code2    EQ STRING(probe.line,"9999999999")
         NO-ERROR.
-    IF NOT AVAILABLE reftable THEN DO:
+    IF NOT AVAIL reftable THEN DO:
       CREATE reftable.
       ASSIGN
        reftable.reftable = "probe.board"
@@ -2528,9 +2534,9 @@ PROCEDURE local-open-query :
     FIND CURRENT reftable NO-LOCK NO-ERROR.
   END.
   
-  FIND xest NO-LOCK WHERE RECID(xest) EQ RECID(est) NO-ERROR.
-  FIND xef NO-LOCK WHERE RECID(xef) EQ RECID(ef) NO-ERROR.
-  FIND xeb NO-LOCK WHERE RECID(xeb) EQ RECID(eb) NO-ERROR.
+  find xest where recid(xest) = recid(est) NO-LOCK NO-ERROR.
+  find xef where recid(xef) = recid(ef) NO-LOCK NO-ERROR.
+  find xeb where recid(xeb) = recid(eb) NO-LOCK NO-ERROR.
   
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
@@ -2545,11 +2551,11 @@ PROCEDURE local-open-query :
      probe.gross-profit:VISIBLE IN BROWSE {&browse-name} = NOT(ll-use-margin AND cerunf = "Fibre" AND cerunc = "Fibre")
      probe.comm:VISIBLE IN BROWSE {&browse-name} = NOT(probe.gross-profit:VISIBLE IN BROWSE {&browse-name}).
 
-  FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ cocode
-                      AND sys-ctrl.name    EQ "SETPRINT"
-                       NO-ERROR.
-  vmclean2 = AVAILABLE sys-ctrl AND sys-ctrl.char-fld EQ "McLean" AND est.est-type EQ 6.
-  IF vmclean2 THEN v-match-up = sys-ctrl.dec-fld.
+  find first sys-ctrl where sys-ctrl.company eq cocode
+                      and sys-ctrl.name    eq "SETPRINT"
+                      no-lock no-error.
+  vmclean2 = AVAIL sys-ctrl AND sys-ctrl.char-fld eq "McLean" AND est.est-type EQ 6.
+  if vmclean2 then v-match-up = sys-ctrl.dec-fld.
  
 END PROCEDURE.
 
@@ -2562,7 +2568,7 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE li AS INTEGER NO-UNDO.
+  DEF VAR li AS INT NO-UNDO.
 
 
   /* Code placed here will execute PRIOR to standard behavior. */
@@ -2630,19 +2636,19 @@ PROCEDURE p-probe-security-proc :
   Notes:       
 ------------------------------------------------------------------------------*/
 DEFINE BUFFER b-prgrms FOR prgrms.
-DEFINE VARIABLE v-prgmname AS CHARACTER INITIAL "p-probe." NO-UNDO.
+DEFINE VARIABLE v-prgmname AS CHAR INIT "p-probe." NO-UNDO.
 DEFINE VARIABLE num-groups AS INTEGER NO-UNDO.
-DEFINE VARIABLE g_groups AS CHARACTER NO-UNDO.
+DEF VAR g_groups AS CHAR NO-UNDO.
 
-FIND FIRST b-prgrms NO-LOCK WHERE
-     b-prgrms.prgmname EQ v-prgmname AND
-     b-prgrms.DIR_group EQ ""
-      NO-ERROR.
+FIND FIRST b-prgrms WHERE
+     b-prgrms.prgmname = v-prgmname AND
+     b-prgrms.DIR_group = ""
+     NO-LOCK NO-ERROR.
 
 IF AVAILABLE b-prgrms THEN
 DO:
   FOR EACH usergrps NO-LOCK:
-      IF CAN-DO(usergrps.users,USERID("NOSWEAT")) THEN
+      IF CAN-DO(usergrps.users,USERID("ASI")) THEN
          g_groups = g_groups + usergrps.usergrps + ",".
   END.
 
@@ -2654,7 +2660,7 @@ DO:
         v-can-update = YES.
   END.
   
-  IF NOT v-can-update AND CAN-DO(b-prgrms.can_update,USERID("NOSWEAT")) THEN
+  IF NOT v-can-update AND CAN-DO(b-prgrms.can_update,USERID("ASI")) THEN
      v-can-update = YES.
 END.
 END PROCEDURE.
@@ -2669,65 +2675,66 @@ PROCEDURE per-1000 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE BUFFER b-probe FOR probe.
+  DEF BUFFER b-probe FOR probe.
 
-  FOR EACH b-probe NO-LOCK
+  FOR EACH b-probe
       WHERE b-probe.company EQ probe.company
         AND b-probe.est-no  EQ probe.est-no
+      NO-LOCK
       BY b-probe.probe-date
       BY b-probe.est-qty:
 
     IF b-probe.LINE LT 100 THEN
     DO:
-       RUN get-dir-proc(INPUT TRIM(est.est-no) + ".s" + STRING(b-probe.line,"99"),
+       RUN get-dir-proc(INPUT trim(est.est-no) + ".s" + string(b-probe.line,"99"),
                      OUTPUT tmp-dir).
 
-       IF OPSYS EQ "unix" THEN 
-          UNIX SILENT cp  VALUE(tmp-dir + TRIM(est.est-no) + ".s" + STRING(b-probe.line,"99"))
-                         VALUE(lv-cebrowse-dir + TRIM(est.est-no) + ".p" + STRING(b-probe.line,"99")).
-       ELSE
-         DOS SILENT COPY VALUE(tmp-dir + TRIM(est.est-no) + ".s" + STRING(b-probe.line,"99"))
-                         VALUE(lv-cebrowse-dir + TRIM(est.est-no) + ".p" + STRING(b-probe.line,"99")).
+       if opsys eq "unix" then 
+         unix silent cp  value(tmp-dir + trim(est.est-no) + ".s" + string(b-probe.line,"99"))
+                         value(lv-cebrowse-dir + trim(est.est-no) + ".p" + string(b-probe.line,"99")).
+       else
+         dos silent copy value(tmp-dir + trim(est.est-no) + ".s" + string(b-probe.line,"99"))
+                         value(lv-cebrowse-dir + trim(est.est-no) + ".p" + string(b-probe.line,"99")).
 
-       RUN get-dir-proc(INPUT TRIM(est.est-no) + ".a" + STRING(b-probe.line,"99"),
+       RUN get-dir-proc(INPUT trim(est.est-no) + ".a" + string(b-probe.line,"99"),
                         OUTPUT tmp-dir).
 
-       IF OPSYS EQ "unix" THEN
-           UNIX SILENT cat VALUE(tmp-dir + TRIM(est.est-no) + ".a"
-                                                    + STRING(b-probe.line,"99")) >>
-                          VALUE(lv-cebrowse-dir + TRIM(est.est-no) + ".p"
-                                                    + STRING(b-probe.line,"99")).
-       ELSE /* IF opsys = "MSDOS" THEN */
-          DOS SILENT TYPE VALUE(tmp-dir + TRIM(est.est-no) + ".a"
-                                                    + STRING(b-probe.line,"99")) >>
-                          VALUE(lv-cebrowse-dir + TRIM(est.est-no) + ".p"
-                                                    + STRING(b-probe.line,"99")).
+       if opsys = "unix" then
+          unix silent cat value(tmp-dir + trim(est.est-no) + ".a"
+                                                    + string(b-probe.line,"99")) >>
+                          value(lv-cebrowse-dir + trim(est.est-no) + ".p"
+                                                    + string(b-probe.line,"99")).
+       else /* if opsys = "MSDOS" then */
+          dos silent type value(tmp-dir + trim(est.est-no) + ".a"
+                                                    + string(b-probe.line,"99")) >>
+                          value(lv-cebrowse-dir + trim(est.est-no) + ".p"
+                                                    + string(b-probe.line,"99")).
     END.
     ELSE
     DO:
-       RUN get-dir-proc(INPUT TRIM(est.est-no) + ".s" + STRING(b-probe.line,"999"),
+       RUN get-dir-proc(INPUT trim(est.est-no) + ".s" + string(b-probe.line,"999"),
                         OUTPUT tmp-dir).
 
-       IF OPSYS EQ "unix" THEN 
-         UNIX SILENT cp  VALUE(tmp-dir + TRIM(est.est-no) + ".s" + STRING(b-probe.line,"999"))
-                         VALUE(lv-cebrowse-dir + TRIM(est.est-no) + ".p" + STRING(b-probe.line,"999")).
-       ELSE
-         DOS SILENT COPY VALUE(tmp-dir + TRIM(est.est-no) + ".s" + STRING(b-probe.line,"999"))
-                         VALUE(lv-cebrowse-dir + TRIM(est.est-no) + ".p" + STRING(b-probe.line,"999")).
+       if opsys eq "unix" then 
+         unix silent cp  value(tmp-dir + trim(est.est-no) + ".s" + string(b-probe.line,"999"))
+                         value(lv-cebrowse-dir + trim(est.est-no) + ".p" + string(b-probe.line,"999")).
+       else
+         dos silent copy value(tmp-dir + trim(est.est-no) + ".s" + string(b-probe.line,"999"))
+                         value(lv-cebrowse-dir + trim(est.est-no) + ".p" + string(b-probe.line,"999")).
 
-       RUN get-dir-proc(INPUT TRIM(est.est-no) + ".a" + STRING(b-probe.line,"999"),
+       RUN get-dir-proc(INPUT trim(est.est-no) + ".a" + string(b-probe.line,"999"),
                         OUTPUT tmp-dir).
 
-       IF OPSYS EQ "unix" THEN
-          UNIX SILENT cat VALUE(tmp-dir + TRIM(est.est-no) + ".a"
-                                + STRING(b-probe.line,"999")) >>
-                          VALUE(lv-cebrowse-dir + TRIM(est.est-no) + ".p"
-                                + STRING(b-probe.line,"999")).
-       ELSE /* IF opsys = "MSDOS" THEN */
-          DOS SILENT TYPE VALUE(tmp-dir + TRIM(est.est-no) + ".a"
-                                + STRING(b-probe.line,"999")) >>
-                          VALUE(lv-cebrowse-dir + trim(est.est-no) + ".p"
-                                + STRING(b-probe.line,"999")).
+       if opsys = "unix" then
+          unix silent cat value(tmp-dir + trim(est.est-no) + ".a"
+                                + string(b-probe.line,"999")) >>
+                          value(lv-cebrowse-dir + trim(est.est-no) + ".p"
+                                + string(b-probe.line,"999")).
+       else /* if opsys = "MSDOS" then */
+          dos silent type value(tmp-dir + trim(est.est-no) + ".a"
+                                + string(b-probe.line,"999")) >>
+                          value(lv-cebrowse-dir + trim(est.est-no) + ".p"
+                                + string(b-probe.line,"999")).
     END.
 
     tmp-dir = lv-cebrowse-dir.
@@ -2761,7 +2768,7 @@ PROCEDURE print-box :
         AND box-design-hdr.est-no EQ eb.est-no
         AND box-design-hdr.form-no EQ eb.form-no
         AND box-design-hdr.blank-no EQ eb.blank-no NO-ERROR.
-  IF NOT AVAILABLE box-design-hdr THEN DO:
+  IF NOT AVAIL box-design-hdr THEN DO:
      RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,'box-calc-target',OUTPUT char-hdl).     
      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN 
      RUN build-box1 IN WIDGET-HANDLE(char-hdl) ('B').
@@ -2799,36 +2806,35 @@ PROCEDURE print-box-est :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ip-dest AS INTEGER NO-UNDO.
-  DEFINE INPUT PARAMETER ip-font AS INTEGER NO-UNDO.
-  DEFINE INPUT PARAMETER ip-ornt AS CHARACTER NO-UNDO.
+  DEF INPUT param ip-dest AS int NO-UNDO.
+  DEF INPUT PARAM ip-font AS INT NO-UNDO.
+  DEF INPUT PARAM ip-ornt AS cha NO-UNDO.
 
   DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
   DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
   DEFINE VARIABLE result AS LOGICAL NO-UNDO.
 
-  DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE lv-input AS CHARACTER FORMAT "x(180)" NO-UNDO.
-  DEFINE VARIABLE v-box-input AS CHARACTER NO-UNDO.
+  DEF VAR char-hdl AS cha NO-UNDO.
+  DEF VAR lv-input AS cha FORM "x(180)" NO-UNDO.
+  DEF VAR v-box-input AS cha NO-UNDO.
 
-  DEFINE VARIABLE ls-fax-file AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE lv-pdf-file AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE list-name AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE ret-code AS INTEGER NO-UNDO.
-  DEFINE VARIABLE ls-mail-file2 AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE v-line-count AS INTEGER NO-UNDO .
+  DEF VAR ls-fax-file AS cha NO-UNDO.
+  DEF VAR init-dir AS cha NO-UNDO.
+  DEF VAR lv-pdf-file AS cha NO-UNDO.
+  DEF VAR list-name AS cha NO-UNDO.
+  DEF VAR ret-code AS INT NO-UNDO.
+  DEF VAR ls-mail-file2 AS cha NO-UNDO.
 
   {est/checkuse.i}
 
-  FIND FIRST box-design-hdr NO-LOCK
-      WHERE box-design-hdr.design-no EQ 0
-        AND box-design-hdr.company EQ eb.company 
-        AND box-design-hdr.est-no    EQ eb.est-no
-        AND box-design-hdr.form-no   EQ eb.form-no
-        AND box-design-hdr.blank-no  EQ eb.blank-no
-         NO-ERROR.
-  IF NOT AVAILABLE box-design-hdr THEN DO:
+  FIND FIRST box-design-hdr
+      where box-design-hdr.design-no eq 0
+        and box-design-hdr.company = eb.company 
+        AND box-design-hdr.est-no    eq eb.est-no
+        and box-design-hdr.form-no   eq eb.form-no
+        and box-design-hdr.blank-no  eq eb.blank-no
+        no-lock no-error.
+  IF NOT AVAIL box-design-hdr THEN DO:
      RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"box-calc-target",OUTPUT char-hdl).     
      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN 
             RUN build-box1 IN WIDGET-HANDLE(char-hdl)  ("B")  .
@@ -2851,18 +2857,18 @@ PROCEDURE print-box-est :
 
   /* box only print not share with othere */
 
-  OUTPUT TO VALUE(ls-outfile) .
-  IF ip-dest EQ 1 THEN PUT "<PRINTER?></PROGRESS>".  /*<REVIEW>*/
-  ELSE IF ip-dest EQ 2 THEN PUT "<PREVIEW=ZoomToWidth></PROGRESS>".  /*<REVIEW>*/
+  OUTPUT TO VALUE(ls-outfile).
+  IF ip-dest = 1 THEN PUT "<PRINTER?></PROGRESS>".  /*<REVIEW>*/
+  ELSE IF ip-dest = 2 THEN PUT "<PREVIEW=ZoomToWidth></PROGRESS>".  /*<REVIEW>*/
   ELSE IF ip-dest EQ 4 THEN DO:
-     ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tIF".
+     ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".
      PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW></PROGRESS>".
   END.        
-  ELSE IF ip-dest EQ 5 THEN DO:
+  ELSE IF ip-dest = 5 THEN DO:
       ASSIGN
          init-dir = v-dir
          lv-pdf-file = v-dir + "Est" + TRIM(est.est-no).
-      PUT "<PREVIEW><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf></PROGRESS>" FORMAT "x(100)".
+      PUT "<PREVIEW><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf></PROGRESS>" FORM "x(100)".
   END.
   OUTPUT CLOSE.
 
@@ -2885,10 +2891,9 @@ PROCEDURE print-box-est :
   
   IF v-prt-box THEN RUN printBoxImage.
 
-ASSIGN v-line-count = LINE-COUNTER .
   IF v-prt-note THEN DO:
-    OUTPUT TO VALUE(ls-outfile) APPEND PAGE-SIZE 64  .
-    RUN print-notes(v-line-count) .
+    OUTPUT TO VALUE(ls-outfile) APPEND /*PAGE-SIZE 64 */ .
+    RUN print-notes.
     OUTPUT CLOSE.
   END.
 
@@ -2904,7 +2909,7 @@ ASSIGN v-line-count = LINE-COUNTER .
            WHEN 4 THEN DO:
                ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".txt". 
                OS-COPY VALUE(list-name) VALUE(ls-fax-file).
-               RUN custom/asifax.p ("",ls-fax-file,"",
+               run custom/asifax.p ("",ls-fax-file,"",
                                  'Estimate',
                                  'Estimate',OUTPUT ret-code).
            END.   
@@ -2929,12 +2934,11 @@ PROCEDURE print-notes :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER v-line-count AS INTEGER NO-UNDO .
   {custom/notesdef.i}
-  DEFINE VARIABLE v-inst2 AS CHARACTER EXTENT 200 NO-UNDO.    
-  DEFINE VARIABLE v-dept-inst AS CHARACTER FORMAT "x(80)" EXTENT 200 NO-UNDO.
-  DEFINE VARIABLE v-note-length AS INTEGER INITIAL 80 NO-UNDO.
-  DEFINE VARIABLE lv-k AS INTEGER NO-UNDO.
+  DEF VAR v-inst2 AS cha EXTENT 200 NO-UNDO.    
+  DEF VAR v-dept-inst AS cha FORM "x(80)" EXTENT 200 NO-UNDO.
+  DEF VAR v-note-length AS INT INIT 80 NO-UNDO.
+  DEF VAR lv-k AS INT NO-UNDO.
   
   /*determine number of lines needed*/
   ASSIGN v-tmp-lines = 0
@@ -2942,24 +2946,24 @@ PROCEDURE print-notes :
        K = 0
        lv-got-return = 0.
 
-  FOR EACH notes NO-LOCK WHERE notes.rec_key EQ xest.rec_key AND
-      v-prt-note AND notes.note_code GE v-from-dept AND
-      notes.note_code LE v-to-dept :
+  FOR EACH notes WHERE notes.rec_key = xest.rec_key and
+      v-prt-note and notes.note_code >= v-from-dept and
+      notes.note_code <= v-to-dept NO-LOCK:
     
-    IF v-prev-note-rec NE ? AND
-       v-prev-note-rec NE RECID(notes) THEN v-prev-extent = k.
+    IF v-prev-note-rec <> ? AND
+       v-prev-note-rec <> RECID(notes) THEN v-prev-extent = k.
 
     DO i = 1 TO LENGTH(notes.note_text) :        
-       IF i - j GE lv-line-chars THEN ASSIGN j = i
+       IF i - j >= lv-line-chars THEN ASSIGN j = i
                                              lv-got-return = lv-got-return + 1.
               
        v-tmp-lines = ( i - j ) / lv-line-chars.
        {SYS/INC/ROUNDUP.I v-tmp-lines}
        k = v-tmp-lines + lv-got-return +
-       IF (v-prev-note-rec NE RECID(notes) AND v-prev-note-rec NE ?) THEN v-prev-extent ELSE 0.
+       IF (v-prev-note-rec <> RECID(notes) AND v-prev-note-rec <> ?) THEN v-prev-extent ELSE 0.
     
-       IF SUBSTRING(note_text,i,1) EQ CHR(10) OR SUBSTRING(note_text,i,1) EQ CHR(13) THEN                
-       DO:
+       IF SUBSTRING(note_text,i,1) = CHR(10) OR SUBSTRING(note_text,i,1) = CHR(13) THEN                
+       do:
           ASSIGN
              lv-got-return = lv-got-return + 1
              j = i.
@@ -2976,18 +2980,13 @@ PROCEDURE print-notes :
   
   PUT SKIP(1)
       "Department Notes: " SKIP.
-  
 
   IF lv-k GT EXTENT(v-dept-inst) THEN lv-k = EXTENT(v-dept-inst).
-       
+
   DO i = 1 TO lv-k:
       IF v-line-count GT 62 THEN DO:
-          PAGE.
-          v-line-count = 0 .
-      END.
      v-dept-inst[i] = v-inst2[i].
      PUT v-dept-inst[i] AT 2 SKIP.
-     v-line-count = v-line-count + 1 .
   END.
 
 END PROCEDURE.
@@ -3037,17 +3036,17 @@ PROCEDURE print4 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/  
-  DEFINE VARIABLE i AS INTEGER NO-UNDO.
-  DEFINE VARIABLE j AS INTEGER NO-UNDO.
-  DEFINE VARIABLE call_id AS RECID NO-UNDO.  
-  DEFINE VARIABLE fil_id AS RECID NO-UNDO.
-  DEFINE VARIABLE lv-error AS LOGICAL NO-UNDO.
-  DEFINE VARIABLE v-vend-no   LIKE e-item-vend.vend-no INITIAL "".
-  DEFINE VARIABLE v-vend-list AS CHARACTER NO-UNDO.
+  def var i as int no-undo.
+  def var j as int no-undo.
+  def var call_id as recid no-undo.  
+  def var fil_id as recid no-undo.
+  def var lv-error as log no-undo.
+  def var v-vend-no   like e-item-vend.vend-no init "".
+  DEF var v-vend-list AS CHAR NO-UNDO.
   DEFINE VARIABLE lv-ef-recid AS RECID NO-UNDO.
 
   ASSIGN
-    lv-ef-recid = RECID(ef)
+    lv-ef-recid = recid(ef)
     tmp-dir = lv-cebrowse-dir.
 
   {cec/print4p.i}
@@ -3060,23 +3059,23 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE print42 B-table-Win 
 PROCEDURE print42 :
 /*------------------------------------------------------------------------------
-  Purpose:   what IF for (Corr. set - est.est-type = 6)  
+  Purpose:   what if for (Corr. set - est.est-type = 6)  
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ip-tmp-dir LIKE tmp-dir NO-UNDO.
+  DEF INPUT PARAM ip-tmp-dir LIKE tmp-dir NO-UNDO.
 
   {sys/FORM/r-top.i}
-  DEFINE VARIABLE i AS INTEGER NO-UNDO.
-  DEFINE VARIABLE j AS INTEGER NO-UNDO.
-  DEFINE VARIABLE call_id AS RECID NO-UNDO.  
-  DEFINE VARIABLE fil_id AS RECID NO-UNDO.
-  DEFINE VARIABLE xxx AS DECIMAL NO-UNDO.
-  DEFINE VARIABLE zzz AS DECIMAL NO-UNDO.
-  DEFINE VARIABLE  x  AS INTEGER NO-UNDO.  
-  DEFINE VARIABLE tmpstore AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE lv-error AS LOGICAL NO-UNDO.
-  DEFINE VARIABLE module AS CHARACTER NO-UNDO.
+  def var i as int no-undo.
+  def var j as int no-undo.
+  def var call_id as recid no-undo.  
+  def var fil_id as recid no-undo.
+  def var xxx as DEC no-undo.
+  def var zzz as DEC no-undo.
+  def var x as int no-undo.  
+  def var tmpstore as cha no-undo.
+  def var lv-error as log no-undo.
+  DEF VAR module AS cha NO-UNDO.
 
   ASSIGN
      vprint = YES
@@ -3180,22 +3179,22 @@ PROCEDURE printProbe :
   DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
   DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
   DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  DEFINE VARIABLE v-print-fmt AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE is-xprint-form AS LOGICAL NO-UNDO.
-  DEFINE VARIABLE v-error AS LOGICAL NO-UNDO.
-  DEFINE VARIABLE v-cinput AS CHARACTER FORMAT "x(255)" NO-UNDO.
+  DEF VAR v-print-fmt AS cha NO-UNDO.
+  DEF VAR is-xprint-form AS LOG NO-UNDO.
+  DEF VAR v-error AS LOG NO-UNDO.
+  DEF VAR v-cinput AS cha FORM "x(255)" NO-UNDO.
 
-  DEFINE VARIABLE lv-dest AS INTEGER NO-UNDO.
-  DEFINE VARIABLE lv-font AS INTEGER NO-UNDO.
-  DEFINE VARIABLE lv-ornt AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE lv-lines AS INTEGER NO-UNDO.
-  DEFINE VARIABLE list-name AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE ls-fax-file AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE ret-code AS INTEGER NO-UNDO.
-  DEFINE VARIABLE ls-mail-file2 AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE lv-dir AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE v-probe-fmt AS CHARACTER NO-UNDO.
+  DEF VAR lv-dest AS int NO-UNDO.
+  DEF VAR lv-font AS INT NO-UNDO.
+  DEF VAR lv-ornt AS cha NO-UNDO.
+  DEF VAR lv-lines AS INT NO-UNDO.
+  DEF VAR list-name AS cha NO-UNDO.
+  DEF VAR init-dir AS cha NO-UNDO.
+  DEF VAR ls-fax-file AS cha NO-UNDO.
+  DEF VAR ret-code AS INT NO-UNDO.
+  DEF VAR ls-mail-file2 AS cha NO-UNDO.
+  DEF VAR lv-dir AS CHAR NO-UNDO.
+  DEF VAR v-probe-fmt AS CHAR NO-UNDO.
   
   {est/checkuse.i}
   IF ipPrompt THEN DO:
@@ -3204,7 +3203,7 @@ PROCEDURE printProbe :
                         OUTPUT lv-ornt,OUTPUT lv-lines,OUTPUT v-error, OUTPUT v-print-cm).
     IF v-error THEN RETURN ERROR.
 
-  END. /* IF ipprompt */
+  END. /* if ipprompt */
   ELSE
   ASSIGN
     is-xprint-form = YES
@@ -3215,11 +3214,11 @@ PROCEDURE printProbe :
     lv-dest = 2
     lv-font = 15
     lv-ornt = 'P'
-    lv-lines = 63.
+    lv-lines = 65.
 
   ASSIGN
      v-probe-fmt = IF probe.LINE LT 100 THEN "99" ELSE "999"
-     ls-outfile = lv-cebrowse-dir + TRIM(est.est-no) + ".p" + STRING(probe.line,v-probe-fmt).
+     ls-outfile = lv-cebrowse-dir + trim(est.est-no) + ".p" + string(probe.line,v-probe-fmt).
 
   FIND CURRENT xest.
   IF xest.est-type LT 7 THEN RUN cec/probeu1.p (RECID(probe)).
@@ -3227,41 +3226,41 @@ PROCEDURE printProbe :
 
   v-probe-fmt = IF probe.LINE LT 100 THEN "99" ELSE "999".
 
-  RUN get-dir-proc(INPUT TRIM(est.est-no) + ".s" + STRING(probe.line,v-probe-fmt),
+  RUN get-dir-proc(INPUT trim(est.est-no) + ".s" + string(probe.line,v-probe-fmt),
                    OUTPUT lv-dir).
 
-  IF OPSYS EQ "unix" THEN
-     UNIX SILENT cp  VALUE(lv-dir + TRIM(est.est-no) + ".s" + STRING(probe.line,v-probe-fmt))
-                     VALUE(ls-outfile).
+  if opsys eq "unix" THEN
+     unix silent cp  value(lv-dir + trim(est.est-no) + ".s" + string(probe.line,v-probe-fmt))
+                     value(ls-outfile).
   ELSE DO:
-    FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ cocode
-                        AND sys-ctrl.name EQ "CEPrint"  NO-ERROR.
-    is-xprint-form = AVAILABLE sys-ctrl AND sys-ctrl.char-fld NE 'Text'.
-    FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ cocode
-                        AND sys-ctrl.name EQ "JOBCARDC"  NO-ERROR.
-    IF AVAILABLE sys-ctrl THEN ASSIGN v-print-fmt = sys-ctrl.char-fld.
+    find first sys-ctrl where sys-ctrl.company eq cocode
+                        and sys-ctrl.name eq "CEPrint" no-lock no-error.
+    is-xprint-form = avail sys-ctrl and sys-ctrl.char-fld ne 'Text'.
+    find first sys-ctrl where sys-ctrl.company eq cocode
+                        and sys-ctrl.name eq "JOBCARDC" no-lock no-error.
+    if avail sys-ctrl THEN ASSIGN v-print-fmt = sys-ctrl.char-fld.
     ELSE v-print-fmt = "".
      i = 0 . 
-     IF is-xprint-form THEN lv-lines = 64.
+     IF is-xprint-form THEN lv-lines = 66.
      OUTPUT TO VALUE(ls-outfile) PAGE-SIZE VALUE(lv-lines). /* create .x file with page size */
 
-     INPUT FROM VALUE(lv-dir + TRIM(est.est-no) + ".s" + STRING(probe.line,v-probe-fmt)) NO-ECHO.
-     REPEAT:
+     input from value(lv-dir + trim(est.est-no) + ".s" + string(probe.line,v-probe-fmt)) NO-ECHO.
+     repeat:
            v-cinput = "".
-           IMPORT UNFORMATTED v-cinput.
-           IF v-cinput EQ "" THEN PUT SKIP(1).
-           ELSE DO:
-               IF LOOKUP(SUBSTRING(v-cinput,1,2),"01,02,03,04,05,06,07,08,09,10,11,12") GT 0 AND
+           import unformatted v-cinput.
+           if v-cinput eq "" then put skip(1).
+           else do:
+               IF LOOKUP(SUBSTRING(v-cinput,1,2),"01,02,03,04,05,06,07,08,09,10,11,12") > 0 and
                   SUBSTRING(v-cinput,3,1) EQ "/" AND
                   SUBSTRING(v-cinput,6,1) EQ "/"    THEN PAGE. /*seperate page per form*/  
-               PUT UNFORMATTED v-cinput SKIP.
+               put unformatted v-cinput skip.
                i = i + 1 .
            END.
-     END.
+     end.
      
-     IF NOT is-xprint-form AND v-prt-note THEN RUN print-notes(LINE-COUNTER).
-    INPUT CLOSE.
-    IF PAGE-NUM EQ 1 THEN
+     IF NOT is-xprint-form AND v-prt-note THEN RUN print-notes.
+    input close.
+    IF PAGE-NUM = 1 THEN
     OUTPUT CLOSE.
     ELSE IF v-prt-box THEN OUTPUT CLOSE.
   END.
@@ -3305,12 +3304,12 @@ PROCEDURE recalc-fields :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ip-old-price AS DECIMAL NO-UNDO.
+  DEFINE INPUT PARAMETER ip-old-price AS DEC NO-UNDO.
     
-  DEFINE VARIABLE ld-commc AS DECIMAL NO-UNDO.
-  DEFINE VARIABLE ld-factc AS DECIMAL NO-UNDO.
-  DEFINE VARIABLE ld-fullc AS DECIMAL NO-UNDO.
-  DEFINE VARIABLE ld-price AS DECIMAL NO-UNDO.
+  DEF VAR ld-commc AS DEC NO-UNDO.
+  DEF VAR ld-factc AS DEC NO-UNDO.
+  DEF VAR ld-fullc AS DEC NO-UNDO.
+  DEF VAR ld-price AS DEC NO-UNDO.
 
   {cec/combasis.i}
   {sys/inc/ceround.i}
@@ -3318,10 +3317,10 @@ PROCEDURE recalc-fields :
   DO WITH FRAME {&FRAME-NAME}:
     ld-price = 0.
     FOR EACH probeit FIELDS(sell-price yld-qty)
-        NO-LOCK WHERE probeit.company EQ probe.company
+        WHERE probeit.company EQ probe.company
           AND probeit.est-no  EQ probe.est-no
           AND probeit.line    EQ probe.line
-        :
+        NO-LOCK:
     
       ld-price = ld-price +
                  (probeit.sell-price * (probeit.yld-qty / probe.est-qty)).
@@ -3349,9 +3348,9 @@ PROCEDURE recalc-multicell :
   Notes:       
 ------------------------------------------------------------------------------*/
 /* Special logic for multicell */
-DEFINE VARIABLE v-mr AS DECIMAL NO-UNDO.
-DEFINE VARIABLE v-cmah AS DECIMAL NO-UNDO.
-DEFINE VARIABLE v-cmoh AS DECIMAL NO-UNDO.
+DEF VAR v-mr AS DEC NO-UNDO.
+DEF VAR v-cmah AS DEC NO-UNDO.
+DEF VAR v-cmoh AS DEC NO-UNDO.
 
 v-mr = calc-cm().
 reftable.val[8]:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = STRING(v-mr).
@@ -3389,7 +3388,7 @@ PROCEDURE repo-query :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
+  DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
 
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -3411,32 +3410,32 @@ PROCEDURE run-screen-calc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- DEFINE VARIABLE lv-eb-recid AS RECID NO-UNDO.
-  DEFINE VARIABLE lv-ef-recid AS RECID NO-UNDO.
-  DEFINE VARIABLE lv-probe-line LIKE probe.LINE NO-UNDO.
-  DEFINE VARIABLE tmp-outfile AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE viewfile AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE l-new-record AS LOGICAL NO-UNDO.
-  DEFINE VARIABLE li AS INTEGER NO-UNDO.
-  DEFINE BUFFER bf-probe FOR probe.
+ def var lv-eb-recid as recid no-undo.
+  def var lv-ef-recid as recid no-undo.
+  DEF VAR lv-probe-line LIKE probe.LINE NO-UNDO.
+  DEF VAR tmp-outfile AS cha NO-UNDO.
+  DEF VAR viewfile AS cha NO-UNDO.
+  DEF VAR l-new-record AS LOG NO-UNDO.
+  DEF VAR li AS INT NO-UNDO.
+  DEF BUFFER bf-probe FOR probe.
   
-  IF AVAILABLE est THEN
-  FIND FIRST est-summ NO-LOCK WHERE est-summ.company EQ est.company 
-                        AND est-summ.est-no EQ est.est-no 
-                       NO-ERROR.
+  IF AVAIL est THEN
+  FIND FIRST est-summ WHERE est-summ.company = est.company 
+                        AND est-summ.est-no = est.est-no 
+                      NO-LOCK NO-ERROR.
 
-  IF NOT AVAILABLE est-summ THEN
+  IF NOT AVAIL est-summ THEN
       l-new-record = TRUE.
 
   {est/checkuse.i}
-  IF AVAILABLE probe THEN
+  IF AVAIL probe THEN
     lv-probe-line = probe.LINE.
   FIND CURRENT est.
-  FIND xef WHERE RECID(xef) EQ RECID(ef).
-  FIND xeb WHERE RECID(xeb) EQ RECID(eb).
-  vprint = YES.
-  lv-eb-recid = RECID(eb).
-  lv-ef-recid = RECID(ef).
+  find xef where recid(xef) = recid(ef).
+  find xeb where recid(xeb) = recid(eb).
+  vprint = yes.
+  lv-eb-recid = recid(eb).
+  lv-ef-recid = recid(ef).
   
   FOR EACH mclean:
     DELETE mclean.
@@ -3466,12 +3465,12 @@ PROCEDURE run-screen-calc :
   IF est.est-type EQ 8 THEN RUN cec/com/print4.p NO-ERROR.
 
   ELSE DO:
-    FIND FIRST probe NO-LOCK WHERE probe.company EQ est.company
-                       AND probe.est-no EQ est.est-no
-                      NO-ERROR.
+    FIND FIRST probe WHERE probe.company = est.company
+                       AND probe.est-no = est.est-no
+                     NO-LOCK NO-ERROR.
 
 
-    /*IF AVAILABLE probe THEN RUN est/d-probeu.w (OUTPUT lv-override). */
+    /*IF AVAIL probe THEN RUN est/d-probeu.w (OUTPUT lv-override). */
     lv-override = NO.
 
     IF est.est-type EQ 5 THEN RUN print4 NO-ERROR.
@@ -3488,20 +3487,20 @@ PROCEDURE run-screen-calc :
   FOR EACH tt-est-op.
       DELETE tt-est-op.
   END.
-  FOR EACH est-op WHERE est-op.company EQ xest.company AND
-                        est-op.est-no EQ xest.est-no AND est-op.line GT 500 
-                        EXCLUSIVE-LOCK :
+  for each est-op where est-op.company = xest.company and
+                        est-op.est-no = xest.est-no and est-op.line > 500 
+                        exclusive-lock :
            CREATE tt-est-op.
            BUFFER-COPY est-op TO tt-est-op.
-           DELETE est-op.  
-  END.
+           delete est-op.  
+  end.
 
   RUN release-shared-buffers.
 
   SESSION:SET-WAIT-STATE("").
 
-  FIND eb NO-LOCK WHERE RECID(eb) EQ lv-eb-recid .
-  FIND ef NO-LOCK WHERE RECID(ef) EQ lv-ef-recid .
+  find eb where recid(eb) = lv-eb-recid no-lock.
+  find ef where recid(ef) = lv-ef-recid no-lock.
   FIND CURRENT est NO-LOCK NO-ERROR.
 
 END PROCEDURE.
@@ -3518,33 +3517,33 @@ PROCEDURE run-whatif :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE lv-eb-recid AS RECID NO-UNDO.
   DEFINE VARIABLE lv-ef-recid AS RECID NO-UNDO.
-  DEFINE VARIABLE lv-probe-line LIKE probe.LINE NO-UNDO.
-  DEFINE VARIABLE tmp-outfile AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE viewfile AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE l-new-record AS LOGICAL NO-UNDO.
-  DEFINE VARIABLE li AS INTEGER NO-UNDO.
-  DEFINE BUFFER bf-probe FOR probe.
+  DEF VAR lv-probe-line LIKE probe.LINE NO-UNDO.
+  DEF VAR tmp-outfile AS cha NO-UNDO.
+  DEF VAR viewfile AS cha NO-UNDO.
+  DEF VAR l-new-record AS LOG NO-UNDO.
+  DEF VAR li AS INT NO-UNDO.
+  DEF BUFFER bf-probe FOR probe.
   DEFINE VARIABLE ll-return AS LOGICAL     NO-UNDO.
   
-  IF AVAILABLE est THEN
-  FIND FIRST est-summ NO-LOCK WHERE est-summ.company EQ est.company 
-                        AND est-summ.est-no EQ est.est-no 
-                       NO-ERROR.
+  IF AVAIL est THEN
+  FIND FIRST est-summ WHERE est-summ.company = est.company 
+                        AND est-summ.est-no = est.est-no 
+                      NO-LOCK NO-ERROR.
 
-  IF NOT AVAILABLE est-summ THEN
+  IF NOT AVAIL est-summ THEN
       l-new-record = TRUE. 
   
   IF NOT checkNCBrd() THEN RETURN.
 
   {est/checkuse.i}
-  IF AVAILABLE probe THEN
+  IF AVAIL probe THEN
     lv-probe-line = probe.LINE.
   FIND CURRENT est.
-  FIND xef WHERE RECID(xef) EQ RECID(ef).
-  FIND xeb WHERE RECID(xeb) EQ RECID(eb).
-  vprint = YES.
-  lv-eb-recid = RECID(eb).
-  lv-ef-recid = RECID(ef).
+  find xef where recid(xef) = recid(ef).
+  find xeb where recid(xeb) = recid(eb).
+  vprint = yes.
+  lv-eb-recid = recid(eb).
+  lv-ef-recid = recid(ef).
   
   FOR EACH mclean:
     DELETE mclean.
@@ -3574,12 +3573,12 @@ PROCEDURE run-whatif :
   IF est.est-type EQ 8 THEN RUN cec/com/print4.p NO-ERROR.
 
   ELSE DO:
-    FIND FIRST probe NO-LOCK WHERE probe.company EQ est.company
-                       AND probe.est-no EQ est.est-no
-                      NO-ERROR.
+    FIND FIRST probe WHERE probe.company = est.company
+                       AND probe.est-no = est.est-no
+                     NO-LOCK NO-ERROR.
 
 
-    IF AVAILABLE probe THEN RUN est/d-probeu.w (OUTPUT lv-override).
+    IF AVAIL probe THEN RUN est/d-probeu.w (OUTPUT lv-override).
 
     IF v-cestcalc EQ "Prompt on Purge" AND lv-override THEN DO:  /* Task 12101301 */
         MESSAGE "Warning, all existing calculated quantities will be deleted."
@@ -3601,38 +3600,38 @@ PROCEDURE run-whatif :
 
   END.
 
-  FOR EACH est-op WHERE est-op.company EQ xest.company AND
-                        est-op.est-no EQ xest.est-no AND est-op.line GT 500 
-                        EXCLUSIVE-LOCK :
-           DELETE est-op.  
-  END.
+  for each est-op where est-op.company = xest.company and
+                        est-op.est-no = xest.est-no and est-op.line > 500 
+                        exclusive-lock :
+           delete est-op.  
+  end.
 
   RUN release-shared-buffers.
 
   SESSION:SET-WAIT-STATE("").
 
-  FIND eb NO-LOCK WHERE RECID(eb) EQ lv-eb-recid .
-  FIND ef NO-LOCK WHERE RECID(ef) EQ lv-ef-recid .
+  find eb where recid(eb) = lv-eb-recid no-lock.
+  find ef where recid(ef) = lv-ef-recid no-lock.
   FIND CURRENT est NO-LOCK NO-ERROR.
-  RUN dispatch ('open-query').     
+  run dispatch ('open-query').     
 
-  IF v-ceSellPrice EQ "F" THEN DO:
+  IF v-ceSellPrice = "F" THEN DO:
     
       IF NOT lv-override THEN DO:
-         FIND LAST bf-probe NO-LOCK WHERE bf-probe.company EQ xest.company
-                              AND bf-probe.est-no  EQ xest.est-no
-                             USE-INDEX LINE NO-ERROR.
-         IF AVAILABLE bf-probe THEN
+         FIND LAST bf-probe WHERE bf-probe.company = xest.company
+                              AND bf-probe.est-no  = xest.est-no
+                            NO-LOCK USE-INDEX LINE NO-ERROR.
+         IF AVAIL bf-probe THEN
             REPOSITION {&browse-name} TO ROWID ROWID(bf-probe) NO-ERROR.
     
       END.
       ELSE DO:
         IF lv-probe-line GT 0 THEN DO:
-         FIND LAST bf-probe NO-LOCK WHERE bf-probe.company EQ xest.company
-                              AND bf-probe.est-no  EQ xest.est-no
-                              AND bf-probe.LINE    EQ lv-probe-line
-                             USE-INDEX LINE NO-ERROR.
-         IF AVAILABLE bf-probe THEN
+         FIND LAST bf-probe WHERE bf-probe.company = xest.company
+                              AND bf-probe.est-no  = xest.est-no
+                              AND bf-probe.LINE    = lv-probe-line
+                            NO-LOCK USE-INDEX LINE NO-ERROR.
+         IF AVAIL bf-probe THEN
             REPOSITION {&browse-name} TO ROWID ROWID(bf-probe) NO-ERROR.
         END.
       END.
@@ -3646,13 +3645,13 @@ PROCEDURE run-whatif :
          after it was updated by the db trigger on probe */
       FIND CURRENT probe.
 
-      IF DECIMAL(probe.gross-profit:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})NE probe.gross-profit THEN DO:
+      IF dec(probe.gross-profit:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})NE probe.gross-profit THEN DO:
         ASSIGN probe.gross-profit:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = STRING(probe.gross-profit).
         RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
       END.
 
   END.
-  RUN dispatch ('open-query').     
+  run dispatch ('open-query').     
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3759,22 +3758,22 @@ PROCEDURE update-item :
   Parameters:  <none>
   Notes: run this procedure only for est-type = 6  cec/box/probeit.p      
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE xxx AS DECIMAL NO-UNDO.
-  DEFINE VARIABLE ld-tot-pric AS DECIMAL NO-UNDO.
-  DEFINE VARIABLE ld-tot-fact AS DECIMAL NO-UNDO.
-  DEFINE VARIABLE ld-tot-full AS DECIMAL NO-UNDO.
-  DEFINE VARIABLE lv-qty LIKE probe.est-qty NO-UNDO.
-  DEFINE VARIABLE ll-price-change AS LOGICAL NO-UNDO.
-  DEFINE VARIABLE qm AS DECIMAL.
-  DEFINE VARIABLE v-comm LIKE tt-tot NO-UNDO.
-  DEFINE VARIABLE v-prf-s AS DECIMAL NO-UNDO.
-  DEFINE VARIABLE v-pct-s AS DECIMAL NO-UNDO.
-  DEFINE VARIABLE v-probe-fmt AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE ld-marg% AS DECIMAL NO-UNDO.
-  DEFINE VARIABLE v-old-price AS DECIMAL NO-UNDO.
-  DEFINE VARIABLE ld-commc AS DECIMAL NO-UNDO.
-  DEFINE VARIABLE ld-fullc AS DECIMAL NO-UNDO.
-  DEFINE VARIABLE v-old-full-cost AS DECIMAL NO-UNDO.
+  DEF VAR xxx AS DEC NO-UNDO.
+  DEF VAR ld-tot-pric AS DEC NO-UNDO.
+  DEF VAR ld-tot-fact AS DEC NO-UNDO.
+  DEF VAR ld-tot-full AS DEC NO-UNDO.
+  DEF VAR lv-qty LIKE probe.est-qty NO-UNDO.
+  DEF VAR ll-price-change AS LOG NO-UNDO.
+  def var qm as dec.
+  def var v-comm like tt-tot NO-UNDO.
+  def var v-prf-s as dec NO-UNDO.
+  def var v-pct-s as dec NO-UNDO.
+  DEF VAR v-probe-fmt AS CHAR NO-UNDO.
+  DEF VAR ld-marg% AS DEC NO-UNDO.
+  DEF VAR v-old-price AS DEC NO-UNDO.
+  DEF VAR ld-commc AS DEC NO-UNDO.
+  DEF VAR ld-fullc AS DEC NO-UNDO.
+  DEF VAR v-old-full-cost AS DEC NO-UNDO.
 
   {est/checkuse.i}
 
@@ -3783,11 +3782,11 @@ PROCEDURE update-item :
       DELETE tt-probeit.
     END.
 
-    FOR EACH probeit NO-LOCK
+    FOR EACH probeit
         WHERE probeit.company EQ probe.company
           AND probeit.est-no  EQ probe.est-no
           AND probeit.line    EQ probe.line
-        USE-INDEX est-no :
+        USE-INDEX est-no NO-LOCK:
       CREATE tt-probeit.
       BUFFER-COPY probeit TO tt-probeit
       ASSIGN tt-probeit.row-id = ROWID(probeit).
@@ -3797,8 +3796,8 @@ PROCEDURE update-item :
 
     ll-price-change = NO.
     FOR EACH tt-probeit:
-      FIND FIRST probeit NO-LOCK WHERE ROWID(probeit) EQ tt-probeit.row-id NO-ERROR.
-      ll-price-change = NOT AVAILABLE probeit OR
+      FIND FIRST probeit WHERE ROWID(probeit) EQ tt-probeit.row-id NO-LOCK NO-ERROR.
+      ll-price-change = NOT AVAIL probeit OR
                         probeit.sell-price NE tt-probeit.sell-price.
       IF ll-price-change THEN LEAVE.
     END.
@@ -3884,20 +3883,20 @@ PROCEDURE update-item :
 
         v-probe-fmt = IF probe.LINE LT 100 THEN "99" ELSE "999".
 
-        RUN get-dir-proc(INPUT TRIM(est.est-no) + ".s"
-                               + STRING(probe.line,v-probe-fmt),
+        RUN get-dir-proc(INPUT trim(est.est-no) + ".s"
+                               + string(probe.line,v-probe-fmt),
                          OUTPUT tmp-dir).
         
-        IF OPSYS EQ "unix" THEN 
-          UNIX SILENT cp  VALUE(tmp-dir + TRIM(est.est-no) + ".s"
-                                        + STRING(probe.line,v-probe-fmt))
-                          VALUE(lv-cebrowse-dir + TRIM(est.est-no) + ".p"
-                                        + STRING(probe.line,v-probe-fmt)).
-        ELSE
-          DOS SILENT COPY VALUE(tmp-dir + TRIM(est.est-no) + ".s"
-                                        + STRING(probe.line,v-probe-fmt))
-                          VALUE(lv-cebrowse-dir + TRIM(est.est-no) + ".p"
-                                        + STRING(probe.line,v-probe-fmt)).
+        if opsys eq "unix" then 
+          unix silent cp  value(tmp-dir + trim(est.est-no) + ".s"
+                                        + string(probe.line,v-probe-fmt))
+                          value(lv-cebrowse-dir + trim(est.est-no) + ".p"
+                                        + string(probe.line,v-probe-fmt)).
+        else
+          dos silent copy value(tmp-dir + trim(est.est-no) + ".s"
+                                        + string(probe.line,v-probe-fmt))
+                          value(lv-cebrowse-dir + trim(est.est-no) + ".p"
+                                        + string(probe.line,v-probe-fmt)).
 
         RUN per-1000.
       END.
@@ -3920,15 +3919,15 @@ PROCEDURE update-quote :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+  def var char-hdl as cha no-undo.
 
 
   {est/checkuse.i}
 
   RUN create-quote.
 
-  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"container-source", OUTPUT char-hdl).
-  RUN select-page IN WIDGET-HANDLE(char-hdl) (10).
+  run get-link-handle in adm-broker-hdl(this-procedure,"container-source", output char-hdl).
+  run select-page in widget-handle(char-hdl) (10).
 
 END PROCEDURE.
 
@@ -3942,13 +3941,13 @@ PROCEDURE valid-profit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ip-focus AS HANDLE NO-UNDO.
+  DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
 
 
   IF NOT ll-no-valid THEN
   DO WITH FRAME {&FRAME-NAME}:
     IF CAN-DO(lv-valid-profit,ip-focus:NAME) AND
-       DECIMAL(ip-focus:SCREEN-VALUE) GE 100     THEN DO:
+       DEC(ip-focus:SCREEN-VALUE) GE 100     THEN DO:
       MESSAGE TRIM(ip-focus:LABEL) +
               " must be less than 100" VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO ip-focus.
@@ -3970,9 +3969,9 @@ FUNCTION calc-cm RETURNS DECIMAL
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-DEFINE VARIABLE v-cm AS DECIMAL NO-UNDO.
-v-cm = DECIMAL(probe.sell-price:SCREEN-VALUE IN BROWSE {&browse-name})
-       - DECIMAL(probe.fact-cost:SCREEN-VALUE IN BROWSE {&browse-name}).
+DEF VAR v-cm AS DEC NO-UNDO.
+v-cm = DEC(probe.sell-price:SCREEN-VALUE IN BROWSE {&browse-name})
+       - DEC(probe.fact-cost:SCREEN-VALUE IN BROWSE {&browse-name}).
   RETURN v-cm.   /* Function return value. */
 
 END FUNCTION.
@@ -3987,14 +3986,14 @@ FUNCTION calc-cmah RETURNS DECIMAL
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-DEFINE VARIABLE v-cmah AS DECIMAL NO-UNDO.
-DEFINE VARIABLE v-mr AS DECIMAL NO-UNDO.
-DEFINE VARIABLE v-run AS DECIMAL NO-UNDO.
+DEF VAR v-cmah AS DEC NO-UNDO.
+DEF VAR v-mr AS DEC NO-UNDO.
+DEF VAR v-run AS DEC NO-UNDO.
 FIND FIRST tt-est-op NO-LOCK NO-ERROR.
-IF NOT AVAILABLE tt-est-op THEN DO:
+IF NOT AVAIL tt-est-op THEN DO:
     FIND CURRENT est.
-    FIND xef WHERE RECID(xef) EQ RECID(ef).
-    FIND xeb WHERE RECID(xeb) EQ RECID(eb).
+    find xef where recid(xef) = recid(ef).
+    find xeb where recid(xeb) = recid(eb).
     /* calc-opq is to get the correct num-sh by calculating
        est-op records where line > 500 and copying them to 
        tt-est-op */
@@ -4008,7 +4007,7 @@ END.
 RUN est/calc-mr.p (INPUT probe.est-no, INPUT "A", OUTPUT v-mr, OUTPUT v-run).
 
 IF v-mr GT 0 THEN
-  v-cmah = DECIMAL(reftable.val[8]:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) / 
+  v-cmah = DEC(reftable.val[8]:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) / 
      ((v-mr + v-run) / (INTEGER(probe.est-qty:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) / 1000)).
 ELSE
   v-cmah = 0.
@@ -4032,13 +4031,13 @@ FUNCTION calc-cmoh RETURNS DECIMAL
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-DEFINE VARIABLE v-cmoh AS DECIMAL NO-UNDO.
-DEFINE VARIABLE v-mr AS DECIMAL NO-UNDO.
-DEFINE VARIABLE v-run AS DECIMAL NO-UNDO.
+DEF VAR v-cmoh AS DEC NO-UNDO.
+DEF VAR v-mr AS DEC NO-UNDO.
+DEF VAR v-run AS DEC NO-UNDO.
 
 RUN est/calc-mr.p (INPUT probe.est-no, INPUT "N", OUTPUT v-mr, OUTPUT v-run).
 IF v-mr GT 0 THEN
-  v-cmoh = DECIMAL(reftable.val[8]:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) / 
+  v-cmoh = DEC(reftable.val[8]:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) / 
     ((v-mr + v-run) / (INTEGER(probe.est-qty:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) / 1000)).
 ELSE
   v-cmoh = 0.
@@ -4059,37 +4058,38 @@ FUNCTION checkNCBrd RETURNS LOGICAL
     Notes:  Returns user choice of yes/no to continue.
             BV - Task: 08281207
 ------------------------------------------------------------------------------*/
-DEFINE VARIABLE lc-formlist AS CHARACTER INITIAL "" NO-UNDO.
-DEFINE VARIABLE li-formcount AS INTEGER INITIAL 0 NO-UNDO.
+DEFINE VARIABLE lc-formlist AS CHARACTER INIT "" NO-UNDO.
+DEFINE VARIABLE li-formcount AS INT INIT 0 NO-UNDO.
 DEFINE VARIABLE ll-return AS LOGICAL     NO-UNDO.
 DEFINE BUFFER lb-ef FOR ef.
 DEFINE BUFFER lb-eb FOR eb.
 
 
 
-FIND FIRST sys-ctrl NO-LOCK
+FIND FIRST sys-ctrl
     WHERE sys-ctrl.company EQ cocode
       AND sys-ctrl.NAME EQ "CECPromptNCBrd"
       AND sys-ctrl.log-fld = YES
-     NO-ERROR.
+    NO-LOCK NO-ERROR.
 
-IF AVAILABLE sys-ctrl THEN DO:
-    IF AVAILABLE est THEN
-        FOR EACH lb-ef NO-LOCK WHERE lb-ef.company EQ est.company
-            AND lb-ef.est-no EQ est.est-no:
+IF AVAIL sys-ctrl THEN DO:
+    IF AVAIL est THEN
+        FOR EACH lb-ef WHERE lb-ef.company = est.company
+            AND lb-ef.est-no = est.est-no
+            NO-LOCK:
             IF NOT lb-ef.nc THEN DO:
-                FIND FIRST lb-eb NO-LOCK WHERE lb-eb.company EQ lb-ef.company
-                    AND lb-eb.est-no EQ lb-ef.est-no
-                    AND lb-eb.form-no EQ lb-ef.form-no
-                    AND NOT lb-eb.pur-man  NO-ERROR.
-                IF AVAILABLE lb-eb THEN
+                FIND FIRST lb-eb WHERE lb-eb.company = lb-ef.company
+                    AND lb-eb.est-no = lb-ef.est-no
+                    AND lb-eb.form-no = lb-ef.form-no
+                    AND NOT lb-eb.pur-man  NO-LOCK NO-ERROR.
+                IF AVAIL lb-eb THEN
                     ASSIGN 
                         li-formcount = li-formcount + 1
-                        lc-formlist = lc-formlist + STRING(lb-ef.form-no) + " ".
+                        lc-formlist = lc-formlist + string(lb-ef.form-no) + " ".
             END.
         END.
-    IF li-formcount GT 0 THEN DO:
-        IF li-formcount GT 1 THEN
+    IF li-formcount > 0 THEN DO:
+        IF li-formcount > 1 THEN
             lc-formlist = "Forms " + lc-formlist.
         ELSE lc-formlist = "Form " + lc-formlist.
         MESSAGE lc-formlist "Board is set to NC so board Cost will be zero.  Proceed?"
@@ -4106,13 +4106,13 @@ END FUNCTION.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION cvt-time B-table-Win 
 FUNCTION cvt-time RETURNS CHARACTER
-  ( INPUT ip-time AS INTEGER ) :
+  ( input ip-time as int ) :
 /*------------------------------------------------------------------------------
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE ls-time AS CHARACTER NO-UNDO.
-  ls-time = STRING(ip-time,"HH:MM:SS").
+  def var ls-time as cha no-undo.
+  ls-time = string(ip-time,"HH:MM:SS").
   RETURN ls-time.   /* Function return value. */
 
 END FUNCTION.
@@ -4122,12 +4122,12 @@ END FUNCTION.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION display-gp B-table-Win 
 FUNCTION display-gp RETURNS DECIMAL
-  ( INPUT ip-type AS INTEGER ) :
+  ( INPUT ip-type AS INT ) :
 /*------------------------------------------------------------------------------
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE lv-gp AS DECIMAL NO-UNDO.
+  DEF VAR lv-gp AS DEC NO-UNDO.
 
 
   FIND FIRST ce-ctrl {sys/look/ce-ctrlw.i} NO-LOCK.
@@ -4137,6 +4137,9 @@ FUNCTION display-gp RETURNS DECIMAL
               IF ip-type EQ 1 THEN
                 (probe.sell-price - probe.fact-cost) / probe.fact-cost * 100
               ELSE
+                (DEC(probe.sell-price:SCREEN-VALUE IN BROWSE {&browse-name}) -
+                 DEC(probe.fact-cost:SCREEN-VALUE IN BROWSE {&browse-name})) /
+                DEC(probe.fact-cost:SCREEN-VALUE IN BROWSE {&browse-name}) * 100
                 (DECIMAL(probe.sell-price:SCREEN-VALUE IN BROWSE {&browse-name}) -
                  DECIMAL(probe.fact-cost:SCREEN-VALUE IN BROWSE {&browse-name})) /
                 DECIMAL(probe.fact-cost:SCREEN-VALUE IN BROWSE {&browse-name}) * 100
@@ -4144,6 +4147,7 @@ FUNCTION display-gp RETURNS DECIMAL
               IF ip-type EQ 1 THEN
                 probe.gross-profit
               ELSE
+                DEC(gross-profit:SCREEN-VALUE IN BROWSE {&browse-name}).
                 DECIMAL(gross-profit:SCREEN-VALUE IN BROWSE {&browse-name}).
   END.
 
@@ -4161,8 +4165,11 @@ FUNCTION SatisfiedPDies RETURNS LOGICAL
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
+  DEF BUFFER bf-eb FOR eb.
   DEFINE BUFFER bf-eb FOR eb.
   
+  DEF VAR lSatisfied AS LOG NO-UNDO.
+  DEF VAR cMachine AS cha NO-UNDO.
   DEFINE VARIABLE lSatisfied AS LOGICAL NO-UNDO.
   DEFINE VARIABLE cMachine AS CHARACTER NO-UNDO.
 
@@ -4170,11 +4177,29 @@ FUNCTION SatisfiedPDies RETURNS LOGICAL
   cMachine = "".
 
   DieLoop:
+  FOR EACH bf-eb NO-LOCK WHERE bf-eb.company = est.company
+                   AND bf-eb.est-no = est.est-no
+                   AND bf-eb.blank-no > 0
+                   AND bf-eb.pur-man = NO :
   FOR EACH bf-eb NO-LOCK WHERE bf-eb.company EQ est.company
                    AND bf-eb.est-no EQ est.est-no
                    AND bf-eb.blank-no GT 0
                    AND bf-eb.pur-man EQ NO :
   
+    FIND FIRST style WHERE style.company = bf-eb.company
+                 AND style.style = bf-eb.style
+                 AND style.flute = bf-eb.flute
+                 AND style.test = bf-eb.test 
+                 AND (style.TYPE = "p" OR style.TYPE = "R") 
+        NO-LOCK NO-ERROR.
+    IF NOT AVAIL style THEN
+       FIND FIRST style WHERE style.company = bf-eb.company
+                 AND style.style = bf-eb.style
+                 AND style.flute = ""
+                 AND style.test = ""
+                 AND (style.TYPE = "p" OR style.TYPE = "R") 
+        NO-LOCK NO-ERROR.
+    IF NOT AVAIL style THEN next.
     FIND FIRST style NO-LOCK WHERE style.company EQ bf-eb.company
                  AND style.style EQ bf-eb.style
                  AND style.flute EQ bf-eb.flute
@@ -4198,6 +4223,9 @@ FUNCTION SatisfiedPDies RETURNS LOGICAL
           AND est-op.line    LT 500:
 
          IF CAN-DO(cePDies-cha,est-op.m-code) AND 
+            est-op.att-type[1] = "" AND
+            est-op.att-type[2] = "" AND
+            est-op.att-type[3] = "" 
             est-op.att-type[1] EQ "" AND
             est-op.att-type[2] EQ "" AND
             est-op.att-type[3] EQ "" 
@@ -4224,21 +4252,26 @@ END FUNCTION.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION voverall B-table-Win 
 FUNCTION voverall RETURNS DECIMAL
+  ( INPUT ip-type AS INT )  :
   ( INPUT ip-type AS INTEGER )  :
 /*------------------------------------------------------------------------------
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
+  DEF VAR lv-overall AS DEC NO-UNDO.
   DEFINE VARIABLE lv-overall AS DECIMAL NO-UNDO.
 
 
+  IF AVAIL probe THEN
   IF AVAILABLE probe THEN
     lv-overall = ROUND((IF ip-type EQ 1 THEN probe.sell-price
+                                        ELSE DEC(probe.sell-price:SCREEN-VALUE IN BROWSE {&browse-name}))
                                         ELSE DECIMAL(probe.sell-price:SCREEN-VALUE IN BROWSE {&browse-name}))
                  / probe.bsf,2).
 
   ELSE lv-overall = 0.
 
+  IF lv-overall = ? then lv-overall = 0.
   IF lv-overall EQ ? THEN lv-overall = 0.
    
   RETURN lv-overall.   /* Function return value. */
@@ -4255,9 +4288,12 @@ FUNCTION vtot-msf RETURNS DECIMAL
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
+  def var lv-tot-msf as dec no-undo.
   DEFINE VARIABLE lv-tot-msf AS DECIMAL NO-UNDO.
 
   
+  if avail probe then lv-tot-msf = probe.tot-lbs / 1000.
+  else lv-tot-msf = 0.
   IF AVAILABLE probe THEN lv-tot-msf = probe.tot-lbs / 1000.
   ELSE lv-tot-msf = 0.
 

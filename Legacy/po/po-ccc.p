@@ -44,7 +44,6 @@ def var v-hdr as char format "x(15)" initial "" no-undo.
 def var v-ino-job as char format "x(15)" initial "" no-undo.
 def var v-change-ord as char format "x(35)" initial "" no-undo.
 DEF VAR v-sig-image AS CHAR NO-UNDO.
-DEF var v-dept-note AS cha FORM "x(80)" EXTENT 50 NO-UNDO.
 
 DEF VAR v-inst-lines AS INT NO-UNDO.
 DEF VAR v-inst AS cha FORM "x(80)" EXTENT 4 NO-UNDO.
@@ -469,35 +468,21 @@ assign
      END.
 
      IF lv-text <> "" THEN
-        DO li = 1 TO 20:
+        DO li = 1 TO 4:
            CREATE tt-formtext.
            ASSIGN
             tt-line-no = li
-            tt-length  = 80.
+            tt-length  = 78.
         END.
      RUN custom/formtext.p (lv-text).
-     ASSIGN
-         i = 0
-         v-dept-note = "".
-
+     i = 0.
      FOR EACH tt-formtext:
          i = i + 1.
-         IF i <= 20 THEN
-                v-dept-note[i] = tt-formtext.tt-text.
-         /*IF i <= 20 THEN do:
+         IF i <= 4 THEN do:
             PUT tt-formtext.tt-text FORM "x(78)" SKIP.      
             v-printline = v-printline + 1.
-        END.*/
+        END.
      END.
-     li = 0.
-         DO i = 20 TO 1 BY -1:
-           li = i.
-           IF v-dept-note[i] <> "" THEN LEAVE.
-         END.
-     DO i = 1 TO li:
-            PUT v-dept-note[i] SKIP.
-            v-printline = v-printline + 1.
-         END.
     
      /* === spec note print */
      IF v-print-sn THEN DO:
@@ -526,13 +511,17 @@ assign
   end. /* for each po-ordl record */
    
   v-inst = "".
-  
-  {custom/notesprt.i po-ord v-inst 4}
-           DO i = 1 TO 4:
-                IF v-inst[i] <> "" THEN DO:                
-                   v-printline = v-printline + 1.
-                END.
-           END.
+  FOR EACH notes WHERE notes.rec_key = po-ord.rec_key NO-LOCK:
+      v-tmp-lines = LENGTH(NOTES.NOTE_TEXT) / 80.
+      {SYS/INC/ROUNDUP.I v-tmp-lines}
+      IF notes.note_text <> "" THEN DO i = 1 TO v-tmp-lines:
+         
+         IF i < 5  THEN  /* display upto 4 lines */
+             ASSIGN v-inst[i] =  substring(NOTES.NOTE_TEXT,(1 + 80 * (i - 1)), 80)
+                    v-printline = v-printline + 1.
+         ELSE LEAVE.
+      END.
+   end.
   
    ASSIGN  
       v-tot-sqft = 0
@@ -562,3 +551,4 @@ IF v-printline <= page-size THEN PUT SKIP(74 - v-printline).
 end. /* for each po-ord record */.
 
 /* END ---------------------------- Copr. 1992 - 1994  Advanced Software Inc. */
+

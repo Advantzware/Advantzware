@@ -158,7 +158,7 @@ THEN DO:
   ASSIGN
    oe-rel-audit.reftable = "oe-rel-audit"
    oe-rel-audit.company  = STRING({&TABLENAME}.r-no,"9999999999")
-   oe-rel-audit.loc      = USERID("nosweat")
+   oe-rel-audit.loc      = USERID("ASI")
    oe-rel-audit.code     = STRING(TODAY,"99/99/9999")
    oe-rel-audit.code2    = STRING(TIME,"99999")
    oe-rel-audit.val[1]   = {&TABLENAME}.qty
@@ -170,8 +170,8 @@ FOR EACH oe-ord
     WHERE oe-ord.company EQ {&TABLENAME}.company
       AND oe-ord.ord-no  EQ {&TABLENAME}.ord-no:
 
-  IF oeuserid-log AND oe-ord.user-id NE USERID("nosweat") THEN
-    oe-ord.user-id = USERID("nosweat").
+  IF oeuserid-log AND oe-ord.user-id NE USERID("ASI") THEN
+    oe-ord.user-id = USERID("ASI").
 
   {&TABLENAME}.cust-no = oe-ord.cust-no.
 

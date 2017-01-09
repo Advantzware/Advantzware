@@ -238,12 +238,12 @@ DO:
   lv-contact:hidden = no.
   SESSION:SET-WAIT-STATE("GENERAL").
 
-/*  init-dir = "users\" + USERID("NOSWEAT") + "\contactx.rpt". */
+/*  init-dir = "users\" + USERID("ASI") + "\contactx.rpt". */
   init-dir = session:temp-directory + "\contactx.rpt".
   for each tt-contact:
       delete tt-contact.
   end. 
-  list-name = "users\" + USERID("NOSWEAT") + "\contactx" .
+  list-name = "users\" + USERID("ASI") + "\contactx" .
   if search(init-dir) = ? then do:
      SYSTEM-DIALOG GET-FILE list-name
        TITLE      "Enter Listing Name to Open ..."
@@ -367,7 +367,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
   /* this procedure must run from laptop only not on server */
-   if index(dbparam("nosweat"),"-1") <= 0 then do:
+   if index(dbparam("ASI"),"-1") <= 0 then do:
       message "This Procedure Can Run Only From Laptop or Single User." view-as alert-box error.
       APPLY "CLOSE" TO THIS-PROCEDURE.
       return.

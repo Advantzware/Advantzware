@@ -1268,7 +1268,7 @@ DO:
     RUN valid-date-change NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
-  oe-rel.spare-char-3:SCREEN-VALUE IN BROWSE br_table = USERID("NOSWEAT").
+  oe-rel.spare-char-3:SCREEN-VALUE IN BROWSE br_table = USERID("ASI").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1322,7 +1322,7 @@ END.
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
 
-IF USERID("nosweat") <> "ASI" THEN
+IF USERID("ASI") <> "ASI" THEN
   ASSIGN
   oe-rel.stat:READ-ONLY = YES
   oe-rel.qty:READ-ONLY = YES.
@@ -3520,8 +3520,8 @@ PROCEDURE local-assign-record :
     FIND CURRENT oe-rel EXCLUSIVE-LOCK.
     IF v-date-change-reason GT "" THEN
         ASSIGN oe-rel.spare-char-2:SCREEN-VALUE = v-date-change-reason
-               oe-rel.spare-char-3:SCREEN-VALUE = USERID("NOSWEAT")
-               oe-rel.spare-char-3 = USERID("NOSWEAT").
+               oe-rel.spare-char-3:SCREEN-VALUE = USERID("ASI")
+               oe-rel.spare-char-3 = USERID("ASI").
     FIND CURRENT oe-rel NO-LOCK.
   END.
 
@@ -3568,7 +3568,7 @@ PROCEDURE local-assign-record :
   
   /* Storing due date, due date change reason, due date change user */
   oe-rel.spare-char-4 = (IF tt-report.prom-date EQ ? THEN "" ELSE STRING(tt-report.prom-date)) + ","
-                         + USERID("nosweat") + ","
+                         + USERID("ASI") + ","
                          + tt-report.pr-uom.
 
   FIND FIRST ref-lot-no WHERE
@@ -4055,7 +4055,7 @@ PROCEDURE local-delete-record :
       NO-LOCK.
 
   {oe/rel-stat.i lv-stat}
-  /*IF USERID("NOSWEAT") NE "ASI" THEN*/ DO:
+  /*IF USERID("ASI") NE "ASI" THEN*/ DO:
       IF INDEX("CPZ",lv-stat) > 0 THEN DO:
           MESSAGE "Posted releases may not be deleted, must delete BOL first!"
                   VIEW-AS ALERT-BOX ERROR .
@@ -4169,7 +4169,7 @@ PROCEDURE local-delete-record :
   /*FOR EACH b-tt-report WHERE NOT CAN-FIND(oe-rel WHERE RECID(oe-rel) EQ b-tt-report.rec-id):
     DELETE b-tt-report.
   END.*/
-  IF v-oe-rell-rec NE ? AND USERID("NOSWEAT") EQ "ASI" THEN DO:
+  IF v-oe-rell-rec NE ? AND USERID("ASI") EQ "ASI" THEN DO:
       /* Only ASI can delete the actual release, so make sure to
          delete the oe-rell so the oe-rel is automatically recreated */
       FIND bf-oe-rell WHERE ROWID(bf-oe-rell) EQ v-oe-rell-rec
@@ -4267,7 +4267,7 @@ PROCEDURE local-enable-fields :
         
     RUN oe/rel-stat.p (ROWID(oe-rel), OUTPUT lv-stat).
 
-    IF INDEX("CPZ", lv-stat) > 0 AND USERID("NOSWEAT") NE "ASI" THEN DO:
+    IF INDEX("CPZ", lv-stat) > 0 AND USERID("ASI") NE "ASI" THEN DO:
        MESSAGE ENTRY(INDEX("ABCPZ",lv-stat),"Actual,Backorder,Completed,Posted,Invoice")
                "release entries can not be modified"
            VIEW-AS ALERT-BOX ERROR.
@@ -4563,7 +4563,7 @@ PROCEDURE local-update-record :
             OUTPUT v-date-change-reason, OUTPUT v-added-rowid)  .
         IF v-date-change-reason NE ? THEN
             ASSIGN bf-rel.spare-char-4 = STRING(tt-report.prom-date) + "," 
-                   + USERID("NOSWEAT") + "," + v-date-change-reason.  
+                   + USERID("ASI") + "," + v-date-change-reason.  
     END. /* If avail bf-rel */
   END. /* If oeDateChange-log */
   
@@ -5438,7 +5438,7 @@ DEF BUFFER b-oe-ordl FOR oe-ordl.
 DEF VAR choice AS LOG NO-UNDO.
 
 
-IF AVAIL oe-rel AND oe-rel.link-no EQ 0 AND USERID("NOSWEAT") NE "ASI" THEN DO:
+IF AVAIL oe-rel AND oe-rel.link-no EQ 0 AND USERID("ASI") NE "ASI" THEN DO:
   MESSAGE "Cannot unpost planned releases, posted only..."
           VIEW-AS ALERT-BOX ERROR.
   RETURN.

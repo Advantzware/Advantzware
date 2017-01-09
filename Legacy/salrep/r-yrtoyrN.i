@@ -1,5 +1,8 @@
 
-      for EACH ar-inv
+      FOR EACH ttCustList 
+          WHERE ttCustList.log-fld
+          NO-LOCK,
+          EACH ar-inv
           WHERE ar-inv.company  EQ cocode
             AND ar-inv.inv-date GE fdate[1]
             AND ar-inv.inv-date LE as-of-date
@@ -8,10 +11,7 @@
           
           FIRST cust
           WHERE cust.company EQ ar-inv.company
-            AND cust.cust-no GE fcust
-            AND cust.cust-no LE tcust
-            AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
-            AND ttCustList.log-fld no-lock) else true) /*ar-inv.cust-no*/
+            AND cust.cust-no EQ ttCustList.cust-no /*ar-inv.cust-no*/
           NO-LOCK:
         
           {custom/statusMsg.i "'Processing Customer # ' + string(cust.cust-no)"}
@@ -69,11 +69,11 @@
         END.
       END.
 
-      for EACH cust WHERE cust.company EQ cocode
-            AND cust.cust-no GE fcust
-            AND cust.cust-no LE tcust
-            AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
-            AND ttCustList.log-fld no-lock) else true) NO-LOCK,
+      FOR EACH ttCustList 
+          WHERE ttCustList.log-fld
+          NO-LOCK,
+         EACH cust WHERE cust.company EQ cocode
+          AND cust.cust-no EQ ttCustList.cust-no NO-LOCK,
 
           EACH ar-cash
           WHERE ar-cash.company    EQ cocode

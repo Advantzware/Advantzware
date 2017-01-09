@@ -1,1 +1,1 @@
-run addon\nosweat.p. 
+run .\nosweat.p. 

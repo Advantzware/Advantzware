@@ -38,7 +38,7 @@ DEF VAR ll-order-set AS LOG NO-UNDO.
 IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
    INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
    INDEX(PROGRAM-NAME(1),".ped") NE 0 THEN
-v-prgmname = USERID("NOSWEAT") + "..".
+v-prgmname = USERID("ASI") + "..".
 ELSE
 ASSIGN
   period_pos = INDEX(PROGRAM-NAME(1),".")
@@ -221,6 +221,7 @@ PROCEDURE Find-Record :
       {methods/template/findrecd.i 13}
     END CASE.
   END.
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -328,7 +329,7 @@ PROCEDURE local-initialize :
     {custom/usrprint.i}
     ll-order-set = YES.
     RUN clear_auto_find.
-    RUN change-order (browse-order:SCREEN-VALUE).
+/*    RUN change-order (browse-order:SCREEN-VALUE).*/
   END.
 
   {methods/template/local/brwsinit.i}

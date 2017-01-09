@@ -1,13 +1,13 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
+&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
 /* Connected Databases 
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME W-Win
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS W-Win v
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS W-Win 
 /*------------------------------------------------------------------------
 
-  File: windows/payment-type.w
+  File: windows/<table>.w
 
   Description: from cntnrwin.w - ADM SmartWindow Template
 
@@ -33,9 +33,6 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
-&SCOPED-DEFINE winReSize
-&SCOPED-DEFINE h_Browse01 h_payment-type
-
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -48,21 +45,20 @@ CREATE WIDGET-POOL.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&Scoped-define PROCEDURE-TYPE SmartWindow
-&Scoped-define DB-AWARE no
+&Scoped-define PROCEDURE-TYPE SmartEasyWindow
 
 &Scoped-define ADM-CONTAINER WINDOW
 
-/* Name of designated FRAME-NAME and/or first browse and/or first query */
+/* Name of first Frame and/or Browse and/or first Query                 */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
-&Scoped-define EXTERNAL-TABLES payment-type
-&Scoped-define FIRST-EXTERNAL-TABLE payment-type
+&Scoped-define EXTERNAL-TABLES rm-rcpt
+&Scoped-define FIRST-EXTERNAL-TABLE rm-rcpt
 
 
 /* Need to scope the external tables to this procedure                  */
-DEFINE QUERY external_tables FOR payment-type.
+DEFINE QUERY external_tables FOR rm-rcpt.
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
@@ -78,13 +74,16 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of handles for SmartObjects                              */
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_f-add AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-navico AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-navico-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updsav AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_payment-type AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_paymenttype-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-updsav-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_rm-adj AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_rm-rdtl3 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_rm-rdtl3-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_rm-trans AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
@@ -93,30 +92,30 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 92 BY 24
-         BGCOLOR 15 .
+         SIZE 150 BY 24
+         BGCOLOR 4 .
 
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 46 ROW 2.91
-         SIZE 42 BY 1.43
-         BGCOLOR 15 .
+         SIZE 105 BY 1.43
+         BGCOLOR 4 .
 
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1
-         SIZE 79 BY 1.91
-         BGCOLOR 15 .
+         SIZE 148 BY 1.91
+         BGCOLOR 4 .
 
 
 /* *********************** Procedure Settings ************************ */
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
-   Type: SmartWindow
-   External Tables: asi.payment-type
+   Type: SmartEasyWindow
+   External Tables: ASI.rm-rcpt
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
    Design Page: 1
    Other Settings: COMPILE
@@ -129,13 +128,13 @@ DEFINE FRAME OPTIONS-FRAME
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Payment Types"
+         TITLE              = "WAREHOUSE TRANSACTIONS ADJUSTMENTS"
          HEIGHT             = 24
-         WIDTH              = 92
-         MAX-HEIGHT         = 320
-         MAX-WIDTH          = 320
-         VIRTUAL-HEIGHT     = 320
-         VIRTUAL-WIDTH      = 320
+         WIDTH              = 150
+         MAX-HEIGHT         = 24
+         MAX-WIDTH          = 150
+         VIRTUAL-HEIGHT     = 24
+         VIRTUAL-WIDTH      = 150
          RESIZE             = no
          SCROLL-BARS        = no
          STATUS-AREA        = yes
@@ -146,27 +145,14 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
 IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
     MESSAGE "Unable to load icon: adeicon\progress"
             VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
-/* ************************* Included-Libraries *********************** */
 
-{src/adm/method/containr.i}
-{methods/template/windows.i}
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
-
-/* ***********  Runtime Attributes and AppBuilder Settings  *********** */
+/* ***************  Runtime Attributes and UIB Settings  ************** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR WINDOW W-Win
@@ -176,7 +162,7 @@ ASSIGN FRAME message-frame:FRAME = FRAME F-Main:HANDLE
        FRAME OPTIONS-FRAME:FRAME = FRAME F-Main:HANDLE.
 
 /* SETTINGS FOR FRAME F-Main
-   FRAME-NAME                                                           */
+                                                                        */
 
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
@@ -217,12 +203,24 @@ THEN W-Win:HIDDEN = yes.
  
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow.i}
+{src/adm/method/containr.i}
+{methods/template/windows.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 
 /* ************************  Control Triggers  ************************ */
 
 &Scoped-define SELF-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON END-ERROR OF W-Win /* Payment Types */
+ON END-ERROR OF W-Win /* WAREHOUSE TRANSACTIONS ADJUSTMENTS */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -235,7 +233,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON WINDOW-CLOSE OF W-Win /* Payment Types */
+ON WINDOW-CLOSE OF W-Win /* WAREHOUSE TRANSACTIONS ADJUSTMENTS */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
@@ -263,7 +261,7 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-create-objects W-Win  _ADM-CREATE-OBJECTS
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-create-objects W-Win _ADM-CREATE-OBJECTS
 PROCEDURE adm-create-objects :
 /*------------------------------------------------------------------------------
   Purpose:     Create handles for all SmartObjects used in this procedure.
@@ -279,19 +277,11 @@ PROCEDURE adm-create-objects :
 
     WHEN 0 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/f-add.w':U ,
-             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_f-add ).
-       RUN set-position IN h_f-add ( 1.00 , 8.20 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 7.80 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/smartmsg.w':U ,
              INPUT  FRAME message-frame:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_smartmsg ).
-       RUN set-position IN h_smartmsg ( 1.24 , 2.00 ) NO-ERROR.
+       RUN set-position IN h_smartmsg ( 1.00 , 72.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.14 , 32.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -299,78 +289,56 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_options ).
-       RUN set-position IN h_options ( 1.00 , 16.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 55.80 ) */
+       RUN set-position IN h_options ( 1.00 , 92.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 47.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/exit.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_exit ).
-       RUN set-position IN h_exit ( 1.00 , 72.00 ) NO-ERROR.
+       RUN set-position IN h_exit ( 1.00 , 141.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Browse Types|View Type' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse Adjust|View Adjust' + ',
                      FOLDER-TAB-TYPE = 1':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 21.67 , 90.00 ) NO-ERROR.
+       RUN set-size IN h_folder ( 21.67 , 148.00 ) NO-ERROR.
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
 
-       /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_options ,
-             h_f-add , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
-             h_options , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
-             FRAME message-frame:HANDLE , 'AFTER':U ).
     END. /* Page 0 */
+
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'browsers/paymenttype.w':U ,
+             INPUT  'browsers/rm-trans.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
-             OUTPUT h_payment-type ).
-       RUN set-position IN h_payment-type ( 4.81 , 4.60 ) NO-ERROR.
-       RUN set-size IN h_payment-type ( 19.52 , 84.00 ) NO-ERROR.
+             OUTPUT h_rm-trans ).
+       RUN set-position IN h_rm-trans ( 4.81 , 5.00 ) NO-ERROR.
+       /* Size in UIB:  ( 19.52 , 105.00 ) */
 
        /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
+       RUN init-pages IN THIS-PROCEDURE ('2') NO-ERROR.
 
-       /* Links to SmartNavBrowser h_payment-type. */
-       RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_payment-type ).
+       /* Links to SmartNavBrowser h_rm-trans. */
+       RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_rm-trans ).
 
-       /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_payment-type ,
-             h_folder , 'AFTER':U ).
     END. /* Page 1 */
+
     WHEN 2 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'viewers/paymenttype.w':U ,
+             INPUT  'viewers/rm-adj.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Initial-Lock = NO-LOCK,
-                     Hide-on-Init = no,
-                     Disable-on-Init = no,
-                     Layout = ,
-                     Create-On-Add = ?':U ,
-             OUTPUT h_paymenttype-2 ).
-       RUN set-position IN h_paymenttype-2 ( 6.48 , 11.00 ) NO-ERROR.
-       /* Size in UIB:  ( 2.62 , 64.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/p-updsav.r':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Edge-Pixels = 2,
-                     SmartPanelType = Update,
-                     AddFunction = One-Record':U ,
-             OUTPUT h_p-updsav ).
-       RUN set-position IN h_p-updsav ( 11.71 , 14.00 ) NO-ERROR.
-       RUN set-size IN h_p-updsav ( 2.14 , 56.00 ) NO-ERROR.
+             INPUT  'Layout = ':U ,
+             OUTPUT h_rm-adj ).
+       RUN set-position IN h_rm-adj ( 4.81 , 4.00 ) NO-ERROR.
+       /* Size in UIB:  ( 2.14 , 134.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/p-navico.r':U ,
@@ -379,23 +347,71 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = NAV-ICON,
                      Right-to-Left = First-On-Left':U ,
              OUTPUT h_p-navico ).
-       RUN set-position IN h_p-navico ( 16.00 , 22.00 ) NO-ERROR.
+       RUN set-position IN h_p-navico ( 6.95 , 4.00 ) NO-ERROR.
        RUN set-size IN h_p-navico ( 2.14 , 38.00 ) NO-ERROR.
 
-       /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'adm/objects/p-updsav.r':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Edge-Pixels = 2,
+                     SmartPanelType = Update,
+                     AddFunction = One-Record':U ,
+             OUTPUT h_p-updsav ).
+       RUN set-position IN h_p-updsav ( 6.95 , 47.00 ) NO-ERROR.
+       RUN set-size IN h_p-updsav ( 2.14 , 56.00 ) NO-ERROR.
 
-       /* Links to SmartViewer h_paymenttype-2. */
-       RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_paymenttype-2 ).
-       RUN add-link IN adm-broker-hdl ( h_payment-type , 'Record':U , h_paymenttype-2 ).
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'browsers/rm-rdtl3.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_rm-rdtl3 ).
+       RUN set-position IN h_rm-rdtl3 ( 9.10 , 4.00 ) NO-ERROR.
+       /* Size in UIB:  ( 8.10 , 98.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'adm/objects/p-navico.r':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Edge-Pixels = 2,
+                     SmartPanelType = NAV-ICON,
+                     Right-to-Left = First-On-Left':U ,
+             OUTPUT h_p-navico-2 ).
+       RUN set-position IN h_p-navico-2 ( 17.19 , 4.00 ) NO-ERROR.
+       RUN set-size IN h_p-navico-2 ( 2.14 , 38.00 ) NO-ERROR.
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'adm/objects/p-updsav.r':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Edge-Pixels = 2,
+                     SmartPanelType = Update,
+                     AddFunction = One-Record':U ,
+             OUTPUT h_p-updsav-2 ).
+       RUN set-position IN h_p-updsav-2 ( 17.19 , 47.00 ) NO-ERROR.
+       RUN set-size IN h_p-updsav-2 ( 2.14 , 56.00 ) NO-ERROR.
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/rm-rdtl3.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_rm-rdtl3-2 ).
+       RUN set-position IN h_rm-rdtl3-2 ( 19.33 , 4.00 ) NO-ERROR.
+       /* Size in UIB:  ( 3.57 , 98.00 ) */
+
+       /* Initialize other pages that this page requires. */
+       RUN init-pages IN THIS-PROCEDURE ('1') NO-ERROR.
+
+       /* Links to SmartViewer h_rm-adj. */
+       RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_rm-adj ).
+       RUN add-link IN adm-broker-hdl ( h_rm-trans , 'Record':U , h_rm-adj ).
+
+       /* Links to SmartNavBrowser h_rm-rdtl3. */
+       RUN add-link IN adm-broker-hdl ( h_p-navico-2 , 'Navigation':U , h_rm-rdtl3 ).
+       RUN add-link IN adm-broker-hdl ( h_rm-adj , 'Record':U , h_rm-rdtl3 ).
+
+       /* Links to SmartViewer h_rm-rdtl3-2. */
+       RUN add-link IN adm-broker-hdl ( h_p-updsav-2 , 'TableIO':U , h_rm-rdtl3-2 ).
+       RUN add-link IN adm-broker-hdl ( h_rm-rdtl3 , 'Record':U , h_rm-rdtl3-2 ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_paymenttype-2 ,
-             h_folder , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav ,
-             h_paymenttype-2 , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-navico ,
-             h_p-updsav , 'AFTER':U ).
     END. /* Page 2 */
 
   END CASE.
@@ -408,7 +424,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available W-Win  _ADM-ROW-AVAILABLE
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available W-Win _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
 /*------------------------------------------------------------------------------
   Purpose:     Dispatched to this procedure when the Record-
@@ -422,13 +439,13 @@ PROCEDURE adm-row-available :
   {src/adm/template/row-head.i}
 
   /* Create a list of all the tables that we need to get.            */
-  {src/adm/template/row-list.i "payment-type"}
+  {src/adm/template/row-list.i "rm-rcpt"}
 
   /* Get the record ROWID's from the RECORD-SOURCE.                  */
   {src/adm/template/row-get.i}
 
   /* FIND each record specified by the RECORD-SOURCE.                */
-  {src/adm/template/row-find.i "payment-type"}
+  {src/adm/template/row-find.i "rm-rcpt"}
 
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
@@ -439,7 +456,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI W-Win  _DEFAULT-DISABLE
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI W-Win _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -458,7 +476,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI W-Win  _DEFAULT-ENABLE
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI W-Win _DEFAULT-ENABLE
 PROCEDURE enable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     ENABLE the User Interface
@@ -481,25 +500,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-change-page W-Win 
-PROCEDURE local-change-page :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  {methods/winReSizePgChg.i}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit W-Win 
 PROCEDURE local-exit :
@@ -517,25 +517,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Select_Add W-Win 
-PROCEDURE Select_Add :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEF VAR char-hdl AS CHAR NO-UNDO.
-  
-   RUN select-page(2).
-   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"add-item-target", OUTPUT char-hdl).
-   RUN add-item IN WIDGET-HANDLE(char-hdl).
 
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records W-Win  _ADM-SEND-RECORDS
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records W-Win _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------
   Purpose:     Send record ROWID's for all tables used by
@@ -547,7 +530,7 @@ PROCEDURE send-records :
   {src/adm/template/snd-head.i}
 
   /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "payment-type"}
+  {src/adm/template/snd-list.i "rm-rcpt"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
@@ -556,6 +539,7 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed W-Win 
 PROCEDURE state-changed :
@@ -570,4 +554,5 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 

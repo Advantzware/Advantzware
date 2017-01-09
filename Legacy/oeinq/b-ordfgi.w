@@ -1588,7 +1588,7 @@ DO:
         NO-LOCK NO-ERROR.
 
    IF AVAIL usergrps AND
-      (NOT CAN-DO(usergrps.users,USERID("NOSWEAT")) AND
+      (NOT CAN-DO(usergrps.users,USERID("ASI")) AND
        TRIM(usergrps.users) NE "*") THEN
       fg-rdtlh.cost:VISIBLE IN BROWSE {&browse-name} = NO.
 END.
@@ -2076,7 +2076,7 @@ PROCEDURE update-record :
        b-reftb.reftable = "fg-rctd.user-id"
        b-reftb.company  = b-rcpth.company
        b-reftb.loc      = STRING(b-rcpth.r-no,"9999999999")
-       b-reftb.code     = USERID("nosweat").
+       b-reftb.code     = USERID("ASI").
     END.
 
     ASSIGN
@@ -2086,7 +2086,7 @@ PROCEDURE update-record :
      b-rcpth.job-no2     = INT(fg-rcpth.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
      b-rcpth.trans-date  = DATE(fg-rcpth.trans-date:SCREEN-VALUE IN BROWSE {&browse-name})
      b-rcpth.rita-code   = fg-rcpth.rita-code:SCREEN-VALUE IN BROWSE {&browse-name}
-     b-rcpth.update-by   = USERID("NOSWEAT")
+     b-rcpth.update-by   = USERID("ASI")
      b-rdtlh.cust-no     = fg-rdtlh.cust-no:SCREEN-VALUE IN BROWSE {&browse-name}
      b-rdtlh.loc         = fg-rdtlh.loc:SCREEN-VALUE IN BROWSE {&browse-name}
      b-rdtlh.loc-bin     = fg-rdtlh.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}

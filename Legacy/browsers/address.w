@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          nosweat          PROGRESS
+          asi          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
@@ -230,14 +230,14 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "NOSWEAT.address"
+     _TblList          = "ASI.address"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
      _Where[1]         = "address.table_rec_key = ip-rec_key"
-     _FldNameList[1]   = NOSWEAT.address.zipcode
-     _FldNameList[2]   = NOSWEAT.address.address1
-     _FldNameList[3]   = NOSWEAT.address.name1
-     _FldNameList[4]   = NOSWEAT.address.address_type
+     _FldNameList[1]   = ASI.address.zipcode
+     _FldNameList[2]   = ASI.address.address1
+     _FldNameList[3]   = ASI.address.name1
+     _FldNameList[4]   = ASI.address.address_type
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

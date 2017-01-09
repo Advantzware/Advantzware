@@ -10,7 +10,7 @@ DO i = 1 TO NUM-ENTRIES(g_groups):         /*entry(num-groups,g_groups) : gets e
   op-flag = yes.
   LEAVE.
 END.
-IF NOT CAN-DO(b-prgrms.can_{&ACCESSTYPE},USERID("NOSWEAT")) AND NOT op-flag THEN
+IF NOT CAN-DO(b-prgrms.can_{&ACCESSTYPE},USERID("ASI")) AND NOT op-flag THEN
 DO:
   /*MESSAGE "Security Access for this Function Denied!"
       VIEW-AS ALERT-BOX INFORMATION.*/

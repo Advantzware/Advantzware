@@ -798,7 +798,7 @@ PROCEDURE hold-release :
                 job.reason = ENTRY(1,char-hdl).                
             END.
             IF job.stat <> "H" THEN job.reason = "".
-            
+
             FIND CURRENT job NO-LOCK NO-ERROR.
 
             RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
@@ -1060,7 +1060,7 @@ DEFINE VARIABLE char-hdl AS cha NO-UNDO.
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
+  /* Code placed here will execute AFTER standard behavior.    */ 
   IF AVAILABLE job AND job.stat = "H" THEN DO: 
      FIND FIRST rejct-cd WHERE rejct-cd.type = "JH" 
                           AND rejct-cd.code = job.reason NO-LOCK NO-ERROR.
@@ -1621,10 +1621,10 @@ PROCEDURE unapprove :
    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.  
 
    IF v-unapp-security THEN DO:
-      IF USERID("nosweat") NE job.cs-user-id-t THEN DO:
+      IF USERID("ASI") NE job.cs-user-id-t THEN DO:
          FIND FIRST usergrps WHERE usergrps.usergrps = "JU2" NO-LOCK NO-ERROR.
          IF NOT AVAILABLE usergrps THEN DO:
-            MESSAGE "User ID: " USERID("nosweat") 
+            MESSAGE "User ID: " USERID("ASI") 
                     " did not approve this JOB and " SKIP
                     "there is no JU2 group override available." SKIP(1)
                     "Contact your system administrator."
@@ -1633,15 +1633,15 @@ PROCEDURE unapprove :
             RETURN NO-APPLY.        
          END. /* IF NOT AVAIL usergrps */
          ELSE IF AVAILABLE usergrps AND 
-                 NOT CAN-DO(usergrps.users,USERID("NOSWEAT")) THEN DO:
-            MESSAGE "User ID: " USERID("nosweat") 
+                 NOT CAN-DO(usergrps.users,USERID("ASI")) THEN DO:
+            MESSAGE "User ID: " USERID("ASI") 
                     " did not approve this JOB and " SKIP
                     "is not a memeber of the JU2 override group." SKIP(1)
                     "Contact your system administrator."
             VIEW-AS ALERT-BOX ERROR.
             RETURN NO-APPLY.
          END. /* ELSE IF AVAIL usergrps AND */
-      END. /* IF USERID("nosweat") NE job.USER-ID */
+      END. /* IF USERID("ASI") NE job.USER-ID */
    END. /* IF AVAIL sys-ctrl AND sys-ctrl.log-fld */
     
   IF AVAILABLE job THEN DO:
@@ -1902,7 +1902,7 @@ RUN sys/ref/CustList.p (INPUT cocode,
                             INPUT YES,
                             OUTPUT lActive).
 {sys/inc/chblankcust.i ""JU1""}
-  IF ou-log THEN DO:
+  IF ou-log THEN do:
     DO WITH FRAME {&FRAME-NAME}:
         job.est-no:SCREEN-VALUE = FILL(" ",8 - LENGTH(TRIM(INPUT job.est-no))) + TRIM(INPUT job.est-no).
 
@@ -1922,7 +1922,7 @@ RUN sys/ref/CustList.p (INPUT cocode,
             v-cust-chk = eb.cust-no .
         ELSE v-cust-chk = "" .
 
-     IF LOOKUP(v-cust-chk,custcount) = 0 THEN DO:
+     IF LOOKUP(v-cust-chk,custcount) = 0 THEN do:
           MESSAGE "Customer is not on Users Customer List.  "  SKIP
               "Please add customer to Network Admin - Users Customer List."  VIEW-AS ALERT-BOX ERROR.
           APPLY "entry" TO job.est-no .

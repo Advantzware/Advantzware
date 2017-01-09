@@ -331,7 +331,7 @@ FOR  EACH job-hdr NO-LOCK
             IF AVAILABLE job THEN
                 ASSIGN
                     job.pr-printed    = YES
-                    job.pr-user-id-p  = USERID("nosweat")
+                    job.pr-user-id-p  = USERID("ASI")
                     job.pr-print-date = TODAY
                     job.pr-print-time = TIME
                     li                = 1000.
@@ -370,14 +370,14 @@ FOR  EACH job-hdr NO-LOCK
                 IF NOT job.cs-printed THEN
                     ASSIGN
                         job.cs-printed    = YES
-                        job.cs-user-id-p  = USERID("nosweat")
+                        job.cs-user-id-p  = USERID("ASI")
                         job.cs-print-date = TODAY
                         job.cs-print-time = TIME.
          
                 IF approve THEN
                     ASSIGN
                         job.cs-to-pr      = YES
-                        job.cs-user-id-t  = USERID("nosweat")
+                        job.cs-user-id-t  = USERID("ASI")
                         job.cs-trans-date = TODAY
                         job.cs-trans-time = TIME.
             END.
@@ -549,7 +549,7 @@ FOR  EACH job-hdr NO-LOCK
         PUT "<B> Customer Name:</B>" v-cust-name FORM "x(25)" "<B>Acct Code:</B> " job-hdr.cust-no 
             "<B> REL. DATE:    QTY DUE:  PO#:         Customer Lot#:    Print Date:" SKIP
             " Shipto:</B>" v-shipto[1] SPACE(2) "Prev.Ord#:" v-per-ord v-ship-date[1] AT 65 v-due-qty[1] AT 75  v-po-no[1] FORMAT "x(12)" AT 89 v-cust-lot#[1] AT 102 FORM "x(15)" TODAY FORMAT "99/99/9999" AT 120 SKIP  
-            v-shipto[2] AT 9 SPACE(2) "MFG DATE:" v-due-date v-ship-date[2] AT 61 v-due-qty[2] AT 71 v-po-no[2] FORMAT "x(12)" AT 85 v-cust-lot#[2] AT 98 FORM "x(15)"  STRING(TIME,"HH:MM am/pm") AT 115 " by " USERID("nosweat")   SKIP  
+            v-shipto[2] AT 9 SPACE(2) "MFG DATE:" v-due-date v-ship-date[2] AT 61 v-due-qty[2] AT 71 v-po-no[2] FORMAT "x(12)" AT 85 v-cust-lot#[2] AT 98 FORM "x(15)"  STRING(TIME,"HH:MM am/pm") AT 115 " by " USERID("ASI")   SKIP  
             v-shipto[3] AT 9 "<B>QC/SPC#</B>:" AT 41 v-spc-no  FORMAT "x(10)" SPACE(2) v-ship-date[3] SPACE(2) 
             v-due-qty[3] SPACE(3) v-po-no[3] FORMAT "x(12)" SPACE(1) v-cust-lot#[3] FORMAT "x(15)" SPACE(3) "<B>Estimate:</B>" /*AT 116*/  SKIP 
             v-shipto[4] AT 9 "Pharma Code:" AT 41 v-upc-no  /*v-ship-date[4] AT 61 v-due-qty[4] AT 71 v-po-no[4] FORM "x(12)" AT 85 v-cust-lot#[4]  AT 98 FORM "x(15)"*/ TRIM(job-hdr.est-no) AT 116 SKIP 

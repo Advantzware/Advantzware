@@ -139,7 +139,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY*/
+DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -409,11 +409,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -585,6 +581,7 @@ DO:
   SESSION:SET-WAIT-STATE("general").
   RUN GetSelectionList.
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
+  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
   IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
@@ -1088,6 +1085,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT 'IR3',
                           INPUT NO,
                           OUTPUT glCustListActive).
+  {sys/inc/chblankcust.i}
   {sys/inc/chblankcust.i ""IR3""}
 
   IF ou-log THEN DO:
@@ -1635,6 +1633,7 @@ ASSIGN
  /*v-prt-cost   = rd_ext-cst EQ "Cost"*/
  v-custown    = tb_cust-whse
  v-sort-by    = tb_sort
+ v-zero       = tb_zero.
  v-zero       = tb_zero
  lSelected    = tb_cust-list .
 
@@ -1686,8 +1685,20 @@ SESSION:SET-WAIT-STATE ("general").
    v-label2    = if v-prt-cost then
                    "          COST" else "         VALUE".
 
+/*IF tb_excel THEN DO:
+  OUTPUT STREAM excel TO VALUE(fi_file).
+  excelheader = "FG ITEM#,DESCRIPTION,PROD CAT,UOM," + TRIM(v-label1[1]) +
+                " " + TRIM(v-label1[2]) + ",SELLING PRICE,ON HAND,ON ORDER," +
+                "CUSTOMER ORDERS,QTY AVAIL,TOTAL " + TRIM(v-label2).
+  PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
+END.*/
+                   
  /* if not v-sho-cost then v-label1 = "".*/
   v-qty-aval = 0 .
+  FOR EACH ttCustList 
+    WHERE ttCustList.log-fld
+    NO-LOCK,
+      each itemfg
 
   IF lselected THEN DO:
       FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
@@ -1700,6 +1711,8 @@ SESSION:SET-WAIT-STATE ("general").
       where itemfg.company eq cocode
         and itemfg.i-no    ge v-i-no[1]
         and itemfg.i-no    le v-i-no[2]
+        and itemfg.cust-no EQ ttCustList.cust-no /*v-cust[1]
+        and itemfg.cust-no le v-cust[2]*/
         and itemfg.cust-no GE v-cust[1]
         and itemfg.cust-no le v-cust[2]
         AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq itemfg.cust-no

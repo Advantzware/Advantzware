@@ -125,7 +125,7 @@ FUNCTION GetFieldValue RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -389,11 +389,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -581,6 +577,7 @@ DO:
  RUN GetSelectionList.
  
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
+  IF NOT tb_cust-list OR NOT AVAIL ttCustList THEN do:
   IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
@@ -1514,6 +1511,7 @@ def var v-sort as log format "Yes/No" init no.
 DEF VAR excelheader AS CHAR NO-UNDO.
 DEF VAR v-inv-no  AS INT NO-UNDO.
 DEF VAR v-inv-date AS CHAR NO-UNDO.
+
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 
 SESSION:SET-WAIT-STATE ("general").
@@ -1528,6 +1526,7 @@ assign
  ttype    = end_cust-type
  fsman    = begin_slsmn
  tsman    = end_slsmn
+ v-sort   = rd_sort EQ "N".
  v-sort   = rd_sort EQ "N"
  lSelected  = tb_cust-list.
 
@@ -1575,8 +1574,13 @@ IF tb_show-parm THEN RUN show-param.
 
 DISPLAY str-tit WITH FRAME r-top.
 
+FOR EACH ttCustList
+       WHERE ttCustList.log-fld
+       NO-LOCK,
+   EACH cust
 FOR EACH cust
     WHERE cust.company     EQ cocode
+      AND cust.cust-no     EQ ttCustList.cust-no /*fcust*/
       AND cust.cust-no GE fcust
       AND cust.cust-no LE tcust
       AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no

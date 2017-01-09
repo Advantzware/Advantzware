@@ -22,13 +22,9 @@ FOR EACH mch-act NO-LOCK
         FIND FIRST job-hdr WHERE job-hdr.company = mch-act.company
                                          AND job-hdr.job-no = mch-act.job-no
                                          AND job-hdr.job-no2 = mch-act.job-no2
-					 AND job-hdr.cust-no GE fcust
-			                 AND job-hdr.cust-no LE tcust
-                                         AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq job-hdr.cust-no
-                                         AND ttCustList.log-fld no-lock) else true)
                                          AND job-hdr.frm = mch-act.frm NO-LOCK NO-ERROR.
 
-        /*IF AVAIL job-hdr AND lookup(job-hdr.cust,v-checkcust) EQ 0 THEN NEXT .*/
+        IF AVAIL job-hdr AND lookup(job-hdr.cust,v-checkcust) EQ 0 THEN NEXT .
      
      IF NOT ((tb_sched                     AND
               mach.sch-m-code NE ""        AND
@@ -447,7 +443,7 @@ FOR EACH mch-act NO-LOCK
           chExcelApplication:Goto(v-cell) NO-ERROR.
           ASSIGN chExcelApplication:ActiveCell:Value = STRING(dt-eff,"->>9.99").
          
-          ASSIGN v-cell = "R" + STRING(inrowcount) + "C16".
+          ASSIGN v-cell = "R" + STRING(inrowcount) + "16".
           chExcelApplication:Goto(v-cell) NO-ERROR.
           ASSIGN chExcelApplication:ActiveCell:Value = STRING(tt-srt.qty-prod,"->,>>>,>>9")  .
 

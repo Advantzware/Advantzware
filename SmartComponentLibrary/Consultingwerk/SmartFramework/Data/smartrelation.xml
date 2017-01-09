@@ -1,0 +1,123 @@
+<?xml version="1.0"?>
+<dsRelation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <eSmartRelation>
+    <RelationGuid>98a99d17-3b9c-659a-e013-924a44083207</RelationGuid>
+    <ParentTableGUID>98a99d17-3b9c-659a-e013-8e4a27e6f64b</ParentTableGUID>
+    <ParentTableName>SmartDB.SmartProduct</ParentTableName>
+    <ChildTableGUID>db2075a5-f925-d997-e211-273b01a96923</ChildTableGUID>
+    <ChildTableName>SmartDB.SmartModule</ChildTableName>
+    <RelationName>Product of Module</RelationName>
+    <RelationDescription/>
+    <RelationFieldPair>ProductGuid,ProductGuid</RelationFieldPair>
+    <ParentRoleDescription>Owning Product</ParentRoleDescription>
+    <ChildRoleDescription>Module in Product</ChildRoleDescription>
+    <ParentCardinality>1</ParentCardinality>
+    <ChildCardinality>01n</ChildCardinality>
+    <OnParentDelete>Restrict</OnParentDelete>
+    <DefaultParentRelation>true</DefaultParentRelation>
+    <SmartAttachments>false</SmartAttachments>
+    <SmartComments>false</SmartComments>
+    <SmartRecordKey>98a99d17-3b9c-659a-e013-924a44083207</SmartRecordKey>
+    <Inactive>false</Inactive>
+  </eSmartRelation>
+  <eSmartRelation>
+    <RelationGuid>b31a6e7b-1d39-7a80-e211-559f0fc6834b</RelationGuid>
+    <ParentTableGUID>db2075a5-f925-d997-e211-273b5de35b25</ParentTableGUID>
+    <ParentTableName>sports2000.Order</ParentTableName>
+    <ChildTableGUID>db2075a5-f925-d997-e211-273b6c0a5c25</ChildTableGUID>
+    <ChildTableName>sports2000.OrderLine</ChildTableName>
+    <RelationName>Order - OrderLine</RelationName>
+    <RelationDescription>Orderline has orders</RelationDescription>
+    <RelationFieldPair>OrderNum,OrderNum</RelationFieldPair>
+    <ParentRoleDescription>Is header of</ParentRoleDescription>
+    <ChildRoleDescription>Belongs to</ChildRoleDescription>
+    <ParentCardinality>1</ParentCardinality>
+    <ChildCardinality>01n</ChildCardinality>
+    <OnParentDelete>Cascade</OnParentDelete>
+    <DefaultParentRelation>true</DefaultParentRelation>
+    <SmartAttachments>false</SmartAttachments>
+    <SmartComments>false</SmartComments>
+    <SmartRecordKey>b31a6e7b-1d39-7a80-e211-559f0fc6834b</SmartRecordKey>
+    <Inactive>false</Inactive>
+  </eSmartRelation>
+  <eSmartRelation>
+    <RelationGuid>b31a6e7b-1d39-7a80-e211-559f2c980f22</RelationGuid>
+    <ParentTableGUID>db2075a5-f925-d997-e211-273b1a475b25</ParentTableGUID>
+    <ParentTableName>sports2000.Customer</ParentTableName>
+    <ChildTableGUID>db2075a5-f925-d997-e211-273b5de35b25</ChildTableGUID>
+    <ChildTableName>sports2000.Order</ChildTableName>
+    <RelationName>Customer - Order</RelationName>
+    <RelationDescription>Order belongs to a customer</RelationDescription>
+    <RelationFieldPair>CustNum,CustNum</RelationFieldPair>
+    <ParentRoleDescription>Has ordered</ParentRoleDescription>
+    <ChildRoleDescription>Belongs to</ChildRoleDescription>
+    <ParentCardinality>1</ParentCardinality>
+    <ChildCardinality>01n</ChildCardinality>
+    <OnParentDelete>Restrict</OnParentDelete>
+    <DefaultParentRelation>true</DefaultParentRelation>
+    <SmartAttachments>false</SmartAttachments>
+    <SmartComments>false</SmartComments>
+    <SmartRecordKey>b31a6e7b-1d39-7a80-e211-559f2c980f22</SmartRecordKey>
+    <Inactive>false</Inactive>
+  </eSmartRelation>
+  <eSmartRelation>
+    <RelationGuid>b31a6e7b-1d39-7a80-e211-559f77dce50d</RelationGuid>
+    <ParentTableGUID>db2075a5-f925-d997-e211-273b7e315c25</ParentTableGUID>
+    <ParentTableName>sports2000.Salesrep</ParentTableName>
+    <ChildTableGUID>db2075a5-f925-d997-e211-273b1a475b25</ChildTableGUID>
+    <ChildTableName>sports2000.Customer</ChildTableName>
+    <RelationName>Customer - SalesRep</RelationName>
+    <RelationDescription>Salesrep manages customer accounts</RelationDescription>
+    <RelationFieldPair>SalesRep,SalesRep</RelationFieldPair>
+    <ParentRoleDescription>Maintains Customer</ParentRoleDescription>
+    <ChildRoleDescription>Is Customer of</ChildRoleDescription>
+    <ParentCardinality>1</ParentCardinality>
+    <ChildCardinality>01n</ChildCardinality>
+    <OnParentDelete>Restrict</OnParentDelete>
+    <DefaultParentRelation>true</DefaultParentRelation>
+    <SmartAttachments>false</SmartAttachments>
+    <SmartComments>false</SmartComments>
+    <SmartRecordKey>b31a6e7b-1d39-7a80-e211-559f77dce50d</SmartRecordKey>
+    <Inactive>false</Inactive>
+  </eSmartRelation>
+  <eSmartRelation>
+    <RelationGuid>b31a6e7b-1d39-7a80-e211-559fc46b3b68</RelationGuid>
+    <ParentTableGUID>db2075a5-f925-d997-e211-273b4cbc5b25</ParentTableGUID>
+    <ParentTableName>sports2000.Item</ParentTableName>
+    <ChildTableGUID>db2075a5-f925-d997-e211-273b6c0a5c25</ChildTableGUID>
+    <ChildTableName>sports2000.OrderLine</ChildTableName>
+    <RelationName>Item - OrderLine</RelationName>
+    <RelationDescription>OrderLine is for an item</RelationDescription>
+    <RelationFieldPair>ItemNum,ItemNum</RelationFieldPair>
+    <ParentRoleDescription>Is ordered item</ParentRoleDescription>
+    <ChildRoleDescription>Orderline for</ChildRoleDescription>
+    <ParentCardinality>1</ParentCardinality>
+    <ChildCardinality>01n</ChildCardinality>
+    <OnParentDelete>Restrict</OnParentDelete>
+    <DefaultParentRelation>false</DefaultParentRelation>
+    <SmartAttachments>false</SmartAttachments>
+    <SmartComments>false</SmartComments>
+    <SmartRecordKey>b31a6e7b-1d39-7a80-e211-559fc46b3b68</SmartRecordKey>
+    <Inactive>false</Inactive>
+  </eSmartRelation>
+  <eSmartRelation>
+    <RelationGuid>bbdd4246-9669-f89f-e113-d90c20f328f3</RelationGuid>
+    <ParentTableGUID>fa198054-18bb-7994-e211-a7f869a044ad</ParentTableGUID>
+    <ParentTableName>SmartDB.SmartSecurityRealm</ParentTableName>
+    <ChildTableGUID>fa198054-18bb-7994-e211-a7f867a044ad</ChildTableGUID>
+    <ChildTableName>SmartDB.SmartSecurityAssignment</ChildTableName>
+    <RelationName>SmartSecurityToken - SmartSecurityAssingment Relation</RelationName>
+    <RelationDescription/>
+    <RelationFieldPair>SecurityRealmGuid,SecurityRealmGuid</RelationFieldPair>
+    <ParentRoleDescription>Realm</ParentRoleDescription>
+    <ChildRoleDescription>Security Assignment in Realm</ChildRoleDescription>
+    <ParentCardinality>1</ParentCardinality>
+    <ChildCardinality>01n</ChildCardinality>
+    <OnParentDelete>Restrict</OnParentDelete>
+    <DefaultParentRelation>false</DefaultParentRelation>
+    <SmartAttachments>false</SmartAttachments>
+    <SmartComments>false</SmartComments>
+    <SmartRecordKey>bbdd4246-9669-f89f-e113-d90c20f328f3</SmartRecordKey>
+    <Inactive>false</Inactive>
+  </eSmartRelation>
+</dsRelation>

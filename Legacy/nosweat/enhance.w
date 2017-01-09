@@ -548,7 +548,7 @@ ON CHOOSE OF Btn_Reset IN FRAME FRAME-A /* Reset */
 DO:
   IF prgm-name = "" THEN
   DO:
-    FIND users WHERE users.user_id = USERID("NOSWEAT") NO-LOCK.
+    FIND users WHERE users.user_id = USERID("ASI") NO-LOCK.
     DO k = 1 TO 13:
       ASSIGN
         w-bgc[k] = users.widget_bgc[k]
@@ -630,7 +630,7 @@ DO:
     use_colors.
   IF prgm-name = "" THEN
   DO:
-    FIND users WHERE users.user_id = USERID("NOSWEAT") EXCLUSIVE-LOCK.
+    FIND users WHERE users.user_id = USERID("ASI") EXCLUSIVE-LOCK.
     DO k = 1 TO 13:
       ASSIGN
         users.widget_bgc[k] = w-bgc[k]
@@ -1097,7 +1097,7 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   ASSIGN 
-    {&WINDOW-NAME}:TITLE = IF prgm-name = "" THEN "User '" + USERID("NOSWEAT")
+    {&WINDOW-NAME}:TITLE = IF prgm-name = "" THEN "User '" + USERID("ASI")
                                 ELSE "Program '" + prgm-name
     {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + "' Font and Color Settings".
   widget-fonts:DELIMITER = "@".

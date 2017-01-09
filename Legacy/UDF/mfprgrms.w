@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v9r12 GUI
 &ANALYZE-RESUME
 /* Connected Databases 
-          nosweat          PROGRESS
+          ASI          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &Scoped-define FRAME-NAME Dialog-Frame
@@ -256,15 +256,15 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttblMFPrgrms WHERE ttblMFPrgrms.mfgroup EQ ipMF
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE browsePrgrms
 /* Query rebuild information for BROWSE browsePrgrms
-     _TblList          = "nosweat.prgrms"
+     _TblList          = "ASI.prgrms"
      _Options          = "NO-LOCK INDEXED-REPOSITION"
      _Where[1]         = "(prgrms.prgmname BEGINS srchPrgmName OR
 srchPrgmName EQ """") AND
 (prgrms.prgTitle BEGINS srchPrgTitle OR
 srchPrgTitle EQ """")"
-     _FldNameList[1]   > nosweat.prgrms.prgmname
+     _FldNameList[1]   > ASI.prgrms.prgmname
 "prgrms.prgmname" ? "X(20)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[2]   = nosweat.prgrms.prgtitle
+     _FldNameList[2]   = ASI.prgrms.prgtitle
      _Query            is OPENED
 */  /* BROWSE browsePrgrms */
 &ANALYZE-RESUME

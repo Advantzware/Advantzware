@@ -66,7 +66,7 @@ DEFINE VARIABLE vstatus-desc AS CHAR INITIAL "Approve,New,Hold,Close,Close,Close
 ASSIGN cTextListToSelect = "JOB#,S,B,DUE DATE,CUSTOMER ID,BOARD CODE,SHEET WIDTH,SHEET LENGTH,SHEETS,LBS,LF," +
                            "JOB HOLD REASON,ORDER STATUS"
        cFieldListToSelect = "job,sn,bn,date,cust,board,s-wid,s-len,sheet,lbs,lf,job-rson,ord-sts" 
-                            
+                           
        cFieldLength = "9,3,3,10,11,14,11,12,11,11,11,15,12" 
        cFieldType = "c,i,i,c,c,c,i,i,i,i,i,c,c"  
     .
@@ -382,11 +382,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 

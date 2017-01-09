@@ -7,12 +7,12 @@ IF NOT AVAIL reftable THEN
    FIND FIRST reftable WHERE reftable.reftable EQ "POUserid"
                       AND reftable.company  EQ cocode
                       AND reftable.loc      EQ STRING(po-ord.po-no)
-                      AND reftable.code = USERID('nosweat')
+                      AND reftable.code = USERID("ASI")
                       NO-LOCK NO-ERROR.
 IF NOT AVAIL reftable THEN DO :
    CREATE reftable.
    ASSIGN reftable.reftable = "POUserid"
           reftable.company = cocode
           reftable.loc = STRING(po-ord.po-no)
-          reftable.code = USERID('nosweat').
+          reftable.code = USERID("ASI").
 END.

@@ -28,7 +28,7 @@
 &IF DEFINED(UIB_is_Running) = 0 &THEN
 DEFINE INPUT-OUTPUT PARAMETER m_file AS CHARACTER NO-UNDO.
 &ELSE
-DEFINE VARIABLE m_file AS CHARACTER INITIAL "NOSWEAT.prgmmstr" NO-UNDO.
+DEFINE VARIABLE m_file AS CHARACTER INITIAL "ASI.prgmmstr" NO-UNDO.
 &ENDIF
 
 /* Local Variable Definitions ---                                       */

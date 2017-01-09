@@ -246,6 +246,17 @@ ASSIGN
  
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB s-object 
+/* ************************* Included-Libraries *********************** */
+
+{src/adm/method/smart.i}
+{methods/enhance.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 
 /* ************************  Control Triggers  ************************ */
 

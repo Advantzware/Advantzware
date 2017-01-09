@@ -609,7 +609,7 @@ PROCEDURE local-assign-statement :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-statement':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  IF USERID('nosweat') = "asi" AND AVAIL rfidtag AND
+  IF USERID("ASI") = "asi" AND AVAIL rfidtag AND
      rfidtag.rfidtag <> rfidtag.rfidtag:SCREEN-VALUE IN FRAME {&FRAME-NAME}
      THEN DO:
      FIND FIRST bfRfid WHERE bfRfid.company = rfidtag.company
@@ -712,7 +712,7 @@ PROCEDURE post-enable :
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"loadtag-source",OUTPUT char-hdl).
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
      RUN disable-all IN WIDGET-HANDLE(char-hdl).
-  IF USERID('nosweat') = "asi" AND AVAIL rfidtag THEN
+  IF USERID("ASI") = "asi" AND AVAIL rfidtag THEN
      ASSIGN rfidtag.rfidtag:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
 
 END PROCEDURE.
