@@ -347,7 +347,7 @@ END.
              END.
 
          
-    IF i EQ 0 THEN DO:
+    /*IF i EQ 0 THEN DO:
       FIND FIRST b-cust
       WHERE b-cust.company EQ cocode
       AND b-cust.active  EQ "X"
@@ -368,7 +368,7 @@ END.
          
         END.
       END.
-    END.
+    END.*/
 
     IF i = 0 THEN do:
           create tt-bin-file.
@@ -546,7 +546,7 @@ FOR EACH tt-item NO-LOCK:
       
     END.
     
-    IF i EQ 0 THEN DO:
+   /* IF i EQ 0 THEN DO:
       FIND FIRST b-cust
       WHERE b-cust.company EQ cocode
       AND b-cust.active  EQ "X"
@@ -565,7 +565,7 @@ FOR EACH tt-item NO-LOCK:
           w-bin.w-date-time = "29991201000000".
         END.
       END.
-    END.
+    END.*/
    
     DO i = i TO 7:
       CREATE w-bin.
