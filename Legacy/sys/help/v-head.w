@@ -111,7 +111,7 @@ DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 144 BY 17.14.
 
-DEFINE VARIABLE tb_re-view AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_re-view AS LOGICAL INITIAL NO 
      LABEL "Reviewed?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
@@ -140,7 +140,7 @@ DEFINE FRAME F-Main
      hlp-head.FRM-NAME AT ROW 3.14 COL 78 COLON-ALIGNED FORMAT "x(30)"
           VIEW-AS FILL-IN 
           SIZE 45 BY 1
-     hlp-head.help-txt AT ROW 4.57 COL 29 NO-LABEL
+     hlp-head.help-txt AT ROW 4.57 COL 29 NO-LABELS
           VIEW-AS EDITOR SCROLLBAR-VERTICAL
           SIZE 115 BY 13.1
      "Help Contents:" VIEW-AS TEXT
@@ -369,15 +369,15 @@ PROCEDURE local-create-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  def buffer bf-hlp for hlp-head.
-  def var li-next-num as int no-undo.
+  DEFINE BUFFER bf-hlp FOR hlp-head.
+  DEFINE VARIABLE li-next-num AS INTEGER NO-UNDO.
   
-  find last bf-hlp use-index mess-num no-lock no-error.
-  if avail bf-hlp then li-next-num = bf-hlp.msg-num + 1.
-  else li-next-num = 1.
+  FIND LAST bf-hlp USE-INDEX mess-num NO-LOCK NO-ERROR.
+  IF AVAILABLE bf-hlp THEN li-next-num = bf-hlp.msg-num + 1.
+  ELSE li-next-num = 1.
   
   hlp-head.msg-num = li-next-num.
-  display hlp-head.msg-num with frame {&frame-name}.
+  DISPLAY hlp-head.msg-num WITH FRAME {&frame-name}.
   
 END PROCEDURE.
 
@@ -391,13 +391,13 @@ PROCEDURE local-delete-record :
   Notes:       
 ------------------------------------------------------------------------------*/
     /* mod - sewa for Web Services task 08211210 */
-    DEF VAR msg-num AS CHAR NO-UNDO.
-    DEF VAR vconn AS CHAR  NO-UNDO.
+    DEFINE VARIABLE msg-num AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE vconn AS CHARACTER  NO-UNDO.
     DEFINE VARIABLE vhWebService AS HANDLE NO-UNDO.
     DEFINE VARIABLE vhSalesSoap AS HANDLE NO-UNDO.
     DEFINE VARIABLE parameters1 AS LONGCHAR NO-UNDO.
     /*mod -sewa */
-    ASSIGN msg-num = string(hlp-head.MSG-NUM) .   /*mod- sewa*/
+    ASSIGN msg-num = STRING(hlp-head.MSG-NUM) .   /*mod- sewa*/
   /* Code placed here will execute PRIOR to standard behavior. */
   {methods/template/local/delete.i}
 
@@ -412,9 +412,9 @@ PROCEDURE local-delete-record :
   {methods/template/local/deleteAfter.i}
 
   /* mod - sewa for Web Services task 08211210 */
-   find first sys-ctrl  WHERE sys-ctrl.name    eq "UpdateService"
-        no-lock no-error.
-  IF AVAIL sys-ctrl THEN
+   FIND FIRST sys-ctrl  WHERE sys-ctrl.name    EQ "UpdateService"
+        NO-LOCK NO-ERROR.
+  IF AVAILABLE sys-ctrl THEN
       ASSIGN vconn = sys-ctrl.char-fld .
   ELSE
       vconn = "".
@@ -425,9 +425,9 @@ PROCEDURE local-delete-record :
     IF NOT vhWebService:CONNECTED() THEN DO:
     STOP.
     END.
-    IF msg-num <> "" THEN do:
+    IF msg-num <> "" THEN DO:
         RUN Service1Soap SET vhSalesSoap ON vhWebService .
-        RUN HelpDelete IN vhSalesSoap(INPUT string(msg-num),  OUTPUT parameters1).
+        RUN HelpDelete IN vhSalesSoap(INPUT STRING(msg-num),  OUTPUT parameters1).
         msg-num = "".
 
     END. /*msg-num <> ""*/
@@ -447,7 +447,7 @@ PROCEDURE local-display-fields :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  IF AVAIL hlp-head THEN DO:
+  IF AVAILABLE hlp-head THEN DO:
       tb_re-view = IF hlp-head.reviewstatus = "R" THEN TRUE ELSE FALSE . 
       tb_re-view:SCREEN-VALUE IN FRAME {&FRAME-NAME} = IF hlp-head.reviewstatus = "R" THEN "Yes" ELSE "No" .
   END.
@@ -472,29 +472,29 @@ PROCEDURE local-update-record :
   Notes:       
 ------------------------------------------------------------------------------*/
 /* mod - sewa for Web Services task 08211210 */
-    DEF VAR vconn AS CHAR  NO-UNDO.
+    DEFINE VARIABLE vconn AS CHARACTER  NO-UNDO.
     DEFINE VARIABLE vhWebService AS HANDLE NO-UNDO.
     DEFINE VARIABLE vhSalesSoap AS HANDLE NO-UNDO.
     DEFINE VARIABLE parameters1 AS LONGCHAR NO-UNDO.
 /*mod - sewa*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  session:set-wait-state("general").
+  SESSION:SET-WAIT-STATE("general").
   
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  session:set-wait-state("").
+  SESSION:SET-WAIT-STATE("").
   
   DO WITH FRAME {&FRAME-NAME}:
     DISABLE tb_re-view .
   END.
 /* mod - sewa for Web Services task 08211210 */
   
-find first sys-ctrl  WHERE sys-ctrl.name    eq "UpdateService"
-        no-lock no-error.
-  IF AVAIL sys-ctrl THEN
+FIND FIRST sys-ctrl  WHERE sys-ctrl.name    EQ "UpdateService"
+        NO-LOCK NO-ERROR.
+  IF AVAILABLE sys-ctrl THEN
       ASSIGN vconn = sys-ctrl.char-fld .
   ELSE
       vconn = "".
@@ -509,7 +509,7 @@ find first sys-ctrl  WHERE sys-ctrl.name    eq "UpdateService"
 
       RUN Service1Soap SET vhSalesSoap ON vhWebService .
 
-      RUN HelpInsert IN vhSalesSoap(INPUT string(hlp-head.MSG-NUM),INPUT STRING(hlp-head.FLD-NAME),INPUT STRING(hlp-head.FRM-TITLE),INPUT string(hlp-head.FIL-NAME),INPUT STRING(hlp-head.FRM-NAME),INPUT STRING(hlp-head.help-txt),  OUTPUT parameters1).
+      RUN HelpInsert IN vhSalesSoap(INPUT STRING(hlp-head.MSG-NUM),INPUT STRING(hlp-head.FLD-NAME),INPUT STRING(hlp-head.FRM-TITLE),INPUT STRING(hlp-head.FIL-NAME),INPUT STRING(hlp-head.FRM-NAME),INPUT STRING(hlp-head.help-txt),  OUTPUT parameters1).
 /* mod- sewa */
               
 END PROCEDURE.
