@@ -148,6 +148,10 @@ DEFINE VARIABLE lvrOeOrd          AS ROWID            NO-UNDO.
 DEFINE VARIABLE lvlReturnNoApply  AS LOGICAL          NO-UNDO.
 DEFINE VARIABLE lvlReturnCancel   AS LOGICAL          NO-UNDO.
 DEFINE VARIABLE gvlCheckOrdStat   AS LOGICAL     NO-UNDO.
+DEFINE STREAM sTmpSaveInfo.
+DEFINE VARIABLE cTmpSaveFile AS CHARACTER NO-UNDO.
+cTmpSaveFile = "logs/UpdRel" + STRING(TODAY, "999999") + STRING(TIME, "999999") + USERID("nosweat") + ".txt".
+
 /* Just for compatibility with b-relbol.w, not used */
 DEFINE VARIABLE v-job-qty AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
      LABEL "Job Qty" 
@@ -557,6 +561,17 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL scr-rel# B-table-Win
+ON NEXT-FRAME OF scr-rel# IN FRAME F-Main /* Release# */
+DO:
+  RUN restoreSavedRecs.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &UNDEFINE SELF-NAME
@@ -1078,6 +1093,32 @@ END.
 
 
 /* **********************  Internal Procedures  *********************** */
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE restoreSavedRecs B-table-Win
+PROCEDURE restoreSavedRecs:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+RUN addon\bol\relfileselect.w (INPUT "updrel*", OUTPUT cTmpSaveFile).
+
+INPUT STREAM sTmpSaveInfo FROM VALUE(cTmpSaveFile).
+REPEAT:
+    CREATE tt-relbol. 
+    IMPORT STREAM sTmpSaveInfo tt-relbol except tt-relbol.oerell-row rowid. 
+     
+END.
+INPUT STREAM sTmpSaveInfo CLOSE.
+
+RUN dispatch ('open-query').
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available B-table-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
@@ -2395,7 +2436,12 @@ PROCEDURE local-update-record :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
-
+  
+  /* Save to .txt file just in case data is lost */
+  OUTPUT STREAM sTmpSaveInfo TO VALUE(cTmpSaveFile).
+  EXPORT STREAM sTmpSaveInfo tt-relbol EXCEPT oerell-row rowid.
+  OUTPUT STREAM sTmpSaveInfo CLOSE. 
+  
   /* Saves values outside of this session */
   RUN update-ssrelbol.
 

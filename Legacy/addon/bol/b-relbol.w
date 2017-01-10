@@ -31,6 +31,10 @@ CREATE WIDGET-POOL.
 ASSIGN cocode = g_company
        locode = g_loc.
 
+DEFINE STREAM sTmpSaveInfo.
+DEFINE VARIABLE cTmpSaveFile AS CHARACTER NO-UNDO.
+cTmpSaveFile = "logs/Relbol" + STRING(TODAY, "999999") + STRING(TIME, "999999") + USERID("nosweat") + ".txt".
+
 {oe/oe-relp1.i NEW}
 
 DEF NEW SHARED BUFFER xoe-relh FOR oe-relh.
@@ -663,6 +667,11 @@ DO:
     RETURN .
 END.
 
+ON 'F6':U OF BROWSE {&browse-name} /* tt-relbol.release# */
+DO:
+    RUN restoreSavedRecs.
+END.
+
 ON 'leave':U OF tt-relbol.tag#
 DO:
    /* check release qty for the item */
@@ -1044,6 +1053,7 @@ END.
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
 
+
 IF TRIM(ssbolscan-cha) EQ "" THEN
 DO:
     hBrowse = BROWSE br_table:HANDLE.
@@ -1065,6 +1075,32 @@ DO:
 
 
 /* **********************  Internal Procedures  *********************** */
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE restoreSavedRecs B-table-Win
+PROCEDURE restoreSavedRecs:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+RUN addon\bol\relfileselect.w (INPUT "relbol*", OUTPUT cTmpSaveFile).
+
+INPUT STREAM sTmpSaveInfo FROM VALUE(cTmpSaveFile).
+REPEAT:
+    CREATE tt-relbol. 
+    IMPORT STREAM sTmpSaveInfo tt-relbol except tt-relbol.oerell-row . 
+     
+END.
+INPUT STREAM sTmpSaveInfo CLOSE.
+
+RUN dispatch ('open-query').
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available B-table-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
@@ -2322,6 +2358,11 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  
+  OUTPUT STREAM sTmpSaveInfo TO VALUE(cTmpSaveFile).
+  EXPORT STREAM sTmpSaveInfo tt-relbol EXCEPT oerell-row.
+  OUTPUT STREAM sTmpSaveInfo CLOSE. 
+  
   v-prev-rowid = ROWID(tt-relbol).
 
   RUN display-qtys.
