@@ -25,7 +25,7 @@
 
 DISPLAY
   usergrps.usergrps
-  usergrps.users format "x(160)" VIEW-AS TEXT.
+  usergrps.users format "x(300)" VIEW-AS TEXT.
 
 {methods/lstlogic/shownote.i &db_table="usergrps" &col="5" &frame-name="f-notes"}
 {methods/lstlogic/showmisc.i &db_table="usergrps" &col="5" &frame-name="f-miscflds"}
