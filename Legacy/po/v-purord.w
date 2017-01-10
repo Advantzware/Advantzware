@@ -1432,8 +1432,9 @@ PROCEDURE local-assign-record :
    po-ord.ship-no = lv-ship-no
    po-ord.cust-no = ls-drop-custno .
   DO WITH FRAME {&FRAME-NAME} :
-      IF po-ord.stat:SCREEN-VALUE NE "C" THEN
-          po-ord.stat    = "H" .
+     IF trim(v-postatus-cha) = "Hold" THEN
+         IF po-ord.stat:SCREEN-VALUE NE "C" THEN
+             po-ord.stat    = "H" .
   END.
 
   /* 10021210 */
