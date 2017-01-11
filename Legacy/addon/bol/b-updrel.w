@@ -1102,15 +1102,15 @@ PROCEDURE restoreSavedRecs:
  Notes:
 ------------------------------------------------------------------------------*/
 RUN addon\bol\relfileselect.w (INPUT "updrel*", OUTPUT cTmpSaveFile).
-
-INPUT STREAM sTmpSaveInfo FROM VALUE(cTmpSaveFile).
-REPEAT:
-    CREATE tt-relbol. 
-    IMPORT STREAM sTmpSaveInfo tt-relbol except tt-relbol.oerell-row rowid. 
-     
+IF SEARCH(cTmpSaveFile) NE ? THEN DO:
+    INPUT STREAM sTmpSaveInfo FROM VALUE(cTmpSaveFile).
+    REPEAT:
+        CREATE tt-relbol. 
+        IMPORT STREAM sTmpSaveInfo tt-relbol except tt-relbol.oerell-row rowid. 
+         
+    END.
+    INPUT STREAM sTmpSaveInfo CLOSE.
 END.
-INPUT STREAM sTmpSaveInfo CLOSE.
-
 RUN dispatch ('open-query').
 
 END PROCEDURE.

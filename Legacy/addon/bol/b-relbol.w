@@ -1084,17 +1084,17 @@ PROCEDURE restoreSavedRecs:
  Notes:
 ------------------------------------------------------------------------------*/
 RUN addon\bol\relfileselect.w (INPUT "relbol*", OUTPUT cTmpSaveFile).
-
-INPUT STREAM sTmpSaveInfo FROM VALUE(cTmpSaveFile).
-REPEAT:
-    CREATE tt-relbol. 
-    IMPORT STREAM sTmpSaveInfo tt-relbol except tt-relbol.oerell-row . 
-     
+IF SEARCH(cTmpSaveFile) NE ? THEN DO: 
+    INPUT STREAM sTmpSaveInfo FROM VALUE(cTmpSaveFile).
+    REPEAT:
+        CREATE tt-relbol. 
+        IMPORT STREAM sTmpSaveInfo tt-relbol EXCEPT tt-relbol.oerell-row . 
+         
+    END.
+    INPUT STREAM sTmpSaveInfo CLOSE.
+    
+    RUN dispatch ('open-query').
 END.
-INPUT STREAM sTmpSaveInfo CLOSE.
-
-RUN dispatch ('open-query').
-
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
