@@ -100,8 +100,8 @@ FOR EACH machtran NO-LOCK
                                           ELSE STRING(machtran.machine,"x(6)")
                                              + STRING(machtran.start_date,"99/99/9999")
                                              + STRING(machtran.start_time,"99999")
-        ttMachineTransactions.loginDateTime  = TRIM(STRING(machtran.start_date) + " " + STRING(machtran.login_time,"hh:mm am"))
-        ttMachineTransactions.logoutDateTime = TRIM(STRING(machtran.end_date) + " " + STRING(machtran.logout_time,"hh:mm am"))                                
+        ttMachineTransactions.loginDateTime  = TRIM(STRING(machtran.start_date) + " " + STRING(machtran.start_time,"hh:mm am"))
+        ttMachineTransactions.logoutDateTime = TRIM(STRING(machtran.end_date) + " " + STRING(machtran.end_time,"hh:mm am"))                                
         .
     IF lSubRpt_EmployeeTransactions THEN
     FOR EACH machemp NO-LOCK
@@ -119,8 +119,8 @@ FOR EACH machtran NO-LOCK
             ttMachineEmployeeTransactions.rateUsage = machemp.rate_usage
             ttMachineEmployeeTransactions.rateType  = machemp.ratetype
             ttMachineEmployeeTransactions.rate      = machemp.rate
-            ttMachineEmployeeTransactions.loginDateTime  = TRIM(STRING(machemp.start_date) + " " + STRING(machemp.login_time,"hh:mm am"))
-            ttMachineEmployeeTransactions.logoutDateTime = TRIM(STRING(machemp.end_date) + " " + STRING(machemp.logout_time,"hh:mm am"))   
+            ttMachineEmployeeTransactions.loginDateTime  = TRIM(STRING(machemp.start_date) + " " + STRING(machemp.start_time,"hh:mm am"))
+            ttMachineEmployeeTransactions.logoutDateTime = TRIM(STRING(machemp.end_date) + " " + STRING(machemp.end_time,"hh:mm am"))   
             .
         FIND FIRST employee NO-LOCK
              WHERE employee.company EQ machtran.company
