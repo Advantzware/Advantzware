@@ -893,7 +893,7 @@ def var tloc like floc initial "ZZZZZZZZZ".
 def var v-frst as logical.
 def var v-price like oe-ordl.price no-undo.
 def var v-job-no like itemfg.cust-job-no no-undo.
-def var tot-val as dec format "->>>,>>>,>>9.99" no-undo.
+def var tot-val as dec format "->,>>>,>>>,>>9.99" no-undo.
 def var done-flag as logical initial no no-undo.
 def var v-sumdet as logical format "Summary/Detail" initial yes no-undo.
 DEF VAR v-qty LIKE itemfg.q-onh NO-UNDO.
@@ -1005,7 +1005,7 @@ SESSION:SET-WAIT-STATE ("general").
 
           v-qty = IF tb_addqty THEN (itemfg.q-onh + itemfg.q-ono) ELSE itemfg.q-onh.
 
-          if itemfg.sell-uom   eq "CS" AND itemfg.case-count ne 0 
+         /* if itemfg.sell-uom   eq "CS" AND itemfg.case-count ne 0 
              THEN v-ext = (v-qty * itemfg.sell-price) / itemfg.case-count.
           ELSE if itemfg.sell-uom eq "L" then v-ext = itemfg.sell-price.
           else do:
@@ -1013,15 +1013,13 @@ SESSION:SET-WAIT-STATE ("general").
                               and uom.mult ne 0 no-lock no-error.
              v-ext = v-qty * itemfg.sell-price /
                         (if avail uom then uom.mult else 1000).
-          end.
+          end. */
 
           assign 
            v-price = itemfg.sell-price
-           /*tot-val = tot-val + ((IF tb_addqty THEN (itemfg.q-onh + itemfg.q-ono) ELSE itemfg.q-onh) 
-                               * v-price).
-           */
-           tot-val = tot-val + v-ext.
-
+           tot-val = tot-val + ((IF tb_addqty THEN (itemfg.q-onh + itemfg.q-ono) ELSE itemfg.q-onh) 
+                               * itemfg.sell-price).
+           
           display /* cust.cust-no when v-frst */
                   itemfg.i-no
                   itemfg.i-name
