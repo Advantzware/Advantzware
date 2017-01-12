@@ -1101,8 +1101,16 @@ PROCEDURE restoreSavedRecs:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-RUN addon\bol\relfileselect.w (INPUT "updrel*", OUTPUT cTmpSaveFile).
-IF SEARCH(cTmpSaveFile) NE ? THEN DO:
+
+DEF VAR lFileSelected AS LOG NO-UNDO.
+SYSTEM-DIALOG GET-FILE cTmpSaveFile   
+    FILTERS "restore (updrel*)" "updrel*"
+    INITIAL-DIR ".\logs"
+    UPDATE lFileSelected
+    MUST-EXIST
+    TITLE "Select Restore File". 
+     
+IF lFileSelected THEN DO:
     INPUT STREAM sTmpSaveInfo FROM VALUE(cTmpSaveFile).
     REPEAT:
         CREATE tt-relbol. 
