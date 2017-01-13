@@ -885,6 +885,12 @@ FOR EACH job-hdr NO-LOCK
             FIND FIRST itemfg NO-LOCK WHERE itemfg.company EQ job-hdr.company
                                         AND itemfg.i-no    EQ job-hdr.i-no NO-ERROR.
 
+          IF AVAILABLE itemfg THEN
+              DO:
+              v-cas-wt = (itemfg.weight-100) * eb.cas-cnt / 100.
+          END.
+          ELSE v-cas-wt = 0.
+
             
            DISPLAY v-job-no + "-" + TRIM(STRING(eb.form-no,">>9")) + 
                     trim(STRING(eb.blank-no,">>9")) FORMAT "x(11)" 
@@ -904,12 +910,14 @@ FOR EACH job-hdr NO-LOCK
             v-upc-no = IF AVAILABLE eb THEN eb.upc-no ELSE "".
 
               PUT
-                 "<P9><B>            Quantity        QC/SPC #        Pharma Code      Style          Carton Size" "</B>" SKIP.  /* Style  Carton Size*/
-              PUT (IF AVAILABLE oe-ordl THEN oe-ordl.qty ELSE 0) FORMAT "->,>>>,>>9" AT 11 
-                  v-spc-no AT 29 
-                  v-upc-no  AT 45
-                  eb.style FORMAT "x(8)" AT 62 SPACE(7)
-                  v-size[1] FORMAT "x(30)" SKIP .
+                 "<P9><B>            Ord Qty         Job Qty         QC/SPC #         Pharma Code     Style            Carton Size                    Case Wt." "</B>" SKIP.  /* Style  Carton Size*/
+              PUT (IF AVAILABLE oe-ordl THEN oe-ordl.qty ELSE 0) FORMAT "->,>>>,>>9" AT 10 
+                  job-hdr.qty FORMAT "->,>>>,>>9" AT 26
+                  v-spc-no  AT 45 
+                  v-upc-no  AT 62
+                  eb.style FORMAT "x(8)" AT 78 SPACE(10)
+                  v-size[1] FORMAT "x(30)" 
+                  v-cas-wt  SKIP .
 
             v-itm-printed = v-itm-printed + 1. 
             /*ord-qty format "->,>>>,>>9" AT 62 v-job-qty format "->,>>>,>>9" AT 85*/  
