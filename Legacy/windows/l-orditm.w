@@ -118,7 +118,7 @@ DEFINE BUTTON bt-ok
 DEFINE VARIABLE lv-search AS CHARACTER FORMAT "X(256)":U 
      LABEL "Search" 
      VIEW-AS FILL-IN 
-     SIZE 27 BY 1 NO-UNDO.
+     SIZE 43 BY 1 NO-UNDO.
 
 DEFINE VARIABLE rd-sort AS INTEGER 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -128,7 +128,7 @@ DEFINE VARIABLE rd-sort AS INTEGER
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 74 BY 1.43.
+     SIZE 91 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -141,12 +141,12 @@ DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
       oe-ordl.est-no FORMAT "x(8)":U WIDTH 14
-      oe-ordl.i-no FORMAT "x(15)":U
-      oe-ordl.i-name FORMAT "x(30)":U
+      oe-ordl.i-no FORMAT "x(15)":U WIDTH 25
+      oe-ordl.i-name FORMAT "x(30)":U WIDTH 45
       oe-ordl.qty FORMAT "->>,>>>,>>9.9<<":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 78 BY 11.19
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 120 BY 11.19
          BGCOLOR 8 .
 
 
@@ -157,15 +157,15 @@ DEFINE FRAME Dialog-Frame
      rd-sort AT ROW 12.67 COL 14 NO-LABEL
      bt-clear AT ROW 14.1 COL 2
      lv-search AT ROW 14.1 COL 21 COLON-ALIGNED
-     bt-ok AT ROW 14.1 COL 53
-     bt-cancel AT ROW 14.1 COL 63
+     bt-ok AT ROW 14.1 COL 69
+     bt-cancel AT ROW 14.1 COL 81
      RECT-1 AT ROW 12.43 COL 1
      "Sort By:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 12.91 COL 4
-     SPACE(134.79) SKIP(2.22)
+     SPACE(1.79) SKIP(2.22)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         TITLE "PO Information".
+         TITLE "Item Information".
 
 
 /* *********************** Procedure Settings ************************ */
@@ -206,7 +206,9 @@ oe-ordl.ord-no = ip-ord-no"
      _FldNameList[1]   > ASI.oe-ordl.est-no
 "est-no" ? "x(8)" "character" ? ? ? ? ? ? no ? no no "14" yes no no "U" "" ""
      _FldNameList[2]   = ASI.oe-ordl.i-no
+"i-no" ? "x(15)" "character" ? ? ? ? ? ? no ? no no "25" yes no no "U" "" ""
      _FldNameList[3]   = ASI.oe-ordl.i-name
+"i-name" ? "x(30)" "character" ? ? ? ? ? ? no ? no no "45" yes no no "U" "" ""
      _FldNameList[4]   = ASI.oe-ordl.qty
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
