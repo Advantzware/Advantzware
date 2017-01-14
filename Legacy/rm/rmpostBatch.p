@@ -97,24 +97,29 @@ DEFINE BUFFER b-job-hdr FOR job-hdr.
 DEFINE BUFFER b-rh      FOR rm-rcpth.
 DEFINE BUFFER b-rd      FOR rm-rdtlh.
 
-
-{methods/defines/hndldefs.i}
- /* {methods/prgsecur.i} */ 
- 
-{methods/defines/globdefs.i new}
+{methods/defines/hndldefs.i NEW}
+/*{methods/prgsecur.i} */
+{methods/defines/globdefs.i &NEW=NEW GLOBAL}
 {custom/gcompany.i}
 {custom/gloc.i}
+{sys/inc/var.i new shared}
+def  stream sDebug.  
+output stream sDebug to c:\temp\debugrm.txt.  
+OUTPUT TO c:\temp\rm-errs.txt.  
 
-
-{sys/inc/VAR.i new shared}
-    
+if g_loc = "" then   
+g_loc = "main".
+g_sysdate   = TODAY.
+RUN pDefaultAsiValues.
 ASSIGN
-    gcompany      = ipcCompany
-    gLoc          = "MAIN"
-    cocode        = gcompany
-    locode        = gloc
-    lPostSelected = YES.
-
+    g_company = ipcCompany    
+    gcompany  = ipcCompany
+    gLoc      = g_loc
+    cocode    = gcompany
+    locode    = gloc
+    lPostSelected = YES
+    .
+    
 {jc/jcgl-sh.i NEW}
 
 
@@ -218,7 +223,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     RUN pCheckDate.
     IF NOT lValidPeriod THEN 
       RETURN. 
-      
+      put stream sdebug "Main" cocode cbeginuserid cenduserid  ip-run-what skip.
     RUN pMainProcess.
     
 END.
@@ -403,6 +408,48 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+PROCEDURE pDefaultAsiValues:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    FIND FIRST usr WHERE usr.uid EQ ipcUserID NO-LOCK NO-ERROR.
+    IF AVAILABLE usr THEN
+    DO:
+        FIND FIRST company WHERE company.company EQ ipcCompany NO-LOCK NO-ERROR.
+        IF NOT AVAILABLE company THEN
+            FIND FIRST company NO-LOCK NO-ERROR.
+
+        IF AVAILABLE usr AND AVAILABLE company THEN
+        DO:
+            FIND FIRST loc WHERE loc.company EQ company.company 
+                AND loc.loc EQ usr.loc NO-LOCK NO-ERROR.
+            IF NOT AVAILABLE loc THEN
+                FIND FIRST loc WHERE loc.company EQ company.company NO-LOCK NO-ERROR.
+            IF AVAILABLE loc THEN
+            DO:
+                ASSIGN
+                    g_company = company.company
+                    g_loc     = loc.loc
+                    g_sysdate = TODAY.
+
+                FIND FIRST period WHERE period.company EQ g_company 
+                    AND period.pstat EQ TRUE   
+                    AND period.pst LE g_sysdate   
+                    AND period.pend GE g_sysdate NO-LOCK NO-ERROR.
+                IF NOT AVAILABLE period THEN
+                    FIND LAST period WHERE period.company EQ g_company AND
+                        period.pstat EQ TRUE NO-LOCK NO-ERROR.
+                IF AVAILABLE period THEN
+                    g_period = period.pnum.
+            END.
+        END. /* avail user and company */
+    END. /* avail usr */
+
+
+
+END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pFinalSteps C-Win 
 PROCEDURE pFinalSteps :
@@ -686,15 +733,17 @@ PROCEDURE pMainProcess:
         DELETE work-gl.
     END.
   
-    /* pRunReport creates tt-rctd record baesd on selection criteria */
+    /* pRunReport creates tt-rctd record baesd on selection criteria */  
+    PUT STREAM sDebug unformatted "running run report" SKIP.
     RUN pRunReport (OUTPUT lValidQty). 
+    PUT STREAM sDebug unformatted "after run report - valid?" lValidQty " post selected? " lPostSelected SKIP.
     IF NOT lValidQty THEN
         RETURN NO-APPLY.
 
     IF lPostSelected THEN 
     DO: 
         lv-post = CAN-FIND(FIRST tt-rctd WHERE tt-rctd.has-rec).
-
+        PUT STREAM sDebug unformatted "after run report - lv-post?" lv-post SKIP.
         IF lv-post THEN
             FOR EACH tt-rctd
                 WHERE tt-rctd.has-rec
@@ -736,9 +785,10 @@ PROCEDURE pMainProcess:
         /*        LEAVE.                                                                    */
         /*      END.                                                                        */
         END.
-
+        PUT STREAM sDebug unformatted "before pPostrm - valid?" lv-post SKIP.
         IF lv-post THEN 
         DO:       
+            PUT STREAM sDebug UNFORMATTED "running pPostRM " lv-post SKIP.
             RUN pPostRM.
 
             lv-post = lDunne.
@@ -793,7 +843,10 @@ PROCEDURE pPostRM :
 
     FIND FIRST rm-ctrl WHERE rm-ctrl.company EQ cocode NO-LOCK NO-ERROR.
     lAvgcost = rm-ctrl.avg-lst-cst.
-
+    FIND FIRST tt-rctd NO-ERROR.
+     PUT STREAM sDebug unformatted "postrm avail tt-rctd?" avail(tt-rctd)  SKIP.
+     IF AVAILABLE tt-rctd THEN 
+     PUT STREAM sDebug unformatted "postrm avail tt-rctd.i-no " tt-rctd.i-no " cocode " cocode " ctypes " ctypes  SKIP.
     SESSION:SET-WAIT-STATE ("general").
     transblok:
     FOR EACH tt-rctd
@@ -805,7 +858,7 @@ PROCEDURE pPostRM :
         BY tt-rctd.r-no
         BY RECID(tt-rctd)
         TRANSACTION:
-
+        PUT STREAM sDebug unformatted "postrm in tt-rctd loop"  SKIP.
         RELEASE rm-rctd.
         RELEASE item.
 
@@ -1139,8 +1192,8 @@ PROCEDURE pPostRM :
     FOR EACH rm-rctd
         WHERE rm-rctd.company   EQ cocode
             AND rm-rctd.rita-code EQ "ADDER"
-            AND rm-rctd.job-no    GE cFromJobID
-            AND rm-rctd.job-no    LE cToJobID
+            /*AND rm-rctd.job-no    GE cFromJobID
+            AND rm-rctd.job-no    LE cToJobID */
             AND ((cBeginUserid    LE "" AND cEndUserid      GE "") 
             OR (rm-rctd.user-id GE cBeginUserid AND rm-rctd.user-id LE cEndUserid))
             TRANSACTION:
@@ -1224,19 +1277,26 @@ PROCEDURE pRunReport :
     FOR EACH tt-rctd:
         DELETE tt-rctd.
     END.
-
+put stream sdebug unformatted "in run report gcom " cocode  " vportlist " cTypes 
+  " begin_dt "  dtRctDateFrom " end-dt " dtRctDateTo " endino " cBeginUserid " cEndUserid" cEndUserId
+ 
+skip.  
+PUT STREAM sDebug unformatted "run reoprt from job" cFromJobID " to job " cToJobID  SKIP.
     FOR EACH rm-rctd  NO-LOCK
-        WHERE rm-rctd.company   EQ cocode
-            AND rm-rctd.job-no    GE cFromJobID
-            AND rm-rctd.job-no    LE cToJobID
+        WHERE  rm-rctd.company   EQ cocode 
+           /* AND rm-rctd.job-no    GE cFromJobID
+            AND rm-rctd.job-no    LE cToJobID 
             AND rm-rctd.rct-date  GE dtRctDateFrom
-            AND rm-rctd.rct-date  LE dtRctDateTo
-            AND INDEX(cTypes,rm-rctd.rita-code) GT 0 
+            AND rm-rctd.rct-date  LE dtRctDateTo */
+             AND INDEX(cTypes,rm-rctd.rita-code) GT 0 
+             
             AND rm-rctd.rita-code NE "C"
-            AND ((cBeginUserid    LE "" AND
+            AND rm-rctd.user-id GE cBeginUserid
+            AND rm-rctd.user-id LE cEndUserID
+            /*AND ((cBeginUserid    LE "" AND
             cEndUserid      GE "") OR
             (rm-rctd.user-id GE cBeginUserid AND
-            rm-rctd.user-id LE cEndUserid))
+            rm-rctd.user-id LE cEndUserid)) */
         :
            
         CREATE tt-rctd.
@@ -1247,6 +1307,7 @@ PROCEDURE pRunReport :
             tt-rctd.db-seq-no = rm-rctd.r-no 
             tt-rctd.seq-no    = 1
             .
+          PUT STREAM sDebug unformatted "run reoprt create tt-rctd " tt-rctd.rita-code SKIP.            
     END.
 
     /* Validate quantity on tags */
