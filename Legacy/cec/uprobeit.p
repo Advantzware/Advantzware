@@ -300,6 +300,15 @@ FOR EACH probeit
     board-cst = board-cst / (v-qty / 1000).
     IF ord-cost GT 0 AND qm GT 0 THEN 
         dBoardPct = board-cst / ord-cost / qm * 100.
+
+/*eb is not available at this point with 2 piece box - find the non-set header blank*/       
+    IF NOT AVAILABLE eb THEN 
+        FIND FIRST eb NO-LOCK
+            WHERE eb.company EQ probeit.company
+            AND eb.est-no EQ probeit.est-no
+            AND eb.part-no EQ probeit.part-no
+            AND eb.form-no GT 0
+            NO-ERROR.
     RUN custom/markup.p (ROWID(eb),
         board-cst,
         dBoardPct,
