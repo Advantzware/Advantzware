@@ -18,7 +18,7 @@
 
 /* ***************************  Definitions  ************************** */
 
-DEFINE VARIABLE current-rowid AS ROWID NO-UNDO.
+DEFINE VARIABLE current-rowid AS ROWID     NO-UNDO.
 
 &IF "{&IAMWHAT}" = "" &THEN
 DEFINE VARIABLE save-rowid AS ROWID NO-UNDO.
@@ -161,6 +161,7 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Disable-Navigation Include 
 PROCEDURE Disable-Navigation :
@@ -322,16 +323,11 @@ PROCEDURE local-initialize :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
-
+  
   /* Code placed here will execute AFTER standard behavior.    */
-  IF VALID-OBJECT (oRenderedBrowseControl) THEN DO:
-
-      IF Consultingwerk.Util.ProcedureHelper:HasEntry(THIS-PROCEDURE, "ApplyFilterHandler") THEN 
-          CAST (oRenderedBrowseControl, Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl):ApplyFilter:Subscribe ("ApplyFilterHandler") .
-          
-      IF Consultingwerk.Util.ProcedureHelper:HasEntry(THIS-PROCEDURE, "CustomizeGrid") THEN 
-          RUN CustomizeGrid .
-  END.       
+  &IF DEFINED(dataGrid) NE 0 &THEN
+  RUN pDataGridInit.
+  &ENDIF
     
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}

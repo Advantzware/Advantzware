@@ -1,0 +1,3 @@
+browsers/mach.w
+m-code,m-dscr,industry,loc,sch-m-code
+FOR EACH mach NO-LOCK WHERE mach.company EQ %company%

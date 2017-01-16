@@ -27,8 +27,6 @@
 &GLOBAL-DEFINE ADM-DISPATCH-QUALIFIER winkit
 
 DEFINE VARIABLE oRenderedBrowseControl AS Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseControl NO-UNDO . 
-
-
 DEFINE VARIABLE adm-sts           AS LOGICAL NO-UNDO.
 DEFINE VARIABLE adm-brs-in-update AS LOGICAL NO-UNDO INIT no.
 DEFINE VARIABLE adm-brs-initted   AS LOGICAL NO-UNDO INIT no.
@@ -132,22 +130,23 @@ PROCEDURE winkit-initialize:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-
-    DEFINE VARIABLE oRenderedBrowseContext AS Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseContext NO-UNDO . 
-
-    DEFINE VARIABLE container-hdl AS HANDLE NO-UNDO.
-    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
-
+    DEFINE VARIABLE container-hdl AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE char-hdl      AS CHARACTER NO-UNDO.
     /* Mike Fechner, Consultingwerk Ltd. 06.02.2016
        Create WinKit Tabs */
+    DEFINE VARIABLE oRenderedBrowseContext AS Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseContext NO-UNDO .
     DEFINE VARIABLE oForm AS Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWindowForm NO-UNDO . 
-    DEFINE VARIABLE iPage AS INTEGER             NO-UNDO .
+    DEFINE VARIABLE iPage AS INTEGER NO-UNDO .
 
     RUN dispatch IN THIS-PROCEDURE ("initialize") .
 
     RUN get-link-handle IN adm-broker-hdl
            (INPUT THIS-PROCEDURE, INPUT 'CONTAINER-SOURCE':U, OUTPUT char-hdl).
     ASSIGN container-hdl = WIDGET-HANDLE(char-hdl).
+    
+    &IF DEFINED (dataGrid) EQ 0 &THEN
+    IF TRUE THEN RETURN .
+    &ENDIF
     
     IF VALID-HANDLE (container-hdl) AND Consultingwerk.Util.ProcedureHelper:HasEntry (container-hdl, "getEmbeddedWindowForm") THEN DO:
         
@@ -167,45 +166,18 @@ PROCEDURE winkit-initialize:
                 IF TYPE-OF (oForm, Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWindowTabFolderForm) THEN 
                     ASSIGN oRenderedBrowseContext:Parent =  CAST (oForm, Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWindowTabFolderForm):GetTabPageControl (iPage) .
             
-            ASSIGN oRenderedBrowseContext:Batching            = FALSE 
-                   oRenderedBrowseContext:BindingSourceFields = Consultingwerk.WindowIntegrationKit.Controls.BindingSourceFieldsEnum:BrowserFields 
-                   oRenderedBrowseContext:BrowseHandle        = BROWSE {&BROWSE-NAME}:HANDLE
-                   oRenderedBrowseContext:EmbeddedWindowForm  = oForm
-                   oRenderedBrowseContext:CallBackProcedure   = THIS-PROCEDURE 
-                   oRenderedBrowseContext:EnableSearch        = TRUE 
-                   . 
-                    
-            oRenderedBrowseControl = NEW Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl (oRenderedBrowseContext) .
+            ASSIGN
+                oRenderedBrowseContext:Batching            = FALSE 
+                oRenderedBrowseContext:BindingSourceFields = Consultingwerk.WindowIntegrationKit.Controls.BindingSourceFieldsEnum:BrowserFields 
+                oRenderedBrowseContext:BrowseHandle        = BROWSE {&BROWSE-NAME}:HANDLE
+                oRenderedBrowseContext:EmbeddedWindowForm  = oForm
+                oRenderedBrowseContext:CallBackProcedure   = THIS-PROCEDURE 
+                oRenderedBrowseContext:EnableSearch        = TRUE
+                oRenderedBrowseControl = NEW Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl (oRenderedBrowseContext) 
+                .
 
             IF Consultingwerk.Util.ProcedureHelper:HasEntry (THIS-PROCEDURE, "InitializeGrid") THEN 
-                RUN InitializeGrid IN THIS-PROCEDURE .  
-
-/*            // Manage Anchoring of the .NET Grid                                                                                                                    */
-/*            &IF '{&sizeOption}' EQ 'HEIGHT' &THEN                                                                                                                   */
-/*                // Anchor Top, Left, Bottom                                                                                                                         */
-/*                oRenderedBrowseControl:Anchor = CAST (Progress.Util.EnumHelper:Or (                                                                                 */
-/*                                                      Progress.Util.EnumHelper:Or (System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Bottom),*/
-/*                                                                                   System.Windows.Forms.AnchorStyles:Left),                                         */
-/*                                                                                   System.Windows.Forms.AnchorStyles) .                                             */
-/*            &ELSEIF '{&sizeOption}' EQ 'WIDTH' &THEN                                                                                                                */
-/*                // Anchor Top, Left, Right                                                                                                                          */
-/*                oRenderedBrowseControl:Anchor = CAST (Progress.Util.EnumHelper:Or (                                                                                 */
-/*                                                      Progress.Util.EnumHelper:Or (System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left),  */
-/*                                                                                   System.Windows.Forms.AnchorStyles:Right),                                        */
-/*                                                                                   System.Windows.Forms.AnchorStyles) .                                             */
-/*                                                                                                                                                                    */
-/*            &ELSE                                                                                                                                                   */
-/*                oRenderedBrowseControl:Anchor = CAST (Progress.Util.EnumHelper:Or (                                                                                 */
-/*                                                      Progress.Util.EnumHelper:Or (                                                                                 */
-/*                                                      Progress.Util.EnumHelper:Or (System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left),  */
-/*                                                                                   System.Windows.Forms.AnchorStyles:Right),                                        */
-/*                                                                                   System.Windows.Forms.AnchorStyles:Bottom),                                       */
-/*                                                                                   System.Windows.Forms.AnchorStyles) .                                             */
-/*                                                                                                                                                                    */
-/*            &ENDIF                                                                                                                                                  */
-            
-            /*oRenderedBrowseControl:Dock = System.Windows.Forms.DockStyle:FILL.*/
-
+                RUN InitializeGrid IN THIS-PROCEDURE .
         END.
     END.     
 

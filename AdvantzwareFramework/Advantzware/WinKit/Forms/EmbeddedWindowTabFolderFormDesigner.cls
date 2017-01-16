@@ -96,7 +96,7 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderFormDesigner ABSTRACT
         THIS-OBJECT:ultraToolbarsManager1:DockWithinContainer = THIS-OBJECT.
         THIS-OBJECT:ultraToolbarsManager1:DockWithinContainerBaseType = Progress.Util.TypeHelper:GetType("Consultingwerk.WindowIntegrationKit.Forms.EmbeddedWindowBaseForm").
         THIS-OBJECT:ultraToolbarsManager1:Office2007UICompatibility = FALSE.
-        ribbonTab1:Caption = "ribbon1".
+        ribbonTab1:Caption = "Options".
         @VisualDesigner.FormMember (NeedsInitialize="false", InitializeArray="true").
         DEFINE VARIABLE arrayvar0 AS Infragistics.Win.UltraWinToolbars.RibbonTab EXTENT 1 NO-UNDO.
         arrayvar0[1] = ribbonTab1.

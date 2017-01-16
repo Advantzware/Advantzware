@@ -1,18 +1,19 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS Procedure
-USING Consultingwerk.Framework.Collections.CharacterDictionary FROM PROPATH.
-USING Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl FROM PROPATH.
-
-&ANALYZE-RESUME
 /* Connected Databases 
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win 
+USING Consultingwerk.Framework.Collections.CharacterDictionary FROM PROPATH.
+USING Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl FROM PROPATH.
+&SCOPED-DEFINE dataGrid
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
-  File:  browsers/<table>.w
+  File:  browsers/mach.w
 
   Description: from BROWSER.W - Basic SmartBrowser Object Template
 
@@ -44,18 +45,48 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
-
 {sys/inc/VAR.i NEW SHARED}
 
 ASSIGN
  cocode = g_company
  locode = g_loc.
 
-for each dept {sys/ref/deptW.i} no-lock,
-    each mach where mach.dept[1] eq dept.code:
-    
+FOR EACH dept {sys/ref/deptW.i} NO-LOCK,
+    EACH mach WHERE mach.dept[1] EQ dept.code
+    :    
   mach.d-seq = dept.fc.
-end.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
+/*------------------------------------------------------------------------
+
+  File: 
+
+  Description: 
+
+  Input Parameters:
+      <none>
+
+  Output Parameters:
+      <none>
+
+  Author: 
+
+  Created: 01/15/17 -  6:08 pm
+
+------------------------------------------------------------------------*/
+/*          This .W file was created with the Progress AppBuilder.       */
+/*----------------------------------------------------------------------*/
+
+/* ***************************  Definitions  ************************** */
+
+/* Parameters Definitions ---                                           */
+
+/* Local Variable Definitions ---                                       */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -70,7 +101,7 @@ end.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target,Navigation-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME Browser-Table
 
@@ -100,7 +131,7 @@ mach.m-seq mach.p-type mach.run-spoil mach.mr-waste
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
-Btn_Clear_Find 
+BUTTON-1 Btn_Clear_Find 
 &Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
 
 /* Custom List Definitions                                              */
@@ -120,10 +151,14 @@ DEFINE BUTTON Btn_Clear_Find
      SIZE 13 BY 1
      FONT 4.
 
+DEFINE BUTTON BUTTON-1 
+     LABEL "X" 
+     SIZE 5 BY 1.14.
+
 DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
      LABEL "Auto Find" 
      VIEW-AS FILL-IN 
-     SIZE 60 BY 1 NO-UNDO.
+     SIZE 54 BY 1 NO-UNDO.
 
 DEFINE VARIABLE browse-order AS INTEGER 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -167,7 +202,6 @@ DEFINE BROWSE Browser-Table
       mach.industry FORMAT "x":U
       mach.loc FORMAT "x(5)":U
       mach.sch-m-code COLUMN-LABEL "Sched Mach" FORMAT "x(6)":U
-            WIDTH 14
       mach.dept[1] FORMAT "x(2)":U
       mach.d-seq FORMAT ">9":U
       mach.m-seq FORMAT "99":U
@@ -189,6 +223,7 @@ DEFINE FRAME F-Main
           "Select Browser Sort Order" NO-LABEL
      auto_find AT ROW 19.33 COL 70 COLON-ALIGNED HELP
           "Enter Auto Find Value"
+     BUTTON-1 AT ROW 19.33 COL 126 WIDGET-ID 2
      Btn_Clear_Find AT ROW 19.33 COL 132 HELP
           "CLEAR AUTO FIND Value"
      "By:" VIEW-AS TEXT
@@ -238,6 +273,7 @@ END.
 {src/adm/method/browser.i}
 {src/adm/method/query.i}
 {methods/template/browser.i}
+{methods/gridSearch.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -251,7 +287,7 @@ END.
 /* SETTINGS FOR WINDOW B-table-Win
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB Browser-Table TEXT-1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
@@ -280,7 +316,7 @@ ASSIGN
      _FldNameList[4]   = ASI.mach.industry
      _FldNameList[5]   = ASI.mach.loc
      _FldNameList[6]   > ASI.mach.sch-m-code
-"mach.sch-m-code" "Sched Mach" ? "character" ? ? ? ? ? ? no ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"mach.sch-m-code" "Sched Mach" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   = ASI.mach.dept[1]
      _FldNameList[8]   = ASI.mach.d-seq
      _FldNameList[9]   = ASI.mach.m-seq
@@ -342,6 +378,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME BUTTON-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BUTTON-1 B-table-Win
+ON CHOOSE OF BUTTON-1 IN FRAME F-Main /* X */
+DO:
+    RUN Applyfilter.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK B-table-Win 
@@ -383,51 +430,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ApplyFilterHandler B-table-Win
-PROCEDURE ApplyFilterHandler:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER sender AS System.Object NO-UNDO . 
-  DEFINE INPUT PARAMETER e      AS System.EventArgs NO-UNDO . 
-  
-  DEFINE VARIABLE oFilterValues AS Consultingwerk.Framework.Collections.CharacterDictionary NO-UNDO . 
- 
-  oFilterValues = CAST (sender, RenderedBrowseWithSearchControl):FilterValues .  
-  
-  MESSAGE oFilterValues:Keys
-  VIEW-AS ALERT-BOX.
-  
-  OPEN QUERY {&BROWSE-NAME}
-  FOR EACH mach no-lock
-      WHERE mach.company EQ cocode
-        AND mach.m-dscr  BEGINS oFilterValues:GetValue ("m-dscr") .  
-
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CustomizeGrid B-table-Win
-PROCEDURE CustomizeGrid:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/ 
-  oRenderedBrowseControl:DisplayLayout:Bands[0]:Columns["run-spoil"]:FilterOperandStyle = Infragistics.Win.UltraWinGrid.FilterOperandStyle:None .
-
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI B-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -453,8 +455,23 @@ PROCEDURE entry-to-browse :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    APPLY "ENTRY":U TO BROWSE {&browse-name}.
 
-APPLY "entry" TO BROWSE {&browse-name}.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
+PROCEDURE export-xl :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+RUN fg/m-mchexp.w (auto_find,browse-order).
+
 
 END PROCEDURE.
 
@@ -505,24 +522,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
-PROCEDURE export-xl :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-RUN fg/m-mchexp.w (auto_find,browse-order).
-
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :

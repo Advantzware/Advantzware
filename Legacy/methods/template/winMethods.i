@@ -207,38 +207,38 @@ PROCEDURE Init-Options-Panel :
   ASSIGN
     listname = SUBSTR("{&FIRST-EXTERNAL-TABLE}",1,7) + "_"
     search-button = IF SEARCH("searches/{&FIRST-EXTERNAL-TABLE}.r") = ? AND
-                       SEARCH("searches/{&FIRST-EXTERNAL-TABLE}.p") = ? THEN no
-                    ELSE yes
+                       SEARCH("searches/{&FIRST-EXTERNAL-TABLE}.p") = ? THEN NO 
+                    ELSE YES 
     list-button = IF SEARCH("listobjs/" + listname + ".r") = ? AND
-                     SEARCH("listobjs/" + listname + ".w") = ? THEN no
-                  ELSE yes
+                     SEARCH("listobjs/" + listname + ".w") = ? THEN NO 
+                  ELSE YES 
     notes-button = IF /*INDEX("{&NORECKEY}","{&FIRST-EXTERNAL-TABLE}")*/
-                       lookup("{&FIRST-EXTERNAL-TABLE}","{&NORECKEY}"," ") = 0 THEN yes
-                   ELSE no
-    misc_fields-button = IF b-prgrms.mfgroup = "" THEN no ELSE yes
-    spec-note-button = lookup("{&FIRST-EXTERNAL-TABLE}","est,item,itemfg,cust,vend,oe-ord,job,pc-prdd,pc-prdh,oe-ordl,po-ordl,quotehd,oe-relh") > 0
+                       lookup("{&FIRST-EXTERNAL-TABLE}","{&NORECKEY}"," ") = 0 THEN YES 
+                   ELSE NO 
+    misc_fields-button = IF b-prgrms.mfgroup = "" THEN no ELSE YES 
+    spec-note-button = LOOKUP ("{&FIRST-EXTERNAL-TABLE}","est,item,itemfg,cust,vend,oe-ord,job,pc-prdd,pc-prdh,oe-ordl,po-ordl,quotehd,oe-relh") GT 0
     .
 
   &Scoped-define MENUITEM search
   IF NOT {&MENUITEM}-button THEN
   ASSIGN
-    MENU-ITEM m_{&MENUITEM}:SENSITIVE IN MENU MENU-BAR-{&WINDOW-NAME} = no
-    MENU-ITEM p_{&MENUITEM}:SENSITIVE IN MENU POPUP-MENU-{&WINDOW-NAME} = no.
+    MENU-ITEM m_{&MENUITEM}:SENSITIVE IN MENU MENU-BAR-{&WINDOW-NAME}   = NO 
+    MENU-ITEM p_{&MENUITEM}:SENSITIVE IN MENU POPUP-MENU-{&WINDOW-NAME} = NO .
   &Scoped-define MENUITEM list
   IF NOT {&MENUITEM}-button THEN
   ASSIGN
-    MENU-ITEM m_{&MENUITEM}:SENSITIVE IN MENU MENU-BAR-{&WINDOW-NAME} = no
-    MENU-ITEM p_{&MENUITEM}:SENSITIVE IN MENU POPUP-MENU-{&WINDOW-NAME} = no.
+    MENU-ITEM m_{&MENUITEM}:SENSITIVE IN MENU MENU-BAR-{&WINDOW-NAME}   = NO 
+    MENU-ITEM p_{&MENUITEM}:SENSITIVE IN MENU POPUP-MENU-{&WINDOW-NAME} = NO .
   &Scoped-define MENUITEM notes
   IF NOT {&MENUITEM}-button THEN
   ASSIGN
-    MENU-ITEM m_{&MENUITEM}:SENSITIVE IN MENU MENU-BAR-{&WINDOW-NAME} = no
-    MENU-ITEM p_{&MENUITEM}:SENSITIVE IN MENU POPUP-MENU-{&WINDOW-NAME} = no.
+    MENU-ITEM m_{&MENUITEM}:SENSITIVE IN MENU MENU-BAR-{&WINDOW-NAME}   = NO 
+    MENU-ITEM p_{&MENUITEM}:SENSITIVE IN MENU POPUP-MENU-{&WINDOW-NAME} = NO .
   &Scoped-define MENUITEM misc_fields
   IF NOT {&MENUITEM}-button THEN
   ASSIGN
-    MENU-ITEM m_{&MENUITEM}:SENSITIVE IN MENU MENU-BAR-{&WINDOW-NAME} = no
-    MENU-ITEM p_{&MENUITEM}:SENSITIVE IN MENU POPUP-MENU-{&WINDOW-NAME} = no.
+    MENU-ITEM m_{&MENUITEM}:SENSITIVE IN MENU MENU-BAR-{&WINDOW-NAME}   = NO 
+    MENU-ITEM p_{&MENUITEM}:SENSITIVE IN MENU POPUP-MENU-{&WINDOW-NAME} = NO .
 &ENDIF
 
 END PROCEDURE.
@@ -348,12 +348,10 @@ PROCEDURE Run-Search :
   Parameters:
   Notes:
 ------------------------------------------------------------------------------*/
-  IF CAN-DO(g_developer,USERID("ASI")) THEN
-  DO:
+  IF CAN-DO(g_developer,USERID("ASI")) THEN DO:
     MESSAGE "Update Search Program?"
         VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE updatesrch AS LOGICAL.
-    IF updatesrch THEN
-    DO:
+    IF updatesrch THEN DO:
       RUN Get_Procedure IN Persistent-Handle ("searches.",OUTPUT run-proc,no).
       IF run-proc NE "" THEN
       RUN VALUE(run-proc) ("{&FIRST-EXTERNAL-TABLE}.").
@@ -417,10 +415,10 @@ PROCEDURE select_help :
 ------------------------------------------------------------------------------*/
 /*  run system/asihelp.w.   LATER */
 
-  apply "entry" to frame {&frame-name}.
+  APPLY "entry" TO FRAME {&frame-name}.
 
-  apply keycode("f3") to frame {&frame-name}.
-  return no-apply.
+  APPLY KEYCODE ("f3") TO FRAME {&frame-name}.
+  RETURN NO-APPLY .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -588,21 +586,21 @@ PROCEDURE winReSize PRIVATE :
   Parameters:  <none>
   Notes:
 ------------------------------------------------------------------------------*/
-
   &IF DEFINED(winReSize) NE 0 &THEN
-    DEFINE VARIABLE hPixels AS INTEGER NO-UNDO.
-    DEFINE VARIABLE wPixels AS INTEGER NO-UNDO.
-    DEFINE VARIABLE noReSize AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE noReSizeName AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE screenRatio AS DECIMAL NO-UNDO INITIAL 1.
-    DEFINE VARIABLE winReSizeDat AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE currentWidget AS HANDLE NO-UNDO.
+    DEFINE VARIABLE hPixels       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE wPixels       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE noReSize      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE noReSizeName  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE screenRatio   AS DECIMAL   NO-UNDO INITIAL 1.
+    DEFINE VARIABLE winReSizeDat  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE currentWidget AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE iOldRowDiff   AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iOldColDiff   AS INTEGER   NO-UNDO.
 
-    DEFINE VARIABLE iOldrowDiff AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iOldcolDiff AS INTEGER NO-UNDO.
-
-    ASSIGN iOldrowDiff = rowDiff
-           iOldcolDiff = colDiff .
+    ASSIGN
+        iOldRowDiff = rowDiff
+        iOldColDiff = colDiff
+        .
 
 /*    IF {&WINDOW-NAME}:WINDOW-STATE NE 1 THEN RETURN.*/
 
@@ -617,9 +615,7 @@ PROCEDURE winReSize PRIVATE :
       hPixels = FRAME {&FRAME-NAME}:HEIGHT-PIXELS
       wPixels = FRAME {&FRAME-NAME}:WIDTH-PIXELS
       rowDiff = FRAME {&FRAME-NAME}:HEIGHT
-      colDiff = FRAME {&FRAME-NAME}:WIDTH .
-
-     ASSIGN
+      colDiff = FRAME {&FRAME-NAME}:WIDTH
       {&WINDOW-NAME}:HEIGHT-PIXELS = hPixels + ({&WINDOW-NAME}:HEIGHT-PIXELS - hPixels) * screenRatio
       {&WINDOW-NAME}:WIDTH-PIXELS = wPixels + ({&WINDOW-NAME}:WIDTH-PIXELS - wPixels) * screenRatio
       {&WINDOW-NAME}:HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS - 40
@@ -633,14 +629,14 @@ PROCEDURE winReSize PRIVATE :
       wPixels = FRAME {&FRAME-NAME}:WIDTH-PIXELS - wPixels
       rowDiff = FRAME {&FRAME-NAME}:HEIGHT - rowDiff
       colDiff = FRAME {&FRAME-NAME}:WIDTH - colDiff
-
       FRAME message-frame:WIDTH-PIXELS = FRAME message-frame:WIDTH-PIXELS + wPixels
-/*      FRAME options-frame:WIDTH-PIXELS = FRAME options-frame:WIDTH-PIXELS + wPixels*/
       .
 
-     IF rowDiff = 0 AND colDiff = 0 THEN DO:
-        ASSIGN rowDiff = iOldrowDiff
-               colDiff = iOldcolDiff .
+     IF rowDiff EQ 0 AND colDiff EQ 0 THEN DO:
+        ASSIGN
+            rowDiff = iOldRowDiff
+            colDiff = iOldColDiff
+            .
         RETURN .
      END.
 
