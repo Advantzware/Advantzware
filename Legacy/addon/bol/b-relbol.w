@@ -30,10 +30,9 @@ CREATE WIDGET-POOL.
 {sys/inc/VAR.i "new shared" }
 ASSIGN cocode = g_company
        locode = g_loc.
-
+DEFINE VARIABLE lSaveToTempfile AS LOGICAL NO-UNDO.
 DEFINE STREAM sTmpSaveInfo.
 DEFINE VARIABLE cTmpSaveFile AS CHARACTER NO-UNDO.
-cTmpSaveFile = "logs/Relbol" + STRING(TODAY, "999999") + STRING(TIME, "999999") + USERID("nosweat") + ".txt".
 
 {oe/oe-relp1.i NEW}
 
@@ -1053,7 +1052,12 @@ END.
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
 
-
+/* Save entered data to text file in case of crash */
+cTmpSaveFile = "logs/Relbol" + STRING(TODAY, "999999") + STRING(TIME, "999999") + USERID("nosweat") + ".txt".
+lSaveToTempfile = FALSE.
+IF SEARCH("logs/RelBol.txt") NE ? THEN
+  lSaveToTempFile = TRUE.
+  
 IF TRIM(ssbolscan-cha) EQ "" THEN
 DO:
     hBrowse = BROWSE br_table:HANDLE.
@@ -2367,11 +2371,11 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  
-  OUTPUT STREAM sTmpSaveInfo TO VALUE(cTmpSaveFile).
-  EXPORT STREAM sTmpSaveInfo tt-relbol EXCEPT oerell-row.
-  OUTPUT STREAM sTmpSaveInfo CLOSE. 
-  
+  IF lSaveToTempFile THEN DO:
+      OUTPUT STREAM sTmpSaveInfo TO VALUE(cTmpSaveFile).
+      EXPORT STREAM sTmpSaveInfo tt-relbol EXCEPT oerell-row.
+      OUTPUT STREAM sTmpSaveInfo CLOSE. 
+  END. 
   v-prev-rowid = ROWID(tt-relbol).
 
   RUN display-qtys.
