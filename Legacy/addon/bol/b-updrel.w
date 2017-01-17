@@ -2452,7 +2452,7 @@ PROCEDURE local-update-record :
   
   /* Save to .txt file just in case data is lost */
   IF lSaveToTempfile THEN DO:
-      OUTPUT STREAM sTmpSaveInfo TO VALUE(cTmpSaveFile).
+      OUTPUT STREAM sTmpSaveInfo TO VALUE(cTmpSaveFile) APPEND.
       EXPORT STREAM sTmpSaveInfo tt-relbol EXCEPT oerell-row rowid.
       OUTPUT STREAM sTmpSaveInfo CLOSE. 
   END. 
