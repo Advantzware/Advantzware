@@ -49,7 +49,8 @@ DEF SHARED VAR g-sharpshooter AS LOG NO-UNDO.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-7 Btn_bol btn_update_rel Btn_Close 
+&Scoped-Define ENABLED-OBJECTS RECT-7 Btn_bol btn_update_rel ~
+btn_pick-ticket Btn_Close 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -73,6 +74,11 @@ DEFINE BUTTON Btn_Close
      SIZE 33 BY 2
      FONT 6.
 
+DEFINE BUTTON btn_pick-ticket 
+     LABEL "Print Pick Ticket" 
+     SIZE 33 BY 2
+     FONT 6.
+
 DEFINE BUTTON btn_update_rel 
      LABEL "Update Release" 
      SIZE 33 BY 2
@@ -80,7 +86,7 @@ DEFINE BUTTON btn_update_rel
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 35 BY 6.91.
+     SIZE 35 BY 8.81.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -88,7 +94,8 @@ DEFINE RECTANGLE RECT-7
 DEFINE FRAME F-Main
      Btn_bol AT ROW 1.24 COL 2
      btn_update_rel AT ROW 3.38 COL 2
-     Btn_Close AT ROW 5.52 COL 2
+     btn_pick-ticket AT ROW 5.52 COL 2
+     Btn_Close AT ROW 7.52 COL 2
      RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -190,6 +197,22 @@ END.
 ON CHOOSE OF Btn_Close IN FRAME F-Main /* CLose */
 DO:
   {methods/run_link.i "CONTAINER" "Close_RM_Whse"}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btn_pick-ticket
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_pick-ticket s-object
+ON CHOOSE OF btn_pick-ticket IN FRAME F-Main /* Print Pick Ticket */
+DO:
+   IF CAN-FIND(FIRST asi._file WHERE
+      asi._file._File-Name = "ssrelbol") THEN
+   DO:
+       RUN oerep/r-relprt.w.
+      
+   END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
