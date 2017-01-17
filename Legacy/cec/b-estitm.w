@@ -3938,6 +3938,9 @@ PROCEDURE createESTfromArtios :
      run calc-blank-size.
      run calc-layout4Artios (yes).
 
+     /* create default prep */
+     run create-prep. 
+
      /* ink/pack copied from cec/estitm1.i */
      if eb.stock-no = "" then do:
         find first ce-ctrl where ce-ctrl.company = gcompany and
@@ -4196,6 +4199,9 @@ PROCEDURE createEstFromImpact :
 
      run calc-blank-size.
      run calc-layout4Artios (yes).
+
+     /* create default prep */
+     run create-prep. 
 
      /* ink/pack copied from cec/estitm1.i */
      if eb.stock-no = "" then do:
