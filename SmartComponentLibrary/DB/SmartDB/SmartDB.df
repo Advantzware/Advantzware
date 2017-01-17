@@ -1,0 +1,5036 @@
+ADD SEQUENCE "SmartSchedulerJobStatusSemaphore"
+  INITIAL 0
+  INCREMENT 1
+  CYCLE-ON-LIMIT no
+
+ADD TABLE "SmartAttachment"
+  AREA "Schema Area"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartattachment"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSAttachment.p" CRC "?" 
+
+ADD FIELD "AttachmentGUID" OF "SmartAttachment" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 72
+  ORDER 10
+
+ADD FIELD "TableGUID" OF "SmartAttachment" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 72
+  ORDER 20
+
+ADD FIELD "RecordKeyValue" OF "SmartAttachment" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  POSITION 4
+  MAX-WIDTH 160
+  ORDER 30
+
+ADD FIELD "AttachmentRoleGUID" OF "SmartAttachment" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 5
+  MAX-WIDTH 72
+  ORDER 40
+
+ADD FIELD "CommentRoleGUID" OF "SmartAttachment" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 6
+  MAX-WIDTH 72
+  ORDER 50
+
+ADD FIELD "AttachmentName" OF "SmartAttachment" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Name"
+  POSITION 7
+  MAX-WIDTH 160
+  ORDER 60
+
+ADD FIELD "AttachmentFolder" OF "SmartAttachment" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Folder"
+  POSITION 8
+  MAX-WIDTH 160
+  ORDER 70
+
+ADD FIELD "LanguageGuid" OF "SmartAttachment" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 9
+  MAX-WIDTH 72
+  ORDER 80
+  MANDATORY
+
+ADD FIELD "AttachmentData" OF "SmartAttachment" AS blob 
+  FORMAT "x(8)"
+  INITIAL ?
+  POSITION 10
+  LOB-AREA "Schema Area"
+  LOB-BYTES 104857600
+  LOB-SIZE 100M
+  ORDER 90
+
+ADD FIELD "AttachmentThumbnail" OF "SmartAttachment" AS blob 
+  FORMAT "x(8)"
+  INITIAL ?
+  POSITION 11
+  LOB-AREA "Schema Area"
+  LOB-BYTES 104857600
+  LOB-SIZE 100M
+  ORDER 100
+
+ADD FIELD "CommentData" OF "SmartAttachment" AS clob 
+  FORMAT "x(8)"
+  INITIAL ?
+  POSITION 12
+  LOB-AREA "Schema Area"
+  LOB-BYTES 104857600
+  LOB-SIZE 100M
+  CLOB-CODEPAGE "UTF-8"
+  CLOB-COLLATION "BASIC"
+  CLOB-TYPE 2
+  ORDER 110
+
+ADD INDEX "AttachmentName" ON "SmartAttachment" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "TableGUID" ASCENDING 
+  INDEX-FIELD "RecordKeyValue" ASCENDING 
+  INDEX-FIELD "AttachmentFolder" ASCENDING 
+  INDEX-FIELD "AttachmentName" ASCENDING 
+
+ADD INDEX "AttachmentRole" ON "SmartAttachment" 
+  AREA "Schema Area"
+  INDEX-FIELD "TableGUID" ASCENDING 
+  INDEX-FIELD "RecordKeyValue" ASCENDING 
+  INDEX-FIELD "AttachmentRoleGUID" ASCENDING 
+  INDEX-FIELD "LanguageGuid" ASCENDING 
+
+ADD INDEX "AtttachmentGUID" ON "SmartAttachment" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "AttachmentGUID" ASCENDING 
+
+ADD INDEX "CommentGUID" ON "SmartAttachment" 
+  AREA "Schema Area"
+  INDEX-FIELD "TableGUID" ASCENDING 
+  INDEX-FIELD "RecordKeyValue" ASCENDING 
+  INDEX-FIELD "CommentRoleGUID" ASCENDING 
+  INDEX-FIELD "LanguageGuid" ASCENDING 
+
+ADD TABLE "SmartAttachmentRole"
+  AREA "Schema Area"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartattachmentrole"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSAttachmentRole.p" CRC "?" 
+
+ADD FIELD "AttachmentRoleGUID" OF "SmartAttachmentRole" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 72
+  ORDER 10
+
+ADD FIELD "AttachmentRoleName" OF "SmartAttachmentRole" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Attachment Role"
+  POSITION 3
+  MAX-WIDTH 160
+  ORDER 20
+
+ADD FIELD "AttachmentRoleDescription" OF "SmartAttachmentRole" AS character 
+  FORMAT "x(400)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 4
+  MAX-WIDTH 800
+  ORDER 30
+
+ADD FIELD "AttachmentRoleImageSmall" OF "SmartAttachmentRole" AS character 
+  FORMAT "x(70)"
+  INITIAL ""
+  LABEL "Small Image Key"
+  POSITION 7
+  MAX-WIDTH 140
+  ORDER 40
+
+ADD FIELD "AttachmentRoleImageLarge" OF "SmartAttachmentRole" AS character 
+  FORMAT "x(70)"
+  INITIAL ""
+  LABEL "Large Image Key"
+  POSITION 8
+  MAX-WIDTH 140
+  ORDER 50
+
+ADD INDEX "AttachMentRoleName" ON "SmartAttachmentRole" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "AttachmentRoleName" ASCENDING 
+
+ADD INDEX "AttachmentRoleGUID" ON "SmartAttachmentRole" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "AttachmentRoleGUID" ASCENDING 
+
+ADD TABLE "SmartAttribute"
+  AREA "Schema Area"
+  LABEL "Attribute"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartattribute"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSAttribute.p" CRC "?" 
+
+ADD FIELD "AttributeGuid" OF "SmartAttribute" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 64
+  ORDER 10
+
+ADD FIELD "AttributeGroupGuid" OF "SmartAttribute" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 64
+  ORDER 20
+
+ADD FIELD "AttributeLabel" OF "SmartAttribute" AS character 
+  FORMAT "x(40)"
+  INITIAL ""
+  LABEL "Attribute Label"
+  POSITION 4
+  MAX-WIDTH 80
+  ORDER 30
+
+ADD FIELD "TechnicalName" OF "SmartAttribute" AS character 
+  DESCRIPTION "The name of the Attribute when assigning to an object instance at runtime (use only when different from AttributeLabel)"
+  FORMAT "x(40)"
+  INITIAL ""
+  LABEL "Technical Name"
+  POSITION 5
+  MAX-WIDTH 80
+  ORDER 40
+
+ADD FIELD "AttributeDesription" OF "SmartAttribute" AS character 
+  FORMAT "x(400)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 6
+  MAX-WIDTH 800
+  ORDER 50
+
+ADD FIELD "RuntimeOnly" OF "SmartAttribute" AS logical 
+  DESCRIPTION "This is a logical field that will default to NO. If set to YES, then the value of this property should not be stored in the repository and is only required to be added to the property temp-table at runtime. An example would be a property that stored a handle, as the handle has no context outside of the current session, but still needs to form part of the valid attribute list."
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Runtime Only"
+  POSITION 7
+  MAX-WIDTH 1
+  ORDER 60
+
+ADD FIELD "ConstantLevel" OF "SmartAttribute" AS character 
+  DESCRIPTION "This is a character field and identifies the level at which a property can be modified. The values for this are 'class' indicating it may only be specified at the class level, 'master' indicating the value may be modified at the master level, and blank indicating there are no restrictions over the modification of this property.
+There is also a constant field on the attribute value table that is a logical indicating whether further modifications are allowed to the property. This field will therefore affect how the constant flag is set on the attribute value table."
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "Constant Level"
+  POSITION 8
+  MAX-WIDTH 20
+  ORDER 70
+
+ADD FIELD "LookupType" OF "SmartAttribute" AS character 
+  DESCRIPTION "This defines the supported ways (if any) to validate the attribute value for a specific object type. It will be used in the property sheet to determine whether to overlay a combo-box, a lookup button or nothing  on the attribute value field. Possible values are:
+LIST
+The lookup_field will contain a list-item-pairs of possible attribute values.  In the property sheet, a combo-box containing these values will overlay the attribute value field.
+DIALOG
+The lookup_field will contain the relative path and filename of a dialog container. In the property sheet, a lookup button will overlay the attribute value field. Upon pressing the button, the specified dialog is launched.
+DIALOG-R
+This is like the dialog option, but makes the attribute value field read-only forcing the use of the dialog. This is necessary for dialogs that would return delimited lists that you would not want users to manually enter.
+PROC	
+The lookup_field will contain the relative path and filename of a procedure. The return-value of the procedure will contain a string of the list-item-pairs used to populate the combo-box that overlays the attribute value field in the property sheet.
+""""	
+Blank indicates free text entry.
+"
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "Lookup Type"
+  POSITION 9
+  MAX-WIDTH 24
+  ORDER 80
+
+ADD FIELD "LookupValues" OF "SmartAttribute" AS character 
+  DESCRIPTION "This field can be used to specify a list of discrete values allowed for this attribute, or it can specify a procedure call that returns a list of values, or it can specify the name of a dialog. When it contains a list, the delimiter should be CHR(3) rather than a comma.
+1. This field will be blank if the lookup_type is blank.
+2. If field lookup_type = 'LIST'
+This specifies the LIST-ITEM-PAIRS values. That is a delimited list of labels and values in the form: ""label1,value1,labe2,value2,...""
+3. If field lookup_type = 'DIALOG'
+This specifies the relative path and file name of the dialog that is run from the property sheet. All Dialogs must return two OUTPUT parameters, One logical indicating whether the property was changed, and one string output parameter containing the value.  
+i.e. RUN colorChooser.w (OUTPUT lOK, OUTPUT cValue)
+ 
+4. If field lookup_type = PROC'
+This specifies the relative path and file name of an external procedure that is run from the property sheet at initialization and returns a delimited list of list-item-pairs.
+"
+  FORMAT "x(400)"
+  INITIAL ""
+  LABEL "Lookup Values"
+  POSITION 10
+  MAX-WIDTH 800
+  ORDER 90
+
+ADD FIELD "VirtualProperty" OF "SmartAttribute" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Virtual"
+  POSITION 11
+  MAX-WIDTH 1
+  ORDER 65
+
+ADD FIELD "PropertyType" OF "SmartAttribute" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Property Type"
+  POSITION 12
+  MAX-WIDTH 160
+  ORDER 100
+
+ADD FIELD "RepositoryType" OF "SmartAttribute" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "Repository Type"
+  POSITION 13
+  MAX-WIDTH 24
+  ORDER 110
+
+ADD FIELD "SetServiceType" OF "SmartAttribute" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "SET Service Type Name"
+  POSITION 14
+  MAX-WIDTH 160
+  ORDER 120
+
+ADD FIELD "PropertyOrEvent" OF "SmartAttribute" AS logical 
+  FORMAT "Property/Event"
+  INITIAL "Property"
+  POSITION 15
+  MAX-WIDTH 1
+  ORDER 130
+
+ADD INDEX "AttributeGuid" ON "SmartAttribute" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "AttributeGuid" ASCENDING 
+
+ADD INDEX "AttributeGroup" ON "SmartAttribute" 
+  AREA "Schema Area"
+  INDEX-FIELD "AttributeGroupGuid" ASCENDING 
+  INDEX-FIELD "AttributeLabel" ASCENDING 
+
+ADD INDEX "AttributeLabel" ON "SmartAttribute" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "AttributeLabel" ASCENDING 
+
+ADD TABLE "SmartAttributeGroup"
+  AREA "Schema Area"
+  LABEL "Attribute Group"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartattributegroup"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSAttributeGroup.p" CRC "?" 
+
+ADD FIELD "AttributeGroupGuid" OF "SmartAttributeGroup" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 64
+  ORDER 10
+
+ADD FIELD "AttributeGroupName" OF "SmartAttributeGroup" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Attribute Group"
+  POSITION 3
+  MAX-WIDTH 160
+  ORDER 20
+
+ADD FIELD "AttributeGroupDescription" OF "SmartAttributeGroup" AS character 
+  FORMAT "x(400)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 4
+  MAX-WIDTH 800
+  ORDER 30
+
+ADD INDEX "AttributeGroupGuid" ON "SmartAttributeGroup" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "AttributeGroupGuid" ASCENDING 
+
+ADD INDEX "AttributeGroupName" ON "SmartAttributeGroup" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "AttributeGroupName" ASCENDING 
+
+ADD TABLE "SmartAttributeValue"
+  AREA "Schema Area"
+  LABEL "Attribute Value"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartattributevalue"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSAttributeValue.p" CRC "?" 
+
+ADD FIELD "AttributeValueGuid" OF "SmartAttributeValue" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 72
+  ORDER 10
+
+ADD FIELD "ObjectTypeGuid" OF "SmartAttributeValue" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 72
+  ORDER 20
+
+ADD FIELD "ObjectMasterGuid" OF "SmartAttributeValue" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 4
+  MAX-WIDTH 64
+  ORDER 30
+
+ADD FIELD "ContainerObjectMasterGuid" OF "SmartAttributeValue" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 5
+  MAX-WIDTH 72
+  ORDER 40
+
+ADD FIELD "ObjectInstanceGuid" OF "SmartAttributeValue" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 6
+  MAX-WIDTH 72
+  ORDER 50
+
+ADD FIELD "AttributeLabel" OF "SmartAttributeValue" AS character 
+  FORMAT "x(40)"
+  INITIAL ""
+  LABEL "Attribute Label"
+  POSITION 7
+  MAX-WIDTH 80
+  ORDER 70
+
+ADD FIELD "CharacterValue" OF "SmartAttributeValue" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Character Value"
+  POSITION 8
+  MAX-WIDTH 160
+  ORDER 80
+
+ADD FIELD "IntegerValue" OF "SmartAttributeValue" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Integer Value"
+  POSITION 9
+  MAX-WIDTH 4
+  ORDER 90
+
+ADD FIELD "DateValue" OF "SmartAttributeValue" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Date Value"
+  POSITION 10
+  MAX-WIDTH 4
+  ORDER 110
+
+ADD FIELD "DateTimeValue" OF "SmartAttributeValue" AS datetime 
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  INITIAL ?
+  LABEL "DateTime Value"
+  POSITION 11
+  MAX-WIDTH 8
+  ORDER 120
+
+ADD FIELD "DateTimeTzValue" OF "SmartAttributeValue" AS datetime-tz 
+  FORMAT "99/99/9999 HH:MM:SS.SSS+HH:MM"
+  INITIAL ?
+  LABEL "DateTime-TZ Value"
+  POSITION 12
+  MAX-WIDTH 12
+  ORDER 130
+
+ADD FIELD "Int64Value" OF "SmartAttributeValue" AS int64 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Int64 value"
+  POSITION 13
+  MAX-WIDTH 8
+  ORDER 100
+
+ADD FIELD "DecimalValue" OF "SmartAttributeValue" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  LABEL "Decimal Value"
+  POSITION 14
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 140
+
+ADD FIELD "LogicalValue" OF "SmartAttributeValue" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Logical Value"
+  POSITION 15
+  MAX-WIDTH 1
+  ORDER 150
+
+ADD FIELD "RawValue" OF "SmartAttributeValue" AS raw 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Raw value"
+  POSITION 16
+  MAX-WIDTH 16
+  ORDER 160
+
+ADD FIELD "AppliesAtRuntime" OF "SmartAttributeValue" AS logical 
+  FORMAT "yes/no"
+  INITIAL "yes"
+  LABEL "AppliesAtRuntime"
+  POSITION 17
+  MAX-WIDTH 1
+  ORDER 170
+
+ADD FIELD "ConstantValue" OF "SmartAttributeValue" AS logical 
+  DESCRIPTION "If set to YES, this value cannot be modified in any subclass. "
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Constant Value"
+  POSITION 18
+  MAX-WIDTH 1
+  ORDER 60
+
+ADD INDEX "AttributeValueGuid" ON "SmartAttributeValue" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "AttributeValueGuid" ASCENDING 
+
+ADD INDEX "AttributeLabelObjectType" ON "SmartAttributeValue" 
+  AREA "Schema Area"
+  INDEX-FIELD "AttributeLabel" ASCENDING 
+  INDEX-FIELD "ObjectTypeGuid" ASCENDING 
+
+ADD INDEX "ContainerInstanceApplies" ON "SmartAttributeValue" 
+  AREA "Schema Area"
+  INDEX-FIELD "ContainerObjectMasterGuid" ASCENDING 
+  INDEX-FIELD "ObjectInstanceGuid" ASCENDING 
+  INDEX-FIELD "AppliesAtRuntime" ASCENDING 
+
+ADD INDEX "ContainerObjectMasterGuid" ON "SmartAttributeValue" 
+  AREA "Schema Area"
+  INDEX-FIELD "ContainerObjectMasterGuid" ASCENDING 
+
+ADD INDEX "ObjectInstanceLabel" ON "SmartAttributeValue" 
+  AREA "Schema Area"
+  INDEX-FIELD "ObjectInstanceGuid" ASCENDING 
+  INDEX-FIELD "AttributeLabel" ASCENDING 
+
+ADD INDEX "ObjectMasterGuid" ON "SmartAttributeValue" 
+  AREA "Schema Area"
+  INDEX-FIELD "ObjectMasterGuid" ASCENDING 
+
+ADD INDEX "ObjectTypeMasterInstanceLabel" ON "SmartAttributeValue" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "ObjectTypeGuid" ASCENDING 
+  INDEX-FIELD "ObjectMasterGuid" ASCENDING 
+  INDEX-FIELD "ObjectInstanceGuid" ASCENDING 
+  INDEX-FIELD "AttributeLabel" ASCENDING 
+
+ADD INDEX "ObjectTypeMasterInstanceRuntime" ON "SmartAttributeValue" 
+  AREA "Schema Area"
+  INDEX-FIELD "ObjectTypeGuid" ASCENDING 
+  INDEX-FIELD "ObjectMasterGuid" ASCENDING 
+  INDEX-FIELD "ObjectInstanceGuid" ASCENDING 
+  INDEX-FIELD "AppliesAtRuntime" ASCENDING 
+
+ADD TABLE "SmartBusinessEntity"
+  AREA "Schema Area"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartbusinessentity"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSBEntity.p" CRC "?" 
+
+ADD FIELD "BusinessEntityGuid" OF "SmartBusinessEntity" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  LABEL "BusinessEntity Guid"
+  POSITION 2
+  MAX-WIDTH 72
+  COLUMN-LABEL "BusinessEntity Guid"
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "BusinessEntityPackage" OF "SmartBusinessEntity" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Package"
+  POSITION 3
+  MAX-WIDTH 120
+  COLUMN-LABEL "Package"
+  ORDER 20
+  MANDATORY
+
+ADD FIELD "BusinessEntityName" OF "SmartBusinessEntity" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Name"
+  POSITION 4
+  MAX-WIDTH 120
+  COLUMN-LABEL "Name"
+  ORDER 30
+  MANDATORY
+
+ADD FIELD "BusinessEntityPurpose" OF "SmartBusinessEntity" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Purpose"
+  POSITION 5
+  MAX-WIDTH 120
+  COLUMN-LABEL "Purpose"
+  ORDER 40
+
+ADD FIELD "DBRequired" OF "SmartBusinessEntity" AS logical 
+  FORMAT "yes/no"
+  INITIAL "yes"
+  LABEL "DB Required"
+  POSITION 6
+  MAX-WIDTH 1
+  COLUMN-LABEL "DB Required"
+  ORDER 50
+
+ADD FIELD "TrackDeletions" OF "SmartBusinessEntity" AS logical 
+  DESCRIPTION "Track Deletions (in Data Access)"
+  FORMAT "yes/no"
+  FORMAT-SA "U"
+  INITIAL ?
+  INITIAL-SA "U"
+  LABEL "Track Deletions"
+  LABEL-SA "U"
+  POSITION 7
+  MAX-WIDTH 1
+  COLUMN-LABEL-SA "U"
+  VALMSG-SA "U"
+  HELP-SA "U"
+  ORDER 60
+
+ADD INDEX "SmartBusinessEntity" ON "SmartBusinessEntity" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "BusinessEntityGuid" ASCENDING 
+
+ADD INDEX "BusinessEntityName" ON "SmartBusinessEntity" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "BusinessEntityPackage" ASCENDING 
+  INDEX-FIELD "BusinessEntityName" ASCENDING 
+
+ADD TABLE "SmartBusinessEntityTable"
+  AREA "Schema Area"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartbusinessentitytable"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSBETable.p" CRC "?" 
+
+ADD FIELD "BusinessEntityTableGuid" OF "SmartBusinessEntityTable" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  LABEL "BusinessEntity Table Guid"
+  POSITION 2
+  MAX-WIDTH 72
+  COLUMN-LABEL "BusinessEntity Table Guid"
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "BusinessEntityGuid" OF "SmartBusinessEntityTable" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  LABEL "BusinessEntity Guid"
+  POSITION 3
+  MAX-WIDTH 72
+  COLUMN-LABEL "BusinessEntity Guid"
+  ORDER 20
+  MANDATORY
+
+ADD FIELD "TableOrder" OF "SmartBusinessEntityTable" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Table Order"
+  POSITION 4
+  MAX-WIDTH 4
+  COLUMN-LABEL "Table Order"
+  ORDER 30
+  MANDATORY
+
+ADD FIELD "TableLabelSingular" OF "SmartBusinessEntityTable" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Table Label Singular"
+  POSITION 5
+  MAX-WIDTH 120
+  COLUMN-LABEL "Table Label Singular"
+  ORDER 50
+
+ADD FIELD "TableLabelPlural" OF "SmartBusinessEntityTable" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Table Label Plural"
+  POSITION 6
+  MAX-WIDTH 120
+  COLUMN-LABEL "Table Label Plural"
+  ORDER 60
+
+ADD FIELD "ShouldUseBatching" OF "SmartBusinessEntityTable" AS logical 
+  FORMAT "yes/no"
+  INITIAL "yes"
+  LABEL "Should use Batching"
+  POSITION 7
+  MAX-WIDTH 1
+  COLUMN-LABEL "Should use Batching"
+  ORDER 70
+
+ADD FIELD "BatchSize" OF "SmartBusinessEntityTable" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "100"
+  LABEL "Batch Size"
+  POSITION 8
+  MAX-WIDTH 4
+  COLUMN-LABEL "Batch Size"
+  ORDER 80
+
+ADD FIELD "AllowDelete" OF "SmartBusinessEntityTable" AS logical 
+  FORMAT "yes/no"
+  INITIAL "yes"
+  LABEL "Allow Delete"
+  POSITION 9
+  MAX-WIDTH 1
+  COLUMN-LABEL "Allow Delete"
+  ORDER 90
+
+ADD FIELD "AllowCreate" OF "SmartBusinessEntityTable" AS logical 
+  FORMAT "yes/no"
+  INITIAL "yes"
+  LABEL "Allow Create"
+  POSITION 10
+  MAX-WIDTH 1
+  COLUMN-LABEL "Allow Create"
+  ORDER 100
+
+ADD FIELD "AllowUpdate" OF "SmartBusinessEntityTable" AS logical 
+  FORMAT "yes/no"
+  INITIAL "yes"
+  LABEL "Allow Update"
+  POSITION 11
+  MAX-WIDTH 1
+  COLUMN-LABEL "Allow Update"
+  ORDER 110
+
+ADD FIELD "TableName" OF "SmartBusinessEntityTable" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Name"
+  POSITION 12
+  MAX-WIDTH 120
+  COLUMN-LABEL "Name"
+  ORDER 40
+  MANDATORY
+
+ADD INDEX "SmartBusinessEntityTable" ON "SmartBusinessEntityTable" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "BusinessEntityTableGuid" ASCENDING 
+
+ADD INDEX "BusinessEntity" ON "SmartBusinessEntityTable" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "BusinessEntityGuid" ASCENDING 
+  INDEX-FIELD "TableOrder" ASCENDING 
+
+ADD INDEX "TableName" ON "SmartBusinessEntityTable" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "BusinessEntityGuid" ASCENDING 
+  INDEX-FIELD "TableName" ASCENDING 
+
+ADD TABLE "SmartClassType"
+  AREA "Schema Area"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartclasstype"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSClassType.p" CRC "?" 
+
+ADD FIELD "ClassTypeGuid" OF "SmartClassType" AS character 
+  FORMAT "x(36)"
+  FORMAT-SA "U"
+  INITIAL ""
+  INITIAL-SA "U"
+  LABEL "Class Type"
+  LABEL-SA "U"
+  POSITION 2
+  MAX-WIDTH 72
+  COLUMN-LABEL-SA "U"
+  VALMSG-SA "U"
+  HELP-SA "U"
+  ORDER 10
+
+ADD FIELD "ClassTypeName" OF "SmartClassType" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Class Type Name"
+  POSITION 3
+  MAX-WIDTH 40
+  ORDER 20
+  MANDATORY
+
+ADD FIELD "ClassTypeDescription" OF "SmartClassType" AS character 
+  FORMAT "x(300)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 4
+  MAX-WIDTH 600
+  ORDER 30
+
+ADD FIELD "AvmType" OF "SmartClassType" AS logical 
+  DESCRIPTION "Built in AVM type?"
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "AVM Type"
+  POSITION 5
+  MAX-WIDTH 1
+  ORDER 40
+
+ADD INDEX "ClassTypeGuid" ON "SmartClassType" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "ClassTypeGuid" ASCENDING 
+
+ADD INDEX "ClassTypeName" ON "SmartClassType" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "ClassTypeName" ASCENDING 
+
+ADD TABLE "SmartCommentRole"
+  AREA "Schema Area"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartcommentrole"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSCommentRole.p" CRC "?" 
+
+ADD FIELD "CommentRoleGUID" OF "SmartCommentRole" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 72
+  ORDER 10
+
+ADD FIELD "CommentRoleName" OF "SmartCommentRole" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Comment Role"
+  POSITION 3
+  MAX-WIDTH 160
+  ORDER 20
+
+ADD FIELD "CommentRoleDescription" OF "SmartCommentRole" AS character 
+  FORMAT "x(400)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 4
+  MAX-WIDTH 800
+  ORDER 30
+
+ADD FIELD "CommentRoleImageSmall" OF "SmartCommentRole" AS character 
+  FORMAT "x(70)"
+  INITIAL ""
+  LABEL "Small Image Key"
+  POSITION 7
+  MAX-WIDTH 140
+  ORDER 40
+
+ADD FIELD "CommentRoleImageLarge" OF "SmartCommentRole" AS character 
+  FORMAT "x(70)"
+  INITIAL ""
+  LABEL "Large Image Key"
+  POSITION 8
+  MAX-WIDTH 140
+  ORDER 50
+
+ADD INDEX "CommentRoleName" ON "SmartCommentRole" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "CommentRoleName" ASCENDING 
+
+ADD INDEX "CommentRoleGUID" ON "SmartCommentRole" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "CommentRoleGUID" ASCENDING 
+
+ADD TABLE "SmartConfigurationValue"
+  AREA "Schema Area"
+  LABEL "Configuration Value"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartconfigurationvalue"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSConfigurationValue.p" CRC "?" 
+
+ADD FIELD "ConfigurationValueGuid" OF "SmartConfigurationValue" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 72
+  ORDER 10
+
+ADD FIELD "ConfigurationValueName" OF "SmartConfigurationValue" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Name"
+  POSITION 3
+  MAX-WIDTH 40
+  ORDER 20
+
+ADD FIELD "ConfigurationValueCharacter" OF "SmartConfigurationValue" AS character 
+  FORMAT "x(50)"
+  INITIAL ?
+  LABEL "Value Character"
+  POSITION 4
+  MAX-WIDTH 100
+  ORDER 30
+
+ADD FIELD "ConfigurationValueInteger" OF "SmartConfigurationValue" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL ?
+  POSITION 5
+  MAX-WIDTH 4
+  ORDER 40
+
+ADD FIELD "ConfigurationValueInt64" OF "SmartConfigurationValue" AS int64 
+  FORMAT "->,>>>,>>9"
+  INITIAL ?
+  POSITION 6
+  MAX-WIDTH 8
+  ORDER 50
+
+ADD FIELD "ConfigurationValueDecimal" OF "SmartConfigurationValue" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL ?
+  POSITION 7
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 60
+
+ADD FIELD "ConfiugrationValueData" OF "SmartConfigurationValue" AS date 
+  FORMAT "99/99/99"
+  INITIAL ?
+  POSITION 8
+  MAX-WIDTH 4
+  ORDER 70
+
+ADD FIELD "ConfigurationValueDateTime" OF "SmartConfigurationValue" AS datetime 
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  INITIAL ?
+  POSITION 9
+  MAX-WIDTH 8
+  ORDER 80
+
+ADD FIELD "ConfigurationValueDateTimeTz" OF "SmartConfigurationValue" AS datetime-tz 
+  FORMAT "99/99/9999 HH:MM:SS.SSS+HH:MM"
+  INITIAL ?
+  POSITION 10
+  MAX-WIDTH 12
+  ORDER 90
+
+ADD FIELD "ConfigurationValueLogical" OF "SmartConfigurationValue" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  POSITION 11
+  MAX-WIDTH 1
+  ORDER 100
+
+ADD INDEX "ConfigurationValueGuid" ON "SmartConfigurationValue" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "ConfigurationValueGuid" ASCENDING 
+
+ADD INDEX "ConfigurationValueName" ON "SmartConfigurationValue" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "ConfigurationValueName" ASCENDING 
+
+ADD TABLE "SmartContextStore"
+  AREA "Schema Area"
+  LABEL "Context Store"
+  LABEL-SA "U"
+  DESCRIPTION "Persistent Store for Context Dataset between Authenticated REST calls"
+  VALMSG-SA "U"
+  DUMP-NAME "smartcontextstore"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSContextStore.p" CRC "?" 
+
+ADD FIELD "ContextStoreGUID" OF "SmartContextStore" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 72
+  ORDER 10
+
+ADD FIELD "UserName" OF "SmartContextStore" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "User Name"
+  POSITION 3
+  MAX-WIDTH 40
+  ORDER 30
+
+ADD FIELD "DomainName" OF "SmartContextStore" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Domain Name"
+  POSITION 4
+  MAX-WIDTH 40
+  ORDER 40
+
+ADD FIELD "Created" OF "SmartContextStore" AS datetime-tz 
+  FORMAT "99/99/9999 HH:MM:SS.SSS+HH:MM"
+  INITIAL ?
+  LABEL "Date Time Created"
+  POSITION 5
+  MAX-WIDTH 12
+  ORDER 50
+
+ADD FIELD "LastAccessed" OF "SmartContextStore" AS datetime-tz 
+  FORMAT "99/99/9999 HH:MM:SS.SSS+HH:MM"
+  INITIAL ?
+  LABEL "Date Time Last Accessed"
+  POSITION 6
+  MAX-WIDTH 12
+  ORDER 60
+
+ADD FIELD "ContextDataset" OF "SmartContextStore" AS clob 
+  FORMAT "x(8)"
+  INITIAL ?
+  POSITION 7
+  LOB-AREA "Schema Area"
+  LOB-BYTES 104857600
+  LOB-SIZE 100M
+  CLOB-CODEPAGE "iso8859-1"
+  CLOB-COLLATION "basic"
+  CLOB-TYPE 1
+  ORDER 70
+
+ADD FIELD "SessionID" OF "SmartContextStore" AS character 
+  FORMAT "x(40)"
+  INITIAL ""
+  LABEL "Session ID"
+  POSITION 8
+  MAX-WIDTH 80
+  ORDER 20
+
+ADD INDEX "ContextStoreGUID" ON "SmartContextStore" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "ContextStoreGUID" ASCENDING 
+
+ADD INDEX "Created" ON "SmartContextStore" 
+  AREA "Schema Area"
+  INDEX-FIELD "Created" ASCENDING 
+
+ADD INDEX "DomainUser" ON "SmartContextStore" 
+  AREA "Schema Area"
+  INDEX-FIELD "DomainName" ASCENDING 
+  INDEX-FIELD "UserName" ASCENDING 
+
+ADD INDEX "LastAccessed" ON "SmartContextStore" 
+  AREA "Schema Area"
+  INDEX-FIELD "LastAccessed" ASCENDING 
+
+ADD INDEX "SessionID" ON "SmartContextStore" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "SessionID" ASCENDING 
+
+ADD TABLE "SmartCustomization"
+  AREA "Schema Area"
+  LABEL "Customization"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartcustomization"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSCustomization.p" CRC "?" 
+
+ADD FIELD "CustomizationGuid" OF "SmartCustomization" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 72
+  ORDER 10
+
+ADD FIELD "CustomizationTypeGuid" OF "SmartCustomization" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  LABEL ""
+  POSITION 3
+  MAX-WIDTH 72
+  ORDER 20
+
+ADD FIELD "CustomizationResultGuid" OF "SmartCustomization" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  LABEL "Customization Result"
+  POSITION 4
+  MAX-WIDTH 72
+  ORDER 30
+
+ADD FIELD "ReferenceValue" OF "SmartCustomization" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Reference Value"
+  POSITION 5
+  MAX-WIDTH 160
+  ORDER 40
+
+ADD INDEX "CustomizationGuid" ON "SmartCustomization" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "CustomizationGuid" ASCENDING 
+
+ADD INDEX "CustomizationResultGuid" ON "SmartCustomization" 
+  AREA "Schema Area"
+  INDEX-FIELD "CustomizationResultGuid" ASCENDING 
+
+ADD INDEX "CustomizationTypeGuid" ON "SmartCustomization" 
+  AREA "Schema Area"
+  INDEX-FIELD "CustomizationTypeGuid" ASCENDING 
+
+ADD INDEX "ReferenceValue" ON "SmartCustomization" 
+  AREA "Schema Area"
+  INDEX-FIELD "ReferenceValue" ASCENDING 
+
+ADD TABLE "SmartCustomizationResult"
+  AREA "Schema Area"
+  LABEL "Cusomization Result"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartcustomizationresult"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSCustomizationResult.p" CRC "?" 
+
+ADD FIELD "CustomizationResultGuid" OF "SmartCustomizationResult" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  LABEL "Customization Result"
+  POSITION 2
+  MAX-WIDTH 72
+  ORDER 10
+
+ADD FIELD "CustomizationResultCode" OF "SmartCustomizationResult" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Result Code"
+  POSITION 3
+  MAX-WIDTH 160
+  ORDER 20
+
+ADD FIELD "CustomizationResultDescription" OF "SmartCustomizationResult" AS character 
+  FORMAT "x(400)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 4
+  MAX-WIDTH 800
+  ORDER 30
+
+ADD FIELD "CustomizationTypeGuid" OF "SmartCustomizationResult" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  LABEL ""
+  POSITION 5
+  MAX-WIDTH 72
+  ORDER 40
+
+ADD INDEX "CustomizationResultGuid" ON "SmartCustomizationResult" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "CustomizationResultGuid" ASCENDING 
+
+ADD INDEX "CustomizationResultCode" ON "SmartCustomizationResult" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "CustomizationResultCode" ASCENDING 
+
+ADD INDEX "CustomizationResultDescription" ON "SmartCustomizationResult" 
+  AREA "Schema Area"
+  INDEX-FIELD "CustomizationResultDescription" ASCENDING 
+
+ADD INDEX "CustomizationTypeGuid" ON "SmartCustomizationResult" 
+  AREA "Schema Area"
+  INDEX-FIELD "CustomizationTypeGuid" ASCENDING 
+
+ADD TABLE "SmartCustomizationType"
+  AREA "Schema Area"
+  LABEL "Customization Type"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartcustomizationtype"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSCustomizationType.p" CRC "?" 
+
+ADD FIELD "CustomizationTypeGuid" OF "SmartCustomizationType" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  LABEL ""
+  POSITION 2
+  MAX-WIDTH 72
+  ORDER 10
+
+ADD FIELD "CustomizationTypeCode" OF "SmartCustomizationType" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Customization Type"
+  POSITION 3
+  MAX-WIDTH 160
+  ORDER 20
+
+ADD FIELD "CustomizationTypeDescription" OF "SmartCustomizationType" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 4
+  MAX-WIDTH 160
+  ORDER 30
+
+ADD FIELD "ServiceTypeName" OF "SmartCustomizationType" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Service Type Name"
+  POSITION 5
+  MAX-WIDTH 160
+  ORDER 40
+
+ADD FIELD "ServiceMethodName" OF "SmartCustomizationType" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Method Name"
+  POSITION 6
+  MAX-WIDTH 160
+  ORDER 50
+
+ADD INDEX "CustomizationTypeGuid" ON "SmartCustomizationType" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "CustomizationTypeGuid" ASCENDING 
+
+ADD INDEX "CustomizationTypeCode" ON "SmartCustomizationType" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "CustomizationTypeGuid" ASCENDING 
+
+ADD INDEX "CustomizationTypeDescription" ON "SmartCustomizationType" 
+  AREA "Schema Area"
+  INDEX-FIELD "CustomizationTypeDescription" ASCENDING 
+
+ADD TABLE "SmartDeletion"
+  AREA "Schema Area"
+  LABEL "Deletion"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartdeletion"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSDeletion.p" CRC "?" 
+
+ADD FIELD "DeletionGuid" OF "SmartDeletion" AS character 
+  FORMAT "x(36)"
+  FORMAT-SA "U"
+  INITIAL ""
+  INITIAL-SA "U"
+  LABEL-SA "U"
+  POSITION 2
+  MAX-WIDTH 72
+  COLUMN-LABEL-SA "U"
+  VALMSG-SA "U"
+  HELP-SA "U"
+  ORDER 10
+
+ADD FIELD "DeletionTable" OF "SmartDeletion" AS character 
+  FORMAT "x(22)"
+  FORMAT-SA "U"
+  INITIAL ""
+  INITIAL-SA "U"
+  LABEL "Table"
+  LABEL-SA "U"
+  POSITION 3
+  MAX-WIDTH 44
+  COLUMN-LABEL-SA "U"
+  VALMSG-SA "U"
+  HELP-SA "U"
+  ORDER 20
+
+ADD FIELD "DeletionKeyFieldValues" OF "SmartDeletion" AS character 
+  FORMAT "x(40)"
+  FORMAT-SA "U"
+  INITIAL ""
+  INITIAL-SA "U"
+  LABEL "Key Field Values"
+  LABEL-SA "U"
+  POSITION 4
+  MAX-WIDTH 80
+  COLUMN-LABEL-SA "U"
+  VALMSG-SA "U"
+  HELP-SA "U"
+  ORDER 30
+
+ADD FIELD "DeletionTimeStamp" OF "SmartDeletion" AS datetime-tz 
+  FORMAT "99/99/9999 HH:MM:SS.SSS+HH:MM"
+  FORMAT-SA "U"
+  INITIAL ?
+  INITIAL-SA "U"
+  LABEL "Time Stamp"
+  LABEL-SA "U"
+  POSITION 5
+  MAX-WIDTH 12
+  COLUMN-LABEL-SA "U"
+  VALMSG-SA "U"
+  HELP-SA "U"
+  ORDER 40
+
+ADD FIELD "DeletionUser" OF "SmartDeletion" AS character 
+  FORMAT "x(20)"
+  FORMAT-SA "U"
+  INITIAL ""
+  INITIAL-SA "U"
+  LABEL "User Name"
+  LABEL-SA "U"
+  POSITION 6
+  MAX-WIDTH 40
+  COLUMN-LABEL-SA "U"
+  VALMSG-SA "U"
+  HELP-SA "U"
+  ORDER 50
+
+ADD INDEX "DeletionGuid" ON "SmartDeletion" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "DeletionGuid" ASCENDING 
+
+ADD TABLE "SmartEntityFieldMapping"
+  AREA "Schema Area"
+  LABEL "Entity Field Mapping"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartentityfieldmapping"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSEntityFieldMapping.p" CRC "?" 
+
+ADD FIELD "EntityFieldMappingGuid" OF "SmartEntityFieldMapping" AS character 
+  FORMAT "x(36)"
+  FORMAT-SA "U"
+  INITIAL ""
+  INITIAL-SA "U"
+  LABEL-SA "U"
+  POSITION 2
+  MAX-WIDTH 72
+  COLUMN-LABEL-SA "U"
+  VALMSG-SA "U"
+  HELP-SA "U"
+  ORDER 10
+
+ADD FIELD "EntityName" OF "SmartEntityFieldMapping" AS character 
+  FORMAT "x(40)"
+  FORMAT-SA "U"
+  INITIAL "*"
+  INITIAL-SA "U"
+  LABEL "Entity Name"
+  LABEL-SA "U"
+  POSITION 3
+  MAX-WIDTH 80
+  COLUMN-LABEL-SA "U"
+  VALMSG-SA "U"
+  HELP-SA "U"
+  ORDER 20
+
+ADD FIELD "EntityTable" OF "SmartEntityFieldMapping" AS character 
+  FORMAT "x(40)"
+  FORMAT-SA "U"
+  INITIAL "*"
+  INITIAL-SA "U"
+  LABEL "Table Name"
+  LABEL-SA "U"
+  POSITION 4
+  MAX-WIDTH 80
+  COLUMN-LABEL-SA "U"
+  VALMSG-SA "U"
+  HELP-SA "U"
+  ORDER 30
+
+ADD FIELD "FieldName" OF "SmartEntityFieldMapping" AS character 
+  FORMAT "x(40)"
+  FORMAT-SA "U"
+  INITIAL ""
+  INITIAL-SA "U"
+  LABEL "Field Name"
+  LABEL-SA "U"
+  POSITION 5
+  MAX-WIDTH 80
+  COLUMN-LABEL-SA "U"
+  VALMSG-SA "U"
+  HELP-SA "U"
+  ORDER 40
+
+ADD FIELD "Environments" OF "SmartEntityFieldMapping" AS character 
+  FORMAT "x(40)"
+  FORMAT-SA "U"
+  INITIAL "GUI,WEB"
+  INITIAL-SA "U"
+  LABEL "Environments"
+  LABEL-SA "U"
+  POSITION 6
+  MAX-WIDTH 80
+  COLUMN-LABEL-SA "U"
+  VALMSG-SA "U"
+  HELP-SA "U"
+  ORDER 50
+
+ADD FIELD "FieldObjectName" OF "SmartEntityFieldMapping" AS character 
+  FORMAT "x(40)"
+  FORMAT-SA "U"
+  INITIAL ""
+  INITIAL-SA "U"
+  LABEL "Object Name"
+  LABEL-SA "U"
+  POSITION 7
+  MAX-WIDTH 80
+  COLUMN-LABEL-SA "U"
+  VALMSG-SA "U"
+  HELP-SA "U"
+  ORDER 60
+
+ADD INDEX "EntityFieldMappingGuid" ON "SmartEntityFieldMapping" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "EntityFieldMappingGuid" ASCENDING 
+
+ADD INDEX "FieldName" ON "SmartEntityFieldMapping" 
+  AREA "Schema Area"
+  INDEX-FIELD "FieldName" ASCENDING 
+  INDEX-FIELD "EntityName" ASCENDING 
+  INDEX-FIELD "EntityTable" ASCENDING 
+
+ADD INDEX "FieldObjectName" ON "SmartEntityFieldMapping" 
+  AREA "Schema Area"
+  INDEX-FIELD "FieldObjectName" ASCENDING 
+
+ADD TABLE "SmartFieldSecurityItem"
+  AREA "Schema Area"
+  LABEL "Field Security Item"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartfieldsecurityitem"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSFieldSecurityItem.p" CRC "?" 
+
+ADD FIELD "FieldSecurityItemGuid" OF "SmartFieldSecurityItem" AS character 
+  FORMAT "x(36)"
+  FORMAT-SA "U"
+  INITIAL ""
+  INITIAL-SA "U"
+  LABEL-SA "U"
+  POSITION 2
+  MAX-WIDTH 72
+  COLUMN-LABEL-SA "U"
+  VALMSG-SA "U"
+  HELP-SA "U"
+  ORDER 10
+
+ADD FIELD "FieldName" OF "SmartFieldSecurityItem" AS character 
+  FORMAT "x(60)"
+  FORMAT-SA "U"
+  INITIAL ""
+  INITIAL-SA "U"
+  LABEL "Field Name"
+  LABEL-SA "U"
+  POSITION 3
+  MAX-WIDTH 120
+  COLUMN-LABEL-SA "U"
+  VALMSG-SA "U"
+  HELP-SA "U"
+  ORDER 20
+
+ADD FIELD "SecurityKey" OF "SmartFieldSecurityItem" AS character 
+  FORMAT "x(60)"
+  FORMAT-SA "U"
+  INITIAL ""
+  INITIAL-SA "U"
+  LABEL "Security Key"
+  LABEL-SA "U"
+  POSITION 4
+  MAX-WIDTH 120
+  COLUMN-LABEL-SA "U"
+  VALMSG-SA "U"
+  HELP-SA "U"
+  ORDER 30
+
+ADD FIELD "ObjectName" OF "SmartFieldSecurityItem" AS character 
+  FORMAT "x(60)"
+  FORMAT-SA "U"
+  INITIAL ""
+  INITIAL-SA "U"
+  LABEL "Object Name"
+  LABEL-SA "U"
+  POSITION 5
+  MAX-WIDTH 120
+  COLUMN-LABEL-SA "U"
+  VALMSG-SA "U"
+  HELP-SA "U"
+  ORDER 40
+
+ADD FIELD "Description" OF "SmartFieldSecurityItem" AS character 
+  FORMAT "x(60)"
+  FORMAT-SA "U"
+  INITIAL ""
+  INITIAL-SA "U"
+  LABEL "Description"
+  LABEL-SA "U"
+  POSITION 6
+  MAX-WIDTH 120
+  COLUMN-LABEL-SA "U"
+  VALMSG-SA "U"
+  HELP-SA "U"
+  ORDER 50
+
+ADD INDEX "FieldSecurityItemGuid" ON "SmartFieldSecurityItem" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "FieldSecurityItemGuid" ASCENDING 
+
+ADD INDEX "FieldName" ON "SmartFieldSecurityItem" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "FieldName" ASCENDING 
+  INDEX-FIELD "SecurityKey" ASCENDING 
+  INDEX-FIELD "ObjectName" ASCENDING 
+
+ADD TABLE "SmartFunction"
+  AREA "Schema Area"
+  LABEL "Smart Function"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartfunction"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSFunc.p" CRC "?" 
+
+ADD FIELD "FunctionGuid" OF "SmartFunction" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 72
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "FunctionName" OF "SmartFunction" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 40
+  ORDER 20
+
+ADD FIELD "FunctionDescription" OF "SmartFunction" AS character 
+  FORMAT "x(100)"
+  INITIAL ""
+  POSITION 4
+  MAX-WIDTH 200
+  ORDER 30
+
+ADD FIELD "FunctionSmallImage" OF "SmartFunction" AS character 
+  FORMAT "x(50)"
+  INITIAL ""
+  POSITION 6
+  MAX-WIDTH 100
+  ORDER 50
+
+ADD FIELD "FunctionLargeImage" OF "SmartFunction" AS character 
+  FORMAT "x(50)"
+  INITIAL ""
+  POSITION 7
+  MAX-WIDTH 100
+  ORDER 60
+
+ADD FIELD "FunctionModuleGuid" OF "SmartFunction" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 8
+  MAX-WIDTH 72
+  ORDER 70
+
+ADD FIELD "FunctionCallParameter" OF "SmartFunction" AS clob 
+  FORMAT "x(8)"
+  INITIAL ?
+  POSITION 9
+  LOB-AREA "Schema Area"
+  LOB-BYTES 104857600
+  LOB-SIZE 100M
+  CLOB-CODEPAGE "UTF-8"
+  CLOB-COLLATION "BASIC"
+  CLOB-TYPE 2
+  ORDER 40
+
+ADD FIELD "ExternalId" OF "SmartFunction" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "External ID"
+  POSITION 10
+  MAX-WIDTH 120
+  COLUMN-LABEL "External ID"
+  ORDER 80
+
+ADD INDEX "FunctionGuid" ON "SmartFunction" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "FunctionGuid" ASCENDING 
+
+ADD INDEX "ExternalId" ON "SmartFunction" 
+  AREA "Schema Area"
+  INDEX-FIELD "ExternalId" ASCENDING 
+
+ADD INDEX "FunctionName" ON "SmartFunction" 
+  AREA "Schema Area"
+  INDEX-FIELD "FunctionName" ASCENDING 
+
+ADD TABLE "SmartGroup"
+  AREA "Schema Area"
+  LABEL "Group"
+  LABEL-SA "U"
+  DESCRIPTION "Master table for groups"
+  VALMSG-SA "U"
+  DUMP-NAME "smartgroup"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSGrp.p" CRC "?" 
+
+ADD FIELD "GroupGuid" OF "SmartGroup" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 72
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "GroupName" OF "SmartGroup" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 40
+  ORDER 20
+
+ADD FIELD "ParentGroupGuid" OF "SmartGroup" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 4
+  MAX-WIDTH 72
+  ORDER 30
+
+ADD FIELD "LoginCompanyGuid" OF "SmartGroup" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 5
+  MAX-WIDTH 72
+  ORDER 40
+
+ADD INDEX "GroupGuid" ON "SmartGroup" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "GroupGuid" ASCENDING 
+
+ADD INDEX "LoginCompanyGuid" ON "SmartGroup" 
+  AREA "Schema Area"
+  INDEX-FIELD "LoginCompanyGuid" ASCENDING 
+
+ADD INDEX "ParentGroupGuid" ON "SmartGroup" 
+  AREA "Schema Area"
+  INDEX-FIELD "ParentGroupGuid" ASCENDING 
+
+ADD TABLE "SmartKeyFieldAssignmentType"
+  AREA "Schema Area"
+  LABEL "Key Field Assignment Type"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartkeyfieldassignmenttype"
+
+ADD FIELD "KeyFieldAssignmentGUID" OF "SmartKeyFieldAssignmentType" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 72
+  ORDER 10
+
+ADD FIELD "KeyFieldAssignmentKey" OF "SmartKeyFieldAssignmentType" AS character 
+  DESCRIPTION "The key with should be referred to in program code"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Key"
+  POSITION 3
+  MAX-WIDTH 16
+  ORDER 20
+
+ADD FIELD "KeyFieldAssignmentDescription" OF "SmartKeyFieldAssignmentType" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 4
+  MAX-WIDTH 120
+  ORDER 30
+
+ADD INDEX "KeyFieldAssignmentGUID" ON "SmartKeyFieldAssignmentType" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "KeyFieldAssignmentGUID" ASCENDING 
+
+ADD INDEX "KeyFieldAssignmentDescription" ON "SmartKeyFieldAssignmentType" 
+  AREA "Schema Area"
+  INDEX-FIELD "KeyFieldAssignmentDescription" ASCENDING 
+
+ADD INDEX "KeyFieldAssignmentKey" ON "SmartKeyFieldAssignmentType" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "KeyFieldAssignmentKey" ASCENDING 
+
+ADD TABLE "SmartLanguage"
+  AREA "Schema Area"
+  LABEL "Language"
+  LABEL-SA "U"
+  DESCRIPTION "Master table for languages"
+  VALMSG-SA "U"
+  DUMP-NAME "smartlanguage"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSLng.p" CRC "?" 
+
+ADD FIELD "LanguageGuid" OF "SmartLanguage" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 72
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "LanguageName" OF "SmartLanguage" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 40
+  ORDER 20
+
+ADD FIELD "LanguageIsoCode" OF "SmartLanguage" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 5
+  MAX-WIDTH 16
+  ORDER 40
+  MANDATORY
+
+ADD FIELD "LanguageImage" OF "SmartLanguage" AS character 
+  FORMAT "x(40)"
+  INITIAL ""
+  POSITION 6
+  MAX-WIDTH 80
+  ORDER 30
+
+ADD FIELD "RcodeLanguage" OF "SmartLanguage" AS character 
+  DESCRIPTION "The value of CURRENT-LANGUAGE might be a comma?separated list of language names. If so, the AVM searches r?code for a text segment that matches the first language in the list. If that segment is not found, then it searches for a text segment for the next entry in the list until a segment is found."
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "RCode Language"
+  POSITION 7
+  MAX-WIDTH 60
+  ORDER 50
+
+ADD INDEX "LanguageGuid" ON "SmartLanguage" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "LanguageGuid" ASCENDING 
+
+ADD INDEX "LanguageIsoCode" ON "SmartLanguage" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "LanguageIsoCode" ASCENDING 
+
+ADD TABLE "SmartLink"
+  AREA "Schema Area"
+  LABEL "Link"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartlink"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSLink.p" CRC "?" 
+
+ADD FIELD "LinkGuid" OF "SmartLink" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 72
+  ORDER 10
+
+ADD FIELD "ContainerObjectMasterGuid" OF "SmartLink" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 72
+  ORDER 20
+
+ADD FIELD "LinkTypeGuid" OF "SmartLink" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 4
+  MAX-WIDTH 72
+  ORDER 30
+
+ADD FIELD "LinkName" OF "SmartLink" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Link Name"
+  POSITION 5
+  MAX-WIDTH 160
+  ORDER 40
+
+ADD FIELD "SourceObjectInstanceGuid" OF "SmartLink" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 6
+  MAX-WIDTH 72
+  ORDER 50
+
+ADD FIELD "TargetObjectInstanceGuid" OF "SmartLink" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 7
+  MAX-WIDTH 72
+  ORDER 60
+
+ADD INDEX "LinkGuid" ON "SmartLink" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "LinkGuid" ASCENDING 
+
+ADD INDEX "ContainerSourceLinkTarget" ON "SmartLink" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "ContainerObjectMasterGuid" ASCENDING 
+  INDEX-FIELD "SourceObjectInstanceGuid" ASCENDING 
+  INDEX-FIELD "LinkName" ASCENDING 
+  INDEX-FIELD "TargetObjectInstanceGuid" ASCENDING 
+
+ADD INDEX "LinkContainer" ON "SmartLink" 
+  AREA "Schema Area"
+  INDEX-FIELD "LinkName" ASCENDING 
+  INDEX-FIELD "ContainerObjectMasterGuid" ASCENDING 
+
+ADD INDEX "LinkTypeContainer" ON "SmartLink" 
+  AREA "Schema Area"
+  INDEX-FIELD "LinkTypeGuid" ASCENDING 
+  INDEX-FIELD "ContainerObjectMasterGuid" ASCENDING 
+
+ADD INDEX "SourceContainer" ON "SmartLink" 
+  AREA "Schema Area"
+  INDEX-FIELD "SourceObjectInstanceGuid" ASCENDING 
+  INDEX-FIELD "ContainerObjectMasterGuid" ASCENDING 
+
+ADD INDEX "TargetContainer" ON "SmartLink" 
+  AREA "Schema Area"
+  INDEX-FIELD "TargetObjectInstanceGuid" ASCENDING 
+  INDEX-FIELD "ContainerObjectMasterGuid" ASCENDING 
+
+ADD TABLE "SmartLinkType"
+  AREA "Schema Area"
+  LABEL "Link Type"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartlinktype"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSLinkType.p" CRC "?" 
+
+ADD FIELD "LinkTypeGuid" OF "SmartLinkType" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 72
+  ORDER 10
+
+ADD FIELD "LinkName" OF "SmartLinkType" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Link Name"
+  POSITION 3
+  MAX-WIDTH 160
+  ORDER 20
+
+ADD FIELD "SourcePropertyName" OF "SmartLinkType" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Source Property Name"
+  POSITION 4
+  MAX-WIDTH 160
+  ORDER 30
+
+ADD FIELD "SourceHandshakeMethod" OF "SmartLinkType" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Source Handshake Method"
+  POSITION 5
+  MAX-WIDTH 160
+  ORDER 40
+
+ADD FIELD "TargetPropertyName" OF "SmartLinkType" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Target Property Name"
+  POSITION 6
+  MAX-WIDTH 160
+  ORDER 50
+
+ADD FIELD "TargetHandshakeMethod" OF "SmartLinkType" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Target Handshake Method"
+  POSITION 7
+  MAX-WIDTH 160
+  ORDER 60
+
+ADD INDEX "LinkTypeGuid" ON "SmartLinkType" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "LinkTypeGuid" ASCENDING 
+
+ADD INDEX "LinkName" ON "SmartLinkType" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "LinkName" ASCENDING 
+
+ADD TABLE "SmartLoginCompany"
+  AREA "Schema Area"
+  LABEL "Login Company"
+  LABEL-SA "U"
+  DESCRIPTION "Master table for Login Companys"
+  VALMSG-SA "U"
+  DUMP-NAME "smartlogincompany"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSLComp.p" CRC "?" 
+
+ADD FIELD "LoginCompanyGuid" OF "SmartLoginCompany" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 72
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "LoginCompanyName" OF "SmartLoginCompany" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 40
+  ORDER 20
+
+ADD FIELD "LoginCompanyImageLarge" OF "SmartLoginCompany" AS character 
+  FORMAT "x(50)"
+  INITIAL ""
+  LABEL "Large Image"
+  POSITION 5
+  MAX-WIDTH 160
+  ORDER 50
+
+ADD FIELD "LoginCompanyReferenceChar" OF "SmartLoginCompany" AS character 
+  FORMAT "x(50)"
+  INITIAL ""
+  LABEL "Foreign Reference Character"
+  POSITION 6
+  MAX-WIDTH 100
+  ORDER 60
+
+ADD FIELD "LoginCompanyReferenceInteger" OF "SmartLoginCompany" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Foreign Reference Integer"
+  POSITION 7
+  MAX-WIDTH 4
+  ORDER 70
+
+ADD FIELD "LoginCompanyReferenceDecimal" OF "SmartLoginCompany" AS decimal 
+  FORMAT "->,>>,>>>,>>9.999999999"
+  INITIAL "0"
+  LABEL "Foreign Reference Decimal"
+  POSITION 8
+  MAX-WIDTH 24
+  DECIMALS 9
+  ORDER 80
+
+ADD FIELD "LoginCompanyTenantDomain" OF "SmartLoginCompany" AS character 
+  FORMAT "x(50)"
+  INITIAL ""
+  LABEL "Multi-Tenancy Domain"
+  POSITION 9
+  MAX-WIDTH 100
+  ORDER 90
+
+ADD FIELD "LoginCompanyShort" OF "SmartLoginCompany" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Short Name"
+  POSITION 10
+  MAX-WIDTH 40
+  ORDER 30
+
+ADD FIELD "LoginCompanyImageSmall" OF "SmartLoginCompany" AS character 
+  FORMAT "x(50)"
+  INITIAL ""
+  LABEL "Small Image"
+  POSITION 11
+  MAX-WIDTH 160
+  ORDER 40
+
+ADD INDEX "LoginCompanyGuid" ON "SmartLoginCompany" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "LoginCompanyGuid" ASCENDING 
+
+ADD INDEX "LoginCompanyName" ON "SmartLoginCompany" 
+  AREA "Schema Area"
+  INDEX-FIELD "LoginCompanyName" ASCENDING 
+
+ADD INDEX "LoginCompanyShort" ON "SmartLoginCompany" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "LoginCompanyShort" ASCENDING 
+
+ADD INDEX "TenantDomain" ON "SmartLoginCompany" 
+  AREA "Schema Area"
+  INDEX-FIELD "LoginCompanyTenantDomain" ASCENDING 
+
+ADD TABLE "SmartMenu"
+  AREA "Schema Area"
+  LABEL "Menustructure"
+  LABEL-SA "U"
+  DESCRIPTION "Master table for the menustructure"
+  VALMSG-SA "U"
+  DUMP-NAME "smartmenu"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSMenu.p" CRC "?" 
+
+ADD FIELD "MenuGuid" OF "SmartMenu" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 72
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "ParentMenuGuid" OF "SmartMenu" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 72
+  ORDER 20
+
+ADD FIELD "MenuName" OF "SmartMenu" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  POSITION 4
+  MAX-WIDTH 40
+  ORDER 30
+
+ADD FIELD "MenuStructureType" OF "SmartMenu" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  POSITION 6
+  MAX-WIDTH 24
+  ORDER 40
+  MANDATORY
+
+ADD FIELD "MenuBeginsAGroup" OF "SmartMenu" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  POSITION 7
+  MAX-WIDTH 1
+  ORDER 50
+
+ADD FIELD "MenuSmallImage" OF "SmartMenu" AS character 
+  FORMAT "x(40)"
+  INITIAL ""
+  POSITION 8
+  MAX-WIDTH 80
+  ORDER 60
+
+ADD FIELD "MenuLargeImage" OF "SmartMenu" AS character 
+  FORMAT "x(40)"
+  INITIAL ""
+  POSITION 9
+  MAX-WIDTH 80
+  ORDER 70
+
+ADD FIELD "MenuSequence" OF "SmartMenu" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  POSITION 10
+  MAX-WIDTH 4
+  ORDER 80
+
+ADD FIELD "FunctionGuid" OF "SmartMenu" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 11
+  MAX-WIDTH 72
+  ORDER 90
+
+ADD FIELD "MenuStyleGuid" OF "SmartMenu" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 12
+  MAX-WIDTH 72
+  ORDER 100
+  MANDATORY
+
+ADD INDEX "MenuGuid" ON "SmartMenu" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "MenuGuid" ASCENDING 
+
+ADD INDEX "ParentMenuGuidSequence" ON "SmartMenu" 
+  AREA "Schema Area"
+  INDEX-FIELD "ParentMenuGuid" ASCENDING 
+  INDEX-FIELD "MenuSequence" ASCENDING 
+
+ADD TABLE "SmartMenuGroup"
+  AREA "Schema Area"
+  LABEL "Menu Group Assignment"
+  LABEL-SA "U"
+  DESCRIPTION "Assignment table for Menu and Groups"
+  VALMSG-SA "U"
+  DUMP-NAME "smartmenugroup"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSMenuGrp.p" CRC "?" 
+
+ADD FIELD "MenuGroupGuid" OF "SmartMenuGroup" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 72
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "MenuGuid" OF "SmartMenuGroup" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 72
+  ORDER 20
+  MANDATORY
+
+ADD FIELD "GroupGuid" OF "SmartMenuGroup" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 4
+  MAX-WIDTH 72
+  ORDER 30
+  MANDATORY
+
+ADD INDEX "MenuGroupGuid" ON "SmartMenuGroup" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "MenuGroupGuid" ASCENDING 
+
+ADD INDEX "GroupId" ON "SmartMenuGroup" 
+  AREA "Schema Area"
+  INDEX-FIELD "GroupGuid" ASCENDING 
+
+ADD TABLE "SmartMenuStyle"
+  AREA "Schema Area"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartmenustyle"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSMenuStyle.p" CRC "?" 
+
+ADD FIELD "MenuStyleGuid" OF "SmartMenuStyle" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 72
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "MenuStyleCode" OF "SmartMenuStyle" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Menu Style Code"
+  POSITION 3
+  MAX-WIDTH 16
+  ORDER 20
+
+ADD FIELD "MenuStyleDescription" OF "SmartMenuStyle" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 4
+  MAX-WIDTH 160
+  ORDER 30
+
+ADD INDEX "MenuStyleGuid" ON "SmartMenuStyle" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "MenuStyleGuid" ASCENDING 
+
+ADD INDEX "MenuStyleCode" ON "SmartMenuStyle" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "MenuStyleCode" ASCENDING 
+
+ADD TABLE "SmartMessage"
+  AREA "Schema Area"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartmessage"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSMessage.p" CRC "?" 
+
+ADD FIELD "MessageGuid" OF "SmartMessage" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 72
+  ORDER 10
+
+ADD FIELD "MessageGroup" OF "SmartMessage" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Message Group"
+  POSITION 3
+  MAX-WIDTH 16
+  ORDER 20
+
+ADD FIELD "MessageNumber" OF "SmartMessage" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  POSITION 4
+  MAX-WIDTH 4
+  ORDER 30
+
+ADD FIELD "LanguageGuid" OF "SmartMessage" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 5
+  MAX-WIDTH 72
+  ORDER 40
+
+ADD FIELD "MessageText" OF "SmartMessage" AS character 
+  FORMAT "x(70)"
+  INITIAL ""
+  POSITION 6
+  MAX-WIDTH 140
+  ORDER 50
+
+ADD FIELD "MessageDetail" OF "SmartMessage" AS character 
+  FORMAT "x(70)"
+  INITIAL ""
+  POSITION 7
+  MAX-WIDTH 140
+  ORDER 60
+
+ADD FIELD "MessageType" OF "SmartMessage" AS character 
+  DESCRIPTION "INFO,WARNING,ERROR,QUESTION,<empty>"
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 8
+  MAX-WIDTH 16
+  ORDER 70
+
+ADD INDEX "MessageGuid" ON "SmartMessage" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "MessageGuid" ASCENDING 
+
+ADD INDEX "MessageGroupNumberLanguage" ON "SmartMessage" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "MessageGroup" ASCENDING 
+  INDEX-FIELD "MessageNumber" ASCENDING 
+  INDEX-FIELD "LanguageGuid" ASCENDING 
+
+ADD TABLE "SmartModifiedState"
+  AREA "Schema Area"
+  DUMP-NAME "smartmodifiedstate"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSModifiedState.p" CRC "?" 
+
+ADD FIELD "ModifiedStateGuid" OF "SmartModifiedState" AS character 
+  FORMAT "x(36)"
+  FORMAT-SA "U"
+  INITIAL ""
+  INITIAL-SA "U"
+  LABEL-SA "U"
+  POSITION 2
+  MAX-WIDTH 72
+  COLUMN-LABEL-SA "U"
+  VALMSG-SA "U"
+  HELP-SA "U"
+  ORDER 10
+
+ADD FIELD "ModifiedStateTable" OF "SmartModifiedState" AS character 
+  FORMAT "x(22)"
+  FORMAT-SA "U"
+  INITIAL ""
+  INITIAL-SA "U"
+  LABEL "Table"
+  LABEL-SA "U"
+  POSITION 3
+  MAX-WIDTH 44
+  COLUMN-LABEL-SA "U"
+  VALMSG-SA "U"
+  HELP-SA "U"
+  ORDER 20
+
+ADD FIELD "ModifiedStateKeyFieldValues" OF "SmartModifiedState" AS character 
+  FORMAT "x(40)"
+  FORMAT-SA "U"
+  INITIAL ""
+  INITIAL-SA "U"
+  LABEL "Key Field Values"
+  LABEL-SA "U"
+  POSITION 4
+  MAX-WIDTH 80
+  COLUMN-LABEL-SA "U"
+  VALMSG-SA "U"
+  HELP-SA "U"
+  ORDER 30
+
+ADD FIELD "ModifiedStateTimeStamp" OF "SmartModifiedState" AS datetime-tz 
+  FORMAT "99/99/9999 HH:MM:SS.SSS+HH:MM"
+  FORMAT-SA "U"
+  INITIAL ?
+  INITIAL-SA "U"
+  LABEL "Time Stamp"
+  LABEL-SA "U"
+  POSITION 5
+  MAX-WIDTH 12
+  COLUMN-LABEL-SA "U"
+  VALMSG-SA "U"
+  HELP-SA "U"
+  ORDER 40
+
+ADD FIELD "ModifiedStateUser" OF "SmartModifiedState" AS character 
+  FORMAT "x(20)"
+  FORMAT-SA "U"
+  INITIAL ""
+  INITIAL-SA "U"
+  LABEL "User Name"
+  LABEL-SA "U"
+  POSITION 6
+  MAX-WIDTH 40
+  COLUMN-LABEL-SA "U"
+  VALMSG-SA "U"
+  HELP-SA "U"
+  ORDER 50
+
+ADD INDEX "ModifiedStateGuid" ON "SmartModifiedState" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "ModifiedStateGuid" ASCENDING 
+
+ADD INDEX "ModifiedStateTableKeyFieldValues" ON "SmartModifiedState" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "ModifiedStateTable" ASCENDING 
+  INDEX-FIELD "ModifiedStateKeyFieldValues" ASCENDING 
+
+ADD INDEX "TimeStamp" ON "SmartModifiedState" 
+  AREA "Schema Area"
+  INDEX-FIELD "ModifiedStateTimeStamp" ASCENDING 
+
+ADD TABLE "SmartModule"
+  AREA "Schema Area"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartmodule"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSModule.p" CRC "?" 
+
+ADD FIELD "ModuleGuid" OF "SmartModule" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 72
+  ORDER 10
+
+ADD FIELD "ModuleName" OF "SmartModule" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 60
+  ORDER 20
+
+ADD FIELD "ModuleDescription" OF "SmartModule" AS character 
+  FORMAT "x(100)"
+  INITIAL ""
+  POSITION 4
+  MAX-WIDTH 200
+  ORDER 30
+
+ADD FIELD "ProductGuid" OF "SmartModule" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 5
+  MAX-WIDTH 72
+  ORDER 40
+
+ADD FIELD "ModulePackage" OF "SmartModule" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Package Name"
+  POSITION 6
+  MAX-WIDTH 160
+  ORDER 50
+
+ADD FIELD "ModuleDataFolder" OF "SmartModule" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Data Folder"
+  POSITION 7
+  MAX-WIDTH 160
+  ORDER 60
+
+ADD INDEX "ModuleGuid" ON "SmartModule" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "ModuleGuid" ASCENDING 
+
+ADD INDEX "ProductModule" ON "SmartModule" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "ProductGuid" ASCENDING 
+  INDEX-FIELD "ModuleName" ASCENDING 
+
+ADD TABLE "SmartObjectInstance"
+  AREA "Schema Area"
+  LABEL "Object Instance"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartobjectinstance"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSObjectInstance.p" CRC "?" 
+
+ADD FIELD "ObjectInstanceGuid" OF "SmartObjectInstance" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 72
+  ORDER 10
+
+ADD FIELD "ContainerObjectMasterGuid" OF "SmartObjectInstance" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 72
+  ORDER 20
+
+ADD FIELD "ObjectMasterGuid" OF "SmartObjectInstance" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 4
+  MAX-WIDTH 72
+  ORDER 30
+
+ADD FIELD "LayoutPosition" OF "SmartObjectInstance" AS character 
+  DESCRIPTION "For layout based rendering engines
+"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Layout Position"
+  POSITION 5
+  MAX-WIDTH 16
+  ORDER 40
+
+ADD FIELD "InstanceName" OF "SmartObjectInstance" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Instance Name"
+  POSITION 6
+  MAX-WIDTH 160
+  ORDER 50
+
+ADD FIELD "InstanceDescription" OF "SmartObjectInstance" AS character 
+  FORMAT "x(400)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 7
+  MAX-WIDTH 800
+  ORDER 60
+
+ADD FIELD "PageGuid" OF "SmartObjectInstance" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  LABEL "Page"
+  POSITION 8
+  MAX-WIDTH 72
+  ORDER 70
+
+ADD FIELD "ObjectSequence" OF "SmartObjectInstance" AS integer 
+  FORMAT "->,>>9"
+  INITIAL "0"
+  POSITION 9
+  MAX-WIDTH 4
+  ORDER 80
+
+ADD FIELD "ParentInstanceGuid" OF "SmartObjectInstance" AS character 
+  FORMAT "x(36)"
+  INITIAL ?
+  LABEL "Parent Instance"
+  POSITION 10
+  MAX-WIDTH 72
+  COLUMN-LABEL "Parent Instance"
+  ORDER 35
+
+ADD INDEX "ObjectInstanceGuid" ON "SmartObjectInstance" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "ObjectInstanceGuid" ASCENDING 
+
+ADD INDEX "ContainerInstanceName" ON "SmartObjectInstance" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "ContainerObjectMasterGuid" ASCENDING 
+  INDEX-FIELD "InstanceName" ASCENDING 
+
+ADD INDEX "ContainerPageSequence" ON "SmartObjectInstance" 
+  AREA "Schema Area"
+  INDEX-FIELD "ContainerObjectMasterGuid" ASCENDING 
+  INDEX-FIELD "PageGuid" ASCENDING 
+  INDEX-FIELD "ObjectSequence" ASCENDING 
+
+ADD INDEX "ContainerParentSequence" ON "SmartObjectInstance" 
+  AREA "Schema Area"
+  INDEX-FIELD "ContainerObjectMasterGuid" ASCENDING 
+  INDEX-FIELD "ParentInstanceGuid" ASCENDING 
+  INDEX-FIELD "ObjectSequence" ASCENDING 
+
+ADD INDEX "ObjectMasterGuid" ON "SmartObjectInstance" 
+  AREA "Schema Area"
+  INDEX-FIELD "ObjectMasterGuid" ASCENDING 
+
+ADD INDEX "PageGuid" ON "SmartObjectInstance" 
+  AREA "Schema Area"
+  INDEX-FIELD "PageGuid" ASCENDING 
+
+ADD TABLE "SmartObjectMaster"
+  AREA "Schema Area"
+  LABEL "Object Master"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartobjectmaster"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSObjectMaster.p" CRC "?" 
+
+ADD FIELD "ObjectMasterGuid" OF "SmartObjectMaster" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 64
+  ORDER 10
+
+ADD FIELD "ObjectName" OF "SmartObjectMaster" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Object Name"
+  POSITION 3
+  MAX-WIDTH 160
+  ORDER 20
+
+ADD FIELD "CustomizationResultGuid" OF "SmartObjectMaster" AS character 
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Customization Result"
+  POSITION 4
+  MAX-WIDTH 64
+  ORDER 30
+
+ADD FIELD "ObjectTypeGuid" OF "SmartObjectMaster" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 5
+  MAX-WIDTH 64
+  ORDER 40
+
+ADD FIELD "ModuleGuid" OF "SmartObjectMaster" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 6
+  MAX-WIDTH 72
+  ORDER 50
+
+ADD FIELD "ObjectDescription" OF "SmartObjectMaster" AS character 
+  FORMAT "x(400)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 7
+  MAX-WIDTH 800
+  ORDER 60
+
+ADD FIELD "ObjectPackage" OF "SmartObjectMaster" AS character 
+  DESCRIPTION "The package name of the object"
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Object Package"
+  POSITION 8
+  MAX-WIDTH 160
+  ORDER 70
+
+ADD FIELD "ObjectExtension" OF "SmartObjectMaster" AS character 
+  DESCRIPTION "The extension of the filename of the object. This will only be relevant to static procedural objects.
+
+If an extension is specified, then the filename will be stored without an extension and this extension must be added to the filename to concoct the full filename.
+"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Extension"
+  POSITION 9
+  MAX-WIDTH 16
+  ORDER 80
+
+ADD FIELD "StaticObject" OF "SmartObjectMaster" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Static Object"
+  POSITION 10
+  MAX-WIDTH 1
+  ORDER 90
+
+ADD FIELD "TemplateObject" OF "SmartObjectMaster" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Template Object"
+  POSITION 12
+  MAX-WIDTH 1
+  ORDER 110
+
+ADD FIELD "DeploymentType" OF "SmartObjectMaster" AS character 
+  DESCRIPTION "This is to determine where the object should be deployed. This field is also on the object type which serves as a default. Valid values for this field would be ""SRV"" for remote server only, ""CLI"" for client only, ""WEB"" for WEB, or combinations as required comma delimited, e.g. ""CLI,SRV"". This field will assist when deploying applications on appservers to help define which objects should reside where.
+This field is also specified on product modules, but the value on the specific object would always override the value on the product module.
+If this field is set to blank, then this object should not be deployed."
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Deployment Type"
+  POSITION 13
+  MAX-WIDTH 16
+  ORDER 120
+
+ADD FIELD "RunnableFromMenu" OF "SmartObjectMaster" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Runnable from Menu"
+  POSITION 14
+  MAX-WIDTH 1
+  ORDER 130
+
+ADD FIELD "Disabled" OF "SmartObjectMaster" AS logical 
+  DESCRIPTION "If set to YES, access to this object will be disabled, regardless of any other security settings."
+  FORMAT "yes/no"
+  INITIAL "no"
+  POSITION 15
+  MAX-WIDTH 1
+  ORDER 140
+
+ADD FIELD "DesignTimeDataSourceGuid" OF "SmartObjectMaster" AS character 
+  DESCRIPTION "The GUID of the BindingSource or Data Adapter instance that returns the data schema for design time (of Viewers or Browsers)"
+  FORMAT "x(36)"
+  INITIAL ""
+  LABEL "Design Time Data Source"
+  POSITION 16
+  MAX-WIDTH 160
+  ORDER 150
+
+ADD INDEX "ObjectMasterGuid" ON "SmartObjectMaster" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "ObjectMasterGuid" ASCENDING 
+
+ADD INDEX "CustomizationResultGuid" ON "SmartObjectMaster" 
+  AREA "Schema Area"
+  INDEX-FIELD "CustomizationResultGuid" ASCENDING 
+
+ADD INDEX "ObjectDescription" ON "SmartObjectMaster" 
+  AREA "Schema Area"
+  INDEX-FIELD "ObjectDescription" ASCENDING 
+
+ADD INDEX "ObjectNameCustomization" ON "SmartObjectMaster" 
+  AREA "Schema Area"
+  INDEX-FIELD "ObjectName" ASCENDING 
+  INDEX-FIELD "CustomizationResultGuid" ASCENDING 
+
+ADD INDEX "ObjectTypeGuid" ON "SmartObjectMaster" 
+  AREA "Schema Area"
+  INDEX-FIELD "ObjectTypeGuid" ASCENDING 
+
+ADD INDEX "PackageObjectFileNameCustomizati" ON "SmartObjectMaster" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "ObjectPackage" ASCENDING 
+  INDEX-FIELD "ObjectName" ASCENDING 
+  INDEX-FIELD "CustomizationResultGuid" ASCENDING 
+
+ADD INDEX "RunnableFromMenu" ON "SmartObjectMaster" 
+  AREA "Schema Area"
+  INDEX-FIELD "RunnableFromMenu" ASCENDING 
+
+ADD INDEX "TemplateObject" ON "SmartObjectMaster" 
+  AREA "Schema Area"
+  INDEX-FIELD "TemplateObject" ASCENDING 
+
+ADD TABLE "SmartObjectType"
+  AREA "Schema Area"
+  LABEL "Object Type"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartobjecttype"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSObjectType.p" CRC "?" 
+
+ADD FIELD "ObjectTypeGuid" OF "SmartObjectType" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 64
+  ORDER 10
+
+ADD FIELD "ObjectTypeName" OF "SmartObjectType" AS character 
+  DESCRIPTION "A unique code for this type of object. It would be sensible to use the same name as Roundtable subtypes here, e.g. ""SmartFolder"", ""SmartWindow"", etc."
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Object Type"
+  POSITION 3
+  MAX-WIDTH 160
+  ORDER 20
+
+ADD FIELD "ObjectTypeDescription" OF "SmartObjectType" AS character 
+  FORMAT "x(400)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 4
+  MAX-WIDTH 800
+  ORDER 30
+
+ADD FIELD "DeploymentType" OF "SmartObjectType" AS character 
+  DESCRIPTION "This is to determine where objects of this type should be deployed. This field is also on the object itself and simply acts as a default at the object type level. Valid values for this field would be ""SRV"" for remote server only, ""CLI"" for client only, ""WEB"" for WEB, or combinations as required comma delimited, e.g. ""CLI,SRV"". This field will assist when deploying applications on appservers to help define which objects should reside where."
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Deployment Type"
+  POSITION 5
+  MAX-WIDTH 16
+  ORDER 40
+
+ADD FIELD "StaticObject" OF "SmartObjectType" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Static Object"
+  POSITION 6
+  MAX-WIDTH 1
+  ORDER 50
+
+ADD FIELD "ExtendsObjectTypeGuid" OF "SmartObjectType" AS character 
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Extends Object Type"
+  POSITION 7
+  MAX-WIDTH 64
+  ORDER 60
+
+ADD FIELD "CustomObjectTypeGuid" OF "SmartObjectType" AS character 
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Customized by Object Type"
+  POSITION 8
+  MAX-WIDTH 64
+  ORDER 70
+
+ADD FIELD "TechnicalClassName" OF "SmartObjectType" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Technical Class Name"
+  POSITION 9
+  MAX-WIDTH 160
+  ORDER 80
+
+ADD FIELD "ClassTypeGuid" OF "SmartObjectType" AS character 
+  DESCRIPTION "ABL, .NET, Hybrid, JavaScript"
+  FORMAT "x(36)"
+  FORMAT-SA "U"
+  INITIAL ""
+  INITIAL-SA "U"
+  LABEL "Class Type"
+  LABEL-SA "U"
+  POSITION 10
+  MAX-WIDTH 16
+  COLUMN-LABEL-SA "U"
+  VALMSG-SA "U"
+  HELP-SA "U"
+  ORDER 90
+
+ADD FIELD "ContainerType" OF "SmartObjectType" AS logical 
+  FORMAT "yes/no"
+  FORMAT-SA "U"
+  INITIAL "no"
+  INITIAL-SA "U"
+  LABEL "Container"
+  LABEL-SA "U"
+  POSITION 11
+  MAX-WIDTH 1
+  COLUMN-LABEL-SA "U"
+  VALMSG-SA "U"
+  HELP-SA "U"
+  ORDER 100
+
+ADD FIELD "StoreInstances" OF "SmartObjectType" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Store instances for"
+  POSITION 12
+  MAX-WIDTH 16
+  ORDER 110
+
+ADD INDEX "ObjectTypeGuid" ON "SmartObjectType" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "ObjectTypeGuid" ASCENDING 
+
+ADD INDEX "CustomizedByObjectType" ON "SmartObjectType" 
+  AREA "Schema Area"
+  INDEX-FIELD "CustomObjectTypeGuid" ASCENDING 
+
+ADD INDEX "ExtendsObjectType" ON "SmartObjectType" 
+  AREA "Schema Area"
+  INDEX-FIELD "ExtendsObjectTypeGuid" ASCENDING 
+
+ADD INDEX "ObjectTypeName" ON "SmartObjectType" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "ObjectTypeName" ASCENDING 
+
+ADD TABLE "SmartPage"
+  AREA "Schema Area"
+  LABEL "Page"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartpage"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSPage.p" CRC "?" 
+
+ADD FIELD "PageGuid" OF "SmartPage" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  LABEL "Page"
+  POSITION 2
+  MAX-WIDTH 72
+  ORDER 10
+
+ADD FIELD "ContainerObjectMasterGuid" OF "SmartPage" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 72
+  ORDER 20
+
+ADD FIELD "PageSequence" OF "SmartPage" AS integer 
+  DESCRIPTION "This is the actual page number and determines the sequence the pages are displayed. There must always be a page 0 and any objects on page 0 are always displayed. Page 0 does not appear on a tab folder.
+
+If there are no other pages, then no tab folder will be visualised.
+"
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Page Number"
+  POSITION 4
+  MAX-WIDTH 4
+  ORDER 30
+
+ADD FIELD "PageLabel" OF "SmartPage" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Page Label"
+  POSITION 5
+  MAX-WIDTH 160
+  ORDER 40
+
+ADD FIELD "SecurityToken" OF "SmartPage" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Security Token"
+  POSITION 6
+  MAX-WIDTH 160
+  ORDER 50
+
+ADD FIELD "EnableOnCreate" OF "SmartPage" AS logical 
+  FORMAT "yes/no"
+  INITIAL "yes"
+  LABEL "Enable on create"
+  POSITION 7
+  MAX-WIDTH 1
+  ORDER 60
+
+ADD FIELD "EnableOnModify" OF "SmartPage" AS logical 
+  FORMAT "yes/no"
+  INITIAL "yes"
+  LABEL "Enable on modify"
+  POSITION 8
+  MAX-WIDTH 1
+  ORDER 70
+
+ADD FIELD "EnableOnView" OF "SmartPage" AS logical 
+  FORMAT "yes/no"
+  INITIAL "yes"
+  LABEL "Enable on view"
+  POSITION 9
+  MAX-WIDTH 1
+  ORDER 80
+
+ADD INDEX "PageGuid" ON "SmartPage" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "PageGuid" ASCENDING 
+
+ADD INDEX "ContainerPageSequence" ON "SmartPage" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "ContainerObjectMasterGuid" ASCENDING 
+  INDEX-FIELD "PageSequence" ASCENDING 
+
+ADD TABLE "SmartProduct"
+  AREA "Schema Area"
+  DUMP-NAME "smartproduct"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSProduct.p" CRC "?" 
+
+ADD FIELD "ProductGuid" OF "SmartProduct" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 72
+  ORDER 10
+
+ADD FIELD "ProductCode" OF "SmartProduct" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Code"
+  POSITION 3
+  MAX-WIDTH 40
+  ORDER 20
+
+ADD FIELD "ProductName" OF "SmartProduct" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Name"
+  POSITION 4
+  MAX-WIDTH 160
+  ORDER 30
+
+ADD FIELD "ProductDescription" OF "SmartProduct" AS clob 
+  FORMAT "x(8)"
+  INITIAL ?
+  POSITION 5
+  LOB-AREA "Schema Area"
+  LOB-BYTES 104857600
+  LOB-SIZE 100M
+  CLOB-CODEPAGE "iso8859-1"
+  CLOB-COLLATION "basic"
+  CLOB-TYPE 1
+  ORDER 40
+
+ADD FIELD "ProductInstalled" OF "SmartProduct" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Installed"
+  POSITION 6
+  MAX-WIDTH 1
+  ORDER 50
+
+ADD INDEX "ProductGuid" ON "SmartProduct" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "ProductGuid" ASCENDING 
+
+ADD INDEX "ProductCode" ON "SmartProduct" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "ProductCode" ASCENDING 
+
+ADD INDEX "ProductName" ON "SmartProduct" 
+  AREA "Schema Area"
+  INDEX-FIELD "ProductName" ASCENDING 
+
+ADD TABLE "SmartRelation"
+  AREA "Schema Area"
+  LABEL "Relation"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartrelation"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSRelaltion.p" CRC "?" 
+
+ADD FIELD "RelationGuid" OF "SmartRelation" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 72
+  ORDER 10
+
+ADD FIELD "ParentTableGUID" OF "SmartRelation" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 72
+  ORDER 20
+
+ADD FIELD "ChildTableGUID" OF "SmartRelation" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 4
+  MAX-WIDTH 72
+  ORDER 30
+
+ADD FIELD "RelationName" OF "SmartRelation" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Name"
+  POSITION 5
+  MAX-WIDTH 160
+  ORDER 40
+
+ADD FIELD "ParentRoleDescription" OF "SmartRelation" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Parent Role Description"
+  POSITION 6
+  MAX-WIDTH 160
+  ORDER 70
+
+ADD FIELD "ChildRoleDescription" OF "SmartRelation" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Child Role Description"
+  POSITION 7
+  MAX-WIDTH 160
+  ORDER 80
+
+ADD FIELD "RelationDescription" OF "SmartRelation" AS character 
+  FORMAT "x(400)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 8
+  MAX-WIDTH 800
+  ORDER 50
+
+ADD FIELD "ParentCardinality" OF "SmartRelation" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Parent Cardinality"
+  POSITION 9
+  MAX-WIDTH 6
+  ORDER 90
+
+ADD FIELD "ChildCardinality" OF "SmartRelation" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Child Cardinality"
+  POSITION 10
+  MAX-WIDTH 6
+  ORDER 100
+
+ADD FIELD "OnParentDelete" OF "SmartRelation" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "On Parent Delete"
+  POSITION 11
+  MAX-WIDTH 16
+  ORDER 110
+
+ADD FIELD "RelationFieldPair" OF "SmartRelation" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "RelationFieldPair(s)"
+  POSITION 12
+  MAX-WIDTH 160
+  ORDER 60
+
+ADD FIELD "DefaultParentRelation" OF "SmartRelation" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Default Parent Relation"
+  POSITION 13
+  MAX-WIDTH 1
+  ORDER 120
+
+ADD FIELD "Inactive" OF "SmartRelation" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Inactive"
+  POSITION 14
+  MAX-WIDTH 1
+  ORDER 130
+
+ADD INDEX "RelationGuid" ON "SmartRelation" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "RelationGuid" ASCENDING 
+
+ADD INDEX "ChildTableGuid" ON "SmartRelation" 
+  AREA "Schema Area"
+  INDEX-FIELD "ChildTableGUID" ASCENDING 
+
+ADD INDEX "DefaultParentRelation" ON "SmartRelation" 
+  AREA "Schema Area"
+  INDEX-FIELD "ChildTableGUID" ASCENDING 
+  INDEX-FIELD "DefaultParentRelation" ASCENDING 
+
+ADD INDEX "ParentTableGuid" ON "SmartRelation" 
+  AREA "Schema Area"
+  INDEX-FIELD "ParentTableGUID" ASCENDING 
+
+ADD INDEX "RelationName" ON "SmartRelation" 
+  AREA "Schema Area"
+  INDEX-FIELD "RelationName" ASCENDING 
+
+ADD TABLE "SmartSchedulerJob"
+  AREA "Schema Area"
+  LABEL "Scheduler Job"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartschedulerjob"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSSchedulerJob.p" CRC "?" 
+
+ADD FIELD "SchedulerJobGuid" OF "SmartSchedulerJob" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  LABEL "Job Guid"
+  POSITION 2
+  MAX-WIDTH 72
+  COLUMN-LABEL "Job Guid"
+  ORDER 10
+
+ADD FIELD "SchedulerJobName" OF "SmartSchedulerJob" AS character 
+  FORMAT "x(40)"
+  INITIAL ""
+  LABEL "JobName"
+  POSITION 3
+  MAX-WIDTH 80
+  COLUMN-LABEL "JobName"
+  ORDER 20
+
+ADD FIELD "Description" OF "SmartSchedulerJob" AS character 
+  FORMAT "x(400)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 4
+  MAX-WIDTH 800
+  COLUMN-LABEL "Job Description"
+  ORDER 30
+
+ADD FIELD "MaxRuntime" OF "SmartSchedulerJob" AS integer 
+  DESCRIPTION "Maximum runtime of the Job in seconds. 0 for no runtime limit."
+  FORMAT "zzzz9"
+  INITIAL "0"
+  LABEL "MaxRuntime"
+  POSITION 5
+  MAX-WIDTH 4
+  COLUMN-LABEL "MaxRuntime"
+  ORDER 40
+
+ADD FIELD "JobCommand" OF "SmartSchedulerJob" AS clob 
+  DESCRIPTION "The XML or JSON Serialized ISchedulerJobCommand instance"
+  FORMAT "x(8)"
+  INITIAL ?
+  POSITION 6
+  LOB-AREA "Schema Area"
+  LOB-BYTES 104857600
+  LOB-SIZE 100M
+  CLOB-CODEPAGE "iso8859-1"
+  CLOB-COLLATION "basic"
+  CLOB-TYPE 1
+  ORDER 50
+
+ADD INDEX "Job" ON "SmartSchedulerJob" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "SchedulerJobGuid" ASCENDING 
+
+ADD INDEX "JobName" ON "SmartSchedulerJob" 
+  AREA "Schema Area"
+  INDEX-FIELD "SchedulerJobName" ASCENDING 
+
+ADD TABLE "SmartSchedulerJobPlan"
+  AREA "Schema Area"
+  LABEL "Scheduler JobPlan"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartschedulerjobplan"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSSchedulerJobPlan.p" CRC "?" 
+
+ADD FIELD "SchedulerJobPlanGuid" OF "SmartSchedulerJobPlan" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  LABEL "Job Status ID"
+  POSITION 2
+  MAX-WIDTH 72
+  COLUMN-LABEL "Job Status ID"
+  ORDER 10
+
+ADD FIELD "SchedulerJobGuid" OF "SmartSchedulerJobPlan" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  LABEL "Job Guid"
+  POSITION 3
+  MAX-WIDTH 72
+  COLUMN-LABEL "Job Guid"
+  ORDER 20
+
+ADD FIELD "MaxRuntime" OF "SmartSchedulerJobPlan" AS integer 
+  DESCRIPTION "Maximum runtime of the Job in seconds. 0 for no runtime limit."
+  FORMAT "zzzz9"
+  INITIAL "0"
+  LABEL "MaxRuntime"
+  POSITION 4
+  MAX-WIDTH 4
+  COLUMN-LABEL "MaxRuntime"
+  ORDER 30
+
+ADD FIELD "MaxExecutionDelay" OF "SmartSchedulerJobPlan" AS integer 
+  DESCRIPTION "Maximum delay (in seconds) in which the job can be started after the scheduled time."
+  FORMAT "zzzz9"
+  INITIAL "0"
+  LABEL "Max. Delay"
+  POSITION 5
+  MAX-WIDTH 4
+  COLUMN-LABEL "Max. Delay"
+  ORDER 40
+
+ADD FIELD "JobParamter" OF "SmartSchedulerJobPlan" AS clob 
+  DESCRIPTION "XML/JSON Serialized parameter  instance "
+  FORMAT "x(8)"
+  INITIAL ?
+  POSITION 6
+  LOB-AREA "Schema Area"
+  LOB-BYTES 104857600
+  LOB-SIZE 100M
+  CLOB-CODEPAGE "iso8859-1"
+  CLOB-COLLATION "basic"
+  CLOB-TYPE 1
+  ORDER 50
+
+ADD FIELD "PlanningType" OF "SmartSchedulerJobPlan" AS character 
+  DESCRIPTION "Once/Weekly/Monthly"
+  FORMAT "x(15)"
+  INITIAL ""
+  LABEL "Plan Type"
+  POSITION 7
+  MAX-WIDTH 30
+  COLUMN-LABEL "Plan Type"
+  ORDER 60
+
+ADD FIELD "ScheduleDateTime" OF "SmartSchedulerJobPlan" AS datetime-tz 
+  DESCRIPTION "Once Now/Scheduled"
+  FORMAT "99/99/9999 HH:MM:SS.SSS+HH:MM"
+  INITIAL ?
+  LABEL "Once Now/Scheduled"
+  POSITION 8
+  MAX-WIDTH 12
+  COLUMN-LABEL "Once Now/Scheduled"
+  ORDER 70
+
+ADD FIELD "RecurringMonday" OF "SmartSchedulerJobPlan" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Recurring Monday"
+  POSITION 9
+  MAX-WIDTH 1
+  COLUMN-LABEL "Recurring Monday"
+  ORDER 80
+
+ADD FIELD "RecurringTuesday" OF "SmartSchedulerJobPlan" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Recurring Tuesday"
+  POSITION 10
+  MAX-WIDTH 1
+  COLUMN-LABEL "Recurring Tuesday"
+  ORDER 90
+
+ADD FIELD "RecurringWednesday" OF "SmartSchedulerJobPlan" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Recurring Wendesday"
+  POSITION 11
+  MAX-WIDTH 1
+  COLUMN-LABEL "Recurring Wendesday"
+  ORDER 100
+
+ADD FIELD "RecurringThursday" OF "SmartSchedulerJobPlan" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Recurring Thursday"
+  POSITION 12
+  MAX-WIDTH 1
+  COLUMN-LABEL "Recurring Thursday"
+  ORDER 110
+
+ADD FIELD "RecurringFriday" OF "SmartSchedulerJobPlan" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Recurring Friday"
+  POSITION 13
+  MAX-WIDTH 1
+  COLUMN-LABEL "Recurring Friday"
+  ORDER 120
+
+ADD FIELD "RecurringSaturday" OF "SmartSchedulerJobPlan" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Recurring Saturday"
+  POSITION 14
+  MAX-WIDTH 1
+  COLUMN-LABEL "Recurring Saturday"
+  ORDER 130
+
+ADD FIELD "RecurringSunday" OF "SmartSchedulerJobPlan" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Recurring Sunday"
+  POSITION 15
+  MAX-WIDTH 1
+  COLUMN-LABEL "Recurring Sunday"
+  ORDER 140
+
+ADD FIELD "WeekInterval" OF "SmartSchedulerJobPlan" AS integer 
+  FORMAT "z9"
+  INITIAL "0"
+  LABEL "Week Interval"
+  POSITION 16
+  MAX-WIDTH 4
+  COLUMN-LABEL "Week Interval"
+  ORDER 150
+
+ADD FIELD "RecurringJanuary" OF "SmartSchedulerJobPlan" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Recurring January"
+  POSITION 17
+  MAX-WIDTH 1
+  COLUMN-LABEL "Recurring January"
+  ORDER 160
+
+ADD FIELD "RecurringFebruary" OF "SmartSchedulerJobPlan" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Recurring February"
+  POSITION 18
+  MAX-WIDTH 1
+  COLUMN-LABEL "Recurring February"
+  ORDER 170
+
+ADD FIELD "RecurringMarch" OF "SmartSchedulerJobPlan" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Recurring March"
+  POSITION 19
+  MAX-WIDTH 1
+  COLUMN-LABEL "Recurring March"
+  ORDER 180
+
+ADD FIELD "RecurringApril" OF "SmartSchedulerJobPlan" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Recurring April"
+  POSITION 20
+  MAX-WIDTH 1
+  COLUMN-LABEL "Recurring April"
+  ORDER 190
+
+ADD FIELD "RecurringMay" OF "SmartSchedulerJobPlan" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Recurring May"
+  POSITION 21
+  MAX-WIDTH 1
+  COLUMN-LABEL "Recurring May"
+  ORDER 200
+
+ADD FIELD "RecurringJune" OF "SmartSchedulerJobPlan" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Recurring June"
+  POSITION 22
+  MAX-WIDTH 1
+  COLUMN-LABEL "Recurring June"
+  ORDER 210
+
+ADD FIELD "RecurringJuly" OF "SmartSchedulerJobPlan" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Recurring July"
+  POSITION 23
+  MAX-WIDTH 1
+  COLUMN-LABEL "Recurring July"
+  ORDER 220
+
+ADD FIELD "RecurringAugust" OF "SmartSchedulerJobPlan" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Recurring August"
+  POSITION 24
+  MAX-WIDTH 1
+  COLUMN-LABEL "Recurring August"
+  ORDER 230
+
+ADD FIELD "RecurringSeptember" OF "SmartSchedulerJobPlan" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Recurring September"
+  POSITION 25
+  MAX-WIDTH 1
+  COLUMN-LABEL "Recurring September"
+  ORDER 240
+
+ADD FIELD "RecurringOctober" OF "SmartSchedulerJobPlan" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Recurring October"
+  POSITION 26
+  MAX-WIDTH 1
+  COLUMN-LABEL "Recurring October"
+  ORDER 250
+
+ADD FIELD "RecurringNovember" OF "SmartSchedulerJobPlan" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Recurring November"
+  POSITION 27
+  MAX-WIDTH 1
+  COLUMN-LABEL "Recurring November"
+  ORDER 260
+
+ADD FIELD "RecurringDecember" OF "SmartSchedulerJobPlan" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Recurring December"
+  POSITION 28
+  MAX-WIDTH 1
+  COLUMN-LABEL "Recurring December"
+  ORDER 270
+
+ADD FIELD "RecurringDaylist" OF "SmartSchedulerJobPlan" AS character 
+  DESCRIPTION "List of days e.g. 1,7,17,-5"
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Recurring Daylist"
+  POSITION 29
+  MAX-WIDTH 60
+  COLUMN-LABEL "Recurring Daylist"
+  ORDER 280
+
+ADD FIELD "RecurringExecutionTimes" OF "SmartSchedulerJobPlan" AS character 
+  DESCRIPTION "List of execution times, e.g. 02:00,17:14:16,18:00"
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Recurring Execution Times"
+  POSITION 30
+  MAX-WIDTH 60
+  COLUMN-LABEL "Recurring Execution Times"
+  ORDER 290
+
+ADD FIELD "ValidFrom" OF "SmartSchedulerJobPlan" AS datetime-tz 
+  DESCRIPTION "(optional)"
+  FORMAT "99/99/9999 HH:MM:SS.SSS+HH:MM"
+  INITIAL ?
+  LABEL "JobPlan valid from"
+  POSITION 31
+  MAX-WIDTH 12
+  COLUMN-LABEL "JobPlan valid from"
+  ORDER 300
+
+ADD FIELD "ValidTo" OF "SmartSchedulerJobPlan" AS datetime-tz 
+  DESCRIPTION "(optional)"
+  FORMAT "99/99/9999 HH:MM:SS.SSS+HH:MM"
+  INITIAL ?
+  LABEL "JobPlan valid to"
+  POSITION 32
+  MAX-WIDTH 12
+  COLUMN-LABEL "JobPlan valid to"
+  ORDER 310
+
+ADD FIELD "Active" OF "SmartSchedulerJobPlan" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "JobPlan is active"
+  POSITION 33
+  MAX-WIDTH 1
+  COLUMN-LABEL "JobPlan is active"
+  ORDER 320
+
+ADD FIELD "ContextDataSet" OF "SmartSchedulerJobPlan" AS clob 
+  DESCRIPTION "optionally Inherit context-dataset from the session that planned this job"
+  FORMAT "x(8)"
+  INITIAL ?
+  POSITION 34
+  LOB-AREA "Schema Area"
+  LOB-BYTES 104857600
+  LOB-SIZE 100M
+  CLOB-CODEPAGE "iso8859-1"
+  CLOB-COLLATION "basic"
+  CLOB-TYPE 0
+  ORDER 330
+
+ADD FIELD "UserGuid" OF "SmartSchedulerJobPlan" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  LABEL "UserGuid"
+  POSITION 35
+  MAX-WIDTH 72
+  COLUMN-LABEL "UserGuid"
+  ORDER 340
+
+ADD FIELD "DataBaseConnections" OF "SmartSchedulerJobPlan" AS character 
+  DESCRIPTION "Database connections (when not already conneced by scheduler agent)"
+  FORMAT "x(120)"
+  INITIAL ""
+  LABEL "DataBaseConnections"
+  POSITION 36
+  MAX-WIDTH 240
+  COLUMN-LABEL "DataBaseConnections"
+  ORDER 350
+
+ADD FIELD "ClientPrincipal" OF "SmartSchedulerJobPlan" AS raw 
+  FORMAT "x(80)"
+  INITIAL ""
+  POSITION 37
+  MAX-WIDTH 160
+  ORDER 360
+
+ADD INDEX "JobPlan" ON "SmartSchedulerJobPlan" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "SchedulerJobPlanGuid" ASCENDING 
+
+ADD INDEX "Job" ON "SmartSchedulerJobPlan" 
+  AREA "Schema Area"
+  INDEX-FIELD "SchedulerJobGuid" ASCENDING 
+
+ADD TABLE "SmartSchedulerJobStatus"
+  AREA "Schema Area"
+  LABEL "Scheduler JobStatus"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartschedulerjobstatus"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSSchedulerJobStatus.p" CRC "?" 
+
+ADD FIELD "SchedulerJobStatusGuid" OF "SmartSchedulerJobStatus" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  LABEL "Job Status ID"
+  POSITION 2
+  MAX-WIDTH 72
+  COLUMN-LABEL "Job Status ID"
+  ORDER 10
+
+ADD FIELD "SchedulerJobGuid" OF "SmartSchedulerJobStatus" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  LABEL "Job Guid"
+  POSITION 3
+  MAX-WIDTH 72
+  COLUMN-LABEL "Job Guid"
+  ORDER 20
+
+ADD FIELD "ScheduleDateTime" OF "SmartSchedulerJobStatus" AS datetime-tz 
+  FORMAT "99/99/9999 HH:MM:SS.SSS+HH:MM"
+  INITIAL ?
+  LABEL "Scheduled Job Execution"
+  POSITION 4
+  MAX-WIDTH 12
+  COLUMN-LABEL "Scheduled Job Execution"
+  ORDER 30
+
+ADD FIELD "Recurring" OF "SmartSchedulerJobStatus" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Recurring"
+  POSITION 5
+  MAX-WIDTH 1
+  COLUMN-LABEL "Recurring"
+  ORDER 40
+
+ADD FIELD "JobStatus" OF "SmartSchedulerJobStatus" AS character 
+  DESCRIPTION "(ENUM SchedulerJobStatusEnum)"
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Job Status"
+  POSITION 6
+  MAX-WIDTH 40
+  COLUMN-LABEL "Job Status"
+  ORDER 50
+
+ADD FIELD "StatusText" OF "SmartSchedulerJobStatus" AS character 
+  FORMAT "x(40)"
+  INITIAL ""
+  LABEL "Status Text"
+  POSITION 7
+  MAX-WIDTH 80
+  COLUMN-LABEL "Status Text"
+  ORDER 60
+
+ADD FIELD "Percentage" OF "SmartSchedulerJobStatus" AS integer 
+  DESCRIPTION "Progress  (0..100)"
+  FORMAT "zz9"
+  INITIAL "0"
+  LABEL "Progress"
+  POSITION 8
+  MAX-WIDTH 4
+  COLUMN-LABEL "Progress"
+  ORDER 70
+
+ADD FIELD "MaxExecutionDelay" OF "SmartSchedulerJobStatus" AS integer 
+  FORMAT "zzzz9"
+  INITIAL "0"
+  LABEL "Max. Delay"
+  POSITION 9
+  MAX-WIDTH 4
+  COLUMN-LABEL "Max. Delay"
+  ORDER 80
+
+ADD FIELD "Cancel" OF "SmartSchedulerJobStatus" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Cancel Req."
+  POSITION 10
+  MAX-WIDTH 1
+  COLUMN-LABEL "Cancel Req."
+  ORDER 90
+
+ADD FIELD "StartDateTime" OF "SmartSchedulerJobStatus" AS datetime-tz 
+  FORMAT "99/99/9999 HH:MM:SS.SSS+HH:MM"
+  INITIAL ?
+  LABEL "Start DateTime"
+  POSITION 12
+  MAX-WIDTH 12
+  COLUMN-LABEL "Start DateTime"
+  ORDER 110
+
+ADD FIELD "FinishedDateTime" OF "SmartSchedulerJobStatus" AS datetime-tz 
+  FORMAT "99/99/9999 HH:MM:SS.SSS+HH:MM"
+  INITIAL ?
+  LABEL "Finished DateTime"
+  POSITION 13
+  MAX-WIDTH 12
+  COLUMN-LABEL "Finished DateTime"
+  ORDER 120
+
+ADD FIELD "JobParamter" OF "SmartSchedulerJobStatus" AS clob 
+  DESCRIPTION "XML/JSON Serialized parameter  instance"
+  FORMAT "x(8)"
+  INITIAL ?
+  POSITION 14
+  LOB-AREA "Schema Area"
+  LOB-BYTES 104857600
+  LOB-SIZE 100M
+  CLOB-CODEPAGE "iso8859-1"
+  CLOB-COLLATION "basic"
+  CLOB-TYPE 1
+  ORDER 130
+
+ADD FIELD "ContextDataSet" OF "SmartSchedulerJobStatus" AS clob 
+  DESCRIPTION "optionally Inherit context-dataset from the session that planned this job"
+  FORMAT "x(8)"
+  INITIAL ?
+  POSITION 15
+  LOB-AREA "Schema Area"
+  LOB-BYTES 104857600
+  LOB-SIZE 100M
+  CLOB-CODEPAGE "iso8859-1"
+  CLOB-COLLATION "basic"
+  CLOB-TYPE 1
+  ORDER 140
+
+ADD FIELD "UserGuid" OF "SmartSchedulerJobStatus" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  LABEL "UserGuid"
+  POSITION 17
+  MAX-WIDTH 72
+  COLUMN-LABEL "UserGuid"
+  ORDER 160
+
+ADD FIELD "DataBaseConnections" OF "SmartSchedulerJobStatus" AS character 
+  DESCRIPTION "Database connections (when not already conneced by scheduler agent)"
+  FORMAT "x(120)"
+  INITIAL ""
+  LABEL "DataBaseConnections"
+  POSITION 18
+  MAX-WIDTH 240
+  COLUMN-LABEL "DataBaseConnections"
+  ORDER 170
+
+ADD FIELD "ClientPrincipal" OF "SmartSchedulerJobStatus" AS raw 
+  FORMAT "x(80)"
+  INITIAL ""
+  POSITION 19
+  MAX-WIDTH 160
+  ORDER 180
+
+ADD FIELD "JobName" OF "SmartSchedulerJobStatus" AS character 
+  FORMAT "x(40)"
+  INITIAL ""
+  LABEL "JobName"
+  POSITION 20
+  MAX-WIDTH 80
+  COLUMN-LABEL "JobName"
+  ORDER 35
+
+ADD FIELD "SchedulerJobPlanGuid" OF "SmartSchedulerJobStatus" AS character 
+  FORMAT "x(36)"
+  INITIAL ?
+  LABEL "Job Status ID"
+  POSITION 21
+  MAX-WIDTH 72
+  COLUMN-LABEL "Job Status ID"
+  ORDER 25
+
+ADD INDEX "JobStatus" ON "SmartSchedulerJobStatus" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "SchedulerJobStatusGuid" ASCENDING 
+
+ADD INDEX "Job" ON "SmartSchedulerJobStatus" 
+  AREA "Schema Area"
+  INDEX-FIELD "SchedulerJobGuid" ASCENDING 
+  INDEX-FIELD "Recurring" ASCENDING 
+
+ADD INDEX "JobStatusCancelSchedule" ON "SmartSchedulerJobStatus" 
+  AREA "Schema Area"
+  INDEX-FIELD "JobStatus" ASCENDING 
+  INDEX-FIELD "Cancel" ASCENDING 
+  INDEX-FIELD "ScheduleDateTime" ASCENDING 
+
+ADD INDEX "SchedulerJobPlanGuid" ON "SmartSchedulerJobStatus" 
+  AREA "Schema Area"
+  INDEX-FIELD "SchedulerJobPlanGuid" ASCENDING 
+  INDEX-FIELD "ScheduleDateTime" ASCENDING 
+  INDEX-FIELD "JobStatus" ASCENDING 
+
+ADD INDEX "SchedulerJobPlanGuid2" ON "SmartSchedulerJobStatus" 
+  AREA "Schema Area"
+  INDEX-FIELD "SchedulerJobPlanGuid" ASCENDING 
+  INDEX-FIELD "JobStatus" ASCENDING 
+  INDEX-FIELD "ScheduleDateTime" ASCENDING 
+
+ADD TABLE "SmartSecurityAssignment"
+  AREA "Schema Area"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartsecurityassignment"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSSecurityAssignment.p" CRC "?" 
+
+ADD FIELD "SecurityAssignmentGuid" OF "SmartSecurityAssignment" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 72
+  ORDER 10
+
+ADD FIELD "SecurityRealmGuid" OF "SmartSecurityAssignment" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 72
+  ORDER 20
+
+ADD FIELD "GroupGuid" OF "SmartSecurityAssignment" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 4
+  MAX-WIDTH 72
+  ORDER 40
+  MANDATORY
+
+ADD FIELD "UserGuid" OF "SmartSecurityAssignment" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 5
+  MAX-WIDTH 72
+  ORDER 50
+  MANDATORY
+
+ADD FIELD "Restricted" OF "SmartSecurityAssignment" AS logical 
+  FORMAT "yes/no"
+  INITIAL "yes"
+  LABEL "Restricted"
+  POSITION 6
+  MAX-WIDTH 1
+  ORDER 60
+
+ADD FIELD "SecurityItemGuid" OF "SmartSecurityAssignment" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  LABEL "Security Item"
+  POSITION 7
+  MAX-WIDTH 72
+  ORDER 30
+
+ADD FIELD "LoginCompanyGuid" OF "SmartSecurityAssignment" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 8
+  MAX-WIDTH 72
+  ORDER 70
+
+ADD INDEX "SecurityAssignmentGuid" ON "SmartSecurityAssignment" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "SecurityAssignmentGuid" ASCENDING 
+
+ADD INDEX "AssingmentMaintenance" ON "SmartSecurityAssignment" 
+  AREA "Schema Area"
+  INDEX-FIELD "SecurityRealmGuid" ASCENDING 
+  INDEX-FIELD "LoginCompanyGuid" ASCENDING 
+  INDEX-FIELD "GroupGuid" ASCENDING 
+  INDEX-FIELD "UserGuid" ASCENDING 
+
+ADD INDEX "LoginCompanyGuid" ON "SmartSecurityAssignment" 
+  AREA "Schema Area"
+  INDEX-FIELD "LoginCompanyGuid" ASCENDING 
+
+ADD INDEX "SecurityRealmItemGroup" ON "SmartSecurityAssignment" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "SecurityRealmGuid" ASCENDING 
+  INDEX-FIELD "SecurityItemGuid" ASCENDING 
+  INDEX-FIELD "LoginCompanyGuid" ASCENDING 
+  INDEX-FIELD "GroupGuid" ASCENDING 
+  INDEX-FIELD "UserGuid" ASCENDING 
+
+ADD INDEX "SecurityRealmItemUser" ON "SmartSecurityAssignment" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "SecurityRealmGuid" ASCENDING 
+  INDEX-FIELD "SecurityItemGuid" ASCENDING 
+  INDEX-FIELD "LoginCompanyGuid" ASCENDING 
+  INDEX-FIELD "UserGuid" ASCENDING 
+  INDEX-FIELD "GroupGuid" ASCENDING 
+
+ADD TABLE "SmartSecurityRealm"
+  AREA "Schema Area"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartsecurityrealm"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSSecurityRealm.p" CRC "?" 
+
+ADD FIELD "SecurityRealmGuid" OF "SmartSecurityRealm" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 72
+  ORDER 10
+
+ADD FIELD "SecurityRealmCode" OF "SmartSecurityRealm" AS character 
+  FORMAT "x(15)"
+  INITIAL ""
+  LABEL "Realm Code"
+  POSITION 3
+  MAX-WIDTH 6
+  ORDER 20
+
+ADD FIELD "SecurityRealmDescription" OF "SmartSecurityRealm" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Realm Description"
+  POSITION 4
+  MAX-WIDTH 160
+  ORDER 30
+
+ADD FIELD "SecurityRealmService" OF "SmartSecurityRealm" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Security Realm Service"
+  POSITION 7
+  MAX-WIDTH 160
+  ORDER 40
+
+ADD FIELD "DefaultRestricted" OF "SmartSecurityRealm" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Default Restricted"
+  POSITION 8
+  MAX-WIDTH 1
+  ORDER 50
+  MANDATORY
+
+ADD FIELD "CompanyDependent" OF "SmartSecurityRealm" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Assignment Company Dependent"
+  POSITION 9
+  MAX-WIDTH 1
+  COLUMN-LABEL "Company Dependent"
+  ORDER 60
+
+ADD INDEX "SecurityRealmGuid" ON "SmartSecurityRealm" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "SecurityRealmGuid" ASCENDING 
+
+ADD INDEX "SecurityRealmCode" ON "SmartSecurityRealm" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "SecurityRealmCode" ASCENDING 
+
+ADD TABLE "SmartSecurityToken"
+  AREA "Schema Area"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartsecuritytoken"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSSecurityToken.p" CRC "?" 
+
+ADD FIELD "SecurityTokenGuid" OF "SmartSecurityToken" AS character 
+  FORMAT "x(36)"
+  FORMAT-SA "U"
+  INITIAL ""
+  INITIAL-SA "U"
+  LABEL-SA "U"
+  POSITION 2
+  MAX-WIDTH 72
+  COLUMN-LABEL-SA "U"
+  VALMSG-SA "U"
+  HELP-SA "U"
+  ORDER 10
+
+ADD FIELD "SecurityTokenCode" OF "SmartSecurityToken" AS character 
+  FORMAT "x(10)"
+  FORMAT-SA "U"
+  INITIAL ""
+  INITIAL-SA "U"
+  LABEL "Token Code"
+  LABEL-SA "U"
+  POSITION 3
+  MAX-WIDTH 20
+  COLUMN-LABEL-SA "U"
+  VALMSG-SA "U"
+  HELP-SA "U"
+  ORDER 20
+
+ADD FIELD "SecurityTokenDescription" OF "SmartSecurityToken" AS character 
+  FORMAT "x(80)"
+  FORMAT-SA "U"
+  INITIAL ""
+  INITIAL-SA "U"
+  LABEL "Token Description"
+  LABEL-SA "U"
+  POSITION 4
+  MAX-WIDTH 160
+  COLUMN-LABEL-SA "U"
+  VALMSG-SA "U"
+  HELP-SA "U"
+  ORDER 30
+
+ADD INDEX "SecurityTokenGuid" ON "SmartSecurityToken" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "SecurityTokenGuid" ASCENDING 
+
+ADD INDEX "SecurityTokenCode" ON "SmartSecurityToken" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "SecurityTokenCode" ASCENDING 
+
+ADD TABLE "SmartSupportedLink"
+  AREA "Schema Area"
+  LABEL "Supported Link"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartsupportedlink"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSSupportedLink.p" CRC "?" 
+
+ADD FIELD "SupportedLinkGuid" OF "SmartSupportedLink" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 72
+  ORDER 10
+
+ADD FIELD "ObjectTypeGuid" OF "SmartSupportedLink" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 64
+  ORDER 20
+
+ADD FIELD "LinkTypeGuid" OF "SmartSupportedLink" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 4
+  MAX-WIDTH 72
+  ORDER 30
+
+ADD FIELD "LinkSource" OF "SmartSupportedLink" AS logical 
+  FORMAT "yes/no"
+  INITIAL "yes"
+  LABEL "Supported as source"
+  POSITION 5
+  MAX-WIDTH 1
+  ORDER 40
+
+ADD FIELD "LinkTarget" OF "SmartSupportedLink" AS logical 
+  FORMAT "yes/no"
+  INITIAL "yes"
+  LABEL "Supported as target"
+  POSITION 6
+  MAX-WIDTH 1
+  ORDER 50
+
+ADD FIELD "DeactivateOnHide" OF "SmartSupportedLink" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "DeactivateLinkOnHide"
+  POSITION 7
+  MAX-WIDTH 1
+  ORDER 60
+
+ADD INDEX "SupportedLinkGuid" ON "SmartSupportedLink" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "SupportedLinkGuid" ASCENDING 
+
+ADD INDEX "LinkTypeObjectType" ON "SmartSupportedLink" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "LinkTypeGuid" ASCENDING 
+  INDEX-FIELD "ObjectTypeGuid" ASCENDING 
+
+ADD INDEX "ObjectTypeLinkType" ON "SmartSupportedLink" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "ObjectTypeGuid" ASCENDING 
+  INDEX-FIELD "LinkTypeGuid" ASCENDING 
+
+ADD TABLE "SmartTable"
+  AREA "Schema Area"
+  LABEL "SmartTable"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smarttable"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSTable.p" CRC "?" 
+
+ADD FIELD "TableGUID" OF "SmartTable" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 72
+  ORDER 10
+
+ADD FIELD "TableName" OF "SmartTable" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Table Name"
+  POSITION 3
+  MAX-WIDTH 40
+  ORDER 20
+
+ADD FIELD "DatabaseName" OF "SmartTable" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Database Name"
+  POSITION 4
+  MAX-WIDTH 40
+  ORDER 30
+
+ADD FIELD "TableDescription" OF "SmartTable" AS character 
+  FORMAT "x(400)"
+  INITIAL ""
+  LABEL "Table Description"
+  POSITION 5
+  MAX-WIDTH 800
+  ORDER 40
+
+ADD FIELD "UniqueKeyFields" OF "SmartTable" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Unique Key Fields"
+  POSITION 6
+  MAX-WIDTH 160
+  ORDER 50
+
+ADD FIELD "UniqueKeyFormats" OF "SmartTable" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Unique Key Formats"
+  POSITION 7
+  MAX-WIDTH 160
+  ORDER 60
+
+ADD FIELD "UniqueKeySubstitute" OF "SmartTable" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Unique Key Substitute"
+  POSITION 8
+  MAX-WIDTH 160
+  ORDER 70
+
+ADD FIELD "AllowComments" OF "SmartTable" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Comments allowed"
+  POSITION 9
+  MAX-WIDTH 1
+  HELP "l"
+  ORDER 80
+
+ADD FIELD "AllowAttachments" OF "SmartTable" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Attachments Allowed"
+  POSITION 10
+  MAX-WIDTH 1
+  ORDER 90
+
+ADD FIELD "DescriptionFields" OF "SmartTable" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Description Fields"
+  POSITION 11
+  MAX-WIDTH 160
+  ORDER 100
+
+ADD FIELD "DescriptionFormats" OF "SmartTable" AS character 
+  DESCRIPTION "Tilde delimited"
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Description Formats"
+  POSITION 12
+  MAX-WIDTH 160
+  ORDER 110
+
+ADD FIELD "DescriptionSubstitute" OF "SmartTable" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Description Substitute"
+  POSITION 13
+  MAX-WIDTH 160
+  ORDER 120
+
+ADD FIELD "TempTableName" OF "SmartTable" AS character 
+  DESCRIPTION "Sets the default temp-table name to be used for this database table"
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Temp Table Name"
+  POSITION 14
+  MAX-WIDTH 160
+  ORDER 130
+
+ADD FIELD "KeyFieldAssignmentGUID" OF "SmartTable" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 15
+  MAX-WIDTH 72
+  ORDER 140
+
+ADD INDEX "DatabaseTable" ON "SmartTable" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "DatabaseName" ASCENDING 
+  INDEX-FIELD "TableName" ASCENDING 
+
+ADD INDEX "TableGUID" ON "SmartTable" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "TableGUID" ASCENDING 
+
+ADD TABLE "SmartToolbarSecurityItem"
+  AREA "Schema Area"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smarttoolbarsecurityitem"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSToolbarSecurityItem.p" CRC "?" 
+
+ADD FIELD "ToolbarSecurityItemGuid" OF "SmartToolbarSecurityItem" AS character 
+  FORMAT "x(36)"
+  FORMAT-SA "U"
+  INITIAL ""
+  INITIAL-SA "U"
+  LABEL-SA "U"
+  POSITION 2
+  MAX-WIDTH 72
+  COLUMN-LABEL-SA "U"
+  VALMSG-SA "U"
+  HELP-SA "U"
+  ORDER 10
+
+ADD FIELD "ObjectName" OF "SmartToolbarSecurityItem" AS character 
+  FORMAT "x(80)"
+  FORMAT-SA "U"
+  INITIAL ""
+  INITIAL-SA "U"
+  LABEL "Container / Object Name"
+  LABEL-SA "U"
+  POSITION 3
+  MAX-WIDTH 160
+  COLUMN-LABEL-SA "U"
+  VALMSG-SA "U"
+  HELP-SA "U"
+  ORDER 20
+
+ADD FIELD "ToolbarItemKey" OF "SmartToolbarSecurityItem" AS character 
+  FORMAT "x(80)"
+  FORMAT-SA "U"
+  INITIAL ""
+  INITIAL-SA "U"
+  LABEL "Toolbar Item"
+  LABEL-SA "U"
+  POSITION 4
+  MAX-WIDTH 160
+  COLUMN-LABEL-SA "U"
+  VALMSG-SA "U"
+  HELP-SA "U"
+  ORDER 30
+  MANDATORY
+
+ADD FIELD "Description" OF "SmartToolbarSecurityItem" AS character 
+  FORMAT "x(80)"
+  FORMAT-SA "U"
+  INITIAL ""
+  INITIAL-SA "U"
+  LABEL "Description"
+  LABEL-SA "U"
+  POSITION 5
+  MAX-WIDTH 160
+  COLUMN-LABEL-SA "U"
+  VALMSG-SA "U"
+  HELP-SA "U"
+  ORDER 40
+
+ADD INDEX "ToolbarSecurityItemGuid" ON "SmartToolbarSecurityItem" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "ToolbarSecurityItemGuid" ASCENDING 
+
+ADD INDEX "ObjectNameToolbarItem" ON "SmartToolbarSecurityItem" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "ObjectName" ASCENDING 
+  INDEX-FIELD "ToolbarItemKey" ASCENDING 
+
+ADD INDEX "ToolbarItemObjectName" ON "SmartToolbarSecurityItem" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "ToolbarItemKey" ASCENDING 
+  INDEX-FIELD "ObjectName" ASCENDING 
+
+ADD TABLE "SmartTranslation"
+  AREA "Schema Area"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smarttranslation"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSTranslation.p" CRC "?" 
+
+ADD FIELD "TranslationGuid" OF "SmartTranslation" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 72
+  ORDER 10
+
+ADD FIELD "LanguageGuid" OF "SmartTranslation" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 72
+  ORDER 40
+
+ADD FIELD "OriginalString" OF "SmartTranslation" AS character 
+  FORMAT "x(70)"
+  INITIAL ""
+  POSITION 4
+  MAX-WIDTH 140
+  ORDER 50
+
+ADD FIELD "TranslatedString" OF "SmartTranslation" AS character 
+  FORMAT "x(70)"
+  INITIAL ""
+  POSITION 5
+  MAX-WIDTH 140
+  ORDER 60
+
+ADD FIELD "TranslationScope" OF "SmartTranslation" AS character 
+  FORMAT "x(70)"
+  INITIAL ""
+  LABEL "Scope"
+  POSITION 6
+  MAX-WIDTH 140
+  ORDER 20
+
+ADD FIELD "TranslationKey" OF "SmartTranslation" AS character 
+  FORMAT "x(70)"
+  INITIAL ""
+  LABEL "Key"
+  POSITION 7
+  MAX-WIDTH 140
+  ORDER 30
+
+ADD INDEX "TranslationGuid" ON "SmartTranslation" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "TranslationGuid" ASCENDING 
+
+ADD INDEX "ScopeKeyLanguage" ON "SmartTranslation" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "TranslationScope" ASCENDING 
+  INDEX-FIELD "TranslationKey" ASCENDING 
+  INDEX-FIELD "LanguageGuid" ASCENDING 
+
+ADD INDEX "ScopeOriginalStringLanguage" ON "SmartTranslation" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "TranslationScope" ASCENDING 
+  INDEX-FIELD "OriginalString" ASCENDING 
+  INDEX-FIELD "LanguageGuid" ASCENDING 
+
+ADD TABLE "SmartUiTranslation"
+  AREA "Schema Area"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartuitranslation"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSUiTranslation.p" CRC "?" 
+
+ADD FIELD "UiTranslationGuid" OF "SmartUiTranslation" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 72
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "LanguageGuid" OF "SmartUiTranslation" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 72
+  ORDER 20
+
+ADD FIELD "ObjectName" OF "SmartUiTranslation" AS character 
+  DESCRIPTION "The name of the Form or User Control class"
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Container Object Name"
+  POSITION 4
+  MAX-WIDTH 120
+  ORDER 30
+
+ADD FIELD "ResourceKey" OF "SmartUiTranslation" AS character 
+  DESCRIPTION "The key of the resource. May contain the asterix to allow partial matches, useful for Grid column labels or UltraToolbars Tools"
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Resource Key"
+  POSITION 5
+  MAX-WIDTH 120
+  ORDER 40
+
+ADD FIELD "OriginalString" OF "SmartUiTranslation" AS character 
+  FORMAT "x(70)"
+  INITIAL ""
+  POSITION 6
+  MAX-WIDTH 140
+  ORDER 50
+
+ADD FIELD "TranslatedString" OF "SmartUiTranslation" AS character 
+  FORMAT "x(70)"
+  INITIAL ""
+  POSITION 7
+  MAX-WIDTH 140
+  ORDER 60
+
+ADD INDEX "UiTranslationGuid" ON "SmartUiTranslation" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "UiTranslationGuid" ASCENDING 
+
+ADD INDEX "LanguageObjectOriginal" ON "SmartUiTranslation" 
+  AREA "Schema Area"
+  INDEX-FIELD "LanguageGuid" ASCENDING 
+  INDEX-FIELD "ObjectName" ASCENDING 
+  INDEX-FIELD "OriginalString" ASCENDING 
+  INDEX-FIELD "ResourceKey" ASCENDING 
+
+ADD INDEX "LanguageObjectResource" ON "SmartUiTranslation" 
+  AREA "Schema Area"
+  INDEX-FIELD "LanguageGuid" ASCENDING 
+  INDEX-FIELD "ObjectName" ASCENDING 
+  INDEX-FIELD "ResourceKey" ASCENDING 
+
+ADD TABLE "SmartUser"
+  AREA "Schema Area"
+  LABEL "User"
+  LABEL-SA "U"
+  DESCRIPTION "Master table for users"
+  VALMSG-SA "U"
+  DUMP-NAME "smartuser"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSUsers.p" CRC "?" 
+
+ADD FIELD "UserGuid" OF "SmartUser" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 72
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "UserName" OF "SmartUser" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 40
+  ORDER 20
+  MANDATORY
+
+ADD FIELD "LanguageGuid" OF "SmartUser" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 4
+  MAX-WIDTH 72
+  ORDER 30
+
+ADD FIELD "UserFullName" OF "SmartUser" AS character 
+  FORMAT "x(40)"
+  INITIAL ""
+  POSITION 5
+  MAX-WIDTH 80
+  ORDER 40
+
+ADD FIELD "UserEmail" OF "SmartUser" AS character 
+  FORMAT "x(40)"
+  INITIAL ""
+  POSITION 6
+  MAX-WIDTH 80
+  ORDER 50
+
+ADD FIELD "UserPassword" OF "SmartUser" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  POSITION 7
+  MAX-WIDTH 40
+  ORDER 60
+  MANDATORY
+
+ADD FIELD "UserPasswordChangedDate" OF "SmartUser" AS date 
+  FORMAT "99/99/99"
+  INITIAL ?
+  POSITION 8
+  MAX-WIDTH 4
+  ORDER 70
+
+ADD FIELD "UserLastLogin" OF "SmartUser" AS datetime-tz 
+  FORMAT "99/99/9999 HH:MM:SS.SSS+HH:MM"
+  INITIAL ?
+  POSITION 9
+  MAX-WIDTH 12
+  ORDER 80
+
+ADD FIELD "LoginCompanyGuid" OF "SmartUser" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 10
+  MAX-WIDTH 72
+  ORDER 90
+
+ADD FIELD "ManagerUserGuid" OF "SmartUser" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 11
+  MAX-WIDTH 72
+  ORDER 100
+
+ADD FIELD "UserSecurityId" OF "SmartUser" AS integer 
+  FORMAT ">,>>>,>>9"
+  INITIAL ?
+  LABEL "User Security Id"
+  POSITION 12
+  MAX-WIDTH 4
+  ORDER 110
+
+ADD INDEX "UserGuid" ON "SmartUser" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "UserGuid" ASCENDING 
+
+ADD INDEX "ManagerUserGuid" ON "SmartUser" 
+  AREA "Schema Area"
+  INDEX-FIELD "ManagerUserGuid" ASCENDING 
+
+ADD INDEX "UserNameLoginCompanyGuid" ON "SmartUser" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "UserName" ASCENDING 
+  INDEX-FIELD "LoginCompanyGuid" ASCENDING 
+
+ADD INDEX "UserSecurityId" ON "SmartUser" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "UserSecurityId" ASCENDING 
+
+ADD TABLE "SmartUserGroup"
+  AREA "Schema Area"
+  LABEL "User Group Assignment"
+  LABEL-SA "U"
+  DESCRIPTION "Assignment table for Users and Groups"
+  VALMSG-SA "U"
+  DUMP-NAME "smartusergroup"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSUserGrp.p" CRC "?" 
+
+ADD FIELD "UserGroupGuid" OF "SmartUserGroup" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 72
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "GroupGuid" OF "SmartUserGroup" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 72
+  ORDER 20
+  MANDATORY
+
+ADD FIELD "UserGuid" OF "SmartUserGroup" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 4
+  MAX-WIDTH 72
+  ORDER 30
+  MANDATORY
+
+ADD INDEX "UserGroupGuid" ON "SmartUserGroup" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "UserGroupGuid" ASCENDING 
+
+ADD TABLE "SmartValueList"
+  AREA "Schema Area"
+  LABEL "Value List"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartvaluelist"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSValueList.p" CRC "?" 
+
+ADD FIELD "ValueListGuid" OF "SmartValueList" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  LABEL "GUID"
+  POSITION 2
+  MAX-WIDTH 72
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "ValueListKey" OF "SmartValueList" AS character 
+  FORMAT "x(15)"
+  INITIAL ""
+  LABEL "Value List Key"
+  POSITION 3
+  MAX-WIDTH 30
+  ORDER 30
+
+ADD FIELD "ValueListDescription" OF "SmartValueList" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 4
+  MAX-WIDTH 160
+  ORDER 40
+
+ADD FIELD "ModuleGuid" OF "SmartValueList" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 5
+  MAX-WIDTH 72
+  ORDER 20
+  MANDATORY
+
+ADD INDEX "ValueListKey" ON "SmartValueList" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "ValueListKey" ASCENDING 
+
+ADD INDEX "ModuleGuid" ON "SmartValueList" 
+  AREA "Schema Area"
+  INDEX-FIELD "ModuleGuid" ASCENDING 
+
+ADD INDEX "ValueListDescription" ON "SmartValueList" 
+  AREA "Schema Area"
+  INDEX-FIELD "ValueListDescription" ASCENDING 
+
+ADD INDEX "ValueListGuid" ON "SmartValueList" 
+  AREA "Schema Area"
+  INDEX-FIELD "ValueListGuid" ASCENDING 
+
+ADD TABLE "SmartValueListEntry"
+  AREA "Schema Area"
+  LABEL "Value List Entry"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartvaluelistentry"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSValueListEntry.p" CRC "?" 
+
+ADD FIELD "ValueListEntryGuid" OF "SmartValueListEntry" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  LABEL "GUID"
+  POSITION 2
+  MAX-WIDTH 72
+  ORDER 10
+
+ADD FIELD "ValueListGuid" OF "SmartValueListEntry" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  LABEL "GUID"
+  POSITION 3
+  MAX-WIDTH 72
+  ORDER 20
+  MANDATORY
+
+ADD FIELD "ValueListEntryDescription" OF "SmartValueListEntry" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 4
+  MAX-WIDTH 160
+  ORDER 40
+
+ADD FIELD "ValueListEntryImageKey" OF "SmartValueListEntry" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Image Key"
+  POSITION 5
+  MAX-WIDTH 160
+  ORDER 50
+
+ADD FIELD "ValueListEntryKey" OF "SmartValueListEntry" AS character 
+  FORMAT "x(15)"
+  INITIAL ?
+  LABEL "Entry Key"
+  POSITION 6
+  MAX-WIDTH 30
+  ORDER 30
+
+ADD INDEX "ValueListKey" ON "SmartValueListEntry" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "ValueListGuid" ASCENDING 
+  INDEX-FIELD "ValueListEntryKey" ASCENDING 
+
+ADD INDEX "ValueList" ON "SmartValueListEntry" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "ValueListGuid" ASCENDING 
+  INDEX-FIELD "ValueListEntryDescription" ASCENDING 
+
+ADD INDEX "ValueListEntryGuid" ON "SmartValueListEntry" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "ValueListEntryGuid" ASCENDING 
+
+ADD TABLE "SmartWorkflow"
+  AREA "Schema Area"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartworkflow"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSWorkflow.p" CRC "?" 
+
+ADD FIELD "WorkflowGuid" OF "SmartWorkflow" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  LABEL "Workflow Guid"
+  POSITION 2
+  MAX-WIDTH 72
+  COLUMN-LABEL "Workflow Guid"
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "WorkflowName" OF "SmartWorkflow" AS character 
+  FORMAT "x(100)"
+  INITIAL ""
+  LABEL "Name"
+  POSITION 3
+  MAX-WIDTH 200
+  COLUMN-LABEL "Name"
+  ORDER 20
+  MANDATORY
+
+ADD FIELD "WorkflowDescription" OF "SmartWorkflow" AS character 
+  FORMAT "x(200)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 4
+  MAX-WIDTH 400
+  COLUMN-LABEL "Description"
+  ORDER 30
+
+ADD FIELD "BusinessEntityTableGuid" OF "SmartWorkflow" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  LABEL "BusinessEntity Table Guid"
+  POSITION 5
+  MAX-WIDTH 72
+  COLUMN-LABEL "BusinessEntity Table Guid"
+  ORDER 40
+  MANDATORY
+
+ADD FIELD "WorkflowOrder" OF "SmartWorkflow" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Order"
+  POSITION 6
+  MAX-WIDTH 4
+  COLUMN-LABEL "Order"
+  ORDER 50
+  MANDATORY
+
+ADD FIELD "StatusField" OF "SmartWorkflow" AS character 
+  FORMAT "x(100)"
+  INITIAL ""
+  LABEL "Status"
+  POSITION 7
+  MAX-WIDTH 200
+  COLUMN-LABEL "Status"
+  ORDER 60
+  MANDATORY
+
+ADD INDEX "SmartWorkflow" ON "SmartWorkflow" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "WorkflowGuid" ASCENDING 
+
+ADD INDEX "WorkflowName" ON "SmartWorkflow" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "BusinessEntityTableGuid" ASCENDING 
+  INDEX-FIELD "WorkflowName" ASCENDING 
+
+ADD TABLE "SmartWorkflowActivity"
+  AREA "Schema Area"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartworkflowactivity"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSWActivity.p" CRC "?" 
+
+ADD FIELD "WorkflowActivityGuid" OF "SmartWorkflowActivity" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  LABEL "Workflow Activity Guid"
+  POSITION 2
+  MAX-WIDTH 72
+  COLUMN-LABEL "Workflow Activity Guid"
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "WorkflowActivityName" OF "SmartWorkflowActivity" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Activity Name"
+  POSITION 3
+  MAX-WIDTH 200
+  COLUMN-LABEL "Activity Name"
+  ORDER 20
+  MANDATORY
+
+ADD FIELD "WorkflowActivityDescription" OF "SmartWorkflowActivity" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Activity Description"
+  POSITION 4
+  MAX-WIDTH 400
+  COLUMN-LABEL "Activity Description"
+  ORDER 30
+
+ADD FIELD "WorkflowActivityImageSmall" OF "SmartWorkflowActivity" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Image Small"
+  POSITION 5
+  MAX-WIDTH 160
+  COLUMN-LABEL "Image Small"
+  ORDER 40
+
+ADD FIELD "WorkflowActivityImageLarge" OF "SmartWorkflowActivity" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Image Large"
+  POSITION 6
+  MAX-WIDTH 160
+  COLUMN-LABEL "Image Large"
+  ORDER 50
+
+ADD FIELD "WorkflowGuid" OF "SmartWorkflowActivity" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  LABEL "Workflow Guid"
+  POSITION 7
+  MAX-WIDTH 72
+  COLUMN-LABEL "Workflow Guid"
+  ORDER 60
+  MANDATORY
+
+ADD FIELD "WorkflowActivityOrder" OF "SmartWorkflowActivity" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Workflow Activity Order"
+  POSITION 8
+  MAX-WIDTH 4
+  COLUMN-LABEL "Workflow Activity Order"
+  ORDER 70
+  MANDATORY
+
+ADD FIELD "ResultWorkflowStatusGuid" OF "SmartWorkflowActivity" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  LABEL "Result Workflow Status Guid"
+  POSITION 9
+  MAX-WIDTH 72
+  COLUMN-LABEL "Result Workflow Status Guid"
+  ORDER 80
+  MANDATORY
+
+ADD INDEX "SmartWorkflowActivity" ON "SmartWorkflowActivity" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "WorkflowActivityGuid" ASCENDING 
+
+ADD INDEX "WorkflowActivityName" ON "SmartWorkflowActivity" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "WorkflowGuid" ASCENDING 
+  INDEX-FIELD "WorkflowActivityName" ASCENDING 
+
+ADD TABLE "SmartWorkflowStatus"
+  AREA "Schema Area"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartworkflowstatus"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSWStatus.p" CRC "?" 
+
+ADD FIELD "WorkflowStatusGuid" OF "SmartWorkflowStatus" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  LABEL "Workflow Status Guid"
+  POSITION 2
+  MAX-WIDTH 72
+  COLUMN-LABEL "Workflow Status Guid"
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "WorkflowStatusName" OF "SmartWorkflowStatus" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Status Name"
+  POSITION 3
+  MAX-WIDTH 200
+  COLUMN-LABEL "Status Name"
+  ORDER 20
+  MANDATORY
+
+ADD FIELD "WorkflowStatusDescription" OF "SmartWorkflowStatus" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Status Description"
+  POSITION 4
+  MAX-WIDTH 400
+  COLUMN-LABEL "Status Description"
+  ORDER 30
+
+ADD FIELD "WorkflowStatusImageSmall" OF "SmartWorkflowStatus" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Image Small"
+  POSITION 5
+  MAX-WIDTH 160
+  COLUMN-LABEL "Image Small"
+  ORDER 40
+
+ADD FIELD "WorkflowStatusImageLarge" OF "SmartWorkflowStatus" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Image Large"
+  POSITION 6
+  MAX-WIDTH 160
+  COLUMN-LABEL "Image Large"
+  ORDER 50
+
+ADD FIELD "WorkflowGuid" OF "SmartWorkflowStatus" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  LABEL "Workflow Guid"
+  POSITION 7
+  MAX-WIDTH 72
+  COLUMN-LABEL "Workflow Guid"
+  ORDER 60
+  MANDATORY
+
+ADD FIELD "WorkflowStatusOrder" OF "SmartWorkflowStatus" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Workflow Status Order"
+  POSITION 8
+  MAX-WIDTH 4
+  COLUMN-LABEL "Workflow Status Order"
+  ORDER 70
+  MANDATORY
+
+ADD INDEX "SmartWorkflowStatus" ON "SmartWorkflowStatus" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "WorkflowStatusGuid" ASCENDING 
+
+ADD INDEX "WorkflowStatusName" ON "SmartWorkflowStatus" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "WorkflowGuid" ASCENDING 
+  INDEX-FIELD "WorkflowStatusName" ASCENDING 
+
+ADD TABLE "SmartWorkflowStatusActivities"
+  AREA "Schema Area"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "smartworkflowstatusactivities"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "SmartDBtrgs/crSWSActivities.p" CRC "?" 
+
+ADD FIELD "WorkflowStatusActivitiesGuid" OF "SmartWorkflowStatusActivities" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  LABEL "Workflow Status Activities Guid"
+  POSITION 2
+  MAX-WIDTH 72
+  COLUMN-LABEL "Workflow Status Activities Guid"
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "WorkflowStatusGuid" OF "SmartWorkflowStatusActivities" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  LABEL "Workflow Status Guid"
+  POSITION 3
+  MAX-WIDTH 72
+  COLUMN-LABEL "Workflow Status Guid"
+  ORDER 20
+  MANDATORY
+
+ADD FIELD "WorkflowActivityGuid" OF "SmartWorkflowStatusActivities" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  LABEL "Workflow Activity Guid"
+  POSITION 4
+  MAX-WIDTH 72
+  COLUMN-LABEL "Workflow Activity Guid"
+  ORDER 30
+  MANDATORY
+
+ADD INDEX "SmartWorkflowStatusActivities" ON "SmartWorkflowStatusActivities" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "WorkflowStatusActivitiesGuid" ASCENDING 
+
+ADD INDEX "WorkflowActivityGuid" ON "SmartWorkflowStatusActivities" 
+  AREA "Schema Area"
+  INDEX-FIELD "WorkflowActivityGuid" ASCENDING 
+
+ADD INDEX "WorkflowStatusGuid" ON "SmartWorkflowStatusActivities" 
+  AREA "Schema Area"
+  INDEX-FIELD "WorkflowStatusGuid" ASCENDING 
+
+ADD TABLE "WebCaptcha"
+  AREA "Schema Area"
+  LABEL-SA "U"
+  VALMSG-SA "U"
+  DUMP-NAME "webcaptcha"
+
+ADD FIELD "CaptchaGuid" OF "WebCaptcha" AS character 
+  FORMAT "x(36)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 72
+  ORDER 10
+
+ADD FIELD "CaptchaValue" OF "WebCaptcha" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 40
+  ORDER 20
+
+ADD FIELD "CaptchaTimeStamp" OF "WebCaptcha" AS datetime-tz 
+  FORMAT "99/99/9999 HH:MM:SS.SSS+HH:MM"
+  INITIAL "NOW"
+  POSITION 4
+  MAX-WIDTH 12
+  ORDER 30
+
+ADD INDEX "CaptchaGuid" ON "WebCaptcha" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "CaptchaGuid" ASCENDING 
+
+ADD INDEX "CaptchaTimeStamp" ON "WebCaptcha" 
+  AREA "Schema Area"
+  INDEX-FIELD "CaptchaTimeStamp" ASCENDING 
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000122832
