@@ -1414,14 +1414,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     
     {custom/usrprint.i}
 
-     IF v-relprint EQ "Prystup" THEN
+     IF v-relprint EQ "Prystup" OR v-relprint EQ "NStock" THEN
          ASSIGN  rd-print-what:SCREEN-VALUE = "R"
             rd-print-what = "R".
-
-     IF v-relprint EQ "NStock" THEN
-         ASSIGN  rd-print-what:SCREEN-VALUE = "I"
-            rd-print-what = "I".
-    
 
     IF tgMultipleReleases:SCREEN-VALUE NE "YES" THEN DO:
         ASSIGN END_relnum:VISIBLE = FALSE begin_relnum:LABEL = "Release#".

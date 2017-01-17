@@ -79,7 +79,7 @@ FOR EACH pendingJob NO-LOCK:
          AND job-mch.blank-no EQ INTEGER(ENTRY(8,pendingJob.keyValue))
          AND job-mch.pass EQ INTEGER(ENTRY(9,pendingJob.keyValue))
        NO-ERROR.
-  IF NOT AVAILABLE job-mch THEN
+  IF NOT AVAILABLE job-mch THEN NEXT.
   ASSIGN
     statusStr = ''
     job-mch.end-date = ?

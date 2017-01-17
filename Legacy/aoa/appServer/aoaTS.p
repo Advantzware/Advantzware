@@ -207,7 +207,7 @@ FUNCTION fMachineTransactionSummary RETURNS HANDLE ( {aoa/includes/fInputVars.i}
     EMPTY TEMP-TABLE ttMachineTransactionSummary.
 
     /* subject business logic */
-    RUN aoa/BL/mtransum.p (OUTPUT TABLE ttMachineTransactions, ipcCompany, ipiBatch, ipcUserID).
+    RUN aoa/BL/mtransum.p (OUTPUT TABLE ttMachineTransactionSummary, ipcCompany, ipiBatch, ipcUserID).
 
     RETURN TEMP-TABLE ttMachineTransactionSummary:HANDLE .
 

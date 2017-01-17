@@ -194,7 +194,7 @@ DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99
      VIEW-AS FILL-IN 
      SIZE 4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-font-name AS CHARACTER FORMAT "X(256)":U INITIAL "Courier New Size=7 (17 cpi for 132 column Report)" 
+DEFINE VARIABLE lv-font-name AS CHARACTER FORMAT "X(256)":U INITIAL "Courier New Size=7 (17 cpi for 144 column Report)" 
      VIEW-AS FILL-IN 
      SIZE 61 BY 1 NO-UNDO.
 
@@ -1100,12 +1100,12 @@ WITH PAGE-TOP FRAME r-top-1 STREAM-IO WIDTH 200 NO-BOX.
 FORM HEADER SKIP(1)
      "VENDOR#  NAME  TERMS" SKIP
      "PHONE-   TYPE" skip
-     "  INVOICE#      DATE                  AMOUNT #DAYS             0-" + string(period-days-1) + FILL(" ",11) +   
+     "  INVOICE#      DATE     DUE DATE            AMOUNT #DAYS             0-" + string(period-days-1) + FILL(" ",11) +   
                                                                            string(period-days-1 + 1) + "-" + string(period-days-2) + FILL(" ",11) +
                                                                            string(period-days-2 + 1) + "-" + string(period-days-3) + FILL(" ",11) +
                                                                            string(period-days-3 + 1) + "-" + string(period-days-4) + FILL(" ",9) +
-                                                                           string(period-days-4 + 1) + "+"  + FILL(" ",10) FORM "x(131)"
-     SKIP FILL("_",131) FORMAT "x(131)"
+                                                                           string(period-days-4 + 1) + "+"  + FILL(" ",10) FORM "x(143)"
+     SKIP FILL("_",143) FORMAT "x(143)"
 WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
 
 FORM HEADER
@@ -1116,8 +1116,8 @@ FORM HEADER
                       string(period-days-2 + 1) + " - " + string(period-days-3) + FILL(" ",10) +
                       string(period-days-3 + 1) + " - " + string(period-days-4) + FILL(" ",10) +
                       string(period-days-4 + 1) + "+"  + FILL(" ",10) +
-     "Total Payables" FORM "x(131)"
-     SKIP SPACE(10) FILL("_",131) FORMAT "x(120)"
+     "Total Payables" FORM "x(143)"
+     SKIP SPACE(10) FILL("_",143) FORMAT "x(132)"
 WITH FRAME f-bot DOWN STREAM-IO WIDTH 200 NO-LABELS NO-BOX NO-UNDERLINE.
 
 
@@ -1141,7 +1141,7 @@ assign
  v-days[4] = period-days-4
 
  str-tit3 = "Company From: " + STRING(begin_comp) + " To: " + STRING(end_comp) + "      " + "As of Date: " + STRING(v-date)
- {sys/inc/ctrtext.i str-tit3 132}.
+ {sys/inc/ctrtext.i str-tit3 144}.
  
 
 do with frame {&frame-name}:
@@ -1235,7 +1235,7 @@ VIEW FRAME r-top.
         excelheader = excelheader + "CURRENCY,".
 
      excelheader = excelheader
-                 + "VENDOR#,VENDOR NAME,PHONE,TYPE,TERMS,INVOICE#,DATE,AMOUNT,#DAYS,"
+                 + "VENDOR#,VENDOR NAME,PHONE,TYPE,TERMS,INVOICE#,DATE,DUE DATE,AMOUNT,#DAYS,"
                  + "0-" + STRING(period-days-1) + "," + STRING(period-days-1 + 1) + "-" 
                         + STRING(period-days-2) + "," + STRING(period-days-2 + 1) + "-" 
                         + STRING(period-days-3) + "," + STRING(period-days-3 + 1) + "-" 
@@ -1339,6 +1339,7 @@ VIEW FRAME r-top.
                 '"' ""                                  '",'
                 '"' ""                                  '",'
                 '"' ""                                  '",'
+                '"' ""                                  '",'
                 '"' "PERCENTAGE COMPOSITION"            '",'
                 '"' ""                                  '",'
                 '"' STRING((curr-t[1] / t2) * 100,"->>>>>>>>>>9.99%") '",'
@@ -1415,6 +1416,7 @@ VIEW FRAME r-top.
            '"' ""                                  '",'
            '"' ""                                  '",'
            '"' ""                                  '",'
+           '"' ""                                  '",'
            '"' ""                                  '",' 
            '"' "GRAND TOTALS"                      '",'
            '"' ""                                  '",'
@@ -1434,6 +1436,7 @@ VIEW FRAME r-top.
               '"' "" '",'.
 
        PUT STREAM excel UNFORMATTED
+           '"' ""                                  '",'
            '"' ""                                  '",'
            '"' ""                                  '",'
            '"' ""                                  '",'

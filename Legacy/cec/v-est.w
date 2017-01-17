@@ -1344,6 +1344,10 @@ DO:
          /* eb.dep:screen-value  = string( dep-num +  op-dec) . */
       END.
    END.
+   IF ll-auto-calc-selected THEN DO:
+       ASSIGN
+       eb.lin-in:SCREEN-VALUE = eb.dep:SCREEN-VALUE .
+   END.
 
 END.
 

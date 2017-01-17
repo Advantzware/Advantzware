@@ -104,7 +104,7 @@ mach.mr-fixoh mach.mr-trate mach.run-varoh mach.run-fixoh mach.run-trate ~
 mach.min-len mach.max-len mach.min-trimw mach.min-wid mach.max-wid ~
 mach.min-triml mach.min-cal mach.max-cal mach.min-pan-l mach.max-pan-l ~
 mach.min-pan-w mach.max-pan-w mach.min-dep mach.max-dep mach.min-run ~
-mach.max-run mach.tan-mrp mach.num-wid mach.num-len 
+mach.max-run mach.tan-mrp mach.num-wid mach.num-len mach.spare-int-1 
 &Scoped-define ENABLED-TABLES mach
 &Scoped-define FIRST-ENABLED-TABLE mach
 &Scoped-Define ENABLED-OBJECTS RECT-10 RECT-11 RECT-12 
@@ -120,7 +120,7 @@ mach.min-cal mach.max-cal mach.min-pan-l mach.max-pan-l mach.min-pan-w ~
 mach.max-pan-w mach.min-dep mach.max-dep mach.min-run mach.max-run ~
 mach.pr-type mach.washup mach.col-pass mach.max-color mach.coater ~
 mach.col-wastesh mach.ink-waste mach.col-wastelb mach.tan-mrp mach.tan-mrf ~
-mach.num-wid mach.num-len 
+mach.num-wid mach.num-len mach.spare-int-1 
 &Scoped-define DISPLAYED-TABLES mach
 &Scoped-define FIRST-DISPLAYED-TABLE mach
 &Scoped-Define DISPLAYED-OBJECTS cb_industry tb_plain-jobs tb_obsolete ~
@@ -439,6 +439,11 @@ DEFINE FRAME F-Main
           LABEL "Max Num Length"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
+     mach.spare-int-1 AT ROW 8.38 COL 56 COLON-ALIGNED HELP
+          "Enter Kicks Per Hour" WIDGET-ID 2
+          LABEL "Kicks/Hr" FORMAT ">>,>>9"
+          VIEW-AS FILL-IN 
+          SIZE 13 BY 1
      "Printing Press" VIEW-AS TEXT
           SIZE 17 BY .62 AT ROW 9.81 COL 81
           FGCOLOR 9 
@@ -607,6 +612,8 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN mach.run-varoh IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN mach.spare-int-1 IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT EXP-HELP                                        */
 /* SETTINGS FOR FILL-IN mach.tan-mrf IN FRAME F-Main
    NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN mach.tan-mrp IN FRAME F-Main

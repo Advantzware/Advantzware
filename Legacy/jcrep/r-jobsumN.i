@@ -588,7 +588,7 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
                          WHEN "est-speed"   THEN cVarValue = IF work-mch.est-speed <> ? AND work-mch.est-speed <> 0 THEN  STRING(work-mch.est-speed,">>>>>9-")  ELSE "".
                          WHEN "est-cost"  THEN cVarValue = IF work-mch.est-run-cost <> ? AND work-mch.est-run-cost <> 0 THEN STRING(work-mch.est-run-cost,">>>>,>>9-") ELSE "".
                          WHEN "act-hours"   THEN cVarValue = IF work-mch.run-hr <> ? AND work-mch.run-hr <> 0 THEN  STRING(work-mch.run-hr,">>>,>>9-") ELSE "".
-                         WHEN "act-speed"  THEN cVarValue = IF work-mch.run-speed <> ? AND work-mch.run-speed <> 0  THEN  STRING(work-mch.run-speed,">>>9.9-") ELSE "" .
+                         WHEN "act-speed"  THEN cVarValue = IF work-mch.run-speed <> ? AND work-mch.run-speed <> 0  THEN  STRING(work-mch.run-speed,">>>>>9-") ELSE "" .
                          WHEN "act-cost"    THEN cVarValue = IF v-run-cost <> ? AND v-run-cost <> 0 THEN STRING(v-run-cost,">>>>>9-") ELSE "" .
 
                          WHEN "cost-vari"   THEN cVarValue = IF v-run-cost-var <> ? AND v-run-cost-var <> 0 THEN  string(v-run-cost-var,">>>>,>>>,>>9-") ELSE "".
@@ -855,7 +855,7 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
                          WHEN "misc-code"    THEN cVarValue = STRING(work-prep.code,"x(11)") .
-                         WHEN "misc-desc"   THEN cVarValue = STRING(work-prep.code,"x(25)") .
+                         WHEN "misc-desc"   THEN cVarValue = STRING(work-prep.dscr,"x(25)") .
                          WHEN "misc-est-cost"   THEN cVarValue = STRING(work-prep.est-cost,">>,>>>,>>9-").
                          WHEN "misc-act-cost"  THEN cVarValue = STRING(work-prep.act-cost,">>,>>>,>>9-") .
                          WHEN "misc-vari"   THEN cVarValue = STRING(v-cst-var,">>,>>>,>>9-") .

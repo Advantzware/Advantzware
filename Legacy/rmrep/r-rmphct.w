@@ -1069,7 +1069,7 @@ if v-item-bin EQ "Item" then
                    and item.cc-code <= tcode
                    and item.procat  >= v-cat[1]
                    and item.procat  <= v-cat[2]
-                   and (item.q-onh ne 0 or v-prnt-zer)
+                   and (item.q-onh ne 0 OR v-prnt-zer) 
                    no-lock,
              each rm-bin where rm-bin.company  = cocode                           
                            and rm-bin.i-no     = item.i-no
@@ -1077,7 +1077,7 @@ if v-item-bin EQ "Item" then
                            and rm-bin.loc      <= v-tloc
                            and rm-bin.loc-bin  >= v-loc-bin[1]
                            and rm-bin.loc-bin  <= v-loc-bin[2]
-                           AND ((rm-bin.qty <> 0 AND v-prnt-onh ) OR NOT v-prnt-onh)  /* task 11201306 */
+                           AND ((rm-bin.qty <> 0 AND v-prnt-onh) OR NOT v-prnt-onh OR v-prnt-zer)  /* task 11201306 */
                            no-lock
              break by rm-bin.i-no by rm-bin.loc by rm-bin.loc-bin by rm-bin.tag
              with frame itemx:
@@ -1116,7 +1116,7 @@ ELSE IF v-item-bin EQ "Bin" THEN
          and rm-bin.i-no     ne ""
          and rm-bin.loc-bin  ge v-loc-bin[1]
          and rm-bin.loc-bin  le v-loc-bin[2] 
-         AND ((rm-bin.qty <> 0 AND v-prnt-onh ) OR NOT v-prnt-onh)  /* task 11201306 */
+         AND ((rm-bin.qty <> 0 AND v-prnt-onh ) OR NOT v-prnt-onh OR v-prnt-zer)  /* task 11201306 */
          no-lock,
          first item
          where item.company eq cocode
@@ -1176,7 +1176,7 @@ ELSE
                            and rm-bin.loc      <= v-tloc
                            and rm-bin.loc-bin  >= v-loc-bin[1]
                            and rm-bin.loc-bin  <= v-loc-bin[2]
-                           AND ((rm-bin.qty <> 0 AND v-prnt-onh ) OR NOT v-prnt-onh)  /* task 11201306 */
+                           AND ((rm-bin.qty <> 0 AND v-prnt-onh ) OR NOT v-prnt-onh OR v-prnt-zer)  /* task 11201306 */
                            no-lock
              break BY item.i-name by rm-bin.i-no by rm-bin.loc by rm-bin.loc-bin by rm-bin.tag
              with frame itemx:
