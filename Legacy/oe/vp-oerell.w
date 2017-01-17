@@ -443,7 +443,7 @@ PROCEDURE browser-dbclicked :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- /*  APPLY "choose" TO btn-view IN FRAME {&FRAME-NAME}.*/
+   APPLY "choose" TO Btn-Save IN FRAME {&FRAME-NAME}.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

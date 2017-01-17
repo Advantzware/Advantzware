@@ -7,7 +7,7 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
-  File: viewers/terms.w
+  File:
 
   Description: from VIEWER.W - Template for SmartViewer Objects
 
@@ -35,7 +35,9 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-{custom/gcompany.i}
+
+{methods/defines/hndldefs.i}
+{methods/prgsecdt.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -50,31 +52,21 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of designated FRAME-NAME and/or first browse and/or first query */
+/* Name of first Frame and/or Browse and/or first Query                 */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
-&Scoped-define EXTERNAL-TABLES terms
-&Scoped-define FIRST-EXTERNAL-TABLE terms
+&Scoped-define EXTERNAL-TABLES eb
+&Scoped-define FIRST-EXTERNAL-TABLE eb
 
 
 /* Need to scope the external tables to this procedure                  */
-DEFINE QUERY external_tables FOR terms.
+DEFINE QUERY external_tables FOR eb.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS terms.dscr terms.disc-rate terms.disc-days ~
-terms.net-days terms.cut-date terms.type 
-&Scoped-define ENABLED-TABLES terms
-&Scoped-define FIRST-ENABLED-TABLE terms
-&Scoped-Define ENABLED-OBJECTS RECT-1 
-&Scoped-Define DISPLAYED-FIELDS terms.t-code terms.dscr terms.disc-rate ~
-terms.disc-days terms.net-days terms.cut-date terms.type 
-&Scoped-define DISPLAYED-TABLES terms
-&Scoped-define FIRST-DISPLAYED-TABLE terms
-&Scoped-Define DISPLAYED-OBJECTS termsCOD 
+&Scoped-Define ENABLED-OBJECTS RECT-1 btn_order 
 
 /* Custom List Definitions                                              */
-/* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
-&Scoped-define ADM-CREATE-FIELDS terms.t-code 
+/* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -106,54 +98,23 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btn_order 
+     LABEL "Create Order" 
+     SIZE 16 BY 1.43.
+
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 71 BY 3.81.
-
-DEFINE VARIABLE termsCOD AS LOGICAL INITIAL no 
-     LABEL "COD" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 9 BY 1 NO-UNDO.
+     SIZE 20 BY 1.91.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     terms.t-code AT ROW 1.24 COL 8 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 8 BY 1
-          BGCOLOR 15 FONT 4
-     terms.dscr AT ROW 1.24 COL 31 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 38 BY 1
-          BGCOLOR 15 FONT 4
-     terms.disc-rate AT ROW 2.43 COL 31 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 7 BY 1
-          BGCOLOR 15 FONT 4
-     terms.disc-days AT ROW 2.43 COL 49 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 4.4 BY 1
-          BGCOLOR 15 FONT 4
-     terms.net-days AT ROW 2.43 COL 64 COLON-ALIGNED FORMAT ">>9"
-          VIEW-AS FILL-IN 
-          SIZE 5 BY 1
-          BGCOLOR 15 FONT 4
-     terms.cut-date AT ROW 3.62 COL 31 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 7 BY 1
-          BGCOLOR 15 FONT 4
-     terms.type AT ROW 3.62 COL 49 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 3.2 BY 1
-          BGCOLOR 15 FONT 4
-     termsCOD AT ROW 3.62 COL 62 HELP
-          "Is Terms Code COD?"
+     btn_order AT ROW 1.24 COL 2
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
+         AT COL 1 ROW 1 SCROLLABLE .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -161,7 +122,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartViewer
-   External Tables: ASI.terms
+   External Tables: ASI.eb
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -183,8 +144,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 3.81
-         WIDTH              = 71.
+         HEIGHT             = 6.86
+         WIDTH              = 66.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -193,7 +154,6 @@ END.
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/viewer.i}
-{methods/template/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -207,17 +167,11 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
+   NOT-VISIBLE Size-to-Fit                                              */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
-/* SETTINGS FOR FILL-IN terms.net-days IN FRAME F-Main
-   EXP-FORMAT                                                           */
-/* SETTINGS FOR FILL-IN terms.t-code IN FRAME F-Main
-   NO-ENABLE 1                                                          */
-/* SETTINGS FOR TOGGLE-BOX termsCOD IN FRAME F-Main
-   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -237,26 +191,15 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME termsCOD
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL termsCOD V-table-Win
-ON VALUE-CHANGED OF termsCOD IN FRAME F-Main /* COD */
+&Scoped-define SELF-NAME btn_order
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_order V-table-Win
+ON CHOOSE OF btn_order IN FRAME F-Main /* Create Order */
 DO:
-  ASSIGN {&SELF-NAME}.
-END.
+  DEF VAR char-hdl AS cha NO-UNDO.
+  IF NOT v-can-delete THEN RETURN no-apply.
 
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL terms.t-code V-table-Win
-ON LEAVE OF terms.t-code IN FRAME F-Main /* Carrier */
-DO:
-     if lastkey <> -1 and terms.t-code:screen-value EQ "CASH" 
-     then do:
-        message "CASH is reserved for Cash Only process when entering an invoice through OB1 as a cash sale." view-as alert-box error.
-        return no-apply.     
-     end.
- 
+  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"CreateOrder-source", OUTPUT char-hdl).
+  RUN CreateOrder IN WIDGET-HANDLE(char-hdl).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -282,19 +225,6 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE add-item V-table-Win 
-PROCEDURE add-item :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   RUN dispatch ('add-record').
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available V-table-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
 /*------------------------------------------------------------------------------
@@ -309,17 +239,34 @@ PROCEDURE adm-row-available :
   {src/adm/template/row-head.i}
 
   /* Create a list of all the tables that we need to get.            */
-  {src/adm/template/row-list.i "terms"}
+  {src/adm/template/row-list.i "eb"}
 
   /* Get the record ROWID's from the RECORD-SOURCE.                  */
   {src/adm/template/row-get.i}
 
   /* FIND each record specified by the RECORD-SOURCE.                */
-  {src/adm/template/row-find.i "terms"}
+  {src/adm/template/row-find.i "eb"}
 
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
   {src/adm/template/row-end.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable-all V-table-Win 
+PROCEDURE disable-all :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DO WITH FRAME {&FRAME-NAME}:
+    DISABLE ALL.
+  END.
 
 END PROCEDURE.
 
@@ -344,118 +291,38 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record V-table-Win 
-PROCEDURE local-assign-record :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable-all V-table-Win 
+PROCEDURE enable-all :
 /*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
+  Purpose:     
+  Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  /* Code placed here will execute PRIOR to standard behavior. */
-  DEFINE VARIABLE saveTermsCOD AS LOGICAL NO-UNDO.
-
-  saveTermsCOD = termsCOD.
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  FIND FIRST reftable EXCLUSIVE-LOCK
-       WHERE reftable.reftable EQ 'terms.cod'
-         AND reftable.company EQ terms.company
-         AND reftable.loc EQ ''
-         AND reftable.code EQ terms.t-code NO-ERROR.
-  IF NOT AVAILABLE reftable THEN DO:
-    CREATE reftable.
-    ASSIGN
-      reftable.reftable = 'terms.cod'
-      reftable.company = terms.company
-      reftable.code = terms.t-code.
-  END.
-  ASSIGN
-    termsCOD = saveTermsCOD
-    reftable.val[1] = INT(termsCOD).
-  FIND CURRENT reftable NO-LOCK.
-  DISABLE termsCOD WITH FRAME {&FRAME-NAME}.
-  DISPLAY termsCOD WITH FRAME {&FRAME-NAME}.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
-PROCEDURE local-update-record :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-   DO WITH FRAME {&FRAME-NAME}:
-    IF terms.t-code:SCREEN-VALUE EQ "CASH" AND adm-new-record 
-     THEN DO:
-        MESSAGE "CASH is reserved for Cash Only process when entering an invoice through OB1 as a cash sale." view-as alert-box error.
-        APPLY "entry" TO terms.t-code .
-        RETURN NO-APPLY.     
-     END.
-   END.
-
-      /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record V-table-Win 
-PROCEDURE local-create-record :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  {methods/viewers/create/terms.i}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
-PROCEDURE local-display-fields :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME {&FRAME-NAME}:
-    {custom/getcmpny.i}
-    FIND reftable NO-LOCK
-         WHERE reftable.reftable EQ 'terms.cod'
-           AND reftable.company EQ gcompany
-           AND reftable.loc EQ ''
-           AND reftable.code EQ terms.t-code:SCREEN-VALUE NO-ERROR.
-    termsCOD = AVAILABLE reftable AND reftable.val[1] EQ 1.
-    DISPLAY termsCOD.
+    ENABLE ALL.
   END.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize V-table-Win 
+PROCEDURE local-initialize :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -473,7 +340,7 @@ PROCEDURE send-records :
   {src/adm/template/snd-head.i}
 
   /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "terms"}
+  {src/adm/template/snd-list.i "eb"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}

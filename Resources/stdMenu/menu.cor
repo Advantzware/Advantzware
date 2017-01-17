@@ -591,6 +591,8 @@ sr2. sr est
 w-batch. sr est
 EDIRelBL. sr est
 contexp. sr est
+wedpotr. sr est
+wedshtr. sr est
 RULE file est
 user mainmenu est
 comp_loc. user est

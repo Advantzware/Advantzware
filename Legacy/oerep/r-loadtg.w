@@ -6893,6 +6893,7 @@ PROCEDURE reprint-tag :
  
   FIND FIRST loadtag WHERE loadtag.company     EQ cocode
                  AND loadtag.item-type   EQ NO
+                 AND loadtag.is-case-tag EQ NO
                  AND loadtag.tag-no  eq TRIM(fi_cas-lab:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-LOCK NO-ERROR.
   IF NOT AVAIL loadtag THEN DO:
       MESSAGE "Invalid Loadtag. Try Help." VIEW-AS ALERT-BOX ERROR.

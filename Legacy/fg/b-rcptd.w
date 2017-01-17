@@ -3938,7 +3938,9 @@ DO WITH FRAME {&FRAME-NAME}:
             fg-rctd.cases:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(loadtag.case-bundle).
             IF INTEGER(fg-rctd.qty-case:SCREEN-VALUE IN BROWSE {&browse-name}) = 0 THEN
             fg-rctd.qty-case:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(loadtag.qty-case).
-            /* Task 12061305 */
+            IF INTEGER(loadtag.case-bundle) > 1 AND INTEGER(fg-rctd.cases-unit:SCREEN-VALUE IN BROWSE {&browse-name}) = 1 THEN
+                  fg-rctd.cases-unit:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(loadtag.case-bundle).
+            /* Task 12061305 */  
             IF loadtag.job-no <> "" THEN DO:
                 ASSIGN
                     fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = loadtag.job-no

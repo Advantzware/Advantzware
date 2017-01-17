@@ -1,4 +1,9 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
+/* Procedure Description
+"NoSweat SmartNavBrowser Object Template with Wizard.
+
+Use this template to create a new SmartNavBrowser object with the assistance of the SmartBrowser Wizard. When completed, this object can then be drawn onto any 'smart' container such as a SmartWindow, SmartDialog or SmartFrame."
+*/
 &ANALYZE-RESUME
 /* Connected Databases 
           asi              PROGRESS
@@ -7,15 +12,13 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
-  File:  browsers/fgcat.w
+  File:  browsers/<table>.w
 
   Description: from BROWSER.W - Basic SmartBrowser Object Template
 
-  Input Parameters:
-      <none>
+  Input Parameters: <none>
 
-  Output Parameters:
-      <none>
+  Output Parameters: <none>
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
@@ -30,8 +33,8 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
-/* rtc 2*/
-&SCOPED-DEFINE yellowColumnsName fgcat
+
+&SCOPED-DEFINE setBrowseFocus
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE sizeOption HEIGHT
 {methods/defines/winReSize.i}
@@ -42,12 +45,8 @@ CREATE WIDGET-POOL.
 
 {custom/gcompany.i}
 {custom/globdefs.i}
-{sys/inc/var.i new shared}
+{sys/inc/var.i NEW SHARED}
 {sys/inc/varasgn.i}
-
-DEFINE VARIABLE cat-format AS LOGICAL NO-UNDO.
-DEFINE VARIABLE cDscr AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cType AS CHARACTER NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -62,32 +61,41 @@ DEFINE VARIABLE cType AS CHARACTER NO-UNDO.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target,Navigation-Target
 
-/* Name of designated FRAME-NAME and/or first browse and/or first query */
+/* Name of first Frame and/or Browse and/or first Query                 */
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME Browser-Table
 
+/* External Tables                                                      */
+&Scoped-define EXTERNAL-TABLES EDSHTran
+&Scoped-define FIRST-EXTERNAL-TABLE EDSHTran
+
+
+/* Need to scope the external tables to this procedure                  */
+DEFINE QUERY external_tables FOR EDSHTran.
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES fgcat account
+&Scoped-define INTERNAL-TABLES EDSHLine
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE Browser-Table                                 */
-&Scoped-define FIELDS-IN-QUERY-Browser-Table fgcat.procat fgcat.dscr ~
-fgcat.commrate = 1 @ cat-format fgcat.glacc getDscr() @ cDscr getType() @ cType /*account.dscr account.type*/ 
+&Scoped-define FIELDS-IN-QUERY-Browser-Table EDSHTran.Partner EDSHTran.Seq ~
+EDSHTran.BOL-No EDSHTran.Sf-code EDSHTran.Ship-Date EDSHTran.Carrier ~
+EDSHLine.Order-no EDSHLine.Item-no EDSHLine.Qty-orig-ord ~
+EDSHLine.Qty-shipped EDSHLine.Tot-wght EDSHLine.Tot-volume ~
+EDSHLine.Uom-code EDSHLine.Cust-po EDSHLine.Cust-item-no 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
-&Scoped-define QUERY-STRING-Browser-Table FOR EACH fgcat WHERE ~{&KEY-PHRASE} ~
-  AND  fgcat.company = gcompany NO-LOCK  ~
+&Scoped-define QUERY-STRING-Browser-Table FOR EACH EDSHLine OF EDSHTran WHERE ~{&KEY-PHRASE} NO-LOCK ~
     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH fgcat WHERE ~{&KEY-PHRASE} ~
-   AND fgcat.company = gcompany NO-LOCK ~
+&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH EDSHLine OF EDSHTran WHERE ~{&KEY-PHRASE} NO-LOCK ~
     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-Browser-Table fgcat account
-&Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table fgcat
-&Scoped-define SECOND-TABLE-IN-QUERY-Browser-Table account
+&Scoped-define TABLES-IN-QUERY-Browser-Table EDSHLine
+&Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table EDSHLine
 
 
 /* Definitions for FRAME F-Main                                         */
+&Scoped-define OPEN-BROWSERS-IN-QUERY-F-Main ~
+    ~{&OPEN-QUERY-Browser-Table}
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
@@ -102,27 +110,6 @@ Btn_Clear_Find
 
 
 
-/* ************************  Function Prototypes ********************** */
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getDscr B-table-Win 
-FUNCTION getDscr RETURNS CHARACTER
-    (  ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getType B-table-Win 
-FUNCTION getType RETURNS CHARACTER
-    (  ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 /* ***********************  Control Definitions  ********************** */
 
 
@@ -135,49 +122,55 @@ DEFINE BUTTON Btn_Clear_Find
 DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
      LABEL "Auto Find" 
      VIEW-AS FILL-IN 
-     SIZE 29 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 38 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.
+     SIZE 60 BY 1 NO-UNDO.
 
 DEFINE VARIABLE browse-order AS INTEGER 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "N/A", 1
-     SIZE 34 BY 1 NO-UNDO.
+     SIZE 55 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 93 BY 1.43.
+     SIZE 145 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY Browser-Table FOR 
-      fgcat
-    FIELDS(fgcat.procat
-      fgcat.dscr
-      fgcat.commrate
-      fgcat.glacc) /*, 
-      account*/ SCROLLING.
+      EDSHLine
+    FIELDS(EDSHLine.Order-no
+      EDSHLine.Item-no
+      EDSHLine.Qty-orig-ord
+      EDSHLine.Qty-shipped
+      EDSHLine.Tot-wght
+      EDSHLine.Tot-volume
+      EDSHLine.Uom-code
+      EDSHLine.Cust-po
+      EDSHLine.Cust-item-no) SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      fgcat.procat FORMAT "x(5)":U LABEL-BGCOLOR 14
-      fgcat.dscr FORMAT "x(20)":U LABEL-BGCOLOR 14
-      fgcat.commrate = 1 @ cat-format COLUMN-LABEL "Format" FORMAT "Fraction/Decimal":U
-            LABEL-BGCOLOR 14
-      fgcat.glacc FORMAT "x(25)":U LABEL-BGCOLOR 14
-      getDscr() @ cDscr COLUMN-LABEL "GL Account Description" FORMAT "x(45)":U
-      getType() @ cType COLUMN-LABEL "GL Account Type" FORMAT "x":U
-      
+      EDSHTran.Partner FORMAT "x(05)":U
+      EDSHTran.Seq FORMAT ">>>>>>9":U
+      EDSHTran.BOL-No FORMAT "x(30)":U
+      EDSHTran.Sf-code FORMAT "x(12)":U
+      EDSHTran.Ship-Date FORMAT "99/99/9999":U
+      EDSHTran.Carrier FORMAT "x(30)":U
+      EDSHLine.Order-no FORMAT "x(15)":U
+      EDSHLine.Item-no FORMAT "x(16)":U
+      EDSHLine.Qty-orig-ord FORMAT "->>>>>>>>9":U
+      EDSHLine.Qty-shipped FORMAT "->>>,>>>,>>>.99":U
+      EDSHLine.Tot-wght FORMAT ">>>>>>>9":U
+      EDSHLine.Tot-volume FORMAT "->>>>>>9":U
+      EDSHLine.Uom-code FORMAT "x(2)":U
+      EDSHLine.Cust-po FORMAT "x(22)":U
+      EDSHLine.Cust-item-no FORMAT "x(30)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 93 BY 18.1
+    WITH NO-ASSIGN SEPARATORS SIZE 145 BY 18.1
          FONT 2.
 
 
@@ -188,10 +181,9 @@ DEFINE FRAME F-Main
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      browse-order AT ROW 19.33 COL 6 HELP
           "Select Browser Sort Order" NO-LABEL
-     fi_sortby AT ROW 19.33 COL 20 COLON-ALIGNED NO-LABEL WIDGET-ID 2
-     auto_find AT ROW 19.33 COL 49 COLON-ALIGNED HELP
+     auto_find AT ROW 19.33 COL 70 COLON-ALIGNED HELP
           "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 19.33 COL 80 HELP
+     Btn_Clear_Find AT ROW 19.33 COL 132 HELP
           "CLEAR AUTO FIND Value"
      "By:" VIEW-AS TEXT
           SIZE 4 BY 1 AT ROW 19.33 COL 2
@@ -206,7 +198,8 @@ DEFINE FRAME F-Main
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
-   Type: SmartNavBrowser
+   Type: SmartNavBrowser Template
+   External Tables: asi.EDSHTran
    Allow: Basic,Browse
    Frames: 1
    Add Fields to: External-Tables
@@ -229,7 +222,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
          HEIGHT             = 19.52
-         WIDTH              = 93.
+         WIDTH              = 145.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -253,22 +246,11 @@ END.
 /* SETTINGS FOR WINDOW B-table-Win
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table 1 F-Main */
+   NOT-VISIBLE Size-to-Fit                                              */
+/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
-
-ASSIGN 
-       Browser-Table:PRIVATE-DATA IN FRAME F-Main           = 
-                "2"
-       Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
-
-/* SETTINGS FOR FILL-IN fi_sortby IN FRAME F-Main
-   NO-DISPLAY NO-ENABLE                                                 */
-ASSIGN 
-       fi_sortby:HIDDEN IN FRAME F-Main           = TRUE
-       fi_sortby:READ-ONLY IN FRAME F-Main        = TRUE.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -278,23 +260,25 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "ASI.fgcat"
+     _TblList          = "asi.EDSHLine OF asi.EDSHTran"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED,"
-     _Where[1]         = "fgcat.company = gcompany"
-     _FldNameList[1]   > ASI.fgcat.procat
-"fgcat.procat" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[2]   > ASI.fgcat.dscr
-"fgcat.dscr" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > "_<CALC>"
-"fgcat.commrate = 1 @ cat-format" "Format" "Fraction/Decimal" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > ASI.fgcat.glacc
-"fgcat.glacc" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > "_<CALC>"
-"getDscr() @ cDscr" "GL Account Description" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > "_<CALC>"
-"getType() @ cType" "GL Account Type" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _Query            is NOT OPENED
+     _FldNameList[1]   = asi.EDSHTran.Partner
+     _FldNameList[2]   = asi.EDSHTran.Seq
+     _FldNameList[3]   = asi.EDSHTran.BOL-No
+     _FldNameList[4]   = asi.EDSHTran.Sf-code
+     _FldNameList[5]   = asi.EDSHTran.Ship-Date
+     _FldNameList[6]   = asi.EDSHTran.Carrier
+     _FldNameList[7]   = asi.EDSHLine.Order-no
+     _FldNameList[8]   = asi.EDSHLine.Item-no
+     _FldNameList[9]   = asi.EDSHLine.Qty-orig-ord
+     _FldNameList[10]   = asi.EDSHLine.Qty-shipped
+     _FldNameList[11]   = asi.EDSHLine.Tot-wght
+     _FldNameList[12]   = asi.EDSHLine.Tot-volume
+     _FldNameList[13]   = asi.EDSHLine.Uom-code
+     _FldNameList[14]   = asi.EDSHLine.Cust-po
+     _FldNameList[15]   = asi.EDSHLine.Cust-item-no
+     _Query            is OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
 
@@ -306,6 +290,67 @@ ASSIGN
 &ANALYZE-RESUME
 
  
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "SmartBrowserWizard" B-table-Win _INLINE
+/* Actions: adm/support/_wizard.w ? ? ? adm/support/_wizdel.p */
+/* SmartBrowser Wizard
+Welcome to the SmartNavBrowser Wizard! During the next few steps, the wizard will lead you through creating a SmartNavBrowser object. You will define External Tables, if needed, define the query that you will use to retrieve data from your database(s) and select the database fields to display. Press Next to proceed.
+nosweat/_wizntro.w,adm/support/_wizxtbl.w,adm/support/_wizqry.w,adm/support/_wizfld.w,adm/support/_wizend.w 
+*/
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "SmartBrowserCues" B-table-Win _INLINE
+/* Actions: adecomm/_so-cue.w ? adecomm/_so-cued.p ? adecomm/_so-cuew.p */
+/* SmartBrowser,uib,49266
+A SmartBrowser is a procedure object that retrieves and visualizes data using a browse.
+
+CREATING A MASTER
+
+Step 1
+If necessary, specify an external table (steps 1a-1c). 
+
+An external table completes join criteria for a query. For example, a query on 'Order OF Customer' requires the external table Customer. The external table is supplied by another procedure object--typically a SmartBrowser or SmartViewer.
+
+Step 1a
+In the UIB main window, Choose the Procedure button.
+
+Step 1b
+In the Procedure Settings dialog, choose Add.
+
+Step 1c
+From the Table Selector dialog, select the external table.
+
+Step 2 
+Double-click the browse to invoke the Query Builder.
+    
+Step 3
+Using the Query Builder, specify the tables and fields for the browse.
+
+Step 4 [Optional]
+In the Code Section Editor, change the Foreign Keys and/or Sort Options for the browse query. Use the "List..." button to access these sections.
+  
+Step 5
+Save and close the SmartBrowser master.
+
+INSERTING AN INSTANCE
+
+Step 1
+Open or create a SmartContainer, such as a SmartWindow.
+   
+Step 2 
+Choose the SmartBrowser master from the Object Palette.
+
+Step 3
+Draw the SmartBrowser instance into the SmartContainer.
+   
+Step 4
+Add all necessary SmartLinks between the SmartBrowser and other SmartObjects. 
+
+During assembly, the PROGRESS Advisor suggests links and creates them for you. However, you can also add and remove SmartLinks with the SmartLinks dialog box. To access this dialog box, choose the Procedure button from the UIB main window. Then choose the SmartLinks button from the Procedure Settings dialog box.
+*/
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 
@@ -337,16 +382,6 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
-ON START-SEARCH OF Browser-Table IN FRAME F-Main
-DO:
-   RUN startSearch.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON VALUE-CHANGED OF Browser-Table IN FRAME F-Main
 DO:
   /* This ADM trigger code must be preserved in order to notify other
@@ -365,7 +400,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-{custom/yellowColumns.i}
+{sys/inc/f3help.i}
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -391,6 +426,15 @@ PROCEDURE adm-row-available :
 
   /* Define variables needed by this internal procedure.             */
   {src/adm/template/row-head.i}
+
+  /* Create a list of all the tables that we need to get.            */
+  {src/adm/template/row-list.i "EDSHTran"}
+
+  /* Get the record ROWID's from the RECORD-SOURCE.                  */
+  {src/adm/template/row-get.i}
+
+  /* FIND each record specified by the RECORD-SOURCE.                */
+  {src/adm/template/row-find.i "EDSHTran"}
 
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
@@ -419,26 +463,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
-PROCEDURE local-open-query :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  APPLY "value-changed" TO BROWSE {&browse-name}.
-  APPLY "entry" TO BROWSE {&browse-name}.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------
@@ -451,11 +475,24 @@ PROCEDURE send-records :
   {src/adm/template/snd-head.i}
 
   /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "fgcat"}
-  {src/adm/template/snd-list.i "account"}
+  {src/adm/template/snd-list.i "EDSHTran"}
+  {src/adm/template/snd-list.i "EDSHLine"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setBrowseFocus B-table-Win 
+PROCEDURE setBrowseFocus :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+ APPLY 'ENTRY':U TO BROWSE {&BROWSE-NAME}.
 
 END PROCEDURE.
 
@@ -481,60 +518,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-/* ************************  Function Implementations ***************** */
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getDscr B-table-Win 
-FUNCTION getDscr RETURNS CHARACTER
-    (  ):
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cResult    AS CHARACTER NO-UNDO.
-
-     FOR EACH account NO-LOCK
-         WHERE  account.company eq gcompany 
-           and account.actnum EQ fgcat.glacc :
-         cResult = account.dscr . 
-     END.
-     
-  IF cResult = ? THEN ASSIGN cResult = "" .
-    RETURN cResult.
-
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getType B-table-Win 
-FUNCTION getType RETURNS CHARACTER
-    (  ):
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-    
-    DEFINE VARIABLE cResult    AS CHARACTER NO-UNDO.
-    
-    FOR EACH account NO-LOCK
-         WHERE  account.company eq gcompany 
-           and account.actnum EQ fgcat.glacc :
-         cResult = account.type . 
-     END.
-     
-  IF cResult = ? THEN ASSIGN cResult = "" .
-
-    RETURN cResult.
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
 

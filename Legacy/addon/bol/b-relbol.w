@@ -2374,8 +2374,9 @@ PROCEDURE local-update-record :
   IF lSaveToTempFile THEN DO:
       OUTPUT STREAM sTmpSaveInfo TO VALUE(cTmpSaveFile) APPEND.
       EXPORT STREAM sTmpSaveInfo tt-relbol EXCEPT oerell-row.
-      OUTPUT STREAM sTmpSaveInfo CLOSE. 
+      OUTPUT STREAM sTmpSaveInfo CLOSE.   
   END. 
+  
   v-prev-rowid = ROWID(tt-relbol).
 
   RUN display-qtys.

@@ -140,14 +140,14 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
-      oe-rel.po-no
-      oe-rel.i-no
+      oe-rel.po-no  WIDTH 25 
+      oe-rel.i-no WIDTH 25
       oe-rel.qty COLUMN-LABEL "Qty"
-      oe-rel.ship-id
+      oe-rel.ship-id  WIDTH 25
       oe-rel.rel-date
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 145 BY 11.19
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 120 BY 11.19
          BGCOLOR 8 .
 
 
@@ -163,7 +163,7 @@ DEFINE FRAME Dialog-Frame
      RECT-1 AT ROW 12.43 COL 1
      "Sort By:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 12.91 COL 4
-     SPACE(134.79) SKIP(2.22)
+     SPACE(1.79) SKIP(2.22)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "PO Information".
@@ -205,9 +205,11 @@ ASSIGN
  AND oe-rel.ord-no = ip-ord-no "
      _FldNameList[1]   = ASI.oe-rel.po-no
      _FldNameList[2]   = ASI.oe-rel.i-no
+     "i-no" ? "x(15)" "character" ? ? ? ? ? ? no ? no no "25" yes no no "U" "" ""
      _FldNameList[3]   > ASI.oe-rel.qty
 "qty" "Qty" ? "decimal" ? ? ? ? ? ? no ?
      _FldNameList[4]   = ASI.oe-rel.ship-id
+     "ship-id" ? "x(15)" "character" ? ? ? ? ? ? no ? no no "25" yes no no "U" "" ""
      _FldNameList[5]   = ASI.oe-rel.rel-date
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
