@@ -98,8 +98,8 @@ PROCEDURE pDataGridInit:
       END. /* repeat */
       INPUT CLOSE.
       ASSIGN 
-          cGridQuery = REPLACE (cGridQuery,"%Company%", "~"" + g_company + "~"")
-          cGridQuery = REPLACE (cGridQuery,"%Location%","~"" + g_loc     + "~"")
+          cGridQuery = REPLACE (cGridQuery,"%g_company%", "~"" + g_company + "~"")
+          cGridQuery = REPLACE (cGridQuery,"%g_loc%","~""      + g_loc     + "~"")
           .
       IF Consultingwerk.Util.ProcedureHelper:HasEntry(THIS-PROCEDURE, "pApplyFilterHandler") THEN 
           CAST (oRenderedBrowseControl, Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl):ApplyFilter:Subscribe ("pApplyFilterHandler") .          

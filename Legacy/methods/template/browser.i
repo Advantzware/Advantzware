@@ -116,6 +116,7 @@ PROCEDURE Change-Order :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM b-order AS CHARACTER NO-UNDO.
 
+&IF DEFINED(dataGrid) EQ 0 &THEN
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
       browse-order:SCREEN-VALUE = b-order
@@ -140,6 +141,7 @@ PROCEDURE Change-Order :
       {methods/template/chngord.i 13}
     END CASE.
   END.
+&ENDIF
 
 END PROCEDURE.
 
@@ -153,9 +155,11 @@ PROCEDURE Clear_Auto_Find :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+&IF DEFINED(dataGrid) EQ 0 &THEN
   ASSIGN
     auto_find:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ''
     auto_find.
+&ENDIF
 
 END PROCEDURE.
 
@@ -200,6 +204,7 @@ PROCEDURE Find-Record :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER b-order AS CHARACTER NO-UNDO.
 
+&IF DEFINED(dataGrid) EQ 0 &THEN
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
       browse-order:SCREEN-VALUE = b-order
@@ -222,6 +227,7 @@ PROCEDURE Find-Record :
       {methods/template/findrecd.i 13}
     END CASE.
   END.
+&ENDIF
   
 END PROCEDURE.
 
