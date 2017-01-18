@@ -4,6 +4,12 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+USING Consultingwerk.Framework.Collections.CharacterDictionary FROM PROPATH.
+USING Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl FROM PROPATH.
+&SCOPED-DEFINE dataGrid
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -222,6 +228,7 @@ END.
 {src/adm/method/browser.i}
 {src/adm/method/query.i}
 {methods/template/browser.i}
+{methods/gridSearch.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -277,7 +284,7 @@ and ap-inv.recur = yes"
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -392,7 +399,7 @@ PROCEDURE local-open-query :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN ap/delinvap.p (cocode).
 
@@ -479,7 +486,7 @@ FUNCTION get-vend-name RETURNS CHARACTER
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-  
+
   FIND FIRST vend
       WHERE vend.company EQ cocode
         AND vend.vend-no EQ (IF AVAIL ap-inv THEN ap-inv.vend-no

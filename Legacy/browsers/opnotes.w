@@ -4,6 +4,12 @@
           asi          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+USING Consultingwerk.Framework.Collections.CharacterDictionary FROM PROPATH.
+USING Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl FROM PROPATH.
+&SCOPED-DEFINE dataGrid
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -206,6 +212,7 @@ END.
 {src/adm/method/browser.i}
 {src/adm/method/query.i}
 {methods/template/browser.i}
+{methods/gridSearch.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -261,7 +268,7 @@ and ASI.notes.note_group = ip-header_value"
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -370,7 +377,7 @@ PROCEDURE local-open-query :
 
   /* Code placed here will execute PRIOR to standard behavior. */
    {methods/run_link.i "CONTAINER-SOURCE" "Get-ip-header_value" "(OUTPUT ip-header_value)"}
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 

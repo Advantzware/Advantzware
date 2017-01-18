@@ -4,6 +4,12 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+USING Consultingwerk.Framework.Collections.CharacterDictionary FROM PROPATH.
+USING Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl FROM PROPATH.
+&SCOPED-DEFINE dataGrid
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -262,6 +268,7 @@ END.
 {src/adm/method/browser.i}
 {src/adm/method/query.i}
 {methods/template/browser.i}
+{methods/gridSearch.i}
 {custom/yellowColumns.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -331,7 +338,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -508,7 +515,7 @@ PROCEDURE calc-cost :
 
   DEF BUFFER bf-rm-bin FOR rm-bin.
   DEF BUFFER bf-item FOR item.
-    
+
 
   v-override = NO.
 
@@ -520,7 +527,7 @@ PROCEDURE calc-cost :
         VIEW-AS ALERT-BOX ERROR.
     RETURN NO-APPLY.
   END.
-     
+
   IF v-override THEN DO:
     /*find bf-rm-bin where recid(bf-rm-bin) = recid(rm-bin).
     lv-cost = rm-bin.cost.

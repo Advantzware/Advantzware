@@ -4,6 +4,12 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+USING Consultingwerk.Framework.Collections.CharacterDictionary FROM PROPATH.
+USING Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl FROM PROPATH.
+&SCOPED-DEFINE dataGrid
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -218,6 +224,7 @@ END.
 {src/adm/method/browser.i}
 {src/adm/method/query.i}
 {methods/template/browser.i}
+{methods/gridSearch.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -274,7 +281,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -411,7 +418,7 @@ PROCEDURE local-open-query :
 ------------------------------------------------------------------------------*/
 
   {methods/run_link.i "CONTAINER-SOURCE" "Get-ip-rec_key" "(OUTPUT ip-rec_key,OUTPUT ip-inv-no)"}
-   
+
   IF ip-inv-no NE "" THEN
      ATTACH.est-no:VISIBLE IN BROWSE {&browse-name} = YES.
 

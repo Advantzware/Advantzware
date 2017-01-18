@@ -4,6 +4,12 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+USING Consultingwerk.Framework.Collections.CharacterDictionary FROM PROPATH.
+USING Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl FROM PROPATH.
+&SCOPED-DEFINE dataGrid
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -233,6 +239,7 @@ END.
 {src/adm/method/browser.i}
 {src/adm/method/query.i}
 {methods/template/browser.i}
+{methods/gridSearch.i}
 {custom/yellowColumns.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -309,7 +316,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -357,7 +364,7 @@ DO:
      objects when the browser's current row changes. */
   {src/adm/template/brschnge.i}
   {methods/template/local/setvalue.i}
-  
+
   /* not for corrugated item 
   if avail item and item.i-code = "E" then do:
      run get-link-handle in adm-broker-hdl(this-procedure, "container-source", output char-hdl).
@@ -534,10 +541,10 @@ PROCEDURE local-open-query :
   /* Code placed here will execute AFTER standard behavior.    */
   RUN dispatch ('get-last':U).
   IF AVAILABLE item THEN lvLastRowID = ROWID(item).
-    
+
   RUN dispatch ('get-first':U).
   IF AVAILABLE item THEN lvFirstRowID = ROWID(item).
-  
+
   APPLY "value-changed" TO browse-order IN FRAME {&FRAME-NAME}.
   APPLY "value-changed" TO BROWSE {&browse-name}.
 
@@ -615,7 +622,7 @@ PROCEDURE navigate-browser :
     WHEN 'N' THEN 
     do:
        RUN dispatch ('get-next':U).
-      
+
        RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"history-target", OUTPUT char-hdl).
        IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
           RUN new-item IN WIDGET-HANDLE(char-hdl).
@@ -627,10 +634,10 @@ PROCEDURE navigate-browser :
            RUN new-item IN WIDGET-HANDLE(char-hdl).
     END.
   END CASE.
-    
+
   IF ROWID(item) EQ lvLastRowID THEN
   opNavType = 'L'.
-      
+
   IF ROWID(item) EQ lvFirstRowID THEN
   opNavType = IF opNavType EQ 'L' THEN 'B' ELSE 'F'.
 
@@ -650,17 +657,17 @@ PROCEDURE refresh-query :
   def var i as int no-undo.
   def var lv-rowid as rowid no-undo.  /* current record's rowid */
   def var lv-stat as log no-undo.
-  
+
   lv-rowid = if avail item then rowid(item)  else ?.
   i = browse {&browse-name}:focused-row.
-  
+
  /*  run dispatch ('open-query') .   - update yes/no message pop-up */
 /* {&open-query-{&browse-name}} */
 
-  
+
   {&open-query-{&browse-name}}
   lv-stat = browse {&browse-name}:set-repositioned-row(i,"always").
-  
+
   reposition {&browse-name} to rowid ip-rowid /*lv-rowid*/ .
   run dispatch ('row-available'). 
 
@@ -745,14 +752,14 @@ PROCEDURE spec-image-proc :
    DEFINE VARIABLE lspec AS LOGICAL NO-UNDO.
    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
 
- 
+
  IF AVAIL ITEM THEN
    lspec = CAN-FIND(FIRST notes WHERE
             notes.rec_key = ITEM.rec_key AND
             notes.note_type = "S").
 
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'spechk-target':U, OUTPUT char-hdl).
-  
+
    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       RUN spec-book-image IN WIDGET-HANDLE(char-hdl) (INPUT lspec).
 END PROCEDURE.

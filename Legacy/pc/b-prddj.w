@@ -4,6 +4,12 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+USING Consultingwerk.Framework.Collections.CharacterDictionary FROM PROPATH.
+USING Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl FROM PROPATH.
+&SCOPED-DEFINE dataGrid
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -241,6 +247,7 @@ END.
 {src/adm/method/browser.i}
 {src/adm/method/query.i}
 {methods/template/browser.i}
+{methods/gridSearch.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -309,7 +316,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -333,7 +340,7 @@ DO:
                           pc-prdd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name} = string(job-hdr.job-no2)
                           pc-prdd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} = job-hdr.i-no
                           li-help-job = job-hdr.job.
-                            
+
 
              END.
         END.
@@ -609,7 +616,7 @@ FUNCTION display-time RETURNS CHARACTER
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-  
+
   RETURN STRING(ip-time,"HH:MM") .   /* Function return value. */
 
 END FUNCTION.

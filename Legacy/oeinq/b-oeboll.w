@@ -4,6 +4,12 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+USING Consultingwerk.Framework.Collections.CharacterDictionary FROM PROPATH.
+USING Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl FROM PROPATH.
+&SCOPED-DEFINE dataGrid
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -263,6 +269,7 @@ END.
 {src/adm/method/browser.i}
 {src/adm/method/query.i}
 {methods/template/browser.i}
+{methods/gridSearch.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -339,7 +346,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -435,7 +442,7 @@ DO:
             RETURN.
           END.
        END.
-       
+
        RUN custom/setUserPrint.p (g_company,'r-bolpr2.',
                                'begin_cust,end_cust,begin_bol#,end_bol#,begin_ord#,end_ord#,tb_reprint,tb_posted',
                                oe-bolh.cust-no + ',' + oe-bolh.cust-no + ',' +
@@ -445,7 +452,7 @@ DO:
        RUN oerep/r-bolpr2.w.
        {methods/run_link.i "CONTAINER-SOURCE" "moveToTop"}
 
-       
+
     END.
   END.
 END.
@@ -620,7 +627,7 @@ FUNCTION get-cost RETURNS DECIMAL
 ------------------------------------------------------------------------------*/
   IF li-cost:VISIBLE IN BROWSE Browser-Table EQ NO THEN
      RETURN 0.
-    
+
   DEF VAR v-t-cost AS DEC DECIMALS 4 NO-UNDO.
   DEF VAR v-uom AS CHAR NO-UNDO.
   def var v-cost AS DEC DECIMALS 4 extent 4 NO-UNDO.
@@ -648,7 +655,7 @@ FUNCTION get-cost RETURNS DECIMAL
           and fg-bin.job-no  eq oe-boll.job-no
           and fg-bin.job-no2 eq oe-boll.job-no2
         no-lock no-error.
-  
+
     if avail fg-bin and fg-bin.std-tot-cost ne 0 then
       assign
        v-cost-m[1] = fg-bin.std-lab-cost
@@ -656,7 +663,7 @@ FUNCTION get-cost RETURNS DECIMAL
        v-cost-m[3] = fg-bin.std-var-cost
        v-cost-m[4] = fg-bin.std-mat-cost
        v-uom       = fg-bin.pur-uom.
-       
+
     else
     if avail job-hdr and job-hdr.std-tot-cost ne 0 then
       assign
@@ -665,7 +672,7 @@ FUNCTION get-cost RETURNS DECIMAL
        v-cost-m[3] = job-hdr.std-var-cost
        v-cost-m[4] = job-hdr.std-mat-cost
        v-uom       = "M".
-       
+
     else   
       assign
        v-cost-m[1] = itemfg.std-lab-cost
@@ -681,13 +688,13 @@ FUNCTION get-cost RETURNS DECIMAL
        if v-uom ne "M" then
           run sys/ref/convcuom3.p(cocode,v-uom, "M", 0, 0, 0, 0,
                                  v-cost-m[i], output v-cost-m[i]).
-       
+
        v-cost[i] = v-cost[i] + (v-cost-m[i] * oe-boll.qty / 1000).
     end.
-  
+
   do i = 1 to 4:
      v-cost[i] = v-cost[i] / (oe-boll.qty / 1000).
-    
+
      if v-cost[i] eq ? then v-cost[i] = 0.
   end.
 

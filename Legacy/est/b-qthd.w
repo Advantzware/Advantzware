@@ -4,6 +4,12 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+USING Consultingwerk.Framework.Collections.CharacterDictionary FROM PROPATH.
+USING Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl FROM PROPATH.
+&SCOPED-DEFINE dataGrid
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -374,6 +380,7 @@ END.
 {src/adm/method/browser.i}
 {src/adm/method/query.i}
 {methods/template/browser.i}
+{methods/gridSearch.i}
 {custom/yellowColumns.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -495,7 +502,7 @@ and quoteitm.part-dscr1 BEGINS fi_item-decr"
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -624,7 +631,7 @@ DO:
    RUN windows/l-est2.w (INPUT g_company,"", INPUT focus:screen-value, OUTPUT char-val).
         if char-val ne "" then 
             find eb where recid(eb) eq int(entry(1,char-val)) no-lock no-error.
-        
+
            if avail eb then do:
             assign
              FOCUS:SCREEN-VALUE          = eb.est-no   .
@@ -790,7 +797,7 @@ PROCEDURE getValueFields :
                                  AND bQuotehd.cust-no <> ""
                                  AND ( (lookup(bQuotehd.cust-no,custcount) <> 0 ) OR custcount = "") 
                                  AND bQuotehd.q-no LE q-noValue[2] NO-ERROR.
-    
+
     DO WHILE AVAILABLE(bQuotehd):
       ASSIGN
         i = i + 1
@@ -812,7 +819,7 @@ PROCEDURE getValueFields :
     fi_part-no = ''
     fi_item-decr = ''.
   DISPLAY {&filterFields} WITH FRAME {&FRAME-NAME}.
-  
+
   RUN openQuery.
 
 END PROCEDURE.
@@ -852,7 +859,7 @@ PROCEDURE local-display-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
  APPLY "value-changed" TO {&browse-name} IN FRAME {&FRAME-NAME} .
- 
+
 
 END PROCEDURE.
 
@@ -877,7 +884,7 @@ PROCEDURE local-open-query :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -927,7 +934,7 @@ STRING(quotehd.q-no,'>>>>>9') ~{&SORTED}
             ELSE quoteitm.part-no BEGINS fi_part-no) ~
             AND (IF fi_item-decr BEGINS '*' THEN quoteitm.part-dscr1 MATCHES fi_item-decr ~
                 ELSE quoteitm.part-dscr1 BEGINS fi_item-decr)  {&SORTBY-PHRASE}.
-                     
+
   IF sortBy THEN DO:
     /*IF fi_part-no EQ '' AND
        fi_item-decr EQ '' THEN*/  /*task 12051306 */
@@ -1016,7 +1023,7 @@ PROCEDURE resetQuery :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ipQNo AS INTEGER NO-UNDO.
-                              
+
   DO WITH FRAME {&FRAME-NAME}:
     RUN dispatch ('open-query':U).
     ASSIGN

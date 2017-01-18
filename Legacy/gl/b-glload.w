@@ -4,6 +4,12 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+USING Consultingwerk.Framework.Collections.CharacterDictionary FROM PROPATH.
+USING Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl FROM PROPATH.
+&SCOPED-DEFINE dataGrid
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -229,6 +235,7 @@ END.
 {src/adm/method/browser.i}
 {src/adm/method/query.i}
 {methods/template/browser.i}
+{methods/gridSearch.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -290,7 +297,7 @@ gl-jrn.recur eq yes"
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -432,7 +439,7 @@ PROCEDURE load-recurring :
 
         IF AVAIL gl-jrn THEN DO:
           FIND inp-gl-jrn WHERE ROWID(inp-gl-jrn) EQ ROWID(gl-jrn) NO-LOCK.
-          
+
           CREATE out-gl-jrn.
           BUFFER-COPY inp-gl-jrn EXCEPT j-no journal rec_key TO out-gl-jrn
           ASSIGN

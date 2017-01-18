@@ -4,6 +4,12 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+USING Consultingwerk.Framework.Collections.CharacterDictionary FROM PROPATH.
+USING Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl FROM PROPATH.
+&SCOPED-DEFINE dataGrid
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -211,6 +217,7 @@ END.
 {src/adm/method/browser.i}
 {src/adm/method/query.i}
 {methods/template/browser.i}
+{methods/gridSearch.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -258,7 +265,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -388,7 +395,7 @@ PROCEDURE get-item-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   def output parameter op-item-recid as recid no-undo.
-  
+
   op-item-recid = recid(item).
 END PROCEDURE.
 
@@ -405,8 +412,8 @@ PROCEDURE local-open-query :
   def buffer bf-eitem for e-item.
 
   def var ll-first-rec as log.
-  
-  
+
+
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -436,7 +443,7 @@ PROCEDURE local-open-query :
          CAN-FIND(FIRST item-bom where
                         item-bom.company = bf-eitem.company and
                         item-bom.parent-i = bf-eitem.i-no)) THEN DO:
-     
+
     ll-first-rec = YES.
     CREATE e-item-vend.
     BUFFER-COPY bf-eitem EXCEPT rec_key TO e-item-vend
@@ -448,11 +455,11 @@ PROCEDURE local-open-query :
   FIND bf-item WHERE ROWID(bf-item) = ROWID(item).
 
   lv-prev-i-no = item.i-no.
-  
+
   if e-item-vend.setup = 0 and item.min-sqft <> 0 then 
      assign e-item-vend.setup = item.min-sqft
             bf-item.min-sqft = 0.
-  
+
   if ll-first-rec then run dispatch ('open-query').
 
 END PROCEDURE.

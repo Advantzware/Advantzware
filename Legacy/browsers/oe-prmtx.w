@@ -4,6 +4,12 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+USING Consultingwerk.Framework.Collections.CharacterDictionary FROM PROPATH.
+USING Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl FROM PROPATH.
+&SCOPED-DEFINE dataGrid
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -249,6 +255,7 @@ END.
 {src/adm/method/browser.i}
 {src/adm/method/query.i}
 {methods/template/browser.i}
+{methods/gridSearch.i}
 {custom/yellowColumns.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -333,7 +340,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -469,7 +476,7 @@ DEFINE VAR catto   AS CHAR NO-UNDO.
         ItemFrom     = oe-prmtx.i-no   
         typeFrom     = oe-prmtx.custype
         catfrom      = oe-prmtx.procat .
-    
+
     GET LAST Browser-Table .
     IF AVAIL oe-prmtx THEN
       ASSIGN

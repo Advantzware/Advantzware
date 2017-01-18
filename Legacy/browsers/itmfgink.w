@@ -4,6 +4,12 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+USING Consultingwerk.Framework.Collections.CharacterDictionary FROM PROPATH.
+USING Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl FROM PROPATH.
+&SCOPED-DEFINE dataGrid
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -223,6 +229,7 @@ END.
 {src/adm/method/browser.i}
 {src/adm/method/query.i}
 {methods/template/browser.i}
+{methods/gridSearch.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -282,7 +289,7 @@ item.i-no eq itemfg-ink.rm-i-no
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -404,7 +411,7 @@ PROCEDURE get-values :
   DEF OUTPUT PARAMETER op-company LIKE itemfg.company NO-UNDO.
   DEF OUTPUT PARAMETER op-i-no    LIKE itemfg.i-no    NO-UNDO.
 
-  
+
   ASSIGN
    op-company = itemfg.company
    op-i-no    = itemfg.i-no.
@@ -443,7 +450,7 @@ PROCEDURE repo-browser :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
 
-  
+
   DO WITH FRAME {&frame-name}:
     RUN local-open-query.
     REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
