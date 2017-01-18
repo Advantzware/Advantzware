@@ -492,6 +492,12 @@ DO:
   RUN valid-job-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
+  RUN valid-loc NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+  RUN valid-loc-bin NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
   RUN valid-cust-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -610,6 +616,34 @@ ON LEAVE OF oe-rell.job-no IN FRAME Dialog-Frame /* Job Number */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-job-no NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&SCOPED-DEFINE SELF-NAME oe-rell.loc
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rell.loc Dialog-Frame
+ON LEAVE OF oe-rell.loc IN FRAME Dialog-Frame /* location */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+    RUN valid-loc NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&SCOPED-DEFINE SELF-NAME oe-rell.loc-bin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rell.loc-bin Dialog-Frame
+ON LEAVE OF oe-rell.loc-bin IN FRAME Dialog-Frame /* loc bin  */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+    RUN valid-loc-bin NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
 END.
@@ -1117,6 +1151,58 @@ PROCEDURE valid-job-no :
         RETURN ERROR.
       END.
     END.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-loc Dialog-Frame 
+PROCEDURE valid-loc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ 
+  DO WITH FRAME {&FRAME-NAME}:
+      FIND FIRST loc NO-LOCK
+           WHERE loc.company = cocode
+             AND loc.loc EQ oe-rell.loc:SCREEN-VALUE NO-ERROR.
+      IF NOT AVAIL loc THEN DO:
+          MESSAGE "Invalid Whse, try help..."
+              VIEW-AS ALERT-BOX ERROR.
+          APPLY "entry" TO oe-rell.loc .
+          RETURN ERROR.
+      END.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-loc-bin Dialog-Frame 
+PROCEDURE valid-loc-bin :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ DO WITH FRAME {&FRAME-NAME}:
+      FIND FIRST rm-bin NO-LOCK
+          WHERE rm-bin.company EQ cocode 
+            AND rm-bin.loc EQ oe-rell.loc:SCREEN-VALUE 
+            AND rm-bin.i-no EQ '' 
+            AND rm-bin.loc-bin EQ oe-rell.loc-bin:SCREEN-VALUE NO-ERROR. 
+      IF NOT AVAIL rm-bin THEN DO:
+          MESSAGE "Invalid Bin Loc, try help..."
+              VIEW-AS ALERT-BOX ERROR.
+          APPLY "entry" TO oe-rell.loc-bin .
+          RETURN ERROR.
+      END.
   END.
 
 END PROCEDURE.
