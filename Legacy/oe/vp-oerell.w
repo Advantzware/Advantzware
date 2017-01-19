@@ -260,6 +260,20 @@ END.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE add-line C-WIn 
+PROCEDURE add-line :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ APPLY "choose" TO btn-add IN FRAME {&FRAME-NAME}.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &SCOPED-DEFINE SELF-NAME Btn-copy
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-copy V-table-Win
 ON CHOOSE OF Btn-copy IN FRAME F-Main /* Copy */
