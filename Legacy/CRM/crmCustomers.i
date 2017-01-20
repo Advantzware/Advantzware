@@ -139,7 +139,7 @@ PROCEDURE pZohoCRM:
             "Accounts(ACCOUNTID,Account%20Name,Ticker%20Symbol,Phone,Billing Street,Billing Street 2,Billing City,Billing State,Billing Code)&fromIndex="
           + STRING(iCnt + 1)
           + "&toIndex="
-          + STRING(iCnt + 50)
+          + STRING(iCnt + 25)
           + "&sortColumnString=Ticker%20Symbol&sortOrderString=desc",
             "getRecords",
             cAuthToken,
@@ -161,7 +161,7 @@ PROCEDURE pZohoCRM:
             lDone = YES.
         END. /* each ttCRMCustomers */
         IF lDone THEN LEAVE.
-        iCnt = iCnt + 50.
+        iCnt = iCnt + 25.
     END. /* while true */
 
     FOR EACH ttCRMCustomers:
