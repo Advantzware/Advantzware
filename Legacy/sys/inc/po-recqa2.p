@@ -93,22 +93,24 @@ IF AVAIL po-ord THEN
     END.
   END.
 
-  ELSE
-  FOR EACH fg-rcpth FIELDS(r-no rita-code) NO-LOCK
-      WHERE fg-rcpth.company   EQ cocode
-        AND fg-rcpth.i-no      EQ po-ordl.i-no
-        AND fg-rcpth.po-no     EQ STRING(po-ordl.po-no)
-        AND fg-rcpth.rita-code EQ "R"
-        AND fg-rcpth.trans-date  GE ip-from-date
-        AND fg-rcpth.trans-date  LE ip-to-date
-      USE-INDEX item-po,
+  ELSE DO:
+   ASSIGN  op-qty = po-ordl.t-rec-qty  .
           
-      EACH fg-rdtlh FIELDS(qty cost) NO-LOCK
-      WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
-        AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code:
-
-    ASSIGN  
-     op-qty = op-qty + fg-rdtlh.qty
-     op-amt = op-amt + (fg-rdtlh.qty / 1000 * fg-rdtlh.cost).
+      FOR EACH fg-rcpth FIELDS(r-no rita-code) NO-LOCK
+          WHERE fg-rcpth.company   EQ cocode
+            AND fg-rcpth.i-no      EQ po-ordl.i-no
+            AND fg-rcpth.po-no     EQ STRING(po-ordl.po-no)
+            AND fg-rcpth.rita-code EQ "R"
+            AND fg-rcpth.trans-date  GE ip-from-date
+            AND fg-rcpth.trans-date  LE ip-to-date
+          USE-INDEX item-po,
+              
+          EACH fg-rdtlh FIELDS(qty cost) NO-LOCK
+          WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
+            AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code:
+    
+        ASSIGN  
+         /*op-qty = op-qty + fg-rdtlh.qty*/
+         op-amt = op-amt + (fg-rdtlh.qty / 1000 * fg-rdtlh.cost).
+      END.
   END.
-  
