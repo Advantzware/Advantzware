@@ -85,7 +85,7 @@ ar-invl.i-no ar-invl.inv-qty ar-invl.pr-qty-uom ar-invl.unit-pr ~
 ar-invl.disc ar-invl.amt ar-invl.sman[1] ar-invl.s-pct[1] ar-invl.s-comm[1] ~
 ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] ar-invl.sman[3] ~
 ar-invl.s-pct[3] ar-invl.s-comm[3] 
-&Scoped-define ENABLED-FIELDS-IN-QUERY-br_table ar-invl.unit-pr ~
+&Scoped-define ENABLED-FIELDS-IN-QUERY-br_table ar-invl.po-no ar-invl.unit-pr ~
 ar-invl.sman[1] ar-invl.s-pct[1] ar-invl.s-comm[1] ~
 ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] ar-invl.sman[3] ~
 ar-invl.s-pct[3] ar-invl.s-comm[3] 
@@ -241,7 +241,7 @@ DEFINE BROWSE br_table
       ar-invl.s-pct[3] COLUMN-LABEL "% of Sale" FORMAT ">>9.99":U
       ar-invl.s-comm[3] COLUMN-LABEL "Comm%" FORMAT ">>9.99":U
   ENABLE
-      /*ar-invl.po-no*/
+      ar-invl.po-no
       ar-invl.unit-pr
       ar-invl.sman[1]
       ar-invl.s-pct[1]

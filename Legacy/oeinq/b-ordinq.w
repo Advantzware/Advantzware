@@ -131,11 +131,14 @@ ASSIGN
           AND ((oe-ordl.stat    NE "C" AND tb_open) OR (oe-ordl.stat EQ "C" AND tb_closed) OR oe-ordl.stat EQ "") ~
           AND ( (lookup(oe-ordl.cust-no,custcount) <> 0 AND oe-ordl.cust-no <> "") OR custcount = "") ~
           AND oe-ordl.cust-no   BEGINS fi_cust-no   ~
-          AND oe-ordl.i-no      BEGINS fi_i-no      ~
+          AND (oe-ordl.i-no      BEGINS fi_i-no OR      ~
+               (INDEX(fi_i-no,'*') NE 0 AND oe-ordl.i-no    MATCHES fi_i-no)) ~
           AND (oe-ordl.i-name    BEGINS fi_i-name OR ~
               (INDEX(fi_i-name,'*') NE 0 AND oe-ordl.i-name MATCHES fi_i-name)) ~
-          AND oe-ordl.part-no   BEGINS fi_part-no   ~
-          AND oe-ordl.po-no     BEGINS fi_po-no-2   ~
+          AND (oe-ordl.part-no    BEGINS fi_part-no OR ~
+              (INDEX(fi_part-no,'*') NE 0 AND oe-ordl.part-no MATCHES fi_part-no)) ~
+          AND (oe-ordl.po-no     BEGINS fi_po-no-2 OR  ~
+              (INDEX(fi_po-no-2,'*') NE 0 AND oe-ordl.po-no    MATCHES fi_po-no-2)) ~
           AND oe-ordl.est-no    BEGINS fi_est-no    ~
           AND oe-ordl.job-no    BEGINS fi_job-no    ~
           AND (oe-ordl.job-no2  EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "")
@@ -145,7 +148,8 @@ ASSIGN
         WHERE oe-ord.company  EQ oe-ordl.company      ~
           AND oe-ord.ord-no   EQ oe-ordl.ord-no       ~
           AND (oe-ord.type    NE "T" OR NOT ll-alloc) ~
-          AND oe-ord.po-no    BEGINS fi_po-no1        ~
+          AND (oe-ord.po-no    BEGINS fi_po-no1 OR    ~
+              (INDEX(fi_po-no1,'*') NE 0 AND oe-ord.po-no    MATCHES fi_po-no1)) ~
           AND oe-ord.stat     NE "W" /* gdm - 04080909 */  ~
           AND ((oe-ord.opened EQ YES AND tb_open) OR ((oe-ord.opened EQ NO OR oe-ordl.stat = "C") AND tb_closed)) ~
         USE-INDEX ord-no  
@@ -624,7 +628,7 @@ DEFINE BROWSE Browser-Table
             WIDTH 21
       oe-ordl.i-name COLUMN-LABEL "Item Name" FORMAT "x(30)":U
             LABEL-BGCOLOR 14
-      oe-ordl.line FORMAT "99":U
+      oe-ordl.line FORMAT ">>99":U
       get-cost() @ ld-cost COLUMN-LABEL "Cost" WIDTH 20
       get-cost-uom() @ ld-cost-uom COLUMN-LABEL "Cost!UOM"
       oe-ordl.po-no-po FORMAT ">>>>>9":U
@@ -865,7 +869,7 @@ oe-ordl.ord-no eq 999999999"
      _FldNameList[28]   > ASI.oe-ordl.i-name
 "oe-ordl.i-name" "Item Name" ? "character" ? ? ? 14 ? ? yes "" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[29]   > ASI.oe-ordl.line
-"oe-ordl.line" ? ? "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-ordl.line" ? ">>99" "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[30]   > "_<CALC>"
 "get-cost() @ ld-cost" "Cost" ? ? ? ? ? ? ? ? no ? no no "20" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[31]   > "_<CALC>"

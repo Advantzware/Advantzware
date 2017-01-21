@@ -117,15 +117,15 @@ DEFINE BUFFER bUserPrint FOR user-print.
     ~{&OPEN-QUERY-browseUserPrint}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnCancel btnView 
+&Scoped-Define ENABLED-OBJECTS btnExcel btnCancel btnView 
 
 /* Custom List Definitions                                              */
 /* ScheduleFields,showFields,batchObjects,batchShowHide,columnObjects,List-6 */
 &Scoped-define showFields svShowAll svShowReportHeader svShowParameters ~
 svShowPageHeader svShowGroupHeader svShowGroupFooter svShowPageFooter ~
 svShowReportFooter 
-&Scoped-define batchObjects btnShowBatch btnExcel btnDelete btnApply ~
-btnSave browseUserPrint browseParamValue 
+&Scoped-define batchObjects btnShowBatch btnDelete btnApply btnSave ~
+browseUserPrint browseParamValue 
 &Scoped-define batchShowHide btnDelete btnApply btnSave browseUserPrint ~
 browseParamValue 
 &Scoped-define columnObjects btnDefault btnAdd btnRemoveColumn btnMoveUp ~
@@ -375,6 +375,23 @@ DEFINE FRAME paramFrame
          AT COL 1 ROW 1
          SIZE 149 BY 18.05.
 
+DEFINE FRAME frameShow
+     svShowAll AT ROW 1.24 COL 2 WIDGET-ID 18
+     svShowReportHeader AT ROW 2.19 COL 5 WIDGET-ID 2
+     svShowParameters AT ROW 3.14 COL 8 WIDGET-ID 16
+     svShowPageHeader AT ROW 4.1 COL 5 WIDGET-ID 6
+     svShowGroupHeader AT ROW 5.05 COL 5 WIDGET-ID 10
+     svShowGroupFooter AT ROW 6 COL 5 WIDGET-ID 12
+     svShowPageFooter AT ROW 6.95 COL 5 WIDGET-ID 8
+     svShowReportFooter AT ROW 7.91 COL 5 WIDGET-ID 4
+     svExcelTable AT ROW 9.33 COL 3 WIDGET-ID 20
+     RECT-1 AT ROW 9.1 COL 2 WIDGET-ID 22
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 41 ROW 1
+         SIZE 40 BY 10.48
+         TITLE "Show/Hide Sections" WIDGET-ID 300.
+
 DEFINE FRAME frameColumns
      svAvailableColumns AT ROW 1.71 COL 1 NO-LABEL WIDGET-ID 68
      btnDefault AT ROW 1.71 COL 32 HELP
@@ -397,23 +414,6 @@ DEFINE FRAME frameColumns
          AT COL 82 ROW 1
          SIZE 67 BY 10.48
          TITLE "Report Columns" WIDGET-ID 200.
-
-DEFINE FRAME frameShow
-     svShowAll AT ROW 1.24 COL 2 WIDGET-ID 18
-     svShowReportHeader AT ROW 2.19 COL 5 WIDGET-ID 2
-     svShowParameters AT ROW 3.14 COL 8 WIDGET-ID 16
-     svShowPageHeader AT ROW 4.1 COL 5 WIDGET-ID 6
-     svShowGroupHeader AT ROW 5.05 COL 5 WIDGET-ID 10
-     svShowGroupFooter AT ROW 6 COL 5 WIDGET-ID 12
-     svShowPageFooter AT ROW 6.95 COL 5 WIDGET-ID 8
-     svShowReportFooter AT ROW 7.91 COL 5 WIDGET-ID 4
-     svExcelTable AT ROW 9.33 COL 3 WIDGET-ID 20
-     RECT-1 AT ROW 9.1 COL 2 WIDGET-ID 22
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 41 ROW 1
-         SIZE 40 BY 10.48
-         TITLE "Show/Hide Sections" WIDGET-ID 300.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -548,8 +548,6 @@ ASSIGN
        btnDelete:PRIVATE-DATA IN FRAME paramFrame     = 
                 "WinKitRibbon".
 
-/* SETTINGS FOR BUTTON btnExcel IN FRAME paramFrame
-   NO-ENABLE 3                                                          */
 ASSIGN 
        btnExcel:HIDDEN IN FRAME paramFrame           = TRUE
        btnExcel:PRIVATE-DATA IN FRAME paramFrame     = 
@@ -754,8 +752,9 @@ DO:
         IF deleteBatch THEN DO TRANSACTION:
             FIND bUserPrint EXCLUSIVE-LOCK WHERE ROWID(bUserPrint) EQ ttUserPrint.UserPrintRowID.
             DELETE bUserPrint.
-            RUN pGetUserPrint.
         END. /* delete batch */
+        IF deleteBatch THEN
+        RUN pGetUserPrint.
     END. /* avail ttuserprint */
 END.
 
@@ -1098,7 +1097,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE btnCancel btnView 
+  ENABLE btnExcel btnCancel btnView 
       WITH FRAME paramFrame IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-paramFrame}
   DISPLAY svShowAll svShowReportHeader svShowParameters svShowPageHeader 
@@ -1159,7 +1158,7 @@ PROCEDURE local-enable :
 
   RUN pGetParamValues (?).
   
-  IF aoaType EQ "Report" THEN RUN pGetColumns.
+  RUN pGetColumns.
 
   RUN pParamValuesOverride IN h_aoaParam NO-ERROR.
 
@@ -1373,7 +1372,8 @@ PROCEDURE pExcel :
         ASSIGN
             chWorkSheet:Cells(iStatusRow,2):Value = "Running Query..."
             cDynFunc = "f" + REPLACE(aoaTitle," ","")
-            hTable = DYNAMIC-FUNCTION(cDynFunc IN hAppSrv, aoaCompany,0,USERID("NoSweat")).
+            hTable = DYNAMIC-FUNCTION(cDynFunc IN hAppSrv, aoaCompany, 0, USERID("NoSweat"))
+            .
         IF NOT VALID-HANDLE(hTable) THEN RETURN.
 
         hTable = hTable:DEFAULT-BUFFER-HANDLE.
@@ -1392,10 +1392,8 @@ PROCEDURE pExcel :
                 chRangeCol = chWorkSheet:Cells(65536,iColumn)
                 .
             /* column label */
-            IF svShowPageHeader THEN
+            IF svShowPageHeader OR aoaType EQ "Dashboard" THEN
             chWorkSheet:Cells(iRow,iColumn):Value = hTable:BUFFER-FIELD(fieldName):LABEL.
-            IF svShowPageHeader THEN
-            PUT UNFORMATTED hTable:BUFFER-FIELD(fieldName):LABEL "|".
             /* apply column format based on data type */
             CASE cDataType:
                 WHEN "Character" THEN
@@ -1422,7 +1420,7 @@ PROCEDURE pExcel :
             END CASE.
         END. /* do iColumn */
 
-        IF svShowPageHeader THEN DO:
+        IF svShowPageHeader OR aoaType EQ "Dashboard" THEN DO:
             /* bold and underline header row */
             ASSIGN
                 chRangeRow = chWorkSheet:Cells(iRow,1)
@@ -1876,7 +1874,7 @@ PROCEDURE pSaveParamValues :
                 user-print.user-id    = aoaUserID
                 user-print.batch      = "Batch"
                 .
-        END. /* not avail user-print */
+        END. /* if batch */
         ELSE IF NOT iplBatch THEN DO:
             FIND FIRST user-print EXCLUSIVE-LOCK
                  WHERE user-print.company    EQ aoaCompany
@@ -1892,8 +1890,9 @@ PROCEDURE pSaveParamValues :
                     user-print.user-id    = aoaUserID
                     .
             END. /* not avail */
-        END. /* not batch, view now request */
+        END. /* not batch, must be view now request */
 
+        /* parameter values, currently up to 87 */
         ASSIGN
             user-print.field-name  = ""
             user-print.field-value = ""
@@ -1915,6 +1914,7 @@ PROCEDURE pSaveParamValues :
             IF idx EQ EXTENT(user-print.field-name) - {&reserved} THEN LEAVE.
         END. /* do while */
     
+        /* reserve 2, 1 for security, another for title */
         IF idx LE EXTENT(user-print.field-name) - {&reserved} THEN
         ASSIGN
             idx = idx + 1
@@ -1927,6 +1927,7 @@ PROCEDURE pSaveParamValues :
             user-print.field-value[idx] = aoaTitle
             .
         
+        /* reserve 2 for avail columns and selected columns */
         IF aoaColumns THEN DO WITH FRAME frameColumns:
             DO cnt = 1 TO svAvailableColumns:NUM-ITEMS:
                 cColumns = cColumns + svAvailableColumns:ENTRY(cnt) + ",".
@@ -1949,6 +1950,7 @@ PROCEDURE pSaveParamValues :
                 .
         END. /* aoacolumns */
         
+        /* reserve 9 for show/hide section parameters */
         ASSIGN
             hChild = FRAME frameShow:HANDLE
             hChild = hChild:FIRST-CHILD
@@ -2065,8 +2067,12 @@ PROCEDURE pSetWinSize :
             FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
             btnView:Y                                 = hParamFrame:HEIGHT-PIXELS + 5
             btnCancel:Y                               = hParamFrame:HEIGHT-PIXELS + 5
+            btnExcel:Y                                = hParamFrame:HEIGHT-PIXELS + 5
             btnView:X                                 = hParamFrame:WIDTH-PIXELS - btnView:WIDTH-PIXELS
             btnCancel:X                               = btnView:X - btnCancel:WIDTH-PIXELS - 2
+            btnExcel:X                                = btnCancel:X - ((btnCancel:X
+                                                      - (btnShowBatch:X + btnShowBatch:WIDTH-PIXELS)) / 2)
+                                                      - btnExcel:WIDTH-PIXELS / 2
             .
 
         IF aoaType EQ "Report" THEN DO:
@@ -2076,11 +2082,7 @@ PROCEDURE pSetWinSize :
                 FRAME frameShow:HIDDEN                   = FALSE
                 btnScheduler:Y                           = hParamFrame:HEIGHT-PIXELS + 5
                 btnShowBatch:Y                           = hParamFrame:HEIGHT-PIXELS + 5
-                btnExcel:Y                               = hParamFrame:HEIGHT-PIXELS + 5
                 btnShowBatch:X                           = btnScheduler:X + btnScheduler:WIDTH-PIXELS + 2
-                btnExcel:X                               = btnCancel:X - ((btnCancel:X
-                                                         - (btnShowBatch:X + btnShowBatch:WIDTH-PIXELS)) / 2)
-                                                         - btnExcel:WIDTH-PIXELS / 2
                 iHeight                                  = FRAME frameShow:HEIGHT-PIXELS
                 iHeight                                  = MAXIMUM(iHeight, hParamFrame:HEIGHT-PIXELS / 2)
                 FRAME frameColumns:HEIGHT-PIXELS         = iHeight
@@ -2114,6 +2116,7 @@ PROCEDURE pSetWinSize :
                 .
             ENABLE {&batchObjects}.
         END. /* report */
+        ELSE btnExcel:X = btnScheduler:X.
     END. /* with frame  */
 
 END PROCEDURE.
@@ -2436,7 +2439,7 @@ FUNCTION fGetModule RETURNS CHARACTER
     DEFINE VARIABLE cModule    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cProgramID AS CHARACTER NO-UNDO.
 
-    FILE-INFO:FILE-NAME = "aoa/datFiles/Report.dat".
+    FILE-INFO:FILE-NAME = "aoa/datFiles/" + aoaType + ".dat".
     INPUT FROM VALUE(FILE-INFO:FULL-PATHNAME) NO-ECHO.
     REPEAT:
         IMPORT cModule ^ cProgramID.

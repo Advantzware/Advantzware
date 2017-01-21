@@ -321,7 +321,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK Dialog-Frame
 ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* OK */
 DO:
-   fil_id = tt-report.rec-id.
+    IF AVAIL tt-report THEN
+        fil_id = tt-report.rec-id.
 END.
 
 /* _UIB-CODE-BLOCK-END */

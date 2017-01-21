@@ -4199,6 +4199,10 @@ put stream sdebug unformatted "in run report gcom " gcompany  " vportlist " v-po
   " begin_r "  begin_fg-r-no " end-r " end_fg-r-no " endino " end_i-no " ldt-to " ldt-to " end job " end_job-no
   " end whse " end_whs " end user "end_userid
 skip.  
+put stream sdebug unformatted "in run report gcom " gcompany  " vportlist " v-postlst 
+  " begin i-no "  begin_i-no " end-i-no " end_i-no " frm dt " ldt-from " ldt-to " ldt-to " end job " end_job-no
+  " end whse " end_whs " end user " end_userid " beg user " begin_userid
+skip. 
     DO li-loop = 1 TO NUM-ENTRIES(v-postlst):
         FOR EACH fg-rctd
             WHERE fg-rctd.company   EQ gcompany

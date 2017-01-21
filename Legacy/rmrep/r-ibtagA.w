@@ -400,6 +400,13 @@ ASSIGN
 ASSIGN 
        end_whs:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+ASSIGN 
+       end_mat-type:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       end_date:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
        fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 

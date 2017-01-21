@@ -47,7 +47,8 @@ assign
 DEF BUFFER b-vend FOR vend.
 DEF VAR vend-char-f AS CHAR NO-UNDO.
 DEF VAR vend-log-f AS LOG NO-UNDO.
-
+DEFINE VARIABLE l-valid AS LOGICAL NO-UNDO.
+DEF VAR ll-secure AS LOG NO-UNDO.
 {sys/ref/sys-ctrl.i}
 
    
@@ -848,6 +849,8 @@ END.
 ON LEAVE OF vend.po-export IN FRAME F-Main /* POEXPORT */
 DO:
   IF LASTKEY NE -1 THEN DO:
+    RUN valid-po-sec.
+    IF NOT l-valid THEN RETURN NO-APPLY.
     RUN valid-po-export NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
@@ -1401,6 +1404,8 @@ DEFINE VARIABLE container-hdl AS CHARACTER     NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN valid-vend-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  RUN valid-po-sec.
+  IF NOT l-valid THEN RETURN NO-APPLY.
   
   run valid-vendtype.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -1714,6 +1719,37 @@ PROCEDURE valid-po-export :
       APPLY "entry" TO vend.po-export.
       RETURN ERROR.
     END.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-po-sec V-table-Win 
+PROCEDURE valid-po-sec :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  
+  l-valid = YES.
+
+  DO WITH FRAME {&frame-name}:    
+    IF NOT ll-secure                                              AND
+       STRING(vend.po-export) NE vend.po-export:SCREEN-VALUE   THEN DO:
+
+      RUN sys/ref/d-passmi.w (OUTPUT ll-secure).
+
+      IF NOT ll-secure THEN
+        ASSIGN
+         l-valid                   = NO
+         vend.po-export:SCREEN-VALUE = STRING(vend.po-export).
+    END.
+
+    IF NOT l-valid THEN APPLY "entry" TO vend.po-export.
   END.
 
 END PROCEDURE.

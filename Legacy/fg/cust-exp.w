@@ -106,10 +106,10 @@ ASSIGN cTextListToSelect = "Customer,Name,Status,Address1,Address2,City,State,Zi
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-8 begin_cust-type ~
-end_cust-type tb_phone Btn_Def sl_avail sl_selected Btn_Add Btn_Remove ~
-btn_Up btn_down tb_runExcel fi_file btn-ok btn-cancel 
+end_cust-type tb_phone tb_notes Btn_Def sl_avail sl_selected Btn_Add ~
+Btn_Remove btn_Up btn_down tb_runExcel fi_file btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust-type end_cust-type tb_phone ~
-sl_avail sl_selected tb_excel tb_runExcel fi_file 
+tb_notes sl_avail sl_selected tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -224,6 +224,11 @@ DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
+DEFINE VARIABLE tb_notes AS LOGICAL INITIAL no 
+     LABEL "Print Notes?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 29.2 BY 1.14 NO-UNDO.
+
 DEFINE VARIABLE tb_phone AS LOGICAL INITIAL no 
      LABEL "Print Phone Contacts?" 
      VIEW-AS TOGGLE-BOX
@@ -244,6 +249,7 @@ DEFINE FRAME rd-fgexp
      end_cust-type AT ROW 3.95 COL 71 COLON-ALIGNED HELP
           "Enter Ending Customer" WIDGET-ID 144
      tb_phone AT ROW 6 COL 69.8 RIGHT-ALIGNED WIDGET-ID 146
+     tb_notes AT ROW 7.38 COL 69.8 RIGHT-ALIGNED WIDGET-ID 148
      Btn_Def AT ROW 12.19 COL 44 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
      sl_avail AT ROW 12.24 COL 9 NO-LABEL WIDGET-ID 26
@@ -262,13 +268,13 @@ DEFINE FRAME rd-fgexp
      btn-cancel AT ROW 21.71 COL 60.2 WIDGET-ID 12
      "Selected Columns" VIEW-AS TEXT
           SIZE 34 BY .62 AT ROW 11.52 COL 64.4 WIDGET-ID 138
-     "Available Columns" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 11.52 COL 9.4 WIDGET-ID 140
-     "Export Selection" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 10.52 COL 3 WIDGET-ID 86
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5 WIDGET-ID 36
           BGCOLOR 2 
+     "Export Selection" VIEW-AS TEXT
+          SIZE 17 BY .62 AT ROW 10.52 COL 3 WIDGET-ID 86
+     "Available Columns" VIEW-AS TEXT
+          SIZE 29 BY .62 AT ROW 11.52 COL 9.4 WIDGET-ID 140
      RECT-6 AT ROW 10.76 COL 2 WIDGET-ID 30
      RECT-7 AT ROW 1.24 COL 2 WIDGET-ID 38
      RECT-8 AT ROW 18.62 COL 2 WIDGET-ID 84
@@ -315,6 +321,12 @@ ASSIGN
    NO-ENABLE                                                            */
 ASSIGN 
        tb_excel:PRIVATE-DATA IN FRAME rd-fgexp     = 
+                "parm".
+
+/* SETTINGS FOR TOGGLE-BOX tb_notes IN FRAME rd-fgexp
+   ALIGN-R                                                              */
+ASSIGN 
+       tb_notes:PRIVATE-DATA IN FRAME rd-fgexp     = 
                 "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_phone IN FRAME rd-fgexp
@@ -599,6 +611,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME tb_notes
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_notes rd-fgexp
+ON VALUE-CHANGED OF tb_notes IN FRAME rd-fgexp /* Print Notes? */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME tb_phone
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_phone rd-fgexp
 ON VALUE-CHANGED OF tb_phone IN FRAME rd-fgexp /* Print Phone Contacts? */
@@ -811,12 +834,12 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_cust-type end_cust-type tb_phone sl_avail sl_selected tb_excel 
-          tb_runExcel fi_file 
+  DISPLAY begin_cust-type end_cust-type tb_phone tb_notes sl_avail sl_selected 
+          tb_excel tb_runExcel fi_file 
       WITH FRAME rd-fgexp.
-  ENABLE RECT-6 RECT-7 RECT-8 begin_cust-type end_cust-type tb_phone Btn_Def 
-         sl_avail sl_selected Btn_Add Btn_Remove btn_Up btn_down tb_runExcel 
-         fi_file btn-ok btn-cancel 
+  ENABLE RECT-6 RECT-7 RECT-8 begin_cust-type end_cust-type tb_phone tb_notes 
+         Btn_Def sl_avail sl_selected Btn_Add Btn_Remove btn_Up btn_down 
+         tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME rd-fgexp.
   VIEW FRAME rd-fgexp.
   {&OPEN-BROWSERS-IN-QUERY-rd-fgexp}
@@ -895,6 +918,7 @@ PROCEDURE run-report :
 ------------------------------------------------------------------------------*/
 DEF VAR v-excelheader AS CHAR NO-UNDO.
 DEF VAR v-excel-detail-lines AS CHAR NO-UNDO.
+DEFINE VARIABLE cexcelheader AS CHARACTER NO-UNDO .
 DEF BUFFER b-cust FOR cust.
 
 v-excelheader = buildHeader().
@@ -979,6 +1003,30 @@ FOR EACH b-cust WHERE b-cust.company = cocode
        PUT STREAM excel UNFORMATTED v-excel-detail-lines SKIP.
 
     END. /* for each phone */
+    
+    IF tb_notes  THEN DO:
+        FOR EACH notes NO-LOCK
+            WHERE notes.rec_key EQ b-cust.rec_key 
+              AND notes.note_type <> "o" BREAK BY notes.note_date  :
+
+            cexcelheader = ",,Title,Note,Date,Time,User ID,Type,Group,Dept".
+            IF FIRST(notes.note_date) THEN
+            PUT STREAM excel UNFORMATTED '"' REPLACE(cexcelheader,',','","') '"' skip.
+
+            PUT STREAM excel UNFORMATTED
+               '"'              '",'
+               '"'              '",'
+               '"' notes.note_title '",' 
+               '"' notes.note_text '",' 
+               '"' notes.note_date '",'
+               '"' string(notes.note_time,"hh:mm am") '",'
+               '"' notes.user_id '",'
+               '"' notes.note_type '",' 
+               '"' notes.note_group '",'
+               '"' notes.note_code '",' 
+               SKIP. 
+        END.
+    END.
 
 END. /* cust */
 

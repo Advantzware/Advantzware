@@ -98,6 +98,7 @@ DEFINE VARIABLE h_v-oerel AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-relhs AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vi-oereh AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_vp-oerell AS HANDLE NO-UNDO .
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -420,14 +421,15 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_b-oerell ( 6.91 , 134.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'panels/p-oerel.w':U ,
+             /*INPUT  'panels/p-oerel.w':U ,*/
+             INPUT  'oe/vp-oerell.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
-             OUTPUT h_p-oerel ).
-       RUN set-position IN h_p-oerel ( 22.67 , 18.00 ) NO-ERROR.
-       RUN set-size IN h_p-oerel ( 1.52 , 119.00 ) NO-ERROR.
+             OUTPUT h_vp-oerell ).
+       RUN set-position IN h_vp-oerell ( 22.67 , 18.00 ) NO-ERROR.
+       RUN set-size IN h_vp-oerell ( 1.52 , 119.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
@@ -442,8 +444,11 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-relinq , 'nav-itm':U , h_v-navest ).
 
        /* Links to SmartBrowser h_b-oerell. */
-       RUN add-link IN adm-broker-hdl ( h_p-oerel , 'TableIO':U , h_b-oerell ).
+       RUN add-link IN adm-broker-hdl ( h_vp-oerell , 'TableIO':U , h_b-oerell ).
        RUN add-link IN adm-broker-hdl ( h_v-oerel , 'Record':U , h_b-oerell ).
+        
+       RUN add-link IN adm-broker-hdl ( h_b-oerell , 'buttons':U , h_vp-oerell ).
+       RUN add-link IN adm-broker-hdl ( h_b-oerell  , 'Record':U , h_vp-oerell ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_v-oerel ,
@@ -456,7 +461,7 @@ PROCEDURE adm-create-objects :
              h_p-relhld , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-oerell ,
              h_p-ordhd , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-oerel ,
+       RUN adjust-tab-order IN adm-broker-hdl ( h_vp-oerell ,
              h_b-oerell , 'AFTER':U ).
     END. /* Page 2 */
     WHEN 3 THEN DO:

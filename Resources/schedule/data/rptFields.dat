@@ -132,6 +132,7 @@
 "ASI" "Due Qty" "userField85" "XXXXXXXXXXX" no "job-mch"
 "ASI" "UnderRun%" "userField86" "XXXXXXX" no "or-ordl"
 "ASI" "OverRun%" "userField87" "XXXXXXX" no "or-ordl"
+"ASI" "Speed" "userField88" "XXXXXX" no "job-mch"
 "Demo/Jobs" "User Field" "userField01" "XXXXXXXX" yes ""
 "Demo/Service" "User Field" "userField01" "XXXXXXXX" yes ""
 "MXP/SO" "Item" "userField01" "XXXXXXXXXXXXXXXXXXXXXXXX" no ""

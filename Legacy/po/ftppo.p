@@ -1,5 +1,28 @@
-/* po/ftppo.p FTP exported file to ftp server */
-
+/*------------------------------------------------------------------------
+    File        : po/ftppo.p
+    Purpose     :  FTP exported file to ftp server
+    Syntax      : 
+    Description : 
+    Author(s)   : wade Kaldawi
+    Created     : 
+    Notes       : This program is run from programs representing specific
+                : po export formats such as po/po-gpex.p
+                : Those programs pass in a hard-coded string for the input
+                : parameter ip-ftp-where.  ip-exp-file is simply the file
+                : to be ftp'd.  The po export program to run is determined
+                : by a hard-coded list in porep/r-poprt.w using the value 
+                : in vendor.po-export.
+                : Configuration: nk1 poexport
+                :                vendor vf1
+                :                nk1 for partner, e.g. kiwi
+                :                   sys-ctrl.name     = Kiwi = ip-ftp-where
+                :                   sys-ctrl.char-fld = trilakes
+                :                   sys-ctrl.desc     = "N:\rcode\kiwi\export"
+                :                po/poexport.dat config
+                          
+                : ttConfig.exportFormat = ip-ftp-where
+                : ttConfig.destName     = sys-ctrl.char-fld (via ip-ftp-where)
+  ----------------------------------------------------------------------*/
 DEF INPUT PARAM ip-exp-file AS cha NO-UNDO.
 DEF INPUT PARAM ip-ftp-where AS cha NO-UNDO.
 
@@ -23,6 +46,7 @@ DEF TEMP-TABLE ttConfig FIELD exportFormat  AS CHAR
                       FIELD ftp-cmd AS CHAR
                       INDEX exportFormat exportFormat
                       INDEX destName IS PRIMARY destName.
+                      
 {sys/inc/poexport.i}
 
 RELEASE sys-ctrl.
@@ -70,9 +94,6 @@ DO:
 END.
 
 RUN load-config.
-
-
-
 
 
 
@@ -629,6 +650,7 @@ PROCEDURE config-based-script:
 
    
 END PROCEDURE.
+
 PROCEDURE load-config:
 
   EMPTY TEMP-TABLE ttConfig.

@@ -12,8 +12,11 @@
 
  History:
 
- v3.004 (updated 1.1.2017)
+ v3.004 (updated 1.5.2017)
  * ability to load udf fields
+ * added field "speed"
+ * ability for capacity view to show kicks
+ * added number of jobs column to capacity view
 
  v3.003 (updated 10.26.2016)
  * added field "routing" to reports

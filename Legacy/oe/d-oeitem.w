@@ -1638,7 +1638,7 @@ DO:
     
       RUN final-steps.
   END. /* Transaction */
-  IF ll-new-record THEN DO TRANSACTION: 
+  IF ll-new-record AND oe-ordl.s-man[1]:screen-value IN FRAME {&frame-name} = "" THEN DO TRANSACTION: 
     RUN itemfg-sman.
     ASSIGN oe-ordl.s-man[1].
   END.
