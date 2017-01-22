@@ -21,6 +21,7 @@ DEFINE TEMP-TABLE ttOpenOrderReport NO-UNDO
     FIELD salesRep    AS CHARACTER LABEL "Rep"              FORMAT "x(3)"
     FIELD unit        AS INTEGER   LABEL "Unit"             FORMAT ">>>>9"
     FIELD pallet      AS INTEGER   LABEL "Pallet"           FORMAT ">>9"
+    FIELD sellPrice   AS DECIMAL   LABEL "Sell Price"       FORMAT "->,>>>,>>9.99"
     FIELD xxSort1     AS CHARACTER LABEL "Sort 1"           FORMAT "x(100)"
     FIELD xxSort2     AS CHARACTER LABEL "Sort 2"           FORMAT "x(100)"
     FIELD xxIndex     AS INTEGER   LABEL "Index"            FORMAT ">>>>>>9"

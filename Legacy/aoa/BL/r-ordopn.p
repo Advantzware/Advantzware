@@ -53,6 +53,23 @@ DEFINE VARIABLE tmpFile    AS CHARACTER           NO-UNDO.
 
 DEFINE BUFFER bOERell FOR oe-rell.
 
+FUNCTION fCalcSellPrice RETURN DECIMAL ():
+    DEFINE VARIABLE dSellPrice AS DECIMAL NO-UNDO.
+
+    dSellPrice = oe-ordl.price * (1 - oe-ordl.disc / 100).
+    IF oe-ordl.stat EQ "C" OR oe-ordl.opened EQ NO THEN
+    FOR EACH ar-invl FIELDS(inv-no unit-pr disc) NO-LOCK
+        WHERE ar-invl.company EQ oe-ordl.company
+          AND ar-invl.ord-no  EQ oe-ordl.ord-no
+          AND ar-invl.i-no    EQ oe-ordl.i-no
+        BY ar-invl.inv-no DESCENDING
+        :
+        dSellPrice = ar-invl.unit-pr * (1 - ar-invl.disc / 100).
+        LEAVE.
+    END. /* each ar-invl */
+    RETURN dSellPrice.
+END FUNCTION.
+
 /* subject business logic */
 IF lAllJobNo THEN
 ASSIGN
@@ -567,6 +584,7 @@ FOR EACH tt-report NO-LOCK
         ttOpenOrderReport.salesRep    = oe-ordl.s-man[1]
         ttOpenOrderReport.unit        = tt-report.unit-count
         ttOpenOrderReport.pallet      = tt-report.units-pallet
+        ttOpenOrderReport.sellPrice   = fCalcSellPrice()
         ttOpenOrderReport.xxSort1     = IF cPrimarySort EQ "Customer" THEN ttOpenOrderReport.custNo
                                         ELSE tt-report.key-01
         ttOpenOrderReport.xxSort2     = tt-report.key-03
