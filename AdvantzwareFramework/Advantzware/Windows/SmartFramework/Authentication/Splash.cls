@@ -81,6 +81,7 @@ CLASS Advantzware.Windows.SmartFramework.Authentication.Splash INHERITS Form   :
         THIS-OBJECT:pictureBox1:BorderStyle = System.Windows.Forms.BorderStyle:FixedSingle.
         THIS-OBJECT:pictureBox1:Image = CAST(resources:GetObject("pictureBox1.Image"), System.Drawing.Image).
         THIS-OBJECT:pictureBox1:Location = NEW System.Drawing.Point(0, 0).
+        THIS-OBJECT:pictureBox1:Margin = NEW System.Windows.Forms.Padding(0).
         THIS-OBJECT:pictureBox1:Name = "pictureBox1".
         THIS-OBJECT:pictureBox1:Size = NEW System.Drawing.Size(410, 260).
         THIS-OBJECT:pictureBox1:SizeMode = System.Windows.Forms.PictureBoxSizeMode:AutoSize.
