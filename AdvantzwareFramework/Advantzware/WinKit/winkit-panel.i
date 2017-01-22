@@ -74,13 +74,15 @@ PROCEDURE winkit-make-ribbon-group:
     DEFINE INPUT PARAMETER poForm AS Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWindowForm NO-UNDO .
     DEFINE INPUT PARAMETER piPage AS INTEGER                                                       NO-UNDO .
 
-    DEFINE VARIABLE cKey        AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCaption    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cTabKey     AS CHARACTER NO-UNDO .
-    DEFINE VARIABLE cTabCaption AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cKey          AS CHARACTER                                                     NO-UNDO .
+    DEFINE VARIABLE cCaption      AS CHARACTER                                                     NO-UNDO .
+    DEFINE VARIABLE cTabKey       AS CHARACTER                                                     NO-UNDO .
+    DEFINE VARIABLE cTabCaption   AS CHARACTER                                                     NO-UNDO .
 
-    DEFINE VARIABLE oContextual AS Infragistics.Win.UltraWinToolbars.ContextualTabGroup NO-UNDO .
-    DEFINE VARIABLE oRibbonTab AS Infragistics.Win.UltraWinToolbars.RibbonTab NO-UNDO .
+    DEFINE VARIABLE oContextual   AS Infragistics.Win.UltraWinToolbars.ContextualTabGroup          NO-UNDO .
+    DEFINE VARIABLE oRibbonTab    AS Infragistics.Win.UltraWinToolbars.RibbonTab                   NO-UNDO .
+    DEFINE VARIABLE cPrefix       AS CHARACTER                                                     NO-UNDO .
+    DEFINE VARIABLE hContainer    AS HANDLE                                                        NO-UNDO .
 
     IF lInited THEN
         RETURN .
@@ -117,10 +119,15 @@ PROCEDURE winkit-make-ribbon-group:
             oContextual:Tabs:Add (oRibbonTab) .
             oContextual:Caption = cTabCaption .
 
-
-
         END.
     END.
+
+    hContainer = poForm:ProcedureHandle .
+
+    ASSIGN cPrefix = SUBSTITUTE ("&1-&2-&3":U,
+                                 THIS-PROCEDURE:FILE-NAME,
+                                 hContainer:FILE-NAME,
+                                 STRING (piPage)) .
 
     Consultingwerk.Util.UltraToolbarsHelper:BuildRibbonGroupFromFrame (FRAME {&FRAME-NAME}:HANDLE,
                                                                        poForm:ToolbarsManager,
@@ -128,7 +135,14 @@ PROCEDURE winkit-make-ribbon-group:
                                                                        cKey,
                                                                        cCaption,
                                                                        FALSE,
-                                                                       FALSE) .
+                                                                       FALSE,
+                                                                       FALSE,
+                                                                       0,
+                                                                       cPrefix,
+                                                                       "":U) .
+
+
+
 
     ASSIGN oPanelRibbonTab = oRibbonTab
            cPanelRibbonGroupKey = cKey .
