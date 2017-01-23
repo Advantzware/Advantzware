@@ -14,10 +14,15 @@ DEF VAR v-dep AS DEC NO-UNDO.
 DEF VAR v-bwt AS DEC NO-UNDO.
 DEF VAR v-qty AS DEC NO-UNDO.
 DEF VAR ld-sheeter AS DEC NO-UNDO.
+DEFINE VARIABLE dv-t-cost AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dv-ord-qty               AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE cfg-uom-list        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lCkeckRec          AS LOGICAL INIT NO NO-UNDO .
+DEFINE NEW SHARED VARIABLE v-basis-w AS DECIMAL NO-UNDO.
 
 {sys/inc/var.i SHARED}
 {sys/form/s-top.f}
-
+RUN sys/ref/uom-fg.p (?, OUTPUT cfg-uom-list).
 
 FIND po-ordl WHERE RECID(po-ordl) EQ ip-recid NO-LOCK NO-ERROR.
                      
@@ -94,7 +99,19 @@ IF AVAIL po-ord THEN
   END.
 
   ELSE DO:
-   ASSIGN  op-qty = po-ordl.t-rec-qty  .
+    ASSIGN  op-qty = po-ordl.t-rec-qty  .
+    ASSIGN
+      v-basis-w = IF AVAIL item THEN item.basis-w ELSE v-basis-w
+      v-dep = IF AVAIL item THEN item.s-dep ELSE v-dep
+      v-len = DEC(po-ordl.s-len)
+      v-wid = DEC(po-ordl.s-wid)
+      dv-ord-qty = DEC(po-ordl.ord-qty)
+       .
+       
+        FIND FIRST itemfg NO-LOCK
+           WHERE itemfg.company EQ cocode
+           AND itemfg.i-no    EQ po-ordl.i-no
+           NO-ERROR.
           
       FOR EACH fg-rcpth FIELDS(r-no rita-code) NO-LOCK
           WHERE fg-rcpth.company   EQ cocode
@@ -110,7 +127,64 @@ IF AVAIL po-ord THEN
             AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code:
     
         ASSIGN  
-         /*op-qty = op-qty + fg-rdtlh.qty*/
-         op-amt = op-amt + (fg-rdtlh.qty / 1000 * fg-rdtlh.cost).
+          lCkeckRec = YES .
+        /* op-qty = op-qty + fg-rdtlh.qty
+         op-amt = op-amt + (fg-rdtlh.qty / 1000 * fg-rdtlh.cost).*/
       END.
+
+ IF lCkeckRec THEN do:
+  IF LOOKUP( po-ordl.pr-uom,"L,LOT") GT 0 THEN
+    dv-t-cost = ( po-ordl.cost +  po-ordl.setup) *
+                IF op-qty LT 0 THEN -1 ELSE 1.
+
+  ELSE DO: 
+    dv-ord-qty = op-qty .
+    /* Get quantity in the same UOM as the cost */
+    IF  po-ordl.pr-qty-uom NE  po-ordl.pr-uom     AND
+       (po-ordl.item-type                                 OR
+        LOOKUP( po-ordl.pr-qty-uom,cfg-uom-list) EQ 0 OR
+        LOOKUP( po-ordl.pr-uom,cfg-uom-list)     EQ 0)  THEN DO:
+       
+      IF po-ordl.pr-qty-uom EQ "CS" AND AVAIL(itemfg) THEN DO:
+        /* Convert quantity to EA */
+        dv-ord-qty = dv-ord-qty * itemfg.case-count.
+       
+        RUN sys/ref/convquom.p("EA",
+                               po-ordl.pr-uom,
+                               v-basis-w, v-len, v-wid, v-dep,
+                               dv-ord-qty, OUTPUT dv-ord-qty).
+       
+
+      END.
+      ELSE DO:
+        IF po-ordl.pr-uom EQ "CS" THEN DO:
+          /* Convert qty to EA */
+          RUN sys/ref/convquom.p( po-ordl.pr-qty-uom,
+                       "EA",
+                       v-basis-w, v-len, v-wid, v-dep,
+                       dv-ord-qty, OUTPUT dv-ord-qty).
+          /* Convert to Cases */
+          dv-ord-qty = dv-ord-qty / itemfg.case-count.
+        END.
+        ELSE DO:
+           
+          RUN sys/ref/convquom.p(po-ordl.pr-qty-uom,
+                                 po-ordl.pr-uom,
+                                 v-basis-w, v-len, v-wid, v-dep,
+                                 dv-ord-qty, OUTPUT dv-ord-qty).
+        
+        END.
+      END.
+    END.
+    
+    dv-t-cost = (dv-ord-qty *  po-ordl.cost) +  po-ordl.setup.
   END.
+
+  IF  po-ordl.disc NE 0 THEN dv-t-cost = dv-t-cost * (1 - ( po-ordl.disc / 100)).
+
+  ASSIGN
+     op-amt = (dv-t-cost) .
+
+ END.  /* lCheckRes = yes */
+  
+END. /* else do*/
