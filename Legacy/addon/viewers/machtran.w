@@ -1260,6 +1260,9 @@ PROCEDURE local-update-record :
 
   lv-new-record = adm-new-record.
 
+  RUN check-date-time NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN.
+
   RUN VALIDATE-date-time NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN.
 
@@ -1580,3 +1583,55 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-date-time V-table-Win 
+PROCEDURE check-date-time :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  
+  DEFINE VARIABLE istarttime AS INTEGER NO-UNDO.
+  DEFINE VARIABLE iendtime AS INTEGER NO-UNDO.
+  DEFINE VARIABLE dtstartdate AS DATE NO-UNDO.
+  DEFINE VARIABLE dtenddate AS DATE NO-UNDO.
+  DEFINE VARIABLE itotaltime AS INTEGER NO-UNDO.
+  DEFINE VARIABLE iindex AS INTEGER NO-UNDO.
+  DEFINE VARIABLE istart AS INTEGER INIT 1 NO-UNDO.
+  DEFINE VARIABLE iampm AS INTEGER INIT 43200 NO-UNDO.
+  DEFINE VARIABLE lvalid AS LOGICAL INIT TRUE NO-UNDO.
+
+  DO WITH FRAME {&FRAME-NAME}:
+     ASSIGN START_hour START_minute START_ampm
+         end_hour end_minute end_ampm.
+  END.
+  IF start_ampm = "AM" AND int(START_hour) = 12 THEN START_hour = "".
+  IF end_ampm = "AM" AND int(end_hour) = 12 THEN end_hour = "".
+
+  ASSIGN istarttime = INT(START_hour) * 3600 + int(start_minute) * 60 +
+                        IF start_ampm = "PM" AND INT(start_hour) <> 12 THEN iampm ELSE 0
+         iendtime = INT(end_hour) * 3600 + int(end_minute) * 60 +
+                        IF end_ampm = "PM" AND INT(END_hour) <> 12 THEN iampm ELSE 0
+         dtstartdate = date(machtran.start_date:SCREEN-VALUE)
+         dtenddate = date(machtran.end_date:SCREEN-VALUE) .
+
+  IF dtstartdate = dtenddate THEN
+      itotaltime = iendtime - istarttime .
+  ELSE
+      itotaltime = (86400 - istarttime) +
+                     (dtenddate - dtstartdate - 1) * 86400 +
+                      iendtime.
+
+   IF itotaltime <= 0 THEN DO:
+       MESSAGE "Stop time must be after Start time..."
+           VIEW-AS ALERT-BOX INFO.
+       APPLY "entry" TO END_hour IN FRAME {&FRAME-NAME}.
+       RETURN error.
+   END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
