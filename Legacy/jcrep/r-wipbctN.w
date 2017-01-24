@@ -159,7 +159,7 @@ DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00"
      SIZE 5 BY 1 NO-UNDO.
 
 DEFINE VARIABLE clsd_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
-     LABEL "Not Closed By" 
+     LABEL "As of" 
      VIEW-AS FILL-IN 
      SIZE 17 BY .95 NO-UNDO.
 
@@ -1328,7 +1328,7 @@ assign
                trim(begin_job-no) + string(int(begin_job-no2),"99")
   v-tjob    = fill(" ",6 - length(trim(end_job-no)))   +
                trim(end_job-no)   + string(int(end_job-no2),"99")
-  str-tit3 = "FOR JOBS NOT CLOSED BY " + string(v-date)          + "  " +
+  str-tit3 = "FOR JOBS AS OF " + string(v-date)          + "  " +
                 "Category:" + trim(v-fcat) + " - " + trim(v-tcat)   + "  " +
                 "Job #:"    + trim(v-fjob) + " - " + trim(v-tjob)   + "  " +
                 "Using "    + trim(string(v-d-lab,"Direct/Total"))  +
@@ -1401,12 +1401,13 @@ FOR EACH job
                       AND misc-act.job     EQ job.job
                       AND misc-act.job-no  EQ job.job-no
                       AND misc-act.job-no2 EQ job.job-no2))
+      AND job.start-date LE v-date
   {jc/rep/wipbycat.i "use-index opened"}
 
 IF v-clos THEN
 FOR EACH job
     WHERE job.opened     EQ NO
-      AND job.close-date GT v-date
+      AND job.close-date LE v-date
   {jc/rep/wipbycat.i "use-index opened"}
 
 for each tt-report,
