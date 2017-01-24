@@ -87,8 +87,8 @@ FIND FIRST inv-head NO-LOCK NO-ERROR.
 /* === with xprint ====*/
 DEF VAR ls-image1    AS CHAR NO-UNDO.
 DEF VAR ls-image2    AS CHAR NO-UNDO.
-DEF VAR ls-full-img1 AS CHAR FORMAT "x(50)" NO-UNDO.
-DEF VAR ls-full-img2 AS CHAR FORMAT "x(50)" NO-UNDO.
+DEF VAR ls-full-img1 AS CHAR FORMAT "x(150)" NO-UNDO.
+DEF VAR ls-full-img2 AS CHAR FORMAT "x(150)" NO-UNDO.
 ASSIGN ls-image1 = "images\protinv.jpg"
        FILE-INFO:FILE-NAME = ls-image1
        ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
@@ -553,7 +553,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                 v-soldto-addr[2] = v-addr3
                 v-addr3 = ''.
 
-        IF v-date-ship = 01/01/1900 THEN v-date-ship = TODAY.
+        IF v-date-ship = 01/01/1900 THEN v-date-ship = inv-head.inv-date .
         {oe/rep/invprot.i}  /* xprint form */
         
         RUN printNotes ("IT",1).
