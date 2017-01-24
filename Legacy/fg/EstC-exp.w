@@ -810,6 +810,8 @@ FOR EACH b-est WHERE b-est.company = gcompany
     AND b-est.est-type >= 5 NO-LOCK,
     EACH bf-eb WHERE bf-eb.company = gcompany
     AND bf-eb.est-no = b-est.est-no NO-LOCK BY bf-eb.form-no :
+    
+ 
 
 
   
@@ -990,7 +992,7 @@ FUNCTION getValue-estf RETURNS CHARACTER
             machine[j] = est-op.m-code .
             j = j + 1 .
             IF j > 10 THEN LEAVE .
-        END.
+        END.        
 
     CASE ipc-field :
 
@@ -1120,43 +1122,43 @@ FUNCTION getValue-estf RETURNS CHARACTER
         END.
         WHEN "i-code2[1]"  THEN DO:
             IF AVAIL eb THEN
-            lc-return = string(eb.i-code2[1]).
+            lc-return = string(eb.i-code[1]).
         END.
          WHEN "i-code2[2]"  THEN DO:
             IF AVAIL eb THEN
-            lc-return = string(eb.i-code2[2]).
+            lc-return = string(eb.i-code[2]).
         END.
          WHEN "i-code2[3]"  THEN DO:
             IF AVAIL eb THEN
-            lc-return = string(eb.i-code2[3]).
+            lc-return = string(eb.i-code[3]).
         END.
          WHEN "i-code2[4]"  THEN DO:
             IF AVAIL eb THEN
-            lc-return = string(eb.i-code2[4]).
+            lc-return = string(eb.i-code[4]).
         END.
          WHEN "i-code2[5]"  THEN DO:
             IF AVAIL eb THEN
-            lc-return = string(eb.i-code2[5]).
+            lc-return = string(eb.i-code[5]).
         END.
          WHEN "i-code2[6]"  THEN DO:
             IF AVAIL eb THEN
-            lc-return = string(eb.i-code2[6]).
+            lc-return = string(eb.i-code[6]).
         END.
          WHEN "i-code2[7]"  THEN DO:
             IF AVAIL eb THEN
-            lc-return = string(eb.i-code2[7]).
+            lc-return = string(eb.i-code[7]).
         END.
          WHEN "i-code2[8]"  THEN DO:
             IF AVAIL eb THEN
-            lc-return = string(eb.i-code2[8]).
+            lc-return = string(eb.i-code[8]).
         END.
          WHEN "i-code2[9]"  THEN DO:
             IF AVAIL eb THEN
-            lc-return = string(eb.i-code2[9]).
+            lc-return = string(eb.i-code[9]).
         END.
          WHEN "i-code2[10]"  THEN DO:
             IF AVAIL eb THEN
-            lc-return = string(eb.i-code2[10]).
+            lc-return = string(eb.i-code[10]).
         END.
         WHEN "board"  THEN DO:
             IF AVAIL ef THEN
