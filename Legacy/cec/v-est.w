@@ -41,7 +41,6 @@ DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 DEF VAR k_frac as dec init 6.25 no-undo.
 DEF VAR ll-auto-calc-selected as log no-undo.
 DEF VAR lv-sqin as dec no-undo.
-DEF VAR lv-panels as log no-undo.
 DEF VAR ll-warn as log no-undo.
 DEF VAR ll-wid-len-warned AS LOG NO-UNDO.
 DEF VAR ld-k-wid-array LIKE eb.k-wid-array2 NO-UNDO.
@@ -1927,7 +1926,7 @@ DO:
   DEF VAR ld-total AS DEC DECIMALS 6 NO-UNDO.
   DEF VAR i AS INT NO-UNDO.
 
-  IF lv-panels THEN DO:
+  
     EMPTY TEMP-TABLE tt-array.
 
     DO i = 1 TO EXTENT(ld-k-len-array):
@@ -1957,7 +1956,7 @@ DO:
 
     RETURN NO-APPLY.
   END.
-END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2008,7 +2007,7 @@ DO:
   DEF VAR i AS INT NO-UNDO.
  
 
-  IF lv-panels THEN DO:
+  
     EMPTY TEMP-TABLE tt-array.
 
     DO i = 1 TO EXTENT(ld-k-wid-array):
@@ -2038,7 +2037,7 @@ DO:
 
     RETURN NO-APPLY.
   END.
-END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2231,22 +2230,7 @@ find first sys-ctrl where sys-ctrl.company eq cocode
          UPDATE sys-ctrl.log-fld.
   end.
   ll-warn = sys-ctrl.log-fld.
-
-  find first sys-ctrl where sys-ctrl.company eq cocode
-                        and sys-ctrl.name    eq "PANELS"
-             no-lock no-error.
-  if not avail sys-ctrl then do transaction:
-     create sys-ctrl.
-     assign sys-ctrl.company = cocode
-            sys-ctrl.name    = "PANELS"
-            sys-ctrl.descrip = "CE Lock=Yes Panel Size Popup when Overriding W&L?"
-            sys-ctrl.log-fld = yes.
-     MESSAGE sys-ctrl.descrip
-         VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-         UPDATE sys-ctrl.log-fld.
-  end.
-  lv-panels = sys-ctrl.log-fld.
-
+  
   find first sys-ctrl where sys-ctrl.company eq cocode
                         and sys-ctrl.name    eq "CADFILE"
                         no-lock no-error.
@@ -2416,7 +2400,7 @@ PROCEDURE calc-blank-size :
        ASSIGN bf-eb.k-wid-array2 = 0
               bf-eb.k-len-array2 = 0.
 
-      if not lv-panels or style.type = "F" then 
+      if style.type = "F" then 
          assign bf-eb.k-wid-array2[1] = bf-eb.t-wid
                 bf-eb.k-len-array2[1] = bf-eb.t-len
                 .
