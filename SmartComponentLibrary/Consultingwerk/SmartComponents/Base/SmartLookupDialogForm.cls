@@ -214,8 +214,6 @@ CLASS Consultingwerk.SmartComponents.Base.SmartLookupDialogForm
 
         THIS-OBJECT:LookupControl = poLookupControl .
 
-        DEFINE VARIABLE oToolbar AS Infragistics.Win.UltraWinToolbars.UltraToolbarsManager NO-UNDO .
-
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------

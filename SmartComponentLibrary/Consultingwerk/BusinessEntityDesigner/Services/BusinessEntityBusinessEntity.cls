@@ -52,20 +52,20 @@ CLASS Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityBusinessEntit
 
         FIND FIRST eBusinessEntity NO-ERROR .
 
-        FOR EACH eField:
+        FOR EACH eField ON ERROR UNDO, THROW:
             ASSIGN eField.FieldDataType      = UPPER (eField.FieldDataType)
                    eField.BusinessEntityName = eBusinessEntity.BusinessEntityName .
         END.
 
-        FOR EACH eIndex:
+        FOR EACH eIndex ON ERROR UNDO, THROW:
             ASSIGN eIndex.BusinessEntityName = eBusinessEntity.BusinessEntityName .
         END.
 
-        FOR EACH eTable:
+        FOR EACH eTable ON ERROR UNDO, THROW:
             ASSIGN eTable.BusinessEntityName = eBusinessEntity.BusinessEntityName .
         END.
 
-        FOR EACH eDataRelation:
+        FOR EACH eDataRelation ON ERROR UNDO, THROW:
             ASSIGN eDataRelation.BusinessEntityName = eBusinessEntity.BusinessEntityName .
         END.
 

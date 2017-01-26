@@ -95,7 +95,6 @@ CLASS Consultingwerk.OERA.BusinessEntityDescriptor.BusinessEntityDescriptorServi
             END.
         END.
 
-
         FIND ttBusinessEntityDescriptor WHERE ttBusinessEntityDescriptor.BusinessEntityName = pcBusinessEntityName
             NO-ERROR .
 
@@ -189,6 +188,12 @@ CLASS Consultingwerk.OERA.BusinessEntityDescriptor.BusinessEntityDescriptorServi
 
                     IF oAnnotation:Parameters:ContainsName ("DefaultSort":U) THEN
                         oTableDescriptor:DefaultSort = oAnnotation:Parameters:FindByName ("DefaultSort":U):Value .
+
+                    IF oAnnotation:Parameters:ContainsName ("NonFilterableColumns":U) THEN
+                        oTableDescriptor:NonFilterableColumns = oAnnotation:Parameters:FindByName ("NonFilterableColumns":U):Value .
+
+                    IF oAnnotation:Parameters:ContainsName ("NonSortableColumns":U) THEN
+                        oTableDescriptor:NonSortableColumns = oAnnotation:Parameters:FindByName ("NonSortableColumns":U):Value .
                 END.
 
                 WHEN "@BusinessEntityView":U THEN DO:
@@ -295,6 +300,7 @@ CLASS Consultingwerk.OERA.BusinessEntityDescriptor.BusinessEntityDescriptorServi
                 END.
             END.
         END.
+
     END METHOD .
 
 END CLASS.

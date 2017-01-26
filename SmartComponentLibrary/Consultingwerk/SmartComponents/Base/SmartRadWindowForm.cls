@@ -314,6 +314,10 @@ CLASS Consultingwerk.SmartComponents.Base.SmartRadWindowForm
             END.
         END.
 
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
         FINALLY:
             ASSIGN oDeactivateTimer = ? .
                    lInOnDeactivate  = FALSE .

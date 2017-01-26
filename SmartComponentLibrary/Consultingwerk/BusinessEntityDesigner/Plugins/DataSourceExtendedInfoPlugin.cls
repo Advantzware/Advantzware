@@ -195,7 +195,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.DataSourceExtendedInfoPlugin
 
         FOR EACH b_eField WHERE b_eField.TempTableName = pctempTableName
                             AND b_eField.FieldSource   > "":U
-                             BY b_eField.FieldOrder:
+                             BY b_eField.FieldOrder ON ERROR UNDO, THROW:
 
             IF piSpaces > 0 THEN
                 ASSIGN cMapping = cMapping + FILL (" ":U, piSpaces) +
@@ -289,7 +289,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.DataSourceExtendedInfoPlugin
                                                                        CHR (10)) .
             END.
 
-            FOR EACH bTable OF bEntity:
+            FOR EACH bTable OF bEntity ON ERROR UNDO, THROW:
                 IF NOT lFirst THEN
                     lcDefineDataSourceInfo = lcDefineDataSourceInfo + CHR(10) .
 

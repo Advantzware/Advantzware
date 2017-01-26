@@ -260,7 +260,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.BusinessEntityGenerator
             END.
         END.
 
-        FOR EACH eTable:
+        FOR EACH eTable ON ERROR UNDO, THROW:
             IF eTable.TempTablePath > "":U THEN DO:
                 FILE-INFORMATION:FILE-NAME = cIncludeFolder + eTable.TempTablePath .
 
@@ -439,7 +439,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.BusinessEntityGenerator
 
         FOR EACH b_eDataRelation WHERE b_eDataRelation.ParentTempTableName   = pcParentTable
                                    AND b_eDataRelation.DataRelationNotActive = FALSE
-                                   AND b_eDataRelation.DataRelationRecursive = FALSE:
+                                   AND b_eDataRelation.DataRelationRecursive = FALSE ON ERROR UNDO, THROW:
 
             ASSIGN cChildTables = cChildTables + b_eDataRelation.ChildTempTableName + ",":U +
                                   THIS-OBJECT:ChildTablesOf (b_eDataRelation.ChildTempTableName) + ",":U.
@@ -751,10 +751,10 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.BusinessEntityGenerator
 
         /* Mike Fechner, Consultingwerk Ltd. 24.09.2012
            Generate Calculated Fields in ReceiveData */
-        FOR EACH eTable:
+        FOR EACH eTable ON ERROR UNDO, THROW:
             ASSIGN lcCalcBlock = "":U .
 
-            FOR EACH eField OF eTable WHERE eField.FieldCalcExpression > "":U:
+            FOR EACH eField OF eTable WHERE eField.FieldCalcExpression > "":U ON ERROR UNDO, THROW:
 
                 ASSIGN lcCalcBlock = lcCalcBlock +
                                      SUBSTITUTE (CaseKeywords("            ASSIGN &1.&2 = (&3) .":U),
@@ -1035,7 +1035,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.BusinessEntityGenerator
 
         END.
 
-        FOR EACH eDataRelation WHERE eDataRelation.BusinessEntityName = eBusinessEntity.BusinessEntityName:
+        FOR EACH eDataRelation WHERE eDataRelation.BusinessEntityName = eBusinessEntity.BusinessEntityName ON ERROR UNDO, THROW:
             ASSIGN lcRelations = lcRelations +
                                  SUBSTITUTE (CaseKeywords("    DATA-RELATION &1 FOR &2~{&&SUFFIX}, &3~{&&SUFFIX} &4        RELATION-FIELDS (&5)":U),
                                              eDataRelation.DataRelationName,
@@ -1202,7 +1202,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.BusinessEntityGenerator
 
         FIND FIRST eBusinessEntity .
 
-        FOR EACH eTable WHERE eTable.BusinessEntityName = eBusinessEntity.BusinessEntityName:
+        FOR EACH eTable WHERE eTable.BusinessEntityName = eBusinessEntity.BusinessEntityName ON ERROR UNDO, THROW:
 
             IF eTable.SourceTableNames > "":U THEN DO:
 
@@ -1213,7 +1213,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.BusinessEntityGenerator
                    Ensure unique DATA-SOURCE Names */
                 IF CAN-FIND (ttDataSourceNames WHERE ttDataSourceNames.DataSourceName = cDataSourceName) THEN DO:
 
-                    dataSourceNameLoop: REPEAT:
+                    dataSourceNameLoop: REPEAT ON ERROR UNDO, THROW:
                         ASSIGN i                  = i + 1
                                cTmpDataSourceName = cDataSourceName + STRING (i) .
 
@@ -1878,7 +1878,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.BusinessEntityGenerator
         DEFINE VARIABLE cAssignSkipDictionaryEntry AS CHARACTER NO-UNDO .
 
         FOR EACH eField WHERE eField.TempTableName = pcBufferName
-                          AND eField.FieldSkipAssignment = TRUE:
+                          AND eField.FieldSkipAssignment = TRUE ON ERROR UNDO, THROW:
 
             cAssignSkipList = cAssignSkipList + ",":U + eField.FieldName.
 
@@ -1934,7 +1934,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.BusinessEntityGenerator
 
         FOR EACH b_eField WHERE b_eField.TempTableName = pctempTableName
                             AND b_eField.FieldSource   > "":U
-                             BY b_eField.FieldOrder:
+                             BY b_eField.FieldOrder ON ERROR UNDO, THROW:
 
             IF piSpaces > 0 THEN
                 ASSIGN cMapping = cMapping + FILL (" ":U, piSpaces) +
@@ -1966,7 +1966,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.BusinessEntityGenerator
 
         DEFINE VARIABLE cTopNavBuffers AS CHARACTER NO-UNDO.
 
-        FOR EACH b_eTable:
+        FOR EACH b_eTable ON ERROR UNDO, THROW:
             IF NOT CAN-FIND (b_eDataRelation WHERE b_eDataRelation.BusinessEntityName    = b_eTable.BusinessEntityName
                                                AND b_eDataRelation.ChildTempTableName    = b_eTable.TempTableName
                                                AND b_eDataRelation.DataRelationNotActive = FALSE

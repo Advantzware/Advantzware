@@ -97,12 +97,13 @@ CLASS Consultingwerk.BusinessEntityDesigner.KendoUiBuilder.ViewGenerator:
 
         ASSIGN oChildren1 = poJsonObject:GetJsonArray("children":U) .
 
+        childrenLoop:
         DO i = 1 TO oChildren1:Length:
 
             oChildren1:GetJsonObject(i):Add ("SerializedType":U, "Consultingwerk.Web.KendoUiBuilder.Module.View":U) .
 
             IF NOT oChildren1:GetJsonObject(i):Has ("children":U) THEN
-                NEXT .
+                NEXT childrenLoop .
 
             oChildren2 = oChildren1:GetJsonObject(i):GetJsonArray("children":U) .
 

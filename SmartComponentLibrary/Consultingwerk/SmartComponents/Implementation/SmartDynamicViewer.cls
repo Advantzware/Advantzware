@@ -351,7 +351,7 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartDynamicViewer
 
         FOR EACH ttViewerDesign WHERE ttViewerDesign.ContainerInstanceId = pcContainerInstanceId
                                 BY INTEGER (ENTRY (1, ttViewerDesign.ControlLocation))
-                                BY INTEGER (ENTRY (2, ttViewerDesign.ControlLocation)):
+                                BY INTEGER (ENTRY (2, ttViewerDesign.ControlLocation)) ON ERROR UNDO, THROW:
 
             oTab = oTabControl:Tabs:Add (ttViewerDesign.ControlInstanceId,
                                   ttViewerDesign.ControlText) .

@@ -120,7 +120,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.FieldEditorForm INHERITS SmartWin
         IF NOT CAN-FIND (eField WHERE eField.FieldName = pcFieldName) THEN
             RETURN pcFieldName .
 
-        REPEAT:
+        REPEAT ON ERROR UNDO, THROW:
             ASSIGN cFieldName = SUBSTITUTE ("&1&2":U,
                                             pcFieldName,
                                             i) .

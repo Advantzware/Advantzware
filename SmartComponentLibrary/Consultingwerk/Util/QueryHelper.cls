@@ -442,7 +442,7 @@ CLASS Consultingwerk.Util.QueryHelper:
         IF pcQueryPredicate > "":U AND NOT pcQueryPredicate BEGINS "WHERE":U THEN
             ASSIGN pcQueryPredicate = SUBSTITUTE ("WHERE &1":U, pcQueryPredicate) .
 
-        DO TRANSACTION:
+        DO TRANSACTION ON ERROR UNDO, THROW:
 
             CREATE BUFFER hBuffer FOR TABLE phBufferHandle .
 

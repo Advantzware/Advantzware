@@ -419,6 +419,13 @@ CLASS Consultingwerk.OERA.BusinessEntity
 
         poParameter:Descriptor = oDescriptor.
 
+        /* SCL-1664 add GetInitialValues method */
+        IF NOT oDescriptor:InvokableMethods:ContainsName ("GetInitialValues":U) THEN
+            oDescriptor:InvokableMethods:Add ("GetInitialValues":U,
+                                              "Consultingwerk.OERA.GetInitialValuesParameter":U,
+                                              FALSE,
+                                              TRUE) .
+
         IF VALID-HANDLE (phDataset) AND phDataset:NUM-REFERENCES = 0 THEN
             DELETE OBJECT phDataset .
 
@@ -431,6 +438,46 @@ CLASS Consultingwerk.OERA.BusinessEntity
         END.
 
     END METHOD .
+
+    /**
+     * Purpose: Returns a database with one record containing the initial values
+     * Notes:   Can be overridden in Business Entity implementations to provide
+     *          dynamic initial values. The base class implementation will return
+     *          the buffer fields initial values. The parameter object's TableNames
+     *          is a comma-delimited list. The parameter object's ForeignKeyFields
+     *          property is a character array (one element per table) of comma delimited
+     *          lists of the provided foreign field names. The foreing field values is a
+     *          character array (one element per table) of CHR(1) delimited field
+     *          values
+     * @param phDataset Used to return the dataset
+     * @param poParameter The GetInitialValuesParameter instance with the parameters for this call
+     */
+    METHOD PUBLIC VOID GetInitialValues (INPUT-OUTPUT DATASET-HANDLE phDataset,
+                                         poParameter AS GetInitialValuesParameter):
+
+        DEFINE VARIABLE i           AS INTEGER   NO-UNDO .
+        DEFINE VARIABLE hBuffer     AS HANDLE    NO-UNDO .
+        DEFINE VARIABLE cBufferName AS CHARACTER NO-UNDO .
+
+        IF NOT VALID-HANDLE (phDataset) THEN
+            phDataset = THIS-OBJECT:DatasetHandle .
+
+        phDataset:EMPTY-DATASET () .
+
+        ObjectAssert:IsValid (poParameter, "poParameter":U) .
+
+        DO i = 1 TO NUM-ENTRIES (poParameter:TableNames):
+
+            ASSIGN cBufferName = ENTRY (i, poParameter:TableNames) .
+
+            DatasetAssert:HasBuffer (phDataset, cBufferName) .
+
+            ASSIGN hBuffer = phDataset:GET-BUFFER-HANDLE (cBufferName) .
+
+            hBuffer:BUFFER-CREATE () .
+        END.
+
+    END METHOD.
 
     /**
      * Purpose: Populates the provided CharacterHolder with a comma-delimited list

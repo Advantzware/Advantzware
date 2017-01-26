@@ -53,6 +53,20 @@ INTERFACE Consultingwerk.OERA.BusinessEntityDescriptor.IBusinessEntityTableDescr
     GET.
 
     /**
+     * Purpose: Returns the columns that do not support filtering
+     * Notes:   Comma delimited list of column (field) names
+     */
+    DEFINE PUBLIC PROPERTY NonFilterableColumns AS CHARACTER NO-UNDO
+    GET.
+
+    /**
+     * Purpose: Returns the columns that do not support sorting
+     * Notes:   Comma delimited list of column (field) names
+       */
+    DEFINE PUBLIC PROPERTY NonSortableColumns AS CHARACTER NO-UNDO
+    GET.
+
+    /**
      * Purpose: Returns the Primary Key Fields
      * Notes:
      */

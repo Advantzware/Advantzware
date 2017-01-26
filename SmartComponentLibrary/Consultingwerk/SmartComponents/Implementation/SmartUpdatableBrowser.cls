@@ -850,7 +850,7 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartUpdatableBrowser
             THIS-OBJECT:PerformAction (Infragistics.Win.UltraWinGrid.UltraGridAction:DeactivateCell) .
 
         /* DisableFields in every registered SmartGroupAssignTarget */
-        FOR EACH ttSmartGroupAssignTarget WHERE ttSmartGroupAssignTarget.RecordOwner = THIS-OBJECT NO-LOCK:
+        FOR EACH ttSmartGroupAssignTarget WHERE ttSmartGroupAssignTarget.RecordOwner = THIS-OBJECT NO-LOCK ON ERROR UNDO, THROW:
             CAST(ttSmartGroupAssignTarget.SmartGroupAssignTarget, ISmartGroupAssignTarget):DisableFields().
         END.
 
@@ -1049,7 +1049,7 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartUpdatableBrowser
             THIS-OBJECT:PerformAction(Infragistics.Win.UltraWinGrid.UltraGridAction:EnterEditMode, FALSE, FALSE) .
 
         /* EnableFields in every registered SmartGroupAssignTarget */
-        FOR EACH ttSmartGroupAssignTarget WHERE ttSmartGroupAssignTarget.RecordOwner = THIS-OBJECT NO-LOCK:
+        FOR EACH ttSmartGroupAssignTarget WHERE ttSmartGroupAssignTarget.RecordOwner = THIS-OBJECT NO-LOCK ON ERROR UNDO, THROW:
             CAST(ttSmartGroupAssignTarget.SmartGroupAssignTarget, ISmartGroupAssignTarget):EnableFields(pcFields).
         END.
 
@@ -1983,7 +1983,7 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartUpdatableBrowser
             END.
         END.
 
-        FOR EACH ttSmartGroupAssignTarget WHERE ttSmartGroupAssignTarget.RecordOwner = THIS-OBJECT:
+        FOR EACH ttSmartGroupAssignTarget WHERE ttSmartGroupAssignTarget.RecordOwner = THIS-OBJECT ON ERROR UNDO, THROW:
             CAST(ttSmartGroupAssignTarget.SmartGroupAssignTarget, ISmartGroupAssignTarget):RestoreValuesForCopy () .
         END.
 
@@ -2160,7 +2160,7 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartUpdatableBrowser
                                THIS-OBJECT:ActiveRow:Cells[THIS-OBJECT:DisplayLayout:Bands[0]:Columns[i]:Key]:Value) .
         END.
 
-        FOR EACH ttSmartGroupAssignTarget WHERE ttSmartGroupAssignTarget.RecordOwner = THIS-OBJECT:
+        FOR EACH ttSmartGroupAssignTarget WHERE ttSmartGroupAssignTarget.RecordOwner = THIS-OBJECT ON ERROR UNDO, THROW:
             CAST(ttSmartGroupAssignTarget.SmartGroupAssignTarget, ISmartGroupAssignTarget):StoreValuesForCopy () .
         END.
 
@@ -2207,7 +2207,7 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartUpdatableBrowser
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC SmartUpdatableBrowser ():
 
-        FOR EACH ttSmartGroupAssignTarget WHERE ttSmartGroupAssignTarget.RecordOwner = THIS-OBJECT:
+        FOR EACH ttSmartGroupAssignTarget WHERE ttSmartGroupAssignTarget.RecordOwner = THIS-OBJECT ON ERROR UNDO, THROW:
             DELETE ttSmartGroupAssignTarget.
         END.
 

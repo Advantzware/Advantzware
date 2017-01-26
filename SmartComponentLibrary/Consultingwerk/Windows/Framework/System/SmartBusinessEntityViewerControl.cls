@@ -8,15 +8,15 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/   
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : SmartBusinessEntityViewerControl
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Sebastian Düngel / Consultingwerk Ltd.
     Created     : 17.10.2013 19:18:20
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -30,9 +30,9 @@ USING Consultingwerk.Util.*                           FROM PROPATH .
 USING Infragistics.Win.UltraWinEditors.*              FROM ASSEMBLY .
 USING Progress.Lang.*                                 FROM PROPATH .
 
-CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityViewerControl 
-    INHERITS SmartViewerControl: 
-    
+CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityViewerControl
+    INHERITS SmartViewerControl:
+
     DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
 
     DEFINE PRIVATE VARIABLE eSmartBusinessEntity_TrackDeletions_Label AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
@@ -46,47 +46,51 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityViewerControl
     DEFINE PRIVATE VARIABLE eSmartBusinessEntity_BusinessEntityPurpose AS Infragistics.Win.UltraWinEditors.UltraTextEditor NO-UNDO.
     DEFINE PRIVATE VARIABLE eSmartBusinessEntity_DBRequired_Label AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE eSmartBusinessEntity_DBRequired AS Infragistics.Win.UltraWinEditors.UltraCheckEditor NO-UNDO.
-    
+
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the SmartBusinessEntityViewerControl class
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC SmartBusinessEntityViewerControl ():
-                
+
         SUPER().
         InitializeComponent().
-        
+
     END CONSTRUCTOR.
-    
+
     /*------------------------------------------------------------------------------
         Purpose: Open a file dialog to select a BusinessEntity
         Notes:
         @param sender The reference to the object that raised the event
         @param e The EditorButtonEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID eSmartBusinessEntity_BusinessEntityName_EditorButtonClick (sender AS System.Object, 
+    METHOD PRIVATE VOID eSmartBusinessEntity_BusinessEntityName_EditorButtonClick (sender AS System.Object,
                                                                                    e      AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs ):
-        
+
         DEFINE VARIABLE oOpenFileDialog AS System.Windows.Forms.OpenFileDialog NO-UNDO .
-        DEFINE VARIABLE oDialogResult   AS System.Windows.Forms.DialogResult   NO-UNDO . 
-        
+        DEFINE VARIABLE oDialogResult   AS System.Windows.Forms.DialogResult   NO-UNDO .
+
         oOpenFileDialog = NEW System.Windows.Forms.OpenFileDialog () .
-        oOpenFileDialog:AddExtension = TRUE . 
-        oOpenFileDialog:CheckFileExists = TRUE . 
-        oOpenFileDialog:CheckPathExists = TRUE . 
-        oOpenFileDialog:DefaultExt = "cls":U . 
-        oOpenFileDialog:DereferenceLinks = TRUE . 
+        oOpenFileDialog:AddExtension = TRUE .
+        oOpenFileDialog:CheckFileExists = TRUE .
+        oOpenFileDialog:CheckPathExists = TRUE .
+        oOpenFileDialog:DefaultExt = "cls":U .
+        oOpenFileDialog:DereferenceLinks = TRUE .
         oOpenFileDialog:Filter = "Business Entity source files (*.cls)|*.cls|All files (*.*)|*.*"{&TRAN} .
-        oOpenFileDialog:Multiselect = FALSE . 
-        oOpenFileDialog:RestoreDirectory = TRUE . 
-        oOpenFileDialog:Title = "Select a Business Entity"{&TRAN} .         
-        
+        oOpenFileDialog:Multiselect = FALSE .
+        oOpenFileDialog:RestoreDirectory = TRUE .
+        oOpenFileDialog:Title = "Select a Business Entity"{&TRAN} .
+
         WAIT-FOR oOpenFileDialog:ShowDialog () SET oDialogResult .
-         
+
         {Consultingwerk/check-dialogresult-ok.i oDialogResult} .
-        
+
         THIS-OBJECT:SplitBusinessEntity (oOpenFileDialog:FILENAME).
-        
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
     END METHOD.
 
     /**
@@ -95,12 +99,12 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityViewerControl
      */
     @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
@@ -274,30 +278,30 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityViewerControl
     END METHOD.
 
     /*------------------------------------------------------------------------------
-        Purpose: Event handler for the KeyDown handler of the Text boxes with an 
+        Purpose: Event handler for the KeyDown handler of the Text boxes with an
                  EditorButton (Lookup)
         Notes:   Maps F3 to EditorButtonClick
         @param sender The reference to the object that raised the event
         @param e The KeyEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID LookupKeyDownHandler (sender AS System.Object, 
+    METHOD PRIVATE VOID LookupKeyDownHandler (sender AS System.Object,
                                               e AS System.Windows.Forms.KeyEventArgs):
 
         DEFINE VARIABLE cControlName AS CHARACTER NO-UNDO.
-        
-        IF e:Handled = FALSE AND Progress.Util.EnumHelper:AreEqual (e:KeyCode, SmartLookupSettings:ShortcutKey) 
+
+        IF e:Handled = FALSE AND Progress.Util.EnumHelper:AreEqual (e:KeyCode, SmartLookupSettings:ShortcutKey)
             AND THIS-OBJECT:Enabled THEN DO:
 
             ASSIGN cControlName = CAST (sender, System.Windows.Forms.Control):Name .
 
-            DYNAMIC-INVOKE (THIS-OBJECT, 
-                            SUBSTITUTE ("&1_EditorButtonClick":U, cControlName), 
-                            sender, 
+            DYNAMIC-INVOKE (THIS-OBJECT,
+                            SUBSTITUTE ("&1_EditorButtonClick":U, cControlName),
+                            sender,
                             NEW EditorButtonEventArgs (?, ?)) .
         END.
 
         CATCH err AS Progress.Lang.Error:
-            ErrorHelper:ShowErrorMessage (err) .                
+            ErrorHelper:ShowErrorMessage (err) .
         END CATCH.
 
     END METHOD .
@@ -308,27 +312,27 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityViewerControl
         @param sender The reference to the object that raised the event
         @param e The DragEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID SmartBusinessEntityViewerControl_DragDrop (sender AS System.Object, 
+    METHOD PRIVATE VOID SmartBusinessEntityViewerControl_DragDrop (sender AS System.Object,
                                                                    e      AS System.Windows.Forms.DragEventArgs ):
-        
-        DEFINE VARIABLE oArray        AS System.Array           NO-UNDO . 
+
+        DEFINE VARIABLE oArray        AS System.Array           NO-UNDO .
         DEFINE VARIABLE cFileName     AS CHARACTER              NO-UNDO .
-                
+
         IF e:Data:GetDataPresent (System.Windows.Forms.DataFormats:FileDrop) THEN DO:
             oArray = CAST (e:Data:GetData(System.Windows.Forms.DataFormats:FileDrop),
                            System.Array) .
-                           
+
             IF VALID-OBJECT (oArray) THEN DO:
                 cFileName = oArray:GetValue (0):ToString () .
-                 
+
                 IF cFileName > "":U THEN DO:
-                    THIS-OBJECT:SplitBusinessEntity (cFileName).                  
-                END.          
-                                             
+                    THIS-OBJECT:SplitBusinessEntity (cFileName).
+                END.
+
             END .
 
         END.
-        
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
@@ -337,16 +341,16 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityViewerControl
          @param sender The reference to the object that raised the event
          @param e The DragEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID SmartBusinessEntityViewerControl_DragEnter (sender AS System.Object, 
+    METHOD PRIVATE VOID SmartBusinessEntityViewerControl_DragEnter (sender AS System.Object,
                                                                     e      AS System.Windows.Forms.DragEventArgs ):
-        
+
         /* Sebastian Düngel, Consultingwerk Ltd. 31.10.2013
            The viewer Control is not disabled */
         IF THIS-OBJECT:eSmartBusinessEntity_BusinessEntityName:Enabled = FALSE THEN DO:
             ASSIGN e:Effect = System.Windows.Forms.DragDropEffects:NONE.
             RETURN.
-        END. 
-        
+        END.
+
         IF Consultingwerk.Util.DragAndDropHelper:IsFileDrop (e:Data) THEN
             ASSIGN e:Effect = System.Windows.Forms.DragDropEffects:COPY.
         ELSE
@@ -360,7 +364,7 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityViewerControl
      @param cFileName The BusinessEntityName
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID SplitBusinessEntity (cFileName AS CHARACTER).
-        
+
         DEFINE VARIABLE cBusinessEntity    AS CHARACTER NO-UNDO.
         DEFINE VARIABLE cPackageName       AS CHARACTER NO-UNDO.
         DEFINE VARIABLE i                  AS INTEGER   NO-UNDO.
@@ -368,45 +372,45 @@ CLASS Consultingwerk.Windows.Framework.System.SmartBusinessEntityViewerControl
         DEFINE VARIABLE oMessageProvider   AS Consultingwerk.SmartFramework.IMessageProvider NO-UNDO.
         DEFINE VARIABLE oMessage           AS Consultingwerk.SmartFramework.Message NO-UNDO.
         DEFINE VARIABLE oClass             AS Progress.Lang.Class NO-UNDO.
-        
+
         IF ClassHelper:FileNameToClass (cFileName) = ? THEN
             RETURN.
-        
+
         ASSIGN
             oClass          = ClassHelper:FileNameToClass (cFileName)
             cBusinessEntity = oClass:TypeName
             .
-        
+
         DO i = 1 TO NUM-ENTRIES (cBusinessEntity, ".":U) - 1:
-            ASSIGN cPackageName = SUBSTITUTE ("&1.&2":U, cPackageName, ENTRY (i, cBusinessEntity, ".":U)).     
-        END. 
-        
-        ASSIGN 
+            ASSIGN cPackageName = SUBSTITUTE ("&1.&2":U, cPackageName, ENTRY (i, cBusinessEntity, ".":U)).
+        END.
+
+        ASSIGN
             cPackageName     = SUBSTRING (cPackageName, 2)
             cBusinessEntity  = ENTRY (NUM-ENTRIES (cBusinessEntity, ".":U), cBusinessEntity, ".":U)
             .
-        
+
         ASSIGN lResult = Consultingwerk.Framework.FrameworkSettings:ServiceAdapter:ValidateEntityName ("":U, SUBSTITUTE ("&1.&2":U, cPackageName, cBusinessEntity)).
-        
+
         IF NOT lResult THEN DO:
            oMessageProvider = {Consultingwerk/get-service.i Consultingwerk.SmartFramework.IMessageProvider} .
-           
+
            IF VALID-OBJECT (oMessageProvider) THEN DO:
               oMessage = oMessageProvider:GetMessage ("SFR":U, 1).
               MessageFormHelper:ShowMessage (oMessage).
-           END. 
+           END.
 
-        END. 
+        END.
         ELSE
             ASSIGN eSmartBusinessEntity_BusinessEntityName:TEXT    = cBusinessEntity
                    eSmartBusinessEntity_BusinessEntityPackage:TEXT = cPackageName
                    .
-        
+
     END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Destructor for the SmartBusinessEntityViewerControl class
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC SmartBusinessEntityViewerControl ( ):
 

@@ -118,7 +118,7 @@ CLASS Consultingwerk.SmartFramework.System.UiTranslationDataAccess
         DATASET dsUiTranslation:EMPTY-DATASET () .
 
         FOR EACH SmartUiTranslation WHERE SmartUiTranslation.LanguageGuid = pcLanguageKey NO-LOCK
-                                 BREAK BY SmartUiTranslation.ObjectName:
+                                 BREAK BY SmartUiTranslation.ObjectName ON ERROR UNDO, THROW:
 
             IF FIRST-OF (SmartUiTranslation.ObjectName) THEN DO:
                 CREATE eSmartUiTranslation.

@@ -281,7 +281,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityDatasetContro
 
             FOR EACH b_eField WHERE b_eField.BusinessEntityName = e:BufferHandle::BusinessEntityName
                                 AND b_eField.TempTableName      = e:BufferHandle::TempTableName
-                                AND b_eField.FieldSource        BEGINS cOldBufferName + ".":U:
+                                AND b_eField.FieldSource        BEGINS cOldBufferName + ".":U ON ERROR UNDO, THROW:
 
                 ASSIGN cField                   = b_eField.FieldSource
                        ENTRY (1, cField, ".":U) = cNewBufferName
@@ -1090,7 +1090,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityDatasetContro
 
         FIND eTable WHERE ROWID (eTable) = TO-ROWID (pcTempTableKey) .
 
-        FOR EACH eField OF eTable:
+        FOR EACH eField OF eTable ON ERROR UNDO, THROW:
             ASSIGN iPos = MAX (iPos, eField.FieldOrder) .
         END.
 
@@ -1225,19 +1225,19 @@ CLASS Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityDatasetContro
         DEFINE BUFFER b_eField FOR eField .
         DEFINE BUFFER b_eIndex FOR eIndex .
 
-        FOR EACH b_eTable:
+        FOR EACH b_eTable ON ERROR UNDO, THROW:
             ASSIGN b_eTable.BusinessEntityName = e:BufferHandle::BusinessEntityName .
         END.
 
-        FOR EACH b_eDataRelation:
+        FOR EACH b_eDataRelation ON ERROR UNDO, THROW:
             ASSIGN b_eDataRelation.BusinessEntityName = e:BufferHandle::BusinessEntityName .
         END.
 
-        FOR EACH b_eField:
+        FOR EACH b_eField ON ERROR UNDO, THROW:
             ASSIGN b_eField.BusinessEntityName = e:BufferHandle::BusinessEntityName .
         END.
 
-        FOR EACH b_eIndex:
+        FOR EACH b_eIndex ON ERROR UNDO, THROW:
             ASSIGN b_eIndex.BusinessEntityName = e:BufferHandle::BusinessEntityName .
         END.
 
@@ -1389,25 +1389,25 @@ CLASS Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityDatasetContro
                              Crainiate.ERM4.Shape) .
 
         FOR EACH b_eField WHERE b_eField.BusinessEntityName = e:BufferHandle::BusinessEntityName
-                            AND b_eField.TempTableName = CAST(oShape, TempTableShape):Heading:
+                            AND b_eField.TempTableName = CAST(oShape, TempTableShape):Heading ON ERROR UNDO, THROW:
             ASSIGN b_eField.TempTableName = e:BufferHandle::TempTableName .
         END.
 
         FOR EACH b_eIndex WHERE b_eIndex.BusinessEntityName = e:BufferHandle::BusinessEntityName
-                            AND b_eIndex.TempTableName = CAST(oShape, TempTableShape):Heading:
+                            AND b_eIndex.TempTableName = CAST(oShape, TempTableShape):Heading ON ERROR UNDO, THROW:
 
             ASSIGN b_eIndex.TempTableName = e:BufferHandle::TempTableName .
         END.
 
         FOR EACH b_eDataRelation WHERE b_eDataRelation.BusinessEntityName  = e:BufferHandle::BusinessEntityName
-                                   AND b_eDataRelation.ParentTempTableName = CAST(oShape, TempTableShape):Heading:
+                                   AND b_eDataRelation.ParentTempTableName = CAST(oShape, TempTableShape):Heading ON ERROR UNDO, THROW:
 
             ASSIGN b_eDataRelation.ParentTempTableName = e:BufferHandle::TempTableName
                    lRelationChanged                    = TRUE .
         END .
 
         FOR EACH b_eDataRelation WHERE b_eDataRelation.BusinessEntityName  = e:BufferHandle::BusinessEntityName
-                                   AND b_eDataRelation.ChildTempTableName = CAST(oShape, TempTableShape):Heading:
+                                   AND b_eDataRelation.ChildTempTableName = CAST(oShape, TempTableShape):Heading ON ERROR UNDO, THROW:
 
             ASSIGN b_eDataRelation.ChildTempTableName = e:BufferHandle::TempTableName
                    lRelationChanged                   = TRUE .
@@ -1444,11 +1444,11 @@ CLASS Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityDatasetContro
 
         DEFINE BUFFER b_eTable FOR eTable .
 
-        FOR EACH b_eTable WHERE b_eTable.TempTablePath = "":U:
+        FOR EACH b_eTable WHERE b_eTable.TempTablePath = "":U ON ERROR UNDO, THROW:
             ASSIGN b_eTable.TempTablePath = pcTempTablePath .
         END.
 
-        FOR EACH b_eTable WHERE b_eTable.EntityPackageName = "":U:
+        FOR EACH b_eTable WHERE b_eTable.EntityPackageName = "":U ON ERROR UNDO, THROW:
             ASSIGN b_eTable.EntityPackageName = THIS-OBJECT:GetEntityPackageNameForTable (b_eTable.TempTableName) .
         END.
 
@@ -1494,7 +1494,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityDatasetContro
         DEFINE BUFFER b_eTable FOR eTable .
 
         /* Is default buffer o.k. ? */
-        FOR EACH b_eTable:
+        FOR EACH b_eTable ON ERROR UNDO, THROW:
             IF LOOKUP (pcBufferName, b_eTable.SourceBufferNames) > 0 THEN
                 RETURN TRUE .
         END.
@@ -1516,7 +1516,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityDatasetContro
 
         THIS-OBJECT:TreeView:Nodes:Clear () .
 
-        FOR EACH b_eTable:
+        FOR EACH b_eTable ON ERROR UNDO, THROW:
             IF NOT CAN-FIND (b_eDataRelation WHERE b_eDataRelation.BusinessEntityName    = b_eTable.BusinessEntityName
                                                AND b_eDataRelation.ChildTempTableName    = b_eTable.TempTableName
                                                AND b_eDataRelation.DataRelationNotActive = FALSE) THEN DO ON ERROR UNDO, THROW:
@@ -1549,7 +1549,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityDatasetContro
         IF NOT THIS-OBJECT:BufferNameExists (pcSourceTableName) THEN
             RETURN pcSourceTableName .
 
-        REPEAT:
+        REPEAT ON ERROR UNDO, THROW:
 
             ASSIGN cBufferName = SUBSTITUTE ("b&1_&2":U,
                                              i,
@@ -1574,7 +1574,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityDatasetContro
         DEFINE VARIABLE cTest AS CHARACTER NO-UNDO.
         DEFINE VARIABLE i     AS INTEGER   NO-UNDO INIT 1.
 
-        REPEAT:
+        REPEAT ON ERROR UNDO, THROW:
             ASSIGN cTest = pcDataRelationName + STRING (i) .
 
             IF NOT CAN-FIND (eDataRelation WHERE eDataRelation.DataRelationName = cTest) THEN
@@ -1600,7 +1600,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityDatasetContro
         DEFINE VARIABLE cTest AS CHARACTER NO-UNDO.
         DEFINE VARIABLE i     AS INTEGER   NO-UNDO INIT 1.
 
-        REPEAT:
+        REPEAT ON ERROR UNDO, THROW:
             ASSIGN cTest = pcFieldName + STRING (i) .
 
             IF NOT CAN-FIND (b_eField WHERE b_eField.TempTableName = pcTableName
@@ -1627,7 +1627,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityDatasetContro
         DEFINE VARIABLE cTest AS CHARACTER NO-UNDO.
         DEFINE VARIABLE i     AS INTEGER   NO-UNDO INIT 1.
 
-        REPEAT:
+        REPEAT ON ERROR UNDO, THROW:
             ASSIGN cTest = pcIndexName + STRING (i) .
 
             IF NOT CAN-FIND (b_eIndex WHERE b_eIndex.TempTableName = pcTableName
@@ -1652,7 +1652,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityDatasetContro
         DEFINE VARIABLE cTest AS CHARACTER NO-UNDO.
         DEFINE VARIABLE i     AS INTEGER   NO-UNDO INIT 1.
 
-        REPEAT:
+        REPEAT ON ERROR UNDO, THROW:
             ASSIGN cTest = pcTableName + STRING (i) .
 
             IF NOT CAN-FIND (b_eTable WHERE b_eTable.TempTableName = cTest) THEN
@@ -2190,10 +2190,10 @@ CLASS Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityDatasetContro
             FIND eTable WHERE ROWID(eTable) = roTableRowid.
             IF cTableName <> eTable.TempTableName
             THEN DO:
-                FOR EACH eField WHERE eField.TempTableName = cTableName:
+                FOR EACH eField WHERE eField.TempTableName = cTableName ON ERROR UNDO, THROW:
                     ASSIGN eField.TempTableName = eTable.TempTableName.
                 END.
-                FOR EACH eIndex WHERE eIndex.TempTableName = cTableName:
+                FOR EACH eIndex WHERE eIndex.TempTableName = cTableName ON ERROR UNDO, THROW:
                     ASSIGN eIndex.TempTableName = eTable.TempTableName.
                 END.
 
@@ -2331,7 +2331,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityDatasetContro
         poModel:Shapes:Clear() .
         poModel:Lines:Clear() .
 
-        FOR EACH eTable:
+        FOR EACH eTable ON ERROR UNDO, THROW:
 
             oShape = NEW Consultingwerk.BusinessEntityDesigner.UI.Shapes.TempTableShape
                     (DATASET dsBusinessEntity BIND, ROWID (eTable)) .
@@ -2343,7 +2343,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityDatasetContro
 
         END.
 
-        FOR EACH eDataRelation:
+        FOR EACH eDataRelation ON ERROR UNDO, THROW:
 
             oConnector = NEW Consultingwerk.BusinessEntityDesigner.UI.Shapes.DataRelationConnector
                          (DATASET dsBusinessEntity BIND, ROWID (eDataRelation), poModel) .
@@ -2393,7 +2393,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityDatasetContro
             ASSIGN ENTRY (i, b2_eTable.SourceBufferNames) = THIS-OBJECT:BuildUniqueBufferName (ENTRY (i, b2_eTable.SourceTableNames)) .
         END.
 
-        FOR EACH b_eField OF b_eTable:
+        FOR EACH b_eField OF b_eTable ON ERROR UNDO, THROW:
 
             CREATE b2_eField .
             BUFFER-COPY b_eField TO b2_eField
@@ -2409,7 +2409,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityDatasetContro
             END.
         END.
 
-        FOR EACH b_eIndex OF b_eTable:
+        FOR EACH b_eIndex OF b_eTable ON ERROR UNDO, THROW:
 
             CREATE b2_eIndex .
             BUFFER-COPY b_eIndex TO b2_eIndex
@@ -2517,7 +2517,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityDatasetContro
                                   AND eField.FieldName          = pcFieldName) THEN
             RETURN pcFieldName .
 
-        REPEAT:
+        REPEAT ON ERROR UNDO, THROW:
             ASSIGN cFieldName = SUBSTITUTE ("&1&2":U,
                                             pcFieldName,
                                             i) .
@@ -2551,7 +2551,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityDatasetContro
 
         FOR EACH eField WHERE eField.BusinessEntityName = b_eTable.BusinessEntityName
                           AND eField.TempTableName      = b_eTable.TempTableName
-                           BY eField.FieldOrder:
+                           BY eField.FieldOrder ON ERROR UNDO, THROW:
 
             ASSIGN cCurrentOrder = cCurrentOrder + eField.FieldName + ",":U .
 
@@ -3382,7 +3382,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityDatasetContro
             bufferFieldLoop:
             FOR EACH b_eField WHERE b_eField.BusinessEntityName = b_eTable.BusinessEntityName
                                 AND b_eField.TempTableName      = b_eTable.TempTableName
-                                AND b_eField.FieldSource        > "":U:
+                                AND b_eField.FieldSource        > "":U ON ERROR UNDO, THROW:
 
                 ASSIGN oBufferFieldName = BufferHelper:ParseFieldName (b_eField.FieldSource) .
 
@@ -4053,7 +4053,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityDatasetContro
         FOR EACH b_eDataRelation WHERE (b_eDataRelation.BusinessEntityName  = b_eTable.BusinessEntityName
                                    AND  b_eDataRelation.ParentTempTableName = b_eTable.TempTableName)
                                     OR (b_eDataRelation.BusinessEntityName  = b_eTable.BusinessEntityName
-                                   AND  b_eDataRelation.ChildTempTableName = b_eTable.TempTableName):
+                                   AND  b_eDataRelation.ChildTempTableName = b_eTable.TempTableName) ON ERROR UNDO, THROW:
 
             IF poModel:Lines:Contains (STRING (ROWID (b_eDataRelation))) THEN
                 THIS-OBJECT:RemoveRelation (poModel, CAST(poModel:Lines:Item[STRING(ROWID(b_eDataRelation))],
@@ -4061,13 +4061,13 @@ CLASS Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityDatasetContro
         END.
 
         FOR EACH b_eField WHERE b_eField.BusinessEntityName = b_eTable.BusinessEntityName
-                            AND b_eField.TempTableName      = b_eTable.TempTableName:
+                            AND b_eField.TempTableName      = b_eTable.TempTableName ON ERROR UNDO, THROW:
 
             DELETE b_eField .
         END.
 
         FOR EACH b_eIndex WHERE b_eIndex.BusinessEntityName = b_eTable.BusinessEntityName
-                            AND b_eIndex.TempTableName      = b_eTable.TempTableName:
+                            AND b_eIndex.TempTableName      = b_eTable.TempTableName ON ERROR UNDO, THROW:
 
             DELETE b_eIndex .
         END.
@@ -4135,7 +4135,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityDatasetContro
 
         DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
-        REPEAT PRESELECT EACH b_eField WHERE b_eField.TempTableName = pcTable BY b_eField.FieldOrder:
+        REPEAT PRESELECT EACH b_eField WHERE b_eField.TempTableName = pcTable BY b_eField.FieldOrder ON ERROR UNDO, THROW:
             FIND NEXT b_eField .
 
             ASSIGN i                   = i + 1
@@ -4159,7 +4159,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityDatasetContro
 
         DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
-        REPEAT PRESELECT EACH b_eIndex WHERE b_eIndex.TempTableName = pcTable BY b_eIndex.IndexOrder:
+        REPEAT PRESELECT EACH b_eIndex WHERE b_eIndex.TempTableName = pcTable BY b_eIndex.IndexOrder ON ERROR UNDO, THROW:
             FIND NEXT b_eIndex .
 
             ASSIGN i                   = i + 1
@@ -4321,7 +4321,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityDatasetContro
         /* Move following fields out of the way */
         REPEAT PRESELECT EACH b2_eField WHERE b2_eField.TempTableName = b_eField.TempTableName
                                           AND b2_eField.FieldOrder    > b_eField.FieldOrder
-                                          BY b_eField.FieldOrder:
+                                          BY b_eField.FieldOrder ON ERROR UNDO, THROW:
             FIND NEXT b2_eField .
 
             ASSIGN b2_eField.FieldOrder = b2_eField.FieldOrder + 10000 .
@@ -4481,7 +4481,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityDatasetContro
 
         DEFINE BUFFER b_eTable FOR eTable .
 
-        FOR EACH b_eTable:
+        FOR EACH b_eTable ON ERROR UNDO, THROW:
 
             IF NOT THIS-OBJECT:Model:Shapes:Contains (STRING (ROWID (b_eTable))) THEN
                 LEAVE .

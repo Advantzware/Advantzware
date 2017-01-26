@@ -194,7 +194,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.ContainerControlGenerator
         DEFINE VARIABLE iCounter AS INTEGER   NO-UNDO INITIAL 0 .
         DEFINE VARIABLE cName    AS CHARACTER NO-UNDO.
 
-        REPEAT:
+        REPEAT ON ERROR UNDO, THROW:
             ASSIGN iCounter = iCounter + 1
                    cName    = SUBSTITUTE ("&1&2":U,
                                           pcObjectName,

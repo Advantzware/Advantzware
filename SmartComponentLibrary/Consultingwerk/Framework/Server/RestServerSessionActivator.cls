@@ -150,6 +150,9 @@ CLASS Consultingwerk.Framework.Server.RestServerSessionActivator:
             ASSIGN
                 SessionManager:UserGroupKeys  = oGetGroupsParameter:GroupGuids
                 SessionManager:UserGroupNames = oGetGroupsParameter:GroupNames .
+
+            /* SCL-1642: Let customer's initialize their own session context */
+            ServiceInterface:RaiseSessionCreatedEvent () .
         END.
         ELSE
             SessionManager:Reset() .

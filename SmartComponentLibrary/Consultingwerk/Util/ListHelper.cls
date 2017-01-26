@@ -977,7 +977,7 @@ CLASS Consultingwerk.Util.ListHelper:
         IF pcList = "":U OR pcList = ? THEN
             RETURN "":U.
 
-        REPEAT:
+        REPEAT ON ERROR UNDO, THROW:
             DO WHILE pcList > "":U AND ENTRY (iEntry, pcList, pcListDelimiter) = "":U:
                 ASSIGN pcList = ListHelper:RemoveEntry (pcList, iEntry, pcListDelimiter) .
             END.

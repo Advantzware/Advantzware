@@ -10,51 +10,43 @@
  *                                                                    *
  **********************************************************************/
 /*------------------------------------------------------------------------
-    File        : BusinessEntityTableDescriptor
-    Purpose     : Describes a Entity Temp-Table
+    File        : GetInitialValuesParameter
+    Purpose     : Parameter object for the GetInitialValues method of the
+                  BusinessEntity class
     Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
-    Created     : Wed Jul 08 16:10:02 CEST 2015
-    Notes       : http://confluence.consultingwerkcloud.com/wiki/display/SCL/Business+Entity+Descriptor
+    Created     : Sat Jan 14 19:35:34 CET 2017
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 {Consultingwerk/products.i}
 
-USING Consultingwerk.*                               FROM PROPATH .
-USING Consultingwerk.OERA.BusinessEntityDescriptor.* FROM PROPATH .
-USING Progress.Lang.*                                FROM PROPATH .
+USING Consultingwerk.*      FROM PROPATH .
+USING Consultingwerk.OERA.* FROM PROPATH .
+USING Progress.Lang.*       FROM PROPATH .
 
-CLASS Consultingwerk.OERA.BusinessEntityDescriptor.BusinessEntityTableDescriptor
+CLASS Consultingwerk.OERA.GetInitialValuesParameter
 &IF '{&FrameworkSerializationType}' EQ 'XML' OR PROVERSION BEGINS '10.2':U &THEN
     INHERITS XmlSerializable
 &ELSE
     INHERITS JsonSerializable
 &ENDIF
-    IMPLEMENTS IBusinessEntityTableDescriptor
     {&SERIALIZABLE}:
 
-    {Consultingwerk/JsonSerializableProperty.i Fields Consultingwerk.OERA.BusinessEntityDescriptor.ListBusinessEntityFieldDescriptor} .
-
-    {Consultingwerk/JsonSerializableProperty.i MandatoryColumns CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i DefaultSort CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i Name CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i PrimaryKey CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i ReadOnly LOGICAL "INITIAL FALSE"} .
-    {Consultingwerk/JsonSerializableProperty.i ReadOnlyColumns CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i NonFilterableColumns CHARACTER} .
-    {Consultingwerk/JsonSerializableProperty.i NonSortableColumns CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty.i TableNames CHARACTER} .
+    {Consultingwerk/JsonSerializableProperty.i ForeignKeyFields "CHARACTER EXTENT"} .
+    {Consultingwerk/JsonSerializableProperty.i ForeignKeyValues "CHARACTER EXTENT"} .
 
     /*------------------------------------------------------------------------------
-        Purpose: Constructor for the BusinessEntityTableDescriptor class
+        Purpose: Constructor for the GetInitialValuesParameter class
         Notes:
     ------------------------------------------------------------------------------*/
-    CONSTRUCTOR PUBLIC BusinessEntityTableDescriptor ():
+    CONSTRUCTOR PUBLIC GetInitialValuesParameter ():
         SUPER ().
         THIS-OBJECT:AddSerializableProperties ('{&SerializableProperties}':U) .
-
-        THIS-OBJECT:Fields = NEW ListBusinessEntityFieldDescriptor () .
 
     END CONSTRUCTOR.
 

@@ -126,7 +126,7 @@ CLASS Consultingwerk.SmartFramework.Authorization.UserGroupDataAccess
 
         IF NOT lGroupAssignment THEN DO:
             /* Display all users of the current LoginCompany and company independent ones where LoginCompanyGuid = "" */
-            FOR EACH SmartUser WHERE SmartUser.LoginCompanyGuid = cCurrentLoginCompanyGuid OR SmartUser.LoginCompanyGuid = "":U NO-LOCK:
+            FOR EACH SmartUser WHERE SmartUser.LoginCompanyGuid = cCurrentLoginCompanyGuid OR SmartUser.LoginCompanyGuid = "":U NO-LOCK ON ERROR UNDO, THROW:
                 IF CAN-FIND (FIRST eSmartUserGroup WHERE eSmartUserGroup.UserGuid = SmartUser.UserGuid) THEN
                     NEXT.
 

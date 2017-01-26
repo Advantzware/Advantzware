@@ -826,24 +826,24 @@ CLASS Consultingwerk.BusinessEntityDesigner.Services.TempTableImporter:
 
                 /* Reset eField, eIndex in case of error */
                 FOR EACH eField WHERE eField.BusinessEntityName = eTable.BusinessEntityName
-                                  AND eField.TempTableName      = eTable.TempTableName:
+                                  AND eField.TempTableName      = eTable.TempTableName ON ERROR UNDO, THROW:
 
                     DELETE eField .
                 END.
 
                 FOR EACH eIndex WHERE eIndex.BusinessEntityName = eTable.BusinessEntityName
-                                  AND eIndex.TempTableName      = eTable.TempTableName:
+                                  AND eIndex.TempTableName      = eTable.TempTableName ON ERROR UNDO, THROW:
 
                     DELETE eIndex .
                 END.
 
-                FOR EACH tt_eField:
+                FOR EACH tt_eField ON ERROR UNDO, THROW:
                     CREATE eField.
                     BUFFER-COPY tt_eField TO eField .
                     RELEASE eIndex .
                 END.
 
-                FOR EACH tt_eIndex:
+                FOR EACH tt_eIndex ON ERROR UNDO, THROW:
                     CREATE eIndex.
                     BUFFER-COPY tt_eIndex TO eIndex .
                     RELEASE eIndex .

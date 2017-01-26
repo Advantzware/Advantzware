@@ -1161,7 +1161,7 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartToolbarStateController:
 
         DEFINE BUFFER ttSmartNavigationTarget FOR ttSmartNavigationTarget  .
 
-        FOR EACH ttSmartNavigationTarget WHERE ttSmartNavigationTarget.RecordOwner = THIS-OBJECT:
+        FOR EACH ttSmartNavigationTarget WHERE ttSmartNavigationTarget.RecordOwner = THIS-OBJECT ON ERROR UNDO, THROW:
             DELETE ttSmartNavigationTarget.
         END.
 

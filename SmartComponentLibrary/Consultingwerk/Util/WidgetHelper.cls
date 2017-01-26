@@ -1705,7 +1705,7 @@ CLASS Consultingwerk.Util.WidgetHelper:
 
         WidgetHelper:PopulateWidgetTempTable (pcWidgetHandles) .
 
-        FOR EACH ttWidgetsByLocation BY ttWidgetsByLocation.WidgetColumn BY ttWidgetsByLocation.WidgetRow:
+        FOR EACH ttWidgetsByLocation BY ttWidgetsByLocation.WidgetColumn BY ttWidgetsByLocation.WidgetRow ON ERROR UNDO, THROW:
             ASSIGN cReturn = SUBSTITUTE ("&1,&2":U,
                                          cReturn,
                                          ttWidgetsByLocation.WidgetHandle) .
@@ -1734,7 +1734,7 @@ CLASS Consultingwerk.Util.WidgetHelper:
 
         WidgetHelper:PopulateWidgetTempTable (pcWidgetHandles) .
 
-        FOR EACH ttWidgetsByLocation BY ttWidgetsByLocation.WidgetRow BY ttWidgetsByLocation.WidgetColumn:
+        FOR EACH ttWidgetsByLocation BY ttWidgetsByLocation.WidgetRow BY ttWidgetsByLocation.WidgetColumn ON ERROR UNDO, THROW:
             ASSIGN cReturn = SUBSTITUTE ("&1,&2":U,
                                          cReturn,
                                          ttWidgetsByLocation.WidgetHandle) .

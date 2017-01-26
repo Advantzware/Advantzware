@@ -8,15 +8,15 @@
  *                                                                    *
  *  Contributors:                                                     *
  *                                                                    *
- **********************************************************************/   
+ **********************************************************************/
 /*------------------------------------------------------------------------
     File        : SmartAttachmentRoleViewerControl
-    Purpose     : 
-    Syntax      : 
-    Description : 
+    Purpose     :
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner
     Created     : 24.11.2012 14:52:23
-    Notes       : 
+    Notes       :
   ----------------------------------------------------------------------*/
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
@@ -27,9 +27,9 @@ USING Consultingwerk.SmartComponents.Implementation.* FROM PROPATH .
 USING Consultingwerk.Util.*                           FROM PROPATH .
 USING Progress.Lang.*                                 FROM PROPATH .
 
-CLASS Consultingwerk.Windows.Framework.System.SmartAttachmentRoleViewerControl 
-    INHERITS SmartViewerControl: 
-    
+CLASS Consultingwerk.Windows.Framework.System.SmartAttachmentRoleViewerControl
+    INHERITS SmartViewerControl:
+
     DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer NO-UNDO.
 
     DEFINE PRIVATE VARIABLE smartBusinessEntityBindingSource1 AS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource NO-UNDO.
@@ -44,59 +44,67 @@ CLASS Consultingwerk.Windows.Framework.System.SmartAttachmentRoleViewerControl
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the SmartAttachmentRoleViewerControl class
-        Notes:   
+        Notes:
     ------------------------------------------------------------------------------*/
     CONSTRUCTOR PUBLIC SmartAttachmentRoleViewerControl ():
-                
+
         SUPER().
         InitializeComponent().
-        
+
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Assignes the filename of the droped file to the ImageEditors
-        Notes:   
+        Notes:
         @param sender The source of the event
-        @param e An EventArgs that contains the data for the event 
+        @param e An EventArgs that contains the data for the event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ImageSelection_DragDrop (sender AS System.Object, 
+    METHOD PRIVATE VOID ImageSelection_DragDrop (sender AS System.Object,
                                                  e      AS System.Windows.Forms.DragEventArgs):
         DEFINE VARIABLE cFileNames AS CHARACTER NO-UNDO EXTENT.
-        
-        IF NOT Consultingwerk.Util.DragAndDropHelper:IsFileDrop (e:Data) THEN 
-            RETURN. 
-        
+
+        IF NOT Consultingwerk.Util.DragAndDropHelper:IsFileDrop (e:Data) THEN
+            RETURN.
+
         cFileNames = Consultingwerk.Util.DragAndDropHelper:GetDropFileNames (e:Data).
-        
-        IF EXTENT (cFileNames) > 0 THEN 
+
+        IF EXTENT (cFileNames) > 0 THEN
             CAST (sender, System.Windows.Forms.Control):Text = Consultingwerk.Util.FileHelper:RelativeFileName (cFileNames[1]).
 
-        THIS-OBJECT:SmartTableIOState = TableIOStateEnum:ModifyingData . 
+        THIS-OBJECT:SmartTableIOState = TableIOStateEnum:ModifyingData .
 
         /* Tell the SmartDataSource that the user has started to update data. */
-        IF VALID-OBJECT (THIS-OBJECT:SmartDataSource) THEN 
+        IF VALID-OBJECT (THIS-OBJECT:SmartDataSource) THEN
             THIS-OBJECT:SmartDataSource:BeginUpdateState (THIS-OBJECT).
-                
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
     END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Allowes the FileDrop to the editor control if the events data
                  contains exact one file.
-        Notes:   
+        Notes:
         @param sender The source of the event
-        @param e An EventArgs that contains the data for the event 
+        @param e An EventArgs that contains the data for the event
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE VOID ImageSelection_DragEnter (sender AS System.Object, 
+    METHOD PRIVATE VOID ImageSelection_DragEnter (sender AS System.Object,
                                                   e      AS System.Windows.Forms.DragEventArgs):
         DEFINE VARIABLE cFileNames AS CHARACTER NO-UNDO EXTENT.
-        
-        IF Consultingwerk.Util.DragAndDropHelper:IsFileDrop (e:Data) THEN DO: 
+
+        IF Consultingwerk.Util.DragAndDropHelper:IsFileDrop (e:Data) THEN DO:
             cFileNames = Consultingwerk.Util.DragAndDropHelper:GetDropFileNames (e:Data).
 
-            IF EXTENT (cFileNames) = 1 THEN 
+            IF EXTENT (cFileNames) = 1 THEN
                 e:Effect = System.Windows.Forms.DragDropEffects:Copy.
         END.
-        
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage (err) .
+        END CATCH.
+
     END METHOD .
 
     /**
@@ -105,12 +113,12 @@ CLASS Consultingwerk.Windows.Framework.System.SmartAttachmentRoleViewerControl
      */
     @InitializeComponent.
     METHOD PRIVATE VOID InitializeComponent ():
-        
+
         /* NOTE: The following method is automatically generated.
-        
+
         We strongly suggest that the contents of this method only be modified using the
         Visual Designer to avoid any incompatible modifications.
-        
+
         Modifying the contents of this method using a code editor will invalidate any support for this file. */
         THIS-OBJECT:components = NEW System.ComponentModel.Container().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).

@@ -123,14 +123,14 @@ CLASS Consultingwerk.BusinessEntityDesigner.Services.DatabaseSchemaDatasetContro
         hDataset::eTable:BUFFER-COPY (BUFFER eTable:HANDLE) .
 
         FOR EACH eField WHERE eField.BusinessEntityName = eTable.BusinessEntityName
-                          AND eField.TempTableName      = eTable.TempTableName:
+                          AND eField.TempTableName      = eTable.TempTableName ON ERROR UNDO, THROW:
 
             hDataset::eField:BUFFER-CREATE () .
             hDataset::eField:BUFFER-COPY (BUFFER eField:HANDLE) .
         END.
 
         FOR EACH eIndex WHERE eIndex.BusinessEntityName = eTable.BusinessEntityName
-                          AND eIndex.TempTableName      = eTable.TempTableName:
+                          AND eIndex.TempTableName      = eTable.TempTableName ON ERROR UNDO, THROW:
 
             hDataset::eIndex:BUFFER-CREATE () .
             hDataset::eIndex:BUFFER-COPY (BUFFER eIndex:HANDLE) .

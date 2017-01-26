@@ -12,8 +12,8 @@
 /*------------------------------------------------------------------------
     File        : ListInvokableMethodDescriptor
     Purpose     : Dictionary of IInvokableMethodDescriptor
-    Syntax      : 
-    Description : 
+    Syntax      :
+    Description :
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Wed Jul 08 16:07:39 CEST 2015
     Notes       : http://confluence.consultingwerkcloud.com/wiki/display/SCL/Business+Entity+Descriptor
@@ -22,50 +22,71 @@
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.Framework.Base.*                FROM PROPATH .
-USING Consultingwerk.OERA.BusinessEntityDescriptor.* FROM PROPATH .  
+USING Consultingwerk.OERA.BusinessEntityDescriptor.* FROM PROPATH .
 USING Progress.Lang.*                                FROM PROPATH .
 
 {Consultingwerk/products.i}
 
-CLASS Consultingwerk.OERA.BusinessEntityDescriptor.ListInvokableMethodDescriptor 
+CLASS Consultingwerk.OERA.BusinessEntityDescriptor.ListInvokableMethodDescriptor
     INHERITS GenericList
-    {&SERIALIZABLE}: 
+    {&SERIALIZABLE}:
 
-    {Consultingwerk/Framework/Base/GenericList.i IInvokableMethodDescriptor} 
+    {Consultingwerk/Framework/Base/GenericList.i IInvokableMethodDescriptor}
 
-    /*------------------------------------------------------------------------------
-        Purpose: Returns true when the List contains an Item with the given Name 
-        Notes:   
-        @param pcName The name to return
-        @return Logical value indicating if the List contains an Item with the given Name
-    ------------------------------------------------------------------------------*/
-    METHOD PUBLIC LOGICAL ContainsName (pcName AS CHARACTER):
+    /**
+     * Purpose: Adds an InvokableMethodDescriptor instance to the list
+     * Notes:
+     * @param pcName The name of the invokable method
+     * @param pcParameterClassName The name of the parameter class
+     * @param plDatasetInput Receive dataset from client
+     * @param plDatasetOutput Return dataset to client
+     * @return The new IInvokableMethodDescriptor instance
+     */
+    METHOD PUBLIC IInvokableMethodDescriptor Add (pcName AS CHARACTER,
+                                                  pcParameterClassName AS CHARACTER,
+                                                  plDatasetInput AS LOGICAL,
+                                                  plDatasetOutput AS LOGICAL):
 
-        {Consultingwerk/linqABL.i IInvokableMethodDescriptor oItem in THIS-OBJECT 
-                    WHERE Name = pcName}
-            
-            RETURN TRUE . 
-        END.
-        
-        RETURN FALSE . 
+        RETURN THIS-OBJECT:Add (NEW InvokableMethodDescriptor (pcName,
+                                                               pcParameterClassName,
+                                                               plDatasetInput,
+                                                               plDatasetOutput)) .
 
     END METHOD .
 
-    /*------------------------------------------------------------------------------
-        Purpose: Returns the Item from the List with the given Name 
-        Notes:   
-        @param pcName The name to return
-        @return The Item from the List with the given Name
-    ------------------------------------------------------------------------------*/
+    /**
+     * Purpose: Returns true when the List contains an Item with the given Name
+     * Notes:
+     * @param pcName The name to return
+     * @return Logical value indicating if the List contains an Item with the given Name
+     */
+    METHOD PUBLIC LOGICAL ContainsName (pcName AS CHARACTER):
+
+        {Consultingwerk/linqABL.i IInvokableMethodDescriptor oItem in THIS-OBJECT
+                    WHERE Name = pcName}
+
+            RETURN TRUE .
+        END.
+
+        RETURN FALSE .
+
+    END METHOD .
+
+    /**
+     * Purpose: Returns the Item from the List with the given Name
+     * Notes:
+     * @param pcName The name to return
+     * @return The Item from the List with the given Name
+     */
     METHOD PUBLIC IInvokableMethodDescriptor GetItem (pcName AS CHARACTER):
 
-        {Consultingwerk/linqABL.i IInvokableMethodDescriptor oItem in THIS-OBJECT 
+        {Consultingwerk/linqABL.i IInvokableMethodDescriptor oItem in THIS-OBJECT
                     WHERE Name = pcName}
-            
-            RETURN oItem . 
+
+            RETURN oItem .
         END.
-        
-        RETURN ? . 
+
+        RETURN ? .
 
     END METHOD .
 

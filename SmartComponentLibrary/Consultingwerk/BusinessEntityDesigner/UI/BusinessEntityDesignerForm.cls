@@ -4569,7 +4569,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerForm
 
         DEFINE VARIABLE oPlugin AS IBusinessEntityDesignerPlugin NO-UNDO .
 
-        FOR EACH ttPlugins:
+        FOR EACH ttPlugins ON ERROR UNDO, NEXT:
             ASSIGN oPlugin = CAST (ttPlugins.oPlugin, IBusinessEntityDesignerPlugin) .
 
             IF VALID-OBJECT (oPlugin) THEN DO:
@@ -4577,6 +4577,10 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerForm
                 IF VALID-OBJECT (oPlugin) THEN
                     DELETE OBJECT oPlugin .
             END.
+
+            CATCH err AS Progress.Lang.Error:
+                ErrorHelper:ShowErrorMessage (err).
+            END CATCH.
         END.
 
     END METHOD.

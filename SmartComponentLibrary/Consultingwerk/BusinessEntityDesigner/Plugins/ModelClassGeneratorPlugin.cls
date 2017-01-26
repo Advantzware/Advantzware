@@ -121,7 +121,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.ModelClassGeneratorPlugin
 
         FIND FIRST eBusinessEntity .
 
-        FOR EACH b_eTable OF eBusinessEntity:
+        FOR EACH b_eTable OF eBusinessEntity ON ERROR UNDO, THROW:
             IF b_eTable.EntityPackageName > "":U THEN DO:
                 FILE-INFORMATION:FILE-NAME = cOutputFolder + REPLACE (b_eTable.EntityPackageName, ".":U, "~\":U) .
 
@@ -214,7 +214,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.ModelClassGeneratorPlugin
         FIND FIRST b_eBusinessEntity .
 
         FOR EACH b_eIndex WHERE b_eIndex.DefaultSearchCodeGeneration = TRUE,
-           FIRST b_eTable WHERE b_eTable.TempTableName               = b_eIndex.TempTableName:
+           FIRST b_eTable WHERE b_eTable.TempTableName               = b_eIndex.TempTableName ON ERROR UNDO, THROW:
 
             ASSIGN cParameter        = "":U
                    cParameterComment = "":U
@@ -597,7 +597,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.ModelClassGeneratorPlugin
         ASSIGN cProperties  = "":U
                cConstructor = "":U .
 
-        FOR EACH b_eTable:
+        FOR EACH b_eTable ON ERROR UNDO, THROW:
 
             ASSIGN cProperties = cProperties + SUBSTITUTE ("    /*------------------------------------------------------------------------------&2":U +
                                                            "        Purpose: Returns the reference to the &1 table model&2":U +

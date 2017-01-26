@@ -121,14 +121,17 @@ CLASS Consultingwerk.Windows.Framework.Scheduler.SmartSchedulerJobPlanViewerCont
     /**
      * Purpose: Event handler for the SizeChanged event of the
      *          eSmartSchedulerJobPlan_RecurringDaylist control.
-     *          Adjust the MaximumSize property of the ultraLabel7 to "create" a line break
-     * Notes:
+     * Notes:   Adjust the MaximumSize property of the ultraLabel7 to "create" a line break
      * @param sender The source of the event
      * @param e An EventArgs that contains no event data
      */
     METHOD PRIVATE VOID eSmartSchedulerJobPlan_RecurringDaylist_SizeChanged (INPUT sender AS System.Object, INPUT e AS System.EventArgs):
 
         ASSIGN ultraLabel7:MaximumSize = NEW System.Drawing.Size (eSmartSchedulerJobPlan_RecurringDaylist:Size:Width, 0).
+
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
 
     END METHOD .
 

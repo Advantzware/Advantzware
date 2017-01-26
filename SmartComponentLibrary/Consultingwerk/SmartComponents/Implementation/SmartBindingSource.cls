@@ -813,12 +813,12 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartBindingSource
         END.
 
         /* write all Tables to DatasetMetaschema*/
-        FOR EACH eDatabase NO-LOCK:
+        FOR EACH eDatabase NO-LOCK ON ERROR UNDO, THROW:
             CREATE ALIAS DICTDB FOR DATABASE VALUE(eDatabase.DatabaseName) .
 
             RUN Consultingwerk/SmartComponents/Support/getTablesAndFields.p (OUTPUT DATASET dsSchema).
 
-            FOR EACH ttTables NO-LOCK :
+            FOR EACH ttTables NO-LOCK ON ERROR UNDO, THROW:
                 CREATE eFile.
 
                 ASSIGN
@@ -827,7 +827,7 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartBindingSource
                     .
 
                 /* write all Fields to DatasetMetaschema*/
-                FOR EACH ttFields WHERE ttFields.TableName = eFile.FileName NO-LOCK :
+                FOR EACH ttFields WHERE ttFields.TableName = eFile.FileName NO-LOCK ON ERROR UNDO, THROW:
                     CREATE eField.
 
                     ASSIGN

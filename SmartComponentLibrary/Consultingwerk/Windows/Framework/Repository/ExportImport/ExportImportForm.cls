@@ -260,7 +260,7 @@ CLASS Consultingwerk.Windows.Framework.Repository.ExportImport.ExportImportForm
             END.
             OTHERWISE
                 UNDO, THROW NEW Exception ("Invalid selected tab."{&TRAN}, 0) .
-        END.
+        END CASE .
 
     END METHOD.
 

@@ -205,7 +205,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntitySourceEditorForm
 
         oBuffers:Add (SUBSTITUTE ("&1 (ProDataset)":U, b_eBusinessEntity.DatasetName)) .
 
-        FOR EACH b_eTable:
+        FOR EACH b_eTable ON ERROR UNDO, THROW:
             oBuffers:Add (b_eTable.TempTableName) .
         END.
 
@@ -294,7 +294,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntitySourceEditorForm
 
         oBuffers = NEW CharacterList () .
 
-        FOR EACH b_eTable:
+        FOR EACH b_eTable ON ERROR UNDO, THROW:
             oBuffers:Add (b_eTable.TempTableName) .
         END.
 

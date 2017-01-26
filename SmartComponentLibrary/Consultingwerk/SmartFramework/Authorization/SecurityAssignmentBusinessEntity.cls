@@ -93,7 +93,7 @@ CLASS Consultingwerk.SmartFramework.Authorization.SecurityAssignmentBusinessEnti
         oInfoService = CAST (ServiceManager:GetBusinessService ("Consultingwerk.SmartFramework.Authorization.SecurityRealmInfoService":U),
                              SecurityRealmInfoService) .
 
-        FOR EACH eSmartSecurityAssignment:
+        FOR EACH eSmartSecurityAssignment ON ERROR UNDO, THROW:
 
             ASSIGN eSmartSecurityAssignment.SecurityRealmCode        = oInfoService:GetSecurityRealmCode (eSmartSecurityAssignment.SecurityRealmGuid)
                    eSmartSecurityAssignment.SecurityRealmDescription = oInfoService:GetSecurityRealmDescription (eSmartSecurityAssignment.SecurityRealmGuid)
@@ -152,7 +152,7 @@ CLASS Consultingwerk.SmartFramework.Authorization.SecurityAssignmentBusinessEnti
         oInfoService = CAST (ServiceManager:GetBusinessService ("Consultingwerk.SmartFramework.Authorization.SecurityRealmInfoService":U),
                              SecurityRealmInfoService) .
 
-        FOR EACH eSmartSecurityAssignment:
+        FOR EACH eSmartSecurityAssignment ON ERROR UNDO, THROW:
             IF CharacterType:IsNotNullOrEmpty (eSmartSecurityAssignment.GroupGuid) AND
                CharacterType:IsNotNullOrEmpty (eSmartSecurityAssignment.UserGuid) THEN
 

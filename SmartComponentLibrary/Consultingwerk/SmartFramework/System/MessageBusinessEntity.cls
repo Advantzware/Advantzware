@@ -134,7 +134,7 @@ CLASS Consultingwerk.SmartFramework.System.MessageBusinessEntity
 
         /* Mike Fechner, Consultingwerk Ltd. 17.08.2014
            Messages need to have Message Group and non zero number */
-        FOR EACH eSmartMessage:
+        FOR EACH eSmartMessage ON ERROR UNDO, THROW:
             Consultingwerk.OERA.Validate:IsNotNullOrEmpty (BUFFER eSmartMessage:HANDLE,
                                                            "MessageGroup":U,
                                                            MessageFormatter:GetMessage ("VALMSG":U, 1, "Message Group"{&TRAN})) .

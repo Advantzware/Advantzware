@@ -156,7 +156,7 @@ CLASS Consultingwerk.SmartFramework.System.TranslationProvider
 
         oCachedScopes:Add (pcScope) .
 
-        FOR EACH ttTranslationCache WHERE ttTranslationCache.TranslationScope = pcScope:
+        FOR EACH ttTranslationCache WHERE ttTranslationCache.TranslationScope = pcScope ON ERROR UNDO, THROW:
             DELETE ttTranslationCache .
         END.
 

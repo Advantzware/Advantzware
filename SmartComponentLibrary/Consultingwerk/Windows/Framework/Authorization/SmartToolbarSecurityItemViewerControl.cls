@@ -64,6 +64,10 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartToolbarSecurityItemVie
 
         THIS-OBJECT:LookupToolItemContainer () .
 
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
     END METHOD .
 
     /**

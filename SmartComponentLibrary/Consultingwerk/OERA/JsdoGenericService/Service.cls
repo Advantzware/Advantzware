@@ -694,7 +694,7 @@ CLASS Consultingwerk.OERA.JsdoGenericService.Service:
 
         ServiceInterface:InvokeMethod (pcEntityName,
                                        pcMethodName,
-                                       INPUT-OUTPUT DATASET-HANDLE hDataset,
+                                       INPUT-OUTPUT DATASET-HANDLE hDataset BY-REFERENCE,
                                        oMethodParameter) .
 
         oResponse = NEW JsonObject() .

@@ -110,7 +110,7 @@ CLASS Consultingwerk.Util.DockManagerHelper:
         ASSIGN oParentId = NEW System.Guid (poPane:Key).
 
         FOR EACH ttDockAreas WHERE ttDockAreas.ParentInternalId = poPane:Key
-                                BY ttDockAreas.Order:
+                                BY ttDockAreas.Order ON ERROR UNDO, THROW:
 
             CASE ttDockAreas.PaneType:
                 WHEN "DockableControlPane":U THEN DO:
@@ -185,7 +185,7 @@ CLASS Consultingwerk.Util.DockManagerHelper:
         DEFINE VARIABLE oDockAreaPane AS DockAreaPane NO-UNDO .
 
         FOR EACH ttDockAreas WHERE ttDockAreas.ParentInternalId = "":U
-                                BY ttDockAreas.Order:
+                                BY ttDockAreas.Order ON ERROR UNDO, THROW:
 
             oDockAreaPane = NEW DockAreaPane ({Consultingwerk/parse-enum.i
                                                 Infragistics.Win.UltraWinDock.DockedLocation

@@ -105,7 +105,7 @@ CLASS Consultingwerk.SmartFramework.Authorization.MenuGroupDataAccess
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID eSmartMenuGroupAfterFill (DATASET dsMenuGroup):
 
-        FOR EACH eSmartMenuGroup NO-LOCK:
+        FOR EACH eSmartMenuGroup NO-LOCK ON ERROR UNDO, THROW:
             FIND FIRST SmartGroup WHERE SmartGroup.GroupGuid = eSmartMenuGroup.GroupGuid NO-LOCK NO-ERROR.
 
             IF AVAILABLE (SmartGroup) THEN DO:
@@ -123,7 +123,7 @@ CLASS Consultingwerk.SmartFramework.Authorization.MenuGroupDataAccess
 
         END.
 
-        FOR EACH SmartGroup NO-LOCK:
+        FOR EACH SmartGroup NO-LOCK ON ERROR UNDO, THROW:
             IF CAN-FIND (FIRST eSmartMenuGroup WHERE eSmartMenuGroup.GroupGuid = SmartGroup.GroupGuid) THEN
                 NEXT.
 

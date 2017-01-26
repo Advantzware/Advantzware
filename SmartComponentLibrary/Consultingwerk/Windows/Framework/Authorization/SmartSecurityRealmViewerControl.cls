@@ -97,6 +97,10 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartSecurityRealmViewerCon
 
             ASSIGN THIS-OBJECT:eSmartSecurityRealm_SecurityRealmService:Text = oForm:GetSelectedBusinessEntityName () .
 
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
     END METHOD .
 
     /**

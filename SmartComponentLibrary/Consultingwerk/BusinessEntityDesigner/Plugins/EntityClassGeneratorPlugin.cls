@@ -168,7 +168,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.EntityClassGeneratorPlugin
         IF NOT b_eBusinessEntity.GenerateBusinessEntity THEN
             RETURN .
 
-        FOR EACH b_eTable:
+        FOR EACH b_eTable ON ERROR UNDO, THROW:
             ASSIGN
                 cProperties       = "":U
                 cConstructor      = "":U
@@ -179,7 +179,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.EntityClassGeneratorPlugin
 
             FOR EACH b_eDataRelation WHERE b_eDataRelation.ParentTempTableName = b_eTable.TempTableName
                                        AND b_eDataRelation.ChildPropertyName   > "":U,
-                FIRST b_eTable2 WHERE b_eTable2.TempTableName = b_eDataRelation.ChildTempTableName:
+                FIRST b_eTable2 WHERE b_eTable2.TempTableName = b_eDataRelation.ChildTempTableName ON ERROR UNDO, THROW:
 
                 IF b_eDataRelation.ChildCardinality = "ONE":U THEN
                     ASSIGN cProperties = cProperties +
@@ -206,7 +206,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.EntityClassGeneratorPlugin
             END.
 
             FOR EACH b_eField WHERE b_eField.TempTableName = b_eTable.TempTableName
-                                 BY b_eField.FieldOrder:
+                                 BY b_eField.FieldOrder ON ERROR UNDO, THROW:
                 ASSIGN cFieldOptions = "":U .
 
                 CASE b_eField.FieldDataType:
@@ -341,7 +341,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.EntityClassGeneratorPlugin
             /* Copy to-one tables */
             FOR EACH b_eDataRelation WHERE b_eDataRelation.ParentTempTableName = b_eTable.TempTableName
                                        AND b_eDataRelation.ChildPropertyName   > "":U,
-                FIRST b_eTable2 WHERE b_eTable2.TempTableName = b_eDataRelation.ChildTempTableName:
+                FIRST b_eTable2 WHERE b_eTable2.TempTableName = b_eDataRelation.ChildTempTableName ON ERROR UNDO, THROW:
 
                 IF b_eDataRelation.ChildCardinality = "ONE":U THEN
                     ASSIGN cAssignFromBuffer = cAssignFromBuffer +
@@ -444,7 +444,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.EntityClassGeneratorPlugin
 
         /* Generate List classes for to-many child relations */
         FOR EACH b_eDataRelation WHERE b_eDataRelation.ChildCardinality = "MANY":U,
-            FIRST b_eTable WHERE b_eTable.TempTableName = b_eDataRelation.ChildTempTableName:
+            FIRST b_eTable WHERE b_eTable.TempTableName = b_eDataRelation.ChildTempTableName ON ERROR UNDO, THROW:
 
             COPY-LOB FROM FILE cTemplate[3] TO lcSource .
 
@@ -519,7 +519,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.EntityClassGeneratorPlugin
         END .
 
         /* Generate List classes for top-nav-buffers */
-        FOR EACH b_eTable:
+        FOR EACH b_eTable ON ERROR UNDO, THROW:
             IF CAN-FIND (b_eDataRelation WHERE b_eDataRelation.ChildTempTableName = b_eTable.TempTableName) THEN
                 NEXT .
 

@@ -1331,7 +1331,7 @@ CLASS Consultingwerk.Util.UltraToolbarsHelper:
                 hWidget   = hWidget:NEXT-SIBLING .
         END.
 
-        widgetbylocationloop: FOR EACH ttWidgetsByLocation BY ttWidgetsByLocation.WidgetRow BY ttWidgetsByLocation.WidgetColumn:
+        widgetbylocationloop: FOR EACH ttWidgetsByLocation BY ttWidgetsByLocation.WidgetRow BY ttWidgetsByLocation.WidgetColumn ON ERROR UNDO, THROW:
             ASSIGN hWidget = ttWidgetsByLocation.WidgetHandle .
 
 &IF DEFINED (WinKit) &THEN
@@ -1682,7 +1682,7 @@ CLASS Consultingwerk.Util.UltraToolbarsHelper:
             END.
         END.
 
-        FOR EACH ttWidgetsByLocation BY ttWidgetsByLocation.WidgetRow BY ttWidgetsByLocation.WidgetColumn:
+        FOR EACH ttWidgetsByLocation BY ttWidgetsByLocation.WidgetRow BY ttWidgetsByLocation.WidgetColumn ON ERROR UNDO, THROW:
 
             ASSIGN
               hWidget   = ttWidgetsByLocation.WidgetHandle

@@ -72,7 +72,7 @@ CLASS Consultingwerk.SmartFramework.Authorization.SecurityRealmBusinessEntity
         IF GenericDataImporter:Importing THEN
             RETURN .
 
-        FOR EACH eSmartSecurityRealm:
+        FOR EACH eSmartSecurityRealm ON ERROR UNDO, THROW:
             Consultingwerk.OERA.Validate:MaxLength (BUFFER eSmartSecurityRealm:HANDLE,
                                                     "SecurityRealmCode":U,
                                                     15,

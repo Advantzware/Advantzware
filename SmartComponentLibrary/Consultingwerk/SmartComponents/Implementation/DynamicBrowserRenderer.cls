@@ -117,7 +117,7 @@ CLASS Consultingwerk.SmartComponents.Implementation.DynamicBrowserRenderer
                                                  BUFFER ttBrowserProperties:HANDLE) .
 
         columnLoop:
-        FOR EACH ttColumnProperties OF ttBrowserProperties:
+        FOR EACH ttColumnProperties OF ttBrowserProperties ON ERROR UNDO, THROW:
 
             /* Get the column */
             IF ttColumnProperties.CalculatedColumn THEN DO:

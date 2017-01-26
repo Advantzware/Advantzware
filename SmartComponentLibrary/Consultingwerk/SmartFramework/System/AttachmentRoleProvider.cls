@@ -25,6 +25,7 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 USING Consultingwerk.Framework.*                            FROM PROPATH .
 USING Consultingwerk.OERA.*                                 FROM PROPATH .
 USING Consultingwerk.SmartFramework.IAttachmentRoleProvider FROM PROPATH .
+USING Consultingwerk.Util.*                                 FROM PROPATH .
 USING Consultingwerk.Windows.Framework.System.*             FROM PROPATH .
 USING Progress.Lang.*                                       FROM PROPATH .
 
@@ -56,7 +57,7 @@ CLASS Consultingwerk.SmartFramework.System.AttachmentRoleProvider
 
         ASSIGN lReadFromBackend = TRUE .
 
-        FOR EACH eSmartAttachmentRole:
+        FOR EACH eSmartAttachmentRole ON ERROR UNDO, THROW:
 
             CREATE ttAttachmentRole .
             BUFFER-COPY eSmartAttachmentRole TO ttAttachmentRole
@@ -72,16 +73,11 @@ CLASS Consultingwerk.SmartFramework.System.AttachmentRoleProvider
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC INTEGER GetCount ():
 
-        DEFINE VARIABLE i AS INTEGER NO-UNDO.
-
         IF NOT lReadFromBackend THEN
             THIS-OBJECT:GetAttachmentRoles (OUTPUT TABLE ttAttachmentRole) .
 
-        FOR EACH ttAttachmentRole:
-            i = i + 1 .
-        END.
+        RETURN BufferHelper:NumRecords(BUFFER ttAttachmentRole:HANDLE) .
 
-        RETURN i .
     END METHOD .
 
 END CLASS.

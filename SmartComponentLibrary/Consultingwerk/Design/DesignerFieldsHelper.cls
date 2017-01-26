@@ -63,7 +63,6 @@ CLASS Consultingwerk.Design.DesignerFieldsHelper:
     METHOD PUBLIC STATIC System.Type DataTypeDesignTimeControl (poDataType AS Progress.Data.DataType):
 
         DEFINE VARIABLE cDataType  AS CHARACTER   NO-UNDO .
-        DEFINE VARIABLE oType      AS System.Type NO-UNDO .
 
         ASSIGN cDataType = poDataType:ToString() .
 

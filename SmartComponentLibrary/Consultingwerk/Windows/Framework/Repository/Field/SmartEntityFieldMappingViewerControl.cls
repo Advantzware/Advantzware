@@ -98,7 +98,6 @@ CLASS Consultingwerk.Windows.Framework.Repository.Field.SmartEntityFieldMappingV
      * @param sender The reference to the object that raised the event
      * @param e The EditorButtonEventArgs with the data for this event
      */
-    @VisualDesigner.
     METHOD PRIVATE VOID eSmartEntityFieldMapping_EntityName_EditorButtonClick (sender AS System.Object,
                                                                                e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
 
@@ -109,6 +108,10 @@ CLASS Consultingwerk.Windows.Framework.Repository.Field.SmartEntityFieldMappingV
         IF cEntityName > "":U THEN
             ASSIGN eSmartEntityFieldMapping_EntityName:Text = cEntityName .
 
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
     END METHOD .
 
     /**
@@ -117,7 +120,6 @@ CLASS Consultingwerk.Windows.Framework.Repository.Field.SmartEntityFieldMappingV
      * @param sender The reference to the object that raised the event
      * @param e The EditorButtonEventArgs with the data for this event
      */
-    @VisualDesigner.
     METHOD PRIVATE VOID eSmartEntityFieldMapping_EntityTable_EditorButtonClick (sender AS System.Object,
                                                                                 e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
 
@@ -142,6 +144,10 @@ CLASS Consultingwerk.Windows.Framework.Repository.Field.SmartEntityFieldMappingV
         IF cTables > "":U THEN
             ASSIGN eSmartEntityFieldMapping_EntityTable:Text = cTables .
 
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
+
         FINALLY:
             GarbageCollectorHelper:DeleteObject (hDataHandle) .
         END FINALLY.
@@ -160,19 +166,9 @@ CLASS Consultingwerk.Windows.Framework.Repository.Field.SmartEntityFieldMappingV
 
         e:BusinessEntityAdapter:NewFetchDataRequest:Subscribe (NewFetchDataRequestHandler) .
 
-    END METHOD .
-
-    /**
-     * Purpose: Event handler for the EditorButtonClick of the eSmartEntityFieldMapping_FieldObjectName
-     * Notes:
-     * @param sender The reference to the object that raised the event
-     * @param e The EditorButtonEventArgs with the data for this event
-     */
-    @VisualDesigner.
-    METHOD PRIVATE VOID eSmartEntityFieldMapping_FieldObjectName_EditorButtonClick (sender AS System.Object,
-                                                                                    e AS Infragistics.Win.UltraWinEditors.EditorButtonEventArgs):
-
-        RETURN.
+        CATCH err AS Progress.Lang.Error:
+            ErrorHelper:ShowErrorMessage(err) .
+        END CATCH.
 
     END METHOD .
 
@@ -361,7 +357,6 @@ CLASS Consultingwerk.Windows.Framework.Repository.Field.SmartEntityFieldMappingV
         THIS-OBJECT:eSmartEntityFieldMapping_FieldObjectName:Name = "eSmartEntityFieldMapping_FieldObjectName":U.
         THIS-OBJECT:eSmartEntityFieldMapping_FieldObjectName:OwningGrid = ?.
         THIS-OBJECT:eSmartEntityFieldMapping_FieldObjectName:AfterInitializeBusinessEntityAdapter:Subscribe(THIS-OBJECT:eSmartEntityFieldMapping_FieldObjectName_AfterInitializeBusinessEntityAdapter).
-        THIS-OBJECT:eSmartEntityFieldMapping_FieldObjectName:EditorButtonClick:Subscribe(THIS-OBJECT:eSmartEntityFieldMapping_FieldObjectName_EditorButtonClick).
         /*  */
         /* SmartEntityFieldMappingViewerControl */
         /*  */

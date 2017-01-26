@@ -659,7 +659,7 @@ CLASS Consultingwerk.SmartComponents.Base.SmartDataAdapter
     METHOD PUBLIC VOID CloseQuery ():
 
         FOR EACH ttSmartDataTargetCollection WHERE
-                 ttSmartDataTargetCollection.RecordOwner = THIS-OBJECT NO-LOCK:
+                 ttSmartDataTargetCollection.RecordOwner = THIS-OBJECT NO-LOCK ON ERROR UNDO, THROW:
 
             IF VALID-OBJECT (ttSmartDataTargetCollection.SmartDataTarget) AND
                 TYPE-OF (ttSmartDataTargetCollection.SmartDataTarget, SmartDataAdapter) THEN
@@ -711,7 +711,7 @@ CLASS Consultingwerk.SmartComponents.Base.SmartDataAdapter
     METHOD PUBLIC VOID DeactivateSmartViewerEventHandler ():
 
         FOR EACH ttSmartDataTargetCollection WHERE
-            ttSmartDataTargetCollection.RecordOwner = THIS-OBJECT:
+            ttSmartDataTargetCollection.RecordOwner = THIS-OBJECT ON ERROR UNDO, THROW:
 
             IF VALID-OBJECT (ttSmartDataTargetCollection.SmartDataTarget) AND
                TYPE-OF (ttSmartDataTargetCollection.SmartDataTarget,
@@ -1013,7 +1013,7 @@ CLASS Consultingwerk.SmartComponents.Base.SmartDataAdapter
      */
     METHOD PUBLIC ISmartDataBrowser FindLinkedSmartDataBrowser ():
 
-        FOR EACH ttSmartDataTargetCollection WHERE ttSmartDataTargetCollection.RecordOwner = THIS-OBJECT:
+        FOR EACH ttSmartDataTargetCollection WHERE ttSmartDataTargetCollection.RecordOwner = THIS-OBJECT ON ERROR UNDO, THROW:
             IF VALID-OBJECT (ttSmartDataTargetCollection.SmartDataTarget) AND
                TYPE-OF (ttSmartDataTargetCollection.SmartDataTarget, ISmartDataBrowser) THEN
 
@@ -1034,7 +1034,7 @@ CLASS Consultingwerk.SmartComponents.Base.SmartDataAdapter
 
         DEFINE VARIABLE oTarget AS ISmartTableIOTarget NO-UNDO .
 
-        FOR EACH ttSmartDataTargetCollection WHERE ttSmartDataTargetCollection.RecordOwner = THIS-OBJECT:
+        FOR EACH ttSmartDataTargetCollection WHERE ttSmartDataTargetCollection.RecordOwner = THIS-OBJECT ON ERROR UNDO, THROW:
 
             IF VALID-OBJECT (ttSmartDataTargetCollection.SmartDataTarget) AND
                TYPE-OF (ttSmartDataTargetCollection.SmartDataTarget, ISmartTableIOTarget) THEN DO:
@@ -1216,7 +1216,7 @@ CLASS Consultingwerk.SmartComponents.Base.SmartDataAdapter
     METHOD PROTECTED VOID InvokeParentPositionChanged (sender AS System.Object,
                                                        e AS System.EventArgs):
 
-        FOR EACH ttSmartDataTargetCollection WHERE ttSmartDataTargetCollection.RecordOwner = THIS-OBJECT NO-LOCK:
+        FOR EACH ttSmartDataTargetCollection WHERE ttSmartDataTargetCollection.RecordOwner = THIS-OBJECT NO-LOCK ON ERROR UNDO, THROW:
             IF VALID-OBJECT (ttSmartDataTargetCollection.SmartDataTarget) AND
                TYPE-OF (ttSmartDataTargetCollection.SmartDataTarget, SmartDataAdapter) THEN
                 CAST (ttSmartDataTargetCollection.SmartDataTarget, SmartDataAdapter):ParentPositionChangedBase (sender, e).
@@ -1291,7 +1291,7 @@ CLASS Consultingwerk.SmartComponents.Base.SmartDataAdapter
         THIS-OBJECT:AfterRetrieveData:Publish (THIS-OBJECT, e) .
 
         FOR EACH ttAfterRetrieveDataSubscriberCol WHERE
-                 ttAfterRetrieveDataSubscriberCol.RecordOwner = THIS-OBJECT NO-LOCK:
+                 ttAfterRetrieveDataSubscriberCol.RecordOwner = THIS-OBJECT NO-LOCK ON ERROR UNDO, THROW:
 
             IF VALID-OBJECT (ttAfterRetrieveDataSubscriberCol.Subscriber) THEN
                 CAST (ttAfterRetrieveDataSubscriberCol.Subscriber, IAfterRetrieveDataSubscriber):AfterRetrieveDataCallback (THIS-OBJECT) .
@@ -1299,7 +1299,7 @@ CLASS Consultingwerk.SmartComponents.Base.SmartDataAdapter
 
         /* Let SmartDataTagets evaluate their TableIOState */
         FOR EACH ttSmartDataTargetCollection WHERE
-                 ttSmartDataTargetCollection.RecordOwner = THIS-OBJECT NO-LOCK:
+                 ttSmartDataTargetCollection.RecordOwner = THIS-OBJECT NO-LOCK ON ERROR UNDO, THROW:
 
             IF VALID-OBJECT (ttSmartDataTargetCollection.SmartDataTarget) THEN
                 CAST (ttSmartDataTargetCollection.SmartDataTarget, ISmartDataTarget):EvaluateTableIOState() .
@@ -1499,7 +1499,7 @@ CLASS Consultingwerk.SmartComponents.Base.SmartDataAdapter
         /* When this SmartDataAdapter query does not return any record,
            close child SmartDataAdapters queries */
         IF THIS-OBJECT:BindingSource:Count = 0 THEN
-            FOR EACH ttSmartDataTargetCollection WHERE ttSmartDataTargetCollection.RecordOwner = THIS-OBJECT NO-LOCK:
+            FOR EACH ttSmartDataTargetCollection WHERE ttSmartDataTargetCollection.RecordOwner = THIS-OBJECT NO-LOCK ON ERROR UNDO, THROW:
                 IF VALID-OBJECT (ttSmartDataTargetCollection.SmartDataTarget) AND
                    TYPE-OF (ttSmartDataTargetCollection.SmartDataTarget, SmartDataAdapter) THEN
                     CAST (ttSmartDataTargetCollection.SmartDataTarget, SmartDataAdapter):CloseQuery ().
@@ -1539,7 +1539,7 @@ CLASS Consultingwerk.SmartComponents.Base.SmartDataAdapter
         THIS-OBJECT:OnCurrentChanged (System.EventArgs:Empty) .
 
         /* Tell Viewers that/if we got a record */
-        FOR EACH ttSmartDataTargetCollection WHERE ttSmartDataTargetCollection.RecordOwner = oObject /*THIS-OBJECT*/ NO-LOCK:
+        FOR EACH ttSmartDataTargetCollection WHERE ttSmartDataTargetCollection.RecordOwner = oObject /*THIS-OBJECT*/ NO-LOCK ON ERROR UNDO, THROW:
             IF VALID-OBJECT (ttSmartDataTargetCollection.SmartDataTarget) THEN
                 CAST(ttSmartDataTargetCollection.SmartDataTarget, ISmartDataTarget):EvaluateTableIOState () .
         END.
@@ -1767,7 +1767,7 @@ CLASS Consultingwerk.SmartComponents.Base.SmartDataAdapter
         THIS-OBJECT:AttachSchemaToBindingSource (THIS-OBJECT:BindingSource) .
 
         /* Register the current DataAdapters BindingSource in all DataTargets */
-        FOR EACH ttSmartDataTargetCollection WHERE ttSmartDataTargetCollection.RecordOwner = THIS-OBJECT NO-LOCK:
+        FOR EACH ttSmartDataTargetCollection WHERE ttSmartDataTargetCollection.RecordOwner = THIS-OBJECT NO-LOCK ON ERROR UNDO, THROW:
             IF VALID-OBJECT (ttSmartDataTargetCollection.SmartDataTarget) AND
                TYPE-OF (ttSmartDataTargetCollection.SmartDataTarget, ISmartDataTarget) THEN
                 IF NOT TYPE-OF (ttSmartDataTargetCollection.SmartDataTarget, SmartDataAdapter) THEN
@@ -1836,11 +1836,11 @@ CLASS Consultingwerk.SmartComponents.Base.SmartDataAdapter
                 DELETE OBJECT oDeleteBindingSource .
         END.
 
-        FOR EACH ttSmartDataTargetCollection WHERE ttSmartDataTargetCollection.RecordOwner = THIS-OBJECT:
+        FOR EACH ttSmartDataTargetCollection WHERE ttSmartDataTargetCollection.RecordOwner = THIS-OBJECT ON ERROR UNDO, THROW:
             DELETE ttSmartDataTargetCollection.
         END.
 
-        FOR EACH ttAfterRetrieveDataSubscriberCol WHERE ttAfterRetrieveDataSubscriberCol.RecordOwner = THIS-OBJECT:
+        FOR EACH ttAfterRetrieveDataSubscriberCol WHERE ttAfterRetrieveDataSubscriberCol.RecordOwner = THIS-OBJECT ON ERROR UNDO, THROW:
             DELETE ttAfterRetrieveDataSubscriberCol.
         END.
 

@@ -96,7 +96,7 @@ CLASS Consultingwerk.SmartFramework.System.TableBusinessEntity
     ------------------------------------------------------------------------------*/
     METHOD OVERRIDE PUBLIC VOID ReceiveData ():
 
-        FOR EACH eSmartTable:
+        FOR EACH eSmartTable ON ERROR UNDO, THROW:
             ASSIGN eSmartTable.QualifiedTableName = SUBSTITUTE ("&1.&2":U,
                                                                 eSmartTable.DatabaseName,
                                                                 eSmartTable.TableName) .

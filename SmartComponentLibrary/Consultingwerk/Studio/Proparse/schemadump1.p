@@ -21,7 +21,7 @@ ASSIGN program2 = REPLACE(PROGRAM-NAME(1), "schemadump1.p":U, "schemadump2.p":U)
 OUTPUT TO VALUE (outFile).
 
 ASSIGN dictdb_orig = LDBNAME("dictdb":U).
-REPEAT dbnum = 1 TO NUM-DBS:
+REPEAT dbnum = 1 TO NUM-DBS ON ERROR UNDO, THROW:
   IF DBTYPE(dbnum) <> "PROGRESS":U THEN
       NEXT.
   DELETE ALIAS DICTDB.
@@ -34,9 +34,9 @@ CREATE ALIAS dictdb FOR DATABASE VALUE(dictdb_orig).
 
 /* Now dump the meta-schema as "dictdb" */
 PUT UNFORMATTED ":: dictdb 0":U SKIP.
-FOR EACH DICTDB._file WHERE _file._tbl-type <> "T":U NO-LOCK BY _file._file-name:
+FOR EACH DICTDB._file WHERE _file._tbl-type <> "T":U NO-LOCK BY _file._file-name ON ERROR UNDO, THROW:
   PUT UNFORMATTED ": ":U _file._file-name " ":U RECID(_file) SKIP.
-  FOR EACH DICTDB._field OF _file NO-LOCK BY _field._field-rpos:
+  FOR EACH DICTDB._field OF _file NO-LOCK BY _field._field-rpos ON ERROR UNDO, THROW:
     PUT UNFORMATTED
        _field._field-name
        " ":U RECID(_field)

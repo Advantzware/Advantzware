@@ -66,7 +66,7 @@ CLASS Consultingwerk.SmartFramework.Authorization.ToolbarSecurityItemBusinessEnt
     ------------------------------------------------------------------------------*/
     METHOD OVERRIDE PUBLIC VOID ValidateData ():
 
-        FOR EACH eSmartToolbarSecurityItem:
+        FOR EACH eSmartToolbarSecurityItem ON ERROR UNDO, THROW:
 
             Consultingwerk.OERA.Validate:IsNotNullOrEmpty (BUFFER eSmartToolbarSecurityItem:HANDLE,
                                                            "ToolbarItemKey":U,

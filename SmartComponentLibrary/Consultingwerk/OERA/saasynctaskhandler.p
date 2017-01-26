@@ -11,7 +11,7 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : saasynctaskhandler.p
-    Purpose     :
+    Purpose     : Generic async AppServer callback
 
     Syntax      :
 

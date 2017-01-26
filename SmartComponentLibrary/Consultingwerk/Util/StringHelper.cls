@@ -354,10 +354,28 @@ CLASS Consultingwerk.Util.StringHelper:
     METHOD PUBLIC STATIC INTEGER FindClosingQuote (pcString AS LONGCHAR,
                                                    piPosition AS INTEGER):
 
+        RETURN StringHelper:FindClosingQuote(pcString, piPosition, FALSE) .
+
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the position of the closing quote sign (either " or ') in a String
+        Notes:
+        Throws:  Consultingwerk.Exceptions.UnmatchedQuoteException, Consultingwerk.Exceptions.InvalidParameterValueException
+        @param pcString The LONGCHAR string to locate the closing quote in
+        @param piPosition The position of the opening quote in the string
+        @param plParseQueryString Special handling for "" within query strings
+        @return The position of the closing quote
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC STATIC INTEGER FindClosingQuote (pcString AS LONGCHAR,
+                                                   piPosition AS INTEGER,
+                                                   plParseQueryString AS LOGICAL):
+
         DEFINE VARIABLE cQuoteChar AS CHARACTER     NO-UNDO INITIAL "":U.
         DEFINE VARIABLE iPos       AS INTEGER       NO-UNDO .
         DEFINE VARIABLE cChar      AS CHARACTER     NO-UNDO .
         DEFINE VARIABLE lInQuote   AS LOGICAL       NO-UNDO INITIAL FALSE .
+        DEFINE VARIABLE iLength    AS INTEGER       NO-UNDO .
 
         ASSIGN cQuoteChar = SUBSTRING (pcString, piPosition, 1) .
 
@@ -365,10 +383,12 @@ CLASS Consultingwerk.Util.StringHelper:
             UNDO, THROW NEW InvalidParameterValueException ("piPosition":U,
                                                             STRING (piPosition),
                                                             "Consultingwerk.Util.StringHelper":U) .
-        pcString = TRIM (pcString) .
+        ASSIGN pcString = TRIM (pcString)
+               iLength  = LENGTH (pcString, "CHARACTER":U) .
 
-        DO iPos = piPosition + 1 TO LENGTH (pcString):
-            ASSIGN cChar = SUBSTRING (pcString, iPos, 1) .
+        parsingLoop:
+        DO iPos = piPosition + 1 TO iLength:
+            ASSIGN cChar = SUBSTRING (pcString, iPos, 1, "CHARACTER":U) .
 
             IF cChar = "~"":U OR
                cChar = "'":U THEN DO:
@@ -377,6 +397,15 @@ CLASS Consultingwerk.Util.StringHelper:
                            lInQuote   = TRUE .
                 END.
                 ELSE IF cQuoteChar = cChar THEN DO:
+                    /* SCL-1639: Within a Query String, consider "" as a character within the
+                                 quoted string */
+                    IF plParseQueryString AND
+                       iPos < iLength - 1 AND
+                       SUBSTRING (pcString, iPos + 1, 1, "CHARACTER":U) = cQuoteChar THEN DO:
+                        ASSIGN iPos = iPos + 2 .
+                        NEXT parsingLoop .
+                    END.
+
                     ASSIGN lInQuote   = FALSE
                            cQuoteChar = "":U .
 
@@ -1169,6 +1198,41 @@ CLASS Consultingwerk.Util.StringHelper:
 
         RETURN pcSourceString .
     END METHOD .
+
+    /**
+     * Purpose: Replaces "" or '' within a string with only a single " or '
+     * Notes:   Reverses the QUOTER() functions handling of " and ' in a string
+     *          See SCL-1639 for details
+     * @param pcString The source string
+     * @return The resulting string
+     */
+    METHOD PUBLIC STATIC CHARACTER ResolveDoubleQuotes (pcString AS CHARACTER):
+
+        DEFINE VARIABLE iLength AS INTEGER   NO-UNDO .
+        DEFINE VARIABLE i       AS INTEGER   NO-UNDO .
+        DEFINE VARIABLE cChar   AS CHARACTER NO-UNDO .
+        DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO .
+
+        ASSIGN iLength = LENGTH (pcString, "CHARACTER":U) .
+
+        IF iLength > 0 THEN
+            ASSIGN cReturn = SUBSTRING (pcString, 1, 1, "CHARACTER":U) .
+
+        charLoop:
+        DO i = 2 TO iLength:
+            ASSIGN cChar = SUBSTRING (pcString, i, 1, "CHARACTER":U) .
+
+            IF (cChar = '"':U OR cChar = "'":U) AND SUBSTRING (pcString, i - 1, 1, "CHARACTER":U) = cChar THEN DO:
+                i = i + 1 .
+                ASSIGN cChar = SUBSTRING (pcString, i, 1, "CHARACTER":U) .
+            END.
+
+            cReturn = cReturn + cChar .
+        END.
+
+        RETURN cReturn.
+
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Removes quotes from a Character String

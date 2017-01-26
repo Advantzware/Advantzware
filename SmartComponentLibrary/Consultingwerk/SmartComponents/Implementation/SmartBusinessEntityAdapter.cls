@@ -538,10 +538,10 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter
     DEFINE PUBLIC OVERRIDE PROPERTY EntityView AS CHARACTER NO-UNDO INIT "":U
     GET.
     SET (arg AS CHARACTER):
-        DEFINE VARIABLE hDataset AS HANDLE  NO-UNDO.
-        DEFINE VARIABLE hBuffer  AS HANDLE  NO-UNDO.
-        DEFINE VARIABLE cBuffer  AS CHARACTER NO-UNDO.
-        DEFINE VARIABLE i        AS INTEGER NO-UNDO.
+        DEFINE VARIABLE lhDataset AS HANDLE  NO-UNDO.
+        DEFINE VARIABLE hBuffer   AS HANDLE  NO-UNDO.
+        DEFINE VARIABLE cBuffer   AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE i         AS INTEGER NO-UNDO.
 
         IF THIS-OBJECT:DesignTime AND
            NOT THIS-OBJECT:DesingerHostLoading AND
@@ -553,11 +553,11 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter
             ELSE
                 UNDO, THROW NEW AppError ("Unable to set EntityView before EntityName is set."{&TRAN}, 0) .
 
-            ASSIGN hDataset = THIS-OBJECT:DataSet .
+            ASSIGN lhDataset = THIS-OBJECT:DataSet .
 
-            IF VALID-HANDLE (hDataset) THEN DO i = 1 TO NUM-ENTRIES (arg):
+            IF VALID-HANDLE (lhDataset) THEN DO i = 1 TO NUM-ENTRIES (arg):
                 ASSIGN cBuffer = ENTRY (i, arg)
-                       hBuffer = hDataset:GET-BUFFER-HANDLE (cBuffer) NO-ERROR .
+                       hBuffer = lhDataset:GET-BUFFER-HANDLE (cBuffer) NO-ERROR .
 
                 IF NOT VALID-HANDLE (hBuffer) THEN
                     UNDO, THROW NEW AppError (SUBSTITUTE ("The entered table &1 name is not valid."{&TRAN}, cBuffer) , 0) .
@@ -566,8 +566,8 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter
                 UNDO, THROW NEW AppError ("Unable to set EntityView because Dataset is not valid."{&TRAN}, 0) .
 
             FINALLY:
-                IF VALID-HANDLE (hDataset) THEN
-                    DELETE OBJECT hDataset .
+                IF VALID-HANDLE (lhDataset) THEN
+                    DELETE OBJECT lhDataset .
             END FINALLY.
         END.
 
@@ -771,16 +771,12 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter
      */
     METHOD OVERRIDE PROTECTED VOID AttachQueryToBindingSource ():
 
-        DEFINE VARIABLE hDataset AS HANDLE NO-UNDO.
-
-        ASSIGN hDataset = THIS-OBJECT:DataSet .
-
         IF THIS-OBJECT:BindTo = "QUERY":U THEN
             ASSIGN THIS-OBJECT:BindingSource:AutoSync = TRUE
                    THIS-OBJECT:BindingSource:Handle   = THIS-OBJECT:QueryHandle .
         ELSE
             ASSIGN THIS-OBJECT:BindingSource:AutoSync = TRUE
-                   THIS-OBJECT:BindingSource:Handle   = hDataset .
+                   THIS-OBJECT:BindingSource:Handle   = THIS-OBJECT:DataSet .
 
     END METHOD.
 
@@ -1474,7 +1470,7 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter
      */
     METHOD PROTECTED HANDLE GetEmptyDataset ():
 
-        DEFINE VARIABLE hDataset   AS HANDLE NO-UNDO.
+        DEFINE VARIABLE lhDataset AS HANDLE NO-UNDO.
 
         DEFINE VARIABLE oServiceAdapter AS Consultingwerk.OERA.IServiceAdapter NO-UNDO .
         DEFINE VARIABLE hContextDataset AS HANDLE                              NO-UNDO .
@@ -1500,20 +1496,20 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter
             CAST(oServiceAdapter,
                  IServiceAdapterWithContextDataset):FetchDataset (THIS-OBJECT:AppServerPartition,
                                                                   THIS-OBJECT:EntityName,
-                                                                  OUTPUT DATASET-HANDLE hDataset BY-REFERENCE,
+                                                                  OUTPUT DATASET-HANDLE lhDataset BY-REFERENCE,
                                                                   hContextDataset) .
         END.
         ELSE
         oServiceAdapter:FetchDataset (THIS-OBJECT:AppServerPartition,
                                       THIS-OBJECT:EntityName,
-                                      OUTPUT DATASET-HANDLE hDataset BY-REFERENCE) .
+                                      OUTPUT DATASET-HANDLE lhDataset BY-REFERENCE) .
 
         IF THIS-OBJECT:DesignTime AND
            BusinessEntityDesignerSupport:SearchBusinessEntititiesOnAppServer AND
            BusinessEntityDesignerSupport:DisconnectAppServerAfterEachRequest THEN
             FrameworkSettings:AppServerServiceManager:DisconnectService ("":U) .
 
-        RETURN hDataset .
+        RETURN lhDataset .
 
     END METHOD.
 
@@ -2389,12 +2385,12 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter
         /* Used to ignore duplicate field names from joined tables */
         DEFINE VARIABLE cIncludeList          AS CHARACTER NO-UNDO.
         DEFINE VARIABLE cExceptList           AS CHARACTER NO-UNDO.
-        DEFINE VARIABLE hDataset AS HANDLE NO-UNDO.
+        DEFINE VARIABLE lhDataset             AS HANDLE    NO-UNDO.
 
-        ASSIGN hDataset = THIS-OBJECT:DataSet .
+        ASSIGN lhDataset = THIS-OBJECT:DataSet .
 
         IF THIS-OBJECT:BindTo = "QUERY":U THEN DO:
-            THIS-OBJECT:QueryHandle = SmartBusinessEntityQuerySupport:PrepareBindingQuery (hDataset,
+            THIS-OBJECT:QueryHandle = SmartBusinessEntityQuerySupport:PrepareBindingQuery (lhDataset,
                                                                THIS-OBJECT:EntityTable,
                                                                THIS-OBJECT:EntityView,
                                                                THIS-OBJECT:EntityJoin,
@@ -2418,7 +2414,7 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter
                 END.
             END.
 
-            ASSIGN THIS-OBJECT:QueryHandle = hDataset:TOP-NAV-QUERY (1) .
+            ASSIGN THIS-OBJECT:QueryHandle = lhDataset:TOP-NAV-QUERY (1) .
         END.
 
     END METHOD.
@@ -2458,7 +2454,7 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter
     METHOD PUBLIC VOID RefetchCurrentRow (pcViewTables AS CHARACTER):
 
         DEFINE VARIABLE oRequest        AS FetchDataRequest NO-UNDO .
-        DEFINE VARIABLE hDataset        AS HANDLE           NO-UNDO .
+        DEFINE VARIABLE lhDataset       AS HANDLE           NO-UNDO .
         DEFINE VARIABLE hBuffer         AS HANDLE           NO-UNDO .
         DEFINE VARIABLE cTables         AS CHARACTER        NO-UNDO .
         DEFINE VARIABLE cFindString     AS CHARACTER        NO-UNDO .
@@ -2500,9 +2496,9 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter
         THIS-OBJECT:RetrieveData (THIS-OBJECT:AppServerPartition,
                                   THIS-OBJECT:EntityName,
                                   oRequest,
-                                  OUTPUT DATASET-HANDLE hDataset) .
+                                  OUTPUT DATASET-HANDLE lhDataset) .
 
-        THIS-OBJECT:DataSet:COPY-DATASET (hDataset, FALSE, TRUE) .
+        THIS-OBJECT:DataSet:COPY-DATASET (lhDataset, FALSE, TRUE) .
 
         RepositionCurrentRow () .
 
@@ -2520,8 +2516,8 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter
         THIS-OBJECT:OnCurrentChanged (System.EventArgs:Empty) .
 
         FINALLY:
-            IF VALID-HANDLE (hDataset) THEN
-                DELETE OBJECT hDataset .
+            IF VALID-HANDLE (lhDataset) THEN
+                DELETE OBJECT lhDataset .
         END FINALLY.
 
     END METHOD.
@@ -2715,7 +2711,7 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter
      */
     METHOD PROTECTED OVERRIDE VOID SetQuerySort (arg AS CHARACTER):
 
-        DEFINE VARIABLE cQueryString     AS CHARACTER         NO-UNDO.
+        DEFINE VARIABLE lcQueryString    AS CHARACTER         NO-UNDO.
         DEFINE VARIABLE cNewQueryString  AS CHARACTER         NO-UNDO.
         DEFINE VARIABLE lPositionWasZero AS LOGICAL           NO-UNDO INIT FALSE .
         DEFINE VARIABLE iBatchSize       AS INTEGER           NO-UNDO .
@@ -2740,32 +2736,32 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter
 
         IF iBatchSize > 0 THEN DO:
             IF THIS-OBJECT:FetchQueryString > "":U THEN
-                cQueryString = ENTRY(1, THIS-OBJECT:FetchQueryString, CHR(1)) .
+                lcQueryString = ENTRY(1, THIS-OBJECT:FetchQueryString, CHR(1)) .
             ELSE
-                cQueryString = ENTRY(1, THIS-OBJECT:QueryString, CHR(1)) .
+                lcQueryString = ENTRY(1, THIS-OBJECT:QueryString, CHR(1)) .
 
-            IF INDEX (cQueryString, " BY ":U) > 0 THEN
-                cQueryString = SUBSTRING (cQueryString, 1, INDEX (cQueryString, " BY ":U) - 1) .
+            IF INDEX (lcQueryString, " BY ":U) > 0 THEN
+                lcQueryString = SUBSTRING (lcQueryString, 1, INDEX (lcQueryString, " BY ":U) - 1) .
 
-            IF TRIM(cQueryString) = "":U THEN DO:
+            IF TRIM(lcQueryString) = "":U THEN DO:
 .                IF CharacterType:IsNullOrEmpty(THIS-OBJECT:EntityTable) THEN
                     UNDO, THROW NEW SmartBusinessEntityAdapterException ("Cannot set QueryString when EntityTable is not set."{&TRAN}, 0) .
 
-                cQueryString = "FOR EACH ":U + THIS-OBJECT:EntityTable .
+                lcQueryString = "FOR EACH ":U + THIS-OBJECT:EntityTable .
             END.
 
-            ASSIGN cQuerySort   = arg
-                   cQueryString = SUBSTITUTE ("&1 &2":U,
-                                              cQueryString,
-                                              cQuerySort) .
+            ASSIGN cQuerySort    = arg
+                   lcQueryString = SUBSTITUTE ("&1 &2":U,
+                                               lcQueryString,
+                                               cQuerySort) .
 
             IF THIS-OBJECT:FetchQueryString > "":U THEN
                 ASSIGN cNewQueryString                   = THIS-OBJECT:FetchQueryString
-                       ENTRY(1, cNewQueryString, CHR(1)) = cQueryString
+                       ENTRY(1, cNewQueryString, CHR(1)) = lcQueryString
                        THIS-OBJECT:FetchQueryString      = cNewQueryString .
             ELSE
                 ASSIGN cNewQueryString                   = THIS-OBJECT:QueryString
-                       ENTRY(1, cNewQueryString, CHR(1)) = cQueryString
+                       ENTRY(1, cNewQueryString, CHR(1)) = lcQueryString
                        THIS-OBJECT:FetchQueryString      = cNewQueryString .
 
             /* Mike Fechner, Consultingwerk Ltd. 01.03.2011
@@ -2784,20 +2780,20 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter
         IF NOT VALID-HANDLE (THIS-OBJECT:QueryHandle) THEN
             RETURN .
 
-        ASSIGN cQueryString = THIS-OBJECT:QueryHandle:PREPARE-STRING .
+        ASSIGN lcQueryString = THIS-OBJECT:QueryHandle:PREPARE-STRING .
 
-        IF INDEX (cQueryString, " BY ":U) > 0 THEN
-            cQueryString = SUBSTRING (cQueryString, 1, INDEX (cQueryString, " BY ":U) - 1) .
+        IF INDEX (lcQueryString, " BY ":U) > 0 THEN
+            lcQueryString = SUBSTRING (lcQueryString, 1, INDEX (lcQueryString, " BY ":U) - 1) .
 
-        cQueryString = SUBSTITUTE ("&1 &2":U, cQueryString, cQuerySort) .
+        lcQueryString = SUBSTITUTE ("&1 &2":U, lcQueryString, cQuerySort) .
 
         THIS-OBJECT:QueryHandle:QUERY-CLOSE () .
 
         DO ON ERROR UNDO, THROW:
-            THIS-OBJECT:QueryHandle:QUERY-PREPARE (cQueryString)  .
+            THIS-OBJECT:QueryHandle:QUERY-PREPARE (lcQueryString)  .
 
             CATCH querypreperr AS Progress.Lang.Error:
-                UNDO, THROW Exception:FromErrorMessageAndError (SUBSTITUTE ("Error opening Query: &1"{&TRAN}, cQueryString),
+                UNDO, THROW Exception:FromErrorMessageAndError (SUBSTITUTE ("Error opening Query: &1"{&TRAN}, lcQueryString),
                                                                 0,
                                                                 querypreperr) .
             END CATCH.
@@ -2985,7 +2981,7 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter
         DEFINE VARIABLE iPos                  AS INTEGER                               NO-UNDO.
 
         DEFINE VARIABLE lWaitStateActive      AS LOGICAL                               NO-UNDO.
-        DEFINE VARIABLE cQueryString          AS CHARACTER                             NO-UNDO.
+        DEFINE VARIABLE lcQueryString         AS CHARACTER                             NO-UNDO.
         DEFINE VARIABLE lPositionWasZero      AS LOGICAL                               NO-UNDO INIT FALSE .
         DEFINE VARIABLE lBindingSourceCreated AS LOGICAL                               NO-UNDO INIT FALSE .
         DEFINE VARIABLE lFirstTime            AS LOGICAL                               NO-UNDO .
@@ -3252,26 +3248,26 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter
         END.
 
         IF THIS-OBJECT:QuerySort > "":U THEN DO:
-            ASSIGN cQueryString = THIS-OBJECT:QueryHandle:PREPARE-STRING .
+            ASSIGN lcQueryString = THIS-OBJECT:QueryHandle:PREPARE-STRING .
 
             /* Mike Fechner, Consultingwerk Ltd. 02.02.2011
                Bug 2582: This manipulation of the QueryString is not 100% rock solid,
                but searching for _BY_ provides less false matches then just searching
                for BY. Ultimatively we need to parse the QueryString while respecting
                single and double quotes. */
-            IF INDEX (cQueryString, " BY ":U) > 0 THEN
-                cQueryString = SUBSTRING (cQueryString, 1, INDEX (cQueryString, " BY ":U) - 1) .
+            IF INDEX (lcQueryString, " BY ":U) > 0 THEN
+                lcQueryString = SUBSTRING (lcQueryString, 1, INDEX (lcQueryString, " BY ":U) - 1) .
 
             /* Marko Rüterbories, Consultingwerk Ltd. 30.06.2010
-               Bug 2357: Added a whitespace between cQueryString and cQuerySort to prevent queries from
+               Bug 2357: Added a whitespace between lcQueryString and cQuerySort to prevent queries from
                beeing composed like "PRESELECT EACH fooBY foo.field" */
-            cQueryString = SUBSTITUTE ("&1 &2":U, cQueryString, cQuerySort) .
+            lcQueryString = SUBSTITUTE ("&1 &2":U, lcQueryString, cQuerySort) .
 
             DO ON ERROR UNDO, THROW:
-                THIS-OBJECT:QueryHandle:QUERY-PREPARE (cQueryString)  .
+                THIS-OBJECT:QueryHandle:QUERY-PREPARE (lcQueryString)  .
 
                 CATCH querypreperr AS Progress.Lang.Error:
-                    UNDO, THROW Exception:FromErrorMessageAndError (SUBSTITUTE ("Error opening Query: &1"{&TRAN}, cQueryString),
+                    UNDO, THROW Exception:FromErrorMessageAndError (SUBSTITUTE ("Error opening Query: &1"{&TRAN}, lcQueryString),
                                                                     0,
                                                                     querypreperr) .
                 END CATCH.
@@ -3281,18 +3277,18 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter
             /* Mike Fechner, Consultingwerk Ltd. 10.10.2009
                If QueryString contains BY phrase, then the Adapters query
                needs to be sorted as well. */
-            ASSIGN cQueryString = THIS-OBJECT:QueryHandle:PREPARE-STRING .
+            ASSIGN lcQueryString = THIS-OBJECT:QueryHandle:PREPARE-STRING .
 
-            IF INDEX (cQueryString, " BY ":U) > 0 THEN
-                cQueryString = SUBSTRING (cQueryString, 1, INDEX (cQueryString, " BY ":U) - 1) .
+            IF INDEX (lcQueryString, " BY ":U) > 0 THEN
+                lcQueryString = SUBSTRING (lcQueryString, 1, INDEX (lcQueryString, " BY ":U) - 1) .
 
-            cQueryString = cQueryString + " ":U + SUBSTRING (ENTRY(1, cQueries, CHR(1)), INDEX (ENTRY(1, cQueries, CHR(1)), " BY ":U)) .
+            lcQueryString = lcQueryString + " ":U + SUBSTRING (ENTRY(1, cQueries, CHR(1)), INDEX (ENTRY(1, cQueries, CHR(1)), " BY ":U)) .
 
 
-            THIS-OBJECT:QueryHandle:QUERY-PREPARE (cQueryString)  .
+            THIS-OBJECT:QueryHandle:QUERY-PREPARE (lcQueryString)  .
 
             CATCH querypreperr AS Progress.Lang.Error:
-                UNDO, THROW Exception:FromErrorMessageAndError (SUBSTITUTE ("Error preparing SmartBusinessEntityAdapter Query: &1"{&TRAN}, cQueryString),
+                UNDO, THROW Exception:FromErrorMessageAndError (SUBSTITUTE ("Error preparing SmartBusinessEntityAdapter Query: &1"{&TRAN}, lcQueryString),
                                                                 0,
                                                                 querypreperr) .
             END CATCH.
@@ -3381,6 +3377,7 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter
 
             THIS-OBJECT:PreviousPosition = THIS-OBJECT:BindingSource:Position NO-ERROR .
         END FINALLY.
+
     END METHOD.
 
     /**
@@ -3448,7 +3445,7 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter
      */
     METHOD PROTECTED VOID ShowTablePickerDialog ():
 
-        DEFINE VARIABLE hDataset    AS HANDLE    NO-UNDO.
+        DEFINE VARIABLE lhDataset   AS HANDLE    NO-UNDO.
         DEFINE VARIABLE cTables     AS CHARACTER NO-UNDO.
         DEFINE VARIABLE cEntityJoin AS CHARACTER NO-UNDO.
         DEFINE VARIABLE cOldTables  AS CHARACTER NO-UNDO.
@@ -3457,9 +3454,9 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter
         IF NOT THIS-OBJECT:DesignTime THEN
             RETURN .
 
-        ASSIGN hDataset = THIS-OBJECT:Dataset .
+        ASSIGN lhDataset = THIS-OBJECT:Dataset .
 
-        IF NOT VALID-HANDLE (hDataset) THEN DO:
+        IF NOT VALID-HANDLE (lhDataset) THEN DO:
             MESSAGE "Unable to start table picker dialog without a valid dataset."{&TRAN}
                 VIEW-AS ALERT-BOX WARNING .
 
@@ -3469,7 +3466,7 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter
         ASSIGN cEntityJoin = THIS-OBJECT:EntityJoin .
 
         RUN Consultingwerk/SmartComponents/Support/SmartBusinessEntityAdapterDesigner_ShowBusinessEntityTblPic.p
-                (hDataset,
+                (lhDataset,
                  TRIM (SUBSTITUTE ("&1,&2":U, THIS-OBJECT:EntityTable, THIS-OBJECT:EntityView), ",":U),
                  OUTPUT cTables,
                  INPUT-OUTPUT cEntityJoin) .
@@ -3502,8 +3499,8 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter
         Consultingwerk.Util.DesignerHelper:RefreshPropertyGrid (THIS-OBJECT) .
 
         FINALLY:
-            IF VALID-HANDLE (hDataset) THEN
-                DELETE OBJECT hDataset .
+            IF VALID-HANDLE (lhDataset) THEN
+                DELETE OBJECT lhDataset .
         END FINALLY.
 
     END METHOD.

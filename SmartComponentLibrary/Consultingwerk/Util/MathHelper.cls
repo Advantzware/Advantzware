@@ -89,7 +89,7 @@ CLASS Consultingwerk.Util.MathHelper:
             iPos    = LENGTH (pcHex)
             iOffset = 1.
 
-        REPEAT WHILE iPos >= 1:
+        REPEAT WHILE iPos >= 1 ON ERROR UNDO, THROW:
 
             i = INDEX ("0123456789ABCDEF":U,
                        SUBSTRING (pcHex, iPos, 1)) - 1.
@@ -136,7 +136,7 @@ CLASS Consultingwerk.Util.MathHelper:
 
         iOffset = 61 .
 
-        REPEAT WHILE iOffset >= 1:
+        REPEAT WHILE iOffset >= 1 ON ERROR UNDO, THROW:
 
             i = GET-BITS (piInt, iOffset, 4).
 

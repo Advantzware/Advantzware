@@ -70,14 +70,12 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.RollbaseImporterPlugin
 
         DEFINE VARIABLE oForm          AS SelectObjectNameDialog                          NO-UNDO .
         DEFINE VARIABLE oDialogResult  AS System.Windows.Forms.DialogResult               NO-UNDO .
-        DEFINE VARIABLE cObjectDefName AS CHARACTER                                       NO-UNDO .
         DEFINE VARIABLE oAdapter       AS Consultingwerk.RollbaseAdapter.IRollbaseAdapter NO-UNDO .
         DEFINE VARIABLE cName          AS CHARACTER                                       NO-UNDO .
         DEFINE VARIABLE cDataType      AS CHARACTER                                       NO-UNDO .
 
         DEFINE BUFFER b_eBusinessEntity FOR eBusinessEntity .
         DEFINE BUFFER b_eTable FOR eTable .
-        DEFINE BUFFER b_eTable2 FOR eTable .
         DEFINE BUFFER b_eField FOR eField .
         DEFINE BUFFER b_eIndex FOR eIndex .
 
@@ -143,7 +141,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.RollbaseImporterPlugin
                b_eIndex.IndexPrimary       = TRUE
                b_eIndex.IndexUnique        = TRUE .
 
-        FOR EACH DataFieldDef BY DataFieldDef.id:
+        FOR EACH DataFieldDef BY DataFieldDef.id ON ERROR UNDO, THROW:
             IF DataFieldDef.dataName = "FieldRelationShip":U THEN
                 NEXT .
 

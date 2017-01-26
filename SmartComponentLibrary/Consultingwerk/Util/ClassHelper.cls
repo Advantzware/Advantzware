@@ -529,7 +529,7 @@ CLASS Consultingwerk.Util.ClassHelper:
         END.
 
         classPathLoop:
-        FOR EACH ttClassPath:
+        FOR EACH ttClassPath ON ERROR UNDO, THROW:
             FILE-INFORMATION:FILE-NAME = ttClassPath.Directory .
 
             ClassHelper:WriteLogMessage (SUBSTITUTE ("Processing Directory: &1 Full-Pathname: &2":U,
@@ -550,7 +550,7 @@ CLASS Consultingwerk.Util.ClassHelper:
                                        OUTPUT TABLE return2_ttClassNames) .
 
             return2_ttClassNamesLoop:
-            FOR EACH return2_ttClassNames:
+            FOR EACH return2_ttClassNames ON ERROR UNDO, THROW:
                 IF CAN-FIND (FIRST return_ttClassNames WHERE return_ttClassNames.ClassName = return2_ttClassNames.ClassName) THEN
                     NEXT return2_ttClassNamesLoop .
 
@@ -731,7 +731,7 @@ CLASS Consultingwerk.Util.ClassHelper:
             RETURN.
         END.
 
-        classpathentry: FOR EACH ttClassPath:
+        classpathentry: FOR EACH ttClassPath ON ERROR UNDO, THROW:
             FILE-INFORMATION:FILE-NAME = ttClassPath.Directory .
 
             IF FILE-INFORMATION:FULL-PATHNAME = ? THEN
@@ -748,7 +748,7 @@ CLASS Consultingwerk.Util.ClassHelper:
                                                OUTPUT TABLE return2_ttClassNames) .
 
             return2_ttClassNames:
-            FOR EACH return2_ttClassNames:
+            FOR EACH return2_ttClassNames ON ERROR UNDO, THROW:
                 IF CAN-FIND (FIRST return_ttClassNames WHERE return_ttClassNames.ClassName = return2_ttClassNames.ClassName) THEN
                     NEXT return2_ttClassNames .
 

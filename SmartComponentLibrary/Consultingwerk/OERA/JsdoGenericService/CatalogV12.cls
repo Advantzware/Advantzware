@@ -516,7 +516,7 @@ CLASS Consultingwerk.OERA.JsdoGenericService.CatalogV12
                 IF oMethod:DatasetParameterMode[i] = DatasetParameterModeEnum:Input OR
                    oMethod:DatasetParameterMode[i] = DatasetParameterModeEnum:InputOutput THEN DO:
 
-                    oParameterNames:Add(oMethod:DatasetHandles[1]:NAME) .
+                    oParameterNames:Add(oMethod:DatasetHandles[i]:NAME) .
                     oParameterTypes:Add("REQUEST_BODY":U) .
                 END.
             END.
@@ -595,7 +595,7 @@ CLASS Consultingwerk.OERA.JsdoGenericService.CatalogV12
     METHOD PROTECTED JsonObject GetResource (pcEntityName AS CHARACTER,
                                              phDataset AS HANDLE):
 
-        DEFINE VARIABLE oResource  AS JsonObject NO-UNDO .
+        DEFINE VARIABLE oResource AS JsonObject NO-UNDO .
         DEFINE VARIABLE oRelations AS JsonArray  NO-UNDO .
 
         oResource = NEW JsonObject () .

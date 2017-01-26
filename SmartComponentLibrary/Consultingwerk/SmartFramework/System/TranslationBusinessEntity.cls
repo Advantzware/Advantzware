@@ -72,7 +72,7 @@ CLASS Consultingwerk.SmartFramework.System.TranslationBusinessEntity
 
             THIS-OBJECT:FetchData (oRequest) .
 
-            FOR EACH eSmartTranslation:
+            FOR EACH eSmartTranslation ON ERROR UNDO, THROW:
                 hBuffer:BUFFER-CREATE () .
                 hBuffer:BUFFER-COPY (BUFFER eSmartTranslation:HANDLE) .
                 hBuffer:BUFFER-RELEASE () .
@@ -139,7 +139,7 @@ CLASS Consultingwerk.SmartFramework.System.TranslationBusinessEntity
 
             THIS-OBJECT:FetchData (oRequest) .
 
-            FOR EACH eSmartTranslation:
+            FOR EACH eSmartTranslation ON ERROR UNDO, THROW:
                 hBuffer:BUFFER-CREATE () .
                 hBuffer:BUFFER-COPY (BUFFER eSmartTranslation:HANDLE) .
                 hBuffer:BUFFER-RELEASE () .

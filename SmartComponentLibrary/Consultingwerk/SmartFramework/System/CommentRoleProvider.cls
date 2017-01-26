@@ -25,6 +25,7 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 USING Consultingwerk.Framework.*                         FROM PROPATH .
 USING Consultingwerk.OERA.*                              FROM PROPATH .
 USING Consultingwerk.SmartFramework.ICommentRoleProvider FROM PROPATH .
+USING Consultingwerk.Util.*                              FROM PROPATH .
 USING Consultingwerk.Windows.Framework.System.*          FROM PROPATH .
 USING Progress.Lang.*                                    FROM PROPATH .
 
@@ -56,7 +57,7 @@ CLASS Consultingwerk.SmartFramework.System.CommentRoleProvider
 
         ASSIGN lReadFromBackend = TRUE .
 
-        FOR EACH eSmartCommentRole:
+        FOR EACH eSmartCommentRole ON ERROR UNDO, THROW:
 
             CREATE ttCommentRole .
             BUFFER-COPY eSmartCommentRole TO ttCommentRole
@@ -72,16 +73,11 @@ CLASS Consultingwerk.SmartFramework.System.CommentRoleProvider
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC INTEGER GetCount ():
 
-        DEFINE VARIABLE i AS INTEGER NO-UNDO.
-
         IF NOT lReadFromBackend THEN
             THIS-OBJECT:GetCommentRoles (OUTPUT TABLE ttCommentRole) .
 
-        FOR EACH ttCommentRole:
-            i = i + 1 .
-        END.
+        RETURN BufferHelper:NumRecords(BUFFER ttCommentRole:HANDLE) .
 
-        RETURN i .
     END METHOD .
 
 END CLASS.

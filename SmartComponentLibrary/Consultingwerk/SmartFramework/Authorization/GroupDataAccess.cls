@@ -146,7 +146,7 @@ CLASS Consultingwerk.SmartFramework.Authorization.GroupDataAccess
         DEFINE BUFFER bufSmartGroup        FOR SmartGroup.
         DEFINE BUFFER bufSmartLoginCompany FOR SmartLoginCompany .
 
-        FOR EACH eSmartGroup EXCLUSIVE-LOCK:
+        FOR EACH eSmartGroup EXCLUSIVE-LOCK ON ERROR UNDO, THROW:
 
             IF eSmartGroup.ParentGroupGuid > "":U THEN DO:
                 FIND FIRST bufSmartGroup WHERE bufSmartGroup.GroupGuid = eSmartGroup.ParentGroupGuid NO-LOCK NO-ERROR.

@@ -90,7 +90,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.RestServiceGeneratorPlugin I
 
         DEFINE VARIABLE cChildTables AS CHARACTER NO-UNDO.
 
-        FOR EACH b_eDataRelation WHERE b_eDataRelation.ParentTempTableName = pcParentTable :
+        FOR EACH b_eDataRelation WHERE b_eDataRelation.ParentTempTableName = pcParentTable ON ERROR UNDO, THROW:
 
             ASSIGN cChildTables = cChildTables + b_eDataRelation.ChildTempTableName + ",":U +
                                   THIS-OBJECT:ChildTablesOf (b_eDataRelation.ChildTempTableName) + ",":U.
@@ -180,7 +180,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.RestServiceGeneratorPlugin I
 
         END.
 
-        FOR EACH eDataRelation WHERE eDataRelation.BusinessEntityName = eBusinessEntity.BusinessEntityName:
+        FOR EACH eDataRelation WHERE eDataRelation.BusinessEntityName = eBusinessEntity.BusinessEntityName ON ERROR UNDO, THROW:
             ASSIGN lcRelations = lcRelations +
                                  SUBSTITUTE ("    DATA-RELATION &1 FOR &2, &3 &4        RELATION-FIELDS (&5)":U,
                                              eDataRelation.DataRelationName,
@@ -350,13 +350,13 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.RestServiceGeneratorPlugin I
 
         FIND FIRST eBusinessEntity .
 
-        FOR EACH eTable WHERE eTable.BusinessEntityName = eBusinessEntity.BusinessEntityName:
+        FOR EACH eTable WHERE eTable.BusinessEntityName = eBusinessEntity.BusinessEntityName ON ERROR UNDO, THROW:
             COPY-LOB FROM FILE cTemplate TO lcSource .
 
             ASSIGN cFields = "":U .
 
             FOR EACH eField WHERE eField.TempTableName = eTable.TempTableName
-                               BY eField.FieldOrder:
+                               BY eField.FieldOrder ON ERROR UNDO, THROW:
 
                 ASSIGN cFields = cFields +
                                  SUBSTITUTE ("    FIELD &1 AS &2":U,
@@ -384,7 +384,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.RestServiceGeneratorPlugin I
             ASSIGN cIndexes = "":U .
 
             FOR EACH eIndex WHERE eIndex.TempTableName = eTable.TempTableName
-                               BY eIndex.IndexOrder:
+                               BY eIndex.IndexOrder ON ERROR UNDO, THROW:
 
                 IF eIndex.FieldNames > "":U THEN .
                 ELSE NEXT .
@@ -468,9 +468,8 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.RestServiceGeneratorPlugin I
         DEFINE BUFFER b_eDataRelation FOR eDataRelation .
 
         DEFINE VARIABLE cTopNavBuffers AS CHARACTER NO-UNDO.
-        DEFINE VARIABLE i              AS INTEGER   NO-UNDO.
 
-        FOR EACH b_eTable:
+        FOR EACH b_eTable ON ERROR UNDO, THROW:
             IF NOT CAN-FIND (b_eDataRelation WHERE b_eDataRelation.BusinessEntityName = b_eTable.BusinessEntityName
                                                AND b_eDataRelation.ChildTempTableName = b_eTable.TempTableName) THEN
 

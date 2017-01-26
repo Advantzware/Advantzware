@@ -701,7 +701,7 @@ CLASS Consultingwerk.SmartComponents.Base.SmartViewerControl
                 RETURN oControl .
             END.
 
-            FOR EACH ttSmartGroupAssignTarget WHERE ttSmartGroupAssignTarget.RecordOwner = THIS-OBJECT:
+            FOR EACH ttSmartGroupAssignTarget WHERE ttSmartGroupAssignTarget.RecordOwner = THIS-OBJECT ON ERROR UNDO, THROW:
                 oTarget = CAST (ttSmartGroupAssignTarget.SmartGroupAssignTarget,
                                 ISmartGroupAssignTarget) .
 
@@ -1308,7 +1308,7 @@ CLASS Consultingwerk.SmartComponents.Base.SmartViewerControl
             DEFINE VARIABLE oThisObject AS Progress.Lang.Object NO-UNDO .
             oThisObject = THIS-OBJECT .
 
-            FOR EACH ttSavedViewerValues WHERE ttSavedViewerValues.RecordOwner = oThisObject :
+            FOR EACH ttSavedViewerValues WHERE ttSavedViewerValues.RecordOwner = oThisObject ON ERROR UNDO, THROW:
                 DELETE ttSavedViewerValues.
             END.
         END FINALLY.
@@ -1451,7 +1451,7 @@ CLASS Consultingwerk.SmartComponents.Base.SmartViewerControl
                                    OR (ttEnableFields.RecordOwner = THIS-OBJECT
                                    AND ttEnableFields.EnableMode  = ControlEnabledEnum:Update)
                                    OR (ttEnableFields.RecordOwner = THIS-OBJECT
-                                   AND ttEnableFields.EnableMode  = ControlEnabledEnum:UpdateOnly):
+                                   AND ttEnableFields.EnableMode  = ControlEnabledEnum:UpdateOnly) ON ERROR UNDO, THROW:
 
             IF NOT VALID-OBJECT(ttEnableFields.ChildControl) THEN
                 NEXT.
@@ -1496,7 +1496,7 @@ CLASS Consultingwerk.SmartComponents.Base.SmartViewerControl
         END.
 
         /* DisableFields in every registered SmartGroupAssignTarget */
-        FOR EACH ttSmartGroupAssignTarget WHERE ttSmartGroupAssignTarget.RecordOwner = THIS-OBJECT NO-LOCK:
+        FOR EACH ttSmartGroupAssignTarget WHERE ttSmartGroupAssignTarget.RecordOwner = THIS-OBJECT NO-LOCK ON ERROR UNDO, THROW:
             IF NOT VALID-OBJECT (ttSmartGroupAssignTarget.SmartGroupAssignTarget) THEN
                 MessageFormHelper:ShowMessage ("An invalid SmartGroupAssignTarget reference was detected during DisableFields."{&TRAN},
                                                (IF VALID-OBJECT (THIS-OBJECT:FindForm()) THEN THIS-OBJECT:FindForm():Text ELSE "SmartViewerControl":U),
@@ -1599,7 +1599,7 @@ CLASS Consultingwerk.SmartComponents.Base.SmartViewerControl
         IF (pcFields = EnableFieldsEnum:Add) THEN
             ASSIGN lAdding = TRUE .
 
-        FOR EACH ttEnableFields WHERE ttEnableFields.RecordOwner = THIS-OBJECT:
+        FOR EACH ttEnableFields WHERE ttEnableFields.RecordOwner = THIS-OBJECT ON ERROR UNDO, THROW:
 
             IF NOT VALID-OBJECT(ttEnableFields.ChildControl) THEN
                 NEXT.
@@ -1654,7 +1654,7 @@ CLASS Consultingwerk.SmartComponents.Base.SmartViewerControl
         END.
 
         /* EnableFields in every registered SmartGroupAssignTarget */
-        FOR EACH ttSmartGroupAssignTarget WHERE ttSmartGroupAssignTarget.RecordOwner = THIS-OBJECT NO-LOCK:
+        FOR EACH ttSmartGroupAssignTarget WHERE ttSmartGroupAssignTarget.RecordOwner = THIS-OBJECT NO-LOCK ON ERROR UNDO, THROW:
             IF NOT VALID-OBJECT (ttSmartGroupAssignTarget.SmartGroupAssignTarget) THEN
                 MessageFormHelper:ShowMessage ("An invalid SmartGroupAssignTarget reference was detected during EnableFields."{&TRAN},
                                                (IF VALID-OBJECT (THIS-OBJECT:FindForm()) THEN THIS-OBJECT:FindForm():Text ELSE "SmartViewerControl":U),
@@ -1929,7 +1929,7 @@ CLASS Consultingwerk.SmartComponents.Base.SmartViewerControl
                    bttTabOrder.TabOrder     = oControl:TabIndex .
         END.
 
-        FOR EACH bttTabOrder WHERE bttTabOrder.RecordOwner = poControl BY bttTabOrder.TabOrder:
+        FOR EACH bttTabOrder WHERE bttTabOrder.RecordOwner = poControl BY bttTabOrder.TabOrder ON ERROR UNDO, THROW:
             oChildControl = CAST(bttTabOrder.ChildControl, Control) .
 
             IF oChildControl:Controls:Count > 0 THEN
@@ -1945,7 +1945,7 @@ CLASS Consultingwerk.SmartComponents.Base.SmartViewerControl
         FINALLY:
             ASSIGN oChildControl = ? .
 
-            FOR EACH bttTabOrder WHERE bttTabOrder.RecordOwner = poControl:
+            FOR EACH bttTabOrder WHERE bttTabOrder.RecordOwner = poControl ON ERROR UNDO, THROW:
                 DELETE bttTabOrder .
             END.
         END FINALLY.
@@ -2205,7 +2205,7 @@ CLASS Consultingwerk.SmartComponents.Base.SmartViewerControl
             IF VALID-OBJECT(oControl) THEN
                 RETURN THIS-OBJECT .
 
-            FOR EACH ttSmartGroupAssignTarget WHERE ttSmartGroupAssignTarget.RecordOwner = THIS-OBJECT:
+            FOR EACH ttSmartGroupAssignTarget WHERE ttSmartGroupAssignTarget.RecordOwner = THIS-OBJECT ON ERROR UNDO, THROW:
                 oTarget = CAST (ttSmartGroupAssignTarget.SmartGroupAssignTarget,
                                 ISmartGroupAssignTarget) .
 
@@ -3525,7 +3525,7 @@ CLASS Consultingwerk.SmartComponents.Base.SmartViewerControl
 
         RecurseRestoreCurrentValues (THIS-OBJECT) .
 
-        FOR EACH ttSmartGroupAssignTarget WHERE ttSmartGroupAssignTarget.RecordOwner = THIS-OBJECT:
+        FOR EACH ttSmartGroupAssignTarget WHERE ttSmartGroupAssignTarget.RecordOwner = THIS-OBJECT ON ERROR UNDO, THROW:
             CAST(ttSmartGroupAssignTarget.SmartGroupAssignTarget, ISmartGroupAssignTarget):RestoreValuesForCopy () .
         END.
 
@@ -4015,7 +4015,7 @@ CLASS Consultingwerk.SmartComponents.Base.SmartViewerControl
 
         RecurseStoreCurrentValues (THIS-OBJECT) .
 
-        FOR EACH ttSmartGroupAssignTarget WHERE ttSmartGroupAssignTarget.RecordOwner = THIS-OBJECT:
+        FOR EACH ttSmartGroupAssignTarget WHERE ttSmartGroupAssignTarget.RecordOwner = THIS-OBJECT ON ERROR UNDO, THROW:
             CAST(ttSmartGroupAssignTarget.SmartGroupAssignTarget, ISmartGroupAssignTarget):StoreValuesForCopy () .
         END.
 
@@ -4184,15 +4184,15 @@ CLASS Consultingwerk.SmartComponents.Base.SmartViewerControl
 
         DELETE OBJECT oSmartTableIOSources .
 
-        FOR EACH ttEnableFields WHERE ttEnableFields.RecordOwner = THIS-OBJECT:
+        FOR EACH ttEnableFields WHERE ttEnableFields.RecordOwner = THIS-OBJECT ON ERROR UNDO, THROW:
             DELETE ttEnableFields .
         END.
 
-        FOR EACH ttSmartGroupAssignTarget WHERE ttSmartGroupAssignTarget.RecordOwner = THIS-OBJECT:
+        FOR EACH ttSmartGroupAssignTarget WHERE ttSmartGroupAssignTarget.RecordOwner = THIS-OBJECT ON ERROR UNDO, THROW:
             DELETE ttSmartGroupAssignTarget.
         END.
 
-        FOR EACH ttSavedViewerValues WHERE ttSavedViewerValues.RecordOwner = THIS-OBJECT:
+        FOR EACH ttSavedViewerValues WHERE ttSavedViewerValues.RecordOwner = THIS-OBJECT ON ERROR UNDO, THROW:
             DELETE ttSavedViewerValues.
         END.
 

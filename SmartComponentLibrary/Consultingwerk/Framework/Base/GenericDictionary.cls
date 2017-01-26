@@ -61,7 +61,7 @@ CLASS Consultingwerk.Framework.Base.GenericDictionary
 
         DEFINE BUFFER ttDictionary FOR ttDictionary .
 
-        FOR EACH ttDictionary WHERE ttDictionary.RecordOwner = cInternalId:
+        FOR EACH ttDictionary WHERE ttDictionary.RecordOwner = cInternalId ON ERROR UNDO, THROW:
             ASSIGN i = i + 1.
         END.
 
@@ -96,7 +96,7 @@ CLASS Consultingwerk.Framework.Base.GenericDictionary
 
         DEFINE BUFFER ttDictionary FOR ttDictionary .
 
-        FOR EACH ttDictionary WHERE ttDictionary.RecordOwner = cInternalId:
+        FOR EACH ttDictionary WHERE ttDictionary.RecordOwner = cInternalId ON ERROR UNDO, THROW:
             ASSIGN ttDictionary.Item = ? .
             DELETE ttDictionary .
         END.

@@ -710,6 +710,10 @@ CLASS Consultingwerk.SmartFramework.Repository.Class.AttributeValueBusinessEntit
         IF NOT lPopulateCalculatedFields THEN
             RETURN .
 
+        /* SCL-1640 */
+        IF Consultingwerk.SmartFramework.Tools.Import.GenericDataImporter:Importing THEN 
+            RETURN .
+
         oAttributeGroup = NEW AttributeGroupDatasetModel () .
 
         FOR EACH eSmartAttribute BREAK BY eSmartAttribute.AttributeGroupGuid:

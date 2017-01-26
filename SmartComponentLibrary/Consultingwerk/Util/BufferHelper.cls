@@ -1149,7 +1149,7 @@ CLASS Consultingwerk.Util.BufferHelper:
                                       phBuffer:ROWID) .
 
         fieldsLoop:
-        REPEAT:
+        REPEAT ON ERROR UNDO, THROW:
             ASSIGN hField = phBuffer:BUFFER-FIELD (iField) .
 
             IF hField:EXTENT >= 1 THEN DO:

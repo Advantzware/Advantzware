@@ -78,6 +78,13 @@ CLASS Consultingwerk.OERA.ServiceInterface:
     DEFINE PUBLIC STATIC EVENT Deactivated SIGNATURE VOID (e AS Consultingwerk.EventArgs).
 
     /**
+     * Purpose: Raised when the RestServerSessionActivate has created a new session
+     * Notes:   Hooks for customer frameworks to initialize custom session context
+     * @param e The Consultingwerk.EventArgs with the data for this event
+     */
+    DEFINE PUBLIC STATIC EVENT SessionCreated SIGNATURE VOID (e AS Consultingwerk.EventArgs).
+
+    /**
      * Purpose: Gets the custom log file entry used by the ServiceInterface class
      * Notes:
      */
@@ -981,6 +988,33 @@ CLASS Consultingwerk.OERA.ServiceInterface:
             e = Consultingwerk.EventArgs:Empty .
 
         ServiceInterface:Deactivated:Publish (e) .
+
+    END METHOD.
+
+    /**
+     * Purpose: Raises the SessionCreated event
+     * Notes:
+     * @param e The Consultingwerk.EventArgs with the data for this event
+     */
+    METHOD PROTECTED STATIC VOID OnSessionCreated (e AS Consultingwerk.EventArgs):
+
+        IF NOT VALID-OBJECT (e) THEN
+            e = Consultingwerk.EventArgs:Empty .
+
+        ServiceInterface:SessionCreated:Publish (e) .
+
+    END METHOD.
+
+    /**
+     * Purpose: Raises the SessionCreated event
+     * Notes:   Invoked from the RestServerSessionActivator to allow
+     *          to initialize session context in a customer's application
+     *          at the beginning of the first AppServer request after the
+     *          login request (Hybrid Authentication Realm)
+     */
+    METHOD PUBLIC STATIC VOID RaiseSessionCreatedEvent ():
+
+        ServiceInterface:OnSessionCreated (Consultingwerk.EventArgs:Empty) .
 
     END METHOD.
 

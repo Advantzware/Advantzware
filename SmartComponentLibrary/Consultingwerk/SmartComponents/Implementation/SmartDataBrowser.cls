@@ -1093,7 +1093,7 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartDataBrowser
 
         /* IDefaultActionSubscriber call-back, depreciated since 10.2B and the native event
            support */
-        FOR EACH ttDefaultActionSubscriber WHERE ttDefaultActionSubscriber.RecordOwner = THIS-OBJECT NO-LOCK:
+        FOR EACH ttDefaultActionSubscriber WHERE ttDefaultActionSubscriber.RecordOwner = THIS-OBJECT NO-LOCK ON ERROR UNDO, THROW:
             CAST(ttDefaultActionSubscriber.DefaultActionSubscriber, IDefaultActionSubscriber):SmartDataBrowserDefaultActionHandler(THIS-OBJECT, e).
         END.
 
@@ -1717,7 +1717,7 @@ CLASS Consultingwerk.SmartComponents.Implementation.SmartDataBrowser
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC SmartDataBrowser ():
 
-        FOR EACH ttDefaultActionSubscriber WHERE ttDefaultActionSubscriber.RecordOwner = THIS-OBJECT:
+        FOR EACH ttDefaultActionSubscriber WHERE ttDefaultActionSubscriber.RecordOwner = THIS-OBJECT ON ERROR UNDO, THROW:
             DELETE ttDefaultActionSubscriber.
         END.
 

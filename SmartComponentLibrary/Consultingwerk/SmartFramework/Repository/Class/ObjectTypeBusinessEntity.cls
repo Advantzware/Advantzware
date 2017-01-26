@@ -134,6 +134,10 @@ CLASS Consultingwerk.SmartFramework.Repository.Class.ObjectTypeBusinessEntity
         DEFINE VARIABLE oObjectType AS ObjectTypeDatasetModel NO-UNDO .
         DEFINE VARIABLE oClassType  AS ClassTypeDatasetModel  NO-UNDO .
 
+        /* SCL-1640 */
+        IF Consultingwerk.SmartFramework.Tools.Import.GenericDataImporter:Importing THEN 
+            RETURN .
+
         /* Mike Fechner, Consultingwerk Ltd. 16.10.2015
            Ability to opt-out calculated fields for performance during repository
            processing */

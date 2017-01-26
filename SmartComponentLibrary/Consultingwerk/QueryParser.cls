@@ -239,7 +239,7 @@ CLASS Consultingwerk.QueryParser IMPLEMENTS IQueryParser:
                 ASSIGN cChar = SUBSTRING (pcQueryString, iPos, 1, "CHARACTER":U) .
 
                 IF cChar = "'":U OR cChar = "~"":U THEN DO:
-                    ASSIGN iPos = StringHelper:FindClosingQuote (pcQueryString, iPos) + 1.
+                    ASSIGN iPos = StringHelper:FindClosingQuote (pcQueryString, iPos, TRUE) + 1.
 
                     IF iPos > LENGTH (pcQueryString, "CHARACTER":U) THEN
                         ASSIGN iPos = 0 .
@@ -285,7 +285,6 @@ CLASS Consultingwerk.QueryParser IMPLEMENTS IQueryParser:
                     iPos = iPos + 5 .
                 END.
                 ELSE IF cChar = " ":U AND SUBSTRING (pcQueryString, iPos, 4, "CHARACTER":U) = " OR ":U THEN DO:
-
 
                     /* Consider string since start a term */
                     IF SUBSTRING (pcQueryString, iStart, iPos - iStart, "CHARACTER":U) > "":U THEN DO:
@@ -432,7 +431,7 @@ CLASS Consultingwerk.QueryParser IMPLEMENTS IQueryParser:
                                                NEW DateHolder (THIS-OBJECT:ParseDateTimeTzFunction (cRemaining))) .
         ELSE oExpression = NEW QueryExpression (oField,
                                                THIS-OBJECT:ParseQueryTermOperator (cOperator),
-                                               StringHelper:Unquote (cRemaining)) .
+                                               StringHelper:ResolveDoubleQuotes (StringHelper:Unquote (cRemaining))) .
 
         RETURN oExpression.
 

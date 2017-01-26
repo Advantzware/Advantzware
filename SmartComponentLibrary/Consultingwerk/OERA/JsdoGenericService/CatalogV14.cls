@@ -43,6 +43,31 @@ CLASS Consultingwerk.OERA.JsdoGenericService.CatalogV14
     END CONSTRUCTOR.
 
     /**
+     * Purpose: Adds a boolean attribute to all table columns based on
+     *          a list of columns
+     * Notes:   Used for ReadOnly, Mandatory, non filterable and non sortable
+     *          Columns
+     * @param poProperties The JsonObject representing the columns of a table in the catalog
+     * @param pcAttributeName The attribute name to attach to the column
+     * @param pcColumns The comma delimited list of columns to add the attribute to
+     */
+    METHOD PROTECTED VOID AddColumnAttributes (poProperties AS JsonObject,
+                                               pcAttributeName AS CHARACTER,
+                                               pcColumns AS CHARACTER):
+
+        DEFINE VARIABLE i           AS INTEGER   NO-UNDO .
+        DEFINE VARIABLE cColumnName AS CHARACTER NO-UNDO .
+
+        DO i = 1 TO NUM-ENTRIES (pcColumns):
+            ASSIGN cColumnName = JsonHelper:ExactPropertyName (poProperties, ENTRY (i, pcColumns)) .
+
+            IF cColumnName > "":U THEN
+                poProperties:GetJsonObject (cColumnName):Add (pcAttributeName, TRUE) .
+        END.
+
+    END METHOD.
+
+    /**
      * Purpose: Returns the JSON Schema description for the ProDataset
      * Notes:
      *
@@ -64,6 +89,10 @@ CLASS Consultingwerk.OERA.JsdoGenericService.CatalogV14
 
         DEFINE VARIABLE cTables                   AS CHARACTER                            NO-UNDO EXTENT .
         DEFINE VARIABLE cPrimaryKey               AS CHARACTER                            NO-UNDO .
+        DEFINE VARIABLE cReadOnlyColumns          AS CHARACTER                            NO-UNDO .
+        DEFINE VARIABLE cMandatoryColumns         AS CHARACTER                            NO-UNDO .
+        DEFINE VARIABLE cNonFilterableColumns     AS CHARACTER                            NO-UNDO .
+        DEFINE VARIABLE cNonSortableColumns       AS CHARACTER                            NO-UNDO .
 
         oParameter = NEW GetBusinessEntityDescriptorParameter (FALSE) .
 
@@ -111,14 +140,31 @@ CLASS Consultingwerk.OERA.JsdoGenericService.CatalogV14
 
             IF oBusinessEntityDescriptor:Tables:ContainsName (cTables[i]) THEN DO:
 
-                ASSIGN oTableDescriptor = oBusinessEntityDescriptor:Tables:GetItem (cTables[i])
-                       cPrimaryKey      = oTableDescriptor:PrimaryKey .
+                ASSIGN oTableDescriptor      = oBusinessEntityDescriptor:Tables:GetItem (cTables[i])
+                       cPrimaryKey           = oTableDescriptor:PrimaryKey
+
+                       cReadOnlyColumns      = oTableDescriptor:ReadOnlyColumns
+                       cMandatoryColumns     = oTableDescriptor:MandatoryColumns
+                       cNonFilterableColumns = oTableDescriptor:NonFilterableColumns
+                       cNonSortableColumns   = oTableDescriptor:NonSortableColumns .
 
                 IF cPrimaryKey > "":U THEN DO:
 
                     oTable:Add ("primaryKey":U, NEW JsonArray (ArrayHelper:ListToCharacterArray(cPrimaryKey, ",":U))) .
 
                 END.
+
+                IF cReadOnlyColumns > "":U THEN
+                    THIS-OBJECT:AddColumnAttributes (oProperties, "readOnly":U, cReadOnlyColumns) .
+
+                IF cMandatoryColumns > "":U THEN
+                    THIS-OBJECT:AddColumnAttributes (oProperties, "mandatory":U, cMandatoryColumns) .
+
+                IF cNonFilterableColumns > "":U THEN
+                    THIS-OBJECT:AddColumnAttributes (oProperties, "nonFilterable":U, cNonFilterableColumns) .
+
+                IF cNonSortableColumns > "":U THEN
+                    THIS-OBJECT:AddColumnAttributes (oProperties, "nonSortable":U, cNonSortableColumns) .
 
                 {Consultingwerk/foreachABL.i IBusinessEntityFieldDescriptor oFieldDescriptor IN oTableDescriptor:Fields}
 
