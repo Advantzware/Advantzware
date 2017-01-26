@@ -117,7 +117,7 @@ CLASS Consultingwerk.Framework.ConfigurationSettingsManager:
                                                                                     "":U,
                                                                                     CHR (1)) .
 
-        FOR EACH b_ttSettings BY b_ttSettings.PositionIndex:
+        FOR EACH b_ttSettings BY b_ttSettings.PositionIndex ON ERROR UNDO, THROW:
 
             oDictionary:Add (b_ttSettings.GUID,
                              b_ttSettings.Settings:ToString()) .
@@ -222,7 +222,7 @@ CLASS Consultingwerk.Framework.ConfigurationSettingsManager:
         END.
 
         settingsLoop:
-        FOR EACH b_ttSettings BY b_ttSettings.PositionIndex:
+        FOR EACH b_ttSettings BY b_ttSettings.PositionIndex ON ERROR UNDO, THROW:
             ASSIGN i = i + 1 .
 
             IF i < 10 THEN
@@ -380,7 +380,7 @@ CLASS Consultingwerk.Framework.ConfigurationSettingsManager:
 
         oSettingsService = {Consultingwerk/get-service.i Consultingwerk.Framework.ISettingsService} .
 
-        FOR EACH b_ttSettings BY b_ttSettings.PositionIndex:
+        FOR EACH b_ttSettings BY b_ttSettings.PositionIndex ON ERROR UNDO, THROW:
 
             ASSIGN iCount        = iCount + 1
                    oSerializable = CAST (b_ttSettings.Settings, ISerializable)

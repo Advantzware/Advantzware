@@ -56,16 +56,17 @@ CLASS Consultingwerk.Util.DesignerHelper:
         DEFINE VARIABLE i    AS INTEGER NO-UNDO.
         DEFINE VARIABLE iAsc AS INTEGER NO-UNDO.
 
-        DO i = 1 TO LENGTH (pcName):
+        characterLoop:
+        DO i = 1 TO LENGTH (pcName, "CHARACTER":U):
 
-            ASSIGN iAsc = ASC (SUBSTRING (pcName, i, 1)) .
+            ASSIGN iAsc = ASC (SUBSTRING (pcName, i, 1, "CHARACTER":U)) .
 
             IF (iAsc >= 65 AND iAsc <= 90)  /* A..Z */      OR
                (iAsc >= 97 AND iAsc <= 122) /* a..z */      OR
                (iAsc >= 48 AND iAsc <= 57) THEN
-               NEXT .
+               NEXT characterLoop .
 
-            SUBSTRING (pcName, i, 1) = "_":U .
+            SUBSTRING (pcName, i, 1, "CHARACTER":U) = "_":U .
         END.
 
         RETURN pcName .

@@ -270,12 +270,13 @@ CLASS Consultingwerk.Util.DatasetHelper:
         DEFINE VARIABLE hQuery   AS HANDLE  NO-UNDO .
         DEFINE VARIABLE i        AS INTEGER NO-UNDO .
 
+        bufferLoop:
         DO i = 1 TO phTargetDataset:NUM-BUFFERS ON ERROR UNDO, THROW:
 
             hBuffer = phTargetDataset:GET-BUFFER-HANDLE (i) .
 
             IF VALID-HANDLE (hBuffer:BEFORE-BUFFER) THEN
-                NEXT .
+                NEXT bufferLoop .
 
             hBuffer2 = phSourceDataset:GET-BUFFER-HANDLE (hBuffer:NAME) .
 
@@ -316,11 +317,12 @@ CLASS Consultingwerk.Util.DatasetHelper:
 
         CREATE QUERY hBeforeQuery.
 
+        bufferLoop:
         DO iBuffer = 1 TO phDataset:NUM-BUFFERS:
            hBeforeTable = phDataset:GET-BUFFER-HANDLE(iBuffer):TABLE-HANDLE:BEFORE-TABLE.
 
            IF NOT VALID-HANDLE(hBeforeTable) OR NOT hBeforeTable:HAS-RECORDS THEN
-               NEXT.
+               NEXT bufferLoop .
 
            hBeforeBuffer = phDataset:GET-BUFFER-HANDLE(iBuffer):BEFORE-BUFFER.
            hBeforeQuery:SET-BUFFERS (hBeforeBuffer).
@@ -328,6 +330,7 @@ CLASS Consultingwerk.Util.DatasetHelper:
            hBeforeQuery:QUERY-OPEN ().
            hBeforeQuery:GET-FIRST ().
 
+           queryLoop:
            DO WHILE hBeforeQuery:QUERY-OFF-END = FALSE:
 
                IF hBeforeBuffer:ERROR OR hBeforeBuffer:REJECTED THEN
@@ -341,7 +344,7 @@ CLASS Consultingwerk.Util.DatasetHelper:
 
                            IF NOT hBeforeBuffer2:AVAILABLE THEN DO:
                                hBeforeQuery:GET-NEXT() .
-                               NEXT .
+                               NEXT queryLoop .
                            END.
 
                            RETURN NEW RecordIdentifier (hBeforeBuffer:AFTER-BUFFER:NAME,
@@ -384,12 +387,13 @@ CLASS Consultingwerk.Util.DatasetHelper:
 
         CREATE QUERY hBeforeQuery.
 
+        buferLoop:
         DO iBuffer = 1 TO phDataset:NUM-BUFFERS:
 
            hBeforeTable = phDataset:GET-BUFFER-HANDLE(iBuffer):TABLE-HANDLE:BEFORE-TABLE.
 
            IF NOT VALID-HANDLE(hBeforeTable) OR NOT hBeforeTable:HAS-RECORDS THEN
-               NEXT.
+               NEXT buferLoop .
 
            hBeforeBuffer = phDataset:GET-BUFFER-HANDLE(iBuffer):BEFORE-BUFFER.
            hBeforeQuery:SET-BUFFERS (hBeforeBuffer).
@@ -1028,11 +1032,12 @@ CLASS Consultingwerk.Util.DatasetHelper:
 
         CREATE QUERY hBeforeQuery.
 
+        buferLoop:
         DO iBuffer = 1 TO phDataset:NUM-BUFFERS:
            hBeforeTable = phDataset:GET-BUFFER-HANDLE(iBuffer):TABLE-HANDLE:BEFORE-TABLE.
 
            IF NOT VALID-HANDLE(hBeforeTable) OR NOT hBeforeTable:HAS-RECORDS THEN
-               NEXT.
+               NEXT buferLoop.
 
            hBeforeBuffer = phDataset:GET-BUFFER-HANDLE(iBuffer):BEFORE-BUFFER.
            hBeforeQuery:SET-BUFFERS (hBeforeBuffer).

@@ -53,7 +53,7 @@ CLASS Consultingwerk.Util.DragAndDropHelper:
      */
     METHOD PUBLIC STATIC INTEGER EXTENT ConvertFileSize (plcContents AS LONGCHAR):
 
-        RETURN DragAndDropHelper:ConvertFileSize (LENGTH(plcContents)).
+        RETURN DragAndDropHelper:ConvertFileSize (LENGTH(plcContents, "CHARACTER":U)).
 
     END METHOD.
 
@@ -252,12 +252,13 @@ CLASS Consultingwerk.Util.DragAndDropHelper:
 
         ASSIGN iLeft = piInteger .
 
+        bitLoop:
         DO i = 1 TO 8:
             ASSIGN iArray[i] = iLeft MODULO 256
                    iLeft     = (iLeft - iArray[i]) / 256 .
 
             IF iLeft < 1 THEN
-                LEAVE .
+                LEAVE bitLoop .
         END.
 
         ASSIGN EXTENT (iReturn) = i .

@@ -91,7 +91,7 @@ CLASS Consultingwerk.Windows.Framework.Controls.MenuTaskListControl INHERITS Use
                                         OUTPUT TABLE ttMenuStructure BY-REFERENCE) .
 
         FOR EACH ttMenuStructure WHERE ttMenuStructure.ParentMenuKey = pcRootNodeKey
-                                    BY ttMenuStructure.MenuSequence:
+                                    BY ttMenuStructure.MenuSequence ON ERROR UNDO, THROW:
 
             oGroup = ultraExplorerBar1:Groups:Add (ttMenuStructure.MenuKey,
                                                    ttMenuStructure.MenuName) .
@@ -209,7 +209,7 @@ CLASS Consultingwerk.Windows.Framework.Controls.MenuTaskListControl INHERITS Use
 
         FOR EACH ttMenuStructure WHERE ttMenuStructure.ParentMenuKey = pcParentMenuKey
                                    AND ttMenuStructure.FunctionKey   > "":U
-                                    BY ttMenuStructure.MenuSequence:
+                                    BY ttMenuStructure.MenuSequence ON ERROR UNDO, THROW:
 
             oItem = poGroup:Items:Add (ttMenuStructure.MenuKey,
                                        ttMenuStructure.MenuName) .

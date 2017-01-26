@@ -111,7 +111,7 @@ CLASS Consultingwerk.SmartFramework.Repository.Class.ObjectTypeBusinessEntity
 
             THIS-OBJECT:FetchData (oRequest) .
 
-            FOR EACH eSmartObjectType:
+            FOR EACH eSmartObjectType ON ERROR UNDO, THROW:
                 ASSIGN cClasses = cClasses + ",":U + eSmartObjectType.ObjectTypeGuid .
             END.
         END .
@@ -135,7 +135,7 @@ CLASS Consultingwerk.SmartFramework.Repository.Class.ObjectTypeBusinessEntity
         DEFINE VARIABLE oClassType  AS ClassTypeDatasetModel  NO-UNDO .
 
         /* SCL-1640 */
-        IF Consultingwerk.SmartFramework.Tools.Import.GenericDataImporter:Importing THEN 
+        IF Consultingwerk.SmartFramework.Tools.Import.GenericDataImporter:Importing THEN
             RETURN .
 
         /* Mike Fechner, Consultingwerk Ltd. 16.10.2015

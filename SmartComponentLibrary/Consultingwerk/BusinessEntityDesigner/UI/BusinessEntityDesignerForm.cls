@@ -221,6 +221,16 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerForm
         IF PROVERSION BEGINS "10":U THEN
             smartToolbarController1:Tools["Database Login Preferences":U]:SharedProps:Enabled = FALSE .
 
+        /* Dynamic Toolbar entries */
+        DEFINE VARIABLE oButtonTool AS ButtonTool NO-UNDO .
+        oButtonTool = NEW ButtonTool ("Rename Table":U) .
+        oButtonTool:SharedProps:Caption = "Rename Table":U .
+        oButtonTool:SharedProps:AppearancesSmall:Appearance:Image = ImageHelper:Load ("Consultingwerk/BusinessEntityDesigner/UI/Images/tables_edit_16.png":U) .
+        smartToolbarController1:Tools:Add (oButtonTool) .
+
+        CAST (smartToolbarController1:Tools["Modelpopup":U], PopupMenuTool):Tools:InsertTool
+                    (4 ,"Rename Table":U) .
+
         CATCH e AS Progress.Lang.Error:
             IF VALID-OBJECT (oSplash) THEN
                 oSplash:Close () .
@@ -296,6 +306,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerForm
             smartToolbarController1:Tools["RefreshTable2":U]:SharedProps:Enabled = TRUE .
             smartToolbarController1:Tools["FieldsReorder":U]:SharedProps:Enabled = TRUE .
             smartToolbarController1:Tools["Duplicate Table":U]:SharedProps:Enabled = TRUE .
+            smartToolbarController1:Tools["Rename Table":U]:SharedProps:Enabled = TRUE .
             smartToolbarController1:Tools["Edit Fields":U]:SharedProps:Enabled = TRUE .
 
             smartToolbarController1:Tools["Custom Table Properties":U]:SharedProps:Enabled = TRUE .
@@ -334,6 +345,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerForm
             smartToolbarController1:Tools["RefreshTable2":U]:SharedProps:Enabled = FALSE .
             smartToolbarController1:Tools["FieldsReorder":U]:SharedProps:Enabled = FALSE .
             smartToolbarController1:Tools["Duplicate Table":U]:SharedProps:Enabled = FALSE .
+            smartToolbarController1:Tools["Rename Table":U]:SharedProps:Enabled = FALSE .
             smartToolbarController1:Tools["Edit Fields":U]:SharedProps:Enabled = FALSE .
 
             smartToolbarController1:Tools["Copy Field Names":U]:SharedProps:Enabled = FALSE .
@@ -3378,6 +3390,46 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerForm
     END METHOD.
 
     /**
+     * Purpose: Renames the currently selected table
+     * Notes:
+     */
+    METHOD PROTECTED VOID RenameSelectedTable():
+
+        DEFINE VARIABLE oEnumerator AS System.Collections.IDictionaryEnumerator NO-UNDO .
+        DEFINE VARIABLE oTables     AS Crainiate.ERM4.Elements                  NO-UNDO .
+
+        DEFINE VARIABLE cOldName    AS CHARACTER                                NO-UNDO .
+        DEFINE VARIABLE cNewName    AS CHARACTER                                NO-UNDO .
+        DEFINE VARIABLE lOk         AS LOGICAL                                  NO-UNDO .
+
+        THIS-OBJECT:ActivateDesignCanvas () .
+
+        ASSIGN oTables = model1:SelectedElements (Progress.Util.TypeHelper:GetType ("Crainiate.ERM4.Table":U)) .
+
+        IF oTables:Count = 0 THEN
+            RETURN .
+
+        oEnumerator = oTables:GetEnumerator () .
+        oEnumerator:MoveNext() .
+
+        cOldName = CAST (CAST (oEnumerator:Current, System.Collections.DictionaryEntry):Value,
+                         Consultingwerk.BusinessEntityDesigner.UI.Shapes.TempTableShape):Heading .
+
+        ASSIGN cNewName = cOldName .
+
+        lOk = InputPromptHelper:PromptForCharacterValue ("Rename Table"{&TRAN},
+                                                         "Please enter the new name for the selected temp-table"{&TRAN},
+                                                         NEW NotEmptyInputValidator(),
+                                                         INPUT-OUTPUT cNewName) .
+
+        IF lOk = FALSE OR cNewName = cOldName THEN
+            RETURN .
+
+        oController:RenameTable (cOldName, cNewName) .
+
+    END METHOD.
+
+    /**
      * Purpose: Handles changing the DisplayReleaseNotes toggle
      * Notes:
      */
@@ -4643,6 +4695,8 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.BusinessEntityDesignerForm
                 THIS-OBJECT:FieldsReorder () .
             WHEN "Duplicate Table":U THEN
                 THIS-OBJECT:DuplicateSelectedTable () .
+            WHEN "Rename Table":U THEN
+                THIS-OBJECT:RenameSelectedTable () .
             WHEN "Edit Fields":U THEN
                 THIS-OBJECT:EditFields () .
 

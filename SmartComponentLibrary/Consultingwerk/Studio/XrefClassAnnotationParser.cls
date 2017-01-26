@@ -78,7 +78,7 @@ CLASS Consultingwerk.Studio.XrefClassAnnotationParser
 
         oList = NEW ListAnnotation () .
 
-        FOR EACH eReference BY RefSeq:
+        FOR EACH eReference BY eReference.RefSeq ON ERROR UNDO, THROW:
 
             IF eReference.ReferenceType = "ANNOTATION":U THEN DO:
 
@@ -132,7 +132,7 @@ CLASS Consultingwerk.Studio.XrefClassAnnotationParser
 
         oList = NEW ListClassMember () .
 
-        FOR EACH eReference WHERE eReference.RefSeq > iStartSequence:
+        FOR EACH eReference WHERE eReference.RefSeq > iStartSequence ON ERROR UNDO, THROW:
 
             IF eReference.ReferenceType = "ANNOTATION":U THEN DO:
 
@@ -250,7 +250,7 @@ CLASS Consultingwerk.Studio.XrefClassAnnotationParser
 
         DEFINE VARIABLE cList AS CHARACTER NO-UNDO.
 
-        FOR EACH eParameterRef WHERE eParameterRef.RefSeq = piRefSeq:
+        FOR EACH eParameterRef WHERE eParameterRef.RefSeq = piRefSeq ON ERROR UNDO, THROW:
 
             ASSIGN cList = cList + SUBSTITUTE (",&1 &2":U,
                                                eParameterRef.ParameterMode,

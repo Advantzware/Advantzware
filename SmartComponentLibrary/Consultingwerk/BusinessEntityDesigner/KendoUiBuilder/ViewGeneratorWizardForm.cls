@@ -164,7 +164,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.KendoUiBuilder.ViewGeneratorWizardFo
 
         cbModule:ValueList:ValueListItems:Clear () .
 
-        FOR EACH ttFileNames:
+        FOR EACH ttFileNames ON ERROR UNDO, THROW:
 
             ASSIGN cShortFileName = FileHelper:ShortFileName (ttFileNames.FileName) .
 

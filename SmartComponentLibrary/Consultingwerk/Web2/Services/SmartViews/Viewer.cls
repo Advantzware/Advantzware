@@ -154,11 +154,11 @@ CLASS Consultingwerk.Web2.Services.SmartViews.Viewer:
             ASSIGN hBufferField = hBuffer:BUFFER-FIELD (oBufferFieldName:FieldName) .
 
             IF hBuffer:NAME = pcEntityTable THEN
-                ASSIGN cFieldModel = hBufferField:NAME
-                       cFieldId    = hBufferField:NAME .
+                ASSIGN cFieldModel = BufferHelper:FieldSerializeName(hBufferField)
+                       cFieldId    = BufferHelper:FieldSerializeName(hBufferField) .
             ELSE
-                ASSIGN cFieldModel = SUBSTITUTE ("&1[0].&2":U, hBuffer:NAME, hBufferField:NAME)
-                       cFieldId     = SUBSTITUTE ("&1&2":U, hBuffer:NAME, hBufferField:NAME) .
+                ASSIGN cFieldModel = SUBSTITUTE ("&1[0].&2":U, hBuffer:NAME, BufferHelper:FieldSerializeName(hBufferField))
+                       cFieldId     = SUBSTITUTE ("&1&2":U, hBuffer:NAME, BufferHelper:FieldSerializeName(hBufferField)) .
 
             IF poBusinessEntityDescriptor:Tables:ContainsName (hBuffer:NAME) THEN DO:
                 oTableDescriptor = poBusinessEntityDescriptor:Tables:GetItem (hBuffer:NAME) .

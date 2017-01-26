@@ -71,7 +71,7 @@ CLASS Consultingwerk.Util.FileHelper:
             IF INDEX (cString, pcSearchString)  > 0 THEN
                 RETURN TRUE .
 
-            i = i + LENGTH (cString) + 1 .
+            i = i + LENGTH (cString, "CHARACTER":U) + 1 .
         END.
 
         RETURN FALSE .
@@ -345,11 +345,12 @@ CLASS Consultingwerk.Util.FileHelper:
                                                             pcTargetPath,
                                                             "Consultingwerk.Util.FileHelper":U) .
 
+        maskLoop:
         DO i = 1 TO NUM-ENTRIES (pcFileMask) ON ERROR UNDO, THROW:
             ASSIGN cMask = ENTRY (i, pcFileMask) .
 
             IF cMask > "":U THEN .
-            ELSE NEXT .
+            ELSE NEXT maskLoop .
 
             EMPTY TEMP-TABLE ttFileNames .
 
@@ -361,9 +362,11 @@ CLASS Consultingwerk.Util.FileHelper:
             FOR EACH ttFileNames ON ERROR UNDO, THROW:
 
                 ASSIGN cFile     = REPLACE (ttFileNames.FileName, "~\":U, "/":U)
-                       cRelative = SUBSTRING (SUBSTRING (cFile, 1, R-INDEX (cFile, "/":U) - 1),
-                                              LENGTH (pcSourcePath) +  2)
-                       cFileName = SUBSTRING (cFile, R-INDEX (cFile, "/":U) + 1).
+                       cRelative = SUBSTRING (SUBSTRING (cFile, 1, R-INDEX (cFile, "/":U) - 1, "CHARACTER":U),
+                                              LENGTH (pcSourcePath, "CHARACTER":U) +  2,
+                                              -1,
+                                              "CHARACTER":U)
+                       cFileName = SUBSTRING (cFile, R-INDEX (cFile, "/":U) + 1, -1, "CHARACTER":U).
 
                 IF cRelative > "":U THEN
                     cTarget = pcTargetPath + "/":U + cRelative .
@@ -558,11 +561,12 @@ CLASS Consultingwerk.Util.FileHelper:
         DEFINE VARIABLE oFiles AS "System.String[]" NO-UNDO .
 &ENDIF
 
+        maskLoop:
         DO i = 1 TO NUM-ENTRIES (pcFileMask):
             ASSIGN cMask = ENTRY (i, pcFileMask) .
 
             IF cMask > "":U THEN .
-            ELSE NEXT .
+            ELSE NEXT maskLoop .
 
 &IF DEFINED (DotNetAccessible) NE 0 &THEN
             oFiles = System.IO.Directory:GetFiles (pcDirectory,
@@ -603,11 +607,12 @@ CLASS Consultingwerk.Util.FileHelper:
 
         EMPTY TEMP-TABLE ttFileNames .
 
+        maskLoop:
         DO i = 1 TO NUM-ENTRIES (pcFileMask):
             ASSIGN cMask = ENTRY (i, pcFileMask) .
 
             IF cMask > "":U THEN .
-            ELSE NEXT .
+            ELSE NEXT maskLoop .
 
             RUN Consultingwerk/Util/Support/getfilenames.p
                     (pcDirectory,
@@ -663,6 +668,7 @@ CLASS Consultingwerk.Util.FileHelper:
 
         ASSIGN iRest = piFileSize .
 
+        loopBlk:
         DO i = 1 TO 4:
 
             ASSIGN iSize [i] = iRest MODULO 1024
@@ -672,7 +678,7 @@ CLASS Consultingwerk.Util.FileHelper:
                 iLargest = i .
 
             IF iRest = 0 THEN
-                LEAVE .
+                LEAVE loopBlk .
         END.
 
         IF iRest > 0 THEN
@@ -777,19 +783,19 @@ CLASS Consultingwerk.Util.FileHelper:
         iPathPos = R-INDEX (cTarget, "/":U) .
 
         IF iPathPos > 0 THEN
-            ASSIGN cFileName = SUBSTRING (cTarget, iPathPos + 1) .
+            ASSIGN cFileName = SUBSTRING (cTarget, iPathPos + 1, -1, "CHARACTER":U) .
         ELSE
             ASSIGN cFileName = cTarget .
 
         iDotPos = R-INDEX (cFileName, ".":U) .
 
         IF iDotPos > 0 THEN
-            ASSIGN cFileName = SUBSTRING (cFileName, 1, iDotPos) + pcExtension .
+            ASSIGN cFileName = SUBSTRING (cFileName, 1, iDotPos, "CHARACTER":U) + pcExtension .
         ELSE
             ASSIGN cFileName = cFileName + ".":U + pcExtension .
 
         IF iPathPos > 0 THEN
-            RETURN SUBSTRING (cTarget, 1, iPathPos) + cFileName .
+            RETURN SUBSTRING (cTarget, 1, iPathPos, "CHARACTER":U) + cFileName .
         ELSE
             RETURN cFileName .
 
@@ -812,7 +818,7 @@ CLASS Consultingwerk.Util.FileHelper:
         iIndex = R-INDEX (pcPath, "/":U) .
 
         IF iIndex > 0 THEN
-            RETURN SUBSTRING (pcPath, iIndex + 1) .
+            RETURN SUBSTRING (pcPath, iIndex + 1, -1, "CHARACTER":U) .
 
         RETURN pcPath .
 
@@ -835,7 +841,7 @@ CLASS Consultingwerk.Util.FileHelper:
                iPos      = R-INDEX (cFileName, ".":U).
 
         IF iPos > 1 THEN
-            RETURN SUBSTRING (cFileName, 1, iPos - 1) .
+            RETURN SUBSTRING (cFileName, 1, iPos - 1, "CHARACTER":U) .
 
     END METHOD .
 

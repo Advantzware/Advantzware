@@ -57,7 +57,7 @@ CLASS Consultingwerk.Framework.Base.List
 
         DEFINE BUFFER ttList FOR ttList .
 
-        FOR EACH ttList WHERE ttList.RecordOwner = cInternalId:
+        FOR EACH ttList WHERE ttList.RecordOwner = cInternalId ON ERROR UNDO, THROW:
             ASSIGN i = i + 1.
         END.
 
@@ -144,7 +144,7 @@ CLASS Consultingwerk.Framework.Base.List
 
         DEFINE BUFFER ttList FOR ttList .
 
-        FOR EACH ttList WHERE ttList.RecordOwner = cInternalId:
+        FOR EACH ttList WHERE ttList.RecordOwner = cInternalId ON ERROR UNDO, THROW:
             ASSIGN ttList.ListItem = ? .
             DELETE ttList .
         END.
@@ -233,7 +233,7 @@ CLASS Consultingwerk.Framework.Base.List
 
         DEFINE BUFFER ttList FOR ttList .
 
-        FOR EACH ttList WHERE ttList.RecordOwner = cInternalId:
+        FOR EACH ttList WHERE ttList.RecordOwner = cInternalId ON ERROR UNDO, THROW:
             ASSIGN i = i + 1.
 
             IF ttList.ListItem = poListItem THEN

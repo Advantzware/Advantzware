@@ -104,7 +104,7 @@ CLASS Consultingwerk.SmartFramework.Repository.Class.AttributeValueBusinessEntit
 
                 attributeLoop1:
                 FOR EACH eSmartAttributeValue WHERE eSmartAttributeValue.ObjectMasterGuid   = hBuffer::_ObjectMasterGuid
-                                                AND eSmartAttributeValue.ObjectInstanceGuid = "":U:
+                                                AND eSmartAttributeValue.ObjectInstanceGuid = "":U ON ERROR UNDO, THROW:
 
                     hField = hBuffer:BUFFER-FIELD (eSmartAttributeValue.AttributeLabel) NO-ERROR .
 
@@ -138,7 +138,7 @@ CLASS Consultingwerk.SmartFramework.Repository.Class.AttributeValueBusinessEntit
                 END.
 
                 attributeLoop2:
-                FOR EACH eSmartAttributeValue WHERE eSmartAttributeValue.ObjectInstanceGuid = hBuffer::_ObjectInstanceGuid:
+                FOR EACH eSmartAttributeValue WHERE eSmartAttributeValue.ObjectInstanceGuid = hBuffer::_ObjectInstanceGuid ON ERROR UNDO, THROW:
 
                     hField = hBuffer:BUFFER-FIELD (eSmartAttributeValue.AttributeLabel) NO-ERROR .
 
@@ -228,7 +228,7 @@ CLASS Consultingwerk.SmartFramework.Repository.Class.AttributeValueBusinessEntit
                                                                          QUOTER (hBuffer::_ObjectMasterGuid)))) .
 
                 attributeLoop:
-                FOR EACH eSmartAttributeValue WHERE eSmartAttributeValue.ObjectMasterGuid = hBuffer::_ObjectMasterGuid:
+                FOR EACH eSmartAttributeValue WHERE eSmartAttributeValue.ObjectMasterGuid = hBuffer::_ObjectMasterGuid ON ERROR UNDO, THROW:
 
                     hField = hBuffer:BUFFER-FIELD (eSmartAttributeValue.AttributeLabel) NO-ERROR .
 
@@ -711,12 +711,12 @@ CLASS Consultingwerk.SmartFramework.Repository.Class.AttributeValueBusinessEntit
             RETURN .
 
         /* SCL-1640 */
-        IF Consultingwerk.SmartFramework.Tools.Import.GenericDataImporter:Importing THEN 
+        IF Consultingwerk.SmartFramework.Tools.Import.GenericDataImporter:Importing THEN
             RETURN .
 
         oAttributeGroup = NEW AttributeGroupDatasetModel () .
 
-        FOR EACH eSmartAttribute BREAK BY eSmartAttribute.AttributeGroupGuid:
+        FOR EACH eSmartAttribute BREAK BY eSmartAttribute.AttributeGroupGuid ON ERROR UNDO, THROW:
 
             IF FIRST-OF (eSmartAttribute.AttributeGroupGuid) THEN DO:
                 oAttributeGroup:SmartAttributeGroup:Filter:Reset ().

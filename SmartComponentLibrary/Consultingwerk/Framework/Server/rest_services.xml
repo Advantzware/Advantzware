@@ -45,6 +45,14 @@
     <ServiceClassName>Consultingwerk.SmartFramework.Authorization.SmartFieldAuthorizationProvider</ServiceClassName>
   </ttServiceLoaderRow>
 
+
+  <ttServiceLoaderRow>
+    <Order>6</Order>
+    <ServiceTypeName>Consultingwerk.OERA.JsdoGenericService.ICatalogCacheService</ServiceTypeName>
+    <ServiceClassName>Consultingwerk.OERA.JsdoGenericService.CatalogCacheService</ServiceClassName>
+  </ttServiceLoaderRow>
+
+
   <ttServiceLoaderRow>
     <Order>100</Order>
     <ServiceTypeName>Consultingwerk.Framework.IStartupValidationService</ServiceTypeName>

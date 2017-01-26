@@ -406,7 +406,7 @@ CLASS Consultingwerk.Windows.Framework.Controls.MainMenuRenderer
                                    OR eSmartMenu.MenuStyleCode = "TREE":U
                                    OR eSmartMenu.MenuStyleCode = "EXPLORERBAR":U
                                    OR eSmartMenu.MenuStyleCode = "TASKLIST":U
-                                BY eSmartMenu.MenuSequence:
+                                BY eSmartMenu.MenuSequence ON ERROR UNDO, THROW:
 
                 CASE eSmartMenu.MenuStyleCode :
                     WHEN "":U OR
@@ -470,7 +470,7 @@ CLASS Consultingwerk.Windows.Framework.Controls.MainMenuRenderer
             END.
 
             FOR EACH eSmartMenu WHERE eSmartMenu.MenuStyleCode = "RIBBON":U
-                    BY eSmartMenu.MenuSequence:
+                    BY eSmartMenu.MenuSequence ON ERROR UNDO, THROW:
 
                 THIS-OBJECT:InitializeRibbonTab (eSmartMenu.MenuGuid,
                                                  poUltraToolbarsManager) .

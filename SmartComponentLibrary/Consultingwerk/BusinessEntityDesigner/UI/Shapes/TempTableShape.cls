@@ -121,7 +121,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.Shapes.TempTableShape
 
         ASSIGN cCalcFieldIcon = FILE-INFORMATION:FULL-PATHNAME .
 
-        FOR EACH b_eField OF b_eTable BY b_eField.FieldOrder:
+        FOR EACH b_eField OF b_eTable BY b_eField.FieldOrder ON ERROR UNDO, THROW:
             oRow = NEW Crainiate.ERM4.TableRow () .
 
             ASSIGN cValidationData   = b_eField.FieldValidationInstance
@@ -154,7 +154,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.UI.Shapes.TempTableShape
 
         FILE-INFORMATION:FILE-NAME = "Consultingwerk/BusinessEntityDesigner/UI/Images/sort_az_descending.png":U .
 
-        FOR EACH b_eIndex OF b_eTable BY b_eIndex.IndexOrder:
+        FOR EACH b_eIndex OF b_eTable BY b_eIndex.IndexOrder ON ERROR UNDO, THROW:
             oRow = NEW Crainiate.ERM4.TableRow () .
             oRow:Text = b_eIndex.IndexName .
 

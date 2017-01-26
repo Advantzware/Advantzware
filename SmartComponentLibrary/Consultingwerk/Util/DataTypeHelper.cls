@@ -670,11 +670,11 @@ CLASS Consultingwerk.Util.DataTypeHelper:
 
         DO i = 1 TO EXTENT (cTypeName):
 
-            IF pcDataType BEGINS SUBSTRING (cTypeName[i], 1, iMinAbbr[i]) THEN DO:
+            IF pcDataType BEGINS SUBSTRING (cTypeName[i], 1, iMinAbbr[i], "CHARACTER":U) THEN DO:
 
-                DO j = iMinAbbr[i] TO LENGTH (pcDataType):
+                DO j = iMinAbbr[i] TO LENGTH (pcDataType, "CHARACTER":U):
 
-                    IF pcDataType = SUBSTRING (cTypeName[i], 1, j) THEN
+                    IF pcDataType = SUBSTRING (cTypeName[i], 1, j, "CHARACTER":U) THEN
                         RETURN cTypeName[i] .
                 END.
             END.

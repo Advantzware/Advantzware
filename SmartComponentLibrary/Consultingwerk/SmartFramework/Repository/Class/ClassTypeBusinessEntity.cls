@@ -77,10 +77,10 @@ CLASS Consultingwerk.SmartFramework.Repository.Class.ClassTypeBusinessEntity
         IF GenericDataImporter:Importing THEN
             RETURN .
 
-        FOR EACH eSmartClassType:
-            {&OERA}.Validate:IsNotNullOrEmpty (BUFFER eSmartClassType:Handle,
-                                               "ClassTypeName":U,
-                                               "Class Type Name cannot be empty."{&TRAN}) .
+        FOR EACH eSmartClassType ON ERROR UNDO, THROW:
+            {&OERA}.ValidationHelper:IsNotNullOrEmpty (BUFFER eSmartClassType:Handle,
+                                                       "ClassTypeName":U,
+                                                       "Class Type Name cannot be empty."{&TRAN}) .
         END.
 
     END METHOD.

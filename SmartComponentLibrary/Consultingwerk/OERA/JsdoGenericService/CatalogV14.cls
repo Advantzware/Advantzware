@@ -50,16 +50,18 @@ CLASS Consultingwerk.OERA.JsdoGenericService.CatalogV14
      * @param poProperties The JsonObject representing the columns of a table in the catalog
      * @param pcAttributeName The attribute name to attach to the column
      * @param pcColumns The comma delimited list of columns to add the attribute to
+     * @param phBuffer The handle of the buffer to determine the field's SERIALIZE-NAME
      */
     METHOD PROTECTED VOID AddColumnAttributes (poProperties AS JsonObject,
                                                pcAttributeName AS CHARACTER,
-                                               pcColumns AS CHARACTER):
+                                               pcColumns AS CHARACTER,
+                                               phBuffer AS HANDLE):
 
         DEFINE VARIABLE i           AS INTEGER   NO-UNDO .
         DEFINE VARIABLE cColumnName AS CHARACTER NO-UNDO .
 
         DO i = 1 TO NUM-ENTRIES (pcColumns):
-            ASSIGN cColumnName = JsonHelper:ExactPropertyName (poProperties, ENTRY (i, pcColumns)) .
+            ASSIGN cColumnName = JsonHelper:ExactPropertyName (poProperties, BufferHelper:FieldSerializeName(phBuffer:BUFFER-FIELD (ENTRY (i, pcColumns)))) .
 
             IF cColumnName > "":U THEN
                 poProperties:GetJsonObject (cColumnName):Add (pcAttributeName, TRUE) .
@@ -93,6 +95,7 @@ CLASS Consultingwerk.OERA.JsdoGenericService.CatalogV14
         DEFINE VARIABLE cMandatoryColumns         AS CHARACTER                            NO-UNDO .
         DEFINE VARIABLE cNonFilterableColumns     AS CHARACTER                            NO-UNDO .
         DEFINE VARIABLE cNonSortableColumns       AS CHARACTER                            NO-UNDO .
+        DEFINE VARIABLE hBuffer                   AS HANDLE                               NO-UNDO .
 
         oParameter = NEW GetBusinessEntityDescriptorParameter (FALSE) .
 
@@ -154,23 +157,25 @@ CLASS Consultingwerk.OERA.JsdoGenericService.CatalogV14
 
                 END.
 
+                ASSIGN hBuffer = phDataset:GET-BUFFER-HANDLE (cTables[i]) .
+
                 IF cReadOnlyColumns > "":U THEN
-                    THIS-OBJECT:AddColumnAttributes (oProperties, "readOnly":U, cReadOnlyColumns) .
+                    THIS-OBJECT:AddColumnAttributes (oProperties, "readOnly":U, cReadOnlyColumns, hBuffer) .
 
                 IF cMandatoryColumns > "":U THEN
-                    THIS-OBJECT:AddColumnAttributes (oProperties, "mandatory":U, cMandatoryColumns) .
+                    THIS-OBJECT:AddColumnAttributes (oProperties, "mandatory":U, cMandatoryColumns, hBuffer) .
 
                 IF cNonFilterableColumns > "":U THEN
-                    THIS-OBJECT:AddColumnAttributes (oProperties, "nonFilterable":U, cNonFilterableColumns) .
+                    THIS-OBJECT:AddColumnAttributes (oProperties, "nonFilterable":U, cNonFilterableColumns, hBuffer) .
 
                 IF cNonSortableColumns > "":U THEN
-                    THIS-OBJECT:AddColumnAttributes (oProperties, "nonSortable":U, cNonSortableColumns) .
+                    THIS-OBJECT:AddColumnAttributes (oProperties, "nonSortable":U, cNonSortableColumns, hBuffer) .
 
                 {Consultingwerk/foreachABL.i IBusinessEntityFieldDescriptor oFieldDescriptor IN oTableDescriptor:Fields}
 
                     IF oFieldDescriptor:SemanticType > "":U THEN DO:
                         IF oProperties:Has(oFieldDescriptor:Name) THEN DO:
-                            oField = oProperties:GetJsonObject(oFieldDescriptor:Name) .
+                            oField = oProperties:GetJsonObject (BufferHelper:FieldSerializeName(hBuffer:BUFFER-FIELD (oFieldDescriptor:Name))) .
 
                             oField:Add ("semanticType":U, oFieldDescriptor:SemanticType) .
                         END .

@@ -175,17 +175,13 @@ CLASS Consultingwerk.Web2.Services.SmartViews.Grid
         DEFINE VARIABLE hDataset                    AS HANDLE                               NO-UNDO .
         DEFINE VARIABLE oParameter                  AS GetBusinessEntityDescriptorParameter NO-UNDO .
         DEFINE VARIABLE oViewDescriptor             AS IBusinessEntityViewDescriptor        NO-UNDO .
-        DEFINE VARIABLE oTableDescriptor            AS IBusinessEntityTableDescriptor       NO-UNDO .
         DEFINE VARIABLE i                           AS INTEGER                              NO-UNDO .
         DEFINE VARIABLE cColumnName                 AS CHARACTER                            NO-UNDO .
         DEFINE VARIABLE oBufferFieldName            AS BufferFieldName                      NO-UNDO .
         DEFINE VARIABLE hBuffer                     AS HANDLE                               NO-UNDO .
         DEFINE VARIABLE hBufferField                AS HANDLE                               NO-UNDO .
         DEFINE VARIABLE cTables                     AS CHARACTER                            NO-UNDO .
-        DEFINE VARIABLE cFieldId                    AS CHARACTER                            NO-UNDO .
         DEFINE VARIABLE cFieldModel                 AS CHARACTER                            NO-UNDO .
-        DEFINE VARIABLE lMandatory                  AS LOGICAL                              NO-UNDO .
-        DEFINE VARIABLE lReadOnly                   AS LOGICAL                              NO-UNDO .
         DEFINE VARIABLE oGrid                       AS KendoGrid                            NO-UNDO .
         DEFINE VARIABLE oColumn                     AS Column                               NO-UNDO .
 
@@ -315,29 +311,17 @@ CLASS Consultingwerk.Web2.Services.SmartViews.Grid
             ASSIGN hBufferField = hBuffer:BUFFER-FIELD (oBufferFieldName:FieldName) .
 
             IF hBuffer:NAME = oViewDescriptor:EntityTable THEN
-                ASSIGN cFieldModel = hBufferField:NAME
-                       cFieldId    = hBufferField:NAME .
+                ASSIGN cFieldModel = BufferHelper:FieldSerializeName(hBufferField) .
             ELSE
-                ASSIGN cFieldModel = SUBSTITUTE ("&1[0].&2":U, hBuffer:NAME, hBufferField:NAME)
-                       cFieldId     = SUBSTITUTE ("&1&2":U, hBuffer:NAME, hBufferField:NAME) .
-
-            IF oParameter:Descriptor:Tables:ContainsName (hBuffer:NAME) THEN DO:
-                oTableDescriptor = oParameter:Descriptor:Tables:GetItem (hBuffer:NAME) .
-
-                ASSIGN lMandatory = ListHelper:EntryIsInList (hBufferField:NAME, oTableDescriptor:MandatoryColumns)
-                       lReadOnly  = ListHelper:EntryIsInList (hBufferField:NAME, oTableDescriptor:ReadOnlyColumns) .
-            END .
-            ELSE
-                ASSIGN lMandatory = FALSE
-                       lReadOnly  = FALSE .
+                ASSIGN cFieldModel = SUBSTITUTE ("&1[0].&2":U, hBuffer:NAME, BufferHelper:FieldSerializeName(hBufferField)) .
 
             IF cTranslationScope > "":U THEN
                 ASSIGN cColumnLabelTranslated = {Consultingwerk/translate.i &scope=cTranslationScope &key="SUBSTITUTE ('&1.&2.Label':U, hBuffer:NAME, hBufferField:NAME)" &defaulttext="hBufferField:LABEL"} .
 
             IF cColumnLabelTranslated > "" THEN
-                oColumn = oGrid:Columns:Add (hBufferField:NAME, cColumnLabelTranslated) .
+                oColumn = oGrid:Columns:Add (cFieldModel, cColumnLabelTranslated) .
             ELSE
-                oColumn = oGrid:Columns:Add (hBufferField:NAME, hBufferField:LABEL) .
+                oColumn = oGrid:Columns:Add (cFieldModel, hBufferField:LABEL) .
 
             /* Default format for DATE and DATETIME/DATETIME-TZ columns */
             CASE hBufferField:DATA-TYPE:

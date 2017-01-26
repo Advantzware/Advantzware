@@ -305,7 +305,7 @@ CLASS Consultingwerk.Util.DockManagerHelper:
                                                                             SUBSTITUTE ("DockManagerSettings.&1":U, i)) .
         END.
 
-        IF LENGTH (cSettings) > 0 THEN .
+        IF LENGTH (cSettings, "CHARACTER":U) > 0 THEN .
         ELSE RETURN .
 
         mptr = BASE64-DECODE (cSettings) .
@@ -466,7 +466,7 @@ CLASS Consultingwerk.Util.DockManagerHelper:
 
         cSettings = BASE64-ENCODE (mptr) .
 
-        ASSIGN iChunks = MathHelper:Roundup (LENGTH (cSettings) / 8192) .
+        ASSIGN iChunks = MathHelper:Roundup (LENGTH (cSettings, "CHARACTER":U) / 8192) .
 
         IF VALID-OBJECT (oSettingsServiceLong) THEN
             oSettingsServiceLong:StoreSettingLong (pcSettingsKey,
@@ -484,13 +484,15 @@ CLASS Consultingwerk.Util.DockManagerHelper:
                                                        SUBSTITUTE ("DockManagerSettings.&1":U, i),
                                                        STRING (SUBSTRING (cSettings,
                                                                           (i - 1) * 8192 + 1,
-                                                                          8192))) .
+                                                                          8192,
+                                                                          "CHARACTER":U))) .
             ELSE
                 oSettingsService:StoreSetting (pcSettingsKey,
                                                SUBSTITUTE ("DockManagerSettings.&1":U, i),
                                                STRING (SUBSTRING (cSettings,
                                                                   (i - 1) * 8192 + 1,
-                                                                  8192))) .
+                                                                  8192,
+                                                                  "CHARACTER":U))) .
         END.
 
         FINALLY:

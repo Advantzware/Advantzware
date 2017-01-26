@@ -552,6 +552,8 @@ CLASS Consultingwerk.OERA.JsdoGenericService.CatalogV12
         DEFINE VARIABLE oRelationField  AS JsonObject NO-UNDO .
         DEFINE VARIABLE i               AS INTEGER    NO-UNDO .
         DEFINE VARIABLE j               AS INTEGER    NO-UNDO .
+        DEFINE VARIABLE cParentField    AS CHARACTER  NO-UNDO .
+        DEFINE VARIABLE cChildField     AS CHARACTER  NO-UNDO .
 
         oRelations = NEW JsonArray () .
 
@@ -569,9 +571,12 @@ CLASS Consultingwerk.OERA.JsdoGenericService.CatalogV12
 
             DO j = 2 TO NUM-ENTRIES (hRelation:RELATION-FIELDS) BY 2:
 
+                ASSIGN cParentField = BufferHelper:FieldSerializeName (hRelation:PARENT-BUFFER:BUFFER-FIELD (ENTRY (j - 1, hRelation:RELATION-FIELDS)))
+                       cChildField  = BufferHelper:FieldSerializeName (hRelation:CHILD-BUFFER:BUFFER-FIELD  (ENTRY (j,      hRelation:RELATION-FIELDS))) . 
+
                 oRelationField = NEW JsonObject () .
-                oRelationField:Add ("parentFieldName":U, ENTRY (j - 1, hRelation:RELATION-FIELDS)) .
-                oRelationField:Add ("childFieldName":U, ENTRY (j,      hRelation:RELATION-FIELDS)) .
+                oRelationField:Add ("parentFieldName":U, cParentField) .
+                oRelationField:Add ("childFieldName":U, cChildField) .
 
                 oRelationFields:Add (oRelationField) .
 

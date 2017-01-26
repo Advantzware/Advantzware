@@ -61,9 +61,9 @@ CLASS Consultingwerk.Util.ErrorHelper:
     DEFINE PUBLIC STATIC PROPERTY CurrentStacktrace AS CHARACTER NO-UNDO
     GET():
 
-        DEFINE VARIABLE cStacktrace        AS CHARACTER NO-UNDO.
-        DEFINE VARIABLE lCurrentErrorStack AS LOGICAL NO-UNDO.
-        DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
+        DEFINE VARIABLE cStacktrace        AS CHARACTER NO-UNDO .
+        DEFINE VARIABLE lCurrentErrorStack AS LOGICAL   NO-UNDO .
+        DEFINE VARIABLE iIndex             AS INTEGER   NO-UNDO .
 
         ASSIGN lCurrentErrorStack         = SESSION:ERROR-STACK-TRACE
                SESSION:ERROR-STACK-TRACE  = TRUE .
@@ -79,7 +79,7 @@ CLASS Consultingwerk.Util.ErrorHelper:
         ASSIGN iIndex = INDEX (cStacktrace, CHR (10)) .
 
         IF iIndex > 1 THEN
-            ASSIGN cStacktrace = SUBSTRING (cStacktrace, iIndex + 1) .
+            ASSIGN cStacktrace = SUBSTRING (cStacktrace, iIndex + 1, -1, "CHARACTER":U) .
 
         RETURN cStacktrace .
 
@@ -152,6 +152,7 @@ CLASS Consultingwerk.Util.ErrorHelper:
 
             iMsgCnt = IF pcText = ? THEN ERROR-STATUS:NUM-MESSAGES ELSE 1.
 
+            msgLoop:
             DO iMsg = 1 TO iMsgCnt:
               IF pcText = ? THEN
               DO:
@@ -161,7 +162,7 @@ CLASS Consultingwerk.Util.ErrorHelper:
                  instead. */
                 cMessage = ERROR-STATUS:GET-MESSAGE(iMsg).
                 IF INDEX(cMessage, "BUFFER-FIELD":U) NE 0 THEN
-                    NEXT.
+                    NEXT msgLoop .
               END. /* END DO IF pcText = ? */
 
               ASSIGN pcMessage = pcMessage +
@@ -451,23 +452,23 @@ CLASS Consultingwerk.Util.ErrorHelper:
      */
     METHOD PUBLIC STATIC CHARACTER FormattedErrorMessagesExt (poError AS Progress.Lang.Error):
 
-        DEFINE VARIABLE cReturn     AS CHARACTER           NO-UNDO .
-        DEFINE VARIABLE iIndent     AS INTEGER             NO-UNDO .
+        DEFINE VARIABLE cReturn      AS CHARACTER           NO-UNDO .
+        DEFINE VARIABLE iIndent      AS INTEGER             NO-UNDO .
 
-        DEFINE VARIABLE cType       AS CHARACTER           NO-UNDO .
-        DEFINE VARIABLE cMessage    AS CHARACTER           NO-UNDO .
-        DEFINE VARIABLE cStacktrace AS CHARACTER           NO-UNDO .
-        DEFINE VARIABLE cPattern    AS CHARACTER           NO-UNDO INITIAL "An &1 has occurred:"{&TRAN} .
+        DEFINE VARIABLE cType        AS CHARACTER           NO-UNDO .
+        DEFINE VARIABLE cMessage     AS CHARACTER           NO-UNDO .
+        DEFINE VARIABLE lcStacktrace AS CHARACTER           NO-UNDO .
+        DEFINE VARIABLE cPattern     AS CHARACTER           NO-UNDO INITIAL "An &1 has occurred:"{&TRAN} .
 
-        DEFINE VARIABLE oError      AS Progress.Lang.Error NO-UNDO .
+        DEFINE VARIABLE oError       AS Progress.Lang.Error NO-UNDO .
 
         oError = poError .
 
         DO WHILE VALID-OBJECT (oError) ON ERROR UNDO, THROW:
 
-            ASSIGN cType       = ErrorHelper:ErrorTypeName (oError)
-                   cMessage    = ErrorHelper:FormattedErrorMessages (oError)
-                   cStacktrace = ErrorHelper:StackTrace (oError)
+            ASSIGN cType        = ErrorHelper:ErrorTypeName (oError)
+                   cMessage     = ErrorHelper:FormattedErrorMessages (oError)
+                   lcStacktrace = ErrorHelper:StackTrace (oError)
                 .
 
             IF cType > "":U THEN
@@ -482,9 +483,9 @@ CLASS Consultingwerk.Util.ErrorHelper:
                                                iIndent * 5) +
                           Consultingwerk.Environment:NewLine .
 
-            IF cStacktrace > "":U THEN
+            IF lcStacktrace > "":U THEN
                 cReturn = cReturn +
-                          StringHelper:Indent (cStacktrace,
+                          StringHelper:Indent (lcStacktrace,
                                                iIndent * 5) +
                           Consultingwerk.Environment:NewLine .
 
@@ -511,7 +512,7 @@ CLASS Consultingwerk.Util.ErrorHelper:
     METHOD PUBLIC STATIC CHARACTER GetRuntimeErrorMessage (piMessageNumber AS INTEGER):
 
         DEFINE VARIABLE iPos     AS INTEGER   NO-UNDO .
-        DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO FORMAT "x(80)".
+        DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO FORMAT "x(80)":U .
         DEFINE VARIABLE i        AS INTEGER   NO-UNDO .
         DEFINE VARIABLE cPromsgs AS CHARACTER NO-UNDO .
 
@@ -836,13 +837,14 @@ CLASS Consultingwerk.Util.ErrorHelper:
 
         ASSIGN iStart = INDEX (cDefault, "%s":U)
                iEnd   = INDEX (cDefault, "%s":U, iStart + 2)
-               cMiddle = SUBSTRING (cDefault, iStart + 2, iEnd - iStart - 2)
+               cMiddle = SUBSTRING (cDefault, iStart + 2, iEnd - iStart - 2, "CHARACTER":U)
                iMiddle = INDEX (cMessage, cMiddle).
 
-        RETURN NEW Error132Info (TRIM (SUBSTRING (cMessage, iStart, iMiddle - iStart)),
+        RETURN NEW Error132Info (TRIM (SUBSTRING (cMessage, iStart, iMiddle - iStart, "CHARACTER":U)),
                                  TRIM (SUBSTRING (cMessage,
-                                                  iMiddle + LENGTH (cMiddle),
-                                                  LENGTH (cMessage) - iMiddle - LENGTH (cMiddle) - (LENGTH (cDefault) - iEnd) + 2 ))).
+                                                  iMiddle + LENGTH (cMiddle, "CHARACTER":U),
+                                                  LENGTH (cMessage, "CHARACTER":U) - iMiddle - LENGTH (cMiddle, "CHARACTER":U) - (LENGTH (cDefault, "CHARACTER":U) - iEnd) + 2,
+                                                  "CHARACTER":U))).
 
     END METHOD.
 

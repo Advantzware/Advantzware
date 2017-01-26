@@ -973,6 +973,61 @@ CLASS Consultingwerk.Util.StringHelper:
 
     END METHOD.
 
+    /**
+     * Purpose: Return the 'other' entry in a separated list of paired entries.
+     *          This is required to ensure that the lookup does not find a matching
+     *          entry in the wrong part of the pair.
+     * Notes:   Used to find mapped RowObject or database column in assignList.
+     *          In other cases, such as the ObjectMapping property of SBOs, an
+     *          entry may occur more than once in the list, in which case a list
+     *          of matching values is returned, using the same delimiter as the list.
+     *          Returns ? if no entry is found
+     *          From src/adm2/smart.i
+     * @param pcEntry Entry to lookup.
+     * @param pcList Comma separated list with paired entries.
+     * @param plFirst TRUE - lookup first and RETURN second, FALSE - lookup second and RETURN first
+     * @param pcDelimiter Delimiter of pcList
+     * @return The entry of ? when the entry is not found
+     */
+    METHOD PUBLIC STATIC CHARACTER MappedEntry (pcEntry AS CHARACTER,
+                                                pcList AS CHARACTER,
+                                                plFirst AS LOGICAL,
+                                                pcDelimiter AS CHARACTER):
+
+        DEFINE VARIABLE iLookUp AS INTEGER    NO-UNDO .
+        DEFINE VARIABLE cList   AS CHARACTER  NO-UNDO .
+        DEFINE VARIABLE cValues AS CHARACTER  NO-UNDO .
+
+        /* We use a work list so we are free to remove entries from it without
+           risking to remove the value that we eventually want to return */
+        ASSIGN
+            cValues = ? /* Set to ? to identify not found (Blank may be found) */
+            cList   = pcList.
+
+        DO WHILE TRUE:
+            iLookup = LOOKUP (pcEntry, cList, pcDelimiter).
+
+            /* The entry is no longer in the list or not at all, so return any values
+               we have found in earlier passes; if none found unknown will be returned.*/
+            IF iLookup = 0 OR iLookup = ? THEN
+              RETURN cValues.
+
+            /* If this is the correct half of the pair add the other part from the
+               original list to the list of values to return. */
+            IF iLookup MODULO 2 = (IF plFirst THEN 1 ELSE 0) THEN
+              cValues = (IF cValues <> ? THEN cValues + pcDelimiter ELSE '':U)
+                      + ENTRY(IF plFirst THEN (iLookup + 1) ELSE (iLookup - 1),
+                              pcList,
+                              pcDelimiter).
+
+            /* We remove this entry (right or wrong) from the work list to be able
+               to lookup the next. (Setting it to blank if we are looking for blank
+               will cause an endless loop so we set it to '?' in that case )*/
+            ENTRY(iLookup, cList, pcDelimiter) = IF pcEntry <> '':U THEN '':U ELSE '?':U.
+        END. /* do while true */
+
+    END METHOD.
+
     /*------------------------------------------------------------------------------
         Purpose: Returns position of the next non whispace character
         Notes:   Returns the starting position, when that's not a white space, returns ?

@@ -149,7 +149,7 @@ CLASS Consultingwerk.Studio.CompilerHelper:
                                                         cMask,
                                                         OUTPUT TABLE ttFileNames BY-REFERENCE) .
 
-            FOR EACH ttFileNames:
+            FOR EACH ttFileNames ON ERROR UNDO, THROW:
 
                 ASSIGN cFile     = REPLACE (ttFileNames.FileName, "~\":U, "/":U)
                        cRelative = SUBSTRING (SUBSTRING (cFile, 1, R-INDEX (cFile, "/":U) - 1, "CHARACTER":U),

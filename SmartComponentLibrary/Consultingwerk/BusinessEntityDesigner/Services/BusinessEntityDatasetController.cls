@@ -2228,7 +2228,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityDatasetContro
             THIS-OBJECT:Model:SelectElements (FALSE) .
             oShape:Selected = TRUE .
 
-            BuildTreeView() .
+            THIS-OBJECT:BuildTreeView () .
         END.
 
         /* Mike Fechner, Consultingwerk Ltd. 05.07.2015
@@ -4083,6 +4083,8 @@ CLASS Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityDatasetContro
 
         FINALLY:
             THIS-OBJECT:UnsavedChanges = TRUE .
+
+            THIS-OBJECT:BuildTreeView () .
         END FINALLY.
 
     END METHOD.
@@ -4121,6 +4123,69 @@ CLASS Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityDatasetContro
 
         IF lFound = TRUE THEN
             oIndexAdapter:BindingSource:Refresh () .
+
+    END METHOD.
+
+    /**
+     * Purpose: Renames the temp-table
+     * Notes:
+     * @param pcOldName The old temp-table name
+     * @param pcNewName The new temp-table name
+     */
+    METHOD PUBLIC VOID RenameTable (pcOldName AS CHARACTER,
+                                    pcNewName AS CHARACTER):
+
+        DEFINE BUFFER eTable FOR eTable .
+
+        DEFINE VARIABLE lRelationChanged  AS LOGICAL NO-UNDO.
+
+        IF CAN-FIND (eTable WHERE eTable.TempTableName = pcNewName) THEN
+            ASSIGN pcNewName = BuildUniqueTableName (pcNewName) .
+
+        FIND eTable WHERE eTable.TempTableName = pcOldName .
+
+        ASSIGN eTable.TempTableName = pcNewName
+               eTable.TempTableBeforeName = THIS-OBJECT:BeforeTableName (pcNewName)
+               eTable.EntityClassName     = (IF NOT eTable.TempTableName BEGINS BusinessEntityDesignerSettings:DefaultTablePrefix
+                                             THEN eTable.TempTableName
+                                             ELSE SUBSTRING (eTable.TempTableName, LENGTH (BusinessEntityDesignerSettings:DefaultTablePrefix, "CHARACTER":U) + 1, -1, "CHARACTER":U))
+               .
+        THIS-OBJECT:TableViewerControl:SmartDataSource:BindingSource:Refresh() .
+
+        FOR EACH eField WHERE eField.TempTableName = pcOldName ON ERROR UNDO, THROW:
+            eField.TempTableName = pcNewName .
+        END.
+
+        FOR EACH eIndex WHERE eIndex.TempTableName = pcOldName ON ERROR UNDO, THROW:
+            eIndex.TempTableName = pcNewName .
+        END.
+
+        FOR EACH eDataRelation WHERE eDataRelation.ParentTempTableName = pcOldName ON ERROR UNDO, THROW:
+
+            ASSIGN eDataRelation.ParentTempTableName = pcNewName
+                   lRelationChanged                    = TRUE .
+        END .
+
+        FOR EACH eDataRelation WHERE eDataRelation.ChildTempTableName = pcOldName ON ERROR UNDO, THROW:
+
+            ASSIGN eDataRelation.ChildTempTableName = pcNewName .
+                   lRelationChanged                   = TRUE .
+        END .
+
+        THIS-OBJECT:BuildTreeView () .
+
+        IF lRelationChanged THEN
+            oDataRelationAdapter:BindingSource:Refresh () .
+
+        oFieldAdapter:QueryHandle:QUERY-OPEN () .
+        oTableAdapter:BindingSource:Refresh() .
+        oIndexAdapter:QueryHandle:QUERY-OPEN () .
+        oIndexAdapter:BindingSource:Refresh() .
+
+        FINALLY:
+            THIS-OBJECT:DrawShapes (THIS-OBJECT:Model) .
+            THIS-OBJECT:UnsavedChanges = TRUE .
+        END FINALLY.
 
     END METHOD.
 
@@ -4246,7 +4311,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Services.BusinessEntityDatasetContro
         @param pcTempTableName The input table name
         @return The shortened temp-table name
     ------------------------------------------------------------------------------*/
-    METHOD PROTECTED CHARACTER ShortTableName (pcTempTableName AS CHARACTER):
+    METHOD PUBLIC CHARACTER ShortTableName (pcTempTableName AS CHARACTER):
 
         RETURN ENTRY (NUM-ENTRIES (pcTempTableName, ".":U), pcTempTableName, ".":U) .
 

@@ -65,7 +65,7 @@ CLASS Consultingwerk.Studio.XrefAnnotationParser:
 
         oList = NEW ListAnnotation () .
 
-        FOR EACH eReference WHERE eReference.ReferenceType  = "ANNOTATION":U BY RefSeq:
+        FOR EACH eReference WHERE eReference.ReferenceType  = "ANNOTATION":U BY RefSeq ON ERROR UNDO, THROW:
 
             ASSIGN iIndex = INDEX (eReference.ObjectIdentifier, "(":U) .
 

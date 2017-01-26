@@ -883,7 +883,7 @@ CLASS Consultingwerk.Design.SmartComponents.Viewer.SmartViewerDesignerControl
         IF NOT poParentControl:Controls:ContainsKey (pcControlName) THEN
             RETURN pcControlName .
 
-        REPEAT:
+        REPEAT ON ERROR UNDO, THROW:
             ASSIGN i     = i + 1
                    cName = SUBSTITUTE ("&1&2":U,
                                        pcControlName,
@@ -913,7 +913,7 @@ CLASS Consultingwerk.Design.SmartComponents.Viewer.SmartViewerDesignerControl
         IF NOT CAN-FIND (ttViewerDesign WHERE ttViewerDesign.ControlName = cName) THEN
             RETURN cName .
 
-        REPEAT:
+        REPEAT ON ERROR UNDO, THROW:
             i = i + 1 .
 
             IF NOT CAN-FIND (ttViewerDesign WHERE ttViewerDesign.ControlName = SUBSTITUTE ("&1&2":U,

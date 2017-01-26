@@ -148,7 +148,7 @@ CLASS Consultingwerk.SmartFramework.Repository.Class.ObjectTypeDataAccess
             RETURN .
         END.
 
-        childLoop: REPEAT:
+        childLoop: REPEAT ON ERROR UNDO, THROW:
             ASSIGN cExtendsGuid = b_ChildObjectType.ExtendsObjectTypeGuid .
 
             FIND b_ChildObjectType WHERE b_ChildObjectType.ObjectTypeGuid = cExtendsGuid NO-LOCK NO-ERROR .

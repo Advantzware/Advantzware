@@ -304,7 +304,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.SmartViewerGenerator.SmartVi
 
         FOR EACH b_eField WHERE (b_eField.TempTableName = smartBusinessEntityBindingSource1:EntityTable
                              OR LOOKUP (b_eField.TempTableName, smartBusinessEntityBindingSource1:EntityView) > 0)
-                            AND b_eField.FieldCustomControlName > "":U:
+                            AND b_eField.FieldCustomControlName > "":U ON ERROR UNDO, THROW:
 
             oDictionary:Add (SUBSTITUTE ("&1.&2":U, b_eField.TempTableName, b_eField.FieldName),
                              b_eField.FieldCustomControlName) .

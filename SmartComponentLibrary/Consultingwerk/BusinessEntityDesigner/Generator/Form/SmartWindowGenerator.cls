@@ -487,7 +487,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Generator.Form.SmartWindowGenerator
         DEFINE VARIABLE lcCode   AS LONGCHAR NO-UNDO .
         DEFINE VARIABLE lcMethod AS LONGCHAR NO-UNDO .
 
-        FOR EACH ttMethods:
+        FOR EACH ttMethods ON ERROR UNDO, THROW:
 
             COPY-LOB FROM ttMethods.Code TO lcMethod .
 

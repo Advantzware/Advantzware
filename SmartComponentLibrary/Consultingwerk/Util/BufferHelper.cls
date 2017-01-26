@@ -615,6 +615,25 @@ CLASS Consultingwerk.Util.BufferHelper:
     END METHOD.
 
     /**
+     * Purpose: Returns a buffer fields SERIALIZE-NAME when set,
+     *          otherwise the fields NAME
+     * Notes:
+     * @param phField The handle of a temp-table field
+     * @return The fields SERIALIZE-NAME or NAME
+     */
+    METHOD PUBLIC STATIC CHARACTER FieldSerializeName (phField AS HANDLE):
+
+        HandleAssert:WidgetType (phField, WidgetTypeEnum:BufferField) .
+        BufferAssert:IsTempTableBuffer (phField:BUFFER-HANDLE) .
+
+        IF phField:SERIALIZE-NAME > "":U THEN
+            RETURN phField:SERIALIZE-NAME .
+
+        RETURN phField:NAME .
+
+    END METHOD.
+
+    /**
      * Purpose: Finds the before buffer's after-buffer record
      * Notes:
      * @param phBeforeBuffer The handle of the before buffer
@@ -1513,11 +1532,11 @@ CLASS Consultingwerk.Util.BufferHelper:
                    cIndex = hIndexBuffer:INDEX-INFORMATION (iIndex) .
 
             IF cIndex > "":U THEN .
-            ELSE LEAVE .
+            ELSE LEAVE indexloop .
 
             IF ENTRY(2, cIndex) <> "1":U /* unique */ OR
                ENTRY(3, cIndex) <> "1":U /* primary */ THEN
-               NEXT .
+               NEXT indexloop .
 
             ASSIGN cQueryString = "WHERE ":U .
 
@@ -1557,10 +1576,10 @@ CLASS Consultingwerk.Util.BufferHelper:
                        cIndex = hIndexBuffer:INDEX-INFORMATION (iIndex) .
 
                 IF cIndex > "":U THEN .
-                ELSE LEAVE .
+                ELSE LEAVE indexloop .
 
                 IF ENTRY(2, cIndex) <> "1":U /* unique */ THEN
-                   NEXT .
+                   NEXT indexloop .
 
                 ASSIGN cQueryString = "WHERE ":U .
 
@@ -1710,15 +1729,15 @@ CLASS Consultingwerk.Util.BufferHelper:
                    cIndex = phBuffer:INDEX-INFORMATION (iIndex) .
 
             IF cIndex > "":U THEN .
-            ELSE LEAVE .
+            ELSE LEAVE indexloop .
 
             IF plPrimaryOnly THEN DO:
                 IF ENTRY(2, cIndex) <> "1":U /* unique */ OR
                    ENTRY(3, cIndex) <> "1":U /* primary */ THEN
-               NEXT .
+               NEXT indexloop .
             END.
             ELSE IF ENTRY(2, cIndex) <> "1":U /* unique */ THEN
-                NEXT .
+                NEXT indexloop .
 
             DO iField = 5 TO NUM-ENTRIES (cIndex) BY 2 ON ERROR UNDO, THROW:
                 IF plPrefixWithTable THEN
@@ -1788,11 +1807,11 @@ CLASS Consultingwerk.Util.BufferHelper:
                    cIndex = hIndexBuffer:INDEX-INFORMATION (iIndex) .
 
             IF cIndex > "":U THEN .
-            ELSE LEAVE .
+            ELSE LEAVE indexloop .
 
             IF ENTRY(2, cIndex) <> "1":U /* unique */ OR
                ENTRY(3, cIndex) <> "1":U /* primary */ THEN
-               NEXT .
+               NEXT indexloop .
 
             DO iField = 5 TO NUM-ENTRIES (cIndex) BY 2 ON ERROR UNDO, THROW:
                 ASSIGN cField = ENTRY(iField, cIndex)
@@ -1818,10 +1837,10 @@ CLASS Consultingwerk.Util.BufferHelper:
                        cIndex = hIndexBuffer:INDEX-INFORMATION (iIndex) .
 
                 IF cIndex > "":U THEN .
-                ELSE LEAVE .
+                ELSE LEAVE indexloop .
 
                 IF ENTRY(2, cIndex) <> "1":U /* unique */ THEN
-                   NEXT .
+                   NEXT indexloop .
 
                 DO iField = 5 TO NUM-ENTRIES (cIndex) BY 2 ON ERROR UNDO, THROW:
                     ASSIGN cField = ENTRY(iField, cIndex)

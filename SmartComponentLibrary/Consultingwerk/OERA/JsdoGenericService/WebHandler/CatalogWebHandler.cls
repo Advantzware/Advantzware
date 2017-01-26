@@ -26,6 +26,7 @@ USING Consultingwerk.Assertion.*                          FROM PROPATH .
 USING Consultingwerk.Exceptions.*                         FROM PROPATH .
 USING Consultingwerk.Framework.*                          FROM PROPATH .
 USING Consultingwerk.Framework.Collections.*              FROM PROPATH .
+USING Consultingwerk.Framework.Session.*                  FROM PROPATH .
 USING Consultingwerk.OERA.*                               FROM PROPATH .
 USING Consultingwerk.OERA.Exceptions.*                    FROM PROPATH .
 USING Consultingwerk.OERA.JsdoGenericService.*            FROM PROPATH .
@@ -41,6 +42,19 @@ CLASS Consultingwerk.OERA.JsdoGenericService.WebHandler.CatalogWebHandler
     INHERITS SmartWebHandler:
 
 &IF DEFINED (PacificWebSpeed) NE 0 &THEN
+
+    DEFINE VARIABLE oCache AS ICatalogCacheService NO-UNDO .
+
+    /**
+     * Purpose: Constructor for the CatalogWebHandler class
+     * Notes:
+     */
+    CONSTRUCTOR PUBLIC CatalogWebHandler ():
+
+        // Short type name is o.k. here, as PacificWebSpeed is 11.6 +
+        ASSIGN oCache = {Consultingwerk/get-service.i ICatalogCacheService} .
+
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the RestServiceAddress from the restapplicationsettings file
@@ -86,6 +100,8 @@ CLASS Consultingwerk.OERA.JsdoGenericService.WebHandler.CatalogWebHandler
         DEFINE VARIABLE oService         AS IBusinessService    NO-UNDO .
         DEFINE VARIABLE cCountMethodType AS CHARACTER           NO-UNDO INIT ? .
         DEFINE VARIABLE oParamDictionary AS CharacterDictionary NO-UNDO .
+        DEFINE VARIABLE oCached          AS JsonObject          NO-UNDO .
+        DEFINE VARIABLE cCacheParameter  AS CHARACTER           NO-UNDO .
 
         ServiceInterface:Activate () .
 
@@ -98,33 +114,56 @@ CLASS Consultingwerk.OERA.JsdoGenericService.WebHandler.CatalogWebHandler
         DO ON ERROR UNDO, THROW:
             ASSIGN cEntityName      = poRequest:GetPathParameter ("EntityName":U)
                    oParamDictionary = ListHelper:AlternatingListToDictionary (STRING (poRequest:GetContextValue ("QUERY_STRING":U)),
-                                                                           "&":U, "=":U)
-                   oService         = ServiceManager:GetBusinessService (cEntityName) .
+                                                                           "&":U, "=":U) .
 
             IF oParamDictionary:ContainsKey("count":U) THEN
-                ASSIGN cCountMethodType = oParamDictionary:GetValue ("count":U) .
+                ASSIGN cCountMethodType = oParamDictionary:GetValue ("count":U)
+                       cCacheParameter  = IF cCountMethodType > "":U THEN
+                                              SUBSTITUTE ("count=&1":U, cCountMethodType)
+                                          ELSE
+                                              "":U.
 
-            oCatalog = {Consultingwerk/get-service.i Consultingwerk.OERA.JsdoGenericService.ICatalog
-                                                     "NEW CatalogV14 ()"} .
+            ASSIGN cCacheParameter = TRIM (SUBSTITUTE ("&1 &2":U,
+                                                       cCacheParameter,
+                                                       SessionManager:LanguageIsoCode)) .
 
-            IF VALID-OBJECT (oService) THEN DO:
+            IF VALID-OBJECT (oCache) THEN DO:
+                oCached = oCache:GetCachedCatalog (cEntityName, cCacheParameter) .
 
-                IF TYPE-OF (oService, IBusinessTaskCatalogInfo) THEN
-                    oResponse:Entity = oCatalog:GetCatalogForBusinessTask (CAST (oService, IBusinessTaskCatalogInfo):GetCatalogData(),
-                                                                           CatalogWebhandler:GetRestServiceAddress (cEntityName)) .
-                ELSE IF TYPE-OF (oService, IBusinessEntity) THEN
-                    oResponse:Entity = oCatalog:GetCatalogForBusinessEntity (cEntityName,
-                                                                             CatalogWebhandler:GetRestServiceAddress (cEntityName),
-                                                                             cCountMethodType) .
+                IF VALID-OBJECT (oCached) THEN
+                    ASSIGN oResponse:Entity = oCached .
+            END.
+
+            IF NOT VALID-OBJECT (oCached) THEN DO:
+                ASSIGN
+                    oService = ServiceManager:GetBusinessService (cEntityName) .
+                    oCatalog = {Consultingwerk/get-service.i Consultingwerk.OERA.JsdoGenericService.ICatalog
+                                                             "NEW CatalogV14 ()"} .
+
+                IF VALID-OBJECT (oService) THEN DO:
+
+                    IF TYPE-OF (oService, IBusinessTaskCatalogInfo) THEN
+                        oResponse:Entity = oCatalog:GetCatalogForBusinessTask (CAST (oService, IBusinessTaskCatalogInfo):GetCatalogData(),
+                                                                               CatalogWebhandler:GetRestServiceAddress (cEntityName)) .
+                    ELSE IF TYPE-OF (oService, IBusinessEntity) THEN
+                        oResponse:Entity = oCatalog:GetCatalogForBusinessEntity (cEntityName,
+                                                                                 CatalogWebhandler:GetRestServiceAddress (cEntityName),
+                                                                                 cCountMethodType) .
+                    ELSE
+                        UNDO, THROW NEW CatalogException ("Business Service must be IBusinessEntity or IBusinessTaskCatalogInfo to generate Catalog.":U,
+                                                          0,
+                                                          cEntityName) .
+
+                    IF VALID-OBJECT (oCache) THEN
+                        oCache:StoreCatalogInCache (cEntityName,
+                                                    cCacheParameter,
+                                                    CAST (oResponse:Entity, JsonObject)) .
+                END .
                 ELSE
-                    UNDO, THROW NEW CatalogException ("Business Service must be IBusinessEntity or IBusinessTaskCatalogInfo to generate Catalog.":U,
+                    UNDO, THROW NEW CatalogException ("Invalid Business Service instance.":U,
                                                       0,
                                                       cEntityName) .
-            END .
-            ELSE
-                UNDO, THROW NEW CatalogException ("Invalid Business Service instance.":U,
-                                                  0,
-                                                  cEntityName) .
+            END.
 
             oResponse:StatusCode = INTEGER (StatusCodeEnum:OK).
 

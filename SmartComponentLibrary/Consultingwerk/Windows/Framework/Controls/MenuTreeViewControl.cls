@@ -628,7 +628,7 @@ CLASS Consultingwerk.Windows.Framework.Controls.MenuTreeViewControl
         DEFINE BUFFER b_ttMenuStructure FOR ttMenuStructure .
 
         FOR EACH ttMenuStructure WHERE ttMenuStructure.ParentMenuKey = pcParentMenuKey
-                                    BY ttMenuStructure.MenuSequence:
+                                    BY ttMenuStructure.MenuSequence ON ERROR UNDO, THROW:
 
             oNode = poNodes:Add (ttMenuStructure.MenuKey, ttMenuStructure.MenuName) .
             oNode:Tag = BOX (ttMenuStructure.FunctionKey) .

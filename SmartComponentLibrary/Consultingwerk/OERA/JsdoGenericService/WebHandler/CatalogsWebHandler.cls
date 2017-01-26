@@ -26,6 +26,7 @@ USING Consultingwerk.*                                    FROM PROPATH.
 USING Consultingwerk.Assertion.*                          FROM PROPATH.
 USING Consultingwerk.Framework.*                          FROM PROPATH.
 USING Consultingwerk.Framework.Collections.*              FROM PROPATH .
+USING Consultingwerk.Framework.Session.*                  FROM PROPATH .
 USING Consultingwerk.OERA.*                               FROM PROPATH.
 USING Consultingwerk.OERA.JsdoGenericService.*            FROM PROPATH.
 USING Consultingwerk.OERA.JsdoGenericService.WebHandler.* FROM PROPATH.
@@ -42,6 +43,19 @@ CLASS Consultingwerk.OERA.JsdoGenericService.WebHandler.CatalogsWebHandler
     INHERITS ListBusinessServicesWebHandler:
 
 &IF DEFINED (PacificWebSpeed) NE 0 &THEN
+
+    DEFINE VARIABLE oCache AS ICatalogCacheService NO-UNDO .
+
+    /**
+     * Purpose: Constructor for the CatalogsWebHandler class
+     * Notes:
+     */
+    CONSTRUCTOR PUBLIC CatalogsWebHandler ():
+
+        // Short type name is o.k. here, as PacificWebSpeed is 11.6 +
+        ASSIGN oCache = {Consultingwerk/get-service.i ICatalogCacheService} .
+
+    END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
         Purpose: Default handler for the HTTP GET method. The request being
@@ -62,6 +76,9 @@ CLASS Consultingwerk.OERA.JsdoGenericService.WebHandler.CatalogsWebHandler
         DEFINE VARIABLE oJsonCatalog     AS JsonObject          NO-UNDO .
         DEFINE VARIABLE oJsonReturn      AS JsonObject          NO-UNDO .
         DEFINE VARIABLE oResources       AS JsonArray           NO-UNDO .
+        DEFINE VARIABLE oCached          AS JsonObject          NO-UNDO .
+        DEFINE VARIABLE oPackageCache    AS JsonObject          NO-UNDO .
+        DEFINE VARIABLE cCacheParameter  AS CHARACTER           NO-UNDO .
 
         ServiceInterface:Activate () .
 
@@ -77,42 +94,77 @@ CLASS Consultingwerk.OERA.JsdoGenericService.WebHandler.CatalogsWebHandler
                                                                               "&":U, "=":U) .
 
             IF oParamDictionary:ContainsKey("count":U) THEN
-                ASSIGN cCountMethodType = oParamDictionary:GetValue ("count":U) .
+                ASSIGN cCountMethodType = oParamDictionary:GetValue ("count":U)
+                       cCacheParameter  = IF cCountMethodType > "":U THEN
+                                              SUBSTITUTE ("count=&1":U, cCountMethodType)
+                                          ELSE
+                                              "":U.
 
-            oCatalog = {Consultingwerk/get-service.i Consultingwerk.OERA.JsdoGenericService.ICatalog
-                                                     "NEW CatalogV14 ()"} .
+            ASSIGN cCacheParameter = TRIM (SUBSTITUTE ("&1 &2":U,
+                                                       cCacheParameter,
+                                                       SessionManager:LanguageIsoCode)) .
 
-            THIS-OBJECT:GatherClassInformation (cPackageName).
+            IF VALID-OBJECT (oCache) THEN
+                oPackageCache = oCache:GetCachedCatalog ("Package:":U + cPackageName, cCacheParameter) .
 
-            entryLoop:
-            FOR EACH ttTableEntry ON ERROR UNDO, THROW:
+            IF VALID-OBJECT (oPackageCache) THEN
+                oResponse:Entity = oPackageCache .
+            ELSE DO:
+                oCatalog = {Consultingwerk/get-service.i Consultingwerk.OERA.JsdoGenericService.ICatalog
+                                                         "NEW CatalogV14 ()"} .
 
-                ASSIGN oService = ServiceManager:GetBusinessService (ttTableEntry.BEName) .
+                THIS-OBJECT:GatherClassInformation (cPackageName).
 
-                IF VALID-OBJECT (oService) THEN DO:
+                entryLoop:
+                FOR EACH ttTableEntry ON ERROR UNDO, THROW:
 
-                    IF TYPE-OF (oService, IBusinessTaskCatalogInfo) THEN
-                        oJsonCatalog = oCatalog:GetCatalogForBusinessTask (CAST (oService, IBusinessTaskCatalogInfo):GetCatalogData(),
-                                                                           CatalogWebHandler:GetRestServiceAddress (cPackageName)) .
-                    ELSE IF TYPE-OF (oService, IBusinessEntity) THEN
-                        oJsonCatalog = oCatalog:GetCatalogForBusinessEntity (ttTableEntry.BEName,
-                                                                             CatalogWebHandler:GetRestServiceAddress (cPackageName),
-                                                                             cCountMethodType) .
+                    IF VALID-OBJECT (oCache) THEN
+                        oCached = oCache:GetCachedCatalog (ttTableEntry.BEName, cCacheParameter) .
                     ELSE
-                        NEXT entryLoop .
-                END .
-                ELSE
-                    NEXT entryLoop .
+                        oCached = ? .
 
-                IF NOT VALID-OBJECT (oJsonReturn) THEN
-                    ASSIGN oJsonReturn = oJsonCatalog
-                           oResources  = oJsonCatalog:GetJsonArray("services":U):GetJsonObject(1):GetJsonArray("resources":U) .
-                ELSE
-                    oResources:Add (oJsonCatalog:GetJsonArray("services":U):GetJsonObject(1):GetJsonArray("resources":U):GetJsonObject(1)) .
+                    IF NOT VALID-OBJECT (oCached) THEN DO:
+                        ASSIGN oService = ServiceManager:GetBusinessService (ttTableEntry.BEName) .
 
+                        IF VALID-OBJECT (oService) THEN DO:
+
+                            IF TYPE-OF (oService, IBusinessTaskCatalogInfo) THEN
+                                oJsonCatalog = oCatalog:GetCatalogForBusinessTask (CAST (oService, IBusinessTaskCatalogInfo):GetCatalogData(),
+                                                                                   CatalogWebHandler:GetRestServiceAddress (cPackageName)) .
+                            ELSE IF TYPE-OF (oService, IBusinessEntity) THEN
+                                oJsonCatalog = oCatalog:GetCatalogForBusinessEntity (ttTableEntry.BEName,
+                                                                                     CatalogWebHandler:GetRestServiceAddress (cPackageName),
+                                                                                     cCountMethodType) .
+                            ELSE
+                                NEXT entryLoop .
+                        END .
+                        ELSE
+                            NEXT entryLoop .
+
+                        IF VALID-OBJECT (oCache) THEN
+                            oCache:StoreCatalogInCache (ttTableEntry.BEName,
+                                                        cCacheParameter,
+                                                        oJsonCatalog) .
+                    END.
+                    ELSE
+                        oJsonCatalog = oCached .
+
+                    IF NOT VALID-OBJECT (oJsonReturn) THEN
+                        ASSIGN oJsonReturn = oJsonCatalog
+                               oResources  = oJsonCatalog:GetJsonArray("services":U):GetJsonObject(1):GetJsonArray("resources":U) .
+                    ELSE
+                        oResources:Add (oJsonCatalog:GetJsonArray("services":U):GetJsonObject(1):GetJsonArray("resources":U):GetJsonObject(1)) .
+
+                END.
+
+                IF VALID-OBJECT (oCache) THEN
+                    oCache:StoreCatalogInCache ("Package:":U + cPackageName,
+                                                cCacheParameter,
+                                                oJsonReturn) .
+
+                oResponse:Entity = oJsonReturn .
             END.
 
-            oResponse:Entity = oJsonReturn .
             oResponse:StatusCode = INTEGER (StatusCodeEnum:OK).
 
             THIS-OBJECT:WriteResponse (oResponse).

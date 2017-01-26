@@ -69,6 +69,6 @@ CLASS Consultingwerk.OERA.BusinessEntityDescriptor.InvokableMethodDescriptor
                THIS-OBJECT:DatasetInput       = plDatasetInput
                THIS-OBJECT:DatasetOutput      = plDatasetOutput .
 
-    END METHOD .
+    END CONSTRUCTOR .
 
 END CLASS.

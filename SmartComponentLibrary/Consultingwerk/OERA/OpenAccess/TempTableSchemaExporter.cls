@@ -26,6 +26,7 @@ USING Consultingwerk.Exceptions.*             FROM PROPATH .
 USING Consultingwerk.Framework.*              FROM PROPATH .
 USING Consultingwerk.Framework.Session.*      FROM PROPATH .
 USING Consultingwerk.OERA.Schema.*            FROM PROPATH .
+USING Consultingwerk.Util.*                   FROM PROPATH .
 USING Progress.Json.ObjectModel.*             FROM PROPATH .
 USING Progress.Lang.*                         FROM PROPATH .
 
@@ -92,7 +93,7 @@ CLASS Consultingwerk.OERA.OpenAccess.TempTableSchemaExporter:
 
         oField = NEW JsonObject () .
 
-        poJsonObject:Add (phField:NAME, oField) .
+        poJsonObject:Add (BufferHelper:FieldSerializeName (phField), oField) .
 
         IF phField:EXTENT > 1 THEN DO:
             oField:Add ("type":U, "array":U) .

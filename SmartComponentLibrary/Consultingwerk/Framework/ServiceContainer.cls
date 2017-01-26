@@ -185,7 +185,7 @@ CLASS Consultingwerk.Framework.ServiceContainer
 
         EMPTY TEMP-TABLE ttServiceTable .
 
-        FOR EACH ttServices:
+        FOR EACH ttServices ON ERROR UNDO, THROW:
             CREATE ttServiceTable .
             ASSIGN ttServiceTable.ServiceType     = ttServices.ServiceType
                    ttServiceTable.ServiceInstance = ttServices.ServiceObject:ToString() .
