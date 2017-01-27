@@ -299,7 +299,7 @@ FOR EACH probeit
 
     board-cst = board-cst / (v-qty / 1000).
     IF ord-cost GT 0 AND qm GT 0 THEN 
-        dBoardPct = board-cst / ord-cost / qm * 100.
+        dBoardPct = board-cst / ord-cost * 100.
 
 /*eb is not available at this point with 2 piece box - find the non-set header blank*/       
     IF NOT AVAILABLE eb THEN 
