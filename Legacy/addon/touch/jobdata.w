@@ -821,8 +821,9 @@ PROCEDURE CtrlFrame.PSTimer.Tick .
   IF timerStatus:SCREEN-VALUE IN FRAME {&FRAME-NAME} MATCHES "*on*" THEN
      ASSIGN lv-timer = lv-timer + 1
            time-hour:SCREEN-VALUE IN FRAME {&FRAME-NAME} = SUBSTR(STRING(lv-timer,'HH:MM AM'),1,2)
-           time-minute:SCREEN-VALUE = SUBSTR(STRING(lv-timer,'HH:MM AM'),4,2)
-           /*Btn_AMPM:LABEL = SUBSTR(STRING(lv-timer,'HH:MM AM'),7,2)*/  .
+           time-minute:SCREEN-VALUE = SUBSTR(STRING(lv-timer,'HH:MM AM'),4,2).
+          IF time-hour:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "12" THEN
+           Btn_AMPM:LABEL = SUBSTR(STRING(lv-timer,'HH:MM AM'),7,2)  .
   
   
 END PROCEDURE.
