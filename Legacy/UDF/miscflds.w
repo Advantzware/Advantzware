@@ -1172,7 +1172,7 @@ END.
 ON CHOOSE OF btnExit IN FRAME fMiscFlds /* Exit */
 DO:
     IF savePrompt THEN DO:
-        MESSAGE "UDF Changes Exist!!!"
+        MESSAGE "Unsaved changes exist. Do you want to save?"
             VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO-CANCEL
             TITLE "Warning - Changes Not Saved"
             UPDATE promptToSave AS LOGICAL.
