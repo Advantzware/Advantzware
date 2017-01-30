@@ -452,9 +452,10 @@ PROCEDURE local-assign-record :
   DEFINE VARIABLE rowidqty AS ROWID NO-UNDO.
   IF AVAIL quoteqty THEN DO:
       ASSIGN
-          lvPrice = quoteqty.price .
-          lvUom = quoteqty.uom .
-          iPrvQty = quoteqty.qty .
+          lvPrice = quoteqty.price 
+          lvUom = quoteqty.uom 
+          iPrvQty = quoteqty.qty
+          .
   END.
   
 
@@ -498,7 +499,7 @@ PROCEDURE local-assign-record :
     END. /* if est-no = "" */
   END.
 
-  IF quoteqty.qty NE iPrvQty AND NOT adm-new-record  THEN DO:
+  IF AVAILABLE quoteqty AND quoteqty.qty NE iPrvQty AND NOT adm-new-record  THEN DO:
   
       FOR EACH quotechg EXCLUSIVE-LOCK
          WHERE quotechg.company EQ quoteqty.company 
