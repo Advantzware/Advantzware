@@ -8,7 +8,7 @@
 {aoa/BL/r-aragedDefs.i}
 
 /* Parameters Definitions ---                                           */
-DEFINE OUTPUT PARAMETER TABLE FOR ttAgedReceivables.
+DEFINE OUTPUT PARAMETER TABLE FOR ttAgedReceivablesTotals.
 {aoa/includes/pAgedReceivablesTotals.i}
 
 /* subject business logic */
