@@ -1000,7 +1000,7 @@ FOR EACH job-hdr NO-LOCK
       userField[64] = setUserField(64,IF AVAILABLE itemfg THEN itemfg.part-no ELSE '')
       userField[83] = setUserField(83,job.stat)
       userField[85] = setUserField(85,fDueQty(INT(userField[15]),INT(userField[57]),DEC(userField[86]),DEC(userField[87])))
-      userField[88] = setUserField(88,IF job-mch.speed EQ ? THEN '' ELSE LEFT-TRIM(STRING(job-mch.speed,'zz,zz9')))
+      userField[88] = setUserField(88,IF job-mch.speed EQ ? THEN '' ELSE LEFT-TRIM(STRING(job-mch.speed,'z,zzz,zz9')))
       userField[89] = setUserField(89,STRING(job.create-date,'99.99.9999'))
       jobDescription = jobText
       .
