@@ -1118,8 +1118,8 @@ PROCEDURE disable-enable-farm :
  DO WITH FRAME {&FRAME-NAME}:
       
     ASSIGN
-      btNextItemfg:VISIBLE = li-page[1] EQ 2 AND AVAIL est AND est.est-type = 6 
-      btNextItemfg:SENSITIVE = li-page[1] EQ 2 AND AVAIL est AND est.est-type = 6 .
+      btNextItemfg:VISIBLE = li-page[1] EQ 2 
+      btNextItemfg:SENSITIVE = li-page[1] EQ 2 .
     IF li-page[1] EQ 2 AND NOT CAN-DO(winObjects,'btNextItemfg') AND rowDiff NE 0 THEN
     ASSIGN
       btNextItemfg:ROW = btNextItemfg:ROW + rowDiff
@@ -1313,8 +1313,8 @@ ELSE
   DO WITH FRAME {&FRAME-NAME}:
       
     ASSIGN
-      btNextItemfg:VISIBLE = li-page[1] EQ 2 AND AVAIL est AND est.est-type = 6 
-      btNextItemfg:SENSITIVE = li-page[1] EQ 2 AND AVAIL est AND est.est-type = 6 .
+      btNextItemfg:VISIBLE = li-page[1] EQ 2  
+      btNextItemfg:SENSITIVE = li-page[1] EQ 2  .
     IF li-page[1] EQ 2 AND NOT CAN-DO(winObjects,'btNextItemfg') AND rowDiff NE 0 THEN
     ASSIGN
       btNextItemfg:ROW = btNextItemfg:ROW + rowDiff
