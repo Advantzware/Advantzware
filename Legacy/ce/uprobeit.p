@@ -337,7 +337,7 @@ FOR EACH probeit
         board-cst = board-cst + (brd.cost-m * blk.pct * (t-blkqty[ef.form-no] / 1000)).
     END.
     IF ord-cost GT 0 AND qm GT 0 THEN 
-        dBoardPct = board-cst / ord-cost / qm * 100.
+        dBoardPct = board-cst / ord-cost * 100.
     RUN custom/markup.p (ROWID(eb),
         board-cst,
         dBoardPct,

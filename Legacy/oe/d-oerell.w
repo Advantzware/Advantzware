@@ -385,7 +385,7 @@ DO:
             END.  
        END.
        WHEN "loc-bin" THEN DO:
-            RUN windows/l-locbin.w (g_company,oe-rell.loc:SCREEN-VALUE, lw-focus:SCREEN-VALUE, OUTPUT char-val).
+            RUN windows/l-fgbin.w (g_company,oe-rell.loc:SCREEN-VALUE, lw-focus:SCREEN-VALUE, OUTPUT char-val).
             IF char-val NE "" THEN DO :
                ASSIGN lw-focus:SCREEN-VALUE  = ENTRY(1,char-val).
                       /*rm-rctd.qty:screen-value = entry(3,char-val)
@@ -1192,12 +1192,12 @@ PROCEDURE valid-loc-bin :
   Notes:       
 ------------------------------------------------------------------------------*/
  DO WITH FRAME {&FRAME-NAME}:
-      FIND FIRST rm-bin NO-LOCK
-          WHERE rm-bin.company EQ cocode 
-            AND rm-bin.loc EQ oe-rell.loc:SCREEN-VALUE 
-            AND rm-bin.i-no EQ '' 
-            AND rm-bin.loc-bin EQ oe-rell.loc-bin:SCREEN-VALUE NO-ERROR. 
-      IF NOT AVAIL rm-bin THEN DO:
+      FIND FIRST fg-bin NO-LOCK
+          WHERE fg-bin.company EQ cocode 
+            AND fg-bin.loc EQ oe-rell.loc:SCREEN-VALUE 
+            AND fg-bin.i-no EQ '' 
+            AND fg-bin.loc-bin EQ oe-rell.loc-bin:SCREEN-VALUE NO-ERROR. 
+      IF NOT AVAIL fg-bin THEN DO:
           MESSAGE "Invalid Bin Loc, try help..."
               VIEW-AS ALERT-BOX ERROR.
           APPLY "entry" TO oe-rell.loc-bin .

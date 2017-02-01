@@ -102,7 +102,7 @@ END.
 
 board-cst = board-cst / (qty / 1000).
 IF ord-cost GT 0 AND qm GT 0 THEN 
-    dBoardPct = board-cst / ord-cost / qm * 100.
+    dBoardPct = board-cst / ord-cost * 100.
     
 RUN custom/markup.p (ROWID(xeb),
     board-cst,
