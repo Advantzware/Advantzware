@@ -584,6 +584,8 @@ FOR EACH tt-report NO-LOCK
         ttOpenOrderReport.salesRep    = oe-ordl.s-man[1]
         ttOpenOrderReport.unit        = tt-report.unit-count
         ttOpenOrderReport.pallet      = tt-report.units-pallet
+        ttOpenOrderReport.palletCount = ttOpenOrderReport.unit
+                                      * ttOpenOrderReport.pallet
         ttOpenOrderReport.sellPrice   = fCalcSellPrice()
         ttOpenOrderReport.xxSort1     = IF cPrimarySort EQ "Customer" THEN ttOpenOrderReport.custNo
                                         ELSE tt-report.key-01
