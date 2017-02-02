@@ -1222,7 +1222,7 @@ END FUNCTION.
                     v-vend = IF AVAIL vend THEN vend.NAME
                              ELSE IF AVAIL oe-ordl THEN oe-ordl.vend-no ELSE "".
                  END.
-                /* v-po-duedate = IF AVAIL vend THEN vend.due-date ELSE "" .*/
+                 v-po-duedate = IF AVAIL oe-ordl THEN oe-ordl.req-date ELSE ? .
                  v-board-po = IF AVAIL oe-ordl THEN oe-ordl.po-no-po ELSE 0.
 
                 IF ef.xgrain EQ "S" THEN 
