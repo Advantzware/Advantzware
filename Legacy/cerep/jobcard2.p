@@ -290,7 +290,7 @@ DEF VAR v-die-no  LIKE eb.die-no NO-UNDO.
 format HEADER 
        "<OLANDSCAPE><P12>" skip
         "<B>JOB NUMBER:<B><P13>" v-job-no space(0) "-" space(0) v-job-no2 format "99" "</B>"
-        "<B><P12>Graphic Packaging, LLC Factory Ticket</B><P10>" at 47   SKIP
+        "<B><P12>Graphic Packaging International, Inc.</B><P10>" at 47   SKIP
         "       <B>FORM#:" string(lv-pg-num2,">9") + " of " + string(lv-tot-pg)  "</B>ORDER DATE:" at 100 v-start-date  
     v-fill
     with no-box frame head no-labels stream-io width 155.
