@@ -69,6 +69,7 @@ DEF VAR v-print-fmt AS CHARACTER NO-UNDO.
 DEF VAR is-xprint-form AS LOGICAL.
 DEF VAR ls-fax-file AS CHAR NO-UNDO.
 DEF BUFFER b-reftable2 FOR reftable.
+DEFINE VARIABLE cCustStatCheck AS CHARACTER NO-UNDO .
 
 DO TRANSACTION:
   {sys/inc/postdate.i}
@@ -489,6 +490,7 @@ DO:
     IF lv-post THEN do:      
         RUN post-gl.
         RUN copy-report-to-audit-dir.
+        RUN check-status .
       MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.
     END.
     ELSE RUN undo-trnum.  
@@ -1067,6 +1069,9 @@ FORMAT HEADER
             by ar-cash.check-no
       with frame a1:
 
+      IF LOOKUP(ar-cash.cust-no,cCustStatCheck) EQ 0 THEN
+        ASSIGN cCustStatCheck = cCustStatCheck + ar-cash.cust-no + "," .
+
     FIND FIRST reftable WHERE
          reftable.reftable = "ARCASHHOLD" AND
          reftable.rec_key = ar-cash.rec_key
@@ -1401,6 +1406,59 @@ PROCEDURE copy-report-to-audit-dir :
     OS-CREATE-DIR VALUE(dirname3).
     OS-COPY VALUE(list-name) VALUE (targetfile).
   END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-status C-Win 
+PROCEDURE check-status :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+FOR EACH cust EXCLUSIVE-LOCK
+    WHERE cust.company EQ cocode
+      AND LOOKUP(cust.cust-no,cCustStatCheck) NE 0
+      AND cust.cust-no NE "" :
+
+    FIND FIRST  terms NO-LOCK
+        WHERE terms.company = cust.company
+          AND terms.t-code  = cust.terms NO-ERROR.
+
+    IF cust.cr-hold THEN do:
+        FOR EACH ar-inv NO-LOCK
+            WHERE ar-inv.company  EQ cust.company
+              AND ar-inv.posted   EQ YES
+              AND ar-inv.due      GT 0
+              AND ar-inv.cust-no  EQ cust.cust-no
+              AND ar-inv.due-date LT (TODAY - (cust.cr-hold-invdays + terms.net-days))
+            USE-INDEX posted-due
+            BREAK BY ar-inv.company:
+    
+            ACCUM ar-inv.due (TOTAL).
+    
+            IF LAST(ar-inv.company)        AND
+               cust.cr-lim GT (ACCUM TOTAL ar-inv.due) THEN DO:
+    
+                ASSIGN cust.cr-hold = NO .
+    
+                FOR EACH oe-ord EXCLUSIVE-LOCK
+                    WHERE oe-ord.company             EQ cocode
+                      AND oe-ord.cust-no             EQ cust.cust-no
+                      AND oe-ord.stat EQ "H" :
+                    ASSIGN
+                        oe-ord.stat = "A" .
+                END.
+            END.
+        END.  /* for each ar-inv */
+    END. /* cust.cr-hold */
+END. /* for cust */
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
