@@ -63,7 +63,8 @@ PROCEDURE pProductionAnalysis1:
                AND job-hdr.cust-no GE cStartCustNo
                AND job-hdr.cust-no LE cEndCustNo
              NO-ERROR.
-        IF AVAIL job-hdr AND lCustList AND
+        IF NOT AVAIL job-hdr THEN NEXT.
+        IF lCustList AND
            NOT CAN-FIND(FIRST ttCustList
                         WHERE ttCustList.cust-no EQ job-hdr.cust
                           AND ttCustList.log-fld EQ TRUE) THEN
@@ -112,6 +113,10 @@ PROCEDURE pProductionAnalysis1:
                            AND bMchAct.frm     EQ mch-act.frm
                            AND bMchAct.m-code  NE mch-act.m-code
                            AND bMchAct.dept    EQ mach.dept[4])) THEN DO:
+            FIND job-code NO-LOCK
+                 WHERE job-code.code EQ mch-act.code
+                 NO-ERROR.
+            IF NOT AVAILABLE job-code THEN NEXT.
             FIND FIRST ttProductionAnalysis
                  WHERE ttProductionAnalysis.dept       EQ mch-act.dept
                    AND ttProductionAnalysis.machine    EQ (IF iplPrintByScheduledMachine AND mach.sch-m-code NE "" THEN
@@ -124,10 +129,6 @@ PROCEDURE pProductionAnalysis1:
                    AND ttProductionAnalysis.pass       EQ mch-act.pass
                    AND ttProductionAnalysis.actMachine EQ mch-act.m-code
                  NO-ERROR.
-            FIND job-code NO-LOCK
-                 WHERE job-code.code EQ mch-act.code
-                 NO-ERROR.
-            IF NOT AVAILABLE job-code THEN NEXT.
             IF NOT AVAILABLE ttProductionAnalysis THEN DO:
                 CREATE ttProductionAnalysis.
                 ASSIGN
