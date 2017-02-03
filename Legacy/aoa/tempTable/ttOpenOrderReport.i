@@ -8,7 +8,7 @@ DEFINE TEMP-TABLE ttOpenOrderReport NO-UNDO
     FIELD relDueDate  AS DATE      LABEL "Rel Due Dt"       FORMAT 99/99/9999
     FIELD custPartNo  AS CHARACTER LABEL "Cust Part"        FORMAT "x(15)"
     FIELD fgItemName  AS CHARACTER LABEL "Item Description" FORMAT "x(30)"
-    FIELD fgItemNo    AS CHARACTER LABEL "FG Item "         FORMAT "x(15)"
+    FIELD fgItemNo    AS CHARACTER LABEL "FG Item"          FORMAT "x(15)"
     FIELD orderNo     AS INTEGER   LABEL "Order No"         FORMAT ">>>>>>"
     FIELD cadNo       AS CHARACTER LABEL "CAD"              FORMAT "x(15)"
     FIELD poNo        AS CHARACTER LABEL "PO No"            FORMAT "x(10)"
