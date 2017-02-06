@@ -190,6 +190,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -225,7 +236,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -328,7 +339,7 @@ DO:
 
   RUN valid-begin_rpt NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
- 
+
   RUN valid-company (end_company:HANDLE) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -346,7 +357,7 @@ DO:
 
     ASSIGN {&DISPLAYED-OBJECTS}.
   END.
-  
+
   MESSAGE "Are you sure you want to " + TRIM(c-win:TITLE) + " " +
           TRIM(STRING(begin_rpt)) + " from Company " + TRIM(begin_company) + " to " +
           " Company " + TRIM(end_company) + "?"
@@ -411,8 +422,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -677,7 +690,7 @@ PROCEDURE valid-company :
       RETURN ERROR.
     END.
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

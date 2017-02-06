@@ -596,6 +596,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -775,7 +786,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -954,7 +965,7 @@ DO:
                              &mail-subject=lv-report-title
                              &mail-body=lv-report-title
                              &mail-file=lv-pdf-file + ".pdf" }
-                             
+
            END.
            ELSE DO:
                {custom/asimailr2.i &TYPE = "Customer"
@@ -1043,7 +1054,7 @@ DO:
 
     ASSIGN sl_selected:LIST-ITEMS = cTextSelected
            sl_avail:LIST-ITEMS = cTextListed.
- 
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1206,7 +1217,7 @@ DO:
      IF lv-ornt = "p" THEN lines-per-page:SCREEN-VALUE = "60".
      ELSE lines-per-page:SCREEN-VALUE = "45".     
   END.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1269,7 +1280,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
-  
+
    IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
        sl_selected:NUM-ITEMS = 0)
    THEN ASSIGN ldummy = sl_selected:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
@@ -1277,7 +1288,7 @@ DO:
               /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
                .
 
-  
+
 /* for pairs
     DEF VAR cSelectedList AS cha NO-UNDO.
     cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
@@ -1320,7 +1331,7 @@ DO:
   ASSIGN
     {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}:ENTRY(1)
     .
-    
+
 
 END.
 
@@ -1440,8 +1451,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -1457,7 +1470,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   ASSIGN
    begin_ord-date = TODAY
    as-of-date     = TODAY.
@@ -1472,7 +1485,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      init-dir = "c:\tmp".
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -1482,6 +1495,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     cColumnInit = NO.
   END.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1548,7 +1562,7 @@ PROCEDURE build-tt :
                       and b-oe-rell.i-no    eq b-oe-boll.i-no
                       and b-oe-rell.line    eq b-oe-boll.line
                       no-lock no-error.
-             
+
                 IF AVAIL b-oe-rell THEN 
                    v-po-no = b-oe-rell.po-no. 
              END.
@@ -1679,7 +1693,7 @@ END.
         tt-report.inv    = YES
         tt-report.inv-no = b-inv-head.inv-no.
   END.
-  
+
   DEF VAR li AS INT NO-UNDO.
 
   IF AVAIL oe-ordl THEN
@@ -1718,7 +1732,7 @@ END.
              li = li + fg-rdtlh.qty.
         END.
      END.
-     
+
      IF oe-ordl.po-no-po NE 0 THEN
         FOR EACH fg-rcpth FIELDS(r-no rita-code) WHERE
             fg-rcpth.company   EQ cocode AND
@@ -1737,7 +1751,7 @@ END.
   ASSIGN  tt-report.prod-qty    = li .
 
   IF NOT CAN-FIND(FIRST tt-fg-bin WHERE tt-fg-bin.i-no EQ tt-report.key-06) THEN RUN calc-qoh.
-   
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1777,7 +1791,7 @@ PROCEDURE calc-qoh :
    vdat     = as-of-date
    v-curr   = YES
    v-q-or-v = YES.
-  
+
   FOR EACH itemfg
       WHERE itemfg.company EQ cocode
         AND itemfg.i-no    EQ tt-report.key-06
@@ -1825,26 +1839,26 @@ PROCEDURE calc-qoh :
            v-cst[1] = 0
            v-val[1] = 0
            v-qohi   = 0.
-                  
+
         {fg/rep/fg-aging.i fi_days-old}
-            
+
         if last-of(fg-bin.tag) then do:
           v-qtyc = v-qohj[1] + v-qohj[2] + v-qohj[3] +
                    v-qohj[4] + v-qohj[5] + v-qohj[6].
 
           if v-qohj[6] lt 0 then do:
             v-qty = v-qohj[6] * -1.
-          
+
             do v = 5 to 1 by -1:
               if v-qohj[v] gt 0 then
                 assign
                  v-red     = min(v-qty,v-qohj[v])
                  v-qohj[v] = v-qohj[v] - v-red
                  v-qty     = v-qty     - v-red.
-               
+
               if v-qty le 0 then leave.
             end.
-          
+
             if v-qty gt 0 then v-qohi[6] = v-qohi[6] - v-qty.
           end.
 
@@ -1856,7 +1870,7 @@ PROCEDURE calc-qoh :
                 and b-oe-ordl.job-no2 eq fg-bin.job-no2
                 and b-oe-ordl.i-no    eq fg-rcpth.i-no
               use-index job no-lock no-error.
-              
+
           if not v-curr then
             assign
              v-qohj[1] = 0
@@ -1872,29 +1886,29 @@ PROCEDURE calc-qoh :
            v-qohi[4] = v-qohi[4] + v-qohj[4]
            v-qohi[5] = v-qohi[5] + v-qohj[5]
            v-qohj    = 0.
-         
+
           if avail b-oe-ordl then
             assign
              v-u-cst  = b-oe-ordl.t-cost / b-oe-ordl.qty
              v-u-val  = b-oe-ordl.t-price / b-oe-ordl.qty.
-           
+
           else do:
             if itemfg.prod-uom eq "EA" then
               v-u-cst = itemfg.total-std-cost.
             else
               run sys/ref/convcuom.p(itemfg.prod-uom, "EA", 0, 0, 0, 0,
                                    itemfg.total-std-cost, output v-u-cst).
-                                   
+
             if itemfg.sell-uom eq "EA" then
               v-u-val = itemfg.sell-price.
             else
               run sys/ref/convcuom.p(itemfg.sell-uom, "EA", 0, 0, 0, 0,
                                      itemfg.sell-price, output v-u-val).
           end.
-        
+
           if v-u-cst eq ? then v-u-cst = 0.
           if v-u-val eq ? then v-u-val = 0.
-        
+
           assign
            v-cst[1] = v-cst[1] + (v-qty * v-u-cst)
            v-val[1] = v-val[1] + (v-qty * v-u-val).
@@ -1903,17 +1917,17 @@ PROCEDURE calc-qoh :
         if last-of(fg-bin.i-no) then do:
           if v-qohi[6] lt 0 then do:
             v-qty = v-qohi[6] * -1.
-          
+
             do v = 5 to 1 by -1:
               if v-qohi[v] gt 0 then
                 assign
                  v-red     = min(v-qty,v-qohi[v])
                  v-qohi[v] = v-qohi[v] - v-red
                  v-qty     = v-qty     - v-red.
-               
+
               if v-qty le 0 then leave.
             end.
-          
+
             if v-qty gt 0 then
               assign
                v-qohi   = 0
@@ -1923,13 +1937,13 @@ PROCEDURE calc-qoh :
 
           if v-cst[1] lt 0 then v-cst[1] = 0.
           if v-val[1] lt 0 then v-val[1] = 0.
-        
+
           if not v-q-or-v then do:
              v-qty = v-qohi[1] + v-qohi[2] + v-qohi[3] + v-qohi[4] + v-qohi[5].
-          
+
             do v = 1 to 5:
                v-qohi[v] = v-val[1] / v-qty * v-qohi[v].
-             
+
                if v-qohi[v] eq ? then v-qohi[v] = 0.
             end.
           end.
@@ -1973,7 +1987,7 @@ PROCEDURE DisplaySelectionDefault :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  
+
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
      cListContents = cListContents +                   
@@ -2000,7 +2014,7 @@ PROCEDURE DisplaySelectionList :
 /*   MESSAGE "List to select: " NUM-ENTRIES(cTextListToSelect) ":" NUM-ENTRIES(cFieldListToSelect) */
 /*           VIEW-AS ALERT-BOX INFO BUTTONS OK.                                                    */
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
-     
+
      RETURN.
   END.
 
@@ -2013,7 +2027,7 @@ PROCEDURE DisplaySelectionList :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -2021,9 +2035,9 @@ PROCEDURE DisplaySelectionList :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
 
@@ -2046,7 +2060,7 @@ PROCEDURE DisplaySelectionList2 :
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
-        
+
   EMPTY TEMP-TABLE ttRptList.
 
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
@@ -2056,7 +2070,7 @@ PROCEDURE DisplaySelectionList2 :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -2064,9 +2078,9 @@ PROCEDURE DisplaySelectionList2 :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
   DO iCount = 1 TO sl_selected:NUM-ITEMS:
@@ -2157,7 +2171,7 @@ PROCEDURE GetVarValue :
   DEF OUTPUT PARAM opVarValue AS cha NO-UNDO.
 
   opVarValue = ipVarName.
- 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2284,7 +2298,7 @@ FORMAT HEADER
        "Sales Rep:"
        v-sman FORMAT "x(8)"
        v-sname
-       
+
     WITH FRAME r-top1 STREAM-IO WIDTH 220 NO-BOX PAGE-TOP.
 
 FORMAT HEADER
@@ -2324,7 +2338,7 @@ FORMAT HEADER
        "-----------"
        "-----------"
        "-----------"
-       
+
     WITH FRAME r-top2 STREAM-IO WIDTH 220 NO-BOX PAGE-TOP.
 
 
@@ -2454,11 +2468,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -2486,23 +2500,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2560,7 +2574,7 @@ FUNCTION producedQty RETURNS INTEGER
              WHERE fg-rdtlh.r-no EQ fg-rcpth.r-no
                AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code:
               rtnValue = rtnValue + fg-rdtlh.qty.
-              
+
        END.
       ELSE
          FOR EACH fg-rcpth FIELDS(r-no rita-code) NO-LOCK
@@ -2574,7 +2588,7 @@ FUNCTION producedQty RETURNS INTEGER
                   fg-rdtlh.r-no      EQ fg-rcpth.r-no AND
                   fg-rdtlh.rita-code EQ fg-rcpth.rita-code:
                   rtnValue = rtnValue + fg-rdtlh.qty.
-                  
+
          END.
     END.
   END. /* avail job-hdr */
@@ -2604,7 +2618,7 @@ FUNCTION shipQty RETURNS INTEGER
     IF AVAILABLE oe-ordl THEN DO:
       RUN oe/ordlsqty.p (ROWID(oe-ordl),
                          OUTPUT li-inv-qty, OUTPUT li-ship-qty).
-      
+
       rtnValue = li-ship-qty.
     END.
   END. /* avail job-hdr */
@@ -2655,7 +2669,7 @@ FUNCTION GetFieldValue RETURNS CHARACTER
 ------------------------------------------------------------------------------*/
   /*RETURN string(hField:BUFFER-VALUE, hField:FORMAT) */
   RETURN string(hipField:BUFFER-VALUE).
-      
+
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */

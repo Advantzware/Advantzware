@@ -763,7 +763,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME DEFAULT-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -801,7 +801,7 @@ END.
 ON HELP OF FRAME DEFAULT-FRAME
 DO:
      def var char-val as cha no-undo.
-     
+
      case focus:name :
           when 'def-ink' then do:
                run windows/l-item.w (gcompany, "", "I", focus:screen-value, output char-val).
@@ -881,7 +881,7 @@ DO:
 
     run validate no-error.
     if error-status:error then return no-apply.
-     
+
     DISABLE {&LIST-1}.
     ASSIGN
       {&SELF-NAME}:LABEL = "&Update"
@@ -899,14 +899,14 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ce-ctrl.sell-by C-Win
 ON LEAVE OF ce-ctrl.sell-by IN FRAME DEFAULT-FRAME /* Calculate Sell Price on Net or Gross */
 DO:
- 
+
     if lastkey <> -1 and self:screen-value <> "" and
        index(lv-sell-by-list, self:screen-value) = 0 then do:
           if index(lv-sell-by-list,"S") > 0 then 
              message "Must be 'N'et, 'G'ross, 'S'quare-Feet, or 'B'oard."
                      view-as alert-box error.
           else message "Must be 'N'et or 'G'ross." view-as alert-box error.
-          
+
           return no-apply.           
     end.
 
@@ -985,8 +985,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -997,7 +999,7 @@ session:data-entry-return = yes.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  
+
   find first sys-ctrl where sys-ctrl.company = gcompany and
                             sys-ctrl.name = "CEMENU" no-lock no-error.
   if not avail sys-ctrl or 
@@ -1006,7 +1008,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   FIND ce-ctrl WHERE ce-ctrl.company = gcompany
                  AND ce-ctrl.loc = gloc NO-LOCK NO-ERROR.
-                 
+
   RUN enable_UI.
   IF AVAILABLE ce-ctrl THEN do:
      assign  avg_cost = IF ce-ctrl.avg-cscost = 1 THEN yes ELSE no
@@ -1027,9 +1029,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
           WITH FRAME {&FRAME-NAME}.
   find last quote use-index qno no-lock no-error.
   if avail quote then ce-ctrl.q-num:screen-value in frame {&frame-name} = string(quote.q-no).
- 
- 
+
+
   {methods/nowait.i}
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1114,8 +1117,8 @@ PROCEDURE validate :
   Notes:       
 ------------------------------------------------------------------------------*/
  do with frame {&frame-name}:
- 
-   
+
+
     if ce-ctrl.sell-by:screen-value <> "" and
        index(lv-sell-by-list, ce-ctrl.sell-by:screen-value) = 0 then do:
           if index(lv-sell-by-list,"S") > 0 then 
@@ -1126,7 +1129,7 @@ PROCEDURE validate :
           return error.           
     end.
  end.
- 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

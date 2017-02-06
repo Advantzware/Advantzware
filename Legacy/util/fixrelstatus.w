@@ -204,6 +204,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -238,7 +249,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-oe-rel,FIRST tt-report WHERE tt-report.rec-i
 */  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -392,8 +403,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -450,7 +463,7 @@ DEF BUFFER b-oe-rel  FOR oe-rel.
         AND oe-rel.i-no    EQ oe-ordl.i-no
         AND oe-rel.line    EQ oe-ordl.line
       USE-INDEX ord-item
-      
+
       BREAK BY oe-rel.rel-no
             BY oe-rel.b-ord-no
             BY oe-rel.po-no
@@ -469,7 +482,7 @@ DEF BUFFER b-oe-rel  FOR oe-rel.
       USE-INDEX ord-no,
 
       FIRST oe-bolh WHERE oe-bolh.b-no EQ oe-boll.b-no NO-LOCK,
-      
+
       FIRST oe-rell NO-LOCK
       WHERE oe-rell.company  EQ oe-boll.company
         AND oe-rell.ord-no   EQ oe-boll.ord-no
@@ -482,7 +495,7 @@ DEF BUFFER b-oe-rel  FOR oe-rel.
       USE-INDEX ord-no,
 
       FIRST oe-relh NO-LOCK WHERE oe-relh.r-no EQ oe-boll.r-no
-      
+
       BREAK BY oe-boll.r-no
             BY oe-boll.rel-no
             BY oe-boll.b-ord-no
@@ -613,7 +626,7 @@ DEF BUFFER b-oe-rel  FOR oe-rel.
       FIRST oe-relh NO-LOCK
       WHERE oe-relh.r-no    EQ oe-rell.r-no
         AND (oe-relh.posted EQ NO OR relpost-chr EQ "Nothing")
-      
+
       BREAK BY oe-rell.r-no
             BY oe-rell.rel-no
             BY oe-rell.b-ord-no
@@ -965,7 +978,7 @@ PROCEDURE delete-phantoms :
        FIND FIRST b-oe-rel WHERE RECID(b-oe-rel) EQ b-tt-report.rec-id NO-ERROR.
        IF AVAIL b-oe-rel THEN DELETE b-oe-rel.
    END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

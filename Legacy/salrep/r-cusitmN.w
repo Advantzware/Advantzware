@@ -5,7 +5,7 @@
 /*------------------------------------------------------------------------
 
   File: salrep\r-cusitm.w
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -91,7 +91,7 @@ DEFINE TEMP-TABLE w-data NO-UNDO
   field i-no      like ar-invl.i-no column-label "FG Item"
   field inv-no    like ar-invl.inv-no column-label "Invoice!Number"
   field rec-id    as recid.
- 
+
 DEFINE VARIABLE v-print-fmt AS CHARACTER NO-UNDO.
 DEFINE VARIABLE is-xprint-form AS LOGICAL NO-UNDO.
 DEFINE VARIABLE ls-fax-file AS CHARACTER NO-UNDO.
@@ -496,6 +496,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -609,7 +620,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -750,7 +761,7 @@ DO:
                             &fax-file=list-name }
        END. 
        when 5 then do:
-           
+
            IF is-xprint-form THEN DO:
               {custom/asimail.i &TYPE = "Salesman"
                              &begin_cust= begin_slsmn
@@ -782,7 +793,7 @@ DO:
 ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -823,7 +834,7 @@ DO:
 
   RUN DisplaySelectionDefault.  /* task 04041406 */ 
   RUN DisplaySelectionList2 .
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1029,7 +1040,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
-  
+
    IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
        sl_selected:NUM-ITEMS = 0)
    THEN ASSIGN ldummy = sl_selected:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
@@ -1037,7 +1048,7 @@ DO:
               /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
                .
 
-  
+
 /* for pairs
     DEF VAR cSelectedList AS cha NO-UNDO.
     cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
@@ -1080,7 +1091,7 @@ DO:
   ASSIGN
     {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}:ENTRY(1)
     .
-    
+
 
 END.
 
@@ -1180,8 +1191,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -1197,13 +1210,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   assign
    begin_inv-date = date(1,1,year(today))
    end_inv-date   = today.
   RUN DisplaySelectionList.
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   RUN sys/inc/CustListForm.p ( "HZ",cocode, 
@@ -1238,7 +1251,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO"
         btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
         .
-      
+
    IF ou-log AND ou-cust-int = 0 THEN do:
        ASSIGN 
         tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = YES
@@ -1249,6 +1262,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
    END.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1314,7 +1328,7 @@ DEFINE INPUT PARAMETER ip-key-10 LIKE tt-report.key-10 NO-UNDO.
 
 
 create xreport.
-  
+
 assign
  v-exc           = no
  xreport.term-id = ""
@@ -1333,7 +1347,7 @@ assign
  xreport.key-09  = tt-report.key-09
  xreport.key-10  = ip-key-10 
  xreport.v-po    = ar-invl.po-no .
-   
+
 if xreport.key-02 eq "" and (v-det or v-sort1 ne "I") then
   if v-sort1 eq "C" then
     xreport.key-02 = xreport.key-05.
@@ -1362,7 +1376,7 @@ DEFINE INPUT PARAMETER ip-key-10 LIKE report.key-10 NO-UNDO.
 do i = 1 to 3:
   v-sman-no = if ar-invl.sman[i] eq "" and i eq 1 then cust.sman
               else ar-invl.sman[i].
-           
+
   if v-sman-no   lt fsman                         or
      v-sman-no   gt tsman                         or
      (i ne 1 and
@@ -1386,7 +1400,7 @@ PROCEDURE CustList :
 
     RUN sys/ref/CustListManager.w(INPUT cocode,
                                   INPUT 'HZ').
-    
+
 
 END PROCEDURE.
 
@@ -1421,7 +1435,7 @@ PROCEDURE DisplaySelectionDefault :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE cListContents AS cha NO-UNDO.
   DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
-  
+
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
      cListContents = cListContents +                   
@@ -1447,7 +1461,7 @@ PROCEDURE DisplaySelectionList :
   DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
-     
+
      RETURN.
   END.
 
@@ -1460,7 +1474,7 @@ PROCEDURE DisplaySelectionList :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1468,9 +1482,9 @@ PROCEDURE DisplaySelectionList :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 END PROCEDURE.
 
@@ -1491,7 +1505,7 @@ PROCEDURE DisplaySelectionList2 :
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
-        
+
   EMPTY TEMP-TABLE ttRptList.
 
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
@@ -1501,7 +1515,7 @@ PROCEDURE DisplaySelectionList2 :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1509,9 +1523,9 @@ PROCEDURE DisplaySelectionList2 :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
   DO iCount = 1 TO sl_selected:NUM-ITEMS:
@@ -1578,7 +1592,7 @@ PROCEDURE GetSelectionList :
 
  DO i = 1 TO sl_selected:NUM-ITEMS /* IN FRAME {&FRAME-NAME}*/ :
     FIND FIRST ttRptList WHERE ttRptList.TextList = ENTRY(i,cTmpList) NO-LOCK NO-ERROR.     
-  
+
     CREATE ttRptSelected.
     ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
            ttRptSelected.FieldList = ttRptList.FieldList
@@ -1587,7 +1601,7 @@ PROCEDURE GetSelectionList :
            ttRptSelected.HeadingFromLeft = IF entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
-           
+
  END.
 
 END PROCEDURE.
@@ -1638,7 +1652,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
 /*     DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -1649,11 +1663,11 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY. */
-     
+
 {custom/out2file.i}
 
 END PROCEDURE.
@@ -1685,7 +1699,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1725,7 +1739,7 @@ PROCEDURE print-excel-1 :
   DEFINE INPUT PARAMETER ip-log AS LOG NO-UNDO.
   DEFINE INPUT PARAMETER ip-qty AS DECIMAL NO-UNDO.
   DEFINE INPUT PARAMETER ip-amt AS DECIMAL NO-UNDO.
-  
+
   PUT STREAM excel UNFORMATTED
       SKIP
       '"' ""  '",'
@@ -1754,7 +1768,7 @@ PROCEDURE print-excel-1 :
          '"' STRING(ip-qty,"->>>,>>>,>>>") '",'
          '"' STRING(ip-amt,"->,>>>,>>>,>>9.99") '",'
          SKIP.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1857,7 +1871,7 @@ DEFINE VARIABLE cslist AS cha NO-UNDO.
         ELSE
          str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
  END.
- 
+
 
 IF lselected THEN DO:
       FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
@@ -1865,14 +1879,14 @@ IF lselected THEN DO:
       FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
       IF AVAILABLE ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
 END.
- 
+
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i value(lines-per-page)}
 
 IF tb_excel THEN DO:
    OUTPUT STREAM excel TO VALUE(fi_file).
-   
+
    PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
 
@@ -1894,7 +1908,7 @@ EMPTY TEMP-TABLE tt-report.
        {custom/statusMsg.i " 'Processing Customer#  '  + cust.cust-no "}
    {sa/sa-sls03.i "fdate" "tdate"}    
   end.
- 
+
   for each tt-report
       where tt-report.term-id eq ""
         and tt-report.key-01  eq ""
@@ -1912,19 +1926,19 @@ EMPTY TEMP-TABLE tt-report.
       no-lock
 
       transaction:
-       
+
       {custom/statusMsg.i " 'Processing Customer#  '  + cust.cust-no "}
 
     if tt-report.key-10 eq "ar-inv" then do:       
        find ar-inv where recid(ar-inv) eq tt-report.rec-id no-lock.       
-       
+
        run ship-data.
-          
+
        if v-ship ge fship and
           v-ship le tship and
           v-shpz ge fshpz and
           v-shpz le tshpz then do:
-           
+
          for each ar-invl
              where ar-invl.x-no    eq ar-inv.x-no
                and ar-invl.i-no    ge fitem
@@ -1933,35 +1947,35 @@ EMPTY TEMP-TABLE tt-report.
                and ar-invl.po-no   le tpo
                and (ar-invl.billable or not ar-invl.misc)
              use-index x-no no-lock:
-      
+
            run create-report1 (recid(ar-invl),
                                if ar-invl.misc then ar-invl.i-name else
                                if ar-invl.i-no ne "" then ar-invl.i-no else
                                "AR SALE",
                                string(ar-inv.inv-no,"999999"), "").
          end.
-          
+
          if v-freight and ar-inv.f-bill then do:
             find first ar-invl where ar-invl.x-no eq ar-inv.x-no
                 use-index x-no no-lock no-error.
-                
+
             IF AVAILABLE ar-invl THEN DO:
                v-sman-no = "".
-                         
+
                do i = 1 to 3:
                  if ar-invl.sman[i] ne "" then do:
                    v-sman-no = ar-invl.sman[i].
                    leave.
                  end.
                end.
-              
+
                if v-sman-no eq "" then v-sman-no = cust.sman.
-              
+
                if "freight" ge fitem                      and
                   "freight" le titem                      and
                   v-sman-no ge fsman                      and
                   v-sman-no le tsman                      THEN do:
-                    
+
                  run create-report (recid(ar-invl), "FREIGHT",
                                     string(ar-inv.inv-no,"999999"), "FREIGHT").
                END.
@@ -1976,7 +1990,7 @@ EMPTY TEMP-TABLE tt-report.
     if tt-report.key-10 eq "ar-cashl" then do:      
        find ar-cashl where recid(ar-cashl) eq tt-report.rec-id no-lock.
        find ar-cash  where ar-cash.c-no    eq ar-cashl.c-no no-lock.
-       
+
        assign
         v-exc            = yes
         tt-report.key-01 = trim(if v-sort1 eq "Z" then cust.zip else "") +
@@ -1990,15 +2004,15 @@ EMPTY TEMP-TABLE tt-report.
         tt-report.key-05 = tt-report.key-09
         tt-report.key-06 = cust.sman
         tt-report.key-07 = tt-report.key-03.
-      
+
        release ar-inv.
-      
+
        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
-      
+
        ASSIGN
         lv-r-no = 0
         lv-type = "".
-           
+
        IF AVAILABLE reftable THEN
           ASSIGN
              lv-r-no = reftable.val[1]
@@ -2008,7 +2022,7 @@ EMPTY TEMP-TABLE tt-report.
          ASSIGN
             lv-r-no = INT(SUBSTR(ar-cashl.dscr,INDEX(ar-cashl.dscr,"oe return") + 25,12))
             lv-type = TRIM(SUBSTR(ar-cashl.dscr,INDEX(ar-cashl.dscr,"oe return") + 12,10)).
-      
+
        IF lv-r-no NE 0 THEN DO:
          find first oe-reth
              where oe-reth.company eq cocode
@@ -2021,10 +2035,10 @@ EMPTY TEMP-TABLE tt-report.
                 and ar-inv.inv-no  eq oe-reth.inv-no
               no-lock no-error.
        end.       
-      
+
        IF AVAILABLE ar-inv THEN DO:
           run ship-data.
-         
+
           if v-ship ge fship and
              v-ship le tship and
              v-shpz ge fshpz and
@@ -2054,7 +2068,7 @@ EMPTY TEMP-TABLE tt-report.
                delete tt-report.
             end.
           end.
-         
+
           else
           if lv-type   eq "freight"                  and
              "freight" ge fitem                      and
@@ -2067,7 +2081,7 @@ EMPTY TEMP-TABLE tt-report.
              tt-report.key-02 = if v-sort1 ne "I" then v-ship else ""
              tt-report.key-03 = "FREIGHT"
              tt-report.key-05 = v-ship.
-         
+
           else
           if lv-type   eq "tax"                  and
              "tax"     ge fitem                  and
@@ -2079,14 +2093,14 @@ EMPTY TEMP-TABLE tt-report.
              tt-report.key-02 = if v-sort1 ne "I" then v-ship else ""
              tt-report.key-03 = "TAX"
              tt-report.key-05 = v-ship.
-         
+
           else
           if ""        ge fitem and
              ""        le titem and
              cust.sman ge fsman and
              cust.sman le tsman then v-exc = no.
        end.
-      
+
        else
        if ""               ge fitem and
           ""               le titem and
@@ -2096,12 +2110,12 @@ EMPTY TEMP-TABLE tt-report.
           ar-cashl.cust-no le tship and
           cust.zip         ge fshpz and
           cust.zip         le tshpz then v-exc = no.
-      
+
        IF AVAILABLE tt-report THEN DO:
           tt-report.key-07 = tt-report.key-03.
-          
+
           if v-exc then delete tt-report.
-         
+
           else
           if tt-report.key-02 eq "" and (v-det or v-sort1 ne "I") then
             if v-sort1 eq "C" then
@@ -2161,7 +2175,7 @@ EMPTY TEMP-TABLE tt-report.
          v-qty[1] = 0
          v-amt[1] = ar-inv.freight
          v-disc   = 0.
-      
+
       else do:
         do i = 1 to 3:
           if ar-invl.sman[i] eq tt-report.key-06 then
@@ -2247,24 +2261,24 @@ EMPTY TEMP-TABLE tt-report.
 
     /*if v-print1 THEN v-name = cust.name.*/
 
-    
+
       find first itemfg
           where itemfg.company eq cocode
             and itemfg.i-no    eq w-data.i-no
           no-lock no-error.
       v-name = IF AVAILABLE itemfg THEN itemfg.i-name ELSE "".
-    
+
 
    /* if v-det then do:*/
       if v-disc-p and v-disc ne 0 then
         v-pric = v-pric * (100 - v-disc) / 100.
-      
+
        ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
                    cExcelDisplay = ""
                    cExcelVarValue = "".
-          
+
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
@@ -2281,31 +2295,31 @@ EMPTY TEMP-TABLE tt-report.
                         WHEN "uom"   THEN cVarValue = STRING(v-uom,"x(4)") .
                         WHEN "inv-amt"  THEN cVarValue = STRING(v-amt[1],"->,>>>,>>>,>>9.99") .
                         WHEN "cust-g"  THEN cVarValue = STRING(cust.spare-char-2) .
-                         
+
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+
             PUT UNFORMATTED cDisplay SKIP.
             IF tb_excel THEN DO:
                  PUT STREAM excel UNFORMATTED  
                        cExcelDisplay SKIP.
              END.                         
-    
-   
+
+
     assign
      v-qty[2] = v-qty[2] + v-qty[1]
      v-amt[2] = v-amt[2] + v-amt[1].
-    
+
     if last-of(tt-report.key-03) then do:
       if v-det then do:
         if v-sort1 ne "O" then do:
           /*underline v-name v-qty[1] v-amt[1] with frame itemx.*/
-        
+
           /*display "          ITEM TOTALS"                     @ v-name
                   "       SHIP-TO TOTALS" when v-sort1 eq "I" @ v-name
                   v-qty[2] @ v-qty[1]
@@ -2322,7 +2336,7 @@ EMPTY TEMP-TABLE tt-report.
                    cVarValue = ""
                    cExcelDisplay = ""
                    cExcelVarValue = "".
-          
+
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
@@ -2339,9 +2353,9 @@ EMPTY TEMP-TABLE tt-report.
                         WHEN "uom"   THEN cVarValue = "" .
                         WHEN "inv-amt"  THEN cVarValue = STRING(v-amt[2],"->,>>>,>>>,>>9.99") .
                         WHEN "cust-g"  THEN cVarValue = "" .
-                         
+
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
@@ -2354,14 +2368,14 @@ EMPTY TEMP-TABLE tt-report.
                        substring(cExcelDisplay,4,350) SKIP.
              END.
 
-          
-          
+
+
           put skip(1).
         end.
       end.
 
-     
-    
+
+
       assign
        v-qty[3] = v-qty[3] + v-qty[2]
        v-amt[3] = v-amt[3] + v-amt[2]
@@ -2374,7 +2388,7 @@ EMPTY TEMP-TABLE tt-report.
       if v-det THEN do: 
           IF v-sort1 ne "I" then do:
         /*underline v-name v-qty[1] v-amt[1] with frame itemx.*/
-        
+
         /*display "       SHIP-TO TOTALS"                     @ v-name
                 "         ORDER TOTALS" when v-sort1 eq "O" @ v-name
                 "          ITEM TOTALS" when v-sort1 eq "I" @ v-name
@@ -2395,7 +2409,7 @@ EMPTY TEMP-TABLE tt-report.
                    cVarValue = ""
                    cExcelDisplay = ""
                    cExcelVarValue = "".
-          
+
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
@@ -2412,9 +2426,9 @@ EMPTY TEMP-TABLE tt-report.
                         WHEN "uom"   THEN cVarValue = "" .
                         WHEN "inv-amt"  THEN cVarValue = STRING(v-amt[3],"->,>>>,>>>,>>9.99") .
                         WHEN "cust-g"  THEN cVarValue = "" .
-                         
+
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
@@ -2429,10 +2443,10 @@ EMPTY TEMP-TABLE tt-report.
 
         put skip(1).
 
-        
+
           END.
       end.
-   
+
       assign
        v-qty[4] = v-qty[4] + v-qty[3]
        v-amt[4] = v-amt[4] + v-amt[3]
@@ -2443,7 +2457,7 @@ EMPTY TEMP-TABLE tt-report.
 
     if last-of(tt-report.key-01) then do:
       /*underline v-name v-qty[1] v-amt[1] with frame itemx.*/
-      
+
       /*display "      CUSTOMER TOTALS" @ v-name
               v-qty[4] @ v-qty[1]
               v-amt[4] @ v-amt[1]
@@ -2456,7 +2470,7 @@ EMPTY TEMP-TABLE tt-report.
                    cVarValue = ""
                    cExcelDisplay = ""
                    cExcelVarValue = "".
-          
+
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
@@ -2473,9 +2487,9 @@ EMPTY TEMP-TABLE tt-report.
                         WHEN "uom"   THEN cVarValue = "" .
                         WHEN "inv-amt"  THEN cVarValue = STRING(v-amt[4],"->,>>>,>>>,>>9.99") .
                         WHEN "cust-g"  THEN cVarValue = "" .
-                         
+
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
@@ -2493,7 +2507,7 @@ EMPTY TEMP-TABLE tt-report.
       /*IF tb_excel THEN
          RUN print-excel-1(INPUT NO, INPUT v-qty[4], INPUT v-amt[4]).*/
 
-     
+
       assign
        v-qty[5] = v-qty[5] + v-qty[4]
        v-amt[5] = v-amt[5] + v-amt[4]
@@ -2510,7 +2524,7 @@ EMPTY TEMP-TABLE tt-report.
   put skip(1).
 
   /*underline v-name v-qty[1] v-amt[1] with frame itemx.
- 
+
   display "         GRAND TOTALS" @ v-name
           v-qty[5] @ v-qty[1]
           v-amt[5] @ v-amt[1]
@@ -2521,7 +2535,7 @@ EMPTY TEMP-TABLE tt-report.
                    cVarValue = ""
                    cExcelDisplay = ""
                    cExcelVarValue = "".
-          
+
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
@@ -2538,9 +2552,9 @@ EMPTY TEMP-TABLE tt-report.
                         WHEN "uom"   THEN cVarValue = "" .
                         WHEN "inv-amt"  THEN cVarValue = STRING(v-amt[5],"->,>>>,>>>,>>9.99") .
                         WHEN "cust-g"  THEN cVarValue = "" .
-                         
+
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
@@ -2590,7 +2604,7 @@ PROCEDURE SetCustRange :
         btnCustList:SENSITIVE = iplChecked
        .
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2604,25 +2618,25 @@ PROCEDURE ship-data :
   Notes:       
 ------------------------------------------------------------------------------*/
 release shipto.
-      
+
 if ar-inv.ship-id ne "" then
 find first shipto
     where shipto.company eq cocode
       and shipto.cust-no eq ar-inv.cust-no
       and shipto.ship-id eq ar-inv.ship-id
     no-lock no-error.
-          
+
 IF AVAILABLE shipto THEN
   assign
    v-ship = ar-inv.ship-id
    v-shpz = shipto.ship-zip.
-         
+
 else
 if ar-inv.sold-id ne "" then
   assign
    v-ship = ar-inv.sold-id
    v-shpz = ar-inv.sold-zip.
-         
+
 else
   assign
    v-ship = ar-inv.cust-no
@@ -2648,11 +2662,11 @@ PROCEDURE show-param :
   DEFINE VARIABLE parm-lbl-list AS cha NO-UNDO.
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
   DEFINE VARIABLE lv-label AS cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -2680,23 +2694,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

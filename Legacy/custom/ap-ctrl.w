@@ -61,7 +61,7 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME ap-ctrl
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn_Update Btn_Close RECT-15 RECT-16 
+&Scoped-Define ENABLED-OBJECTS RECT-16 Btn_Update Btn_Close 
 &Scoped-Define DISPLAYED-FIELDS ap-ctrl.payables ap-ctrl.purchases ~
 ap-ctrl.cash-act ap-ctrl.discount ap-ctrl.stax ap-ctrl.freight 
 &Scoped-define DISPLAYED-TABLES ap-ctrl
@@ -124,11 +124,11 @@ DEFINE VARIABLE F1 AS CHARACTER FORMAT "X(256)":U INITIAL "F1"
      BGCOLOR 0 FGCOLOR 15 FONT 4 NO-UNDO.
 
 DEFINE RECTANGLE RECT-15
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 33 BY 1.67.
 
 DEFINE RECTANGLE RECT-16
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 51 BY 7.38.
 
 
@@ -211,10 +211,17 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MESSAGE-AREA       = no
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
-
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -225,6 +232,14 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME ap-ctrl
                                                                         */
+ASSIGN 
+       Btn_Close:PRIVATE-DATA IN FRAME ap-ctrl     = 
+                "ribbon-button".
+
+ASSIGN 
+       Btn_Update:PRIVATE-DATA IN FRAME ap-ctrl     = 
+                "ribbon-button".
+
 /* SETTINGS FOR FILL-IN ap-ctrl.cash-act IN FRAME ap-ctrl
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN ap-ctrl.discount IN FRAME ap-ctrl
@@ -265,6 +280,8 @@ ASSIGN
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN ap-ctrl.purchases IN FRAME ap-ctrl
    NO-ENABLE 1                                                          */
+/* SETTINGS FOR RECTANGLE RECT-15 IN FRAME ap-ctrl
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN ap-ctrl.stax IN FRAME ap-ctrl
    NO-ENABLE 1                                                          */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -319,6 +336,7 @@ DO:
       Btn_Update:LABEL = "&Update".
     RUN enable_UI.
   END.
+  {src/winkit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -342,7 +360,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     /* VALIDATION */
     DEF VAR v-avail AS LOG NO-UNDO.
-    
+
     {custom/validate/acct.i ap-ctrl.payables}
     {custom/validate/acct.i ap-ctrl.purchases}
     {custom/validate/acct.i ap-ctrl.cash-act}
@@ -360,6 +378,7 @@ DO:
     ASSIGN {&LIST-1}.
     FIND CURRENT ap-ctrl NO-LOCK NO-ERROR.
   END.
+  {src/winkit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -488,7 +507,7 @@ DO:
   /*{custom/actleave.i} */
     DEF VAR v-avail AS LOG NO-UNDO.
     {custom/validate/acct.i ap-ctrl.stax}
-        
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -508,8 +527,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO: 
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -532,6 +553,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   RUN enable_UI.
   {methods/nowait.i}
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -576,7 +598,7 @@ PROCEDURE enable_UI :
     DISPLAY ap-ctrl.payables ap-ctrl.purchases ap-ctrl.cash-act ap-ctrl.discount 
           ap-ctrl.stax ap-ctrl.freight 
       WITH FRAME ap-ctrl IN WINDOW C-Win.
-  ENABLE Btn_Update Btn_Close RECT-15 RECT-16 
+  ENABLE RECT-16 Btn_Update Btn_Close 
       WITH FRAME ap-ctrl IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-ap-ctrl}
   VIEW C-Win.

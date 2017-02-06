@@ -199,6 +199,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -220,7 +231,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -274,10 +285,10 @@ DO:
     ASSIGN {&displayed-objects}.
   END.
 
- 
+
   RUN windows/w-message.w PERSISTENT SET hStatus.
   RUN setWindowTitle IN hStatus (INPUT "Searching for Items").
-    
+
 
   run process-items. 
 
@@ -286,16 +297,16 @@ DO:
 
   RUN windows/w-message.w PERSISTENT SET hStatus.
   RUN setWindowTitle IN hStatus (INPUT "Deactivating Items").
-    
+
   IF VALID-HANDLE(hStatus) THEN
      DELETE OBJECT hStatus.
   MESSAGE "Done!"
      VIEW-AS ALERT-BOX INFO BUTTONS OK.
-    
+
   IF VALID-HANDLE(hStatus) THEN
       DELETE OBJECT hStatus.
-    
-       
+
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -326,8 +337,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -346,7 +359,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 APPLY "entry" TO begin_i-no .
 
   RUN enable_UI.
-  
+
 SUBSCRIBE TO "CancelIt" ANYWHERE.
 SUBSCRIBE TO "NumDel" ANYWHERE.
   {methods/nowait.i}
@@ -356,6 +369,7 @@ SUBSCRIBE TO "NumDel" ANYWHERE.
     APPLY "entry" TO begin_i-no .
   END.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -549,7 +563,7 @@ PROCEDURE process-items :
 
 
        END. /* each fg-rcpth */      
- 
+
 
 END PROCEDURE.
 

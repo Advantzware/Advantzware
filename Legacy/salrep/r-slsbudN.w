@@ -181,7 +181,7 @@ ASSIGN cTextListToSelect = "SM #,SalesRep Name,Mnth Acl $,Mnth Bgt$,Mnth Var $,Y
        cFieldLength = "4,25,11,11,11,11,11,11," + "8,30,5,12,12,12,11,11,11," + "12,12,12,11,11,11" 
        cFieldType = "c,c,i,i,i,i,i,i," + "c,c,c,i,i,i,i,i,i," + "i,i,i,i,i,i"
     .
-         
+
 
 
 {sys/inc/ttRptSel.i}
@@ -525,6 +525,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -604,7 +615,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -654,7 +665,7 @@ DO:
       OTHERWISE DO:
          lv-handle = FOCUS:HANDLE.
          RUN applhelp.p.
-            
+
          IF g_lookup-var NE "" THEN lv-handle:SCREEN-VALUE = g_lookup-var.
       END.
   END CASE.
@@ -740,13 +751,13 @@ DO:
   END.
 
  IF v-runflg THEN DO:
-  
+
     RUN GetSelectionList.
     run run-report. 
     STATUS DEFAULT "Processing Complete".
-   
+
     SESSION:SET-WAIT-STATE ("").
-   
+
     case rd-dest:
          when 1 then run output-to-printer.
          when 2 then run output-to-screen.
@@ -775,7 +786,7 @@ DO:
                                     &mail-subject=c-win:TITLE
                                     &mail-body=c-win:TITLE
                                     &mail-file=list-name }
-   
+
              END.
          END.
         WHEN 6 THEN RUN OUTPUT-TO-PORT.
@@ -827,7 +838,7 @@ DO:
 
   RUN DisplaySelectionDefault.  /* task 04041406 */ 
   RUN DisplaySelectionList2 .
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1014,7 +1025,7 @@ DO:
    DO WITH FRAME {&FRAME-NAME}:
       ASSIGN rd_sortby.
    END.
-             
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1054,7 +1065,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
-  
+
    IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
        sl_selected:NUM-ITEMS = 0)
    THEN ASSIGN ldummy = sl_selected:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
@@ -1062,7 +1073,7 @@ DO:
               /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
                .
 
-  
+
 /* for pairs
     DEF VAR cSelectedList AS cha NO-UNDO.
     cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
@@ -1105,7 +1116,7 @@ DO:
   ASSIGN
     {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}:ENTRY(1)
     .
-    
+
 
 END.
 
@@ -1158,8 +1169,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -1176,14 +1189,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN.
   END.
-  
+
   ASSIGN
      begin_date = TODAY
      end_date = TODAY.
 
   RUN DisplaySelectionList.
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   RUN sys/inc/CustListForm.p ( "HS",cocode, 
@@ -1222,6 +1235,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     OUTPUT cRtnChar, OUTPUT lRecFound).
 /* gdm - 0309094 end */
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1267,7 +1281,7 @@ PROCEDURE actual-proc :
              and ar-inv.inv-date le end_date
              and ar-inv.type    ne "FC" /*or v-inc-fc*/
            no-lock,
-      
+
            each ar-invl FIELDS(i-no actnum sman s-pct LINE)
            where ar-invl.x-no eq ar-inv.x-no
              and (ar-invl.billable or not ar-invl.misc)
@@ -1276,7 +1290,7 @@ PROCEDURE actual-proc :
 
          {sa/sa-sman7.i "ar-invl"}
        end.
-      
+
        for each ar-cash FIELDS(c-no cust-no check-date)
            where ar-cash.company    eq cocode
              and ar-cash.cust-no    eq cust.cust-no
@@ -1284,7 +1298,7 @@ PROCEDURE actual-proc :
              and ar-cash.check-date le end_date
              and ar-cash.posted     eq yes
            no-lock,
-      
+
            EACH ar-cashl FIELDS(inv-no dscr company c-no)
            WHERE ar-cashl.c-no    EQ ar-cash.c-no
              AND ar-cashl.posted  EQ YES
@@ -1295,11 +1309,11 @@ PROCEDURE actual-proc :
                              AND account.type    EQ "R"))
            NO-LOCK
            transaction:
-      
+
          release ar-invl.
-      
+
          RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
-      
+
          if avail oe-retl then
          find first ar-invl
              where ar-invl.company eq cocode
@@ -1308,7 +1322,7 @@ PROCEDURE actual-proc :
                and ar-invl.i-no    eq oe-retl.i-no
                and (ar-invl.billable or not ar-invl.misc)
              no-lock no-error.
-      
+
          IF ar-cashl.inv-no NE 0 AND
             (AVAIL ar-invl OR
              (NOT AVAIL reftable AND
@@ -1321,10 +1335,10 @@ PROCEDURE actual-proc :
                AND (b-ar-invl.billable OR NOT b-ar-invl.misc)
                AND (NOT AVAIL ar-invl OR ROWID(b-ar-invl) EQ ROWID(ar-invl))
              NO-LOCK:
-           
+
              {sa/sa-sman7.i "ar-cashl" "b-"}
          end.
-      
+
          ELSE
          do:
             find first fgcat
@@ -1356,7 +1370,7 @@ PROCEDURE actual-proc :
                      tt-data.sman-no = cust.sman AND
                      tt-data.prod-cat = v-prod-cat-ar-cashl
                      NO-ERROR.
-               
+
                 IF NOT AVAIL tt-data THEN
                 DO:
                    CREATE tt-data.
@@ -1377,7 +1391,7 @@ PROCEDURE actual-proc :
                      tt-data.sman-no = cust.sman AND
                      tt-data.prod-cat = tt-fg-cat.prodline
                      NO-ERROR.
-                 
+
                 IF NOT AVAIL tt-data THEN
                 DO:
                    CREATE tt-data.
@@ -1404,15 +1418,15 @@ PROCEDURE actual-proc :
        for each tt-report
            break by tt-report.key-02
                  BY tt-report.prod-cat
-      
+
            transaction:
-           
+
          find first w-data WHERE
               w-data.w-type    eq tt-report.key-01 AND
               w-data.w-sman-no eq tt-report.key-02 AND
               w-data.prod-cat  EQ tt-report.prod-cat
               no-error.
-      
+
          if not avail w-data then do:
            create w-data.
            assign
@@ -1420,17 +1434,17 @@ PROCEDURE actual-proc :
             w-data.w-sman-no = tt-report.key-02
             w-data.prod-cat  = tt-report.prod-cat.
          end.
-      
+
          find ar-invl where recid(ar-invl) eq tt-report.rec-id no-lock no-error.
-      
+
          if avail ar-invl then do:
            find ar-inv where ar-inv.x-no eq ar-invl.x-no no-lock.
-      
+
            find first itemfg
                where itemfg.company eq cocode
                  and itemfg.i-no    eq ar-invl.i-no
                no-lock no-error.
-      
+
            assign
             v-pct  = 1
             v-amt  = ar-invl.amt
@@ -1438,25 +1452,25 @@ PROCEDURE actual-proc :
                      else
                      if avail itemfg then
                        (itemfg.t-sqft * ar-invl.ship-qty / 1000) else 0.
-      
+
            if v-sqft eq ? then v-sqft = 0.
-      
+
            do i = 1 to 3:
              if ar-invl.sman[i] eq tt-report.key-02 then
                assign
                 v-pct = ar-invl.s-pct[i] / 100
                 i     = 3.
            end.
-      
+
            if v-pct eq 0 then
            do i = 1 to 3:
              if i eq 1 then j = 0.
              if ar-invl.sman[i] ne "" then j = j + 1.
              if i eq 3 then v-pct = 1 / j.
            end.
-      
+
            if v-pct le 0 or v-pct eq ? then v-pct = 1.
-      
+
            do i = 1 to 2:
              if ar-inv.inv-date ge fdate[i] and
                 ar-inv.inv-date le edate[i] then
@@ -1471,58 +1485,58 @@ PROCEDURE actual-proc :
                                      else 0) / 2000).
            end.
          end.
-      
+
          else do:
            find ar-cashl where recid(ar-cashl) eq tt-report.rec-id no-lock no-error.
-      
+
            if avail ar-cashl then do:
              find ar-cash where ar-cash.c-no eq ar-cashl.c-no no-lock.
-      
+
              assign
               v-amt  = ar-cashl.amt-paid - ar-cashl.amt-disc
               v-sqft = 0
               v-pct  = 1.
-      
+
              RELEASE ar-invl.
              RELEASE oe-retl.
-      
+
              FIND ar-invl WHERE ROWID(ar-invl) EQ tt-report.row-id NO-LOCK NO-ERROR.
-      
+
              IF NOT AVAIL ar-invl THEN
                RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
-      
+
              IF AVAIL oe-retl THEN DO:
                find first itemfg
                    where itemfg.company eq cocode
                      and itemfg.i-no    eq oe-retl.i-no
                    no-lock no-error.
-      
+
                v-sqft = IF AVAIL itemfg THEN
                           (oe-retl.tot-qty-return * itemfg.t-sqft / 1000)
                         ELSE 0.
-      
+
                IF AVAIL itemfg AND tt-report.prod-cat = "" THEN
                   tt-report.prod-cat = itemfg.procat.
              END.
-      
+
              ELSE
              IF AVAIL ar-invl THEN DO:
                ld-inv-pct = 0.
-      
+
                IF tt-report.prod-cat = "" THEN
                DO:
                   FIND FIRST b-itemfg WHERE
                        b-itemfg.company EQ cocode AND
                        b-itemfg.i-no EQ ar-invl.i-no
                        NO-LOCK NO-ERROR.
-      
+
                   IF AVAIL b-itemfg THEN
                   DO:
                      tt-report.prod-cat = b-itemfg.procat.
                      RELEASE b-itemfg.
                   END.
                END.
-      
+
                FOR EACH b-ar-invl WHERE
                    b-ar-invl.x-no EQ ar-invl.x-no NO-LOCK:
                    ld-inv-pct = ld-inv-pct + b-ar-invl.amt.
@@ -1532,30 +1546,30 @@ PROCEDURE actual-proc :
                                (1 / IF (ACCUM TOTAL 1) EQ 0 THEN 1
                                                             ELSE (ACCUM TOTAL 1))
                             ELSE (ar-invl.amt / ld-inv-pct).
-      
+
                IF ld-inv-pct EQ ? THEN ld-inv-pct = 0.
-      
+
                v-amt = v-amt * ld-inv-pct.
-      
+
                if v-sqft eq ? then v-sqft = 0.
-      
+
                do i = 1 to 3:
                  if ar-invl.sman[i] eq tt-report.key-02 then
                    assign
                     v-pct = ar-invl.s-pct[i] / 100
                     i     = 3.
                end.
-      
+
                if v-pct eq 0 then
                do i = 1 to 3:
                  if i eq 1 then j = 0.
                  if ar-invl.sman[i] ne "" then j = j + 1.
                  if i eq 3 then v-pct = 1 / j.
                end.
-      
+
                if v-pct le 0 or v-pct eq ? then v-pct = 1.
              end.
-      
+
              do i = 1 to 2:
                if ar-cash.check-date ge fdate[i] and
                   ar-cash.check-date le edate[i] then
@@ -1567,21 +1581,21 @@ PROCEDURE actual-proc :
                                           (oe-retl.tot-qty-return * itemfg.weight-100 / 100)
                                           else 0) / 2000)).
              end.
-      
+
              RELEASE oe-retl.
              RELEASE itemfg.
            end.
          end.
-         
+
          if last-of(tt-report.prod-cat) then do:
-      
+
            create w-data1.
            w-data1.w-sman-no = tt-report.key-02.
-           
+
            for each w-data where
                w-data.w-sman-no eq w-data1.w-sman-no AND
                w-data.prod-cat EQ tt-report.prod-cat:
-      
+
                do i = 1 to 2:
                   assign
                   w-data1.w-sqft[i] = w-data1.w-sqft[i] + w-data.w-sqft[i]
@@ -1589,7 +1603,7 @@ PROCEDURE actual-proc :
                   w-data1.w-tons[i] = w-data1.w-tons[i] + w-data.w-tons[i].
                end.
            end.
-      
+
            RELEASE tt-data.
 
            IF NOT v-prod-line-mode THEN
@@ -1618,10 +1632,10 @@ PROCEDURE actual-proc :
                  tt-data.ytd-act-msf = w-data1.w-sqft[2]
                  tt-data.month-act-tons = w-data1.w-tons[1]
                  tt-data.ytd-act-tons = w-data1.w-tons[2].
-      
+
            delete w-data1.
          end.
-         
+
          delete tt-report.
        end.
    end. /*end cust*/
@@ -1643,7 +1657,7 @@ PROCEDURE create-tt-data :
    DEF VAR v-count AS INT NO-UNDO.
 
    DO v-count = 1 TO v-ytd-period:
-           
+
       FOR EACH smanbcst WHERE
           smanbcst.company EQ cocode AND
           smanbcst.sman EQ sman.sman AND
@@ -1657,13 +1671,13 @@ PROCEDURE create-tt-data :
                 cust.company EQ cocode AND
                 cust.cust-no EQ smanbcst.cust
                 NO-LOCK:
-           
+
           FIND FIRST tt-data WHERE
                tt-data.cust-no = cust.cust-no AND
                tt-data.sman-no = sman.sman AND
                tt-data.prod-cat = ip-prod-cat-label
                NO-ERROR.
-         
+
           IF NOT AVAIL tt-data THEN
           DO:
              CREATE tt-data.
@@ -1672,13 +1686,13 @@ PROCEDURE create-tt-data :
                     tt-data.sman-no = sman.sman
                     tt-data.prod-cat = ip-prod-cat-label.
           END.
-         
+
           IF v-period EQ v-count THEN
              ASSIGN
                 tt-data.month-budget-dollars = tt-data.month-budget-dollars + smanbcst.budget-amt
                 tt-data.month-budget-msf = tt-data.month-budget-msf + smanbcst.msf
                 tt-data.month-budget-tons = tt-data.month-budget-tons + smanbcst.tons.
-         
+
           ASSIGN
              tt-data.ytd-budget-dollars = tt-data.ytd-budget-dollars + smanbcst.budget-amt
              tt-data.ytd-budget-msf     = tt-data.ytd-budget-msf    + smanbcst.msf
@@ -1706,7 +1720,7 @@ PROCEDURE create-tt-data :
                tt-data.sman-no = sman.sman AND
                tt-data.prod-cat = ip-prod-cat-label
                NO-ERROR.
-         
+
           IF NOT AVAIL tt-data THEN
           DO:
              CREATE tt-data.
@@ -1715,7 +1729,7 @@ PROCEDURE create-tt-data :
                     tt-data.sman-no = sman.sman
                     tt-data.prod-cat = ip-prod-cat-label.
           END.
-         
+
           ASSIGN
              tt-data.month-budget-dollars = tt-data.month-budget-dollars + smanbcst.budget-amt
              tt-data.month-budget-msf = tt-data.month-budget-msf + smanbcst.msf
@@ -1756,7 +1770,7 @@ PROCEDURE DisplaySelectionDefault :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  
+
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
      cListContents = cListContents +                   
@@ -1782,7 +1796,7 @@ PROCEDURE DisplaySelectionList :
   DEF VAR iCount AS INT NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
-     
+
      RETURN.
   END.
 
@@ -1795,7 +1809,7 @@ PROCEDURE DisplaySelectionList :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1803,9 +1817,9 @@ PROCEDURE DisplaySelectionList :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 END PROCEDURE.
 
@@ -1826,7 +1840,7 @@ PROCEDURE DisplaySelectionList2 :
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
-        
+
   EMPTY TEMP-TABLE ttRptList.
 
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
@@ -1836,7 +1850,7 @@ PROCEDURE DisplaySelectionList2 :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1844,9 +1858,9 @@ PROCEDURE DisplaySelectionList2 :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
   DO iCount = 1 TO sl_selected:NUM-ITEMS:
@@ -1910,7 +1924,7 @@ PROCEDURE GetSelectionList :
 
  DO i = 1 TO sl_selected:NUM-ITEMS /* IN FRAME {&FRAME-NAME}*/ :
     FIND FIRST ttRptList WHERE ttRptList.TextList = ENTRY(i,cTmpList) NO-LOCK NO-ERROR.     
-  
+
     CREATE ttRptSelected.
     ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
            ttRptSelected.FieldList = ttRptList.FieldList
@@ -1919,7 +1933,7 @@ PROCEDURE GetSelectionList :
            ttRptSelected.HeadingFromLeft = IF entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
-           
+
  END.
 
 END PROCEDURE.
@@ -2011,7 +2025,7 @@ IF v-prod-line-mode THEN
             prodl.company EQ cocode AND
             prodl.prolin EQ prod.prolin
             NO-LOCK:
-   
+
        CREATE tt-fg-cat.
        ASSIGN tt-fg-cat.prodline = prod.prolin
               tt-fg-cat.fg-cat = prodl.procat.
@@ -2034,7 +2048,7 @@ FOR EACH sman FIELDS(sman) WHERE
            b-fgcat.procat GE begin_fg-cat AND
            b-fgcat.procat LE end_fg-cat
            NO-LOCK:
-   
+
            RUN create-tt-data(INPUT b-fgcat.procat,
                               INPUT b-fgcat.procat).
        END.
@@ -2048,7 +2062,7 @@ FOR EACH sman FIELDS(sman) WHERE
                 prodl.company EQ cocode AND
                 prodl.prolin EQ prod.prolin
                 NO-LOCK:
-   
+
            RUN create-tt-data(INPUT prodl.procat,
                               INPUT prod.prolin).
        END.
@@ -2163,7 +2177,7 @@ PROCEDURE print-excel2-proc :
    DEFINE INPUT PARAMETER ip-two AS DEC NO-UNDO.
    DEFINE INPUT PARAMETER ip-three AS DEC NO-UNDO.
    DEFINE INPUT PARAMETER ip-four AS DEC NO-UNDO.
-   
+
    PUT STREAM excel UNFORMATTED
        '"' STRING(ip-one,"->>,>>>,>>9.99") '",'
        '"' STRING(ip-two,"->>,>>>,>>9.99") '",'
@@ -2211,15 +2225,15 @@ DO:
           RUN print-excel-proc("",tt-prod-cat-data.prod-cat,tt-prod-cat-data.month-act-dollars,
                                tt-prod-cat-data.month-budget-dollars,tt-prod-cat-data.ytd-act-dollars,
                                tt-prod-cat-data.ytd-budget-dollars).
-         
+
           IF tg_disp_msf THEN
              RUN print-excel2-proc(tt-prod-cat-data.month-act-msf,tt-prod-cat-data.month-budget-msf,
                                    tt-prod-cat-data.ytd-act-msf,tt-prod-cat-data.ytd-budget-msf).
-         
+
           IF tg_disp_tons THEN
              RUN print-excel2-proc(tt-prod-cat-data.month-act-tons,tt-prod-cat-data.month-budget-tons,
                                    tt-prod-cat-data.ytd-act-tons,tt-prod-cat-data.ytd-budget-tons).
-         
+
           PUT STREAM excel UNFORMATTED SKIP.
        END. */
 
@@ -2256,15 +2270,15 @@ DO:
                         WHEN "ytd-act-t"   THEN cVarValue = string(tt-prod-cat-data.ytd-act-tons,"->>,>>>,>>9") .                                
                         WHEN "ytd-bgt-t"   THEN cVarValue = string(tt-prod-cat-data.ytd-budget-tons,"->>,>>>,>>9") .                             
                         WHEN "ytd-var-t"   THEN cVarValue = string((tt-prod-cat-data.ytd-act-tons - tt-prod-cat-data.ytd-budget-tons),"->>,>>>,>>9") .     
-                       
+
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+
             PUT UNFORMATTED cDisplay SKIP.
             IF tb_excel THEN DO:
                  PUT STREAM excel UNFORMATTED  
@@ -2283,7 +2297,7 @@ DO:
            v-gt-ytd-bud-dol FORMAT "->>,>>>,>>9.99"
            v-gt-ytd-act-dol - v-gt-ytd-bud-dol FORMAT "->>,>>>,>>9.99"
       WITH DOWN FRAME frame-p-line-tot NO-LABELS NO-BOX STREAM-IO WIDTH 132.
-  
+
    DOWN WITH FRAME frame-p-line-tot. */
 END.
 ELSE
@@ -2305,18 +2319,18 @@ DO:
           RUN print-excel-proc("",tt-prod-cat-data.prod-cat,tt-prod-cat-data.month-act-dollars,
                                tt-prod-cat-data.month-budget-dollars,tt-prod-cat-data.ytd-act-dollars,
                                tt-prod-cat-data.ytd-budget-dollars).
-         
+
           IF tg_disp_msf THEN
              RUN print-excel2-proc(tt-prod-cat-data.month-act-msf,tt-prod-cat-data.month-budget-msf,
                                    tt-prod-cat-data.ytd-act-msf,tt-prod-cat-data.ytd-budget-msf).
-         
+
           IF tg_disp_tons THEN
              RUN print-excel2-proc(tt-prod-cat-data.month-act-tons,tt-prod-cat-data.month-budget-tons,
                                    tt-prod-cat-data.ytd-act-tons,tt-prod-cat-data.ytd-budget-tons).
-         
+
           PUT STREAM excel UNFORMATTED SKIP.
        END. */
-       
+
         ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
@@ -2350,15 +2364,15 @@ DO:
                         WHEN "ytd-act-t"   THEN cVarValue = string(tt-prod-cat-data.ytd-act-tons,"->>,>>>,>>9") .                                
                         WHEN "ytd-bgt-t"   THEN cVarValue = string(tt-prod-cat-data.ytd-budget-tons,"->>,>>>,>>9") .                             
                         WHEN "ytd-var-t"   THEN cVarValue = string((tt-prod-cat-data.ytd-act-tons - tt-prod-cat-data.ytd-budget-tons),"->>,>>>,>>9") .     
-                       
+
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+
             PUT UNFORMATTED cDisplay SKIP.
             IF tb_excel THEN DO:
                  PUT STREAM excel UNFORMATTED  
@@ -2366,7 +2380,7 @@ DO:
              END.
 
    END.
-   
+
   /* DISPLAY SKIP(2)
            "" FORMAT "X(15)"
            "TOTAL" FORMAT "X(23)"
@@ -2377,7 +2391,7 @@ DO:
            v-gt-ytd-bud-dol FORMAT "->>,>>>,>>9"
            v-gt-ytd-act-dol - v-gt-ytd-bud-dol FORMAT "->>,>>>,>>9"
       WITH DOWN FRAME frame-p-line-tot-2 NO-LABELS NO-BOX STREAM-IO WIDTH 132.
-  
+
    DOWN WITH FRAME frame-p-line-tot-2. */
 END.
 
@@ -2429,15 +2443,15 @@ PUT SKIP str-line SKIP .
                         WHEN "ytd-act-t"   THEN cVarValue = string(v-gt-ytd-act-tons,"->>,>>>,>>9") .                                
                         WHEN "ytd-bgt-t"   THEN cVarValue = string(v-gt-ytd-bud-tons,"->>,>>>,>>9") .                             
                         WHEN "ytd-var-t"   THEN cVarValue = string((v-gt-ytd-act-tons - v-gt-ytd-bud-tons),"->>,>>>,>>9") .     
-                       
+
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+
             PUT UNFORMATTED " TOTALS" substring(cDisplay,8,350) SKIP.
             IF tb_excel THEN DO:
                 PUT STREAM excel UNFORMATTED  
@@ -2463,7 +2477,7 @@ PROCEDURE PrintDetail :
            (tt-data.prod-cat EQ tt-total-data.prod-cat AND rd_sortby EQ "PC"
             OR tt-data.cust-no EQ tt-total-data.cust-no AND rd_sortby EQ "CU")
            NO-LOCK:
-       
+
        {custom/statusMsg.i " 'Processing Sales Rep#  '  + tt-data.sman-no "}
 
           IF NOT(NOT tg_display-zero AND tt-data.month-act-dollars EQ 0 AND
@@ -2481,7 +2495,7 @@ PROCEDURE PrintDetail :
                            tt-data.ytd-budget-dollars FORMAT "->>,>>>,>>9.99"
                            tt-data.ytd-act-dollars - tt-data.ytd-budget-dollars FORMAT "->>,>>>,>>9.99"
                       WITH DOWN FRAME frame-cust-line NO-LABELS NO-BOX STREAM-IO WIDTH 132.
-                  
+
                    DOWN WITH FRAME frame-cust-line. */
                 END.
                 ELSE
@@ -2495,10 +2509,10 @@ PROCEDURE PrintDetail :
                            tt-data.ytd-budget-dollars FORMAT "->>,>>>,>>9"
                            tt-data.ytd-act-dollars - tt-data.ytd-budget-dollars FORMAT "->>,>>>,>>9"
                       WITH DOWN FRAME frame-cust-line-2 NO-LABELS NO-BOX STREAM-IO WIDTH 132.
-                  
+
                    DOWN WITH FRAME frame-cust-line-2. */
                 END.
-                
+
                /* IF tb_excel THEN
                 DO: 
                    IF rd_sortby EQ "PC" THEN 
@@ -2507,13 +2521,13 @@ PROCEDURE PrintDetail :
                    ELSE
                        RUN print-excel-proc(tt-data.prod-cat,"",tt-data.month-act-dollars,tt-data.month-budget-dollars,
                                         tt-data.ytd-act-dollars,tt-data.ytd-budget-dollars).
-                
+
                    IF tg_disp_msf THEN
                       RUN print-excel2-proc(tt-data.month-act-msf,tt-data.month-budget-msf,tt-data.ytd-act-msf,tt-data.ytd-budget-msf).
-                
+
                    IF tg_disp_tons THEN
                       RUN print-excel2-proc(tt-data.month-act-tons,tt-data.month-budget-tons,tt-data.ytd-act-tons,tt-data.ytd-budget-tons).
-                
+
                    PUT STREAM excel UNFORMATTED SKIP.
                 END. */
 
@@ -2550,15 +2564,15 @@ PROCEDURE PrintDetail :
                         WHEN "ytd-act-t"   THEN cVarValue = string(tt-data.ytd-act-tons,"->>,>>>,>>9") .                                
                         WHEN "ytd-bgt-t"   THEN cVarValue = string(tt-data.ytd-budget-tons,"->>,>>>,>>9") .                             
                         WHEN "ytd-var-t"   THEN cVarValue = string((tt-data.ytd-act-tons - tt-data.ytd-budget-tons),"->>,>>>,>>9") .     
-                       
+
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+
             PUT UNFORMATTED cDisplay SKIP.
             IF tb_excel THEN DO:
                  PUT STREAM excel UNFORMATTED  
@@ -2668,7 +2682,7 @@ ASSIGN
    {sys/inc/ctrtext.i str-tit2 112}.
 ASSIGN str-tit3 = STRING(begin_date) + "-" + STRING(END_date) .
    {sys/inc/ctrtext.i str-tit3 130}.
- 
+
 
  DEF VAR cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
@@ -2701,7 +2715,7 @@ ASSIGN str-tit3 = STRING(begin_date) + "-" + STRING(END_date) .
 {sys/inc/outprint.i value(lines-per-page)}
 
 if td-show-parm then run show-param.
- 
+
 SESSION:SET-WAIT-STATE ("general").
 
 /*DISPLAY  "TESTING" AT 60.*/
@@ -2786,7 +2800,7 @@ FOR EACH tt-total-data
                WITH DOWN FRAME frame-sman NO-BOX STREAM-IO NO-LABELS WIDTH 132.
 
        DOWN WITH FRAME frame-sman. */
-       
+
 
      /*  IF rs_detail THEN
           PUT SKIP(2).
@@ -2853,7 +2867,7 @@ FOR EACH tt-total-data
                tt-total-data.ytd-budget-dollars FORMAT "->>,>>>,>>9.99"
                tt-total-data.ytd-act-dollars - tt-total-data.ytd-budget-dollars  FORMAT "->>,>>>,>>9.99"
           WITH DOWN FRAME frame-prod-line-tot NO-LABELS NO-BOX STREAM-IO WIDTH 132. 
-      
+
        DOWN WITH FRAME frame-prod-line-tot. */
 
 
@@ -2876,7 +2890,7 @@ FOR EACH tt-total-data
                tt-total-data.ytd-budget-dollars FORMAT "->>,>>>,>>9"
                tt-total-data.ytd-act-dollars - tt-total-data.ytd-budget-dollars FORMAT "->>,>>>,>>9"
           WITH DOWN FRAME frame-prod-line-tot-2 NO-LABELS NO-BOX STREAM-IO WIDTH 132.
-      
+
        DOWN WITH FRAME frame-prod-line-tot-2. */
 
        IF rs_detail THEN
@@ -2942,15 +2956,15 @@ FOR EACH tt-total-data
                         WHEN "ytd-act-t"   THEN cVarValue = string(tt-total-data.ytd-act-tons,"->>,>>>,>>9") .                                
                         WHEN "ytd-bgt-t"   THEN cVarValue = string(tt-total-data.ytd-budget-tons,"->>,>>>,>>9") .                             
                         WHEN "ytd-var-t"   THEN cVarValue = string((tt-total-data.ytd-act-tons - tt-total-data.ytd-budget-tons),"->>,>>>,>>9") .     
-                       
+
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+
             PUT UNFORMATTED cDisplay SKIP.
             IF tb_excel THEN DO:
                  PUT STREAM excel UNFORMATTED  
@@ -2966,7 +2980,7 @@ FOR EACH tt-total-data
        CREATE tt-prod-cat-data.
        tt-prod-cat-data.prod-cat = tt-total-data.prod-cat.
     END.
-         
+
     ASSIGN
        tt-prod-cat-data.month-act-dollars = tt-prod-cat-data.month-act-dollars
                                           + tt-total-data.month-act-dollars
@@ -3020,7 +3034,7 @@ FOR EACH tt-total-data
                   v-sls-ytd-act-dol-tot - v-sls-ytd-bud-dol-tot FORMAT "->>,>>>,>>9.99"
                   SKIP(1)
              WITH DOWN FRAME frame-sman-line-tot NO-LABELS NO-BOX STREAM-IO WIDTH 132.
-         
+
           DOWN WITH FRAME frame-sman-line-tot. */
        END.
        ELSE
@@ -3041,7 +3055,7 @@ FOR EACH tt-total-data
                   v-sls-ytd-act-dol-tot - v-sls-ytd-bud-dol-tot FORMAT "->>,>>>,>>9"
                   SKIP(1)
              WITH DOWN FRAME frame-sman-line-tot-2 NO-LABELS NO-BOX STREAM-IO WIDTH 132.
-         
+
           DOWN WITH FRAME frame-sman-line-tot-2. */
        END.
 
@@ -3079,15 +3093,15 @@ FOR EACH tt-total-data
                         WHEN "ytd-act-t"   THEN cVarValue = string(v-sls-ytd-act-tons-tot,"->>,>>>,>>9") .                                
                         WHEN "ytd-bgt-t"   THEN cVarValue = string(v-sls-ytd-bud-tons-tot,"->>,>>>,>>9") .                             
                         WHEN "ytd-var-t"   THEN cVarValue = string((v-sls-ytd-act-tons-tot - v-sls-ytd-bud-tons-tot),"->>,>>>,>>9") .     
-                       
+
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+
             PUT UNFORMATTED " TOTALS  " + (IF AVAIL sman THEN sman.sname ELSE "") FORMAT "X(30)" +  substring(cDisplay,31,350) SKIP.
             IF tb_excel THEN DO:
                 PUT STREAM excel UNFORMATTED  
@@ -3121,13 +3135,13 @@ FOR EACH tt-total-data
 
           RUN print-excel-proc("TOTAL",(IF AVAIL sman THEN sman.sname ELSE ""),v-sls-month-act-dol-tot,v-sls-month-bud-dol-tot,
                                v-sls-ytd-act-dol-tot,v-sls-ytd-bud-dol-tot).
-         
+
           IF tg_disp_msf THEN
              RUN print-excel2-proc(v-sls-month-act-msf-tot,v-sls-month-bud-msf-tot,v-sls-ytd-act-msf-tot,v-sls-ytd-bud-msf-tot).
-         
+
           IF tg_disp_tons THEN
              RUN print-excel2-proc(v-sls-month-act-tons-tot,v-sls-month-bud-tons-tot,v-sls-ytd-act-tons-tot,v-sls-ytd-bud-tons-tot).
-         
+
           PUT STREAM excel UNFORMATTED SKIP. 
        END.                                  */
 
@@ -3167,11 +3181,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -3199,23 +3213,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -308,6 +308,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -383,7 +394,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -500,7 +511,7 @@ DO:
                                   &mail-body="Mailing List"
                                   &mail-file=list-name }
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
@@ -680,8 +691,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -705,7 +718,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -713,6 +726,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO begin_buyer.
   END.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -807,7 +821,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -868,7 +882,7 @@ DEF VAR excelheader AS CHAR NO-UNDO.
 assign
  str-tit2 = c-win:title
  {sys/inc/ctrtext.i str-tit2 56}
- 
+
  vfst      = begin_state
  vtst      = end_state
  vfty      = begin_type
@@ -913,32 +927,32 @@ FOR EACH vend NO-LOCK
       cnt = cnt + 1.
       plabel[cnt] = trim(vend.contact).  /* 1: contact */
     end.
-    
+
     if vend.vend-no ne "" then do:
       if cnt eq 0 then do:
         cnt = cnt + 1.
         plabel[cnt] = vend.vend-no.       
       end.
-      
+
       else
         plabel[cnt] = plabel[cnt] + " " + vend.vend-no.   /* 1: vend-no*/
     end.
-    
+
     if vend.name ne "" then do:
       cnt = cnt + 1.
       plabel[cnt] = trim(vend.name).        /* 2: vend.name */
     end.
-    
+
     if vend.add1 ne "" then do:
       cnt = cnt + 1.
       plabel[cnt] = vend.add1.    /* 3: addr1 */
     end.
-    
+
     if vend.add2 ne "" then do:
       cnt = cnt + 1.
       plabel[cnt] = vend.add2.          /* 4: addr2 */
     end.
-    
+
     if vend.city ne "" or vend.state ne "" or vend.zip ne "" then do:
       cnt = cnt + 1.
       if vend.city ne "" then
@@ -954,7 +968,7 @@ FOR EACH vend NO-LOCK
           plabel[cnt] = "".
     end.
   end.
-   
+
   else
   DO:
     put unformatted
@@ -1012,11 +1026,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1044,23 +1058,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

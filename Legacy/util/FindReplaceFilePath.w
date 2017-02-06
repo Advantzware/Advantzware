@@ -174,6 +174,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -194,7 +205,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -287,8 +298,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -385,7 +398,7 @@ IF tb_drive-only THEN DO:
         RETURN NO-APPLY.
     END.
 END.
-    
+
 /*Process attachments*/
 FOR EACH bf-attach EXCLUSIVE-LOCK:
     EXPORT STREAM attach-bak bf-attach.
@@ -438,14 +451,14 @@ OUTPUT STREAM attach-bak CLOSE.
 OUTPUT STREAM boxdes-bak CLOSE.
 
 STATUS DEFAULT "".
-    
+
 SESSION:SET-WAIT-STATE("").
 
 MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
 APPLY "close" TO THIS-PROCEDURE.
 
 RETURN NO-APPLY.
-  
+
 /* end ---------------------------------- copr. 2006  advanced software, inc. */
 
 END PROCEDURE.

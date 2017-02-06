@@ -373,6 +373,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -470,7 +481,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -606,7 +617,7 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN RUN output-to-port.
   END CASE. 
@@ -624,7 +635,7 @@ END.
 ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -878,8 +889,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -895,11 +908,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-           
+
   RUN enable_UI.
-  
+
   {methods/nowait.i}
-  
+
   RUN sys/inc/CustListForm.p ( "IR6",cocode, 
                                OUTPUT ou-log,
                                OUTPUT ou-cust-int) .
@@ -937,7 +950,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO"
         btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
         .
-      
+
    IF ou-log AND ou-cust-int = 0 THEN do:
        ASSIGN 
         tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = YES
@@ -948,6 +961,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
    END.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1034,7 +1048,7 @@ PROCEDURE calc-qoh :
    vdat     = as-of-date
    v-curr   = YES
    v-q-or-v = YES.
-  
+
   /*
   FOR EACH itemfg
       WHERE itemfg.company EQ cocode
@@ -1095,17 +1109,17 @@ PROCEDURE calc-qoh :
 
         /*if v-qohj[6] lt 0 then do:
             v-qty = v-qohj[6] * -1.
-          
+
             do v = 5 to 1 by -1:
               if v-qohj[v] gt 0 then
                 assign
                  v-red     = min(v-qty,v-qohj[v])
                  v-qohj[v] = v-qohj[v] - v-red
                  v-qty     = v-qty     - v-red.
-               
+
               if v-qty le 0 then leave.
             end.
-          
+
             if v-qty gt 0 then v-qohi[6] = v-qohi[6] - v-qty.
         END.*/
 
@@ -1117,7 +1131,7 @@ PROCEDURE calc-qoh :
                 AND oe-ordl.job-no2 EQ fg-bin.job-no2
                 AND oe-ordl.i-no    EQ fg-rcpth.i-no
               USE-INDEX job NO-LOCK NO-ERROR.
-              
+
             IF NOT v-curr THEN
             ASSIGN
              v-qohj[1] = 0
@@ -1141,43 +1155,43 @@ PROCEDURE calc-qoh :
             ASSIGN
              v-u-cst  = oe-ordl.t-cost / oe-ordl.qty
              v-u-val  = oe-ordl.t-price / oe-ordl.qty.
-           
+
           ELSE DO:
             IF itemfg.prod-uom EQ "EA" THEN
               v-u-cst = itemfg.total-std-cost.
             ELSE
               RUN sys/ref/convcuom.p(itemfg.prod-uom, "EA", 0, 0, 0, 0,
                                    itemfg.total-std-cost, OUTPUT v-u-cst).
-                                   
+
             IF itemfg.sell-uom EQ "EA" THEN
               v-u-val = itemfg.sell-price.
             ELSE
               RUN sys/ref/convcuom.p(itemfg.sell-uom, "EA", 0, 0, 0, 0,
                                      itemfg.sell-price, OUTPUT v-u-val).
           END.
-        
+
           IF v-u-cst EQ ? THEN v-u-cst = 0.
           IF v-u-val EQ ? THEN v-u-val = 0.
-        
+
           ASSIGN
            v-cst[1] = v-cst[1] + (v-qty * v-u-cst)
            v-val[1] = v-val[1] + (v-qty * v-u-val).
-        
+
           IF v-qohi[6] LT 0 THEN DO:
             ASSIGN
              v-qty     = v-qohi[6] * -1
              v-qohi[6] = 0.
-          
+
             DO v = 5 TO 1 BY -1:
               IF v-qohi[v] GT 0 THEN
                 ASSIGN
                  v-red     = min(v-qty,v-qohi[v])
                  v-qohi[v] = v-qohi[v] - v-red
                  v-qty     = v-qty     - v-red.
-               
+
               IF v-qty LE 0 THEN LEAVE.
             END.
-          
+
             IF v-qty GT 0 THEN
               ASSIGN
                v-qohi   = 0
@@ -1187,10 +1201,10 @@ PROCEDURE calc-qoh :
 
           IF v-cst[1] LT 0 THEN v-cst[1] = 0.
           IF v-val[1] LT 0 THEN v-val[1] = 0.
-        
+
           IF NOT v-q-or-v THEN DO:
             v-qty = v-qohi[1] + v-qohi[2] + v-qohi[3] + v-qohi[4] + v-qohi[5].
-          
+
             DO v = 1 TO 5:
                v-qohi[v] = v-val[1] / v-qty * v-qohi[v].             
                IF v-qohi[v] EQ ? THEN v-qohi[v] = 0.
@@ -1207,7 +1221,7 @@ PROCEDURE calc-qoh :
              v-red     = MIN(v-qty,v-qohi[v])
              v-qohi[v] = v-qohi[v] - v-red
              v-qty     = v-qty     - v-red.
-               
+
           IF v-qty LE 0 THEN LEAVE.
         END.
       END.
@@ -1233,7 +1247,7 @@ PROCEDURE CustList :
 
     RUN sys/ref/CustListManager.w(INPUT cocode,
                                   INPUT 'IR6').
-    
+
 
 END PROCEDURE.
 
@@ -1356,7 +1370,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
 /*     DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -1367,11 +1381,11 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.  */
-     
+
 {custom/out2file.i}      
 
 END PROCEDURE.
@@ -1403,7 +1417,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1468,7 +1482,7 @@ DEF VAR v-frst-date AS   DATE NO-UNDO.
 DEF VAR v-ship-date AS   DATE NO-UNDO.
 DEF VAR lv-stat     AS   CHAR NO-UNDO.
 DEF VAR cSlsREp     AS CHAR NO-UNDO.
-    
+
 DEF BUFFER b-fg-rcpth FOR fg-rcpth.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
@@ -1506,11 +1520,11 @@ FORM itemfg.cust-no COLUMN-LABEL "CUSTOMER!   ID"
     WITH NO-BOX FRAME itemx2 DOWN STREAM-IO WIDTH 200.
 
 SESSION:SET-WAIT-STATE("general").
- 
+
 ASSIGN
  str-tit2 = c-win:TITLE
  {sys/inc/ctrtext.i str-tit2 112}
- 
+
  vdat   = as-of-date
  fcus   = begin_cust
  tcus   = end_cust
@@ -1560,13 +1574,13 @@ FOR EACH itemfg
     AND itemfg.cust-po-no GE fpo
     AND itemfg.cust-po-no LE tpo
     NO-LOCK:
-        
+
     RUN fg/fgSlsRep.p (INPUT itemfg.company,
         INPUT itemfg.cust-no,
         INPUT itemfg.part-no,
         INPUT itemfg.i-no,
         OUTPUT cSlsRep).
-        
+
     IF      cSlsRep    GE fsls
         AND cSlsRep    LE tsls THEN 
     DO:
@@ -1629,9 +1643,9 @@ END.
                 BY fg-rcpth.trans-date
                 BY fg-rdtlh.trans-time
                 BY fg-rcpth.r-no:
-                
+
         v-bin = YES.
-       
+
         IF FIRST-OF(fg-rdtlh.tag) THEN v-frst-date = fg-rcpth.trans-date.
 
         IF INDEX("RATE",fg-rcpth.rita-code) NE 0 THEN v-binqty = v-binqty + fg-rdtlh.qty.
@@ -1671,7 +1685,7 @@ END.
               END.
             END.
           END.
-              
+
           v-date = IF AVAIL oe-ordl THEN 
                      IF vdue THEN oe-ordl.req-date
                              ELSE oe-ord.ord-date
@@ -1723,9 +1737,9 @@ END.
                 BY fg-rcpth.trans-date
                 BY fg-rdtlh.trans-time
                 BY fg-rcpth.r-no:
-                
+
         v-bin = YES.
-       
+
         IF FIRST-OF(fg-rdtlh.tag) THEN v-frst-date = fg-rcpth.trans-date.
 
         IF INDEX("RATE",fg-rcpth.rita-code) NE 0 THEN v-binqty = v-binqty + fg-rdtlh.qty.
@@ -1765,7 +1779,7 @@ END.
               END.
             END.
           END.
-              
+
           v-date = IF AVAIL oe-ordl THEN 
                      IF vdue THEN oe-ordl.req-date
                              ELSE oe-ord.ord-date
@@ -1885,11 +1899,11 @@ form cust.cust-no column-label "CUSTOMER!   ID"
     with no-box frame itemx2 down STREAM-IO width 142.
 
 SESSION:SET-WAIT-STATE("general").
- 
+
 assign
  str-tit2 = c-win:TITLE
  {sys/inc/ctrtext.i str-tit2 112}
- 
+
  vdat   = as-of-date
  fcus   = begin_cust
  tcus   = end_cust
@@ -1926,9 +1940,9 @@ if td-show-parm then run show-param.
           and cust.sman    ge fsls
           and cust.sman    le tsls
         no-lock
-        
+
         break by itemfg.cust-no:
-        
+
       if first-of(itemfg.cust-no) then
         assign
          v-frst  = yes
@@ -1939,7 +1953,7 @@ if td-show-parm then run show-param.
       for each tt-report:
         delete tt-report.
       end.
-      
+
       for each fg-bin
           where fg-bin.company eq cocode
             and fg-bin.i-no    eq itemfg.i-no
@@ -1970,7 +1984,7 @@ if td-show-parm then run show-param.
                 by fg-bin.tag
                 by fg-rcpth.trans-date
                 by fg-rcpth.r-no:
-                
+
         v-bin = yes.        
 
         if index("RATE",fg-rcpth.rita-code) ne 0 then
@@ -2002,7 +2016,7 @@ if td-show-parm then run show-param.
               where oe-ord.company eq cocode
                 and oe-ord.ord-no  eq oe-ordl.ord-no
               no-lock.
-              
+
           v-date = if avail oe-ordl then 
                      if vdue then oe-ordl.req-date
                              else oe-ord.ord-date
@@ -2039,7 +2053,7 @@ if td-show-parm then run show-param.
           by tt-report.tt-date 
           by fg-bin.job-no     
           by fg-bin.job-no2:
-          
+
         v-qty[1] = tt-report.qty.
 
         find last oe-ordl
@@ -2131,16 +2145,16 @@ if td-show-parm then run show-param.
          v-qty[1] = 0
          v-ext[1] = 0
          v-print  = yes.
-         
+
         delete tt-report.
       end.
       ELSE for each tt-report,
           first fg-bin where recid(fg-bin) eq tt-report.rec-id no-lock
-          
+
           BREAK by tt-report.tt-date DESC /*key-01*/
           by fg-bin.job-no
           by fg-bin.job-no2:
-          
+
         v-qty[1] = tt-report.qty.
 
         find last oe-ordl
@@ -2233,10 +2247,10 @@ if td-show-parm then run show-param.
          v-qty[1] = 0
          v-ext[1] = 0
          v-print  = yes.
-         
+
         delete tt-report.
       end. /* descending */
-      
+
       if vzer and not v-bin then do:
         if vpcp then do:
           display cust.cust-no          when v-frst
@@ -2264,7 +2278,7 @@ if td-show-parm then run show-param.
               with frame itemx2.
           down with frame itemx2.
         end.
-        
+
         assign
          v-frst  = no
          v-print = yes.
@@ -2321,7 +2335,7 @@ PROCEDURE SetCustRange :
         btnCustList:SENSITIVE = iplChecked
        .
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2342,11 +2356,11 @@ PROCEDURE show-param :
   DEF VAR parm-lbl-list AS cha NO-UNDO.
   DEF VAR i AS INT NO-UNDO.
   DEF VAR lv-label AS cha.
-  
+
   lv-frame-hdl = FRAME {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:FIRST-CHILD.
   lv-field-hdl = lv-group-hdl:FIRST-CHILD .
-  
+
   DO WHILE TRUE:
      IF NOT VALID-HANDLE(lv-field-hdl) THEN LEAVE.
      IF LOOKUP(lv-field-hdl:PRIVATE-DATA,"parm") > 0
@@ -2374,23 +2388,23 @@ PROCEDURE show-param :
   PUT SPACE(28)
       "< Selection Parameters >"
       SKIP(1).
-  
+
   DO i = 1 TO NUM-ENTRIES(parm-fld-list,","):
     IF ENTRY(i,parm-fld-list) NE "" OR
        entry(i,parm-lbl-list) NE "" THEN DO:
-       
+
       lv-label = FILL(" ",34 - length(TRIM(ENTRY(i,parm-lbl-list)))) +
                  trim(ENTRY(i,parm-lbl-list)) + ":".
-                 
+
       PUT lv-label FORMAT "x(35)" AT 5
           SPACE(1)
           TRIM(ENTRY(i,parm-fld-list)) FORMAT "x(40)"
           SKIP.              
     END.
   END.
- 
+
   PUT FILL("-",80) FORMAT "x(80)" SKIP.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

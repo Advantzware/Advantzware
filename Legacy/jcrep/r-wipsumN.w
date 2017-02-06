@@ -55,7 +55,7 @@ DEF VAR cFieldType AS cha NO-UNDO.
 DEF VAR iColumnLength AS INT NO-UNDO.
 DEF BUFFER b-itemfg FOR itemfg .
 DEF VAR cTextListToDefault AS cha NO-UNDO.
-  
+
 ASSIGN cTextListToSelect = "Trans Type,Trans Date,Job No.,S,B,Item Number,"
                                             + "Description,Qty Posted,Wst Qty,Mch Hrs,"
                                             + "Mach Code,Job Code,C"
@@ -329,6 +329,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -380,7 +391,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -463,7 +474,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-       
+
   RUN GetSelectionList.
   run run-report. 
 
@@ -474,7 +485,7 @@ DO:
        WHEN 5 THEN
        DO:
           DEF VAR lv-tmp AS CHAR INIT "-0" NO-UNDO.
-          
+
           {custom/asimailr.i &TYPE="Customer"
                              &begin_cust=lv-tmp
                              &END_cust=lv-tmp
@@ -522,7 +533,7 @@ DO:
 
   RUN DisplaySelectionDefault.  /* task 04041406 */ 
   RUN DisplaySelectionList2 .
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -671,7 +682,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
-  
+
    IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
        sl_selected:NUM-ITEMS = 0)
    THEN ASSIGN ldummy = sl_selected:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
@@ -679,7 +690,7 @@ DO:
               /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
                .
 
-  
+
 /* for pairs
     DEF VAR cSelectedList AS cha NO-UNDO.
     cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
@@ -722,7 +733,7 @@ DO:
   ASSIGN
     {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}:ENTRY(1)
     .
-    
+
 
 END.
 
@@ -775,8 +786,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -794,10 +807,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   as-of-date = TODAY.
- 
+
   RUN DisplaySelectionList.
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -806,6 +819,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO as-of-date.
   END.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -844,7 +858,7 @@ PROCEDURE DisplaySelectionDefault :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  
+
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
      cListContents = cListContents +                   
@@ -870,7 +884,7 @@ PROCEDURE DisplaySelectionList :
   DEF VAR iCount AS INT NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
-     
+
      RETURN.
   END.
 
@@ -883,7 +897,7 @@ PROCEDURE DisplaySelectionList :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -891,9 +905,9 @@ PROCEDURE DisplaySelectionList :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 END PROCEDURE.
 
@@ -914,7 +928,7 @@ PROCEDURE DisplaySelectionList2 :
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
-        
+
   EMPTY TEMP-TABLE ttRptList.
 
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
@@ -924,7 +938,7 @@ PROCEDURE DisplaySelectionList2 :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -932,9 +946,9 @@ PROCEDURE DisplaySelectionList2 :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
   DO iCount = 1 TO sl_selected:NUM-ITEMS:
@@ -994,7 +1008,7 @@ PROCEDURE excel-job-totals-proc :
   DEFINE INPUT PARAMETER ip-v-hrs-job AS DEC NO-UNDO.
   DEFINE INPUT PARAMETER ip-v-fg-job  AS DEC NO-UNDO.
   DEFINE INPUT PARAMETER ip-v-oth-job AS DEC NO-UNDO.
-  
+
   PUT STREAM excel UNFORMATTED
       SKIP(1).
 
@@ -1044,7 +1058,7 @@ PROCEDURE excel-spaces-proc :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ip-spaces AS INT NO-UNDO.
-  
+
   DEF VAR viLoop AS INT NO-UNDO.
 
   DO viLoop = 1 TO ip-spaces:
@@ -1071,7 +1085,7 @@ PROCEDURE GetSelectionList :
 
  DO i = 1 TO sl_selected:NUM-ITEMS /* IN FRAME {&FRAME-NAME}*/ :
     FIND FIRST ttRptList WHERE ttRptList.TextList = ENTRY(i,cTmpList) NO-LOCK NO-ERROR.     
-  
+
     CREATE ttRptSelected.
     ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
            ttRptSelected.FieldList = ttRptList.FieldList
@@ -1080,7 +1094,7 @@ PROCEDURE GetSelectionList :
            ttRptSelected.HeadingFromLeft = IF entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
-           
+
  END.
 
 END PROCEDURE.
@@ -1147,7 +1161,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1278,13 +1292,13 @@ assign
                   trim(begin_job-no) + string(int(begin_job-no2),"99")
   v-job-no[2]   = fill(" ",6 - length(trim(end_job-no)))   +
                   trim(end_job-no)   + string(int(end_job-no2),"99")
- 
+
   /*    hdr-tit = "TRANS  TRANS      JOB                                      " +
              "                     QUANTITY     WASTE      MACH MACH   JOB     "
       hdr-tit2 = "TYPE    DATE      NUMBER  S/ B ITEM NUMBER     DESCRIPTION " +
              "                       POSTED       QTY     HOURS CODE   CODE  C "
       hdr-tit3 = fill("-", 131)*/ .
-                                                                  
+
 
 DEF VAR cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
@@ -1340,7 +1354,7 @@ display "" with frame r-top.
          trim(mch-act.job-no) + string(int(mch-act.job-no2),"99") < v-job-no[1] or 
          fill(" ",6 - length(trim(mch-act.job-no))) +
          trim(mch-act.job-no) + string(int(mch-act.job-no2),"99") > v-job-no[2] THEN next.
-        
+
       find first work-dly where work-dly.job = mch-act.job no-error.
 
       if not available work-dly then
@@ -1351,7 +1365,7 @@ display "" with frame r-top.
                 work-dly.job-no2 = mch-act.job-no2.
       end.
    end.
-   
+
   for each mat-act where mat-act.company = cocode and
                           mat-act.mat-date = v-date
                           use-index dte-idx
@@ -1462,7 +1476,7 @@ display "" with frame r-top.
                               cVarValue = ""
                               cExcelDisplay = ""
                               cExcelVarValue = "" .
-                       
+
                        DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                           cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                                CASE cTmpField:             
@@ -1479,15 +1493,15 @@ display "" with frame r-top.
                                     WHEN "mch-cd"           THEN cVarValue =  "".
                                     WHEN "job-cd"           THEN cVarValue =  "".
                                     WHEN "vc"               THEN cVarValue =  "".
-                    
+
                                END CASE.  
-                                 
+
                                cExcelVarValue = cVarValue.
                                cDisplay = cDisplay + cVarValue +
                                           FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
                        END.
-                       
+
                        PUT UNFORMATTED cDisplay SKIP.
                        IF tb_excel THEN DO:
                             PUT STREAM excel UNFORMATTED  
@@ -1553,7 +1567,7 @@ display "" with frame r-top.
                               cVarValue = ""
                               cExcelDisplay = ""
                               cExcelVarValue = "" .
-                       
+
                        DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                           cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                                CASE cTmpField:             
@@ -1570,15 +1584,15 @@ display "" with frame r-top.
                                     WHEN "mch-cd"           THEN cVarValue =  string(mch-act.m-code).
                                     WHEN "job-cd"           THEN cVarValue =  STRING(mch-act.code).
                                     WHEN "vc"               THEN cVarValue =  STRING(mch-act.COMPLETE).
-                    
+
                                END CASE.  
-                                 
+
                                cExcelVarValue = cVarValue.
                                cDisplay = cDisplay + cVarValue +
                                           FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
                        END.
-                       
+
                        PUT UNFORMATTED cDisplay SKIP.
                        IF tb_excel THEN DO:
                             PUT STREAM excel UNFORMATTED  
@@ -1627,7 +1641,7 @@ display "" with frame r-top.
                               cVarValue = ""
                               cExcelDisplay = ""
                               cExcelVarValue = "" .
-                       
+
                        DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                           cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                                CASE cTmpField:             
@@ -1644,15 +1658,15 @@ display "" with frame r-top.
                                     WHEN "mch-cd"           THEN cVarValue =   "" .
                                     WHEN "job-cd"           THEN cVarValue =   "" .
                                     WHEN "vc"               THEN cVarValue =  "" .
-                    
+
                                END CASE.  
-                                 
+
                                cExcelVarValue = cVarValue.
                                cDisplay = cDisplay + cVarValue +
                                           FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
                        END.
-                       
+
                        PUT UNFORMATTED cDisplay SKIP.
                        IF tb_excel THEN DO:
                             PUT STREAM excel UNFORMATTED  
@@ -1701,7 +1715,7 @@ display "" with frame r-top.
                               cVarValue = ""
                               cExcelDisplay = ""
                               cExcelVarValue = "" .
-                       
+
                        DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                           cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                                CASE cTmpField:             
@@ -1718,15 +1732,15 @@ display "" with frame r-top.
                                     WHEN "mch-cd"           THEN cVarValue =   "" .
                                     WHEN "job-cd"           THEN cVarValue =   "" .
                                     WHEN "vc"               THEN cVarValue =  "" .
-                    
+
                                END CASE.  
-                                 
+
                                cExcelVarValue = cVarValue.
                                cDisplay = cDisplay + cVarValue +
                                           FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
                        END.
-                       
+
                        PUT UNFORMATTED cDisplay SKIP.
                        IF tb_excel THEN DO:
                             PUT STREAM excel UNFORMATTED  
@@ -1781,7 +1795,7 @@ display "" with frame r-top.
                               cVarValue = ""
                               cExcelDisplay = ""
                               cExcelVarValue = "" .
-                       
+
                        DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                           cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                                CASE cTmpField:             
@@ -1798,15 +1812,15 @@ display "" with frame r-top.
                                     WHEN "mch-cd"           THEN cVarValue =   STRING(mch-act.m-code) .
                                     WHEN "job-cd"           THEN cVarValue =   IF AVAIL mch-act THEN mch-act.CODE ELSE ""  .
                                     WHEN "vc"               THEN cVarValue =  IF AVAIL mch-act THEN STRING(mch-act.COMPLETE) ELSE ""  .
-                    
+
                                END CASE.  
-                                 
+
                                cExcelVarValue = cVarValue.
                                cDisplay = cDisplay + cVarValue +
                                           FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
                        END.
-                       
+
                        PUT UNFORMATTED cDisplay SKIP.
                        IF tb_excel THEN DO:
                             PUT STREAM excel UNFORMATTED  
@@ -1836,7 +1850,7 @@ display "" with frame r-top.
                               cVarValue = ""
                               cExcelDisplay = ""
                               cExcelVarValue = "" .
-                       
+
                        DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                           cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                                CASE cTmpField:             
@@ -1853,9 +1867,9 @@ display "" with frame r-top.
                                     WHEN "mch-cd"           THEN cVarValue =  "" .
                                     WHEN "job-cd"           THEN cVarValue =  "" .
                                     WHEN "vc"               THEN cVarValue =  "" .
-                    
+
                                END CASE.  
-                                 
+
                                cExcelVarValue = cVarValue.
                                cDisplay = cDisplay + cVarValue +
                                           FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
@@ -1875,7 +1889,7 @@ display "" with frame r-top.
                               cVarValue = ""
                               cExcelDisplay = ""
                               cExcelVarValue = "" .
-                       
+
                        DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                           cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                                CASE cTmpField:             
@@ -1892,9 +1906,9 @@ display "" with frame r-top.
                                     WHEN "mch-cd"           THEN cVarValue =  "" .
                                     WHEN "job-cd"           THEN cVarValue =  "" .
                                     WHEN "vc"               THEN cVarValue =  "" .
-                    
+
                                END CASE.  
-                                 
+
                                cExcelVarValue = cVarValue.
                                cDisplay = cDisplay + cVarValue +
                                           FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
@@ -1913,7 +1927,7 @@ display "" with frame r-top.
                               cVarValue = ""
                               cExcelDisplay = ""
                               cExcelVarValue = "" .
-                       
+
                        DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                           cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                                CASE cTmpField:             
@@ -1930,9 +1944,9 @@ display "" with frame r-top.
                                     WHEN "mch-cd"           THEN cVarValue =  "" .
                                     WHEN "job-cd"           THEN cVarValue =  "" .
                                     WHEN "vc"               THEN cVarValue =  "" .
-                    
+
                                END CASE.  
-                                 
+
                                cExcelVarValue = cVarValue.
                                cDisplay = cDisplay + cVarValue +
                                           FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
@@ -1951,7 +1965,7 @@ display "" with frame r-top.
                               cVarValue = ""
                               cExcelDisplay = ""
                               cExcelVarValue = "" .
-                       
+
                        DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                           cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                                CASE cTmpField:             
@@ -1968,9 +1982,9 @@ display "" with frame r-top.
                                     WHEN "mch-cd"           THEN cVarValue =  "" .
                                     WHEN "job-cd"           THEN cVarValue =  "" .
                                     WHEN "vc"               THEN cVarValue =  "" .
-                    
+
                                END CASE.  
-                                 
+
                                cExcelVarValue = cVarValue.
                                cDisplay = cDisplay + cVarValue +
                                           FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
@@ -2003,7 +2017,7 @@ display "" with frame r-top.
                               cVarValue = ""
                               cExcelDisplay = ""
                               cExcelVarValue = "" .
-                       
+
                        DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                           cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                                CASE cTmpField:             
@@ -2020,9 +2034,9 @@ display "" with frame r-top.
                                     WHEN "mch-cd"           THEN cVarValue =  "" .
                                     WHEN "job-cd"           THEN cVarValue =  "" .
                                     WHEN "vc"               THEN cVarValue =  "" .
-                    
+
                                END CASE.  
-                                 
+
                                cExcelVarValue = cVarValue.
                                cDisplay = cDisplay + cVarValue +
                                           FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
@@ -2042,7 +2056,7 @@ display "" with frame r-top.
                               cVarValue = ""
                               cExcelDisplay = ""
                               cExcelVarValue = "" .
-                       
+
                        DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                           cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                                CASE cTmpField:             
@@ -2059,9 +2073,9 @@ display "" with frame r-top.
                                     WHEN "mch-cd"           THEN cVarValue =  "" .
                                     WHEN "job-cd"           THEN cVarValue =  "" .
                                     WHEN "vc"               THEN cVarValue =  "" .
-                    
+
                                END CASE.  
-                                 
+
                                cExcelVarValue = cVarValue.
                                cDisplay = cDisplay + cVarValue +
                                           FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
@@ -2080,7 +2094,7 @@ display "" with frame r-top.
                               cVarValue = ""
                               cExcelDisplay = ""
                               cExcelVarValue = "" .
-                       
+
                        DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                           cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                                CASE cTmpField:             
@@ -2097,9 +2111,9 @@ display "" with frame r-top.
                                     WHEN "mch-cd"           THEN cVarValue =  "" .
                                     WHEN "job-cd"           THEN cVarValue =  "" .
                                     WHEN "vc"               THEN cVarValue =  "" .
-                    
+
                                END CASE.  
-                                 
+
                                cExcelVarValue = cVarValue.
                                cDisplay = cDisplay + cVarValue +
                                           FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
@@ -2118,7 +2132,7 @@ display "" with frame r-top.
                               cVarValue = ""
                               cExcelDisplay = ""
                               cExcelVarValue = "" .
-                       
+
                        DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                           cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                                CASE cTmpField:             
@@ -2135,9 +2149,9 @@ display "" with frame r-top.
                                     WHEN "mch-cd"           THEN cVarValue =  "" .
                                     WHEN "job-cd"           THEN cVarValue =  "" .
                                     WHEN "vc"               THEN cVarValue =  "" .
-                    
+
                                END CASE.  
-                                 
+
                                cExcelVarValue = cVarValue.
                                cDisplay = cDisplay + cVarValue +
                                           FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
@@ -2182,11 +2196,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -2218,19 +2232,19 @@ PROCEDURE show-param :
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

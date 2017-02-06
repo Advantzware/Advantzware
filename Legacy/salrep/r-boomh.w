@@ -184,6 +184,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -197,7 +208,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -250,11 +261,11 @@ DO:
     SESSION:SET-WAIT-STATE("general").
 
     ASSIGN {&displayed-objects}.
-    
+
     EMPTY TEMP-TABLE tt-raw-op.
     EMPTY TEMP-TABLE tt-report.
     EMPTY TEMP-TABLE w-data.
-    
+
     IF NOT CAN-FIND(FIRST company WHERE
        company.company EQ fi_company) THEN
        DO:
@@ -263,7 +274,7 @@ DO:
           APPLY "ENTRY:U" TO fi_company IN FRAME {&FRAME-NAME}.
           LEAVE.
        END.
-   
+
     RUN run-report.
 
     SESSION:SET-WAIT-STATE("").
@@ -298,8 +309,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -316,14 +329,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   ASSIGN
     fi_company = cocode
     fi_as-of-date = TODAY.
 
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -332,8 +345,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   /* gdm - 03090905 */
   {salrep/SlsMgmt.i}
-  
 
+
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -402,17 +416,17 @@ PROCEDURE raw-op-proc :
    ASSIGN
       v-start-last-year = DATE(1,1,YEAR(fi_as-of-date) - 1)
       v-end-this-year   = DATE(12,31,YEAR(fi_as-of-date)).
-   
+
    EMPTY TEMP-TABLE tt-raw-op.
-   
+
    DO v-date = DATE(1,1,YEAR(fi_as-of-date) - 1) TO
       DATE(12,31,YEAR(fi_as-of-date)):
-      
+
       CREATE tt-raw-op.
       tt-raw-op.DATE = v-date.
       RELEASE tt-raw-op.
    END.
-   
+
    FOR each oe-ord FIELDS(company ord-no ord-date TYPE) WHERE
        oe-ord.company  eq fi_company AND
        oe-ord.ord-date ge v-start-last-year AND
@@ -445,7 +459,7 @@ PROCEDURE raw-op-proc :
         v-oe-gp = IF v-oe-gp EQ ? THEN 0 ELSE v-oe-gp
         tt-raw-op.oe-gp = tt-raw-op.oe-gp 
                         + v-oe-gp.
-       
+
    END.
 
    RUN raw-op-rel-proc.
@@ -500,11 +514,11 @@ PROCEDURE raw-op-rel-proc :
           and oe-rel.rel-date  ge v-start-date
           and oe-rel.rel-date  le v-end-date
         use-index ord-item:
-      
+
         RUN oe/rel-stat.p (ROWID(oe-rel), OUTPUT v-type).
-        
+
         if index("AB",v-type) gt 0 then next.
-        
+
         if index(v-types,v-type) gt 0 then do:
           create tt-report.
           assign
@@ -512,7 +526,7 @@ PROCEDURE raw-op-rel-proc :
            tt-report.rec-id  = recid(oe-rel).
         end.
       end.
-   
+
       FOR EACH oe-rell FIELDS(r-no company ord-no i-no LINE b-ord-no po-no
           qty rel-no) NO-LOCK
         WHERE oe-rell.company EQ oe-ordl.company
@@ -529,9 +543,9 @@ PROCEDURE raw-op-rel-proc :
           AND oe-relh.deleted  EQ NO
           AND oe-relh.rel-date GE v-start-date
           AND oe-relh.rel-date LE v-end-date
-          
+
         USE-INDEX r-no
-      
+
       BREAK BY oe-rell.r-no
             BY oe-rell.ord-no
             BY oe-rell.i-no
@@ -541,9 +555,9 @@ PROCEDURE raw-op-rel-proc :
             BY oe-rell.po-no:
 
        IF FIRST-OF(oe-rell.po-no) THEN lv-qty = 0.
-       
+
        lv-qty = lv-qty + oe-rell.qty.
-       
+
        IF LAST-OF(oe-rell.po-no) THEN DO:
          create tt-report.
          assign
@@ -567,11 +581,11 @@ PROCEDURE raw-op-rel-proc :
        release oe-relh.
        release oe-ord.
        release oe-ordl.
-      
+
        find first oe-rel 
            where recid(oe-rel) eq tt-report.rec-id 
            no-lock no-error.
-      
+
        if avail oe-rel then do:
          FOR EACH oe-rell FIELDS(company ord-no rel-no b-ord-no i-no LINE
              r-no) NO-LOCK
@@ -583,14 +597,14 @@ PROCEDURE raw-op-rel-proc :
                AND oe-rell.line     EQ oe-rel.line
              USE-INDEX ord-no,
              FIRST oe-relh FIELDS(cust-no r-no posted deleted) WHERE oe-relh.r-no EQ oe-rell.r-no NO-LOCK:
-      
+
            IF oe-relh.posted EQ NO AND oe-relh.deleted EQ NO THEN
              tt-report.rec-id = recid(oe-rell).
            ELSE RELEASE oe-relh.
-      
+
            LEAVE.
          END.
-       
+
          find first oe-ordl
              where oe-ordl.company eq fi_company
                and oe-ordl.ord-no  eq oe-rel.ord-no
@@ -598,17 +612,17 @@ PROCEDURE raw-op-rel-proc :
                and oe-ordl.line    eq oe-rel.line
              no-lock.
        end.
-      
+
        find oe-rell where recid(oe-rell) eq tt-report.rec-id no-lock no-error.
        if avail oe-rell then do:    
          if index("SLI",tt-report.key-06) gt 0 then
            tt-report.key-06 = if oe-rell.b-ord-no eq 0 then "A" else "B" .
-      
+
          find first oe-relh
              where oe-relh.company eq fi_company
                and oe-relh.r-no    eq oe-rell.r-no
              use-index r-no no-lock.
-         
+
          find first oe-ordl
              where oe-ordl.company eq fi_company
                and oe-ordl.ord-no  eq oe-rell.ord-no
@@ -618,13 +632,13 @@ PROCEDURE raw-op-rel-proc :
        end.
 
        find first oe-ord of oe-ordl no-lock no-error.
-    
+
        if avail oe-ord then
         find first cust
             where cust.company eq fi_company
               and cust.cust-no eq oe-ord.cust-no
             no-lock no-error.
-       
+
         if avail oe-relh then
           assign
            v-qty     = IF tt-report.qty NE 0 THEN tt-report.qty ELSE oe-rell.qty
@@ -676,7 +690,7 @@ PROCEDURE raw-op-rel-proc :
         tt-raw-op.rel-gp = tt-raw-op.rel-gp 
                          + v-rel-gp.
    END.
-   
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

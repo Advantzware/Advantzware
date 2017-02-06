@@ -1085,6 +1085,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -1344,7 +1355,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttTable.
 */  /* BROWSE brTables */
 &ANALYZE-RESUME
 
- 
+
 
 
 /* **********************  Create OCX Containers  ********************** */
@@ -1442,7 +1453,7 @@ DO:
     focus:parent:refresh().
     return no-apply.
   end.
-    
+
   if gcQueryEditorState = 'visible' then
   do:
     setQueryEditor('Hidden').
@@ -1467,7 +1478,7 @@ DO:
 
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1481,7 +1492,7 @@ DO:
   define variable iButtonSpacingY as integer    no-undo.
 
   define buffer ttField for ttField. 
-  
+
   setWindowFreeze(yes).
 
   /* Set frame width */
@@ -1498,11 +1509,11 @@ DO:
   rctData:height-pixels = C-Win:height-pixels - rctQuery:height-pixels - 52 no-error.
   rctData:X             = rctQuery:X no-error.
   rctData:Y             = rctQuery:y + rctQuery:height-pixels + 4.
-  
+
   /* Edit buttons */
   rctEdit:X = rctData:x no-error.
   rctEdit:Y = rctData:y + rctData:height-pixels + 5 no-error.
-  
+
   /* Positioning of buttons "Add" "Save" etc */
   iButtonSpacingX = 5.
   iButtonSpacingY = 5.
@@ -1587,7 +1598,7 @@ DO:
     ghDataBrowse:height-pixels = rctData:height-pixels - 10 - 23. /* Extra space for filters */
     ghDataBrowse:X = rctData:X + 5.
     ghDataBrowse:Y = rctData:Y + 5 + 21. /* Extra space for filters */
-  
+
     /* Positioning of filters and filterbuttons for data */
     for each ttField:
       if valid-handle(ttField.hFilter) then
@@ -1700,7 +1711,7 @@ DO:
     apply "entry" to hEditor.
     hEditor:cursor-offset = iOldPos + iLength.
   end.
-    
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1769,7 +1780,7 @@ DO:
         when 'cFormat' then hField:fgcolor = (if ttField.cFormat <> ttField.cFormatOrg then 12 else ?).
         when 'iOrder'  then hField:fgcolor = (if ttField.iOrder  <> ttField.iOrderOrg  then 12 else ?).
       end case.
-        
+
     end.
 
 END.
@@ -1786,7 +1797,7 @@ do:
   define variable lp as memptr  no-undo. 
   define variable X  as integer no-undo.
   define variable Y  as integer no-undo.
-  
+
 
   set-size( lp ) = 16. 
 
@@ -2001,7 +2012,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAdd C-Win
 ON CHOOSE OF btnAdd IN FRAME frMain /* Add */
 DO:
-  
+
   message 'Sorry, not (yet) implemented. Perhaps next version :)'
     VIEW-AS ALERT-BOX INFO BUTTONS OK.
 
@@ -2042,9 +2053,9 @@ DO:
   do:
     /* Add field to fieldfilterlist */
     gcFieldFilterList = trim(gcFieldFilterList + ',' + cField,',').
-  
+
     btnRemoveFilter:sensitive = (gcFieldFilterList <> "").
-  
+
     run getTablesWithField(input gcFieldFilterList, output table ttTable).
     run reopenTableBrowse(?,?,?).
     if cOldTable <> getCurrentTable() then
@@ -2148,7 +2159,7 @@ DO:
 
   cHelpfile = getProgramDir() + 'DataDigger.chm'.
   iHelpId = integer( getRegistry('DataDigger:help', 'NewVersion:hlp')) no-error.
-  
+
   if iHelpId > 0 then
     system-help cHelpfile context iHelpId.
 
@@ -2221,7 +2232,7 @@ DO:
   fiTypeFilter  :screen-value = fiTypeFilter  :private-data.
   fiFormatFilter:screen-value = fiFormatFilter:private-data.
   fiLabelFilter :screen-value = fiLabelFilter :private-data.
-  
+
   fiOrderFilter :modified = no.
   fiNameFilter  :modified = no.
   fiTypeFilter  :modified = no.
@@ -2272,7 +2283,7 @@ DO:
   cbDatabaseFilter  :screen-value = ' '.
   fiNumQueriesFilter:screen-value = ''.
   fiLastUsedFilter  :screen-value = ?.
-  
+
   fiTableFilter     :modified = no.
   cbDatabaseFilter  :modified = no.
   fiNumQueriesFilter:modified = no.
@@ -2355,7 +2366,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDelete C-Win
 ON CHOOSE OF btnDelete IN FRAME frMain /* Delete */
 DO:
-  
+
   run btnDeleteChoose.
 
 END. /* choose of btnDelete */
@@ -2389,7 +2400,7 @@ do:
   ---------------------------------------------------------------------- 
   11-01-2011 pti Created
   ----------------------------------------------------------------------*/
-  
+
   run btnEditChoose.
 
 end.
@@ -2413,7 +2424,7 @@ DO:
    ( input-output cFilter ).
   /* If nothing changed, then don't reset anything on the screen */
   if cFilter = gcFieldFilterList then return no-apply.
-  
+
   gcFieldFilterList = trim(cFilter, ',').
   cOldTable = getCurrentTable().
   btnRemoveFilter:sensitive = (gcFieldFilterList <> "").
@@ -2718,12 +2729,12 @@ ON CHOOSE OF btnQueryTester IN FRAME frMain /* QT */
 DO:
 
   define variable cQueryTesterPath as character no-undo.
-  
+
   cQueryTesterPath = getRegistry
     ( 'QueryTester'
     , 'path' 
     ).
-    
+
   file-info:file-name = search(cQueryTesterPath).
   if file-info:full-pathname <> ? then
     run value(cQueryTesterPath) persistent.
@@ -2956,7 +2967,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnView C-Win
 ON CHOOSE OF btnView IN FRAME frMain /* View */
 DO:
-  
+
   run btnViewChoose.
 
 END.
@@ -3071,7 +3082,7 @@ PROCEDURE CtrlFrame.PSTimer.Tick .
   Parameters:  None required for OCX.
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   if glPendingValueChanged 
     and (etime - giTimeLastTableChange) > chCtrlFrame:PSTimer:interval then 
   do:
@@ -3194,7 +3205,7 @@ PROCEDURE FilterTimer.FilterTimer.Tick .
   Parameters:  None required for OCX.
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   if glPendingFilterChange
     and (etime - giTimeLastFilterChange) > chFilterTimer:FilterTimer:interval then 
   do:
@@ -3217,7 +3228,7 @@ PROCEDURE FilterTimer.FilterTimer.Tick .
         run reopenIndexBrowse(?,?). /* reopen, while maintaining original sort */
       end.
     end case. 
-    
+
   end.
 
 
@@ -3555,7 +3566,7 @@ DO:
 
   cSetting = string(menu-item m_Show_hidden_tables:checked in menu POPUP-MENU-brTables).
   setRegistry('DataDigger', 'ShowHiddenTables', cSetting ).
-  
+
   gcLastFilterChangeBrowse = 'brTables'.
   glPendingFilterChange = true.
   giTimeLastFilterChange = 0.
@@ -3647,7 +3658,7 @@ subscribe to 'DataDiggerClose' anywhere.
 {&window-name}:visible           = yes. /* otherwise lockwindow complains */
 {&window-name}:max-width-pixels  = ?.
 {&window-name}:max-height-pixels = ?.
-  
+
 setWindowFreeze(yes).
 
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
@@ -3656,8 +3667,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
 do:
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
   define variable cSetting as character no-undo. 
 
   /* Save settings */
@@ -3712,7 +3725,7 @@ do:
     define variable cOrgValue as character no-undo. 
     define variable cTable    as character no-undo. 
     define variable cField    as character no-undo. 
-    
+
     fiWarning:visible = no.
     fiWarning:x = 1.
 
@@ -3762,6 +3775,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   apply 'entry' to fiTableFilter.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   if not this-procedure:persistent then 
     wait-for close of this-procedure.
 
@@ -3811,11 +3825,11 @@ PROCEDURE btnDeleteChoose :
   ---------------------------------------------------------------------- 
   18-03-2009 pti Created
   ----------------------------------------------------------------------*/
-  
+
   define variable iCount    as integer     no-undo.
   define variable hBuffer   as handle      no-undo.
   define variable lContinue as logical     no-undo.
-  
+
   run showHelp('ConfirmDelete', string(ghDataBrowse:num-selected-rows)).
   if getRegistry('DataDigger:help', 'ConfirmDelete:answer') <> '1' then return.
 
@@ -3857,7 +3871,7 @@ PROCEDURE btnDumpChoose :
   ---------------------------------------------------------------------- 
   18-03-2009 pti Created
   ----------------------------------------------------------------------*/
-  
+
   define variable cSetting       as character   no-undo.
   define variable cOldDateFormat as character   no-undo.
 
@@ -3942,7 +3956,7 @@ PROCEDURE btnFavouritesChoose :
 
   cProgDir   = getProgramDir().
   cCurrentDb = getCurrentDatabase(). 
-  
+
   cDatabasesOld = getDatabaseList().
   run value(cProgDir + 'wConnections.w') (input 'UI', input '', output cDummy).
   /* run setConnectionMenu. */
@@ -4014,7 +4028,7 @@ PROCEDURE btnSettingsChoose :
   ----------------------------------------------------------------------
   14-01-2011 pti Created
   ----------------------------------------------------------------------*/
-  
+
   define variable cEnvironment as character   no-undo.
   define variable lOkClicked   as logical     no-undo.
 
@@ -4046,7 +4060,7 @@ PROCEDURE btnViewChoose :
   16-01-2009 pti Created
   27-08-2010 pti Rewritten to show multiple records.
   ----------------------------------------------------------------------*/
-  
+
   define variable cFileType   as character   no-undo.
   define variable hDataBuffer as handle      no-undo.
   define variable iMaxWidth   as integer     no-undo. 
@@ -4064,14 +4078,14 @@ PROCEDURE btnViewChoose :
   define variable cDataStart  as character   no-undo extent 2.
   define variable cDataEnd    as character   no-undo.
   define variable iLineNr     as integer     no-undo.
-  
+
   define buffer bView for ttView. 
   define buffer ttField for ttField. 
 
   /* If there is no record selected, select the focused one */
   if ghDataBrowse:num-selected-rows = 0 then
     ghDataBrowse:select-focused-row().
-  
+
   /* Is a type set? */
   if getRegistry('DataDigger', 'ViewType') = ? then
   do:
@@ -4108,7 +4122,7 @@ PROCEDURE btnViewChoose :
            ttView.cValue      = ttField.cFullName
            ttView.cColumnName = ttField.cFullName
            .
-  
+
     /* Walk thru all selected records */
     do iRecord = 1 to ghDataBrowse:num-selected-rows:
       ghDataBrowse:fetch-selected-row(iRecord).
@@ -4189,7 +4203,7 @@ PROCEDURE btnViewChoose :
     end.
     else
       put unformatted cDataStart[iLineNr] string(ttView.cValue,cDataFormat) cDataEnd.
-    
+
     if last-of(ttView.iFieldNr) then 
       put unformatted cLineEnd.
   end.
@@ -4216,9 +4230,9 @@ PROCEDURE collectFieldInfo PRIVATE :
   ---------------------------------------------------------------------- 
   18-03-2009 pti Created
   ----------------------------------------------------------------------*/
-  
+
   define input parameter pcTableName   as character   no-undo.
-  
+
 
   define buffer ttField for ttField. 
 
@@ -4243,9 +4257,9 @@ PROCEDURE collectIndexInfo :
   ---------------------------------------------------------------------- 
   01-09-2009 pti Created
   ----------------------------------------------------------------------*/
-  
+
   define input parameter pcTableName   as character   no-undo.
-  
+
   define variable hBufferFile       as handle      no-undo.
   define variable hBufferIndex      as handle      no-undo.
   define variable hBufferIndexField as handle      no-undo.
@@ -4321,7 +4335,7 @@ PROCEDURE collectIndexInfo :
   delete object hBufferIndex.     
   delete object hBufferIndexField.
   delete object hBufferField.     
-  
+
 end procedure. /* collectIndexInfo */
 
 /* _UIB-CODE-BLOCK-END */
@@ -4337,7 +4351,7 @@ PROCEDURE connectDatabase :
   ----------------------------------------------------------------------*/
 
   define input parameter pcDatabase as character no-undo.
-  
+
   define variable cError        as character   no-undo.
   define variable cProgDir      as character   no-undo.
   define variable cDatabases    as character   no-undo.
@@ -4347,18 +4361,18 @@ PROCEDURE connectDatabase :
   do with frame {&frame-name}:
     cProgDir   = getProgramDir().
     cCurrentDb = getCurrentDatabase(). 
-    
+
     cDatabasesOld = getDatabaseList().
     run value(cProgDir + 'wConnections.w') (input 'CONNECT', input pcDatabase, output cError).
     if cError <> '' then
       message cError view-as alert-box info buttons ok.
-  
+
     /* Rebuild context menu */
     /* run setConnectionMenu. */
-  
+
     /* Get all connected databases */
     cDatabases = getDatabaseList().
-  
+
     /* If needed, repopulate db combo */
     if cDatabases <> cDatabasesOld then
     do:
@@ -4370,11 +4384,11 @@ PROCEDURE connectDatabase :
       /* Get list of all tables of all databases */
       run getTables(output table ttTable).
     end.
-  
+
     /* If the chosen DB is connected, switch to that one */
     if lookup(pcDatabase, cDatabases) > 0 then
       cbDatabaseFilter:screen-value = pcDatabase.
-  
+
     apply 'value-changed' to cbDatabaseFilter. 
   end.
 
@@ -4461,7 +4475,7 @@ PROCEDURE createCounter :
   define variable iNumDigits as integer no-undo initial {&numDigits}. 
   define variable hText      as handle  no-undo. 
   define variable iRow       as integer no-undo. 
-  
+
   do with frame {&frame-name}:
 
     do iRow = 1 to 2:
@@ -4502,11 +4516,11 @@ PROCEDURE createMenuDataBrowse :
 /*------------------------------------------------------------------------
   Name         : createMenuDataBrowse2
   Description  : Rebuild the connection submenu of the 'add' button
-                 
+
   ----------------------------------------------------------------------
   18-09-2009 pti Created
   ----------------------------------------------------------------------*/
-  
+
   /* Attach connections to btnConnect */
   define variable hMenu     as handle      no-undo.
   define variable hMenuItem as handle      no-undo.
@@ -4668,7 +4682,7 @@ PROCEDURE createMenuDataBrowse :
     triggers:
       on 'CHOOSE':U persistent run showField in this-procedure('*',true).
     end triggers.
-    
+
   /* Separator */
   create menu-item hMenuItem
     assign
@@ -4687,7 +4701,7 @@ PROCEDURE createMenuDataBrowse :
       on 'CHOOSE':U persistent run btnDeleteChoose in this-procedure.
     end triggers.
 
-    
+
 end procedure. /* createMenuDataBrowse */
 
 /* _UIB-CODE-BLOCK-END */
@@ -4701,7 +4715,7 @@ PROCEDURE dataColumnEntry :
   ---------------------------------------------------------------------- 
   18-09-2009 pti Created
   ----------------------------------------------------------------------*/
-  
+
   glRowEditActive = yes.
   self:private-data = self:screen-value.
 
@@ -4773,7 +4787,7 @@ PROCEDURE dataDoubleClick :
   Name         : dataDoubleClick
   Description  : Double click on databrowse might result in 
                  EDIT / VIEW / DUMP
-                 
+
   ----------------------------------------------------------------------
   16-01-2009 pti Created
   ----------------------------------------------------------------------*/
@@ -4796,7 +4810,7 @@ PROCEDURE dataDoubleClick :
     if getRegistry('DataDigger', 'ViewType') = ? then
       run setViewType('txt').
   end.
-  
+
   case cAction:
     when 'VIEW' then run btnViewChoose. 
     when 'EDIT' then run btnEditChoose. 
@@ -4832,14 +4846,14 @@ PROCEDURE dataRowDisplay :
   Name         : dataRowDisplay
   Description  : Set the background color to another color to get 
                  an odd/even coloring of the rows.
-                 
+
   ----------------------------------------------------------------------
   16-01-2009 pti Created
   ----------------------------------------------------------------------*/
   define input parameter hBrowseBuffer as handle no-undo.
 
   define buffer ttField for ttField.
-  
+
   for each ttField:
     if not valid-handle(ttField.hColumn) then next.
 
@@ -4900,13 +4914,13 @@ PROCEDURE dataRowLeave :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   define variable lSave as logical     no-undo.
 
-  
+
 
   do with frame {&frame-name}:
-    
+
     /* Not allowed to go to another row while editing */
     if valid-handle(last-event:widget-enter)
       and valid-handle(last-event:widget-enter:parent)
@@ -4914,7 +4928,7 @@ PROCEDURE dataRowLeave :
       and ghDataBrowse:modified then 
     do:
       message 'Save changes?' view-as alert-box info buttons yes-no-cancel update lSave.
-      
+
       if lSave = yes then 
       do:
         ghDataBrowse:modified = no.
@@ -4954,7 +4968,7 @@ PROCEDURE dataRowValueChanged :
 /*------------------------------------------------------------------------
   Name         : dataRowValueChanged
   Description  : Save the content of the fields in linkinfo
-                 
+
   ----------------------------------------------------------------------
   16-01-2009 pti Created
   ----------------------------------------------------------------------*/
@@ -5124,9 +5138,9 @@ PROCEDURE dumpData :
   18-03-2009 pti Created
   27-10-2009 beu Implemented dump dialog with XML-format
   ----------------------------------------------------------------------*/
-  
+
   define buffer ttField for ttField. 
-  
+
   run value(getProgramDir() + 'dDump.w')
     ( input ghDataBrowse
     , input getSelectedFields()
@@ -5373,7 +5387,7 @@ PROCEDURE getColumnPosition :
       cPosition    = 'LM'
       poLinkerkant = 1
       poBreedte    = iVeldBreedte - (iVeldLinks * -1).
-  
+
   /* Begint links en eindigt rechts van de browse */
   else 
   if    iVeldLinks < 0 
@@ -5455,7 +5469,7 @@ PROCEDURE incQueriesOfTable :
   ----------------------------------------------------------------------
   17-11-2009 pti Created
   ----------------------------------------------------------------------*/
-  
+
   define input parameter pcDatabase     as character   no-undo.
   define input parameter pcTable        as character   no-undo.
   define input parameter piNumIncrement as integer no-undo. 
@@ -5511,7 +5525,7 @@ PROCEDURE incQueriesServed :
   ----------------------------------------------------------------------
   02-09-2009 pti Created
   ----------------------------------------------------------------------*/
-  
+
   define input parameter piNumIncrement as integer no-undo. 
 
   define variable iQueriesServed as integer no-undo.
@@ -5592,7 +5606,7 @@ PROCEDURE initializeObjects :
   /* Set icon */
   C-Win:load-icon(getImagePath('DataDigger.ico')). 
 /*   C-Win:context-help-file = cProgDir + 'DataDigger.hlp'. */
-  
+
   do with frame frWhere:
     btnInsert:load-image          (getImagePath('Add.gif')).
   end.
@@ -5621,7 +5635,7 @@ PROCEDURE initializeObjects :
     btnTools:load-image           (getImagePath('Tools.gif')).
     btnHelp:load-image            (getImagePath('Help.gif')).
     btnQueryTester:load-image     (getImagePath('QTester.gif')).
-    
+
     btnTableFilter:load-image     (getImagePath('Filter.gif')).
     btnClearTableFilter:load-image(getImagePath('Clear.gif')).
 
@@ -5675,7 +5689,7 @@ PROCEDURE initializeObjects :
 
     /* Handle to the browse with fields of a file */
     ghFieldBrowse = brFields:handle in frame {&frame-name}.
-    
+
     /* Set minimum size of the window */
     C-Win:min-width-pixels  = 650.
     C-Win:min-height-pixels = 430. /* 530 */
@@ -5685,7 +5699,7 @@ PROCEDURE initializeObjects :
     /* Additional tooltips */
     ficValue     :tooltip = ficValue   :tooltip + '~n~nCTRL-ENTER to execute'.
     ficWhere     :tooltip = ficWhere   :tooltip + '~n~nCTRL-ENTER to execute'.
-                 
+
     brFields     :tooltip = brFields   :tooltip + '~n~nRIGHT-CLICK to insert field+value'.
     brFields     :tooltip = brFields   :tooltip + '~nCTRL-RIGHT-CLICK to insert field'.
     brFields     :tooltip = brFields   :tooltip + '~nCTRL-ENTER to execute'.
@@ -5801,7 +5815,7 @@ PROCEDURE initializeObjects :
     /* Set the view type */
     cSetting = getRegistry('DataDigger', 'ViewType').
     if cSetting <> ? then run setViewType(cSetting).
-    
+
     run resizeFilters (input 0).
 
     /* run setConnectionMenu. */
@@ -5832,7 +5846,7 @@ PROCEDURE initializeObjects :
        */
     /* Number of queries served */
     run incQueriesServed(0).
-    
+
     /* Get all connected databases */
     cDatabases = getDatabaseList().
     cbDatabaseFilter:list-items = ',' + cDatabases.
@@ -5851,7 +5865,7 @@ PROCEDURE initializeObjects :
     cSetting = getRegistry('DataDigger', 'ShowHiddenTables').
     /* if cSetting <> ? then tHiddenTables:checked = logical(cSetting). */
     if cSetting <> ? then menu-item m_Show_hidden_tables:checked in menu POPUP-MENU-brTables = logical(cSetting).
-    
+
     /* Get last used database from registry */        
     cSetting = getRegistry('DataDigger','Database').    
     if cSetting = '<empty>' then cSetting = ''.
@@ -5871,28 +5885,28 @@ PROCEDURE initializeObjects :
     cSetting = getRegistry('DataDigger','ColumnSortTables').
     if cSetting <> ? then
       brTables:set-sort-arrow(integer(entry(1,cSetting)), logical(entry(2,cSetting)) ).
-    
+
     /* Take whatever is now selected in the db dropdown */
     cSetting = getCurrentDatabase().
     run setDbContext(input (if cbDatabaseFilter:screen-value = ? then '<empty>' else cbDatabaseFilter:screen-value)).
 
     /* < Restore  */
-    
+
     /* <BEU> */
     define variable cQueryTesterPath as character no-undo.
-    
+
     cQueryTesterPath = getRegistry
       ( 'QueryTester'
       , 'path' 
       ).
-      
+
     file-info:file-name = search(cQueryTesterPath).
     if file-info:full-pathname = ? then
       btnQueryTester:hidden = true.
     /* </BEU> */
-    
+
   end. /* do with frame */
-  
+
   apply 'window-resized' to c-win.
   apply 'value-changed' to brTables.
 end procedure. /* initializeObjects */
@@ -5908,7 +5922,7 @@ PROCEDURE loadData :
   ---------------------------------------------------------------------- 
   18-03-2009 pti Created
   ----------------------------------------------------------------------*/
-  
+
   run value(getProgramDir() + 'wLoadData.w')
     ( input getCurrentDatabase()
     , input getCurrentTable()
@@ -5983,7 +5997,7 @@ PROCEDURE menuDropDataBrowse :
     if hMenuItem:subtype = 'normal' then 
     do:
       hMenuItem:label = hMenuItem:private-data.
-      
+
       /* If we did not use right mouse click but shift-f10 then
        * we do not know the column name. In that case disable all 
        * menu items that do something with the column value
@@ -6081,7 +6095,7 @@ PROCEDURE moveField :
   browse brFields:query:reposition-to-rowid(rCurrentRecord).
 
   setWindowFreeze(no).
-  
+
 end procedure. /* moveField */
 
 /* _UIB-CODE-BLOCK-END */
@@ -6203,7 +6217,7 @@ PROCEDURE reopenDataBrowse :
 
   /* for DWP query tester */
   publish 'message' (input 1, "cQuery = " + cQuery ).
-  
+
   /* Try to open it */
   lPrepare = hQuery:query-prepare(cQuery) no-error.
 
@@ -6373,7 +6387,7 @@ PROCEDURE reopenDataBrowse :
       gcDataBrowseColumns     = gcDataBrowseColumns     + "," + string(ttField.hColumn)
       gcDataBrowseColumnNames = gcDataBrowseColumnNames + "," + ttField.hColumn:name
       .
-    
+
     /* Create a filterfield for this column */
     create fill-in hFilterField
       assign
@@ -6455,7 +6469,7 @@ PROCEDURE reopenFieldBrowse :
   Name         : reopenFieldBrowse
   Description  : Open the field browse again, taking into account the 
                  filter values the user has entered. 
-                 
+
   ----------------------------------------------------------------------
   16-01-2009 pti Created
   ----------------------------------------------------------------------*/
@@ -6597,7 +6611,7 @@ PROCEDURE reopenIndexBrowse :
 /*------------------------------------------------------------------------
   Name         : reopenIndexBrowse
   Description  : Reopen the browse with indexes. 
-                 
+
   ----------------------------------------------------------------------
   01-09-2009 pti Created
   ----------------------------------------------------------------------*/
@@ -6662,7 +6676,7 @@ PROCEDURE reopenIndexBrowse :
 
   /* Wich column should have what arrow? */
   run setSortArrow(brIndexes:handle, cNewSort, lAscending).
-  
+
   /* Remember record */
   if brIndexes:num-selected-rows > 0 then
     rCurrentRecord = brIndexes:query:get-buffer-handle(1):rowid.
@@ -6708,7 +6722,7 @@ PROCEDURE reopenTableBrowse :
   Name         : reopenTableBrowse
   Description  : Open the table browse again, taking into account the 
                  filter values the user has entered. 
-                 
+
   ----------------------------------------------------------------------
   29-10-2009 pti Created
   ----------------------------------------------------------------------*/
@@ -6741,7 +6755,7 @@ PROCEDURE reopenTableBrowse :
     lShowHiddenTables = menu-item m_Show_hidden_tables:checked in menu POPUP-MENU-brTables. /* tHiddenTables:checked. */
     iNumQueriesFilter = integer(fiNumQueriesFilter:screen-value).
     tLastUsedFilter   = datetime(fiLastUsedFilter:screen-value) no-error.
-    
+
     run setRedLines.
 
     /* Protect routine against invalid input */
@@ -6751,7 +6765,7 @@ PROCEDURE reopenTableBrowse :
     /* Remember record */
     if brTables:num-selected-rows > 0 then
       rCurrentRecord = brTables:query:get-buffer-handle(1):rowid.
-  
+
     /* Find out what the current sort is */
     run getColumnSort(input brTables:handle, output cOldSort, output lAscending).
 
@@ -6790,7 +6804,7 @@ PROCEDURE reopenTableBrowse :
 
     /* Close open query */
     if valid-handle(brTables:query) then brTables:query:query-close().
-  
+
     /* Build the query */
     create query hQuery.
     create buffer hBuffer for table 'ttTable'.
@@ -6807,10 +6821,10 @@ PROCEDURE reopenTableBrowse :
 
     hQuery:query-prepare(cQuery).
     hQuery:query-open().
-  
+
     /* Attach query to the browse */
     brTables:query in frame {&frame-name} = hQuery.
-  
+
     /* Jump back to selected row */
     if not hQuery:query-off-end 
       and rCurrentRecord <> ? then
@@ -6833,7 +6847,7 @@ PROCEDURE resizeFilters :
   Description  : Redraw the filters. This is needed when the window 
                  resizes, one of the columns resizes or the user scrolls
                  in the browse.
-                 
+
   ----------------------------------------------------------------------
   16-01-2009 pti Created
   ----------------------------------------------------------------------*/
@@ -6845,7 +6859,7 @@ PROCEDURE resizeFilters :
   define variable hBrowse       as handle    no-undo.
   define variable iField        as integer   no-undo.
   define variable hField        as handle    no-undo.
-  
+
   if piPageNr = ? then piPageNr = giCurrentPage.
   setWindowFreeze(yes).
 
@@ -6910,7 +6924,7 @@ PROCEDURE resizeFilters :
     fieldLoop:
     do iField = 1 to num-entries(cFilterFields):
       hField = hBrowse:get-browse-column(iField).
-  
+
       setRegistry('DataDigger'
                  , substitute('ColumnWidth:&1', hField:name)
                  , substitute('&1', hField:width-pixels)
@@ -7001,7 +7015,7 @@ PROCEDURE selectClickedRow :
       do: 
         /* pcColumnName = entry(1,hColumn:name,'['). /* if it is an extent, just grab fieldname */ */
         pcColumnName = ttField.cFullName.
-  
+
         /* At this moment, we have the record the user clicked on in the buffer. 
          * Use it to retrieve the name and value of the columns the user clicked on
          */
@@ -7030,11 +7044,11 @@ PROCEDURE setConnectionMenu :
 /*------------------------------------------------------------------------
   Name         : setConnectionMenu
   Description  : Rebuild the connection submenu of the 'add' button
-                 
+
   ----------------------------------------------------------------------
   18-09-2009 pti Created
   ----------------------------------------------------------------------*/
-  
+
   /* Attach connections to btnConnect */
   define variable hMenuItem       as handle      no-undo.
   define variable cProgDir        as character   no-undo.
@@ -7053,7 +7067,7 @@ PROCEDURE setConnectionMenu :
     if valid-handle(hItemToDelete) then 
       delete object hItemToDelete.
   end.
-  
+
   /* Get list of connections */
   run value(cProgDir + 'wConnections.w') 
     ( input 'getConnections'
@@ -7075,7 +7089,7 @@ PROCEDURE setConnectionMenu :
         triggers:
           on 'CHOOSE':U persistent run connectDatabase in this-procedure (cDatabase).
         end triggers.
-        
+
   end. /* do iConn */
 
 end procedure. /* setConnectionMenu */
@@ -7088,11 +7102,11 @@ PROCEDURE setCounter :
 /*------------------------------------------------------------------------
   Name         : setCounter
   Description  : Set the counter to a certain number with small animation
-                 
+
   ----------------------------------------------------------------------
   25-01-2011 pti Created
   ----------------------------------------------------------------------*/
-  
+
   DEFINE input PARAMETER piCounter AS integer NO-UNDO.
 
   DEFINE VARIABLE cNewDigit AS CHARACTER   NO-UNDO.
@@ -7119,7 +7133,7 @@ PROCEDURE setCounter :
     iStartingY = ghNewDigit[iNumDigits]:y.
     cNewDigit = string(piCounter,fill('9',iNumDigits)).
     cOldDigit = string(maximum(0,piCounter - 1), fill('9',iNumDigits)).
-  
+
     /* Prepare the screen */
     do iPos = 1 to iNumDigits:
       /* Set digits on proper line with proper height and label */
@@ -7182,11 +7196,11 @@ PROCEDURE setDataFilter :
 /*------------------------------------------------------------------------
   Name         : setDataFilter
   Description  : Optionally clear the filters and set a filter value
-                   
+
   ----------------------------------------------------------------------
   18-09-2009 pti Created
   ----------------------------------------------------------------------*/
-  
+
   define input parameter plClearOtherFilters as logical     no-undo.
 
   define variable cColumnName  as character   no-undo.
@@ -7246,13 +7260,13 @@ PROCEDURE setDbContext :
   define variable cTable     as character   no-undo.
 
   do with frame {&frame-name}:
-    
+
     /* Save last used db in registry */
     if pcDatabase = '' then
       setRegistry('DataDigger', 'Database',  '<empty>').
     else
       setRegistry('DataDigger', 'Database',  pcDatabase).
-    
+
     /* Collect list of tables in this db */
     cTableList = getTableList( pcDatabase
                              , getMatchesValue(fiTableFilter:handle)
@@ -7326,7 +7340,7 @@ PROCEDURE setPage :
 
         btnRemoveFilter:sensitive = (gcFieldFilterList <> "").
       end.
-  
+
       when 2 then do:
         btnTabFields :load-image( getImagePath('tab_fields_inactive.gif' )).
         btnTabIndexes:load-image( getImagePath('tab_indexes_active.gif'  )).
@@ -7341,7 +7355,7 @@ PROCEDURE setPage :
 
     run resizeFilters(input piPage).
   end.
-  
+
   run showScrollBars(frame {&frame-name}:handle, no, no).
   setWindowFreeze(no).
 END PROCEDURE. /* setPage */
@@ -7408,7 +7422,7 @@ PROCEDURE setTableContext :
   ----------------------------------------------------------------------
   16-01-2009 pti Created
   ----------------------------------------------------------------------*/
-  
+
   define input parameter pcTable as character no-undo. 
 
   define variable cFieldList   as character   no-undo.
@@ -7416,7 +7430,7 @@ PROCEDURE setTableContext :
   define variable lTableChange as logical     initial FALSE no-undo.
 
   do with frame {&frame-name}:
-      
+
     /* If the tablename is different from what is in the screen,
      * adjust the latter one.
      */
@@ -7466,7 +7480,7 @@ PROCEDURE setTableContext :
       cbFields:screen-value   = entry(1,cbFields:list-items).
       cbOperator:screen-value = entry(1,cbOperator:list-items).
     end.
-    
+
     /* Restore last used query */
     /* dit maar even uit. is eigenlijk best irritant namelijk */
     assign giQueryPointer = 0.
@@ -7484,7 +7498,7 @@ PROCEDURE setTableContext :
 
     /* Save last used table and position in browse in registry */
     setRegistry ("DB:" + getCurrentDatabase(), "table", pcTable ).
-    
+
     run setWindowTitle.
 
   end.
@@ -7502,13 +7516,13 @@ PROCEDURE setViewType :
   ----------------------------------------------------------------------
   10-09-2010 pti Created
   ----------------------------------------------------------------------*/
-  
+
   define input  parameter pcViewType as character   no-undo.
 
   do with frame frMain:
-    
+
     btnView:label = substitute('View:&1',pcViewType).
-    
+
     setRegistry('DataDigger', 'ViewType', pcViewType).
   end.
 
@@ -7561,20 +7575,20 @@ PROCEDURE showField :
   ----------------------------------------------------------------------
   16-01-2009 pti Created
   ----------------------------------------------------------------------*/
-  
+
   define input parameter pcFieldName as character no-undo. 
   define input parameter plSelected  as logical   no-undo. 
-  
+
   define buffer ttField for ttField. 
-  
+
   setWindowFreeze(yes).
 
   do with frame {&frame-name}:
     for each ttField 
         where ttField.cFullName matches pcFieldName:
-    
+
       ttField.lShow = (if plSelected = ? then not ttField.lShow else plSelected).
-    
+
       /* Hide data columns */
       if valid-handle(ttField.hColumn) then 
       do:
@@ -7589,7 +7603,7 @@ PROCEDURE showField :
        */
       if ttField.cFieldName = brFields:get-browse-column(3):screen-value then 
         brFields:get-browse-column(1):checked = ttField.lShow.
-        
+
     end. /* f/e ttField */
 
     /* If we (de)selected using ENTER/SPACE, go to the next row */
@@ -7645,7 +7659,7 @@ PROCEDURE startDiggerLib :
   21-10-2009 pti Created
   ----------------------------------------------------------------------*/
 
-  
+
   define variable cProgDir     as character   no-undo.
   define variable cLibVersion  as character   no-undo.
 
@@ -7660,13 +7674,13 @@ PROCEDURE startDiggerLib :
     /* debug */
     .if '{&uib_is_running}' <> '' then cProgDir = 'd:\data\progress\datadigger\'.
     /* debug */
-    
+
     run value(getProgramDir() + 'DataDiggerLib.p') persistent set hDiggerLib.
     session:add-super-procedure(hDiggerLib,search-target).
 
     return.
   end.
-  
+
   /* If the lib was already started, it might be a lib of a previous version if you
    * install DataDigger over a running version. To avoid errors, we get the version 
    * of the running instance and see if it matches the version of the window. 
@@ -7708,7 +7722,7 @@ PROCEDURE welcome :
   do:
     /* Save last used version nr */
     setRegistry('DataDigger', 'Version', '{&BuildNr}').
-    
+
     run showHelp('NewVersion', '{&BuildNr}').
 
     if getRegistry('DataDigger:help', 'NewVersion:answer') = '1' then
@@ -7744,7 +7758,7 @@ FUNCTION enableTimers RETURNS LOGICAL
 
   chFilterTimer:FilterTimer:enabled = plTimersEnabled.
   chCtrlFrame:PSTimer:enabled       = plTimersEnabled.
-  
+
   return true.
 
 end function. /* enableTimers */
@@ -7895,7 +7909,7 @@ FUNCTION getFieldList returns character
   ---------------------------------------------------------------------- 
   09-07-2009 pti Created
   ----------------------------------------------------------------------*/
-  
+
   define variable cFieldList as character  no-undo.
   define buffer ttField for ttField.
 
@@ -7934,14 +7948,14 @@ FUNCTION getFilterQuery RETURNS CHARACTER
 
   define variable cFilterQuery as character   no-undo.
   define variable cOperator    as character   no-undo.
-  
+
   define buffer ttField for ttField. 
   define buffer bField for ttField. 
 
   /* Collect all filters */
   cFilterQuery = ''.
   for each ttField where ttField.lShow:
-    
+
     if   ttField.cFilterValue = ttField.cFullName
       or ttField.cFilterValue = '' 
       or ttField.cFilterValue = ?  then next.
@@ -7957,7 +7971,7 @@ FUNCTION getFilterQuery RETURNS CHARACTER
       cOperator = 'matches'.
     else 
       cOperator = '='.
-    
+
     cFilterQuery = substitute('&1 &2 &3 &4 &5'
                         , cFilterQuery
                         , if cFilterQuery = '' then '' else 'AND'
@@ -8037,9 +8051,9 @@ FUNCTION getTempDir RETURNS CHARACTER
    * the full-pathname is unknown. In that case use the 
    * name of the program with a .r suffix 
    */
-  
+
   cProgDir = "c:\tmp\".
-  
+
 
   RETURN cProgDir. /* Function return value. */
 
@@ -8137,7 +8151,7 @@ FUNCTION saveSelectedFields RETURNS CHARACTER
 
   define variable cTable          as character no-undo. 
   define variable cSelectedFields as character no-undo.
-    
+
   do with frame {&frame-name}:
 
     /* Get the selected fields to display in the browse */        
@@ -8206,7 +8220,7 @@ FUNCTION setNumRecords returns logical
       fiNumResults:fgcolor = 2. /* green */
     else 
       fiNumResults:fgcolor = 12. /* red */
-  
+
     if plCountComplete then
       cNumResults = substitute(' &1 records in &2 msec', piNumRecords, piQueryMSec).
     else 
@@ -8233,7 +8247,7 @@ FUNCTION setQuery RETURNS LOGICAL
   Name         : setQuery
   Description  : Fetches the previous or next query from the settings 
                  and fills it in in the query editor.
-                 
+
   ----------------------------------------------------------------------
   16-01-2009 pti Created
   ----------------------------------------------------------------------*/
@@ -8289,7 +8303,7 @@ FUNCTION setQueryEditor RETURNS LOGICAL
         frame frWhere:y = ficWhere:y.
 
       view frame frWhere.
-      
+
       gcQueryEditorState = pcQueryEditorState.
       if ficWhere:screen-value in frame frMain <> '' then
         ficWhere2:screen-value in frame frWhere = formatQueryString(ficWhere:screen-value in frame frMain, yes). 
@@ -8298,7 +8312,7 @@ FUNCTION setQueryEditor RETURNS LOGICAL
     when 'hidden'  then 
     do:
       hide frame frWhere.
-      
+
       gcQueryEditorState = pcQueryEditorState.
       if ficWhere2:screen-value in frame frWhere <> '' then
         ficWhere:screen-value in frame frMain = formatQueryString(ficWhere2:screen-value in frame frWhere, no). 
@@ -8327,13 +8341,13 @@ FUNCTION setUpdatePanel RETURNS LOGICAL
 /*------------------------------------------------------------------------------
   Purpose: setUpdatePanel
     Notes: enable / disable update panel buttons
-    
+
     Mode       Sensitive buttons
     -----      --------------------
     display    add,delete,view,dump
     no-record  add
     update     save,cancel
-    
+
 ------------------------------------------------------------------------------*/
 
   if pcMode <> ? then
@@ -8346,7 +8360,7 @@ FUNCTION setUpdatePanel RETURNS LOGICAL
       btnEdit:sensitive          = lookup( gcRecordMode, 'display') > 0 and ghDataBrowse:num-selected-rows > 0
       btnDelete:sensitive        = lookup( gcRecordMode, 'display') > 0 and ghDataBrowse:num-selected-rows > 0
       btnView:sensitive          = lookup( gcRecordMode, 'display') > 0 and ghDataBrowse:num-selected-rows > 0
-      
+
       btnDump:sensitive          = lookup( gcRecordMode, 'display') > 0 
       btnDump-2:sensitive   in frame frSettings = lookup( gcRecordMode, 'display') > 0 
       btnDump-txt:sensitive in frame frSettings = lookup( gcRecordMode, 'display') > 0 
@@ -8365,7 +8379,7 @@ FUNCTION setUpdatePanel RETURNS LOGICAL
       btnLoad-2:sensitive   in frame frSettings = false
       btnLoad-txt:sensitive in frame frSettings = false
       .
-                                 
+
     /* Hide these when no record */
     assign
       fiIndexInfo:visible        = lookup( gcRecordMode, 'display,update') > 0     

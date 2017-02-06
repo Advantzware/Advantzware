@@ -312,6 +312,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -403,7 +414,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -705,8 +716,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -726,7 +739,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   clsd_date = TODAY.   
 
   RUN enable_UI.
-     
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -734,6 +747,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO clsd_date.
   END.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -815,7 +829,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -850,7 +864,7 @@ PROCEDURE run-report :
 /* ----------------------------------------------- jc/rep/jc-summ.p 07/98 JLF */
 /* Job Cost Summary tt-report                                                    */
 /* -------------------------------------------------------------------------- */
-  
+
 {sys/form/r-top3w.f}
 def buffer b-jh for job-hdr.
 
@@ -907,7 +921,7 @@ assign
      x = (132 - length(str-tit3)) / 2
      str-tit3 = fill(" ",x) + str-tit3.
 
-   
+
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i value(lines-per-page)}
@@ -921,7 +935,7 @@ DO:
 END.
 
 if td-show-parm then run show-param.
- 
+
 SESSION:SET-WAIT-STATE ("general").
 
 view frame r-top.
@@ -960,13 +974,13 @@ for each tt-report,
     where itemfg.company eq job-hdr.company
       and itemfg.i-no    eq job-hdr.i-no
     no-lock
-    
+
     break by tt-report.key-01
           by tt-report.key-02
           by tt-report.key-03
-          
+
     transaction:
-    
+
     {custom/statusMsg.i " 'Processing Job#  '  + tt-report.key-05 "}
 
   assign
@@ -979,7 +993,7 @@ for each tt-report,
 
   if avail est and est.est-type eq 3 then do:
     v-qty = 0.
-      
+
     for each b-jh
         where b-jh.job     eq job-hdr.job
           and b-jh.job-no  eq job-hdr.job-no
@@ -991,10 +1005,10 @@ for each tt-report,
 
     v-pct = job-hdr.qty / v-qty.
   end.
-  
+
   if not avail est or est.est-type eq 4 or est.est-type eq 8 then
     v-pct = job-hdr.sq-in / 100.
-  
+
   assign
    v-t-lab[1] = 0
    v-t-mat[1] = 0
@@ -1013,16 +1027,16 @@ for each tt-report,
         and (mch-act.blank-no eq job-hdr.blank-no or
              mch-act.blank-no eq 0)
       use-index job no-lock,
-      
+
       first mach
       where mach.company eq mch-act.company
         and mach.m-code  eq mch-act.m-code
       no-lock,
-      
+
       first job-code where job-code.code eq mch-act.code no-lock:
 
     RUN jc/getactrt.p (ROWID(mch-act), OUTPUT ll-act-rate, OUTPUT ld-tot-rate).
-      
+
     if job-code.cat eq "RUN" or
        job-code.cat eq "DT"  then
       v-rate = (IF ll-act-rate THEN ld-tot-rate
@@ -1040,7 +1054,7 @@ for each tt-report,
     v-t-lab[1] = v-t-lab[1] + (mch-act.hours * v-rate *
                                if mch-act.blank-no eq 0 then v-pct else 1).
   end.
-  
+
   for each mat-act
       where mat-act.company   eq job-hdr.company
         and mat-act.job       eq job-hdr.job
@@ -1052,13 +1066,13 @@ for each tt-report,
       use-index job no-lock:
 
     ll-wip = YES.
-      
+
     find first item
         where item.company  eq mat-act.company
           and item.i-no     eq mat-act.i-no
         no-lock no-error.
     v-mattype = if avail item then item.mat-type else "".
-    
+
     find first job-mat
         where job-mat.company  eq mat-act.company
           and job-mat.job      eq mat-act.job
@@ -1066,7 +1080,7 @@ for each tt-report,
           and job-mat.blank-no eq mat-act.b-num
           and job-mat.i-no     eq mat-act.i-no
         use-index seq-idx no-lock no-error.
-        
+
     if not avail job-mat then
     for each job-mat
         where job-mat.company  eq mat-act.company
@@ -1074,7 +1088,7 @@ for each tt-report,
           and job-mat.frm      eq mat-act.s-num
           and job-mat.blank-no eq mat-act.b-num
         use-index seq-idx no-lock,
-        
+
         first item
         where item.company  eq job-mat.company
           and item.i-no     eq job-mat.i-no
@@ -1082,7 +1096,7 @@ for each tt-report,
         no-lock:
       leave.
     end.
-    
+
     if not avail job-mat then next.
 
     if job-mat.qty-uom eq "EA" then
@@ -1091,21 +1105,21 @@ for each tt-report,
       run sys/ref/convquom.p(job-mat.qty-uom, "EA", job-mat.basis-w,
                              job-mat.len, job-mat.wid, job-mat.dep,
                              mat-act.qty, output v-qty).
-                             
+
     if job-mat.sc-uom eq "EA" then
       v-cost = mat-act.cost.
     else
       run sys/ref/convcuom.p(job-mat.sc-uom, "EA", job-mat.basis-w,
                              job-mat.len, job-mat.wid, job-mat.dep,
                              mat-act.cost, output v-cost).
-                             
+
     if v-cost eq ? then v-cost = 0.
 
     IF mat-act.ext-cost EQ 0 OR mat-act.ext-cost EQ ? THEN
       v-t-mat[1] = v-t-mat[1] + (v-qty * v-cost * v-pct).
     ELSE
       v-t-mat[1] = v-t-mat[1] + (mat-act.ext-cost * v-pct).
-      
+
     if job-mat.qty-uom eq "MSF" then
       v-qty = mat-act.qty.
     else  
@@ -1115,7 +1129,7 @@ for each tt-report,
 
     v-t-msf[1] = v-t-msf[1] + (v-qty * v-pct).
   end.
-  
+
   for each misc-act
       where misc-act.company   eq job-hdr.company
         and misc-act.job       eq job-hdr.job
@@ -1129,17 +1143,17 @@ for each tt-report,
       no-lock:
 
     v-cost = misc-act.cost * if misc-act.blank-no eq 0 then v-pct else 1.
-    
+
     if misc-act.ml then
       v-t-mat[1] = v-t-mat[1] + v-cost.
     else
       v-t-lab[1] = v-t-lab[1] + v-cost.
   end.
-  
+
   ASSIGN
      v-fg-qty = 0
      v-rec-qty[1] = 0.
-  
+
   FOR EACH fg-rcpth FIELDS(r-no rita-code) NO-LOCK
       WHERE fg-rcpth.company    EQ job-hdr.company
         AND fg-rcpth.job-no     EQ job-hdr.job-no
@@ -1171,7 +1185,7 @@ for each tt-report,
      IF tb_act-zero AND v-rec-qty[1] GE
         oe-ordl.qty - (oe-ordl.qty * (oe-ordl.under-pct / 100.0)) THEN
         lv-within-underrun = YES.
-  
+
      RELEASE oe-ordl.
   END.
 
@@ -1183,7 +1197,7 @@ for each tt-report,
     ACCUMULATE b-jh.qty (TOTAL).
   END.
   v-fg-qty = v-fg-qty * (job-hdr.qty / (ACCUM TOTAL b-jh.qty)).
-    
+
   assign
      v-t-lab[1] = v-t-lab[1] - (v-fg-qty *
                                 (job-hdr.std-lab-cost + if v-d-lab then 0
@@ -1192,7 +1206,7 @@ for each tt-report,
      v-t-mat[1] = v-t-mat[1] - (v-fg-qty * job-hdr.std-mat-cost / 1000).
 
   v-t-msf[1] = v-t-msf[1] - (v-fg-qty * itemfg.t-sqft / 1000).
-   
+
   if v-t-lab[1] lt 0 or v-t-lab[1] eq ? then v-t-lab[1] = 0.
   if v-t-mat[1] lt 0 or v-t-mat[1] eq ? then v-t-mat[1] = 0.
   if v-t-msf[1] lt 0 or v-t-msf[1] eq ? then v-t-msf[1] = 0.
@@ -1202,7 +1216,7 @@ for each tt-report,
 
   if v-detl and (v-t-lab[1] ne 0 or v-t-mat[1] ne 0 or v-t-msf[1] ne 0 OR
      v-rec-qty[1] NE 0 OR v-order-qty[1] NE 0 OR itemfg.q-ono NE 0) then DO:
-  
+
     display tt-report.key-01    column-label "PROD!CAT"
                                 format "x(5)"    
             tt-report.key-02    column-label "CUSTOMER"
@@ -1218,7 +1232,7 @@ for each tt-report,
             v-t-msf[1]          column-label "MSF"
             v-rec-qty[1]        COLUMN-LABEL "RCPT QTY"
             v-order-qty[1]      COLUMN-LABEL "ORDER QTY"
-            
+
         with frame det STREAM-IO width 132 no-box down.
 
     IF tb_excel THEN
@@ -1235,14 +1249,14 @@ for each tt-report,
           '"' STRING(v-order-qty[1],"->,>>>,>>>,>>9") '",'
          SKIP.
   END.
-  
+
   assign
    v-t-lab[2] = v-t-lab[2] + v-t-lab[1]
    v-t-mat[2] = v-t-mat[2] + v-t-mat[1]
    v-t-msf[2] = v-t-msf[2] + v-t-msf[1]
    v-rec-qty[2] = v-rec-qty[2] + v-rec-qty[1]
    v-order-qty[2] = v-order-qty[2] + v-order-qty[1].
-  
+
   if last-of(tt-report.key-03) then do:
     IF v-t-lab[2] NE 0 OR v-t-mat[2] NE 0 OR v-t-msf[2] NE 0 OR
        v-rec-qty[2] NE 0 OR v-order-qty[2] NE 0 THEN DO:
@@ -1254,7 +1268,7 @@ for each tt-report,
                   v-rec-qty[1]
                   v-order-qty[1]
             with frame det.
-              
+
       display tt-report.key-01    when not v-detl
               tt-report.key-02    when not v-detl
               tt-report.key-03    when not v-detl
@@ -1269,9 +1283,9 @@ for each tt-report,
               v-rec-qty[2]        @ v-rec-qty[1]
               v-order-qty[2]      @ v-order-qty[1]
           with frame det STREAM-IO width 132 no-box down.
-        
+
       if v-detl then put skip(1).    
-        
+
       IF tb_excel THEN 
         PUT STREAM excel UNFORMATTED
              '"' (IF NOT v-detl THEN tt-report.key-01 ELSE "") '",'
@@ -1285,7 +1299,7 @@ for each tt-report,
              '"' STRING(v-rec-qty[2],"->,>>>,>>>,>>9") '",'
              '"' STRING(v-order-qty[2],"->,>>>,>>>,>>9") '",'
              SKIP.
-      
+
       assign
        v-t-lab[3] = v-t-lab[3] + v-t-lab[2]
        v-t-mat[3] = v-t-mat[3] + v-t-mat[2]
@@ -1299,7 +1313,7 @@ for each tt-report,
        v-order-qty[2] = 0.
     END.
   end.      
-        
+
   if last-of(tt-report.key-01) then do:
     IF v-t-lab[3] NE 0 OR v-t-mat[3] NE 0 OR v-t-msf[3] NE 0 OR
        v-rec-qty[3] NE 0 OR v-order-qty[3] NE 0 THEN DO:
@@ -1310,7 +1324,7 @@ for each tt-report,
                 v-rec-qty[1]
                 v-order-qty[1]
           with frame det.
-        
+
       display "Category Totals" @ tt-report.key-04
               v-t-lab[3]        @ v-t-lab[1]
               v-t-mat[3]        @ v-t-mat[1]
@@ -1318,9 +1332,9 @@ for each tt-report,
               v-rec-qty[3]      @ v-rec-qty[1]
               v-order-qty[3]    @ v-order-qty[1]
           with frame det.
-        
+
       put skip(1).
-    
+
       IF tb_excel THEN
         PUT STREAM excel UNFORMATTED
              '"' "" '",'
@@ -1357,7 +1371,7 @@ for each tt-report,
               v-rec-qty[1]
               v-order-qty[1]
         with frame det.
-        
+
     display "   Grand Totals" @ tt-report.key-04
             v-t-lab[4]        @ v-t-lab[1]
             v-t-mat[4]        @ v-t-mat[1]
@@ -1365,7 +1379,7 @@ for each tt-report,
             v-rec-qty[4]      @ v-rec-qty[1]
             v-order-qty[4]    @ v-order-qty[1]
         with frame det.
-        
+
     put skip(1).
 
     IF tb_excel THEN
@@ -1416,11 +1430,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1452,19 +1466,19 @@ PROCEDURE show-param :
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

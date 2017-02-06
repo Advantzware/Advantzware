@@ -13,7 +13,7 @@
   Output Parameters:  <none>
 
   Author:             Stacey Brooks
-  
+
   Created:            Jan 2012
 
 ------------------------------------------------------------------------*/
@@ -81,7 +81,7 @@ DEF VAR str-tit4 AS cha FORM "x(190)" NO-UNDO.
 DEF VAR str-tit5 AS cha FORM "x(190)" NO-UNDO.
 DEF VAR str-line AS cha FORM "x(190)" NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
- 
+
 
 
 ASSIGN cTextListToSelect = "Job #,FG Item #,FG Name,RM Tag #,Sht Wid,Sht Len,Mach,Dept,Tag Qty"
@@ -423,6 +423,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -499,7 +510,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -623,7 +634,7 @@ END.
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   DEF VAR hold-title AS CHAR NO-UNDO.
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&DISPLAYED-OBJECTS}.
   END.
@@ -656,7 +667,7 @@ DO:
   RUN count-item.
 
   RUN set-job-vars.
-  
+
   RUN run-report.
   STATUS DEFAULT "Processing Complete".
 
@@ -674,7 +685,7 @@ DO:
                                   &mail-body= c-win:TITLE 
                                   &mail-file=list-name }           
        END.
- 
+
   end case. 
 
    SESSION:SET-WAIT-STATE("").
@@ -718,7 +729,7 @@ DO:
 
   RUN DisplaySelectionDefault.  /* task 04041406 */ 
   RUN DisplaySelectionList2 .
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -866,7 +877,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
- 
+
 &Scoped-define SELF-NAME end_job2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_job2  C-Win
 ON HELP OF end_job2  IN FRAME FRAME-A /* Font */
@@ -959,7 +970,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
-  
+
    IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
        sl_selected:NUM-ITEMS = 0)
    THEN ASSIGN ldummy = sl_selected:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
@@ -967,7 +978,7 @@ DO:
               /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
                .
 
-  
+
 /* for pairs
     DEF VAR cSelectedList AS cha NO-UNDO.
     cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
@@ -1010,7 +1021,7 @@ DO:
   ASSIGN
     {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}:ENTRY(1)
     .
-    
+
 
 END.
 
@@ -1063,8 +1074,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -1083,7 +1096,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   RUN DisplaySelectionList.
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -1092,7 +1105,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO begin_tag#.
   END.
 
-  
+
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1164,7 +1178,7 @@ PROCEDURE DisplaySelectionDefault :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  
+
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
      cListContents = cListContents +                   
@@ -1190,7 +1204,7 @@ PROCEDURE DisplaySelectionList :
   DEF VAR iCount AS INT NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
-     
+
      RETURN.
   END.
 
@@ -1203,7 +1217,7 @@ PROCEDURE DisplaySelectionList :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1211,9 +1225,9 @@ PROCEDURE DisplaySelectionList :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 END PROCEDURE.
 
@@ -1234,7 +1248,7 @@ PROCEDURE DisplaySelectionList2 :
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
-        
+
   EMPTY TEMP-TABLE ttRptList.
 
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
@@ -1244,7 +1258,7 @@ PROCEDURE DisplaySelectionList2 :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1252,9 +1266,9 @@ PROCEDURE DisplaySelectionList2 :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
   DO iCount = 1 TO sl_selected:NUM-ITEMS:
@@ -1315,7 +1329,7 @@ PROCEDURE GetSelectionList :
 
  DO i = 1 TO sl_selected:NUM-ITEMS /* IN FRAME {&FRAME-NAME}*/ :
     FIND FIRST ttRptList WHERE ttRptList.TextList = ENTRY(i,cTmpList) NO-LOCK NO-ERROR.     
-  
+
     CREATE ttRptSelected.
     ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
            ttRptSelected.FieldList = ttRptList.FieldList
@@ -1324,7 +1338,7 @@ PROCEDURE GetSelectionList :
            ttRptSelected.HeadingFromLeft = IF entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
-           
+
  END.
 
 END PROCEDURE.
@@ -1418,7 +1432,7 @@ DO WITH FRAME {&FRAME-NAME}:
             &mail-body=c-win:title
             &mail-file=list-name }
 
- 
+
 END.
 
 END PROCEDURE.
@@ -1448,7 +1462,7 @@ PROCEDURE output-to-printer :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   
+
    RUN custom/prntproc.p (list-name,INT(lv-font-no),lv-ornt).
 
 END PROCEDURE.
@@ -1491,7 +1505,7 @@ FOR EACH tt-wiptag NO-LOCK
     /* On first-of new job, print job number. */
 /*   IF FIRST-OF(tt-wiptag.job-no) THEN
         PUT UNFORMATTED tt-wiptag.job-no + "-" + STRING(tt-wiptag.job-no2,"99") FORMAT "x(10)" AT 1.
-        
+
 
     /* On first of new item, print item. */
     IF FIRST-OF(tt-wiptag.fg-i-no) THEN DO:
@@ -1531,14 +1545,14 @@ FOR EACH tt-wiptag NO-LOCK
         PUT STREAM excel UNFORMATTED '"' tt-wiptag.produced-qty  '",'.
         PUT STREAM excel UNFORMATTED SKIP.
     END. */
-    
-    
+
+
     ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
                    cExcelDisplay = ""
                    cExcelVarValue = "" .
-          
+
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
@@ -1551,15 +1565,15 @@ FOR EACH tt-wiptag NO-LOCK
                          WHEN "mach"        THEN cVarValue = IF FIRST-OF(seq) THEN string(tt-wiptag.m-code,"x(6)") ELSE "".
                          WHEN "dept"        THEN cVarValue =  IF FIRST-OF(seq) THEN string(string(tt-wiptag.seq) + "-" + tt-wiptag.dept-name,"x(15)")  ELSE "".
                          WHEN "tag-qty"     THEN cVarValue =  IF FIRST-OF(seq) THEN string(tt-wiptag.produced-qty,"->>>,>>>,>>9.9<<<<<") ELSE "".
-                         
+
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+
             IF FIRST-OF(seq) THEN do:
             PUT UNFORMATTED cDisplay  .
             IF tb_excel THEN DO:
@@ -1642,7 +1656,7 @@ FOR EACH tt-wiptag NO-LOCK
                    cVarValue = ""
                    cExcelDisplay = ""
                    cExcelVarValue = "" .
-          
+
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
@@ -1655,15 +1669,15 @@ FOR EACH tt-wiptag NO-LOCK
                          WHEN "mach"        THEN cVarValue =   string(tt-wiptag.m-code,"x(6)") .
                          WHEN "dept"        THEN cVarValue =   string(string(tt-wiptag.seq) + "-" + tt-wiptag.dept-name,"x(15)") .
                          WHEN "tag-qty"     THEN cVarValue =  string(tt-wiptag.produced-qty,"->>>,>>>,>>9.9<<<<<") .
-                         
+
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+
             IF LAST-OF(tt-wiptag.rm-tag-no) THEN do:
             PUT UNFORMATTED cDisplay SKIP .
             IF tb_excel THEN DO:
@@ -1744,7 +1758,7 @@ FOR EACH tt-wiptag NO-LOCK
                    cVarValue = ""
                    cExcelDisplay = ""
                    cExcelVarValue = "" .
-          
+
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
@@ -1757,15 +1771,15 @@ FOR EACH tt-wiptag NO-LOCK
                          WHEN "mach"        THEN cVarValue =  string(tt-wiptag.m-code,"x(6)") .
                          WHEN "dept"        THEN cVarValue =  string(string(tt-wiptag.seq) + "-" + tt-wiptag.dept-name,"x(15)") .
                          WHEN "tag-qty"     THEN cVarValue =  string(tt-wiptag.produced-qty,"->>>,>>>,>>9.9<<<<<") .
-                         
+
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+
             PUT UNFORMATTED cDisplay .
             IF tb_excel THEN DO:
                  PUT STREAM excel UNFORMATTED  
@@ -1810,7 +1824,7 @@ ASSIGN
     v-page-brk
   SKIP(1)
  WITH FRAME r-top2 NO-BOX PAGE-TOP STREAM-IO WIDTH 185. */
-    
+
 ASSIGN str-tit2 = c-win:TITLE 
        {sys/inc/ctrtext.i str-tit2 112} .
 
@@ -1904,9 +1918,9 @@ FOR EACH wiptag NO-LOCK
       WHERE reftable.reftable = "WIPLEN" 
         AND reftable.company = wiptag.company 
         AND reftable.CODE = wiptag.tag-no USE-INDEX CODE NO-ERROR.
-      
+
         FOR EACH wiptag-mch OF wiptag NO-LOCK:
-    
+
             FIND mach NO-LOCK WHERE 
                  mach.company = cocode AND 
                  mach.m-code = wiptag-mch.m-code NO-ERROR.
@@ -1972,7 +1986,7 @@ FORM HEADER
     v-page-brk
   SKIP(1)
  WITH FRAME r-top2 NO-BOX PAGE-TOP STREAM-IO WIDTH 185.
-    
+
 ASSIGN str-tit2 = c-win:TITLE 
        {sys/inc/ctrtext.i str-tit2 142} .
 
@@ -2073,9 +2087,9 @@ FOR EACH wiptag NO-LOCK
       WHERE reftable.reftable = "WIPLEN" 
         AND reftable.company = wiptag.company 
         AND reftable.CODE = wiptag.tag-no USE-INDEX CODE NO-ERROR.
-      
+
         FOR EACH wiptag-mch OF wiptag NO-LOCK:
-    
+
             FIND mach NO-LOCK WHERE 
                  mach.company = cocode AND 
                  mach.m-code = wiptag-mch.m-code NO-ERROR.
@@ -2173,7 +2187,7 @@ END.
 /*         END.                                                                  */
 
 /*     END.  */
-    
+
 
 /*     IF tb_excel THEN DO:                                                             */
 /*                                                                                      */
@@ -2254,11 +2268,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -2286,23 +2300,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

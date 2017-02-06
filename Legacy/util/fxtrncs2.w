@@ -172,6 +172,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -190,7 +201,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -238,7 +249,7 @@ END.
 ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
 DO:
   v-process  = NO.
-   
+
 
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
@@ -247,7 +258,7 @@ DO:
   MESSAGE "Are you sure you want to " + TRIM(c-win:TITLE) +
           " for the selected parameters?"
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
-        
+
   IF v-process THEN RUN run-process.
 END.
 
@@ -268,8 +279,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -288,6 +301,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
 
   {methods/nowait.i}
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -381,7 +395,7 @@ FOR EACH rm-rcpth
     BY rm-rcpth.trans-date
     BY rm-rcpth.r-no
     BY rm-rdtlh.rec_key
-    
+
     TRANSACTION:
 
   STATUS DEFAULT "Processing Item#: " + TRIM(rm-rcpth.i-no).
@@ -446,7 +460,7 @@ FOR EACH rm-rcpth
      v-wid   = po-ordl.s-wid
      lv-cost = po-ordl.cost
      lv-uom  = po-ordl.pr-uom.
- 
+
   IF lv-uom NE item.cons-uom THEN
     RUN custom/convcuom.p(rm-rcpth.company,
                           lv-uom, item.cons-uom,                   

@@ -297,6 +297,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -350,7 +361,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -461,7 +472,7 @@ END.
 ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -671,8 +682,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -690,7 +703,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
    RUN sys/inc/CustListForm.p ( "AR10",cocode, 
@@ -733,6 +746,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
    END.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -795,7 +809,7 @@ PROCEDURE CustList :
 
     RUN sys/ref/CustListManager.w(INPUT cocode,
                                   INPUT 'AR10').
-    
+
 
 END PROCEDURE.
 
@@ -887,7 +901,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -940,7 +954,7 @@ FORM tt-report.actnum      COLUMN-LABEL "GL Acct#"
      tt-report.tr-num      COLUMN-LABEL "Run#"
      tt-report.tr-date     COLUMN-LABEL "Date"
      tt-report.amt         COLUMN-LABEL "Amount"    FORMAT "->>>,>>>,>>>,>>9.99"
-   
+
     WITH FRAME detail NO-BOX NO-ATTR-SPACE DOWN STREAM-IO WIDTH 132.
 
 
@@ -1002,7 +1016,7 @@ FOR EACH ttCustList
        tt-report.actnum = ar-ctrl.receivables
        tt-report.amt    = (IF lv-jrnl EQ "ARINV"
                            THEN ar-inv.net ELSE ar-inv.gross) * -1.
-          
+
       IF ar-inv.tax-amt NE 0 THEN DO:
         RELEASE stax.
         IF ar-inv.tax-code NE "" THEN
@@ -1010,39 +1024,39 @@ FOR EACH ttCustList
             WHERE stax.company   EQ ar-inv.company
               AND stax.tax-group EQ ar-inv.tax-code
             NO-LOCK NO-ERROR.
-             
+
         IF AVAIL stax THEN DO:
           assign v-ttl-tax  = 0
                  v-ttl-rate = 0.
 
-     
+
           DO li = 1 TO extent(stax.tax-rate1): 
-           
+
             if stax.tax-rate1[li] = 0 then next.
-           
+
             ld-tax-rate[li] = stax.tax-rate1[li].
-           
+
             IF stax.accum-tax AND li GT 1 THEN
            DO lj = 1 TO li - 1: 
-            
+
               ld-tax-rate[li] = ld-tax-rate[li] +
                                 (ld-tax-rate[li] * (stax.tax-rate[lj] / 100)).
             END.
             v-ttl-rate = v-ttl-rate + ld-tax-rate[li].
           END.
-              
+
           DO li = 1 TO extent(stax.tax-rate1):
             if stax.tax-rate1[li] = 0 then next.
             ASSIGN ld-tax-rate[li] = ROUND(ld-tax-rate[li] / v-ttl-rate *
                                            ar-inv.tax-amt,2)
                    v-ttl-tax = v-ttl-tax + ld-tax-rate[li].
           END.
-              
-              
+
+
           IF ar-inv.tax-amt NE v-ttl-tax THEN
             ld-tax-rate[1] = ld-tax-rate[1] +
                              (ar-inv.tax-amt - v-ttl-tax).
-             
+
           DO li = 1 TO extent(stax.tax-rate1):
             if stax.tax-rate1[li] = 0 then next.
             CREATE tt-report.
@@ -1100,7 +1114,7 @@ FOR EACH ttCustList
       /* gdm - 09240903 */
       lv-jrnl = IF ar-cashl.amt-paid - ar-cashl.amt-disc GT 0
                 THEN "DBMEM" ELSE "CRMEM".
-              
+
       CREATE tt-report.
       BUFFER-COPY ar-ledger TO tt-report
       ASSIGN
@@ -1196,7 +1210,7 @@ FOR EACH tt-report
         AND cust.cust-no EQ tt-report.cust-no
       NO-LOCK NO-ERROR.
 
-  
+
 
   DISPLAY tt-report.actnum WHEN FIRST-OF(tt-report.actnum)
           account.dscr WHEN AVAIL account AND FIRST-OF(tt-report.actnum)
@@ -1347,7 +1361,7 @@ PROCEDURE SetCustRange :
         btnCustList:SENSITIVE = iplChecked
        .
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1368,11 +1382,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1400,23 +1414,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

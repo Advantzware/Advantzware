@@ -51,18 +51,18 @@ DEF VAR lv-last-assigned AS CHAR NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/VAR.i new shared}
-    
+
 assign
  cocode = gcompany
  locode = gloc.
-    
+
 {oe/oe-relp1.i NEW}
 
 DEF TEMP-TABLE tt-user-print LIKE user-print.
 DEF TEMP-TABLE tt-date FIELD tt-name AS cha
                        FIELD tt-value AS cha.
 def buffer xfg-bin for fg-bin.
-    
+
 def var v-ship-lu as ch initial ["I,S,B"].
 def var v-ship-no as int.
 def var v-s-code as char.
@@ -81,7 +81,7 @@ def var v-hold-list as CHAR NO-UNDO.
 DEF VAR v-invalid AS LOG NO-UNDO.
 
 DEF STREAM s-temp.
-    
+
 def TEMP-TABLE w-nopost no-undo
   field ord-no like oe-relh.ord-no
   field rel-date like oe-relh.rel-date
@@ -373,6 +373,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -458,7 +469,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -558,7 +569,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-      
+
   ASSIGN
    v-frel     = begin_relnum
    v-trel     = end_relnum
@@ -570,7 +581,7 @@ DO:
    v-tord     = end_ord
    v-no-post  = 0
    v-tot-post = 0.
-  
+
 IF tgMultipleReleases:SCREEN-VALUE NE "YES" THEN
     ASSIGN END_relnum = begin_relnum v-trel = begin_relnum.
 
@@ -758,7 +769,7 @@ END.
 ON LEAVE OF tran-date IN FRAME FRAME-A /* Post Date */
 DO:
   assign {&self-name}.
-  
+
   if lastkey ne -1 then do:
     run check-date.
     if v-invalid then return no-apply.
@@ -793,8 +804,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -804,13 +817,13 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  
+
 /* security check need {methods/prgsecur.i} in definition section */
   IF access-close THEN DO:
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   assign
    tran-date   = today
    begin_date  = TODAY
@@ -818,7 +831,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    c-win:TITLE = IF ip-post THEN "Release Posting/Create BOL"
                             ELSE "Release Edit List".
 
-      
+
   v-hold-list = "Royal,Superior,ContSrvc,BlueRidg,Danbury".
 
   find first sys-ctrl
@@ -826,7 +839,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         and sys-ctrl.name    eq "BOLFMT"
       no-lock no-error.
   v-royal = avail sys-ctrl and lookup(sys-ctrl.char-fld,v-hold-list) ne 0.
-    
+
   RUN enable_UI.
 
   ASSIGN tgMultipleReleases.
@@ -866,6 +879,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       END.
   END.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -885,7 +899,7 @@ PROCEDURE check-date :
 ------------------------------------------------------------------------------*/
   DO with frame {&frame-name}:
     v-invalid = no.
-  
+
     find first period                   
         where period.company eq cocode
           and period.pst     le tran-date
@@ -987,7 +1001,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
      DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -998,9 +1012,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
 
 
@@ -1019,7 +1033,7 @@ PROCEDURE output-to-printer :
      DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1065,7 +1079,7 @@ DEF BUFFER upd-oe-rell FOR oe-rell.
 FOR EACH tt-except:
     DELETE tt-except.
 END.
- 
+
 FOR EACH tt-fg-bin:
     DELETE tt-fg-bin.
 END.
@@ -1100,7 +1114,7 @@ for each oe-relh FIELDS(company r-no deleted) no-lock
   RUN oe/relcheck.p (ROWID(oe-relh), OUTPUT ll-exception).
   IF ll-exception THEN NEXT headblok.
 
-  
+
   {oe/oe-relp.i}
 END. /* each oe-relh */
 
@@ -1123,7 +1137,7 @@ FOR EACH oe-relh NO-LOCK
     WHERE oe-relh.company EQ cocode
       AND oe-relh.deleted EQ YES
     USE-INDEX deleted:
-  
+
   FIND upd-oe-relh WHERE ROWID(upd-oe-relh) EQ ROWID(oe-relh) EXCLUSIVE NO-WAIT NO-ERROR.
 
   IF AVAIL upd-oe-relh THEN DO:
@@ -1179,7 +1193,7 @@ DEF VAR v-exp-name  AS CHAR FORMAT "x(40)" NO-UNDO
 DEF VAR v-part-no   LIKE itemfg.part-no    NO-UNDO.
 DEF VAR v-i-name    LIKE itemfg.i-name     NO-UNDO.
 {sys/form/r-topw.f}
-    
+
 form oe-rell.ord-no label "Ord #"
      oe-relh.rel-date label "  Date" FORMAT "99/99/99"
      oe-rell.rel-no COLUMN-LABEL "Rel" space(0) "-" space(0)
@@ -1207,7 +1221,7 @@ form oe-rell.ord-no label "Ord #"
   assign
    str-tit2 = c-win:title 
    {sys/inc/ctrtext.i str-tit2 112}
- 
+
    str-tit3 = "Period " + STRING(tran-period,"99") + " - " +
               IF AVAIL period THEN
                 (STRING(period.pst) + " to " + STRING(period.pend)) ELSE ""
@@ -1225,7 +1239,7 @@ form oe-rell.ord-no label "Ord #"
   if td-show-parm then run show-param.
 
   SESSION:SET-WAIT-STATE ("general").
-  
+
   IF v-export THEN DO:
     OUTPUT STREAM s-temp TO VALUE(v-exp-name).
     PUT STREAM s-temp UNFORMATTED 
@@ -1257,7 +1271,7 @@ form oe-rell.ord-no label "Ord #"
                          USE-INDEX r-no)        
 
       use-index post no-lock:  
-      
+
     for each oe-rell
         where oe-rell.company eq oe-relh.company
           and oe-rell.r-no    eq oe-relh.r-no
@@ -1304,7 +1318,7 @@ form oe-rell.ord-no label "Ord #"
               '"' v-s-code                          '",'
               '"' oe-rell.link-no                   '"'
               SKIP.                                     
-      
+
 
     end. /* each oe-rell */
   end. /* each oe-relh */
@@ -1358,7 +1372,7 @@ form oe-rell.ord-no label "Ord #"
             '"' w-nopost.code     '",'
             '"' w-nopost.link-no  '"' 
             SKIP.
-          
+
     v-no-post = v-no-post + 1.
     delete w-nopost.
   end. /* each w-no-post */
@@ -1396,11 +1410,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1428,23 +1442,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1511,14 +1525,14 @@ DO WHILE TRUE:
   IF li GT EXTENT(tt-user-print.field-name) OR
      NOT VALID-HANDLE(lv-field-hdl)         THEN LEAVE.
   IF lv-field-hdl:NAME = "tgMultipleReleases" THEN DO:
-  
+
   ASSIGN
    tt-user-print.field-label[li] = lv-field-hdl:LABEL
    tt-user-print.field-name[li]  = lv-field-hdl:NAME
    tt-user-print.field-value[li] = IF lv-field-hdl:NAME BEGINS "sl" THEN lv-field-hdl:LIST-ITEMS
                                    ELSE lv-field-hdl:SCREEN-VALUE 
    NO-ERROR.     
-   
+
   END.
   lv-field-hdl = lv-field-hdl:NEXT-SIBLING.
 END.

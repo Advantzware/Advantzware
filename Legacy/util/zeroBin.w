@@ -151,6 +151,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -170,7 +181,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -238,8 +249,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
     RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -252,6 +265,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     RUN enable_UI.
     {methods/nowait.i}
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -308,7 +322,7 @@ PROCEDURE run-process :
     /* ------------------------------------------------ sys/del/est.p 3/29/95 CTS */
     /* Delete / Archive old estimates                                             */
     /* -------------------------------------------------------------------------- */
-  
+
 
     DEFINE VARIABLE archive     AS LOG       FORMAT "Archive/Delete" NO-UNDO.
     DEFINE VARIABLE v-file-path AS CHARACTER FORMAT "X(75)" NO-UNDO.
@@ -318,15 +332,15 @@ PROCEDURE run-process :
     DEFINE VARIABLE iDelCnt     AS INTEGER   NO-UNDO.
 
     DO WITH FRAME {&frame-name}:
- 
+
         DISABLE TRIGGERS FOR LOAD OF fg-bin.
 
         lv-msg = "Are you sure you want to purge the bins with 0 quantity?".
-          
+
 
         MESSAGE lv-msg
             VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
-          
+
         IF v-process THEN 
         DO:
 
@@ -356,10 +370,10 @@ PROCEDURE run-process :
                 TRANSACTION:
                 idelCnt = idelCnt + 1.
                 DELETE asi.fg-bin.
-                
+
             END.
-            
-            
+
+
             SESSION:SET-WAIT-STATE("").
 
             MESSAGE iDelCnt "Records Purged" SKIP  "Process Is Completed." VIEW-AS ALERT-BOX.
@@ -367,7 +381,7 @@ PROCEDURE run-process :
         END. /* if v-process */
     END. /* do with frame */
     RETURN NO-APPLY.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

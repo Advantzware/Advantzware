@@ -250,6 +250,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -285,7 +296,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -372,7 +383,7 @@ DO:
 
      END.
   END.
-  
+
 
 END.
 
@@ -465,7 +476,7 @@ END.
 ON LEAVE OF tran-date IN FRAME FRAME-A /* Transaction Date */
 DO:
   assign {&self-name}.
-  
+
   if lastkey ne -1 then do:
     run check-date (NO).
     if v-invalid then return no-apply.
@@ -500,8 +511,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -511,7 +524,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-    
+
   IF access-close THEN DO:
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
@@ -530,10 +543,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      MESSAGE "PRIOR YEAR NOT CLOSED.  MUST CLOSE PRIOR YEAR!!!" VIEW-AS ALERT-BOX ERROR.
      return.
   end.
-    
+
   RUN enable_UI.
 
   {methods/nowait.i}
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN 
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -558,7 +572,7 @@ PROCEDURE check-date :
 
   DO with frame {&frame-name}:
     v-invalid = no.
-  
+
     find first period                   
         where period.company eq cocode
           and period.pst     le tran-date
@@ -689,7 +703,7 @@ PROCEDURE close-month :
             find first b-racct
                 where b-racct.company eq cocode
                   and b-racct.actnum  eq gl-ctrl.ret.
-                  
+
             b-racct.cyr[uperiod] = b-racct.cyr[uperiod] + gltrans.tr-amt.
 
             find first b-cacct
@@ -710,7 +724,7 @@ PROCEDURE close-month :
        glhist.tr-date = gltrans.tr-date
        glhist.tr-num  = gltrans.trnum
        glhist.tr-amt  = gltrans.tr-amt.
-       
+
       delete gltrans.
    end.
 
@@ -718,7 +732,7 @@ PROCEDURE close-month :
       assign
        cust.cost[1] = 0
        cust.comm[1] = 0.
-       
+
       for each ar-ledger
           where ar-ledger.company eq cocode
             and ar-ledger.cust-no eq cust.cust-no
@@ -756,16 +770,16 @@ PROCEDURE close-month :
          STATUS DEFAULT "Please Wait...Updating Customer: " + TRIM(cust.cust-no).
 
          {util/reopeny1.i 1 lyytd lyr 6}
-    
+
          {util/reopeny1.i 0 ytd ytd 5}
        END.
 
        /* Vend Processing  */
        FOR EACH vend WHERE vend.company eq cocode:
          STATUS DEFAULT "Please Wait...Updating Vendor: " + TRIM(vend.vend-no).
-    
+
          {util/reopeny2.i 1 lyytd last-year}
-    
+
          {util/reopeny2.i 0 ytd-msf purch[13]}
        END. /* for each vend */
      END.
@@ -1038,7 +1052,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
      DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -1049,9 +1063,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
 
 
@@ -1070,7 +1084,7 @@ PROCEDURE output-to-printer :
      DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1138,7 +1152,7 @@ form account.actnum label "Account Number"
  str-tit3 = fill(" ",x) + str-tit3 .
 
    display str-tit3 format "x(130)" skip(1) with frame r-top.
- 
+
    SESSION:SET-WAIT-STATE ("general").
    for each account where account.company eq cocode no-lock with frame r-mclo:
       if line-counter gt page-size - 3 then page.
@@ -1203,8 +1217,8 @@ form account.actnum label "Account Number"
            tot-tx  @ gltrans.tr-amt
            tot-all @ open-amt
            with frame r-mclo.
- 
- 
+
+
  SESSION:SET-WAIT-STATE("").
 
 end procedure.
@@ -1227,11 +1241,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1263,24 +1277,24 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
-  
+
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

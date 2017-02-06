@@ -271,6 +271,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -289,7 +300,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -363,8 +374,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -384,6 +397,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   DO WITH FRAME {&FRAME-NAME}:
     APPLY "entry" TO begin_job-no.
   END.
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -476,7 +490,7 @@ do x = 1 to 2:
   v-job-no[x] = fill(" ", 6 - integer(length(trim(v-job-no[x])))) +
                 trim(v-job-no[x]).
 end.
-   
+
 for each job
     where job.company eq cocode
       and job.job-no  ge v-job-no[1]
@@ -485,9 +499,9 @@ for each job
       and job.job-no2 le v-job-no2[2]
       and index(v-status,job.stat) gt 0
     exclusive-lock
-      
+
     transaction:
-                         
+
   IF tb_mat-wip EQ NO AND tb_mch-wip EQ NO THEN DO:
     run jc/jc-dall.p (recid(job)).
 
@@ -497,12 +511,12 @@ for each job
           and job-hdr.job-no  eq job.job-no
           and job-hdr.job-no2 eq job.job-no2
         exclusive-lock:
-                        
+
       {util/dljobkey.i}          
-              
+
       delete job-hdr.
     end.
-            
+
     for each job-mat
         where job-mat.company eq job.company
           and job-mat.job     eq job.job
@@ -575,7 +589,7 @@ for each job
 
   IF tb_mat-wip THEN
   DO:
-  
+
   for each rm-rcpth WHERE
       rm-rcpth.company eq cocode AND
       rm-rcpth.job-no EQ job.job-no AND
@@ -597,7 +611,7 @@ for each job
           exclusive-lock:
           delete rm-rdtlh. 
       END.
-  
+
       DELETE rm-rcpth.
   END. /* for each rm-rcpth */
 
@@ -613,10 +627,10 @@ for each job
           rm-rdtl.company eq cocode AND
           rm-rdtl.r-no    eq rm-rcpt.r-no
           exclusive-lock:
-           
+
           delete rm-rdtl.
       end. /* for each rm-rdtl */
-         
+
       delete rm-rcpt. 
   end. /* for each rm-rcpt */
 
@@ -629,7 +643,7 @@ for each job
             WHERE po-ordl.company EQ po-ord.company
             AND po-ordl.po-no   EQ po-ord.po-no
             AND po-ordl.i-no    EQ tt-po.i-no:
-      
+
             RUN po/calc-rmr.p (BUFFER po-ordl).
         END.
   END. /*each tt-po*/
@@ -649,18 +663,18 @@ for each job
       job.stat = "X".
       run jc/kiwiexp2.p (recid(job)).
     end.
-          
+
     delete job.
   END.
 end. /* each job */
-    
+
 session:set-wait-state("").
 
 message trim(c-win:title) + " Process Is Completed." view-as alert-box.
 apply "close" to this-procedure.
 
 return no-apply.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

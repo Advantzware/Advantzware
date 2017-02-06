@@ -35,7 +35,7 @@ DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 {custom/getloc.i}
 
     {sys/inc/var.i new shared}
-  
+
 assign
  cocode = gcompany
  locode = gloc.
@@ -421,6 +421,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -560,7 +571,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -725,7 +736,7 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
@@ -1082,8 +1093,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -1099,21 +1112,21 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   assign
    begin_po-date = date(1,1,year(today))
    end_po-date   = today.
 
   RUN enable_UI.
-  
+
   for each mat:
     v-mat-list = v-mat-list + string(mat.mat,"x(5)") + " " + mat.dscr + ",".
   end.
   if substr(v-mat-list,length(trim(v-mat-list)),1) eq "," then
     substr(v-mat-list,length(trim(v-mat-list)),1) = "".
-  
+
   select-mat:list-items = v-mat-list.
-      
+
   do i = 1 to select-mat:num-items:
     if trim(substr(select-mat:entry(i),1,5)) eq "B" then do:
       select-mat:screen-value = entry(i,v-mat-list).
@@ -1128,6 +1141,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO begin_po-no.
   END.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1145,7 +1159,7 @@ PROCEDURE create-report :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   def input parameter ip-i-no like po-ordl.i-no.
   def input parameter ip-uom  like job-mat.qty-uom.
 
@@ -1164,7 +1178,7 @@ PROCEDURE create-report :
    tt-report.key-07  = ip-uom
    tt-report.key-09  = if avail cust then cust.cust-no else ""
    tt-report.rec-id  = recid(po-ordl).
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1229,7 +1243,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
 /*     DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -1240,11 +1254,11 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY. */
- 
+
   {custom/out2file.i}
 END PROCEDURE.
 
@@ -1275,7 +1289,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1381,7 +1395,7 @@ form cust.cust-no           column-label "Customer"
      rm-rcpth.trans-date    column-label "Due!Rcpt Dt"
                             format "99/99/9999"
      v-fg-rdtlhqty          column-label "Recpt Qty"
-       
+
     with frame main no-box no-attr-space down STREAM-IO width 136.
 
 form cust.cust-no           column-label "Customer"
@@ -1400,7 +1414,7 @@ form cust.cust-no           column-label "Customer"
      rm-rcpth.trans-date    column-label "Due!Rcpt Dt"
                             format "99/99/9999"
      v-fg-rdtlhqty          column-label "Recpt Qty"
-       
+
     with frame main-2 no-box no-attr-space down STREAM-IO width 136.
 
 form cust.cust-no           column-label "Customer"
@@ -1420,7 +1434,7 @@ form cust.cust-no           column-label "Customer"
      rm-rcpth.trans-date    column-label "Rcpt Dt"
                             format "99/99/9999"
      v-fg-rdtlhqty          column-label "Recpt Qty"
-       
+
     with frame main2 no-box no-attr-space down STREAM-IO width 146.
 
 form cust.cust-no           column-label "Customer"
@@ -1440,15 +1454,15 @@ form cust.cust-no           column-label "Customer"
      rm-rcpth.trans-date    column-label "Rcpt Dt"
                             format "99/99/9999"
      v-fg-rdtlhqty          column-label "Recpt Qty"
-       
+
     with frame main2-2 no-box no-attr-space down STREAM-IO width 146.
-  
+
  {ce/msfcalc.i} 
 
 assign
  str-tit2 = c-win:TITLE + " - PR9"
  {sys/inc/ctrtext.i str-tit2 112}
-   
+
  v-s-pono    = begin_po-no
  v-e-pono    = END_po-no
  v-s-date    = begin_po-date
@@ -1474,7 +1488,7 @@ do with frame {&frame-name}:
     if select-mat:is-selected(i) then
       v-mattype-list = v-mattype-list + trim(substr(select-mat:entry(i),1,5)) + ",".
   end.
-  
+
   IF length(TRIM(v-mattype-list)) EQ 0 THEN
   DO:
      MESSAGE "No Material Type Selected."
@@ -1485,20 +1499,20 @@ do with frame {&frame-name}:
 
   if substr(v-mattype-list,length(trim(v-mattype-list)),1) eq "," then
     substr(v-mattype-list,length(trim(v-mattype-list)),1) = "".
-    
+
   mat-types = v-mattype-list.
-  
+
   do i = 1 to length(mat-types):
     if substr(mat-types,i,1) eq "," then substr(mat-types,i,1) = " ".
   end.
-  
+
   display mat-types.
 end.
 
 DO WITH FRAME main:
 
    tt-report.key-04:LABEL = rd_show-2.
-    
+
    IF TB_separate-dates = NO THEN
       v-hdr = "Customer,PO#,Vendor," + TRIM(tt-report.key-04:LABEL) +
               ",Item Name,Width,Length,PO Cost,UOM,Recpt Date,Recpt Qty".
@@ -1506,7 +1520,7 @@ DO WITH FRAME main:
       v-hdr = "Customer,PO#,Vendor," + TRIM(tt-report.key-04:LABEL) +
               ",Item Name,Width,Length,PO Cost,UOM,Due Date,Recpt Date,Recpt Qty".
 END.
- 
+
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i value(lines-per-page)}
@@ -1514,7 +1528,7 @@ END.
 if td-show-parm then run show-param.
 
 SESSION:SET-WAIT-STATE ("general").
-  
+
 DISPLAY WITH FRAME r-top.
 
 {porep/r-pofgh1.i}
@@ -1549,11 +1563,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1581,23 +1595,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

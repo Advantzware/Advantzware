@@ -339,6 +339,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -440,7 +451,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -523,7 +534,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-       
+
   run run-report.
 
   case rd-dest:
@@ -774,8 +785,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -803,7 +816,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                                                ELSE "Foldware".
 
   RUN enable_UI.
-     
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -811,6 +824,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO thru_date.
   END.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -893,7 +907,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -928,7 +942,7 @@ PROCEDURE run-report :
 /* ----------------------------------------------- jc/rep/jc-summ.p 07/98 JLF */
 /* Job Cost Summary Report                                                    */
 /* -------------------------------------------------------------------------- */
-  
+
 {sys/form/r-top3w.f}
 
 def buffer b-jh for job-hdr.
@@ -970,7 +984,7 @@ form header
      "Machine:"
      v-mach
      skip(1)
-     
+
     with frame r-top.
 
 form header v-hdr skip(1) with frame r-top.
@@ -982,12 +996,12 @@ assign
   v-fdate   = thru_date
   v-fmach   = begin_mach
   v-tmach   = END_mach
- 
+
   v-fjob    = fill(" ",6 - length(trim(begin_job-no))) +
                trim(begin_job-no) + string(int(begin_job-no2),"99")
   v-tjob    = fill(" ",6 - length(trim(end_job-no)))   +
                trim(end_job-no)   + string(int(end_job-no2),"99") 
- 
+
   v-hdr[1]  = "START/" + fill(" ",102) + "BOARD"
   v-hdr[2]  = "DUE DATE  CUSTOMER CUSTOMER PART #     JOB #    JOB QTY "   +
                 "BOARD           SHEET SIZE          VENDOR       RECEIVED " +
@@ -1019,7 +1033,7 @@ SESSION:SET-WAIT-STATE ("general").
     for each tt-report:
       delete tt-report.
     end.
-   
+
     for each job
         where job.company eq cocode
           and job.stat    lt "C"
@@ -1095,7 +1109,7 @@ SESSION:SET-WAIT-STATE ("general").
                 AND ef.est-no    EQ est.est-no
                 and ef.form-no eq job-mat.frm
               no-lock no-error.
-                
+
           IF AVAIL ef THEN DO:
             RUN est/ef-#out.p (ROWID(ef), OUTPUT v-on).
             v-on = v-up * v-on.
@@ -1142,12 +1156,12 @@ SESSION:SET-WAIT-STATE ("general").
             and fg-rcpth.job-no2   eq job-hdr.job-no2
             and fg-rcpth.rita-code eq "R"
           no-lock,
-          
+
           each fg-rdtlh FIELDS(qty)
           where fg-rdtlh.r-no      eq fg-rcpth.r-no
             and fg-rdtlh.rita-code eq fg-rcpth.rita-code
           no-lock:
-          
+
         v-fg-qty = v-fg-qty + fg-rdtlh.qty.  
       end.
 
@@ -1278,12 +1292,12 @@ SESSION:SET-WAIT-STATE ("general").
         END.
 
         v-first[1] = yes.
-        
+
         if v-note then do:
           find est where est.company EQ job-hdr.company
                      AND est.est-no  EQ job-hdr.est-no
                    no-lock no-error.
-                    
+
           if avail est then
           do i = 1 to 2:
             for each est-inst
@@ -1297,7 +1311,7 @@ SESSION:SET-WAIT-STATE ("general").
                 break by dept.fc:
 
               v-first[2] = yes.  
-              
+
               if v-first[1] then
               do j = 1 to 3:
                 if est-inst.inst[j] ne "" then do:
@@ -1314,16 +1328,16 @@ SESSION:SET-WAIT-STATE ("general").
                     put est-inst.dept at 19.
                     v-first[2] = no.
                   end.
-                  
+
                   put est-inst.inst[j] at 22 skip.
                 end.      
               end.  
             end.    
           end.
-          
+
           if not v-first[1] then put skip(1).
         end.
-            
+
         if v-remm then
         for first job
             where job.company eq cocode
@@ -1341,19 +1355,19 @@ SESSION:SET-WAIT-STATE ("general").
               and (job-mch.blank-no eq job-hdr.blank-no or
                    job-mch.blank-no eq 0)
             use-index job no-lock,
-            
+
             first dept where dept.code eq job-mch.dept no-lock  
-            
+
             break by dept.fc
                   by job-mch.m-code
                   by job-mch.pass:
-                  
+
            assign
             v-factor    = if job-mch.blank-no gt 0 then 1
                           else (job-hdr.sq-in / 100)
             v-rem-hr[1] = v-rem-hr[1] + (job-mch.mr-hr  * v-factor)
             v-rem-hr[2] = v-rem-hr[2] + (job-mch.run-hr * v-factor).
-             
+
            for each mch-act
                where mch-act.company   eq cocode
                  and mch-act.m-code    eq job-mch.m-code
@@ -1364,50 +1378,50 @@ SESSION:SET-WAIT-STATE ("general").
                       job-mch.blank-no eq 0)
                  and mch-act.pass      eq job-mch.pass
                use-index operation no-lock,
-                   
+
                first job-code
                where job-code.code eq mch-act.code
                  and (job-code.cat eq "MR" or job-code.cat eq "RUN")
                no-lock
-               
+
                break by job-code.cat
                      by mch-act.complete:
-                     
+
              i = lookup(job-code.cat,"MR,RUN").
-             
+
              v-rem-hr[i] = v-rem-hr[i] - (mch-act.hours * v-factor).
-                                       
+
              if last-of(mch-act.complete) and
                 mch-act.complete          then v-rem-hr[i] = 0.
            end.
-           
+
            if v-rem-hr[1] lt 0 then v-rem-hr[1] = 0.
            if v-rem-hr[2] lt 0 then v-rem-hr[2] = 0.
-           
+
            if last-of(job-mch.m-code) then do:
-           
+
               if v-rem-hr[1] gt 0 or v-rem-hr[2] gt 0 then
                  v-m-list = v-m-list + trim(job-mch.m-code) + ",".
-           
+
               if job-mch.m-code eq v-mach then
                  assign
                     v-rem-hr[3] = v-rem-hr[1]
                     v-rem-hr[4] = v-rem-hr[2].
-             
+
               assign
                  v-rem-hr[1] = 0
                  v-rem-hr[2] = 0.
            end.
-           
+
            if last(dept.fc) then do:
               if v-m-list ne "" then do:
                  if substr(v-m-list,length(trim(v-m-list)),1) eq "," then
                     substr(v-m-list,length(trim(v-m-list)),1) = "".
-                 
+
                  v-m-list = "    Incomplete Machines: " + v-m-list.
-                 
+
                  if v-first[1] then put skip(1).
-                 
+
                  put v-m-list
                      "Remaining Hours for "
                      v-mach
@@ -1419,19 +1433,19 @@ SESSION:SET-WAIT-STATE ("general").
                      v-rem-hr[3] + v-rem-hr[4]
                      skip(1).
               end.
-             
+
               assign
                v-rem-hr[5] = v-rem-hr[5] + v-rem-hr[3]
                v-rem-hr[6] = v-rem-hr[6] + v-rem-hr[4]
-               
+
                v-rem-hr[3] = 0
                v-rem-hr[4] = 0.
            end.      
         end.
       end.
-      
+
       v-m-list = "".
-      
+
       if last-of(tt-report.key-02) then do:
         if v-rem-hr[5] gt 0 or v-rem-hr[6] gt 0 then
           put skip(1)
@@ -1445,7 +1459,7 @@ SESSION:SET-WAIT-STATE ("general").
               "  Tot: "
               v-rem-hr[5] + v-rem-hr[6]
               skip(2).
-        
+
         assign
          v-rem-hr[5] = 0
          v-rem-hr[6] = 0.
@@ -1488,12 +1502,12 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   ASSIGN
   lv-frame-hdl = frame {&frame-name}:HANDLE
   lv-group-hdl = lv-frame-hdl:first-child
   lv-field-hdl = lv-group-hdl:first-child.
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1509,7 +1523,7 @@ PROCEDURE show-param :
                   if not valid-handle(lv-field2-hdl) then leave. 
                   if lv-field2-hdl:private-data = lv-field-hdl:name THEN
                      parm-lbl-list = parm-lbl-list + lv-field2-hdl:screen-value + ",".
-                  
+
                   lv-field2-hdl = lv-field2-hdl:next-sibling.                 
               end.       
            end.                 
@@ -1524,19 +1538,19 @@ PROCEDURE show-param :
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

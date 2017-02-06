@@ -48,7 +48,7 @@ DEF VAR init-dir AS CHA NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/VAR.i new shared}
-    
+
 assign
  cocode = gcompany
  locode = gloc.
@@ -111,7 +111,7 @@ FORMAT
   space(2)
   oe-bolh.deleted AT 106 format "*DELETED*/ "
   skip(1)
-  
+
   header "Date           BOL.#  Carrier  Trailer                   Freight    Rate     Tot WT  Cust#       Ship#   "
          "----------  --------  -------  --------------------  -----------  ------  ---------  --------    --------"
 
@@ -376,6 +376,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -440,7 +451,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -571,19 +582,19 @@ DO:
 
       IF lv-post THEN do:
         RUN post-bols.
-       
+
         /* close transfer order here */
         RUN oe/closchk.p (0).
 
-    
+
         /* WFk- 5/4/12- This is here to make sure it is the last thing in */
         /* the posting process.  Posting relies on a cleanup routine */
         /* for releases instead of fixing the real problem.          */
         FOR EACH w-bolh,
           FIRST oe-bolh WHERE RECID(oe-bolh) eq w-bolh.w-recid NO-LOCK:
-    
+
           FOR EACH oe-boll NO-LOCK WHERE oe-boll.b-no EQ oe-bolh.b-no:
-                         
+
                FIND FIRST oe-ordl NO-LOCK
                     WHERE oe-ordl.company EQ oe-boll.company
                       AND oe-ordl.ord-no EQ oe-boll.ord-no
@@ -591,14 +602,14 @@ DO:
             RUN oe/cleanrel.p (INPUT ROWID(oe-ordl)).    
           end.
         end.
-       
+
         FOR EACH w-ord:
           RUN oe/close.p (w-ord.rec-id, YES).  
         END.
 
         FIND FIRST tt-email NO-LOCK NO-ERROR.
         IF AVAIL tt-email THEN RUN email-reorderitems.
-        
+
         MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.
       END.
     END.
@@ -729,7 +740,7 @@ END.
 ON LEAVE OF tran-date IN FRAME FRAME-A /* Post Date */
 DO:
   assign {&self-name}.
-  
+
   if lastkey ne -1 then do:
     run check-date.
     if v-invalid then return no-apply.
@@ -786,8 +797,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -810,7 +823,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    end_date    = TODAY
    c-win:TITLE = IF ip-post THEN "BOL Posting/Create Invoice"
                             ELSE "BOL Edit List".
-  
+
   find first oe-ctrl where oe-ctrl.company eq cocode no-lock no-error.
   v-u-inv = oe-ctrl.u-inv.
 
@@ -830,7 +843,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    IF AVAIL sys-ctrl AND sys-ctrl.char-fld EQ "Fixed Time"  THEN
        ASSIGN  tran-time = STRING(int(SUBSTRING(string(sys-ctrl.dec-fld),1,2)) * 60 * 60 + int(SUBSTRING(string(sys-ctrl.dec-fld),3,4)) * 60 , "hh:mm:ss").
        ELSE ASSIGN tran-time = string(TIME,"hh:mm:ss") .
-      
+
   RELEASE sys-ctrl.
 
   find first sys-ctrl
@@ -844,14 +857,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      sys-ctrl.name    = "BOLPOST"
      sys-ctrl.descrip = "Post BOL if BOL Qty > Bin Qty"
      choice           = yes.
-   
+
     MESSAGE sys-ctrl.descrip
         VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
         UPDATE choice.
-  
+
     if not choice then sys-ctrl.char-fld eq "Bin>Qty".
   end.
-  
+
   /* Invstatus to determine invoice status when created  */
   RUN sys/ref/nk1look.p (cocode, "INVSTATUS", "L", no, no, "", "", 
                          Output v-rtn-char, output v-rec-found).
@@ -872,20 +885,21 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
 
   RUN check-date.
-  
+
   IF NOT ip-post THEN 
     ASSIGN tran-date:SENSITIVE IN FRAME {&FRAME-NAME} = NO
            tran-period:SENSITIVE IN FRAME {&FRAME-NAME} = NO.
-  
-  
+
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     APPLY "entry" TO begin_bolnum .
   END.    
-  
-    
+
+
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -905,7 +919,7 @@ PROCEDURE check-date :
 ------------------------------------------------------------------------------*/
   DO with frame {&frame-name}:
     v-invalid = no.
-  
+
     find first period                   
         where period.company eq cocode
           and period.pst     le tran-date
@@ -989,7 +1003,7 @@ PROCEDURE create-reorder :
  ASSIGN
      v-qty-avail = v-qty-onh /*+ (if v-inconh then itemfg.q-ono else 0)*/
                     -  itemfg.q-alloc.
- 
+
  if itemfg.ord-level gt v-qty-avail then do:
        v-reord-qty = itemfg.ord-level - v-qty-avail.
 
@@ -1005,7 +1019,7 @@ PROCEDURE create-reorder :
 
 
  IF v-reord-qty > 0 THEN DO:
-     
+
     CREATE tt-email.
     ASSIGN tt-email.bol-no = bf-oeboll.bol-no
            tt-email.ord-no = bf-oeboll.ord-no
@@ -1013,7 +1027,7 @@ PROCEDURE create-reorder :
            tt-email.qty = v-reord-qty
            tt-email.cust-no = oe-bolh.cust-no
            .
-                                    
+
  END.
 
 
@@ -1104,7 +1118,7 @@ PROCEDURE email-reorderitems :
                        v-qty-alloc.
 
        END.
-       
+
        PUT STREAM st-email UNFORMATTED
                  STRING(tt-email.bol-no) FORM "x(9)"
                  string(tt-email.ord-no) FORM "x(10)"
@@ -1174,7 +1188,7 @@ PROCEDURE exception-rpt :
         UPDATE td-full-tag .
 
   FORM HEADER SKIP(1) WITH FRAME r-top.
- 
+
   FIND first period                   
       where period.company eq gcompany
         and period.pst     le tran-date
@@ -1184,7 +1198,7 @@ PROCEDURE exception-rpt :
   assign
    str-tit2 = "BOL - Insufficient Inventory Report"
    {sys/inc/ctrtext.i str-tit2 112}
- 
+
    str-tit3 = "Period " + STRING(tran-period,"99") + " - " +
               IF AVAIL period THEN
                 (STRING(period.pst) + " to " + STRING(period.pend)) ELSE ""
@@ -1193,9 +1207,9 @@ PROCEDURE exception-rpt :
   {sys/inc/print1.i}
 
   {sys/inc/outprint.i value(lines-per-page)}
-  
+
   display with frame r-top.
-  
+
   for each w-except,
 
       first oe-bolh
@@ -1246,14 +1260,14 @@ PROCEDURE exception-rpt :
             STRING(w-except.rel-no,">>9") + "-" + STRING(w-except.b-ord-no,"99") COLUMN-LABEL "Rel.#"    
             w-except.loc COLUMN-LABEL "Whse."
             w-except.loc-bin COLUMN-LABEL "Bin Loc"   
-            
+
             w-except.cases format "->>>,>>9"   COLUMN-LABEL "   Cases"
             w-except.qty-case format "->>>,>>9" COLUMN-LABEL "Qty/Case" 
             w-except.partial format "->>>,>>9"  COLUMN-LABEL " Partial"
             w-except.weight format "->>>,>>9"   COLUMN-LABEL "  Weight"
         with frame boll2 DOWN NO-BOX NO-ATTR-SPACE STREAM-IO WIDTH 165.
     down with frame boll2.
-    
+
     put skip(1).
   END.
 
@@ -1270,7 +1284,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
      DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -1281,9 +1295,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
 
 
@@ -1302,7 +1316,7 @@ PROCEDURE output-to-printer :
 /*   DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
      SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1327,7 +1341,7 @@ PROCEDURE output-to-screen :
   Notes:       
 ------------------------------------------------------------------------------*/
 run scr-rpt.w (list-name,c-win:title,int(lv-font-no),lv-ornt). /* open file-name, title */ 
- 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1390,7 +1404,7 @@ DO TRANSACTION.
       where cust.company eq cocode
         and cust.cust-no eq oe-bolh.cust-no
       no-lock
-      
+
       break by oe-bolh.bol-no
             by oe-bolh.ord-no
             by oe-bolh.rel-no.
@@ -1482,7 +1496,7 @@ DO TRANSACTION.
           oe-boll.weight
           oe-ordl.part-no WHEN AVAIL(oe-ordl).
       END. /* avail sys-ctrl-shipto */
- 
+
     END. /* each oe-boll */
 
     IF AVAILABLE sys-ctrl-shipto THEN
@@ -1537,7 +1551,7 @@ for each oe-bolh
         AND oe-boll.b-no    EQ oe-bolh.b-no:
     DELETE oe-boll.
   END. /* each oe-boll */
-  
+
   delete oe-bolh.
 end. /* each oe-bolh */
 
@@ -1577,7 +1591,7 @@ DEF BUFFER b-oe-boll FOR oe-boll.
 {sys/form/r-top3w.f}
 
 FORM HEADER SKIP(1) WITH FRAME r-top.
- 
+
 
   FIND first period                   
       where period.company eq gcompany
@@ -1588,7 +1602,7 @@ FORM HEADER SKIP(1) WITH FRAME r-top.
   assign
    str-tit2 = c-win:TITLE
    {sys/inc/ctrtext.i str-tit2 112}
- 
+
    str-tit3 = "Period " + STRING(tran-period,"99") + " - " +
               IF AVAIL period THEN
                 (STRING(period.pst) + " to " + STRING(period.pend)) ELSE ""
@@ -1599,9 +1613,9 @@ FORM HEADER SKIP(1) WITH FRAME r-top.
   {sys/inc/outprint.i value(lines-per-page)}
 
   if td-show-parm then run show-param.
-  
+
   display with frame r-top.
-  
+
   for each w-bolh:
     delete w-bolh.
   end.
@@ -1690,13 +1704,13 @@ FORM HEADER SKIP(1) WITH FRAME r-top.
           RUN create-nopost ("Order Was Not Found").
           next mainblok.
         end.
-        
+
         /* 04301302 - If customer 'x' and shipto = shipfrom, don't post */
         FIND cust 
           WHERE cust.company EQ oe-bolh.company
             AND cust.cust-no EQ oe-bolh.cust-no 
           NO-LOCK NO-ERROR.
-               
+
         IF AVAIL(cust) AND cust.ACTIVE EQ "X"
             AND oe-bolh.ship-id = oe-boll.loc THEN DO:
             run create-nopost ("Cannot transfer to the same location").
@@ -1726,7 +1740,7 @@ FORM HEADER SKIP(1) WITH FRAME r-top.
           run create-nopost ("Finish Good Item Was Not Found").
           NEXT mainblok.
         end.
-            
+
         if oe-boll.loc eq "" or oe-boll.loc-bin eq "" THEN do:
           run create-nopost ("Warehouse or Bin is Blank").
           NEXT mainblok.
@@ -1741,7 +1755,7 @@ FORM HEADER SKIP(1) WITH FRAME r-top.
           NEXT mainblok.
         END.
       end.
-        
+
       if first-of(oe-boll.b-no) then do:
         DISPLAY oe-bolh.BOL-date
                 oe-bolh.BOL-no 
@@ -1835,12 +1849,12 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   ASSIGN
   lv-frame-hdl = frame {&frame-name}:HANDLE
   lv-group-hdl = lv-frame-hdl:first-child
   lv-field-hdl = lv-group-hdl:first-child.
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1866,23 +1880,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

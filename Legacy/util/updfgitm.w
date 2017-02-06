@@ -201,6 +201,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -216,7 +227,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -292,22 +303,22 @@ DO:
     ASSIGN
      end_i-no              = ""
      end_i-no:SCREEN-VALUE = end_i-no.
-   
+
   else
   if end_i-no eq "" then do:
     message "ERROR: The new FG# cannot be spaces" view-as alert-box error.
     return no-apply.
   end.
-    
+
   else
   if can-find(first itemfg
               where itemfg.company eq cocode
                 and itemfg.i-no    eq end_i-no) then do:
     v-process = no.
-    
+
     message "The new FG# already exists, merge old FG# into new FG#?"
             view-as alert-box question button yes-no update v-process.
-            
+
     if not v-process then return no-apply.
   end.
 
@@ -342,8 +353,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -361,6 +374,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
   apply "entry" to begin_i-no.
   {methods/nowait.i}
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -426,12 +440,12 @@ def var v-item      like itemfg.i-no init "".
 def var v-new-item  like itemfg.i-no.
 def var v-char      as   char.
 
-  
+
 assign
  v-item     = begin_i-no
  v-new-item = caps(end_i-no)
  v-process  = no.
-   
+
 if v-item eq "/" then
   message "Are you sure you wish to update each FG Item# with its Estimate#?"
       view-as alert-box question button yes-no
@@ -458,15 +472,15 @@ IF v-item BEGINS "!"                            AND
       view-as alert-box question button yes-no
       update v-process.
 end.
-          
+
 else
   message "Are you sure you want change FG Item#" trim(caps(v-item))
           "to" trim(caps(v-new-item)) + "?"       
       view-as alert-box question button yes-no update v-process.
-          
+
 if v-process then do:
   session:set-wait-state("General").
-  
+
   if index("/*!",v-item) gt 0 then
   for each itemfg
       where itemfg.company           eq cocode
@@ -480,13 +494,13 @@ if v-process then do:
       no-lock:
 
     STATUS DEFAULT "Processing FG Item#: " + TRIM(itemfg.i-no).
-      
+
     if v-item eq "*" then
     do i = 1 to length(trim(itemfg.i-no)):
       v-char = substr(itemfg.i-no,i,1).
-        
+
       if v-char eq "," then v-char = "-".
-        
+
       substr(v-new-item,i,1) = v-char.
     end.
 
@@ -495,7 +509,7 @@ if v-process then do:
 
     run fg/updfgitm.p (recid(itemfg), if v-item eq "!" then "!" else v-new-item).
   end.
-  
+
   else
   for each itemfg
       where itemfg.company eq cocode
@@ -503,21 +517,21 @@ if v-process then do:
       no-lock:
 
     STATUS DEFAULT "Processing FG Item#: " + TRIM(itemfg.i-no).
-    
+
     run fg/updfgitm.p (recid(itemfg), v-new-item).
   end.
 
   STATUS DEFAULT "".
-    
+
   session:set-wait-state("").
-    
+
   message trim(c-win:title) + " Process Complete..." view-as alert-box.
-    
+
   apply "close" to this-procedure.
 end.
 
 return no-apply.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

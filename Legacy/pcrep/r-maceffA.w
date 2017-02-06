@@ -41,7 +41,7 @@ DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 assign
  cocode = gcompany
  locode = gloc.
-    
+
 {cec/msfcalc.i}
 
 DEF TEMP-TABLE work-tmp NO-UNDO
@@ -391,6 +391,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -477,7 +488,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -732,7 +743,7 @@ END.
 ON VALUE-CHANGED OF rs_machine IN FRAME FRAME-A
 DO:
    DO WITH FRAME {&FRAME-NAME}:
-   
+
       ASSIGN rs_machine.
 
       IF rs_machine = "Schedule" THEN
@@ -818,8 +829,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -835,7 +848,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   ASSIGN
    begin_date = DATE(MONTH(TODAY),1,YEAR(TODAY))
    end_date   = TODAY.
@@ -852,7 +865,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
-    
+
     APPLY "entry" TO begin_dept.
     IF NOT ll-shifts THEN
       ASSIGN
@@ -867,6 +880,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
               end_mach:LABEL = "Ending Sch. Machine".   
   END.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1042,7 +1056,7 @@ def var tot-scrap-pct as dec format '->>>9.99' no-undo.
 FORM HEADER
      lv-sort FORMAT "x(200)"
      SKIP(1)
-      
+
     WITH FRAME r-top2 NO-LABELS NO-BOX WIDTH 200 STREAM-IO NO-UNDERLINE PAGE-TOP.
 
 
@@ -1066,19 +1080,19 @@ DO WITH FRAME {&FRAME-NAME}:
     IF lv-shifts NE "" THEN
     IF SUBSTR(lv-shifts,LENGTH(TRIM(lv-shifts)),1) EQ "," THEN
       SUBSTR(lv-shifts,LENGTH(TRIM(lv-shifts)),1) = "".
-    
+
     shifts = lv-shifts.
-  
+
     DO i = 1 TO LENGTH(shifts):
       IF SUBSTR(shifts,i,1) EQ "," THEN SUBSTR(shifts,i,1) = " ".
     END.
-  
+
     DISPLAY shifts.
   END.
 
   shifts:HIDDEN = YES.
 END.
- 
+
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i value(lines-per-page)}
@@ -1114,7 +1128,7 @@ IF tb_excel THEN DO:
    END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
-    
+
 SESSION:SET-WAIT-STATE ("").
 
 
@@ -1140,11 +1154,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1172,25 +1186,25 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
 
   PAGE.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

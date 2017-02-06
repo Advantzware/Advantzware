@@ -262,6 +262,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -305,7 +316,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -598,8 +609,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -617,7 +630,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -625,6 +638,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO begin_run-no.
   END.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -688,7 +702,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
 /*     DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -699,11 +713,11 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.  */
-     
+
      {custom/out2file.i}
 
 END PROCEDURE.
@@ -735,7 +749,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -813,12 +827,12 @@ SESSION:SET-WAIT-STATE ("general").
 assign
  str-tit2 = c-win:title 
  {sys/inc/ctrtext.i str-tit2 56}
- 
+
  v-s-run = begin_run-no
  v-e-run = end_run-no
  v-s-dat = begin_date
  v-e-dat = end_date
- 
+
  uperiod = period
  v-export = tb_excel
  v-exp-name = fi_file
@@ -846,10 +860,10 @@ if td-show-parm then run show-param.
         and glhist.tr-date ge v-s-dat
         and glhist.tr-date le v-e-dat
       no-lock
-       
+
       break by glhist.tr-date
             by glhist.tr-num:
-            
+
       {custom/statusMsg.i " 'Processing Run #  '  + string(glhist.tr-num) "}
 
     v-tot = v-tot + glhist.tr-amt.
@@ -864,9 +878,9 @@ if td-show-parm then run show-param.
               v-tot             label "Balance"
               string(v-tot eq 0,"/Out of Balance")
                  format "x(14)" no-label
-             
+
         with frame f-1 stream-io width 200 down no-box no-attr-space.
-      
+
       IF v-export THEN
          PUT STREAM s-temp UNFORMATTED
             '"' glhist.tr-date   '",'
@@ -876,7 +890,7 @@ if td-show-parm then run show-param.
             SKIP .
       v-tot = 0.
     end.
-    
+
     if last-of(glhist.tr-date) then put skip(1).
   end.
 
@@ -887,10 +901,10 @@ if td-show-parm then run show-param.
         and gltrans.tr-date ge v-s-dat
         and gltrans.tr-date le v-e-dat
       no-lock
-       
+
       break by gltrans.tr-date
             by gltrans.trnum:
-            
+
         {custom/statusMsg.i " 'Processing Run #  '  + string(gltrans.trnum) "}
 
     v-tot = v-tot + gltrans.tr-amt.
@@ -905,7 +919,7 @@ if td-show-parm then run show-param.
               v-tot             label "Balance"
               string(v-tot eq 0,"/Out of Balance")
                  format "x(14)" no-label
-             
+
         with frame f-2 stream-io width 200 down no-box no-attr-space.
     IF v-export THEN
       PUT STREAM s-temp UNFORMATTED
@@ -917,7 +931,7 @@ if td-show-parm then run show-param.
          SKIP .
       v-tot = 0.
     END.
-    
+
     if last-of(gltrans.tr-date) then put skip(1).
   end.
 
@@ -952,11 +966,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -984,23 +998,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

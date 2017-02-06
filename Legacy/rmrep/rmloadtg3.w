@@ -399,6 +399,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -515,7 +526,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -552,14 +563,14 @@ END.
 ON LEAVE OF begin_filename IN FRAME FRAME-A /* Form File */
 DO:
   assign begin_filename.
-  
+
   if begin_filename gt "" and lastkey ne -1 then do:
     if search(begin_filename) eq ? then do:
       message "Form file does not exist"
               view-as alert-box error.
       return no-apply.
     end.
-    
+
     begin_filename = search(begin_filename).
     display begin_filename WITH FRAME FRAME-A IN WINDOW C-Win.
   end.
@@ -574,9 +585,9 @@ END.
 ON LEAVE OF begin_form IN FRAME FRAME-A /* Printer Form# */
 DO:
   assign begin_form.
-  
+
   begin_filename = "barcode" + string(begin_form) + ".frm".
-  
+
   display begin_filename WITH FRAME FRAME-A IN WINDOW C-Win.
 END.
 
@@ -685,7 +696,7 @@ DO:
    RUN sys\ref\char-fld-help.w(INPUT cocode,
                                INPUT v-path,
                                OUTPUT chFile).
-   
+
    scr-label-file:SCREEN-VALUE = chFile.
 END.
 
@@ -699,12 +710,12 @@ ON HELP OF scr-text-file-path IN FRAME FRAME-A /* Text File/Path */
 DO:
    def var ls-filename as cha no-undo.
    def var ll-ok as log no-undo.
-   
+
    system-dialog get-dir ls-filename 
                  title "Select Path to Save"
                  initial-dir scr-text-file-path
                  UPDATE ll-ok.
-      
+
    IF ll-ok THEN self:screen-value = ls-filename.
 END.
 
@@ -754,8 +765,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -767,7 +780,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
 /* security check need {methods/prgsecur.i} in definition section */
-  
+
   FIND FIRST company WHERE company.company EQ gcompany NO-LOCK.
 
   FIND FIRST sys-ctrl
@@ -802,7 +815,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {sys/inc/rmrecpt.i}
     v-rmrecpt = rmrecpt-cha EQ "RMTAG" AND rmrecpt-log.
   END.
-  
+
   FIND FIRST sys-ctrl NO-LOCK
     WHERE sys-ctrl.company EQ gcompany
       AND sys-ctrl.name    EQ "RMTAGS" NO-ERROR.
@@ -823,7 +836,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     v-mult = sys-ctrl.int-fld
     v-calc = sys-ctrl.log-fld.
   IF v-mult LE 0 THEN v-mult = 1.
-  
+
   FIND FIRST sys-ctrl NO-LOCK
   WHERE sys-ctrl.company EQ gcompany
     AND sys-ctrl.name    EQ "RMWHSBIN" NO-ERROR.
@@ -845,7 +858,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        reprintTag:SCREEN-VALUE = "YES".
 
     RUN enable_UI.
-    
+
     IF v-loadtag NE "TRIAD" THEN HIDE {&triad}.
     FIND FIRST sys-ctrl NO-LOCK 
       WHERE sys-ctrl.company EQ gcompany 
@@ -876,6 +889,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO v-po-list.
   END.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -903,7 +917,7 @@ IF scr-auto-print THEN DO:
                              OUTPUT cBarDir,
                              OUTPUT cDB,
                              OUTPUT lUserSpecific).
-    
+
     IF lUserSpecific THEN 
         RUN custom/lmprint.p (INPUT scr-label-file, 
                               INPUT cDB,
@@ -928,7 +942,7 @@ PROCEDURE convert-vend-comp-curr :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE INPUT-OUTPUT PARAMETER ip-cost AS DEC DECIMALS 4 NO-UNDO.
-   
+
   FIND FIRST vend WHERE
        vend.company EQ po-ord.company AND
        vend.vend-no EQ po-ord.vend-no
@@ -1226,7 +1240,7 @@ PROCEDURE createWPO :
     w-po.vend-no = po-ord.vend-no
     w-po.zip = po-ord.zip
     num-rec = num-rec + 1
-  
+
   /*IF po-ordl.pr-uom EQ "L" THEN w-po.cost = po-ordl.t-cost / po-ordl.cons-qty.
 
   ELSE*/ w-po.cost = po-ordl.cost /*+
@@ -1234,7 +1248,7 @@ PROCEDURE createWPO :
                     ((po-ordl.t-cost - po-ordl.setup) / po-ordl.cost))*/ .
 
   RUN rm/getpocst.p (BUFFER po-ordl, w-po.pr-uom, INPUT-OUTPUT w-po.cost).
-  
+
   RUN convert-vend-comp-curr(INPUT-OUTPUT w-po.cost).
   RUN convert-vend-comp-curr(INPUT-OUTPUT w-po.setup).
   RUN convert-vend-comp-curr(INPUT-OUTPUT w-po.cons-cost).
@@ -1498,7 +1512,7 @@ PROCEDURE get-matrix :
     IF v-wid EQ 0 THEN v-wid = IF AVAIL item AND item.r-wid NE 0 THEN item.r-wid
                           ELSE IF AVAIL item THEN item.s-wid ELSE 0.
     IF v-bwt EQ 0 THEN v-bwt = IF AVAIL item THEN item.basis-w ELSE 0.
-    
+
     ASSIGN
       lv-qty-uom = item.cons-uom
       lv-cost-uom = item.cons-uom.
@@ -1540,14 +1554,14 @@ PROCEDURE ok-button :
   DEF VAR op-valid-lt AS LOG NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
-    
+
      IF scr-text-file-path:SCREEN-VALUE = "" AND
         userLabelPath <> "" THEN        
         scr-text-file-path:SCREEN-VALUE = userLabelPath.
 
      ASSIGN {&displayed-objects}.
   END.
-       
+
   ASSIGN
      v-out = scr-text-file-path
      v-init-dir = v-out.
@@ -1588,7 +1602,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-  
+
   if init-dir = "" then init-dir = "c:\temp" .
   SYSTEM-DIALOG GET-FILE list-name
       TITLE      "Enter Listing Name to SAVE AS ..."
@@ -1598,7 +1612,7 @@ PROCEDURE output-to-file :
       ASK-OVERWRITE
       SAVE-AS
       USE-FILENAME
-  
+
   UPDATE OKpressed.
   IF NOT OKpressed THEN RETURN NO-APPLY.
 
@@ -1866,7 +1880,7 @@ PROCEDURE po-cost-proc :
    def var lv-out-qty LIKE rm-rctd.qty no-undo.
    DEF VAR lv-qty-uom LIKE rm-rctd.pur-uom NO-UNDO.
    DEF VAR lv-cost AS DEC DECIMALS 10 NO-UNDO.
-       
+
    FOR EACH w-po WHERE w-po.po-no NE 0,
        FIRST po-ordl WHERE
              po-ordl.company EQ cocode AND
@@ -1879,18 +1893,18 @@ PROCEDURE po-cost-proc :
                   item.i-no eq po-ordl.i-no
                   use-index i-no
                   NO-LOCK no-error.
-           
+
              assign
                 lv-qty-uom  = po-ordl.pr-qty-uom
                 v-len = po-ordl.s-len
                 v-wid = po-ordl.s-wid
                 v-bwt = 0.
-            
+
              IF AVAIL ITEM THEN
              DO:
                 {rm/pol-dims.i}
              END.
-            
+
              IF w-po.cons-uom EQ lv-qty-uom THEN
                 lv-out-qty = w-po.rcpt-qty.
              ELSE
@@ -1903,12 +1917,12 @@ PROCEDURE po-cost-proc :
                                      input v-dep,
                                      INPUT w-po.rcpt-qty,
                                      output lv-out-qty).
-            
+
              FIND FIRST po-ord WHERE
                   po-ord.company EQ po-ordl.company AND
                   po-ord.po-no EQ po-ordl.po-no
                   NO-LOCK NO-ERROR.
-            
+
              IF lv-out-qty LT po-ordl.ord-qty THEN
                 lv-cost = po-ordl.cost +
                          (po-ordl.setup /
@@ -1925,7 +1939,7 @@ PROCEDURE po-cost-proc :
              RUN rm/getpocst.p (BUFFER po-ordl, w-po.pr-uom, INPUT-OUTPUT w-po.cost).
 
              RUN convert-vend-comp-curr(INPUT-OUTPUT w-po.cost).
-  
+
    END.
 END PROCEDURE.
 
@@ -2016,7 +2030,7 @@ PROCEDURE run-barone :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEF INPUT PARAM ip-TagText AS cha NO-UNDO.
-   
+
    DEFINE VARIABLE iReturnResult AS INTEGER NO-UNDO.
    DEFINE VARIABLE cProgramName AS CHARACTER  NO-UNDO.
    DEFINE VARIABLE cFileName AS CHARACTER  NO-UNDO.
@@ -2041,7 +2055,7 @@ PROCEDURE run-lmw :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEF INPUT PARAM ip-TagText AS cha NO-UNDO.
-   
+
    DEFINE VARIABLE iReturnResult AS INTEGER NO-UNDO.
    DEFINE VARIABLE cProgramName AS CHARACTER  NO-UNDO.
    DEFINE VARIABLE cFileName AS CHARACTER  NO-UNDO.
@@ -2079,16 +2093,16 @@ PROCEDURE run-report :
   DEF VAR lv-middlesex-job AS CHAR FORMAT "x(9)" NO-UNDO.
   DEF VAR lv-middlesex-po AS CHAR FORMAT "x(9)" NO-UNDO.
   DEF VAR lv-itemOnly AS LOG NO-UNDO.
-  
+
   DEF BUFFER b-item FOR item.
   DEF BUFFER b-w-po FOR w-po.
   DEF VAR lv-tag-no AS INT NO-UNDO.
   DEF VAR lv-how-many-tags AS INT NO-UNDO.
   DEF VAR v-b-wpo-created AS LOG NO-UNDO.
   DEFINE VARIABLE choice2 AS LOGICAL  INIT YES  NO-UNDO.
-  
+
   SESSION:SET-WAIT-STATE ("general").
-  
+
   ASSIGN
     v-fpo-no[1]    = begin_po-no
     v-fpo-no[2]    = end_po-no
@@ -2098,7 +2112,7 @@ PROCEDURE run-report :
     copy_count     = begin_labels
     form_fid       = begin_filename
     v-stat         = rd_status.
-  
+
   EMPTY TEMP-TABLE w-po.
   EMPTY TEMP-TABLE tt-tag.
   EMPTY TEMP-TABLE ttblJob.
@@ -2194,7 +2208,7 @@ PROCEDURE run-report :
     RUN createWPOfromItem (v-fitem[1],v-fitem[2]).
   END. /* if not can-find */
   ELSE lv-itemOnly = NO.
-  
+
   ASSIGN
     str-tit  = coname + " - " + loname
     str-tit2 = "DOWNLOAD LOADTAG DATA"
@@ -2219,23 +2233,23 @@ PROCEDURE run-report :
      tt-po.tot-rec-qty GT tt-po.overrun-qty) THEN
      MESSAGE  "Receipt Qty Exceeds P.O Qty + Allowed Overrun%,  Continue?"
         VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE choice2.
-  
+
   IF choice2 = YES AND CAN-FIND(FIRST w-po) THEN
       MESSAGE "Are you Sure you Want to Create Loadtag File? " 
          VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE choice.
   IF NOT choice THEN RETURN ERROR.
 
   SESSION:SET-WAIT-STATE ("general").
-  
+
   {sys/inc/print1.i}
 
   {sys/inc/outprint.i value(lines-per-page)} 
 
   VIEW FRAME r-top.
   VIEW FRAME top.
-  
+
   RUN setOutputFile.
-  
+
   OUTPUT TO VALUE(v-out).
   RUN outputTagHeader.
   FOR EACH w-po EXCLUSIVE-LOCK:
@@ -2350,11 +2364,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -2382,23 +2396,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2412,7 +2426,7 @@ PROCEDURE temp-create :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
-  
+
   CREATE w-file.
   w-file.w-key = ip-rowid.
 

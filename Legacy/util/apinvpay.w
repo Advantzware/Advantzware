@@ -198,6 +198,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -216,7 +227,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -297,12 +308,12 @@ END.
 ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
 DO:
   v-process  = NO.
-   
+
   MESSAGE "Are you sure you want to" TRIM(c-win:TITLE)
           "within the selected parameters?"       
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
           UPDATE v-process.
-        
+
   IF v-process THEN RUN run-process.
 END.
 
@@ -367,8 +378,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -474,7 +487,7 @@ FOR EACH ap-inv
                                     AND ap-pay.c-no    EQ ap-payl.c-no
                                   USE-INDEX c-no)
       USE-INDEX inv-no:
-   
+
     FIND FIRST reftable
         WHERE reftable.reftable EQ "APINVPAY"
           AND reftable.company  EQ cocode
@@ -488,7 +501,7 @@ FOR EACH ap-inv
           WHERE ap-pay.company EQ cocode
             AND ap-pay.c-no    EQ ap-payl.c-no
           USE-INDEX c-no NO-ERROR.
-      
+
       IF AVAIL ap-pay THEN DO:
         FIND FIRST b-ap-payl
             WHERE b-ap-payl.c-no   EQ ap-pay.c-no
@@ -598,7 +611,7 @@ SESSION:SET-WAIT-STATE("").
 MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
 
 APPLY "close" TO THIS-PROCEDURE.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

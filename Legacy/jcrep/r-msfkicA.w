@@ -277,6 +277,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -336,7 +347,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -604,8 +615,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -624,9 +637,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   THRU_date = TODAY.   
 
- 
+
   RUN enable_UI.
-     
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -634,6 +647,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO thru_date.
   END.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -713,7 +727,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -748,7 +762,7 @@ PROCEDURE run-report :
 /* ----------------------------------------------- jc/rep/jc-summ.p 07/98 JLF */
 /* Job Cost Summary tt-report                                                    */
 /* -------------------------------------------------------------------------- */
-  
+
 {sys/form/r-top3w.f}
 
 def buffer b-jh for job-hdr.
@@ -784,7 +798,7 @@ form header
      "Machine:"
      v-mach
      skip(1)
-     
+
     with frame r-top.
 
 assign
@@ -794,12 +808,12 @@ assign
   v-fdate   = thru_date
   v-fmach   = begin_mach
   v-tmach   = END_mach
- 
+
   v-fjob    = fill(" ",6 - length(trim(begin_job-no))) +
                trim(begin_job-no) + string(int(begin_job-no2),"99")
   v-tjob    = fill(" ",6 - length(trim(end_job-no)))   +
                trim(end_job-no)   + string(int(end_job-no2),"99"). 
- 
+
  {sys/inc/print1.i}
 
 {sys/inc/outprint.i value(lines-per-page)}
@@ -855,7 +869,7 @@ SESSION:SET-WAIT-STATE ("general").
         IF first(tt-report.key-01) THEN display "" with frame r-top.
         ELSE page.
       end.
-      
+
       v-job-qty = v-job-qty + job-hdr.qty.
 
       for each job-mat
@@ -947,7 +961,7 @@ SESSION:SET-WAIT-STATE ("general").
 
       if v-fg-qty lt v-job-qty then do:
         v-printed = yes.
-      
+
         find first itemfg
             where itemfg.company eq cocode
               and itemfg.i-no    eq job-hdr.i-no
@@ -956,11 +970,11 @@ SESSION:SET-WAIT-STATE ("general").
         assign
          v-t-qty[1] = v-job-qty / v-on
          v-t-rem[1] = (v-job-qty - v-fg-qty) / v-on.
-         
+
         v-t-msf[1] = if avail itemfg then
                        ((v-job-qty - v-fg-qty) * itemfg.t-sqft / 1000)
                      else 0.  
-      
+
         display v-date              column-label "PROMISED/!JOB DATE"
                 tt-report.key-03       column-label "CUSTOMER"
                 tt-report.key-04       column-label "CUSTOMER PART #"
@@ -989,16 +1003,16 @@ SESSION:SET-WAIT-STATE ("general").
                '"' v-sheet                           '",'
                '"' STRING(v-mat-qty,"->>>,>>>,>>9")  '",'
                SKIP.
-            
+
         assign
          v-t-qty[2] = v-t-qty[2] + v-t-qty[1]
          v-t-rem[2] = v-t-rem[2] + v-t-rem[1]
          v-t-msf[2] = v-t-msf[2] + v-t-msf[1].
       end.      
-            
+
       if v-printed and last-of(tt-report.key-02) then do:
         v-printed = no.
-      
+
         underline v-date
                   tt-report.key-04
                   v-t-qty[1]
@@ -1006,7 +1020,7 @@ SESSION:SET-WAIT-STATE ("general").
                   v-t-msf[1]
 
             with frame det.
-            
+
         display v-date
                 "Daily Totals" @ tt-report.key-04
                 v-t-qty[2]     @ v-t-qty[1]
@@ -1014,7 +1028,7 @@ SESSION:SET-WAIT-STATE ("general").
                 v-t-msf[2]     @ v-t-msf[1]
 
             with frame det.
-            
+
         put skip(1).    
 
         IF tb_excel THEN
@@ -1074,11 +1088,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1110,19 +1124,19 @@ PROCEDURE show-param :
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -478,6 +478,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -564,7 +575,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttSubject.
 */  /* BROWSE ttSubject */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -588,7 +599,7 @@ END.
 ON WINDOW-CLOSE OF C-Win /* AOA Report Modifier */
 DO:
   /* This event will close the window and terminate the procedure.  */
-  
+
   RELEASE OBJECT PAReportEngine.
   RELEASE OBJECT PAApplication.
 
@@ -786,8 +797,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -801,6 +814,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN pCreateObjects.
   RUN pGetAOAFiles.
   RUN enable_UI.
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -937,10 +951,10 @@ PROCEDURE pGetReportFields :
     DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cDataField AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCaption   AS CHARACTER NO-UNDO.
-    
+
     PAReportEngine:OpenReport(ipcReportName).
     hReport = PAReportEngine:Report.
-    
+
     IF NOT VALID-HANDLE(hReport) THEN DO:
         MESSAGE "Report:" ipcReportName "- Failed to Open"
             VIEW-AS ALERT-BOX ERROR.
@@ -1060,7 +1074,7 @@ PROCEDURE pGetTempTableFields :
 
     DEFINE VARIABLE idx    AS INTEGER NO-UNDO.
     DEFINE VARIABLE iOrder AS INTEGER NO-UNDO.
-    
+
     IF NOT VALID-HANDLE(iphTable) THEN RETURN.
 
     EMPTY TEMP-TABLE ttSubject.
@@ -1137,7 +1151,7 @@ PROCEDURE pOpenAOAProgram :
 
     RUN VALUE(cAppSrv) PERSISTENT SET hAppSrv.
     hTable = DYNAMIC-FUNCTION('fGetTableHandle' IN hAppSrv, aoaProgramID).
-    
+
     RUN pGetTempTableFields (hTable).
     RUN pGetReportFields (aoaRptFile).
 
@@ -1179,7 +1193,7 @@ PROCEDURE pPublish :
         publishExe " ~"" aoaRptFile "~" guest password > "
         REPLACE(publishBat,".bat",".log") SKIP.
     OUTPUT CLOSE.
-    
+
     SESSION:SET-WAIT-STATE("General").
     OS-COMMAND SILENT VALUE(publishBat).
     SESSION:SET-WAIT-STATE("").
@@ -1192,7 +1206,7 @@ PROCEDURE pPublish :
        logText = logText + txtLine.
     END.
     INPUT CLOSE.
-    
+
     IF iplShow THEN DO:
         IF logText EQ "success" THEN
             MESSAGE "Published OK" VIEW-AS ALERT-BOX.
@@ -1307,14 +1321,14 @@ PROCEDURE pSetNames :
         IF AVAILABLE ttPageHeader OR AVAILABLE ttDetail THEN
         iLeft = iLeft + ttSubject.ttSize + 50.
     END. /* each subject */
-    
+
     IF autoSetParameters THEN DO:
         FIND FIRST ttParameter WHERE ttParameter.pOrder EQ 0 NO-ERROR.
         IF AVAILABLE ttParameter THEN
         ASSIGN
             ttParameter.pCaption = aoaReportTitle
             ttParameter.pWidth   = LENGTH(aoaReportTitle) * 180.
-        
+
         FIND FIRST user-print NO-LOCK
              WHERE user-print.company    EQ "001"
                AND user-print.program-id EQ aoaProgramID
@@ -1351,7 +1365,7 @@ PROCEDURE pSetNames :
             MESSAGE "No User-Print Record Exists to Set Parameters"
                 VIEW-AS ALERT-BOX ERROR.
     END. /* if setparameternames */
-    
+
     aoaReportWidth:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(iLeft).
 
     {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}

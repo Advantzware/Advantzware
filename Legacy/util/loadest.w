@@ -176,6 +176,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -198,7 +209,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -262,7 +273,7 @@ DO:
      TITLE "Select Estimates Files Path".
 
   fi_file_path:SCREEN-VALUE = v-file-path + "\".
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -292,8 +303,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -310,6 +323,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
   RUN enable_UI.
   {methods/nowait.i}
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -368,7 +382,7 @@ PROCEDURE run-process :
 /* ------------------------------------------------ sys/del/est.p 3/29/95 CTS */
 /* Delete / Archive old estimates                                             */
 /* -------------------------------------------------------------------------- */
-  
+
 DEF VAR v-file-path AS CHAR FORMAT "X(75)" NO-UNDO.
 DEF VAR v-est-no AS INT NO-UNDO.
 DEF VAR v-est-char AS CHAR no-undo.
@@ -410,7 +424,7 @@ END.
 message "Are you sure you want to load the estimates within the " +
         "selection parameters?"
         view-as alert-box question button yes-no update v-process.
-          
+
 if v-process then do:
 
   session:set-wait-state("General").
@@ -453,283 +467,283 @@ if v-process then do:
   DO v-est-no = begin_est TO end_est:
 
      v-est-char = string(v-est-no,">>>>>>>>").
-    
+
      FILE-INFO:FILE-NAME = v-file-path + "e-item-vend" + v-est-char + ".d".
-    
+
      IF FILE-INFO:FILE-SIZE <> ? THEN
      DO:
         INPUT FROM VALUE(FILE-INFO:FILE-NAME).
-      
+
         REPEAT:
           CREATE e-item-vend.
           IMPORT e-item-vend.
         END.
-      
+
         INPUT CLOSE.
      END.
-    
+
      FILE-INFO:FILE-NAME = v-file-path + "e-itemfg-vend" + v-est-char + ".d".
-    
+
      IF FILE-INFO:FILE-SIZE <> ? THEN
      DO:
         INPUT FROM VALUE(FILE-INFO:FILE-NAME).
-      
+
         REPEAT:
           CREATE e-itemfg-vend.
           IMPORT e-itemfg-vend.
         END.
-      
+
         INPUT CLOSE.
      END.
-    
+
      FILE-INFO:FILE-NAME = v-file-path + "eb" + v-est-char + ".d".
-    
+
      IF FILE-INFO:FILE-SIZE <> ? THEN
      DO:
         INPUT FROM VALUE(FILE-INFO:FILE-NAME).
-      
+
         REPEAT:
           CREATE eb.
           IMPORT eb.
         END.
-      
+
         INPUT CLOSE.
      END.
-    
+
      FILE-INFO:FILE-NAME = v-file-path + "reftable" + v-est-char + ".d".
-    
+
      IF FILE-INFO:FILE-SIZE <> ? THEN
      DO:
         INPUT FROM VALUE(FILE-INFO:FILE-NAME).
-      
+
         REPEAT:
           CREATE reftable.
           IMPORT reftable.
         END.
-      
+
         INPUT CLOSE.
      END.
-    
+
      FILE-INFO:FILE-NAME = v-file-path + "ef" + v-est-char + ".d".
-    
+
      IF FILE-INFO:FILE-SIZE <> ? THEN
      DO:
         INPUT FROM VALUE(FILE-INFO:FILE-NAME).
-      
+
         REPEAT:
           CREATE ef.
           IMPORT ef.
         END.
-      
+
         INPUT CLOSE.
      END.
-    
+
      FILE-INFO:FILE-NAME = v-file-path + "ef-nsh" + v-est-char + ".d".
-    
+
      IF FILE-INFO:FILE-SIZE <> ? THEN
      DO:
         INPUT FROM VALUE(FILE-INFO:FILE-NAME).
-      
+
         REPEAT:
           CREATE ef-nsh.
           IMPORT ef-nsh.
         END.
-      
+
         INPUT CLOSE.
      END.
-    
+
      FILE-INFO:FILE-NAME = v-file-path + "est-flm" + v-est-char + ".d".
-    
+
      IF FILE-INFO:FILE-SIZE <> ? THEN
      DO:
         INPUT FROM VALUE(FILE-INFO:FILE-NAME).
-      
+
         REPEAT:
           CREATE est-flm.
           IMPORT est-flm.
         END.
-      
+
         INPUT CLOSE.
      END.
-    
+
      FILE-INFO:FILE-NAME = v-file-path + "est-inst" + v-est-char + ".d".
-    
+
      IF FILE-INFO:FILE-SIZE <> ? THEN
      DO:
         INPUT FROM VALUE(FILE-INFO:FILE-NAME).
-      
+
         REPEAT:
           CREATE est-inst.
           IMPORT est-inst.
         END.
-      
+
         INPUT CLOSE.
      END.
-    
+
      FILE-INFO:FILE-NAME = v-file-path + "est-op" + v-est-char + ".d".
-    
+
      IF FILE-INFO:FILE-SIZE <> ? THEN
      DO:
         INPUT FROM VALUE(FILE-INFO:FILE-NAME).
-      
+
         REPEAT:
           CREATE est-op.
           IMPORT est-op.
         END.
-      
+
         INPUT CLOSE.
      END.
-    
+
      FILE-INFO:FILE-NAME = v-file-path + "est-prep" + v-est-char + ".d".
-    
+
      IF FILE-INFO:FILE-SIZE <> ? THEN
      DO:
         INPUT FROM VALUE(FILE-INFO:FILE-NAME).
-      
+
         REPEAT:
           CREATE est-prep.
           IMPORT est-prep.
         END.
-      
+
         INPUT CLOSE.
      END.
-    
+
      FILE-INFO:FILE-NAME = v-file-path + "est-qty" + v-est-char + ".d".
-    
+
      IF FILE-INFO:FILE-SIZE <> ? THEN
      DO:
         INPUT FROM VALUE(FILE-INFO:FILE-NAME).
-      
+
         REPEAT:
           CREATE est-qty.
           IMPORT est-qty.
         END.
-      
+
         INPUT CLOSE.
      END.
-    
+
      FILE-INFO:FILE-NAME = v-file-path + "est-summ" + v-est-char + ".d".
-    
+
      IF FILE-INFO:FILE-SIZE <> ? THEN
      DO:
         INPUT FROM VALUE(FILE-INFO:FILE-NAME).
-      
+
         REPEAT:
           CREATE est-summ.
           IMPORT est-summ.
         END.
-      
-        INPUT CLOSE.
-     END.
-    
-     FILE-INFO:FILE-NAME = v-file-path + "notes" + v-est-char + ".d".
-    
-     IF FILE-INFO:FILE-SIZE <> ? THEN
-     DO:
-        INPUT FROM VALUE(FILE-INFO:FILE-NAME).
-      
-        REPEAT:
-          CREATE notes.
-          IMPORT notes.
-        END.
-      
-        INPUT CLOSE.
-     END.
-    
-     FILE-INFO:FILE-NAME = v-file-path + "probe" + v-est-char + ".d".
-    
-     IF FILE-INFO:FILE-SIZE <> ? THEN
-     DO:
-        INPUT FROM VALUE(FILE-INFO:FILE-NAME).
-      
-        REPEAT:
-          CREATE probe.
-          IMPORT probe.
-        END.
-      
-        INPUT CLOSE.
-     END.
-    
-     FILE-INFO:FILE-NAME = v-file-path + "probeit" + v-est-char + ".d".
-    
-     IF FILE-INFO:FILE-SIZE <> ? THEN
-     DO:
-        INPUT FROM VALUE(FILE-INFO:FILE-NAME).
-      
-        REPEAT:
-          CREATE probeit.
-          IMPORT probeit.
-        END.
-      
-        INPUT CLOSE.
-     END.
-    
-     FILE-INFO:FILE-NAME = v-file-path + "box-design-line" + v-est-char + ".d".
-    
-     IF FILE-INFO:FILE-SIZE <> ? THEN
-     DO:
-        INPUT FROM VALUE(FILE-INFO:FILE-NAME).
-      
-        REPEAT:
-          CREATE box-design-line.
-          IMPORT box-design-line.
-        END.
-      
-        INPUT CLOSE.
-     END.
-    
-     FILE-INFO:FILE-NAME = v-file-path + "box-design-hdr" + v-est-char + ".d".
-    
-     IF FILE-INFO:FILE-SIZE <> ? THEN
-     DO:
-        INPUT FROM VALUE(FILE-INFO:FILE-NAME).
-      
-        REPEAT:
-          CREATE box-design-hdr.
-          IMPORT box-design-hdr.
-        END.
-      
-        INPUT CLOSE.
-     END.
-    
-     FILE-INFO:FILE-NAME = v-file-path + "est" + v-est-char + ".d".
-    
-     IF FILE-INFO:FILE-SIZE <> ? THEN
-     DO:
-        INPUT FROM VALUE(FILE-INFO:FILE-NAME).
-      
-        REPEAT:
-          CREATE est.
-          IMPORT est.
-        END.
-      
+
         INPUT CLOSE.
      END.
 
      FILE-INFO:FILE-NAME = v-file-path + "notes" + v-est-char + ".d".
-    
+
      IF FILE-INFO:FILE-SIZE <> ? THEN
      DO:
         INPUT FROM VALUE(FILE-INFO:FILE-NAME).
-      
+
         REPEAT:
           CREATE notes.
           IMPORT notes.
         END.
-      
+
         INPUT CLOSE.
      END.
-    
+
+     FILE-INFO:FILE-NAME = v-file-path + "probe" + v-est-char + ".d".
+
+     IF FILE-INFO:FILE-SIZE <> ? THEN
+     DO:
+        INPUT FROM VALUE(FILE-INFO:FILE-NAME).
+
+        REPEAT:
+          CREATE probe.
+          IMPORT probe.
+        END.
+
+        INPUT CLOSE.
+     END.
+
+     FILE-INFO:FILE-NAME = v-file-path + "probeit" + v-est-char + ".d".
+
+     IF FILE-INFO:FILE-SIZE <> ? THEN
+     DO:
+        INPUT FROM VALUE(FILE-INFO:FILE-NAME).
+
+        REPEAT:
+          CREATE probeit.
+          IMPORT probeit.
+        END.
+
+        INPUT CLOSE.
+     END.
+
+     FILE-INFO:FILE-NAME = v-file-path + "box-design-line" + v-est-char + ".d".
+
+     IF FILE-INFO:FILE-SIZE <> ? THEN
+     DO:
+        INPUT FROM VALUE(FILE-INFO:FILE-NAME).
+
+        REPEAT:
+          CREATE box-design-line.
+          IMPORT box-design-line.
+        END.
+
+        INPUT CLOSE.
+     END.
+
+     FILE-INFO:FILE-NAME = v-file-path + "box-design-hdr" + v-est-char + ".d".
+
+     IF FILE-INFO:FILE-SIZE <> ? THEN
+     DO:
+        INPUT FROM VALUE(FILE-INFO:FILE-NAME).
+
+        REPEAT:
+          CREATE box-design-hdr.
+          IMPORT box-design-hdr.
+        END.
+
+        INPUT CLOSE.
+     END.
+
+     FILE-INFO:FILE-NAME = v-file-path + "est" + v-est-char + ".d".
+
+     IF FILE-INFO:FILE-SIZE <> ? THEN
+     DO:
+        INPUT FROM VALUE(FILE-INFO:FILE-NAME).
+
+        REPEAT:
+          CREATE est.
+          IMPORT est.
+        END.
+
+        INPUT CLOSE.
+     END.
+
+     FILE-INFO:FILE-NAME = v-file-path + "notes" + v-est-char + ".d".
+
+     IF FILE-INFO:FILE-SIZE <> ? THEN
+     DO:
+        INPUT FROM VALUE(FILE-INFO:FILE-NAME).
+
+        REPEAT:
+          CREATE notes.
+          IMPORT notes.
+        END.
+
+        INPUT CLOSE.
+     END.
+
      FOR EACH probe fields(LINE est-no) WHERE
          probe.company EQ cocode AND
          probe.est-no EQ v-est-char
          NO-LOCK:
 
          v-probe-fmt = IF probe.LINE LT 100 THEN "99" ELSE "999".
-         
+
          OS-COMMAND SILENT VALUE("copy " + v-file-path + TRIM(probe.est-no) + "-*.*" + STRING(probe.LINE,v-probe-fmt)
             + " " + tmp-dir).
-         
+
          OS-COMMAND SILENT VALUE("copy " + v-file-path + TRIM(probe.est-no) +  ".*" + STRING(probe.LINE,v-probe-fmt)
             + " " + tmp-dir).
      END.
@@ -743,7 +757,7 @@ if v-process then do:
 end.
 
 return no-apply.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

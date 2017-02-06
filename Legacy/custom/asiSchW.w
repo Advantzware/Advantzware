@@ -142,6 +142,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -166,7 +177,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME DEFAULT-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 /* **********************  Create OCX Containers  ********************** */
@@ -272,8 +283,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -283,11 +296,12 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  
+
   RUN enable_UI.
-  
+
   CURRENT-WINDOW:WINDOW-STATE = WINDOW-MINIMIZED.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -306,7 +320,7 @@ PROCEDURE check4Tasks :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE hdTask AS CHARACTER NO-UNDO.
-  
+
   /*RUN getTask (OUTPUT hdTask).
   IF hdTask NE '' THEN          
   RUN runTask (hdTask).         */
@@ -480,7 +494,7 @@ PROCEDURE getTask :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
 /*==========  
   DEF VAR li AS INT NO-UNDO.
   DEF VAR v-run-param AS cha NO-UNDO.
@@ -498,12 +512,12 @@ PROCEDURE getTask :
   IF AVAIL prgrms THEN v-run-prog = prgrms.dir_group + "/" + prgrms.prgmname + "r".
   */
       v-run-prog = user-print.program-id.
-    
+
       IF search(v-run-prog) <> ?  THEN do:
          RUN VALUE(v-run-prog) (user-print.batch-seq). 
          ASSIGN user-print.last-date = TODAY
                 user-print.last-time = TIME.
-    
+
       END.
   END.
  */

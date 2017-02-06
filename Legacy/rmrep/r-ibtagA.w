@@ -59,7 +59,7 @@ DEF VAR v-roll-multp AS DEC DECIMALS 4 NO-UNDO.
 
 DEF TEMP-TABLE tt-rm-bin NO-UNDO LIKE rm-bin
                                  FIELD trans-date LIKE rm-rcpth.trans-date.
-    
+
 
 DEF STREAM excel.
 
@@ -354,6 +354,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -441,7 +452,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -839,8 +850,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -870,7 +883,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -879,6 +892,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO as-of-date.
   END.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -946,7 +960,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
 /*     DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -957,11 +971,11 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.  */
-     
+
  {custom/out2file.i}
 
 END PROCEDURE.
@@ -993,7 +1007,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1004,7 +1018,7 @@ PROCEDURE output-to-printer :
                             INPUT 3, INPUT 3, INPUT 0, INPUT 0, OUTPUT result).
                                     /* use-dialog(1) and landscape(2) */
  */
-  
+
   RUN custom/prntproc.p (list-name,INT(lv-font-no),lv-ornt).
 END PROCEDURE.
 
@@ -1076,7 +1090,7 @@ DEF VAR lv-uom  AS   CHAR   NO-UNDO.
           AND rm-rdtlh.loc-bin      EQ tt-rm-bin.loc-bin
           AND rm-rdtlh.tag          EQ tt-rm-bin.tag
         USE-INDEX rm-rdtl
-    
+
         BY rm-rcpth.trans-date
         BY rm-rcpth.r-no:
 
@@ -1092,13 +1106,13 @@ DEF VAR lv-uom  AS   CHAR   NO-UNDO.
           AND rm-rdtlh.tag          EQ tt-rm-bin.tag
           AND rm-rdtlh.rita-code    NE "S"
         USE-INDEX tag,
-        
+
         EACH rm-rcpth NO-LOCK 
         WHERE rm-rcpth.r-no         EQ rm-rdtlh.r-no
           AND rm-rcpth.rita-code    EQ rm-rdtlh.rita-code
           AND rm-rcpth.i-no         EQ item.i-no
         USE-INDEX r-no
-    
+
         BY rm-rcpth.trans-date
         BY rm-rcpth.r-no:
 
@@ -1273,7 +1287,7 @@ SESSION:SET-WAIT-STATE ("general").
        END.
   END.
  END.
-  
+
   for each tt-rm-bin
       where tt-rm-bin.loc          ge floc
         and tt-rm-bin.loc          le tloc
@@ -1285,7 +1299,7 @@ SESSION:SET-WAIT-STATE ("general").
       FIRST item NO-LOCK
       WHERE item.company EQ tt-rm-bin.company
         AND item.i-no    EQ tt-rm-bin.i-no
-     
+
       break by tt-rm-bin.loc
             by tt-rm-bin.i-no
             by tt-rm-bin.loc-bin
@@ -1306,7 +1320,7 @@ SESSION:SET-WAIT-STATE ("general").
     v-cost = if ce-ctrl.r-cost then item.avg-cost else tt-rm-bin.cost.
 
     IF v-cost EQ ? THEN v-cost = 0.
-    
+
     IF tagask AND tt-rm-bin.tag NE "" THEN
       tt-rm-bin.tag = "*" + tt-rm-bin.tag + "*".
 
@@ -1338,17 +1352,17 @@ SESSION:SET-WAIT-STATE ("general").
          WITH FRAME itemx NO-BOX NO-ATTR-SPACE DOWN STREAM-IO WIDTH 164.
 
     IF tb_excel THEN DO:
-     
-        
+
+
         ASSIGN
           chrRmBinTag = TRIM(tt-rm-bin.tag)
           chrTotCostVal = STRING(tt-rm-bin.qty * v-cost, "->>>>>9.99").
-        
+
         EXPORT STREAM excel DELIMITER ","
           tt-rm-bin.loc tt-rm-bin.i-no ITEM.i-dscr tt-rm-bin.loc-bin
           chrRmBinTag tt-rm-bin.trans-date tt-rm-bin.qty v-cost 
           chrTotCostVal ITEM.i-name.
-    
+
     END.
 
     assign
@@ -1373,7 +1387,7 @@ SESSION:SET-WAIT-STATE ("general").
                                    tt-rm-bin.qty, OUTPUT v-lf-qty).
           ELSE
              v-lf-qty = tt-rm-bin.qty.
-          
+
           IF ITEM.s-len NE 0 THEN
           DO:
              v-rolls-dec = v-lf-qty / ITEM.s-len.
@@ -1413,7 +1427,7 @@ SESSION:SET-WAIT-STATE ("general").
                  v-cum-price            to 123.
            END.
          END.
-      
+
       if not last-of(tt-rm-bin.i-no) then put skip(1).
 
       assign
@@ -1449,7 +1463,7 @@ SESSION:SET-WAIT-STATE ("general").
       END.
 
       put skip(1).
-      
+
       assign
        v-tot-price  = v-tot-price + v-cum-price2
        v-tot-rolls = v-tot-rolls + v-item-rolls
@@ -1525,11 +1539,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1557,23 +1571,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

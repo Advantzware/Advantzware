@@ -183,6 +183,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -198,7 +209,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -235,7 +246,7 @@ END.
 ON LEAVE OF begin_cust IN FRAME FRAME-A /* Old Customer# */
 DO:
   assign {&self-name}.
-  
+
   {&self-name}:screen-value = caps({&self-name}).
 END.
 
@@ -265,7 +276,7 @@ DO:
     apply "entry" to begin_cust.
     return no-apply.
   end.
-  
+
   IF begin_cust EQ end_cust THEN
   DO:
     MESSAGE "Old and New Customer #s are the same.  Cannot Process."
@@ -278,19 +289,19 @@ DO:
               where cust.company eq cocode
                 and cust.cust-no eq end_cust) then do:
     v-process = no.
-    
+
     message "The new Cust# already exists, merge old Cust# into new Cust#?"
             view-as alert-box question button yes-no update v-process.
-            
+
     if not v-process then return no-apply.
   end.
 
   v-process  = no.
-   
+
   message "Are you sure you want change customer number" trim(caps(begin_cust))
           "to" trim(caps(end_cust)) + "?"       
           view-as alert-box question button yes-no update v-process.
-        
+
   if v-process then run run-process.
 END.
 
@@ -303,7 +314,7 @@ END.
 ON LEAVE OF end_cust IN FRAME FRAME-A /* New Customer# */
 DO:
   assign {&self-name}.
-  
+
   {&self-name}:screen-value = caps({&self-name}).
 END.
 
@@ -324,8 +335,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -343,6 +356,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
   apply "entry" to begin_cust.
   {methods/nowait.i}
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -430,11 +444,11 @@ for each ar-cash
     where ar-cash.company eq cocode
       and ar-cash.cust-no eq v-cust
     use-index ar-cash
-        
+
     transaction:
 
   DISPLAY ar-cash.check-no FORMAT "9999999999" WITH DOWN.
-        
+
   for each ar-cashl where ar-cashl.c-no eq ar-cash.c-no use-index c-no:
 
     ar-cashl.cust-no = v-new-cust.
@@ -447,11 +461,11 @@ for each ar-inv
     where ar-inv.company eq cocode
       and ar-inv.cust-no eq v-cust
     use-index ar-inv
-        
+
     transaction:
 
   DISPLAY ar-inv.inv-no WITH DOWN.
-        
+
   for each ar-invl where ar-invl.x-no eq ar-inv.x-no use-index x-no:
 
     ar-invl.cust-no = v-new-cust.
@@ -459,16 +473,16 @@ for each ar-inv
 
   ar-inv.cust-no = v-new-cust.
 end.
-    
+
 for each ar-ledger
     where ar-ledger.company eq cocode
       and ar-ledger.cust-no eq v-cust
     use-index ar-ledger
-        
+
     transaction:
 
   DISPLAY ar-ledger.ref-num WITH DOWN.
-        
+
   ar-ledger.cust-no = v-new-cust.
 end.
 
@@ -500,31 +514,31 @@ for each quoteitm
   quoteitm.cust-no = v-new-cust.
 end.
 
-    
+
 v-char = "".
-  
+
 find first eb
     where eb.company eq cocode
     use-index cust no-lock no-error.
 
 do while avail eb:
   v-char = eb.loc.
-      
+
   for each eb
       where eb.company eq cocode
         and eb.loc     eq v-char
         and eb.cust-no eq v-cust
       use-index cust
-        
+
       transaction:
 
     DISPLAY eb.est-no FORMAT "x(10)" WITH DOWN.
-        
+
     for each probeit
         where probeit.company eq cocode
           and probeit.est-no  eq eb.est-no
           and probeit.cust-no eq v-cust:
-        
+
       probeit.cust-no = v-new-cust.
     end.
 
@@ -533,7 +547,7 @@ do while avail eb:
           and quotehd.est-no  eq eb.est-no
           and quotehd.cust-no eq v-cust
         use-index cust2:
-        
+
       quotehd.cust-no = v-new-cust.
 
       IF AVAIL cust THEN
@@ -546,7 +560,7 @@ do while avail eb:
 
     eb.cust-no = v-new-cust.
   end.
-      
+
   RELEASE eb.
 
   find first eb
@@ -558,38 +572,38 @@ end.
 for each EDIVTran
     where EDIVTran.company eq cocode
       and EDIVTran.cust    eq v-cust
-        
+
     transaction:
-        
+
   EDIVTran.cust = v-new-cust.
 end.
-    
+
 for each EDMast where EDMast.cust eq v-cust
-        
+
     transaction:
-        
+
   EDMast.cust = v-new-cust.
 end.
 
 for each EDPD where EDPD.cust eq v-cust
-        
+
     transaction:
-        
+
    EDPD.cust = v-new-cust.
 end.
 
 for each EDPOTran where EDPOTran.cust eq v-cust
-        
+
     transaction:
-        
+
   EDPOTran.cust = v-new-cust.
 end.
 
 for each EDShipto where EDShipto.cust eq v-cust
     use-index ByCustShip
-        
+
     transaction:
-        
+
   EDShipto.cust = v-new-cust.
 end.
 
@@ -597,11 +611,11 @@ for each fg-rcpts
     where fg-rcpts.company eq cocode
       and fg-rcpts.cust-no eq v-cust
     use-index cust-no
-        
+
     transaction:
 
   DISPLAY fg-rcpts.r-no LABEL "FG Rcpt Seq#" WITH DOWN.
-        
+
   fg-rcpts.cust-no = v-new-cust.
 end.
 
@@ -609,17 +623,17 @@ for each inv-head
     where inv-head.company eq cocode
       and inv-head.cust-no eq v-cust
     use-index cust
-        
+
     transaction:
 
   DISPLAY inv-head.inv-no
           inv-head.r-no LABEL "Seq#" WITH DOWN.
-        
+
   for each inv-line  where inv-line.r-no eq inv-head.r-no use-index r-no:
-         
+
     inv-line.cust-no = v-new-cust.
   end.
-  
+
   inv-head.cust-no = v-new-cust.
 end.
 
@@ -627,31 +641,31 @@ for each itemfg
     where itemfg.company eq cocode
       and itemfg.cust-no eq v-cust
     use-index customer
-        
+
     transaction:
 
   DISPLAY itemfg.i-no WITH DOWN.
-        
+
   for each itemfgdtl
       where itemfgdtl.company eq cocode
         and itemfgdtl.i-no    eq itemfg.i-no
       use-index pi-itemfgdtl:
-          
+
     itemfgdtl.cust-no = v-new-cust.
   end.
-        
+
   itemfg.cust-no = v-new-cust.
 end.
-    
+
 for each job-hdr
     where job-hdr.company eq cocode
       and job-hdr.cust-no eq v-cust
     use-index cust-idx
-        
+
     transaction:
 
   DISPLAY job-hdr.job-no job-hdr.job-no2 WITH DOWN.
-        
+
   for each fg-act
       where fg-act.company eq cocode
         and fg-act.job     eq job-hdr.job
@@ -659,17 +673,17 @@ for each job-hdr
         and fg-act.job-no2 eq job-hdr.job-no2
         and fg-act.cust-no eq v-cust
       use-index job-idx:
-        
+
     fg-act.cust-no = v-new-cust.
   end.
-      
+
   for each fg-hist
       where fg-hist.company eq cocode
         and fg-hist.i-no    eq job-hdr.i-no
         and fg-hist.job-no  eq job-hdr.job-no
         and fg-hist.cust-no eq v-cust
       use-index ino:
-        
+
     fg-hist.cust-no = v-new-cust.
   end.
 
@@ -680,29 +694,29 @@ for each cust-markup
     where cust-markup.company eq cocode
       and cust-markup.cust-no eq v-cust
     use-index cust-style
-        
+
     transaction:
 
   DISPLAY cust-markup.style cust-markup.procat WITH DOWN.
-        
+
   itemfg.cust-no = v-new-cust.
 end.
-    
+
 for each oe-bolh
     where oe-bolh.company eq cocode
       and oe-bolh.cust-no eq v-cust
     use-index cust
-    
+
     transaction:
 
   DISPLAY oe-bolh.bol-no WITH DOWN.
-    
+
   for each oe-ship
       where oe-ship.company eq cocode
         and oe-ship.bol-no  eq string(oe-bolh.bol-no,"99999999")
         and oe-ship.cust-no eq v-cust
       use-index pi-oe-ship:
-    
+
     oe-ship.cust-no = v-new-cust.
   end.
 
@@ -732,18 +746,18 @@ for each oe-ord
     old-rec-key = bf-cust.rec_key .
 
     DISPLAY oe-ord.ord-no WITH DOWN.
-    
+
     for each oe-ordl
         where oe-ordl.company eq cocode
           and oe-ordl.ord-no  eq oe-ord.ord-no:
-      
+
       oe-ordl.cust-no = v-new-cust.
     end.
-    
+
     for each oe-rel
         where oe-rel.company eq cocode
           and oe-rel.ord-no  eq oe-ord.ord-no:
-      
+
       oe-rel.cust-no = v-new-cust.
     end.
 
@@ -757,7 +771,7 @@ for each oe-ord
         FOR EACH attach WHERE
             attach.company = oe-ord.company and
             attach.rec_key = old-rec-key EXCLUSIVE-LOCK:
-            
+
            attach.rec_key = bf-cust-new.rec_key .
        END.
 
@@ -783,7 +797,7 @@ end.
 for each oe-relh
     where oe-relh.company eq cocode
       and oe-relh.cust-no eq v-cust
-    
+
     transaction:
 
   DISPLAY oe-relh.release# WITH DOWN.
@@ -807,18 +821,18 @@ find first oe-prmtx
 
 do while avail oe-prmtx:
   v-char = oe-prmtx.custype.
-  
+
   for each oe-prmtx
       where oe-prmtx.company eq cocode
         and oe-prmtx.custype eq v-char
         and oe-prmtx.cust-no eq v-cust
       use-index custitem
-    
+
       transaction:
-    
+
     oe-prmtx.cust-no = v-new-cust.
   end.
-  
+
   RELEASE oe-prmtx.
 
   find first oe-prmtx
@@ -834,24 +848,24 @@ do i = 1 to 4:
         and oe-reth.applied eq (i modulo 2 eq 0)
         and oe-reth.cust-no eq v-cust
       use-index posted
-    
+
       transaction:
-    
+
     oe-reth.cust-no = v-new-cust.
   end.
 end.
 
 for each pdh where pdh.cust eq v-cust
-    
+
     transaction:
-    
+
   pdh.cust = v-new-cust.
 end.
 
 for each po-ord
     where po-ord.company eq cocode
       and po-ord.cust-no eq v-cust
-    
+
     transaction:
 
   DISPLAY po-ord.po-no WITH DOWN.
@@ -861,10 +875,10 @@ for each po-ord
         and po-ordl.po-no   eq po-ord.po-no
         and po-ordl.cust-no eq v-cust
       use-index cust-no:
-    
+
     po-ordl.cust-no = v-new-cust.
   end.
-    
+
   po-ord.cust-no = v-new-cust.
 end.
 
@@ -872,9 +886,9 @@ for each po-ordl
     where po-ordl.company eq cocode
       and po-ordl.cust-no eq v-cust
     use-index cust
-    
+
     transaction:
-    
+
   po-ordl.cust-no = v-new-cust.
 end.
 
@@ -884,41 +898,41 @@ for each shipto
     use-index ship-id:
 
   DISPLAY shipto.ship-id WITH DOWN.
-    
+
   find last b-ship
       where b-ship.company eq cocode
         and b-ship.cust-no eq v-new-cust
       use-index ship-no no-lock no-error.
 
   i = (if avail b-ship then b-ship.ship-no else 0) + 1.
-  
+
   find first b-ship
       where b-ship.company eq cocode
         and b-ship.cust-no eq v-new-cust
         and b-ship.ship-id eq (if shipto.ship-id eq v-cust then v-new-cust
                                else shipto.ship-id)
       use-index ship-id no-lock no-error.
-      
+
   find first eb
       where eb.company eq cocode
       use-index cust no-lock no-error.
 
   do while avail eb:
     v-char = eb.loc.
-  
+
     for each eb
         where eb.company eq cocode
           and eb.loc     eq v-char
           and eb.cust-no eq v-new-cust
           and eb.ship-id eq shipto.ship-id
         use-index cust
-    
+
         transaction:
-          
+
       if avail b-ship then eb.ship-id = trim(string(i,">>>>>>>9")).
       else
       if shipto.ship-id eq v-cust then eb.ship-id = v-new-cust.
-    
+
       ASSIGN
        eb.ship-no      = i
        eb.ship-name    = shipto.ship-name
@@ -928,7 +942,7 @@ for each shipto
        eb.ship-state   = shipto.ship-state
        eb.ship-zip     = shipto.ship-zip.
     end.
-  
+
     RELEASE eb.
 
     find first eb
@@ -941,9 +955,9 @@ for each shipto
       where quotehd.company eq cocode
         and quotehd.cust-no eq v-new-cust
         and quotehd.ship-id eq shipto.ship-id
-          
+
       transaction:
-          
+
     if avail b-ship then quotehd.ship-id = trim(string(i,">>>>>>>9")).
     else
     if shipto.ship-id eq v-cust then quotehd.ship-id = v-new-cust.
@@ -955,21 +969,21 @@ for each shipto
      quotehd.shipto[4] = shipto.ship-city + ", " + shipto.ship-state +
                          "  " + shipto.ship-zip.
   end.
-      
+
   for each oe-rel
       where oe-rel.company eq cocode
         and oe-rel.cust-no eq v-new-cust
         and oe-rel.ship-id eq shipto.ship-id
-          
+
       transaction:
-          
+
     if avail b-ship then oe-rel.ship-id = trim(string(i,">>>>>>>9")).
     else
     if shipto.ship-id eq v-cust then oe-rel.ship-id = v-new-cust.
-    
+
     oe-rel.ship-no = i.
   end.
-  
+
   for each oe-relh
       where oe-relh.company eq cocode
         and oe-relh.posted  eq no
@@ -977,62 +991,62 @@ for each shipto
         and oe-relh.ship-id eq shipto.ship-id
       use-index post
       transaction:
-          
+
     if avail b-ship then oe-relh.ship-id = trim(string(i,">>>>>>>9")).
     else
     if shipto.ship-id eq v-cust then oe-relh.ship-id = v-new-cust.
-    
+
     oe-relh.ship-no = i.
   end.
-  
+
   for each oe-bolh
       where oe-bolh.company eq cocode
         and oe-bolh.posted  eq no
         and oe-bolh.cust-no eq v-new-cust
         and oe-bolh.ship-id eq shipto.ship-id
       use-index post
-      
+
       transaction:
-          
+
     if avail b-ship then oe-bolh.ship-id = trim(string(i,">>>>>>>9")).
     else
     if shipto.ship-id eq v-cust then oe-bolh.ship-id = v-new-cust.
-    
+
     oe-bolh.ship-no = i.
   end.
-  
+
   for each ar-inv
       where ar-inv.company eq cocode
         and ar-inv.posted  eq no
         and ar-inv.cust-no eq v-new-cust
         and ar-inv.ship-id eq shipto.ship-id
       use-index posted
-      
+
       transaction:
-    
+
     if avail b-ship then ar-inv.ship-id = trim(string(i,">>>>>>>9")).
     else
     if shipto.ship-id eq v-cust then ar-inv.ship-id = v-new-cust.
   end.
-       
+
   do transaction:
     if avail b-ship then shipto.ship-id = trim(string(i,">>>>>>>9")).
     else
     if shipto.ship-id eq v-cust then shipto.ship-id = v-new-cust.
-    
+
     assign
      shipto.cust-no = v-new-cust
      shipto.ship-no = i.
   end.
 end.
-    
+
 for each soldto 
     where soldto.company eq cocode
       and soldto.cust-no eq v-cust
     use-index sold-id:
 
   DISPLAY soldto.sold-id WITH DOWN.
-        
+
   find last b-sold
       where b-sold.company eq cocode
         and b-sold.cust-no eq v-new-cust
@@ -1046,14 +1060,14 @@ for each soldto
         and b-sold.sold-id eq (if soldto.sold-id eq v-cust then v-new-cust
                                else soldto.sold-id)
       use-index sold-id no-lock no-error.
-   
+
   for each quotehd
       where quotehd.company eq cocode
         and quotehd.cust-no eq v-new-cust
         and quotehd.sold-id eq soldto.sold-id
-              
+
       transaction:
-              
+
     if avail b-sold then quotehd.sold-id = trim(string(i,">>>>>>>9")).
     else
     if soldto.sold-id eq v-cust then quotehd.sold-id = v-new-cust.
@@ -1065,14 +1079,14 @@ for each soldto
      quotehd.soldto[4] = soldto.sold-city + ", " + soldto.sold-state +
                          "  " + soldto.sold-zip.
   end.
-          
+
   for each oe-ord
       where oe-ord.company eq cocode
         and oe-ord.cust-no eq v-new-cust
         and oe-ord.sold-id eq soldto.sold-id
-          
+
       transaction:
-              
+
     if avail b-sold then
     DO:
        oe-ord.sold-id = trim(string(i,">>>>>>>9")).
@@ -1112,75 +1126,75 @@ for each soldto
        END.
 
     END.
-        
+
     oe-ord.sold-no = i.
   end.
-      
+
   for each oe-rel
       where oe-rel.company eq cocode
         and oe-rel.cust-no eq v-new-cust
         and oe-rel.sold-no eq soldto.sold-no
-              
+
       transaction:
-        
+
     oe-rel.sold-no = i.
   end.
-      
+
   for each oe-bolh
       where oe-bolh.company eq cocode
         and oe-bolh.posted  eq no
         and oe-bolh.cust-no eq v-new-cust
         and oe-bolh.sold-id eq soldto.sold-id
       use-index post
-          
+
       transaction:
-              
+
     if avail b-sold then oe-bolh.sold-id = trim(string(i,">>>>>>>9")).
     else
     if soldto.sold-id eq v-cust then oe-bolh.sold-id = v-new-cust.
-       
+
     oe-bolh.sold-no = i.
   end.
-      
+
   for each inv-head
       where inv-head.company eq cocode
         and inv-head.cust-no eq v-new-cust
         and inv-head.sold-no eq soldto.sold-id
-            
+
       transaction:
-        
+
     if avail b-sold then inv-head.sold-no = trim(string(i,">>>>>>>9")).
     else
     if soldto.sold-id eq v-cust then inv-head.sold-no = v-new-cust.
   end.
-      
+
   for each ar-inv
       where ar-inv.company eq cocode
         and ar-inv.posted  eq no
         and ar-inv.cust-no eq v-new-cust
         and ar-inv.sold-id eq soldto.sold-id
       use-index posted
-          
+
       transaction:
-        
+
     if avail b-sold then ar-inv.sold-id = trim(string(i,">>>>>>>9")).
     else
     if soldto.sold-id eq v-cust then ar-inv.sold-id = v-new-cust.
-       
+
     ar-inv.sold-no = i.
   end.
-        
+
   do transaction:
     if avail b-sold then soldto.sold-id = trim(string(i,">>>>>>>9")).
     else
     if soldto.sold-id eq v-cust then soldto.sold-id = v-new-cust.
-        
+
     assign
      soldto.cust-no = v-new-cust
      soldto.sold-no = i.
   end.
 end.
-    
+
 do transaction:
   FIND CURRENT cust NO-ERROR.
 
@@ -1202,9 +1216,9 @@ end.
 session:set-wait-state("").
 
 message trim(c-win:title) + " Process Complete..." view-as alert-box.
-    
+
 apply "close" to this-procedure.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

@@ -132,6 +132,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -147,7 +158,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -196,7 +207,7 @@ DO:
 
       REPEAT:
          IMPORT cFileStream.
-        
+
          IF LENGTH(cFileStream) GE 4 AND
             SUBSTR(cFileStream,LENGTH(cFileStream) - 3) EQ ".jpg" THEN
          DO:
@@ -204,7 +215,7 @@ DO:
                  itemfg.company EQ cocode AND
                  itemfg.i-no = SUBSTR(cFileStream,1,LENGTH(cFileStream) - 4)
                  EXCLUSIVE-LOCK NO-ERROR.
-        
+
             IF AVAIL itemfg THEN
             DO:
                itemfg.box-image = v-graphic-char + itemfg.i-no + ".jpg".
@@ -235,8 +246,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -250,7 +263,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    fi_folder = v-graphic-char.
 
    RUN enable_UI.
-  
+
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
    IF NOT THIS-PROCEDURE:PERSISTENT THEN
      WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

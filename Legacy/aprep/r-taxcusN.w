@@ -325,6 +325,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -372,7 +383,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -534,7 +545,7 @@ DO:
 
   RUN DisplaySelectionDefault.  /* task 04041406 */ 
   RUN DisplaySelectionList2 .
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -672,7 +683,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
-  
+
    IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
        sl_selected:NUM-ITEMS = 0)
    THEN ASSIGN ldummy = sl_selected:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
@@ -680,7 +691,7 @@ DO:
               /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
                .
 
-  
+
 /* for pairs
     DEF VAR cSelectedList AS cha NO-UNDO.
     cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
@@ -723,7 +734,7 @@ DO:
   ASSIGN
     {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}:ENTRY(1)
     .
-    
+
 
 END.
 
@@ -776,8 +787,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -799,7 +812,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    begin_period = month(today)
    begin_date   = today
    end_date     = today.
-   
+
   find first period
       where period.company eq cocode
         and period.yr      eq begin_year
@@ -813,10 +826,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      begin_period = period.pnum
      begin_year   = period.yr
      begin_date   = period.pst.
-   
+
   RUN DisplaySelectionList.
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -825,6 +838,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO begin_year.
   END.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -863,7 +877,7 @@ PROCEDURE DisplaySelectionDefault :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  
+
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
      cListContents = cListContents +                   
@@ -889,7 +903,7 @@ PROCEDURE DisplaySelectionList :
   DEF VAR iCount AS INT NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
-     
+
      RETURN.
   END.
 
@@ -902,7 +916,7 @@ PROCEDURE DisplaySelectionList :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -910,9 +924,9 @@ PROCEDURE DisplaySelectionList :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 END PROCEDURE.
 
@@ -933,7 +947,7 @@ PROCEDURE DisplaySelectionList2 :
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
-        
+
   EMPTY TEMP-TABLE ttRptList.
 
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
@@ -943,7 +957,7 @@ PROCEDURE DisplaySelectionList2 :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -951,9 +965,9 @@ PROCEDURE DisplaySelectionList2 :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
   DO iCount = 1 TO sl_selected:NUM-ITEMS:
@@ -1013,7 +1027,7 @@ PROCEDURE GetSelectionList :
 
  DO i = 1 TO sl_selected:NUM-ITEMS /* IN FRAME {&FRAME-NAME}*/ :
     FIND FIRST ttRptList WHERE ttRptList.TextList = ENTRY(i,cTmpList) NO-LOCK NO-ERROR.     
-  
+
     CREATE ttRptSelected.
     ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
            ttRptSelected.FieldList = ttRptList.FieldList
@@ -1022,7 +1036,7 @@ PROCEDURE GetSelectionList :
            ttRptSelected.HeadingFromLeft = IF entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
-           
+
  END.
 
 END PROCEDURE.
@@ -1184,7 +1198,7 @@ def var v-period        like uperiod init 1 NO-UNDO.
        fill("-",107)                format "x(107)"
 
     with frame r-top. */
-    
+
 {sa/sa-sls01.i}
 
 SESSION:SET-WAIT-STATE ("general").
@@ -1194,7 +1208,7 @@ EMPTY TEMP-TABLE tt-report.
 assign
  str-tit2 = c-win:title
  {sys/inc/ctrtext.i str-tit2 112}
- 
+
  v-period  = begin_period
  v-date[1] = begin_date
  v-date[2] = end_date
@@ -1219,7 +1233,7 @@ DEF VAR cslist AS cha NO-UNDO.
           .        
           cSlist = cSlist + ttRptSelected.FieldList + ",".
 
-        
+
         IF LOOKUP(ttRptSelected.TextList, "Gross Sales $,Tax $,Freight $,Net Sales $") <> 0    THEN
             ASSIGN
             str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
@@ -1272,49 +1286,49 @@ if td-show-parm then run show-param.
           use-index ar-cash no-lock:
 
           v-actnum = "".
-         
+
           for each ar-cashl
               where ar-cashl.c-no   eq ar-cash.c-no
                 and ar-cashl.posted eq yes
                 and ar-cashl.memo   eq yes
               use-index c-no no-lock,
-         
+
               first ar-inv
               where ar-inv.company  eq cocode
                 and ar-inv.inv-no   eq ar-cashl.inv-no
                 and ar-inv.tax-code ne ""
               no-lock:
-         
+
               find first stax
                   {sys/ref/staxW.i}
                     and stax.tax-group  eq stax.tax-code[1]
                     and stax.tax-acc[1] eq ar-cashl.actnum
                   no-lock no-error.
-              
+
               if avail stax then do:
                  v-actnum = stax.tax-acc[1].
                  leave.
               end.
           end.
-         
+
           for each ar-cashl
               where ar-cashl.c-no   eq ar-cash.c-no
                 and ar-cashl.posted eq yes
                 and ar-cashl.memo   eq yes
               use-index c-no no-lock,
-         
+
               first ar-inv
               where ar-inv.company  eq cocode
                 and ar-inv.inv-no   eq ar-cashl.inv-no
                 and ar-inv.tax-code ne ""
               no-lock,
-         
+
               first stax
               {sys/ref/staxW.i}
                 and stax.tax-group eq ar-inv.tax-code
                 and stax.tax-group eq stax.tax-code[1]
               no-lock:
-         
+
               create tt-report.
               assign
                tt-report.term-id = v-term
@@ -1330,7 +1344,7 @@ if td-show-parm then run show-param.
     end.    
 
     VIEW FRAME r-top.
-    
+
     for each stax
         {sys/ref/staxW.i}
           and stax.tax-group eq stax.tax-code[1]
@@ -1362,7 +1376,7 @@ if td-show-parm then run show-param.
             v-frtr   = 0
             v-rate-t = 0
             v-frtr-t = 0.
-          
+
            FIND FIRST b-stax
                WHERE b-stax.company   EQ cocode
                  AND b-stax.tax-group EQ tt-report.key-01
@@ -1385,14 +1399,14 @@ if td-show-parm then run show-param.
         if v-found then do:
 
            find first ar-inv where recid(ar-inv) eq tt-report.rec-id no-lock no-error.
-          
+
            if avail ar-inv then do:
-            
+
               if ar-inv.net eq ar-inv.gross + ar-inv.freight + ar-inv.tax-amt then
                  ld = ar-inv.net.
               else
                  ld = ar-inv.gross.
-             
+
               assign
                 v-sal-gro[1] = v-sal-gro[1] + (ld - ar-inv.tax-amt).
 
@@ -1408,34 +1422,34 @@ if td-show-parm then run show-param.
                     ASSIGN 
                        v-inv-tax = 0
                        v-frt-tax = 0.
-             
+
               else
                  assign
                     v-inv-tax    = ar-inv.tax-amt
                     v-frt-tax    = 0.
-             
+
               IF v-inv-tax EQ ? THEN v-inv-tax = 0.
               IF v-frt-tax EQ ? THEN v-frt-tax = 0.
-             
+
               if v-rate-t ne 0 then
                  v-tax-amt[1] = v-tax-amt[1] +
                                (v-inv-tax * (v-rate / v-rate-t)).
-             
+
               if v-frtr-t ne 0 then
                  v-tax-amt[1] = v-tax-amt[1] +
                                (v-frt-tax * (v-frtr / v-frtr-t)).
-             
+
               v-freight[1] = IF ar-inv.f-bill THEN ar-inv.freight ELSE 0.  /* OLD actual code */
 
            end.
-          
+
            else
            if tt-report.key-04 eq stax.tax-acc[1] then do:
               find ar-cashl where recid(ar-cashl) eq tt-report.rec-id no-lock no-error.
               find first ar-cash
                   where ar-cash.c-no eq ar-cashl.c-no
                   no-lock no-error.
-             
+
               if ar-cashl.actnum eq stax.tax-acc[1] then
                /* aj old v-tax-amt[1] = ar-cashl.amt-paid - ar-cashl.amt-disc.  */
                  v-tax-amt[1] = v-tax-amt[1] + 
@@ -1444,9 +1458,9 @@ if td-show-parm then run show-param.
               else
                  v-sal-gro[1] = v-sal-gro[1] + ar-cashl.amt-paid - ar-cashl.amt-disc.
            end.      
-         
+
         END. /* gdm - */
-        
+
         IF /*last-of(tt-report.key-01) AND*/ /* gdm - */
            (v-sal-gro[1] ne 0 or
             v-tax-amt[1] ne 0 or
@@ -1466,10 +1480,10 @@ if td-show-parm then run show-param.
                    v-freight[1]
                    v-sal-gro[1] - /* - v-tax-amt[1] */ v-freight[1]
                                          format "->>,>>>,>>9.99"
-          
+
                with frame detail no-box no-labels stream-io width 132.
            DOWN with frame detail no-box no-labels stream-io width 132.
-          
+
            IF tb_excel THEN
              PUT STREAM excel UNFORMATTED
                '"' (IF FIRST-OF(tt-report.key-02) THEN v-tax-dscr[1]
@@ -1495,7 +1509,7 @@ if td-show-parm then run show-param.
                    cVarValue = ""
                    cExcelDisplay = ""
                    cExcelVarValue = "".
-          
+
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
@@ -1507,27 +1521,27 @@ if td-show-parm then run show-param.
                          WHEN "tax"                     THEN cVarValue = STRING(v-tax-amt[1],"->>,>>>,>>9.99") .
                          WHEN "frt"               THEN cVarValue = STRING(v-freight[1],"->>,>>>,>>9.99") .
                          WHEN "net-sal"             THEN cVarValue = STRING(v-sal-gro[1]  - v-freight[1],"->>,>>>,>>9.99") .
-                     
+
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+
             PUT UNFORMATTED cDisplay SKIP.
             IF tb_excel THEN DO:
                  PUT STREAM excel UNFORMATTED  
                        cExcelDisplay SKIP.
              END.
-          
+
             ASSIGN 
                v-sal-gro[2] = v-sal-gro[2] + v-sal-gro[1]  
                v-tax-amt[2] = v-tax-amt[2] + v-tax-amt[1]  
                v-freight[2] = v-freight[2] + v-freight[1].
         END.
-            
+
         ASSIGN
          v-sal-gro[1] = 0
          v-tax-amt[1] = 0
@@ -1545,7 +1559,7 @@ if td-show-parm then run show-param.
                                        format "->>,>>>,>>9.99"
 
           with frame totals1 no-box no-labels stream-io width 132.
-      
+
       IF tb_excel THEN
         PUT STREAM excel UNFORMATTED
           '"' ""                                                    '",'
@@ -1565,7 +1579,7 @@ if td-show-parm then run show-param.
                    cVarValue = ""
                    cExcelDisplay = ""
                    cExcelVarValue = "".
-          
+
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
@@ -1577,9 +1591,9 @@ if td-show-parm then run show-param.
                           WHEN "tax"                     THEN cVarValue = STRING(v-tax-amt[2],"->>,>>>,>>9.99")  .
                           WHEN "frt"               THEN cVarValue = STRING(v-freight[2],"->>,>>>,>>9.99")  .
                           WHEN "net-sal"             THEN cVarValue = STRING(v-sal-gro[2] - v-freight[2],"->>,>>>,>>9.99")   .
-                     
+
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
@@ -1629,7 +1643,7 @@ if td-show-parm then run show-param.
                    cVarValue = ""
                    cExcelDisplay = ""
                    cExcelVarValue = "".
-          
+
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
@@ -1641,9 +1655,9 @@ if td-show-parm then run show-param.
                           WHEN "tax"                     THEN cVarValue = STRING(v-tax-amt[3],"->>,>>>,>>9.99")  .
                           WHEN "frt"               THEN cVarValue = STRING(v-freight[3],"->>,>>>,>>9.99")  .
                           WHEN "net-sal"             THEN cVarValue = STRING(v-sal-gro[3] - v-freight[3],"->>,>>>,>>9.99")   .
-                     
+
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
@@ -1688,12 +1702,12 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha NO-UNDO.
-  
+
   ASSIGN
   lv-frame-hdl = frame {&frame-name}:HANDLE
   lv-group-hdl = lv-frame-hdl:first-child
   lv-field-hdl = lv-group-hdl:first-child.
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1719,23 +1733,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

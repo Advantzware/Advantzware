@@ -287,6 +287,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -342,7 +353,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -425,7 +436,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-  
+
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
   IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
   EMPTY TEMP-TABLE ttCustList.
@@ -468,7 +479,7 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
@@ -483,7 +494,7 @@ END.
 ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -651,8 +662,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -673,9 +686,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    as-of-date = TODAY.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
-  
+
   RUN sys/inc/CustListForm.p ( "IL7",cocode, 
                                OUTPUT ou-log,
                                OUTPUT ou-cust-int) .
@@ -705,7 +718,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO"
         btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
         .
-      
+
    IF ou-log AND ou-cust-int = 0 THEN do:
        ASSIGN 
         tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = YES
@@ -716,6 +729,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
    END.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -777,7 +791,7 @@ PROCEDURE CustList :
 
     RUN sys/ref/CustListManager.w(INPUT cocode,
                                   INPUT 'IL7').
-    
+
 
 END PROCEDURE.
 
@@ -837,7 +851,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
 /*     DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -848,9 +862,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.  */
 
 {custom/out2file.i}   
@@ -884,7 +898,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -942,7 +956,7 @@ def buffer b-f-rd for fg-rdtlh.
 
  form header
        skip(1)
-       
+
        "        "
        "               "
        "                              "
@@ -951,7 +965,7 @@ def buffer b-f-rd for fg-rdtlh.
        "      Daily"
        "     Ending"
        " "                skip
-       
+
        "Cust #  "
        "Item #         "
        "Description                   "
@@ -975,7 +989,7 @@ def buffer b-f-rd for fg-rdtlh.
        "-----------"       skip
 
       with with frame r-top.
-     
+
 assign
  str-tit2 = c-win:title
  {sys/inc/ctrtext.i str-tit2 112}
@@ -985,7 +999,7 @@ assign
  tcus    = end_cust-no
  fitm    = begin_i-no
  titm    = end_i-no.
- 
+
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i value(lines-per-page)}
@@ -1018,7 +1032,7 @@ FOR EACH ttCustList
                        and fg-rcpth.i-no       eq itemfg.i-no
                        and fg-rcpth.trans-date eq vdat)
       no-lock
-    
+
       break by itemfg.cust-no
             by itemfg.i-no:
 
@@ -1028,76 +1042,76 @@ FOR EACH ttCustList
      v-shipments = 0
      v-end-qty   = 0
      v-cday      = "".
-                  
+
     for each fg-rcpth
         where fg-rcpth.company      eq cocode
           and fg-rcpth.i-no         eq itemfg.i-no
           and fg-rcpth.trans-date   le vdat
         use-index tran no-lock,
-        
+
         each fg-rdtlh
         where fg-rdtlh.r-no      eq fg-rcpth.r-no
           and fg-rdtlh.rita-code eq fg-rcpth.rita-code
         no-lock
-        
+
         break by fg-rdtlh.loc
               by fg-rdtlh.loc-bin
               by fg-rdtlh.tag
               by fg-rcpth.trans-date
               BY fg-rdtlh.trans-time
               by fg-rcpth.r-no:
-              
+
       i = int(fg-rcpth.trans-date eq vdat) + 1.
-      
+
       if index("RATE",fg-rcpth.rita-code) ne 0 then
         assign
          v-end-qty[1] = v-end-qty[1] + fg-rdtlh.qty
          v-qty-onh[i] = v-qty-onh[i] + fg-rdtlh.qty.
-      
+
       else
       if fg-rcpth.rita-code eq "C" then do:
         assign
          v-end-qty[1] = fg-rdtlh.qty
          v-qty-onh[i] = fg-rdtlh.qty.
-           
+
         if i eq 2 then v-cday = "*".
       end.
 
       else do: 
         v-end-qty[1] = v-end-qty[1] - fg-rdtlh.qty.
-                
+
         if i eq 1 then
           v-qty-onh[i] = v-qty-onh[i] - fg-rdtlh.qty.
         else
           v-shipments[1] = v-shipments[1] + fg-rdtlh.qty.
       end.
-      
+
       if last-of(fg-rdtlh.tag) then do:
         if fg-rdtlh.loc eq "CUST" then do:
           if v-end-qty[1] lt 0 then
             assign
              v-qty-onh[1] = v-qty-onh[1] - v-end-qty[1]
              v-end-qty[1] = 0. 
-            
+
           if v-qty-onh[1] lt 0 then
             assign
              v-end-qty[1] = v-end-qty[1] - v-qty-onh[1]
              v-qty-onh[1] = 0.
         end.
-        
+
         assign
          v-qty-onh[3]   = v-qty-onh[3]   + v-qty-onh[1]
          v-qty-onh[4]   = v-qty-onh[4]   + v-qty-onh[2]
          v-shipments[2] = v-shipments[2] + v-shipments[1]
          v-end-qty[2]   = v-end-qty[2]   + v-end-qty[1]
-         
+
          v-qty-onh[1]   = 0
          v-qty-onh[2]   = 0
          v-shipments[1] = 0
          v-end-qty[1]   = 0.
       end.  
     end. /* each fg-rcpth */
-    
+
     display itemfg.cust-no    when first-of(itemfg.cust-no)
             itemfg.i-no       format "x(15)"
             itemfg.i-name     format "x(30)"
@@ -1109,7 +1123,7 @@ FOR EACH ttCustList
             "___________"                         to 117
             "___________"                         to 129
             skip(1)
-            
+
         with frame frame1 no-box no-labels no-attr-space STREAM-IO width 132 down.
 
     IF tb_excel THEN 
@@ -1139,7 +1153,7 @@ RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 SESSION:SET-WAIT-STATE("").
 
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
-  
+
 end procedure.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1163,7 +1177,7 @@ PROCEDURE SetCustRange :
         btnCustList:SENSITIVE = iplChecked
        .
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1184,11 +1198,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1216,23 +1230,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

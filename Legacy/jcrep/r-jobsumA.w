@@ -409,6 +409,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -534,7 +545,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -617,7 +628,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-      
+
   run run-report. 
   STATUS DEFAULT "Processing Complete". 
 
@@ -628,7 +639,7 @@ DO:
        WHEN 5 THEN
        DO:
           DEF VAR lv-tmp AS CHAR INIT "-0" NO-UNDO.
-          
+
           {custom/asimailr.i &TYPE="Customer"
                              &begin_cust=lv-tmp
                              &END_cust=lv-tmp
@@ -998,8 +1009,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -1015,7 +1028,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
- 
+
   find first sys-ctrl
       where sys-ctrl.company eq cocode
          and sys-ctrl.name   eq "CEMENU"
@@ -1036,6 +1049,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO begin_job-no.
   END.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1123,7 +1137,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1177,7 +1191,7 @@ assign
                   trim(begin_job-no) + string(int(begin_job-no2),"99")
   v-job-no[2]   = fill(" ",6 - length(trim(end_job-no)))   +
                   trim(end_job-no)   + string(int(end_job-no2),"99") 
-  
+
   v-date[1]     = begin_date
   v-date[2]     = END_date
   v-tot         = tb_totals  
@@ -1191,7 +1205,7 @@ assign
   v-incl-farmout = tb_incl_farmout
   v-merge-mat    = tb_sum_mat
   v-tot-mchg     = tb_sum-mischg . 
-         
+
 IF v-tot THEN DO: 
   IF NOT ll-secure THEN RUN sys/ref/d-passwd.w (3, OUTPUT ll-secure).
   v-tot = ll-secure. 
@@ -1226,7 +1240,7 @@ END.
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
 SESSION:SET-WAIT-STATE ("").
-    
+
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 
 end procedure.
@@ -1249,11 +1263,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1285,19 +1299,19 @@ PROCEDURE show-param :
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1340,7 +1354,7 @@ FOR EACH oe-ord WHERE oe-ord.company EQ cocode
         FOR EACH inv-head WHERE inv-head.company EQ oe-boll.company
             AND inv-head.bol-no EQ oe-boll.bol-no
             NO-LOCK:
-            
+
             FOR EACH inv-line NO-LOCK WHERE inv-line.r-no = inv-head.r-no
               AND inv-line.job-no EQ ipcJob
               AND inv-line.job-no2 EQ ipcJobNo2:
@@ -1349,7 +1363,7 @@ FOR EACH oe-ord WHERE oe-ord.company EQ cocode
                 FOR EACH inv-misc WHERE inv-misc.r-no EQ inv-line.r-no
                   AND inv-misc.LINE EQ inv-line.LINE NO-LOCK:
                   v-subtot-prep = v-subtot-prep + misc.cost.
-                  
+
                 END.
             END.
             v-inv-freight = IF inv-head.f-bill THEN inv-head.t-inv-freight ELSE 0.
@@ -1389,7 +1403,7 @@ FOR EACH oe-ord WHERE oe-ord.company EQ cocode
             v-inv-freight = IF NOT(ar-inv.freight eq 0 or not ar-inv.f-bill) THEN
                           ar-inv.freight 
                        ELSE 0.
-            
+
 
         END.
         ASSIGN v-inv-total = v-subtot-lines  /* + /* 8/5/14 ar-inv.tax-amt + */ v-inv-freight */
@@ -1401,7 +1415,7 @@ FOR EACH oe-ord WHERE oe-ord.company EQ cocode
               NO-LOCK,
               FIRST ar-inv WHERE ar-inv.x-no EQ ar-invl.x-no
                 NO-LOCK.
-       
+
                v-subtot-prep  = v-subtot-prep  + ar-invl.amt.                                         
           END.
           ASSIGN v-total-prep = v-total-prep + v-subtot-prep.

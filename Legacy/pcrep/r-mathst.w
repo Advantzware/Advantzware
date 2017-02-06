@@ -51,7 +51,7 @@ DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 assign
  cocode = gcompany
  locode = gloc.
- 
+
 def var jmctr as int.
 def var dayctr as int.
 def var itemctr as int.
@@ -274,6 +274,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -320,7 +331,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -601,8 +612,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -619,25 +632,26 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      RETURN .
   END.
 
-   
+
   assign
    begin_date = date(1,1,year(today))
    end_date   = today.
-  
+
   RUN enable_UI.
-  
+
   for each mat:
     v-mat-list = v-mat-list + string(mat.mat,"x(5)") + " " + mat.dscr + ",".
   end.
   if substr(v-mat-list,length(trim(v-mat-list)),1) eq "," then
     substr(v-mat-list,length(trim(v-mat-list)),1) = "".
-  
+
   select-mat:list-items = v-mat-list.
-  
+
   {methods/nowait.i}
 
    APPLY "entry" TO begin_date IN FRAME {&FRAME-NAME}.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -676,7 +690,7 @@ PROCEDURE do-items :
 ------------------------------------------------------------------------------*/
 
 if item.i-code eq "E" then do:
-    
+
   /*If no form number then see how many job materials 
     there are.  If there is only one, then use that one
     to calculate the MSF.  Else, if there is more than
@@ -693,7 +707,7 @@ if item.i-code eq "E" then do:
           and job-mat.job-no2 eq rm-rcpth.job-no2:
       jmctr = jmctr + 1.
     end.
-    
+
     if jmctr eq 1 then do:
       find first job-mat 
           where job-mat.company eq item.company 
@@ -721,7 +735,7 @@ else do:
         and job-mat.job-no  eq rm-rcpth.job-no
         and job-mat.job-no2 eq rm-rcpth.job-no2
         and job-mat.frm     eq rm-rdtlh.s-num:
-           
+
     if job-mat.len gt 0 and job-mat.wid gt 0 then do:
       v-sqft = (round((((if v-corr then (job-mat.len * job-mat.wid) * .007
                          else (job-mat.len * job-mat.wid) / 144) *
@@ -769,7 +783,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
  /*    DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -780,11 +794,11 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.  */
-     
+
 {custom/out2file.i}     
 
 
@@ -817,7 +831,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -886,9 +900,9 @@ form rm-rcpth.trans-date                            label "Date"                
      v-job-no                                               label "Job#"                /*9*/
      rm-rdtlh.qty format "->>>,>>>,>>9.99"  label "Quantity"            /*15*/
      v-msf                                    label "Total MSF"         /*15*/
-     
+
     with frame itemx down no-box stream-io width 132.
-    
+
 
 {sa/sa-sls01.i}
 
@@ -905,22 +919,22 @@ assign
  v-titem = end_i-no
  v-fvend = begin_vend
  v-tvend = end_vend.
-           
+
 do with frame {&frame-name}:          
   do i = 1 to select-mat:num-items:
     if select-mat:is-selected(i) then
       v-mtype = v-mtype + trim(substr(select-mat:entry(i),1,5)) + ",".
   end.
-  
+
   if substr(v-mtype,length(trim(v-mtype)),1) eq "," then
     substr(v-mtype,length(trim(v-mtype)),1) = "".
-    
+
   mat-types = v-mtype.
-  
+
   do i = 1 to length(mat-types):
     if substr(mat-types,i,1) eq "," then substr(mat-types,i,1) = " ".
   end.
-  
+
   display mat-types.
 end.
 
@@ -935,7 +949,7 @@ if td-show-parm then run show-param.
   assign
    dayctr  = 0
    itemctr = 0.
-    
+
   for each rm-rcpth
       where rm-rcpth.company    eq cocode
         and rm-rcpth.trans-date ge v-fdate
@@ -943,7 +957,7 @@ if td-show-parm then run show-param.
         and rm-rcpth.i-no       ge v-fitem
         and rm-rcpth.i-no       le v-titem
       use-index i-no no-lock,
-        
+
       each rm-rdtlh
       where rm-rdtlh.r-no       eq rm-rcpth.r-no
       no-lock,
@@ -956,7 +970,7 @@ if td-show-parm then run show-param.
 
       break by rm-rcpth.trans-date
             by rm-rcpth.i-no:
-            
+
     find first po-ord
         where po-ord.company eq cocode
           and po-ord.po-no   eq int(rm-rcpth.po-no)
@@ -966,21 +980,21 @@ if td-show-parm then run show-param.
         po-ord.vend-no ge v-fvend and
         po-ord.vend-no le  v-tvend)   or
        (not avail po-ord)             then do:
-        
+
       assign
        dayctr   = dayctr + 1
        itemctr  = itemctr + 1
        v-job-no = ""
        v-len    = item.s-len
        v-wid    = if item.r-wid gt 0 then item.r-wid else item.s-wid.
-             
+
       if trim(rm-rdtlh.job-no) ne "" then 
         v-job-no = trim(rm-rdtlh.job-no) + "-" + string(rm-rdtlh.job-no2,"99").
-        
+
       /* run do-items. */
-      
+
       release po-ordl.
-      
+
       if avail po-ord then
       for each po-ordl
           where po-ordl.company eq cocode
@@ -990,14 +1004,14 @@ if td-show-parm then run show-param.
             and po-ordl.job-no2 eq rm-rcpth.job-no2
           no-lock
           by po-ordl.s-num desc:
-          
+
         assign
          v-len = po-ordl.s-len
          v-wid = po-ordl.s-wid.
-  
+
         if po-ordl.s-num eq rm-rdtlh.s-num then leave.
       end.
-      
+
       if not avail po-ordl and rm-rcpth.job-no ne "" then
       for each job-mat
           where job-mat.company eq cocode
@@ -1006,20 +1020,20 @@ if td-show-parm then run show-param.
             and job-mat.job-no2 eq rm-rcpth.job-no2
           no-lock
           by job-mat.frm desc:
-          
+
         assign
          v-len = job-mat.len
          v-wid = job-mat.wid.
-  
+
         if job-mat.frm eq rm-rdtlh.s-num then leave.  
       end.
-      
+
       if v-len eq 0 then v-len = 12.
       if v-wid eq 0 then v-wid = 12.
 
       v-msf = (if v-corr then (v-len * v-wid * .007)
                          else (v-len * v-wid / 144)) * rm-rdtlh.qty / 1000.
-                         
+
       assign
        v-tot-msf-item  = v-tot-msf-item + v-msf
        v-tot-msf-day   = v-tot-msf-day + v-msf
@@ -1043,13 +1057,13 @@ if td-show-parm then run show-param.
                 "--------------------" @ v-msf 
            with frame itemx.
         down with frame itemx.
-        
+
         display v-tot-qty       @ rm-rdtlh.qty
                 v-tot-msf-item  @ v-msf
             with frame itemx.
         down with frame itemx.
       end.                    
-      
+
       assign
        v-tot-msf-item  = 0
        itemctr         = 0
@@ -1065,12 +1079,12 @@ if td-show-parm then run show-param.
             with frame itemx.
         down with frame itemx.
       end.
-      
+
       assign
        v-tot-msf-day = 0
        dayctr        = 0.
     end.
-    
+
     if last(rm-rcpth.trans-date) then do:
       display "Grand Totals:" @ rm-rcpth.i-no
               v-grand-tot-qty @ rm-rdtlh.qty
@@ -1102,11 +1116,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1134,23 +1148,23 @@ PROCEDURE show-param :
   put space(15)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",24 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(25)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(50)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -303,6 +303,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -363,7 +374,7 @@ OPEN QUERY {&SELF-NAME}
 */  /* BROWSE brSelectedFields */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -563,8 +574,10 @@ DELETE WIDGET  {&WINDOW-NAME}.
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* General procedures for all viewers in the MVC */
 { frLoad.i }
@@ -577,9 +590,10 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  
+
   RUN enable_UI.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -600,7 +614,7 @@ PROCEDURE commitPage :
   define output parameter plTabOk as logical     no-undo.
 
   plTabOk = yes.
-    
+
 
 END PROCEDURE. /* commitPage */
 
@@ -768,7 +782,7 @@ PROCEDURE refreshFrame :
              ttRawData.cFieldValue = cRawData[iField]. 
     end.
   end.
-  
+
   input close. 
 
   /* Show first record */
@@ -783,7 +797,7 @@ PROCEDURE refreshFrame :
                , output table ttField
                ).
   if not can-find(first ttField) then return. 
-  
+
   /* Clean it up a little */
   for each ttField 
     where ttField.cFieldName = 'RECID'

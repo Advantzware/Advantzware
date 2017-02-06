@@ -149,6 +149,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -173,7 +184,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -242,8 +253,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -257,11 +270,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 RUN Get-location (OUTPUT gloc).
 assign cocode = gcompany
        locode = gloc.  
-  
+
 
   RUN enable_UI.
 
-  
+
 
   WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -356,7 +369,7 @@ PROCEDURE import-excel :
    DEF VAR v-run-cost   AS CHAR        NO-UNDO.
 
    DO WITH FRAME {&FRAME-NAME}:
-   
+
       SYSTEM-DIALOG GET-FILE chFile 
                     TITLE "Select File to Import"
                     FILTERS "Excel File (*.xls,*.xlsx) " "*.xls,*.xlsx"
@@ -364,7 +377,7 @@ PROCEDURE import-excel :
                     MUST-EXIST
                     USE-FILENAME
                     UPDATE v-ok.
-     
+
       IF v-ok THEN DO:
          IF LENGTH(chFile) LT 4 OR
             (SUBSTR(chFile,LENGTH(chFile) - 3) NE ".xls" AND 
@@ -373,28 +386,28 @@ PROCEDURE import-excel :
                 VIEW-AS ALERT-BOX ERROR BUTTONS OK.
             LEAVE.
          END.
-     
+
          SESSION:SET-WAIT-STATE ("general").
-   
+
          /* Initialize Excel. */
          CREATE "Excel.Application" chExcelApplication NO-ERROR.
-     
+
          /* Check if Excel got initialized. */
          IF NOT (VALID-HANDLE (chExcelApplication)) THEN DO:
             MESSAGE "Unable to Start Excel." VIEW-AS ALERT-BOX ERROR.
             RETURN ERROR. 
          END.
-     
+
          /* Open our Excel File. */  
          chExcelApplication:VISIBLE = FALSE.
          chWorkbook = chExcelApplication:Workbooks:OPEN(chfile) NO-ERROR.
-     
+
          /* Do not display Excel error messages. */
          chExcelApplication:DisplayAlerts = FALSE NO-ERROR.
-     
+
          /* Go to the Active Sheet. */
          chWorkbook:WorkSheets(1):Activate NO-ERROR.
-     
+
          ASSIGN
             chWorkSheet = chExcelApplication:Sheets:ITEM(1).
 
@@ -422,7 +435,7 @@ PROCEDURE import-excel :
                v-weight-100   = "0". 
 
             v-i-no = chWorkSheet:Range("A" + STRING(v-RowCount)):VALUE NO-ERROR.
-            
+
             FIND FIRST ITEM WHERE ITEM.company = cocode 
                               AND ITEM.i-no = TRIM(v-i-no) NO-ERROR.
 
@@ -458,11 +471,11 @@ PROCEDURE import-excel :
                v-q-lyr           = chWorkSheet:Range("T" + STRING(v-RowCount)):VALUE NO-ERROR.
                v-weight-100      = chWorkSheet:Range("U" + STRING(v-RowCount)):VALUE NO-ERROR.
                v-run-cost        = chWorkSheet:Range("V" + STRING(v-RowCount)):VALUE NO-ERROR.
-               
+
                IF TRIM(v-i-name) = ? THEN DO:
                   MESSAGE "= ?"
                      VIEW-AS ALERT-BOX INFO BUTTONS OK.
-                  
+
                END.
 
                IF TRIM(v-i-name)       = ? THEN ITEM.i-name = "".    ELSE ITEM.i-name = v-i-name.         
@@ -559,7 +572,7 @@ PROCEDURE import-excel :
 
          END.
       END.
-      
+
       /*Free memory*/
       chWorkbook = chExcelApplication:Workbooks:CLOSE() NO-ERROR.
       RELEASE OBJECT chWorkbook NO-ERROR.

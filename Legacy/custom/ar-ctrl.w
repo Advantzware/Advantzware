@@ -276,6 +276,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* ************************* Included-Libraries *********************** */
 
 {advantzware/winkit/embedwindow-nonadm.i}
+{advantzware/winkit/embedwindow-nonadm.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -404,7 +405,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME ar-ctrl */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -474,7 +475,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     /* VALIDATION */
     DEF VAR v-avail AS LOG NO-UNDO.
-    
+
     {custom/validate/acct.i ar-ctrl.receivables}
     {custom/validate/acct.i ar-ctrl.sales}
     {custom/validate/acct.i ar-ctrl.cash-act}
@@ -673,6 +674,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
    {Advantzware/WinKit/closewindow-nonadm.i}
+   {Advantzware/WinKit/closewindow-nonadm.i}
 END.   
 
 /* Best default for GUI applications is...                              */
@@ -695,11 +697,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   FIND FIRST ar-ctrl WHERE ar-ctrl.company EQ gcompany NO-LOCK NO-ERROR.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   APPLY 'ENTRY':U TO Btn_Update IN FRAME {&FRAME-NAME}.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.

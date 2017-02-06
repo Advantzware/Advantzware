@@ -199,6 +199,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -220,7 +231,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -275,7 +286,7 @@ DO:
                          ELSE ("GL History for Acct#: " + TRIM(del_number))) +
           "up to and including the date specified?"
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
-                     
+
   IF v-process THEN RUN run-process.
 END.
 
@@ -329,8 +340,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -349,6 +362,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   FIND ap-ctrl WHERE ap-ctrl.company = gcompany NO-LOCK NO-ERROR.
   RUN enable_UI.
   {methods/nowait.i}
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -441,7 +455,7 @@ FIND FIRST period
     NO-LOCK NO-ERROR.
 lv-fisc-yr = (IF AVAIL period THEN period.yr ELSE YEAR(TODAY)) -
              INT(NOT company.yend-per).
-  
+
 IF NOT tb_del-all THEN
   ASSIGN
    fr-acct = del_number
@@ -459,7 +473,7 @@ FOR EACH account
     WHERE account.company EQ cocode
       AND account.actnum  GE fr-acct
       AND account.actnum  LE to-acct,
-    
+
     EACH glhist
     WHERE glhist.company EQ account.company
       AND glhist.actnum  EQ account.actnum
@@ -475,7 +489,7 @@ FOR EACH account
 
   IF period.yr EQ lv-fisc-yr THEN
     account.cyr[period.pnum] = account.cyr[period.pnum] - glhist.tr-amt.
-         
+
   ELSE
   IF period.yr EQ lv-fisc-yr - 1 THEN
     account.lyr[period.pnum] = account.lyr[period.pnum] - glhist.tr-amt.
@@ -499,7 +513,7 @@ FOR EACH account
       ASSIGN
        b-retain.cyr[period.pnum] = b-retain.cyr[period.pnum] - glhist.tr-amt
        b-contra.cyr[period.pnum] = b-contra.cyr[period.pnum] + glhist.tr-amt.
-         
+
     ELSE
     IF period.yr EQ lv-fisc-yr - 1 THEN
       ASSIGN
@@ -534,7 +548,7 @@ SESSION:SET-WAIT-STATE("").
 
 MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
 APPLY "close" TO THIS-PROCEDURE.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

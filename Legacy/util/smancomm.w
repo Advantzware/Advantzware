@@ -186,6 +186,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -201,7 +212,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -268,8 +279,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -287,6 +300,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
   apply "entry" to tb_over.
   {methods/nowait.i}
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -349,16 +363,16 @@ PROCEDURE run-process :
 def var v-comm as dec format ">>9.99" init 0 no-undo.
 def var v-over as log init no no-undo.
 
-  
+
 assign
  v-over    = tb_over
  v-comm    = new_comm
  v-process = no.
-   
+
 message "Are you sure you want set the sales rep commissions with the"
         "selection parameters"
         view-as alert-box question button yes-no update v-process.
-          
+
 if v-process then do:
   session:set-wait-state("General").
 
@@ -371,16 +385,16 @@ if v-process then do:
         assign sman-mtx.comm[i] = v-comm.
     end.
   end.
-    
+
   session:set-wait-state("").
-    
+
   message trim(c-win:title) + " Process Complete..." view-as alert-box.
-    
+
   apply "close" to this-procedure.
 end.
 
 return no-apply.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

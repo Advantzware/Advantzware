@@ -176,6 +176,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -203,7 +214,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME DEFAULT-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 /* **********************  Create OCX Containers  ********************** */
@@ -325,8 +336,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
 DO:
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
   RUN monitorActivity ('{1} Monitor Stopped',YES,'').
   monitorActivity:SAVE-FILE(monitorImportDir + '/monitor/monitor.tmp.log') IN FRAME {&FRAME-NAME}.
   OS-APPEND VALUE(monitorImportDir + '/monitor/monitor.tmp.log')
@@ -380,6 +393,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       monitorImportDir.
   &ENDIF
   RUN monitorActivity ('{1} Monitor Started',YES,'').
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -490,7 +504,7 @@ PROCEDURE monitorActivity :
     monitorActivity:INSERT-STRING(ipActivity +
                    (IF ipmonitorFile NE '' THEN ' [File: ' + ipmonitorFile + ']'
                     ELSE '') + CHR(10)).
-    
+
     IF LENGTH(monitorActivity:SCREEN-VALUE) GT 20000 THEN
     APPLY 'CHOOSE':U TO btnClearLog.
   END.

@@ -82,7 +82,7 @@ DEFINE TEMP-TABLE ttblItem NO-UNDO
         INDEX ttblItems IS PRIMARY UNIQUE menuOrder menu2
         INDEX menu2 menu2 menuOrder
         .
-    
+
 DEFINE TEMP-TABLE ttblMenu NO-UNDO 
     FIELD menuName  AS CHARACTER 
     FIELD menuCount AS INTEGER 
@@ -380,6 +380,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -426,7 +437,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttUserMenu.
 */  /* BROWSE ttUserMenu */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -727,8 +738,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -742,6 +755,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN pGetUsers.
   RUN enable_UI.
   RUN pReset.
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -815,13 +829,13 @@ PROCEDURE pGetMenu :
 
     REPEAT:
         IMPORT cPrgrm cMenu.
-        
+
         IF CAN-DO ("mainmenu,file",cPrgrm) THEN NEXT.
         IF CAN-DO ("rule,skip",cPrgrm) THEN NEXT.
 
         lMainMenu = cMenu EQ "mainmenu".
         IF lMainMenu THEN cMenu = "file".
-        
+
         FIND FIRST prgrms NO-LOCK WHERE prgrms.prgmname EQ cPrgrm NO-ERROR.
         ASSIGN cMneumonic = SUBSTRING (prgrms.prgtitle,1,1) WHEN AVAILABLE prgrms.
 
@@ -838,9 +852,9 @@ PROCEDURE pGetMenu :
                    .
             END.
         END.
-    
+
         IF NOT AVAILABLE ttblMenu THEN NEXT.
-        
+
         IF NOT CAN-FIND (FIRST prgrms WHERE prgrms.prgmname EQ cPrgrm) THEN NEXT.
 
         IF LENGTH (cMneumonic) EQ 3 THEN
@@ -856,9 +870,9 @@ PROCEDURE pGetMenu :
             ttblItem.mneumonic = cMneumonic
             ttblItem.mainMenu  = lMainMenu
             .
-            
+
     END. /* repeat */
-    
+
     FOR EACH ttblItem USE-INDEX menu2 BREAK BY ttblItem.menu2 :
         IF FIRST-OF (ttblItem.menu2) THEN ASSIGN idx = 0.
         ASSIGN
@@ -870,7 +884,7 @@ PROCEDURE pGetMenu :
              WHERE prgrms.prgmname EQ ttblItem.menu1
              NO-ERROR.
         IF NOT AVAILABLE prgrms THEN NEXT.
-        
+
         CREATE ttUserMenu.
         ASSIGN
             ttUserMenu.menuOrder = ttblItem.menuOrder
@@ -886,7 +900,7 @@ PROCEDURE pGetMenu :
                                             ELSE "[" + ttblItem.mneumonic + "]"
            .
     END.
-    
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

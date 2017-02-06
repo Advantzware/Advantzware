@@ -326,6 +326,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -405,7 +416,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -499,7 +510,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-       
+
   RUN run-report. 
   STATUS DEFAULT "Processing Complete".
 
@@ -711,8 +722,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -734,7 +747,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    end_date    = DATE (12,31,year(TODAY)).
 
   RUN enable_UI.
-  
+
   for each style WHERE style.company = cocode NO-LOCK:
      v-style-list = v-style-list + string(style.style,"x(5)") /* + " " + mat.dscr */ + ",".
    end.
@@ -754,6 +767,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO begin_mach.
   END.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -846,7 +860,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
      DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -857,9 +871,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
 
 
@@ -878,7 +892,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -902,7 +916,7 @@ PROCEDURE output-to-screen :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   list-name = fi_file.
 
   RUN scr-rpt.w (list-name,c-win:TITLE,INT(lv-font-no),lv-ornt). /* open file-name, title */ 
@@ -940,7 +954,7 @@ ASSIGN
          "dth,Gross Sheet Width,Gross Sheet Length,Net Sheet Width,Net Shee" +
          "t Length,Film Width,Film Length,# Colors,Die Inches,Number Up,Num" +
          "ber Out,Glue Inches".
-         
+
       */
  v-hdr = "Date,Job#,Machine,Form#,Board,Adder,Style,Blank Width,Blank Length,Gross Sheet Width,Gross Sheet Length,Net Sheet Width,Net Sheet Length,Qty,MSF Produced,Total MSF,Customer #,Length,Width,Depth,Total # Up on Die,Colors".
 
@@ -954,7 +968,7 @@ RUN est/rc-seq.p (OUTPUT lv-rc-seq).
 
 IF tb_excel THEN DO:
     OUTPUT STREAM st-excell TO VALUE(fi_file).
-    
+
     PUT STREAM st-excell UNFORMATTED v-hdr SKIP.
 END.
 
@@ -999,7 +1013,7 @@ IF rsQty = "A" THEN DO:
       FIRST mach NO-LOCK
       WHERE mach.company EQ mch-act.company
         AND mach.m-code  EQ mch-act.m-code,
-      
+
       FIRST job NO-LOCK
       WHERE job.company EQ mch-act.company
         AND job.job     EQ mch-act.job
@@ -1021,7 +1035,7 @@ IF rsQty = "A" THEN DO:
           AND job-mch.m-code   EQ mch-act.m-code
           AND job-mch.pass     EQ mch-act.pass
         NO-ERROR.
-            
+
     RELEASE est.
     RELEASE ef.
     RELEASE eb.
@@ -1070,7 +1084,7 @@ IF rsQty = "A" THEN DO:
           AND est-op.dept    EQ mch-act.dept
           AND est-op.line    LT 500
         NO-ERROR.
-    
+
     ld-msf = 0.
     IF AVAIL ef THEN DO:
       IF mach.d-seq LT lv-rc-seq THEN
@@ -1100,8 +1114,8 @@ IF rsQty = "A" THEN DO:
       IF job-mch.n-on  GT 0 THEN li-up = job-mch.n-on / li-up.
       IF li-up EQ ? THEN li-up = 1.
     END.
-         
-    
+
+
     IF (mach.p-type = "R" OR mach.p-type = "S" OR mach.p-type = "B") THEN DO:     
         /*
         FOR each job-mat WHERE job-mat.company = mch-act.company
@@ -1113,7 +1127,7 @@ IF rsQty = "A" THEN DO:
              FIRST item OF job-mat WHERE item.company EQ job-mat.company 
                  AND item.i-no EQ job-mat.rm-i-no
                  AND (ITEM.mat-type = "B" /*OR ITEM.mat-type = "G"*/) NO-LOCK:
-             
+
              IF mach.p-type = "R" OR mach.p-type = "S" THEN
                 ASSIGN ld-qty-ton = (mch-act.qty * job-mat.wid * job-mat.len / 144000 * ITEM.basis-w / 2000)
                        ld-qty-msf = (mch-act.qty * job-mat.wid * job-mat.len / 144000)
@@ -1128,7 +1142,7 @@ IF rsQty = "A" THEN DO:
                 ASSIGN ld-qty-msf = mch-act.qty * itemfg.t-sqin / 144000
                        ld-qty-ton = mch-act.qty * itemfg.t-sqin / 144000 * ITEM.basis-w / 2000
                                     .         
-      
+
              END.
              LEAVE.
         END.
@@ -1145,7 +1159,7 @@ IF rsQty = "A" THEN DO:
            ld-qty-msf = mch-act.qty * ef.nsh-wid * ef.nsh-len / 1000 / 144.
         ELSE IF mach.p-type = "B" THEN
            ld-qty-msf = mch-act.qty * eb.t-wid * eb.t-len / 1000 / 144.
-    
+
          ld-tot-msf = ld-tot-msf + ld-qty-msf.
      END.  
      /* Task 11251304 */
@@ -1155,9 +1169,9 @@ IF rsQty = "A" THEN DO:
          IF AVAIL ITEM THEN
              ASSIGN v-adder = ITEM.i-no .
          ELSE v-adder = "".  /* Task 11251304 */
-           
+
      IF tb_excel THEN DO:
-      
+
       lv-out =
           TRIM(STRING(mch-act.op-date,"99/99/99"))                      + "," +
           TRIM(job.job-no) + "-" + STRING(job.job-no2,"99")             + "," +
@@ -1190,13 +1204,13 @@ IF rsQty = "A" THEN DO:
           TRIM(STRING(mch-act.blank-no,">>9"))                          + "," +
           TRIM(mch-act.code)                                            + "," +
           TRIM(IF AVAIL job-code THEN job-code.cat ELSE "")             + "," +
-          
+
           TRIM(STRING(mch-act.shift,">>"))                              + "," +
           TRIM(STRING(mch-act.hours,">>>>>>>>>9.9<<"))                  + "," +
           TRIM(STRING(mch-act.qty,">>>>>>>>>>"))                        + "," +
           TRIM(STRING(mch-act.waste,">>>>>>>>>>"))                      + "," +
           TRIM(IF AVAIL eb THEN eb.stock-no ELSE "")                    + "," +
-          
+
           TRIM(IF AVAIL eb THEN STRING(eb.len,">>>>9.9<<<<") ELSE "")   + "," +
           TRIM(IF AVAIL eb THEN STRING(eb.wid,">>>>9.9<<<<") ELSE "")   + "," +
           TRIM(IF AVAIL eb THEN STRING(eb.dep,">>>>9.9<<<<") ELSE "")   + "," +
@@ -1236,7 +1250,7 @@ IF rsQty = "A" THEN DO:
   END.  /* for each mch-act */
 END.  /* rsQty = "A" */
 ELSE DO:   /* rsQty = "E" */    
-    
+
       FOR EACH job-mch NO-LOCK
       WHERE job-mch.company EQ cocode
         AND job-mch.job-no  GE begin_job-no
@@ -1250,7 +1264,7 @@ ELSE DO:   /* rsQty = "E" */
        FIRST mach NO-LOCK
       WHERE mach.company EQ job-mch.company
         AND mach.m-code  EQ job-mch.m-code:
-                 
+
           {custom/statusMsg.i " 'Processing Job#  '  + job.job-no "}
 
     IF TRIM(job.est-no) NE "" THEN
@@ -1284,7 +1298,7 @@ ELSE DO:   /* rsQty = "E" */
            ld-qty-msf = job-mch.run-qty * ef.nsh-wid * ef.nsh-len / 1000 / 144.
         ELSE IF mach.p-type = "B" THEN
            ld-qty-msf = job-mch.run-qty * eb.t-wid * eb.t-len / 1000 / 144.
-    
+
          ld-tot-msf = ld-tot-msf + ld-qty-msf.
      END.  
   /* Task 11251304 */
@@ -1344,18 +1358,18 @@ END.       /* rsQty = "E" */
       .
     IF lv-out NE ? THEN PUT STREAM st-excell UNFORMATTED lv-out SKIP.
   END.
-  
+
 
 SESSION:SET-WAIT-STATE("").
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
-  
+
 IF tb_excel THEN DO:
   OUTPUT STREAM st-excell CLOSE.
   IF tb_runExcel THEN
     OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
 END.
-    
+
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 
 end procedure.
@@ -1378,11 +1392,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1414,19 +1428,19 @@ PROCEDURE show-param :
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1467,7 +1481,7 @@ FOR EACH bf-eb WHERE bf-eb.company EQ cocode
       END.
   END.
  END.  /* task 11251304  */
- 
+
 
 END.
 v-col-list = TRIM(v-col-list, ",").

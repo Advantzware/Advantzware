@@ -314,6 +314,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -393,7 +404,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -476,7 +487,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-       
+
   run run-report. 
 
   case rd-dest:
@@ -619,7 +630,7 @@ DO:
   ELSE
     ASSIGN lbl_beg-date:SCREEN-VALUE = " Beginning Job Close Date:" 
              lbl_end-date:SCREEN-VALUE = "Ending Job Close date:" .
- 
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -683,8 +694,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -724,6 +737,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO begin_mach.
   END.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -820,7 +834,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -911,7 +925,7 @@ form header skip(1)
             "     Received"
             "           "
             skip
-            
+
             "Machine#"
             "Shift"
             "Job#     "
@@ -925,7 +939,7 @@ form header skip(1)
             "     Variance"
             " % Received"
             skip
-            
+
             "--------"
             "-----"
             "---------"
@@ -939,7 +953,7 @@ form header skip(1)
             "-------------"
             "-----------"
             SKIP
-            
+
     with frame r-top.
 
 
@@ -957,21 +971,21 @@ assign
  v-q-m      = rd_print EQ "Qty"
  v-fdat     = begin_date
  v-tdat     = end_date. 
- 
+
 if v-q-m then
   assign
    v-lab[1] = "  # of Sheets"
    v-lab[2] = "      # of FG"
    v-lab[3] = "#Scrap Sheets"
    v-lab[4] = "      Job Qty".
-     
+
 else
   assign
    v-lab[1] = "MSF of Sheets"
    v-lab[2] = "    MSF of FG"
    v-lab[3] = "    Scrap MSF"
    v-lab[4] = "      Job MSF".
-         
+
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i value(lines-per-page)}
@@ -983,15 +997,15 @@ VIEW FRAME r-top.
   if tb_excel then do:
     output stream s-temp to value(fi_file).
     str_buffa = "".
-    
+
     if v-q-m then do:
       {sys/inc/outstrPL.i v-hdr 1 115}.
     end.
-    
+
     else do:
       {sys/inc/outstrPL.i v-hdr1 1 103}.
     end.
-    
+
     put stream s-temp unformatted str_buffa skip.
   end.
 
@@ -1002,7 +1016,7 @@ VIEW FRAME r-top.
         and mch-act.shift   ge v-fshf
         and mch-act.shift   le v-tshf
       use-index operation no-lock,
-      
+
       first job
       where job.company            eq cocode
         and job.job                eq mch-act.job
@@ -1018,7 +1032,7 @@ VIEW FRAME r-top.
               job.start-date       le v-tdat and
               job.opened))
       use-index job no-lock
-      
+
       break by mch-act.m-code
             by mch-act.shift
             by mch-act.job
@@ -1026,11 +1040,11 @@ VIEW FRAME r-top.
             by mch-act.job-no2
             by mch-act.frm
             by mch-act.blank-no:
-            
+
        {custom/statusMsg.i "'Processing Machine Code ' + string(mch-act.m-code)"} 
 
     if first-of(mch-act.m-code) then page.        
-            
+
     find first est
         where est.company eq job.company
           and est.est-no  eq job.est-no
@@ -1060,9 +1074,9 @@ VIEW FRAME r-top.
             and job-hdr.frm       eq mch-act.frm
             and (job-hdr.blank-no eq mch-act.blank-no or mch-act.blank-no eq 0)
           no-lock:
-        
+
         if v-q-m then v-job-qty = v-job-qty + job-hdr.qty.
-        
+
         else do:
           find first itemfg
               where itemfg.company eq cocode
@@ -1072,7 +1086,7 @@ VIEW FRAME r-top.
                       (job-hdr.qty * (if avail itemfg then itemfg.t-sqft
                                                       else 1) / 1000).
         end.
-        
+
 /*         for each fg-act                                                     */
 /*             where fg-act.company eq cocode                                  */
 /*               and fg-act.job     eq job-hdr.job                             */
@@ -1094,7 +1108,7 @@ VIEW FRAME r-top.
 /*           end.                                                              */
 /*         end.                                                                */
       end.
-      
+
       if avail est then
       for each eb
           where eb.company   eq est.company
@@ -1102,13 +1116,13 @@ VIEW FRAME r-top.
             and eb.form-no   eq mch-act.frm
             and (eb.blank-no eq mch-act.blank-no or mch-act.blank-no eq 0)
           no-lock:
-        
+
         v-up = v-up + eb.num-up.
       end.
-      
+
       else v-up = v-up + 1.
     end.
-    
+
     if last-of(mch-act.frm) then do:
       for each job-mat
           where job-mat.company eq cocode
@@ -1117,7 +1131,7 @@ VIEW FRAME r-top.
             and job-mat.job-no2 eq mch-act.job-no2
             and job-mat.frm     eq mch-act.frm
           use-index seq-idx no-lock,
-          
+
           first item
           where item.company  eq cocode
             and item.i-no     eq job-mat.i-no
@@ -1133,21 +1147,21 @@ VIEW FRAME r-top.
             and mat-act.b-num   eq job-mat.blank-no
             and mat-act.i-no    eq job-mat.i-no
           use-index job no-lock:
-          
+
         run sys/ref/convquom.p(job-mat.qty-uom, if v-q-m then "EA" else "MSF",
                                job-mat.basis-w, job-mat.len,
                                job-mat.wid, item.s-dep,
                                mat-act.qty, output v-qty).
-                               
+
         v-sheets[1] = v-sheets[1] + v-qty.
         v-sheetup   = job-mat.n-up .
 end.
 
       IF v-sheets[1] EQ 0 THEN      /* get sheets from slitter */
         RUN sys/inc/slitshts.p (ROWID(job),mch-act.frm, OUTPUT v-sheets[1]).
-      
+
       release ef.
-      
+
       if avail est then
       find first ef
           where ef.company eq est.company
@@ -1158,16 +1172,16 @@ end.
       if v-q-m then do:
         {sys/inc/roundup.i v-sheets[1]}
       end.
-      
+
       if v-up eq 0 then v-up = 1.
-      
+
       IF AVAIL ef THEN RUN est/ef-#out.p (ROWID(ef), OUTPUT v-out).
 
       v-up  = v-up * v-out.
 
       IF v-sheetup = 0 THEN
           ASSIGN v-sheetup = 1.
-       
+
       /*2 pc box test*/
       IF AVAIL est AND est.est-type EQ 2 OR est.est-type EQ 6 
           THEN DO:
@@ -1194,15 +1208,15 @@ end.
        v-scraps[1] = v-sheets[1] - (v-blanks[1] / (if v-q-m then v-sheetup else 1))
        v-pct[1]    = v-scraps[1] / v-sheets[1] * 100
        v-pct[2]    = v-blanks[1] / v-job-qty * 100.
-       
+
       if v-pct[1] eq ? then v-pct[1] = 0.
       if v-pct[2] eq ? then v-pct[2] = 0.
-      
+
       v-first-24 = string(mch-act.m-code,"x(8)") + " "         +
                    string(mch-act.shift,">>")    + fill(" ",4) +
                    string(trim(job.job-no) + "-" +
                           string(job.job-no2,"99"),"x(9)").
-       
+
       display v-first-24
               mch-act.frm                                       format ">>>>>"
               v-sheets[1]
@@ -1213,10 +1227,10 @@ end.
               v-job-qty
               v-job-qty - v-blanks[1]                format "->>,>>>,>>9.9<<<"
               v-pct[2]
-              
+
           with frame scrap no-attr-space no-box no-labels down stream-io width 132.
       down with frame scrap.
-      
+
       if tb_excel then do:
         str_buffa = trim(mch-act.m-code)                                + "," +
                     trim(string(mch-act.shift,">>"))                    + "," + 
@@ -1230,15 +1244,15 @@ end.
                     trim(string(v-job-qty))                             + "," +
                     trim(string(v-job-qty - v-blanks[1]))               + "," +
                     trim(string(v-pct[2])).
-        
+
         put stream s-temp unformatted str_buffa skip.
       end.
-      
+
       assign
        v-sheets[2] = v-sheets[2] + v-sheets[1]
        v-blanks[2] = v-blanks[2] + v-blanks[1]
        v-scraps[2] = v-scraps[2] + v-scraps[1]
-       
+
        v-sheets[1] = 0
        v-blanks[1] = 0
        v-scraps[1] = 0
@@ -1247,25 +1261,25 @@ end.
        v-sheetup   = 0
        v-forms     = v-forms + 1.
     end.
-    
+
     if last-of(mch-act.job-no2) then do:
       if v-forms gt 1 then do:
         underline v-sheets[1] v-blanks[1] v-scraps[1] v-pct[1] with frame scrap.
-        
+
         v-pct[1] = v-scraps[2] / v-sheets[2] * 100.
-        
+
         if v-pct[1] eq ? then v-pct[1] = 0.
-        
+
         display "              Job Totals" @ v-first-24
                 v-sheets[2]                @ v-sheets[1]
                 v-blanks[2]                @ v-blanks[1]
                 v-scraps[2]                @ v-scraps[1]
                 v-pct[1]
-              
+
           with frame scrap.
         down with frame scrap.
       end.
-            
+
       put skip(1).
 
       CREATE tt-report .
@@ -1279,7 +1293,7 @@ end.
        v-sheets[3] = v-sheets[3] + v-sheets[2]
        v-blanks[3] = v-blanks[3] + v-blanks[2]
        v-scraps[3] = v-scraps[3] + v-scraps[2]
-       
+
        v-sheets[2] = 0
        v-blanks[2] = 0
        v-scraps[2] = 0
@@ -1289,36 +1303,36 @@ end.
     if last-of(mch-act.shift) then do:
       underline v-sheets[1] v-blanks[1] v-scraps[1] v-pct[1] with frame scrap.
       underline v-sheets[1] v-blanks[1] v-scraps[1] v-pct[1] with frame scrap.
-        
+
       v-pct[1] = v-scraps[3] / v-sheets[3] * 100.
-        
+
       if v-pct[1] eq ? then v-pct[1] = 0.
-        
+
       display "            Shift Totals" @ v-first-24
               v-sheets[3]                @ v-sheets[1]
               v-blanks[3]                @ v-blanks[1]
               v-scraps[3]                @ v-scraps[1]
               v-pct[1]
-              
+
           with frame scrap.
       down with frame scrap.
-            
+
       put skip(1).
-      
+
       assign
      /*  v-sheets[4] =  v-sheets[4] + v-sheets[3] /* Task# 11011002 */
        v-blanks[4] =  v-blanks[4] + v-blanks[3] /* Task# 11011002 */ 
        v-scraps[4] = v-scraps[4] + v-scraps[3] */
-       
+
        v-sheets[3] = 0
        v-blanks[3] = 0
        v-scraps[3] = 0.
     end.
-    
+
     if last-of(mch-act.m-code) then do:
       underline v-sheets[1] v-blanks[1] v-scraps[1] v-pct[1] with frame scrap.
       underline v-sheets[1] v-blanks[1] v-scraps[1] v-pct[1] with frame scrap.
-        
+
       FOR EACH tt-report NO-LOCK
           BREAK BY tt-report.job-no
           BY tt-report.job-no2:
@@ -1330,22 +1344,22 @@ end.
       END.
 
       v-pct[1] = v-scraps[4] / v-sheets[4] * 100.
-        
+
       if v-pct[1] eq ? then v-pct[1] = 0.
-      
+
       display "          Machine Totals" @ v-first-24
               v-sheets[4]                @ v-sheets[1]
               v-blanks[4]                @ v-blanks[1]
               v-scraps[4]                @ v-scraps[1]
               v-pct[1]
-              
+
           with frame scrap.
       down with frame scrap.
 
       FOR EACH tt-report NO-LOCK :
           DELETE tt-report.
       END.
-            
+
       put skip(1).
 
       assign
@@ -1354,7 +1368,7 @@ end.
        v-scraps[4] = 0.
     end.
   end.
-  
+
   IF tb_excel THEN DO:
   OUTPUT STREAM s-temp CLOSE.
   IF tb_runExcel THEN
@@ -1364,7 +1378,7 @@ END.
 SESSION:SET-WAIT-STATE("").
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).  
-    
+
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 
 end procedure.
@@ -1387,11 +1401,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1423,19 +1437,19 @@ PROCEDURE show-param :
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

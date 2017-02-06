@@ -5,9 +5,9 @@
 /*------------------------------------------------------------------------
 
   File: salrep\r-slsper.w
-  
+
   Description: Sales by Period
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -279,6 +279,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -334,7 +345,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -406,7 +417,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-  
+
   SESSION:SET-WAIT-STATE("general").
 
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
@@ -453,7 +464,7 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case.
@@ -468,7 +479,7 @@ END.
 ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -676,8 +687,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -693,7 +706,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN.
   END.
-   
+
   as-of-date = TODAY.
 
   RUN enable_UI.
@@ -701,11 +714,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN sys/inc/CustListForm.p ( "HR15",cocode, 
                                OUTPUT ou-log,
                                OUTPUT ou-cust-int) .
-    
+
   RUN sys/inc/CustListForm.p ( "HR15",cocode, 
                                OUTPUT ou-log,
                                OUTPUT ou-cust-int) .
-    
+
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     APPLY "entry" TO begin_cust-no.
@@ -734,7 +747,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO"
         btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
         .
-      
+
    IF ou-log AND ou-cust-int = 0 THEN do:
        ASSIGN 
         tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = YES
@@ -745,6 +758,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
    END.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -806,7 +820,7 @@ PROCEDURE CustList :
 
     RUN sys/ref/CustListManager.w(INPUT cocode,
                                   INPUT 'HR15').
-    
+
 
 END PROCEDURE.
 
@@ -878,9 +892,9 @@ PROCEDURE generate-data :
   DEF VAR v-slsm    LIKE ar-invl.sman  EXTENT 1 NO-UNDO.
   DEF VAR v-amt1    AS   DEC NO-UNDO.
   DEF VAR i AS INT NO-UNDO.
-  
+
   EMPTY TEMP-TABLE tt-report.
-  
+
   FOR EACH ar-inv WHERE
       ar-inv.company  EQ cocode AND
       ar-inv.inv-date GE ip-from-date AND
@@ -892,7 +906,7 @@ PROCEDURE generate-data :
            ar-invl.x-no EQ ar-inv.x-no AND
            (ar-invl.billable OR NOT ar-invl.misc)
         NO-LOCK:
-        
+
       DO i = 1 TO 3:
         ASSIGN
          v-amt     = 0
@@ -1011,12 +1025,12 @@ PROCEDURE generate-data :
       END.
       ELSE LEAVE.
    END.
-   
+
    op-data-string = op-data-string + STRING(v-amt[14],"$->>>,>>>,>>9").
-   
+
    IF tb_excel THEN
       op-excel-string = op-excel-string + '"' + STRING(v-amt[14],"$->>>,>>>,>>9") + '",'.
-   
+
    DOWN.
 
 END PROCEDURE.
@@ -1062,7 +1076,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1143,7 +1157,7 @@ FORM ip-mode FORMAT "X(8)"
   lSelected  = tb_cust-list.
 
 {sys/inc/print1.i}
-       
+
 {sys/inc/outprint.i value(lines-per-page)}
 
 IF tb_excel THEN
@@ -1182,7 +1196,7 @@ FOR EACH period WHERE
     period.yr      EQ v-yr
     NO-LOCK
     BY period.pnum:
- 
+
   ASSIGN
      tyfdate[i] = period.pst
      tytdate[i] = period.pend
@@ -1237,7 +1251,7 @@ DO:
        period.yr      EQ v-yr-ly
        NO-LOCK
        BY period.pnum:
- 
+
        ASSIGN
           lyfdate[i] = period.pst
           lytdate[i] = period.pend
@@ -1329,7 +1343,7 @@ FOR each cust FIELDS(NAME cust-no sman) WHERE
                  '"' "LAST YEAR" '",'
                  SKIP(1)
                  ly-period-excel-header SKIP.
-          
+
            DISPLAY ly-period-header @ ip-header FORM "X(198)" SKIP data-string-ly @ data-string-ty FORM "X(198)" skip(2) WITH FRAME custx.
 
            IF tb_excel THEN
@@ -1374,7 +1388,7 @@ PROCEDURE SetCustRange :
         btnCustList:SENSITIVE = iplChecked
        .
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1395,11 +1409,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1427,23 +1441,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

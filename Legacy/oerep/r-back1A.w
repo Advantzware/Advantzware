@@ -382,6 +382,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -498,7 +509,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -592,10 +603,10 @@ DO:
   do with frame {&frame-name}:
     if pass_word:sensitive then do:
       run enable_ui.
-      
+
       disable pass_word.
     end.
-    
+
     else apply "close" to this-procedure.
   end.
 END.
@@ -927,8 +938,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -944,13 +957,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   assign
    begin_due-date = date(1,1,year(today))
    end_due-date   = TODAY.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -958,6 +971,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO begin_cust-no.
   END.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1026,7 +1040,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
  /*    DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -1037,9 +1051,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
    */
      {custom/out2file.i}
@@ -1072,7 +1086,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1156,7 +1170,7 @@ format header
        skip(1)
        lv-top-label FORMAT "X(9)"
        v-name
-            
+
     with frame r-top-1 stream-io width 132 no-labels
          no-box no-underline page-top.
 
@@ -1165,10 +1179,10 @@ format header
        v-head[1] skip
        v-head[2]
        fill("-",132) format "x(132)"
-       
+
     with frame r-top-2 stream-io width 132 no-labels
          no-box no-underline page-top.
-         
+
 format w-ord.due-date     format "99/99/99"
        w-ord.ord-date     format "99/99/99"
        w-ord.ord-no
@@ -1181,7 +1195,7 @@ format w-ord.due-date     format "99/99/99"
        space(0)
        v-uom
        w-ord.t-price      format ">>,>>>,>>9.99"
-       
+
     with frame ordhead-po down no-labels no-box stream-io width 132.
 
 format w-ord.due-date     format "99/99/99"
@@ -1195,7 +1209,7 @@ format w-ord.due-date     format "99/99/99"
        space(0)
        v-uom
        w-ord.t-price      format ">>,>>>,>>9.99"  
-       
+
     with frame ordhead down no-labels no-box stream-io width 132.
 
 
@@ -1239,12 +1253,12 @@ assign
  v-fg-qty     = rd_qoh eq "FG"
  v-sales-qty     = rd_sales eq "sv"   
  v-exclude-transfers = tb_exclude-transfer
- 
+
  str-tit3 = (if v-sort = "Cust" then "By Customer# "
              else IF v-sort = "Sales" THEN "By Sales Rep# " ELSE "") +
             "By Customer Part Number"
  {sys/inc/ctrtext.i str-tit3 132}
- 
+
  v-tot-qty   = 0
  v-tot-cost  = 0
  v-tot-sales = 0
@@ -1274,7 +1288,7 @@ else
    v-head[2] =
        "Date     Date     Number    Part Number          Pa" +
        "llets      On-hand          Due       Price            Sales".
-  
+
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i value(lines-per-page)}
@@ -1288,7 +1302,7 @@ IF tb_excel THEN DO:
     excelheader = excelheader + "PO Number,".
   excelheader = excelheader + "Customer Part Number,"
               + "Pallets,Qty On-hand,Qty Due,Price,Sales".
-  
+
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
 
@@ -1297,9 +1311,9 @@ SESSION:SET-WAIT-STATE ("general").
 EMPTY TEMP-TABLE tt-report.
 
   display with frame r-top.
-  
+
   if v-sort EQ "Item" then display with frame r-top-2.
-  
+
   {oerep/r-backl1.i}
 
 IF tb_excel THEN DO:
@@ -1334,11 +1348,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1366,23 +1380,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

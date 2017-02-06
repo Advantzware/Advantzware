@@ -15,7 +15,7 @@
   Output Parameters : None
 
   Author            : Dennis G. Dizon
-  
+
   Created           : 05/30/2007
 
 ------------------------------------------------------------------------*/
@@ -189,6 +189,17 @@ IF NOT C-Win:LOAD-ICON("adeicon/rbuild%.ico":U) THEN
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -217,7 +228,7 @@ OPEN QUERY {&SELF-NAME}
 */  /* BROWSE brContacts */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -301,8 +312,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -312,13 +325,14 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  
+
   STATUS DEFAULT "For Multi-Select: Press and hold 'CTRL' key before clicking.".
 
   RUN enable_UI.
 
   RUN Initialize (icShipRecKey).
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -388,7 +402,7 @@ PROCEDURE Initialize :
             AND ASI.cust.active    = 'X',
            EACH  ASI.phone        NO-LOCK
           WHERE  ASI.phone.TABLE_rec_key = ASI.cust.rec_key:
-    
+
         IF NOT CAN-FIND (FIRST ttContacts 
                          WHERE ttContacts.table_rec_key = icShipRecKey
                            AND ttContacts.attention     = ASI.phone.attention) 
@@ -408,7 +422,7 @@ PROCEDURE Initialize :
              /*OR  ASI.cust.active    = 'X'*/),
            EACH  ASI.phone        NO-LOCK
           WHERE  ASI.phone.TABLE_rec_key = ASI.cust.rec_key:
-    
+
         IF NOT CAN-FIND (FIRST ttContacts 
                          WHERE ttContacts.table_rec_key = icShipRecKey
                            AND ttContacts.attention     = ASI.phone.attention) 
@@ -420,7 +434,7 @@ PROCEDURE Initialize :
       END.
   END.
   {&OPEN-QUERY-brContacts}
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

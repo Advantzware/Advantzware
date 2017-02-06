@@ -139,6 +139,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -157,7 +168,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -223,21 +234,21 @@ DO:
          PUT UNFORMATTED "Invalid Suppliers A/R Code '" + cust-itm.cust-no + "' for FG Item '" + cust-itm.i-no + "'." SKIP.
          v-ok = FALSE.
       END.
-      
+
       FIND vend-plant WHERE vend-plant.company  = cust-itm.company
                         AND vend-plant.plant-id = cust-itm.loc NO-LOCK NO-ERROR.
       IF NOT AVAILABLE(vend-plant) THEN DO:
          PUT UNFORMATTED "Invalid Customers Plant ID '" + cust-itm.loc + "' for Suppliers A/R Code '"  + cust-itm.cust-no + "' FG Item '" + cust-itm.i-no + "'." SKIP.
          v-ok = FALSE.
       END.
-      
+
       FIND FIRST itemfg WHERE itemfg.company = cust-itm.company
                           AND itemfg.cust-no = cust-itm.cust-no
                           AND itemfg.i-no    = cust-itm.i-no NO-LOCK NO-ERROR.
       IF NOT AVAILABLE(itemfg) THEN
          FIND FIRST itemfg WHERE itemfg.company = cust-itm.company
                              AND itemfg.i-no    = cust-itm.i-no NO-LOCK NO-ERROR.
-         
+
          IF NOT AVAILABLE(itemfg) THEN DO:
             PUT UNFORMATTED "Invalid FG Item '" + cust-itm.i-no + "' for Suppliers A/R Code '" + cust-itm.cust-no + "' Plant ID '" + cust-itm.loc + "'." SKIP.
             v-ok = FALSE.
@@ -274,14 +285,14 @@ DO:
             vend-whse-item.ship-no           = vend-plant.ship-no               
             vend-whse-item.rec_key           = STRING(YEAR(TODAY), "9999") + STRING(MONTH(TODAY), "99") + STRING(DAY(TODAY), "99") + STRING(TIME).
       END.
-      
+
       STATUS DEFAULT "Processing.... " + TRIM(STRING(v-cnt)).
    END.
- 
+
    STATUS DEFAULT "".
 
    SESSION:SET-WAIT-STATE("").
-   
+
    OUTPUT CLOSE.
 
    RUN disconnect-db.
@@ -289,7 +300,7 @@ DO:
    MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
 
    APPLY "close" TO THIS-PROCEDURE.  
-   
+
 
 END.
 
@@ -310,8 +321,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -344,7 +357,7 @@ PROCEDURE check-connect-rfg-db :
 
 IF NOT CONNECTED('rfq') AND SEARCH('addon\rfq.pf') NE ? THEN
    CONNECT -pf VALUE(SEARCH('addon\rfq.pf')) NO-ERROR.
-        
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

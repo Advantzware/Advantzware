@@ -39,11 +39,11 @@ DEFINE BUFFER bf-chk FOR ap-chk.
 {custom/getloc.i}
 
 {sys/inc/VAR.i new shared}
-    
+
 assign
  cocode = gcompany
  locode = gloc.
-    
+
 FIND FIRST company WHERE company.company EQ cocode NO-LOCK NO-ERROR.
 IF AVAIL company THEN lv-comp-curr = company.curr-code.
 
@@ -90,7 +90,7 @@ DO TRANSACTION :
         sys-ctrl.company eq cocode AND
         sys-ctrl.name    eq "AUDITDIR"
         no-lock no-error.
-   
+
    if not avail sys-ctrl THEN DO:
       create sys-ctrl.
       assign
@@ -99,12 +99,12 @@ DO TRANSACTION :
          sys-ctrl.descrip = "Audit Trails directory"
          sys-ctrl.char-fld = ".\AUDIT TRAILS".
    end.
-  
+
    lv-audit-dir = sys-ctrl.char-fld.
 
    IF LOOKUP(SUBSTR(lv-audit-dir,LENGTH(lv-audit-dir),1),"/,\") > 0 THEN
       lv-audit-dir = SUBSTR(lv-audit-dir,1,LENGTH(lv-audit-dir) - 1).
-  
+
    RELEASE sys-ctrl.
 END.
 DO TRANSACTION:
@@ -114,7 +114,7 @@ DO TRANSACTION:
       and sys-ctrl.name    eq "GLPOST"
     no-lock no-error.
 
-   
+
    if not avail sys-ctrl then do:
       create sys-ctrl.
       assign
@@ -359,6 +359,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -419,7 +430,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -500,10 +511,10 @@ END.
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO: 
   DEF VAR lv-post AS LOG NO-UNDO.
-  
+
   run check-date.
   if v-invalid then return no-apply. 
-  
+
   IF lv-fgpost-dir THEN DO:
   RUN check-inv-date(begin_date:SCREEN-VALUE).
   if v-invalid-inv then return no-apply. 
@@ -574,7 +585,7 @@ DO:
       MESSAGE "No AP control record found. " VIEW-AS ALERT-BOX .
       RETURN.
   END.
-      
+
   IF v-postable THEN DO:
     lv-post = NO.
 
@@ -779,8 +790,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -817,6 +830,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   {methods/nowait.i}
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -861,12 +875,12 @@ PROCEDURE check-inv-date :
   DEF VAR lv-period LIKE period.pnum NO-UNDO.
   DEFINE INPUT PARAMETER ip-date AS CHAR.
   DEF VAR lv-msg AS CHAR NO-UNDO.
-  
+
   DEF VAR v-month AS CHAR . 
   ASSIGN  lv-msg = ""
            v-invalid-inv = NO 
             v-month = SUBSTRING(STRING(TODAY),1,2) .
-  
+
       FIND FIRST period                   
          WHERE period.company EQ cocode
          AND period.pst     LE date(ip-date)
@@ -944,7 +958,7 @@ PROCEDURE copy-report-to-audit-dir :
   DEF VAR dirname1 AS CHAR FORMAT "X(20)" NO-UNDO.
   DEF VAR dirname2 AS CHAR FORMAT "X(20)" NO-UNDO.
   DEF VAR dirname3 AS CHAR FORMAT "X(20)" NO-UNDO.
-  
+
   ASSIGN targetfile = lv-audit-dir + "\AP\VU3\Run#"
                     + STRING(v-trnum) + ".txt"
          dirname1 = lv-audit-dir
@@ -995,7 +1009,7 @@ PROCEDURE create-manual-check-proc :
   END.
 
   /* Code placed here will execute AFTER standard behavior.    */
-  
+
   CREATE ap-chk.
   ASSIGN ap-chk.bank-code = v-bank-code
          ap-chk.check-no = v-check-no
@@ -1136,7 +1150,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
 /*     DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -1147,13 +1161,13 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY. */
-     
+
   {custom/out2file.i}
-                        
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1183,7 +1197,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1241,7 +1255,7 @@ DEF VAR ll-rcpth AS LOG NO-UNDO.
   postit:
 do transaction on error undo postit:
   g2 = 0.
-  
+
   for each tt-report
       where can-find(first ap-inv where recid(ap-inv) eq tt-report.rec-id
                                     and ap-inv.posted eq no)
@@ -1250,7 +1264,7 @@ do transaction on error undo postit:
     find first ap-inv
         where recid(ap-inv) eq tt-report.rec-id
         exclusive-lock no-error no-wait.
-     
+
     if not avail ap-inv then do:
       message "Unable to Post due to Invoice Record being Locked.  " +
               "Please Try again Later".
@@ -1260,7 +1274,7 @@ do transaction on error undo postit:
     end.
 
     ap-inv.period = tran-period.
-    
+
     find first vend
         where vend.company eq cocode
           and vend.vend-no eq ap-inv.vend-no
@@ -1303,7 +1317,7 @@ do transaction on error undo postit:
           {ap/addreftb.i po-ordl.po-no}
           RELEASE reftable.
         end.
-        
+
         po-ordl.t-inv-qty = po-ordl.t-inv-qty + ap-invl.qty.
 
         RELEASE item.
@@ -1369,7 +1383,7 @@ do transaction on error undo postit:
         END.
 
         RUN po/closechk.p (ROWID(po-ordl)).
-        
+
         /* Ensure receipts = payables */
         if not po-ordl.item-type and v-fgpostgl then do:
           release prod.
@@ -1377,7 +1391,7 @@ do transaction on error undo postit:
               where itemfg.company eq cocode
                 and itemfg.i-no    eq po-ordl.i-no
               no-error.
-              
+
           if avail itemfg then
           find first prodl
               where prodl.company eq cocode
@@ -1392,16 +1406,16 @@ do transaction on error undo postit:
               where prod.company eq cocode
                 and prod.prolin  eq prodl.prolin
               no-lock no-error.
-                
+
           if avail itemfg then do:
             run sys/ref/convquom.p (po-ordl.pr-qty-uom, "EA", 0, 0, 0, 0,
                                     ap-invl.qty, output v-qty1).
-                                   
+
             assign
              v-po-no = trim(string(po-ordl.po-no,">>>>>>>>>>"))
              v-qty   = 0
              v-cost  = ap-invl.amt / (v-qty1 / 1000).
-                                   
+
             for each fg-rcpth
                 where fg-rcpth.company   eq cocode
                   and fg-rcpth.i-no      eq po-ordl.i-no
@@ -1410,22 +1424,22 @@ do transaction on error undo postit:
                   and ((fg-rcpth.b-no    eq ap-invl.i-no and v-fgpostgl) or
                        (fg-rcpth.b-no    eq 0        and not v-fgpostgl))
                 use-index item-po,
-                
+
                 each fg-rdtlh where fg-rdtlh.r-no eq fg-rcpth.r-no
-                
+
                 break by fg-rcpth.trans-date
                       BY fg-rdtlh.trans-time
                       by fg-rcpth.r-no
                       by recid(fg-rdtlh):
-              
+
               assign
                v-qty         = v-qty + fg-rdtlh.qty
                fg-rdtlh.cost = v-cost
                fg-rcpth.b-no = ap-invl.i-no.
-              
+
               if last(fg-rcpth.trans-date) and
                  v-qty ne v-qty1           then do:
-                 
+
                 find first fg-bin
                     where fg-bin.company eq cocode
                       and fg-bin.i-no    eq fg-rcpth.i-no
@@ -1435,7 +1449,7 @@ do transaction on error undo postit:
                       and fg-bin.job-no  eq fg-rcpth.job-no
                       and fg-bin.job-no2 eq fg-rcpth.job-no2
                     no-error.  
- 
+
                 if not avail fg-bin then do:
                   create fg-bin.
                   assign
@@ -1456,7 +1470,7 @@ do transaction on error undo postit:
                    fg-bin.std-var-cost = 0
                    fg-bin.std-fix-cost = 0.
                 end.
-                 
+
                 assign
                  v-qty1         = v-qty1 - v-qty
                  fg-rdtlh.qty   = fg-rdtlh.qty + v-qty1
@@ -1475,31 +1489,31 @@ do transaction on error undo postit:
                 FIND CURRENT itemfg-loc NO-LOCK NO-ERROR.
               end.
             end.
-            
+
             for each fg-rcpth
                 where fg-rcpth.company   eq cocode
                   and fg-rcpth.i-no      eq po-ordl.i-no
                   and fg-rcpth.po-no     eq v-po-no
                   and fg-rcpth.rita-code eq "R"
                 use-index item-po no-lock,
-                
+
                 each fg-rdtlh where fg-rdtlh.r-no eq fg-rcpth.r-no
-                    
+
                 break by fg-rcpth.job-no
                       by fg-rcpth.job-no2
                       by fg-rdtlh.loc
                       by fg-rdtlh.loc-bin
                       by fg-rdtlh.tag:
-                      
+
               if first-of(fg-rdtlh.tag) then
                 assign
                  v-qty  = 0
                  v-cost = 0.
-                      
+
               assign
                v-qty  = v-qty + fg-rdtlh.qty
                v-cost = v-cost + (fg-rdtlh.qty / 1000 * fg-rdtlh.cost).
-              
+
               if last-of(fg-rdtlh.tag) then do:
                 find first fg-bin
                     where fg-bin.company eq cocode
@@ -1510,7 +1524,7 @@ do transaction on error undo postit:
                       and fg-bin.job-no  eq fg-rcpth.job-no
                       and fg-bin.job-no2 eq fg-rcpth.job-no2
                     no-error.  
- 
+
                 if not avail fg-bin then do:
                   create fg-bin.
                   assign
@@ -1531,15 +1545,15 @@ do transaction on error undo postit:
                    fg-bin.std-var-cost = 0
                    fg-bin.std-fix-cost = 0.
                 end.
-                
+
                 v-cost = v-cost / (v-qty / 1000).
-                  
+
                 if fg-bin.pur-uom eq "M" then
                   fg-bin.std-tot-cost = v-cost.
                 else
                   run sys/ref/convcuom.p ("M", fg-bin.pur-uom, 0, 0, 0, 0,
                                           v-cost, output fg-bin.std-tot-cost).
-                                         
+
                 assign
                  fg-bin.std-mat-cost = fg-bin.std-tot-cost
                  fg-bin.std-lab-cost = 0
@@ -1548,7 +1562,7 @@ do transaction on error undo postit:
               end.
             end.
           end.
-          
+
           run fg/updfgcst.p (po-ordl.i-no).
         end.
       end.
@@ -1598,18 +1612,18 @@ do transaction on error undo postit:
      ap-ledger.trnum    = v-trnum
      ap-ledger.period   = tran-period
      ap-ledger.tr-date  = tran-date.
-    
+
     RELEASE ap-ledger.
 
     assign
      t1            = 0
      ap-inv.posted = yes.
-      
+
     IF apautocheck-log AND ap-inv.receiver-no NE "0" THEN
        RUN create-manual-check-proc.
 
     ACCUM ap-inv.net (TOTAL BY tt-report.actnum).
-      
+
     ACCUM tt-report.curr-amt - (ap-inv.net + ap-inv.freight) (TOTAL BY tt-report.actnum).
 
     ACCUM ap-inv.freight * tt-report.ex-rate (TOTAL).
@@ -1667,7 +1681,7 @@ do transaction on error undo postit:
       RELEASE gltrans.
     END.
   END.
-  
+
   create gltrans.
   assign
    gltrans.company = cocode
@@ -1775,7 +1789,7 @@ EMPTY TEMP-TABLE tt-report.
 EMPTY TEMP-TABLE tt-ap-invl.
 
 EMPTY TEMP-TABLE tt-ap-tax.
- 
+
 display "" with frame r-top.
 display "" with frame f-top.
 
@@ -1805,11 +1819,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1837,23 +1851,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

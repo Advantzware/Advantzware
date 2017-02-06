@@ -40,11 +40,11 @@ DEF VAR lv-audit-dir AS CHAR NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/VAR.i new shared}
-    
+
 assign
  cocode = gcompany
  locode = gloc.
-    
+
 
 def var v-unline as char format "x(80)" init
   "--------------- ------------------------- ------- ----------- ---" NO-UNDO.
@@ -301,6 +301,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -363,7 +374,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -434,7 +445,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   DEF VAR lv-post AS LOG NO-UNDO.
 
-    
+
   RUN GetNK1GLJournalPost(INPUT cocode,
                           OUTPUT glBalanceCheck).
   RUN check-date.
@@ -494,7 +505,7 @@ DO:
        END. 
        WHEN 6 THEN RUN OUTPUT-to-port.
   END CASE.
-  
+
   IF ip-post THEN
     IF v-postable THEN DO: 
         lv-post = NO.
@@ -685,8 +696,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -712,7 +725,7 @@ find first sys-ctrl where
     sys-ctrl.company eq cocode AND
     sys-ctrl.name    eq "AUDITDIR"
     no-lock no-error.
-  
+
   if not avail sys-ctrl then DO TRANSACTION:
      create sys-ctrl.
      assign
@@ -749,6 +762,7 @@ find first sys-ctrl where
 
   RUN check-date.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -766,11 +780,11 @@ PROCEDURE check-date :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   /*IF ip-post NE ? THEN
   DO with frame {&frame-name}:
     v-invalid = no.
-  
+
     find first period                   
         where period.company eq cocode
           and period.pst     le DATE(tran-date:SCREEN-VALUE)
@@ -806,7 +820,7 @@ PROCEDURE copy-report-to-audit-dir :
   DEF VAR dirname1 AS CHAR FORMAT "X(20)" NO-UNDO.
   DEF VAR dirname2 AS CHAR FORMAT "X(20)" NO-UNDO.
   DEF VAR dirname3 AS CHAR FORMAT "X(20)" NO-UNDO.
-  
+
   ASSIGN targetfile = lv-audit-dir + "\GL\GU2\Run#"
                     + STRING(xtrnum) + ".txt"
          dirname1 = lv-audit-dir
@@ -910,7 +924,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
  /*    DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -921,11 +935,11 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.  */
- 
+
  {custom/out2file.i}
 
 END PROCEDURE.
@@ -957,7 +971,7 @@ PROCEDURE output-to-printer :
      DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1110,7 +1124,7 @@ DEF VAR v-excel-hdr AS   CHAR.
   {sys/inc/outprint.i VALUE(lines-per-page)}
 
   IF td-show-parm THEN RUN show-param.
-  
+
     time_stamp = string(time, "HH:MMam").
     tmpstore   = fill("_",125).
     ASSIGN fjrnl = begin_j-no
@@ -1121,7 +1135,7 @@ DEF VAR v-excel-hdr AS   CHAR.
 SESSION:SET-WAIT-STATE ("general").
 
 {sys/form/r-topw.f}
-   
+
     str-tit  = coname + " - " + loname.
     str-tit2 = "JOURNAL ENTRIES" +
              IF ip-post NE ? THEN ("  -  EDIT REGISTER " + STRING(xtrnum))
@@ -1134,7 +1148,7 @@ SESSION:SET-WAIT-STATE ("general").
     str-tit2 = fill(" ",x) + str-tit2.
     x = (132 - length(str-tit3)) / 2.
     str-tit3 = fill(" ",x) + str-tit3.
-  
+
     DISPLAY str-tit3 format "x(130)"  skip(1) with frame r-top STREAM-IO.
 
     VIEW FRAME r-top.
@@ -1161,7 +1175,7 @@ SESSION:SET-WAIT-STATE ("general").
     ELSE DO:
         {gl/gl-jreg.i "by gl-jrn.j-no by gl-jrnl.line" 2}
     END.
-    
+
     /* rtc 08/11/2008 */
     IF tb_excel THEN DO:
         OUTPUT STREAM s-temp close.
@@ -1193,11 +1207,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1225,23 +1239,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

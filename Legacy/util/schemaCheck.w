@@ -181,6 +181,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -203,7 +214,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 */  /* FRAME DEFAULT-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -251,10 +262,10 @@ ON CHOOSE OF btnClose IN FRAME DEFAULT-FRAME /* Close */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCompareSchema C-Win
 ON CHOOSE OF btnCompareSchema IN FRAME DEFAULT-FRAME /* Compare Schema */
     DO:
- 
+
         RUN pShowNeededDeltas.
         RETURN NO-APPLY.
-        
+
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -274,8 +285,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
     DO:
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
         RUN disable_UI.
     END.
 
@@ -287,14 +300,15 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-        
+
     RUN enable_UI.
 
     RUN pCreateObjectReferences.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
-        
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -383,7 +397,7 @@ PROCEDURE pCreateObjectReferences:
         ttDeltaList.shouldExist  = YES
         ttDeltaList.databaseName = "ASI" 
         .
-         
+
     CREATE ttDeltaList.
     ASSIGN 
         ttDeltaList.allFileName  = "asi_delta_16.0.6"
@@ -394,7 +408,7 @@ PROCEDURE pCreateObjectReferences:
         ttDeltaList.shouldExist  = YES
         ttDeltaList.databaseName = "ASI" 
         .
-         
+
     CREATE ttDeltaList.
     ASSIGN 
         ttDeltaList.allFileName  = "asi_delta_16.0.0"
@@ -405,7 +419,7 @@ PROCEDURE pCreateObjectReferences:
         ttDeltaList.shouldExist  = YES
         ttDeltaList.databaseName = "ASI" 
         .
-        
+
 
 END PROCEDURE.
 	
@@ -424,17 +438,17 @@ PROCEDURE pShowNeededDeltas:
 
     DEFINE VARIABLE cDeltaDisplay AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lPassesTest   AS LOG       NO-UNDO.
-  
-    /*  RUN pCreateObjectReferences. */
-  
 
-  
+    /*  RUN pCreateObjectReferences. */
+
+
+
     DO WITH FRAME {&frame-name}:
         edLocks:SCREEN-VALUE = "".
         ASSIGN fiVersion.
-        
+
         FOR EACH ttDeltaList WHERE ttDeltaList.awVersion LE fiVersion:
-            
+
             lPassesTest = FALSE.
             CASE ttDeltaList.databaseName:
                 WHEN "ASI" THEN 
@@ -461,15 +475,15 @@ PROCEDURE pShowNeededDeltas:
                         lPassesTest = avail(nosweat._field) EQ ttDeltaList.shouldExist.               
                     END.
             END CASE.
-            
+
             cDeltaDisplay = 
                 ttDeltaList.allFileName 
                 + (IF lPassesTest THEN " Has Been Applied." ELSE " Needs to be applied")
                 + chr(13)
                 . 
-                
+
             edLocks:SCREEN-VALUE = edLocks:SCREEN-VALUE + cDeltaDisplay.
-    
+
         END.
     END. 
 END PROCEDURE.

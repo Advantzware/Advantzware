@@ -39,7 +39,7 @@ DEF VAR tran-period AS INT NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/VAR.i new shared}
-    
+
 assign
  cocode = gcompany
  locode = gloc.
@@ -287,6 +287,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -315,7 +326,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -563,8 +574,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -574,7 +587,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  
+
 /* security check need {methods/prgsecur.i} in definition section */
   IF access-close THEN DO:
      APPLY "close" TO THIS-PROCEDURE.
@@ -586,6 +599,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
 
   {methods/nowait.i}
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -643,7 +657,7 @@ postit:
           IF b-fg-rctd.r-no GE X THEN X = b-fg-rctd.r-no + 1.
           LEAVE.
         END.
-      
+
         find last fg-rcpth use-index r-no no-lock no-error.
         if avail fg-rcpth and fg-rcpth.r-no ge x THEN x = fg-rcpth.r-no + 1.
 
@@ -653,7 +667,7 @@ postit:
          w-fg-rctd.i-no   = b-itemfg.i-no
          w-fg-rctd.i-name = b-itemfg.i-name
          w-fg-rctd.r-no   = x.
-          
+
         find first fg-bin
             where fg-bin.company eq cocode
               and fg-bin.i-no    eq itemfg.i-no
@@ -665,7 +679,7 @@ postit:
               and fg-bin.cust-no eq fg-rctd.cust-no
             use-index co-ino no-error.
         v-adj-qty = (if avail fg-bin then fg-bin.qty else 0) * tt-fg-set.part-qty-dec.
-        
+
         find first fg-bin
             where fg-bin.company eq cocode
               and fg-bin.i-no    eq b-itemfg.i-no
@@ -677,7 +691,7 @@ postit:
               and fg-bin.cust-no eq fg-rctd.cust-no
             use-index co-ino no-error.
         v-adj-qty = (if avail fg-bin then fg-bin.qty else 0) - v-adj-qty.
-        
+
         if v-adj-qty lt 0 then v-adj-qty = 0.
 
         ASSIGN w-fg-rctd.t-qty = (fg-rctd.t-qty * tt-fg-set.part-qty-dec) + v-adj-qty.
@@ -712,7 +726,7 @@ postit:
          gltrans.tr-date = udate
          gltrans.period  = uperiod
          gltrans.trnum   = v-trnum.
-    
+
         if work-job.fg then
           assign
            gltrans.tr-amt  = - work-job.amt
@@ -784,7 +798,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
      DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -795,9 +809,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
 
 
@@ -816,7 +830,7 @@ PROCEDURE output-to-printer :
      DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -829,7 +843,7 @@ PROCEDURE output-to-printer :
                                     /* use-dialog(1) and landscape(2) */
 */
      RUN custom/prntproc.p (list-name,INT(lv-font-no),lv-ornt). /* open file-name, title */ 
- 
+
      /*IF NOT RESULT THEN v-postable = NO. */
 
 END PROCEDURE.
@@ -993,7 +1007,7 @@ time_stamp = string(time,"hh:mmam").
             fg-rctd.job-no2
         with frame itemx.
     down with frame itemx.
-        
+
     if avail fg-bin then
       assign
        v-cost[1] = fg-bin.std-lab-cost
@@ -1008,7 +1022,7 @@ time_stamp = string(time,"hh:mmam").
        v-cost[3] = itemfg.std-var-cost
        v-cost[4] = itemfg.std-mat-cost
        v-uom     = itemfg.prod-uom.
- 
+
     v-adj-qty = (if avail fg-bin then fg-bin.qty else 0) - fg-rctd.t-qty.
 
     /*Invoicing  - Post Invoicing Transactions - Job Costing*/
@@ -1031,12 +1045,12 @@ time_stamp = string(time,"hh:mmam").
 
   if v-gl then
   for each work-job break by work-job.actnum:
-  
+
     find first account
         where account.company eq cocode
           and account.actnum  eq work-job.actnum
         no-lock no-error.
-        
+
     assign
      v-dscr        = if avail account then account.dscr
                      else "ACCOUNT NOT FOUND - " + work-job.actnum
@@ -1166,7 +1180,7 @@ time_stamp = string(time,"hh:mmam").
               fg-bin.job-no  eq fg-rctd.job-no AND
               fg-bin.job-no2 eq fg-rctd.job-no2
               no-lock no-error.
-      
+
       IF AVAIL fg-bin THEN
       DO:
          if fg-bin.pur-uom eq "EA" then
@@ -1215,7 +1229,7 @@ time_stamp = string(time,"hh:mmam").
                ASSIGN
                   tt-fg-bin.sell-price = oe-ordl.price * (1 - (oe-ordl.disc / 100)) .
        END.
-        
+
 
       tt-fg-bin.v-adj-qty = (if avail fg-bin then fg-bin.qty else 0) - fg-rctd.t-qty.
 
@@ -1230,7 +1244,7 @@ time_stamp = string(time,"hh:mmam").
              fg-bin.qty     NE 0
              USE-INDEX co-ino
              NO-LOCK:
-        
+
              FIND FIRST tt-fg-bin WHERE
                   tt-fg-bin.i-no    eq fg-bin.i-no AND
                   tt-fg-bin.loc     eq fg-bin.loc AND
@@ -1239,7 +1253,7 @@ time_stamp = string(time,"hh:mmam").
                   tt-fg-bin.job-no  eq fg-bin.job-no AND
                   tt-fg-bin.job-no2 eq fg-bin.job-no2
                   NO-ERROR.
-        
+
              IF NOT AVAIL tt-fg-bin THEN
              DO:
                 CREATE tt-fg-bin.
@@ -1253,9 +1267,9 @@ time_stamp = string(time,"hh:mmam").
                   tt-fg-bin.seq-no = v-seq-no
                   v-seq-no = v-seq-no + 1.
              END.
-        
+
              tt-fg-bin.on-hand-qty = fg-bin.qty.
-        
+
              RELEASE tt-fg-bin.
          END. /*each fg-bin*/
 
@@ -1293,7 +1307,7 @@ time_stamp = string(time,"hh:mmam").
 
      ASSIGN
        v-tot-price = v-tot-price + tt-fg-bin.sell-price .
-        
+
     IF tt-fg-bin.count-trans THEN
     DO:
        ASSIGN
@@ -1318,22 +1332,22 @@ time_stamp = string(time,"hh:mmam").
 
   if v-gl then
      for each work-job break by work-job.actnum:
-     
+
        find first account
            where account.company eq cocode
              and account.actnum  eq work-job.actnum
            no-lock no-error.
-           
+
        assign
         v-dscr        = if avail account then account.dscr
                         else "ACCOUNT NOT FOUND - " + work-job.actnum
         v-disp-actnum = work-job.actnum.
-    
+
        if work-job.fg then
          v-disp-amt = - work-job.amt.
        else
          v-disp-amt = work-job.amt.
-    
+
        display v-disp-actnum v-dscr udate v-disp-amt
            with frame gldetail2.
        down with frame gldetail2.
@@ -1360,11 +1374,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1392,23 +1406,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

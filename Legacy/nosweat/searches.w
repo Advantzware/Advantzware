@@ -394,7 +394,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -696,7 +696,7 @@ DO:
   PUT UNFORMATTED m-where-statement.
   ELSE
   PUT UNFORMATTED "TRUE".
-  
+
   PUT UNFORMATTED SKIP
     "~&Scoped-define return-field " m-return-field SKIP
     "~&Scoped-define font " m-font SKIP
@@ -758,7 +758,7 @@ DO:
     "~{methods/search.i}" SKIP.
 
   OUTPUT CLOSE.
-  
+
   MESSAGE "Compile Search?" VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
       UPDATE compile-search AS LOGICAL.
   IF compile-search THEN
@@ -923,8 +923,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -940,6 +942,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   APPLY "VALUE-CHANGED" TO selected-set.
   {methods/enhance.i}
   {methods/nowait.i}
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1064,7 +1067,7 @@ PROCEDURE Get_Search :
   END.
   ELSE
   m-search-prgm = m_search_prgm.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

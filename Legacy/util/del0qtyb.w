@@ -186,6 +186,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -208,7 +219,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -262,10 +273,10 @@ DO:
   MESSAGE "Are you sure you wish to delete selected FG bins?"
           VIEW-AS ALERT-BOX QUESTION BUTTON yes-no
           UPDATE ll-process.
-      
+
   IF ll-process THEN DO:
     SESSION:SET-WAIT-STATE ("general").
-        
+
     RUN run-process.
 
     SESSION:SET-WAIT-STATE("").
@@ -303,8 +314,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -323,6 +336,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   FIND ap-ctrl WHERE ap-ctrl.company = gcompany NO-LOCK NO-ERROR.
   RUN enable_UI.
   {methods/nowait.i}
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -391,9 +405,9 @@ end.
               and fg-bin.i-no    GE begin_i-no
               and fg-bin.i-no    LE end_i-no
               and fg-bin.qty     le 0:
-              
+
           IF fg-bin.qty lt 0 then run fg/cre-pchr.p (ROWID(fg-bin), "C", 0, 0).
-          
+
           delete fg-bin.
         end.
 

@@ -194,6 +194,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -212,7 +223,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -296,7 +307,7 @@ DO:
    DEF VAR v-cnt AS INT NO-UNDO.
    DEF VAR v-qty AS DECI NO-UNDO.
    DEF VAR v-job-no LIKE job.job-no EXTENT 2 INITIAL [" ", " "] NO-UNDO.
-   
+
    DO WITH FRAME {&FRAME-NAME}:
       ASSIGN {&DISPLAYED-OBJECTS}.
    END.
@@ -324,7 +335,7 @@ DO:
                                     AND job-mat.frm     = job-hdr.frm
                                     AND job-mat.blank-no = job-hdr.blank-no:
 /*                                     AND job-mat.i-no    = job-hdr.i-no: */
-                                   
+
             FIND FIRST ITEM WHERE item.company = job-mat.company
                               AND item.i-no    = job-mat.rm-i-no
                               AND item.mat-type = "D" NO-LOCK NO-ERROR.
@@ -422,8 +433,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.

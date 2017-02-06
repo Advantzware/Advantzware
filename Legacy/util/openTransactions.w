@@ -140,6 +140,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -153,7 +164,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -222,8 +233,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -234,10 +247,11 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
     /* check security */
-  
-    
+
+
   RUN enable_UI.
-  
+
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -304,23 +318,23 @@ def var cOutputFile as char format "x(40)" init "c:\tmp\asi\transactionReport.tx
     cOutPutFile = fiFileName.
     iNumTries = fiIterations.
     iPauseLength = fiPauseTime.
-    
+
     iPauseLength = iPauseLength * 60.
     pause 0 before-hide.
     current-window:width-chars = 210.
-    
+
     if cOutPutFile gt "" then 
       output STREAM s1 to value(cOutputfile).
     FIND FIRST asi._myconnection.
     iRepCount = 0.
     NEXT-I:
     repeat:
-    
+
     iRepCount = iRepCount + 1.
     if iRepCount gt 1 then 
     pause iPauseLength.
     if iRepCount gt iNumTries + 1 then leave NEXT-I.
-    
+
     FOR EACH asi._trans WHERE  .
     form
      asi._connect._connect-name
@@ -333,22 +347,22 @@ def var cOutputFile as char format "x(40)" init "c:\tmp\asi\transactionReport.tx
      asi._lock._lock-table
      asi._file._file-name
      with frame xy width 200 20 down stream-io.
-     
+
       if asi._trans._trans-num eq 0 then leave.
       if asi._trans._trans-num eq ? then next.
-      
+
       disp STREAM s1 asi._trans._trans-id asi._trans._trans-num asi._trans._trans-txtime 
            asi._trans._trans-duration asi._trans._trans-usrnum
            with frame xy
            . 
       find first asi._connect where asi._connect._connect-usr = asi._trans._trans-usrnum no-lock no-error.
-      
+
       if avail asi._connect then 
          disp STREAM s1 asi._connect._connect-name asi._connect._connect-device
               with frame xy.
-      
-    
-      
+
+
+
       for each asi._lock 
          where /* asi._lock._lock-usr = asi._connect._connect-usr  */
          no-lock:
@@ -356,17 +370,17 @@ def var cOutputFile as char format "x(40)" init "c:\tmp\asi\transactionReport.tx
          if asi._lock._lock-usr ne asi._connect._connect-usr then 
            next.
          /*if asi._lock._lock-id eq ? or asi._lock._lock-table eq ? then leave. */
-    
+
         disp STREAM s1 asi._lock._lock-table with frame xy.
-        
+
           if avail asi._lock then do:
             FIND asi._file WHERE asi._file._file-number = asi._lock._lock-table NO-LOCK NO-ERROR.
             disp STREAM s1 asi._file._file-name with frame xy.
           end.
-        
+
       end.
-    
-      
+
+
     END.
 
 
@@ -383,24 +397,24 @@ form
  ASI._lock._lock-table
  ASI._file._file-name
  with frame xyz width 200 20 down stream-io.
- 
+
   if ASI._trans._trans-num eq 0 then leave.
   if ASI._trans._trans-num eq ? then next.
-  
+
   disp ASI._trans._trans-id
        ASI._trans._trans-num
        ASI._trans._trans-txtime
        ASI._trans._trans-duration
        ASI._trans._trans-usrnum
        with frame xyz.
-       
+
     find first ASI._connect where ASI._connect._connect-usr = ASI._trans._trans-usrnum no-lock no-error.
-  
+
   if avail ASI._connect then 
     disp STREAM s1  ASI._connect._connect-name ASI._connect._connect-device with frame xyz .
- 
 
-  
+
+
   for each ASI._lock 
      where /* ASI._lock._lock-usr = ASI._connect._connect-usr  */
      no-lock:
@@ -413,10 +427,10 @@ form
         FIND ASI._file WHERE ASI._file._file-number = ASI._lock._lock-table NO-LOCK NO-ERROR.
         disp STREAM s1 ASI._file._file-name with frame xyz.
       end.
-    
+
   end.
 
-  
+
 END.
 
 if connected("emptrack") then do:
@@ -433,20 +447,20 @@ form
  emptrack._lock._lock-table
  emptrack._file._file-name
  with frame xyzz width 200 20 down stream-io.
- 
+
   if emptrack._trans._trans-num eq 0 then leave.
   if emptrack._trans._trans-num eq ? then next.
-  
+
   disp STREAM s1 emptrack._trans._trans-id emptrack._trans._trans-num
        emptrack._trans._trans-txtime emptrack._trans._trans-duration
        emptrack._trans._trans-usrnum with frame xyzz. 
     find first emptrack._connect where emptrack._connect._connect-usr = emptrack._trans._trans-usrnum no-lock no-error.
-  
+
   if avail emptrack._connect then 
     disp STREAM s1 emptrack._connect._connect-name emptrack._connect._connect-device with frame xyzz .
- 
 
-  
+
+
   for each emptrack._lock 
      where /* emptrack._lock._lock-usr = emptrack._connect._connect-usr  */
      no-lock:
@@ -459,10 +473,10 @@ form
         FIND emptrack._file WHERE emptrack._file._file-number = emptrack._lock._lock-table NO-LOCK NO-ERROR.
         disp STREAM s1 emptrack._file._file-name with frame xyzz.
       end.
-    
+
   end.
 
-  
+
 END.
 end. /* emptrack */
 end. /* repeat */

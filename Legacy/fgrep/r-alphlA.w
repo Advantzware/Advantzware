@@ -65,7 +65,7 @@ DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
 DEF VAR v-print-fmt AS CHARACTER NO-UNDO.
 DEF VAR is-xprint-form AS LOGICAL NO-UNDO.
 DEF VAR ls-fax-file AS CHAR NO-UNDO.
-    
+
 DEF STREAM excel.
 
 /* _UIB-CODE-BLOCK-END */
@@ -361,6 +361,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -456,7 +467,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -586,7 +597,7 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
@@ -601,7 +612,7 @@ END.
 ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -890,8 +901,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -909,9 +922,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
-  
+
   RUN sys/inc/CustListForm.p ( "IR3",cocode, 
                                OUTPUT ou-log,
                                OUTPUT ou-cust-int) .
@@ -943,7 +956,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO"
         btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
         .
-      
+
    IF ou-log AND ou-cust-int = 0 THEN do:
        ASSIGN 
         tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = YES
@@ -954,6 +967,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
    END.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1015,7 +1029,7 @@ PROCEDURE CustList :
 
     RUN sys/ref/CustListManager.w(INPUT cocode,
                                   INPUT 'IR3').
-    
+
 
 END PROCEDURE.
 
@@ -1078,7 +1092,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
  /*    DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -1089,9 +1103,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
  */
  {CUstom/out2file.i}
@@ -1125,7 +1139,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1193,7 +1207,7 @@ DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 
 form header skip(1)
             v-page-break format "x(132)"
-            
+
     with frame r-top-2 STREAM-IO width 140 no-labels no-box no-underline page-top.
 
 form header skip(1)
@@ -1209,7 +1223,7 @@ form header skip(1)
             "           "
             "         TOTAL"
             skip
-           
+
             "ITEM           "
             "DESCRIPTION  "
             "CAT  "
@@ -1223,7 +1237,7 @@ form header skip(1)
             v-label2
             "STAT"
             skip
-            
+
             "---------------"
             "-------------"
             "-----"
@@ -1238,7 +1252,7 @@ form header skip(1)
             "-----"
           skip
     with frame r-top-3 STREAM-IO width 140 no-labels no-box no-underline page-top.
-    
+
 form
     itemfg.i-no                                 
     itemfg.i-name           format "x(13)"          
@@ -1283,7 +1297,7 @@ if td-show-parm then run show-param.
 SESSION:SET-WAIT-STATE ("general").
 
   find first fg-ctrl where fg-ctrl.company eq cocode no-lock.
-  
+
   assign
    v-label1[1] = if fg-ctrl.inv-meth eq "A" then
                    "       AVERAGE" else "          LAST"
@@ -1299,9 +1313,9 @@ IF tb_excel THEN DO:
                 "CUSTOMER ORDERS,QTY AVAIL,TOTAL " + TRIM(v-label2).
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
-                   
+
   if not v-sho-cost then v-label1 = "".
-  
+
   FOR EACH ttCustList 
     WHERE ttCustList.log-fld
     NO-LOCK,
@@ -1318,11 +1332,11 @@ END.
         and itemfg.procat  ge v-procat[1]
         and itemfg.procat  le v-procat[2]
       no-lock
-      
+
       break by (if v-break eq "C" then itemfg.cust-no else
                 if v-break eq "P" then itemfg.procat  else "1")
             by (if v-sort-by then itemfg.i-no else itemfg.i-name)
-            
+
       with frame itemx.
 
 /*       /* Check active status. */                   */
@@ -1345,20 +1359,20 @@ END.
 /*         ASSIGN v-status = reftable.code2. */
 /*     ELSE                                  */
 /*         ASSIGN v-status = "".             */
-    
+
 {custom/statusMsg.i "'Processing Item # ' + itemfg.i-no"} 
-      
+
     if first-of(if v-break eq "C" then itemfg.cust-no else
                 if v-break eq "P" then itemfg.procat  else "1") then
       v-first[2] = yes.
-       
+
     v-qty-onh  = 0.
-     
+
     for each fg-bin
         where fg-bin.company eq cocode
           and fg-bin.i-no    eq itemfg.i-no
         use-index i-no no-lock:
-        
+
       if v-custown or (fg-bin.loc ne "CUST" and fg-bin.cust-no eq "") then
         v-qty-onh = v-qty-onh + fg-bin.qty.
     end. /* each bin */
@@ -1373,7 +1387,7 @@ END.
                         if v-break eq "P" then
                           ("Product Category: " + trim(itemfg.procat))
                         else "".  
-        
+
         IF v-first[1] THEN DO:
           v-first[1] = NO.
           DISPLAY WITH frame r-top.
@@ -1383,17 +1397,17 @@ END.
 
         ELSE PAGE.
       end.
-    
+
       if v-prt-cost then do:
         v-cost = itemfg.total-std-cost.
-      
+
         if itemfg.prod-uom ne "EA" then
           run sys/ref/convcuom.p (itemfg.prod-uom, "EA", 0, 0, 0, 0,
                                   v-cost, output v-cost).
-                                
+
         v-price = v-cost * v-qty-onh.  
       end.
-    
+
       else do:
         find first uom
             where uom.uom  eq itemfg.sell-uom
@@ -1401,10 +1415,10 @@ END.
             no-lock no-error.
         v-price = v-qty-onh * itemfg.sell-price /
                   (if avail uom then uom.mult else 1000).
-                 
+
         if itemfg.sell-uom eq "CS" then
           v-price = v-qty-onh / itemfg.case-count * itemfg.sell-price.
-        
+
         else
         /* gdm - 04130901 */
         IF itemfg.sell-uom EQ "L" AND v-qty-onh > 0
@@ -1413,9 +1427,9 @@ END.
           THEN v-price = (v-qty-onh * itemfg.sell-price).
 
       end.
-      
+
       if v-price eq ? then v-price = 0.
-              
+
       display itemfg.i-no
               itemfg.i-name
               itemfg.procat
@@ -1447,7 +1461,7 @@ END.
             '"' v-price                                                   '",'
             '"' v-status                                            '",'
             SKIP.
-    
+
       assign
        v-tq-onh[1]   = v-tq-onh[1]   + v-qty-onh
        v-tq-ono[1]   = v-tq-ono[1]   + itemfg.q-ono
@@ -1456,14 +1470,14 @@ END.
                        (v-qty-onh + itemfg.q-ono - itemfg.q-alloc)
        v-tprice[1]   = v-tprice[1]   + v-price.
     end.
-     
+
     if not v-first[2]                                          and
        last-of(if v-break eq "C" then itemfg.cust-no else
                if v-break eq "P" then itemfg.procat  else "1") then do:
-               
+
       if v-break ne "N" then do:
         put skip(1).
-        
+
         display "Cust Total"                          @ itemfg.i-name
                   "ProdCat Total" when v-break eq "P" @ itemfg.i-name
                 v-tq-onh[1]                           @ v-qty-onh
@@ -1473,30 +1487,30 @@ END.
                 v-tprice[1]                           @ v-price
             with frame itemx.
         down with frame itemx.
-        
+
         put skip(1).
       end.
-     
+
       assign
        v-tq-onh[2]   = v-tq-onh[2]   + v-tq-onh[1]
        v-tq-ono[2]   = v-tq-ono[2]   + v-tq-ono[1]
        v-tq-alloc[2] = v-tq-alloc[2] + v-tq-alloc[1]
        v-tq-avail[2] = v-tq-avail[2] + v-tq-avail[1]
        v-tprice[2]   = v-tprice[2]   + v-tprice[1]
-       
+
        v-tq-onh[1]   = 0
        v-tq-ono[1]   = 0
        v-tq-alloc[1] = 0
        v-tq-avail[1] = 0
        v-tprice[1]   = 0.
     end.
-    
+
     if not v-first[1]                                       and
        last(if v-break eq "C" then itemfg.cust-no else
             if v-break eq "P" then itemfg.procat  else "1") then do:
-               
+
       hide frame r-top-2 no-pause.
-  
+
       if v-break ne "N" then page.
       else put skip(2).
 
@@ -1546,7 +1560,7 @@ PROCEDURE SetCustRange :
         btnCustList:SENSITIVE = iplChecked
        .
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1567,11 +1581,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1599,23 +1613,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

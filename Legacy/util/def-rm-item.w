@@ -286,6 +286,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -330,7 +341,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -385,11 +396,11 @@ DO:
   END.
 
   ll-process  = NO.
-   
+
   MESSAGE "Are you sure you want to " + TRIM(c-win:TITLE) +
           " for the selected parameters?"
       VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-process.
-        
+
   IF ll-process THEN RUN run-process.
 END.
 
@@ -416,7 +427,7 @@ END.
 
 /* ***************************  Main Block  *************************** */
 DEF VAR v-mat-list AS CHAR NO-UNDO.
-    
+
 
 {sys/inc/f3helpw.i}
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
@@ -425,8 +436,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -445,7 +458,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     END.
     IF SUBSTR(v-mat-list,LENGTH(TRIM(v-mat-list)),1) EQ "," THEN
       SUBSTR(v-mat-list,LENGTH(TRIM(v-mat-list)),1) = "".
-  
+
     select-mat:LIST-ITEMS = v-mat-list.
   END.
 
@@ -527,7 +540,7 @@ DO WITH FRAME {&FRAME-NAME}:
       IF select-mat:IS-SELECTED(li) THEN
         lv-mat-type = lv-mat-type + TRIM(SUBSTR(select-mat:ENTRY(li),1,5)) + ",".
     END.
-  
+
     IF SUBSTR(lv-mat-type,LENGTH(TRIM(lv-mat-type)),1) EQ "," THEN
       SUBSTR(lv-mat-type,LENGTH(TRIM(lv-mat-type)),1) = "".
   END.

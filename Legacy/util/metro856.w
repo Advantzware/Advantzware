@@ -211,6 +211,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -232,7 +243,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -351,7 +362,7 @@ DO:
                       tt-boll.city = v-ship-city
                       tt-boll.state = v-ship-state
                       tt-boll.zip = v-ship-zip.
-      
+
             RELEASE tt-boll.
        END.
    END.
@@ -408,7 +419,7 @@ DO:
              tt-856.postal-code = tt-boll.zip
              tt-856.cust-no   = IF tt-856.state EQ "PA" THEN "40" ELSE "53"
              v-prod-date = ?.
-          
+
           {sys/inc/roundup.i tt-856.shipped-qty}
 
           FOR EACH fg-rcpth FIELDS (r-no trans-date) NO-LOCK
@@ -422,7 +433,7 @@ DO:
               BREAK BY fg-rcpth.trans-date
                     BY fg-rdtlh.trans-time
                     BY fg-rcpth.r-no:
-    
+
               ASSIGN v-prod-date = fg-rcpth.trans-date.
               LEAVE.      
           END.
@@ -491,7 +502,7 @@ DO:
             '"'  '",'
             SKIP.
    END.
-                
+
    OUTPUT STREAM excel CLOSE.
 
    SESSION:SET-WAIT-STATE ("").
@@ -501,7 +512,7 @@ DO:
 
    RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
-   
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -532,8 +543,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -548,7 +561,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-  
+
   RUN enable_UI.
   {methods/nowait.i}
 
@@ -564,6 +577,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "entry" TO scr-ship-date IN FRAME {&FRAME-NAME}.
   END.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
      WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

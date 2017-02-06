@@ -345,6 +345,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -396,7 +407,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -567,7 +578,7 @@ DO:
 
   RUN DisplaySelectionDefault.  /* task 04041406 */ 
   RUN DisplaySelectionList2 .
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -718,7 +729,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
-  
+
    IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
        sl_selected:NUM-ITEMS = 0)
    THEN ASSIGN ldummy = sl_selected:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
@@ -726,7 +737,7 @@ DO:
               /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
                .
 
-  
+
 /* for pairs
     DEF VAR cSelectedList AS cha NO-UNDO.
     cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
@@ -769,7 +780,7 @@ DO:
   ASSIGN
     {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}:ENTRY(1)
     .
-    
+
 
 END.
 
@@ -823,8 +834,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -840,20 +853,21 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-  
+
   begin_date = today.
 
   RUN DisplaySelectionList.
   RUN enable_UI.
-  
+
   {methods/nowait.i}
-   
+
       DO WITH FRAME {&FRAME-NAME}:
           {custom/usrprint.i}
               RUN DisplaySelectionList2.
           APPLY "entry" TO begin_dept .
       END.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -892,7 +906,7 @@ PROCEDURE DisplaySelectionDefault :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  
+
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
      cListContents = cListContents +                   
@@ -918,7 +932,7 @@ PROCEDURE DisplaySelectionList :
   DEF VAR iCount AS INT NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
-     
+
      RETURN.
   END.
 
@@ -931,7 +945,7 @@ PROCEDURE DisplaySelectionList :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -939,9 +953,9 @@ PROCEDURE DisplaySelectionList :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 END PROCEDURE.
 
@@ -962,7 +976,7 @@ PROCEDURE DisplaySelectionList2 :
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
-        
+
   EMPTY TEMP-TABLE ttRptList.
 
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
@@ -972,7 +986,7 @@ PROCEDURE DisplaySelectionList2 :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -980,9 +994,9 @@ PROCEDURE DisplaySelectionList2 :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
   DO iCount = 1 TO sl_selected:NUM-ITEMS:
@@ -1043,7 +1057,7 @@ PROCEDURE GetSelectionList :
 
  DO i = 1 TO sl_selected:NUM-ITEMS /* IN FRAME {&FRAME-NAME}*/ :
     FIND FIRST ttRptList WHERE ttRptList.TextList = ENTRY(i,cTmpList) NO-LOCK NO-ERROR.     
-  
+
     CREATE ttRptSelected.
     ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
            ttRptSelected.FieldList = ttRptList.FieldList
@@ -1052,7 +1066,7 @@ PROCEDURE GetSelectionList :
            ttRptSelected.HeadingFromLeft = IF entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
-           
+
  END.
 
 END PROCEDURE.
@@ -1213,7 +1227,7 @@ assign
  v-due-d   = rd_show2 EQ "Due" */
  v-date    = begin_date
  /*v-left    = tb_show3*/
-                    
+
  /*v-hdr[1] = fill(" ",73) + if v-left then " TOTAL   WEEKLY    ACCUM" else
                                           "STNDRD  STNDRD  ACTUAL  ACTUAL  REMAIN  REMAIN   TOTAL"
  v-hdr[2] = "MACH" + fill(" ",40) + (if v-due-d then "DUE  " else "START") +
@@ -1230,7 +1244,7 @@ assign
  v-cum-hrs = 0.
 
 EMPTY TEMP-TABLE work-rep.
-  
+
 FORM HEADER
     str-tit6 SKIP 
     with frame r-top.
@@ -1315,7 +1329,7 @@ DEF VAR cslist AS cha NO-UNDO.
          str-tit5 = str-tit5 +  " REMAIN" + " "
                str-tit6 = str-tit6 + FILL("-",ttRptSelected.FieldLength) + " "
                excelheader = excelHeader + ttRptSelected.TextList + ","  .
-     
+
 
    ELSE DO:
        IF LENGTH(ttRptSelected.TextList) = ttRptSelected.FieldLength 
@@ -1560,7 +1574,7 @@ display "" with frame r-top.
                     PUT STREAM excel UNFORMATTED
                         '"' "" '",'.
                  END.
-                 
+
                  PUT STREAM excel UNFORMATTED
                     '"' "TOTAL" '",'
                     '"' STRING(v-tot-hrs[1] + v-tot-hrs[2],">,>>9.99") '",'.
@@ -1579,7 +1593,7 @@ display "" with frame r-top.
              end.
 
              put skip(1).
- 
+
            /*  IF tb_excel THEN
                 PUT STREAM excel UNFORMATTED
                     SKIP(1).*/
@@ -1608,7 +1622,7 @@ display "" with frame r-top.
          if work-rep.qty-rem lt 0 then work-rep.qty-rem = 0.
 
          tot-hrs = job-mr-hrs + job-run-hrs.
-         
+
        /*  display work-rep.m-code
                     when first-of(work-rep.m-code)
                  mach.m-dscr
@@ -1670,7 +1684,7 @@ display "" with frame r-top.
                    cVarValue = ""
                    cExcelDisplay = ""
                    cExcelVarValue = "".
-          
+
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
@@ -1691,9 +1705,9 @@ display "" with frame r-top.
                          WHEN "ttl-hrs"    THEN cVarValue = STRING(tot-hrs,">>>9.99")  .
                          WHEN "wk-hrs"      THEN cVarValue = "" .
                          WHEN "ac-hrs"            THEN cVarValue = "" .
-                         
+
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
@@ -1713,7 +1727,7 @@ display "" with frame r-top.
           v-cum-hrs[2] = v-cum-hrs[2] + job-run-hrs + job-mr-hrs.
 
        /*  if last-of(work-rep.both-date) then do: */
-             
+
            /*if not v-left then
            DO:*/
             /* put "-------"                    to 111
@@ -1733,7 +1747,7 @@ display "" with frame r-top.
                     PUT STREAM excel UNFORMATTED
                         '"' "" '",'.
                  END.
-                 
+
                  PUT STREAM excel UNFORMATTED
                     '"' "TOTAL" '",'
                     '"' STRING(v-tot-hrs[1],">,>>9.99")                '",'
@@ -1761,7 +1775,7 @@ display "" with frame r-top.
                     PUT STREAM excel UNFORMATTED
                         '"' "" '",'.
                  END.
-                 
+
                  PUT STREAM excel UNFORMATTED
                     '"' "TOTAL" '",'
                     '"' STRING(v-tot-hrs[1] + v-tot-hrs[2],">,>>9.99") '",'
@@ -1770,15 +1784,15 @@ display "" with frame r-top.
                     SKIP(1).
               END.
            END.*/
-         
-         
+
+
 
            ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
                    cExcelDisplay = ""
                    cExcelVarValue = "".
-          
+
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
@@ -1799,9 +1813,9 @@ display "" with frame r-top.
                          WHEN "ttl-hrs"    THEN cVarValue = IF last-of(work-rep.both-date) THEN  STRING(v-tot-hrs[1] + v-tot-hrs[2],">,>>9.99") ELSE "" .
                          WHEN "wk-hrs"      THEN cVarValue =  IF first-of(work-rep.both-date) THEN STRING(v-cum-hrs[1],">,>>9.99") ELSE ""  .
                          WHEN "ac-hrs"            THEN cVarValue = IF first-of(work-rep.both-date) THEN STRING(v-cum-hrs[2],">,>>9.99") ELSE ""  .
-                         
+
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
@@ -1818,7 +1832,7 @@ display "" with frame r-top.
              IF last-of(work-rep.both-date) THEN
              ASSIGN v-saturday = 7 - weekday(work-rep.both-date) + work-rep.both-date.
 
-             
+
         /* end.*/
    end. /* each item */
 
@@ -1854,12 +1868,12 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha NO-UNDO.
-  
+
   ASSIGN
   lv-frame-hdl = frame {&frame-name}:HANDLE
   lv-group-hdl = lv-frame-hdl:first-child
   lv-field-hdl = lv-group-hdl:first-child.
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1885,23 +1899,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

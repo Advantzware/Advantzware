@@ -39,7 +39,7 @@ DEF VAR tran-period AS INT NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/VAR.i new shared}
-    
+
 assign
  cocode = gcompany
  locode = gloc.
@@ -143,7 +143,7 @@ display tt-fg-bin.rct-date when first-of(tt-fg-bin.i-no)
             tt-fg-bin.tot-value WHEN tt-fg-bin.count-trans
             tt-fg-bin.job-no
             tt-fg-bin.job-no2
-            
+
     form fg-rctd.rct-date     column-label "TRANS.!DATE"
          fg-rctd.i-no           label "ITEM"
          fg-rctd.i-name         format "x(20)" label "DESCRIPTION"
@@ -430,6 +430,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -496,7 +507,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -660,7 +671,7 @@ DO:
 
   RUN DisplaySelectionDefault.  /* task 04041406 */ 
   RUN DisplaySelectionList2 .
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -807,7 +818,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
-  
+
    IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
        sl_selected:NUM-ITEMS = 0)
    THEN ASSIGN ldummy = sl_selected:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
@@ -815,7 +826,7 @@ DO:
               /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
                .
 
-  
+
 /* for pairs
     DEF VAR cSelectedList AS cha NO-UNDO.
     cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
@@ -858,7 +869,7 @@ DO:
   ASSIGN
     {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}:ENTRY(1)
     .
-    
+
 
 END.
 
@@ -890,8 +901,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -901,7 +914,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  
+
 /* security check need {methods/prgsecur.i} in definition section */
   IF access-close THEN DO:
      APPLY "close" TO THIS-PROCEDURE.
@@ -919,6 +932,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     RUN DisplaySelectionList2.
     APPLY "entry" TO post-date.
   END.
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -976,7 +990,7 @@ postit:
           IF b-fg-rctd.r-no GE X THEN X = b-fg-rctd.r-no + 1.
           LEAVE.
         END.
-      
+
         find last fg-rcpth use-index r-no no-lock no-error.
         if avail fg-rcpth and fg-rcpth.r-no ge x THEN x = fg-rcpth.r-no + 1.
 
@@ -986,7 +1000,7 @@ postit:
          w-fg-rctd.i-no   = b-itemfg.i-no
          w-fg-rctd.i-name = b-itemfg.i-name
          w-fg-rctd.r-no   = x.
-          
+
         find first fg-bin
             where fg-bin.company eq cocode
               and fg-bin.i-no    eq itemfg.i-no
@@ -998,7 +1012,7 @@ postit:
               and fg-bin.cust-no eq fg-rctd.cust-no
             use-index co-ino no-error.
         v-adj-qty = (if avail fg-bin then fg-bin.qty else 0) * tt-fg-set.part-qty-dec.
-        
+
         find first fg-bin
             where fg-bin.company eq cocode
               and fg-bin.i-no    eq b-itemfg.i-no
@@ -1010,7 +1024,7 @@ postit:
               and fg-bin.cust-no eq fg-rctd.cust-no
             use-index co-ino no-error.
         v-adj-qty = (if avail fg-bin then fg-bin.qty else 0) - v-adj-qty.
-        
+
         if v-adj-qty lt 0 then v-adj-qty = 0.
 
         ASSIGN w-fg-rctd.t-qty = (fg-rctd.t-qty * tt-fg-set.part-qty-dec) + v-adj-qty.
@@ -1045,7 +1059,7 @@ postit:
          gltrans.tr-date = udate
          gltrans.period  = uperiod
          gltrans.trnum   = v-trnum.
-    
+
         if work-job.fg then
           assign
            gltrans.tr-amt  = - work-job.amt
@@ -1093,7 +1107,7 @@ PROCEDURE DisplaySelectionDefault :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  
+
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
      cListContents = cListContents +                   
@@ -1120,7 +1134,7 @@ PROCEDURE DisplaySelectionList :
 /*   MESSAGE "List to select: " NUM-ENTRIES(cTextListToSelect) ":" NUM-ENTRIES(cFieldListToSelect) */
 /*           VIEW-AS ALERT-BOX INFO BUTTONS OK.                                                    */
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
-     
+
      RETURN.
   END.
 
@@ -1133,7 +1147,7 @@ PROCEDURE DisplaySelectionList :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1141,9 +1155,9 @@ PROCEDURE DisplaySelectionList :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
 END PROCEDURE.
@@ -1165,7 +1179,7 @@ PROCEDURE DisplaySelectionList2 :
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
-        
+
   EMPTY TEMP-TABLE ttRptList.
 
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
@@ -1296,7 +1310,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
      DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -1307,9 +1321,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
 
 
@@ -1328,7 +1342,7 @@ PROCEDURE output-to-printer :
      DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1341,7 +1355,7 @@ PROCEDURE output-to-printer :
                                     /* use-dialog(1) and landscape(2) */
 */
      RUN custom/prntproc.p (list-name,INT(lv-font-no),lv-ornt). /* open file-name, title */ 
- 
+
      /*IF NOT RESULT THEN v-postable = NO. */
 
 END PROCEDURE.
@@ -1436,10 +1450,10 @@ time_stamp = string(time,"hh:mmam").
       {sys/inc/outprint.i value(lines-per-page)}
 
       if td-show-parm then run show-param.
-  
+
 display str-tit4 str-tit5  with WIDTH 210 STREAM-IO frame r-top. 
 /*      VIEW FRAME r-top.*/
-  
+
   v-postable = NO.
 
   /* gdm - 12050809 */
@@ -1456,7 +1470,7 @@ display str-tit4 str-tit5  with WIDTH 210 STREAM-IO frame r-top.
 
      ASSIGN
         v-sell-price = itemfg.sell-price .
-    
+
     if first-of(fg-rctd.i-no) then do:
      /* put skip(1).*/
       ASSIGN
@@ -1554,19 +1568,19 @@ display str-tit4 str-tit5  with WIDTH 210 STREAM-IO frame r-top.
                      cTmpField = substring(GetFieldValue(hField),1,int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength))).
                      IF ENTRY(i,cSelectedList) = "Job#" THEN
                         cTmpField = cTmpField + IF cTmpField <> "" THEN "-" + string(fg-rctd.job-no2,"99") ELSE "".                  
-                     
+
                      IF ENTRY(i,cSelectedList) BEGINS "TAG" THEN 
                         cTmpField = substring(fg-rctd.tag, LENGTH(fg-rctd.tag) - 4).
-                     
+
                      cDisplay = cDisplay + cTmpField + 
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField))
                                .
-                     
+
                  END.
                  ELSE DO:
                     cTmpField = substring(cFieldName,1,int( entry( getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength) ) ).                  
                     cDisplay = cDisplay + FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 ).
-                    
+
                  END.
        END.
        ELSE DO: 
@@ -1574,10 +1588,10 @@ display str-tit4 str-tit5  with WIDTH 210 STREAM-IO frame r-top.
                  WHEN "v-std-cost" THEN cVarValue = string(v-std-cost).
                  WHEN "v-tot-value" THEN cVarValue = string(v-tot-value).
             END CASE.
-              
+
             cDisplay = cDisplay + cVarValue +
                        FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-            
+
        END.
     END.
     PUT UNFORMATTED cDisplay SKIP.
@@ -1596,7 +1610,7 @@ display str-tit4 str-tit5  with WIDTH 210 STREAM-IO frame r-top.
        v-cost[3] = itemfg.std-var-cost
        v-cost[4] = itemfg.std-mat-cost
        v-uom     = itemfg.prod-uom.
- 
+
     v-adj-qty = (if avail fg-bin then fg-bin.qty else 0) - fg-rctd.t-qty.
 
     /*Invoicing  - Post Invoicing Transactions - Job Costing*/
@@ -1620,12 +1634,12 @@ display str-tit4 str-tit5  with WIDTH 210 STREAM-IO frame r-top.
 
   if v-gl then
   for each work-job break by work-job.actnum:
-  
+
     find first account
         where account.company eq cocode
           and account.actnum  eq work-job.actnum
         no-lock no-error.
-        
+
     assign
      v-dscr        = if avail account then account.dscr
                      else "ACCOUNT NOT FOUND - " + work-job.actnum
@@ -1789,7 +1803,7 @@ time_stamp = string(time,"hh:mmam").
               fg-bin.job-no  eq fg-rctd.job-no AND
               fg-bin.job-no2 eq fg-rctd.job-no2
               no-lock no-error.
-      
+
       IF AVAIL fg-bin AND fg-bin.pur-uom NE "" THEN
       DO:
          if fg-bin.pur-uom eq "M" then
@@ -1838,7 +1852,7 @@ time_stamp = string(time,"hh:mmam").
                ASSIGN
                   tt-fg-bin.sell-price = oe-ordl.price * (1 - (oe-ordl.disc / 100)) .
        END.
-        
+
 
       tt-fg-bin.v-adj-qty = (if avail fg-bin then fg-bin.qty else 0) - fg-rctd.t-qty.
 
@@ -1916,7 +1930,7 @@ time_stamp = string(time,"hh:mmam").
     down with frame itemx2.
     */
     BUFFER btt-fg-bin:FIND-BY-ROWID(ROWID(tt-fg-bin), NO-LOCK) .
-    
+
     ASSIGN cDisplay = ""
            cTmpField = ""
            cVarValue = ""
@@ -1936,7 +1950,7 @@ time_stamp = string(time,"hh:mmam").
                      IF ENTRY(i,cSelectedList) BEGINS "TAG" AND LENGTH(tt-fg-bin.tag) GE 4 THEN DO:
                          cTmpField = substring(tt-fg-bin.tag, LENGTH(tt-fg-bin.tag) - 4).
                      END.
-                        
+
 
                      cDisplay = cDisplay + 
                                IF entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldType) = "C" THEN
@@ -1949,7 +1963,7 @@ time_stamp = string(time,"hh:mmam").
                  ELSE DO:
                     cTmpField = substring(cFieldName,1,int( entry( getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength) ) ).                  
                     cDisplay = cDisplay + FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 ).
-                    
+
                  END.
        END.
        ELSE DO: 
@@ -1958,10 +1972,10 @@ time_stamp = string(time,"hh:mmam").
                  WHEN "over-under" THEN cVarValue =  string(- INT( btt-fg-bin.on-hand-qty - btt-fg-bin.counted-qty),"->>>>>>>>9" ) .
                  WHEN "v-tot-value" THEN cVarValue = string(v-tot-value).
             END CASE.
-              
+
             cDisplay = cDisplay + cVarValue +
                        FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-            
+
        END.
     END.
     IF tg_showOHCounted AND tg_showOHNotCounted THEN .
@@ -1975,7 +1989,7 @@ time_stamp = string(time,"hh:mmam").
 
      ASSIGN
        v-tot-price = v-tot-price + tt-fg-bin.sell-price .
-        
+
     IF tt-fg-bin.count-trans THEN
     DO:
        ASSIGN
@@ -2001,22 +2015,22 @@ time_stamp = string(time,"hh:mmam").
 
   if v-gl then
      for each work-job break by work-job.actnum:
-     
+
        find first account
            where account.company eq cocode
              and account.actnum  eq work-job.actnum
            no-lock no-error.
-           
+
        assign
         v-dscr        = if avail account then account.dscr
                         else "ACCOUNT NOT FOUND - " + work-job.actnum
         v-disp-actnum = work-job.actnum.
-    
+
        if work-job.fg then
          v-disp-amt = - work-job.amt.
        else
          v-disp-amt = work-job.amt.
-    
+
        display v-disp-actnum v-dscr udate v-disp-amt
            with frame gldetail2.
        down with frame gldetail2.
@@ -2043,11 +2057,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -2075,23 +2089,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

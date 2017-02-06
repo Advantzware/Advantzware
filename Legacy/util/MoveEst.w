@@ -166,6 +166,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -179,7 +190,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -227,7 +238,7 @@ END.
 ON CHOOSE OF btnOk IN FRAME DEFAULT-FRAME /* OK */
 DO:
    DEF VAR v-process AS LOG NO-UNDO.
-   
+
    ASSIGN fi_OldPath fi_NewPath fi_date-start
           fi_date-end
           FILE-INFO:FILE-NAME = fi_OldPath.
@@ -285,7 +296,7 @@ DO:
    message "Are you sure you want move estimate files from " fi_OldPath
           "to" fi_NewPath + "?"       
           view-as alert-box question button yes-no update v-process.
-        
+
   if v-process then run run-process.
 
 END.
@@ -303,17 +314,17 @@ DO:
    DEFINE VARIABLE oParent AS COM-HANDLE NO-UNDO.
    DEFINE VARIABLE cFolder AS CHARACTER NO-UNDO.
    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
-  
+
    CREATE 'Shell.Application' oServer.
-  
+
    oFolder = oServer:BrowseForFolder(CURRENT-WINDOW:HWND,'Select To Folder',0).
-  
+
    IF VALID-HANDLE(oFolder) = True THEN
    DO:
       ASSIGN cFolder = oFolder:Title
              oParent = oFolder:ParentFolder
              iCount = 0.
-  
+
       REPEAT:
          IF iCount >= oParent:Items:Count THEN
             LEAVE.
@@ -326,7 +337,7 @@ DO:
          ASSIGN iCount = iCount + 1.
        END.
     END.
-  
+
     RELEASE OBJECT oParent NO-ERROR.
     RELEASE OBJECT oFolder NO-ERROR.
     RELEASE OBJECT oServer NO-ERROR.
@@ -391,8 +402,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -408,17 +421,18 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       fi_date-end = TODAY.
 
    RUN enable_UI.
-   
+
    FIND first sys-ctrl where
         sys-ctrl.company eq cocode AND
         sys-ctrl.name    eq "CEBROWSE"
         no-lock no-error.
-  
+
    IF AVAIL sys-ctrl THEN
       fi_NewPath:SCREEN-VALUE = sys-ctrl.char-fld.
-  
+
    apply 'entry':u to fi_OldPath.
-  
+
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
    IF NOT THIS-PROCEDURE:PERSISTENT THEN
      WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -483,7 +497,7 @@ PROCEDURE run-process :
    DEF VAR vcCommand AS CHAR NO-UNDO.
 
    DO WITH FRAME {&FRAME-NAME}:
-   
+
      SESSION:SET-WAIT-STATE ("general").
 
      /* Clean up input data. */
@@ -491,18 +505,18 @@ PROCEDURE run-process :
          vcStartingPath  = right-trim (fi_OldPath:screen-value, '~/~\')
          vcEndPath  = right-trim (fi_NewPath:screen-value, '~/~\')
          viFileCount   = 0.
-     
+
       INPUT FROM OS-DIR(vcStartingPath).
       REPEAT:
          IMPORT vcFile.
          /* Skip current and parent dir */
          IF vcFile[1] EQ '.':U OR vcFile[1] EQ '..':U THEN NEXT.
-     
+
          /* Only move estimate files */
          IF vcFile[3] BEGINS 'F':U THEN DO:
-     
+
             vcExt = SUBSTRING(vcFile[1],LENGTH(vcFile[1]) - 3).
-            
+
             IF LENGTH(vcExt) EQ 4 AND
                SUBSTRING(vcExt,1,1) EQ "." AND
                LOOKUP(SUBSTRING(vcExt,2,1),"v,a,s,p,q,z,b,x,n") > 0 AND
@@ -517,17 +531,17 @@ PROCEDURE run-process :
                      ASSIGN
                        viFileCount = viFileCount + 1.
                        vcCommand = "move /y " + vcFile[2] + " " + vcEndPath.
-                    
+
                      STATUS DEFAULT 'Copying: ' + vcFile[2].
-                    
+
                      OS-COMMAND SILENT VALUE (vcCommand).
                   END.
                END.
          END.
       END.
-     
+
       INPUT CLOSE.
-     
+
       STATUS DEFAULT ''.
 
       MESSAGE 'Moved ' viFileCount ' estimate file(s).'

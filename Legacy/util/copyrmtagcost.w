@@ -148,6 +148,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -161,7 +172,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -219,9 +230,9 @@ DO:
    DEF VAR v-cost      LIKE rm-rdtlh.cost NO-UNDO.
 
    DO WITH FRAME {&FRAME-NAME}:
-    
+
       SESSION:SET-WAIT-STATE ("general").
-  
+
       ASSIGN begin_rm-no end_rm-no begin_tag-no end_tag-no.
 
       FOR EACH rm-rcpth WHERE
@@ -247,7 +258,7 @@ DO:
                         b-rm-rdtlh.r-no EQ b-rm-rcpth.r-no AND
                         b-rm-rdtlh.rita-code EQ b-rm-rcpth.rita-code AND
                         b-rm-rdtlh.tag EQ rm-rdtlh.tag:
-              
+
                    ASSIGN
                       b-rm-rdtlh.cost = rm-rdtlh.cost.
                       v-count = v-count + 1.
@@ -278,7 +289,7 @@ DO:
                              job-mat.i-no     EQ b-rm-rcpth.i-no
                              NO-LOCK
                              BREAK BY job-mat.blank-no DESC:
-                         
+
                             IF LAST(job-mat.blank-no) OR
                                job-mat.blank-no EQ b-rm-rdtlh.b-num THEN
                                LEAVE.
@@ -290,21 +301,21 @@ DO:
                               v-len = job-mat.len
                               v-wid = job-mat.wid
                               v-dep = item.s-dep.
-                            
+
                             IF v-len EQ 0 THEN v-len = item.s-len.
-                            
+
                             IF v-wid EQ 0 THEN
                               v-wid = IF item.r-wid NE 0 THEN item.r-wid ELSE item.s-wid.
-                            
+
                             IF v-bwt EQ 0 THEN v-bwt = item.basis-w.
-                            
+
                             IF item.cons-uom EQ b-rm-rcpth.pur-uom THEN
                               v-cost = b-rm-rdtlh.cost.
                             ELSE
                               RUN sys/ref/convcuom.p(item.cons-uom, b-rm-rcpth.pur-uom,
                                                      v-bwt, v-len, v-wid, v-dep,
                                                      b-rm-rdtlh.cost, OUTPUT v-cost).    
-                            
+
                             FIND FIRST mat-act
                                 WHERE mat-act.company   EQ job-mat.company
                                   AND mat-act.mat-date  EQ b-rm-rcpth.post-date
@@ -321,7 +332,7 @@ DO:
                                 NO-ERROR.
 
                             IF AVAIL mat-act THEN DO:
-                            
+
                                IF b-rm-rcpth.pur-uom NE mat-act.qty-uom THEN
                                   RUN sys/ref/convcuom.p(b-rm-rcpth.pur-uom, mat-act.qty-uom,
                                                          v-bwt, v-len, v-wid, v-dep,
@@ -337,7 +348,7 @@ DO:
                       END.
                    END.
                END.
-              
+
       END.
 
       MESSAGE v-count "Transaction(s) Updated."
@@ -364,8 +375,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -377,7 +390,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
    RUN enable_UI.
-  
+
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
    IF NOT THIS-PROCEDURE:PERSISTENT THEN
      WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

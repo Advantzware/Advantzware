@@ -187,6 +187,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -202,7 +213,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -264,7 +275,7 @@ END.
 ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
 DO:
   DEF VAR v-process AS LOG NO-UNDO.
-      
+
   DO WITH FRAME {&FRAME-NAME}:
     RUN valid-flute (begin_flute:HANDLE) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -287,7 +298,7 @@ DO:
   MESSAGE "Are you sure you want to " + TRIM(c-win:TITLE) +
           " for the selected parameters?"
       VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
-        
+
   IF v-process THEN RUN run-process.
 END.
 
@@ -322,8 +333,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -436,15 +449,15 @@ FOR EACH reftable
 END.
 
 HIDE FRAME f3 NO-PAUSE.
-    
+
 SESSION:SET-WAIT-STATE("").
-    
+
 MESSAGE TRIM(c-win:TITLE) + " Process Complete..." VIEW-AS ALERT-BOX.
-    
+
 APPLY "close" TO THIS-PROCEDURE.
 
 RETURN NO-APPLY.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

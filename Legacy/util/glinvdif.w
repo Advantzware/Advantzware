@@ -135,6 +135,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -148,7 +159,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -207,14 +218,14 @@ DO:
    {sys/inc/print1.i}
 
    {sys/inc/outprint.i value(lines-per-page)}
-  
+
    DO WITH FRAME {&FRAME-NAME}:
-    
+
       SESSION:SET-WAIT-STATE ("general").
-  
+
       ASSIGN scr-invoice-date-from
              scr-invoice-date-to.
-  
+
       FOR EACH ar-inv FIELDS(company cust-no inv-no inv-date) WHERE
           ar-inv.company EQ cocode AND
           ar-inv.inv-date GE scr-invoice-date-from AND
@@ -227,7 +238,7 @@ DO:
                ar-invl.misc EQ NO
                NO-LOCK
           BREAK BY ar-invl.inv-no:
-  
+
           IF FIRST-OF(ar-invl.inv-no) THEN
              ASSIGN
                 v-inv-amt = 0
@@ -293,19 +304,19 @@ DO:
                   cust.company EQ ar-inv.company AND
                   cust.cust-no EQ ar-inv.cust-no
                   NO-LOCK NO-ERROR.
-            
+
              ASSIGN
                 v-dscr = TRIM(IF AVAIL cust THEN cust.name ELSE "Cust not on file") +
                          " Inv# " + STRING(ar-inv.inv-no,"99999999") + " LINE"
                 v-tr-amt = 0.
-            
+
              FOR EACH gltrans FIELDS(tr-amt tr-dscr trnum) WHERE
                  gltrans.company = cocode AND
                  gltrans.jrnl    = "OEINV" AND
                  gltrans.tr-dscr = v-dscr
                  NO-LOCK
                  BREAK BY gltrans.tr-dscr:
-            
+
                  v-tr-amt = v-tr-amt + (gltrans.tr-amt * -1).
 
                  IF LAST-OF(gltrans.tr-dscr) AND v-tr-amt NE v-inv-amt + v-inv-disc THEN
@@ -317,17 +328,17 @@ DO:
                             gltrans.tr-amt * -1 COLUMN-LABEL "G/L Amount"
                             gltrans.trnum FORMAT "ZZZZ9" COLUMN-LABEL "G/L Run #"
                      with no-box frame frame-a down STREAM-IO width 200.
-            
+
                     down with frame frame-a.
                  END.
              END.
           END.
       END.
-  
+
       OUTPUT CLOSE.
 
       SESSION:SET-WAIT-STATE ("").
-  
+
       run scr-rpt.w (list-name,c-win:title,11,"P").
    END.
 
@@ -350,8 +361,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -363,7 +376,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
    RUN enable_UI.
-  
+
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
    IF NOT THIS-PROCEDURE:PERSISTENT THEN
      WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

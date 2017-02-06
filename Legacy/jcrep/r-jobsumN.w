@@ -83,7 +83,7 @@ ASSIGN cTextListToSelect = "FG ITEM,FG ITEM DESCRIPTION,SELLING PRICE/M,ORDERED,
                       "15,7,16,2,8,7,6,8,7,6,6,12,6,12,9,9," +
                       "15,15,20,10,3,10,9,3,10,10,8," +
                       "15,11,25,10,10,10,10"   
-    
+
         cFieldType = "c,c,i,i,i,i,i,i,i,i,i,i," + "c,c,c,c,i,i,i,i,i,i,i,i,i,i,i,i," + "c,c,c,i,i,i,i,i,i,i,i," + "c,c,c,i,i,i,i"    .
 
 {sys/inc/ttRptSel.i}
@@ -494,6 +494,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -645,7 +656,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -730,7 +741,7 @@ DO:
   END.
 
   RUN GetSelectionList.
-      
+
   run run-report. 
   STATUS DEFAULT "Processing Complete". 
 
@@ -741,7 +752,7 @@ DO:
        WHEN 5 THEN
        DO:
           DEFINE VARIABLE lv-tmp AS CHARACTER INIT "-0" NO-UNDO.
-          
+
           {custom/asimailr.i &TYPE="Customer"
                              &begin_cust=lv-tmp
                              &END_cust=lv-tmp
@@ -772,7 +783,7 @@ DO:
 
     ASSIGN sl_selected:LIST-ITEMS = cTextSelected
            sl_avail:LIST-ITEMS = cTextListed.
- 
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1166,8 +1177,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -1183,7 +1196,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
- 
+
   find first sys-ctrl
       where sys-ctrl.company eq cocode
          and sys-ctrl.name   eq "CEMENU"
@@ -1206,6 +1219,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO begin_job-no.
   END.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1251,7 +1265,7 @@ PROCEDURE DisplaySelectionList2 :
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
-        
+
   EMPTY TEMP-TABLE ttRptList.
 
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
@@ -1261,7 +1275,7 @@ PROCEDURE DisplaySelectionList2 :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1269,9 +1283,9 @@ PROCEDURE DisplaySelectionList2 :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
   DO iCount = 1 TO sl_selected:NUM-ITEMS:
@@ -1340,7 +1354,7 @@ PROCEDURE GetSelectionList :
 
  DO i = 1 TO sl_selected:NUM-ITEMS /* IN FRAME {&FRAME-NAME}*/ :
     FIND FIRST ttRptList WHERE ttRptList.TextList = ENTRY(i,cTmpList) NO-LOCK NO-ERROR.     
-  
+
     CREATE ttRptSelected.
     ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
            ttRptSelected.FieldList = ttRptList.FieldList
@@ -1349,7 +1363,7 @@ PROCEDURE GetSelectionList :
            ttRptSelected.HeadingFromLeft = IF entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
-           
+
  END.
 
 END PROCEDURE.
@@ -1381,7 +1395,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1469,7 +1483,7 @@ assign
                   trim(begin_job-no) + string(int(begin_job-no2),"99")
   v-job-no[2]   = fill(" ",6 - length(trim(end_job-no)))   +
                   trim(end_job-no)   + string(int(end_job-no2),"99") 
-  
+
   v-date[1]     = begin_date
   v-date[2]     = END_date
   v-tot         = tb_totals  
@@ -1483,7 +1497,7 @@ assign
   v-incl-farmout = tb_incl_farmout
   v-merge-mat    = tb_sum_mat
   v-tot-mchg     = tb_sum-mischg . 
-         
+
 IF v-tot THEN DO: 
   IF NOT ll-secure THEN RUN sys/ref/d-passwd.w (3, OUTPUT ll-secure).
   v-tot = ll-secure. 
@@ -1538,7 +1552,7 @@ DEFINE VARIABLE cslist AS cha NO-UNDO.
 
           excelheader1 = excelHeader1 + ttRptSelected.TextList + "," .  
           cSlist = cSlist + ttRptSelected.FieldList + ",".
-          
+
           IF LOOKUP(ttRptSelected.TextList, "SELLING PRICE/M,ORDERED,POSTED,FINISHED,ALLOWED,ACTUAL SPOILAGE,ACT SPL%,ESTIMATE SPOILAGE,EST SPL%,OVER-RUN %") <> 0    THEN
               ASSIGN
               fg-str-line = fg-str-line + FILL("-",ttRptSelected.FieldLength) + " " .
@@ -1627,7 +1641,7 @@ DEFINE VARIABLE cslist AS cha NO-UNDO.
 
           excelheader2 = excelHeader2 + ttRptSelected.TextList + "," .  
           cSlist = cSlist + ttRptSelected.FieldList + ",".
-          
+
           IF LOOKUP(ttRptSelected.TextList, "EST HOURS,MACH EST COST,ACT HOURS,MACH ACT COST,MACH COST VARIANCE,MACH COST VAR%") <> 0    THEN
               ASSIGN
               mach-str-line = mach-str-line + FILL("-",ttRptSelected.FieldLength) + " " .
@@ -1671,7 +1685,7 @@ DEFINE VARIABLE cslist AS cha NO-UNDO.
                     item-str-tit2 = item-str-tit2 + "   VAR %" + " "
                     item-str-tit3 = item-str-tit3 + FILL("-",ttRptSelected.FieldLength) + " " .
              ELSE do:  
-                 
+
                  IF LENGTH(ttRptSelected.TextList) = ttRptSelected.FieldLength 
                      THEN ASSIGN item-str-tit2 = item-str-tit2 + ttRptSelected.TextList + " "
                      item-str-tit = item-str-tit + FILL(" ",ttRptSelected.FieldLength) + " "
@@ -1690,7 +1704,7 @@ DEFINE VARIABLE cslist AS cha NO-UNDO.
 
           excelheader3 = excelHeader3 + ttRptSelected.TextList + "," .  
           cSlist = cSlist + ttRptSelected.FieldList + ",".
-          
+
           IF LOOKUP(ttRptSelected.TextList, "ITEM EST COST,ITEM ACT COST,ITEM COST VARI,ITEM COST VAR%") <> 0    THEN
               ASSIGN
               item-str-line = item-str-line + FILL("-",ttRptSelected.FieldLength) + " " .
@@ -1699,7 +1713,7 @@ DEFINE VARIABLE cslist AS cha NO-UNDO.
      END.
 
      IF LOOKUP(ttRptSelected.TextList, v-header-4) <> 0    THEN DO:
-         
+
          IF ttRptSelected.TextList = "MISC EST COST" THEN 
              ASSIGN misc-str-tit =  misc-str-tit +  "  EST COST" + " "
                     misc-str-tit3 = misc-str-tit3 + "          " + " "
@@ -1726,7 +1740,7 @@ DEFINE VARIABLE cslist AS cha NO-UNDO.
 
           excelheader4 = excelHeader4 + ttRptSelected.TextList + "," .  
           cSlist = cSlist + ttRptSelected.FieldList + ",".
-          
+
           IF LOOKUP(ttRptSelected.TextList, "MISC EST COST,MISC ACT COST,MISC VARI,MISC VAR%") <> 0    THEN
               ASSIGN
               misc-str-line = misc-str-line + FILL("-",ttRptSelected.FieldLength) + " " .
@@ -1739,7 +1753,7 @@ DEFINE VARIABLE cslist AS cha NO-UNDO.
 IF tb_excel2 THEN DO:
   OUTPUT STREAM excel2 TO VALUE(fi_file2).
 END.
- 
+
 IF tb_excel THEN DO:
   OUTPUT STREAM excel TO VALUE(fi_file).
   excelheader = "Job #,Customer,Item Code,Selling Price,Ordered,Est Hrs,Est Cost,Act Hrs,"
@@ -1776,7 +1790,7 @@ END.
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
 SESSION:SET-WAIT-STATE ("").
-    
+
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 
 end procedure.
@@ -1799,11 +1813,11 @@ PROCEDURE show-param :
   DEFINE VARIABLE parm-lbl-list AS cha NO-UNDO.
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
   DEFINE VARIABLE lv-label AS cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1835,19 +1849,19 @@ PROCEDURE show-param :
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1868,7 +1882,7 @@ DEFINE INPUT PARAMETER v-qty3 AS DECIMAL NO-UNDO.
 DEFINE INPUT PARAMETER v-qty4 AS DECIMAL NO-UNDO.
 DEFINE INPUT PARAMETER v-qty5 AS DECIMAL NO-UNDO.
 DEFINE INPUT PARAMETER v-qty6 AS DECIMAL NO-UNDO.
-    
+
 DEFINE VARIABLE cDisplay AS cha NO-UNDO.
 DEFINE VARIABLE cExcelDisplay AS cha NO-UNDO.
 DEFINE VARIABLE hField AS HANDLE NO-UNDO.
@@ -1885,7 +1899,7 @@ ASSIGN cDisplay = ""
                    cVarValue = ""
                    cExcelDisplay = ""
                    cExcelVarValue = "".
-         
+
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):  
                 IF LOOKUP(ENTRY(i,cSelectedList), v-header-2) = 0    THEN NEXT .
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
@@ -1907,20 +1921,20 @@ ASSIGN cDisplay = ""
                          WHEN "actual"   THEN cVarValue = /*IF work-mch.wst-qty <> ? THEN  STRING(work-mch.wst-qty,">,>>>,>>9-") ELSE*/ "".
                          WHEN "var-per"   THEN cVarValue = /*IF v-run-wst-var <> ? THEN  STRING(v-run-wst-var,">>>>>>9.9-") ELSE*/ "".
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+
             PUT UNFORMATTED "        " + string(v-header,"x(27)")  + substring(cDisplay,36,250) SKIP .
             IF tb_excel2 THEN DO:
                  PUT STREAM excel2 UNFORMATTED ','  v-header 
                      substring(cExcelDisplay,6,300) SKIP.
              END.
 
-   
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1964,7 +1978,7 @@ FOR EACH oe-ord WHERE oe-ord.company EQ cocode
         FOR EACH inv-head WHERE inv-head.company EQ oe-boll.company
             AND inv-head.bol-no EQ oe-boll.bol-no
             NO-LOCK:
-            
+
             FOR EACH inv-line NO-LOCK WHERE inv-line.r-no = inv-head.r-no
               AND inv-line.job-no EQ ipcJob
               AND inv-line.job-no2 EQ ipcJobNo2:
@@ -1973,7 +1987,7 @@ FOR EACH oe-ord WHERE oe-ord.company EQ cocode
                 FOR EACH inv-misc WHERE inv-misc.r-no EQ inv-line.r-no
                   AND inv-misc.LINE EQ inv-line.LINE NO-LOCK:
                   v-subtot-prep = v-subtot-prep + misc.cost.
-                  
+
                 END.
             END.
             v-inv-freight = IF inv-head.f-bill THEN inv-head.t-inv-freight ELSE 0.
@@ -2013,7 +2027,7 @@ FOR EACH oe-ord WHERE oe-ord.company EQ cocode
             v-inv-freight = IF NOT(ar-inv.freight eq 0 or not ar-inv.f-bill) THEN
                           ar-inv.freight 
                        ELSE 0.
-            
+
 
         END.
         ASSIGN v-inv-total = v-subtot-lines  /* + /* 8/5/14 ar-inv.tax-amt + */ v-inv-freight */
@@ -2025,7 +2039,7 @@ FOR EACH oe-ord WHERE oe-ord.company EQ cocode
               NO-LOCK,
               FIRST ar-inv WHERE ar-inv.x-no EQ ar-invl.x-no
                 NO-LOCK.
-       
+
                v-subtot-prep  = v-subtot-prep  + ar-invl.amt.                                         
           END.
           ASSIGN v-total-prep = v-total-prep + v-subtot-prep.

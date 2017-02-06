@@ -323,6 +323,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -410,7 +421,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -470,7 +481,7 @@ DO:
             APPLY "entry" TO end_part.
          END.                           
       END. 
-       
+
     END CASE.
     RETURN NO-APPLY.   
 END.
@@ -586,7 +597,7 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
@@ -604,7 +615,7 @@ END.
 ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -827,8 +838,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -838,17 +851,17 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-   
+
 /* security check need {methods/prgsecur.i} in definition section */
   IF access-close THEN DO:
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-           
+
   RUN enable_UI.
-  
+
   {methods/nowait.i}
-  
+
   RUN sys/inc/CustListForm.p ( "IL10",cocode, 
                                OUTPUT ou-log,
                                OUTPUT ou-cust-int) .
@@ -879,7 +892,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO"
         btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
         .
-      
+
    IF ou-log AND ou-cust-int = 0 THEN do:
        ASSIGN 
         tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = YES
@@ -890,6 +903,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
    END.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -951,7 +965,7 @@ PROCEDURE CustList :
 
     RUN sys/ref/CustListManager.w(INPUT cocode,
                                   INPUT 'IL10').
-    
+
 
 END PROCEDURE.
 
@@ -1114,7 +1128,7 @@ form oe-ordl.part-no    column-label "CUST PART #"
      v-pal              column-label "# OF PALLETS"
                         format "->>>,>>>,>>9"
      oe-ordl.i-no       column-label "ITEM #"
-    
+
     with frame itemx1 no-box down STREAM-IO width 132.
 
 IF tb_excel THEN DO:
@@ -1140,7 +1154,7 @@ assign
  v-custown   = tb_inc-cust
  fprt#       = begin_part 
  tprt#       = end_part.
- 
+
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i value(lines-per-page)}
@@ -1148,7 +1162,7 @@ assign
 if td-show-parm then run show-param.
 
 display "" with frame r-top.
-    
+
 FOR EACH ttCustList 
     WHERE ttCustList.log-fld
     NO-LOCK,
@@ -1161,7 +1175,7 @@ FOR EACH ttCustList
                                   and cust.sman    ge fslm
                                   and cust.sman    le tslm)
       no-lock,
-      
+
       each oe-ordl
       where oe-ordl.company eq cocode
         and oe-ordl.ord-no  eq oe-ord.ord-no
@@ -1173,7 +1187,7 @@ FOR EACH ttCustList
                                     and itemfg.i-no    eq oe-ordl.i-no
                                     and (itemfg.i-code eq type or type eq "A"))
       no-lock
-      
+
       break by oe-ordl.part-no
             by oe-ordl.i-no
             by oe-ordl.job-no
@@ -1183,9 +1197,9 @@ FOR EACH ttCustList
       {custom/statusMsg.i " 'Processing Order#  ' +  string(oe-ordl.ord-no) "}
 
     if first-of(oe-ordl.i-no) then v-first[1] = yes.
-    
+
     if first-of(oe-ordl.job-no2) then v-first[2] = yes.
-       
+
     assign
      v-qty-onh = 0
      v-pal     = 0.
@@ -1207,10 +1221,10 @@ FOR EACH ttCustList
                    (if fg-bin.units-pallet eq 0
                     then 1 else fg-bin.units-pallet)
        v-pal     = v-pal + (fg-bin.qty / v-qty-pal).
-       
+
       {sys/inc/roundup.i v-pal}
     end.
-           
+
     if oe-ordl.pr-uom   eq "CS" and
        oe-ordl.cas-cnt  ne 0    then
       v-ext = v-qty-onh / oe-ordl.cas-cnt * oe-ordl.price.
@@ -1240,10 +1254,10 @@ FOR EACH ttCustList
               v-ext               when v-first[2]
               v-pal               when v-first[2]
               oe-ordl.i-no        when v-first[1]
-                  
+
           with frame itemx1.
       down with frame itemx1.
-      
+
       IF tb_excel THEN 
         PUT STREAM excel UNFORMATTED
             '"' (IF v-first[1] THEN oe-ordl.part-no
@@ -1266,11 +1280,11 @@ FOR EACH ttCustList
         assign
          v-tot-onh = v-tot-onh + v-qty-onh
          v-tot-ext = v-tot-ext + v-ext.
-      
+
       assign
        v-tot-ord  = v-tot-ord  + oe-ordl.qty
        v-tot-ship = v-tot-ship + li-ship-qty.
-      
+
       assign
        v-first = no
        v-print = yes.
@@ -1282,42 +1296,42 @@ FOR EACH ttCustList
                   oe-ordl.ship-qty
                   v-qty-onh
                   v-ext
-                
+
           with frame itemx1.
         down with frame itemx1.
-         
+
         display " CUSTOMER PART#" @ oe-ordl.part-no
                 "TOTALS:"         @ oe-ordl.po-no
                 v-tot-ord         @ oe-ordl.qty
                 v-tot-ship        @ oe-ordl.ship-qty
                 v-tot-onh         @ v-qty-onh
                 v-tot-ext         @ v-ext
-                
+
             with frame itemx1.
         down with frame itemx1.
-        
+
         put skip(1).
       end.*/
-    
+
       assign
        v-grand-tot-onh  = v-grand-tot-onh  + v-tot-onh
        v-grand-tot-ext  = v-grand-tot-ext  + v-tot-ext
        v-grand-tot-ord  = v-grand-tot-ord  + v-tot-ord
        v-grand-tot-ship = v-grand-tot-ship + v-tot-ship
-       
+
        v-tot-onh  = 0
        v-tot-ext  = 0
        v-tot-ord  = 0
        v-tot-ship = 0.
     end.   
   end.
-  
+
   if v-print then do:
     /*underline oe-ordl.qty
               oe-ordl.ship-qty
               v-qty-onh
               v-ext
-                
+
         with frame itemx1.
     down with frame itemx1.
 
@@ -1327,10 +1341,10 @@ FOR EACH ttCustList
             v-grand-tot-ship  @ oe-ordl.ship-qty
             v-grand-tot-onh   @ v-qty-onh
             v-grand-tot-ext   @ v-ext
-              
+
         with frame itemx1.
     down with frame itemx1.*/
-      
+
     put skip(1).
   end.
 
@@ -1369,7 +1383,7 @@ PROCEDURE SetCustRange :
         btnCustList:SENSITIVE = iplChecked
        .
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1390,12 +1404,12 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha NO-UNDO.
-  
+
   ASSIGN
   lv-frame-hdl = frame {&frame-name}:HANDLE
   lv-group-hdl = lv-frame-hdl:first-child
   lv-field-hdl = lv-group-hdl:first-child.
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1422,23 +1436,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -165,6 +165,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -187,7 +198,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME DEFAULT-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -235,12 +246,12 @@ END.
 ON CHOOSE OF btnOk IN FRAME DEFAULT-FRAME /* OK */
 DO:
    DEF VAR v-process AS LOG NO-UNDO.
-   
+
    DO WITH FRAME {&FRAME-NAME}:
 
       ASSIGN fi_loc fi_bin-from fi_bin-to
              cb_whs-type.
-   
+
       IF fi_bin-to GT fi_bin-from THEN
       DO:
          MESSAGE "Invalid R/M Bin Range."
@@ -251,7 +262,7 @@ DO:
 
       message "Are you sure you want to create R/M Bins?"       
          view-as alert-box question button yes-no update v-process.
-        
+
       if v-process then run run-process.
    END.
 
@@ -274,8 +285,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -289,7 +302,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    RUN enable_UI.
 
    apply 'entry':u to fi_loc.
-  
+
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
    IF NOT THIS-PROCEDURE:PERSISTENT THEN
      WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -352,7 +366,7 @@ PROCEDURE run-process :
    DEF VAR i AS INT NO-UNDO.
 
    DO WITH FRAME {&FRAME-NAME}:
-   
+
      SESSION:SET-WAIT-STATE ("general").
 
      IF NOT CAN-FIND(FIRST loc WHERE

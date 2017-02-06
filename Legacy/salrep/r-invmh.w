@@ -165,6 +165,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -178,7 +189,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -227,14 +238,14 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   DO WITH FRAME {&FRAME-NAME}:
    IF v-runflg THEN DO:
-   
+
     SESSION:SET-WAIT-STATE("general").
 
     ASSIGN {&displayed-objects}.
-    
+
     EMPTY TEMP-TABLE tt-report.
     EMPTY TEMP-TABLE tt-raw-sales.
-    
+
     IF NOT CAN-FIND(FIRST company WHERE
        company.company EQ fi_company) THEN
        DO:
@@ -279,8 +290,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -297,14 +310,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   ASSIGN
     fi_company = cocode
     fi_as-of-date = TODAY.
 
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -314,6 +327,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   /* gdm - 03090905 */
   {salrep/SlsMgmt.i}
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
      WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -404,7 +418,7 @@ PROCEDURE raw-sales-proc :
            ar-inv.inv-date le to-date AND
            ar-inv.type    ne "FC" 
            no-lock:
-      
+
            create tt-report.
            assign
              tt-report.key-09  = cust.cust-no
@@ -453,7 +467,7 @@ PROCEDURE raw-sales-proc :
             where itemfg.company eq fi_company
               and itemfg.i-no    eq ar-invl.i-no
             no-lock no-error.
-        
+
         RUN salrep/salecost.p (3, /*Invoice Cost*/
                                ROWID(ar-invl),
                                ar-invl.job-no,
@@ -501,12 +515,12 @@ PROCEDURE raw-sales-proc :
             no-lock no-error.
 
         if avail ar-invl then do:
-         
+
           find first itemfg
               where itemfg.company eq fi_company
                 and itemfg.i-no    eq ar-invl.i-no
               no-lock no-error.
-          
+
           RUN salrep/salecost.p (3, /*Invoice Cost*/
                                  ROWID(ar-invl),
                                  oe-retl.job-no,
@@ -526,7 +540,7 @@ PROCEDURE raw-sales-proc :
                                      (oe-retl.tot-qty-return * itemfg.weight-100 / 100)
                                      else 0) / 2000)
            tt-raw-sales.date-cost = tt-raw-sales.date-cost + ld-cost.
-          
+
         end.
       end.
 
@@ -551,7 +565,7 @@ PROCEDURE run-report :
 DO WITH FRAME {&FRAME-NAME}:
 
    RUN raw-sales-proc. /*Raw Sales*/
-   
+
    RUN salrep\dashinv.p(INPUT fi_company,
                         INPUT fi_as-of-date).
 END.

@@ -33,7 +33,7 @@ CREATE WIDGET-POOL.
 assign
  cocode = gcompany
  locode = gloc.
- 
+
 def var v-process as log no-undo.
 
 {oe/d-selbin.i NEW}
@@ -209,6 +209,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -226,7 +237,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -393,8 +404,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -411,6 +424,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
   RUN enable_UI.
   {methods/nowait.i}
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -519,7 +533,7 @@ PROCEDURE run-process :
 /* -------------------------------------------------- fg/fg-to-rm.p 12/99 JLF */
 /*  Move a FG to a Board RM                                                   */
 /* -------------------------------------------------------------------------- */
- 
+
 DEF VAR save_id     AS RECID NO-UNDO.
 DEF VAR fil_id      AS RECID NO-UNDO.
 DEF VAR v-rcpth-no  AS INT.
@@ -575,7 +589,7 @@ new-item: DO ON ENDKEY UNDO, RETRY.
          item.basis-w       = itemfg.weight-100 / (itemfg.t-sqft * .1)
          item.pur-uom       = IF rd_um = "FG" THEN itemfg.pur-uom ELSE "MSF"
          item.cons-uom      = IF rd_um = "FG" THEN itemfg.pur-uom ELSE "MSF".
-       
+
       IF item.basis-w EQ ? THEN item.basis-w = 0.
 
       FIND FIRST reftable WHERE reftable.reftable EQ "FLUTE"
@@ -584,14 +598,14 @@ new-item: DO ON ENDKEY UNDO, RETRY.
                             AND reftable.code     EQ item.flute NO-LOCK NO-ERROR.
       IF AVAIL reftable THEN 
          item.cal = reftable.val[1].
-      
+
       IF NOT v-board THEN DO:
          ASSIGN
             item.cost-type     = "MIS"
             item.procat        = "MISC".
 
          RUN sys/ref/uom-rm.p (INPUT item.mat-type, OUTPUT uom-list).
-        
+
          DO WHILE TRUE ON ENDKEY UNDO, RETRY:
             MESSAGE "RM Purchase UOM:" UPDATE item.pur-uom.
             IF LOOKUP(item.pur-uom,uom-list) EQ 0 THEN
@@ -600,9 +614,9 @@ new-item: DO ON ENDKEY UNDO, RETRY.
             ELSE 
                LEAVE.
          END.
-           
+
          item.pur-uom = CAPS(item.pur-uom).
-           
+
          DO WHILE TRUE ON ENDKEY UNDO, RETRY:
             MESSAGE "RM Consumption UOM:" UPDATE item.cons-uom.
             IF LOOKUP(item.cons-uom,uom-list) EQ 0 THEN
@@ -611,26 +625,26 @@ new-item: DO ON ENDKEY UNDO, RETRY.
             ELSE 
                LEAVE.
          END.
-           
+
          item.cons-uom = CAPS(item.cons-uom).
       END.
 
       SESSION:SET-WAIT-STATE("").
 
-      
+
       RUN rm/updaterm.p (ROWID(item)).
 
       SESSION:SET-WAIT-STATE("General").
 
    END.
 END.
-  
+
 IF troll EQ 0 THEN troll = 1.
-  
+
 FIND ITEM WHERE RECID(item) EQ fil_id.
 
 SESSION:SET-WAIT-STATE("").
-  
+
 FOR EACH fg-bin NO-LOCK WHERE fg-bin.company   eq cocode
                           AND fg-bin.i-no      eq itemfg.i-no
                           AND fg-bin.qty       gt 0
@@ -657,7 +671,7 @@ FOR EACH w-bin WHERE w-bin.selekt EQ "X",
    FIRST fg-bin WHERE RECID(fg-bin) EQ w-bin.rec-id:
 
    v-rcpth-no = 0.
-   
+
    FIND LAST fg-rctd USE-INDEX fg-rctd NO-LOCK NO-ERROR.
    IF AVAIL fg-rctd AND fg-rctd.r-no GT v-rcpth-no THEN v-rcpth-no = fg-rctd.r-no.
 
@@ -743,7 +757,7 @@ FOR EACH w-bin WHERE w-bin.selekt EQ "X",
     item.last-cost = v-cost.
 
    v-rcpth-no = 0.
-  
+
   RUN sys/ref/asiseq.p (INPUT cocode, INPUT "rm_rcpt_seq", OUTPUT v-rcpth-no) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN
     MESSAGE "Could not obtain next sequence #, please contact ASI: " RETURN-VALUE
@@ -830,9 +844,9 @@ STATUS DEFAULT "".
 SESSION:SET-WAIT-STATE("General").
 
 MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
-           
+
 APPLY "close" TO THIS-PROCEDURE.
-  
+
 /* end ---------------------------------- copr. 2004  advanced software, inc. */
 
 END PROCEDURE.
@@ -854,7 +868,7 @@ DO WITH FRAME {&FRAME-NAME}:
    FIND FIRST itemfg
               {sys/look/itemfgrlW.i}
           AND itemfg.i-no EQ begin_i-no:SCREEN-VALUE NO-LOCK NO-ERROR.
-   
+
    IF NOT AVAIL itemfg OR begin_i-no:SCREEN-VALUE EQ "" THEN DO:
       MESSAGE "ERROR: Must enter a valid FG Item#"
           VIEW-AS ALERT-BOX ERROR.
@@ -885,14 +899,14 @@ PROCEDURE valid-rm-no :
    DO WITH FRAME {&FRAME-NAME}:
       IF begin_i-no:SCREEN-VALUE <> "" THEN DO:
          begin_rm-no:SCREEN-VALUE = CAPS(begin_rm-no:SCREEN-VALUE).
-   
+
          IF begin_rm-no:SCREEN-VALUE EQ "" THEN DO:
             MESSAGE TRIM(begin_rm-no:LABEL) + " may not be spaces..."
                VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO begin_rm-no.
             RETURN ERROR.
          END.
-   
+
          FIND FIRST item WHERE item.company EQ cocode
                            AND item.i-no    EQ begin_rm-no:SCREEN-VALUE NO-LOCK NO-ERROR.
          IF AVAIL item THEN DO:
@@ -902,7 +916,7 @@ PROCEDURE valid-rm-no :
                   MESSAGE "This RM already exists, do you wish to update?"
                      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
                      UPDATE ll-rm-warning.
-   
+
                IF NOT ll-rm-warning THEN DO:
                   APPLY "entry" TO begin_rm-no.
                   RETURN ERROR.

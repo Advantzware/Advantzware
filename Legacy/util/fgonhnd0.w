@@ -230,6 +230,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -264,7 +275,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -341,12 +352,12 @@ DO:
   END.
 
   v-process  = NO.
-   
+
   MESSAGE "Are you sure you want to" TRIM(c-win:TITLE)
           "within the selected parameters?"       
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
           UPDATE v-process.
-        
+
   IF v-process THEN RUN run-process.
 END.
 
@@ -389,8 +400,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -416,6 +429,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO begin_cust.
   END.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -480,15 +494,15 @@ def var titm        like fitm               init "zzzzzzzzzzzzzzz".
 
 
 session:set-wait-state("General").
-  
+
 assign
  fcus = begin_cust
  tcus = end_cust
  fitm = begin_i-no
  titm = end_i-no.
-  
+
 {util/fgonhnd0.i}
-   
+
 session:set-wait-state("").
 
 message trim(c-win:title) + " Process Is Completed." view-as alert-box.
@@ -496,7 +510,7 @@ message trim(c-win:title) + " Process Is Completed." view-as alert-box.
 apply "close" to this-procedure.
 
 return no-apply.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

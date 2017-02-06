@@ -216,6 +216,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -249,7 +260,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -482,11 +493,11 @@ ON CHOOSE OF BUTTON-2 IN FRAME DEFAULT-FRAME /* Simulate Job# Scan */
 DO: 
     /*
   assign scan_itemfg:screen-value = "10x10x10".
-  
+
   assign v-job-no = ""
          v-job-no2 = ""
          .
-         
+
   do x = 1 to length(trim(scan_itemfg:screen-value)):
     if substring(trim(scan_itemfg:screen-value),x,1) ne "-" then
       v-job-no = v-job-no + substring(trim(scan_itemfg:screen-value),x,1).
@@ -498,7 +509,7 @@ DO:
   do x = y to length(trim(scan_itemfg:screen-value)):
       v-job-no2 = v-job-no2 + substring(trim(scan_itemfg:screen-value),x,1).
   end.
-  
+
   v-job-no =  fill(" ",6 - length(trim(string(v-job-no)))) +
                         trim(string(v-job-no)).
 
@@ -514,7 +525,7 @@ DO:
            scan_itemfg:screen-value = "".
     APPLY 'TAB'.
   end.
-  
+
   x = 1.
   FIND LAST rm-rcpt USE-INDEX r-no NO-LOCK NO-ERROR.
   IF AVAILABLE rm-rcpt THEN
@@ -532,7 +543,7 @@ DO:
          rm-rcpt.i-no = v-text[2]
          rm-rcpt.job-no = v-job-no
          rm-rcpt.job-no2 = int(v-job-no2).
-  
+
   create rm-rdtl.
   assign rm-rdtl.r-no       = rm-rcpt.r-no
          rm-rdtl.company    = gcompany
@@ -557,7 +568,7 @@ DO:
                    and job.job-no   eq rm-rcpt.job-no
                    and job.job-no2 eq rm-rcpt.job-no2
                  no-lock no-error.
-                 
+
   for each job-mat where job-mat.company eq gcompany
                      and job-mat.job     eq job.job 
                      and job-mat.i-no    eq rm-rcpt.i-no
@@ -566,7 +577,7 @@ DO:
                    no-lock:
     assign v-num-mats = v-num-mats + 1.
   end.
-  
+
   if v-num-mats eq 1 then
   do:
     find first job-mat where job-mat.company eq gcompany
@@ -593,7 +604,7 @@ DO:
 /*    ENABLE Scan_Pass with frame {&frame-name}.
     Scan_Pass:hidden eq false. */
   end.
-  
+
   APPLY "TAB".
 */
 
@@ -766,8 +777,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -778,6 +791,7 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN enable_UI.
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -807,7 +821,7 @@ PROCEDURE create-bol :
   do while true:
      assign v-n-bol       = oe-ctrl.n-bol
             oe-ctrl.n-bol = v-n-bol + 1.
-   
+
      if oe-ctrl.n-bol gt 999999 then oe-ctrl.n-bol = 1.  
      find first oe-bolh  where oe-bolh.company eq gcompany
                          and oe-bolh.bol-no  eq v-n-bol
@@ -822,7 +836,7 @@ PROCEDURE create-bol :
          oe-bolh.bol-no = v-n-bol 
          oe-bolh.cust-no = v-cust-no
          .
-         
+
   FIND FIRST oe-ord WHERE oe-ord.company = gcompany
                       AND oe-ord.ord-no = int(scan_order:SCREEN-VALUE IN FRAME {&FRAME-NAME})
                       NO-LOCK NO-ERROR.
@@ -910,7 +924,7 @@ PROCEDURE view-bol :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   FIND FIRST oe-boll WHERE oe-boll.company = gcompany AND
                            oe-boll.ord-no = int(scan_order) AND
                            oe-boll.i-no = v_itemfg NO-LOCK NO-ERROR.
@@ -920,7 +934,7 @@ PROCEDURE view-bol :
   END.
   ELSE MESSAGE "No Bill of Lading available for the order " scan_order "and item" 
          v_itemfg VIEW-AS ALERT-BOX ERROR.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

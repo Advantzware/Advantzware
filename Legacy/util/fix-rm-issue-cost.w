@@ -203,6 +203,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -253,7 +264,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -354,7 +365,7 @@ DO:
   MESSAGE "Are you sure you want to " + TRIM(c-win:TITLE) +
           " for the selected parameters?"
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll.
-        
+
   IF ll THEN RUN run-process.
 END.
 
@@ -419,8 +430,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -590,12 +603,12 @@ FOR EACH b-rh NO-LOCK
              (rm-rcpth.trans-date EQ b-rh.trans-date AND
               rm-rcpth.r-no       LT b-rh.r-no))
       USE-INDEX r-no
-    
+
       BY rm-rcpth.trans-date
       BY rm-rcpth.r-no
       BY RECID(rm-rcpth)
       BY RECID(rm-rdtlh):
-    
+
     {rm/rm-mkbin.i tt-}
   END. /* each rm-rcpth */
 
@@ -615,12 +628,12 @@ FOR EACH b-rh NO-LOCK
         AND rm-rdtlh.loc-bin   EQ tt-rm-bin.loc-bin
         AND rm-rdtlh.tag       EQ tt-rm-bin.tag
       USE-INDEX rm-rdtl
-    
+
       BY rm-rcpth.trans-date
       BY rm-rcpth.r-no
       BY RECID(rm-rcpth)
       BY RECID(rm-rdtlh):
-    
+
     {rm/rm-mkbin.i tt-}
   END. /* each rm-rcpth */
 
@@ -634,7 +647,7 @@ FOR EACH b-rh NO-LOCK
         AND job-mat.i-no     EQ b-rh.i-no
       NO-LOCK
       BREAK BY job-mat.blank-no DESC:
-  
+
     IF LAST(job-mat.blank-no) OR job-mat.blank-no EQ b-rd.b-num THEN LEAVE.
   END.
 

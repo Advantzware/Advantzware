@@ -335,6 +335,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -410,7 +421,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -710,8 +721,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -727,20 +740,20 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
- 
+
 /* security check need {methods/prgsecur.i} in definition section */
   IF access-close THEN DO:
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-  
+
   assign
    begin_ord-date = today
    begin_bol-date = today
    lv-ornt = "L".
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -748,6 +761,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO begin_cust.
   END.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -814,7 +828,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
 /*     DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -825,9 +839,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
   */
    {custom/out2file.i}
@@ -860,7 +874,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -944,7 +958,7 @@ IF tb_excel THEN DO:
 END.
 
 SESSION:SET-WAIT-STATE ("general").
-  
+
     for each oe-ord
         where oe-ord.company  eq cocode
           and oe-ord.cust-no  ge v-cust[1]
@@ -957,7 +971,7 @@ SESSION:SET-WAIT-STATE ("general").
         where oe-ordl.i-no ge begin_i-no
           and oe-ordl.i-no le end_i-no 
         no-lock,
-        
+
         EACH oe-rel
         WHERE oe-rel.company EQ oe-ordl.company
           AND oe-rel.ord-no  EQ oe-ordl.ord-no
@@ -965,7 +979,7 @@ SESSION:SET-WAIT-STATE ("general").
           AND oe-rel.line    EQ oe-ordl.line
           AND oe-rel.link-no ne 0
         NO-LOCK,
-        
+
         first oe-rell
         where oe-rell.company eq cocode
           and oe-rell.r-no    eq oe-rel.link-no
@@ -973,7 +987,7 @@ SESSION:SET-WAIT-STATE ("general").
           and oe-rell.line    eq oe-rel.line
           and can-find(first oe-relh where oe-relh.r-no eq oe-rell.r-no)
         USE-INDEX r-no no-lock,
-      
+
         each oe-boll
         where oe-boll.company  eq cocode
           and oe-boll.r-no     eq oe-rell.r-no
@@ -983,7 +997,7 @@ SESSION:SET-WAIT-STATE ("general").
           and oe-boll.i-no     eq oe-rell.i-no
           and oe-boll.line     eq oe-rell.line
         no-lock,
-        
+
         first oe-bolh
         where oe-bolh.b-no     eq oe-boll.b-no
           AND oe-bolh.bol-date GE begin_bol-date
@@ -994,7 +1008,7 @@ SESSION:SET-WAIT-STATE ("general").
               by oe-bolh.bol-date
               by oe-ord.ord-no
               by oe-ordl.i-no:
-              
+
          {custom/statusMsg.i "'Processing Order # ' + string(oe-ord.ord-no)"} 
 
       FIND FIRST itemfg WHERE itemfg.company = oe-boll.company AND 
@@ -1015,7 +1029,7 @@ SESSION:SET-WAIT-STATE ("general").
         if first(oe-ord.cust-no) THEN display "" with frame r-top.
         ELSE page.
       end.
-      
+
       v-del[1] = v-del[1] + 1.
       v-compare-dt = (IF rsCompareDate EQ "Release" THEN oe-rel.rel-date
                                                     ELSE oe-ordl.prom-date).
@@ -1028,7 +1042,7 @@ SESSION:SET-WAIT-STATE ("general").
               WHERE tt-date-reasons.reason-code = oe-rel.spare-char-2
               NO-LOCK NO-ERROR.
           IF NOT AVAIL tt-date-reasons THEN DO:
-              
+
               CREATE tt-date-reasons.
               tt-date-reasons.reason-code = oe-rel.spare-char-2.
           END.
@@ -1057,7 +1071,7 @@ SESSION:SET-WAIT-STATE ("general").
              v-msf                  COLUMN-LABEL  "MSF" WHEN tb_pmsf SPACE(2)
              oe-boll.weight         COLUMN-LABEL  "WT"  WHEN tb_pw   SPACE(2)
              oe-bolh.trailer        COLUMN-LABEL  "Trailer#"  WHEN tb_ptr
-                
+
             with down no-box stream-io width 200 no-attr-space.
       ELSE DO:
         display oe-ordl.part-no       column-label "Customer Part#"
@@ -1082,7 +1096,7 @@ SESSION:SET-WAIT-STATE ("general").
              v-msf                  COLUMN-LABEL  "MSF" WHEN tb_pmsf SPACE(2)
              oe-boll.weight         COLUMN-LABEL  "WT"  WHEN tb_pw   SPACE(2)
              oe-bolh.trailer        COLUMN-LABEL  "Trailer#"  WHEN tb_ptr
-                
+
             with FRAME f-promise down no-box stream-io width 200 no-attr-space.
          DOWN WITH FRAME f-promise.
       END.
@@ -1122,21 +1136,21 @@ SESSION:SET-WAIT-STATE ("general").
                                         format "x(18)"
             v-ont[1] / v-del[1] * 100   format ">>9.99%"
             skip(1).
-            
+
         assign
          v-del[2] = v-del[2] + v-del[1]
          v-ont[2] = v-ont[2] + v-ont[1]
          v-del[1] = 0
          v-ont[1] = 0.
       end.
-      
+
       if last(oe-ord.cust-no) then do:
         assign
          v-cust-no = ""
          v-name    = "".
-         
+
 /*         page. */
-      
+
         put skip(3)
             "   Grand Totals:"          at 5
             space(5)
@@ -1154,7 +1168,7 @@ SESSION:SET-WAIT-STATE ("general").
                 FIND FIRST rejct-cd 
                     WHERE rejct-cd.CODE = tt-date-reasons.reason-code
                     NO-LOCK NO-ERROR.
-                     
+
                 IF v-del[2] - v-ont[2] GT 0 THEN
                 DISP tt-date-reasons.reason-code FORMAT "x(30)" COLUMN-LABEL "Reason"
                      rejct-cd.dscr WHEN AVAIL rejct-cd
@@ -1175,7 +1189,7 @@ END.
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
 SESSION:SET-WAIT-STATE ("").
-   
+
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 
 end procedure.
@@ -1198,11 +1212,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1230,23 +1244,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

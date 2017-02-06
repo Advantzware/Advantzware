@@ -363,6 +363,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -472,7 +483,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -665,19 +676,19 @@ END.
 ON VALUE-CHANGED OF rd_part-fg IN FRAME FRAME-A
 DO:
   assign {&self-name}.
-  
+
   if rd_ptd eq "YTD" then do:
     find first period
         where period.company eq gcompany
           and period.yr      eq v-year
         no-lock no-error.
-      
+
     begin_date = if avail period then period.pst
                                  else date(1,1,year(today)).
-                               
+
     display begin_date WITH FRAME FRAME-A IN WINDOW C-Win.
   end.
-  
+
   run show-period-dates.
 END.
 
@@ -690,19 +701,19 @@ END.
 ON VALUE-CHANGED OF rd_ptd IN FRAME FRAME-A
 DO:
   assign {&self-name}.
-  
+
   if rd_ptd eq "YTD" then do:
     find first period
         where period.company eq gcompany
           and period.yr      eq v-year
         no-lock no-error.
-      
+
     begin_date = if avail period then period.pst
                                  else date(1,1,year(today)).
-                               
+
     display begin_date WITH FRAME FRAME-A IN WINDOW C-Win.
   end.
-  
+
   run show-period-dates.
 END.
 
@@ -784,8 +795,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -814,7 +827,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   ASSIGN
    begin_date = TODAY
    end_date   = TODAY.
-   
+
   find first period
       where period.company eq gcompany
         and period.pst     le today
@@ -827,23 +840,23 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      begin_period = period.pnum
      v-year       = period.yr
      begin_date   = period.pst.
-     
+
   else
     assign
      begin_period = month(today)
      v-year       = year(today).
-  
+
   fi_file = "c:\tmp\commprm.csv".
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
     rd_part-fg:SENSITIVE = NO.
     {custom/usrprint.i}
     APPLY "entry" TO rd_ptd.
-        
+
     FIND FIRST period
         WHERE period.company EQ gcompany
           AND period.pst     LE DATE(begin_date:SCREEN-VALUE)
@@ -865,6 +878,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        rd_part-fg:HIDDEN = TRUE.
   END.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1128,7 +1142,7 @@ FOR EACH tt-report,
          BY tt-report.key-10
          BY tt-report.rec-id
          BY ROWID(tt-report):
-   
+
 /*    IF NOT v-sumdet THEN DO: */
       DISPLAY
          tt-report.key-01  WHEN FIRST-OF(tt-report.key-01) FORMAT "x(3)"
@@ -1178,7 +1192,7 @@ FOR EACH tt-report,
 /*       IF v-gp   = ? THEN v-gp   = 0. */
 
       IF v-sumdet THEN DO:
-     
+
 /*          DISPLAY                                                    */
 /*             p-sman            FORMAT "x(3)"                         */
 /*             SPACE(7)                                                */
@@ -1294,7 +1308,7 @@ FOR EACH tt-report,
 /*                v-comm                                  */
 /*            WITH FRAME detail.                          */
 /*          END.                                          */
-       
+
 
       ASSIGN
          v-frst[1]     = NO
@@ -1328,7 +1342,7 @@ IF NOT v-sumdet THEN DO:
       v-tot-samt[3] = 0
       v-tot-camt[3] = 0
       v-tot-cost[3] = 0.
-  
+
    recap-work:
    FOR EACH w-comm
       BREAK BY w-comm.sman:
@@ -1397,7 +1411,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
   /*   DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -1408,9 +1422,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
      */
     {custom/out2file.i}
@@ -1444,7 +1458,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1509,7 +1523,7 @@ ASSIGN
 {sys/inc/ctrtext.i str-tit3 132}
 
 v-head[1] = "".
-                                                                                                                                                  
+
    ASSIGN                                                                                                                              
       v-head[2] = fill(" ",36)  +                     "Invoice                  FG                      Invoice      Set Sales     Commission     Total Item     Total Item  Profit         Profit  "
       v-head[3] = "SMAN Customer Name                   Number FG Number       Cat.          QTY          Price          Price           Cost       Resale          Cost     Margin%        Margin$     Comm."
@@ -1618,7 +1632,7 @@ FORMAT HEADER
 ASSIGN
  str-tit2 = TRIM(c-win:TITLE) + " (O-R-6)"
  {sys/inc/ctrtext.i str-tit2 112}
- 
+
  v-per-rpt   = rd_ptd EQ "PTD"
  v-period    = begin_period
  v-date[1]   = begin_date
@@ -1641,11 +1655,11 @@ FOR EACH w-comm:
 END.
 
 FIND FIRST oe-ctrl WHERE oe-ctrl.company = cocode NO-LOCK.
-        
+
 FOR EACH cust WHERE cust.company EQ cocode
                 AND cust.cust-no GE v-cust[1]
                 AND cust.cust-no LE v-cust[2] NO-LOCK:
-   
+
      {custom/statusMsg.i "'Processing Customer # ' + string(cust.cust-no)"} 
 
    FOR EACH ar-inv WHERE ar-inv.company  EQ cocode
@@ -1677,7 +1691,7 @@ FOR EACH cust WHERE cust.company EQ cocode
          DO i = 1 TO 3:
             v-slsm[1] = IF ar-invl.sman[i] EQ "" AND i EQ 1 THEN cust.sman 
                         ELSE ar-invl.sman[i].
-          
+
             IF v-slsm[1] LT v-sman[1] OR
                v-slsm[1] GT v-sman[2] OR
                (i NE 1 AND (v-slsm[1] EQ "" OR ar-invl.s-pct[i] EQ 0)) THEN NEXT.
@@ -1699,7 +1713,7 @@ FOR EACH cust WHERE cust.company EQ cocode
                tt-comm-calc.cost-uom = ar-invl.dscr[1]
                tt-comm-calc.uom      = ar-invl.pr-uom
                tt-comm-calc.commission-cost = ar-invl.cost.
-            
+
          END.
    END.
 
@@ -1739,7 +1753,7 @@ FOR EACH cust WHERE cust.company EQ cocode
             (AVAIL ar-invl       OR
             (NOT AVAIL reftable  AND NOT ar-cashl.dscr MATCHES "*oe return*") OR
              SUBSTR(ar-cashl.dscr,INDEX(ar-cashl.dscr,"oe return") + 12,5) EQ "items") THEN
-            
+
             FOR EACH b-ar-invl WHERE b-ar-invl.company EQ ar-cashl.company
                                  AND b-ar-invl.cust-no EQ cust.cust-no
                                  AND b-ar-invl.inv-no  EQ ar-cashl.inv-no
@@ -1835,7 +1849,7 @@ FOR EACH tt-comm-calc,
 
    IF FIRST(tt-comm-calc.slsm[1])    THEN v-frst[1] = YES.
    IF FIRST-OF(tt-comm-calc.slsm[1]) THEN v-frst[2] = YES.
-   
+
    FIND FIRST sman WHERE sman.company EQ cocode
                      AND sman.sman    EQ tt-comm-calc.slsm[1] NO-LOCK NO-ERROR.
 
@@ -2060,11 +2074,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -2092,23 +2106,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -289,6 +289,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -318,7 +329,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -383,7 +394,7 @@ DO:
           "within the selected parameters?"       
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
           UPDATE v-process.
-        
+
   IF v-process THEN RUN run-process.
 END.
 
@@ -404,8 +415,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -424,6 +437,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   FIND ap-ctrl WHERE ap-ctrl.company = gcompany NO-LOCK NO-ERROR.
   RUN enable_UI.
   {methods/nowait.i}
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -497,9 +511,9 @@ def var v-b-date as date                                     no-undo.
 def var v-e-date as date                                     no-undo.                        
 def var v-job-no like job.job-no extent 2 initial [" ", " "] no-undo.
 def var v-job-no2 like job.job-no2 extent 2 initial [00, 99] no-undo.
-  
+
 session:set-wait-state("General").
-  
+
 assign
  b-item         = begin_item
  e-item         = end_item
@@ -522,7 +536,7 @@ message trim(c-win:title) + " Process Is Completed." view-as alert-box.
 apply "close" to this-procedure.
 
 return no-apply.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

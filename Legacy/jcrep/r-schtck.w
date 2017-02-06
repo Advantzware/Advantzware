@@ -13,7 +13,7 @@
   Output Parameters:  <none>
 
   Author:             Dennis G. Dizon
-  
+
   Created:            Mar 30, 2007
 
 ------------------------------------------------------------------------*/
@@ -405,6 +405,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -581,7 +592,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -618,7 +629,7 @@ END.
 ON RETURN OF FRAME FRAME-A
 ANYWHERE
 DO:
-  
+
    IF SELF:TYPE <> "Button" THEN  do:
       APPLY "tab" TO SELF.
       RETURN NO-APPLY.
@@ -1051,8 +1062,10 @@ ASSIGN CURRENT-WINDOW                 = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -1077,7 +1090,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
           THEN ASSIGN is-xprint-form = NO.
           ELSE ASSIGN is-xprint-form = YES.
   END.
-  
+
 /*   FIND FIRST sys-ctrl                                                                                                                                            */
 /*        WHERE sys-ctrl.company EQ cocode                                                                                                                          */
 /*          AND sys-ctrl.name    EQ "CEMENU" NO-LOCK NO-ERROR.                                                                                                      */
@@ -1115,9 +1128,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 /*      init-dir = "c:\tmp".                             */
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
-  
+
   DO WITH FRAME {&frame-name}:
 
     {custom/usrprint.i}
@@ -1181,6 +1194,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
 /*   RUN new-job-no. */
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1322,7 +1336,7 @@ PROCEDURE output-to-fax :
    /*run output-to-fax.*/
    DO WITH FRAME {&FRAME-NAME}:
 
-   
+
            {custom/asifax.i &begin_cust=begin_job1
                             &END_cust=END_job1
                             &fax-subject=c-win:title
@@ -1364,7 +1378,7 @@ PROCEDURE output-to-mail :
                              &mail-subject="Factory Ticket"
                              &mail-body="Factory Ticket"
                              &mail-file=lv-pdf-file + ".pdf" }  
-                             
+
   END.
   ELSE DO:
       {custom/asimailr.i &TYPE = ''
@@ -1375,7 +1389,7 @@ PROCEDURE output-to-mail :
                                   &mail-file=list-name }
 
   END.
- 
+
  END.
 END PROCEDURE.
 
@@ -1410,7 +1424,7 @@ PROCEDURE output-to-printer :
 
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
-       
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1470,14 +1484,14 @@ PROCEDURE output-to-screen :
 
    OS-COPY VALUE(lv-file) VALUE(lv-xpfile).
    OS-COMMAND VALUE(lv-cmd + " " + lv-xpfile) .
- 
+
 
  IF tb_corr THEN DO:
     FILE-INFO:FILE-NAME = list-name.
     RUN printfile (FILE-INFO:FILE-NAME).   
  END.
  ELSE DO:
- 
+
      IF  /*index("Interpac,FibreFC,Dayton,Livngstn",lv-format-f) > 0 */
         lookup(lv-format-f, "Interpac,FibreFC,HPB,Metro,Dayton,Livngstn,CentBox,Keystone,Frankstn,Colonial,Unipak,OTTPkg,MWFibre,Shelby,CCC,Accord") > 0 THEN
      DO:
@@ -1505,7 +1519,7 @@ ASSIGN
        s-prt-shipto     = tb_prt-shipto
        s-prt-sellprc    = tb_prt-sellprc
        s-run-speed      = rd_print-speed = "S".
-       
+
 
 RUN set-job-vars.
 
@@ -1562,7 +1576,7 @@ IF is-xprint-form THEN  DO:
 
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
-     
+
     RUN output-to-screen.
 
 END.
@@ -1619,11 +1633,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1651,23 +1665,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

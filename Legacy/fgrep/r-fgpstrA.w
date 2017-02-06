@@ -370,6 +370,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -465,7 +476,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -597,7 +608,7 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
@@ -613,7 +624,7 @@ END.
 ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -733,12 +744,12 @@ DO:
     ASSIGN lv-font-no = "12"
            lines-per-page = 55
            lv-font-name = "Courier New Size=8 (15CPI)".
-    
+
  ELSE
     ASSIGN lv-font-no = "10"
            lines-per-page = 99
            lv-font-name = "Courier NEW SIZE=6 (20 CPI)".
- 
+
  DISPL lv-font-no lines-per-page lv-font-name WITH FRAME {&FRAME-NAME}.
 END.
 
@@ -882,8 +893,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -912,11 +925,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   ASSIGN
    from_date = TODAY
    to_date   = TODAY.
- 
+
   RUN enable_UI.
-  
+
   {methods/nowait.i}
-  
+
   RUN sys/inc/CustListForm.p ( "IL6",cocode, 
                                OUTPUT ou-log,
                                OUTPUT ou-cust-int) .
@@ -953,7 +966,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO"
         btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
         .
-      
+
    IF ou-log AND ou-cust-int = 0 THEN do:
        ASSIGN 
         tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = YES
@@ -964,6 +977,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
    END.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1055,7 +1069,7 @@ IF NOT AVAIL bf-fg-rdtlh THEN
         assign
          opv-cases    = trunc((v-fg-qty / fg-bin.case-count),0)
          opv-qty-case = fg-bin.case-count.
-         
+
       else do:
         find first itemfg
             where itemfg.company eq cocode
@@ -1067,7 +1081,7 @@ IF NOT AVAIL bf-fg-rdtlh THEN
            opv-qty-case = itemfg.case-count.
       end.
     end.
-    
+
     else
       assign
        opv-cases    = bf-fg-rdtlh.cases
@@ -1075,7 +1089,7 @@ IF NOT AVAIL bf-fg-rdtlh THEN
 
     opv-tag = IF SUBSTRING(bf-fg-rdtlh.tag,1,15) EQ bf-fg-rcpth.i-no
             THEN SUBSTRING(bf-fg-rdtlh.tag,16,8) ELSE bf-fg-rdtlh.tag.
-       
+
 
 END PROCEDURE.
 
@@ -1114,7 +1128,7 @@ PROCEDURE calc-fg-value :
             AND uom.mult NE 0 NO-LOCK NO-ERROR.
         IF AVAIL uom THEN
             ASSIGN opv-fg-value = ipv-sell-price * (bf-fg-rdtlh.qty / uom.mult).
-    
+
     END.
 
 END PROCEDURE.
@@ -1170,7 +1184,7 @@ IF NOT AVAIL bf-fg-rdtlh THEN
         ASSIGN opv-qty-pallet = bf-fg-rdtlh.cases * if avail fg-bin then
                                           fg-bin.cases-unit else 1.
       end.
-      
+
       if avail job-hdr and job-hdr.est-no = "" THEN DO:
         release ef.
 
@@ -1375,18 +1389,18 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
               NO-LOCK:
         LEAVE.
     END.
-    
+
     do while avail fg-rcpth:
         {custom/statusMsg.i " 'Processing FG Item#  '  + fg-rcpth.i-no "}
 
       v-i-no = fg-rcpth.i-no.
-   
+
       /* Create tt-report file for History Records */
       do i = 1 to length(trim(v-types)):
         if index("RSTAEC",substr(v-types,i,1)) gt 0 then
         DO:
            v-type = substr(v-types,i,1).
-          
+
            for each fg-rcpth 
                where fg-rcpth.company                  eq cocode
                  and fg-rcpth.i-no                     eq v-i-no
@@ -1402,7 +1416,7 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
                where fg-rdtlh.r-no      eq fg-rcpth.r-no
                  and fg-rdtlh.rita-code eq fg-rcpth.rita-code
                no-lock:
-           
+
                create tt-report.
                assign
                   tt-report.term-id = ""
@@ -1415,7 +1429,7 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
            end.
         END.
       end.
-      
+
       FOR EACH fg-rcpth WHERE
           fg-rcpth.company eq cocode AND
           fg-rcpth.i-no    GT v-i-no AND
@@ -1440,7 +1454,7 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
         if index("RSTAEC",substr(v-types,i,1)) gt 0 then
         DO:
            v-type = substr(v-types,i,1).
-          
+
            IF NOT(begin_cust EQ "" AND END_cust EQ "zzzzzzzz") THEN
            DO v-date = b-post-date TO e-post-date:
 
@@ -1462,7 +1476,7 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
                     and fg-rdtlh.rita-code eq fg-rcpth.rita-code
                   NO-LOCK:
 
-              
+
                   create tt-report.
                   assign
                      tt-report.term-id = ""
@@ -1475,7 +1489,7 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
                      tt-report.DATE    = fg-rcpth.trans-date.
                   RELEASE tt-report.
               end.
-             
+
               FOR each fg-rcpth FIELDS(r-no rita-code i-no trans-date)
                   where fg-rcpth.company                eq cocode AND
                         fg-rcpth.rita-code              eq v-type AND
@@ -1496,7 +1510,7 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
                         fg-rdtlh.r-no      eq fg-rcpth.r-no AND
                         fg-rdtlh.rita-code eq fg-rcpth.rita-code
                         NO-LOCK:
-             
+
                         create tt-report.
                         assign
                            tt-report.term-id = ""
@@ -1522,7 +1536,7 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
                   where fg-rdtlh.r-no      eq fg-rcpth.r-no
                     and fg-rdtlh.rita-code eq fg-rcpth.rita-code
                   NO-LOCK:
-              
+
                   create tt-report.
                   assign
                      tt-report.term-id = ""
@@ -1535,7 +1549,7 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
                      tt-report.DATE    = fg-rcpth.trans-date.
                   RELEASE tt-report.
               end.
-             
+
               for each fg-rcpth FIELDS(r-no rita-code i-no trans-date)
                   where fg-rcpth.company                eq cocode AND
                         fg-rcpth.rita-code              eq v-type AND
@@ -1549,7 +1563,7 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
                         fg-rdtlh.r-no      eq fg-rcpth.r-no AND
                         fg-rdtlh.rita-code eq fg-rcpth.rita-code
                         NO-LOCK:
-             
+
                         create tt-report.
                         assign
                            tt-report.term-id = ""
@@ -1581,7 +1595,7 @@ PROCEDURE CustList :
 
     RUN sys/ref/CustListManager.w(INPUT cocode,
                                   INPUT 'IL6').
-    
+
 
 END PROCEDURE.
 
@@ -1861,7 +1875,7 @@ assign
                  TRIM(STRING(tb_tran,"T/")) + TRIM(STRING(tb_ship,"S/"))  +
                  TRIM(STRING(tb_adj,"A/"))  + TRIM(STRING(tb_count,"C/"))
  v-pr-tots     = tb_total.
- 
+
 {sys/inc/print1.i}
 {sys/inc/outprint.i value(lines-per-page)}
 
@@ -1896,7 +1910,7 @@ RUN create-tt-report.
 
     if first-of(tt-report.key-01) then do:             
       v-whse = fg-rdtlh.loc.
-      
+
       if first(tt-report.key-01) then do:
         hide frame r-top.
         VIEW frame r-top.
@@ -2020,7 +2034,7 @@ RUN create-tt-report.
                 lv-cost-uom       
                 v-fg-cost           /* (sub-total by fg-rcpth.i-no) */
                 v-fg-value
-                                                 
+
             with frame itemx.
         down with frame itemx.
 
@@ -2042,7 +2056,7 @@ RUN create-tt-report.
                 lv-cost-uom       
                 v-fg-cost           /* (sub-total by fg-rcpth.i-no) */
                 v-fg-value
-                                                 
+
             with frame itemy.
         down with frame itemy.
 
@@ -2063,7 +2077,7 @@ RUN create-tt-report.
                     lv-cost-uom       
                     v-fg-cost           /* (sub-total by fg-rcpth.i-no) */
                     v-fg-value
-    
+
                 with frame itemz.
             down with frame itemz.
 
@@ -2096,7 +2110,7 @@ RUN create-tt-report.
           '"' REPLACE(STRING(fg-rcpth.i-no),'"','')                    '",'
           '"' fg-rcpth.i-name                                          '",'
           '"' fg-rcpth.po-no                                           '",'.
-        
+
         IF  rsShowVendor = "Vendor" THEN
             PUT STREAM excel UNFORMATTED
                '"' (IF avail po-ord AND fg-rcpth.po-no <> "" THEN po-ord.vend-no
@@ -2105,7 +2119,7 @@ RUN create-tt-report.
             PUT STREAM excel UNFORMATTED
                '"' (IF fg-rcpth.job-no <> "" THEN fg-rcpth.job-no + "-" + string(fg-rcpth.job-no2,"99")
                ELSE "")                                                '",'.
-        
+
         PUT STREAM excel UNFORMATTED
           '"' STRING(v-tran-type,"X(1)")                               '",'
           '"' v-tag                                                    '",'
@@ -2161,7 +2175,7 @@ RUN create-tt-report.
       if fg-rdtlh.rita-code eq "S" then
         v-cum-tot  = v-cum-tot - v-fg-cost.
     end.  /*   if v-pr-tots   */ 
-    
+
     if v-pr-tots then do:                                                              if last-of(tt-report.key-02) then do:
         put "-----------" to v-tot-pos1
             "----------" to v-tot-pos2
@@ -2236,7 +2250,7 @@ PROCEDURE SetCustRange :
         btnCustList:SENSITIVE = iplChecked
        .
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2257,11 +2271,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup("parm",lv-field-hdl:private-data) > 0
@@ -2288,23 +2302,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

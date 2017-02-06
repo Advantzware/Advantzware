@@ -46,7 +46,7 @@ assign
  cocode = gcompany
  locode = gloc.
 def buffer xap-payl for ap-payl.    
-    
+
 def new shared var v-trnum as INT NO-UNDO.    
 def var v-postable as log init NO NO-UNDO.
 def var time_stamp as character NO-UNDO.
@@ -219,6 +219,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -249,7 +260,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -319,7 +330,7 @@ DO:
      END. /* IF AVAIL gl-ctrl */
    END. /* REPEAT */
    /* gdm - 11050906 */
-    
+
   END.
 
   run run-report.
@@ -446,7 +457,7 @@ END.
 ON LEAVE OF tran-date IN FRAME FRAME-A /* Post Date */
 DO:
   assign {&self-name}.
-  
+
   if lastkey ne -1 then do:
     run check-date.
     if v-invalid then return no-apply.
@@ -481,8 +492,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -502,7 +515,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     sys-ctrl.company eq cocode AND
     sys-ctrl.name    eq "AUDITDIR"
     no-lock no-error.
-  
+
   if not avail sys-ctrl then DO TRANSACTION:
      create sys-ctrl.
      assign
@@ -518,12 +531,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      lv-audit-dir = SUBSTR(lv-audit-dir,1,LENGTH(lv-audit-dir) - 1).
 
   RELEASE sys-ctrl.
-  
+
   RUN enable_UI.
 
   RUN check-date.
 
   {methods/nowait.i}
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -543,7 +557,7 @@ PROCEDURE check-date :
 ------------------------------------------------------------------------------*/
   DO with frame {&frame-name}:
     v-invalid = no.
-  
+
     find first period                   
         where period.company eq cocode
           and period.pst     le tran-date
@@ -587,7 +601,7 @@ PROCEDURE create-bank-file :
   DEF VAR v-check-date AS DATE NO-UNDO.
   DEF VAR v-check-date-string AS cha NO-UNDO.
   DEF VAR v-total-amt AS DEC NO-UNDO.
-  
+
   ASSIGN targetfile = aplockbx-path +
                      "CheckRegister" + STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99") +
                       STRING(DAY(TODAY),"99") + STRING(TIME) + ".txt"
@@ -609,7 +623,7 @@ PROCEDURE create-bank-file :
 
       FIND FIRST vend WHERE vend.company = ap-pay.company
                         AND vend.vend-no = ap-pay.vend-no NO-LOCK NO-ERROR.
-                         
+
       find first bank where bank.company = cocode and
                              bank.bank-code = ap-pay.bank-code NO-LOCK no-error.
 
@@ -696,7 +710,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
      DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -706,9 +720,9 @@ PROCEDURE output-to-file :
          ASK-OVERWRITE
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
 
 
@@ -733,7 +747,7 @@ PROCEDURE output-to-printer :
 
      RUN 'adecomm/_osprint.p' (INPUT ?, INPUT list-name,
                             INPUT lv-font-no, INPUT lv-orint, INPUT 0, INPUT 0, OUTPUT result).
-    
+
      IF NOT RESULT THEN v-postable = NO.
 
 END PROCEDURE.
@@ -748,7 +762,7 @@ PROCEDURE output-to-screen :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   run scr-rpt.w (list-name,c-win:title,int(lv-font-no),lv-ornt). /* open file-name, title */ 
 
 END PROCEDURE.
@@ -805,7 +819,7 @@ do transaction on error undo, leave:
          ap-ledger.amt = ap-ledger.amt - ap-pay.check-amt
          ap-ledger.actnum = bank.actnum.
        RELEASE ap-ledger.
-         
+
        EMPTY TEMP-TABLE xpayl.
 
        for each ap-payl NO-LOCK where ap-payl.c-no = ap-pay.c-no:
@@ -830,9 +844,9 @@ do transaction on error undo, leave:
            end. /* if avail ap-inv .. */
            RELEASE ap-inv.
            RELEASE vend.
-           
+
            v-tot-amt-disc = v-tot-amt-disc + ap-payl.amt-disc.
-           
+
            if ap-payl.d-no ne 0 then do:
              create w-disb.
              assign
@@ -841,15 +855,15 @@ do transaction on error undo, leave:
               w-amt-disc = ap-payl.amt-disc.
            end.
        end. /* for each ap-payl record */
-       
+
        for each xpayl,
            first ap-payl where recid(ap-payl) eq xpayl.recnum
            no-lock:
-           
+
           find last xap-payl where xap-payl.c-no eq ap-payl.c-no
               use-index c-no no-lock no-error.
           x = if avail xap-payl then xap-payl.line else 0.
-          
+
           create xap-payl.
 
           assign
@@ -913,15 +927,15 @@ do transaction on error undo, leave:
       gltrans.trnum   = v-trnum.
      RELEASE gltrans.
    end.
-   
+
    for each w-disb break by w-actnum:
      assign
       v-tot-amt-paid = v-tot-amt-paid - w-amt-paid
       v-tot-amt-disc = v-tot-amt-disc - w-amt-disc.
-      
+
      accumulate w-amt-paid (sub-total by w-actnum).
      accumulate w-amt-disc (sub-total by w-actnum).
-     
+
      if last-of(w-actnum) then do:
        create gltrans.
        assign
@@ -963,7 +977,7 @@ PROCEDURE run-report :
 /* ---------------------------------------------------- oe/invpost.p 10/94 gb */
 /* Invoicing  - Edit Register & Post Invoicing Transactions                   */
 /* -------------------------------------------------------------------------- */
-  
+
   form HEADER
          "Check #" at 1
          "Date" at 17
@@ -983,7 +997,7 @@ PROCEDURE run-report :
 IF td-show-parm THEN RUN show-param.
 
   SESSION:SET-WAIT-STATE("general").
-    
+
   ASSIGN
    str-tit  = coname + " - " + loname                                    
    str-tit2 = "A/P VOIDED CHECK REGISTER " + STRING(v-trnum)
@@ -1040,12 +1054,12 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha NO-UNDO.
-  
+
   ASSIGN
   lv-frame-hdl = frame {&frame-name}:HANDLE
   lv-group-hdl = lv-frame-hdl:first-child
   lv-field-hdl = lv-group-hdl:first-child.
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1060,7 +1074,7 @@ PROCEDURE show-param :
                   if not valid-handle(lv-field2-hdl) then leave. 
                   if lv-field2-hdl:private-data = lv-field-hdl:name THEN
                      parm-lbl-list = parm-lbl-list + lv-field2-hdl:screen-value + ",".
-                  
+
                   lv-field2-hdl = lv-field2-hdl:next-sibling.                 
               end.       
            end.                 
@@ -1071,23 +1085,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1100,7 +1114,7 @@ PROCEDURE undo-trnum :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO TRANSACTION:
     /* gdm - 11050906 */
     REPEAT:
@@ -1133,7 +1147,7 @@ PROCEDURE copy-report-to-audit-dir :
   DEF VAR dirname1 AS CHAR FORMAT "X(20)" NO-UNDO.
   DEF VAR dirname2 AS CHAR FORMAT "X(20)" NO-UNDO.
   DEF VAR dirname3 AS CHAR FORMAT "X(20)" NO-UNDO.
-  
+
   ASSIGN targetfile = lv-audit-dir + "\AP\VC5\Run#"
                     + STRING(v-trnum) + ".txt"
          dirname1 = lv-audit-dir

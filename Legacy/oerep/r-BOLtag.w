@@ -128,7 +128,7 @@ DEFINE TEMP-TABLE ttblJob NO-UNDO
   INDEX ttblJob IS PRIMARY UNIQUE company job-no job-no2.
 
 {oerep/r-BOLtg.i NEW}
-   
+
 {fg/fullset.i NEW}
 
 ASSIGN tmpstore = FILL("_",50).
@@ -336,6 +336,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -392,7 +403,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -430,7 +441,7 @@ ON HELP OF begin_bolno IN FRAME FRAME-A /* From BOL# */
 DO:
    DEF VAR char-val AS cha NO-UNDO.
    DEF VAR rec-val AS RECID NO-UNDO.
-   
+
    RUN windows/l-bolh2.w (g_company,NO,SELF:SCREEN-VALUE,OUTPUT char-val,OUTPUT rec-val).
    IF char-val <> "" THEN
       ASSIGN begin_bolno:SCREEN-VALUE = ENTRY(1,char-val).
@@ -468,14 +479,14 @@ END.
 ON LEAVE OF begin_filename IN FRAME FRAME-A /* Label File */
 DO:
   assign begin_filename.
-  
+
   if begin_filename gt "" and lastkey ne -1 then do:
     if search(begin_filename) eq ? then do:
       message "Form file does not exist"
               view-as alert-box error.
       return no-apply.
     end.
-    
+
     begin_filename = search(begin_filename).
     display begin_filename WITH FRAME {&FRAME-NAME}.
   end.
@@ -490,9 +501,9 @@ END.
 ON LEAVE OF begin_form IN FRAME FRAME-A /* Printer Form# */
 DO:
   assign begin_form.
-  
+
   begin_filename = "barcode" + string(begin_form) + ".frm".
-  
+
   display begin_filename WITH FRAME FRAME-A IN WINDOW C-Win.
 END.
 
@@ -536,8 +547,8 @@ DO:
      APPLY "ENTRY":U TO scr-label-file IN FRAME {&FRAME-NAME}.
      RETURN NO-APPLY.
   END.
-  
-  
+
+
   IF NOT lv-ok-ran THEN RUN ok-button.
 
   lv-ok-ran = NO.
@@ -554,7 +565,7 @@ ON HELP OF end_bolno IN FRAME FRAME-A /* To BOL# */
 DO:
    DEF VAR char-val AS cha NO-UNDO.
    DEF VAR rec-val AS RECID NO-UNDO.
-   
+
    RUN windows/l-bolh2.w (g_company,NO,SELF:SCREEN-VALUE,OUTPUT char-val,OUTPUT rec-val).
    IF char-val <> "" THEN
       ASSIGN end_bolno:SCREEN-VALUE = ENTRY(1,char-val).
@@ -606,7 +617,7 @@ DO:
                                 INPUT v-path,
                                 OUTPUT chFile).
 
-  
+
    /* gdm - 11050804 end
 
    DO WITH FRAME {&FRAME-NAME}:
@@ -621,7 +632,7 @@ DO:
       IF ll-ok THEN
    */   
       ASSIGN scr-label-file:SCREEN-VALUE = chFile.
-   
+
 
 END.
 
@@ -635,7 +646,7 @@ ON HELP OF v-bol-list IN FRAME FRAME-A
 DO:
    DEF VAR char-val AS CHAR NO-UNDO.
    DEF VAR rec-val AS RECID NO-UNDO.
-   
+
    RUN windows/l-bolh3.w (g_company,NO,SELF:SCREEN-VALUE,OUTPUT char-val,OUTPUT rec-val).
    IF char-val <> "" THEN
       ASSIGN v-bol-list:SCREEN-VALUE = char-val.
@@ -667,7 +678,7 @@ DO:
          v-cust-no = IF AVAIL oe-bolh THEN oe-bolh.cust-no ELSE "".
          RUN getBolTagLabel.
       END.
-      
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -695,8 +706,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -762,7 +775,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       NO-LOCK NO-ERROR.
   ASSIGN
    v-fgrecpt = AVAIL sys-ctrl AND sys-ctrl.char-fld EQ "LoadTag".
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     RUN enable_UI.
     {custom/usrprint.i}
@@ -778,9 +791,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {methods/nowait.i}
 
     APPLY "entry" TO v-bol-list.
-    
+
   END.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -798,7 +812,7 @@ PROCEDURE calc-ext-cost :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-                                            
+
     DEF VAR v-len       LIKE po-ordl.s-len      NO-UNDO.
     DEF VAR v-wid       LIKE po-ordl.s-len      NO-UNDO.
     DEF VAR v-dep       LIKE po-ordl.s-len      NO-UNDO. 
@@ -807,7 +821,7 @@ PROCEDURE calc-ext-cost :
     DEF VAR lv-out-qty  AS DEC                  NO-UNDO.
     DEF VAR lv-out-cost AS DEC                  NO-UNDO.
     DEF VAR v-rec-qty   AS INT                  NO-UNDO.
-    
+
      /* no records */
     IF not AVAIL fg-rctd THEN RETURN. 
 
@@ -834,7 +848,7 @@ PROCEDURE calc-ext-cost :
             v-len = po-ordl.s-len
             v-wid = po-ordl.s-wid.
     END.
-    
+
     ASSIGN 
         lv-out-qty  = fg-rctd.t-qty
         lv-out-cost = fg-rctd.std-cost.
@@ -965,13 +979,13 @@ FOR EACH w-ord
             w-ord.net-wt   = itemfg.weight-100 * w-ord.total-unit / 100
             w-ord.sheet-wt = itemfg.weight-100 / 100 
             w-ord.cust-part-no = itemfg.part-no.
-        
+
         FOR EACH tt-formtext:  DELETE tt-formtext. END.
 
         FOR EACH notes NO-LOCK 
             WHERE notes.rec_key = itemfg.rec_key
               AND notes.note_code = "SN":
-            
+
             lv-text = lv-text + " " + 
                       TRIM(notes.note_text) + CHR(10).
         END.
@@ -993,7 +1007,7 @@ FOR EACH w-ord
         END.
 
     END. /* avail itemfg */
-    
+
     ASSIGN
         w-ord.gross-wt = w-ord.net-wt + w-ord.tare-wt
         v-job          = w-ord.job-no + "-" + STRING(w-ord.job-no2,"99").
@@ -1015,7 +1029,7 @@ FOR EACH w-ord
                                 + TRIM(lv-middlesex-po).
 
     IF w-ord.total-tags gt 0 THEN DO:
-        
+
         ASSIGN 
             lv-how-many-tags = IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 OR
                                        w-ord.total-tags = 1 
@@ -1029,10 +1043,10 @@ FOR EACH w-ord
             IF i MOD w-ord.mult = 1 OR i = 1 OR w-ord.mult = 1  
                 THEN DO:
                 IF i = 1 THEN lv-tag-no = i.
-                
+
                 RUN create-loadtag (INPUT-OUTPUT lv-tag-no, w-ord.total-unit).
             END.
-            
+
             PUT UNFORMATTED 
                 "~""  removeChars(w-ord.cust-name)  "~","
                 w-ord.bol-no  ","
@@ -1112,7 +1126,7 @@ FOR EACH w-ord
                 "~"" w-ord.linenum                 "~"," 
                  SKIP.
 
-                           
+
         END.  /* FULL TAG */
 
         /* for partial print 
@@ -1298,13 +1312,13 @@ FOR EACH w-ord
             w-ord.net-wt   = itemfg.weight-100 * w-ord.total-unit / 100
             w-ord.sheet-wt = itemfg.weight-100 / 100 
             w-ord.cust-part-no = itemfg.part-no.
-        
+
         FOR EACH tt-formtext:  DELETE tt-formtext. END.
 
         FOR EACH notes NO-LOCK 
             WHERE notes.rec_key = itemfg.rec_key
               AND notes.note_code = "SN":
-            
+
             lv-text = lv-text + " " + 
                       TRIM(notes.note_text) + CHR(10).
         END.
@@ -1326,7 +1340,7 @@ FOR EACH w-ord
         END.
 
     END. /* avail itemfg */
-    
+
     ASSIGN
         w-ord.gross-wt = w-ord.net-wt + w-ord.tare-wt
         v-job          = w-ord.job-no + "-" + STRING(w-ord.job-no2,"99").
@@ -1348,7 +1362,7 @@ FOR EACH w-ord
                                 + TRIM(lv-middlesex-po).
 
     IF w-ord.total-tags gt 0 THEN DO:
-        
+
         ASSIGN 
             lv-how-many-tags = IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 OR
                                        w-ord.total-tags = 1 
@@ -1362,10 +1376,10 @@ FOR EACH w-ord
             IF i MOD w-ord.mult = 1 OR i = 1 OR w-ord.mult = 1  
                 THEN DO:
                 IF i = 1 THEN lv-tag-no = i.
-                
+
                 RUN create-loadtag (INPUT-OUTPUT lv-tag-no, w-ord.total-unit).
             END.
-            
+
             PUT UNFORMATTED 
                 "~""  removeChars(w-ord.cust-name)  "~","
                 w-ord.bol-no  ","
@@ -1445,7 +1459,7 @@ FOR EACH w-ord
                 "~"" w-ord.linenum                 "~"," 
                  SKIP.
 
-                           
+
         END.  /* FULL TAG */
 
         /* for partial print 
@@ -1572,7 +1586,7 @@ IF v-loadtag = "TRIAD"
  THEN RUN create-TRIAD-txtfile.
  ELSE IF v-PrintDetail THEN RUN create-regDetail-txtfile.
  ELSE RUN create-reg-txtfile.       
-        
+
 
 END PROCEDURE.
 
@@ -1594,7 +1608,7 @@ IF v-loadtag = "TRIAD" THEN DO:
         INPUT STREAM s-form from VALUE(form_fid) NO-ECHO.
         _form: 
         DO WHILE TRUE:
-            
+
             READKEY STREAM s-form.              
 
             IF LASTKEY < 0 THEN LEAVE _form.             
@@ -1602,7 +1616,7 @@ IF v-loadtag = "TRIAD" THEN DO:
             PUT STREAM s-bar CONTROL CHR(LASTKEY).
 
         END.
-        
+
         INPUT STREAM s-form CLOSE.
     END.  /* if form_fid > "" */
 
@@ -1620,9 +1634,9 @@ IF v-loadtag = "TRIAD" THEN DO:
               AND itemfg.i-no = w-ord.i-no NO-LOCK NO-ERROR.
 
         IF w-ord.total-tags gt -1 THEN DO:
-            
+
             DO i = 1 TO (w-ord.total-tags + 1):
-                
+
               /* select the form */
               put stream s-bar CONTROL stx esc "E" STRING(form#) ",1" can etx.
 
@@ -1645,12 +1659,12 @@ IF v-loadtag = "TRIAD" THEN DO:
                 THEN w-ord.ship-name = SUBSTR(w-ord.ship-name,1,19).
 
               DEF VAR vcFGItem AS CHAR NO-UNDO.
-              
+
               ASSIGN  vcFGItem = IF AVAIL itemfg 
                                   THEN itemfg.i-no ELSE w-ord.i-no.
 
               DO n = copy_count TO 1 BY -1:
-                  
+
                /* send the variable data to the printer */
                PUT STREAM s-bar UNFORMATTED 
                      stx w-ord.cust-po-no    cr etx
@@ -1677,7 +1691,7 @@ IF v-loadtag = "TRIAD" THEN DO:
             END. /* tag count loop */
         END. /* non zero */  
     END. /* each w-ord */
-    
+
     /*  {sys/inc/close.i "" "stream s-bar"} */
     OUTPUT CLOSE.
 
@@ -1734,7 +1748,7 @@ PROCEDURE create-w-ord :
               AND oe-boll.b-no EQ oe-bolh.b-no
               AND oe-boll.i-no EQ oe-ordl.i-no NO-ERROR.
 
-      
+
       CREATE w-ord.
       ASSIGN 
             w-ord.bol-no       = oe-boll.bol-no
@@ -1781,7 +1795,7 @@ PROCEDURE create-w-ord :
          w-ord.due-date-jobhdr = IF b-job-hdr.due-date <> ? THEN STRING(b-job-hdr.due-date, "99/99/9999") ELSE "".
       IF AVAIL b-job THEN
          w-ord.due-date-job = IF b-job.due-date <> ? THEN STRING(b-job.due-date, "99/99/9999") ELSE "".
-             
+
       RUN get-rel-info (OUTPUT w-ord.cust-po-no,
                         OUTPUT w-ord.rel-date,
                         OUTPUT w-ord.rel-lot#).
@@ -1859,7 +1873,7 @@ PROCEDURE create-w-ord :
                 AND job-hdr.job-no2 EQ job.job-no2
                 AND job-hdr.i-no    EQ loadtag.i-no NO-LOCK NO-ERROR.
       IF AVAIL job-hdr THEN DO:
-      
+
          FIND FIRST cust WHERE cust.company eq cocode
                           AND cust.cust-no eq job-hdr.cust-no NO-LOCK NO-ERROR.
          FIND FIRST itemfg WHERE itemfg.company eq cocode
@@ -1869,7 +1883,7 @@ PROCEDURE create-w-ord :
              WHERE oe-boll.company EQ job-hdr.company
                AND oe-boll.job-no  EQ job-hdr.job-no 
                AND oe-boll.job-no2 EQ job-hdr.job-no2 NO-ERROR.
-         
+
          CREATE w-ord.
          ASSIGN
             w-ord.bol-no       = oe-boll.bol-no
@@ -2021,7 +2035,7 @@ PROCEDURE create-w-ord :
                  style.company EQ cocode AND
                  style.style EQ w-ord.style
                  NO-LOCK NO-ERROR.
-         
+
             IF AVAIL style THEN
             DO:
                w-ord.style-desc = style.dscr.
@@ -2039,7 +2053,7 @@ PROCEDURE create-w-ord :
                     w-ord.pcs    = eb.cas-cnt
                     w-ord.bundle = eb.cas-pal
                     w-ord.cas-no = eb.cas-no.
-      
+
          FIND FIRST shipto NO-LOCK WHERE shipto.company EQ cocode
                                   AND shipto.cust-no EQ po-ord.cust-no
                                   AND shipto.ship-id EQ po-ord.cust-no
@@ -2051,7 +2065,7 @@ PROCEDURE create-w-ord :
                     w-ord.ship-city  = shipto.ship-city
                     w-ord.ship-state = shipto.ship-state
                     w-ord.ship-zip   = shipto.ship-zip.
-      
+
          ASSIGN 
              w-ord.total-tags = 1
               w-ord.ord-qty    = oe-boll.qty
@@ -2070,7 +2084,7 @@ PROCEDURE create-w-ord :
                               AND vend.vend-no EQ itemfg.vend-no NO-ERROR.
           FIND FIRST cust NO-LOCK WHERE cust.company EQ cocode
                               AND cust.cust-no EQ itemfg.cust-no NO-ERROR.
-          
+
           CREATE w-ord.
           ASSIGN w-ord.i-no         = itemfg.i-no
                  w-ord.i-name       = itemfg.i-name
@@ -2105,7 +2119,7 @@ PROCEDURE create-w-ord :
                   style.company EQ cocode AND
                   style.style EQ w-ord.style
                   NO-LOCK NO-ERROR.
-          
+
              IF AVAIL style THEN
              DO:
                 w-ord.style-desc = style.dscr.
@@ -2288,7 +2302,7 @@ IF AVAIL oe-ord
     FIND FIRST cust
         WHERE cust.company eq cocode
           AND cust.cust-no eq oe-ord.cust-no NO-LOCK NO-ERROR.
-   
+
 IF AVAIL oe-ord 
   THEN
     FIND FIRST soldto NO-LOCK
@@ -2345,7 +2359,7 @@ IF AVAIL cust THEN
             WHERE eb.company  EQ oe-ordl.company
               AND eb.est-no   EQ oe-ordl.est-no
               AND eb.stock-no EQ oe-ordl.i-no NO-LOCK NO-ERROR.
-      
+
       ASSIGN 
           v-tot-pcs = v-tot-pcs + oe-boll.qty-case
           v-tot-bdl = v-tot-bdl + INT(fgBin())
@@ -2354,7 +2368,7 @@ IF AVAIL cust THEN
           v-tot-unt = v-tot-unt + oe-boll.cases
           v-cases   = v-cases   + oe-boll.cases.
 
-          
+
       IF /*NOT by-release OR */
          NOT v-printdetail OR
          NOT AVAIL oe-ordl THEN DO:
@@ -2456,10 +2470,10 @@ IF AVAIL cust THEN
                 AND oe-rel.i-no    EQ oe-ordl.i-no
                 AND oe-rel.ord-no  EQ oe-ordl.ord-no
                 AND oe-rel.line    EQ oe-ordl.line:
-                
+
                 RUN oe/custxship.p (oe-rel.company, oe-rel.cust-no,
                                     oe-rel.ship-id, BUFFER shipto).
-                  
+
                 IF AVAIL shipto THEN DO:
                   RUN oe/rel-stat.p (ROWID(oe-rel), OUTPUT lv-stat).
 
@@ -2562,7 +2576,7 @@ IF AVAIL cust THEN
                                        IF v-po-no-source eq "R" 
                                          THEN oe-rel.po-no
                                          ELSE oe-ord.po-no        
-              
+
               w-ord.qty-before   = oe-boll.qty
               w-ord.ord-qty      = w-ord.qty-before *
                                     (1 + (w-ord.over-pct / 100))
@@ -2598,7 +2612,7 @@ IF AVAIL cust THEN
               w-ord.dont-run-set = oe-ordl.is-a-component         
               w-ord.ord-desc1    = oe-ordl.part-dscr1             
               w-ord.ord-desc2    = oe-ordl.part-dscr2             
-                                                                  
+
               /* gdm - 08130804*/                                 
               w-ord.linenum      = oe-ordl.e-num
               w-ord.tag-no = oe-boll.tag                                                    
@@ -2625,7 +2639,7 @@ IF AVAIL cust THEN
                    w-ord.pcs     = itemfg.case-count 
                    w-ord.bundle  = itemfg.case-pall  
                    w-ord.style   = itemfg.style.     
-              
+
               IF w-ord.style NE "" THEN DO:
 
                   FIND FIRST style 
@@ -2667,7 +2681,7 @@ IF AVAIL cust THEN
                    w-ord.ship-state = shipto.ship-state  
                    w-ord.ship-ctry  = shipto.country     
                    w-ord.ship-zip   = shipto.ship-zip.   
-           
+
               IF AVAIL soldto 
                 THEN w-ord.sold-ctry = soldto.country.
 
@@ -2724,7 +2738,7 @@ IF AVAIL oe-ord
     FIND FIRST cust
         WHERE cust.company eq cocode
           AND cust.cust-no eq oe-ord.cust-no NO-LOCK NO-ERROR.
-   
+
 IF AVAIL oe-ord 
   THEN
     FIND FIRST soldto NO-LOCK
@@ -2778,7 +2792,7 @@ IF AVAIL cust THEN
               AND eb.est-no   EQ oe-ordl.est-no
               AND eb.stock-no EQ oe-ordl.i-no NO-LOCK NO-ERROR.
 
-      
+
 
       ASSIGN 
           v-tot-pcs = v-tot-pcs + oe-boll.qty-case
@@ -2786,13 +2800,13 @@ IF AVAIL cust THEN
           v-tot-qty = v-tot-qty + oe-boll.qty
           v-tot-par = v-tot-par + oe-boll.partial
           v-tot-unt = v-tot-unt +  oe-boll.cases.
-          
+
       IF NOT by-release OR 
          NOT AVAIL oe-ordl THEN DO:
 
         IF FIRST-OF(oe-ordl.i-no) THEN DO:            
 
-          
+
            CREATE w-ord.
            ASSIGN
             w-ord.bol-no       = oe-boll.bol-no
@@ -2803,7 +2817,7 @@ IF AVAIL cust THEN
             w-ord.cust-name    = oe-ord.cust-name
             w-ord.i-no         = oe-boll.i-no
             w-ord.cust-part-no = oe-ordl.part-no
-            
+
             w-ord.qty-before   = oe-boll.qty                 
             w-ord.ord-qty      = oe-boll.qty 
             w-ord.po-no        = oe-boll.po-no
@@ -2842,8 +2856,8 @@ IF AVAIL cust THEN
           RUN get-rel-info (OUTPUT w-ord.cust-po-no,
                             OUTPUT w-ord.rel-date,
                             OUTPUT w-ord.rel-lot#).
-          
-            
+
+
           IF AVAIL itemfg THEN
             ASSIGN
              w-ord.upc-no  = itemfg.upc-no
@@ -2862,7 +2876,7 @@ IF AVAIL cust THEN
                   style.company EQ cocode AND
                   style.style EQ w-ord.style
                   NO-LOCK NO-ERROR.
-          
+
              IF AVAIL style THEN
              DO:
                 w-ord.style-desc = style.dscr.
@@ -2980,7 +2994,7 @@ IF AVAIL cust THEN
                                 (IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 
                                     THEN 0 ELSE 1).
         END.  /* first-of */
-        
+
       END.  /* not by-release */
       ELSE
       FOR EACH oe-rel NO-LOCK
@@ -3006,7 +3020,7 @@ IF AVAIL cust THEN
                                        IF v-po-no-source eq "R" 
                                          THEN oe-rel.po-no
                                          ELSE oe-ord.po-no        
-              
+
               w-ord.qty-before   = oe-boll.qty
               w-ord.ord-qty      = w-ord.qty-before *
                                     (1 + (w-ord.over-pct / 100))
@@ -3042,10 +3056,10 @@ IF AVAIL cust THEN
               w-ord.dont-run-set = oe-ordl.is-a-component         
               w-ord.ord-desc1    = oe-ordl.part-dscr1             
               w-ord.ord-desc2    = oe-ordl.part-dscr2             
-                                                                  
+
               /* gdm - 08130804*/                                 
               w-ord.linenum      = oe-ordl.e-num.                 
-                                                                  
+
               num-rec            = num-rec + 1.                   
 
               FIND FIRST ref-lot-no 
@@ -3069,7 +3083,7 @@ IF AVAIL cust THEN
                    w-ord.pcs     = itemfg.case-count 
                    w-ord.bundle  = itemfg.case-pall  
                    w-ord.style   = itemfg.style.     
-              
+
               IF w-ord.style NE "" THEN DO:
 
                   FIND FIRST style 
@@ -3111,7 +3125,7 @@ IF AVAIL cust THEN
                    w-ord.ship-state = shipto.ship-state  
                    w-ord.ship-ctry  = shipto.country     
                    w-ord.ship-zip   = shipto.ship-zip.   
-           
+
               IF AVAIL soldto 
                 THEN w-ord.sold-ctry = soldto.country.
 
@@ -3127,7 +3141,7 @@ IF AVAIL cust THEN
       END.
 
       IF LAST-OF(oe-ordl.i-no) THEN DO:
-            
+
             ASSIGN
                 w-ord.pcs        = v-tot-pcs
                 w-ord.bundle     = v-tot-bdl
@@ -3139,7 +3153,7 @@ IF AVAIL cust THEN
                 v-tot-qty = 0
                 v-tot-par = 0
                 v-tot-unt = 0.
-            
+
       END.
 
     END.
@@ -3299,7 +3313,7 @@ PROCEDURE ok-button :
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-       
+
  /*
   FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ gcompany
                         AND sys-ctrl.name    EQ "BOLTagFile" NO-LOCK NO-ERROR.
@@ -3320,10 +3334,10 @@ PROCEDURE ok-button :
          v-Printdetail = sys-ctrl.char-fld = "Detail" 
          .
          scr-auto-print:SCREEN-VALUE = STRING(sys-ctrl.log-fld)
-         
+
   */
   RUN run-report NO-ERROR. 
-  
+
   IF NOT ERROR-STATUS:ERROR THEN lv-ok-ran = YES.  
 
 END PROCEDURE.
@@ -3339,7 +3353,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
      DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -3350,9 +3364,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
 
 
@@ -3371,7 +3385,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -3381,7 +3395,7 @@ PROCEDURE output-to-printer :
      RUN 'adecomm/_osprint.p' (INPUT ?, INPUT list-name,
                             INPUT 3, INPUT 3, INPUT 0, INPUT 0, OUTPUT result).
                                     /* use-dialog(1) and landscape(2) */
-    
+
     RUN custom/prntproc.p (list-name,INT(lv-font-no),lv-ornt).
   */  
 END PROCEDURE.
@@ -3439,7 +3453,7 @@ PROCEDURE post-return :
 
 
    RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
-    
+
    FOR EACH w-fg-rctd:
        DELETE w-fg-rctd.
    END.
@@ -3479,7 +3493,7 @@ PROCEDURE post-return :
   /*     bf-fg-rctd.std-cost   = IF AVAIL fg-bin THEN fg-bin.std-tot-cost ELSE itemfg.std-tot-cost */
        bf-fg-rctd.ext-cost   = (bf-fg-rctd.t-qty / 1000) * bf-fg-rctd.std-cost
        bf-fg-rctd.qty-case   = loadtag.qty-case
-       
+
        bf-fg-rctd.partial    = loadtag.partial
        bf-fg-rctd.cases      = TRUNC(bf-fg-rctd.t-qty / bf-fg-rctd.qty-case,0)
        bf-fg-rctd.cases-unit = loadtag.case-bundle
@@ -3517,18 +3531,18 @@ PROCEDURE run-report :
        DEF VAR v-int AS INT NO-UNDO.
        DEF VAR cFileName AS CHAR NO-UNDO.
        DEF VAR v-path AS CHARACTER NO-UNDO.
-   
+
        LOAD "SOFTWARE" BASE-KEY "HKEY_LOCAL_MACHINE".
        USE "SOFTWARE".
        GET-KEY-VALUE SECTION "Teklynx\Label Matrix"
                      KEY "PATH"
                      VALUE v-path.
        UNLOAD "SOFTWARE".
-   
+
        ASSIGN
           v-path = v-path + "\lmwprint.exe "
           cFileName = "/L=" + scr-label-file.
-   
+
           RUN WinExec (INPUT v-path + CHR(32) + cFileName , INPUT 1, OUTPUT
                        v-int).
     END.
@@ -3554,11 +3568,11 @@ PROCEDURE show-param :
   DEF VAR parm-lbl-list as cha no-undo.
   DEF VAR i as int no-undo.
   DEF VAR lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -3586,23 +3600,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

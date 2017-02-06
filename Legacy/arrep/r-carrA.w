@@ -241,6 +241,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -284,7 +295,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -381,7 +392,7 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
@@ -539,8 +550,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -558,7 +571,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -566,6 +579,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO begin_carr-no.
   END.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -658,7 +672,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -716,7 +730,7 @@ DEF VAR carr-mtrx-printed AS LOG NO-UNDO.
 assign
  str-tit2 = c-win:title
  {sys/inc/ctrtext.i str-tit2 56}
-   
+
  fco      = cocode
  tco      = cocode
  floc     = locode
@@ -724,7 +738,7 @@ assign
  fcarr    = begin_carr-no
  tcarr    = end_carr-no
  detailed = tb_detailed.
- 
+
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i  value(lines-per-page) }
@@ -756,7 +770,7 @@ for each carrier
     break by carrier.company
           by carrier.loc
           by carrier.carrier
-    
+
     with frame carrier stream-io:
 
   display carrier.company
@@ -766,7 +780,7 @@ for each carrier
 
   IF NOT detailed THEN
           {custom/statusMsg.i " 'Processing Carrier#  '  + carrier.carrier  "}
-          
+
   IF tb_excel THEN
   DO:
      PUT STREAM excel UNFORMATTED
@@ -791,7 +805,7 @@ for each carrier
       no-lock with frame carrier:
 
       {custom/statusMsg.i " 'Processing Carrier/Zon#  '  + carrier.carrier + '/' + carr-mtx.del-zip "}
-      
+
     put skip(1)
         "Delivery Zone:" to 20
         carr-mtx.del-zone
@@ -803,7 +817,7 @@ for each carrier
         " Minimum Rate:" to 20
         carr-mtx.min-rate
         skip.
-        
+
     IF tb_excel THEN
     DO:
        IF var-print-four-spaces THEN
@@ -828,7 +842,7 @@ for each carrier
       if i eq 1 then
         put "          Weight (lbs.) UP TO           Rate / 100lbs."
             skip.
-            
+
       if carr-mtx.weight[i] ne 0 or carr-mtx.rate[i] ne 0 then
       DO:
          put space(22)
@@ -846,7 +860,7 @@ for each carrier
                       '"' "" '",'.
                END.
             END.
-           
+
             var-first-of = NO.
 
             PUT STREAM excel UNFORMATTED
@@ -877,7 +891,7 @@ END.
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
 SESSION:SET-WAIT-STATE ("").
-   
+
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 
 end procedure.
@@ -900,11 +914,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -932,23 +946,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

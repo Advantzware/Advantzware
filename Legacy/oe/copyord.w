@@ -211,6 +211,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -246,7 +257,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -323,7 +334,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:    
     RUN valid-begin_ord-no NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
- 
+
     APPLY "entry" TO to_company.
     RUN valid-company NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -333,7 +344,7 @@ DO:
 
     ASSIGN {&DISPLAYED-OBJECTS}.
   END.
-  
+
   MESSAGE "Are you sure you want to " + TRIM(c-win:TITLE) + " " +
           TRIM(STRING(begin_ord-no)) + " from Company " + TRIM(from_company) + " to " +
           " Company " + TRIM(to_company) + "?"
@@ -361,7 +372,7 @@ DO:
     {&self-name}:SCREEN-VALUE = c-char-val.
     APPLY "value-changed" TO {&self-name}.
   END.
-    
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -423,8 +434,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -434,7 +447,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  
+
   ASSIGN
    from_company = cocode
    to_company   = cocode.
@@ -463,6 +476,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     TO_ord-no:SCREEN-VALUE = STRING(giNextOrd + 1).
   END.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -551,7 +565,7 @@ PROCEDURE new-company :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     FIND company WHERE company.company BEGINS FOCUS:SCREEN-VALUE NO-LOCK NO-ERROR.
     IF AVAIL company THEN DO:
@@ -628,7 +642,7 @@ PROCEDURE valid-begin_ord-no :
     END.
     IF INT(to_ord-no:SCREEN-VALUE) LE 0 THEN
       to_ord-no:SCREEN-VALUE = "1".
-     
+
   END.
 
 END PROCEDURE.
@@ -659,7 +673,7 @@ PROCEDURE valid-company :
       RETURN ERROR.
     END.
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

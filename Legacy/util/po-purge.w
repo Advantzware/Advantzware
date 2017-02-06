@@ -184,6 +184,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -202,7 +213,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -269,8 +280,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -287,6 +300,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
   RUN enable_UI.
   {methods/nowait.i}
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -354,7 +368,7 @@ def var tpo like fpo initial 999999 no-undo.
 
 
 session:set-wait-state("General").
-  
+
 do with frame {&frame-name}:
   assign
    begin_po
@@ -362,9 +376,9 @@ do with frame {&frame-name}:
    begin_date
    end_date.
 end.
-    
+
 session:set-wait-state("").
- 
+
 assign
  fpo       = begin_po
  tpo       = end_po
@@ -381,17 +395,17 @@ if v-process then do:
         and po-ord.po-no   le tpo
         and po-ord.po-date ge begin_date
         and po-ord.po-date le end_date:
-                     
+
     for each po-ordl WHERE
         po-ordl.company EQ po-ord.company AND
         po-ordl.po-no   EQ po-ord.po-no:
       {po/po-ordls.i}
       if avail b-ref1 then delete b-ref1.
       if avail b-ref2 then delete b-ref2.
-    
+
       delete po-ordl.
     end.
-    
+
     delete po-ord.
   end.
 
@@ -400,7 +414,7 @@ if v-process then do:
 end.
 
 return no-apply.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

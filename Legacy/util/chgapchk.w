@@ -174,6 +174,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -192,7 +203,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -240,7 +251,7 @@ END.
 ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
 DO:
   v-process  = NO.
-   
+
   MESSAGE "Are you sure you want to change check number "
           fi_chknoold
           " to "
@@ -250,7 +261,7 @@ DO:
           "?"
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
           UPDATE v-process.
-        
+
   IF v-process THEN RUN run-process.
 END.
 
@@ -305,8 +316,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -325,6 +338,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
 
   {methods/nowait.i}
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -447,7 +461,7 @@ FOR EACH ap-dis WHERE ap-dis.company EQ cocode
     AND ap-dis.check-no EQ fi_chknoold
     AND ap-dis.bank-code EQ fi_bank-code 
     NO-LOCK:
-    
+
     FIND FIRST bf-ap-dis WHERE ROWID(bf-ap-dis) EQ ROWID(ap-dis) EXCLUSIVE-LOCK.
     bf-ap-dis.check-no = fi_chknonew.
     RELEASE bf-ap-dis.
@@ -494,7 +508,7 @@ END.
 FOR EACH ap-inv WHERE ap-inv.company EQ cocode
     AND ap-inv.check-no EQ fi_chknoold
     NO-LOCK:
-    
+
     FIND FIRST bf-ap-inv WHERE ROWID(bf-ap-inv) EQ ROWID(ap-inv) EXCLUSIVE-LOCK.
     bf-ap-inv.check-no = fi_chknonew.
     RELEASE bf-ap-inv.
@@ -508,26 +522,26 @@ FOR EACH aphist WHERE aphist.company EQ cocode
     FIND FIRST bf-aphist WHERE ROWID(bf-aphist) EQ ROWID(aphist) EXCLUSIVE-LOCK.
     bf-aphist.check-no = STRING(fi_chknonew).
     RELEASE bf-aphist.
-    
+
 END.
 
 FOR EACH ap-sel WHERE ap-sel.company EQ cocode
     AND ap-sel.check-no EQ fi_chknoold
     AND ap-sel.bank-code EQ fi_bank-code 
     NO-LOCK:
-        
+
     FIND FIRST bf-ap-sel WHERE ROWID(bf-ap-sel) EQ ROWID(ap-sel) EXCLUSIVE-LOCK.
     bf-ap-sel.check-no = fi_chknonew.
     RELEASE bf-ap-sel.
 
 END.
-    
+
 SESSION:SET-WAIT-STATE("").
 
 MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
 
 APPLY "close" TO THIS-PROCEDURE.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

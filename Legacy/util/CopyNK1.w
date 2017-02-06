@@ -152,6 +152,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -165,7 +176,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -258,9 +269,9 @@ DO:
   def var i as int initial 0 no-undo.
   def var num-imports as int initial 0 no-undo.
   DEF VAR excelheader AS CHAR NO-UNDO.
-  
+
   SESSION:SET-WAIT-STATE("GENERAL").
-  
+
   IF to_company:SCREEN-VALUE = "" THEN DO:
        MESSAGE "Company Must be Enter " VIEW-AS ALERT-BOX ERROR.
         APPLY "entry" TO to_company .
@@ -276,13 +287,13 @@ DO:
 
       FIND FIRST sys-ctrl WHERE sys-ctrl.NAME = bf-sys-ctrl.NAME 
             AND  sys-ctrl.company = to_company NO-LOCK NO-ERROR .
-      
+
       IF NOT AVAIL sys-ctrl THEN DO:
         create sys-ctrl.
         buffer-copy bf-sys-ctrl except bf-sys-ctrl.company to sys-ctrl.
         ASSIGN sys-ctrl.company = to_company .
-        
-        
+
+
         FOR EACH bf-sys-ctrl-shipto OF bf-sys-ctrl  NO-LOCK :
            create sys-ctrl-shipto.
            buffer-copy bf-sys-ctrl-shipto except bf-sys-ctrl-shipto.company to sys-ctrl-shipto.
@@ -291,7 +302,7 @@ DO:
       END.
 
   END.
-      
+
 
   SESSION:SET-WAIT-STATE("").
 
@@ -358,8 +369,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -383,11 +396,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       usercomp.loc = '' AND
       usercomp.company_default = YES
       NO-LOCK NO-ERROR.
-  
+
   IF AVAIL usercomp THEN 
           ASSIGN FROM_company:SCREEN-VALUE = usercomp.company .
-  
+
    APPLY "entry" TO from_company.
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -446,7 +460,7 @@ PROCEDURE valid-tit-code :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- 
+
   DO WITH FRAME {&FRAME-NAME}:
    /* IF (tit-code:SCREEN-VALUE) <> "" AND
        NOT CAN-FIND(FIRST titlcode

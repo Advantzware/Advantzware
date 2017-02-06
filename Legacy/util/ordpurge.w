@@ -188,6 +188,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -206,7 +217,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -273,8 +284,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -291,12 +304,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   FIND ap-ctrl WHERE ap-ctrl.company = gcompany NO-LOCK NO-ERROR.
-  
+
   purge_date = today.
-  
+
   RUN enable_UI.
-  
+
   {methods/nowait.i}
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -364,7 +378,7 @@ DEF BUFFER b-rell FOR oe-rell.
 
 
 session:set-wait-state("General").
-  
+
 do with frame {&frame-name}:
   assign
    purge_date
@@ -401,9 +415,9 @@ if v-process then do:
     FOR EACH oe-rell
         WHERE oe-rell.company EQ oe-ord.company
           AND oe-rell.ord-no  EQ oe-ord.ord-no:
-            
+
       DELETE oe-rell.
-          
+
       FIND FIRST oe-relh WHERE oe-relh.r-no EQ oe-relh.r-no NO-ERROR.
       IF NOT CAN-FIND(b-rell WHERE b-rell.r-no EQ oe-relh.r-no) THEN
         DELETE oe-relh.
@@ -412,31 +426,31 @@ if v-process then do:
     FOR EACH oe-boll
         WHERE oe-boll.company EQ oe-ord.company
           AND oe-boll.ord-no  EQ oe-ord.ord-no:
-            
+
       DELETE oe-boll.
-          
+
       FIND FIRST oe-bolh WHERE oe-bolh.b-no EQ oe-bolh.b-no NO-ERROR.
       IF NOT CAN-FIND(b-boll WHERE b-boll.b-no EQ oe-bolh.b-no) THEN DELETE oe-bolh.
     END. /* oe-boll */
-      
+
     for each inv-head
           where inv-head.company eq cocode
             and  inv-head.bol-no eq oe-bolh.bol-no:
-                           
+
         for each inv-line
             where inv-line.company eq cocode
               and inv-line.r-no    eq inv-head.r-no:
-              
+
           delete inv-line.
         end. /* inv-line */
-        
+
         for each inv-misc
             where inv-misc.company eq cocode
               and inv-misc.r-no    eq inv-head.r-no:
-              
+
           delete inv-misc.
         end. /* inv-misc */
-        
+
         delete inv-head.
     end. /* inv-head */
 
@@ -444,7 +458,7 @@ if v-process then do:
         where oe-ordl.company eq cocode
           and oe-ordl.ord-no  eq oe-ord.ord-no
         exclusive:
-        
+
       for each job
           where job.company eq cocode
             and job.job-no  eq oe-ordl.job-no
@@ -452,16 +466,16 @@ if v-process then do:
           exclusive:
 
         run jc/jc-dall.p (recid(job)).
-    
+
         for each job-hdr
             where job-hdr.company eq cocode
               and job-hdr.job     eq job.job
               and job-hdr.job-no  eq job.job-no
               and job-hdr.job-no2 eq job.job-no2
             exclusive:
-                       
+
           {util/dljobkey.i}
-      
+
           delete job-hdr.
         end.
 
@@ -471,7 +485,7 @@ if v-process then do:
               and job-mat.job-no  eq job.job-no
               and job-mat.job-no2 eq job.job-no2
             exclusive:
-            
+
           delete job-mat.
         end.
 
@@ -481,7 +495,7 @@ if v-process then do:
               and job-mch.job-no  eq job.job-no
               and job-mch.job-no2 eq job.job-no2
             exclusive:
-            
+
           delete job-mch.
         end.
 
@@ -491,7 +505,7 @@ if v-process then do:
               and job-prep.job-no  eq job.job-no
               and job-prep.job-no2 eq job.job-no2
             exclusive:
-            
+
           delete job-prep.
         end.
 
@@ -517,7 +531,7 @@ if v-process then do:
               and pc-prdd.job-no  eq job.job-no
               and pc-prdd.job-no2 eq job.job-no2
             exclusive:
-            
+
           delete pc-prdd.
         end.
 
@@ -527,7 +541,7 @@ if v-process then do:
               and fg-act.job-no  eq job.job-no
               and fg-act.job-no2 eq job.job-no2
             exclusive:
-            
+
           delete fg-act.
         end.
 
@@ -537,27 +551,27 @@ if v-process then do:
               and mat-act.job-no  eq job.job-no
               and mat-act.job-no2 eq job.job-no2
             exclusive:
-            
+
           delete mat-act.
         end.
-        
+
         for each mch-act
             where mch-act.company eq cocode
               and mch-act.job     eq job.job
               and mch-act.job-no  eq job.job-no
               and mch-act.job-no2 eq job.job-no2
             exclusive:
-            
+
           delete mch-act.
         end.
-        
+
         for each misc-act
             where misc-act.company eq cocode
               and misc-act.job     eq job.job
               and misc-act.job-no  eq job.job-no
               and misc-act.job-no2 eq job.job-no2
             exclusive:
-            
+
           delete misc-act.
         end.
 
@@ -568,18 +582,18 @@ if v-process then do:
               and trim(fg-bin.i-no) ne ""    
               and fg-bin.qty        eq 0
             exclusive:
-            
+
           delete fg-bin.
         end.
-    
+
         if job.exported then do:
           job.stat = "X".
           run jc/kiwiexp2.p (recid(job)).
         end.
-        
+
         delete job.
       end.
-      
+
       delete oe-ordl.
     end.
 
@@ -591,7 +605,7 @@ if v-process then do:
 end.
 
 return no-apply.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

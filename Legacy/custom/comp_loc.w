@@ -236,6 +236,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -284,7 +295,7 @@ usercomp.loc NE """" AND
 */  /* BROWSE locations */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -333,7 +344,7 @@ ON CHOOSE OF Btn_OK IN FRAME DEFAULT-FRAME /* OK */
 DO:
   IF usercomp.loc = "" THEN
       GET FIRST locations.
-  
+
   IF usercomp.loc_default <> TRUE THEN DO:
    MESSAGE "Please Select default Location.. " VIEW-AS ALERT-BOX.
    RETURN NO-APPLY.
@@ -394,8 +405,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -416,7 +429,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     GET FIRST locations.
     onlyone = IF save-rowid = ROWID(usercomp) THEN yes ELSE no.  
   END.
-  
+
   IF g_init THEN
   DO:
     RUN Set-comp_loc.
@@ -428,6 +441,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   DISPLAY sysdate WITH FRAME {&FRAME-NAME}.
   {methods/enhance.i}
   {methods/nowait.i}
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
   IF onlyone THEN

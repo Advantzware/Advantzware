@@ -163,6 +163,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -176,7 +187,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -230,10 +241,10 @@ DO:
   MESSAGE "Are you sure you wish to continue?"
           VIEW-AS ALERT-BOX QUESTION BUTTON yes-no
           UPDATE ll-process.
-      
+
   IF ll-process THEN DO:
     SESSION:SET-WAIT-STATE ("general").
-        
+
     RUN run-process.
 
     SESSION:SET-WAIT-STATE("").
@@ -260,8 +271,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -274,6 +287,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   fi_file = "inven1.asc".
   RUN enable_UI.
   {methods/nowait.i}
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -346,35 +360,35 @@ def var v-err as int.
      v-ip-file = fi_file
      v-op-file = "inven1.quo".
   end.
-   
+
   if opsys eq "UNIX" then
     unix silent quoter -c 1-3000 value(search(v-ip-file)) > value(v-op-file).
   else
     dos  silent quoter -c 1-3000 value(search(v-ip-file)) > value(v-op-file).
 
   input from value(v-op-file).
-  
+
   output to value("inven1.err").
 
   repeat:
     assign
      v-file = ""
      v-int  = v-int + 1.
-    
+
     import v-file.
-    
+
     find first itemfg
         where itemfg.company eq cocode
           and itemfg.i-no    eq substr(entry(1,v-file),1,15)
         no-lock no-error.
-        
+
     status default "Processing Item: " + trim(substr(entry(1,v-file),1,15)).
-        
+
     if avail itemfg then do:
       v-err = v-err + 1.
       put unformatted v-int " " v-file skip.
     end.
-    
+
     else do:
       create itemfg.
       assign
@@ -404,14 +418,14 @@ def var v-err as int.
       END.
     end.
   end.
-  
+
   output close.
   input close.
 
   status default "".
 
   if v-err gt 0 then message "Errors output to inven1.err" VIEW-AS ALERT-BOX.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

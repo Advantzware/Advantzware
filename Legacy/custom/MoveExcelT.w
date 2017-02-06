@@ -136,6 +136,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -149,7 +160,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -197,7 +208,7 @@ END.
 ON CHOOSE OF btnOk IN FRAME DEFAULT-FRAME /* OK */
 DO:
    DEF VAR v-process AS LOG NO-UNDO.
-   
+
    ASSIGN fi_filename 
           FILE-INFO:FILE-NAME = fi_filename.
 
@@ -211,7 +222,7 @@ DO:
 
    message "Are you sure you want copy Excel Template file?"     
           view-as alert-box question button yes-no update v-process.
-        
+
   if v-process then run run-process.
 
 END.
@@ -235,7 +246,7 @@ DO:
       FILTERS    "Excel Files (*.xlt)" "*.xlt",
                  "All Files (*.*)" "*.*"
       INITIAL-DIR init-dir
-      
+
       USE-FILENAME
       UPDATE OKpressed.
   IF NOT OKpressed THEN
@@ -261,8 +272,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -274,9 +287,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
    RUN enable_UI.
-   
+
    apply 'entry':u to fi_filename.
-  
+
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
    IF NOT THIS-PROCEDURE:PERSISTENT THEN
      WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -341,7 +355,7 @@ PROCEDURE run-process :
   DEF VAR v-filename AS CHAR NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
-   
+
      SESSION:SET-WAIT-STATE ("general").
 
      REPEAT:

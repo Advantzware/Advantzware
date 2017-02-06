@@ -245,7 +245,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -492,8 +492,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -509,6 +511,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       db-names:ENTRY(1) IN FRAME {&FRAME-NAME}.
   APPLY "VALUE-CHANGED" TO db-names.
   {methods/nowait.i}
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -572,7 +575,7 @@ PROCEDURE Get_DBs :
   Notes:       
 -------------------------------------------------------------*/
   DEFINE VARIABLE list-items AS CHARACTER NO-UNDO.
-  
+
   RUN Get_Procedure IN Persistent-Handle (INPUT "db_list.",OUTPUT run-proc,no) NO-ERROR.
   IF run-proc NE "" THEN
   RUN VALUE(run-proc) (OUTPUT list-items).
@@ -592,7 +595,7 @@ PROCEDURE Get_Fields :
   Notes:       
 -------------------------------------------------------------*/
   DEFINE VARIABLE list-items AS CHARACTER NO-UNDO.
-  
+
   CREATE ALIAS dictdb FOR DATABASE VALUE(db-names:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
   RUN Get_Procedure IN Persistent-Handle (INPUT "fld_list.",OUTPUT run-proc,no) NO-ERROR.
   IF run-proc NE "" THEN
@@ -613,7 +616,7 @@ PROCEDURE Get_Tables :
   Notes:       
 -------------------------------------------------------------*/
   DEFINE VARIABLE list-items AS CHARACTER NO-UNDO.
-  
+
   CREATE ALIAS dictdb FOR DATABASE VALUE(db-names:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
   RUN Get_Procedure IN Persistent-Handle (INPUT "filelist.",OUTPUT run-proc,no) NO-ERROR.
   IF run-proc NE "" THEN

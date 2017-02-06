@@ -187,6 +187,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -214,7 +225,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -303,13 +314,13 @@ DO:
     iCount = iCount + 1.
     DELETE report.
   END. /* each report */
-  
+
   IF iCount GT 0 THEN 
       cMessage = "Processed " + STRING(iCount) + " invoices ".
   ELSE
       cMessage = "No invoices available to process ".
   cMessage = cMessage + "for " + cXMLCustomer + " between " + STRING(invStart) + " and " + STRING(invEnd) + ".".
-  
+
   MESSAGE cMessage
         VIEW-AS ALERT-BOX INFO BUTTONS OK.
   ENABLE {&List-1} {&List-2} WITH FRAME {&FRAME-NAME}.
@@ -376,8 +387,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -392,7 +405,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     invEnd = TODAY
     .
   RUN enable_UI.
-  
+
   FIND FIRST sys-ctrl NO-LOCK
        WHERE sys-ctrl.company EQ  cocode
          AND sys-ctrl.name    EQ 'cXMLInvoice' NO-ERROR.
@@ -414,6 +427,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY 'CLOSE':U TO THIS-PROCEDURE.
   END.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

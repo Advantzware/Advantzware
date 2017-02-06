@@ -35,7 +35,7 @@ DEF VAR init-dir AS CHA NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/VAR.i new shared}
-    
+
 assign
  cocode = gcompany
  locode = gloc.
@@ -162,6 +162,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -184,7 +195,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -221,11 +232,11 @@ END.
 ON CHOOSE OF btn-browse IN FRAME FRAME-A /* Browse */
 DO:
     DEF VAR v-okflg AS LOG NO-UNDO.
-    
+
     DEF VAR v-loadFile AS CHAR NO-UNDO.
     DEF VAR v-path AS CHAR NO-UNDO INIT "c:/tmp".
-    
-    
+
+
     SYSTEM-DIALOG GET-FILE v-loadFile
         TITLE 'Select File to load'
         FILTERS    "Listing Files (*.txt)" "*.txt",
@@ -239,7 +250,7 @@ DO:
     IF TRIM(v-loadFile) NE "" 
       THEN ASSIGN fi_loadfile:SCREEN-VALUE IN FRAME {&FRAME-NAME} = v-loadFile.
       ELSE RETURN NO-APPLY.
-    
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -261,7 +272,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
@@ -324,8 +335,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -342,12 +355,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
  RUN enable_UI.
 
  fi_expFile:HIDDEN = TRUE.
 
   {methods/nowait.i}
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -407,7 +421,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
      DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -417,9 +431,9 @@ PROCEDURE output-to-file :
          ASK-OVERWRITE
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
 
 
@@ -489,7 +503,7 @@ FOR EACH tt-fileload:
 
     IF v-zcnt GT 0 
       THEN ASSIGN v-chcknum = SUBSTR(v-chcknum,v-zcnt + 1).
-      
+
 /*
     IF SUBSTR(v-chcknum, LENGTH(v-chcknum),1) = "0"
       THEN
@@ -542,7 +556,7 @@ IF AVAIL tt-fileload THEN DO:
         fi_expFile:SCREEN-VALUE = SUBSTR(fi_loadFile,1,LENGTH(fi_loadFile) - 4 ) +
                             "_exp" + SUBSTR(fi_loadFile,LENGTH(fi_loadFile) - 3)
         fi_expFile:SENSITIVE    = FALSE.
-    
+
 
 END.
 
@@ -572,7 +586,7 @@ DEF BUFFER bf-ap-pay FOR ap-pay.
 FIND CURRENT reconcile NO-LOCK NO-ERROR.
 
 IF tt-type EQ 1 THEN DO /*TRANSACTION*/ :
-    
+
     FIND ap-pay WHERE ROWID(ap-pay) EQ tt-rowid NO-LOCK NO-ERROR.
     IF AVAIL ap-pay 
       THEN
@@ -590,7 +604,7 @@ IF tt-type EQ 1 THEN DO /*TRANSACTION*/ :
 
 
     IF AVAIL bf-ap-pay THEN DO:
-        
+
         bf-ap-pay.cleared = reconcile.tt-cleared.
 
         FOR EACH ap-pay EXCLUSIVE-LOCK
@@ -598,7 +612,7 @@ IF tt-type EQ 1 THEN DO /*TRANSACTION*/ :
               AND ap-pay.d-no    EQ bf-ap-pay.check-no
               AND NOT CAN-FIND(FIRST ap-payl WHERE ap-payl.c-no EQ ap-pay.c-no)             
              USE-INDEX d-no:
-             
+
             ASSIGN ap-pay.cleared = bf-ap-pay.cleared.
 
         END.
@@ -626,11 +640,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -658,23 +672,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

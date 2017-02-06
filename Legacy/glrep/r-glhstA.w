@@ -269,6 +269,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -328,7 +339,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -625,8 +636,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -636,7 +649,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  
+
 /* security check need {methods/prgsecur.i} in definition section */
   IF access-close THEN DO:
      APPLY "close" TO THIS-PROCEDURE.
@@ -648,7 +661,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    end_date   = today.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -656,6 +669,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO begin_date.
   END.
 
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -719,9 +733,9 @@ PROCEDURE excel-acct-proc :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ip-open-amt AS DEC NO-UNDO.
-  
+
   DEF VAR i AS INT NO-UNDO.
-  
+
   PUT STREAM excel UNFORMATTED
       '"' account.actnum                         '",'
       '"' account.dscr                           '",'.
@@ -752,7 +766,7 @@ PROCEDURE excel-det-proc :
    DEFINE INPUT PARAMETER ip-jrnl AS CHAR NO-UNDO.
    DEFINE INPUT PARAMETER ip-date AS DATE NO-UNDO.
    DEFINE INPUT PARAMETER ip-amt AS DEC NO-UNDO.
-   
+
    DEF VAR v-ref1 AS CHAR NO-UNDO.
    DEF VAR v-ref2 AS CHAR NO-UNDO.
    DEF VAR v-ref3 AS CHAR NO-UNDO.
@@ -800,14 +814,14 @@ PROCEDURE excel-total-proc :
   DEFINE INPUT PARAMETER ip-text     AS CHAR NO-UNDO.
   DEFINE INPUT PARAMETER ip-tot-act  AS DEC NO-UNDO.
   DEFINE INPUT PARAMETER ip-open-amt AS DEC NO-UNDO.
-  
+
   DEF VAR i AS INT NO-UNDO.
 
   DO i = 1 TO 8:
      PUT STREAM excel UNFORMATTED
          '"' "" '",'.
   END.
-  
+
   IF ip-text = "" THEN
      PUT STREAM excel UNFORMATTED
          '"' STRING(ip-tot-act,"->>>,>>>,>>>,>>9.99")               '",'
@@ -849,13 +863,13 @@ IF ipcDesc NE "" THEN DO:
     iLen = LENGTH(cVendor).
     cDate = TRIM(SUBSTRING(cVendor,iLen - 8 , 9)).
     cVendor = TRIM(SUBSTRING(cVendor,1,INDEX(cVendor,cDate) - 1)).
-    
+
     FIND FIRST bf-vend 
         WHERE bf-vend.company EQ cocode
           AND bf-vend.NAME = cVendor 
         NO-LOCK NO-ERROR.
     IF AVAIL bf-vend THEN cVendNo = bf-vend.vend-no.
-    
+
     FOR EACH bf-ap-inv 
         WHERE bf-ap-inv.company EQ cocode
           AND bf-ap-inv.vend-no = cVendNo
@@ -978,7 +992,7 @@ assign
  v-s-date = begin_date
  v-e-date = end_date
  v-sumdet = not tb_detailed
-    
+
  str-tit3 = "Date Range: " + STRING(v-s-date,"99/99/9999") + "-" +
                              STRING(v-e-date,"99/99/9999")
  {sys/inc/ctrtext.i str-tit3 146}
@@ -987,7 +1001,7 @@ assign
  hdr-tit3 = fill("-",146)
  uperiod = period
  udate   = today.
-       
+
 {sys/inc/print1.i}
 
 find first period where period.company = cocode and
@@ -1003,7 +1017,7 @@ find first period where period.company = cocode and
                         period.pend >= v-e-date no-lock no-error.
 if avail period then
    v-e-yr = period.yr.
-         
+
 {sys/inc/outprint.i value(lines-per-page)}
 
 IF tb_excel THEN DO:
@@ -1231,7 +1245,7 @@ SESSION:SET-WAIT-STATE ("general").
           assign tmp-dscr = "AUTOMATIC DISTRIBUTION                  ".
         else
           assign tmp-dscr = "                                        ".
-         
+
          put space(19)
                 glhist.tr-num format "9999999" space(1)
                 glhist.jrnl space(1)
@@ -1246,7 +1260,7 @@ SESSION:SET-WAIT-STATE ("general").
                   acct-hdr-printed = YES.
                   RUN excel-acct-proc(INPUT open-amt).
                END.
-           
+
             RUN excel-det-proc(INPUT tmp-dscr,
                                INPUT glhist.tr-num,
                                INPUT glhist.jrnl,
@@ -1254,7 +1268,7 @@ SESSION:SET-WAIT-STATE ("general").
                                INPUT tmp-amt).
          END.
         end.
-        
+
         ASSIGN
            tot-all  = tot-all  + glhist.tr-amt
            tot-tx   = tot-tx   + glhist.tr-amt
@@ -1320,7 +1334,7 @@ SESSION:SET-WAIT-STATE ("general").
           assign tmp-dscr = "AUTOMATIC DISTRIBUTION                  ".
         else
           assign tmp-dscr = "                                        ".
-        
+
         put space(19)
             gltrans.trnum format "9999999" space(1)
             gltrans.jrnl space(1)
@@ -1409,11 +1423,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1441,23 +1455,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
