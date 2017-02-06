@@ -416,19 +416,19 @@ PROCEDURE MainLoop :
          chWorkbook:Close(no) no-error. 
   END.
   ELSE IF LvOutputSelection = "Email" THEN
-  DO:
+  DO:   
      chExcelApplication:ActiveSheet:SaveAs(v-dir + "stmt.xls") no-error.            
-     NO-RETURN-VALUE chWorkbook:PrintOut(,,,,,False,).
-
+    /* NO-RETURN-VALUE chWorkbook:PrintOut(,,,,,False,).*/
      chWorkbook:Close(no) no-error.   
      chExcelApplication:Quit() no-error.
+
      pause 3.
-     OS-DELETE VALUE(v-dir + "stmt.xls").
-     OS-RENAME value(v-dir + "asi.pdf") value(v-dir + "stmt.pdf").
+     /*OS-DELETE VALUE(v-dir + "stmt.xls").
+     OS-RENAME value(v-dir + "asi.pdf") value(v-dir + "stmt.pdf").*/
      ASSIGN LvCtr = LvCtr + 1.
      CREATE tt-filelist.
      ASSIGN tt-FileCtr  = LvCtr
-            tt-FileName = v-dir + "stmt.pdf".
+            tt-FileName = v-dir + "stmt.xls".
   END.
 
   /* enable screen updating */
