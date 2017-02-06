@@ -574,6 +574,8 @@ FOR EACH job-hdr NO-LOCK
             BY job-mch.blank-no
             BY job-mch.line
       :
+    IF FIRST-OF(job-mch.frm) OR cascadeJob EQ NO THEN resSeq = 0.
+
     IF est.est-type EQ 3 OR est.est-type EQ 4 OR
        est.est-type EQ 7 OR est.est-type EQ 8 THEN DO:
       IF job-mch.frm NE job-hdr.frm THEN NEXT.
@@ -595,8 +597,6 @@ FOR EACH job-hdr NO-LOCK
         .
     END. /* if traceON */
     
-    IF FIRST-OF(job-mch.frm) OR cascadeJob EQ NO THEN resSeq = 0.
-
     scheduleResource = IF mach.sch-m-code NE '' THEN mach.sch-m-code ELSE mach.m-code.
     {{&loads}/resourceUse.i scheduleResource}
     
