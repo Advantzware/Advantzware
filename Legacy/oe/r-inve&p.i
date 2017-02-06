@@ -610,7 +610,7 @@
                   inv-head.cust-no inv-head.cust-name v-ord-no
                   v-inv-qty inv-head.t-inv-freight inv-head.t-inv-tax
                   v-misc-tot v-line-tot inv-head.t-inv-rev
-                  ld-pton WHEN tb_ton
+                  ld-pton FORMAT "->>>>>>9.999" WHEN tb_ton
                   ld-t[2] WHEN tb_ton
               with frame inv.
           down with fram inv.
@@ -627,7 +627,7 @@
                 display w-inv-line.i-no w-inv-line.i-name w-inv-line.qty
                         w-inv-line.inv-qty w-inv-line.ship-qty 
                         w-inv-line.price w-inv-line.uom w-inv-line.t-price WHEN w-inv-line.t-price GT 0
-                        ld-pton WHEN tb_ton
+                        ld-pton FORMAT "->>>>>>9.999" WHEN tb_ton 
                         ld-t[1] WHEN tb_ton
                         v-prof WHEN v-prof NE ?.
                 DOWN.
