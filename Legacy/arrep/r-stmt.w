@@ -4814,6 +4814,9 @@ PROCEDURE SendMail-1 :
   DEFINE VARIABLE vcSubject   AS CHARACTER  NO-UNDO.
   DEFINE VARIABLE vcMailBody  AS CHARACTER  NO-UNDO.
   DEFINE VARIABLE vcErrorMsg  AS CHARACTER  NO-UNDO.
+ 
+  IF v-stmt-char EQ "ASIExcel" THEN
+     ASSIGN icFileName =  v-dir + "\stmt.xls" .
 
   ASSIGN vcSubject   = "STATEMENT" + '   ' + STRING (TODAY, '99/99/9999') + STRING (TIME, 'HH:MM:SS AM')
          vcMailBody  = "Please review attached statement(s).".
