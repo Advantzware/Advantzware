@@ -2732,7 +2732,7 @@ PROCEDURE per-1000 :
 
     tmp-dir = lv-cebrowse-dir.
 
-   /* RUN cec/probeu3.p (ROWID(b-probe)).*/
+    RUN cec/probeu3.p (ROWID(b-probe)).
   END.
 
 END PROCEDURE.
