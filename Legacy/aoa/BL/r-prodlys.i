@@ -558,7 +558,6 @@ PROCEDURE pProRateMR:
     DEFINE BUFFER bMchAct  FOR mch-act.
     DEFINE BUFFER bJobCode FOR job-code.
 
-
     FOR EACH bMchAct NO-LOCK
         WHERE bMchAct.company  EQ mch-act.company
           AND bMchAct.job      EQ mch-act.job
