@@ -2099,10 +2099,10 @@ PROCEDURE Init_Job :
       ASSIGN
         Btn_Quantity:HIDDEN = TRUE
         run-qty:HIDDEN = TRUE
-        Btn_Waste:HIDDEN = TRUE
-        waste-qty:HIDDEN = TRUE
-        btn_complete:HIDDEN = TRUE
-        v-completed:HIDDEN = TRUE.
+        /*Btn_Waste:HIDDEN = TRUE*/ /* ticket 19309*/
+        /*waste-qty:HIDDEN = TRUE*/
+        /*btn_complete:HIDDEN = TRUE*/
+        /*v-completed:HIDDEN = TRUE*/  .
       APPLY 'CHOOSE' TO Btn_Hour.
     END.
     ELSE
