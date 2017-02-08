@@ -1398,6 +1398,7 @@ CLASS Advantzware.Windows.SmartFramework.Menu.MainMenuForm
         oMenuTreeViewControl:BackColor = System.Drawing.Color:White.
         oMenuTreeViewControl:RootNodeKey = pcRootNodeKey .
         oMenuTreeViewControl:RenderRootNode = plRenderRootNode .
+        oMenuTreeViewControl:ExpandFirstLevelAfterStart = FALSE .
 
         /* Mike Fechner, Consultingwerk Ltd. 15.01.2014
            Activate this line, whne menu should be sorted by alphabet and not
