@@ -1862,7 +1862,6 @@ DO:
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
           UPDATE ll.
     END.
-
     IF ll THEN oe-ord.due-date = oe-ordl.req-date.
 
     FIND CURRENT oe-ord NO-LOCK NO-ERROR.
@@ -7844,7 +7843,7 @@ PROCEDURE update-release :
     RUN oe/rel-stat.p (ROWID(oe-rel), OUTPUT lv-stat).
 
     IF INDEX("SIL",lv-stat) GT 0 THEN 
-      ll = YES.
+       ll = YES. 
 
   END.
 
@@ -7884,7 +7883,7 @@ PROCEDURE update-release :
       RUN oe/rel-stat.p (ROWID(oe-rel), OUTPUT lv-stat).
 
       IF INDEX("SIL",lv-stat) GT 0 THEN DO:
-        ll = YES.
+        /*ll = YES.*/
 
         FIND FIRST shipto WHERE shipto.company = oe-rel.company AND
                                 shipto.cust-no = oe-rel.cust-no  AND
