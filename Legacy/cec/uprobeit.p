@@ -38,6 +38,7 @@ DEFINE VARIABLE board-cst          AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE v-tmp-set-markup   LIKE probe.set-chg NO-UNDO.
 DEFINE VARIABLE v-freight          AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE v-found            AS LOG       NO-UNDO.
+DEFINE VARIABLE dBoardCst          AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE dBoardPct          AS DECIMAL   NO-UNDO.
 DEFINE SHARED TEMP-TABLE tt-rel NO-UNDO LIKE reftable.
                               
@@ -298,10 +299,23 @@ FOR EACH probeit
     END.
 
     board-cst = board-cst / (v-qty / 1000).
-    IF ord-cost GT 0 AND qm GT 0 THEN 
-        dBoardPct = board-cst / ord-cost * 100.
-
-/*eb is not available at this point with 2 piece box - find the non-set header blank*/       
+    
+    /*Pull the Total Board Cost from the probe.board (Reftable)*/
+    dBoardCst = 0.
+    FIND FIRST reftable
+        WHERE reftable.reftable EQ "probe.board"
+        AND reftable.company  EQ probe.company
+        AND reftable.loc      EQ ""
+        AND reftable.code     EQ probe.est-no
+        AND reftable.code2    EQ STRING(probe.line,"9999999999")
+        NO-ERROR.
+    IF AVAILABLE reftable THEN dBoardCst = reftable.val[1].
+    
+    /*Use the ord-cost which is the Total Factory Cost to determine the reduction lookup pct*/
+    IF ord-cost GT 0 THEN 
+        dBoardPct = dBoardCst / ord-cost * 100.
+    
+    /*eb is not available at this point and is needed for markup matrix lookup - find the non-set header blank*/       
     IF NOT AVAILABLE eb THEN 
         FIND FIRST eb NO-LOCK
             WHERE eb.company EQ probeit.company
@@ -310,7 +324,7 @@ FOR EACH probeit
             AND eb.form-no GT 0
             NO-ERROR.
     RUN custom/markup.p (ROWID(eb),
-        board-cst,
+        dBoardCst,
         dBoardPct,
         INPUT-OUTPUT lv-sell-by,
         INPUT-OUTPUT v-pct).
