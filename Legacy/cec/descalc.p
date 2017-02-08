@@ -540,7 +540,7 @@ do v-j = 1 to 2:
         leave.
       end.
     end.
-    /*if v-wscore-fld-num + 1 ne v-i then do:*/
+    if v-wscore-fld-num + 1 ne v-i then do:
       v-i = v-wscore-fld-num + 1.
       find last box-design-line of box-design-hdr no-lock.
       do i = 1 to 30:
@@ -554,7 +554,7 @@ do v-j = 1 to 2:
         w-box-design-line.line-no =
                            round((box-design-line.line-no - 1) / v-i * i,0) + 1.
       end.
-    /*end.*/
+    end.
 
     do i = 1 to v-wscore-fld-num:
       assign
