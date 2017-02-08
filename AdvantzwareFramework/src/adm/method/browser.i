@@ -176,6 +176,10 @@ PROCEDURE winkit-initialize:
                 oRenderedBrowseControl = NEW Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl (oRenderedBrowseContext) 
                 .
 
+            // Do not hide group-by columns 
+            oRenderedBrowseControl:DisplayLayout:Override:GroupByColumnsHidden = Infragistics.Win.DefaultableBoolean:False .
+
+
             IF Consultingwerk.Util.ProcedureHelper:HasEntry (THIS-PROCEDURE, "InitializeGrid") THEN 
                 RUN InitializeGrid IN THIS-PROCEDURE .
         END.
