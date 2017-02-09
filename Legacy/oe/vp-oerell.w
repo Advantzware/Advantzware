@@ -370,12 +370,12 @@ DO:
        BUFFER-COPY oe-rell TO tt-oe-rell.
       
        RUN oe/d-oerell.w (RECID(oe-rell),RECID(oe-relh), "update", OUTPUT lv-rowid) . 
-      
+       
        BUFFER-COMPARE tt-oe-rell TO oe-rell SAVE RESULT IN ll.
        
        RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
        RUN reopen-query IN WIDGET-HANDLE(char-hdl) .
-       RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(oe-rell)).
+       RUN repo-query IN WIDGET-HANDLE(char-hdl) (lv-rowid).
       
        /*RUN reopen-po-ord-query.*/
       END.
