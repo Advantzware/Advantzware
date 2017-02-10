@@ -1493,8 +1493,8 @@ DEFINE VARIABLE v-disp-amt AS DECIMAL FORMAT ">>,>>>,>>9.99cr" NO-UNDO.
 DEFINE VARIABLE v-tmp-amt AS DECIMAL FORMAT ">>,>>>,>>9.99cr" NO-UNDO.
 DEFINE VARIABLE v-empty AS DECIMAL FORMAT ">>,>>>,>>9.99cr" NO-UNDO.
 DEFINE VARIABLE ld-t AS DECIMAL FORMAT "->>>>9.99" EXTENT 3 NO-UNDO.
-DEFINE VARIABLE ld-pton AS DECIMAL FORMAT "->>>9.999" NO-UNDO.
-DEFINE VARIABLE lv-label-ton AS CHARACTER FORMAT "x(19)" EXTENT 2 NO-UNDO.
+DEFINE VARIABLE ld-pton AS DECIMAL FORMAT "->>>>>>9.999" NO-UNDO.
+DEFINE VARIABLE lv-label-ton AS CHARACTER FORMAT "x(22)" EXTENT 2 NO-UNDO.
 DEFINE VARIABLE v-recid AS RECID INIT ?.
 DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
 
@@ -1513,7 +1513,7 @@ FORMAT HEADER
        "---------------"
        lv-label-ton[2]
 
-    WITH NO-LABELS NO-BOX NO-UNDERLINE FRAME f-top-s PAGE-TOP WIDTH 150 STREAM-IO.
+    WITH NO-LABELS NO-BOX NO-UNDERLINE FRAME f-top-s PAGE-TOP WIDTH 200 STREAM-IO.
 
 FORMAT HEADER
        "G/L ACCOUNT NUMBER       "
@@ -1532,16 +1532,16 @@ FORMAT HEADER
        "---------------"
        lv-label-ton[2]
 
-    WITH NO-LABELS NO-BOX NO-UNDERLINE FRAME f-top-d PAGE-TOP WIDTH 150 STREAM-IO.
+    WITH NO-LABELS NO-BOX NO-UNDERLINE FRAME f-top-d PAGE-TOP WIDTH 200 STREAM-IO.
 
 FORM v-disp-actnum
      v-dscr
      tran-date      FORMAT "99/99/9999"
      v-disp-amt
-     ld-pton
+     ld-pton FORMAT "->>>>>>9.999"
      ld-t[2]
      skip
-    WITH DOWN NO-BOX NO-LABELS STREAM-IO WIDTH 150 FRAME gl-sum.
+    WITH DOWN NO-BOX NO-LABELS STREAM-IO WIDTH 200 FRAME gl-sum.
 
 FORM account.actnum     
      v-dscr                  
@@ -1549,11 +1549,11 @@ FORM account.actnum
      inv-line.i-no                  
      v-tmp-amt                     
      v-empty 
-     ld-pton 
+     ld-pton FORMAT "->>>>>>9.999"
      ld-t[1]
      SKIP                   
 
-    WITH DOWN NO-BOX NO-LABELS STREAM-IO WIDTH 150 FRAME gl-det.
+    WITH DOWN NO-BOX NO-LABELS STREAM-IO WIDTH 200 FRAME gl-det.
 
 
   FIND first period                   
@@ -1573,8 +1573,8 @@ FORM account.actnum
 
   IF tb_ton THEN
     ASSIGN
-     lv-label-ton[1] = "    $/TON      TONS"
-     lv-label-ton[2] = "--------- ---------".
+     lv-label-ton[1] = "       $/TON      TONS"
+     lv-label-ton[2] = "------------ ---------".
 
   post-print: DO WHILE TRUE.
     SESSION:SET-WAIT-STATE ("general").
@@ -1640,7 +1640,7 @@ FORM account.actnum
             tmp-work-job.inv-no @ inv-head.inv-no
             tmp-work-job.i-no   @ inv-line.i-no
             v-tmp-amt
-            ld-pton WHEN tb_ton
+            ld-pton FORMAT "->>>>>>9.999" WHEN tb_ton 
             ld-t[1] WHEN tb_ton
             with frame gl-det.
         down with frame gl-det.
@@ -1650,7 +1650,7 @@ FORM account.actnum
           IF tb_ton THEN DO:
             ld-pton = v-disp-amt / ld-t[2].
             IF ld-pton EQ ? THEN ld-pton = 0.
-            PUT ld-pton TO 138 ld-t[2] TO 148 SKIP(1).
+            PUT ld-pton FORMAT "->>>>>>9.999" TO 141 ld-t[2] TO 151 SKIP(1).
           END.
           ELSE PUT skip.
           assign
@@ -1687,7 +1687,7 @@ FORM account.actnum
              v-dscr
              tran-date
              v-disp-amt
-             ld-pton WHEN tb_ton
+             ld-pton FORMAT "->>>>>>9.999" WHEN tb_ton 
              ld-t[2] WHEN tb_ton
            with frame gl-sum.
         down with frame gl-sum.
@@ -1730,7 +1730,7 @@ FORM account.actnum
                   int(tt-report.key-02) @ inv-head.inv-no
                   "FREIGHT"             @ inv-line.i-no
                   dec(tt-report.key-05) @ v-tmp-amt
-                  ld-pton WHEN tb_ton
+                  ld-pton FORMAT "->>>>>>9.999" WHEN tb_ton 
                   ld-t[1] WHEN tb_ton
               with frame gl-det.
           down with frame gl-det.
@@ -1742,7 +1742,7 @@ FORM account.actnum
         IF tb_ton THEN DO:
           ld-pton = v-disp-amt / ld-t[2].
           IF ld-pton EQ ? THEN ld-pton = 0.
-          PUT ld-pton TO 138 ld-t[2] TO 148 SKIP(1).
+          PUT ld-pton FORMAT "->>>>>>9.999" TO 141 ld-t[2] TO 151 SKIP(1).
         END.
         ELSE PUT skip.
         assign
@@ -1765,7 +1765,7 @@ FORM account.actnum
               v-dscr
               tran-date
               v-disp-amt
-              ld-pton WHEN tb_ton
+              ld-pton FORMAT "->>>>>>9.999" WHEN tb_ton 
               ld-t[2] WHEN tb_ton
           with frame gl-sum.
       down with frame gl-sum.
@@ -1805,7 +1805,7 @@ FORM account.actnum
                   int(tt-report.key-02) @ inv-head.inv-no
                   "DISCOUNT"            @ inv-line.i-no
                   dec(tt-report.key-05) @ v-tmp-amt
-                  ld-pton WHEN tb_ton
+                  ld-pton FORMAT "->>>>>>9.999" WHEN tb_ton 
                   ld-t[1] WHEN tb_ton
               with frame gl-det.
           down with frame gl-det.
@@ -1817,7 +1817,7 @@ FORM account.actnum
         IF tb_ton THEN DO:
           ld-pton = v-disp-amt / ld-t[2].
           IF ld-pton EQ ? THEN ld-pton = 0.
-          PUT ld-pton TO 138 ld-t[2] TO 148 SKIP(1).
+          PUT ld-pton FORMAT "->>>>>>9.999" TO 141 ld-t[2] TO 151 SKIP(1).
         END.
         ELSE PUT skip.
         assign
@@ -1840,7 +1840,7 @@ FORM account.actnum
               v-dscr
               tran-date
               v-disp-amt
-              ld-pton WHEN tb_ton
+              ld-pton FORMAT "->>>>>>9.999" WHEN tb_ton 
               ld-t[2] WHEN tb_ton
           with frame gl-sum.
       down with frame gl-sum.
@@ -1882,7 +1882,7 @@ FORM account.actnum
                     int(tt-report.key-02)  @ inv-head.inv-no
                     "CASH INVOICE"      @ inv-line.i-no
                     dec(tt-report.key-05)  @ v-tmp-amt
-                    ld-pton WHEN tb_ton
+                    ld-pton FORMAT "->>>>>>9.999" WHEN tb_ton 
                     ld-t[1] WHEN tb_ton
                 with frame gl-det.
             down with frame gl-det.
@@ -1894,7 +1894,7 @@ FORM account.actnum
           IF tb_ton THEN DO:
             ld-pton = v-disp-amt / ld-t[2].
             IF ld-pton EQ ? THEN ld-pton = 0.
-            PUT ld-pton TO 138 ld-t[2] TO 148 SKIP(1).
+            PUT ld-pton FORMAT "->>>>>>9.999" TO 141 ld-t[2] TO 151 SKIP(1).
           END.
           ELSE PUT skip.
           assign
@@ -1917,7 +1917,7 @@ FORM account.actnum
                 v-dscr
                 tran-date
                 v-disp-amt
-                ld-pton WHEN tb_ton
+                ld-pton FORMAT "->>>>>>9.999" WHEN tb_ton 
                 ld-t[2] WHEN tb_ton 
             with frame gl-sum.
         down with frame gl-sum.
@@ -1946,7 +1946,7 @@ FORM account.actnum
       display v-ar-acct     @ account.actnum
               v-dscr
               v-disp-amt    @ v-tmp-amt
-              ld-pton WHEN tb_ton
+              ld-pton FORMAT "->>>>>>9.999" WHEN tb_ton 
               ld-t[1] WHEN tb_ton 
           with frame gl-det.
       down with frame gl-det.
@@ -1959,11 +1959,11 @@ FORM account.actnum
 
       IF ld-pton EQ ? THEN ld-pton = 0.
 
-      display v-disp-actnum
+     DISPLAY v-disp-actnum
               v-dscr
               tran-date
               v-disp-amt
-              ld-pton WHEN tb_ton
+              ld-pton FORMAT "->>>>>>9.999" WHEN tb_ton 
               ld-t[2] WHEN tb_ton 
           with frame gl-sum.
       down with frame gl-sum.
@@ -2046,7 +2046,7 @@ PROCEDURE list-post-inv :
   DEFINE BUFFER b-oe-boll FOR oe-boll.
 
   DEFINE VARIABLE ld-t AS DECIMAL FORMAT "->>>>9.99" EXTENT 3 NO-UNDO.
-  DEFINE VARIABLE ld-pton AS DECIMAL FORMAT "->>>9.999" NO-UNDO.
+  DEFINE VARIABLE ld-pton AS DECIMAL FORMAT "->>>>>>9.999" NO-UNDO.
   DEFINE VARIABLE v-close-line-ok AS LOGICAL INITIAL NO.
   DEFINE VARIABLE v-first AS LOG INIT YES.
   DEFINE VARIABLE v-tot-frt AS DECIMAL NO-UNDO.
@@ -2058,13 +2058,13 @@ PROCEDURE list-post-inv :
     v-ord-no to 59
     v-inv-qty
     inv-head.t-inv-freight format "->,>>9.99"
-    inv-head.t-inv-tax format "->,>>9.99"
+    inv-head.t-inv-tax FORMAT "->,>>>,>>9.99"
     v-misc-tot format "->>>>9.99"
     v-line-tot format "->>>>>>9.99"
-    inv-head.t-inv-rev to 131
-    ld-pton
+    inv-head.t-inv-rev TO 135
+    ld-pton FORMAT "->>>>>>9.999"
     ld-t[2]
-    with STREAM-IO width 151 no-labels no-box no-underline frame inv.
+    WITH STREAM-IO WIDTH 180 NO-LABELS NO-BOX NO-UNDERLINE FRAME inv.
 
   format
     w-inv-line.i-no at 10 label "Item"
@@ -2077,7 +2077,7 @@ PROCEDURE list-post-inv :
     w-inv-line.uom label "UOM"
     w-inv-line.t-price column-label "Extended! Price"
     v-prof  FORMAT "->>>9.99%" COLUMN-LABEL "Profit"
-    with down no-box STREAM-IO width 161 frame invl.
+    WITH DOWN NO-BOX STREAM-IO WIDTH 180 FRAME invl.
 
   format
     w-inv-line.i-no at 10 label "Item"
@@ -2089,10 +2089,10 @@ PROCEDURE list-post-inv :
     w-inv-line.price format "->>>,>>9.99<<<<" label "Price"
     w-inv-line.uom label "UOM"
     w-inv-line.t-price column-label "Extended! Price"
-    ld-pton column-label "!     $/Ton"
+    ld-pton FORMAT "->>>>>>9.999" COLUMN-LABEL "!     $/Ton"
     ld-t[1] column-label "!      Tons"
     v-prof  FORMAT "->>>9.99%" COLUMN-LABEL "Profit"
-    with down no-box STREAM-IO width 171 frame invlt.
+    WITH DOWN NO-BOX STREAM-IO WIDTH 180 FRAME invlt.
 
   format
     w-ord-misc.charge at 10 label "Charge"
@@ -2444,13 +2444,13 @@ PROCEDURE run-report :
     SKIP(1)
     "  - Invoice - " skip
     "Number"  "Date" at 10  "Cust#" at 17 "Customer Name" at 26 "Order#" to 59
-    "Quantity" to 74 "Frt" to 84 "Tax" to 94
-    "Misc" to 104 "Items" to 116
-    "Total" to 131 
-    lv-label-ton[1] TO 151
-    fill("=",131) format "x(131)"
-    lv-label-ton[2] TO 151
-    with frame r-top WIDTH 151.
+    "Quantity" TO 74 "Frt" TO 84 "Tax" TO 98
+    "Misc" TO 108 "Items" TO 120
+    "Total" TO 135 
+    lv-label-ton[1] TO 158
+    FILL("=",138) FORMAT "x(138)"
+    lv-label-ton[2] TO 158
+    WITH FRAME r-top WIDTH 180.
   
   FIND first period                   
       where period.company eq gcompany
@@ -2481,7 +2481,7 @@ PROCEDURE run-report :
   IF tb_ton THEN
     ASSIGN
      lv-label-ton[1] = "     $/Ton      Tons"
-     lv-label-ton[2] = "====================".
+     lv-label-ton[2] = "===========================".
 
   SESSION:SET-WAIT-STATE ("general").
 

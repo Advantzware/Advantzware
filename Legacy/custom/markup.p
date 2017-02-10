@@ -47,15 +47,16 @@ DO:
     END.
     ELSE 
         dLookup = ipdBoardCost.
-        
+    
     RUN est/GetMarkup.p (eb.company,
         eb.cust-no,
         eb.procat,
         eb.style,
         dLookup,
         ipdBoardPct,
-        OUTPUT iopdMarkup,
-        OUTPUT iopcMarkupOn).
+        INPUT-OUTPUT iopdMarkup,
+        INPUT-OUTPUT iopcMarkupOn).
+    
         
 END.
 

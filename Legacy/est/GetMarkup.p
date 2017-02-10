@@ -26,8 +26,8 @@ DEFINE INPUT PARAMETER ipcProductCategory AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcStyleID AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipdLookupValue AS DECIMAL NO-UNDO.
 DEFINE INPUT PARAMETER ipdLookupValueReduction AS DECIMAL NO-UNDO.
-DEFINE OUTPUT PARAMETER opdMarkup AS DECIMAL NO-UNDO.
-DEFINE OUTPUT PARAMETER opcMarkupOn AS CHARACTER NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER iopdMarkup AS DECIMAL NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER iopcMarkupOn AS CHARACTER NO-UNDO.
  
 DEFINE BUFFER bf-cust-markup FOR cust-markup.
 DEFINE VARIABLE dMarkupReduction AS DECIMAL NO-UNDO.
@@ -52,16 +52,16 @@ RUN pGetMatrixMatch(ipcCompany,
 IF AVAILABLE bf-cust-markup THEN DO: 
     RUN pGetMarkup(BUFFER bf-cust-markup, 
         ipdLookupValue,
-        OUTPUT opdMarkup,
-        OUTPUT opcMarkupOn).
+        OUTPUT iopdMarkup,
+        OUTPUT iopcMarkupOn).
     
     IF ipdLookupValueReduction GT 0 THEN 
         RUN pGetMarkupReduction(BUFFER bf-cust-markup,
             ipdLookupValueReduction,
             OUTPUT dMarkupReduction).
             
-    opdMarkup = opdMarkup - dMarkupReduction.
-    IF opdMarkup LT 0 THEN opdMarkup = 0.
+    iopdMarkup = iopdMarkup - dMarkupReduction.
+    IF iopdMarkup LT 0 THEN iopdMarkup = 0.
 END.
                
 

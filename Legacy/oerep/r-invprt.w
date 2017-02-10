@@ -734,13 +734,13 @@ DO:
   IF tb_prt-zero-qty:HIDDEN = NO THEN
      ASSIGN tb_prt-zero-qty
             s-print-zero-qty = tb_prt-zero-qty.
-
-  IF tb_posted AND begin_inv <> END_inv THEN DO:
+  /*   Ticket - 18922  */
+  /*IF tb_posted AND begin_inv <> END_inv THEN DO:
      MESSAGE "Beginning Invoice# and Ending Invoice# must be the same for Reprint Posted Invoice."
          VIEW-AS ALERT-BOX ERROR.
      APPLY "entry" TO begin_inv.
      RETURN .
-  END.
+  END.*/
 
   IF fi_broker-bol:SENSITIVE AND
      fi_broker-bol:SCREEN-VALUE NE "" AND

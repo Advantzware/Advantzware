@@ -84,8 +84,13 @@ ASSIGN
     cNotePath = ipcOutputPath + "\addon\" + "notes.d"
     .
 
+FILE-INFO:FILE-NAME = ipcOutputPath + "\addon".  
+DEF VAR cAddonDir AS CHAR .
+cAddonDir = FILE-INFO:FULL-PATHNAME.
+MESSAGE "caddondir" caddondir
+  VIEW-AS ALERT-BOX INFO BUTTONS OK.
 /* addon */
-IF SEARCH(ipcOutputPath + "\addon") NE ? THEN 
+IF cAddonDir NE ? AND cAddonDir NE "" THEN 
 DO:
     vcCommand = 'ATTRIB -R ' + cPrgrmsPath.
     OS-COMMAND SILENT VALUE (vcCommand).

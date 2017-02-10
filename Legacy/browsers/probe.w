@@ -2786,7 +2786,7 @@ PROCEDURE print-box :
      ls-outfile = lv-cebrowse-dir + TRIM(est.est-no) + '.x' + STRING(probe.line,'999').
 
   OUTPUT TO VALUE(ls-outfile).
-  PUT '</PROGRESS><PREVIEW>'.
+  PUT '</PROGRESS><PREVIEW><P11>'.
   OUTPUT CLOSE.
 
   RUN printBoxImage.
@@ -2858,17 +2858,17 @@ PROCEDURE print-box-est :
   /* box only print not share with othere */
 
   OUTPUT TO VALUE(ls-outfile).
-  IF ip-dest = 1 THEN PUT "<PRINTER?></PROGRESS>".  /*<REVIEW>*/
-  ELSE IF ip-dest = 2 THEN PUT "<PREVIEW=ZoomToWidth></PROGRESS>".  /*<REVIEW>*/
+  IF ip-dest EQ 1 THEN PUT "<PRINTER?></PROGRESS><P11>".  /*<REVIEW>*/
+  ELSE IF ip-dest EQ 2 THEN PUT "<PREVIEW=ZoomToWidth></PROGRESS><P11>".  /*<REVIEW>*/
   ELSE IF ip-dest EQ 4 THEN DO:
      ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".
-     PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW></PROGRESS>".
+     PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW></PROGRESS><P11>".
   END.        
   ELSE IF ip-dest = 5 THEN DO:
       ASSIGN
          init-dir = v-dir
          lv-pdf-file = v-dir + "Est" + TRIM(est.est-no).
-      PUT "<PREVIEW><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf></PROGRESS>" FORM "x(100)".
+      PUT "<PREVIEW><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf></PROGRESS><P11>" FORMAT "x(100)".
   END.
   OUTPUT CLOSE.
 

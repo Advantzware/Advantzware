@@ -73,9 +73,12 @@ DEFINE FRAME Dialog-Frame
      lv-file AT ROW 4.1 COL 8 COLON-ALIGNED NO-LABEL
      Btn_OK AT ROW 7.19 COL 15
      Btn_Cancel AT ROW 7.19 COL 43
-     "Enter Config Data Output File Path" VIEW-AS TEXT
+     "Enter Config Data Output Folder" VIEW-AS TEXT
           SIZE 35 BY 1.1 AT ROW 2.43 COL 7
           FGCOLOR 9 
+     "(Make sure this folder has an addon subfolder)" VIEW-AS TEXT
+          SIZE 55 BY .62 AT ROW 5.29 COL 12 WIDGET-ID 8
+          FGCOLOR 12 
      RECT-25 AT ROW 3.14 COL 5 WIDGET-ID 6
      SPACE(1.59) SKIP(4.37)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
@@ -225,7 +228,7 @@ END.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  lv-file = ".\utils.dat".
+  lv-file = "c:\temp".
   RUN enable_UI.
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.

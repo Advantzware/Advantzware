@@ -2581,7 +2581,7 @@ PROCEDURE local-create-record :
      rm-rctd.s-num:screen-value in browse {&browse-name} = "0"
      rm-rctd.b-num = 0
      rm-rctd.b-num:screen-value in browse {&browse-name} = "0"  
-     rm-rctd.rct-date = TODAY.
+            rm-rctd.rct-date                                    = TODAY.
 
    /*FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ gcompany
                          AND sys-ctrl.name    EQ "RMWHSBIN" NO-LOCK NO-ERROR.
@@ -2600,7 +2600,9 @@ PROCEDURE local-create-record :
     FIND FIRST b-rm-rctd WHERE b-rm-rctd.company = cocode
                            AND b-rm-rctd.rita-code = "R"
                            AND recid(b-rm-rctd) <> RECID(rm-rctd) NO-LOCK NO-ERROR.
-        IF AVAILABLE b-rm-rctd THEN rm-rctd.rct-date = b-rm-rctd.rct-date.
+        IF AVAILABLE b-rm-rctd AND rm-rctd.rct-date EQ ? THEN rm-rctd.rct-date = b-rm-rctd.rct-date.
+        IF rm-rctd.rct-date EQ ? THEN
+            rm-rctd.rct-date     = TODAY .
 
         DISPLAY rm-rctd.rct-date rm-rctd.loc-bin WITH BROWSE {&browse-name}.
   END.

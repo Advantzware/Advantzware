@@ -1993,7 +1993,7 @@ END.
                      WHEN "type"      THEN cVarValue = "".
                      WHEN "inv"       THEN cVarValue = "" .
                      WHEN "inv-date"  THEN cVarValue = "" .
-                     WHEN "amount"    THEN cVarValue = STRING(amount + v-disc-amt,"->>>>>>>>9.99").
+                     WHEN "amount"    THEN cVarValue = STRING(amount,"->>>>>>>>9.99").
                      WHEN "current"   THEN cVarValue = STRING(vCURRENT,"->>>>>>>>9.99").
                      WHEN "adtp"      THEN cVarValue = "".
                      WHEN "td"        THEN cVarValue = "".

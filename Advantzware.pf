@@ -1,0 +1,13 @@
+-h 10
+-db c:\AdvantzwareDB\asi
+-db c:\AdvantzwareDB\asihelp
+-db c:\AdvantzwareDB\addon\emptrack
+-db c:\AdvantzwareDB\addon\jobs
+-db c:\AdvantzwareDB\addon\rfq
+-db c:\AdvantzwareDB\SmartDB
+-s 128
+-D 500
+-mmax 65534
+-assemblies C:\Advantzware\v17\Assemblies
+
+-p Advantzware/Windows/SmartFramework/Menu/nosweat.p

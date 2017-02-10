@@ -175,8 +175,14 @@ PROCEDURE local-enable-fields :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  DEFINE VARIABLE ll-secure-check AS LOGICAL NO-UNDO.
   {methods/template/local/update.i}
 
+IF PROGRAM-NAME(3) MATCHES "*help/v-head.w*"  THEN DO:
+  IF NOT ll-secure-check THEN RUN sys/ref/uphlp-pass.w (3, OUTPUT ll-secure-check).
+   IF  ll-secure-check EQ No THEN  
+	return error.
+end.
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
 

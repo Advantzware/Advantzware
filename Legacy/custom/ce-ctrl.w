@@ -1250,19 +1250,20 @@ PROCEDURE reftable-values :
 
 
     IF AVAILABLE ce-ctrl THEN 
-    DO:
+    DO: 
         IF ip-display THEN
             FIND FIRST reftable NO-LOCK
-            WHERE reftable.reftable EQ "ce-ctrl.fg-rate-farm"
-            AND reftable.company  EQ ce-ctrl.company
-            AND reftable.loc      EQ ce-ctrl.loc
-            NO-ERROR.
+                WHERE reftable.reftable EQ "ce-ctrl.fg-rate-farm"
+                AND reftable.company  EQ ce-ctrl.company
+                AND reftable.loc      EQ ce-ctrl.loc
+                NO-ERROR.
         ELSE 
             FIND FIRST reftable EXCLUSIVE-LOCK
                 WHERE reftable.reftable EQ "ce-ctrl.fg-rate-farm"
                 AND reftable.company  EQ ce-ctrl.company
                 AND reftable.loc      EQ ce-ctrl.loc
                 NO-ERROR.
+
         IF NOT AVAILABLE reftable THEN 
         DO:
             CREATE reftable.
@@ -1277,19 +1278,20 @@ PROCEDURE reftable-values :
         ELSE
             reftable.val[1] = fi_fg-rate-farm.
         FIND CURRENT reftable NO-LOCK NO-ERROR .
-    
+
         IF ip-display THEN
             FIND FIRST reftable NO-LOCK
-            WHERE reftable.reftable EQ "ce-ctrl.rm-rate-farm"
-            AND reftable.company  EQ ce-ctrl.company
-            AND reftable.loc      EQ ce-ctrl.loc
-            NO-ERROR.
+                WHERE reftable.reftable EQ "ce-ctrl.rm-rate-farm"
+                AND reftable.company  EQ ce-ctrl.company
+                AND reftable.loc      EQ ce-ctrl.loc
+                NO-ERROR.
         ELSE
             FIND FIRST reftable EXCLUSIVE-LOCK
                 WHERE reftable.reftable EQ "ce-ctrl.rm-rate-farm"
                 AND reftable.company  EQ ce-ctrl.company
                 AND reftable.loc      EQ ce-ctrl.loc
                 NO-ERROR.
+
         IF NOT AVAILABLE reftable THEN 
         DO:
             CREATE reftable.
@@ -1304,7 +1306,7 @@ PROCEDURE reftable-values :
         ELSE
             reftable.val[1] = fi_rm-rate-farm.
         FIND CURRENT reftable NO-LOCK NO-ERROR .
-    
+
         IF ip-display THEN
             FIND FIRST reftable NO-LOCK
                 WHERE reftable.reftable EQ "ce-ctrl.hand-pct-farm"
@@ -1313,10 +1315,10 @@ PROCEDURE reftable-values :
                 NO-ERROR.
         ELSE
             FIND FIRST reftable EXCLUSIVE-LOCK
-            WHERE reftable.reftable EQ "ce-ctrl.hand-pct-farm"
-            AND reftable.company  EQ ce-ctrl.company
-            AND reftable.loc      EQ ce-ctrl.loc
-            NO-ERROR.
+                WHERE reftable.reftable EQ "ce-ctrl.hand-pct-farm"
+                AND reftable.company  EQ ce-ctrl.company
+                AND reftable.loc      EQ ce-ctrl.loc
+                NO-ERROR.
         IF NOT AVAILABLE reftable THEN 
         DO:
             CREATE reftable.
@@ -1331,6 +1333,7 @@ PROCEDURE reftable-values :
         ELSE
             reftable.val[1] = fi_hand-pct-farm.
         FIND CURRENT reftable NO-LOCK NO-ERROR .
+        IF ip-display THEN
         IF ip-display THEN
             FIND FIRST reftable NO-LOCK
                 WHERE reftable.reftable EQ "ce-ctrl.fold-pct"
@@ -1366,10 +1369,17 @@ PROCEDURE reftable-values :
                 NO-ERROR.
         ELSE
             FIND FIRST reftable EXCLUSIVE-LOCK
+                WHERE reftable.reftable EQ "ce-ctrl.broker-pct"
+                AND reftable.company  EQ ce-ctrl.company
+                AND reftable.loc      EQ ce-ctrl.loc
+                NO-ERROR.
+        ELSE
+            FIND FIRST reftable EXCLUSIVE-LOCK
             WHERE reftable.reftable EQ "ce-ctrl.broker-pct"
             AND reftable.company  EQ ce-ctrl.company
             AND reftable.loc      EQ ce-ctrl.loc
             NO-ERROR.
+
         IF NOT AVAILABLE reftable THEN 
         DO:
             CREATE reftable.

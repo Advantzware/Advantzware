@@ -20,14 +20,14 @@
 &Global-define FLDNAME1 notes.note_date 
 &Global-define DATATYP1 DATE
 &Global-define FORMAT-1 99/99/9999
-&Global-define SORTBY-1 BY {&FLDNAME1} DESCENDING BY notes.note_group BY notes.note_code
+&Global-define SORTBY-1 BY {&FLDNAME1} DESCENDING /*BY notes.note_group*/ BY notes.note_code
 &Global-define IDXNAME1 
 &Global-define DESCRIP1 Note Date
-&Global-define FLDNAME2 notes.note_group
+/*&Global-define FLDNAME2 notes.note_group
 &Global-define FORMAT-2 X(20)
 &Global-define SORTBY-2 BY {&FLDNAME2} {&SORTBY-1}
 &Global-define IDXNAME2 
-&Global-define DESCRIP2 Group
+&Global-define DESCRIP2 Group*/
 &Global-define FLDNAME3 notes.note_code
 &Global-define FORMAT-3 X(2)
 &Global-define SORTBY-3 BY {&FLDNAME3} {&SORTBY-1}

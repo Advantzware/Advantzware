@@ -26,7 +26,8 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
             + "OESellPriceXfer,OEPO#Xfer,SSBolEmail,OEDateAuto,QuoteNotes,OEPriceMatrixCheck,GLJournalPost,"
             + "FGRecptUnit,OeDateWarn,PREPMASTER,POFarmOutScores,OEQtyPerUnitWarn,APMatTypeExceptions," 
             + "OEJobHold,lmLock,CESAMPLE,DefaultDir,JobHoldReason,ASIHelpService,CRMAuthToken,TSAMPMWarn,SSScanVendor," 
-            + "OEBOLPrompt,SHTCALCWarn,BOLFMTTran,BOLMaster,SalesBudget,CEMarkupMatrixInterpolate,CEMarkupMatrixLookup" .
+            + "OEBOLPrompt,SHTCALCWarn,BOLFMTTran,BOLMaster,SalesBudget,CEMarkupMatrixInterpolate,CEMarkupMatrixLookup,"
+            + "KiwiT"  .
 
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
@@ -260,11 +261,16 @@ CASE ip-nk1-value:
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                            INPUT "Interpolate markup value on Markup Matrix",
                            INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                           INPUT NO /* Logical value */).
+                           INPUT NO /* Logical value */).  
     WHEN "CEMarkupMatrixLookup" THEN 
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                            INPUT "Value to use as lookup on Markup Matrix",
                            INPUT "Square Feet" /* Char Value */, INPUT 0 /* Int value */,
+                           INPUT NO /* Logical value */).
+    WHEN "KiwiT" THEN 
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+                           INPUT "N:\rcode\Kiwi",
+                           INPUT "trilakes" /* Char Value */, INPUT 0 /* Int value */,
                            INPUT NO /* Logical value */).
 END CASE.
 ELSE

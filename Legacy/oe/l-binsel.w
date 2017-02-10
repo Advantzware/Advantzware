@@ -281,7 +281,8 @@ DO:
   IF AVAIL tt-binsel THEN
   tt-select = /*LOGICAL(tt-select:SCREEN-VALUE IN BROWSE {&Browse-name})*/ YES  .
   RUN set-output.
-  APPLY "window-close" TO FRAME {&FRAME-NAME}.
+  /*APPLY "window-close" TO FRAME {&FRAME-NAME}.*/
+  APPLY "go" TO FRAME {&FRAME-NAME}.
 END.
 
 /* _UIB-CODE-BLOCK-END */

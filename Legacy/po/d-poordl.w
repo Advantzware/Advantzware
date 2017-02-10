@@ -166,6 +166,7 @@ DO TRANSACTION:
     {sys/inc/pouom.i}
     {sys/inc/aptax.i}
     {sys/inc/poscreen.i} /* Tab Order*/
+    {sys/ref/postatus.i} 
 END.
 
 RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
@@ -1169,9 +1170,19 @@ DO :
     FIND CURRENT po-ord EXCLUSIVE-LOCK NO-ERROR.
     ASSIGN
         po-ord.frt-pay = IF oe-ord.frt-pay EQ "T" THEN "B" ELSE oe-ord.frt-pay
-        po-ord.carrier = oe-rel.carrier.
+        po-ord.carrier = oe-rel.carrier .
+      IF trim(v-postatus-cha) = "Hold" THEN
+          po-ord.stat    = "H"   .
     FIND CURRENT po-ord NO-LOCK NO-ERROR.
 END.
+ELSE DO:
+    FIND CURRENT po-ord EXCLUSIVE-LOCK NO-ERROR.
+    IF trim(v-postatus-cha) = "Hold" THEN
+        ASSIGN
+        po-ord.stat    = "H"   .
+    FIND CURRENT po-ord NO-LOCK NO-ERROR.
+END.
+
 
 FOR EACH tt-job-mat:
     IF tt-job-mat.frm NE ? THEN 

@@ -918,7 +918,7 @@ DO:
   DEF VAR lv-handle AS HANDLE NO-UNDO.
   DEF VAR char-val AS cha NO-UNDO.
   DEF VAR rec-val AS RECID NO-UNDO.
-  
+  DEFINE VARIABLE cCustNo AS CHARACTER NO-UNDO .
   DEF VAR lv-po-no AS CHAR NO-UNDO.
 
   ASSIGN
@@ -998,6 +998,28 @@ DO:
     WHEN "end_i-no" THEN DO:
       RUN windows/l-itemf3.w (g_company,end_ord-no,end_job,end_job2,end_i-no, OUTPUT char-val, OUTPUT rec-val).
       IF char-val <> "" THEN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+    END.
+    WHEN "begin_ship-to" THEN DO:
+      FIND FIRST oe-ord NO-LOCK
+          WHERE oe-ord.company EQ cocode
+            AND oe-ord.ord-no  EQ INT(begin_ord-no:SCREEN-VALUE)
+          NO-ERROR.
+        IF AVAIL oe-ord THEN
+          cCustNo = oe-ord.cust-no.
+
+      RUN windows/l-shipto.w (g_company,g_loc,cCustNo,begin_ship-to:SCREEN-VALUE,OUTPUT char-val).
+      IF char-val <> "" THEN begin_ship-to:SCREEN-VALUE = ENTRY(1,char-val).
+    END.
+    WHEN "end_ship-to" THEN DO:
+       FIND FIRST oe-ord NO-LOCK
+          WHERE oe-ord.company EQ cocode
+            AND oe-ord.ord-no  EQ INT(end_ord-no:SCREEN-VALUE)
+          NO-ERROR.
+        IF AVAIL oe-ord THEN
+          cCustNo = oe-ord.cust-no.
+
+      RUN windows/l-shipto.w (g_company,g_loc,cCustNo,end_ship-to:SCREEN-VALUE,OUTPUT char-val).
+      IF char-val <> "" THEN end_ship-to:SCREEN-VALUE = ENTRY(1,char-val).
     END.
     OTHERWISE do:
       lv-handle = FOCUS:HANDLE.
@@ -6889,6 +6911,7 @@ PROCEDURE reprint-tag :
  
   FIND FIRST loadtag WHERE loadtag.company     EQ cocode
                  AND loadtag.item-type   EQ NO
+                 AND loadtag.is-case-tag EQ NO
                  AND loadtag.tag-no  eq TRIM(fi_cas-lab:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-LOCK NO-ERROR.
   IF NOT AVAIL loadtag THEN DO:
       MESSAGE "Invalid Loadtag. Try Help." VIEW-AS ALERT-BOX ERROR.

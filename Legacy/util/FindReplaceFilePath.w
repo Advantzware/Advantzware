@@ -27,6 +27,8 @@ CREATE WIDGET-POOL.
 DEFINE STREAM log-out.
 DEFINE STREAM attach-bak.
 DEFINE STREAM boxdes-bak.
+DEFINE STREAM pattern-bak.
+DEFINE STREAM fgitem-bak.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -43,10 +45,10 @@ DEFINE STREAM boxdes-bak.
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-17 fi_find fi_replace tb_box ~
-tb_drive-only btn-process btn-cancel 
+&Scoped-Define ENABLED-OBJECTS RECT-17 fi_find fi_replace tb_box tb_pattern ~
+tb_fgitem tb_drive-only btn-process btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS EDITOR-1 fi_find fi_replace tb_box ~
-tb_drive-only 
+tb_pattern tb_fgitem tb_drive-only 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -86,7 +88,7 @@ DEFINE VARIABLE fi_replace AS CHARACTER FORMAT "X(6)":U
 
 DEFINE RECTANGLE RECT-17
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 89 BY 7.62.
+     SIZE 89 BY 9.29.
 
 DEFINE VARIABLE tb_box AS LOGICAL INITIAL no 
      LABEL "Include Box Images" 
@@ -98,6 +100,16 @@ DEFINE VARIABLE tb_drive-only AS LOGICAL INITIAL yes
      VIEW-AS TOGGLE-BOX
      SIZE 33.4 BY .81 NO-UNDO.
 
+DEFINE VARIABLE tb_fgitem AS LOGICAL INITIAL no 
+     LABEL "Include FGItem Images" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 29 BY .81 NO-UNDO.
+
+DEFINE VARIABLE tb_pattern AS LOGICAL INITIAL no 
+     LABEL "Include Pattern Images" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 29 BY .81 NO-UNDO.
+
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -108,9 +120,11 @@ DEFINE FRAME FRAME-A
      fi_replace AT ROW 8.91 COL 20 COLON-ALIGNED HELP
           "Enter string to replace what is in the Find box"
      tb_box AT ROW 10.05 COL 23 WIDGET-ID 2
-     tb_drive-only AT ROW 11 COL 23 WIDGET-ID 8
-     btn-process AT ROW 12.67 COL 22
-     btn-cancel AT ROW 12.67 COL 52
+     tb_pattern AT ROW 11.05 COL 23 WIDGET-ID 10
+     tb_fgitem AT ROW 12 COL 23 WIDGET-ID 12
+     tb_drive-only AT ROW 12.95 COL 23 WIDGET-ID 8
+     btn-process AT ROW 14.67 COL 22
+     btn-cancel AT ROW 14.67 COL 52
      "" VIEW-AS TEXT
           SIZE 2.2 BY .95 AT ROW 1.95 COL 88
           BGCOLOR 11 
@@ -118,7 +132,7 @@ DEFINE FRAME FRAME-A
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 90.2 BY 13.29.
+         SIZE 90.2 BY 15.52.
 
 DEFINE FRAME FRAME-B
      "This process may take hours.  Please let the process complete!" VIEW-AS TEXT
@@ -151,7 +165,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Find and Replace Drive and File Path in Attachments"
-         HEIGHT             = 13.52
+         HEIGHT             = 15.52
          WIDTH              = 90.2
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
@@ -341,9 +355,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY EDITOR-1 fi_find fi_replace tb_box tb_drive-only 
+  DISPLAY EDITOR-1 fi_find fi_replace tb_box tb_pattern tb_fgitem tb_drive-only 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-17 fi_find fi_replace tb_box tb_drive-only btn-process btn-cancel 
+  ENABLE RECT-17 fi_find fi_replace tb_box tb_pattern tb_fgitem tb_drive-only 
+         btn-process btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW FRAME FRAME-B IN WINDOW C-Win.
@@ -361,15 +376,21 @@ DEFINE VARIABLE cNewFilePath AS CHARACTER NO-UNDO.
 
 DEFINE BUFFER bf-attach FOR ATTACH.
 DEFINE BUFFER bf-box-design-hdr FOR box-design-hdr.
+DEFINE BUFFER bf-strap for reftable.
+DEFINE BUFFER bf-pattern for reftable.
 
 DISABLE TRIGGERS FOR LOAD OF ATTACH.     
-DISABLE TRIGGERS FOR LOAD OF box-design-hdr.     
+DISABLE TRIGGERS FOR LOAD OF box-design-hdr.    
+DISABLE TRIGGERS FOR LOAD OF reftable.
+DISABLE TRIGGERS FOR LOAD OF itemfg.
 
 SESSION:SET-WAIT-STATE("General").
 
 OUTPUT STREAM log-out TO VALUE("C:\tmp\log-find-replace-attach.txt").
 OUTPUT STREAM attach-bak TO VALUE("C:\tmp\attach" + STRING(YEAR(TODAY)) + STRING(MONTH(TODAY)) + STRING(DAY(TODAY)) + ".d") APPEND.
 OUTPUT STREAM boxdes-bak TO VALUE("C:\tmp\box-design-hdr" + STRING(YEAR(TODAY)) + STRING(MONTH(TODAY)) + STRING(DAY(TODAY)) + ".d") APPEND.
+OUTPUT STREAM pattern-bak TO VALUE("C:\tmp\pattern" + STRING(YEAR(TODAY)) + STRING(MONTH(TODAY)) + STRING(DAY(TODAY)) + ".d") APPEND.
+OUTPUT STREAM fgitem-bak TO VALUE("C:\tmp\fgitem" + STRING(YEAR(TODAY)) + STRING(MONTH(TODAY)) + STRING(DAY(TODAY)) + ".d") APPEND.
 
 IF tb_drive-only THEN DO:
     IF LENGTH(fi_find) NE 1 THEN DO:
@@ -433,9 +454,72 @@ IF tb_box THEN DO:  /*Include Box Images*/
     END. /*each box-design-hdr*/
 END. /* if tb_box - "Include Box Images checked*/
 
+IF tb_pattern THEN DO:
+ FOR EACH reftable NO-LOCK
+    WHERE reftable.reftable = "STACK"
+      AND ASI.reftable.company = "" 
+      AND reftable.loc = "" , 
+    FIRST bf-strap  WHERE bf-strap.reftable = "STACKSTRAP"
+      AND bf-strap.company = ""
+      AND bf-strap.loc = ""
+      AND bf-strap.code = reftable.code NO-LOCK, 
+    FIRST bf-pattern WHERE bf-pattern.reftable = "STACKPAT"
+                               AND bf-pattern.company = "" 
+                               AND bf-pattern.loc = ""    
+                               AND bf-pattern.dscr <> "" 
+                               AND bf-pattern.code = reftable.code EXCLUSIVE-LOCK :
+
+    {custom/statusMsg.i "'Processing Pattern # ' + string(bf-strap.code)"}
+
+    EXPORT STREAM pattern-bak bf-pattern .
+    
+    cFilePath = bf-pattern.dscr .
+        IF cFilePath <> "" THEN DO: 
+            IF tb_drive-only THEN 
+                IF SUBSTRING(cFilePath,1,1) EQ fi_find THEN
+                    cNewFilePath = fi_replace + SUBSTRING(cFilePath,2,LENGTH(cFilePath)).
+                ELSE cNewFilePath = cFilePath.
+            ELSE
+                cNewFilePath = REPLACE(cFilePath, fi_find, fi_replace).
+            IF cFilePath NE cNewFilePath THEN DO:
+                PUT STREAM log-out "Pattern DESIGN: " cFilePath FORMAT "x(100)" " to " cNewFilePath FORMAT "x(100)" SKIP.        
+                bf-pattern.dscr = cNewFilePath.
+            END.
+        END.
+ END. /* for each reftable*/
+END. /* tb_pattern*/
+
+IF tb_fgitem THEN DO:
+ FOR EACH itemfg EXCLUSIVE-LOCK
+    WHERE  itemfg.box-image <> "" :
+     
+    {custom/statusMsg.i "'Processing FG Item # ' + string(itemfg.i-no)"}
+
+    EXPORT STREAM fgitem-bak itemfg .
+    cFilePath = itemfg.box-image  .
+    IF cFilePath <> "" THEN DO: 
+        IF tb_drive-only THEN 
+            IF SUBSTRING(cFilePath,1,1) EQ fi_find THEN
+                cNewFilePath = fi_replace + SUBSTRING(cFilePath,2,LENGTH(cFilePath)).
+            ELSE cNewFilePath = cFilePath.
+        ELSE
+            cNewFilePath = REPLACE(cFilePath, fi_find, fi_replace).
+
+            IF cFilePath NE cNewFilePath THEN DO:
+                PUT STREAM log-out "FG Item Image: " cFilePath FORMAT "x(100)" " to " cNewFilePath FORMAT "x(100)" SKIP.        
+                itemfg.box-image = cNewFilePath.
+            END.
+    END.
+ END. /* for each itemfg*/
+END. /* tb_pattern*/
+
+ 
+
 OUTPUT STREAM log-out CLOSE.
 OUTPUT STREAM attach-bak CLOSE.
 OUTPUT STREAM boxdes-bak CLOSE.
+OUTPUT STREAM pattern-bak CLOSE.
+OUTPUT STREAM fgitem-bak CLOSE.
 
 STATUS DEFAULT "".
     

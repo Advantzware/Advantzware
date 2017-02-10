@@ -59,12 +59,13 @@ DEFINE TEMP-TABLE resources NO-UNDO
 DEFINE TEMP-TABLE ttblView NO-UNDO
   FIELD boardDate  AS DATE      FORMAT "99.99.9999" COLUMN-LABEL "Resource!Date"
   FIELD dayOfWeek  AS CHARACTER FORMAT "x(5)"       COLUMN-LABEL "Day"
-  FIELD colUsed    AS CHARACTER FORMAT "x(14)" EXTENT 200
-  FIELD colAvail   AS CHARACTER FORMAT "x(14)" EXTENT 200
-  FIELD timeUsed   AS CHARACTER FORMAT "x(14)" EXTENT 200
-  FIELD timeAvail  AS CHARACTER FORMAT "x(14)" EXTENT 200
-  FIELD kicksUsed  AS CHARACTER FORMAT "x(14)" EXTENT 200
-  FIELD kicksAvail AS CHARACTER FORMAT "x(14)" EXTENT 200
+  FIELD colJobs    AS INTEGER   FORMAT ">>,>>9 " EXTENT 200
+  FIELD colUsed    AS CHARACTER FORMAT "x(14)"   EXTENT 200
+  FIELD colAvail   AS CHARACTER FORMAT "x(14)"   EXTENT 200
+  FIELD timeUsed   AS CHARACTER FORMAT "x(14)"   EXTENT 200
+  FIELD timeAvail  AS CHARACTER FORMAT "x(14)"   EXTENT 200
+  FIELD kicksUsed  AS CHARACTER FORMAT "x(14)"   EXTENT 200
+  FIELD kicksAvail AS CHARACTER FORMAT "x(14)"   EXTENT 200
     INDEX ttblView IS PRIMARY UNIQUE boardDate
     .
 
@@ -494,72 +495,109 @@ ON ROW-DISPLAY OF viewBrowse IN FRAME fMain
 DO:
   DO idx = 2 TO col#:
     IF NOT VALID-HANDLE(cells[idx]) THEN NEXT.
-    jdx = INTEGER(idx / 2 - 1).
+    jdx = INTEGER(idx / 3 - 1).
     IF idx EQ 2 THEN cells[idx]:BGCOLOR = 14. /* yellow */
     ELSE
-    IF idx MOD 2 EQ 0 THEN
+    IF idx MOD 3 EQ 0 THEN
+    ASSIGN /* light gray/light gray */
+      cells[idx]:FGCOLOR = 8
+      cells[idx]:BGCOLOR = 8
+      cells[idx]:FONT    = 2
+      .
+    ELSE
+    IF idx MOD 3 EQ 2 THEN
     ASSIGN /* black/light green/bold */
       cells[idx]:FGCOLOR = 0
       cells[idx]:BGCOLOR = 10
       cells[idx]:FONT    = 6
       .
     ELSE
-    ASSIGN /* while/dark blue or gray */
+    ASSIGN /* white/dark blue or gray */
       cells[idx]:FGCOLOR = 15
-      cells[idx]:BGCOLOR = IF LENGTH(ttblView.timeUsed[jdx]) GE 8 THEN 1 ELSE 7
+      cells[idx]:BGCOLOR = IF LENGTH(ttblView.timeUsed[jdx + 1]) GE 8 THEN 1 ELSE 7
       cells[idx]:FONT    = 2
       .
-    IF idx GT 2 AND idx MOD 2 EQ 0 THEN DO:
-      IF viewType EQ "Time" THEN DO:
-        IF ttblView.colAvail[jdx] EQ "Pending" THEN
-        ASSIGN /* white/maroon */
-          cells[idx]:FGCOLOR = 15
-          cells[idx]:BGCOLOR = 4
-          cells[idx]:FONT    = 2
+    IF idx GT 2 THEN DO:
+      IF idx MOD 3 EQ 0 THEN DO:
+        IF ttblView.colJobs[jdx + 1] GT 0 THEN
+        ASSIGN /* black/light gray/bold */
+          cells[idx]:FGCOLOR = 0
+          cells[idx]:BGCOLOR = 8
+          cells[idx]:FONT    = 6
           .
-        ELSE
-        IF ttblView.colAvail[jdx] EQ "00:00" THEN
-        ASSIGN /* white/black */
-          cells[idx]:FGCOLOR = 15
-          cells[idx]:BGCOLOR = 0
-          cells[idx]:FONT    = 2
-          .
-        ELSE
-        IF ttblView.colAvail[jdx] EQ "24:00" THEN
-        ASSIGN /* white/dark green */
-          cells[idx]:FGCOLOR = 15
-          cells[idx]:BGCOLOR = 2
-          cells[idx]:FONT    = 2
-          .
-      END. /* if time */
-      ELSE DO: /* kicks */
-        IF INDEX(ttblView.colAvail[jdx],"/Hr") NE 0 THEN
-        ASSIGN /* white/maroon */
-          cells[idx]:FGCOLOR = 15
-          cells[idx]:BGCOLOR = 4
-          cells[idx]:FONT    = 2
-          .
-        ELSE
-        IF INTEGER(ttblView.colAvail[jdx]) EQ 0 THEN
-        ASSIGN /* white/black */
-          cells[idx]:FGCOLOR = 15
-          cells[idx]:BGCOLOR = 0
-          cells[idx]:FONT    = 2
-          .
+      END.
+      ELSE
+      IF idx MOD 3 EQ 1 THEN DO:
+        IF viewType EQ "Time" THEN DO:
+          IF ttblView.colUsed[jdx + 1] EQ "00:00" THEN
+          ASSIGN /* gray/gray */
+            cells[idx]:FGCOLOR = 7
+            cells[idx]:BGCOLOR = 7
+            cells[idx]:FONT    = 2
+            .
+        END.
         ELSE DO:
-          FIND FIRST resources
-               WHERE resources.order EQ jdx
-               NO-ERROR.
-          IF AVAILABLE resources AND
-             INTEGER(ttblView.colAvail[jdx]) EQ resources.kicks * 24 THEN
+          IF INTEGER(ttblView.colUsed[jdx + 1]) EQ 0 THEN
+          ASSIGN /* gray/gray */
+            cells[idx]:FGCOLOR = 7
+            cells[idx]:BGCOLOR = 7
+            cells[idx]:FONT    = 2
+            .
+        END.
+      END.
+      ELSE
+      IF idx MOD 3 EQ 2 THEN DO:
+        IF viewType EQ "Time" THEN DO:
+          IF ttblView.colAvail[jdx] EQ "Pending" THEN
+          ASSIGN /* white/maroon */
+            cells[idx]:FGCOLOR = 15
+            cells[idx]:BGCOLOR = 4
+            cells[idx]:FONT    = 2
+            .
+          ELSE
+          IF ttblView.colAvail[jdx] EQ "00:00" THEN
+          ASSIGN /* white/black */
+            cells[idx]:FGCOLOR = 15
+            cells[idx]:BGCOLOR = 0
+            cells[idx]:FONT    = 2
+            .
+          ELSE
+          IF ttblView.colAvail[jdx] EQ "24:00" THEN
           ASSIGN /* white/dark green */
             cells[idx]:FGCOLOR = 15
             cells[idx]:BGCOLOR = 2
             cells[idx]:FONT    = 2
             .
-        END.
-      END. /* else kicks */
-    END. /* if i gt 2 */
+        END. /* if time */
+        ELSE DO: /* kicks */
+          IF INDEX(ttblView.colAvail[jdx],"/Hr") NE 0 THEN
+          ASSIGN /* white/maroon */
+            cells[idx]:FGCOLOR = 15
+            cells[idx]:BGCOLOR = 4
+            cells[idx]:FONT    = 2
+            .
+          ELSE
+          IF INTEGER(ttblView.colAvail[jdx]) EQ 0 THEN
+          ASSIGN /* white/black */
+            cells[idx]:FGCOLOR = 15
+            cells[idx]:BGCOLOR = 0
+            cells[idx]:FONT    = 2
+            .
+          ELSE DO:
+            FIND FIRST resources
+                 WHERE resources.order EQ jdx
+                 NO-ERROR.
+            IF AVAILABLE resources AND
+               INTEGER(ttblView.colAvail[jdx]) EQ resources.kicks * 24 THEN
+            ASSIGN /* white/dark green */
+              cells[idx]:FGCOLOR = 15
+              cells[idx]:BGCOLOR = 2
+              cells[idx]:FONT    = 2
+              .
+          END.
+        END. /* else kicks */
+      END. /* if idx mod 3 eq 2 */
+    END. /* idx gt 2 */
   END. /* do i */
 END.
 
@@ -625,6 +663,12 @@ PROCEDURE buildCells :
   FOR EACH resources NO-LOCK WITH FRAME {&FRAME-NAME}:
     ASSIGN
       idx                   = idx + 1
+      pHandle               = {&BROWSE-NAME}:ADD-LIKE-COLUMN('ttblView.colJobs[' + STRING(idx) + ']')
+      pHandle:LABEL         = 'No of !Jobs '
+      pHandle:WIDTH-CHARS   = 7
+      pHandle:LABEL-FONT    = ?
+      pHandle:LABEL-BGCOLOR = 1
+      pHandle:LABEL-FGCOLOR = 15
       pHandle               = {&BROWSE-NAME}:ADD-LIKE-COLUMN('ttblView.colUsed[' + STRING(idx) + ']')
       pHandle:LABEL         = resources.resource + '!Booked'
       pHandle:WIDTH-CHARS   = 14
@@ -725,6 +769,7 @@ PROCEDURE loadView :
   DEFINE VARIABLE iEndTime       AS INTEGER   NO-UNDO.
   DEFINE VARIABLE dStartDateTime AS DECIMAL   NO-UNDO.
   DEFINE VARIABLE dEndDateTime   AS DECIMAL   NO-UNDO.
+  DEFINE VARIABLE iJobs          AS INTEGER   NO-UNDO.
   DEFINE VARIABLE iPending       AS INTEGER   NO-UNDO.
   DEFINE VARIABLE idx            AS INTEGER   NO-UNDO.
   DEFINE VARIABLE jdx            AS INTEGER   NO-UNDO.
@@ -749,7 +794,7 @@ PROCEDURE loadView :
       :
     CREATE resources.
     ASSIGN
-      idx = idx + 1
+      idx                = idx + 1
       resources.order    = idx
       resources.resource = ttblResource.resource
       resources.kicks    = ttblResource.kicks
@@ -759,15 +804,18 @@ PROCEDURE loadView :
         WHERE pendingJob.resource EQ ttblResource.resource
         :
       ASSIGN
-        iPending = iPending + pendingJob.timeSpan
+        iJobs      = iJobs      + 1
+        iPending   = iPending   + pendingJob.timeSpan
         iUsedKicks = iUsedKicks + INTEGER(pendingJob.userField88)
         .
     END. /* each pendingjob */
     ASSIGN
+      ttblViewBuff.colJobs[idx]    = iJobs
       ttblViewBuff.timeUsed[idx]   = specialTime(iPending)
       ttblViewBuff.timeUsed[idx]   = SUBSTR(ttblViewBuff.timeUsed[idx],1,R-INDEX(ttblViewBuff.timeUsed[idx],":") - 1)
       ttblViewBuff.kicksUsed[idx]  = STRING(INTEGER(iUsedKicks),">>,>>>,>>9")
       ttblViewBuff.kicksAvail[idx] = STRING(ttblResource.kicks,">>>,>>9") + "/Hr"
+      iJobs                        = 0
       iUsedKicks                   = 0
       .
     DO dDate = boardDateStart TO boardDateEnd:
@@ -824,6 +872,7 @@ PROCEDURE loadView :
                        ELSE INTEGER(ttblJob.startTime / 60)
           iEndTime   = IF ttblJob.endDateTime   GT dEndDateTime   THEN 1440
                        ELSE INTEGER(ttblJob.endTime   / 60)
+          iJobs      = iJobs + 1
           .
         IF iStartTime EQ 0 THEN iStartTime = 1.
         DO jdx = iStartTime TO iEndTime:
@@ -843,10 +892,12 @@ PROCEDURE loadView :
       ASSIGN
         iUsedTime                = iUsedTime * 60
         iAvailTime               = 86400 - iUsedTime
+        ttblView.colJobs[idx]    = iJobs
         ttblView.timeUsed[idx]   = STRING(iUsedTime,"HH:MM")
         ttblView.timeAvail[idx]  = STRING(iAvailTime,"HH:MM")
         ttblView.kicksUsed[idx]  = STRING(INTEGER(iUsedKicks),">>,>>>,>>9")
         ttblView.kicksAvail[idx] = STRING(INTEGER(iAvailKicks),">>,>>>,>>9")
+        iJobs                    = 0
         iUsedKicks               = 0
         iAvailKicks              = 0
         .

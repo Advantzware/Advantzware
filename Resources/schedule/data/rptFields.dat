@@ -133,6 +133,7 @@
 "ASI" "UnderRun%" "userField86" "XXXXXXX" no "or-ordl"
 "ASI" "OverRun%" "userField87" "XXXXXXX" no "or-ordl"
 "ASI" "Speed" "userField88" "XXXXXX" no "job-mch"
+"ASI" "Created" "userField89" "XXXXXXXXXX" no "job"
 "Demo/Jobs" "User Field" "userField01" "XXXXXXXX" yes ""
 "Demo/Service" "User Field" "userField01" "XXXXXXXX" yes ""
 "MXP/SO" "Item" "userField01" "XXXXXXXXXXXXXXXXXXXXXXXX" no ""

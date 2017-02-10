@@ -260,6 +260,20 @@ END.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE add-line C-WIn 
+PROCEDURE add-line :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ APPLY "choose" TO btn-add IN FRAME {&FRAME-NAME}.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &SCOPED-DEFINE SELF-NAME Btn-copy
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-copy V-table-Win
 ON CHOOSE OF Btn-copy IN FRAME F-Main /* Copy */
@@ -356,12 +370,12 @@ DO:
        BUFFER-COPY oe-rell TO tt-oe-rell.
       
        RUN oe/d-oerell.w (RECID(oe-rell),RECID(oe-relh), "update", OUTPUT lv-rowid) . 
-      
+       
        BUFFER-COMPARE tt-oe-rell TO oe-rell SAVE RESULT IN ll.
        
        RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
        RUN reopen-query IN WIDGET-HANDLE(char-hdl) .
-       RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(oe-rell)).
+       RUN repo-query IN WIDGET-HANDLE(char-hdl) (lv-rowid).
       
        /*RUN reopen-po-ord-query.*/
       END.
@@ -443,7 +457,7 @@ PROCEDURE browser-dbclicked :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- /*  APPLY "choose" TO btn-view IN FRAME {&FRAME-NAME}.*/
+   APPLY "choose" TO Btn-Save IN FRAME {&FRAME-NAME}.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

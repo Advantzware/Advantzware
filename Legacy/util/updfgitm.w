@@ -322,7 +322,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_i-no C-Win
 ON LEAVE OF end_i-no IN FRAME FRAME-A /* New FG Item# */
 DO:
-  {&self-name}:screen-value = caps({&self-name}:screen-value).
+  /*{&self-name}:screen-value = caps({&self-name}:screen-value).*/
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -429,7 +429,7 @@ def var v-char      as   char.
   
 assign
  v-item     = begin_i-no
- v-new-item = caps(end_i-no)
+ v-new-item = end_i-no
  v-process  = no.
    
 if v-item eq "/" then
@@ -461,7 +461,7 @@ end.
           
 else
   message "Are you sure you want change FG Item#" trim(caps(v-item))
-          "to" trim(caps(v-new-item)) + "?"       
+          "to" trim((v-new-item)) + "?"       
       view-as alert-box question button yes-no update v-process.
           
 if v-process then do:

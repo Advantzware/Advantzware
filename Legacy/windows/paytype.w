@@ -402,7 +402,7 @@ PROCEDURE adm-create-objects :
        /* Links to SmartViewer h_rm-adj. */
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_rm-adj ).
        RUN add-link IN adm-broker-hdl ( h_rm-trans , 'Record':U , h_rm-adj ).
-
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'add-item':U , h_paymenttype-2 ).
        /* Links to SmartNavBrowser h_rm-rdtl3. */
        RUN add-link IN adm-broker-hdl ( h_p-navico-2 , 'Navigation':U , h_rm-rdtl3 ).
        RUN add-link IN adm-broker-hdl ( h_rm-adj , 'Record':U , h_rm-rdtl3 ).

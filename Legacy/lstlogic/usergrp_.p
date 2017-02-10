@@ -27,7 +27,7 @@ PROCEDURE List-Logic:
   END CASE.
   GET FIRST usergrps-query.
   DO WHILE AVAILABLE(usergrps)
-      WITH FRAME {&FRAME-NAME} NO-BOX WIDTH 132 STREAM-IO DOWN:
+      WITH FRAME {&FRAME-NAME} NO-BOX WIDTH 320 STREAM-IO DOWN:
     {methods/lstlogic/custom/usergrp_.i}
     DOWN.
     GET NEXT usergrps-query.

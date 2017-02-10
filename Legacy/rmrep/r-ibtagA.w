@@ -396,6 +396,13 @@ ASSIGN
 ASSIGN 
        end_whs:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+ASSIGN 
+       end_mat-type:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       end_date:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
        fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -1198,8 +1205,8 @@ assign
 
 IF tb_excel THEN DO:
 
-    excelheader = "Whse,Item,Description,Bin,Tag,Rct Date," +
-                  "Quantity,Unit Cost,Total Cost Value,Item Name".
+    excelheader = "Whse,Item,Item Name,Bin,Tag,Rct Date," +
+                  "Quantity,Unit Cost,Total Cost Value".
 
     OUTPUT STREAM excel TO VALUE(fi_file).
     PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' skip.
@@ -1316,24 +1323,20 @@ SESSION:SET-WAIT-STATE ("general").
             tt-rm-bin.i-no         when first-of(tt-rm-bin.i-no)
                                      or v-prnt-line eq 0
                                    label "Item"
-            ITEM.i-dscr            WHEN FIRST-OF(tt-rm-bin.i-no)
+            ITEM.i-name            WHEN FIRST-OF(tt-rm-bin.i-no)
                                      or v-prnt-line eq 0
                                    format "x(30)"
-                                   label "Description"
-            tt-rm-bin.loc-bin      label "Bin"
-            tt-rm-bin.tag          label "Tag" FORM "x(22)"
-            tt-rm-bin.trans-date   format "99/99/99"
-                                   label "Rct Date"
+                                   LABEL "Item Name"
+            /*ITEM.i-dscr            WHEN FIRST-OF(tt-rm-bin.i-no)
+                                     OR v-prnt-line EQ 0
+                                   FORMAT "x(30)"
+                                   LABEL "Description"*/
             tt-rm-bin.qty          format "->>>>>9.999"
                                    label "Quantity"
             v-cost                 format ">>>,>>9.99<<<<"
                                    label "Unit Cost"
             tt-rm-bin.qty * v-cost format "->>>,>>9.99"
-                                   COLUMN-LABEL "Total!Cost Value"
-            ITEM.i-name            WHEN FIRST-OF(tt-rm-bin.i-no)
-                                     OR v-prnt-line EQ 0
-                                   FORMAT "x(30)"
-                                   LABEL "Item Name"  SKIP 
+                                   COLUMN-LABEL "Total!Cost Value" SKIP 
 
          WITH FRAME itemx NO-BOX NO-ATTR-SPACE DOWN STREAM-IO WIDTH 164.
 
@@ -1345,9 +1348,9 @@ SESSION:SET-WAIT-STATE ("general").
           chrTotCostVal = STRING(tt-rm-bin.qty * v-cost, "->>>>>9.99").
         
         EXPORT STREAM excel DELIMITER ","
-          tt-rm-bin.loc tt-rm-bin.i-no ITEM.i-dscr tt-rm-bin.loc-bin
+          tt-rm-bin.loc tt-rm-bin.i-no ITEM.i-name tt-rm-bin.loc-bin
           chrRmBinTag tt-rm-bin.trans-date tt-rm-bin.qty v-cost 
-          chrTotCostVal ITEM.i-name.
+          chrTotCostVal.
     
     END.
 

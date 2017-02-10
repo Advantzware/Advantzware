@@ -901,7 +901,7 @@ for each job-hdr NO-LOCK
              v-po-duedate = IF AVAIL po-ordl THEN po-ordl.due-date ELSE ?.
 
              PUT "<P10>" v-fill SKIP                       /*REQ'D*/                 
-                 "<B>BOARD CODE            DUE DATE   SHEETS SHEET SIZE       CALIPER DIE SIZE      BOARD PO# VENDOR#  DIE#     PLATE#   CAD#</B>"
+                 "<B>BOARD CODE            DUE DATE   SHEETS SHEET SIZE       CALIPER DIE SIZE      BOARD PO# VENDOR#  DIE#     PRE-PRESS CAD#</B>"
                  SKIP.
             /** PRINT SHEET **/
              x = 2.
@@ -924,7 +924,7 @@ for each job-hdr NO-LOCK
                     v-board-po  
                     v-vend  
                     eb.die-no FORM "x(8)"
-                    eb.plate-no FORM "x(8)"
+                    eb.plate-no FORM "x(8)" SPACE(2)
                     eb.cad-no FORM "x(6)"
                     /*"Caliper:" AT 68 wrk-sheet.cal space(5) "Board:"
                     wrk-sheet.brd-dscr "Form:" AT 123 wrk-sheet.form-no*/
@@ -1092,7 +1092,7 @@ for each job-hdr NO-LOCK
                        v-ink1[j] FORM "x(43)" 
                        "  UNIT"  v-num-of-inks FORM ">9: "
                        v-ink2[j] FORM "x(43)" .
-                  IF j = 1 THEN PUT    "<C90>PLATE#:"   SKIP.
+                  IF j = 1 THEN PUT    "<C90>PRE-PRESS:"   SKIP.
                   ELSE IF j = 2 THEN PUT "<C90>" eb.plate-no SKIP.
                   ELSE PUT  SKIP.
                 /*  PUT v-fill AT 1 "<R-1>" SKIP.*/

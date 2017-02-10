@@ -163,38 +163,38 @@ DEFINE QUERY Dialog-Frame FOR
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     oe-rell.ord-no AT ROW 1.24 COLUMN 29.8 COLON-ALIGNED FORMAT ">>>>>9"
+     oe-rell.ord-no AT ROW 1.24 COLUMN 29.8 COLON-ALIGNED FORMAT ">>>>>>"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
      oe-rell.i-no AT ROW 2.43 COLUMN 29.8 COLON-ALIGNED HELP
           ""
-          LABEL "FG Item#"
+          LABEL "FG Item#" FORMAT "x(15)"
           VIEW-AS FILL-IN 
           SIZE 33.6 BY 1
-     oe-rell.po-no AT ROW 3.62 COLUMN 29.8 COLON-ALIGNED
+     oe-rell.po-no AT ROW 3.62 COLUMN 29.8 COLON-ALIGNED FORMAT "x(15)"
           VIEW-AS FILL-IN 
           SIZE 33.6 BY 1
      oe-rell.tag AT ROW 4.76 COLUMN 29.8 COLON-ALIGNED
-          LABEL "Tag" FORMAT "x(8)"
+          LABEL "Tag" FORMAT "x(20)"
           VIEW-AS FILL-IN 
           SIZE 33.6 BY 1
      oe-rell.loc AT ROW 5.91 COLUMN 29.8 COLON-ALIGNED
-          LABEL "Whse"
+          LABEL "Whse" FORMAT "x(5)"
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
      oe-rell.loc-bin AT ROW 7.19 COLUMN 29.8 COLON-ALIGNED
-          LABEL "Bin Loc."
+          LABEL "Bin Loc."  FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
      oe-rell.job-no AT ROW 8.48 COLUMN 29.8 COLON-ALIGNED
-          LABEL "Job Number"
+          LABEL "Job Number" FORMAT "x(6)"
           VIEW-AS FILL-IN 
           SIZE 18.6 BY 1
-     oe-rell.job-no2 AT ROW 8.48 COLUMN 48.2 COLON-ALIGNED NO-LABELS
-          VIEW-AS FILL-IN 
+     oe-rell.job-no2 AT ROW 8.48 COLUMN 48.2 COLON-ALIGNED NO-LABELS FORMAT "99"
+          VIEW-AS FILL-IN  
           SIZE 4.4 BY 1
      oe-rell.cust-no AT ROW 9.62 COLUMN 29.8 COLON-ALIGNED
-          LABEL "Customer"
+          LABEL "Customer" FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 23.6 BY 1
      oe-rell.qty AT ROW 2.43 COLUMN 85.4 COLON-ALIGNED
@@ -202,15 +202,15 @@ DEFINE FRAME Dialog-Frame
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
      oe-rell.cases AT ROW 3.62 COLUMN 85.4 COLON-ALIGNED
-          LABEL "Units"
+          LABEL "Units" FORMAT "->>>,>>>"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
      oe-rell.qty-case AT ROW 4.76 COLUMN 85.4 COLON-ALIGNED
-          LABEL "Qty/Unit"
+          LABEL "Qty/Unit" FORMAT ">>>,>>>"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
      oe-rell.partial AT ROW 5.91 COLUMN 85.4 COLON-ALIGNED
-          LABEL "Partial"
+          LABEL "Partial" FORMAT "->>,>>>,>>>"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
      oe-rell.rel-no AT ROW 7.19 COLUMN 85.4 COLON-ALIGNED
@@ -385,7 +385,7 @@ DO:
             END.  
        END.
        WHEN "loc-bin" THEN DO:
-            RUN windows/l-locbin.w (g_company,oe-rell.loc:SCREEN-VALUE, lw-focus:SCREEN-VALUE, OUTPUT char-val).
+            RUN windows/l-fgbin.w (g_company,oe-rell.loc:SCREEN-VALUE, lw-focus:SCREEN-VALUE, OUTPUT char-val).
             IF char-val NE "" THEN DO :
                ASSIGN lw-focus:SCREEN-VALUE  = ENTRY(1,char-val).
                       /*rm-rctd.qty:screen-value = entry(3,char-val)
@@ -492,6 +492,12 @@ DO:
   RUN valid-job-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
+  RUN valid-loc NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+  RUN valid-loc-bin NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
   RUN valid-cust-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -500,7 +506,7 @@ DO:
 
   DO TRANSACTION:
       FIND CURRENT oe-rell EXCLUSIVE-LOCK NO-ERROR.
-
+   
       DO WITH FRAME {&FRAME-NAME}:
           ASSIGN {&FIELDS-IN-QUERY-{&FRAME-NAME}} .
       END.
@@ -610,6 +616,34 @@ ON LEAVE OF oe-rell.job-no IN FRAME Dialog-Frame /* Job Number */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-job-no NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&SCOPED-DEFINE SELF-NAME oe-rell.loc
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rell.loc Dialog-Frame
+ON LEAVE OF oe-rell.loc IN FRAME Dialog-Frame /* location */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+    RUN valid-loc NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&SCOPED-DEFINE SELF-NAME oe-rell.loc-bin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rell.loc-bin Dialog-Frame
+ON LEAVE OF oe-rell.loc-bin IN FRAME Dialog-Frame /* loc bin  */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+    RUN valid-loc-bin NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
 END.
@@ -824,6 +858,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         IF ip-type EQ "add"  OR ip-type EQ "copy" THEN DO:
             APPLY "entry" TO oe-rell.ord-no  .
         END.
+        oe-rell.cust-no:HIDDEN IN FRAME {&FRAME-NAME}  = TRUE .
     END.
 
     WAIT-FOR GO OF FRAME {&FRAME-NAME}.
@@ -1123,6 +1158,58 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-loc Dialog-Frame 
+PROCEDURE valid-loc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ 
+  DO WITH FRAME {&FRAME-NAME}:
+      FIND FIRST loc NO-LOCK
+           WHERE loc.company = cocode
+             AND loc.loc EQ oe-rell.loc:SCREEN-VALUE NO-ERROR.
+      IF NOT AVAIL loc THEN DO:
+          MESSAGE "Invalid Whse, try help..."
+              VIEW-AS ALERT-BOX ERROR.
+          APPLY "entry" TO oe-rell.loc .
+          RETURN ERROR.
+      END.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-loc-bin Dialog-Frame 
+PROCEDURE valid-loc-bin :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ DO WITH FRAME {&FRAME-NAME}:
+      FIND FIRST fg-bin NO-LOCK
+          WHERE fg-bin.company EQ cocode 
+            AND fg-bin.loc EQ oe-rell.loc:SCREEN-VALUE 
+            AND fg-bin.i-no EQ '' 
+            AND fg-bin.loc-bin EQ oe-rell.loc-bin:SCREEN-VALUE NO-ERROR. 
+      IF NOT AVAIL fg-bin THEN DO:
+          MESSAGE "Invalid Bin Loc, try help..."
+              VIEW-AS ALERT-BOX ERROR.
+          APPLY "entry" TO oe-rell.loc-bin .
+          RETURN ERROR.
+      END.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-ord-no Dialog-Frame 
 PROCEDURE valid-ord-no :
 /*------------------------------------------------------------------------------
@@ -1163,7 +1250,7 @@ PROCEDURE valid-ord-no :
     END.
 
     IF cv-msg EQ "" THEN
-      IF oe-ord.stat EQ "H" THEN "on hold".
+      IF oe-ord.stat EQ "H" THEN cv-msg = "on hold".
 
     IF cv-msg EQ "" THEN
       IF LOOKUP(oe-ord.stat,cOrd-ok) LE 0 THEN cv-msg = "not available for release".
@@ -1416,6 +1503,7 @@ PROCEDURE import-order-items-look :
        oe-rell.cases:SCREEN-VALUE   = STRING((INT(oe-rell.qty:SCREEN-VALUE) - INT(oe-rell.partial:SCREEN-VALUE)) /
                               INT(oe-rell.qty-case:SCREEN-VALUE)) .
        oe-rell.partial:SCREEN-VALUE = STRING(INT(oe-rell.qty:SCREEN-VALUE) - (INT(oe-rell.cases:SCREEN-VALUE) * INT(oe-rell.qty-case:SCREEN-VALUE))).
+       
 
       
     END.                 

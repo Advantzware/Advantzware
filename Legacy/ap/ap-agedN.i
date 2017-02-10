@@ -137,6 +137,7 @@ for each ap-inv
                          WHEN "term"  THEN cVarValue = STRING(v-terms) .
                          WHEN "inv"   THEN cVarValue = STRING(ap-inv.inv-no) .
                          WHEN "date"  THEN cVarValue = STRING(v-date,"99/99/99") .
+                         WHEN "due-date"  THEN cVarValue = STRING(ap-inv.due-date,"99/99/99") .
                          WHEN "amt"   THEN cVarValue = STRING(v-amt,"->,>>>,>>>,>>9.99") .
                          WHEN "day"  THEN cVarValue = STRING(d,">>>>>>") .
                          

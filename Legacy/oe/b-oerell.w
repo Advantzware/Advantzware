@@ -400,11 +400,14 @@ ON DEFAULT-ACTION OF br_table IN FRAME F-Main
 DO:
    def var phandle as widget-handle no-undo.
    def var char-hdl as cha no-undo.   
-   RUN get-link-handle IN adm-broker-hdl
+   /*RUN get-link-handle IN adm-broker-hdl
       (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
    phandle = WIDGET-HANDLE(char-hdl).
    
-   RUN new-state in phandle ('update-begin':U).
+   RUN new-state in phandle ('update-begin':U).*/
+    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"buttons-target",OUTPUT char-hdl).
+    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) 
+       THEN RUN browser-dbclicked IN WIDGET-HANDLE(char-hdl).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1599,7 +1602,7 @@ PROCEDURE repo-query :
   DO WITH FRAME {&FRAME-NAME}:
     REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
   END.
-
+ APPLY "VALUE-CHANGED":U TO BROWSE {&browse-name}.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

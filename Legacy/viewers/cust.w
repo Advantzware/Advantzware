@@ -2062,7 +2062,8 @@ PROCEDURE local-create-record :
         rd_inv-meth:SCREEN-VALUE  = STRING(cust.inv-meth)
         tb_po-mand:SCREEN-VALUE   = "no"
         tb_show-set:SCREEN-VALUE  = "yes"
-        fi_flat-comm:SCREEN-VALUE = "" .
+        fi_flat-comm:SCREEN-VALUE = "" 
+        fl_custemail:SCREEN-VALUE = "".
      END.
   END.
 

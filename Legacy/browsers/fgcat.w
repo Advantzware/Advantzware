@@ -52,6 +52,8 @@ CREATE WIDGET-POOL.
 {sys/inc/varasgn.i}
 
 DEFINE VARIABLE cat-format AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cDscr AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cType AS CHARACTER NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -78,19 +80,13 @@ DEFINE VARIABLE cat-format AS LOGICAL NO-UNDO.
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table fgcat.procat fgcat.dscr ~
-fgcat.commrate = 1 @ cat-format fgcat.glacc account.dscr account.type 
+fgcat.commrate = 1 @ cat-format fgcat.glacc getDscr() @ cDscr getType() @ cType /*account.dscr account.type*/ 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH fgcat WHERE ~{&KEY-PHRASE} ~
-      AND fgcat.company = gcompany NO-LOCK, ~
-      EACH account WHERE TRUE /* Join to fgcat incomplete */ ~
-      AND account.company eq fgcat.company ~
-and account.actnum eq fgcat.glacc NO-LOCK ~
+  AND  fgcat.company = gcompany NO-LOCK  ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH fgcat WHERE ~{&KEY-PHRASE} ~
-      AND fgcat.company = gcompany NO-LOCK, ~
-      EACH account WHERE TRUE /* Join to fgcat incomplete */ ~
-      AND account.company eq fgcat.company ~
-and account.actnum eq fgcat.glacc NO-LOCK ~
+   AND fgcat.company = gcompany NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table fgcat account
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table fgcat
@@ -110,6 +106,27 @@ Btn_Clear_Find
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+
+
+/* ************************  Function Prototypes ********************** */
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getDscr B-table-Win 
+FUNCTION getDscr RETURNS CHARACTER
+    (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getType B-table-Win 
+FUNCTION getType RETURNS CHARACTER
+    (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -148,8 +165,8 @@ DEFINE QUERY Browser-Table FOR
     FIELDS(fgcat.procat
       fgcat.dscr
       fgcat.commrate
-      fgcat.glacc), 
-      account SCROLLING.
+      fgcat.glacc) /*, 
+      account*/ SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -161,10 +178,9 @@ DEFINE BROWSE Browser-Table
       fgcat.commrate = 1 @ cat-format COLUMN-LABEL "Format" FORMAT "Fraction/Decimal":U
             LABEL-BGCOLOR 14
       fgcat.glacc FORMAT "x(25)":U LABEL-BGCOLOR 14
-      account.dscr COLUMN-LABEL "GL Account Description" FORMAT "x(45)":U
-            LABEL-BGCOLOR 14
-      account.type COLUMN-LABEL "GL Account Type" FORMAT "X":U
-            LABEL-BGCOLOR 14
+      getDscr() @ cDscr COLUMN-LABEL "GL Account Description" FORMAT "x(45)":U
+      getType() @ cType COLUMN-LABEL "GL Account Type" FORMAT "x":U
+      
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 93 BY 18.1
@@ -269,12 +285,10 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "ASI.fgcat,ASI.account WHERE ASI.fgcat ..."
+     _TblList          = "ASI.fgcat"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED,"
      _Where[1]         = "fgcat.company = gcompany"
-     _Where[2]         = "account.company eq fgcat.company
-and account.actnum eq fgcat.glacc"
      _FldNameList[1]   > ASI.fgcat.procat
 "fgcat.procat" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.fgcat.dscr
@@ -283,10 +297,10 @@ and account.actnum eq fgcat.glacc"
 "fgcat.commrate = 1 @ cat-format" "Format" "Fraction/Decimal" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.fgcat.glacc
 "fgcat.glacc" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > ASI.account.dscr
-"account.dscr" "GL Account Description" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > ASI.account.type
-"account.type" "GL Account Type" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[5]   > "_<CALC>"
+"getDscr() @ cDscr" "GL Account Description" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[6]   > "_<CALC>"
+"getType() @ cType" "GL Account Type" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -474,4 +488,60 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getDscr B-table-Win 
+FUNCTION getDscr RETURNS CHARACTER
+    (  ):
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cResult    AS CHARACTER NO-UNDO.
+
+     FOR EACH account NO-LOCK
+         WHERE  account.company eq gcompany 
+           and account.actnum EQ fgcat.glacc :
+         cResult = account.dscr . 
+     END.
+     
+  IF cResult = ? THEN ASSIGN cResult = "" .
+    RETURN cResult.
+
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getType B-table-Win 
+FUNCTION getType RETURNS CHARACTER
+    (  ):
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    
+    DEFINE VARIABLE cResult    AS CHARACTER NO-UNDO.
+    
+    FOR EACH account NO-LOCK
+         WHERE  account.company eq gcompany 
+           and account.actnum EQ fgcat.glacc :
+         cResult = account.type . 
+     END.
+     
+  IF cResult = ? THEN ASSIGN cResult = "" .
+
+    RETURN cResult.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 

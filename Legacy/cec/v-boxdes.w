@@ -813,6 +813,7 @@ PROCEDURE local-assign-record :
   /* == Width total assignment ========*/
   assign li-ln = 1
          ls-wscore = "".
+  ls-wcum-value = ls-wcum-value + CHR(13).
   do i = 1 to length(ls-wcum-value):         
      ls-key = substring(ls-wcum-value,i,1).
      if asc(ls-key) < 17 then do:  /* control key */

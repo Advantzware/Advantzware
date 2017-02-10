@@ -1082,7 +1082,7 @@ PROCEDURE copyOrder :
 
   b-oe-ord.ord-no = li-next-ordno.
   li-next-ordno = b-oe-ord.ord-no.
-  BUFFER-COPY oe-ord EXCEPT rec_key job-no job-no2 ord-no company TO b-oe-ord.
+  BUFFER-COPY oe-ord EXCEPT rec_key job-no job-no2 ord-no po-no2 company TO b-oe-ord.
   b-oe-ord.company = ipToCompany.
   
   FIND FIRST b-cust-c WHERE b-cust-c.company = b-oe-ord.company
@@ -1160,9 +1160,27 @@ PROCEDURE copyOrder :
 
     IF oe-ordl.est-no <> "" THEN DO:
         FIND est WHERE est.est-no EQ oe-ordl.est-no NO-LOCK NO-ERROR.
-        IF AVAIL(est) THEN
-        RUN copyJob (ipFromCompany,ipToCompany,n-est-no,b-oe-ord.ord-no,b-oe-ord.loc).
-        ASSIGN b-oe-ord.job-no = STRING(b-oe-ord.ord-no) .
+        IF AVAIL(est) THEN do:
+            RUN copyJob (ipFromCompany,ipToCompany,n-est-no,b-oe-ord.ord-no,b-oe-ord.loc).
+            ASSIGN b-oe-ord.job-no = STRING(b-oe-ord.ord-no) .
+            IF est.ord-no NE 0 THEN ASSIGN
+                b-oe-ordl.po-no2 = STRING(est.ord-no)
+                b-oe-ord.pord-no = est.ord-no  .
+            FIND CURRENT est EXCLUSIVE-LOCK NO-ERROR .
+            ASSIGN est.ord-no = b-oe-ord.ord-no .
+            FIND CURRENT est NO-LOCK NO-ERROR .
+            FIND FIRST eb EXCLUSIVE-LOCK
+                 WHERE eb.company EQ b-oe-ord.company 
+                   AND eb.est-no  EQ est.est-no 
+                   AND ((eb.cust-no EQ oe-ordl.cust-no AND
+                         eb.part-no EQ oe-ordl.part-no) OR
+                         eb.est-type EQ 2 OR
+                         eb.est-type EQ 6) NO-ERROR .
+            IF AVAIL eb THEN
+                ASSIGN eb.ord-no = b-oe-ord.ord-no .
+            FIND CURRENT eb NO-LOCK NO-ERROR .
+        END.
+        
     END.
     
     IF ipFromCompany NE ipToCompany THEN
