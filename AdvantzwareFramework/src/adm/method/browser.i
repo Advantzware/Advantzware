@@ -154,6 +154,31 @@ PROCEDURE winkit-initialize:
     
     IF VALID-HANDLE (container-hdl) AND Consultingwerk.Util.ProcedureHelper:HasEntry (container-hdl, "getEmbeddedWindowForm") THEN DO:
         
+
+        DEFINE VARIABLE hWidget AS HANDLE  NO-UNDO.
+        DEFINE VARIABLE iMinRow AS INTEGER NO-UNDO.
+        DEFINE VARIABLE iMaxRow AS INTEGER NO-UNDO INIT ? .
+
+        ASSIGN hWidget = FRAME {&Frame-name}:FIRST-CHILD:FIRST-CHILD
+               iMinRow = {&BROWSE-NAME}:ROW + {&BROWSE-NAME}:HEIGHT-CHARS .
+
+        DO WHILE VALID-HANDLE (hWidget):
+
+            IF hWidget:TYPE <> Consultingwerk.WidgetTypeEnum:Browse AND
+               hWidget:ROW >= iMinRow THEN DO:
+
+                hWidget:SENSITIVE = FALSE .
+                hWidget:HIDDEN = TRUE .
+                
+                IF iMaxRow = ? THEN 
+                    ASSIGN iMaxRow = 0 . 
+                
+                iMaxRow = MAX (iMaxRow, hWidget:ROW + hWidget:HEIGHT-CHARS) .
+            END.
+
+            hWidget = hWidget:NEXT-SIBLING .
+        END.
+        
         RUN get-attribute IN container-hdl ("current-page") .
         
         ASSIGN iPage = Consultingwerk.Util.DataTypeHelper:ToInteger (RETURN-VALUE) . 
@@ -183,7 +208,9 @@ PROCEDURE winkit-initialize:
             // Do not hide group-by columns 
             oRenderedBrowseControl:DisplayLayout:Override:GroupByColumnsHidden = Infragistics.Win.DefaultableBoolean:False .
 
-
+            IF iMaxRow > 0 THEN 
+                oRenderedBrowseControl:Height = oRenderedBrowseControl:Height + (iMaxRow - iMinRow) * SESSION:PIXELS-PER-ROW . 
+                
             IF Consultingwerk.Util.ProcedureHelper:HasEntry (THIS-PROCEDURE, "InitializeGrid") THEN 
                 RUN InitializeGrid IN THIS-PROCEDURE .
         END.
