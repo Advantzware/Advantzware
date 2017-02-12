@@ -1,10 +1,10 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
-/* Connected Databases 
+/* Connected Databases
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win
 /*------------------------------------------------------------------------
 
   File: viewers/cust.w
@@ -13,11 +13,13 @@
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
 
-/* Create an unnamed pool to store all the widgets created 
+/* Create an unnamed pool to store all the widgets created
      by this procedure. This is a good default which assures
-     that this procedure's triggers and internal procedures 
+     that this procedure's triggers and internal procedures
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+
+USING Consultingwerk.SmartFramework.Authorization.* FROM PROPATH.
 
 CREATE WIDGET-POOL.
 
@@ -98,8 +100,8 @@ DO TRANSACTION:
 
     /* gdm - 08240904 */
     ASSIGN v-inv-fmt2 = v-inv-fmt
-           v-inv-fmt  = IF v-inv-fmt = "Hughes2" 
-                          THEN  "Hughes" 
+           v-inv-fmt  = IF v-inv-fmt = "Hughes2"
+                          THEN  "Hughes"
                           ELSE v-inv-fmt.
      /* gdm - 08240904 end */
   /* gdm - 12221003 */
@@ -116,10 +118,10 @@ DO TRANSACTION:
             sys-ctrl.descrip = "Transfer Customer Information to Sister Plants?".
          end.
          ASSIGN
-             v-cust-log = sys-ctrl.log-fld 
+             v-cust-log = sys-ctrl.log-fld
              v-cust-fmt = sys-ctrl.char-fld.
    /* gdm - 12221003 end */
-  
+
 END.
 
 /* gdm - 11190903 */
@@ -129,7 +131,7 @@ DEF VAR v-zipflg AS LOG NO-UNDO.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
+&ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -160,10 +162,10 @@ cust.area-code cust.phone cust.scomm cust.fax-prefix cust.fax-country ~
 cust.frt-pay cust.fob-code cust.ship-part cust.loc cust.carrier ~
 cust.del-zone cust.terr cust.under-pct cust.over-pct cust.markup ~
 cust.ship-days cust.manf-day cust.spare-int-1 cust.pallet cust.case-bundle ~
-cust.int-field[1] 
+cust.int-field[1]
 &Scoped-define ENABLED-TABLES cust
 &Scoped-define FIRST-ENABLED-TABLE cust
-&Scoped-Define ENABLED-OBJECTS RECT-2 RECT-3 RECT-4 
+&Scoped-Define ENABLED-OBJECTS RECT-2 RECT-3 RECT-4
 &Scoped-Define DISPLAYED-FIELDS cust.log-field[1] cust.cust-no cust.active ~
 cust.name cust.addr[1] cust.addr[2] cust.city cust.state cust.zip ~
 cust.terms cust.cr-use cust.cr-rating cust.cr-lim cust.ord-lim cust.disc ~
@@ -175,22 +177,22 @@ cust.area-code cust.phone cust.scomm cust.fax-prefix cust.fax-country ~
 cust.frt-pay cust.fob-code cust.ship-part cust.loc cust.carrier ~
 cust.del-zone cust.terr cust.under-pct cust.over-pct cust.markup ~
 cust.ship-days cust.manf-day cust.spare-int-1 cust.pallet cust.case-bundle ~
-cust.int-field[1] 
+cust.int-field[1]
 &Scoped-define DISPLAYED-TABLES cust
 &Scoped-define FIRST-DISPLAYED-TABLE cust
 &Scoped-Define DISPLAYED-OBJECTS fl_custemail terms_dscr rd_inv-meth ~
 stax_tax-dscr custype_dscr sman_sname fi_flat-comm faxAreaCode faxNumber ~
-loc_dscr carrier_dscr carr-mtx_del-dscr terr_dscr tb_po-mand tb_show-set 
+loc_dscr carrier_dscr carr-mtx_del-dscr terr_dscr tb_po-mand tb_show-set
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,faxFields,F1 */
-&Scoped-define ADM-CREATE-FIELDS cust.cust-no 
+&Scoped-define ADM-CREATE-FIELDS cust.cust-no
 &Scoped-define ADM-ASSIGN-FIELDS fl_custemail rd_inv-meth fi_flat-comm ~
-tb_po-mand tb_show-set 
+tb_po-mand tb_show-set
 &Scoped-define DISPLAY-FIELD cust.state fl_custemail cust.terms cust.tax-gr ~
 cust.type cust.sman cust.loc cust.carrier cust.del-zone cust.terr ~
-tb_po-mand tb_show-set 
-&Scoped-define faxFields faxAreaCode faxNumber 
+tb_po-mand tb_show-set
+&Scoped-define faxFields faxAreaCode faxNumber
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -203,7 +205,7 @@ tb_po-mand tb_show-set
 THIS-PROCEDURE
 </KEY-OBJECT>
 <FOREIGN-KEYS>
-</FOREIGN-KEYS> 
+</FOREIGN-KEYS>
 <EXECUTING-CODE>
 **************************
 * Set attributes related to FOREIGN KEYS
@@ -212,7 +214,7 @@ RUN set-attribute-list (
     'Keys-Accepted = "",
      Keys-Supplied = ""':U).
 /**************************
-</EXECUTING-CODE> */   
+</EXECUTING-CODE> */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -222,95 +224,95 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
-DEFINE VARIABLE carr-mtx_del-dscr AS CHARACTER FORMAT "x(30)" 
-     VIEW-AS FILL-IN 
+DEFINE VARIABLE carr-mtx_del-dscr AS CHARACTER FORMAT "x(30)"
+     VIEW-AS FILL-IN
      SIZE 41 BY 1
      BGCOLOR 15 FONT 4.
 
-DEFINE VARIABLE carrier_dscr AS CHARACTER FORMAT "x(30)" 
-     VIEW-AS FILL-IN 
+DEFINE VARIABLE carrier_dscr AS CHARACTER FORMAT "x(30)"
+     VIEW-AS FILL-IN
      SIZE 41 BY 1
      BGCOLOR 15 FONT 4.
 
-DEFINE VARIABLE custype_dscr AS CHARACTER FORMAT "x(20)" 
-     VIEW-AS FILL-IN 
+DEFINE VARIABLE custype_dscr AS CHARACTER FORMAT "x(20)"
+     VIEW-AS FILL-IN
      SIZE 27 BY 1
      BGCOLOR 15 FONT 4.
 
-DEFINE VARIABLE faxAreaCode AS CHARACTER FORMAT "(xxx)":U 
-     LABEL "Fax #" 
-     VIEW-AS FILL-IN 
+DEFINE VARIABLE faxAreaCode AS CHARACTER FORMAT "(xxx)":U
+     LABEL "Fax #"
+     VIEW-AS FILL-IN
      SIZE 7 BY 1
      BGCOLOR 15 FONT 4 NO-UNDO.
 
-DEFINE VARIABLE faxNumber AS CHARACTER FORMAT "xxx-xxxx":U 
-     VIEW-AS FILL-IN 
+DEFINE VARIABLE faxNumber AS CHARACTER FORMAT "xxx-xxxx":U
+     VIEW-AS FILL-IN
      SIZE 16 BY 1
      BGCOLOR 15 FONT 4 NO-UNDO.
 
-DEFINE VARIABLE fi_flat-comm AS DECIMAL FORMAT "->>,>>9.99":U INITIAL 0 
-     LABEL "Flat Comm%" 
-     VIEW-AS FILL-IN 
+DEFINE VARIABLE fi_flat-comm AS DECIMAL FORMAT "->>,>>9.99":U INITIAL 0
+     LABEL "Flat Comm%"
+     VIEW-AS FILL-IN
      SIZE 9 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fl_custemail AS CHARACTER FORMAT "X(60)":U 
-     LABEL "Email" 
-     VIEW-AS FILL-IN 
+DEFINE VARIABLE fl_custemail AS CHARACTER FORMAT "X(60)":U
+     LABEL "Email"
+     VIEW-AS FILL-IN
      SIZE 50 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE loc_dscr AS CHARACTER FORMAT "x(30)" 
-     VIEW-AS FILL-IN 
+DEFINE VARIABLE loc_dscr AS CHARACTER FORMAT "x(30)"
+     VIEW-AS FILL-IN
      SIZE 41 BY 1
      BGCOLOR 15 FONT 4.
 
-DEFINE VARIABLE sman_sname AS CHARACTER FORMAT "x(20)" 
-     VIEW-AS FILL-IN 
+DEFINE VARIABLE sman_sname AS CHARACTER FORMAT "x(20)"
+     VIEW-AS FILL-IN
      SIZE 36 BY 1
      BGCOLOR 15 FONT 4.
 
-DEFINE VARIABLE stax_tax-dscr AS CHARACTER FORMAT "x(25)" 
-     VIEW-AS FILL-IN 
+DEFINE VARIABLE stax_tax-dscr AS CHARACTER FORMAT "x(25)"
+     VIEW-AS FILL-IN
      SIZE 32 BY 1
      BGCOLOR 15 FONT 4.
 
-DEFINE VARIABLE terms_dscr AS CHARACTER FORMAT "x(30)" 
-     VIEW-AS FILL-IN 
+DEFINE VARIABLE terms_dscr AS CHARACTER FORMAT "x(30)"
+     VIEW-AS FILL-IN
      SIZE 38 BY 1
      BGCOLOR 15 FONT 4.
 
-DEFINE VARIABLE terr_dscr AS CHARACTER FORMAT "x(20)" 
-     VIEW-AS FILL-IN 
+DEFINE VARIABLE terr_dscr AS CHARACTER FORMAT "x(20)"
+     VIEW-AS FILL-IN
      SIZE 23 BY 1
      BGCOLOR 15 FONT 4.
 
-DEFINE VARIABLE rd_inv-meth AS LOGICAL 
+DEFINE VARIABLE rd_inv-meth AS LOGICAL
      VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
+     RADIO-BUTTONS
           "BOL", no,
 "PO", yes,
 "Group by Date", ?
      SIZE 46 BY .81 NO-UNDO.
 
 DEFINE RECTANGLE RECT-2
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL
      SIZE 71 BY 8.57.
 
 DEFINE RECTANGLE RECT-3
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL
      SIZE 71 BY 3.43.
 
 DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL
      SIZE 74.4 BY 11.91.
 
-DEFINE VARIABLE tb_po-mand AS LOGICAL INITIAL no 
-     LABEL "PO# Mandatory?" 
+DEFINE VARIABLE tb_po-mand AS LOGICAL INITIAL no
+     LABEL "PO# Mandatory?"
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_show-set AS LOGICAL INITIAL no 
-     LABEL "Show Set Parts?" 
+DEFINE VARIABLE tb_show-set AS LOGICAL INITIAL no
+     LABEL "Show Set Parts?"
      VIEW-AS TOGGLE-BOX
      SIZE 23 BY .81 NO-UNDO.
 
@@ -325,97 +327,97 @@ DEFINE FRAME F-Main
           SIZE 26.4 BY .81
      cust.cust-no AT ROW 1 COL 12 COLON-ALIGNED
           LABEL "Customer"
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 21 BY 1
      cust.active AT ROW 1 COL 43 COLON-ALIGNED
           LABEL "Status" FORMAT "x(11)"
           VIEW-AS COMBO-BOX INNER-LINES 5
-          LIST-ITEMS "(A)ctive","(I)nactive","(X) Inhouse","(S)tatement","(E)-Service" 
+          LIST-ITEMS "(A)ctive","(I)nactive","(X) Inhouse","(S)tatement","(E)-Service"
           DROP-DOWN-LIST
           SIZE 19 BY 1 TOOLTIP "Active, Inactive, Inhouse, Statement"
-          BGCOLOR 15 
+          BGCOLOR 15
      cust.name AT ROW 1.95 COL 12 COLON-ALIGNED
           LABEL "Name"
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 47 BY 1
           BGCOLOR 15 FONT 4
      cust.addr[1] AT ROW 2.95 COL 12 COLON-ALIGNED
           LABEL "Address"
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 47 BY 1
           BGCOLOR 15 FONT 4
      cust.addr[2] AT ROW 3.86 COL 12 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 47 BY 1
           BGCOLOR 15 FONT 4
      cust.city AT ROW 4.86 COL 12 COLON-ALIGNED FORMAT "x(20)"
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 26 BY 1
           BGCOLOR 15 FONT 4
      cust.state AT ROW 4.86 COL 38 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 6 BY 1
           BGCOLOR 15 FONT 4
      cust.zip AT ROW 4.86 COL 44 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 18 BY 1
           BGCOLOR 15 FONT 4
      fl_custemail AT ROW 5.76 COL 12 COLON-ALIGNED WIDGET-ID 2
      cust.terms AT ROW 7.67 COL 17 COLON-ALIGNED
           LABEL "Terms"
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 10 BY 1
           BGCOLOR 15 FONT 4
      terms_dscr AT ROW 7.67 COL 27 COLON-ALIGNED NO-LABEL
      cust.cr-use AT ROW 8.62 COL 17 COLON-ALIGNED
           LABEL "Cr. Acct #"
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 14 BY 1
           BGCOLOR 15 FONT 4
      cust.cr-rating AT ROW 9.57 COL 17 COLON-ALIGNED
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 10 BY 1
           BGCOLOR 15 FONT 4
      cust.cr-lim AT ROW 10.52 COL 17 COLON-ALIGNED
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 19 BY 1
           BGCOLOR 15 FONT 4
      cust.ord-lim AT ROW 11.48 COL 17 COLON-ALIGNED
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 19 BY 1
           BGCOLOR 15 FONT 4
      cust.disc AT ROW 12.43 COL 17 COLON-ALIGNED
           LABEL "Discount %"
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 10.2 BY 1
           BGCOLOR 15 FONT 4
      cust.curr-code AT ROW 13.38 COL 17 COLON-ALIGNED
           LABEL "Currency"
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 10 BY 1
-          BGCOLOR 15 
+          BGCOLOR 15
      cust.cr-hold-invdays AT ROW 8.86 COL 46.4 COLON-ALIGNED
           LABEL "Grace Days"
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 6 BY 1
           BGCOLOR 15 FONT 4
      cust.cr-hold-invdue AT ROW 8.86 COL 55.4 COLON-ALIGNED
           LABEL "$"
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 14 BY 1
           BGCOLOR 15 FONT 1
      cust.cust-level AT ROW 9.81 COL 56 COLON-ALIGNED
           LABEL "Price Level"
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 6 BY 1
           BGCOLOR 15 FONT 4
      cust.cr-hold AT ROW 10.76 COL 47
           LABEL "Credit Hold"
           VIEW-AS TOGGLE-BOX
           SIZE 21 BY .81
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY
+         SIDE-LABELS NO-UNDERLINE THREE-D
+         AT COL 1 ROW 1 SCROLLABLE
          FONT 6.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
@@ -437,92 +439,92 @@ DEFINE FRAME F-Main
      rd_inv-meth AT ROW 14.48 COL 19 NO-LABEL
      cust.sort AT ROW 16.14 COL 22 NO-LABEL
           VIEW-AS RADIO-SET HORIZONTAL
-          RADIO-BUTTONS 
+          RADIO-BUTTONS
                     "Yes", "Y":U,
 "No", "N":U
           SIZE 16.4 BY .62
      cust.spare-char-1 AT ROW 15.95 COL 58 COLON-ALIGNED WIDGET-ID 10
           LABEL "Tax Prep Code" FORMAT "x(3)"
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 9 BY 1
      cust.tax-gr AT ROW 16.95 COL 16 COLON-ALIGNED
           LABEL "Tax Code"
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 11 BY 1
           BGCOLOR 15 FONT 4
      stax_tax-dscr AT ROW 16.95 COL 28 COLON-ALIGNED NO-LABEL
      cust.tax-id AT ROW 17.91 COL 16 COLON-ALIGNED
           LABEL "Tax Resale#"
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 27 BY 1
           BGCOLOR 15 FONT 4
      cust.date-field[2] AT ROW 17.91 COL 52.2 COLON-ALIGNED
           LABEL "Exp."
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 16 BY 1
      cust.spare-char-2 AT ROW 1 COL 73 COLON-ALIGNED WIDGET-ID 14
           LABEL "Group" FORMAT "x(8)"
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 17.2 BY 1
           BGCOLOR 15 FONT 4
      cust.date-field[1] AT ROW 1 COL 127 COLON-ALIGNED
           LABEL "Date Added" FORMAT "99/99/9999"
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 17 BY 1
           BGCOLOR 15 FONT 4
      cust.type AT ROW 1.95 COL 73 COLON-ALIGNED
           LABEL "Type"
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 17 BY 1
           BGCOLOR 15 FONT 4
      custype_dscr AT ROW 1.95 COL 90 COLON-ALIGNED NO-LABEL
      cust.contact AT ROW 2.95 COL 73 COLON-ALIGNED
           LABEL "Contact"
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 44 BY 1
           BGCOLOR 15 FONT 4
      cust.sman AT ROW 3.86 COL 73 COLON-ALIGNED
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 8 BY 1
           BGCOLOR 15 FONT 4
      sman_sname AT ROW 3.86 COL 81 COLON-ALIGNED NO-LABEL
      fi_flat-comm AT ROW 3.86 COL 135 COLON-ALIGNED
-     cust.area-code AT ROW 4.86 COL 73 COLON-ALIGNED AUTO-RETURN 
+     cust.area-code AT ROW 4.86 COL 73 COLON-ALIGNED AUTO-RETURN
           LABEL "Phone#" FORMAT "(xxx)"
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 7 BY 1
           BGCOLOR 15 FONT 4
      cust.phone AT ROW 4.86 COL 81 COLON-ALIGNED NO-LABEL FORMAT "xxx-xxxx"
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 16 BY 1
           BGCOLOR 15 FONT 4
      cust.scomm AT ROW 4.86 COL 135 COLON-ALIGNED HELP
           "Enter Salesman Flat Commission Percentage" WIDGET-ID 8
           LABEL "Broker Comm%"
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 9.2 BY 1
-     faxAreaCode AT ROW 5.76 COL 73 COLON-ALIGNED AUTO-RETURN 
+     faxAreaCode AT ROW 5.76 COL 73 COLON-ALIGNED AUTO-RETURN
      faxNumber AT ROW 5.76 COL 81 COLON-ALIGNED NO-LABEL
      cust.fax-prefix AT ROW 5.76 COL 106 COLON-ALIGNED
           LABEL "Prefix"
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 5.6 BY 1
-          BGCOLOR 15 
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
+          BGCOLOR 15
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY
+         SIDE-LABELS NO-UNDERLINE THREE-D
+         AT COL 1 ROW 1 SCROLLABLE
          FONT 6.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
      cust.fax-country AT ROW 5.76 COL 123 COLON-ALIGNED
           LABEL "Country"
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 11.6 BY 1
-          BGCOLOR 15 
+          BGCOLOR 15
      cust.frt-pay AT ROW 7.86 COL 92.2 NO-LABEL
           VIEW-AS RADIO-SET HORIZONTAL
-          RADIO-BUTTONS 
+          RADIO-BUTTONS
                     "Bill", "B":U,
 "Collect", "C":U,
 "Prepaid", "P":U,
@@ -530,7 +532,7 @@ DEFINE FRAME F-Main
           SIZE 49 BY .81
      cust.fob-code AT ROW 8.81 COL 92.2 NO-LABEL
           VIEW-AS RADIO-SET HORIZONTAL
-          RADIO-BUTTONS 
+          RADIO-BUTTONS
                     "Destination", "DEST":U,
 "Origin", "ORIG":U
           SIZE 28 BY .81
@@ -540,71 +542,71 @@ DEFINE FRAME F-Main
           SIZE 17 BY .81
      cust.loc AT ROW 9.76 COL 88 COLON-ALIGNED
           LABEL "Location"
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 11.8 BY 1
           BGCOLOR 15 FONT 4
      loc_dscr AT ROW 9.76 COL 100 COLON-ALIGNED NO-LABEL
      cust.carrier AT ROW 10.71 COL 88.2 COLON-ALIGNED
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 11.6 BY 1
           BGCOLOR 15 FONT 4
      carrier_dscr AT ROW 10.71 COL 100 COLON-ALIGNED NO-LABEL
      cust.del-zone AT ROW 11.71 COL 88.2 COLON-ALIGNED
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 11.6 BY 1
           BGCOLOR 15 FONT 4
      carr-mtx_del-dscr AT ROW 11.71 COL 100 COLON-ALIGNED NO-LABEL
      cust.terr AT ROW 12.67 COL 88.2 COLON-ALIGNED
           LABEL "Territory"
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 5.8 BY 1
           BGCOLOR 15 FONT 4
      terr_dscr AT ROW 12.67 COL 94 COLON-ALIGNED NO-LABEL
      cust.under-pct AT ROW 13.62 COL 88 COLON-ALIGNED
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 11 BY 1
           BGCOLOR 15 FONT 4
      cust.over-pct AT ROW 14.57 COL 88 COLON-ALIGNED
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 11 BY 1
           BGCOLOR 15 FONT 4
      cust.markup AT ROW 15.52 COL 88 COLON-ALIGNED FORMAT "->9.99"
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 11 BY 1
-          BGCOLOR 15 
+          BGCOLOR 15
      cust.ship-days AT ROW 16.48 COL 88 COLON-ALIGNED
           LABEL "Whse Days"
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 11 BY 1
           BGCOLOR 15 FONT 4
      cust.manf-day AT ROW 17.43 COL 90.2 COLON-ALIGNED HELP
           "" WIDGET-ID 6
           LABEL "Pallet Positions" FORMAT ">>>9"
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 8.8 BY 1
           FONT 4
      cust.spare-int-1 AT ROW 12.67 COL 129 COLON-ALIGNED WIDGET-ID 12
           LABEL "Pallet ID" FORMAT ">>>>>>>>9"
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 12.2 BY .95
           BGCOLOR 15 FONT 4
      cust.pallet AT ROW 13.62 COL 122.6 COLON-ALIGNED
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 18.6 BY 1
           BGCOLOR 15 FONT 4
      cust.case-bundle AT ROW 14.57 COL 122.6 COLON-ALIGNED
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 18.6 BY 1
           BGCOLOR 15 FONT 4
      cust.int-field[1] AT ROW 15.52 COL 127.6 COLON-ALIGNED
           LABEL "# of Labels per Skid" FORMAT "->,>>>,>>9"
-          VIEW-AS FILL-IN 
+          VIEW-AS FILL-IN
           SIZE 13.6 BY 1
           BGCOLOR 15 FONT 4
      tb_po-mand AT ROW 16.62 COL 114.6
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY
+         SIDE-LABELS NO-UNDERLINE THREE-D
+         AT COL 1 ROW 1 SCROLLABLE
          FONT 6.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
@@ -630,9 +632,9 @@ DEFINE FRAME F-Main
      RECT-2 AT ROW 7.19 COL 1
      RECT-3 AT ROW 15.67 COL 1
      RECT-4 AT ROW 7.19 COL 71.6
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY
+         SIDE-LABELS NO-UNDERLINE THREE-D
+         AT COL 1 ROW 1 SCROLLABLE
          FONT 6.
 
 
@@ -661,7 +663,7 @@ END.
 /* *************************  Create Window  ************************** */
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
-/* DESIGN Window definition (used by the UIB) 
+/* DESIGN Window definition (used by the UIB)
   CREATE WINDOW V-table-Win ASSIGN
          HEIGHT             = 26.14
          WIDTH              = 201.6.
@@ -669,7 +671,7 @@ END.
                                                                         */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/viewer.i}
@@ -688,7 +690,7 @@ END.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit Custom                            */
-ASSIGN 
+ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
@@ -766,8 +768,8 @@ ASSIGN
    EXP-FORMAT                                                           */
 /* SETTINGS FOR RADIO-SET rd_inv-meth IN FRAME F-Main
    NO-ENABLE 2                                                          */
-ASSIGN 
-       RECT-3:PRIVATE-DATA IN FRAME F-Main     = 
+ASSIGN
+       RECT-3:PRIVATE-DATA IN FRAME F-Main     =
                 "Date".
 
 /* SETTINGS FOR FILL-IN cust.scomm IN FRAME F-Main
@@ -823,7 +825,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -835,56 +837,56 @@ ON HELP OF FRAME F-Main
 DO:
    def var lv-handle as handle no-undo.
    def var char-val as cha no-undo.
-   
+
    CASE Focus:name :
      when "del-zone" then do:
-           run windows/l-delzon.w 
+           run windows/l-delzon.w
               (gcompany,cust.loc:screen-value,cust.carrier:screen-value in frame {&frame-name},focus:screen-value in frame {&frame-name}, output char-val).
-           if char-val <> "" then 
+           if char-val <> "" then
               assign focus:screen-value in frame {&frame-name} = entry(1,char-val).
-           return no-apply.  
+           return no-apply.
      end.
      when "pallet" then do:
-           run windows/l-itemp.w 
+           run windows/l-itemp.w
               (gcompany,"",focus:screen-value in frame {&frame-name}, output char-val).
-           if char-val <> "" then 
+           if char-val <> "" then
               assign focus:screen-value in frame {&frame-name} = entry(1,char-val).
-           return no-apply.  
+           return no-apply.
      end.
      WHEN "spare-char-2" THEN DO:
            RUN windows/l-usrgrp.w (INPUT "CUSTOMER GROUPS", OUTPUT char-val).
-           if char-val <> "" then 
+           if char-val <> "" then
               assign focus:screen-value in frame {&frame-name} = entry(1,char-val).
-           return no-apply.  
+           return no-apply.
        END.
      when "case-bundle" then do:
-           run windows/l-item.w 
+           run windows/l-item.w
               (gcompany,"","C",focus:screen-value in frame {&frame-name}, output char-val).
-           if char-val <> "" then 
+           if char-val <> "" then
               assign focus:screen-value in frame {&frame-name} = entry(1,char-val).
-           return no-apply.  
+           return no-apply.
      end.
      when "terms" then do:
-           run windows/l-terms.w 
+           run windows/l-terms.w
                (gcompany,focus:screen-value in frame {&frame-name}, output char-val).
-           if char-val <> "" then 
+           if char-val <> "" then
               assign focus:screen-value in frame {&frame-name} = entry(1,char-val)
                      terms_dscr:SCREEN-VALUE = ENTRY(2,char-val).
-           return no-apply.  
+           return no-apply.
      end.
      otherwise do:
            lv-handle = focus:handle.
            run applhelp.p.
-             
+
            if g_lookup-var <> "" then do:
               lv-handle:screen-value = g_lookup-var.
-        
+
            end.   /* g_lookup-var <> "" */
            apply "entry" to lv-handle.
            return no-apply.
 
      end.  /* otherwise */
-  end case.  
+  end case.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -942,12 +944,12 @@ END.
 ON LEAVE OF cust.carrier IN FRAME F-Main /* Carrier */
 DO:
      if lastkey <> -1 /*and cust.carrier:screen-value <> "" */ and
-        not can-find(first carrier where carrier.company = gcompany and 
+        not can-find(first carrier where carrier.company = gcompany and
                                      carrier.loc = cust.loc:screen-value and
                                      carrier.carrier = cust.carrier:screen-value)
      then do:
         message "Invalid Carrier Code. Try Help." view-as alert-box error.
-        return no-apply.     
+        return no-apply.
      end.
 
   {methods/dispflds.i}
@@ -966,7 +968,7 @@ DO:
                                       item.i-no = cust.case-bundle:screen-value)
      then do:
         message "Invalid Case/Bundle Code. Try Help." view-as alert-box error.
-        return no-apply.     
+        return no-apply.
      end.
 
 
@@ -982,11 +984,11 @@ ON HELP OF cust.city IN FRAME F-Main /* City */
 DO:
   RUN applhelp.p.
   {&self-name}:SCREEN-VALUE = g_lookup-var.
-  RUN cust-city.  
+  RUN cust-city.
 
   IF cust.zip:SCREEN-VALUE NE cust.zip THEN
      RUN zip-carrier.
-  
+
   RETURN NO-APPLY.
 END.
 
@@ -999,7 +1001,7 @@ ON LEAVE OF cust.city IN FRAME F-Main /* City */
 DO:
   IF LASTKEY NE -1 THEN
   DO:
-     RUN cust-city.     
+     RUN cust-city.
   END.
 END.
 
@@ -1078,8 +1080,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.cust-level V-table-Win
 ON LEAVE OF cust.cust-level IN FRAME F-Main /* Price Level */
 DO:
-    if lastkey <> -1 and 
-       decimal(cust.cust-level:screen-value) > 10 then 
+    if lastkey <> -1 and
+       decimal(cust.cust-level:screen-value) > 10 then
     do:
         message "Price level can not exceed 10." view-as alert-box error.
         return no-apply.
@@ -1095,8 +1097,8 @@ END.
 ON LEAVE OF cust.cust-no IN FRAME F-Main /* Customer */
 DO:
    IF LASTKEY = -1 THEN  RETURN.
-   IF adm-new-record AND 
-      CAN-FIND(FIRST cust WHERE cust.company = gcompany 
+   IF adm-new-record AND
+      CAN-FIND(FIRST cust WHERE cust.company = gcompany
                             AND cust.cust-no = cust.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME})
    THEN DO:
       MESSAGE "Customer already exists. Try other number." VIEW-AS ALERT-BOX ERROR.
@@ -1126,13 +1128,13 @@ END.
 ON LEAVE OF cust.del-zone IN FRAME F-Main /* Delivery Zone */
 DO:
      if lastkey <> -1 and /*cust.del-zone:screen-value <> "" and*/
-        not can-find(first carr-mtx where carr-mtx.company = gcompany and 
+        not can-find(first carr-mtx where carr-mtx.company = gcompany and
                                      carr-mtx.loc = cust.loc:screen-value and
                                      carr-mtx.carrier = cust.carrier:screen-value and
                                      carr-mtx.del-zone = cust.del-zone:screen-value)
      then do:
         message "Invalid Delivey Zone. Try Help." view-as alert-box error.
-        return no-apply.     
+        return no-apply.
      end.
 
   {methods/dispflds.i}
@@ -1245,11 +1247,11 @@ END.
 ON LEAVE OF cust.loc IN FRAME F-Main /* Location */
 DO:
      if lastkey <> -1 and cust.loc:screen-value <> "" and
-        not can-find(first loc where loc.company = gcompany and 
+        not can-find(first loc where loc.company = gcompany and
                                      loc.loc = cust.loc:screen-value)
      then do:
         message "Invalid Ord. Loc. Code. Try Help." view-as alert-box error.
-        return no-apply.     
+        return no-apply.
      end.
 
   {methods/dispflds.i}
@@ -1296,7 +1298,7 @@ DO:
                                       item.i-no = cust.pallet:screen-value)
      then do:
         message "Invalid Pallet Code. Try Help." view-as alert-box error.
-        return no-apply.     
+        return no-apply.
      end.
 
 END.
@@ -1322,7 +1324,7 @@ END.
 ON LEAVE OF cust.sman IN FRAME F-Main /* Salesman */
 DO:
  IF LASTKEY = -1 THEN RETURN.
-  RUN valid-sman NO-ERROR. 
+  RUN valid-sman NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 END.
 
@@ -1347,19 +1349,19 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.spare-char-1 V-table-Win
 ON LEAVE OF cust.spare-char-1 IN FRAME F-Main /* Tax Prep Code */
 DO:
-  if lastkey <> -1 and SELF:screen-value <> "" and 
+  if lastkey <> -1 and SELF:screen-value <> "" and
      (
     /* old
       not can-find(first stax where stax.tax-group begins gcompany and
                                    substring(stax.tax-group,1,10) = gcompany and
                                    substring(stax.tax-group,11,length(trim(stax.tax-group)) - 10) = cust.tax-gr:screen-value )
     */
-       not can-find(first stax-group where stax-group.tax-group = self:screen-value) 
-     )    
+       not can-find(first stax-group where stax-group.tax-group = self:screen-value)
+     )
   then do:
      message "Invalid Tax Prep Code. Try Help." self:screen-value view-as alert-box error.
      return no-apply.
-  end.                       
+  end.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1375,7 +1377,7 @@ DO:
     then do:
        message "Invalid State Code. Try Help." view-as alert-box error.
        return no-apply.
-    end.                                     
+    end.
 
 END.
 
@@ -1388,22 +1390,22 @@ END.
 ON LEAVE OF cust.tax-gr IN FRAME F-Main /* Tax Code */
 DO:
 
-  if lastkey <> -1 and cust.sort:screen-value = "Y" and 
+  if lastkey <> -1 and cust.sort:screen-value = "Y" and
      (
     /* old
       not can-find(first stax where stax.tax-group begins gcompany and
                                    substring(stax.tax-group,1,10) = gcompany and
                                    substring(stax.tax-group,11,length(trim(stax.tax-group)) - 10) = cust.tax-gr:screen-value )
     */
-       not can-find(first stax-group where stax-group.tax-group = cust.tax-gr:screen-value)                                   
+       not can-find(first stax-group where stax-group.tax-group = cust.tax-gr:screen-value)
      or
-     cust.tax-gr:screen-value = ""                    
-     )    
+     cust.tax-gr:screen-value = ""
+     )
   then do:
      message "Invalid Tax Code. Try Help." self:screen-value view-as alert-box error.
      return no-apply.
-  end.                                     
-                                   
+  end.
+
   {methods/dispflds.i}
 END.
 
@@ -1436,7 +1438,7 @@ DO:
                                       terr.terr = cust.terr:screen-value)
      then do:
         message "Invalid Territory Code. Try Help." view-as alert-box error.
-        return no-apply.     
+        return no-apply.
      end.
 
   {methods/dispflds.i}
@@ -1474,16 +1476,16 @@ DO:
   DEF VAR city-val AS cha NO-UNDO.
   DEF VAR state-val AS cha NO-UNDO.
   DEF VAR rec-val AS RECID NO-UNDO.
-  
+
        RUN windows/l-zipcod.w (FOCUS:SCREEN-VALUE,OUTPUT char-val,OUTPUT city-val,OUTPUT state-val,OUTPUT rec-val).
        IF char-val NE "" THEN cust.zip:SCREEN-VALUE = ENTRY(1,char-val).
        IF city-val NE "" THEN cust.city:SCREEN-VALUE = ENTRY(1,city-val).
        IF state-val NE "" THEN cust.state:SCREEN-VALUE = ENTRY(1,state-val).
 
-    
+
   IF cust.zip:SCREEN-VALUE NE cust.zip THEN
      RUN zip-carrier.
-  
+
   RETURN NO-APPLY.
 END.
 
@@ -1510,7 +1512,7 @@ END.
 
 &UNDEFINE SELF-NAME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win
 
 
 /* ***************************  Main Block  *************************** */
@@ -1545,10 +1547,10 @@ if not avail sys-ctrl then DO TRANSACTION:
    v-prompt          = NO
    sys-ctrl.log-fld  = v-prompt
    sys-ctrl.char-fld = "".
-   
+
   do i = 1 to 8:
     sys-ctrl.char-fld = sys-ctrl.char-fld + string(v-flag[i],"Y/N").
-  end. 
+  end.
 end.
 assign
  v-secur     = sys-ctrl.log-fld
@@ -1564,7 +1566,7 @@ if not avail sys-ctrl then DO TRANSACTION:
   assign
    sys-ctrl.company  = cocode
    sys-ctrl.name     = "CUSTSIZE"
-   sys-ctrl.descrip  = "Customer number's length"         
+   sys-ctrl.descrip  = "Customer number's length"
    sys-ctrl.log-fld  = no
    sys-ctrl.log-fld  = no
    sys-ctrl.char-fld = ""
@@ -1574,10 +1576,10 @@ ASSIGN v-custsize = sys-ctrl.char-fld
        v-cust-length = sys-ctrl.int-fld.
 
 session:data-entry-return = yes.
-  &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
-    RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
-  &ENDIF         
-  
+  &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN
+    RUN dispatch IN THIS-PROCEDURE ('initialize':U).
+  &ENDIF
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -1586,14 +1588,14 @@ session:data-entry-return = yes.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE add-item V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE add-item V-table-Win
 PROCEDURE add-item :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
-   RUN dispatch ('add-record').   
+   RUN dispatch ('add-record').
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1630,14 +1632,14 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE cust-city V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE cust-city V-table-Win
 PROCEDURE cust-city :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
-     
+
   DO WITH FRAME {&FRAME-NAME}:
     IF cust.city:SCREEN-VALUE NE "" THEN
     FIND FIRST ASI.zipcode
@@ -1646,22 +1648,22 @@ PROCEDURE cust-city :
     IF AVAIL ASI.zipcode THEN do:
       ASSIGN
         cust.state:SCREEN-VALUE = ASI.zipcode.state
-        cust.zip:SCREEN-VALUE = ASI.zipcode.zipcode  .      
-    END.   
+        cust.zip:SCREEN-VALUE = ASI.zipcode.zipcode  .
+    END.
   END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE cust-new-log V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE cust-new-log V-table-Win
 PROCEDURE cust-new-log :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
- 
+
 DEF VAR thisOne AS CHAR NO-UNDO.
  DEFINE BUFFER buff-cust FOR cust .
  DEFINE BUFFER buff-shipto FOR shipto .
@@ -1688,14 +1690,14 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE cust-update-log V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE cust-update-log V-table-Win
 PROCEDURE cust-update-log :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
-  
+
  FIND CURRENT cust NO-LOCK.
  DEF VAR thisOne AS CHAR NO-UNDO.
  DEFINE BUFFER buff-cust FOR cust .
@@ -1704,16 +1706,16 @@ PROCEDURE cust-update-log :
 
    DO I = 1 TO NUM-ENTRIES(v-cust-fmt):
      ASSIGN thisOne = ENTRY(i,v-cust-fmt).
-     FIND FIRST buff-cust WHERE buff-cust.cust-no = cust.cust-no 
+     FIND FIRST buff-cust WHERE buff-cust.cust-no = cust.cust-no
                           AND buff-cust.company = thisOne EXCLUSIVE-LOCK NO-ERROR.
      IF AVAIL buff-cust THEN do:
-     BUFFER-COPY cust EXCEPT cust-no company ytd-sales lyr-sales cost comm ytd-msf lyytd-msf hibal hibal-date num-inv 
+     BUFFER-COPY cust EXCEPT cust-no company ytd-sales lyr-sales cost comm ytd-msf lyytd-msf hibal hibal-date num-inv
          lpay lpay-date avg-pay ord-bal acc-bal on-account TO buff-cust.
      END.
      ELSE DO:
          CREATE buff-cust .
          ASSIGN buff-cust.company = thisone.
-         BUFFER-COPY cust EXCEPT company ytd-sales lyr-sales cost comm ytd-msf lyytd-msf hibal hibal-date num-inv 
+         BUFFER-COPY cust EXCEPT company ytd-sales lyr-sales cost comm ytd-msf lyytd-msf hibal hibal-date num-inv
          lpay lpay-date avg-pay ord-bal acc-bal on-account TO buff-cust.
         for each shipto of cust NO-LOCK BY shipto.ship-no:
             create buff-shipto.
@@ -1733,38 +1735,38 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE cust-zip V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE cust-zip V-table-Win
 PROCEDURE cust-zip :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
-     
+
   DO WITH FRAME {&FRAME-NAME}:
     IF cust.zip:SCREEN-VALUE NE "" THEN
     FIND FIRST ASI.zipcode
-        WHERE ASI.zipcode.zipcode EQ cust.zip:SCREEN-VALUE 
+        WHERE ASI.zipcode.zipcode EQ cust.zip:SCREEN-VALUE
         AND (ASI.zipcode.city EQ cust.city:SCREEN-VALUE OR cust.city:SCREEN-VALUE = "" )
         NO-LOCK NO-ERROR.
     IF AVAIL ASI.zipcode THEN do:
       ASSIGN
         cust.state:SCREEN-VALUE = ASI.zipcode.state
-        cust.city:SCREEN-VALUE = ASI.zipcode.city.    
+        cust.city:SCREEN-VALUE = ASI.zipcode.city.
     END.
     ELSE IF NOT AVAIL ASI.zipcode  THEN DO:
         FIND FIRST ASI.zipcode
-            WHERE ASI.zipcode.zipcode EQ cust.zip:SCREEN-VALUE 
+            WHERE ASI.zipcode.zipcode EQ cust.zip:SCREEN-VALUE
             NO-LOCK NO-ERROR.
         IF AVAIL ASI.zipcode THEN do:
             ASSIGN
                 cust.state:SCREEN-VALUE = ASI.zipcode.state
-                cust.city:SCREEN-VALUE = ASI.zipcode.city.    
+                cust.city:SCREEN-VALUE = ASI.zipcode.city.
         END.
     END.
    /* gdm - 11190903 */
-    ELSE 
-    IF NOT AVAIL zipcode THEN ASSIGN v-zipflg = TRUE.   
+    ELSE
+    IF NOT AVAIL zipcode THEN ASSIGN v-zipflg = TRUE.
    /* gdm - 11190903 end */
   END.
 END PROCEDURE.
@@ -1772,12 +1774,12 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable-fields V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable-fields V-table-Win
 PROCEDURE disable-fields :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
 
    DO WITH FRAME {&FRAME-NAME}.
@@ -1795,7 +1797,7 @@ PROCEDURE disable_UI :
   Purpose:     DISABLE the User Interface
   Parameters:  <none>
   Notes:       Here we clean-up the user-interface by deleting
-               dynamic widgets we have created and/or hide 
+               dynamic widgets we have created and/or hide
                frames.  This procedure is usually called when
                we are ready to "clean-up" after running.
 ------------------------------------------------------------------------------*/
@@ -1807,12 +1809,12 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE display-active V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE display-active V-table-Win
 PROCEDURE display-active :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -1823,8 +1825,8 @@ PROCEDURE display-active :
       when "A" then cust.active:screen-value in frame {&frame-name} = "(A)ctive".
       when "I" then cust.active:screen-value in frame {&frame-name} = "(I)nactive".
       when "X" then cust.active:screen-value in frame {&frame-name} = "(X) Inhouse".
-      when "S" then cust.active:screen-value in frame {&frame-name} = "(S)tatement".     
-      when "E" then cust.active:screen-value in frame {&frame-name} = "(E)-Service".     
+      when "S" then cust.active:screen-value in frame {&frame-name} = "(S)tatement".
+      when "E" then cust.active:screen-value in frame {&frame-name} = "(E)-Service".
     end case.
   END.
 
@@ -1833,12 +1835,12 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-cust-no V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-cust-no V-table-Win
 PROCEDURE get-cust-no :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
    DEFINE OUTPUT PARAMETER op-cust-no AS CHAR NO-UNDO.
    DEFINE OUTPUT PARAMETER op-cust-x AS LOG NO-UNDO.
@@ -1853,11 +1855,11 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record V-table-Win
 PROCEDURE local-assign-record :
 /*------------------------------------------------------------------------------
   Purpose:     Override standard ADM method
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
   DEF VAR v-cust-recid-prev AS RECID NO-UNDO.
   DEF BUFFER bf-cust FOR cust.
@@ -1874,7 +1876,7 @@ PROCEDURE local-assign-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN reftable-values (NO).
-  
+
   {methods/viewers/assign/cust.i}
 
   assign
@@ -1886,7 +1888,7 @@ PROCEDURE local-assign-record :
   IF v-zipflg THEN DO:
     IF cust.zip:SCREEN-VALUE NE "" THEN
     DO:
-       FIND FIRST ASI.zipcode NO-LOCK 
+       FIND FIRST ASI.zipcode NO-LOCK
            WHERE ASI.zipcode.zipcode EQ cust.zip NO-ERROR.
        IF NOT AVAIL zipcode THEN DO:
          CREATE ASI.zipcode.
@@ -1895,9 +1897,9 @@ PROCEDURE local-assign-record :
                 ASI.zipcode.pref#     = 01
                 ASI.zipcode.city      = cust.city
                 ASI.zipcode.state     = cust.state
-                ASI.zipcode.area_code = IF cust.area-code EQ "" 
-                                              THEN 000 
-                                              ELSE INT(cust.area-code) 
+                ASI.zipcode.area_code = IF cust.area-code EQ ""
+                                              THEN 000
+                                              ELSE INT(cust.area-code)
                 ASI.zipcode.carrier   = cust.carrier
                 ASI.zipcode.del-zone  = cust.del-zone.
        END.
@@ -1907,10 +1909,10 @@ PROCEDURE local-assign-record :
   END.
   /* gdm - 11190903 end */
 
-  
+
   if adm-new-record and not adm-adding-record then do:  /* copy */
     FIND FIRST bf-cust WHERE RECID(bf-cust) = v-cust-recid-prev NO-LOCK NO-ERROR.
-    
+
     for each bf-shipto of bf-cust NO-LOCK BY bf-shipto.ship-no:
         create shipto.
         buffer-copy bf-shipto except bf-shipto.cust-no to shipto.
@@ -1947,10 +1949,10 @@ PROCEDURE local-assign-record :
 
 
    IF adm-new-record THEN DO:
-       
+
        FOR EACH bf-usercust WHERE bf-usercust.company = cocode
                  AND bf-usercust.USER_id EQ USERID("ASI") NO-LOCK,
-            FIRST bff-cust WHERE bff-cust.company EQ bf-usercust.company 
+            FIRST bff-cust WHERE bff-cust.company EQ bf-usercust.company
                           AND bff-cust.cust-no EQ bf-usercust.cust-no NO-LOCK :
            LEAVE.
        END.
@@ -1967,11 +1969,11 @@ PROCEDURE local-assign-record :
                    usercust.cust-no = cust.cust-no.
                 RELEASE usercust.
              END.
-     IF v-cust-log THEN 
+     IF v-cust-log THEN
          RUN cust-new-log.
    END.
    ELSE DO:
-     IF v-cust-log THEN 
+     IF v-cust-log THEN
          RUN cust-update-log.
    END.
 
@@ -2010,17 +2012,17 @@ PROCEDURE local-assign-record :
                 soldto.sold-zip = cust.zip.
      END.
   END.*/
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record V-table-Win
 PROCEDURE local-cancel-record :
 /*------------------------------------------------------------------------------
   Purpose:     Override standard ADM method
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
@@ -2036,11 +2038,11 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record V-table-Win
 PROCEDURE local-create-record :
 /*------------------------------------------------------------------------------
   Purpose:     Override standard ADM method
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
@@ -2053,7 +2055,7 @@ PROCEDURE local-create-record :
   IF cust.date-field[2] EQ TODAY THEN
       cust.date-field[2] = ?.
   DO WITH FRAME {&FRAME-NAME}:
-   
+
      if adm-new-record and adm-adding-record THEN /*adding, not copying*/
      DO: /*ESP need both statements due to how cust.fax is populated*/
         ASSIGN
@@ -2067,17 +2069,17 @@ PROCEDURE local-create-record :
   END.
 
   RUN display-active.
-     
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-delete-record V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-delete-record V-table-Win
 PROCEDURE local-delete-record :
 /*------------------------------------------------------------------------------
   Purpose:     Override standard ADM method
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
   DEFINE VAR thisOne AS CHAR NO-UNDO.
   DEFINE BUFFER buff-cust FOR cust .
@@ -2087,32 +2089,32 @@ PROCEDURE local-delete-record :
     {custom/askdel.i}
   END.
 
-    /* Code placed here will execute BEFORE standard behavior.    */ 
+    /* Code placed here will execute BEFORE standard behavior.    */
    IF v-cust-log THEN do:
       FIND CURRENT cust NO-LOCK NO-ERROR.
       DO I = 1 TO NUM-ENTRIES(v-cust-fmt):
           ASSIGN thisOne = ENTRY(i,v-cust-fmt).
-          FIND FIRST buff-cust WHERE buff-cust.cust-no = cust.cust-no 
+          FIND FIRST buff-cust WHERE buff-cust.cust-no = cust.cust-no
                                   AND buff-cust.company = thisOne EXCLUSIVE-LOCK NO-ERROR.
           IF AVAIL buff-cust THEN
               DELETE buff-cust .
       END.
    END.
-     
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win
 PROCEDURE local-display-fields :
 /*------------------------------------------------------------------------------
   Purpose:     Override standard ADM method
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
@@ -2122,9 +2124,9 @@ PROCEDURE local-display-fields :
      tb_po-mand   = NO
      tb_show-set = YES
      fi_flat-comm = 0.
-     
+
     IF cust.cust-no NE "" THEN RUN reftable-values (YES).
-        ASSIGN 
+        ASSIGN
             fl_custemail = cust.email
             fl_custemail:SCREEN-VALUE IN FRAME {&FRAME-NAME} = fl_custemail
             .
@@ -2152,14 +2154,36 @@ PROCEDURE local-display-fields :
 
 END PROCEDURE.
 
+/**
+ * Purpose:
+ * Notes:
+ *
+ */
+PROCEDURE local-initialize:
+
+    DEFINE VARIABLE lRestricted AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE oTokenSecurityService AS ITokenSecurityService NO-UNDO .
+
+    RUN dispatch IN THIS-PROCEDURE ("initialize") .
+
+    ASSIGN oTokenSecurityService = {Consultingwerk/get-service.i ITokenSecurityService}
+
+           lRestricted = oTokenSecurityService:IsTokenRestricted("Customer.CreditHold").
+
+    IF lRestricted THEN
+        ASSIGN cust.cr-hold:HIDDEN IN FRAME {&frame-name} = TRUE .
+
+END PROCEDURE.
+
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
   Purpose:     Override standard ADM method
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
   def var ls-prev-cust-no like cust.cust-no no-undo.
   DEF VAR ll-prev-cr-hold LIKE cust.cr-hold NO-UNDO.
@@ -2174,7 +2198,7 @@ PROCEDURE local-update-record :
   assign
    ls-prev-cust-no = cust.cust-no
    ll-prev-cr-hold = cust.cr-hold
-   ls-prev-sman = cust.sman  
+   ls-prev-sman = cust.sman
    ll-new-record = FALSE .
 
   RUN cust-zip.
@@ -2187,7 +2211,7 @@ PROCEDURE local-update-record :
            APPLY "entry" TO cust.cust-no.
            RETURN.
         END.
-        FIND FIRST bf-cust WHERE bf-cust.company = gcompany 
+        FIND FIRST bf-cust WHERE bf-cust.company = gcompany
                              AND bf-cust.cust-no = cust.cust-no:SCREEN-VALUE
                              AND RECID(bf-cust) <> RECID(cust)
                              NO-LOCK NO-ERROR.
@@ -2198,13 +2222,13 @@ PROCEDURE local-update-record :
         END.
         IF v-custsize = "Hughes" and
            v-cust-length <> LENGTH(cust.cust-no:SCREEN-VALUE) THEN DO:
-           MESSAGE "Customer Number must be " v-cust-length "digits character." 
+           MESSAGE "Customer Number must be " v-cust-length "digits character."
                    VIEW-AS ALERT-BOX ERROR.
            APPLY "entry" TO cust.cust-no.
            RETURN.
         END.
      END.
-    
+
      /*if /*cust.sman:screen-value <> "" and */
         not can-find(first sman where sman.sman = cust.sman:screen-value)
      then do:
@@ -2216,10 +2240,10 @@ PROCEDURE local-update-record :
      RUN valid-custtype NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-     RUN valid-sman NO-ERROR. 
+     RUN valid-sman NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-     RUN valid-status NO-ERROR. 
+     RUN valid-status NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
      if cust.pallet:screen-value <> "" and
@@ -2228,7 +2252,7 @@ PROCEDURE local-update-record :
      then do:
         message "Invalid Pallet Code. Try Help." view-as alert-box error.
         apply "entry" to cust.pallet.
-        return .     
+        return .
      end.
      if cust.terr:screen-value <> "" and
         not can-find(first terr where terr.company = gcompany and
@@ -2236,7 +2260,7 @@ PROCEDURE local-update-record :
      then do:
         message "Invalid Territory Code. Try Help." view-as alert-box error.
         apply "entry" to cust.terr.
-        return no-apply.     
+        return no-apply.
      end.
      if cust.case-bundle:screen-value <> "" and
         not can-find(first item where item.company = gcompany and item.mat-type = "C" and
@@ -2244,58 +2268,58 @@ PROCEDURE local-update-record :
      then do:
         message "Invalid Case/Bundle Code. Try Help." view-as alert-box error.
         apply "entry" to cust.case-bundle.
-        return no-apply.     
+        return no-apply.
      end.
      if cust.loc:screen-value <> "" and
-        not can-find(first loc where loc.company = gcompany and 
+        not can-find(first loc where loc.company = gcompany and
                                      loc.loc = cust.loc:screen-value)
      then do:
         message "Invalid Ord. Loc. Code. Try Help." view-as alert-box error.
         apply "entry" to cust.loc.
-        return no-apply.     
+        return no-apply.
      end.
      if /*cust.carrier:screen-value <> "" and*/
-        not can-find(first carrier where carrier.company = gcompany and 
+        not can-find(first carrier where carrier.company = gcompany and
                                      carrier.loc = cust.loc:screen-value and
                                      carrier.carrier = cust.carrier:screen-value)
      then do:
         message "Invalid Carrier Code. Try Help." view-as alert-box error.
         apply "entry" to cust.carrier.
-        return no-apply.     
+        return no-apply.
      end.
      if /*cust.del-zone:screen-value <> "" and*/
-        not can-find(first carr-mtx where carr-mtx.company = gcompany and 
+        not can-find(first carr-mtx where carr-mtx.company = gcompany and
                                      carr-mtx.loc = cust.loc:screen-value and
                                      carr-mtx.carrier = cust.carrier:screen-value and
                                      carr-mtx.del-zone = cust.del-zone:screen-value)
      then do:
         message "Invalid Delivey Zone. Try Help." view-as alert-box error.
         apply "entry" to cust.del-zone.
-        return no-apply.     
+        return no-apply.
      end.
-     if cust.sort:screen-value = "Y" and 
+     if cust.sort:screen-value = "Y" and
         (
         /* not can-find(first stax where stax.tax-group begins gcompany and
                                    substring(stax.tax-group,1,10) = gcompany and
                                    substring(stax.tax-group,11,length(trim(stax.tax-group)) - 10) = cust.tax-gr:screen-value )
         */
-          not can-find(first stax-group where stax-group.tax-group = cust.tax-gr:screen-value)         
+          not can-find(first stax-group where stax-group.tax-group = cust.tax-gr:screen-value)
          or
-         cust.tax-gr:screen-value = ""                    
-        )    
+         cust.tax-gr:screen-value = ""
+        )
      then do:
         message "Invalid Tax Code. Try Help." view-as alert-box error.
         apply "entry" to cust.tax-gr.
         return no-apply.
-     end.                                     
+     end.
      if cust.state:screen-value <> "" and
         not can-find(first state where state.state = cust.state:screen-value )
      then do:
        message "Invalid State Code. Try Help." view-as alert-box error.
        apply "entry" to cust.state.
        return no-apply.
-     end.                                     
-     if decimal(cust.cust-level:screen-value) > 10 then 
+     end.
+     if decimal(cust.cust-level:screen-value) > 10 then
      do:
         message "Price level can not exceed 10." view-as alert-box error.
         apply "entry" to cust.cust-level.
@@ -2308,10 +2332,10 @@ PROCEDURE local-update-record :
   end.
   RUN valid-cr-hold.
   IF NOT v-valid THEN RETURN NO-APPLY.
-  
+
   RUN valid-cr-hold-invdays.
   IF NOT v-valid THEN RETURN NO-APPLY.
-  
+
   RUN valid-cr-lim.
   IF NOT v-valid THEN RETURN NO-APPLY.
 
@@ -2332,7 +2356,7 @@ PROCEDURE local-update-record :
 
   RUN valid-markup.
   IF NOT v-valid THEN RETURN NO-APPLY.
-  
+
 
   /* ============== end of validations ==================*/
 
@@ -2340,13 +2364,13 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  
+
   RUN disable-fields.
- 
+
   /*if adm-new-record and not adm-adding-record then do:  /* copy */
     find bf-cust where bf-cust.company = cust.company and
                        bf-cust.cust-no = ls-prev-cust-no no-lock no-error.
-    
+
     for each bf-shipto of bf-cust NO-LOCK BY bf-shipto.ship-no
          /* WHERE bf-shipto.ship-id = bf-cust.cust-no*/ :
         create shipto.
@@ -2380,7 +2404,7 @@ PROCEDURE local-update-record :
                 soldto.sold-state = cust.state
                 soldto.sold-zip = cust.zip.
         LEAVE. /* just copy first shipto only Task 05250421*/
-    end.                     
+    end.
   end.*/
 
   IF NOT adm-new-record             AND
@@ -2394,26 +2418,26 @@ PROCEDURE local-update-record :
   IF NOT adm-new-record AND ls-prev-sman <> cust.sman  THEN DO:
      MESSAGE "Update Sales Rep on Estimate, Quotes and Ship Tos ? " VIEW-AS ALERT-BOX QUESTION
          BUTTON YES-NO UPDATE ll-ans AS LOG .
-     IF ll-ans THEN 
+     IF ll-ans THEN
          RUN update-sman.
   END.
-  
+
   IF ll-new-record THEN DO:
     /* Reposition browse to new record so other tabs are refreshed */
-    {methods/run_link.i "RECORD-SOURCE" "repo-query2" "(INPUT ROWID(cust))"} 
+    {methods/run_link.i "RECORD-SOURCE" "repo-query2" "(INPUT ROWID(cust))"}
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reftable-values V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reftable-values V-table-Win
 PROCEDURE reftable-values :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-display AS LOG NO-UNDO.
 
@@ -2495,12 +2519,12 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed V-table-Win
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 -------------------------------------------------------------*/
   DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE    NO-UNDO.
   DEFINE INPUT PARAMETER p-state      AS CHARACTER NO-UNDO.
@@ -2515,24 +2539,24 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE update-sman V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE update-sman V-table-Win
 PROCEDURE update-sman :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
   DEF VAR ld-markup AS DEC NO-UNDO.
 
 
   /* SESSION:SET-WAIT-STATE("general").
-   FOR EACH eb WHERE eb.company = cust.company 
+   FOR EACH eb WHERE eb.company = cust.company
                  AND eb.cust-no = cust.cust-no:
        IF eb.sman <> cust.sman THEN do:
            eb.sman = cust.sman.
 
            RUN ce/markup.p (eb.company, ROWID(eb), OUTPUT ld-markup).
-           
+
            run sys/inc/getsmncm.p (eb.cust-no,
                                    INPUT-OUTPUT eb.sman,
                                    eb.procat,
@@ -2553,17 +2577,17 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cr-hold V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cr-hold V-table-Win
 PROCEDURE valid-cr-hold :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
-  
+
   v-valid = YES.
 
-  DO WITH FRAME {&frame-name}:    
+  DO WITH FRAME {&frame-name}:
     IF NOT ll-secure                                              AND
        v-secur                                                    AND
        /*NOT adm-new-record                                         AND*/
@@ -2586,14 +2610,14 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cr-hold-invdays V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cr-hold-invdays V-table-Win
 PROCEDURE valid-cr-hold-invdays :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
-  
+
   v-valid = YES.
 
   DO WITH FRAME {&frame-name}:
@@ -2620,12 +2644,12 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cr-lim V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cr-lim V-table-Win
 PROCEDURE valid-cr-lim :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
 
   v-valid = YES.
@@ -2639,7 +2663,7 @@ PROCEDURE valid-cr-lim :
        v-custpass                                   THEN DO:
 
       RUN sys/ref/d-passwd.w (2, OUTPUT ll-secure).
-      
+
       IF NOT ll-secure THEN
         ASSIGN
          v-valid                  = NO
@@ -2654,12 +2678,12 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-currency V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-currency V-table-Win
 PROCEDURE valid-currency :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
 
  FIND FIRST currency WHERE currency.company = g_company
@@ -2676,12 +2700,12 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-custtype V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-custtype V-table-Win
 PROCEDURE valid-custtype :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
   IF NOT CAN-FIND(FIRST custype WHERE custype.company = cocode
                        AND custype.custype = cust.TYPE:SCREEN-VALUE IN FRAME {&FRAME-NAME}
@@ -2695,12 +2719,12 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-disc V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-disc V-table-Win
 PROCEDURE valid-disc :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
 
   v-valid = YES.
@@ -2714,7 +2738,7 @@ PROCEDURE valid-disc :
        v-custpass                               THEN DO:
 
       RUN sys/ref/d-passwd.w (2, OUTPUT ll-secure).
-      
+
       IF NOT ll-secure THEN
         ASSIGN
          v-valid                = NO
@@ -2729,12 +2753,12 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-fin-chg V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-fin-chg V-table-Win
 PROCEDURE valid-fin-chg :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
 
   v-valid = YES.
@@ -2747,7 +2771,7 @@ PROCEDURE valid-fin-chg :
        v-custpass                                                 THEN DO:
 
       RUN sys/ref/d-passwd.w (2, OUTPUT ll-secure).
-      
+
       IF NOT ll-secure THEN
         ASSIGN
          v-valid                   = NO
@@ -2762,12 +2786,12 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-inv-meth V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-inv-meth V-table-Win
 PROCEDURE valid-inv-meth :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
   v-valid = YES.
 
@@ -2781,7 +2805,7 @@ PROCEDURE valid-inv-meth :
        v-custpass                                      THEN DO:
 
       RUN sys/ref/d-passwd.w (2, OUTPUT ll-secure).
-      
+
       IF NOT ll-secure THEN
         ASSIGN
          v-valid                  = NO
@@ -2796,12 +2820,12 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-markup V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-markup V-table-Win
 PROCEDURE valid-markup :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
 
   v-valid = YES.
@@ -2815,7 +2839,7 @@ PROCEDURE valid-markup :
        v-custpass                                   THEN DO:
 
       RUN sys/ref/d-passwd.w (2, OUTPUT ll-secure).
-      
+
       IF NOT ll-secure THEN
         ASSIGN
          v-valid                  = NO
@@ -2830,12 +2854,12 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-ord-lim V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-ord-lim V-table-Win
 PROCEDURE valid-ord-lim :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
 
   v-valid = YES.
@@ -2849,7 +2873,7 @@ PROCEDURE valid-ord-lim :
        v-custpass                                     THEN DO:
 
       RUN sys/ref/d-passwd.w (2, OUTPUT ll-secure).
-      
+
       IF NOT ll-secure THEN
         ASSIGN
          v-valid                   = NO
@@ -2864,12 +2888,12 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-sman V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-sman V-table-Win
 PROCEDURE valid-sman :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
   FIND FIRST sman
         WHERE sman.company EQ cocode
@@ -2888,24 +2912,24 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-status V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-status V-table-Win
 PROCEDURE valid-status :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
-IF cust.active:SCREEN-VALUE IN FRAME {&FRAME-NAME} BEGINS "(X)" 
-  THEN 
+IF cust.active:SCREEN-VALUE IN FRAME {&FRAME-NAME} BEGINS "(X)"
+  THEN
     FIND FIRST bf-cust NO-LOCK
       WHERE bf-cust.company EQ cocode
         AND bf-cust.active = "X"
-        AND bf-cust.cust-no NE cust.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} 
+        AND bf-cust.cust-no NE cust.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}
       NO-ERROR.
     IF AVAIL bf-cust THEN DO:
-      MESSAGE 
-        "Customer " + bf-cust.cust-no + " - " + bf-cust.NAME 
-        " is already marked as the inhouse account." SKIP 
+      MESSAGE
+        "Customer " + bf-cust.cust-no + " - " + bf-cust.NAME
+        " is already marked as the inhouse account." SKIP
         "You can only have 1 inhouse account. Please select another status."
        VIEW-AS ALERT-BOX ERROR.
 
@@ -2919,14 +2943,14 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-terms V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-terms V-table-Win
 PROCEDURE valid-terms :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
-  
+
   v-valid = YES.
 
   DO WITH FRAME {&frame-name}:
@@ -2938,13 +2962,13 @@ PROCEDURE valid-terms :
        v-custpass                            THEN DO:
 
       RUN sys/ref/d-passwd.w (2, OUTPUT ll-secure).
-      
+
       IF NOT ll-secure THEN
         ASSIGN
          v-valid                   = NO
          cust.terms:SCREEN-VALUE = cust.terms.
-    END. 
-   
+    END.
+
     IF v-valid                                                                 AND
        NOT CAN-FIND(FIRST terms WHERE terms.t-code EQ cust.terms:SCREEN-VALUE) THEN DO:
 
@@ -2960,28 +2984,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE zip-carrier V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE zip-carrier V-table-Win
 PROCEDURE zip-carrier :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
    DO WITH FRAME {&FRAME-NAME}:
-   
+
    /* gdm - 10010913 */
    FIND FIRST ASI.zipcode
         WHERE ASI.zipcode.zipcode EQ cust.zip:SCREEN-VALUE
         NO-LOCK NO-ERROR.
 
    ASSIGN
-      cust.carrier:SCREEN-VALUE = IF AVAIL zipcode AND 
-                                     TRIM(ASI.zipcode.carrier) NE "" 
-                                    THEN ASI.zipcode.carrier 
+      cust.carrier:SCREEN-VALUE = IF AVAIL zipcode AND
+                                     TRIM(ASI.zipcode.carrier) NE ""
+                                    THEN ASI.zipcode.carrier
                                     ELSE cust.carrier:SCREEN-VALUE
-      cust.del-zone:SCREEN-VALUE = IF AVAIL zipcode AND 
-                                      TRIM(ASI.zipcode.del-zone) NE "" 
-                                     THEN ASI.zipcode.del-zone            
+      cust.del-zone:SCREEN-VALUE = IF AVAIL zipcode AND
+                                      TRIM(ASI.zipcode.del-zone) NE ""
+                                     THEN ASI.zipcode.del-zone
                                      ELSE cust.del-zone:SCREEN-VALUE.
       /* gdm - 10010913 end*/
    END.
