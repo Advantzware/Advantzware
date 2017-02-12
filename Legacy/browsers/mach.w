@@ -1,21 +1,21 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
-/* Connected Databases 
+/* Connected Databases
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
 USING Consultingwerk.Framework.Collections.CharacterDictionary FROM PROPATH.
 USING Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl FROM PROPATH.
 &SCOPED-DEFINE dataGrid
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win
 /*------------------------------------------------------------------------
 
   File: browsers/mach.w
 
-  Description: 
+  Description:
 
   Input Parameters:
       <none>
@@ -23,7 +23,7 @@ USING Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchContr
   Output Parameters:
       <none>
 
-  Author: 
+  Author:
 
   Created: 01/17/17 - 10:28 am
 
@@ -50,7 +50,7 @@ ASSIGN
 
 FOR EACH dept {sys/ref/deptW.i} NO-LOCK,
     EACH mach WHERE mach.dept[1] EQ dept.code
-    :    
+    :
   mach.d-seq = dept.fc.
 END.
 
@@ -58,12 +58,12 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win
 /*------------------------------------------------------------------------
 
-  File: 
+  File:
 
-  Description: 
+  Description:
 
   Input Parameters:
       <none>
@@ -71,7 +71,7 @@ END.
   Output Parameters:
       <none>
 
-  Author: 
+  Author:
 
   Created: 01/17/17 - 11:00 am
 
@@ -89,7 +89,7 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
+&ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -110,8 +110,8 @@ END.
 &Scoped-define FIELDS-IN-QUERY-Browser-Table mach.m-code ~
 string(mach.dept[1] + mach.dept[2] + mach.dept[3] + mach.dept[4]) @ mach.dept[1] ~
 mach.m-dscr mach.industry mach.loc mach.sch-m-code mach.dept[1] mach.d-seq ~
-mach.m-seq mach.p-type mach.run-spoil mach.mr-waste 
-&Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
+mach.m-seq mach.p-type mach.run-spoil mach.mr-waste
+&Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH mach WHERE ~{&KEY-PHRASE} ~
       AND mach.company = g_company NO-LOCK ~
     ~{&SORTBY-PHRASE}
@@ -125,7 +125,7 @@ mach.m-seq mach.p-type mach.run-spoil mach.mr-waste
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table 
+&Scoped-Define ENABLED-OBJECTS Browser-Table
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -141,7 +141,7 @@ mach.m-seq mach.p-type mach.run-spoil mach.mr-waste
 /* Definitions of the field level widgets                               */
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
-DEFINE QUERY Browser-Table FOR 
+DEFINE QUERY Browser-Table FOR
       mach
     FIELDS(mach.m-code
       mach.dept
@@ -188,9 +188,9 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY
+         SIDE-LABELS NO-UNDERLINE THREE-D
+         AT COL 1 ROW 1 SCROLLABLE
          BGCOLOR 8 FGCOLOR 0 .
 
 
@@ -218,7 +218,7 @@ END.
 /* *************************  Create Window  ************************** */
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
-/* DESIGN Window definition (used by the UIB) 
+/* DESIGN Window definition (used by the UIB)
   CREATE WINDOW B-table-Win ASSIGN
          HEIGHT             = 19.52
          WIDTH              = 145.
@@ -226,7 +226,7 @@ END.
                                                                         */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB B-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB B-table-Win
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/browser.i}
@@ -248,12 +248,12 @@ END.
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB Browser-Table 1 F-Main */
-ASSIGN 
+ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
-ASSIGN 
-       Browser-Table:PRIVATE-DATA IN FRAME F-Main           = 
+ASSIGN
+       Browser-Table:PRIVATE-DATA IN FRAME F-Main           =
                 "2".
 
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -293,7 +293,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -339,13 +339,13 @@ END.
 
 &UNDEFINE SELF-NAME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK B-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK B-table-Win
 
 
 /* ***************************  Main Block  *************************** */
 
-&IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
-RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
+&IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN
+RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF
 
 {methods/winReSize.i}
@@ -355,6 +355,26 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 
 
 /* **********************  Internal Procedures  *********************** */
+
+/**
+ * Purpose:
+ * Notes:
+ */
+PROCEDURE InitializeGrid:
+
+    IF NOT VALID-OBJECT (oRenderedBrowseControl) THEN
+        RETURN .
+
+    // Ability to not allow user to group (Based on the number of records that would be loaded)
+    oRenderedBrowseControl:DisplayLayout:ViewStyleBand =
+        Infragistics.Win.UltraWinGrid.ViewStyleBand:Horizontal .
+
+    // Disable sort on a per column base
+    oRenderedBrowseControl:DisplayLayout:Bands[0]:Columns["industry"]:SortIndicator =
+        Infragistics.Win.UltraWinGrid.SortIndicator:Disabled  .
+
+
+END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available B-table-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
@@ -384,7 +404,7 @@ PROCEDURE disable_UI :
   Purpose:     DISABLE the User Interface
   Parameters:  <none>
   Notes:       Here we clean-up the user-interface by deleting
-               dynamic widgets we have created and/or hide 
+               dynamic widgets we have created and/or hide
                frames.  This procedure is usually called when
                we are ready to "clean-up" after running.
 ------------------------------------------------------------------------------*/
@@ -396,12 +416,12 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE entry-to-browse B-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE entry-to-browse B-table-Win
 PROCEDURE entry-to-browse :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
     APPLY "ENTRY":U TO BROWSE {&browse-name}.
 
@@ -410,12 +430,12 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win
 PROCEDURE export-xl :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
 
 RUN fg/m-mchexp.w ("","m-code").
@@ -426,12 +446,12 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query B-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query B-table-Win
 PROCEDURE repo-query :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
 
@@ -443,7 +463,7 @@ PROCEDURE repo-query :
   END.
 
   RUN dispatch ("row-changed").
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -471,12 +491,12 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed B-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed B-table-Win
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 -------------------------------------------------------------*/
   DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE    NO-UNDO.
   DEFINE INPUT PARAMETER p-state      AS CHARACTER NO-UNDO.
