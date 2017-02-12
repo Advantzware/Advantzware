@@ -35,11 +35,11 @@
   m_menu-lst[1] = TRIM(m_menu-lst[1]) + "." + TRIM(m_menu-lst[2]).
 
   DO i = 1 TO j:
-    IF i = 1 THEN
+IF i = 1 THEN
       IF SEARCH("usermenu/" + USERID("ASI") + "/" + m_menu-lst[1]) NE ? THEN
-      INPUT FROM VALUE("usermenu/" + USERID("ASI") + "/" + m_menu-lst[1]) NO-ECHO.
+      INPUT FROM VALUE(SEARCH ("usermenu/" + USERID("ASI") + "/" + m_menu-lst[1])) NO-ECHO.
       ELSE
-      INPUT FROM VALUE(m_menu-lst[1]) NO-ECHO.
+      INPUT FROM VALUE(SEARCH (m_menu-lst[1])) NO-ECHO.
     ELSE
     INPUT FROM popup.lst NO-ECHO.
     REPEAT:
@@ -63,9 +63,9 @@
   DO i = 1 TO j:
     IF i = 1 THEN
       IF SEARCH("usermenu/" + USERID("ASI") + "/" + m_menu-lst[1]) NE ? THEN
-      INPUT FROM VALUE("usermenu/" + USERID("ASI") + "/" + m_menu-lst[1]) NO-ECHO.
+      INPUT FROM VALUE(SEARCH ("usermenu/" + USERID("ASI") + "/" + m_menu-lst[1])) NO-ECHO.
       ELSE
-      INPUT FROM VALUE(m_menu-lst[1]) NO-ECHO.
+      INPUT FROM VALUE(SEARCH (m_menu-lst[1])) NO-ECHO.
     ELSE
     INPUT FROM popup.lst NO-ECHO.
     REPEAT:
@@ -81,10 +81,10 @@
           IF USERID("ASI") EQ "ASI" THEN
             MESSAGE "Missing menu item: " m_item2 SKIP
             "menu file:" m_menu-lst[1] SKIP
-            VIEW-AS ALERT-BOX.          
+            VIEW-AS ALERT-BOX.
           NEXT.
       END.
-    
+
       IF CAN-DO("RULE,SKIP",m_item1) THEN
       DO:
         CREATE MENU-ITEM menu-item-ptr
