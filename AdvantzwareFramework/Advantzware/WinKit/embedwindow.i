@@ -79,7 +79,8 @@ END FUNCTION.
 /* Mike Fechner, Consultingwerk Ltd. 23.08.2012
    An CHARCATER to hold a list of all frames in case  */
 DEFINE VARIABLE cWinKitListOfFrameHandles AS CHARACTER NO-UNDO.
-IF Consultingwerk.Util.ProcedureHelper:HasEntry (THIS-PROCEDURE,
+
+IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive AND Consultingwerk.Util.ProcedureHelper:HasEntry (THIS-PROCEDURE,
                                                  "WinKitAssignFrameHandles":U,
                                                  "PROCEDURE":U) THEN
     RUN WinKitAssignFrameHandles .

@@ -244,7 +244,7 @@ PROCEDURE init-object :
      create a Ribbon Group for it */
   &IF "{&WinKitFormType}" EQ "Advantzware.WinKit.Forms.EmbeddedWindowTabFolderForm" &THEN
 
-  IF Consultingwerk.Util.ProcedureHelper:HasEntry (p-proc-hdl, "winkit-make-ribbon-group") THEN
+  IF VALID-OBJECT (oForm) AND Consultingwerk.Util.ProcedureHelper:HasEntry (p-proc-hdl, "winkit-make-ribbon-group") THEN
       RUN winkit-make-ribbon-group IN p-proc-hdl
            (oForm, iPage) .
 
@@ -432,7 +432,8 @@ PROCEDURE winkit-initialize:
     RUN dispatch IN THIS-PROCEDURE ("initialize") .
 
     &IF DEFINED (WinKitFormType) NE 0 &THEN
-    Consultingwerk.Util.UltraToolbarsHelper:RefreshTools (oForm:ToolbarsManager) .
+    IF VALID-OBJECT (oForm) THEN
+        Consultingwerk.Util.UltraToolbarsHelper:RefreshTools (oForm:ToolbarsManager) .
     &ENDIF
 
 END PROCEDURE.

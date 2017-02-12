@@ -140,6 +140,10 @@ PROCEDURE winkit-initialize:
 
     RUN dispatch IN THIS-PROCEDURE ("initialize") .
 
+    // Only execute WinKit initialization when WinKit is active
+    IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive = FALSE THEN 
+        RETURN . 
+
     RUN get-link-handle IN adm-broker-hdl
            (INPUT THIS-PROCEDURE, INPUT 'CONTAINER-SOURCE':U, OUTPUT char-hdl).
     ASSIGN container-hdl = WIDGET-HANDLE(char-hdl).
