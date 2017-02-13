@@ -109,7 +109,7 @@ po-ord.tax po-ord.t-cost po-ord.approved-date po-ord.approved-id
 &Scoped-define FIRST-DISPLAYED-TABLE po-ord
 &Scoped-Define DISPLAYED-OBJECTS fc_app_time lv_vend-name lv_vend-add1 ~
 lv_vend-add2 lv_vend-city lv_vend-state lv_vend-zip shipAreaCode shipPhone ~
-lv_vend-area-code lv_vend-phone typeDescr 
+lv_vend-area-code lv_vend-phone typeDescr approved_text 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -211,7 +211,11 @@ DEFINE VARIABLE shipPhone AS CHARACTER FORMAT "999-9999"
 
 DEFINE VARIABLE typeDescr AS CHARACTER FORMAT "X(256)":U INITIAL "Type Description" 
       VIEW-AS TEXT 
-     SIZE 20 BY 1 NO-UNDO.
+     SIZE 20 BY 1 NO-UNDO. 
+
+DEFINE VARIABLE approved_text AS CHARACTER FORMAT "X(8)":U INITIAL "Approved" 
+      VIEW-AS TEXT 
+     SIZE 12 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -346,12 +350,13 @@ DEFINE FRAME F-Main
           LABEL "By"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     "FOB:" VIEW-AS TEXT
+          "FOB:" VIEW-AS TEXT
           SIZE 6 BY .81 AT ROW 15.05 COL 78
      "Freight Payment:" VIEW-AS TEXT
           SIZE 19 BY .81 AT ROW 13.86 COL 65
-     "Approved" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 1.24 COL 130.2 WIDGET-ID 12
+     /*"Approved" VIEW-AS TEXT*/
+      approved_text
+          /*SIZE 12 BY .62*/ AT ROW 1.24 COL 130.2 WIDGET-ID 12 NO-LABEL
      RECT-1 AT ROW 1 COL 1
      RECT-13 AT ROW 1.71 COL 128 WIDGET-ID 10
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -1185,9 +1190,14 @@ PROCEDURE hold-release :
      FIND CURRENT bf-po-ord NO-LOCK NO-ERROR.
      FIND CURRENT po-ord NO-LOCK NO-ERROR.
      IF AVAILABLE po-ord THEN DO: 
-        DISPLAY po-ord.stat po-ord.approved-date po-ord.approved-id 
+        DISPLAY po-ord.stat po-ord.approved-date po-ord.approved-id RECT-13 approved_text
              WITH FRAME {&FRAME-NAME}.
         fc_app_time:SCREEN-VALUE = IF AVAILABLE po-ord THEN string(po-ord.approved-time,"HH:MM") ELSE "".
+        fc_app_time:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
+        po-ord.approved-date:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
+        po-ord.approved-id:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE  .
+        RECT-13:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
+        approved_text:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
      END.        
  END.
 
@@ -1685,8 +1695,14 @@ PROCEDURE local-create-record :
 
   IF trim(v-postatus-cha) = "Hold" THEN DO:
      po-ord.stat = "H" .
-     DISPLAY po-ord.stat WITH FRAME {&frame-name}.
   END.
+  DISPLAY po-ord.stat fc_app_time RECT-13 approved_text po-ord.approved-date
+          po-ord.approved-id WITH FRAME {&frame-name}.
+          fc_app_time:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
+          po-ord.approved-date:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
+          po-ord.approved-id:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE  .
+          RECT-13:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
+          approved_text:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
   
   IF NOT copy-record THEN ls-drop-custno = "".
 
@@ -1745,8 +1761,17 @@ PROCEDURE local-display-fields :
   RUN setTypeDescr.
   IF AVAILABLE po-ord THEN RUN display-vend.
   v-copied-from = INTEGER(po-ord.po-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
-  
   fc_app_time:SCREEN-VALUE = IF AVAILABLE po-ord THEN string(po-ord.approved-time,"HH:MM") ELSE "".
+
+  fc_app_time:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
+  po-ord.approved-date:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
+  po-ord.approved-id:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE  .
+  RECT-13:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
+  approved_text:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
+ 
+ 
+/* IF po-ord.stat <> "H" THEN ENABLE po-ord.approved-date fc_app_time.
+ IF po-ord.stat <> "H" THEN ENABLE po-ord.approved-id.*/
    
 END PROCEDURE.
 
