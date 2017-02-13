@@ -6602,6 +6602,9 @@ PROCEDURE ok-button :
         
     
   APPLY "entry" TO fi_cas-lab IN FRAME {&FRAME-NAME}.
+  
+  IF lv-ok-ran AND NOT tb_reprint-tag THEN
+      APPLY "close" TO THIS-PROCEDURE.
   /*
   case rd-dest:
        when 1 then run output-to-printer.
