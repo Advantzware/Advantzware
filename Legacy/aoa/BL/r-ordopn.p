@@ -595,22 +595,6 @@ FOR EACH tt-report NO-LOCK
         DELETE tt-report.
 END. /* each tt-report */
 
-ASSIGN
-    tmpFile = SEARCH("aoa/tmp/.keep")
-    tmpFile = REPLACE(tmpFile,".keep","ttOpenOrderReportDetail." +
-                      ipcCompany + "." +
-                      STRING(ipiBatch) + "." +
-                      ipcUserID + ".dat"
-                      ).
-OUTPUT TO VALUE(tmpFile).
-FOR EACH ttOpenOrderReportDetail
-    WHERE ttOpenOrderReportDetail.xxIndex GT 0
-      AND ttOpenOrderReportDetail.qty     GT 0
-    :
-    EXPORT ttOpenOrderReportDetail.
-END. /* each ttOpenOrderReportDetail */
-OUTPUT CLOSE.
-
 PROCEDURE pBuildttReport:
     DEFINE INPUT PARAMETER ipdtDate         AS DATE      NO-UNDO.
     DEFINE INPUT PARAMETER iprRecID         AS RECID     NO-UNDO.
