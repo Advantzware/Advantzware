@@ -180,7 +180,7 @@ v-lscore-fld-num = v-lscore-fld-num - 1.
 
 i = 0.
 for each box-design-line of box-design-hdr no-lock:
-  if box-design-line.wcum-score ne "" then do:
+  if box-design-line.wscore ne "" then do:
     i = i + 1.
     create w-box-design-line.
     assign
