@@ -1695,7 +1695,7 @@ FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
   oeprompt = sys-ctrl.log-fld.
   
   
-  IF v-oecomm-cha NE "Manual" THEN RUN hide-comm (YES).
+  IF NOT v-oecomm-log THEN RUN hide-comm (YES).
 
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -3147,7 +3147,7 @@ PROCEDURE disable-fields :
     DISABLE fi_type tb_whs-order fi_prev_order.
   END.
 
-  IF v-oecomm-cha NE "Manual" THEN RUN hide-comm (YES).
+  IF NOT v-oecomm-log THEN RUN hide-comm (YES).
 
 END PROCEDURE.
 
@@ -4926,7 +4926,7 @@ PROCEDURE local-enable-fields :
   if not avail oe-ord and lv-new-row-id <> ? then 
       find oe-ord where rowid(oe-ord) = lv-new-row-id no-lock no-error.*/
 
-  RUN hide-comm (NO).
+  IF NOT v-oecomm-log THEN RUN hide-comm (YES).
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .

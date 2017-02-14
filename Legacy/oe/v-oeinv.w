@@ -31,6 +31,8 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 ASSIGN cocode = g_company
        locode = g_loc.
+{oe/oe-sysct1.i NEW}
+
 DEF VAR li-sold-no AS INT NO-UNDO.
 DEF VAR ll-cust-displayed AS LOG NO-UNDO.
 DEF BUFFER bf-head FOR inv-head.
@@ -744,6 +746,8 @@ END.
 
 /* ***************************  Main Block  *************************** */
 session:data-entry-return = yes.
+  RUN oe/oe-sysct.p.
+  
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
@@ -1403,6 +1407,8 @@ PROCEDURE local-display-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  IF NOT v-oecomm-log  THEN RUN hide-comm (YES).
+
   IF AVAIL inv-head THEN
   DO:
      inv-status:SCREEN-VALUE IN FRAME {&FRAME-NAME}
@@ -1860,6 +1866,28 @@ PROCEDURE valid-terms :
       APPLY "entry" TO inv-head.terms.
       RETURN ERROR.
     END.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE hide-comm V-table-Win 
+PROCEDURE hide-comm :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DEF INPUT PARAM ip-hidden AS LOG NO-UNDO.
+
+
+  DO WITH FRAME {&FRAME-NAME}:
+    inv-head.t-comm:HIDDEN = ip-hidden.
+
+    IF NOT ip-hidden THEN DISPLAY inv-head.t-comm.
   END.
 
 END PROCEDURE.
