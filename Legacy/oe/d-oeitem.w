@@ -430,7 +430,8 @@ fi_sname-2 fi_sname-3 fi_sname-lbl fi_jobStartDate
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 &Scoped-define List-2 oe-ordl.job-no oe-ordl.job-no2 oe-ordl.t-price ~
-oe-ordl.cost oe-ordl.type-code fi_sname-1 fi_sname-2 fi_sname-3 
+oe-ordl.cost oe-ordl.type-code fi_sname-1 fi_sname-2 fi_sname-3 fi_sman-lbl ~
+fi_sname-1 fi_s-pct-lbl fi_s-comm-lbl 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -3230,9 +3231,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
              btn_ok:hidden = YES
              btn_cancel:hidden = YES 
              btn_hist:hidden = YES.
-
-      IF v-oecomm-cha NE "Manual" THEN RUN hide-comm (YES).
     END.
+    IF NOT v-oecomm-log THEN RUN hide-comm (YES).
     first-cust-part-no = oe-ordl.part-no.
 
     IF v-quo-price-int EQ 1 AND v-quo-price-log AND oe-ordl.est-no NE "" THEN
@@ -5644,6 +5644,10 @@ PROCEDURE display-item :
             oe-ordl.over-pct oe-ordl.under-pct
             oe-ordl.spare-char-1
             oe-ordl.whsed
+            fi_sman-lbl 
+            fi_sname-1
+            fi_s-pct-lbl
+            fi_s-comm-lbl
           WITH FRAME {&frame-name}.
 
 /*     IF oe-ordl.whsed:HIDDEN = NO THEN                  */
@@ -6534,45 +6538,15 @@ PROCEDURE hide-comm :
 
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
-     rect-31:HIDDEN           = ip-hidden
-     rect-39:HIDDEN           = ip-hidden
-     fi_sman-lbl:HIDDEN       = ip-hidden
-     fi_sname-lbl:HIDDEN      = ip-hidden
      fi_s-pct-lbl:HIDDEN      = ip-hidden
      fi_s-comm-lbl:HIDDEN     = ip-hidden
-     oe-ordl.s-man[1]:HIDDEN  = ip-hidden
-     oe-ordl.s-man[2]:HIDDEN  = ip-hidden
-     oe-ordl.s-man[3]:HIDDEN  = ip-hidden
-     fi_sname-1:HIDDEN        = ip-hidden
-     fi_sname-2:HIDDEN        = ip-hidden
-     fi_sname-3:HIDDEN        = ip-hidden
      oe-ordl.s-pct[1]:HIDDEN  = ip-hidden
      oe-ordl.s-pct[2]:HIDDEN  = ip-hidden
      oe-ordl.s-pct[3]:HIDDEN  = ip-hidden
      oe-ordl.s-comm[1]:HIDDEN = ip-hidden
      oe-ordl.s-comm[2]:HIDDEN = ip-hidden
      oe-ordl.s-comm[3]:HIDDEN = ip-hidden.
-
-    IF NOT ip-hidden THEN
-      DISPLAY rect-31
-              rect-39
-              fi_sman-lbl
-              fi_sname-lbl
-              fi_s-pct-lbl
-              fi_s-comm-lbl
-              fi_s-comm-lbl
-              oe-ordl.s-man[1]
-              oe-ordl.s-man[2]
-              oe-ordl.s-man[3]
-              fi_sname-1
-              fi_sname-2
-              fi_sname-3 
-              oe-ordl.s-pct[1]
-              oe-ordl.s-pct[2]
-              oe-ordl.s-pct[3]
-              oe-ordl.s-comm[1]
-              oe-ordl.s-comm[2]
-              oe-ordl.s-comm[3].
+   
   END.
 
 

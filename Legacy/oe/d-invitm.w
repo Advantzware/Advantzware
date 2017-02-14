@@ -61,6 +61,7 @@ if avail sys-ctrl then
 
 DEF VAR fg-uom-list AS cha NO-UNDO.
 RUN sys/ref/uom-ea.p (OUTPUT fg-uom-list).
+{oe/oe-sysct1.i NEW}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -124,7 +125,7 @@ inv-line.comm-amt[2] inv-line.disc inv-line.sman[3] inv-line.sname[3] ~
 inv-line.comm-amt[3] inv-line.tax inv-line.t-price 
 &Scoped-define DISPLAYED-TABLES inv-line
 &Scoped-define FIRST-DISPLAYED-TABLE inv-line
-&Scoped-Define DISPLAYED-OBJECTS lv-bolno 
+&Scoped-Define DISPLAYED-OBJECTS lv-bolno fi_comm-lbl
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -163,6 +164,11 @@ DEFINE RECTANGLE RECT-39
 DEFINE RECTANGLE RECT-40
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 139 BY 12.14.
+
+DEFINE VARIABLE fi_comm-lbl AS CHARACTER FORMAT "X(256)":U INITIAL "Comm $" 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY .71
+     FGCOLOR 9  NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -283,8 +289,8 @@ DEFINE FRAME Dialog-Frame
      "Code" VIEW-AS TEXT
           SIZE 7 BY .62 AT ROW 8.14 COL 81
           FGCOLOR 9 
-     "Comm $" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 8.14 COL 117
+     /*"Comm $" VIEW-AS TEXT
+          SIZE 11 BY .62*/ fi_comm-lbl NO-LABEL AT ROW 8.14 COL 117
           FGCOLOR 9 
      "Sales Rep Name" VIEW-AS TEXT
           SIZE 24 BY .62 AT ROW 8.14 COL 88 WIDGET-ID 8
@@ -364,6 +370,8 @@ ASSIGN
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR TOGGLE-BOX inv-line.tax IN FRAME Dialog-Frame
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN fi_comm-lbl IN FRAME F-Main
+   NO-ENABLE ALIGN-L                                                    */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -1017,7 +1025,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     DISABLE {&FIELDS-IN-QUERY-{&FRAME-NAME}}.
 
     RUN display-item.
-
+    
+    RUN oe/oe-sysct.p.
+    
     IF ip-type EQ "view" THEN
       ASSIGN
        btn_done:HIDDEN    = NO
@@ -1060,7 +1070,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       RUN enable-cost.
     END.
   END.
-  
+      IF NOT v-oecomm-log  THEN RUN hide-comm (YES).
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
 
@@ -1177,7 +1187,7 @@ PROCEDURE display-item :
           inv-line.inv-qty inv-line.price inv-line.pr-uom inv-line.sman[1] 
           inv-line.sname[1] inv-line.comm-amt[1] inv-line.cost inv-line.cas-cnt inv-line.sman[2] 
           inv-line.sname[2] inv-line.comm-amt[2] inv-line.disc inv-line.sman[3] inv-line.sname[3] 
-          inv-line.comm-amt[3] inv-line.t-price inv-line.tax 
+          inv-line.comm-amt[3] inv-line.t-price inv-line.tax fi_comm-lbl
           WITH FRAME Dialog-Frame.
 
      FIND FIRST oe-bolh WHERE oe-bolh.company = inv-line.company AND
@@ -1608,3 +1618,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE hide-comm V-table-Win 
+PROCEDURE hide-comm :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF INPUT PARAM ip-hidden AS LOG NO-UNDO.
+
+  DO WITH FRAME {&FRAME-NAME}:
+     ASSIGN
+        fi_comm-lbl:HIDDEN IN FRAME {&FRAME-NAME}  = ip-hidden 
+        inv-line.comm-amt[1]:HIDDEN IN FRAME {&FRAME-NAME}  = ip-hidden
+        inv-line.comm-amt[2]:HIDDEN IN FRAME {&FRAME-NAME} = ip-hidden
+        inv-line.comm-amt[3]:HIDDEN IN FRAME {&FRAME-NAME} = ip-hidden .
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

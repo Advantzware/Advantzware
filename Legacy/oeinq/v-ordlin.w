@@ -34,7 +34,12 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{custom/globdefs.i}
+{sys/inc/var.i new shared }
 
+assign cocode = g_company
+       locode = g_loc.
+{oe/oe-sysct1.i NEW}
 DEF VAR lv-inv-qty LIKE oe-ordl.inv-qty NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
@@ -394,6 +399,9 @@ ASSIGN
 
 
 /* ***************************  Main Block  *************************** */
+RUN oe/oe-sysct.p.
+
+ IF NOT v-oecomm-log THEN RUN show-comm (NO).
 
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -570,6 +578,31 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/vstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-comm B-table-Win 
+PROCEDURE show-comm :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ip-visible AS LOGICAL NO-UNDO.
+
+
+  DO WITH FRAME {&FRAME-NAME}:
+    ASSIGN
+     oe-ordl.s-pct[1]:VISIBLE IN FRAME {&FRAME-NAME} = ip-visible
+     oe-ordl.s-pct[2]:VISIBLE IN FRAME {&FRAME-NAME} = ip-visible
+     oe-ordl.s-pct[3]:VISIBLE IN FRAME {&FRAME-NAME} = ip-visible
+     oe-ordl.s-comm[1]:VISIBLE IN FRAME {&FRAME-NAME} = ip-visible
+     oe-ordl.s-comm[2]:VISIBLE IN FRAME {&FRAME-NAME} = ip-visible
+     oe-ordl.s-comm[3]:VISIBLE IN FRAME {&FRAME-NAME} = ip-visible.
+  END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
