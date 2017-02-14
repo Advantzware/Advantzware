@@ -1204,7 +1204,9 @@ PROCEDURE schedule-proc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  IF LOOKUP(PROPATH,'schedule') EQ 0 THEN
+  IF LOOKUP(PROPATH,"../") EQ 0 THEN
+    PROPATH = "../," + PROPATH.
+
   FIND FIRST sys-ctrl NO-LOCK
        WHERE sys-ctrl.company EQ company_code
          AND sys-ctrl.name    EQ "SCHEDULE"
