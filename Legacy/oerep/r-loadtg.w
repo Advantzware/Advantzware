@@ -36,7 +36,7 @@ DEFINE VARIABLE scanAgain AS LOGICAL NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/var.i new shared}
-
+{custom/xprint.i}
 assign
  cocode = gcompany
  locode = gloc.
@@ -195,6 +195,7 @@ DEFINE VARIABLE lFGSetAssembly AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE cFGSetAssembly AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE cResult AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE lGetBin AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE cBarCodeProgram AS CHARACTER NO-UNDO .
 RUN sys/ref/nk1look.p (INPUT cocode,
                        INPUT "FGSetAssembly",
                        INPUT "L",
@@ -259,7 +260,8 @@ DEF BUFFER bf-po-ord  FOR po-ord.
 DEF BUFFER bf-po-ordl FOR po-ordl.
 
 DEF BUFFER bf-jobhdr FOR job-hdr.
-
+DEFINE TEMP-TABLE tt-word-print LIKE w-ord 
+    FIELD tag-no AS CHARACTER .
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1115,6 +1117,12 @@ END.
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:  
   ASSIGN {&displayed-objects}.
+
+   ASSIGN
+      cBarCodeProgram = IF scr-label-file MATCHES "*.xpr*" THEN "xprint" ELSE "" .
+   FOR EACH tt-word-print:
+       DELETE tt-word-print .
+   END.
   
   ASSIGN 
       v-auto-print = scr-auto-print
@@ -3714,6 +3722,12 @@ PROCEDURE create-text-file :
           END. /*not SSLABEL, Centbox*/
 
         end. /*w-ord.total-tags > 0*/
+        IF cBarCodeProgram EQ "xprint" THEN do:
+            CREATE tt-word-print .
+            BUFFER-COPY w-ord TO tt-word-print .
+            ASSIGN 
+                tt-word-print.tag-no = loadtag.tag-no .
+        END.
         delete w-ord.
       end.
 
@@ -3723,6 +3737,7 @@ PROCEDURE create-text-file :
       /* Rename to expected file name / location */
       IF SEARCH(v-out) NE ? THEN
         OS-DELETE VALUE(v-out).
+      IF cBarCodeProgram EQ ""  THEN
       OS-RENAME VALUE(cTmpFile) VALUE(v-out).
 
 
@@ -6941,10 +6956,17 @@ PROCEDURE reprint-tag :
   END.
   
   RUN create-text-file.
-  IF (NOT is-from-addons() OR SSLoadTag-log = TRUE) THEN
-  MESSAGE "Loadtag reprint is completed." VIEW-AS ALERT-BOX INFORMATION.
+  
+  
+  IF cBarCodeProgram EQ "" THEN    
+    RUN AutoPrint.
+  ELSE IF cBarCodeProgram EQ "xprint" THEN 
+    RUN print-loadtg  .
+
+  IF (NOT is-from-addons() OR SSLoadTag-log = TRUE) THEN 
+      MESSAGE "Loadtag reprint is completed." VIEW-AS ALERT-BOX INFORMATION.
   SESSION:SET-WAIT-STATE ("").
-  RUN AutoPrint.
+
 
 END PROCEDURE.
 
@@ -7024,7 +7046,12 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :
 {oerep/r-loadtg1.i}
-RUN AutoPrint.
+
+IF cBarCodeProgram EQ "" THEN    
+    RUN AutoPrint.
+ELSE IF cBarCodeProgram EQ "xprint" THEN 
+    RUN print-loadtg .
+
 /*     IF scr-auto-print THEN                                                  */
 /*     DO:                                                                     */
 /*        DEF VAR v-int AS INT NO-UNDO.                                        */
@@ -7612,6 +7639,36 @@ FUNCTION win_normalizePath RETURNS CHARACTER
     return pcPath.
 
 END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE print-loadtg C-Win 
+PROCEDURE print-loadtg :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  
+    {sys/inc/print1.i}
+    {sys/inc/outprint.i value(85)}
+
+    PUT "<PREVIEW>".  
+
+    FOR EACH tt-word-print NO-LOCK BREAK
+                            BY tt-word-print.ord-no 
+                            BY tt-word-print.i-no:
+     {oe/rep/lodxprnt.i}
+     IF NOT LAST(tt-word-print.i-no) THEN PAGE .
+    END.
+
+     OUTPUT CLOSE.
+     FILE-INFO:FILE-NAME = list-name.
+     RUN printfile (FILE-INFO:FILE-NAME).
+
+END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
