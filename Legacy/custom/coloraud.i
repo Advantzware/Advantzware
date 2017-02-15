@@ -14,7 +14,7 @@ IF NOT AVAIL reftable THEN DO:
    reftable.rec_key  = {&TABLENAME}.rec_key
    reftable.reftable = "COLOR AUDIT"
    reftable.company  = "{&TABLENAME}"
-   reftable.loc      = USERID("ASI")
+   reftable.loc      = USERID("nosweat")
    reftable.code     = STRING(TODAY,"99/99/9999")
    reftable.code2    = STRING(TIME,"99999").
 

@@ -292,9 +292,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -353,7 +363,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -390,6 +400,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -403,7 +414,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-     
+
   run run-report. 
   SESSION:SET-WAIT-STATE ("general").
 
@@ -445,6 +456,7 @@ DO:
 
   end case. 
   SESSION:SET-WAIT-STATE("").
+     {src/WinKit/triggerend.i}
  END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -577,8 +589,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -589,7 +603,7 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
- 
+
 
 /* security check need {methods/prgsecur.i} in definition section */
   IF access-close THEN DO:
@@ -604,6 +618,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {custom/usrprint.i}
     APPLY 'ENTRY' TO begin_machine.
   END.
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -680,7 +695,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
  /*    DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -691,9 +706,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
 */
  {custom/out2file.i}
@@ -727,7 +742,7 @@ PROCEDURE output-to-printer :
      DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -754,7 +769,7 @@ PROCEDURE output-to-screen :
 ------------------------------------------------------------------------------*/
   run scr-rpt.w (list-name,c-win:title,INT(lv-font-no),lv-ornt). /* open file-name, title */ 
 
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -771,13 +786,13 @@ SESSION:SET-WAIT-STATE("general").
 {sys/form/r-top3w.f}
 
 FORM HEADER SKIP(1) WITH FRAME r-top.
- 
+
 assign
    str-tit2 = c-win:TITLE
    {sys/inc/ctrtext.i str-tit2 112}
    str-tit3 = FILL("-",132)
    {sys/inc/ctrtext.i str-tit3 132}.
-  
+
 
 {sys/inc/print1.i}
 {sys/inc/outprint.i value(lines-per-page)}
@@ -791,7 +806,7 @@ END.
 
 VIEW FRAME r-top.
 if td-show-parm then run show-param.
-  
+
 
 IF rd_sort = 1 THEN DO:
 
@@ -994,12 +1009,12 @@ SESSION:SET-WAIT-STATE("general").
 {sys/form/r-top3w.f}
 
 FORM HEADER SKIP(1) WITH FRAME r-top.
- 
+
 
 assign
    str-tit2 = c-win:TITLE
    {sys/inc/ctrtext.i str-tit2 112}
- 
+
    str-tit3 = "Employee Time by Job and Machine"
    {sys/inc/ctrtext.i str-tit3 132}.
 
@@ -1017,8 +1032,8 @@ FORM HEADER
 
 
 if td-show-parm then run show-param.
-  
- 
+
+
 
 VIEW FRAME r-top.
 
@@ -1043,7 +1058,7 @@ FOR EACH machemp NO-LOCK WHERE machemp.employee >= begin_emp-no
 
       FIND employee WHERE employee.company = machtran.company
                       AND employee.employee = machemp.employee NO-LOCK NO-ERROR.
-                 
+
       /*Employee#, MachineCode, Job#, Start Date, Start Time, Stop Time,
        ChargeCode, MR Time, Run Time, Total Time, Run Qty, Waste Qty. */
       ASSIGN ld-mr-time = 0
@@ -1051,21 +1066,21 @@ FOR EACH machemp NO-LOCK WHERE machemp.employee >= begin_emp-no
       IF FIRST-OF(machtran.machine) THEN ASSIGN ld-total-time = 0
                                                 li-job-cnt = 0.
       if first-of(machemp.employee) then assign ld-emp-time = 0.
-                                                
+
       ld-total-time = ld-total-time + machtran.TOTAL_time.
       ld-emp-time = ld-emp-time + machtran.TOTAL_time.
-    
+
       IF machtran.charge_code = "MR" THEN ld-mr-time = machtran.TOTAL_time.
       ELSE IF machtran.charge_code = "RUN" THEN ld-run-time = machtran.TOTAL_time.
-      
-      
+
+
       ACCUMULATE ld-mr-time (TOTAL BY machemp.employee BY machtran.machine).
       ACCUMULATE ld-run-time (TOTAL BY machemp.employee BY machtran.machine).
-      
+
       assign lv-rqty = if last-of(machtran.charge_code) then machtran.run_qty else 0
              lv-wqty = if last-of(machtran.charge_code) then machtran.waste_qty else 0
              .
-      
+
       ACCUMULATE lv-rqty (TOTAL BY machemp.employee BY machtran.machine).
       ACCUMULATE lv-wqty (TOTAL BY machemp.employee BY machtran.machine).
 
@@ -1081,14 +1096,14 @@ FOR EACH machemp NO-LOCK WHERE machemp.employee >= begin_emp-no
               STRING(machtran.end_time,'HH:MM am') LABEL 'End Time'
               /*machtran.shift */
               machtran.charge_code
-          
+
               STRING(ld-mr-time,"HH:MM") WHEN ld-mr-time > 0   @ ld-mr-time LABEL "MR Time"
               STRING(ld-run-time,"HH:MM") WHEN ld-run-time > 0 @ ld-run-time LABEL "Run Time"
               STRING(machtran.total_time,'HH:MM')  @ ld-total-time LABEL 'Total Time' 
               lv-rqty
               lv-wqty
               WITH FRAME det DOWN NO-BOX STREAM-IO WIDTH 133.
-    
+
       /* employee.first_name + ' ' + employee.last_name FORMAT 'X(30)' LABEL 'Name' 
       machemp.start_date
       STRING(machtran.start_time,'HH:MM am') LABEL 'Started'
@@ -1115,7 +1130,7 @@ FOR EACH machemp NO-LOCK WHERE machemp.employee >= begin_emp-no
            run touch/calctime.p (lv-tmp-mr, output ls-tot-mr).
            run touch/calctime.p (lv-tmp-run, output ls-tot-run).
            run touch/calctime.p (lv-tmp-tot, output ls-tot-tot).
-           
+
            disp "Machine" @ machtran.machine
                 "Total Time:" @ machtran.job_number
                 ls-tot-mr @ ld-mr-time 
@@ -1135,7 +1150,7 @@ FOR EACH machemp NO-LOCK WHERE machemp.employee >= begin_emp-no
                        ( (accum total by machtran.machine lv-rqty) +
                          (accum total by machtran.machine lv-wqty) ) * 100.
            else ld-waste% = 0.
-                           
+
            disp "Average Time:" @ machtran.job_number
                 ls-tot-mr @ ld-mr-time 
                 ls-tot-run @ ld-run-time 
@@ -1151,7 +1166,7 @@ FOR EACH machemp NO-LOCK WHERE machemp.employee >= begin_emp-no
            put space(16) "Average per Hr Total Time" 
                (accum total by machtran.machine lv-rqty) / lv-tmp-tot form ">>>,>>9" at 117
                skip.
-           
+
           IF NOT LAST-OF(machemp.employee) THEN DOWN 2 WITH FRAME det.
           ELSE DOWN WITH FRAME det.
 
@@ -1171,7 +1186,7 @@ FOR EACH machemp NO-LOCK WHERE machemp.employee >= begin_emp-no
            run touch/calctime.p (lv-tmp-mr, output ls-tot-mr).
            run touch/calctime.p (lv-tmp-run, output ls-tot-run).
            run touch/calctime.p (lv-tmp-tot, output ls-tot-tot).
-           
+
            disp "Employee" @ machtran.machine
                 "Total Time:" @ machtran.job_number
                 ls-tot-mr @ ld-mr-time
@@ -1206,7 +1221,7 @@ FOR EACH machemp NO-LOCK WHERE machemp.employee >= begin_emp-no
            put space(16) "Average per Hr Total Time" 
                (accum total by machemp.employee lv-rqty) / lv-tmp-tot form ">>>,>>9" at  117
                skip.
-    
+
            DOWN 2 WITH FRAME det.
 
         END.
@@ -1295,11 +1310,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1327,23 +1342,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

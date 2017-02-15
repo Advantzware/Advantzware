@@ -321,7 +321,7 @@ PROCEDURE Run-Search :
   Parameters:  
   Notes:       
 ------------------------------------------------------------------------------*/
-  IF CAN-DO(g_developer,USERID("ASI")) THEN
+  IF CAN-DO(g_developer,USERID("NOSWEAT")) THEN
   DO:
     MESSAGE "Update Search Program?"
         VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE updatesrch AS LOGICAL.

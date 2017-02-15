@@ -250,9 +250,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -303,7 +313,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -373,6 +383,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -384,11 +395,11 @@ END.
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   {&WINDOW-NAME}:WINDOW-STATE = WINDOW-minIMIZE.    
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-  
+
 
   assign rd-dest.
   IF v-print-fmt EQ "Pacific" OR v-print-fmt EQ "Xprint" OR v-print-fmt = "southpak"
@@ -433,6 +444,7 @@ DO:
   end case.
    current-window:WINDOW-STATE  = WINDOW-NORMAL.
 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -576,8 +588,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -599,7 +613,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    begin_period = month(today)
    begin_date   = today
    end_date     = today.
-   
+
   find first period
       where period.company eq cocode
         and period.yr      eq begin_year
@@ -613,17 +627,18 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      begin_period = period.pnum
      begin_year   = period.yr
      begin_date   = period.pst.
-   
+
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     APPLY "entry" TO begin_year.
   END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -687,7 +702,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
 /*     DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -698,13 +713,13 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY. */
 
 {custom/out2file.i}
-    
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -734,7 +749,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -771,7 +786,7 @@ PROCEDURE run-report :
 /* -------------------------------------------------------------------------- */
 
    {sys/form/r-topw2.f}
-   
+
    def var v-period        like uperiod init 1.
    def var v-date          as   date extent 2 format "99/99/9999"
                                 init [01/01/0001, today].                       
@@ -800,11 +815,11 @@ PROCEDURE run-report :
    DEF VAR v-tot-tax       AS DEC NO-UNDO.
    DEF VAR v-tot-taxable   AS DEC NO-UNDO.
 
-  
+
 
    IF tb_excel THEN
      OUTPUT STREAM excel TO VALUE(fi_file).
-   
+
    format header
       skip(1)
       v-head1[1]        at 43
@@ -843,24 +858,24 @@ PROCEDURE run-report :
       v-head3[5]       
       SKIP
       WITH FRAME r-top.
-   
+
    {sa/sa-sls01.i}
-   
-   
+
+
    assign
       str-tit2 = c-win:title
       {sys/inc/ctrtext.i str-tit2 172}
-    
+
       v-period  = begin_period
       v-date[1] = begin_date
       v-date[2] = end_date. 
-   
+
    {sys/inc/print1.i}
-   
+
    {sys/inc/outprint.i value(lines-per-page)}
-   
+
    if td-show-parm then run show-param.
-   
+
    SESSION:SET-WAIT-STATE ("general").
 
    for each stax
@@ -880,23 +895,23 @@ PROCEDURE run-report :
                         and ar-inv.tax-code       ne ""
                         and ar-inv.posted         eq yes
                         use-index inv-date no-lock:
-   
+
          create tt-report.
          assign
             tt-report.term-id = v-term
             tt-report.key-01  = ar-inv.tax-code
             tt-report.rec-id  = recid(ar-inv).
       END. /* for each ar-inv */
-   
+
       for each ar-cash where ar-cash.company    eq cocode
                          and ar-cash.cust-no    eq cust.cust-no
                          and ar-cash.check-date ge v-date[1]
                          and ar-cash.check-date le v-date[2]
                          and ar-cash.posted     eq yes
                          use-index ar-cash no-lock:
-   
+
          v-actnum = "".
-   
+
          for each ar-cashl where ar-cashl.c-no   eq ar-cash.c-no
                              and ar-cashl.posted eq yes
                              and ar-cashl.memo   eq yes
@@ -904,18 +919,18 @@ PROCEDURE run-report :
             first ar-inv where ar-inv.company  eq cocode
                            and ar-inv.inv-no   eq ar-cashl.inv-no
                            and ar-inv.tax-code ne "" no-lock:
-   
+
             find first stax
                        {sys/ref/staxW.i}
                        and stax.tax-group  eq stax.tax-code1[1]
                        and stax.tax-acc1[1] eq ar-cashl.actnum no-lock no-error.
-                           
+
             if avail stax then do:
                v-actnum = stax.tax-acc1[1].
                leave.
             end.
          end. /* for each ar-cashl */
-   
+
          for each ar-cashl where ar-cashl.c-no   eq ar-cash.c-no
                              and ar-cashl.posted eq yes
                              and ar-cashl.memo   eq yes
@@ -926,7 +941,7 @@ PROCEDURE run-report :
             first stax
                   {sys/ref/staxW.i}
                   and stax.tax-group eq ar-inv.tax-code no-lock:
-   
+
             create tt-report.
             assign
                tt-report.term-id = v-term
@@ -936,9 +951,9 @@ PROCEDURE run-report :
          end. /* for each ar-cashl */
       end. /* for each ar-cash */
    end. /* for each cust */
-   
+
    VIEW FRAME r-top.
-   
+
    do while true:
       assign
          v-tax-gr = ""
@@ -962,7 +977,7 @@ PROCEDURE run-report :
 
          DELETE tt-stax.
          if i gt 4 then leave.
-      
+
       end. /* for each stax */
 
       if v-tax-gr[1] eq "" then leave.
@@ -974,26 +989,26 @@ PROCEDURE run-report :
          PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader1,',','","') '"' SKIP.
          PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader2,',','","') '"' SKIP.
       END.
-   
+
       page.
-   
+
       assign
          v-sal-amt = 0
          v-taxable = 0
          v-tax-amt = 0.
-   
+
       for each tt-report where tt-report.term-id eq v-term
                       break by tt-report.key-01:
-         
+
          if first-of(tt-report.key-01) then do:
             assign
                v-rate   = 0
                v-frtr   = 0.
-   
+
          find first stax
                     {sys/ref/staxW.i}
                     and stax.tax-group eq tt-report.key-01 no-lock no-error.
-                 
+
          DO i = 1 TO 5:
             IF v-tax-gr[i] NE "" THEN DO:
                ASSIGN
@@ -1022,7 +1037,7 @@ PROCEDURE run-report :
          END.
 
          find first ar-inv where recid(ar-inv) eq tt-report.rec-id no-lock no-error.
-   
+
          if avail ar-inv then do:
             if ar-inv.net eq ar-inv.gross + ar-inv.freight + ar-inv.tax-amt then
                ld = ar-inv.net.
@@ -1031,17 +1046,17 @@ PROCEDURE run-report :
             v-sal-amt[1] = v-sal-amt[1] + (ld - ar-inv.tax-amt).
             DO i = 1 TO 5:
                IF v-rate[i] EQ 0 THEN NEXT.
-               
+
                v-taxable[i] = v-taxable[i] + (ld - ar-inv.tax-amt).
                IF ar-inv.f-bill AND v-frtr-s > 0 THEN
                   IF ld - ar-inv.tax-amt NE 0 THEN DO:
-                 
+
                      assign
                         v-inv-tax = ar-inv.tax-amt * ((ld - ar-inv.tax-amt - ar-inv.freight) / (ld - ar-inv.tax-amt))
                         v-frt-tax = ar-inv.tax-amt * (ar-inv.freight / (ld - ar-inv.tax-amt)).
                   END.
                   else.
-               
+
                else
                   assign
                      v-inv-tax    = ar-inv.tax-amt
@@ -1049,19 +1064,19 @@ PROCEDURE run-report :
 
                if v-rate-tt[i] ne 0 then
                   v-tax-amt[i] = v-tax-amt[i] + (v-inv-tax * (v-rate[i] / v-rate-tt[i])).
-               
+
                if v-frtr-tt[i] ne 0 THEN DO:
                    v-tax-amt[i] = v-tax-amt[i] + (v-frt-tax * (v-frtr[i] / v-frtr-tt[i])).
               END.
 
             END. /* DO i = 1 TO 5: */
 
-   
+
             for each ar-invl FIELDS(amt tax t-freight) where ar-invl.company       eq ar-inv.company
                                                and ar-invl.cust-no       eq ar-inv.cust-no
                                                and ar-invl.inv-no        eq ar-inv.inv-no
                                                and ar-invl.posted no-lock:
- 
+
                do i = 1 to 5:
                   if v-rate[i] eq 0 then next.
                   if not ar-invl.tax THEN DO:
@@ -1100,7 +1115,7 @@ PROCEDURE run-report :
                   end.
                end. /* else do: */*/
             end. /* if tt-report.key-02 eq stax.tax-acc1[1] */
-   
+
          if last-of(tt-report.key-01) then do:
             display 
                stax.tax-group    format "x(4)"
@@ -1117,7 +1132,7 @@ PROCEDURE run-report :
                v-taxable[5]      when v-tax-gr[5] ne ""
                v-tax-amt[5]      when v-tax-gr[5] ne ""
                   with frame detail no-box no-labels stream-io width 250.
-             
+
             IF tb_excel THEN
                PUT STREAM excel UNFORMATTED
                   '"' stax.tax-group                           '",'
@@ -1150,24 +1165,24 @@ PROCEDURE run-report :
                         STRING(v-tax-amt[5],"->>,>>>,>>9.99")
                       ELSE ""                                  '",'
                   SKIP.
-             
+
             assign
                v-sal-amt[2] = v-sal-amt[2] + v-sal-amt[1]
                v-sal-amt[1] = 0.
-             
+
             do i = 1 to 5:
                ASSIGN
                   v-taxable[i + 5] = v-taxable[i + 5] + v-taxable[i]
                   v-tax-amt[i + 5] = v-tax-amt[i + 5] + v-tax-amt[i]
                   v-taxable[i] = 0
                   v-tax-amt[i] = 0.
-             
+
             END.
          end. /* last-of(tt-report.key-01) then do: */
       end. /* for each tt-report */
-   
+
       clear frame totals no-pause.
-   
+
       display skip(1)
          "TOTALS:"                 at 6
          v-sal-amt[2]              to 42
@@ -1183,7 +1198,7 @@ PROCEDURE run-report :
          v-tax-amt[10]              when v-tax-gr[5] ne ""
 
          with frame totals no-box no-labels stream-io width 250.
-   
+
       IF tb_excel THEN
          PUT STREAM excel UNFORMATTED
             SKIP(1)
@@ -1217,19 +1232,19 @@ PROCEDURE run-report :
                   STRING(v-tax-amt[10],"->>,>>>,>>9.99")
                 ELSE ""                                  '",'
             SKIP(1).
-   
+
    end.   /* do while true */
-   
+
    IF tb_excel THEN DO:
       OUTPUT STREAM excel CLOSE.
       IF tb_runExcel THEN
          OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
    END.
-   
+
    RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
-   
+
    SESSION:SET-WAIT-STATE ("").
-   
+
    /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 
 end procedure.
@@ -1252,11 +1267,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1284,23 +1299,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -281,9 +281,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -342,7 +352,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -412,6 +422,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -468,6 +479,7 @@ DO:
 
   end case. 
   SESSION:SET-WAIT-STATE("").
+     {src/WinKit/triggerend.i}
  END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -633,8 +645,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -650,17 +664,18 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   assign
    begin_date = date(month(TODAY), 1, year(TODAY))
    end_date   = today.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
    APPLY "entry" TO begin_dept IN FRAME {&FRAME-NAME}.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -723,7 +738,7 @@ PROCEDURE output-to-file :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- 
+
    {custom/out2file.i}.
 
 END PROCEDURE.
@@ -755,7 +770,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -832,7 +847,7 @@ assign
  v-mach[2]   = end_mach
  v-date[1]   = begin_date
  v-date[2]   = END_date.
- 
+
 
 {sys/inc/print1.i}
 
@@ -927,7 +942,7 @@ display "" with frame r-top.
           work-rep.std-mr-qty  = work-rep.std-mr-qty + job-mch.mr-waste.
    end.
 
-   
+
 
       for each work-rep break by work-rep.dept by work-rep.m-code:
 
@@ -1157,7 +1172,7 @@ display "" with frame r-top.
                   '"' STRING(tot-act-pct,'>>>9.99')                 '",'
                   '"' STRING(tot-var-pct,'->>>9.99')                '",'
                   SKIP(1).
-            
+
          end.
       end. /* each item */
 
@@ -1194,12 +1209,12 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha NO-UNDO.
-  
+
   ASSIGN
   lv-frame-hdl = frame {&frame-name}:HANDLE
   lv-group-hdl = lv-frame-hdl:first-child
   lv-field-hdl = lv-group-hdl:first-child.
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1225,23 +1240,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

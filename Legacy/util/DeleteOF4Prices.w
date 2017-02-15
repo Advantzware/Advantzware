@@ -228,9 +228,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -252,7 +262,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -289,6 +299,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
     apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -306,8 +317,9 @@ DO:
   MESSAGE "Are you sure you want to change the Price Matrix(es) within the " +
           "selection parameters?"
       VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
-          
+
   IF v-process THEN RUN run-process.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -327,8 +339,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -349,6 +363,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   APPLY "ENTRY":U TO begin_cust IN FRAME {&FRAME-NAME}.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -549,7 +564,7 @@ ASSIGN
  end-item-no     = end_i-no
  start-prod-cat  = begin_cat
  end-prod-cat    = end_cat.
- 
+
 FOR EACH oe-prmtx EXCLUSIVE-LOCK
     WHERE oe-prmtx.company    EQ cocode 
       AND oe-prmtx.cust-no    GE start-cust-no
@@ -585,7 +600,7 @@ SESSION:SET-WAIT-STATE("").
 
 MESSAGE trim(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
 APPLY "close" TO THIS-PROCEDURE.
-  
+
 /* end ---------------------------------- copr. 2002  advanced software, inc. */
 
 END PROCEDURE.
@@ -602,10 +617,10 @@ FUNCTION isLatestEffDate RETURNS LOGICAL
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
- 
+
     DEF BUFFER lb-oe-prmtx FOR oe-prmtx.
     DEF BUFFER lb-reftable FOR reftable.
-    
+
     FOR EACH lb-oe-prmtx NO-LOCK
         WHERE lb-oe-prmtx.company    EQ cocode 
             AND lb-oe-prmtx.cust-no    EQ ipb-oe-prmtx.cust-no
@@ -624,7 +639,7 @@ FUNCTION isLatestEffDate RETURNS LOGICAL
           IF lb-oe-prmtx.eff-date > ipb-oe-prmtx.eff-date THEN 
             RETURN NO.
     END. /*each price matrix for same item*/
-    
+
     RETURN YES.   /* Function return value. */
 
 END FUNCTION.

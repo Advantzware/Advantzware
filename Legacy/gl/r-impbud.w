@@ -47,11 +47,11 @@ DEF VAR tmp-dir AS cha NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/VAR.i new shared}
-    
+
 assign
  cocode = gcompany
  locode = gloc.
-    
+
 DEF TEMP-TABLE tt-act FIELD act-num AS cha
                       FIELD bud AS DEC EXTENT 13.
 
@@ -167,9 +167,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -195,7 +205,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -232,6 +242,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -243,7 +254,7 @@ END.
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   DEF VAR lv-post AS LOG NO-UNDO.
-  
+
   ASSIGN in-file-name.
 
   IF SEARCH(in-file-name) eq ? THEN
@@ -260,6 +271,7 @@ DO:
       run run-report.
       MESSAGE "Budgets are imported." VIEW-AS ALERT-BOX.
   END.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -272,7 +284,7 @@ ON HELP OF in-file-name IN FRAME FRAME-A /* Import From File */
 DO:
    def var ls-filename as cha no-undo.
    def var ll-ok as log no-undo.
-   
+
    system-dialog get-file ls-filename 
                  title "Select File to insert"
                  filters "Excel File (*.csv) " "*.csv",
@@ -282,7 +294,7 @@ DO:
                  MUST-EXIST
                  USE-FILENAME
                  UPDATE ll-ok.
-      
+
     IF ll-ok THEN self:screen-value = ls-filename.
 END.
 
@@ -320,8 +332,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -336,11 +350,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-  
+
   RUN enable_UI.
 
-  
+
   {methods/nowait.i}
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -400,7 +415,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
      DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -411,9 +426,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
 
 
@@ -432,7 +447,7 @@ PROCEDURE output-to-printer :
      DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -503,7 +518,7 @@ qtr-file-name = in-file-name.
       DO i = 2 TO 14.
           tt-act.bud[i - 1] = dec(ENTRY(i,lv-input)).
       END.
-             
+
 
   END.
   FOR EACH tt-act:
@@ -543,11 +558,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -575,23 +590,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

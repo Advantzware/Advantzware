@@ -56,7 +56,7 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_attvinv 
-     IMAGE-UP FILE "Graphics/32x32/document_attachment.png":U
+     IMAGE-UP FILE "Graphics/32x32/document_attachment.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Attachment" 
      SIZE 7.8 BY 1.81 TOOLTIP "Customer Attachments".
@@ -106,7 +106,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB s-object 
 /* ************************* Included-Libraries *********************** */
 
-{advantzware/winkit/winkit-panel.i}
+{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/smart.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -139,7 +139,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -155,11 +155,7 @@ DO:
 
    IF char-hdl NE "" THEN
       RUN value-changed-proc IN WIDGET-HANDLE(char-hdl).
-
-
-  /* Added by WinKit Migration tool 07.02.2016 21:11:34 */
-  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
-
+  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -217,9 +213,9 @@ PROCEDURE PushPin-Image :
 
    DO WITH FRAME {&FRAME-NAME}:
       IF NOT ip-attach THEN
-         SELECT_attvinv:LOAD-IMAGE("Graphics/32x32/document_attachment.png").
+         SELECT_attvinv:LOAD-IMAGE("Graphics/32x32/pin2.ico").
       ELSE
-         SELECT_attvinv:LOAD-IMAGE("Graphics/32x32/document_attachment_star.png").
+         SELECT_attvinv:LOAD-IMAGE("Graphics/32x32/pin2_star.ico").
    END.
 END PROCEDURE.
 
@@ -241,7 +237,7 @@ PROCEDURE state-changed :
       /* Object instance CASEs can go here to replace standard behavior
          or add new cases. */
   END CASE.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

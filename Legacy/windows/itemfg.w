@@ -8,7 +8,7 @@
 /*------------------------------------------------------------------------
 
   File: windows/itemfg.w
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -190,6 +190,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+/* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
@@ -253,7 +254,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -280,7 +281,7 @@ DO:
      and its descendents to terminate properly on exit. */
     IF VALID-HANDLE(h_fileload) THEN
      DELETE OBJECT h_fileload.
- 
+
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -1326,7 +1327,7 @@ PROCEDURE local-destroy :
   /* Code placed here will execute PRIOR to standard behavior. */
     IF VALID-HANDLE(h_fileload) THEN
      DELETE OBJECT h_fileload.
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
 
@@ -1348,9 +1349,9 @@ PROCEDURE local-exit :
      DELETE OBJECT h_fileload.
 
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1383,7 +1384,7 @@ PROCEDURE select_add :
   Notes:       
 ------------------------------------------------------------------------------*/
   def var char-hdl as cha no-undo.
-  
+
   run select-page(2).
   run get-link-handle in adm-broker-hdl(this-procedure,"add-item-target", output char-hdl).
   run add-item in widget-handle(char-hdl).

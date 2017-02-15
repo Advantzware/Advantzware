@@ -11,7 +11,7 @@ REPEAT:
   SET file-name ^ attr-list.
   IF attr-list = 'f' THEN
   NEXT.
-  IF file-name = USERID("ASI") THEN
+  IF file-name = USERID("NOSWEAT") THEN
   DO:
     dir-found = yes.
     LEAVE.
@@ -19,8 +19,8 @@ REPEAT:
 END.
 INPUT CLOSE.
 IF NOT dir-found THEN
-OS-CREATE-DIR VALUE(search-dir + "/" + USERID("ASI")).
+OS-CREATE-DIR VALUE(search-dir + "/" + USERID("NOSWEAT")).
 /*
-IF SEARCH(search-dir + "/" + USERID("ASI") + "/menu.lst") = ? THEN
-OS-COPY "./menu.lst" VALUE(search-dir + "/" + USERID("ASI") + "/menu.lst").
+IF SEARCH(search-dir + "/" + USERID("NOSWEAT") + "/menu.lst") = ? THEN
+OS-COPY "./menu.lst" VALUE(search-dir + "/" + USERID("NOSWEAT") + "/menu.lst").
 */

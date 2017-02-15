@@ -8,6 +8,6 @@ END.
 
 SESSION:TIME-SOURCE = IF connected("asi") and
                          tstime-cha = "Workstation" THEN "local"
-                      ELSE "ASI".
+                      ELSE "NOSWEAT".
 
 

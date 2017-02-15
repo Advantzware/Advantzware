@@ -1,6 +1,10 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -359,7 +363,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -372,7 +376,7 @@ DO:
    DEF VAR char-val AS CHAR no-undo.
 
    DO WITH FRAME {&FRAME-NAME}:
-   
+
       run windows/l-poordl.w (cocode,begin_po-no:screen-value, output char-val).
       if char-val <> "" THEN
       DO:
@@ -411,7 +415,7 @@ DO:
               po-ordl.po-no EQ INT(begin_po-no:SCREEN-VALUE) AND
               po-ordl.stat NE "C"
               NO-LOCK NO-ERROR.
-        
+
          IF AVAIL po-ordl THEN
          DO:
            FIND FIRST ITEM WHERE ITEM.company = cocode AND
@@ -462,7 +466,7 @@ DO:
    DEF VAR lv-uom-help AS CHAR NO-UNDO.
 
    DO WITH FRAME {&FRAME-NAME}:
-      
+
       ASSIGN begin_po-no scr-po-line scr-qty scr-qty scr-uom
              scr-vend-tag scr-item-no.
 
@@ -491,7 +495,7 @@ DO:
            po-ordl.po-no EQ begin_po-no AND
            po-ordl.LINE EQ scr-po-line
            NO-LOCK NO-ERROR.
-     
+
       IF NOT AVAIL po-ordl THEN
       DO:
          op-error = YES.
@@ -516,7 +520,7 @@ DO:
          APPLY "ENTRY" TO scr-vend-tag.
          RETURN NO-APPLY.
       END.
-     
+
       IF scr-qty EQ 0 THEN
       DO:
          op-error = YES.
@@ -525,7 +529,7 @@ DO:
          APPLY "ENTRY" TO scr-qty.
          RETURN NO-APPLY.
       END.
-  
+
       FIND FIRST ITEM WHERE
            item.company EQ cocode AND
            item.i-no    EQ scr-item-no
@@ -611,7 +615,7 @@ DO:
    DEF VAR lv-rowid AS ROWID NO-UNDO.
 
    DO WITH FRAME {&FRAME-NAME}:
-   
+
       RUN windows/l-poitmw.w (YES, cocode, begin_po-no:SCREEN-VALUE,
                               YES, "", "", OUTPUT lv-rowid).
 
@@ -628,25 +632,25 @@ DO:
                 scr-po-line
                 scr-item-no:SCREEN-VALUE = ""
                 scr-item-name:SCREEN-VALUE = "".
-      
+
          IF NOT AVAIL po-ordl THEN
             FIND FIRST po-ordl WHERE
                  po-ordl.company EQ cocode AND
                  po-ordl.po-no EQ begin_po-no AND
                  po-ordl.LINE EQ scr-po-line
                  NO-LOCK NO-ERROR.
-      
+
          IF AVAIL po-ordl THEN
          DO:
             ASSIGN
                scr-item-no:SCREEN-VALUE = po-ordl.i-no
                scr-item-name:SCREEN-VALUE = po-ordl.i-name
                scr-uom:SCREEN-VALUE = po-ordl.pr-uom.
-      
+
             RELEASE po-ordl.
          END.
       END.
-         
+
    END.
 END.
 
@@ -664,13 +668,13 @@ DO:
                 scr-po-line
                 scr-item-no:SCREEN-VALUE = ""
                 scr-item-name:SCREEN-VALUE = "".
-  
+
          FIND FIRST po-ordl WHERE
               po-ordl.company EQ cocode AND
               po-ordl.po-no EQ begin_po-no AND
               po-ordl.LINE EQ scr-po-line
               NO-LOCK NO-ERROR.
-  
+
          IF AVAIL po-ordl THEN
          DO:
            FIND FIRST ITEM WHERE ITEM.company = cocode AND
@@ -681,7 +685,7 @@ DO:
             ASSIGN
                scr-item-no:SCREEN-VALUE = po-ordl.i-no
                scr-item-name:SCREEN-VALUE = po-ordl.i-name.
-  
+
             RELEASE po-ordl.
          END.
       END.
@@ -712,7 +716,7 @@ DO:
             scr-item-no:SCREEN-VALUE = ""
             scr-item-name:SCREEN-VALUE = ""
             scr-uom:SCREEN-VALUE = "".
-         
+
          IF scr-vend-tag NE "" AND
             CAN-FIND(FIRST loadtag WHERE
             loadtag.company EQ cocode AND
@@ -725,42 +729,42 @@ DO:
                   VIEW-AS ALERT-BOX ERROR.
                RETURN NO-APPLY.
             END.
-     
+
          v-po-no = INT(SUBSTR(scr-vend-tag,1,6)) NO-ERROR.
-         
+
          IF NOT ERROR-STATUS:ERROR THEN
          DO:
             IF NOT CAN-FIND(FIRST po-ord WHERE
                po-ord.company EQ cocode AND
                po-ord.po-no EQ v-po-no) THEN
                LEAVE.
-        
+
             begin_po-no:SCREEN-VALUE = STRING(v-po-no).
          END.
          ELSE
             LEAVE.
-            
+
          v-po-line = INT(SUBSTR(scr-vend-tag,7,3)) NO-ERROR.
-         
+
          IF NOT ERROR-STATUS:ERROR THEN
             scr-po-line:SCREEN-VALUE = STRING(v-po-line).
-         
+
          v-qty = INT(SUBSTR(scr-vend-tag,10,5)) NO-ERROR.
-         
+
          IF NOT ERROR-STATUS:ERROR THEN
             scr-qty:SCREEN-VALUE = STRING(v-qty).
-        
+
          IF begin_po-no:SCREEN-VALUE NE "0" AND
             scr-po-line:SCREEN-VALUE NE "0" THEN
             DO:
                ASSIGN begin_po-no scr-po-line.
-        
+
                FIND FIRST po-ordl WHERE
                     po-ordl.company EQ cocode AND
                     po-ordl.po-no EQ begin_po-no AND
                     po-ordl.LINE EQ scr-po-line
                     NO-LOCK NO-ERROR.
-        
+
                IF AVAIL po-ordl THEN
                DO:
                   FIND FIRST ITEM WHERE ITEM.company = cocode AND
@@ -772,9 +776,9 @@ DO:
                      scr-item-no:SCREEN-VALUE = po-ordl.i-no
                      scr-item-name:SCREEN-VALUE = po-ordl.i-name
                      .
-        
+
                   RELEASE po-ordl.
-     
+
                   IF NOT ERROR-STATUS:ERROR THEN
                   DO:
                      IF SSPostFGVT-log OR SSPostFGVT-log EQ ? THEN DO:
@@ -782,7 +786,7 @@ DO:
                         /*ASSIGN scr-vend-tag:SCREEN-VALUE = */
                      END.
                      ELSE APPLY "ENTRY" TO btn_receive IN FRAME {&FRAME-NAME}.
-                     
+
                      RETURN NO-APPLY.
                   END.
                END.
@@ -805,7 +809,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -917,33 +921,33 @@ PROCEDURE convert-vend-comp-curr :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE INPUT-OUTPUT PARAMETER ip-cost AS DEC DECIMALS 4 NO-UNDO.
-   
+
    FIND FIRST vend WHERE
         vend.company EQ po-ord.company AND
         vend.vend-no EQ po-ord.vend-no
         NO-LOCK NO-ERROR.
-  
+
    IF AVAIL vend THEN
    DO:
       FIND FIRST b-company WHERE
            b-company.company EQ cocode
            NO-LOCK.
-  
+
       IF vend.curr-code NE b-company.curr-code THEN
       DO:
          FIND FIRST currency WHERE
               currency.company EQ po-ord.company AND
               currency.c-code EQ vend.curr-code
               NO-LOCK NO-ERROR.
-  
+
          IF AVAIL currency THEN
          DO:
             ip-cost = ip-cost * currency.ex-rate.
-  
+
             RELEASE currency.
          END.
       END.
-  
+
       RELEASE b-company.
       RELEASE vend.
    END.
@@ -973,7 +977,7 @@ PROCEDURE create-loadtag-proc :
                         AND loadtag.tag-no EQ tagNo) THEN LEAVE.
       ipTagNo = ipTagNo + 1.
    END. /* do while */
-  
+
    CREATE loadtag.
    ASSIGN
     loadtag.company      = cocode
@@ -999,7 +1003,7 @@ PROCEDURE create-loadtag-proc :
     loadtag.tag-date     = TODAY
     loadtag.tag-time     = TIME
     loadtag.misc-char[1] = scr-vend-tag.
-   
+
    FIND CURRENT loadtag NO-LOCK NO-ERROR.
 
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"srch-target",OUTPUT char-hdl).
@@ -1012,7 +1016,7 @@ PROCEDURE create-loadtag-proc :
                                                             INPUT w-po.setup,
                                                             INPUT w-po.rcpt-qty,
                                                             INPUT w-po.add-setup).
-   
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1070,7 +1074,7 @@ PROCEDURE process-tag-proc :
       LEAVE.
 
    EMPTY TEMP-TABLE w-po.
-  
+
    FIND FIRST po-ord WHERE
         po-ord.company EQ cocode AND
         po-ord.po-no EQ po-ordl.po-no
@@ -1098,7 +1102,7 @@ PROCEDURE process-tag-proc :
      w-po.total-tags = 1
      w-po.setup = po-ordl.setup
      w-po.TYPE = po-ord.TYPE.
-     
+
    RUN convert-qty-proc.
 
    def var v-len like po-ordl.s-len no-undo.
@@ -1159,33 +1163,33 @@ PROCEDURE process-tag-proc :
    RUN convert-vend-comp-curr(INPUT-OUTPUT w-po.cost).
    RUN convert-vend-comp-curr(INPUT-OUTPUT w-po.setup).
    RUN convert-vend-comp-curr(INPUT-OUTPUT w-po.cons-cost).
-   
+
    FIND FIRST item WHERE
         item.company EQ cocode AND
         item.i-no EQ po-ordl.i-no
         NO-LOCK NO-ERROR.
-   
+
    IF AVAIL item THEN
       ASSIGN
          w-po.loc = item.loc
          w-po.loc-bin = item.loc-bin
          w-po.cons-uom = item.cons-uom.
-   
+
    ASSIGN
       v-overrun  = IF AVAIL po-ordl THEN po-ordl.over-pct
                    ELSE IF AVAIL po-ord  THEN po-ord.over-pct
                    ELSE IF AVAIL vend    THEN vend.over-pct
                    ELSE 0
       v-qty = po-ordl.ord-qty.
-   
+
    IF w-po.cons-uom NE po-ordl.pr-qty-uom THEN
       RUN sys/ref/convquom.p(po-ordl.pr-qty-uom,
                              w-po.cons-uom, IF AVAIL ITEM THEN ITEM.basis-w ELSE 0,
                              w-po.s-len,  w-po.s-wid, IF AVAIL ITEM THEN item.s-dep ELSE 0,
                              v-qty, OUTPUT v-qty).
-   
+
    w-po.overrun-qty = v-qty + (v-qty * (v-overrun / 100)).
-   
+
    IF NOT checkWhsBin(cocode,w-po.loc,w-po.loc-bin) THEN
    DO:
 
@@ -1202,13 +1206,13 @@ PROCEDURE process-tag-proc :
              rm-bin.i-no EQ '' AND
              rm-bin.loc-bin NE ''
              NO-LOCK NO-ERROR.
-       
+
         ASSIGN
           w-po.loc = IF AVAILABLE loc THEN loc.loc ELSE ''
           w-po.loc-bin = IF AVAILABLE rm-bin THEN rm-bin.loc-bin ELSE ''.
      END.
    END.
-   
+
    IF NOT CAN-DO("SSLABEL,CentBox",v-loadtag) THEN
       w-po.total-tags = w-po.total-tags + 1.
 
@@ -1328,7 +1332,7 @@ PROCEDURE tot-rec-qty-proc :
    END.
 
    tt-po.tot-rec-qty = tt-po.tot-rec-qty + v-qty-2.
-   
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

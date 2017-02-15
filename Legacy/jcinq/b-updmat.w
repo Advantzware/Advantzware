@@ -220,7 +220,6 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -333,7 +332,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 D-Dialog
 ON MOUSE-SELECT-DBLCLICK OF BROWSE-2 IN FRAME D-Dialog
 DO:
-  IF USERID("ASI") EQ "asi" AND
+  IF USERID("nosweat") EQ "asi" AND
     AVAILABLE tt-mat-tran THEN DO:
 
     /*  RUN windows/ITEM.w .*/
@@ -496,7 +495,7 @@ DO:
         tag-no = tt-mat-tran.tag .
     ELSE tag-no = "" .
     
-   IF /*USERID("ASI") EQ "asi" AND*/
+   IF /*USERID("nosweat") EQ "asi" AND*/
     AVAILABLE tt-mat-tran THEN DO:
 
       RUN rminq/b-rmhisp.w (ip-rm-i-no,tag-no,ip-job-no).
@@ -543,7 +542,7 @@ FRAME {&FRAME-NAME}:TITLE = "Job #: " + ip-job-no + "-" + STRING(ip-job-no2)
 
 btn_dril-dwn:SENSITIVE = YES .
 
-IF USERID("ASI") EQ "ASI" THEN
+IF USERID("NOSWEAT") EQ "ASI" THEN
    ASSIGN
       btn_add:SENSITIVE = YES
       btn_add:HIDDEN = NO

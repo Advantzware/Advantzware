@@ -18,7 +18,7 @@
       <none>
 
   History: 
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -161,6 +161,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+/* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
@@ -224,7 +225,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -610,7 +611,7 @@ PROCEDURE local-change-page :
 ------------------------------------------------------------------------------*/
 
   DEFINE VARIABLE viCurrPage AS INTEGER    NO-UNDO.
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN GET-ATTRIBUTE('CURRENT-PAGE').
 
@@ -642,9 +643,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -671,7 +672,7 @@ PROCEDURE local-row-available :
           ATTACH.est-no EQ "").
 
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attach-target':U, OUTPUT char-hdl).
-  
+
   /*IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
      RUN pushpin-image IN WIDGET-HANDLE(char-hdl) (INPUT v-att).*/
 
@@ -764,7 +765,7 @@ PROCEDURE value-changed-proc :
           ATTACH.est-no  = "").
 
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attach-target':U, OUTPUT char-hdl).
-  
+
   /*IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
      RUN pushpin-image IN WIDGET-HANDLE(char-hdl) (INPUT v-att).*/
 END PROCEDURE.

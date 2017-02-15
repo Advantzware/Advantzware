@@ -430,7 +430,8 @@ fi_sname-2 fi_sname-3 fi_sname-lbl fi_jobStartDate
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 &Scoped-define List-2 oe-ordl.job-no oe-ordl.job-no2 oe-ordl.t-price ~
-oe-ordl.cost oe-ordl.type-code fi_sname-1 fi_sname-2 fi_sname-3 
+oe-ordl.cost oe-ordl.type-code fi_sname-1 fi_sname-2 fi_sname-3 fi_sman-lbl ~
+fi_sname-1 fi_s-pct-lbl fi_s-comm-lbl 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -1553,7 +1554,7 @@ DO:
 
     IF v-date-change-reason GT "" THEN
         ASSIGN oe-ordl.spare-char-3 = v-date-change-reason               
-               oe-ordl.spare-char-4 = USERID("ASI").
+               oe-ordl.spare-char-4 = USERID("NOSWEAT").
    
   END.
   
@@ -1570,7 +1571,7 @@ DO:
        OUTPUT v-date-change-reason, OUTPUT v-added-rowid)  .
 
     IF v-date-change-reason GT "" THEN
-        ASSIGN oe-ordl.spare-char-5 = USERID("ASI") + "," + v-date-change-reason.                              
+        ASSIGN oe-ordl.spare-char-5 = USERID("NOSWEAT") + "," + v-date-change-reason.                              
    
   END.
   
@@ -1638,7 +1639,7 @@ DO:
     
       RUN final-steps.
   END. /* Transaction */
-  IF ll-new-record THEN DO TRANSACTION: 
+  IF ll-new-record AND oe-ordl.s-man[1]:screen-value IN FRAME {&frame-name} = "" THEN DO TRANSACTION: 
     RUN itemfg-sman.
     ASSIGN oe-ordl.s-man[1].
   END.
@@ -1862,7 +1863,6 @@ DO:
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
           UPDATE ll.
     END.
-
     IF ll THEN oe-ord.due-date = oe-ordl.req-date.
 
     FIND CURRENT oe-ord NO-LOCK NO-ERROR.
@@ -3231,9 +3231,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
              btn_ok:hidden = YES
              btn_cancel:hidden = YES 
              btn_hist:hidden = YES.
-
-      IF v-oecomm-cha NE "Manual" THEN RUN hide-comm (YES).
     END.
+    IF NOT v-oecomm-log THEN RUN hide-comm (YES).
     first-cust-part-no = oe-ordl.part-no.
 
     IF v-quo-price-int EQ 1 AND v-quo-price-log AND oe-ordl.est-no NE "" THEN
@@ -3299,7 +3298,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
           NO-LOCK NO-ERROR.
 
      IF AVAIL usergrps AND
-        (NOT CAN-DO(usergrps.users,USERID("ASI")) AND
+        (NOT CAN-DO(usergrps.users,USERID("NOSWEAT")) AND
          TRIM(usergrps.users) NE "*") THEN
         ASSIGN
            oe-ordl.cost:VISIBLE IN FRAME {&FRAME-NAME} = NO.
@@ -5645,6 +5644,10 @@ PROCEDURE display-item :
             oe-ordl.over-pct oe-ordl.under-pct
             oe-ordl.spare-char-1
             oe-ordl.whsed
+            fi_sman-lbl 
+            fi_sname-1
+            fi_s-pct-lbl
+            fi_s-comm-lbl
           WITH FRAME {&frame-name}.
 
 /*     IF oe-ordl.whsed:HIDDEN = NO THEN                  */
@@ -6455,7 +6458,7 @@ PROCEDURE get-prom-dt-info :
 /*        NO-LOCK NO-ERROR.                                       */
 /*     IF AVAIL rejct-cd THEN                                     */
 /*       fiPromDtChangeDesc:SCREEN-VALUE = rejct-cd.dscr.         */
-/*     oe-ordl.spare-char-4:SCREEN-VALUE = USERID("ASI").     */
+/*     oe-ordl.spare-char-4:SCREEN-VALUE = USERID("NOSWEAT").     */
 /*   END.                                                         */
 END PROCEDURE.
 
@@ -6535,45 +6538,15 @@ PROCEDURE hide-comm :
 
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
-     rect-31:HIDDEN           = ip-hidden
-     rect-39:HIDDEN           = ip-hidden
-     fi_sman-lbl:HIDDEN       = ip-hidden
-     fi_sname-lbl:HIDDEN      = ip-hidden
      fi_s-pct-lbl:HIDDEN      = ip-hidden
      fi_s-comm-lbl:HIDDEN     = ip-hidden
-     oe-ordl.s-man[1]:HIDDEN  = ip-hidden
-     oe-ordl.s-man[2]:HIDDEN  = ip-hidden
-     oe-ordl.s-man[3]:HIDDEN  = ip-hidden
-     fi_sname-1:HIDDEN        = ip-hidden
-     fi_sname-2:HIDDEN        = ip-hidden
-     fi_sname-3:HIDDEN        = ip-hidden
      oe-ordl.s-pct[1]:HIDDEN  = ip-hidden
      oe-ordl.s-pct[2]:HIDDEN  = ip-hidden
      oe-ordl.s-pct[3]:HIDDEN  = ip-hidden
      oe-ordl.s-comm[1]:HIDDEN = ip-hidden
      oe-ordl.s-comm[2]:HIDDEN = ip-hidden
      oe-ordl.s-comm[3]:HIDDEN = ip-hidden.
-
-    IF NOT ip-hidden THEN
-      DISPLAY rect-31
-              rect-39
-              fi_sman-lbl
-              fi_sname-lbl
-              fi_s-pct-lbl
-              fi_s-comm-lbl
-              fi_s-comm-lbl
-              oe-ordl.s-man[1]
-              oe-ordl.s-man[2]
-              oe-ordl.s-man[3]
-              fi_sname-1
-              fi_sname-2
-              fi_sname-3 
-              oe-ordl.s-pct[1]
-              oe-ordl.s-pct[2]
-              oe-ordl.s-pct[3]
-              oe-ordl.s-comm[1]
-              oe-ordl.s-comm[2]
-              oe-ordl.s-comm[3].
+   
   END.
 
 
@@ -7844,7 +7817,7 @@ PROCEDURE update-release :
     RUN oe/rel-stat.p (ROWID(oe-rel), OUTPUT lv-stat).
 
     IF INDEX("SIL",lv-stat) GT 0 THEN 
-      ll = YES.
+       ll = YES. 
 
   END.
 
@@ -7884,7 +7857,7 @@ PROCEDURE update-release :
       RUN oe/rel-stat.p (ROWID(oe-rel), OUTPUT lv-stat).
 
       IF INDEX("SIL",lv-stat) GT 0 THEN DO:
-        ll = YES.
+        /*ll = YES.*/
 
         FIND FIRST shipto WHERE shipto.company = oe-rel.company AND
                                 shipto.cust-no = oe-rel.cust-no  AND

@@ -188,9 +188,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -212,7 +222,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -282,6 +292,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
     apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -296,7 +307,7 @@ DO:
    DEF VAR v-cnt AS INT NO-UNDO.
    DEF VAR v-qty AS DECI NO-UNDO.
    DEF VAR v-job-no LIKE job.job-no EXTENT 2 INITIAL [" ", " "] NO-UNDO.
-   
+
    DO WITH FRAME {&FRAME-NAME}:
       ASSIGN {&DISPLAYED-OBJECTS}.
    END.
@@ -324,7 +335,7 @@ DO:
                                     AND job-mat.frm     = job-hdr.frm
                                     AND job-mat.blank-no = job-hdr.blank-no:
 /*                                     AND job-mat.i-no    = job-hdr.i-no: */
-                                   
+
             FIND FIRST ITEM WHERE item.company = job-mat.company
                               AND item.i-no    = job-mat.rm-i-no
                               AND item.mat-type = "D" NO-LOCK NO-ERROR.
@@ -359,6 +370,7 @@ DO:
       STATUS DEFAULT "".
       SESSION:SET-WAIT-STATE("").
    END.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -422,8 +434,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.

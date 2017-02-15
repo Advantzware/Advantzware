@@ -5,7 +5,7 @@
 /*------------------------------------------------------------------------
 
   File: salrep\r-itcshp.w
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -371,9 +371,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -488,7 +498,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -611,6 +621,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -665,10 +676,11 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -680,7 +692,8 @@ END.
 ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
-  
+
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -879,7 +892,7 @@ END.
 ON VALUE-CHANGED OF tb_detailed IN FRAME FRAME-A /* Detailed? */
 DO:
   assign {&self-name}.
-  
+
   IF {&self-name} = NO THEN do:
       ASSIGN rd_sort:SCREEN-VALUE = "Finished Goods"
              rd_show:SCREEN-VALUE = "Item" 
@@ -888,7 +901,7 @@ DO:
   ELSE DO:
       rd_show:SENSITIVE = YES .
   END.
-     
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -970,8 +983,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -987,7 +1002,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   assign
    begin_inv-date = date(1,1,year(today))
    end_inv-date   = today.
@@ -1000,12 +1015,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                                OUTPUT ou-log,
                                OUTPUT ou-cust-int) .
 
-  
- RUN sys/inc/CustListForm.p ( "HR5",cocode, 
-                               OUTPUT ou-log,
-                               OUTPUT ou-cust-int) .
 
-  
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     ASSIGN begin_slmn:SENSITIVE   = YES 
@@ -1052,6 +1062,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
            rd_show:SENSITIVE IN FRAME {&FRAME-NAME} = NO .
   END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1113,7 +1124,7 @@ PROCEDURE CustList :
 
     RUN sys/ref/CustListManager.w(INPUT cocode,
                                   INPUT 'HR5').
-    
+
 
 END PROCEDURE.
 
@@ -1289,7 +1300,7 @@ form header
      "    "
      "                 "
      skip
-     
+
      v-hdr[1]       format "x(15)"
      "Customer"
      v-hdr[2]       format "x(21)"
@@ -1303,7 +1314,7 @@ form header
      "UOM "
      "      Invoice Amt"
      skip
-     
+
      "---------------"
      "--------"
      "---------------------"
@@ -1359,7 +1370,7 @@ ASSIGN
  v-hdr[3] = IF rd_show2 EQ "BOL#" THEN "   BOL" ELSE "Estimate". 
 
 {sys/inc/print1.i}
-       
+
 {sys/inc/outprint.i value(lines-per-page)}
 
 IF tb_excel THEN DO:
@@ -1425,7 +1436,7 @@ PROCEDURE SetCustRange :
         btnCustList:SENSITIVE = iplChecked
        .
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1446,11 +1457,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1478,23 +1489,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

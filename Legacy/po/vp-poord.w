@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -222,7 +226,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -246,14 +250,14 @@ DO:
          NO-LOCK BY b-po-ordl.line:
        li[1] = li[1] + 1.
      END.
-    
+
      DO WHILE TRUE:
        RUN po/d-poordl.w (?, po-ord.po-no, "add").
        FIND FIRST w-po-ordl NO-ERROR.
        IF AVAIL w-po-ordl THEN DELETE w-po-ordl.
        IF NOT CAN-FIND(FIRST w-po-ordl) THEN LEAVE.
      END.
-    
+
      FOR EACH b-po-ordl WHERE
          b-po-ordl.company EQ po-ord.company AND
          b-po-ordl.po-no EQ po-ord.po-no AND
@@ -263,12 +267,12 @@ DO:
         li[2]    = li[2] + 1
         lv-rowid = ROWID(b-po-ordl).
      END.
-    
+
      IF li[2] GT 0 AND (li[1] NE li[2] OR li[2] EQ 1) THEN DO:
        RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
        RUN reopen-query IN WIDGET-HANDLE(char-hdl) (lv-rowid).
        RUN reopen-po-ord-query.
-    
+
        RUN set-rec-key IN WIDGET-HANDLE(char-hdl).
      END.
   END.
@@ -296,20 +300,20 @@ DO:
           NO-LOCK BY b-po-ordl.line:
         li[1] = li[1] + 1.
       END.
-     
+
       find last b-po-ordl WHERE
            b-po-ordl.company EQ po-ord.company AND
            b-po-ordl.po-no EQ po-ord.po-no
            no-lock no-error.
 
       z = if avail b-po-ordl then b-po-ordl.line + 1 else 1.
-      
+
       CREATE b-po-ordl.
       BUFFER-COPY po-ordl EXCEPT rec_key line rel-qty t-rel-qty t-inv-qty deleted t-rec-qty opened TO b-po-ordl.
       b-po-ordl.LINE = z.
-     
+
       RUN po/d-poordl.w (RECID(b-po-ordl), po-ord.po-no, "Copy").
-     
+
       FOR EACH b-po-ordl WHERE
           b-po-ordl.company EQ po-ord.company AND
           b-po-ordl.po-no EQ po-ord.po-no AND
@@ -319,11 +323,11 @@ DO:
          li[2]    = li[2] + 1
          lv-rowid = ROWID(b-po-ordl).
       END.
-     
+
       IF li[2] GT 0 AND (li[1] NE li[2] OR li[2] EQ 1) THEN DO:
         RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
         RUN reopen-query IN WIDGET-HANDLE(char-hdl) (lv-rowid).
-     
+
         RUN reopen-po-ord-query.
       END.
    END.
@@ -372,14 +376,14 @@ DO:
     DO:
       IF po-ordl.stat NE "c" THEN do:   /*10231304*/
        EMPTY TEMP-TABLE tt-po-ordl.
-      
+
        CREATE tt-po-ordl.
        BUFFER-COPY po-ordl TO tt-po-ordl.
-      
+
        run po/d-poordl.w (recid(po-ordl), po-ord.po-no, "update") . 
-      
+
        BUFFER-COMPARE tt-po-ordl TO po-ordl SAVE RESULT IN ll.
-      
+
        IF NOT ll              AND
           po-ordl.stat NE "U" AND
           po-ordl.stat NE "C" AND
@@ -389,10 +393,10 @@ DO:
          po-ordl.stat = "U".
          FIND CURRENT po-ordl NO-LOCK.
        END.
-      
+
        run get-link-handle in adm-broker-hdl(this-procedure,"record-source", output char-hdl).
        run reopen-query in widget-handle(char-hdl) (rowid(po-ordl)).
-      
+
        RUN reopen-po-ord-query.
       END.
       ELSE DO:                              /*10231304*/
@@ -442,7 +446,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -578,7 +582,7 @@ PROCEDURE reopen-po-ord-query :
 
   IF AVAIL po-ordl THEN DO:
     lv-rowid = ROWID(po-ordl).
-      
+
     run get-link-handle in adm-broker-hdl(this-procedure,"record-source", output char-hdl).
     run get-link-handle in adm-broker-hdl(widget-handle(char-hdl),"record-source", output char-hdl).
 

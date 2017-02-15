@@ -292,9 +292,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -377,7 +387,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -458,6 +468,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -514,6 +525,7 @@ DO:
       WHEN 6 THEN RUN OUTPUT-TO-PORT.
   end case. 
   SESSION:SET-WAIT-STATE ("").
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -701,8 +713,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -720,13 +734,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
    begin_date = TODAY.
-  
+
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
 APPLY "entry" TO begin_date IN FRAME {&FRAME-NAME}.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -792,7 +807,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
  /*    DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -803,9 +818,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY. */
 
       {custom/out2file.i}
@@ -839,7 +854,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -942,7 +957,7 @@ form header
      "---------------------"
      "------------"
      skip
-     
+
     with frame r-top.
 
 
@@ -991,9 +1006,9 @@ assign
     for each job
         where job.company eq cocode
           and job.opened  eq yes
-        
+
     {jc/rep/jc-back2.i}
-    
+
     for each tt-report,
         first job-hdr where recid(job-hdr) eq tt-report.rec-id no-lock
         break by tt-report.key-01
@@ -1010,7 +1025,7 @@ assign
         v-mach = tt-report.key-01.
         page.
       end.
-      
+
       v-job-qty = v-job-qty + job-hdr.qty.
 
       for each job-mat
@@ -1046,7 +1061,7 @@ assign
         find est where est.company   EQ job-hdr.company
                  AND   est.est-no    EQ job-hdr.est-no
             NO-LOCK.
-                 
+
 
         if avail est then do:
           if est.est-type eq 3 then do:
@@ -1103,7 +1118,7 @@ assign
 
       if v-fg-qty lt v-job-qty then do:
         v-printed = yes.
-      
+
         find first itemfg
             where itemfg.company eq cocode
               and itemfg.i-no    eq job-hdr.i-no
@@ -1113,11 +1128,11 @@ assign
          tt-report.key-04 = tt-report.key-04
          v-t-qty[1]  = v-job-qty / v-on
          v-t-rem[1]  = (v-job-qty - v-fg-qty) / v-on.
-         
+
         v-t-msf[1] = if avail itemfg then
                        ((v-job-qty - v-fg-qty) * itemfg.t-sqft / 1000)
                      else 0.  
-      
+
         display v-date
                 space(2)
                 tt-report.key-03       format "x(20)"
@@ -1145,16 +1160,16 @@ assign
              '"' v-sheet                               '",'
              '"' STRING(v-mat-qty,"->>>,>>>,>>9")      '",'
              SKIP.
-            
+
         assign
          v-t-qty[2] = v-t-qty[2] + v-t-qty[1]
          v-t-rem[2] = v-t-rem[2] + v-t-rem[1]
          v-t-msf[2] = v-t-msf[2] + v-t-msf[1].
       end.      
-            
+
       if v-printed and last-of(tt-report.key-02) then do:
         v-printed = no.
-      
+
         underline v-date
                   tt-report.key-04
                   v-t-qty[1]
@@ -1162,7 +1177,7 @@ assign
                   v-t-msf[1]
 
             with frame det.
-            
+
         display v-date
                 "Daily Totals" @ tt-report.key-04
                 v-t-qty[2]     @ v-t-qty[1]
@@ -1170,7 +1185,7 @@ assign
                 v-t-msf[2]     @ v-t-msf[1]
 
             with frame det.
-            
+
         put skip(1).    
 
         IF tb_excel THEN
@@ -1226,11 +1241,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1262,19 +1277,19 @@ PROCEDURE show-param :
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

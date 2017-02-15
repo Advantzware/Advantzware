@@ -330,6 +330,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -418,7 +429,7 @@ sys-ctrl-shipto.log-fld EQ YES"
 */  /* BROWSE EDIRelease */
 &ANALYZE-RESUME
 
- 
+
 
 
 /* **********************  Create OCX Containers  ********************** */
@@ -477,6 +488,7 @@ ON CHOOSE OF btnClose IN FRAME DEFAULT-FRAME /* Close */
 DO:
   APPLY 'CLOSE':U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -490,6 +502,7 @@ DO:
   IF EDIBOLPostCharFld NE '' THEN RUN ftpFiles.
   MESSAGE 'BOL Post FTP Complete' VIEW-AS ALERT-BOX.
   RETURN NO-APPLY.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -503,6 +516,7 @@ DO:
   IF EDIReleaseCharFld NE '' THEN RUN loadFiles.
   MESSAGE 'Release Auto Load & Create Complete' VIEW-AS ALERT-BOX.
   RETURN NO-APPLY.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -520,6 +534,7 @@ DO:
   ENABLE {&List-2} WITH FRAME {&FRAME-NAME}.
   APPLY 'ENTRY':U TO intervalValue.
   RETURN NO-APPLY.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -533,6 +548,7 @@ DO:
   ftpData:SAVE-FILE(custFTP).
   DISABLE btnUndo WITH FRAME {&FRAME-NAME}.
   MESSAGE 'FTP Data Information SAVED' VIEW-AS ALERT-BOX.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -572,6 +588,7 @@ DO:
     APPLY 'ENTRY':U TO intervalValue.
   END.
   RETURN NO-APPLY.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -584,6 +601,7 @@ ON CHOOSE OF btnUndo IN FRAME DEFAULT-FRAME /* Undo Change */
 DO:
   ftpData:READ-FILE(custFTP).
   DISABLE btnUndo WITH FRAME {&FRAME-NAME}.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -731,8 +749,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -754,6 +774,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     'user-password' + CHR(10) +
     'htdocs/bol-post-files/directory'.
   APPLY 'VALUE-CHANGED':U TO EDIBOLPost.
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -869,12 +890,12 @@ PROCEDURE ftpFiles :
   bolDir = ediBOLPostCharFld + '/' + sys-ctrl-shipto.cust-vend-no.
   OS-CREATE-DIR VALUE(bolDir).
   OS-CREATE-DIR VALUE(bolDir + '/archive').
-  
+
   RUN getFiles (bolDir,OUTPUT bolFile).
   IF bolFile EQ '' THEN RETURN.
 
   SESSION:SET-WAIT-STATE('General').
-  
+
   INPUT FROM VALUE(custFTP) NO-ECHO.
   IMPORT ipAddr.
   IMPORT ftpUser.
@@ -895,19 +916,19 @@ PROCEDURE ftpFiles :
   END. /* do i */
   PUT UNFORMATTED 'quit' SKIP.
   OUTPUT CLOSE.
-  
+
   OS-COMMAND SILENT VALUE(SEARCH(bolDir + '/ftpBOL.bat')).
-  
+
   OS-DELETE VALUE(bolDir + '/ftpBOL.bat').
   OS-DELETE VALUE(bolDir + '/ftpBOL.cmd').
-  
+
   DO i = 1 TO NUM-ENTRIES(bolFile):
     OS-COPY VALUE(bolDir + '/' + ENTRY(i,bolFile))
             VALUE(bolDir + '/archive/' + ENTRY(i,bolFile)).
     IF SEARCH(bolDir + '/archive/' + ENTRY(i,bolFile)) NE ? THEN
     OS-DELETE VALUE(bolDir + '/' + ENTRY(i,bolFile)).
   END. /* do i */
-  
+
   SESSION:SET-WAIT-STATE('').
 
 END PROCEDURE.
@@ -927,7 +948,7 @@ PROCEDURE getFiles :
 
   DEFINE VARIABLE osFileName AS CHARACTER FORMAT 'X(30)' NO-UNDO.
   DEFINE VARIABLE attrList AS CHARACTER FORMAT 'X(4)' NO-UNDO.
-  
+
   INPUT FROM OS-DIR(ipDir) NO-ECHO.
   REPEAT:
     SET osFileName ^ attrList.
@@ -956,11 +977,11 @@ PROCEDURE loadFiles :
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
   DEFINE VARIABLE qtyAlloc AS DECIMAL NO-UNDO.
   DEFINE VARIABLE qtyAvail AS DECIMAL NO-UNDO.
-  
+
   DEFINE VARIABLE lv-stat AS CHARACTER NO-UNDO.
   DEFINE VARIABLE fil_id AS RECID NO-UNDO.
   DEFINE VARIABLE v-nxt-r-no LIKE oe-rel.r-no NO-UNDO.
-  
+
   DEFINE VARIABLE ediPONo AS CHARACTER NO-UNDO.
   DEFINE VARIABLE ediLineNo AS INTEGER NO-UNDO.
   DEFINE VARIABLE ediPartNo AS CHARACTER NO-UNDO.
@@ -975,7 +996,7 @@ PROCEDURE loadFiles :
   DEFINE VARIABLE ediDateTime AS CHARACTER NO-UNDO.
   DEFINE VARIABLE j AS INTEGER NO-UNDO.
   /* task 12031201 rstark end */
-  
+
   IF NOT AVAILABLE sys-ctrl-shipto THEN DO:
     MESSAGE 'Please Select a Release ID!' VIEW-AS ALERT-BOX.
     RETURN.
@@ -989,7 +1010,7 @@ PROCEDURE loadFiles :
   IF ediFile EQ '' THEN RETURN.
 
   SESSION:SET-WAIT-STATE('General').
-  
+
   DO i = NUM-ENTRIES(ediFile) TO 1 BY -1:
     OUTPUT STREAM ediOUT TO VALUE(ediDir + '/archive/' + ENTRY(i,edifile) + '.log').
     INPUT STREAM ediIN FROM VALUE(ediDir + '/' + ENTRY(i,ediFile)) NO-ECHO.
@@ -1048,7 +1069,7 @@ PROCEDURE loadFiles :
             ediNotes = TRIM(ediNotes)
             ediShipID = STRING(INTEGER(SUBSTR(ediLotNo,3,2))) */
             .
-          
+
           FOR EACH oe-ordl EXCLUSIVE-LOCK
               WHERE oe-ordl.company EQ cocode
                 AND oe-ordl.part-no EQ ediVendPartNo
@@ -1085,7 +1106,7 @@ PROCEDURE loadFiles :
               lv-msg = ''.
               NEXT.
             END. /* if lv-msg */
-            
+
             PUT STREAM ediOUT UNFORMATTED
              'Create Release for Order: (' NOW ') ' oe-ordl.ord-no ' '
               ediPONo ' '
@@ -1177,14 +1198,14 @@ PROCEDURE loadFiles :
             &ENDIF */
 
             FOR EACH w-ordl: DELETE w-ordl. END. /* each w-ordl */
-      
+
             v-auto = YES.
             RUN oe/actrel.p (RECID(oe-rel),INPUT-OUTPUT iocPrompt).
 
             IF ediQty LE 0 THEN LEAVE.
 
           END. /* each oe-ordl */
-          
+
           RELEASE oe-ordl.
 
           ASSIGN
@@ -1212,7 +1233,7 @@ PROCEDURE loadFiles :
     IF SEARCH(ediDir + '/archive/' + ENTRY(i,edifile)) NE ? THEN
     OS-DELETE VALUE(ediDir + '/' + ENTRY(i,edifile)).
   END. /* do i */
-  
+
   SESSION:SET-WAIT-STATE('').
 
 END PROCEDURE.

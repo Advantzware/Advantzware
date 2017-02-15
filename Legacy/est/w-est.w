@@ -8,7 +8,7 @@
 /*------------------------------------------------------------------------
 
   File: est\w-est.w
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -197,6 +197,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+/* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
@@ -260,7 +261,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -791,7 +792,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updc&c ).
-       RUN set-position IN h_p-updc&c ( 9.10 , 118.00 ) NO-ERROR.
+       RUN set-position IN h_p-updc&c ( 9.10 , 128.00 ) NO-ERROR.
        RUN set-size IN h_p-updc&c ( 10.24 , 22.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -799,7 +800,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME est:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-navef-2 ).
-       RUN set-position IN h_v-navef-2 ( 22.67 , 108.00 ) NO-ERROR.
+       RUN set-position IN h_v-navef-2 ( 22.67 , 117.50 ) NO-ERROR.
        /* Size in UIB:  ( 1.43 , 42.00 ) */
 
        /* Initialize other pages that this page requires. */
@@ -905,8 +906,8 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-estitm , 'Record':U , h_q-boxdes ).
        RUN add-link IN adm-broker-hdl ( h_probe , 'box-calc':U , h_q-boxdes ).
        RUN add-link IN adm-broker-hdl ( h_v-est , 'box-calc':U , h_q-boxdes ).
-       
-     
+
+
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_v-boxdee ,
              h_folder , 'AFTER':U ).
@@ -1194,9 +1195,9 @@ PROCEDURE hide-quote :
   Notes:       
 ------------------------------------------------------------------------------*/  
   run select-page (li-page[2]).
-      
+
   IF li-page[2] = 10 THEN DO: /* spec folder redisplay foe updated qutoe info */
-   
+
      RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"ebhead-target",OUTPUT char-hdl).
 
      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
@@ -1226,7 +1227,7 @@ PROCEDURE init-box-design :
   RUN add-link IN adm-broker-hdl ( h_b-estitm , 'Record':U , h_q-boxdes ).
   RUN add-link IN adm-broker-hdl ( ip-handle, 'box-calc':U , h_q-boxdes ).
   RUN dispatch IN h_q-boxdes ('initialize').
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1238,14 +1239,14 @@ PROCEDURE local-change-page :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */  
   run get-attribute ("current-page").
-   
+
   assign
    li-page[2] = li-page[1]
    li-page[1] = int(return-value).
-  
+
   if li-page[1] = 10 then do:  /* quote */
     def buffer bf-quote for quotehd .
     find first bf-quote where bf-quote.company = g_company and
@@ -1260,7 +1261,7 @@ PROCEDURE local-change-page :
        return no-apply.        
     end.                            
   end.
-   
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
@@ -1347,9 +1348,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1412,12 +1413,12 @@ PROCEDURE Select_Add :
 ------------------------------------------------------------------------------*/
 
   def var char-hdl as cha no-undo.
-  
+
   run select-page(2).
   run get-link-handle in adm-broker-hdl(this-procedure,"add-est-target", output char-hdl).
   run add-estimate in widget-handle(char-hdl).
-  
-    
+
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -37,7 +41,7 @@ ASSIGN
  locode = g_loc.
 
 {ce/msfcalc.i}
-    
+
 {sys/inc/f16to32.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -375,7 +379,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -411,7 +415,7 @@ END.
 ON VALUE-CHANGED OF itemfg.spare-char-3 IN FRAME F-Main /* Sales Rep */
 DO:
   DO WITH FRAME {&FRAME-NAME}:
-  
+
     FIND FIRST sman NO-LOCK WHERE sman.company EQ cocode
                               AND sman.sman    EQ itemfg.spare-char-3:SCREEN-VALUE NO-ERROR.
     IF AVAIL sman THEN
@@ -432,8 +436,8 @@ DO:
             button yes-no update ll-ans as log.
     if ll-ans then itemfg.t-sqin:screen-value = string(dec(itemfg.t-len:screen-value) *
                                                        dec(itemfg.t-wid:screen-value) ).         
-                                                       
-                                                       
+
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -452,7 +456,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -557,7 +561,7 @@ PROCEDURE local-display-fields :
     DEFINE VARIABLE cWidth AS CHARACTER   NO-UNDO.
 
     DEFINE BUFFER bf-eb FOR eb.
-    
+
   /* Code placed here will execute PRIOR to standard behavior. */
   if avail itemfg and g_period <> 0 then ld-ptd-msf = itemfg.ptd-msf[g_period].  
   ASSIGN 
@@ -583,12 +587,12 @@ PROCEDURE local-display-fields :
         cWidth = IF AVAIL bf-eb THEN string(bf-eb.t-wid) ELSE string(itemfg.t-wid)
         cLength = IF AVAIL bf-eb THEN string(bf-eb.t-len) ELSE string(itemfg.t-len). 
   END.
-  
+
   ASSIGN 
       fi_blank-len:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cLength.
       fi_blank-wid:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cWidth.
       v-factor-item:SCREEN-VALUE IN FRAME {&FRAME-NAME} = IF AVAIL reftable THEN reftable.code2 ELSE "NO".
-  
+
   IF v-cecscrn-char = "Decimal" THEN
      ASSIGN
         itemfg.l-score[50]:FORMAT = "->>,>>9.999<<<"
@@ -605,7 +609,7 @@ PROCEDURE local-display-fields :
         itemfg.t-wid:WIDTH = 15.60
         itemfg.t-sqin:WIDTH = 15.60
         itemfg.t-sqft:WIDTH = 15.60.
-        
+
 
 END PROCEDURE.
 
@@ -624,7 +628,7 @@ PROCEDURE local-enable-fields :
   def var tmpstore as cha no-undo.  /* for include file ce/updfgdim.i */
   def var i as int no-undo.
 
-   
+
   /* Code placed here will execute PRIOR to standard behavior. */
   IF itemfg.est-no NE "" THEN DO:
     MESSAGE "IMPORT Estimate Info (Part#, Unit Count, Style, Die#, Plate#, Dimensions, etc.) for FG?"
@@ -724,7 +728,7 @@ PROCEDURE local-enable-fields :
   FIND CURRENT itemfg NO-LOCK.
 
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
 

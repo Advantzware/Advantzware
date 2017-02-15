@@ -69,7 +69,7 @@ DEF TEMP-TABLE tt-slsrp
     field cost    like ar-invl.amt
     FIELD scat    AS   CHAR
     INDEX i1 sman scat.
-  
+
 
 DEF TEMP-TABLE tt-report NO-UNDO LIKE report
     FIELD row-id AS ROWID.
@@ -411,9 +411,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -538,7 +548,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -589,6 +599,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -639,6 +650,7 @@ DO:
        END.
       WHEN 6 THEN RUN OUTPUT-TO-PORT.
   end case. 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -730,19 +742,19 @@ END.
 ON VALUE-CHANGED OF rd_part-fg IN FRAME FRAME-A
 DO:
   assign {&self-name}.
-  
+
   if rd_ptd eq "YTD" then do:
     find first period
         where period.company eq gcompany
           and period.yr      eq v-year
         no-lock no-error.
-      
+
     begin_date = if avail period then period.pst
                                  else date(1,1,year(today)).
-                               
+
     display begin_date WITH FRAME FRAME-A IN WINDOW C-Win.
   end.
-  
+
   run show-period-dates.
 END.
 
@@ -755,19 +767,19 @@ END.
 ON VALUE-CHANGED OF rd_ptd IN FRAME FRAME-A
 DO:
   assign {&self-name}.
-  
+
   if rd_ptd eq "YTD" then do:
     find first period
         where period.company eq gcompany
           and period.yr      eq v-year
         no-lock no-error.
-      
+
     begin_date = if avail period then period.pst
                                  else date(1,1,year(today)).
-                               
+
     display begin_date WITH FRAME FRAME-A IN WINDOW C-Win.
   end.
-  
+
   run show-period-dates.
 END.
 
@@ -780,19 +792,19 @@ END.
 ON VALUE-CHANGED OF rd_typ-grp IN FRAME FRAME-A
 DO:
   assign {&self-name}.
-  
+
   if rd_ptd eq "YTD" then do:
     find first period
         where period.company eq gcompany
           and period.yr      eq v-year
         no-lock no-error.
-      
+
     begin_date = if avail period then period.pst
                                  else date(1,1,year(today)).
-                               
+
     display begin_date WITH FRAME FRAME-A IN WINDOW C-Win.
   end.
-  
+
   run show-period-dates.
 END.
 
@@ -892,8 +904,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -911,11 +925,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   ASSIGN
    begin_date = TODAY
    end_date   = TODAY.
-   
+
   find first period
       where period.company eq gcompany
         and period.pst     le today
@@ -928,16 +942,16 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      begin_period = period.pnum
      v-year       = period.yr
      begin_date   = period.pst.
-     
+
   else
     assign
      begin_period = month(today)
      v-year       = year(today).
-  
+
   fi_file = "c:\tmp\commrpt.csv".
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -949,7 +963,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
            tgChooseSalesReps:SCREEN-VALUE = "NO".
 
     APPLY "entry" TO rd_ptd.
-        
+
     FIND FIRST period
         WHERE period.company EQ gcompany
           AND period.pst     LE DATE(begin_date:SCREEN-VALUE)
@@ -964,6 +978,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        tb_prep:SENSITIVE    = NO.
   END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1146,7 +1161,7 @@ FORMAT HEADER
 ASSIGN
  str-tit2 = TRIM(c-win:TITLE) + " (O-R-6)"
  {sys/inc/ctrtext.i str-tit2 112}
- 
+
  v-per-rpt   = rd_ptd EQ "PTD"
  v-period    = begin_period
  v-date[1]   = begin_date
@@ -1216,11 +1231,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1248,23 +1263,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

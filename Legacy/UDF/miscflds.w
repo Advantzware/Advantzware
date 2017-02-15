@@ -787,6 +787,11 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 ASSIGN {&WINDOW-NAME}:MENUBAR    = MENU MENU-BAR-C-Win:HANDLE.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT wMiscFlds:LOAD-ICON("Graphics\asiicon.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -1167,7 +1172,7 @@ END.
 ON CHOOSE OF btnExit IN FRAME fMiscFlds /* Exit */
 DO:
     IF savePrompt THEN DO:
-        MESSAGE "UDF Changes Exist!!!"
+        MESSAGE "Unsaved changes exist. Do you want to save?"
             VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO-CANCEL
             TITLE "Warning - Changes Not Saved"
             UPDATE promptToSave AS LOGICAL.
@@ -3053,14 +3058,14 @@ PROCEDURE loadWidgetData :
     END. /* do i */
   END. /* each mfgroup */
 
-  OUTPUT TO VALUE("users/" + USERID("ASI") + "/mfgroup.dat").
+  OUTPUT TO VALUE("users/" + USERID("NOSWEAT") + "/mfgroup.dat").
   EXPORT groupList.
   FOR EACH mfgroup NO-LOCK:
     EXPORT mfgroup.mfgroup_tabs.
   END.
   OUTPUT CLOSE.
 
-  OUTPUT TO VALUE("users/" + USERID("ASI") + "/mfdata.dat").
+  OUTPUT TO VALUE("users/" + USERID("NOSWEAT") + "/mfdata.dat").
   FOR EACH mfdata NO-LOCK:
     PUT UNFORMATTED mfdata.miscflds_data SKIP.
   END.
@@ -3070,7 +3075,7 @@ PROCEDURE loadWidgetData :
   EMPTY TEMP-TABLE ttAttrb.
   EMPTY TEMP-TABLE ttDeleteMFValues.
 
-  INPUT FROM VALUE("users/" + USERID("ASI") + "/mfdata.dat") NO-ECHO.
+  INPUT FROM VALUE("users/" + USERID("NOSWEAT") + "/mfdata.dat") NO-ECHO.
   REPEAT:
     CREATE ttAttrb.
     IMPORT ttAttrb.
@@ -3078,7 +3083,7 @@ PROCEDURE loadWidgetData :
   INPUT CLOSE.
   IF ttAttrb.attr_type EQ "" THEN DELETE ttAttrb.
 
-  INPUT FROM VALUE("users/" + USERID("ASI") + "/mfgroup.dat").
+  INPUT FROM VALUE("users/" + USERID("NOSWEAT") + "/mfgroup.dat").
   IMPORT cdummy.
   DO i = 1 TO NUM-ENTRIES(cdummy):
     IMPORT currentLabel.
@@ -3484,7 +3489,7 @@ PROCEDURE saveLayout :
     END. /* each ttdeletemfvalues */
   END. /* if can-find */
 
-  OUTPUT TO VALUE("users/" + USERID("ASI") + "/mfgroup.dat").
+  OUTPUT TO VALUE("users/" + USERID("NOSWEAT") + "/mfgroup.dat").
   EXPORT mfgroupList:LIST-ITEMS IN FRAME {&FRAME-NAME}.
   DO i = 1 TO mfgroupList:NUM-ITEMS:
     FIND FIRST ttMFGroup
@@ -3512,7 +3517,7 @@ PROCEDURE saveLayout :
     mfgroup.mfgroup_data = mfgroup.mfgroup_data + textstring.
   END. /* each ttmfprgrms */
 
-  OUTPUT TO VALUE("users/" + USERID("ASI") + "/miscflds.dat").
+  OUTPUT TO VALUE("users/" + USERID("NOSWEAT") + "/miscflds.dat").
   FOR EACH ttAttrb:
     EXPORT ttAttrb.attr_mfgroup.
     EXPORT ttAttrb.
@@ -3522,7 +3527,7 @@ PROCEDURE saveLayout :
   FOR EACH mfdata:
       DELETE mfdata.
   END. /* each mfdata */
-  INPUT FROM VALUE("users/" + USERID("ASI") + "/miscflds.dat").
+  INPUT FROM VALUE("users/" + USERID("NOSWEAT") + "/miscflds.dat").
   REPEAT:
     IMPORT textstring.
     CREATE mfdata.

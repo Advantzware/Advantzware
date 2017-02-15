@@ -158,9 +158,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -190,7 +200,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -227,6 +237,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
     apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -238,12 +249,13 @@ END.
 ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
 DO:
   v-process  = NO.
-   
+
   MESSAGE "Are you sure you want to " + TRIM(c-win:TITLE) +
           " for the selected parameters?"
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
-        
+
   IF v-process THEN RUN run-process.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -285,8 +297,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -305,6 +319,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
 
   {methods/nowait.i}
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -373,20 +388,20 @@ END.
 SESSION:SET-WAIT-STATE("General").
 
 status default "Selecting & Sorting...".
-      
+
 for each oe-boll
     where oe-boll.company  eq cocode
       and oe-boll.posted   eq yes
       and (oe-boll.loc     eq "" or 
            oe-boll.loc-bin eq ""),
-           
+
     first itemfg
     where itemfg.company eq cocode
       and itemfg.i-no    eq oe-boll.i-no
     no-lock
-        
+
     break by oe-boll.i-no:
-    
+
   if first-of(oe-boll.i-no) then
     status default "Processing FG#: " + trim(oe-boll.i-no).
 
@@ -395,7 +410,7 @@ for each oe-boll
    v-loc-bin = oe-boll.loc-bin.
 
   release fg-bin.
-  
+
   for each fg-bin
       where fg-bin.company eq cocode
         and fg-bin.i-no    eq oe-boll.i-no
@@ -407,7 +422,7 @@ for each oe-boll
         and fg-bin.qty     gt 0
       no-lock
       by fg-bin.qty desc:
-      
+
     leave.  
   end.    
 
@@ -415,30 +430,30 @@ for each oe-boll
     assign
      v-loc     = fg-bin.loc
      v-loc-bin = fg-bin.loc-bin.
-     
+
   if v-loc eq "" or v-loc-bin eq "" then
     assign
      v-loc     = itemfg.def-loc
      v-loc-bin = itemfg.def-loc-bin.
-  
+
   if v-loc eq "" or v-loc-bin eq "" then
     if avail shipto then
       assign
        v-loc     = shipto.loc
        v-loc-bin = shipto.loc-bin.
-  
+
   if v-loc eq "" or v-loc-bin eq "" then
     assign
      v-loc     = "MAIN"
      v-loc-bin = "FLOOR".
-  
+
   for each fg-rcpth
       where fg-rcpth.b-no    eq oe-boll.b-no
         and fg-rcpth.i-no    eq oe-boll.i-no
         and fg-rcpth.job-no  eq oe-boll.job-no
         and fg-rcpth.job-no2 eq oe-boll.job-no2
       no-lock,
-      
+
       each fg-rdtlh
       where fg-rdtlh.r-no     eq fg-rcpth.r-no
         and fg-rdtlh.tag      eq oe-boll.tag
@@ -453,7 +468,7 @@ for each oe-boll
   assign
    oe-boll.loc     = v-loc
    oe-boll.loc-bin = v-loc-bin.
-   
+
   if last-of(oe-boll.i-no) then do:
     run fg/fg-mkbin.p (recid(itemfg)).
 
@@ -471,9 +486,9 @@ for each oe-boll
           where fg-bin.company eq cocode
             and fg-bin.i-no    eq itemfg.i-no
             and fg-bin.qty     lt 0:
-        
+
         RUN fg/cre-pchr.p (ROWID(fg-bin), "C", 0, 0).
-      
+
         delete fg-bin.
       end.
     END.

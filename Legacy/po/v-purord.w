@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -60,7 +64,7 @@ DEFINE TEMP-TABLE tt-ord-no
 ASSIGN 
     cocode = g_company
     locode = g_loc.
-    
+
 DO TRANSACTION:
     {sys/inc/aptax.i}
     {sys/ref/postatus.i} 
@@ -109,7 +113,7 @@ po-ord.tax po-ord.t-cost po-ord.approved-date po-ord.approved-id
 &Scoped-define FIRST-DISPLAYED-TABLE po-ord
 &Scoped-Define DISPLAYED-OBJECTS fc_app_time lv_vend-name lv_vend-add1 ~
 lv_vend-add2 lv_vend-city lv_vend-state lv_vend-zip shipAreaCode shipPhone ~
-lv_vend-area-code lv_vend-phone typeDescr 
+lv_vend-area-code lv_vend-phone typeDescr approved_text 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -211,7 +215,11 @@ DEFINE VARIABLE shipPhone AS CHARACTER FORMAT "999-9999"
 
 DEFINE VARIABLE typeDescr AS CHARACTER FORMAT "X(256)":U INITIAL "Type Description" 
       VIEW-AS TEXT 
-     SIZE 20 BY 1 NO-UNDO.
+     SIZE 20 BY 1 NO-UNDO. 
+
+DEFINE VARIABLE approved_text AS CHARACTER FORMAT "X(8)":U INITIAL "Approved" 
+      VIEW-AS TEXT 
+     SIZE 12 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -346,12 +354,13 @@ DEFINE FRAME F-Main
           LABEL "By"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     "FOB:" VIEW-AS TEXT
+          "FOB:" VIEW-AS TEXT
           SIZE 6 BY .81 AT ROW 15.05 COL 78
      "Freight Payment:" VIEW-AS TEXT
           SIZE 19 BY .81 AT ROW 13.86 COL 65
-     "Approved" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 1.24 COL 130.2 WIDGET-ID 12
+     /*"Approved" VIEW-AS TEXT*/
+      approved_text
+          /*SIZE 12 BY .62*/ AT ROW 1.24 COL 130.2 WIDGET-ID 12 NO-LABEL
      RECT-1 AT ROW 1 COL 1
      RECT-13 AT ROW 1.71 COL 128 WIDGET-ID 10
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -491,7 +500,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -876,7 +885,7 @@ DO:
       ASSIGN po-ord.due-date:SCREEN-VALUE = STRING(DATE(po-ord.po-date:SCREEN-VALUE) + vend.disc-days /*+
                                                                                         IF WEEKDAY(po-ord.po-date) EQ 6 THEN 3 ELSE 1*/ ) .
   END.
- 
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -893,7 +902,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -1000,7 +1009,7 @@ PROCEDURE close-reopen :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
 
-  
+
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
 
   RUN browse-rowid IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-rowid).
@@ -1076,7 +1085,7 @@ PROCEDURE display-vend :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&frame-name}:
     FIND FIRST vend NO-LOCK 
         WHERE vend.company EQ po-ord.company
@@ -1174,20 +1183,25 @@ PROCEDURE hold-release :
         FIND bf-po-ord EXCLUSIVE-LOCK WHERE RECID(bf-po-ord) EQ recid(po-ord) NO-ERROR.
         IF bf-po-ord.stat = "H" then
            ASSIGN bf-po-ord.approved-date = today
-                  bf-po-ord.approved-id = userid("ASI")
+                  bf-po-ord.approved-id = userid('nosweat')
                   bf-po-ord.approved-time = TIME. 
         ELSE ASSIGN bf-po-ord.approved-date = ?
                   bf-po-ord.approved-id = ""
                   bf-po-ord.approved-time = 0.           
-        bf-po-ord.stat = IF bf-po-ord.stat EQ "H" THEN "O" ELSE "H".    
-        
+        bf-po-ord.stat = IF bf-po-ord.stat EQ "H" THEN "O" ELSE "H".   
+
      END.
      FIND CURRENT bf-po-ord NO-LOCK NO-ERROR.
      FIND CURRENT po-ord NO-LOCK NO-ERROR.
      IF AVAILABLE po-ord THEN DO: 
-        DISPLAY po-ord.stat po-ord.approved-date po-ord.approved-id 
+        DISPLAY po-ord.stat po-ord.approved-date po-ord.approved-id RECT-13 approved_text
              WITH FRAME {&FRAME-NAME}.
         fc_app_time:SCREEN-VALUE = IF AVAILABLE po-ord THEN string(po-ord.approved-time,"HH:MM") ELSE "".
+        fc_app_time:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
+        po-ord.approved-date:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
+        po-ord.approved-id:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE  .
+        RECT-13:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
+        approved_text:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
      END.        
  END.
 
@@ -1203,11 +1217,11 @@ PROCEDURE is-dropship :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DEFINE VARIABLE look-recid  AS RECID     NO-UNDO.
   DEFINE VARIABLE ll-choice   AS LOG       INIT NO NO-UNDO.
   DEFINE VARIABLE lv-stat     AS CHARACTER NO-UNDO.
-  
+
   DEFINE VARIABLE ship-custno AS CHARACTER LABEL "Enter Customer Number" NO-UNDO.
   DEFINE VARIABLE ship-choice AS LO        LABEL "Ship To" VIEW-AS RADIO-SET HORIZONTAL
        RADIO-BUTTONS "Vendor", YES,
@@ -1415,7 +1429,7 @@ PROCEDURE local-assign-record :
      END.
   IF adm-new-record AND NOT adm-adding-record AND AVAILABLE bx-poline THEN DO:
       RUN po/w-cppoln.w (INPUT ip-company, INPUT ip-po-no, OUTPUT v-new-orders).
-      
+
       IF v-order-list GT "" THEN DO:
           DO vi = 1 TO NUM-ENTRIES(v-new-orders, "|"):
              CREATE tt-ord-no .
@@ -1430,7 +1444,12 @@ PROCEDURE local-assign-record :
   /* Code placed here will execute AFTER standard behavior.    */
   ASSIGN
    po-ord.ship-no = lv-ship-no
-   po-ord.cust-no = ls-drop-custno.
+   po-ord.cust-no = ls-drop-custno .
+  DO WITH FRAME {&FRAME-NAME} :
+     IF trim(v-postatus-cha) = "Hold" THEN
+         IF po-ord.stat:SCREEN-VALUE NE "C" THEN
+             po-ord.stat    = "H" .
+  END.
 
   /* 10021210 */
   FIND FIRST shipto WHERE shipto.company EQ cocode
@@ -1462,12 +1481,12 @@ PROCEDURE local-assign-record :
            NO-ERROR.
        IF AVAILABLE vend THEN po-ord.tax-gr = vend.tax-gr.
      END.
-     
+
 
      FOR EACH bx-poline NO-LOCK WHERE
          bx-poline.company EQ bx-poord.company AND
          bx-poline.po-no EQ bx-poord.po-no :
-             
+
          CREATE po-ordl.
          BUFFER-COPY bx-poline EXCEPT po-no rec_key rel-qty t-rel-qty 
                                       t-inv-qty deleted t-rec-qty opened
@@ -1482,20 +1501,20 @@ PROCEDURE local-assign-record :
 
          IF po-ord.vend-no NE bx-poord.vend-no THEN
            po-ordl.tax = po-ord.tax-gr NE "" AND aptax-chr EQ "Vendor".
-           
+
          IF AVAILABLE vend THEN DO:
            po-ordl.disc = vend.disc-%.
            RUN po/po-sysct.p.
            IF v-default-gl-log AND v-default-gl-cha EQ "Vendor" THEN po-ordl.actnum = vend.actnum.
          END.
-                  
+
          FIND FIRST tt-ord-no WHERE tt-ord-no.LINE = po-ordl.LINE
                                 AND tt-ord-no.ord-no NE po-ordl.ord-no
                               NO-ERROR.
          IF AVAILABLE tt-ord-no THEN
              po-ordl.ord-no = tt-ord-no.ord-no.
          IF po-ord.printed OR po-ord.stat <> "N" THEN po-ordl.stat = "A".
-                  
+
          ROWID(po-ordl). /* flush it */
 
 
@@ -1528,7 +1547,7 @@ PROCEDURE local-assign-record :
         DEFINE VARIABLE ls-key AS cha NO-UNDO.
         ASSIGN
         ls-key         = STRING(TODAY,"99999999") +
-                  string(NEXT-VALUE(rec_key_seq,ASI),"99999999")
+                  string(NEXT-VALUE(rec_key_seq,nosweat),"99999999")
         po-ord.rec_key = ls-key.               
         CREATE rec_key.
         ASSIGN rec_key.rec_key    = po-ord.rec_key
@@ -1541,11 +1560,11 @@ PROCEDURE local-assign-record :
          FIND FIRST notes EXCLUSIVE-LOCK WHERE notes.rec_key = po-ord.rec_key 
                             AND notes.note_title = bx-notes.note_title NO-ERROR.
          IF NOT AVAILABLE notes THEN CREATE notes.
-          
+
          ASSIGN notes.rec_key   = po-ord.rec_key
                 notes.note_date = TODAY .
          BUFFER-COPY bx-notes EXCEPT bx-notes.rec_key bx-notes.note_date TO notes.
-   
+
      END.  /* for each bx-notes  vendor notes */
   END.
 
@@ -1570,7 +1589,7 @@ PROCEDURE local-assign-record :
   IF NOT adm-new-record AND lv-prev-vend-no NE po-ord.vend-no THEN DO:
      MESSAGE "Do you want to update the Item Cost for all line items?"
          VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-anse AS LOG.
-     
+
      IF ll-anse THEN 
          FOR EACH po-ordl EXCLUSIVE-LOCK WHERE po-ordl.company = po-ord.company
                             AND po-ordl.po-no = po-ord.po-no:
@@ -1612,7 +1631,7 @@ PROCEDURE local-assign-record :
               END. /* for each */
 
           END.  /* else ddo*/
-            
+
      END.
   END.  /* change vender */
 
@@ -1653,21 +1672,21 @@ PROCEDURE local-create-record :
 ------------------------------------------------------------------------------*/
   DEFINE BUFFER b-po-ordl FOR po-ordl.
   DEFINE VARIABLE iNextPo LIKE po-ctrl.next-po-no NO-UNDO.
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  
+
   RUN sys/ref/asiseq.p (cocode,'po_seq',OUTPUT iNextPO) NO-ERROR.
 
   ASSIGN po-ord.company        = cocode
          po-ord.po-no          = inextPO         
          po-ord.po-date        = TODAY
          po-ord.loc            = locode
-         po-ord.buyer          = USERID("ASI")  /*global-uid*/
+         po-ord.buyer          = USERID("NOSWEAT")  /*global-uid*/
          po-ord.under-pct      = 10
          po-ord.over-pct       = 10         
          po-ord.due-date       = po-ord.po-date + 
@@ -1680,9 +1699,15 @@ PROCEDURE local-create-record :
 
   IF trim(v-postatus-cha) = "Hold" THEN DO:
      po-ord.stat = "H" .
-     DISPLAY po-ord.stat WITH FRAME {&frame-name}.
   END.
-  
+  DISPLAY po-ord.stat fc_app_time RECT-13 approved_text po-ord.approved-date
+          po-ord.approved-id WITH FRAME {&frame-name}.
+          fc_app_time:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
+          po-ord.approved-date:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
+          po-ord.approved-id:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE  .
+          RECT-13:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
+          approved_text:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
+
   IF NOT copy-record THEN ls-drop-custno = "".
 
   CREATE b-po-ordl.
@@ -1718,7 +1743,7 @@ PROCEDURE local-create-record :
  FIND CURRENT po-ordl NO-LOCK NO-ERROR.
  FIND CURRENT b-po-ordl NO-LOCK NO-ERROR.
  FIND CURRENT reftable NO-LOCK NO-ERROR.
- 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1740,9 +1765,18 @@ PROCEDURE local-display-fields :
   RUN setTypeDescr.
   IF AVAILABLE po-ord THEN RUN display-vend.
   v-copied-from = INTEGER(po-ord.po-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
-  
   fc_app_time:SCREEN-VALUE = IF AVAILABLE po-ord THEN string(po-ord.approved-time,"HH:MM") ELSE "".
-   
+
+  fc_app_time:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
+  po-ord.approved-date:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
+  po-ord.approved-id:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE  .
+  RECT-13:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
+  approved_text:HIDDEN = IF AVAILABLE po-ord and po-ord.stat EQ "H" THEN TRUE ELSE FALSE .
+
+
+/* IF po-ord.stat <> "H" THEN ENABLE po-ord.approved-date fc_app_time.
+ IF po-ord.stat <> "H" THEN ENABLE po-ord.approved-id.*/
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1848,7 +1882,7 @@ PROCEDURE local-update-record :
                notes.rec_key   = po-ord.rec_key
                notes.note_date = TODAY
                notes.note_time = TIME
-               notes.user_id   = USERID("ASI").
+               notes.user_id   = USERID("NOSWEAT").
         END.
 
         RELEASE b-po-ord.
@@ -1993,7 +2027,7 @@ PROCEDURE new-vend-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&frame-name}:
     FIND vend
         WHERE vend.company EQ po-ord.company
@@ -2267,7 +2301,7 @@ PROCEDURE valid-vend-no :
       RETURN ERROR.
     END.
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

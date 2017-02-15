@@ -3938,6 +3938,9 @@ PROCEDURE createESTfromArtios :
      run calc-blank-size.
      run calc-layout4Artios (yes).
 
+     /* create default prep */
+     run create-prep. 
+
      /* ink/pack copied from cec/estitm1.i */
      if eb.stock-no = "" then do:
         find first ce-ctrl where ce-ctrl.company = gcompany and
@@ -4196,6 +4199,9 @@ PROCEDURE createEstFromImpact :
 
      run calc-blank-size.
      run calc-layout4Artios (yes).
+
+     /* create default prep */
+     run create-prep. 
 
      /* ink/pack copied from cec/estitm1.i */
      if eb.stock-no = "" then do:
@@ -4583,17 +4589,15 @@ PROCEDURE custom-row-changed :
 ------------------------------------------------------------------------------*/
   DEF VAR char-hdl AS CHAR NO-UNDO.
 
-
-RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"form-blank-target",OUTPUT char-hdl).
-
   IF lv-repo EQ "ON" AND AVAIL eb THEN DO:
     
       IF AVAIL eb AND eb.est-type = 8 THEN
        BROWSE {&browse-name}:REFRESH().
+    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"form-blank-target",OUTPUT char-hdl).
 
     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
       RUN repo-on-off IN WIDGET-HANDLE(char-hdl) ("OFF").
-      /*RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(eb)).*/
+      RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(eb)).
       RUN repo-on-off IN WIDGET-HANDLE(char-hdl) ("ON").
     END.
   END.
@@ -4605,10 +4609,6 @@ RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"form-blank-target",OUTPUT 
       RUN repo-on-off IN WIDGET-HANDLE(char-hdl) ("ON").
      END.                                               
   END.
-
-  IF AVAIL eb AND  VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-      RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(eb)).
-
 
 END PROCEDURE.
 
@@ -7927,7 +7927,7 @@ PROCEDURE valid-eb-reckey :
                           RECID(bf-eb) <> RECID(eb) NO-LOCK NO-ERROR.
    IF AVAIL bf-eb OR eb.rec_key = "" THEN DO:
       ls-key = string(today,"99999999") +
-               string(next-value(rec_key_seq,ASI),"99999999").
+               string(next-value(rec_key_seq,nosweat),"99999999").
       FIND CURRENT eb.
       eb.rec_key = ls-key.
       FIND CURRENT eb NO-LOCK.               

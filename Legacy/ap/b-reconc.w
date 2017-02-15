@@ -5,9 +5,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-USING Consultingwerk.Framework.Collections.CharacterDictionary FROM PROPATH.
-USING Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl FROM PROPATH.
-&SCOPED-DEFINE dataGrid
+{Advantzware\WinKit\admBrowserUsing.i}
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
@@ -214,7 +212,8 @@ END.
 {src/adm/method/browser.i}
 {src/adm/method/query.i}
 {methods/template/browser.i}
-{methods/gridSearch.i}
+
+{Advantzware/WinKit/dataGridProc.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -679,10 +678,10 @@ IF AVAILABLE b-prgrms THEN DO:
     group-ok = yes.
     /*LEAVE. */
   END.
-  IF NOT CAN-DO(b-prgrms.can_run,USERID("ASI")) AND
-     NOT CAN-DO(b-prgrms.can_update,USERID("ASI")) AND
-     NOT CAN-DO(b-prgrms.can_create,USERID("ASI")) AND
-     NOT CAN-DO(b-prgrms.can_delete,USERID("ASI")) AND NOT group-ok THEN
+  IF NOT CAN-DO(b-prgrms.can_run,USERID("NOSWEAT")) AND
+     NOT CAN-DO(b-prgrms.can_update,USERID("NOSWEAT")) AND
+     NOT CAN-DO(b-prgrms.can_create,USERID("NOSWEAT")) AND
+     NOT CAN-DO(b-prgrms.can_delete,USERID("NOSWEAT")) AND NOT group-ok THEN
   DO:
     MESSAGE "Program :" PROGRAM-NAME(1) SKIP "Title :" b-prgrms.prgtitle SKIP(1)
         "Access to this Program Denied - Contact Systems Manager" VIEW-AS ALERT-BOX ERROR.
@@ -691,7 +690,7 @@ IF AVAILABLE b-prgrms THEN DO:
 
   END.
   ELSE DO:
-      IF NOT v-can-update AND CAN-DO(b-prgrms.can_update,USERID("ASI"))
+      IF NOT v-can-update AND CAN-DO(b-prgrms.can_update,USERID("NOSWEAT"))
             THEN v-can-update = YES.      
   END.
 END. 

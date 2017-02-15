@@ -20,15 +20,15 @@ CASE ipcDatabase:
                 opiUserCount = opiUserCount + 1.
             END.
         END.
-    WHEN "ASI" THEN 
+    WHEN "NOSWEAT" THEN 
         DO:
-            FOR EACH ASI._Connect NO-LOCK WHERE ASI._Connect._connect-type = "SELF" OR ASI._Connect._connect-type= "REMC"  :
+            FOR EACH NOSWEAT._connect NO-LOCK WHERE NOSWEAT._connect._connect-type = "SELF" OR NOSWEAT._connect._connect-type= "REMC"  :
                 opiUserCount = opiUserCount + 1.
-                FIND FIRST ttUsers WHERE ttUsers.usrName EQ ASI._Connect._connect-name
+                FIND FIRST ttUsers WHERE ttUsers.usrName EQ nosweat._connect._connect-name
                   NO-LOCK NO-ERROR.
                 IF NOT AVAILABLE ttUsers THEN DO:
                     CREATE ttUsers.
-                    ASSIGN ttUsers.usrName = ASI._Connect._connect-name.
+                    ASSIGN ttUsers.usrName = nosweat._connect._connect-name.
                 END.
             END.
         END.

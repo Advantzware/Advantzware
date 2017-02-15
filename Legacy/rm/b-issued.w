@@ -2126,7 +2126,7 @@ PROCEDURE local-create-record :
      rm-rctd.s-num  = 1
      rm-rctd.b-num = 0
      rm-rctd.rct-date = TODAY
-     rm-rctd.user-id = USERID("ASI").
+     rm-rctd.user-id = USERID("nosweat").
 
 END PROCEDURE.
 

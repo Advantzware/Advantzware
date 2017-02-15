@@ -219,9 +219,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -245,7 +255,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -282,6 +292,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
     apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -293,6 +304,7 @@ END.
 ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
 DO:
     run run-process.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -312,8 +324,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -332,6 +346,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   FIND ap-ctrl WHERE ap-ctrl.company = gcompany NO-LOCK NO-ERROR.
   RUN enable_UI.
   {methods/nowait.i}
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -392,7 +407,7 @@ PROCEDURE run-process :
 /* ------------------------------------------------ util/bldstack.p 08/99 JLF */
 /*  Build Stacking Matrices                                                   */
 /* -------------------------------------------------------------------------- */
-  
+
 def var fflute      like item.flute         format "x(3)".
 def var tflute      like fflute             init "zzz".
 def var ftest       like item.reg-no        format "x(6)".
@@ -405,7 +420,7 @@ DEF VAR ll AS LOG NO-UNDO.
 DEF VAR lv-page-no LIKE stack-flute.page-no NO-UNDO.
 
 session:set-wait-state("General").
-  
+
 do with frame {&frame-name}:
   assign
    begin_flute
@@ -417,7 +432,7 @@ do with frame {&frame-name}:
    fi_height
    tb_delete.
 end.
-  
+
 assign
  fflute   = begin_flute
  tflute   = end_flute
@@ -427,7 +442,7 @@ assign
  tpall    = end_pallet
  v-height = fi_height
  v-delete = tb_delete.
-                                             
+
 IF v-delete THEN
 FOR EACH stack-flute
     WHERE stack-flute.company EQ cocode
@@ -501,14 +516,14 @@ FOR EACH item
     END.
   END.
 END.
-     
+
 session:set-wait-state("").
 
 message trim(c-win:title) + " Process Is Completed." view-as alert-box.
 apply "close" to this-procedure.
 
 return no-apply.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.
@@ -527,7 +542,7 @@ PROCEDURE update-stack-flute :
 
   DEF VAR li AS INT NO-UNDO.
   DEF VAR lj AS INT NO-UNDO.
-  
+
 
   DO li = 1 TO 15:
     IF stack-flute.row-value[li] EQ ""          OR

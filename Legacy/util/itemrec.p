@@ -5,7 +5,7 @@ for each item where item.rec_key = "".
 
 
 ls-key = string(today,"99999999") +
-               string(next-value(rec_key_seq,ASI),"99999999").
+               string(next-value(rec_key_seq,nosweat),"99999999").
 
 item.rec_key = ls-key.               
 create rec_key.
@@ -23,7 +23,7 @@ FOR EACH ITEM:
                             RECID(bf-item) <> RECID(ITEM) NO-LOCK NO-ERROR.
    IF AVAIL bf-item THEN DO:
        ls-key = string(today,"99999999") +
-                string(next-value(rec_key_seq,ASI),"99999999").
+                string(next-value(rec_key_seq,nosweat),"99999999").
         FIND FIRST bf-item WHERE bf-item.rec_key = ls-key NO-LOCK NO-ERROR.
 
         item.rec_key = ls-key.               

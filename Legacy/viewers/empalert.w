@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -210,7 +214,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -221,7 +225,7 @@ ASSIGN
 ON HELP OF empalert.user-id IN FRAME F-Main /* User ID */
 DO:
    def var char-val as cha no-undo.
-    
+
     run windows/l-users.w (self:screen-value, output char-val).
     if char-val <> "" then 
        ASSIGN
@@ -254,7 +258,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -321,11 +325,11 @@ PROCEDURE enable-layout-fields :
   Notes:       
 ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
-     
+
      ASSIGN tb_pricnt:SENSITIVE = YES .
-    
+
   END.
- 
+
 
 END PROCEDURE.
 
@@ -340,10 +344,10 @@ PROCEDURE EmailNotify :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DEFINE INPUT PARAM ilQuietMode  AS LOGICAL NO-UNDO.
 
-  
+
   IF AVAIL empalert AND NOT CAN-FIND (FIRST reftable NO-LOCK
                      WHERE reftable.rec_key = empalert.table_rec_key
                        AND reftable.CODE    = STRING (RECID (empalert))) THEN
@@ -352,7 +356,7 @@ PROCEDURE EmailNotify :
         ASSIGN reftable.rec_key   = STRING (empalert.table_rec_key)
                reftable.CODE      = STRING (RECID (empalert)).
      END.
-  
+
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"CONTAINER",OUTPUT char-hdl).
 
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
@@ -370,7 +374,7 @@ PROCEDURE local-assign-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
   IF AVAIL empalert THEN do:
@@ -392,7 +396,7 @@ PROCEDURE local-create-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   /* Code placed here will execute PRIOR to standard behavior. */
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
@@ -400,7 +404,7 @@ PROCEDURE local-create-record :
   {methods/viewers/create/empalert.i}
 
   RUN SetEmailNotify.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -426,7 +430,7 @@ PROCEDURE local-display-fields :
       RUN AdvancedNotice IN WIDGET-HANDLE(char-hdl).
 
   DO WITH FRAME {&FRAME-NAME}:
-     
+
       IF NOT adm-new-record THEN do:
           IF AVAIL empalert AND empalert.spare-char-1 EQ "YES" THEN
               ASSIGN  tb_pricnt:SCREEN-VALUE = "YES"  
@@ -435,7 +439,7 @@ PROCEDURE local-display-fields :
               ASSIGN tb_pricnt:SCREEN-VALUE = "no" 
                   tb_pricnt = no  .
       END.
-   
+
      ASSIGN tb_pricnt:SENSITIVE = NO .
 
      IF AVAIL empalert AND empalert.USER-ID:SCREEN-VALUE NE "" THEN
@@ -443,7 +447,7 @@ PROCEDURE local-display-fields :
         FIND FIRST users WHERE
              users.USER_id EQ empalert.USER-ID:SCREEN-VALUE
              NO-LOCK NO-ERROR.
-     
+
         IF AVAIL users THEN
            fi_username:SCREEN-VALUE = users.user_name.
         ELSE
@@ -470,9 +474,9 @@ PROCEDURE local-update-record :
   ll-new-record = adm-new-record.
 
   DO WITH FRAME {&FRAME-NAME}:
-  
+
      {methods/run_link.i "CONTAINER-SOURCE" "Get-ip-rec_key" "(OUTPUT ip-rec_key)"}
-         
+
      IF ll-new-record AND CAN-FIND(FIRST b-empalert WHERE
         b-empalert.TABLE_rec_key EQ ip-rec_key AND
         b-empalert.USER-ID EQ empalert.USER-ID:SCREEN-VALUE /*AND
@@ -482,7 +486,7 @@ PROCEDURE local-update-record :
                VIEW-AS ALERT-BOX ERROR BUTTONS OK.
            RETURN.
         END.
-    
+
      IF NOT CAN-FIND(FIRST users WHERE
         users.USER_ID EQ empalert.USER-ID:SCREEN-VALUE) THEN
         DO:
@@ -537,7 +541,7 @@ PROCEDURE SetEmailNotify :
 ------------------------------------------------------------------------------*/
 
   DO WITH FRAME {&FRAME-NAME}:
-  
+
     RUN SetNotifyMode.
   END.
 
@@ -557,7 +561,7 @@ PROCEDURE SetNotifyMode :
 ------------------------------------------------------------------------------*/
 
   DO WITH FRAME {&FRAME-NAME}:
-  
+
     /*IF phone.e_mail:SENSITIVE THEN tbNotice:SENSITIVE = TRUE.
                               ELSE tbNotice:SENSITIVE = FALSE.*/
   END.

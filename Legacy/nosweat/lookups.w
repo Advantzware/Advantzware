@@ -374,6 +374,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -399,7 +410,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -444,6 +455,7 @@ DO:
     IF svAvailableSelections:IS-SELECTED(i) THEN
     svAvailableSelections:SCREEN-VALUE = "".
   END.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -455,6 +467,7 @@ END.
 ON CHOOSE OF btnCancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -485,6 +498,7 @@ DO:
     OTHERWISE
     svStatus:SCREEN-VALUE = "DELETE Cancelled".
   END CASE.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -532,6 +546,7 @@ DO:
       svStatus:SCREEN-VALUE = "DESCRIPTION Lookup Created"
       .
   END.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -552,6 +567,7 @@ DO:
       .
     LEAVE.
   END.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -565,7 +581,7 @@ DO:
   DEFINE VARIABLE cGetField AS CHARACTER NO-UNDO.
 
   IF svLookupDB EQ "" THEN
-  svLookupDB = "ASI".
+  svLookupDB = "NOSWEAT".
   CREATE ALIAS dictdb FOR DATABASE VALUE(svLookupDB).
   cGetField = svLookupDB:SCREEN-VALUE + "."
             + svLookupFile:SCREEN-VALUE + "."
@@ -589,6 +605,7 @@ DO:
     IF AVAILABLE prgrms THEN
     svFrameTitle:SCREEN-VALUE = prgrms.prgtitle + " Lookup".
   END.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -601,6 +618,7 @@ ON CHOOSE OF btnOK IN FRAME DEFAULT-FRAME /* OK */
 DO:
   APPLY "CHOOSE" TO btnSave.
   APPLY "CLOSE" TO THIS-PROCEDURE.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -613,6 +631,7 @@ ON CHOOSE OF btnRemove IN FRAME DEFAULT-FRAME /* Remove */
 DO:
   IF sHandle:SCREEN-VALUE NE "" THEN
   APPLY "DEFAULT-ACTION" TO sHandle.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -630,6 +649,7 @@ DO:
     svOrderValues:SENSITIVE = NOT svAutoSet
     svStatus:SCREEN-VALUE = "Lookup Record RESET"
     .
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -691,7 +711,7 @@ DO:
   ASSIGN svEndInclude = REPLACE(svEndInclude,'"','""').
 
   PUT UNFORMATTED "/* " mLookupPrgm "p - Generated " TODAY FORMAT "99/99/9999"
-    " - " STRING(TIME,"HH:MM am") " by " USERID("ASI") SKIP
+    " - " STRING(TIME,"HH:MM am") " by " USERID("NOSWEAT") SKIP
     "~"" mLookupPrgm " ~" ~~" SKIP
     "~"" svLookupDB " ~" ~~" SKIP
     "~"" svLookupFile " ~" ~~" SKIP         
@@ -793,7 +813,7 @@ DO:
     "~{methods/lookup.i}" SKIP.
 
   OUTPUT CLOSE.
-  
+
   MESSAGE "Compile Lookup?" VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
       UPDATE compile-lookup AS LOGICAL.
   IF compile-lookup THEN
@@ -803,6 +823,7 @@ DO:
     btnCancel:LABEL = "&Close"
     svStatus:SCREEN-VALUE = "Lookup SAVEd"
     .
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -823,6 +844,7 @@ DO:
       .
     LEAVE.
   END.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -939,7 +961,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svUIPrgmname C-Win
 ON HELP OF svUIPrgmname IN FRAME DEFAULT-FRAME /* UI Program */
 DO:
-  CREATE ALIAS dictdb FOR DATABASE ASI.
+  CREATE ALIAS dictdb FOR DATABASE NOSWEAT.
   RUN "lookups/ui_lkup.p".
   ASSIGN
     {&SELF-NAME}:SCREEN-VALUE = g_lookup-var
@@ -963,8 +985,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -980,6 +1004,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   APPLY "VALUE-CHANGED" TO svSelectedSet.
   {methods/enhance.i}
   {methods/nowait.i}
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1100,7 +1125,7 @@ PROCEDURE pGetLookup :
   END.
   ELSE
   svLookupPrgm = mLookupPrgm.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

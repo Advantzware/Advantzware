@@ -36,11 +36,11 @@ DEF VAR lv-audit-dir AS CHAR NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/VAR.i new shared}
-    
+
 assign
  cocode = gcompany
  locode = gloc.
-    
+
 def buffer b-line for ar-cashl.
 /*
 if v-return then return.
@@ -245,9 +245,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -289,7 +299,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -337,6 +347,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -348,7 +359,7 @@ END.
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   DEF VAR lv-post AS LOG NO-UNDO.
-  
+
   run check-date.
   if v-invalid then return no-apply. 
 
@@ -370,7 +381,7 @@ DO:
    END. /* REPEAT */
    /* gdm - 11050906 */
   END.
-       
+
   run run-report.
 
   case rd-dest:
@@ -378,9 +389,9 @@ DO:
        when 2 then run output-to-screen.
        when 3 then run output-to-file.
   end case.
-  
+
   IF v-postable THEN DO:
-    
+
     lv-post = NO.
 
     MESSAGE "Post Invoices?"
@@ -400,6 +411,7 @@ DO:
       RUN undo-trnum.
   END.
 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -502,7 +514,7 @@ END.
 ON LEAVE OF tran-date IN FRAME FRAME-A /* Post Date */
 DO:
   assign {&self-name}.
-  
+
   if lastkey ne -1 then do:
     run check-date.
     if v-invalid then return no-apply.
@@ -537,8 +549,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -549,7 +563,7 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
-   
+
 /* security check need {methods/prgsecur.i} in definition section */
   IF access-close THEN DO:
      APPLY "close" TO THIS-PROCEDURE.
@@ -578,8 +592,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     APPLY "entry" TO tran-date.
   END.
-  
+
   {methods/nowait.i}
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -601,7 +616,7 @@ PROCEDURE alf-check :
   assign
    alf-check  = fill(" ",10 - length(trim(alf-check))) + trim(alf-check)
    v-non-zero = no.
-         
+
   do i = 1 to length(alf-check):
     if substr(alf-check,i,1) ne "0" and
        substr(alf-check,i,1) ne " " then v-non-zero = yes.
@@ -623,7 +638,7 @@ PROCEDURE check-date :
 ------------------------------------------------------------------------------*/
   DO with frame {&frame-name}:
     v-invalid = no.
-  
+
     find first period                   
         where period.company eq cocode
           and period.pst     le tran-date
@@ -727,7 +742,7 @@ find first sys-ctrl where
     sys-ctrl.company eq cocode AND
     sys-ctrl.name    eq "AUDITDIR"
     no-lock no-error.
-  
+
   if not avail sys-ctrl then DO TRANSACTION:
      create sys-ctrl.
      assign
@@ -757,7 +772,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
      DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -768,9 +783,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
 
 
@@ -789,7 +804,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -802,7 +817,7 @@ PROCEDURE output-to-printer :
      IF NOT RESULT THEN v-postable = NO.
   */   
  RUN custom/prntproc.p (list-name,INT(lv-font-no),lv-ornt).   
-    
+
 
 END PROCEDURE.
 
@@ -945,22 +960,22 @@ SESSION:SET-WAIT-STATE("general").
               and b-line.check-no   eq xchk:
             ck-onac = ck-onac + b-line.amt-paid - b-line.amt-disc.
         end.
-        
+
         alf-check = string(ar-cashl.check-no,"9999999999").
-        
+
         run alf-check.
-         
+
         do i = 1 to length(alf-check):
           if substr(alf-check,i,1) ne "0" then v-non-zero = yes.
           else
           if not v-non-zero then substr(alf-check,i,1) = " ".
         end.
-        
+
         put alf-check to 55
             ar-cash.check-date  at 60
             ck-onac at 72
             ar-cashl.inv-no at 95.
-            
+
         v2 = v2 + ck-onac.
       end.
 
@@ -1070,11 +1085,11 @@ SESSION:SET-WAIT-STATE("general").
         tmp-amt-paid = (- ar-cashl.amt-paid).
       else
         tmp-amt-paid = ar-cashl.amt-paid.
-        
+
       alf-check = string(ar-cash.check-no,"9999999999").
-      
+
       run alf-check.
-               
+
       put  ar-cash.check-date at 41 space(1)
            ar-cash.cust-no          space(1)
            cust.name                space(1)
@@ -1101,7 +1116,7 @@ SESSION:SET-WAIT-STATE("general").
     end.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
-         
+
 SESSION:SET-WAIT-STATE("").
 
 END PROCEDURE.
@@ -1124,11 +1139,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1156,23 +1171,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1219,7 +1234,7 @@ PROCEDURE copy-report-to-audit-dir :
   DEF VAR dirname1 AS CHAR FORMAT "X(20)" NO-UNDO.
   DEF VAR dirname2 AS CHAR FORMAT "X(20)" NO-UNDO.
   DEF VAR dirname3 AS CHAR FORMAT "X(20)" NO-UNDO.
-  
+
   ASSIGN targetfile = lv-audit-dir + "\AR\AC6\Run#"
                     + STRING(xtrnum) + ".txt"
          dirname1 = lv-audit-dir

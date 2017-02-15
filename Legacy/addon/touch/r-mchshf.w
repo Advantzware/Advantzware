@@ -240,9 +240,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -281,7 +291,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -318,6 +328,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
   APPLY 'CLOSE' TO THIS-PROCEDURE.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -329,7 +340,7 @@ END.
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   ASSIGN {&displayed-objects}.
-     
+
   RUN run-report.
 
   CASE rd-dest:
@@ -365,6 +376,7 @@ DO:
     END.
     WHEN 6 THEN RUN output-to-port.
   END CASE. 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -497,8 +509,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -521,6 +535,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
   {methods/nowait.i}
   APPLY 'ENTRY' TO begin_machine IN FRAME {&FRAME-NAME}.
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -631,7 +646,7 @@ PROCEDURE output-to-printer :
   DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
   DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
   DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
   RUN custom/prntproc.p (list-name,INT(lv-font-no), lv-ornt).
 
 END PROCEDURE.
@@ -647,7 +662,7 @@ PROCEDURE output-to-screen :
   Notes:       
 ------------------------------------------------------------------------------*/
   RUN scr-rpt.w (list-name,c-win:TITLE,INT(lv-font-no),lv-ornt).
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -661,22 +676,22 @@ PROCEDURE run-report :
   DEFINE VARIABLE v-machine-desc AS CHAR NO-UNDO.
 
   SESSION:SET-WAIT-STATE('general').
-  
+
   {sys/form/r-top3w.f}
-  
+
   FORM HEADER SKIP(1) WITH FRAME r-top.
-  
+
   ASSIGN
      str-tit2 = c-win:TITLE
      {sys/inc/ctrtext.i str-tit2 112}
      str-tit3 = FILL('-',132)
      {sys/inc/ctrtext.i str-tit3 132}.
-  
+
   {sys/inc/print1.i}
   {sys/inc/outprint.i VALUE(lines-per-page)}
-  
+
   IF td-show-parm THEN RUN show-param.
-  
+
   VIEW FRAME r-top.
 
   /* AJ 06/16/2008  Added code to get reoprt in excel sheet 
@@ -689,14 +704,14 @@ PROCEDURE run-report :
       PUT STREAM excel UNFORMATTED excelheader SKIP.
   END.
 
-  
+
   FOR EACH machshft NO-LOCK WHERE machshft.company EQ selected-company
                               AND machshft.machine GE begin_machine
                               AND machshft.machine LE end_machine
       WITH NO-BOX STREAM-IO WIDTH 132:
 
        l-first  = FALSE .
-            
+
     IF machine_code NE machshft.machine THEN
     DO:
       FIND mach WHERE mach.company = selected-company
@@ -704,12 +719,12 @@ PROCEDURE run-report :
       DISPLAY
         machshft.machine
         mach.m-dscr WHEN AVAILABLE(mach) COLUMN-LABEL 'Description'.
-        
+
         ASSIGN 
              machine_code = machshft.machine 
              l-first      =  TRUE   
              v-machine-desc =  mach.m-dscr WHEN AVAILABLE(mach).  
-    
+
     END.
 
     FIND shifts OF machshft NO-LOCK NO-ERROR.
@@ -728,7 +743,7 @@ PROCEDURE run-report :
            STRING(machshft.start_time,'HH:MM:SS am')  ","
            STRING(machshft.end_time,'HH:MM:SS am')  SKIP .
   END.
-  
+
   OUTPUT CLOSE.
 
   IF tb_excel THEN 
@@ -761,11 +776,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -793,23 +808,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

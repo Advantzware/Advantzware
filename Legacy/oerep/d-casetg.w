@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v9r12 GUI
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi          PROGRESS
+          nosweat          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &Scoped-define FRAME-NAME Dialog-Frame
@@ -119,7 +119,7 @@ DEFINE BROWSE BROWSE-1
       w-ord.i-no LABEL "Item #"
       w-ord.prod-notes LABEL "Color"
       w-ord.ord-qty COLUMN-LABEL "Ord Qty"
-      w-ord.pcs  COLUMN-LABEL "Bdl/Case!Count"
+      w-ord.pcs FORM ">>>,>>9" COLUMN-LABEL "Bdl/Case!Count"
       w-ord.bundle FORM ">>>,>>9" COLUMN-LABEL "Bdl/Case!Per Unit"
       w-ord.partial COLUMN-LABEL "Partial"
       /*w-ord.total-unit FORM ">,>>>,>>9" COLUMN-LABEL "Total Qty!Per Unit" */

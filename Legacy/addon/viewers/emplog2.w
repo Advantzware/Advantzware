@@ -4,6 +4,10 @@
           emptrack         PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -326,7 +330,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -443,7 +447,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -491,7 +495,7 @@ PROCEDURE crt-mach-emp-trans :
   Notes:       
 ------------------------------------------------------------------------------*/
   def buffer bf-machtran for machtran.
-  
+
   /* need to create machtran & machemp */
 
   /*for each  w/h machine does not have end_date */
@@ -506,7 +510,7 @@ PROCEDURE crt-mach-emp-trans :
       find employee where employee.company = emplogin.company
                       and employee.employee = emplogin.employee
                       no-lock no-error.                
-                      
+
 /*      CREATE bf-machtran.
       ASSIGN
         bf-machtran.company = machtran.company
@@ -548,13 +552,13 @@ PROCEDURE crt-mach-emp-trans :
             machemp.rate_usage = employee.rate_usage.
           RUN Employee-Rate(emplogin.company,employee.employee,machemp.shift,
                             machtran.machine,machemp.rate_usage,machemp.ratetype,OUTPUT machemp.rate).
-  
+
       {custom/calctime.i &file="machemp"}
-  
+
       RELEASE machemp.
 /*  END. */
 
-      
+
 /*      {methods/run_link.i "CONTAINER" "Set_MachTran_Rowid" "(machtran-rowid)"}
 
      FIND FIRST machemp WHERE machemp.table_rec_key = bf-machtran.rec_key

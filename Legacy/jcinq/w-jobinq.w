@@ -8,7 +8,7 @@
 /*------------------------------------------------------------------------
 
   File: jcinq/w-jobinq.w
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -179,6 +179,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+/* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
@@ -252,7 +253,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -895,7 +896,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartViewer h_v-job-10. */
        RUN add-link IN adm-broker-hdl ( h_b-jobinq , 'Record':U , h_v-job-11 ).
-       
+
        /* Links to SmartViewer h_v-navest-4. */
        RUN add-link IN adm-broker-hdl ( h_b-jobinq , 'nav-itm':U , h_v-navest-4 ).
 
@@ -1037,9 +1038,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

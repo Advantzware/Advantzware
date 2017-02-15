@@ -61,9 +61,9 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnMoveCol 
-     IMAGE-UP FILE "Graphics/32x32/spreadsheet_column.png":U
+     IMAGE-UP FILE "Graphics/32x32/spreadsheet_column.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
-     LABEL "MoveCol" 
+     LABEL "Phone" 
      SIZE 7.8 BY 1.81 TOOLTIP "Change Move/Sort Column Mode".
 
 
@@ -111,7 +111,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB s-object 
 /* ************************* Included-Libraries *********************** */
 
-{advantzware/winkit/winkit-panel.i}
+{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/smart.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -144,7 +144,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -152,12 +152,13 @@ ASSIGN
 
 &Scoped-define SELF-NAME btnMoveCol
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnMoveCol s-object
-ON CHOOSE OF btnMoveCol IN FRAME F-Main /* MoveCol */
+ON CHOOSE OF btnMoveCol IN FRAME F-Main /* Phone */
 DO:
     DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
 
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'move-columns-source':U,OUTPUT char-hdl).
     RUN move-columns in WIDGET-HANDLE(char-hdl).
+  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -202,6 +203,33 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE make-insensitive s-object 
+PROCEDURE make-insensitive :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+btnMoveCol:SENSITIVE IN FRAME F-Main = FALSE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE make-sensitive s-object 
+PROCEDURE make-sensitive :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+btnMoveCol:SENSITIVE IN FRAME F-Main = TRUE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed s-object 
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
@@ -217,7 +245,7 @@ PROCEDURE state-changed :
       /* Object instance CASEs can go here to replace standard behavior
          or add new cases. */
   END CASE.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

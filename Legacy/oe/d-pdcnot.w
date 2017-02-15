@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi          PROGRESS
+          nosweat          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &Scoped-define FRAME-NAME dialog-Frame
@@ -28,12 +28,12 @@
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
-DEF INPUT PARAMETER ip-note-rec-key LIKE ASI.notes.rec_key      NO-UNDO.
-DEF INPUT PARAMETER ip-note-type    LIKE  ASI.notes.note_type   NO-UNDO.
-DEF INPUT PARAMETER ip-note-source  LIKE ASI.notes.note_source  NO-UNDO.
-DEF INPUT PARAMETER ip-note-group   LIKE ASI.notes.note_group   NO-UNDO.
-DEF INPUT PARAMETER ip-note-form-no LIKE ASI.notes.note_form_no  NO-UNDO.
-DEF INPUT PARAMETER ip-note-code    LIKE ASI.notes.note_code     NO-UNDO.
+DEF INPUT PARAMETER ip-note-rec-key LIKE NOSWEAT.notes.rec_key      NO-UNDO.
+DEF INPUT PARAMETER ip-note-type    LIKE  NOSWEAT.notes.note_type   NO-UNDO.
+DEF INPUT PARAMETER ip-note-source  LIKE NOSWEAT.notes.note_source  NO-UNDO.
+DEF INPUT PARAMETER ip-note-group   LIKE NOSWEAT.notes.note_group   NO-UNDO.
+DEF INPUT PARAMETER ip-note-form-no LIKE NOSWEAT.notes.note_form_no  NO-UNDO.
+DEF INPUT PARAMETER ip-note-code    LIKE NOSWEAT.notes.note_code     NO-UNDO.
 /* Any field values to place in the description */
 DEF INPUT PARAMETER ip-ref-fields   AS   CHAR                        NO-UNDO.
 DEF OUTPUT PARAMETER op-code-chosen AS   CHAR                        NO-UNDO.
@@ -248,9 +248,9 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK DIALOG-BOX dialog-Frame
 /* Query rebuild information for DIALOG-BOX dialog-Frame
-     _TblList          = "ASI.notes"
+     _TblList          = "NOSWEAT.notes"
      _Options          = "SHARE-LOCK"
-     _Where[1]         = "ASI.notes.rec_key = ip-note-rec-key"
+     _Where[1]         = "NOSWEAT.notes.rec_key = ip-note-rec-key"
      _Query            is OPENED
 */  /* DIALOG-BOX dialog-Frame */
 &ANALYZE-RESUME
@@ -771,21 +771,21 @@ PROCEDURE save-record :
   END.
            
   op-code-chosen = rejct-cd.CODE.
-  CREATE ASI.notes.
-  ASSIGN ASI.notes.note_text 
-         ASI.notes.note_title = cbTitle.
+  CREATE nosweat.notes.
+  ASSIGN NOSWEAT.notes.note_text 
+         NOSWEAT.notes.note_title = cbTitle.
   ASSIGN 
-      ASI.notes.viewed      = NO
-      ASI.notes.user_id     = USERID("ASI")
-      ASI.notes.rec_key     = ip-note-rec-key
-      ASI.notes.note_type   = ip-note-type      
-      ASI.notes.note_time   = TIME    
-      ASI.notes.note_source = ip-note-source
-      ASI.notes.note_group  = ip-note-group
-      ASI.notes.note_form_no = ip-note-form-no
-      ASI.notes.note_date    = TODAY
-      ASI.notes.note_code    .
-  op-added-rowid = ROWID(ASI.notes).
+      NOSWEAT.notes.viewed      = NO
+      NOSWEAT.notes.user_id     = USERID("NOSWEAT")
+      NOSWEAT.notes.rec_key     = ip-note-rec-key
+      NOSWEAT.notes.note_type   = ip-note-type      
+      NOSWEAT.notes.note_time   = TIME    
+      NOSWEAT.notes.note_source = ip-note-source
+      NOSWEAT.notes.note_group  = ip-note-group
+      NOSWEAT.notes.note_form_no = ip-note-form-no
+      NOSWEAT.notes.note_date    = TODAY
+      NOSWEAT.notes.note_code    .
+  op-added-rowid = ROWID(nosweat.notes).
 
 END PROCEDURE.
 

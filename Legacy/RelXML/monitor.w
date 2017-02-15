@@ -144,7 +144,7 @@ PROCEDURE postMonitor:
             oe-relh.release# = nextRelease
             oe-relh.upd-date = TODAY
             oe-relh.upd-time = TIME
-            oe-relh.user-id = USERID("ASI")
+            oe-relh.user-id = USERID('NoSweat')
             oe-relh.cust-no = oe-rel.cust-no
             oe-relh.carrier = oe-rel.carrier
             oe-relh.rel-date = ttOERelh.ship-date

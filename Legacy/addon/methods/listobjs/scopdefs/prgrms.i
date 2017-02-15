@@ -1,6 +1,6 @@
 /* prgrms.i
 "prgrms"
-"ASI"
+"NOSWEAT"
 "prgrms"
 "prgmname"
 "Program"

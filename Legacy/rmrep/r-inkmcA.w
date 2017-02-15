@@ -302,9 +302,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -381,7 +391,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -462,6 +472,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -475,7 +486,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-  
+
   SESSION:SET-WAIT-STATE("general").
   run run-report. 
 
@@ -515,6 +526,7 @@ DO:
        END.
        WHEN 6 THEN RUN OUTPUT-to-port.
   end case.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -713,8 +725,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -730,7 +744,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   find first sys-ctrl
       where sys-ctrl.company eq cocode
         and sys-ctrl.name    eq "CEMENU"
@@ -741,7 +755,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      tb_corr = sys-ctrl.char-fld ne "Foldware".
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -749,6 +763,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO begin_mach-no.
   END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -814,7 +829,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
 /*     DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -825,11 +840,11 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.  */
-     
+
 {custom/out2file.i}
 
 END PROCEDURE.
@@ -861,7 +876,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -872,7 +887,7 @@ PROCEDURE output-to-printer :
                             INPUT 3, INPUT 3, INPUT 0, INPUT 0, OUTPUT result).
                                     /* use-dialog(1) and landscape(2) */
  */
- 
+
   RUN custom/prntproc.p (list-name,INT(lv-font-no),lv-ornt).
 
 END PROCEDURE.
@@ -930,7 +945,7 @@ DEF VAR excelheader AS CHARACTER  NO-UNDO.
 assign
  str-tit2 = c-win:title
  {sys/inc/ctrtext.i str-tit2 112}
- 
+
  v-indus = if tb_fold then
              if tb_corr then "B" else "F"
            else
@@ -974,12 +989,12 @@ END.
     /*for each job
         where job.stat lt "C"
     {rm/rep/inkbymch.i}
-    
+
     for each job
         where job.stat gt "C"
           and job.stat lt "Z"
     {rm/rep/inkbymch.i}
-    
+
     for each job
         where job.stat gt "Z"
     {rm/rep/inkbymch.i}*/
@@ -991,40 +1006,40 @@ END.
     {rm/rep/inkbymch.i}
 
     VIEW FRAME r-top.
-    
+
     for each tt-report where tt-report.term-id eq "",
-    
+
         first job-mat where recid(job-mat) eq tt-report.rec-id no-lock,
-        
+
         first mach
         where mach.company eq cocode
           and mach.loc     eq locode
           and mach.m-code  eq tt-report.key-01
         no-lock,
-        
+
         first job-hdr
         where job-hdr.company eq cocode
           and job-hdr.job     eq job-mat.job
           and (job-hdr.frm     eq job-mat.frm OR tt-report.key-08 = "SET")
         no-lock,
-        
+
         first cust
         where cust.company eq cocode
           and cust.cust-no eq job-hdr.cust-no
         no-lock  
-        
+
         break by tt-report.key-01
               by tt-report.key-02
               by tt-report.key-03
               by tt-report.key-04
               by tt-report.key-05
-              
+
         transaction:
-        
+
         {custom/statusMsg.i "'Processing Item # ' + string(job-hdr.i-no)"} 
 
       if first-of(tt-report.key-01) then page.
-      
+
       if first-of(tt-report.key-03) then do:
         find first b-jm
             where b-jm.company eq cocode
@@ -1037,11 +1052,11 @@ END.
                                         and item.mat-type eq "B")
             no-lock no-error.
         v-board = if avail b-jm then b-jm.i-no else "".
-      
+
         assign
          v-adder = ""
          i       = 0.
-       
+
         for each b-jm
             where b-jm.company eq cocode
               and b-jm.job     eq job-hdr.job
@@ -1052,22 +1067,22 @@ END.
                                         and item.i-no     eq b-jm.i-no
                                         and item.mat-type eq "A")
             no-lock:
-          
+
           i = i + 1.
-        
+
           if i gt 3 then leave.
-        
+
           v-adder[i] = b-jm.i-no.
         end.    
       end.
-      
+
       assign
        v-date = date(int(substr(tt-report.key-02,5,2)),
                      int(substr(tt-report.key-02,7,2)),
                      int(substr(tt-report.key-02,1,4)))
        v-cov  = dec(tt-report.key-06)
        v-qty  = dec(tt-report.key-07).
-      
+
       if last-of(tt-report.key-05) THEN DO:
         display trim(substr(tt-report.key-02,9,9))
                                     column-label "JOB #"
@@ -1114,11 +1129,11 @@ END.
                 '"' job-mat.i-no '",'
                 '"' job-mat.qty '",' SKIP.
       END.
-      
+
       delete tt-report.
     end.
 
-   
+
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
 SESSION:SET-WAIT-STATE ("").
@@ -1151,11 +1166,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1183,23 +1198,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

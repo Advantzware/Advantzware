@@ -15,7 +15,7 @@
   Output Parameters: <none>
 
   History: Ron Stark - 3.7.2016
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -375,6 +375,23 @@ DEFINE FRAME paramFrame
          AT COL 1 ROW 1
          SIZE 149 BY 18.05.
 
+DEFINE FRAME frameShow
+     svShowAll AT ROW 1.24 COL 2 WIDGET-ID 18
+     svShowReportHeader AT ROW 2.19 COL 5 WIDGET-ID 2
+     svShowParameters AT ROW 3.14 COL 8 WIDGET-ID 16
+     svShowPageHeader AT ROW 4.1 COL 5 WIDGET-ID 6
+     svShowGroupHeader AT ROW 5.05 COL 5 WIDGET-ID 10
+     svShowGroupFooter AT ROW 6 COL 5 WIDGET-ID 12
+     svShowPageFooter AT ROW 6.95 COL 5 WIDGET-ID 8
+     svShowReportFooter AT ROW 7.91 COL 5 WIDGET-ID 4
+     svExcelTable AT ROW 9.33 COL 3 WIDGET-ID 20
+     RECT-1 AT ROW 9.1 COL 2 WIDGET-ID 22
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 41 ROW 1
+         SIZE 40 BY 10.48
+         TITLE "Show/Hide Sections" WIDGET-ID 300.
+
 DEFINE FRAME frameColumns
      svAvailableColumns AT ROW 1.71 COL 1 NO-LABEL WIDGET-ID 68
      btnDefault AT ROW 1.71 COL 32 HELP
@@ -397,23 +414,6 @@ DEFINE FRAME frameColumns
          AT COL 82 ROW 1
          SIZE 67 BY 10.48
          TITLE "Report Columns" WIDGET-ID 200.
-
-DEFINE FRAME frameShow
-     svShowAll AT ROW 1.24 COL 2 WIDGET-ID 18
-     svShowReportHeader AT ROW 2.19 COL 5 WIDGET-ID 2
-     svShowParameters AT ROW 3.14 COL 8 WIDGET-ID 16
-     svShowPageHeader AT ROW 4.1 COL 5 WIDGET-ID 6
-     svShowGroupHeader AT ROW 5.05 COL 5 WIDGET-ID 10
-     svShowGroupFooter AT ROW 6 COL 5 WIDGET-ID 12
-     svShowPageFooter AT ROW 6.95 COL 5 WIDGET-ID 8
-     svShowReportFooter AT ROW 7.91 COL 5 WIDGET-ID 4
-     svExcelTable AT ROW 9.33 COL 3 WIDGET-ID 20
-     RECT-1 AT ROW 9.1 COL 2 WIDGET-ID 22
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 41 ROW 1
-         SIZE 40 BY 10.48
-         TITLE "Show/Hide Sections" WIDGET-ID 300.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -450,17 +450,13 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT W-Win:LOAD-ICON("schedule/images/scheduler.ico":U) THEN
-    MESSAGE "Unable to load icon: schedule/images/scheduler.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -624,7 +620,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttUserPrint.
 */  /* FRAME paramFrame */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -1126,15 +1122,15 @@ PROCEDURE local-create-objects :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-objects':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN pSetWinSize.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1157,7 +1153,7 @@ PROCEDURE local-enable :
   RUN pPopulateOptions IN h_aoaParam (THIS-PROCEDURE) NO-ERROR.
 
   RUN pGetParamValues (?).
-  
+
   RUN pGetColumns.
 
   RUN pParamValuesOverride IN h_aoaParam NO-ERROR.
@@ -1243,19 +1239,19 @@ PROCEDURE pExcel :
     DEFINE VARIABLE chRangeCol  AS COM-HANDLE NO-UNDO.
     DEFINE VARIABLE idx         AS INTEGER    NO-UNDO.
     DEFINE VARIABLE errorMsg    AS CHARACTER  NO-UNDO.
-    
+
     RUN pSaveParamValues (NO, BUFFER user-print).
 
     IF VALID-HANDLE(hAppSrv) THEN DO WITH FRAME frameColumns:
         hTable = DYNAMIC-FUNCTION('fGetTableHandle' IN hAppSrv, aoaProgramID).
         IF NOT VALID-HANDLE(hTable) THEN RETURN.
-        
+
         ASSIGN
             cExcelFile = "aoa\excel\.keep"
             FILE-INFO:FILE-NAME = cExcelFile
             cExcelFile = FILE-INFO:FULL-PATHNAME
             cExcelFile = REPLACE(cExcelFile,".keep",aoaTitle + " (")
-                       + USERID("ASI") + ").xls"
+                       + USERID("NoSweat") + ").xls"
             .
 
         IF SEARCH(cExcelFile) NE ? THEN
@@ -1334,7 +1330,7 @@ PROCEDURE pExcel :
         END. /* show parameters */
         ELSE /* remove spare worksheet */
         chWorkbook:WorkSheets(2):DELETE NO-ERROR.
-        
+
         /* Select a worksheet */
         chWorkbook:Worksheets(1):Activate.
         ASSIGN
@@ -1372,7 +1368,7 @@ PROCEDURE pExcel :
         ASSIGN
             chWorkSheet:Cells(iStatusRow,2):Value = "Running Query..."
             cDynFunc = "f" + REPLACE(aoaTitle," ","")
-            hTable = DYNAMIC-FUNCTION(cDynFunc IN hAppSrv, aoaCompany,0,USERID("ASI")).
+            hTable = DYNAMIC-FUNCTION(cDynFunc IN hAppSrv, aoaCompany, 0, USERID("NoSweat"))
             .
         IF NOT VALID-HANDLE(hTable) THEN RETURN.
 
@@ -1435,7 +1431,7 @@ PROCEDURE pExcel :
         END.
         ELSE
         iRow = iRow - 1.
-        
+
         ASSIGN
             chWorkSheet:Cells(iStatusRow + 2,2):Value = "Formatting Cells...Done"
             chWorkSheet:Cells(iStatusRow + 4,2):Value = "Building Wooksheet..."
@@ -1450,7 +1446,7 @@ PROCEDURE pExcel :
             chWorkSheet:Cells(iStatusRow + 2,2):Value = ""
             chWorkSheet:Cells(iStatusRow + 4,2):Value = ""
             .
-        
+
         /* scroll returned temp-table records */
         CREATE QUERY hQuery.
         hQuery:SET-BUFFERS(hTable:HANDLE).
@@ -1504,7 +1500,7 @@ PROCEDURE pExcel :
         chExcel:ScreenUpdating = TRUE.
         /* auto save excel file */
         chExcel:ActiveSheet:SaveAs(cExcelFile).
-        
+
         /* Release created objects. */
         RELEASE OBJECT chWorkbook  NO-ERROR.
         RELEASE OBJECT chWorkSheet NO-ERROR.
@@ -1530,7 +1526,7 @@ PROCEDURE pGenerateInclude :
 
     IF NOT VALID-HANDLE(hFrame) THEN RETURN.
 
-    IF NOT CAN-DO("ASI,NoSweat",USERID("ASI")) THEN RETURN.
+    IF NOT CAN-DO("ASI,NoSweat",USERID("NoSweat")) THEN RETURN.
 
     OUTPUT TO VALUE("aoa/includes/p" + REPLACE(aoaTitle," ","") + ".i") NO-ECHO.
     PUT UNFORMATTED
@@ -1541,9 +1537,9 @@ PROCEDURE pGenerateInclude :
         "    ~{aoa/includes/aoaInputDefParams.i}" SKIP(1)
         "    /* parameter values loaded into these variables */" SKIP
         .
-    
+
     fGenerateInclude(hFrame,"DefVar").
-    
+
     PUT UNFORMATTED
         "    DEFINE VARIABLE lSecure AS LOGICAL NO-UNDO." SKIP
         "    DEFINE VARIABLE cAvailableColumns AS CHARACTER NO-UNDO." SKIP
@@ -1553,7 +1549,7 @@ PROCEDURE pGenerateInclude :
         "    /* load parameter values from above record into variables */" SKIP
         "    ASSIGN" SKIP
         .
-    
+
     fGenerateInclude(hFrame,"DynFunc").
 
     PUT UNFORMATTED
@@ -1593,7 +1589,7 @@ PROCEDURE pGetColumns :
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE hTable AS HANDLE  NO-UNDO.
     DEFINE VARIABLE idx    AS INTEGER NO-UNDO.
-    
+
     IF VALID-HANDLE(hAppSrv) THEN DO WITH FRAME frameColumns:
         hTable = DYNAMIC-FUNCTION('fGetTableHandle' IN hAppSrv, aoaProgramID).
         IF NOT VALID-HANDLE(hTable) THEN RETURN.
@@ -1687,7 +1683,7 @@ PROCEDURE pGetParamValues :
         END. /* name <> ? */
         hChild = hChild:NEXT-SIBLING.
     END. /* do while */
-    
+
     ASSIGN
         hChild = FRAME frameShow:HANDLE
         hChild = hChild:FIRST-CHILD
@@ -1728,7 +1724,7 @@ PROCEDURE pGetUserPrint :
           AND bUserPrint.batch      EQ "Batch"
           AND bUserPrint.batch-seq  GT 0
           AND bUserPrint.program-id EQ aoaProgramID
-          AND bUserPrint.user-id    EQ USERID("ASI")
+          AND bUserPrint.user-id    EQ USERID("NoSweat")
         :
         CREATE ttUserPrint.
         BUFFER-COPY bUserPrint TO ttUserPrint.
@@ -1747,7 +1743,7 @@ PROCEDURE pGetUserPrint :
     END. /* each buserprint */
 
     {&OPEN-QUERY-browseUserPrint}
-    
+
     APPLY "VALUE-CHANGED":U TO BROWSE browseUserPrint.
 
 END PROCEDURE.
@@ -1848,7 +1844,7 @@ PROCEDURE pSaveParamValues :
 ------------------------------------------------------------------------------*/
     /* number of reserved parameter fields needed */
     &SCOPED-DEFINE reserved 13
-    
+
     DEFINE INPUT  PARAMETER iplBatch   AS LOGICAL NO-UNDO.
     DEFINE PARAMETER BUFFER user-print FOR user-print.
 
@@ -1913,7 +1909,7 @@ PROCEDURE pSaveParamValues :
             hChild = hChild:NEXT-SIBLING.
             IF idx EQ EXTENT(user-print.field-name) - {&reserved} THEN LEAVE.
         END. /* do while */
-    
+
         /* reserve 2, 1 for security, another for title */
         IF idx LE EXTENT(user-print.field-name) - {&reserved} THEN
         ASSIGN
@@ -1926,7 +1922,7 @@ PROCEDURE pSaveParamValues :
             user-print.field-label[idx] = "Title"
             user-print.field-value[idx] = aoaTitle
             .
-        
+
         /* reserve 2 for avail columns and selected columns */
         IF aoaColumns THEN DO WITH FRAME frameColumns:
             DO cnt = 1 TO svAvailableColumns:NUM-ITEMS:
@@ -1949,7 +1945,7 @@ PROCEDURE pSaveParamValues :
                 user-print.field-value[idx] = TRIM(cColumns,",")
                 .
         END. /* aoacolumns */
-        
+
         /* reserve 9 for show/hide section parameters */
         ASSIGN
             hChild = FRAME frameShow:HANDLE
@@ -1970,7 +1966,7 @@ PROCEDURE pSaveParamValues :
 
     IF AVAILABLE user-print THEN
     FIND CURRENT user-print NO-LOCK.
-    
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1984,7 +1980,7 @@ PROCEDURE pSchedule :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE iBatchSeq AS INTEGER NO-UNDO.
-    
+
     FOR EACH user-print NO-LOCK
         WHERE user-print.company EQ aoaCompany
            BY user-print.batch-seq DESCENDING :
@@ -2215,7 +2211,7 @@ PROCEDURE pURL :
         END. /* field-name ne '' */
     END. /* do idx */
     */
-    
+
     IF aoaType EQ "Report" THEN
     ASSIGN aoaURL = aoaURL + "^&refresh=true^&connection=AdvantzwareOA".
 
@@ -2447,7 +2443,7 @@ FUNCTION fGetModule RETURNS CHARACTER
         cModule = "XX".
     END. /* repeat */
     INPUT CLOSE.
-    
+
     RETURN cModule.
 
 END FUNCTION.
@@ -2463,7 +2459,7 @@ FUNCTION fSetDescription RETURNS CHARACTER
     Notes:  add additional parameter fields to fSetDescription.p
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
-    
+
     RUN aoa/param/fSetDescription.p (ipObject:HANDLE, aoaCompany, OUTPUT cDescription).
 
     RETURN cDescription.

@@ -15,7 +15,7 @@
       <none>
 
   History: New V9 Version - January 15, 1998
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AB.              */
 /*----------------------------------------------------------------------*/
@@ -190,6 +190,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB wWin 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm2/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -219,7 +220,7 @@ THEN wWin:HIDDEN = yes.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 /* **********************  Create OCX Containers  ********************** */
@@ -326,7 +327,7 @@ IF fnFileExists() EQ NO THEN DO:
 END.
 ELSE DO WITH FRAME {&FRAME-NAME}:
 
-  
+
     fiRetrySeconds:SCREEN-VALUE = IF iCountDown LT 1 THEN "Checking File..." ELSE STRING(iCountDown).
     iCountDown = iCountDown - 1.
     IF iCountDown LE -4 THEN
@@ -477,8 +478,8 @@ PROCEDURE initializeObject :
 
   /* Code placed here will execute PRIOR to standard behavior. */
 
-  
-  
+
+
   RUN SUPER.
 
   /* Code placed here will execute AFTER standard behavior.    */
@@ -500,7 +501,7 @@ FUNCTION fnFileExists RETURNS LOGICAL
     Notes:  
 ------------------------------------------------------------------------------*/
 DEF VAR lFileExists AS LOG NO-UNDO.
- 
+
   lFileExists =  SEARCH(ip-file-name) NE ?.
   RETURN lFileExists.
 END FUNCTION.

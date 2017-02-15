@@ -5,7 +5,7 @@
 /*------------------------------------------------------------------------
 
   File: rmrep\r-trans.w
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -358,9 +358,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -474,7 +484,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -577,6 +587,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -630,6 +641,7 @@ DO:
        END.
        WHEN 6 THEN RUN OUTPUT-to-port.
   end case.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -768,11 +780,11 @@ DO:
     ASSIGN lv-font-no = "12"
            lines-per-page = 55
            lv-font-name = "Courier New SIZE=8(15CPI)".
-    
+
  ELSE    ASSIGN lv-font-no = "11"
                 lines-per-page = 99
                 lv-font-name = "Courier New Size=7 (17 cpi for 132 CLMN REPORT)".
- 
+
  DISPL lv-font-no lines-per-page lv-font-name WITH FRAME {&FRAME-NAME}.
 END.
 
@@ -926,8 +938,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -943,7 +957,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   end_date = today.
 
   RUN enable_UI.
@@ -953,7 +967,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   end.
   if substr(v-mat-list,length(trim(v-mat-list)),1) eq "," then
      substr(v-mat-list,length(trim(v-mat-list)),1) = "".
-  
+
   select-mat:list-items = v-mat-list.
 
   {methods/nowait.i}
@@ -963,6 +977,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO begin_rm-no.
   END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1179,17 +1194,17 @@ do with frame {&frame-name}:
      if select-mat:is-selected(i) then
         v-mtype = v-mtype + trim(substr(select-mat:entry(i),1,5)) + ",".
   end.
-  
+
   if length(TRIM(v-mtype)) NE 0 AND
      substr(v-mtype,length(trim(v-mtype)),1) eq "," then
      substr(v-mtype,length(trim(v-mtype)),1) = "".
-    
+
   mat-types = v-mtype.
-  
+
   do i = 1 to length(mat-types):
     if substr(mat-types,i,1) eq "," then substr(mat-types,i,1) = " ".
   end.
-  
+
   display mat-types.
 
   mat-types:HIDDEN = YES.
@@ -1458,12 +1473,12 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha NO-UNDO.
-  
+
   ASSIGN
   lv-frame-hdl = frame {&frame-name}:HANDLE
   lv-group-hdl = lv-frame-hdl:first-child
   lv-field-hdl = lv-group-hdl:first-child.
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1489,23 +1504,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

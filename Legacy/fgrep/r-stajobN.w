@@ -51,7 +51,7 @@ DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
 
 {sys/inc/var.i new shared}
 
-assign
+ASSIGN
  cocode = gcompany
  locode = gloc.
 
@@ -83,7 +83,7 @@ DEFINE VARIABLE cFieldListToSelect AS cha NO-UNDO.
 DEFINE VARIABLE cFieldLength AS cha NO-UNDO.
 DEFINE VARIABLE cFieldType AS cha NO-UNDO.
 DEFINE VARIABLE iColumnLength AS INTEGER NO-UNDO.
-                                
+
 ASSIGN cTextListToSelect = "CUSTOMER,PO #,SMAN,ITEM #,CUST PART #,DESCRIPTION,JOB," +
                            "REL#,REL DATE,RFQ#,QTY ALLOCATED,QTY ON HAND,QTY ORDERED," +
                            "QTY SHIPPED,RECEIPT DATE,PRICE,VALUE,RELEASE QTY," +
@@ -324,39 +324,39 @@ DEFINE VARIABLE sl_selected AS CHARACTER
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      SIZE 31 BY 5.71 NO-UNDO.
 
-DEFINE VARIABLE tb_cust-list AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_cust-list AS LOGICAL INITIAL NO 
      LABEL "Use Defined Customer List" 
      VIEW-AS TOGGLE-BOX
      SIZE 30.2 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL YES 
      LABEL "Export To Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_inc-cust AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_inc-cust AS LOGICAL INITIAL NO 
      LABEL "Include Customer Owned Warehouse?" 
      VIEW-AS TOGGLE-BOX
      SIZE 42 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_inc-zero AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_inc-zero AS LOGICAL INITIAL NO 
      LABEL "Include Zero Quantity On Hand?" 
      VIEW-AS TOGGLE-BOX
      SIZE 36 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL NO 
      LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_sort AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_sort AS LOGICAL INITIAL NO 
      LABEL "Sort By Part#?" 
      VIEW-AS TOGGLE-BOX
      SIZE 22 BY 1 NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL yes 
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL YES 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
@@ -456,20 +456,30 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 204.8
-         RESIZE             = yes
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = YES
+         SCROLL-BARS        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         KEEP-FRAME-Z-ORDER = YES
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
-
 
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -589,12 +599,12 @@ ASSIGN
                 "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+THEN C-Win:HIDDEN = NO.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -630,7 +640,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust C-Win
 ON LEAVE OF begin_cust IN FRAME FRAME-A /* Beginning Customer# */
 DO:
-   assign {&self-name}.
+   ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -641,7 +651,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-po C-Win
 ON LEAVE OF begin_cust-po IN FRAME FRAME-A /* Beginning Customer PO# */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -652,7 +662,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_job-no C-Win
 ON LEAVE OF begin_job-no IN FRAME FRAME-A /* Beginning Job# */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
    ASSIGN {&self-name}:SCREEN-VALUE = FILL(" ",6 - LENGTH(TRIM({&self-name}:SCREEN-VALUE))) +
                  TRIM({&self-name}:SCREEN-VALUE)  .
 END.
@@ -665,7 +675,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_job-no2 C-Win
 ON LEAVE OF begin_job-no2 IN FRAME FRAME-A
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -676,7 +686,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_slm C-Win
 ON LEAVE OF begin_slm IN FRAME FRAME-A /* Beginning Sales Rep# */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -687,7 +697,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
-   apply "close" to this-procedure.
+   APPLY "close" TO THIS-PROCEDURE.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -702,11 +713,11 @@ DO:
     ASSIGN {&displayed-objects}.
   END.
   /*task 11221301  */
-  IF string(begin_job-no:SCREEN-VALUE) <> "" THEN
+  IF STRING(begin_job-no:SCREEN-VALUE) <> "" THEN
     ASSIGN begin_job-no:SCREEN-VALUE = FILL(" ",6 - LENGTH(TRIM(begin_job-no:SCREEN-VALUE))) +
                  TRIM(begin_job-no:SCREEN-VALUE)  .
-    
-    IF string(end_job-no:SCREEN-VALUE) <> "" THEN
+
+    IF STRING(end_job-no:SCREEN-VALUE) <> "" THEN
     ASSIGN end_job-no:SCREEN-VALUE = FILL(" ",6 - LENGTH(TRIM(end_job-no:SCREEN-VALUE))) +
                  TRIM(end_job-no:SCREEN-VALUE)  . /* Task 11221301  */
   RUN GetSelectionList.
@@ -718,13 +729,13 @@ DO:
                     INPUT begin_cust,
                     INPUT end_cust).
   END.
-  run run-report.
+  RUN run-report.
   STATUS DEFAULT "Processing Complete". 
-  case rd-dest:
-       when 1 then run output-to-printer.
-       when 2 then run output-to-screen.
-       when 3 then run output-to-file.
-       when 4 then do:
+  CASE rd-dest:
+       WHEN 1 THEN RUN output-to-printer.
+       WHEN 2 THEN RUN output-to-screen.
+       WHEN 3 THEN RUN output-to-file.
+       WHEN 4 THEN DO:
            /*run output-to-fax.*/
            {custom/asifax.i &begin_cust=END_cust 
                             &END_cust=END_cust 
@@ -732,7 +743,7 @@ DO:
                             &fax-body= c-win:title 
                             &fax-file=list-name }
        END.
-       when 5 then do:
+       WHEN 5 THEN DO:
            IF is-xprint-form THEN DO:
               RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
               {custom/asimail.i &TYPE = ''
@@ -751,11 +762,12 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
-       END. 
-       WHEN 6 THEN run output-to-port.
-  end case. 
 
+       END. 
+       WHEN 6 THEN RUN output-to-port.
+  END CASE. 
+
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -767,7 +779,8 @@ END.
 ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
-  
+
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -794,6 +807,7 @@ DO:
   sl_selected:LIST-ITEM-PAIRS = cSelectedList.
   sl_avail:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
   */
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -805,6 +819,7 @@ END.
 ON CHOOSE OF btn_down IN FRAME FRAME-A /* Move Down */
 DO:
   RUN Move-Field ("Down").
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -821,6 +836,7 @@ DO:
   END
   */
   APPLY "DEFAULT-ACTION" TO sl_selected  .
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -832,6 +848,7 @@ END.
 ON CHOOSE OF btn_Up IN FRAME FRAME-A /* Move Up */
 DO:
   RUN Move-Field ("Up").
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -842,7 +859,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust C-Win
 ON LEAVE OF end_cust IN FRAME FRAME-A /* Ending Customer# */
 DO:
-     assign {&self-name}.
+     ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -853,7 +870,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-po C-Win
 ON LEAVE OF end_cust-po IN FRAME FRAME-A /* Ending Customer PO# */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -864,7 +881,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_job-no C-Win
 ON LEAVE OF end_job-no IN FRAME FRAME-A /* Ending Job# */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
    ASSIGN {&self-name}:SCREEN-VALUE = FILL(" ",6 - LENGTH(TRIM({&self-name}:SCREEN-VALUE))) +
                  TRIM({&self-name}:SCREEN-VALUE)  .
 END.
@@ -877,7 +894,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_job-no2 C-Win
 ON LEAVE OF end_job-no2 IN FRAME FRAME-A
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -888,7 +905,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_slm C-Win
 ON LEAVE OF end_slm IN FRAME FRAME-A /* Ending Sales Rep# */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -899,7 +916,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
 ON LEAVE OF fi_file IN FRAME FRAME-A /* If Yes, File Name */
 DO:
-     assign {&self-name}.
+     ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -910,7 +927,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lines-per-page C-Win
 ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -968,7 +985,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -979,7 +996,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_itm-code C-Win
 ON VALUE-CHANGED OF rd_itm-code IN FRAME FRAME-A
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -990,7 +1007,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_ostat C-Win
 ON VALUE-CHANGED OF rd_ostat IN FRAME FRAME-A
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1001,7 +1018,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
-  
+
    IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
        sl_selected:NUM-ITEMS = 0)
    THEN ASSIGN ldummy = sl_selected:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
@@ -1009,7 +1026,7 @@ DO:
               /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
                .
 
-  
+
 /* for pairs
     DEF VAR cSelectedList AS cha NO-UNDO.
     cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
@@ -1052,7 +1069,7 @@ DO:
   ASSIGN
     {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}:ENTRY(1)
     .
-    
+
 
 END.
 
@@ -1064,7 +1081,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_cust-list C-Win
 ON VALUE-CHANGED OF tb_cust-list IN FRAME FRAME-A /* Use Defined Customer List */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
   EMPTY TEMP-TABLE ttCustList.
   RUN SetCustRange(INPUT tb_cust-list).
 END.
@@ -1077,7 +1094,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel C-Win
 ON VALUE-CHANGED OF tb_excel IN FRAME FRAME-A /* Export To Excel? */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1088,7 +1105,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_inc-cust C-Win
 ON VALUE-CHANGED OF tb_inc-cust IN FRAME FRAME-A /* Include Customer Owned Warehouse? */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1099,7 +1116,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_inc-zero C-Win
 ON VALUE-CHANGED OF tb_inc-zero IN FRAME FRAME-A /* Include Zero Quantity On Hand? */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1110,7 +1127,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
 ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1121,7 +1138,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_sort C-Win
 ON VALUE-CHANGED OF tb_sort IN FRAME FRAME-A /* Sort By Part#? */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1132,7 +1149,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-show-parm C-Win
 ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
 DO:
-    assign {&self-name}.
+    ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1152,8 +1169,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -1163,7 +1182,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-   
+
 /* security check need {methods/prgsecur.i} in definition section */
   IF access-close THEN DO:
      APPLY "close" TO THIS-PROCEDURE.
@@ -1171,9 +1190,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.           
   RUN DisplaySelectionList.
   RUN enable_UI.
-  
+
   {methods/nowait.i}
-  
+
   RUN sys/inc/CustListForm.p ( "IL8",cocode, 
                                OUTPUT ou-log,
                                OUTPUT ou-cust-int) .
@@ -1204,8 +1223,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO"
         btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
         .
-      
-   IF ou-log AND ou-cust-int = 0 THEN do:
+
+   IF ou-log AND ou-cust-int = 0 THEN DO:
        ASSIGN 
         tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = YES
         btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
@@ -1215,6 +1234,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
    END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1276,7 +1296,7 @@ PROCEDURE CustList :
 
     RUN sys/ref/CustListManager.w(INPUT cocode,
                                   INPUT 'IL8').
-    
+
 
 END PROCEDURE.
 
@@ -1314,7 +1334,7 @@ PROCEDURE DisplaySelectionList :
   DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
-     
+
      RETURN.
   END.
 
@@ -1327,7 +1347,7 @@ PROCEDURE DisplaySelectionList :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1335,9 +1355,9 @@ PROCEDURE DisplaySelectionList :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 END PROCEDURE.
 
@@ -1358,7 +1378,7 @@ PROCEDURE DisplaySelectionList2 :
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
-        
+
   EMPTY TEMP-TABLE ttRptList.
 
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
@@ -1435,16 +1455,16 @@ PROCEDURE GetSelectionList :
 
  DO i = 1 TO sl_selected:NUM-ITEMS /* IN FRAME {&FRAME-NAME}*/ :
     FIND FIRST ttRptList WHERE ttRptList.TextList = ENTRY(i,cTmpList) NO-LOCK NO-ERROR.     
-  
+
     CREATE ttRptSelected.
     ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
            ttRptSelected.FieldList = ttRptList.FieldList
-           ttRptSelected.FieldLength = int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldLength))
+           ttRptSelected.FieldLength = int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldLength))
            ttRptSelected.DisplayOrder = i
-           ttRptSelected.HeadingFromLeft = IF entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
+           ttRptSelected.HeadingFromLeft = IF ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
-           
+
  END.
 
 END PROCEDURE.
@@ -1495,7 +1515,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
 /*     DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -1506,9 +1526,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.  */
 
 {custom/out2file.i} 
@@ -1542,7 +1562,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1566,7 +1586,7 @@ PROCEDURE output-to-screen :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  run scr-rpt.w (list-name,c-win:title,int(lv-font-no),lv-ornt). /* open file-name, title */ 
+  RUN scr-rpt.w (list-name,c-win:TITLE,int(lv-font-no),lv-ornt). /* open file-name, title */ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1655,132 +1675,132 @@ DEFINE BUFFER bcust FOR cust.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
 
 IF rd_smry-dtl = "S" THEN DO:
-   form
-    cust.cust-no label "CUSTOMER"
-    oe-ordl.po-no label "PO #"
+   FORM
+    cust.cust-no LABEL "CUSTOMER"
+    oe-ordl.po-no LABEL "PO #"
 /*    cust.sman label "SMAN"*/
-    oe-ordl.i-no  label "ITEM #"
-    oe-ordl.part-no label "CUST PART #" format "x(15)"
-    oe-ordl.i-name label "DESCRIPTION" format "x(15)"
-    
+    oe-ordl.i-no  LABEL "ITEM #"
+    oe-ordl.part-no LABEL "CUST PART #" FORMAT "x(15)"
+    oe-ordl.i-name LABEL "DESCRIPTION" FORMAT "x(15)"
+
 /********    NEED JOB-NUMBER HERE!!!!! *************/
-    v-job-no LABEL "JOB #" format "x(9)"
-   
+    v-job-no LABEL "JOB #" FORMAT "x(9)"
+
 /*    fg-bin.loc label "WHSE"*/
-    oe-ordl.qty format "->,>>>,>>9" column-label "QUANTITY! ORDERED"
-    li-ship-qty format "->,>>>,>>9" column-label "QUANTITY! SHIPPED"
-    v-qty-onh  column-label "QUANTITY! ON HAND"
-    oe-ordl.price format ">>,>>>,>>9.99" column-label "SELLING! PRICE"
-    v-ext format "->>>,>>>,>>9.99"  column-label "TOTAL!VALUE"
-    with frame itemx1 no-box down STREAM-IO width 150.
+    oe-ordl.qty FORMAT "->,>>>,>>9" COLUMN-LABEL "QUANTITY! ORDERED"
+    li-ship-qty FORMAT "->,>>>,>>9" COLUMN-LABEL "QUANTITY! SHIPPED"
+    v-qty-onh  COLUMN-LABEL "QUANTITY! ON HAND"
+    oe-ordl.price FORMAT ">>,>>>,>>9.99" COLUMN-LABEL "SELLING! PRICE"
+    v-ext FORMAT "->>>,>>>,>>9.99"  COLUMN-LABEL "TOTAL!VALUE"
+    WITH FRAME itemx1 NO-BOX DOWN STREAM-IO WIDTH 150.
 
-form
-    cust.cust-no label "CUSTOMER"
-    itemfg.cust-po-no label "PO #" FORMAT "x(15)"
-    cust.sman label "SMAN"
-    itemfg.i-no  label "ITEM #"
-    itemfg.part-no label "CUST PART #" format "x(15)"
-    itemfg.i-name label "DESCRIPTION" format "x(15)"
-    v-job column-label "  JOB"
-    v-qty-job  column-label "QUANTITY! ON HAND"
-    trans-date column-label "RECEIPT!DATE"
-    itemfg.sell-price format ">>>,>>9.99" column-label "SELLING! PRICE"
-    v-ext-job format "->>>,>>>,>>9.99"  column-label "TOTAL!VALUE"
-    with frame itemx2 no-box down STREAM-IO width 150.
+FORM
+    cust.cust-no LABEL "CUSTOMER"
+    itemfg.cust-po-no LABEL "PO #" FORMAT "x(15)"
+    cust.sman LABEL "SMAN"
+    itemfg.i-no  LABEL "ITEM #"
+    itemfg.part-no LABEL "CUST PART #" FORMAT "x(15)"
+    itemfg.i-name LABEL "DESCRIPTION" FORMAT "x(15)"
+    v-job COLUMN-LABEL "  JOB"
+    v-qty-job  COLUMN-LABEL "QUANTITY! ON HAND"
+    trans-date COLUMN-LABEL "RECEIPT!DATE"
+    itemfg.sell-price FORMAT ">>>,>>9.99" COLUMN-LABEL "SELLING! PRICE"
+    v-ext-job FORMAT "->>>,>>>,>>9.99"  COLUMN-LABEL "TOTAL!VALUE"
+    WITH FRAME itemx2 NO-BOX DOWN STREAM-IO WIDTH 150.
 
-form
-    cust.cust-no label "CUSTOMER"
-    oe-ordl.po-no label "PO #"
-    cust.sman label "SMAN"
-    oe-ordl.i-no  label "ITEM #"
-    oe-ordl.i-name label "DESCRIPTION" format "x(15)"
-    fg-bin.loc label "WHSE"
-    oe-ordl.qty format "->,>>>,>>9" column-label "QUANTITY! ORDERED"
-    li-ship-qty format "->,>>>,>>9" column-label "QUANTITY! SHIPPED"
-    v-qty-onh  column-label "QUANTITY! ON HAND"
-    oe-ordl.price format ">>,>>>,>>9.99" column-label "SELLING! PRICE"
-    v-ext format "->>>,>>>,>>9.99"  column-label "TOTAL!VALUE"
-    with frame itemx3 no-box down STREAM-IO width 132.
+FORM
+    cust.cust-no LABEL "CUSTOMER"
+    oe-ordl.po-no LABEL "PO #"
+    cust.sman LABEL "SMAN"
+    oe-ordl.i-no  LABEL "ITEM #"
+    oe-ordl.i-name LABEL "DESCRIPTION" FORMAT "x(15)"
+    fg-bin.loc LABEL "WHSE"
+    oe-ordl.qty FORMAT "->,>>>,>>9" COLUMN-LABEL "QUANTITY! ORDERED"
+    li-ship-qty FORMAT "->,>>>,>>9" COLUMN-LABEL "QUANTITY! SHIPPED"
+    v-qty-onh  COLUMN-LABEL "QUANTITY! ON HAND"
+    oe-ordl.price FORMAT ">>,>>>,>>9.99" COLUMN-LABEL "SELLING! PRICE"
+    v-ext FORMAT "->>>,>>>,>>9.99"  COLUMN-LABEL "TOTAL!VALUE"
+    WITH FRAME itemx3 NO-BOX DOWN STREAM-IO WIDTH 132.
 
-form
-    cust.cust-no label "CUSTOMER"
-    itemfg.cust-po-no label "PO #"
-    cust.sman label "SMAN"
-    itemfg.i-no  label "ITEM #"
-    itemfg.i-name label "DESCRIPTION" format "x(15)"
-    v-job column-label "  JOB"
-    v-qty-job  column-label "QUANTITY! ON HAND"
-    trans-date column-label "RECEIPT!DATE"
-    itemfg.sell-price format ">>>,>>9.99" column-label "SELLING! PRICE"
-    v-ext-job format "->>>,>>>,>>9.99"  column-label "TOTAL!VALUE"
-    with frame itemx4 no-box down STREAM-IO width 132.
+FORM
+    cust.cust-no LABEL "CUSTOMER"
+    itemfg.cust-po-no LABEL "PO #"
+    cust.sman LABEL "SMAN"
+    itemfg.i-no  LABEL "ITEM #"
+    itemfg.i-name LABEL "DESCRIPTION" FORMAT "x(15)"
+    v-job COLUMN-LABEL "  JOB"
+    v-qty-job  COLUMN-LABEL "QUANTITY! ON HAND"
+    trans-date COLUMN-LABEL "RECEIPT!DATE"
+    itemfg.sell-price FORMAT ">>>,>>9.99" COLUMN-LABEL "SELLING! PRICE"
+    v-ext-job FORMAT "->>>,>>>,>>9.99"  COLUMN-LABEL "TOTAL!VALUE"
+    WITH FRAME itemx4 NO-BOX DOWN STREAM-IO WIDTH 132.
 END.
 ELSE DO: 
-   form
-       cust.cust-no label "CUSTOMER"
-       oe-ordl.po-no label "PO #"
+   FORM
+       cust.cust-no LABEL "CUSTOMER"
+       oe-ordl.po-no LABEL "PO #"
    /*    cust.sman label "SMAN"*/
-       oe-ordl.i-no  label "ITEM #"
-       oe-ordl.part-no label "CUST PART #" format "x(15)"
-       oe-ordl.i-name label "DESCRIPTION" format "x(15)"
+       oe-ordl.i-no  LABEL "ITEM #"
+       oe-ordl.part-no LABEL "CUST PART #" FORMAT "x(15)"
+       oe-ordl.i-name LABEL "DESCRIPTION" FORMAT "x(15)"
 
    /********    NEED JOB-NUMBER HERE!!!!! *************/
-       v-job-no COLUMN-LABEL "JOB#!REL#" format "x(9)"
+       v-job-no COLUMN-LABEL "JOB#!REL#" FORMAT "x(9)"
 
    /*    fg-bin.loc label "WHSE"*/
-       oe-ordl.qty format "->,>>>,>>9" column-label "QTY ORDERED!REL DATE"
-       li-ship-qty format "->,>>>,>>9" column-label "QTY SHIPPED!SCHED REL QTY"
-       v-qty-onh  column-label "QUANTITY! ON HAND"
-       oe-ordl.price format ">>,>>>,>>9.99" column-label "SELLING! PRICE"
-       v-ext format "->>>,>>>,>>9.99"  column-label "TOTAL!VALUE"
-       with frame itemx5 no-box down STREAM-IO width 160.
-form
-    cust.cust-no label "CUSTOMER"
-    itemfg.cust-po-no label "PO #" FORMAT "x(15)"
-    cust.sman label "SMAN"
-    itemfg.i-no  label "ITEM #"
-    itemfg.part-no label "CUST PART #" format "x(15)"
-    itemfg.i-name label "DESCRIPTION" format "x(15)"
-    v-job column-label "JOB!REL#"
-    oe-ordl.qty format "->,>>>,>>9" column-label "QTY ORDERED!REL DATE"
-    li-ship-qty format "->,>>>,>>9" column-label "QTY SHIPPED!SCHED REL QTY"
-    v-qty-job  column-label "QTY ON HAND"
-    trans-date column-label "RECEIPT DATE"
-    itemfg.sell-price format ">>>,>>9.99" column-label "SELLING! PRICE"
-    v-ext-job format "->>>,>>>,>>9.99"  column-label "TOTAL!VALUE"
-    with frame itemx6 no-box down STREAM-IO width 190.
+       oe-ordl.qty FORMAT "->,>>>,>>9" COLUMN-LABEL "QTY ORDERED!REL DATE"
+       li-ship-qty FORMAT "->,>>>,>>9" COLUMN-LABEL "QTY SHIPPED!SCHED REL QTY"
+       v-qty-onh  COLUMN-LABEL "QUANTITY! ON HAND"
+       oe-ordl.price FORMAT ">>,>>>,>>9.99" COLUMN-LABEL "SELLING! PRICE"
+       v-ext FORMAT "->>>,>>>,>>9.99"  COLUMN-LABEL "TOTAL!VALUE"
+       WITH FRAME itemx5 NO-BOX DOWN STREAM-IO WIDTH 160.
+FORM
+    cust.cust-no LABEL "CUSTOMER"
+    itemfg.cust-po-no LABEL "PO #" FORMAT "x(15)"
+    cust.sman LABEL "SMAN"
+    itemfg.i-no  LABEL "ITEM #"
+    itemfg.part-no LABEL "CUST PART #" FORMAT "x(15)"
+    itemfg.i-name LABEL "DESCRIPTION" FORMAT "x(15)"
+    v-job COLUMN-LABEL "JOB!REL#"
+    oe-ordl.qty FORMAT "->,>>>,>>9" COLUMN-LABEL "QTY ORDERED!REL DATE"
+    li-ship-qty FORMAT "->,>>>,>>9" COLUMN-LABEL "QTY SHIPPED!SCHED REL QTY"
+    v-qty-job  COLUMN-LABEL "QTY ON HAND"
+    trans-date COLUMN-LABEL "RECEIPT DATE"
+    itemfg.sell-price FORMAT ">>>,>>9.99" COLUMN-LABEL "SELLING! PRICE"
+    v-ext-job FORMAT "->>>,>>>,>>9.99"  COLUMN-LABEL "TOTAL!VALUE"
+    WITH FRAME itemx6 NO-BOX DOWN STREAM-IO WIDTH 190.
 
-form
-    cust.cust-no label "CUSTOMER"
-    oe-ordl.po-no label "PO #"
-    cust.sman label "SMAN"
-    oe-ordl.i-no  label "ITEM #"
-    oe-ordl.i-name label "DESCRIPTION" format "x(15)"
+FORM
+    cust.cust-no LABEL "CUSTOMER"
+    oe-ordl.po-no LABEL "PO #"
+    cust.sman LABEL "SMAN"
+    oe-ordl.i-no  LABEL "ITEM #"
+    oe-ordl.i-name LABEL "DESCRIPTION" FORMAT "x(15)"
     fg-bin.loc COLUMN-LABEL "WHSE!REL#"
-    oe-ordl.qty format "->,>>>,>>9" column-label "QTY ORDERED!REL DATE"
-    li-ship-qty format "->,>>>,>>9" column-label "QTY SHIPPED!SCHED REL QTY"
-    v-qty-onh  column-label "QTY ON HAND"
-    oe-ordl.price format ">>,>>>,>>9.99" column-label "SELLING! PRICE"
-    v-ext format "->>>,>>>,>>9.99"  column-label "TOTAL!VALUE"
-    with frame itemx7 no-box down STREAM-IO width 150.
+    oe-ordl.qty FORMAT "->,>>>,>>9" COLUMN-LABEL "QTY ORDERED!REL DATE"
+    li-ship-qty FORMAT "->,>>>,>>9" COLUMN-LABEL "QTY SHIPPED!SCHED REL QTY"
+    v-qty-onh  COLUMN-LABEL "QTY ON HAND"
+    oe-ordl.price FORMAT ">>,>>>,>>9.99" COLUMN-LABEL "SELLING! PRICE"
+    v-ext FORMAT "->>>,>>>,>>9.99"  COLUMN-LABEL "TOTAL!VALUE"
+    WITH FRAME itemx7 NO-BOX DOWN STREAM-IO WIDTH 150.
 
-form
-    cust.cust-no label "CUSTOMER"
-    itemfg.cust-po-no label "PO #"
-    cust.sman label "SMAN"
-    itemfg.i-no  label "ITEM #"
-    itemfg.i-name label "DESCRIPTION" format "x(15)"
-    v-job column-label "JOB!REL#"
-    oe-ordl.qty format "->,>>>,>>9" column-label "QTY ORDERED!REL DATE"
-    li-ship-qty format "->,>>>,>>9" column-label "QTY SHIPPED!SCHED REL QTY"
-    v-qty-job  column-label "QTY ON HAND"
-    trans-date column-label "RECEIPT DATE"
-    itemfg.sell-price format ">>>,>>9.99" column-label "SELLING! PRICE"
-    v-ext-job format "->>>,>>>,>>9.99"  column-label "TOTAL!VALUE"
-    with frame itemx8 no-box down STREAM-IO width 190.
+FORM
+    cust.cust-no LABEL "CUSTOMER"
+    itemfg.cust-po-no LABEL "PO #"
+    cust.sman LABEL "SMAN"
+    itemfg.i-no  LABEL "ITEM #"
+    itemfg.i-name LABEL "DESCRIPTION" FORMAT "x(15)"
+    v-job COLUMN-LABEL "JOB!REL#"
+    oe-ordl.qty FORMAT "->,>>>,>>9" COLUMN-LABEL "QTY ORDERED!REL DATE"
+    li-ship-qty FORMAT "->,>>>,>>9" COLUMN-LABEL "QTY SHIPPED!SCHED REL QTY"
+    v-qty-job  COLUMN-LABEL "QTY ON HAND"
+    trans-date COLUMN-LABEL "RECEIPT DATE"
+    itemfg.sell-price FORMAT ">>>,>>9.99" COLUMN-LABEL "SELLING! PRICE"
+    v-ext-job FORMAT "->>>,>>>,>>9.99"  COLUMN-LABEL "TOTAL!VALUE"
+    WITH FRAME itemx8 NO-BOX DOWN STREAM-IO WIDTH 190.
 END.
-assign
- str-tit2 = c-win:title
+ASSIGN
+ str-tit2 = c-win:TITLE
  {sys/inc/ctrtext.i str-tit2 112}
 
  fcst       = begin_cust
@@ -1825,7 +1845,7 @@ DEFINE VARIABLE cslist AS cha NO-UNDO.
             ELSE
             str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " .
  END.
- 
+
  IF tb_excel THEN DO:
    OUTPUT STREAM excel TO VALUE(fi_file).
    PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
@@ -1834,7 +1854,7 @@ DEFINE VARIABLE cslist AS cha NO-UNDO.
 {sys/inc/print1.i}
 {sys/inc/outprint.i value(lines-per-page)}
 
-if td-show-parm then run show-param.
+IF td-show-parm THEN RUN show-param.
 
 SESSION:SET-WAIT-STATE ("general").
 
@@ -1902,7 +1922,7 @@ SESSION:SET-WAIT-STATE ("general").
 /*     PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.                            */
 /* END.                                                                                                     */
 
-display "" with frame r-top.
+DISPLAY "" WITH FRAME r-top.
 
 {fg/rep/fg-xstatN.i}
 
@@ -1919,7 +1939,7 @@ SESSION:SET-WAIT-STATE ("").
 
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 
-end procedure.
+END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1942,7 +1962,7 @@ PROCEDURE SetCustRange :
         btnCustList:SENSITIVE = iplChecked
        .
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1963,55 +1983,55 @@ PROCEDURE show-param :
   DEFINE VARIABLE parm-lbl-list AS cha NO-UNDO.
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
   DEFINE VARIABLE lv-label AS cha.
-  
-  lv-frame-hdl = frame {&frame-name}:handle.
-  lv-group-hdl = lv-frame-hdl:first-child.
-  lv-field-hdl = lv-group-hdl:first-child .
-  
-  do while true:
-     if not valid-handle(lv-field-hdl) then leave.
-     if lookup(lv-field-hdl:private-data,"parm") > 0
-        then do:
-           if lv-field-hdl:label <> ? then 
-              assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
-                     parm-lbl-list = parm-lbl-list + lv-field-hdl:label + "," 
-                     .
-           else do:  /* radio set */
-              assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
-                     .
-              lv-field2-hdl = lv-group-hdl:first-child.
-              repeat:
-                  if not valid-handle(lv-field2-hdl) then leave. 
-                  if lv-field2-hdl:private-data = lv-field-hdl:name then do:
-                     parm-lbl-list = parm-lbl-list + lv-field2-hdl:screen-value + ",".
-                  end.
-                  lv-field2-hdl = lv-field2-hdl:next-sibling.                 
-              end.       
-           end.                 
-        end.            
-     lv-field-hdl = lv-field-hdl:next-sibling.   
-  end.
 
-  put space(28)
+  lv-frame-hdl = FRAME {&frame-name}:handle.
+  lv-group-hdl = lv-frame-hdl:FIRST-CHILD.
+  lv-field-hdl = lv-group-hdl:FIRST-CHILD .
+
+  DO WHILE TRUE:
+     IF NOT VALID-HANDLE(lv-field-hdl) THEN LEAVE.
+     IF LOOKUP(lv-field-hdl:PRIVATE-DATA,"parm") > 0
+        THEN DO:
+           IF lv-field-hdl:LABEL <> ? THEN 
+              ASSIGN parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
+                     parm-lbl-list = parm-lbl-list + lv-field-hdl:LABEL + "," 
+                     .
+           ELSE DO:  /* radio set */
+              ASSIGN parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
+                     .
+              lv-field2-hdl = lv-group-hdl:FIRST-CHILD.
+              REPEAT:
+                  IF NOT VALID-HANDLE(lv-field2-hdl) THEN LEAVE. 
+                  IF lv-field2-hdl:PRIVATE-DATA = lv-field-hdl:NAME THEN DO:
+                     parm-lbl-list = parm-lbl-list + lv-field2-hdl:SCREEN-VALUE + ",".
+                  END.
+                  lv-field2-hdl = lv-field2-hdl:NEXT-SIBLING.                 
+              END.       
+           END.                 
+        END.            
+     lv-field-hdl = lv-field-hdl:NEXT-SIBLING.   
+  END.
+
+  PUT SPACE(28)
       "< Selection Parameters >"
-      skip(1).
-  
-  do i = 1 to num-entries(parm-fld-list,","):
-    if entry(i,parm-fld-list) ne "" or
-       entry(i,parm-lbl-list) ne "" then do:
-       
-      lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
-                 trim(entry(i,parm-lbl-list)) + ":".
-                 
-      put lv-label format "x(35)" at 5
-          space(1)
-          trim(entry(i,parm-fld-list)) format "x(40)"
-          skip.              
-    end.
-  end.
- 
-  put fill("-",80) format "x(80)" skip.
-  
+      SKIP(1).
+
+  DO i = 1 TO NUM-ENTRIES(parm-fld-list,","):
+    IF ENTRY(i,parm-fld-list) NE "" OR
+       entry(i,parm-lbl-list) NE "" THEN DO:
+
+      lv-label = FILL(" ",34 - length(TRIM(ENTRY(i,parm-lbl-list)))) +
+                 trim(ENTRY(i,parm-lbl-list)) + ":".
+
+      PUT lv-label FORMAT "x(35)" AT 5
+          SPACE(1)
+          TRIM(ENTRY(i,parm-fld-list)) FORMAT "x(40)"
+          SKIP.              
+    END.
+  END.
+
+  PUT FILL("-",80) FORMAT "x(80)" SKIP.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2027,8 +2047,8 @@ FUNCTION GetFieldValue RETURNS CHARACTER
     Notes:  
 ------------------------------------------------------------------------------*/
   /*RETURN string(hField:BUFFER-VALUE, hField:FORMAT) */
-  RETURN string(hipField:BUFFER-VALUE).
-      
+  RETURN STRING(hipField:BUFFER-VALUE).
+
 
 END FUNCTION.
 

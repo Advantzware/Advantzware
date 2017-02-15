@@ -18,7 +18,7 @@
       <none>
 
   History: 
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -32,6 +32,9 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+
+&SCOPED-DEFINE winReSize
+&SCOPED-DEFINE h_Browse01 h_fgijob-2
 
 /* Parameters Definitions ---                                           */
 DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
@@ -57,7 +60,7 @@ DEF INPUT PARAM ip-zero  AS LOG   NO-UNDO.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -133,10 +136,10 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          TITLE              = "FG On-Hand Inquiry"
          HEIGHT             = 23.81
          WIDTH              = 158.6
-         MAX-HEIGHT         = 24
-         MAX-WIDTH          = 158.6
-         VIRTUAL-HEIGHT     = 24
-         VIRTUAL-WIDTH      = 158.6
+         MAX-HEIGHT         = 320
+         MAX-WIDTH          = 320
+         VIRTUAL-HEIGHT     = 320
+         VIRTUAL-WIDTH      = 320
          RESIZE             = no
          SCROLL-BARS        = no
          STATUS-AREA        = yes
@@ -147,6 +150,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+/* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
@@ -172,7 +176,7 @@ ASSIGN FRAME message-frame:FRAME = FRAME F-Main:HANDLE
        FRAME OPTIONS-FRAME:FRAME = FRAME F-Main:HANDLE.
 
 /* SETTINGS FOR FRAME F-Main
-                                                                        */
+   FRAME-NAME                                                           */
 
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
@@ -210,7 +214,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -303,8 +307,12 @@ PROCEDURE adm-create-objects :
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
 
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
+             h_options , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
+             FRAME message-frame:HANDLE , 'AFTER':U ).
     END. /* Page 0 */
-
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/smartmsg.w':U ,
@@ -342,6 +350,10 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'inquiry':U , h_fgijob-2 ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_fgijob ,
+             h_folder , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_fgijob-2 ,
+             h_fgijob , 'AFTER':U ).
     END. /* Page 1 */
 
   END CASE.
@@ -468,9 +480,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

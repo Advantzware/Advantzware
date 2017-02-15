@@ -1,6 +1,6 @@
 /* statecod.i
 "statecod"
-"ASI"
+"NOSWEAT"
 "statecod"
 "statecod"
 "State Abbreviation"

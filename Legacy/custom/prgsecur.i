@@ -15,7 +15,7 @@ DEFINE VARIABLE access-close AS LOGICAL NO-UNDO.
 IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
    INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
    INDEX(PROGRAM-NAME(1),".ped") NE 0 THEN
-v-prgmname = USERID("ASI") + "..".
+v-prgmname = USERID("NOSWEAT") + "..".
 ELSE
 ASSIGN
   period_pos = INDEX(PROGRAM-NAME(1),".")
@@ -36,10 +36,10 @@ DO:
     group-ok = yes.
     LEAVE.
   END.
-  IF NOT CAN-DO(b-prgrms.can_run,USERID("ASI")) AND
-     NOT CAN-DO(b-prgrms.can_update,USERID("ASI")) AND
-     NOT CAN-DO(b-prgrms.can_create,USERID("ASI")) AND
-     NOT CAN-DO(b-prgrms.can_delete,USERID("ASI")) AND NOT group-ok THEN
+  IF NOT CAN-DO(b-prgrms.can_run,USERID("NOSWEAT")) AND
+     NOT CAN-DO(b-prgrms.can_update,USERID("NOSWEAT")) AND
+     NOT CAN-DO(b-prgrms.can_create,USERID("NOSWEAT")) AND
+     NOT CAN-DO(b-prgrms.can_delete,USERID("NOSWEAT")) AND NOT group-ok THEN
   DO:
     MESSAGE "Program :" v-prgmname SKIP "Title :" b-prgrms.prgtitle SKIP(1)
         "Access to this Program Denied - Contact Systems Manager" VIEW-AS ALERT-BOX ERROR.

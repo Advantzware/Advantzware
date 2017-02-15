@@ -41,7 +41,7 @@ PROCEDURE copyOrder:
       NO-LOCK NO-ERROR.
 
   lv-rec_key = STRING(TODAY,"99999999") +
-               STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999").
+               STRING(NEXT-VALUE(rec_key_seq,nosweat),"99999999").
   CREATE rec_key.
   ASSIGN
    rec_key.rec_key    = lv-rec_key

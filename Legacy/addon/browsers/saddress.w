@@ -1,9 +1,13 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi          PROGRESS
+          nosweat          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admBrowserUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -111,13 +115,13 @@ DEFINE BUTTON Btn_Clear_Find
 
 DEFINE BUTTON Btn_Run 
      IMAGE-UP FILE "Graphics/32x32/media_play.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 7.8 BY 1.81 TOOLTIP "Run Program".
 
 DEFINE BUTTON Btn_Search 
      IMAGE-UP FILE "Graphics/32x32/spy.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 7.8 BY 1.81 TOOLTIP "Notes Text Search".
 
@@ -232,6 +236,8 @@ END.
 {src/adm/method/query.i}
 {methods/template/browser.i}
 
+{Advantzware/WinKit/dataGridProc.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -262,16 +268,16 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "ASI.address,ASI.rec_key OF ASI.address,ASI.prgmxref OF ASI.rec_key"
+     _TblList          = "NOSWEAT.address,NOSWEAT.rec_key OF NOSWEAT.address,NOSWEAT.prgmxref OF NOSWEAT.rec_key"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED,,"
      _Where[1]         = "address1 CONTAINS word_search OR word_search = ''"
-     _FldNameList[1]   = ASI.address.zipcode
-     _FldNameList[2]   = ASI.address.address1
-     _FldNameList[3]   = ASI.address.name1
-     _FldNameList[4]   = ASI.address.address_type
-     _FldNameList[5]   = ASI.rec_key.table_name
-     _FldNameList[6]   = ASI.prgmxref.prgmname
+     _FldNameList[1]   = NOSWEAT.address.zipcode
+     _FldNameList[2]   = NOSWEAT.address.address1
+     _FldNameList[3]   = NOSWEAT.address.name1
+     _FldNameList[4]   = NOSWEAT.address.address_type
+     _FldNameList[5]   = NOSWEAT.rec_key.table_name
+     _FldNameList[6]   = NOSWEAT.prgmxref.prgmname
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -283,7 +289,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 

@@ -104,7 +104,7 @@ fi_file
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel AUTO-END-KEY 
+DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -297,9 +297,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -366,7 +376,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -436,6 +446,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -450,7 +461,7 @@ DO:
     ASSIGN {&displayed-objects}.
   END.
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -490,10 +501,11 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -505,7 +517,8 @@ END.
 ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
-  
+
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -695,8 +708,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -712,7 +727,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   assign
    begin_inv-date = date(1,1,year(today))
    end_inv-date   = today.
@@ -722,7 +737,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN sys/inc/CustListForm.p ( "HR9",cocode, 
                                OUTPUT ou-log,
                                OUTPUT ou-cust-int) .
-    
+
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     APPLY "entry" TO begin_cust-no.
@@ -733,7 +748,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT 'HR9',
                           INPUT NO,
                           OUTPUT glCustListActive).
-  {sys/inc/chblankcust.i}
+  {sys/inc/chblankcust.i ""HR9""}
 
   IF ou-log THEN DO:
       ASSIGN 
@@ -750,7 +765,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO"
         btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
         .
-      
+
    IF ou-log AND ou-cust-int = 0 THEN do:
        ASSIGN 
         tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = YES
@@ -761,6 +776,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
    END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -822,7 +838,7 @@ PROCEDURE CustList :
 
     RUN sys/ref/CustListManager.w(INPUT cocode,
                                   INPUT 'HR9').
-    
+
 
 END PROCEDURE.
 
@@ -883,7 +899,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
 /*     DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -894,11 +910,11 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY. */
-     
+
 {custom/out2file.i}
 
 END PROCEDURE.
@@ -930,7 +946,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -987,6 +1003,7 @@ def var v-inc-fc as log init no.
 
 def var v-tot as dec format "->,>>>,>>>,>>9.99" extent 2.
 DEF VAR excelheader AS CHAR NO-UNDO.
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 
  ASSIGN
   str-tit2 = c-win:title
@@ -998,11 +1015,12 @@ DEF VAR excelheader AS CHAR NO-UNDO.
   tzip       = END_zip
   fdate      = begin_inv-date
   tdate      = end_inv-date
-  v-inc-fc   = tb_fin-chg.
-  
+  v-inc-fc   = tb_fin-chg
+  lSelected  = tb_cust-list.
+
 
 {sys/inc/print1.i}
-       
+
 {sys/inc/outprint.i value(lines-per-page)}
 
 IF tb_excel THEN DO:
@@ -1010,7 +1028,12 @@ IF tb_excel THEN DO:
   excelheader = "Cust#,Cust Name,City,State,Zip Code,Sales $".
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
-
+IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
+END.
 if td-show-parm then run show-param.
 
 display "" with frame r-top.
@@ -1021,13 +1044,12 @@ SESSION:SET-WAIT-STATE ("general").
     DELETE tt-report.
   END.
 
-  FOR EACH ttCustList 
-    WHERE ttCustList.log-fld
-    NO-LOCK,
-    each cust
+  FOR each cust
       where cust.company eq cocode
-        and cust.cust-no EQ ttCustList.cust-no /*fcust*/
-   /*    and cust.cust-no le tcust*/
+        AND cust.cust-no GE fcust
+        AND cust.cust-no LE tcust
+        AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
+        AND ttCustList.log-fld no-lock) else true)
         AND cust.zip GE begin_zip
         AND cust.zip LE END_zip
       no-lock:
@@ -1071,7 +1093,7 @@ SESSION:SET-WAIT-STATE ("general").
          xtt-report.key-02  = tt-report.key-09
          xtt-report.key-09  = tt-report.key-09.
       end.
-        
+
       delete tt-report.
     end.
 
@@ -1098,7 +1120,7 @@ SESSION:SET-WAIT-STATE ("general").
       with frame itemx down
 
       transaction:
-      
+
     find first ar-invl
         where recid(ar-invl) eq tt-report.rec-id
         no-lock no-error.
@@ -1121,7 +1143,7 @@ SESSION:SET-WAIT-STATE ("general").
               cust.state         label "State"
               cust.zip           label "Zip Code" FORMAT "x(10)"
               v-tot[1]           label "Sales $"
-              
+
           with no-box frame cust down STREAM-IO width 132.
 
       down with frame cust.
@@ -1135,13 +1157,13 @@ SESSION:SET-WAIT-STATE ("general").
              '"' '="' '"' string(cust.zip) '"' '"'    '",'
              '"' STRING(v-tot[1],"->,>>>,>>>,>>9.99") '",'
              SKIP.
-      
+
       assign
        v-tot[2] = v-tot[2] + v-tot[1]
-       
+
        v-tot[1] = 0.
     end.
-    
+
     if last(tt-report.key-01) then do:
       /* display final totals */
       put skip(1).
@@ -1165,7 +1187,7 @@ SESSION:SET-WAIT-STATE ("general").
 
     delete tt-report.
   end.
-     
+
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
@@ -1201,7 +1223,7 @@ PROCEDURE SetCustRange :
         btnCustList:SENSITIVE = iplChecked
        .
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1222,11 +1244,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1254,23 +1276,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

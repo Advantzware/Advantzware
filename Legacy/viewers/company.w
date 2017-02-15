@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -363,7 +367,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -436,8 +440,8 @@ END.
 ON VALUE-CHANGED OF company.co-acc IN FRAME F-Main /* Accounts Company */
 DO:    
   DEF BUFFER bf-company FOR company.
-      
-  
+
+
   IF {&self-name}:SCREEN-VALUE NE "" THEN DO:
     {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
 
@@ -504,7 +508,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL company.spare-char-1 V-table-Win
 ON LEAVE OF company.spare-char-1 IN FRAME F-Main /* Seq. Suffix */
 DO:
- 
+
   IF LASTKEY NE -1 THEN DO:
     RUN valid-seq-suffix (FOCUS) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -525,7 +529,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -586,7 +590,7 @@ PROCEDURE create-controls :
   Notes:       
 ------------------------------------------------------------------------------*/
  IF NOT AVAIL company  THEN RETURN.
- 
+
  find first gl-ctrl where gl-ctrl.company = company.company no-lock no-error.
  if not available gl-ctrl then do:
                 create gl-ctrl. gl-ctrl.company = company.company.
@@ -627,7 +631,7 @@ PROCEDURE create-controls :
                     ce-ctrl.loc     = loc.loc.
          end.
  end.
- 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -688,10 +692,10 @@ PROCEDURE enable-company :
          VIEW-AS ALERT-BOX WARNING.
      END.
 
-  
+
 
   RUN enable-co-acc.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -703,7 +707,7 @@ PROCEDURE local-assign-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DEF BUFFER bf-account FOR account.
   DEF BUFFER bf-company FOR company.
   DEFINE VARIABLE iNextSuffix AS INTEGER     NO-UNDO.
@@ -715,7 +719,7 @@ PROCEDURE local-assign-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   SESSION:SET-WAIT-STATE ("general").
-      
+
   DISABLE {&LIST-5} WITH FRAME {&FRAME-NAME}.
 
   IF adm-new-record THEN DO: 
@@ -730,7 +734,7 @@ PROCEDURE local-assign-record :
         IF INTEGER(bf-company.spare-char-1) GT iNextSuffix THEN
           iNextSuffix = INTEGER(bf-company.spare-char-1).
       END.
-      
+
       iNextSuffix = iNextSuffix + 1.
       company.spare-char-1 = STRING((IF iCompCnt EQ 1 THEN 0 ELSE iNextSuffix), "99").
     END.
@@ -775,7 +779,7 @@ PROCEDURE local-display-fields :
     IF AVAIL currency THEN c-desc:SCREEN-VALUE = currency.c-desc.
 
     lv-prev-co-acc = company.co-acc:SCREEN-VALUE.
-  
+
     FIND FIRST period WHERE period.company = company.company AND
                             period.pstat NO-LOCK NO-ERROR.
     IF AVAIL period THEN ASSIGN lv-first-year = period.yr
@@ -874,7 +878,7 @@ PROCEDURE valid-co-acc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DEF BUFFER bf-company FOR company.
 
 

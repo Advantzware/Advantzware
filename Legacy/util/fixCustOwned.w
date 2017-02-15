@@ -169,9 +169,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -190,7 +200,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -227,6 +237,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
     apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -250,14 +261,15 @@ DO:
     RETURN NO-APPLY.
   END.
 
-   
+
   MESSAGE "Are you sure you want to zero out customer owned bins from "
           begin_i-no " to " end_i-no
           " for the selected parameters" + "?"
       VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
       UPDATE ll.
-        
+
   IF ll THEN RUN run-process.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -277,8 +289,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -387,7 +401,7 @@ FOR EACH bf-itemfg
           BY bf-fg-bin.bol-no
           BY bf-fg-bin.inv-no
           BY bf-fg-bin.po-no:
-    
+
     IF FIRST-OF(bf-fg-bin.po-no) THEN 
       liQty = 0.
 
@@ -401,10 +415,10 @@ FOR EACH bf-itemfg
         x = fg-rctd.r-no.
         LEAVE.
       END.
-      
+
       FIND LAST fg-rcpth USE-INDEX r-no NO-LOCK NO-ERROR.
       IF AVAIL fg-rcpth AND fg-rcpth.r-no GT x THEN x = fg-rcpth.r-no.             
-      
+
 
       /* Create new Count record to be posted */
       CREATE fg-rctd.
@@ -428,9 +442,9 @@ FOR EACH bf-itemfg
        fg-rctd.tag        = bf-fg-bin.tag
        fg-rctd.cust-no    = bf-fg-bin.cust-no
        fg-rctd.po-no = TRIM(STRING(bf-fg-bin.po-no,">>>>>>>>>>")).
-       
 
-       begin_userid = USERID("ASI").
+
+       begin_userid = USERID("NOSWEAT").
        END_userid   = begin_userid.
 
        {fg/fg-cpost.i}
@@ -444,9 +458,9 @@ END. /* each bf-itemfg */
 SESSION:SET-WAIT-STATE("").
 
 MESSAGE TRIM(c-win:TITLE) + " Process Complete..." VIEW-AS ALERT-BOX.
-    
 
-  
+
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

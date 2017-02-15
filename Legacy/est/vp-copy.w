@@ -1,11 +1,15 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
   File: est\vp-copy.w
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -163,7 +167,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -193,7 +197,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -262,26 +266,26 @@ PROCEDURE enable-copy :
   DEFINE VARIABLE access-close AS LOGICAL NO-UNDO.
 
   DEF VAR v-can-update AS LOG NO-UNDO.
-  
+
   v-prgmname = "p-rfqsiz.".
-  
+
   FIND b-prgrms WHERE b-prgrms.prgmname = v-prgmname NO-LOCK NO-ERROR.
   IF AVAILABLE b-prgrms THEN
   DO:
      DO num-groups = 1 TO NUM-ENTRIES(g_groups):
         IF NOT CAN-DO(b-prgrms.can_update,ENTRY(num-groups,g_groups)) THEN
            NEXT.
-    
+
         IF NOT v-can-update AND CAN-DO(b-prgrms.can_update,ENTRY(num-groups,g_groups)) THEN
            v-can-update = YES.
-        
+
         group-ok = yes.
      END.
-     IF NOT CAN-DO(b-prgrms.can_update,USERID("ASI")) AND
+     IF NOT CAN-DO(b-prgrms.can_update,USERID("NOSWEAT")) AND
         NOT group-ok THEN
         access-close = YES.  /* used later in methods/template/windows.i - local-initialize procedure */
      ELSE 
-        IF NOT v-can-update AND CAN-DO(b-prgrms.can_update,USERID("ASI")) THEN
+        IF NOT v-can-update AND CAN-DO(b-prgrms.can_update,USERID("NOSWEAT")) THEN
            v-can-update = YES.
   END. 
   ELSE
@@ -291,7 +295,7 @@ PROCEDURE enable-copy :
      ENABLE btn-copy  WITH FRAME {&FRAME-NAME}.
   ELSE
      DISABLE btn-copy WITH FRAME {&FRAME-NAME}.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

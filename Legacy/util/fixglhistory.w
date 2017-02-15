@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi          PROGRESS
+          nosweat          PROGRESS
 */
 &Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
@@ -167,9 +167,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -203,7 +213,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-gltrans.
 */  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -308,6 +318,7 @@ DO:
 
       OPEN QUERY browse-1 FOR EACH tt-gltrans.
    END.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -328,8 +339,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -341,7 +354,7 @@ ON 'leave':U OF tt-gltrans.tr-amt DO:
     IF AVAIL tt-gltrans AND
        DEC(tt-gltrans.tr-amt:SCREEN-VALUE IN BROWSE {&browse-name}) NE
        tt-gltrans.tr-amt THEN DO:
-        
+
        IF tt-gltrans.gltrans-flag THEN
        DO:
           FIND FIRST gltrans WHERE
@@ -349,7 +362,7 @@ ON 'leave':U OF tt-gltrans.tr-amt DO:
                EXCLUSIVE-LOCK.
 
           gltrans.tr-amt = DEC(tt-gltrans.tr-amt:SCREEN-VALUE IN BROWSE {&browse-name}).
-               
+
           FIND CURRENT gltrans NO-LOCK.
        END.
        ELSE
@@ -359,11 +372,11 @@ ON 'leave':U OF tt-gltrans.tr-amt DO:
                EXCLUSIVE-LOCK.
 
           glhist.tr-amt = DEC(tt-gltrans.tr-amt:SCREEN-VALUE IN BROWSE {&browse-name}).
-               
+
           FIND CURRENT glhist NO-LOCK.
        END.
     END.
-    
+
   END.
 END.
 

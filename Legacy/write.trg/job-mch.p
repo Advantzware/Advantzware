@@ -143,7 +143,7 @@ FIND FIRST b-job WHERE
      EXCLUSIVE-LOCK NO-ERROR.
 
 IF AVAIL b-job THEN
-   b-job.user-id = USERID("ASI").
+   b-job.user-id = USERID("NOSWEAT").
 
 /* Clear out any error-status from find with no-error that is false */
 DEF VAR ll-error AS LOG NO-UNDO.

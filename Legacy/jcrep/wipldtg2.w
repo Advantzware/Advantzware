@@ -5,7 +5,7 @@
 /*------------------------------------------------------------------------
 
   /*ESP 2/28/11 - Not needed anymore*/
-  
+
   File: jcrep/wipldtg2.w
 
   Description: WIP Tag Creation
@@ -377,9 +377,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -475,7 +485,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -554,7 +564,7 @@ END.
 ON LEAVE OF begin_mach IN FRAME FRAME-A /* First Machine */
 DO:
    DO WITH FRAME {&FRAME-NAME}:
-   
+
       ASSIGN begin_mach.
 
       IF begin_mach NE "" AND
@@ -580,6 +590,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -591,6 +602,7 @@ END.
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   RUN ok-button.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -606,13 +618,13 @@ DO:
    DO WITH FRAME {&FRAME-NAME}:
 
       ASSIGN fi_oh-lf.
-     
+
       FIND FIRST job WHERE
            job.company EQ cocode AND
            job.job-no EQ loadtag.job-no AND
            job.job-no2 EQ loadtag.job-no2
            NO-LOCK NO-ERROR.
-      
+
       IF AVAIL job THEN
       DO:
          FIND FIRST job-mat WHERE
@@ -622,7 +634,7 @@ DO:
               job-mat.job-no2 EQ job.job-no2 AND
               job-mat.i-no EQ loadtag.i-no
               NO-LOCK NO-ERROR.
-     
+
          IF AVAIL job-mat THEN
          DO:
             IF job-mat.len NE 0 THEN
@@ -631,12 +643,12 @@ DO:
             {sys\inc\roundup.i v-exp-sheets}
 
             fi_exp-sheets-roll:SCREEN-VALUE = STRING(v-exp-sheets).
-     
+
             RELEASE job-mat.
 
             APPLY "LEAVE" TO fi_pallet_height IN FRAME {&FRAME-NAME}.
          END.
-     
+
          RELEASE job.
       END.
   END.
@@ -653,37 +665,37 @@ DO:
    DEF VAR v-wip-tags AS DEC NO-UNDO.
 
    DO WITH FRAME {&FRAME-NAME}:
-  
+
       ASSIGN
          fi_pallet_height
          begin_rm-i-no
          fi_exp-sheets-roll.
-     
+
       FIND FIRST ITEM WHERE
            ITEM.company EQ cocode AND
            ITEM.i-no EQ begin_rm-i-no
            NO-LOCK NO-ERROR.
-     
+
       IF AVAIL ITEM AND fi_pallet_height > 0 THEN
       DO:
          IF ITEM.cal NE 0 THEN
             fi_sheets-pallet:SCREEN-VALUE = STRING((fi_pallet_height - 5) / ITEM.cal).
          ELSE
             fi_sheets-pallet:SCREEN-VALUE = "0".
-     
+
          ASSIGN fi_sheets-pallet.
 
          IF fi_sheets-pallet NE 0 THEN
          DO:
             v-wip-tags = fi_exp-sheets-roll / fi_sheets-pallet.
-     
+
             {sys/inc/roundup.i v-wip-tags}
-     
+
             fi_total-wip-tags:SCREEN-VALUE = STRING(v-wip-tags).
          END.
          ELSE
             fi_total-wip-tags:SCREEN-VALUE = "0".
-     
+
          RELEASE ITEM.
       END.
    END.
@@ -752,9 +764,9 @@ DO:
       IF fi_sheets-pallet NE 0 THEN
       DO:
          v-wip-tags = fi_exp-sheets-roll / fi_sheets-pallet.
-     
+
          {sys/inc/roundup.i v-wip-tags}
-      
+
          fi_total-wip-tags:SCREEN-VALUE = STRING(v-wip-tags).
       END.
       ELSE
@@ -821,10 +833,10 @@ END.
 ON LEAVE OF fi_wip-bin IN FRAME FRAME-A /* WIP Bin */
 DO:
    DO WITH FRAME {&FRAME-NAME}:
-   
+
       ASSIGN
          fi_wip-whs fi_wip-bin.
-     
+
       IF fi_wip-bin NE "" THEN
       DO:
          IF NOT CAN-FIND(FIRST wip-bin WHERE
@@ -865,7 +877,7 @@ END.
 ON LEAVE OF fi_wip-whs IN FRAME FRAME-A /* WIP Whs */
 DO:
    DO WITH FRAME {&FRAME-NAME}:
-   
+
    ASSIGN fi_wip-whs.
 
    IF fi_wip-whs NE "" AND
@@ -1027,8 +1039,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -1040,7 +1054,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
 /* security check need {methods/prgsecur.i} in definition section */
-  
+
   IF access-close THEN DO:
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
@@ -1094,7 +1108,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     v-mult = sys-ctrl.int-fld
     v-calc = sys-ctrl.log-fld.
   IF v-mult LE 0 THEN v-mult = 1.
-  
+
   FIND FIRST sys-ctrl NO-LOCK
   WHERE sys-ctrl.company EQ gcompany
     AND sys-ctrl.name    EQ "RMWHSBIN" NO-ERROR.
@@ -1146,6 +1160,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     END.
   END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1168,7 +1183,7 @@ PROCEDURE create-w-job :
 
   DEF VAR v-time AS INT NO-UNDO.
   DEF VAR v-date AS DATE NO-UNDO.
-  
+
   IF tg_wip-reported AND fi_tag-date NE ? THEN
   DO:
      IF fi_tag-ampm = "AM" THEN
@@ -1178,7 +1193,7 @@ PROCEDURE create-w-job :
   END.
   ELSE
      v-time = TIME.
-  
+
   CREATE w-job.
   ASSIGN
     v-date = IF tg_wip-reported AND fi_tag-date NE ? THEN fi_tag-date ELSE TODAY
@@ -1295,7 +1310,7 @@ PROCEDURE create-w-job :
   ASSIGN
      iop-total-wip-tags = iop-total-wip-tags - w-job.total-tags
      iop-sheets-tag = iop-sheets-tag - (w-job.total-tags * w-job.tag-qty).
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1310,7 +1325,7 @@ PROCEDURE create-wiptag :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ipTagNo AS INT NO-UNDO.
   DEF INPUT PARAM ipQty AS INT NO-UNDO.
-  
+
   DEF VAR i AS INT NO-UNDO.
   DEF VAR tagNo AS CHAR NO-UNDO.
   DEF VAR ld AS DEC NO-UNDO.
@@ -1347,8 +1362,8 @@ PROCEDURE create-wiptag :
    wiptag.sts          = "Printed"
    wiptag.tag-date     = w-job.tag-date
    wiptag.tag-time     = (INT(SUBSTRING(w-job.tag-timex,1,2)) * 3600) + (INT(SUBSTRING(w-job.tag-timex,4)) * 60)
-   wiptag.crt-user     = USERID("ASI")
-   wiptag.upd-user     = USERID("ASI")
+   wiptag.crt-user     = USERID("NOSWEAT")
+   wiptag.upd-user     = USERID("NOSWEAT")
    wiptag.crt-time     = w-job.upd-time
    wiptag.upd-time     = w-job.upd-time
    wiptag.crt-date     = w-job.upd-date
@@ -1380,7 +1395,7 @@ PROCEDURE create-wiptag :
           wiptag-mch.tag-no  EQ wiptag.tag-no
           USE-INDEX seq-no
           NO-ERROR.
-  
+
      IF NOT AVAIL wiptag-mch THEN
      DO:
         CREATE wiptag-mch.
@@ -1495,7 +1510,7 @@ PROCEDURE ok-button :
               APPLY "ENTRY" TO begin_mach.
               RETURN ERROR.
            END.
-        
+
         IF fi_wip-whs NE "" AND
            NOT CAN-FIND(FIRST loc WHERE
            loc.company EQ cocode AND
@@ -1535,12 +1550,12 @@ PROCEDURE ok-button :
            RETURN ERROR.
         END.
      END.
-  
+
      IF reprintTag THEN DO:
         IF NOT CAN-FIND(FIRST wiptag WHERE
            wiptag.company EQ cocode AND
            wiptag.tag-no EQ reprintwiptagno) THEN DO:
-           
+
            MESSAGE 'Invalid WIP Tag, Please Try Again ...' VIEW-AS ALERT-BOX ERROR.
            APPLY 'ENTRY':U TO reprintwiptagno.
         END.
@@ -1587,7 +1602,7 @@ PROCEDURE outputTagLine :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ipQty AS INTEGER NO-UNDO.
-  
+
   PUT UNFORMATTED
     '"'   removeChars(w-job.tag-no)
     '","' removeChars(w-job.cust-no)
@@ -1621,7 +1636,7 @@ PROCEDURE outputTagLine :
     '","' removeChars(w-job.wip-bin)
     '","' removeChars(w-job.first-mach-code)
     '"' SKIP.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1635,7 +1650,7 @@ PROCEDURE replace-job-mat :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE INPUT PARAMETER ip-form-no AS INT NO-UNDO.
-   
+
    DEF VAR ld-job-up AS DEC NO-UNDO.
    DEF VAR ld-job-qty LIKE job-hdr.qty NO-UNDO.
    DEF VAR count-mat AS INT NO-UNDO.
@@ -1670,12 +1685,12 @@ PROCEDURE replace-job-mat :
       ASSIGN
        fil_id    = ?
        ll-layout = CAN-DO("1,2,3,4,B,P,R",item.mat-type).
-     
+
       FIND job-mat WHERE ROWID(job-mat) EQ tt-s-num.row-id NO-LOCK NO-ERROR.
-     
+
       IF NOT AVAIL job-mat THEN DO:
         EMPTY TEMP-TABLE item-chg.
-     
+
         FOR EACH job-mat FIELDS(company rm-i-no)
             WHERE job-mat.company  EQ job.company
               AND job-mat.job      EQ job.job
@@ -1683,13 +1698,13 @@ PROCEDURE replace-job-mat :
               AND job-mat.job-no2  EQ job.job-no2
               AND job-mat.frm      EQ tt-s-num.s-num
             NO-LOCK,
-     
+
             FIRST xitem FIELDS(i-no)
             WHERE xitem.company  EQ job-mat.company
               AND xitem.i-no     EQ job-mat.rm-i-no
               AND xitem.mat-type EQ item.mat-type
             NO-LOCK:
-     
+
           count-mat = count-mat + 1.
           CREATE item-chg.
           ASSIGN
@@ -1697,15 +1712,15 @@ PROCEDURE replace-job-mat :
            item-chg.rec-id = RECID(job-mat)
            fil_id          = RECID(item-chg).    
         END.
-     
+
         IF count-mat GT 1 THEN RUN rm/g-itmchg.w.
-     
+
         FIND FIRST item-chg WHERE RECID(item-chg) EQ fil_id NO-LOCK NO-ERROR.
-     
+
         fil_id = ?.
-     
+
         RELEASE job-mat.
-     
+
         IF AVAIL item-chg THEN
         FIND job-mat WHERE RECID(job-mat) EQ item-chg.rec-id NO-ERROR.
       END. /*IF NOT AVAIL job-mat*/
@@ -1759,7 +1774,7 @@ PROCEDURE replace-job-mat :
 
         IF ll-layout THEN DO:
           RUN rm/g-iss2.w (lv-sheet, lv-blank, INPUT-OUTPUT v-out). 
-                 
+
           IF AVAIL job-mat THEN DO:
             IF item.i-code EQ "R" THEN DO:
               IF (item.r-wid NE 0 AND item.r-wid LT job-mat.wid) OR
@@ -1773,7 +1788,7 @@ PROCEDURE replace-job-mat :
                 ELSE
                   RUN rm/g-iss21.w (item.s-len, job-mat.len, item.s-wid,job-mat.wid, job-mat.frm,
                                     OUTPUT choice).
-                
+
                 IF NOT choice THEN DELETE tt-job-mat.
               END.
             END.
@@ -1828,9 +1843,9 @@ PROCEDURE replace-job-mat :
                                  item.s-dep,
                                  tt-job-mat.std-cost,
                                  OUTPUT v-cost).
-                                           
+
         v-cost = v-cost * tt-job-mat.qty.                       
-                    
+
         IF tt-job-mat.n-up LE 0 THEN tt-job-mat.n-up = 1.
         IF ld-job-up LE 0 THEN ld-job-up = 1.
         IF v-out LE 0 THEN v-out = 1.
@@ -1851,11 +1866,11 @@ PROCEDURE replace-job-mat :
                                 item.r-wid ELSE item.s-wid
            tt-job-mat.len     = IF item.r-wid NE 0 THEN
                                 tt-job-mat.len ELSE item.s-len.
-                     
+
         IF tt-job-mat.qty-uom EQ "EA" THEN DO:
           {sys/inc/roundup.i tt-job-mat.qty}
         END.
-                
+
         v-cost = v-cost / tt-job-mat.qty.
         IF v-cost = ? THEN v-cost = 0.
 
@@ -1882,7 +1897,7 @@ PROCEDURE replace-job-mat :
       IF AVAIL tt-job-mat THEN
          fil_id = RECID(tt-job-mat).
 
-     
+
 
    END. /*avail job and avail item*/
 END PROCEDURE.
@@ -1965,18 +1980,18 @@ PROCEDURE reprintTag :
   IF AVAIL w-job THEN
   DO:
      RUN jcrep/d-wiptg.w.
-     
+
      IF CAN-FIND(FIRST w-job) THEN
      DO:
         MESSAGE "Are you Sure you Want to Reprint WIP Tag File? " 
            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE choice.
-        
+
         IF NOT choice THEN
            LEAVE.
-       
+
         w-job.total-tags = IF AVAILABLE cust AND cust.int-field[1] GT 0 THEN cust.int-field[1]
                            ELSE IF v-mult GT 0 THEN v-mult ELSE 1.
-       
+
         ERROR-STATUS:ERROR = NO.
         RUN setOutputFile.
         IF ERROR-STATUS:ERROR THEN RETURN.
@@ -1986,13 +2001,13 @@ PROCEDURE reprintTag :
           RUN outputTagLine (w-job.tag-qty).
         END.
         OUTPUT CLOSE.
-       
+
         FIND CURRENT wiptag EXCLUSIVE-LOCK NO-ERROR.
-       
+
         ASSIGN
            wiptag.upd-date = TODAY
            wiptag.upd-time = TIME
-           wiptag.upd-user = USERID("ASI")
+           wiptag.upd-user = USERID("NOSWEAT")
            wiptag.tag-date = w-job.tag-date
            wiptag.tag-time = (INT(SUBSTRING(w-job.tag-timex,1,2)) * 3600) + (INT(SUBSTRING(w-job.tag-timex,4)) * 60)
            wiptag.partial  = w-job.partial
@@ -2029,7 +2044,7 @@ PROCEDURE reprintTag :
                 wiptag-mch.tag-no  EQ wiptag.tag-no
                 USE-INDEX seq-no
                 NO-ERROR.
-        
+
            IF NOT AVAIL wiptag-mch THEN
            DO:
               CREATE wiptag-mch.
@@ -2037,16 +2052,16 @@ PROCEDURE reprintTag :
                      wiptag-mch.tag-no  = wiptag.tag-no
                      wiptag-mch.seq-no  = 1.
            END.
-           
+
            ASSIGN
               wiptag-mch.m-code  = w-job.first-mach-code
               wiptag-mch.produced-qty = wiptag.pallet-count.
-           
+
            RELEASE wiptag-mch.
         END.
 
         RELEASE wiptag.
-       
+
         MESSAGE 'WIP Tag Reprint Complete.' VIEW-AS ALERT-BOX.
         APPLY 'ENTRY':U TO reprintwiptagno IN FRAME {&FRAME-NAME}.
      END.
@@ -2054,7 +2069,7 @@ PROCEDURE reprintTag :
   ELSE
      MESSAGE "Job Material On Tag Not Found."
          VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2073,7 +2088,7 @@ PROCEDURE run-report :
   DEF VAR ll AS LOG NO-UNDO.
   DEF VAR li AS INT NO-UNDO.
   DEF VAR choice AS LOG NO-UNDO.
-  
+
   DEF BUFFER b-item FOR item.
   DEF BUFFER b-w-job FOR w-job.
   DEF VAR lv-tag-no AS INT NO-UNDO.
@@ -2086,7 +2101,7 @@ PROCEDURE run-report :
   DEF VAR lv-blank-no AS INT NO-UNDO.
 
   SESSION:SET-WAIT-STATE ("general").
-  
+
   EMPTY TEMP-TABLE tt-tag.
   EMPTY TEMP-TABLE w-job.
   EMPTY TEMP-TABLE tt-job-mat.
@@ -2094,7 +2109,7 @@ PROCEDURE run-report :
   IF begin_job NE '' THEN
   DO:
      DO v-form-index = begin_job_form TO end_job_form:
-     
+
         IF NOT CAN-FIND(FIRST job-mat WHERE
            job-mat.company = job.company AND
            job-mat.job = job.job AND
@@ -2106,7 +2121,7 @@ PROCEDURE run-report :
               MESSAGE "Update item" loadtag.i-no "on Job file?"
                  VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
                  UPDATE ll-new-mat.
-          
+
               IF ll-new-mat THEN
               DO:
                  RUN replace-job-mat(INPUT v-form-index).
@@ -2118,7 +2133,7 @@ PROCEDURE run-report :
 
                  IF AVAIL tt-job-mat THEN
                     lv-blank-no = tt-job-mat.blank-no.
-                 
+
                  RELEASE job-mat.
 
                  FOR EACH tt-job-mat:
@@ -2127,13 +2142,13 @@ PROCEDURE run-report :
                             ROWID(job-mat)  EQ tt-job-mat.row-id AND
                             job-mat.j-no    EQ 0
                             NO-ERROR.
-                    
+
                        ll = AVAIL job-mat.
-                    
+
                        IF ll THEN RUN jc/maydeletejob-mat.p (BUFFER job-mat, OUTPUT ll).
-                    
+
                        IF ll NE YES THEN CREATE job-mat.
-                    
+
                        BUFFER-COPY tt-job-mat EXCEPT rec_key TO job-mat
                        ASSIGN
                         job-mat.blank-no = lv-blank-no
@@ -2151,7 +2166,7 @@ PROCEDURE run-report :
         lv-job-no = FILL(" ",6 - LENGTH(TRIM(begin_job))) + TRIM(begin_job)
         v-sheets-tag = fi_exp-sheets-roll
         v-total-wip-tags = fi_total-wip-tags.        
-     
+
      FOR EACH job-mat WHERE
          job-mat.company EQ cocode AND
          job-mat.job-no EQ lv-job-no AND
@@ -2217,21 +2232,21 @@ PROCEDURE run-report :
   IF NOT choice THEN RETURN ERROR.
 
   SESSION:SET-WAIT-STATE ("general").
-  
+
   {sys/inc/print1.i}
 
   {sys/inc/outprint.i value(lines-per-page)} 
 
   VIEW FRAME r-top.
   VIEW FRAME top.
-  
+
   RUN setOutputFile.
-  
+
   OUTPUT TO VALUE(v-out).
   RUN outputTagHeader.
 
   FOR EACH w-job EXCLUSIVE-LOCK:
-    
+
     IF tb_16ths THEN
        ASSIGN
           w-job.len = ROUND((w-job.len - TRUNC(w-job.len,0)) / 6.25,2) + TRUNC(w-job.len,0)
@@ -2291,7 +2306,7 @@ PROCEDURE setOutputFile :
   END.
 
   v-out = sys-ctrl.descrip.
-  
+
   IF v-out = "" THEN v-out = "c:~\ba~\label~\wiptag.txt".
   ELSE DO:
      IF SUBSTRING(v-out,LENGTH(v-out),1) = "/" OR
@@ -2318,7 +2333,7 @@ PROCEDURE temp-create :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
-  
+
   CREATE w-file.
   w-file.w-key = ip-rowid.
 
@@ -2370,7 +2385,7 @@ PROCEDURE validBeginJob :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    
+
     DEF VAR v-min-blank AS INT INIT -1 NO-UNDO.
     DEF VAR v-min-form AS INT INIT -1 NO-UNDO.
     DEF VAR v-max-blank AS INT INIT 99 NO-UNDO.
@@ -2390,7 +2405,7 @@ PROCEDURE validBeginJob :
               job.job-no EQ begin_job AND
               job.job-no2 EQ begin_job2
               NO-LOCK NO-ERROR.
-        
+
          IF AVAIL job THEN DO:
             ASSIGN v-mat-length = 0.
             FOR EACH job-mat FIELDS(blank-no frm len) WHERE
@@ -2399,7 +2414,7 @@ PROCEDURE validBeginJob :
                 job-mat.job-no EQ job.job-no AND
                 job-mat.job-no2 EQ job.job-no2
                 NO-LOCK:
-           
+
                 IF v-min-blank EQ -1 THEN
                    ASSIGN
                       v-min-blank = job-mat.blank-no
@@ -2409,13 +2424,13 @@ PROCEDURE validBeginJob :
                 ELSE DO:
                    IF job-mat.blank-no LT v-min-blank THEN
                       v-min-blank = job-mat.blank-no.
-        
+
                    IF job-mat.frm LT v-min-form THEN
                       v-min-form = job-mat.frm.
-        
+
                    IF job-mat.blank-no GT v-max-blank THEN
                       v-max-blank = job-mat.blank-no.
-        
+
                    IF job-mat.frm GT v-max-form THEN
                       v-max-form = job-mat.frm.
                 END. /* else */
@@ -2427,7 +2442,7 @@ PROCEDURE validBeginJob :
             {sys\inc\roundup.i v-exp-sheets}
             fi_exp-sheets-roll:SCREEN-VALUE = STRING(v-exp-sheets).
          END. /* if avail job */
-        
+
         IF v-min-blank NE -1 THEN
            ASSIGN
               begin_job_blank:SCREEN-VALUE = STRING(v-min-blank)
@@ -2452,7 +2467,7 @@ PROCEDURE validRMLoadTag :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER op-error AS LOG NO-UNDO.
-    
+
     DEF VAR v-min-blank AS INT INIT -1 NO-UNDO.
     DEF VAR v-min-form AS INT INIT -1 NO-UNDO.
     DEF VAR v-max-blank AS INT INIT 99 NO-UNDO.
@@ -2464,7 +2479,7 @@ PROCEDURE validRMLoadTag :
        v-log = SESSION:SET-WAIT-STATE("GENERAL").
 
        ASSIGN fi_rmtagno.
-      
+
        IF CAN-FIND(FIRST wiptag WHERE
           wiptag.company EQ cocode AND
           wiptag.rm-tag-no EQ fi_rmtagno) THEN DO:
@@ -2481,7 +2496,7 @@ PROCEDURE validRMLoadTag :
             loadtag.tag-no EQ fi_rmtagno
             USE-INDEX tag
             NO-LOCK NO-ERROR.
-      
+
        IF NOT AVAIL loadtag THEN DO:
           MESSAGE 'Invalid RM Loadtag, Please Try Again ...' VIEW-AS ALERT-BOX ERROR.
           APPLY 'ENTRY':U TO fi_rmtagno.
@@ -2505,7 +2520,7 @@ PROCEDURE validRMLoadTag :
 
           DISPLAY fi_oh-lf fi_pallet_height fi_exp-sheets-roll
                   fi_sheets-pallet WITH FRAME {&FRAME-NAME}.
-                  
+
           FIND FIRST rm-bin WHERE
                rm-bin.company EQ cocode AND
                rm-bin.i-no EQ loadtag.i-no AND
@@ -2528,7 +2543,7 @@ PROCEDURE validRMLoadTag :
                   job.job-no EQ loadtag.job-no AND
                   job.job-no2 EQ loadtag.job-no2
                   NO-LOCK NO-ERROR.
-            
+
              IF AVAIL job THEN
              DO:
                 FOR EACH job-mat FIELDS(blank-no frm) WHERE
@@ -2537,7 +2552,7 @@ PROCEDURE validRMLoadTag :
                     job-mat.job-no EQ job.job-no AND
                     job-mat.job-no2 EQ job.job-no2
                     NO-LOCK:
-               
+
                     IF v-min-blank EQ -1 THEN
                        ASSIGN
                           v-min-blank = job-mat.blank-no
@@ -2548,18 +2563,18 @@ PROCEDURE validRMLoadTag :
                     DO:
                        IF job-mat.blank-no LT v-min-blank THEN
                           v-min-blank = job-mat.blank-no.
-            
+
                        IF job-mat.frm LT v-min-form THEN
                           v-min-form = job-mat.frm.
-            
+
                        IF job-mat.blank-no GT v-max-blank THEN
                           v-max-blank = job-mat.blank-no.
-            
+
                        IF job-mat.frm GT v-max-form THEN
                           v-max-form = job-mat.frm.
                     END.
                 END.
-            
+
                 IF v-min-blank NE -1 THEN
                    ASSIGN
                       begin_job_blank:SCREEN-VALUE = STRING(v-min-blank)
@@ -2587,14 +2602,14 @@ PROCEDURE validWIPTag :
   DEF OUTPUT PARAMETER op-error AS LOG NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
-     
+
      ASSIGN reprintwiptagno.
-    
+
      FIND FIRST wiptag WHERE
           wiptag.company EQ cocode AND
           wiptag.tag-no EQ reprintwiptagno
           NO-LOCK NO-ERROR.
-    
+
      IF NOT AVAIL wiptag THEN DO:
         op-error = YES.
         MESSAGE 'Invalid WIP Tag, Please Try Again ...' VIEW-AS ALERT-BOX ERROR.
@@ -2624,7 +2639,7 @@ PROCEDURE validWIPTag :
 
         RELEASE wiptag.
      END.
-     
+
   END.
 
 END PROCEDURE.
@@ -2642,7 +2657,7 @@ PROCEDURE wip-reported-proc :
    DEF VAR v-time AS INT NO-UNDO.
 
    DO WITH FRAME {&FRAME-NAME}:
-   
+
       ASSIGN
          v-time = TIME
          fi_tag-date:SCREEN-VALUE = STRING(TODAY)
@@ -2660,7 +2675,7 @@ PROCEDURE wip-reported-proc :
               job.job-no EQ begin_job:SCREEN-VALUE AND
               job.job-no2 EQ INT(begin_job2:SCREEN-VALUE)
               NO-LOCK NO-ERROR.
-        
+
          IF AVAIL job THEN
             FIND FIRST job-mch WHERE
                  job-mch.company = job.company AND

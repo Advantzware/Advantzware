@@ -1,6 +1,10 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*********************************************************************
 * Copyright (C) 2000 by Progress Software Corporation. All rights    *
@@ -181,7 +185,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -197,7 +201,7 @@ DO:
 
     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) 
       THEN RUN security IN WIDGET-HANDLE(char-hdl).
-    
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -295,7 +299,7 @@ ASSIGN
 
         ASSIGN Btn-Update:SENSITIVE IN FRAME {&FRAME-NAME} = FALSE.
 
-   
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -314,7 +318,7 @@ IF Btn-Update:LABEL IN FRAME {&FRAME-NAME}= "&Hold"
   THEN
     ASSIGN
       Btn-Update:LABEL = "&Release".
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

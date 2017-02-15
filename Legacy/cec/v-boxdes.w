@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -285,7 +289,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -297,7 +301,17 @@ ON HELP OF box-design-hdr.box-image IN FRAME F-Main /* Image File */
 DO:
    def var ls-filename as cha no-undo.
    def var ll-ok as log no-undo.
-   
+   DEF VAR cInitDir AS CHARACTER NO-UNDO.
+   DEF VAR llInitDir AS CHARACTER NO-UNDO.
+
+   RUN sys/ref/nk1look.p (g_company, "DefaultDir", "C", no, no, "", "", 
+                          Output cInitDir, output llInitDir).
+   IF cInitDir NE "" THEN
+       ASSIGN
+       FILE-INFO:FILE-NAME = cInitDir
+      cInitDir = FILE-INFO:FULL-PATHNAME .
+   IF cInitDir = ? THEN cInitDir = "" .
+
      system-dialog get-file ls-filename 
                  title "Select Image File to insert"
                  filters "JPG Files    (*.jpg)" "*.jpg",
@@ -305,13 +319,13 @@ DO:
                          "JPEG Files   (*.jpeg)" "*.jpeg",
                          "TIF Files    (*.tif)" "*.tif",
                          "All Files    (*.*) " "*.*"
-                 initial-dir "boximage\"
+                 initial-dir cInitDir
                  MUST-EXIST
                  USE-FILENAME
                  UPDATE ll-ok.
-      
+
     IF ll-ok THEN self:screen-value = ls-filename.
-    
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -340,7 +354,7 @@ ON CHOOSE OF btn_right IN FRAME F-Main
 DO:
   /* v-score-more = NOT v-score-more.
    IF v-score-more THEN   DO: 
-  
+
       /*APPLY KEYCODE('end') TO box-design-hdr.lscore.*/
       box-design-hdr.lscore:SCREEN-VALUE = SUBSTRING(box-design-hdr.lscore,51,80).
       box-design-hdr.lcum-score:SCREEN-VALUE = SUBSTRING(box-design-hdr.lcum-score,51,80).
@@ -369,16 +383,16 @@ ON CURSOR-LEFT OF box-design-hdr.lscore IN FRAME F-Main /* Length!Score */
 DO:
     IF SELF:CURSOR-OFFSET <= 20 THEN 
        box-design-hdr.lcum-score:SCREEN-VALUE = SUBSTRING(box-design-hdr.lcum-score,1,80).
-      
+
     ELSE IF SELF:CURSOR-OFFSET <= 40 THEN
        box-design-hdr.lcum-score:SCREEN-VALUE = SUBSTRING(box-design-hdr.lcum-score,21,80).
-    
+
     ELSE IF SELF:CURSOR-OFFSET <= 50 THEN
         box-design-hdr.lcum-score:SCREEN-VALUE = SUBSTRING(box-design-hdr.lcum-score,41,80).
-    
+
     ELSE
        box-design-hdr.lcum-score:SCREEN-VALUE = SUBSTRING(box-design-hdr.lcum-score,51,80).
-    
+
     APPLY LASTKEY.
 
     RETURN NO-APPLY.
@@ -393,13 +407,13 @@ ON CURSOR-RIGHT OF box-design-hdr.lscore IN FRAME F-Main /* Length!Score */
 DO:
    IF SELF:CURSOR-OFFSET >= 120 THEN
       box-design-hdr.lcum-score:SCREEN-VALUE = SUBSTRING(box-design-hdr.lcum-score,51,80).
-   
+
    ELSE IF SELF:CURSOR-OFFSET >= 100 THEN
       box-design-hdr.lcum-score:SCREEN-VALUE = SUBSTRING(box-design-hdr.lcum-score,41,80).
-   
+
    ELSE IF SELF:CURSOR-OFFSET >= 80 THEN
       box-design-hdr.lcum-score:SCREEN-VALUE = SUBSTRING(box-design-hdr.lcum-score,21,80).
-   
+
    ELSE  
       box-design-hdr.lcum-score:SCREEN-VALUE = SUBSTRING(box-design-hdr.lcum-score,1,80).
 
@@ -445,7 +459,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -584,7 +598,7 @@ if avail xbox-design-hdr then do:
          assign  box-design-line.wscore     = w-box-design-line.wscore-c
                  box-design-line.wcum-score = w-box-design-line.wcum-score-c.
    end.
- 
+
    if v-rebuild ne "B" then do:
       if v-rebuild eq "S" then
          box-design-hdr.description = w-box-h.description.
@@ -595,7 +609,7 @@ if avail xbox-design-hdr then do:
 
       for each w-box-l of box-design-hdr no-lock,
           first box-design-line of w-box-l:
-      
+
           if v-rebuild eq "S" then
              assign box-design-line.line-no    = w-box-l.line-no
                      box-design-line.line-text  = w-box-l.line-text.
@@ -637,7 +651,7 @@ PROCEDURE build-screen :
          li-col = frame {&frame-name}:column
          li-cnt = 1
          .
-         
+
   for each box-design-line of box-design-hdr where box-design-line.line-text <> ""
                 no-lock by box-design-line.line-no:
       create fill-in lv-wcum-score[li-cnt] 
@@ -669,13 +683,13 @@ PROCEDURE build-screen :
                      message self:name "," {&self-name} view-as alert-box.
                   end.
              end triggers.
-                    
+
       assign li-row = li-row + 1
              li-line-no[li-cnt] = box-design-line.line-no
              li-cnt = li-cnt + 1.       
   end.
   li-cnt = li-cnt - 1.
-  
+
 */  
 
 /* ===== width display =======*/
@@ -683,14 +697,14 @@ PROCEDURE build-screen :
          lv-wcum-score = ""
          li-cnt = 0
          li-line-no = 0.
-  
+
   for each box-design-line of box-design-hdr no-lock by box-design-line.line-no:
       assign lv-wscore = lv-wscore + box-design-line.wscore + chr(13)
              lv-wcum-score = lv-wcum-score + box-design-line.wcum-score + chr(13)
              li-cnt = li-cnt + 1
              li-line-no[li-cnt] = box-design-line.line-no
              .
-             
+
   end.
   /*
   display lv-wscore lv-wcum-score with frame {&frame-name}.
@@ -736,11 +750,11 @@ PROCEDURE local-assign-record :
   def var ls-wscore as cha no-undo.
   def var ls-wcum as cha no-undo.
   def var ls-key as cha no-undo.
-  
+
   def var ls-prev-wscore as cha no-undo.
   def var ls-prev-wcum as cha no-undo.
   DEF VAR ls-box-text LIKE box-design-hdr.box-text NO-UNDO.
-      
+
   DEF BUFFER xbox-design-hdr FOR box-design-hdr.
 
   /* Code placed here will execute PRIOR to standard behavior. */
@@ -756,7 +770,7 @@ PROCEDURE local-assign-record :
      FIND FIRST xbox-design-hdr WHERE
           xbox-design-hdr.design-no EQ lv-old-design-no
           NO-LOCK NO-ERROR.
-    
+
      IF AVAIL xbox-design-hdr THEN
      DO:
         box-design-hdr.box-3d-image = xbox-design-hdr.box-3d-image.
@@ -770,7 +784,7 @@ PROCEDURE local-assign-record :
   assign box-design-hdr.lcum-score = box-design-hdr.lscore
          box-design-hdr.wcum-score = box-design-hdr.wscore
          box-design-hdr.box-text = ls-box-text.
-   
+
   /* with build-screen  */
   assign ls-ws-value = /*lv-wscore:screen-value in frame {&frame-name} when use var */
                          box-design-hdr.wscore
@@ -784,7 +798,7 @@ PROCEDURE local-assign-record :
   FOR EACH box-design-line OF box-design-hdr:
       DELETE box-design-line.
   END.
-         
+
   IF SUBSTRING(ls-ws-value,LENGTH(ls-ws-value),1) NE CHR(13) AND
      SUBSTRING(ls-ws-value,LENGTH(ls-ws-value),1) NE CHR(10) THEN
      ls-ws-value = ls-ws-value + CHR(13).
@@ -813,6 +827,7 @@ PROCEDURE local-assign-record :
   /* == Width total assignment ========*/
   assign li-ln = 1
          ls-wscore = "".
+  ls-wcum-value = ls-wcum-value + CHR(13).
   do i = 1 to length(ls-wcum-value):         
      ls-key = substring(ls-wcum-value,i,1).
      if asc(ls-key) < 17 then do:  /* control key */
@@ -828,7 +843,7 @@ PROCEDURE local-assign-record :
 
 /**/
 
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -841,7 +856,7 @@ PROCEDURE local-copy-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   def buffer xbox-design-hdr for box-design-hdr.
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -857,7 +872,7 @@ PROCEDURE local-copy-record :
   box-design-hdr.design-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(
                                 (if avail xbox-design-hdr
                                 then xbox-design-hdr.design-no + 1  else 1)).
-  
+
 
 END PROCEDURE.
 
@@ -871,7 +886,7 @@ PROCEDURE local-create-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   def buffer xbox-design-hdr for box-design-hdr.
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -902,18 +917,18 @@ PROCEDURE local-delete-record :
          VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE response AS LOGICAL.
    IF NOT response THEN  RETURN "ADM-ERROR":U.
    session:set-wait-state("general").
-   
+
    for each box-design-line of box-design-hdr:
        delete box-design-line.
    end.
-   
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
   session:set-wait-state("").
 /*  run dispatch('display-fields').  */
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -946,14 +961,14 @@ PROCEDURE local-display-fields :
   Notes:       
 ------------------------------------------------------------------------------*/
   def var char-hdl as cha no-undo.
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
- 
+
  /*
   run build-screen .
   run get-link-handle in adm-broker-hdl(this-procedure,"container-source", output char-hdl).  
@@ -965,7 +980,7 @@ PROCEDURE local-display-fields :
             lv-line-text[i]:visible = yes.
   end.
   */
-  
+
    if not avail box-design-hdr and avail eb then do:
      run build-box ("B") .
    end.   
@@ -973,7 +988,7 @@ PROCEDURE local-display-fields :
 
    DEF VAR ll-dummy AS LOG NO-UNDO.
    ll-dummy = box-image-2:load-image("") in frame {&frame-name} no-error.
-  
+
    if box-design-hdr.box-image <> "" then do:
       ASSIGN box-design-hdr.box-text:HIDDEN = YES
              box-image-2:HIDDEN = NO
@@ -981,7 +996,7 @@ PROCEDURE local-display-fields :
      ll-dummy = box-image-2:load-image(box-design-hdr.box-image) in frame {&frame-name}.
      /*assign box-image:height-pixels = box-image:height-pixels - 10
             box-image:width-pixels =  box-image:width-pixels - 10.
-            
+
      */
    end.
    ELSE DO:
@@ -1022,7 +1037,7 @@ PROCEDURE local-update-record :
   def var li-row-num as rowid no-undo.
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -1042,9 +1057,9 @@ PROCEDURE Rebuild-box :
   Notes:       
 ------------------------------------------------------------------------------*/
   def var v-rebuild as cha no-undo.
-  
+
     v-rebuild = "B".  
-   
+
     repeat:
        message "Rebuild 'S'cores, Box 'D'esign, or 'B'oth?" 
            update v-rebuild .
@@ -1078,13 +1093,13 @@ PROCEDURE refresh-boximg :
    DEF VAR ll-dummy AS LOG NO-UNDO.
    FIND CURRENT box-design-hdr NO-LOCK NO-ERROR.
    ll-dummy = box-image:load-image("") in frame {&frame-name} no-error.
-  
+
    if box-design-hdr.box-image <> "" then do:
      /*  box-image:auto-resize = yes. */
      ll-dummy = box-image:load-image(box-design-hdr.box-image) in frame {&frame-name}.
      /*assign box-image:height-pixels = box-image:height-pixels - 10
             box-image:width-pixels =  box-image:width-pixels - 10.
-            
+
      */
    end.
 
@@ -1148,7 +1163,7 @@ PROCEDURE update-image :
    DEF VAR lv-image-file AS cha NO-UNDO.
    DEF VAR tInt As Int No-undo.
 
-   FIND FIRST users WHERE users.USER_id = USERID("ASI") NO-LOCK NO-ERROR.
+   FIND FIRST users WHERE users.USER_id = USERID('nosweat') NO-LOCK NO-ERROR.
    IF AVAIL users AND users.USER_program[1] <> "" /*AND SEARCH(users.USER_program[1]) <> ?*/
                THEN ASSIGN lv-cmd = users.USER_program[1]
                            lv-cmd2 = chr(34) + users.USER_program[1] + CHR(34) .
@@ -1172,7 +1187,7 @@ PROCEDURE update-image :
           ASSIGN
           lv-cmd = lv-cmd + " " + chr(34) + box-design-hdr.box-image:SCREEN-VALUE IN FRAME {&FRAME-NAME} + CHR(34)
           lv-image-file = chr(34) + box-design-hdr.box-image:SCREEN-VALUE IN FRAME {&FRAME-NAME} + CHR(34).
-          
+
           IF lv-cmd2 <> "" THEN
              OS-COMMAND SILENT START VALUE(lv-cmd) /* value(lv-cmd2) value(lv-image-file) */ .          
           ELSE OS-COMMAND silent value(lv-cmd) /*VALUE(trim(lv-quote) + lv-cmd + " " + trim(lv-quote) + box-design-hdr.box-image + trim(lv-quote) + TRIM(lv-quote)) */.

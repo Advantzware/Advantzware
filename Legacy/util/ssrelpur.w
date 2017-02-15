@@ -15,7 +15,7 @@
       <none>
 
   History: New V9 Version - January 15, 1998
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AB.              */
 /*----------------------------------------------------------------------*/
@@ -154,6 +154,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB wWin 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm2/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -175,7 +176,7 @@ THEN wWin:HIDDEN = yes.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -239,11 +240,11 @@ ON HELP OF fiFile IN FRAME fMain /* File */
 DO:
    def var ls-filename as cha no-undo.
    def var ll-ok as log no-undo.
-   
+
    system-dialog GET-DIR ls-filename 
                  title "Select Directory to insert"
                  UPDATE ll-ok.
-      
+
     IF ll-ok THEN self:screen-value = ls-filename.
 END.
 
@@ -267,11 +268,11 @@ ON HELP OF ls-proc IN FRAME fMain /* Save to Folder */
 DO:
    def var ls-filename as cha no-undo.
    def var ll-ok as log no-undo.
-   
+
    system-dialog GET-DIR ls-filename 
                  title "Select Directory to insert"
                  UPDATE ll-ok.
-      
+
     IF ll-ok THEN self:screen-value = ls-filename.
 END.
 
@@ -411,11 +412,11 @@ OUTPUT STREAM sSave TO VALUE(ls-proc + "\" + fiFile).
 
 for each ssrelbol WHERE            
        EXCLUSIVE-LOCK .
-       
+
   find first oe-relh where oe-relh.company = ssrelbol.company
       and oe-relh.release# = ssrelbol.release#
       no-lock no-error.
- 
+
   find first oe-bolh where oe-bolh.company = ssrelbol.company
      and oe-bolh.release# = ssrelbol.release# 
      no-lock no-error.

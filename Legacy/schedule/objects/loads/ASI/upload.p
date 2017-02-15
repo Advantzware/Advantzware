@@ -26,7 +26,7 @@ DISABLE TRIGGERS FOR LOAD OF job-hdr.
 DISABLE TRIGGERS FOR LOAD OF reftable.
 
 OUTPUT TO 'schedule/load.log' APPEND.
-PUT UNFORMATTED 'Start Save: ' STRING(TODAY,'99.99.9999') ' @ ' STRING(TIME,'hh:mm:ss') ' for ' ID ' by ' USERID('ASI') SKIP.
+PUT UNFORMATTED 'Start Save: ' STRING(TODAY,'99.99.9999') ' @ ' STRING(TIME,'hh:mm:ss') ' for ' ID ' by ' USERID('nosweat') SKIP.
 
 FOR EACH pendingJob NO-LOCK:
   jobMchRowID = TO-ROWID(ENTRY(2,pendingJob.rowIDs)).
@@ -79,7 +79,7 @@ FOR EACH pendingJob NO-LOCK:
          AND job-mch.blank-no EQ INTEGER(ENTRY(8,pendingJob.keyValue))
          AND job-mch.pass EQ INTEGER(ENTRY(9,pendingJob.keyValue))
        NO-ERROR.
-  IF NOT AVAILABLE job-mch THEN
+  IF NOT AVAILABLE job-mch THEN NEXT.
   ASSIGN
     statusStr = ''
     job-mch.end-date = ?
@@ -246,7 +246,7 @@ FOR EACH ttblJob NO-LOCK BREAK BY ttblJob.jobSort BY ttblJob.resourceSequence:
   END. /* first-of */
 END. /* each ttbljob */
 
-PUT UNFORMATTED '  End Save: ' STRING(TODAY,'99.99.9999') ' @ ' STRING(TIME,'hh:mm:ss') ' for ' ID ' by ' USERID('ASI') SKIP(1).
+PUT UNFORMATTED '  End Save: ' STRING(TODAY,'99.99.9999') ' @ ' STRING(TIME,'hh:mm:ss') ' for ' ID ' by ' USERID('nosweat') SKIP(1).
 OUTPUT CLOSE.
 
 MESSAGE 'Schedule Board Save (upload) Complete.' VIEW-AS ALERT-BOX.

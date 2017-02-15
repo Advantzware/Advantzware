@@ -5,7 +5,7 @@
 /*------------------------------------------------------------------------
 
   File: rmrep\r-inkglu.w
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -108,7 +108,7 @@ DEF TEMP-TABLE tt-wax-coats
    FIELD m-code     LIKE mach.m-code FORMAT "x(6)"
    FIELD qty-iss        AS DEC FORMAT "->,>>>,>>>,>>9.9<<<<" 
    FIELD v-board    AS DECIMAL 
-   
+
     .
 
 FORM tt-wax-coats.trans-date LABEL "Issue Date"
@@ -475,9 +475,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -575,7 +585,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -678,6 +688,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -708,7 +719,7 @@ DO:
      run run-report. 
      STATUS DEFAULT "Processing Complete". 
      SESSION:SET-WAIT-STATE("").
-    
+
      case rd-dest:
           when 1 then run output-to-printer.
           when 2 then run output-to-screen.
@@ -746,7 +757,8 @@ DO:
   ELSE
      MESSAGE "No Material Type Selected."
          VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-  
+
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -764,12 +776,13 @@ DO:
 
     ASSIGN cTextSelected = sl_selected:LIST-ITEMS
            cTextListed = sl_avail:LIST-ITEMS.
- 
+
     IF NOT cColumnInit THEN RUN custom/d-rptsel.w (INPUT-OUTPUT cTextListed, INPUT-OUTPUT cTextSelected, INPUT-OUTPUT cTextListToDefault, INPUT-OUTPUT cTextListToSelect).
 
     ASSIGN sl_selected:LIST-ITEMS = cTextSelected
            sl_avail:LIST-ITEMS = cTextListed.
- 
+
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -948,7 +961,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
-  
+
    IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
        sl_selected:NUM-ITEMS = 0)
    THEN ASSIGN ldummy = sl_selected:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
@@ -956,7 +969,7 @@ DO:
               /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
                .
 
-  
+
 /* for pairs
     DEF VAR cSelectedList AS cha NO-UNDO.
     cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
@@ -999,7 +1012,7 @@ DO:
   ASSIGN
     {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}:ENTRY(1)
     .
-    
+
 
 END.
 
@@ -1054,8 +1067,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -1071,11 +1086,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   end_date = today.
   RUN DisplaySelectionList.
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -1085,7 +1100,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
   cColumnInit   = NO .
   RUN fill-select-box.
-  
+
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1124,7 +1140,7 @@ PROCEDURE DisplaySelectionDefault :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  
+
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
      cListContents = cListContents +                   
@@ -1150,7 +1166,7 @@ PROCEDURE DisplaySelectionList :
   DEF VAR iCount AS INT NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
-     
+
      RETURN.
   END.
 
@@ -1163,7 +1179,7 @@ PROCEDURE DisplaySelectionList :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1171,9 +1187,9 @@ PROCEDURE DisplaySelectionList :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 END PROCEDURE.
 
@@ -1194,7 +1210,7 @@ PROCEDURE DisplaySelectionList2 :
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
-        
+
   EMPTY TEMP-TABLE ttRptList.
 
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
@@ -1204,7 +1220,7 @@ PROCEDURE DisplaySelectionList2 :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1212,9 +1228,9 @@ PROCEDURE DisplaySelectionList2 :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
   DO iCount = 1 TO sl_selected:NUM-ITEMS:
@@ -1271,7 +1287,7 @@ PROCEDURE fill-select-box :
 ------------------------------------------------------------------------------*/
 DO WITH FRAME {&FRAME-NAME}:
    v-mat-list = "".
-   
+
   /* IF RS_material = 1 THEN*/
       FOR EACH mat WHERE INDEX("GIVW",mat.mat) GT 0 NO-LOCK:
           {custom/statusMsg.i "'Processing... '"} 
@@ -1284,7 +1300,7 @@ DO WITH FRAME {&FRAME-NAME}:
 
    IF SUBSTR(v-mat-list,LENGTH(TRIM(v-mat-list)),1) EQ "," THEN
       SUBSTR(v-mat-list,LENGTH(TRIM(v-mat-list)),1) = "".
-  
+
    select-mat:LIST-ITEMS = v-mat-list.
 END.
 
@@ -1308,7 +1324,7 @@ PROCEDURE GetSelectionList :
 
  DO i = 1 TO sl_selected:NUM-ITEMS /* IN FRAME {&FRAME-NAME}*/ :
     FIND FIRST ttRptList WHERE ttRptList.TextList = ENTRY(i,cTmpList) NO-LOCK NO-ERROR.     
-  
+
     CREATE ttRptSelected.
     ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
            ttRptSelected.FieldList = ttRptList.FieldList
@@ -1317,7 +1333,7 @@ PROCEDURE GetSelectionList :
            ttRptSelected.HeadingFromLeft = IF entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
-           
+
  END.
 
 END PROCEDURE.
@@ -1333,7 +1349,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
  /*    DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -1344,11 +1360,11 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.  */
-     
+
      {custom/out2file.i}
 
 END PROCEDURE.
@@ -1380,7 +1396,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1447,7 +1463,7 @@ DEF VAR cslist AS cha NO-UNDO.
           .        
           cSlist = cSlist + ttRptSelected.FieldList + ",".
 
-          
+
         IF LOOKUP(ttRptSelected.TextList, "Board Weight,Wax-Coat Weight,Produced,Qty Issued/Lbs") <> 0    THEN
          ASSIGN
          str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
@@ -1495,7 +1511,7 @@ DO WITH FRAME {&FRAME-NAME}:
 
    IF SUBSTR(v-mtype,LENGTH(TRIM(v-mtype)),1) EQ "," THEN
       SUBSTR(v-mtype,LENGTH(TRIM(v-mtype)),1) = "".
-    
+
    mat-types = v-mtype.
    DO i = 1 TO LENGTH(mat-types):
       IF SUBSTR(mat-types,i,1) EQ "," THEN 
@@ -1515,7 +1531,7 @@ IF td-show-parm THEN
 SESSION:SET-WAIT-STATE ("general").
 
 DISPLAY "" WITH FRAME r-top.
-     
+
 IF v-export THEN DO:
    OUTPUT STREAM s-temp TO VALUE(v-exp-name).
    PUT STREAM s-temp UNFORMATTED excelheader SKIP.
@@ -1558,12 +1574,12 @@ FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
                  TRIM(rm-rdtlh.job-no) + "-" + STRING(rm-rdtlh.job-no2,"99").
 
       IF v-job-no begins "-" THEN v-job-no = "".
-   
+
       v-rm-qty = rm-rdtlh.qty.
-   
+
       IF rm-rcpth.pur-uom ne "LB" THEN
          run sys/ref/convquom.p(rm-rcpth.pur-uom, "LB", 0, 0, 0, 0, v-rm-qty, output v-rm-qty).
-      
+
       ASSIGN
          v-qty[1] = v-qty[1] + v-rm-qty
          v-qty[3] = v-qty[3] + v-rm-qty.
@@ -1576,7 +1592,7 @@ FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
             v-len = 0
             v-wid = 0
             v-basis-w = 0.
-      
+
          FOR EACH job WHERE job.company EQ rm-rdtlh.company
                         AND job.job-no  EQ rm-rdtlh.job-no
                         AND job.job-no2 EQ rm-rdtlh.job-no2 NO-LOCK,
@@ -1630,13 +1646,13 @@ FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
                      v-brd-qty[2] = v-brd-qty[2] + v-brd-qty[1].
                   END. 
                END. 
-       
+
                FOR EACH mch-act WHERE mch-act.company EQ cocode
                                   AND mch-act.job-no  EQ job.job-no
                                   AND mch-act.job-no2 EQ job.job-no2
                                   AND (mch-act.frm    EQ rm-rdtlh.s-num OR rm-rdtlh.s-num EQ 0)
                                   AND (mat-act.b-num EQ rm-rdtlh.b-num OR rm-rdtlh.b-num EQ 0)  NO-LOCK,
-              
+
                   FIRST mach WHERE mach.company EQ cocode
                                AND mach.loc     EQ locode 
                                AND mach.m-code  EQ mch-act.m-code
@@ -1650,7 +1666,7 @@ FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
                                                                mach.dept[4] EQ "PR"))) NO-LOCK
                           BREAK BY mch-act.frm      desc
                                 BY mch-act.blank-no desc:
-              
+
                   IF (item.mat-type EQ "G"               AND
                       mch-act.frm      EQ rm-rdtlh.s-num AND
                       mch-act.blank-no EQ rm-rdtlh.b-num AND
@@ -1658,7 +1674,7 @@ FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
                      (item.mat-type EQ "I" AND
                       mch-act.dept EQ "PR")                   OR
                      last(mch-act.frm)                        THEN DO:
-               
+
                      v-m-code = mach.m-code.
                      leave.
                   END.
@@ -1682,10 +1698,10 @@ FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
                                                                   mach.dept[2] EQ "PR" OR
                                                                   mach.dept[3] EQ "PR" OR
                                                                   mach.dept[4] EQ "PR"))) NO-LOCK
-                                
+
                              BREAK BY job-mch.frm      DESC
                                    BY job-mch.blank-no DESC:
-              
+
                    {custom/statusMsg.i "'Processing Item # ' + string(rm-rcpth.i-no)"} 
 
                      IF (item.mat-type    EQ "G"               AND
@@ -1700,10 +1716,10 @@ FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
                         LEAVE.
                      END.
                   END. 
-  
+
                IF v-board[2] EQ "" THEN 
                   v-board[2] = v-board[1].
-               
+
                ASSIGN
                   v-board-msf = 0
                   v-board-weight = 0
@@ -1746,7 +1762,7 @@ ASSIGN
 
 IF TG_sort-cat = NO THEN DO:
    FOR EACH tt-wax-coats BREAK BY tt-wax-coats.trans-date:
-       
+
      {custom/statusMsg.i "'Processing Item # ' + string(tt-wax-coats.i-no)"} 
 
         ASSIGN cDisplay = ""
@@ -1765,26 +1781,26 @@ IF TG_sort-cat = NO THEN DO:
                          WHEN "brd-msf"  THEN cVarValue = string(tt-wax-coats.board-msf,"->>,>>9.99") .
                          WHEN "brd-wit"   THEN cVarValue =  string(tt-wax-coats.board-weight,"->>>>,>>9.99") .
                          WHEN "pck"  THEN cVarValue =  string(tt-wax-coats.shrink,">>9.9999")  .
-                         
+
                          WHEN "wax-coat"  THEN cVarValue =  STRING(tt-wax-coats.wax-coat-weight,"->>>,>>>,>>9.99")  .
                          WHEN "prod"  THEN cVarValue =  string(tt-wax-coats.qty,"->,>>>,>>>,>>9")  .
                          WHEN "qty-iss"  THEN cVarValue =  STRING(tt-wax-coats.qty-iss,"->,>>>,>>9.99999")  .
                          WHEN "mach"   THEN cVarValue =  string(tt-wax-coats.m-code,"x(7)")  .
                          WHEN "fg-cat"  THEN cVarValue =  string(tt-wax-coats.procat,"x(11)") .
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+
             PUT UNFORMATTED cDisplay SKIP.
             IF tb_excel THEN DO:
                  PUT STREAM s-temp UNFORMATTED  
                        cExcelDisplay SKIP.
              END.
-         
+
       ASSIGN 
          v-tot-board-weight =  v-tot-board-weight + tt-wax-coats.board-weight
          v-tot-wax-coat-weight = v-tot-wax-coat-weight + tt-wax-coats.wax-coat-weight
@@ -1820,20 +1836,20 @@ IF TG_sort-cat = NO THEN DO:
                          WHEN "brd-msf"  THEN cVarValue = "" .
                          WHEN "brd-wit"   THEN cVarValue =  string(v-tot-board-weight,"->>>>,>>9.99") .
                          WHEN "pck"  THEN cVarValue =  ""  .
-                         
+
                          WHEN "wax-coat"  THEN cVarValue =  STRING(v-tot-wax-coat-weight,"->>>,>>>,>>9.99")  .
                          WHEN "prod"  THEN cVarValue =  string(v-tot-job-hdr-qty,"->,>>>,>>>,>>9")  .
                          WHEN "qty-iss"  THEN cVarValue =  STRING(v-tot-trans-qty,"->,>>>,>>9.99999")  .
                          WHEN "mach"   THEN cVarValue =  ""  .
                          WHEN "fg-cat"  THEN cVarValue =  "" .
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+
             PUT UNFORMATTED  "            SUB TOTAL: " SUBSTRING(cDisplay,24,300) SKIP(1).
             IF tb_excel THEN DO:
                  PUT STREAM s-temp UNFORMATTED ' SUB TOTAL ,'  substring(cExcelDisplay,4,300) SKIP(1).
@@ -1844,7 +1860,7 @@ IF TG_sort-cat = NO THEN DO:
                v-tot-job-hdr-qty     = 0
                v-tot-trans-qty       = 0.
       END.
-      
+
 
    END.
 
@@ -1871,20 +1887,20 @@ IF TG_sort-cat = NO THEN DO:
                          WHEN "brd-msf"  THEN cVarValue = "" .
                          WHEN "brd-wit"   THEN cVarValue =  string(v-grand-tot-board-weight,"->>>>,>>9.99") .
                          WHEN "pck"  THEN cVarValue =  ""  .
-                         
+
                          WHEN "wax-coat"  THEN cVarValue =  STRING(v-grand-tot-wax-coat-weight,"->>>,>>>,>>9.99")  .
                          WHEN "prod"  THEN cVarValue =  string(v-grand-tot-job-hdr-qty,"->,>>>,>>>,>>9")  .
                          WHEN "qty-iss"  THEN cVarValue =  STRING(v-grand-tot-trans-qty,"->,>>>,>>9.99999")  .
                          WHEN "mach"   THEN cVarValue =  ""  .
                          WHEN "fg-cat"  THEN cVarValue =  "" .
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+
             PUT UNFORMATTED  "            GRAND TOTAL: " SUBSTRING(cDisplay,26,300) SKIP(1).
             IF tb_excel THEN DO:
                  PUT STREAM s-temp UNFORMATTED ' GRAND TOTAL ,'  substring(cExcelDisplay,4,300) SKIP(1).
@@ -1894,7 +1910,7 @@ END.
 ELSE DO:
    FOR EACH tt-wax-coats BREAK BY tt-wax-coats.procat
                                BY tt-wax-coats.trans-date:
-     
+
        {custom/statusMsg.i "'Processing Item # ' + string(tt-wax-coats.i-no)"} 
 
       ASSIGN cDisplay = ""
@@ -1913,20 +1929,20 @@ ELSE DO:
                          WHEN "brd-msf"  THEN cVarValue = string(tt-wax-coats.board-msf,"->>,>>9.99") .
                          WHEN "brd-wit"   THEN cVarValue =  string(tt-wax-coats.board-weight,"->>>>,>>9.99") .
                          WHEN "pck"  THEN cVarValue =  string(tt-wax-coats.shrink,">>9.9999")  .
-                         
+
                          WHEN "wax-coat"  THEN cVarValue =  STRING(tt-wax-coats.wax-coat-weight,"->>>,>>>,>>9.99")  .
                          WHEN "prod"  THEN cVarValue =  string(tt-wax-coats.qty,"->,>>>,>>>,>>9")  .
                          WHEN "qty-iss"  THEN cVarValue =  STRING(tt-wax-coats.qty-iss,"->,>>>,>>9.99999")  .
                          WHEN "mach"   THEN cVarValue =  string(tt-wax-coats.m-code,"x(7)")  .
                          WHEN "fg-cat"  THEN cVarValue =  string(tt-wax-coats.procat,"x(11)") .
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+
             PUT UNFORMATTED cDisplay SKIP.
             IF tb_excel THEN DO:
                  PUT STREAM s-temp UNFORMATTED  
@@ -1968,20 +1984,20 @@ ELSE DO:
                          WHEN "brd-msf"  THEN cVarValue = "" .
                          WHEN "brd-wit"   THEN cVarValue =  string(v-tot-board-weight,"->>>>,>>9.99") .
                          WHEN "pck"  THEN cVarValue =  ""  .
-                         
+
                          WHEN "wax-coat"  THEN cVarValue =  STRING(v-tot-wax-coat-weight,"->>>,>>>,>>9.99")  .
                          WHEN "prod"  THEN cVarValue =  string(v-tot-job-hdr-qty,"->,>>>,>>>,>>9")  .
                          WHEN "qty-iss"  THEN cVarValue =  STRING(v-tot-trans-qty,"->,>>>,>>9.99999")  .
                          WHEN "mach"   THEN cVarValue =  ""  .
                          WHEN "fg-cat"  THEN cVarValue =  "" .
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+
             PUT UNFORMATTED  "            SUB TOTAL: " SUBSTRING(cDisplay,24,300) SKIP(1).
             IF tb_excel THEN DO:
                  PUT STREAM s-temp UNFORMATTED ' SUB TOTAL ,'  substring(cExcelDisplay,4,300) SKIP(1).
@@ -1993,7 +2009,7 @@ ELSE DO:
             v-tot-job-hdr-qty     = 0
             v-tot-trans-qty       = 0 .
       END.
-      
+
    END.
 
    /*DISPLAY
@@ -2019,20 +2035,20 @@ ELSE DO:
                          WHEN "brd-msf"  THEN cVarValue = "" .
                          WHEN "brd-wit"   THEN cVarValue =  string(v-grand-tot-board-weight,"->>>>,>>9.99") .
                          WHEN "pck"  THEN cVarValue =  ""  .
-                         
+
                          WHEN "wax-coat"  THEN cVarValue =  STRING(v-grand-tot-wax-coat-weight,"->>>,>>>,>>9.99")  .
                          WHEN "prod"  THEN cVarValue =  string(v-grand-tot-job-hdr-qty,"->,>>>,>>>,>>9")  .
                          WHEN "qty-iss"  THEN cVarValue =  STRING(v-grand-tot-trans-qty,"->,>>>,>>9.99999")  .
                          WHEN "mach"   THEN cVarValue =  ""  .
                          WHEN "fg-cat"  THEN cVarValue =  "" .
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+
             PUT UNFORMATTED  "            GRAND TOTAL: " SUBSTRING(cDisplay,26,300) SKIP(1).
             IF tb_excel THEN DO:
                  PUT STREAM s-temp UNFORMATTED ' GRAND TOTAL ,'  substring(cExcelDisplay,4,300) SKIP(1).
@@ -2074,7 +2090,7 @@ FORM tt-inks-glues.trans-date     LABEL "Issue Date"
      v-qty[1]               LABEL "Qty Issued/Lbs"
      v-m-code               LABEL "Machine"
      tt-inks-glues.procat   LABEL "FG Category"
-     
+
      SKIP
     WITH FRAME itemx NO-BOX DOWN STREAM-IO WIDTH 132.
 
@@ -2124,17 +2140,17 @@ DO WITH FRAME {&FRAME-NAME}:
       IF select-mat:IS-SELECTED(i) THEN
          v-mtype = v-mtype + TRIM(SUBSTR(select-mat:ENTRY(i),1,5)) + ",".
    END.
-  
+
    IF SUBSTR(v-mtype,LENGTH(TRIM(v-mtype)),1) EQ "," THEN
       SUBSTR(v-mtype,LENGTH(TRIM(v-mtype)),1) = "".
-    
+
    mat-types = v-mtype.
-  
+
    DO i = 1 TO LENGTH(mat-types):
       IF SUBSTR(mat-types,i,1) EQ "," THEN 
          SUBSTR(mat-types,i,1) = " ".
    END.
-  
+
    DISPLAY mat-types.
 
    mat-types:HIDDEN = YES.
@@ -2152,7 +2168,7 @@ IF td-show-parm THEN
 SESSION:SET-WAIT-STATE ("general").
 
 DISPLAY "" WITH FRAME r-top.
-     
+
 IF v-export THEN DO:
    OUTPUT STREAM s-temp TO VALUE(v-exp-name).
    PUT STREAM s-temp UNFORMATTED v-hdr SKIP.
@@ -2194,12 +2210,12 @@ FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
                  TRIM(rm-rdtlh.job-no) + "-" + STRING(rm-rdtlh.job-no2,"99").
 
       IF v-job-no begins "-" THEN v-job-no = "".
-   
+
       v-rm-qty = rm-rdtlh.qty.
-   
+
       IF rm-rcpth.pur-uom ne "LB" THEN
          run sys/ref/convquom.p(rm-rcpth.pur-uom, "LB", 0, 0, 0, 0, v-rm-qty, output v-rm-qty).
-      
+
       ASSIGN
          v-qty[1] = v-qty[1] + v-rm-qty
          v-qty[3] = v-qty[3] + v-rm-qty.
@@ -2210,7 +2226,7 @@ FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
             v-brd-qty = 0
             v-m-code  = "".
 
-         
+
          FOR EACH job WHERE job.company EQ rm-rdtlh.company
                         AND job.job-no  EQ rm-rdtlh.job-no
                         AND job.job-no2 EQ rm-rdtlh.job-no2 NO-LOCK,
@@ -2257,13 +2273,13 @@ FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
                      v-brd-qty[2] = v-brd-qty[2] + v-brd-qty[1].
                   END. /* FOR EACH mat-act */
                END. /* FOR EACH job-mat */
-       
+
                FOR EACH mch-act WHERE mch-act.company EQ cocode
                                   AND mch-act.job-no  EQ job.job-no
                                   AND mch-act.job-no2 EQ job.job-no2
                                   AND (mch-act.frm    EQ rm-rdtlh.s-num OR rm-rdtlh.s-num EQ 0)
                                   AND (mat-act.b-num EQ rm-rdtlh.b-num OR rm-rdtlh.b-num EQ 0)  NO-LOCK,
-              
+
                   FIRST mach WHERE mach.company EQ cocode
                                AND mach.loc     EQ locode 
                                AND mach.m-code  EQ mch-act.m-code
@@ -2277,7 +2293,7 @@ FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
                                                                mach.dept[4] EQ "PR"))) NO-LOCK
                           BREAK BY mch-act.frm      desc
                                 BY mch-act.blank-no desc:
-              
+
                   IF (item.mat-type EQ "G"               AND
                       mch-act.frm      EQ rm-rdtlh.s-num AND
                       mch-act.blank-no EQ rm-rdtlh.b-num AND
@@ -2285,7 +2301,7 @@ FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
                      (item.mat-type EQ "I" AND
                       mch-act.dept EQ "PR")                   OR
                      last(mch-act.frm)                        THEN DO:
-               
+
                      v-m-code = mach.m-code.
                      leave.
                   END.
@@ -2309,10 +2325,10 @@ FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
                                                                   mach.dept[2] EQ "PR" OR
                                                                   mach.dept[3] EQ "PR" OR
                                                                   mach.dept[4] EQ "PR"))) NO-LOCK
-                                
+
                              BREAK BY job-mch.frm      DESC
                                    BY job-mch.blank-no DESC:
-              
+
                      IF (item.mat-type    EQ "G"               AND
                          job-mch.frm      EQ rm-rdtlh.s-num    AND
                          job-mch.blank-no EQ rm-rdtlh.b-num    AND
@@ -2325,7 +2341,7 @@ FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
                         LEAVE.
                      END.
                   END. /* FOR EACH job-mch */
-  
+
             IF v-board[2] EQ "" THEN 
                v-board[2] = v-board[1].
             CREATE tt-inks-glues.
@@ -2350,7 +2366,7 @@ FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
 /*                WITH FRAME itemx.                   */
 /*             DOWN WITH FRAME itemx.                 */
 
-        
+
             ASSIGN
                v-qty[2] = v-qty[2] + v-qty[1]
                v-qty[1] = 0
@@ -2399,7 +2415,7 @@ IF TG_sort-cat = NO THEN DO:
             WITH FRAME itemb NO-LABELS.
          v-tot-trans-qty = 0.
       END.
-      
+
       IF v-export THEN
          PUT STREAM s-temp UNFORMATTED
             TRIM(STRING(tt-inks-glues.trans-date,tt-inks-glues.trans-date:FORMAT))
@@ -2513,11 +2529,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -2545,23 +2561,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

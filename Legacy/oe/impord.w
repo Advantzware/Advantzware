@@ -237,9 +237,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -265,7 +275,7 @@ THEN C-Win:HIDDEN = yes.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -302,6 +312,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
   APPLY "close" TO THIS-PROCEDURE.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -313,17 +324,17 @@ END.
 ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
 DO:
   DEF VAR v-process AS LOG INIT NO NO-UNDO.
-   
+
   IF NOT oeimport-log THEN DO:
       MESSAGE "Can't import orders. Contact System Administrator!"
           VIEW-AS ALERT-BOX ERROR BUTTONS OK.
       RETURN NO-APPLY.
   END.
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&DISPLAYED-OBJECTS}.
   END.
-  
+
   IF fcFileName <> "" AND SEARCH(fcFileName) = ? THEN DO:
       MESSAGE "Import file is not existing. "
           VIEW-AS ALERT-BOX ERROR BUTTONS OK.
@@ -344,6 +355,7 @@ DO:
   END.
 
   IF v-process THEN RUN runProcess.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -355,6 +367,7 @@ END.
 ON CHOOSE OF cXMLImport IN FRAME FRAME-A /* Import cXML Orders Only */
 DO:
   RUN importOrder ('').
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -367,7 +380,7 @@ ON HELP OF fcFileName IN FRAME FRAME-A /* Import File: */
 DO:
     def var ls-filename as cha no-undo.
    def var ll-ok as log no-undo.
-   
+
    system-dialog get-file ls-filename 
                  title "Select Image File to insert"
                  filters "Excel Comma delimited Files    (*.csv)" "*.csv",
@@ -376,7 +389,7 @@ DO:
                  MUST-EXIST
                  USE-FILENAME
                  UPDATE ll-ok.
-      
+
     IF ll-ok THEN self:screen-value = ls-filename.
 END.
 
@@ -428,8 +441,10 @@ ELSE
     CURRENT-WINDOW:HIDDEN = FALSE.
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -439,7 +454,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  
+
   IF NOT llBatchMode THEN
   RUN enable_UI.
 
@@ -450,7 +465,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                 AND sys-ctrl.log-fld EQ YES).
 
   {methods/nowait.i}  
-  
+
   DO WITH FRAME {&frame-name}:
     IF llBatchMode THEN DO:
     /* special */ RUN runProcess.
@@ -461,6 +476,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     /* iNextOrder# = oe-ctrl.n-ord. */
   END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -618,9 +634,9 @@ PROCEDURE CreateJob :
   def var v-job-no2 like job.job-no2 no-undo.
   def var li-j-no as int no-undo.
   DEFINE VARIABLE v-prod-cat AS CHARACTER  NO-UNDO.
-    
+
   /* === from oe/oe-ord1.p  ============= */
-         
+
 
   find last job where job.company eq cocode use-index job no-lock no-error.
   v-job-job = if avail job then job.job + 1 else 1.
@@ -706,7 +722,7 @@ PROCEDURE CreateJob :
          assign job-hdr.std-tot-cost = (job-hdr.std-mat-cost + job-hdr.std-lab-cost +
                                         job-hdr.std-var-cost + job-hdr.std-fix-cost).
    end.
-   
+
    assign job-hdr.est-no  = oe-ordl.est-no
           job-hdr.job     = job.job
           job-hdr.job-no  = job.job-no
@@ -741,7 +757,7 @@ PROCEDURE CreateOrder :
          oe-ord.loc = g_loc
          oe-ord.ord-date = today
          oe-ord.ord-no = ttHeader.Order#
-         oe-ord.user-id = USERID("ASI")
+         oe-ord.user-id = userid("nosweat")
          oe-ord.type = "O"
          oe-ord.stat = "W"  /* OW menu */
          oe-ord.due-code = "ON"
@@ -868,7 +884,7 @@ PROCEDURE CreateOrder :
 
                    {oe/ordltot3.i oe-ordl qty oe-ordl  }
                    {oe/defwhsed.i oe-ordl}
-                
+
                   /* createRelease found in oe/createRelease.i */
                   RUN createRelease (INPUT ttDetail.ShipTo,
                                      INPUT ttDetail.ShipFrom).
@@ -913,8 +929,8 @@ PROCEDURE createOrdJob :
   DEFINE INPUT PARAMETER ipJobno like oe-ord.job-no no-undo.
   DEFINE INPUT PARAMETER ipJobno2 like oe-ord.job-no2 no-undo.
   DEFINE INPUT PARAMETER ipLoc AS CHARACTER NO-UNDO.
-  
- 
+
+
   def output param op-recid as recid no-undo.
 
   DEF BUFFER v-ord-job-hdr FOR job-hdr.
@@ -923,11 +939,11 @@ PROCEDURE createOrdJob :
   def var v-job-no like job.job-no no-undo.
   def var v-job-no2 like job.job-no2 no-undo.
   def var li-j-no as int no-undo.
-    
+
   FIND CURRENT oe-ord.
 
   /* === from oe/oe-ord1.p  ============= */
-  
+
   find last job where job.company eq ipToCompany no-lock no-error.
   v-job-job = if avail job then job.job + 1 else 1.
   ASSIGN
@@ -965,7 +981,7 @@ PROCEDURE createOrdJob :
          find first itemfg where itemfg.company eq oe-ordl.company
                              and itemfg.i-no    eq oe-ordl.i-no
                              no-lock no-error.   
-         
+
          create job-hdr.
          assign job-hdr.company      = ipToCompany
                 job-hdr.loc          = ipLoc
@@ -1041,7 +1057,7 @@ PROCEDURE CreateSpecNote :
          notes.note_text =  ttDetail.Notes
          notes.note_date = TODAY
          notes.note_time = TIME
-         notes.user_id = USERID("ASI").
+         notes.user_id = USERID("NOSWEAT").
 
 END PROCEDURE.
 
@@ -1162,7 +1178,7 @@ PROCEDURE runProcess :
      INPUT FROM OS-DIR(oeimport-cha) NO-ECHO.
      REPEAT:
          IMPORT cImportFileName.
-     
+
          IF cImportFileName BEGINS "." THEN NEXT.
          IF SUBSTRING(cImportFileName,LENGTH(cImportFileName) - 3,4) <> ".csv" THEN NEXT.
 
@@ -1179,7 +1195,7 @@ PROCEDURE runProcess :
          fcMessage:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Import file: " + cImportFileName + " ...".
 
           RUN ImportOrder (cImportFileName).
-          
+
           IF gcImportError <> "" THEN DO:      /* error */
               IF SUBSTRING(oeimport-cha,LENGTH(oeimport-cha),1) = "/" OR 
                  SUBSTRING(oeimport-cha,LENGTH(oeimport-cha),1) = "\"
@@ -1201,27 +1217,27 @@ PROCEDURE runProcess :
 
              cImportCompleted = cImportCompleted + "Completed".
              /*IF SEARCH(cImportCompleted) = ? THEN*/
-             
+
               OS-CREATE-DIR VALUE(cImportCompleted).
               OS-COPY VALUE(cImportFileName) VALUE(cImportCompleted).
-              
+
               IF OS-ERROR = 0 THEN 
                   OS-DELETE VALUE(cImportFileName).
 
-              
+
           END.
      END.      /* repeat of input oeimport-cha */
-     
+
 
   END.  /* multi file input */
 IF NOT llBatchMode THEN DO:
   /* Special to impord */
   ASSIGN
-    
+
   fcMessage:SCREEN-VALUE = "".
 
   SESSION:SET-WAIT-STATE("").
-  
+
   /* Special to impord */
   IF gcImportError = "" THEN
      MESSAGE TRIM(c-win:TITLE) + " Process Is Completed.   Order#: "   iNextOrder#  VIEW-AS ALERT-BOX.    

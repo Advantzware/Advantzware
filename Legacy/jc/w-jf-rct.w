@@ -17,7 +17,7 @@
       <none>
 
   History: 
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -166,7 +166,7 @@ THEN W-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -191,7 +191,7 @@ ON WINDOW-CLOSE OF W-Win /* FG Item Farmout Issue History */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
-  
+
 
 
   APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -455,7 +455,7 @@ PROCEDURE local-create-objects :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-objects':U ) .
 
@@ -475,9 +475,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -39,7 +39,7 @@ CREATE WIDGET-POOL.
  ASSIGN
    cocode = gcompany
    locode = gloc .
-     
+
 DEFINE BUFFER b-prgrms FOR prgrms.
 DEFINE VARIABLE v-prgmname LIKE b-prgrms.prgmname NO-UNDO.
 DEFINE VARIABLE Audit_File AS CHARACTER NO-UNDO.
@@ -51,7 +51,7 @@ DEFINE VARIABLE access-close AS LOGICAL NO-UNDO.
 IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
    INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
    INDEX(PROGRAM-NAME(1),".ped") NE 0 THEN
-v-prgmname = USERID("ASI") + "..".
+v-prgmname = USERID("NOSWEAT") + "..".
 ELSE
 ASSIGN
 /*   period_pos = INDEX(PROGRAM-NAME(1),".")                                             */
@@ -182,6 +182,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -195,7 +206,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -264,6 +275,7 @@ END.
 ON CHOOSE OF Btn_Cancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -275,6 +287,7 @@ END.
 ON CHOOSE OF Btn_Help IN FRAME DEFAULT-FRAME /* Help */
 DO: /* Call Help Function (or a simple message). */
 MESSAGE "Help for File: {&FILE-NAME}":U VIEW-AS ALERT-BOX INFORMATION.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -288,9 +301,9 @@ DO:
   def var i as int initial 0 no-undo.
   def var num-imports as int initial 0 no-undo.
   DEF VAR excelheader AS CHAR NO-UNDO.
-  
+
   SESSION:SET-WAIT-STATE("GENERAL").
-  
+
   IF from_cust-no:SCREEN-VALUE = "" THEN DO:
        MESSAGE "Customer Must be Enter " VIEW-AS ALERT-BOX ERROR.
         APPLY "entry" TO from_cust-no .
@@ -305,22 +318,23 @@ DO:
   FOR EACH bf-cust WHERE bf-cust.company = cocode
        AND bf-cust.cust-no GE from_cust-no
        AND bf-cust.cust-no LE to_cust-no NO-LOCK :
-    
+
       FIND FIRST bf-cust-copy WHERE bf-cust-copy.company = cocode
           AND bf-cust-copy.cust-no = bf-cust.cust-no EXCLUSIVE-LOCK NO-ERROR.
-      
+
       IF AVAIL bf-cust-copy THEN DO:
              ASSIGN bf-cust-copy.spare-char-2 = bf-cust.TYPE .
-             
+
       END.
-     
+
    END.
-      
+
  RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
   SESSION:SET-WAIT-STATE("").
 
   message  "Customer Type Copy to Group successfully" view-as alert-box.
   APPLY "CLOSE" TO THIS-PROCEDURE.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -382,8 +396,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -393,7 +409,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  
+
   RUN enable_UI.
 
   {methods/nowait.i}
@@ -403,7 +419,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       APPLY "entry" TO from_cust-no.
   END.
 
-   
+
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
    WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -462,7 +479,7 @@ PROCEDURE valid-tit-code :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- 
+
   DO WITH FRAME {&FRAME-NAME}:
    /* IF (tit-code:SCREEN-VALUE) <> "" AND
        NOT CAN-FIND(FIRST titlcode

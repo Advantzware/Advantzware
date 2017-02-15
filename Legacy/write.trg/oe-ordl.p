@@ -317,8 +317,8 @@ FOR EACH oe-ord
       AND oe-ord.ord-no  EQ {&TABLENAME}.ord-no:
 
   IF oeuserid-log                        AND
-     oe-ord.user-id NE USERID("ASI") THEN
-    oe-ord.user-id = USERID("ASI").
+     oe-ord.user-id NE USERID("nosweat") THEN
+    oe-ord.user-id = USERID("nosweat").
 
   LEAVE.
 END.

@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -229,7 +233,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
@@ -240,7 +244,7 @@ ASSIGN
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -331,7 +335,7 @@ PROCEDURE display-msf :
   def var lv-uom-list as cha init "C,CS,EA,L,LB,LF,LOT,M,MSF,SHT,TON,BF" no-undo.
   DEF VAR pr-uom-list AS cha NO-UNDO INIT "EA,LB,M,MSF,TON,BF".
   DEF VAR cons-uom-list AS CHA NO-UNDO INIT "M,LF,EA,LB,TON".
- 
+
 
     {ce/msfcalc.i}
   v-tot-msf = 0.
@@ -345,7 +349,7 @@ PROCEDURE display-msf :
   ASSIGN
     v-basis-w = IF AVAIL ITEM THEN ITEM.basis-w ELSE v-basis-w
     v-dep = IF AVAIL ITEM THEN ITEM.s-dep ELSE v-dep
-   
+
     v-len = po-ordl.s-len
      v-wid = po-ordl.s-wid
      v-ord-qty = po-ordl.ord-qty
@@ -357,7 +361,7 @@ PROCEDURE display-msf :
                            ELSE ((((v-len * v-wid) / 144) * po-ordl.ord-qty) / 1000).
   else do:
                   /*convert whatever the UOM is into "EACH" first*/
-      
+
                     lv-tot-msf = 0.
                   if po-ordl.pr-qty-uom ne "EA" then do:
                         lv-tot-msf = 0.
@@ -388,7 +392,7 @@ PROCEDURE display-msf :
                            v-basis-w, v-len, v-wid, v-dep,
                            lv-cons-qty,
                            OUTPUT lv-cons-qty).     
-  
+
 
   lv-cons-cost = po-ordl.cost.
 

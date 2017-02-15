@@ -1,5 +1,5 @@
 /* prgmxref.i
-"ASI" "prgmxref"
+"NOSWEAT" "prgmxref"
 "table_name" "Table Name" ""
 "" "" ""
 "" "" ""

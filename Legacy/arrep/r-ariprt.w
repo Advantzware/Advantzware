@@ -7,7 +7,7 @@
   File: arrep\r-ariprt.w
 
   Description: Print Invoices
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -365,9 +365,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -495,7 +505,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -567,6 +577,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -692,7 +703,7 @@ DO:
   ELSE /* not find sys-ctrl-shipto*/
   DO:
      v-print-fmt = vcDefaultForm.
-       
+
      RUN run-report("","", FALSE).
      RUN GenerateReport(INPUT lv-fax-type,
                         INPUT begin_cust,
@@ -702,6 +713,7 @@ DO:
 
   IF v-ftp-done THEN MESSAGE "File Export/FTP is completed." VIEW-AS ALERT-BOX INFORMATION.
   OS-DELETE value(init-dir + "\Invoice.pdf").
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -959,8 +971,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -970,7 +984,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-   
+
 /* security check need {methods/prgsecur.i} in definition section */
   IF access-close THEN DO:
      APPLY "close" TO THIS-PROCEDURE.
@@ -981,7 +995,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       where sys-ctrl.company eq cocode
         and sys-ctrl.name    eq "INVPRINT"
       no-lock no-error.
-  
+
   if not avail sys-ctrl then
   do transaction:
     create sys-ctrl.
@@ -999,7 +1013,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    vcDefaultForm = v-print-fmt.
 
   FIND FIRST users WHERE
-       users.user_id EQ USERID("ASI")
+       users.user_id EQ USERID("NOSWEAT")
        NO-LOCK NO-ERROR.
 
   IF AVAIL users AND users.user_program[2] NE "" THEN
@@ -1036,7 +1050,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 */
 
   RUN enable_UI.
-  
+
   IF LOOKUP(v-print-fmt,"PremierX,Coburn,Axis,BlueRx,ColoniaX,ABC,knight,knight1,Central,Rosmar,ACPI,ColorX,ColonialLot#,Carded,CCCFGLot,CCCFGL3,Peachtreefgl3,Peachtree,PremierS") > 0 THEN DO:
      ASSIGN tb_cust-copy:HIDDEN IN FRAME {&FRAME-NAME} = NO
             tb_cust-copy:SENSITIVE = YES
@@ -1049,7 +1063,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   IF LOOKUP(v-print-fmt,"Peachtreefgl3,SouleMed,SoulePO,Peachtree") GT 0 THEN
      ASSIGN rs_no_PN:HIDDEN = FALSE
             rs_no_PN:SENSITIVE = TRUE.
-    
+
   RUN set-broker-bol-proc.
 
   IF v-print-fmt EQ "Fibrex" THEN
@@ -1094,6 +1108,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         tb_email-orig = NO.
   END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1243,7 +1258,7 @@ PROCEDURE GenerateReport :
                               &mail-body="Invoice"
                               &mail-file=list-name }
          END.
-         
+
       END.
   end case.
 END PROCEDURE.
@@ -1273,7 +1288,7 @@ PROCEDURE output-to-fax-prt :
         END.
         lv-file-name = "".   
      END.
-     
+
   END.
 
 END PROCEDURE.
@@ -1324,7 +1339,7 @@ PROCEDURE output-to-printer :
        RUN custom/d-print.w (list-name).
   END.
   ELSE RUN custom/prntproc.p (list-name,INT(lv-font-no),lv-ornt). 
-  
+
 
 END PROCEDURE.
 
@@ -1397,7 +1412,7 @@ v-term-id = v-term.
 SESSION:SET-WAIT-STATE ("general").
 
 vcInvNums = "".
-    
+
 FOR EACH ar-inv
     WHERE ar-inv.company  EQ cocode
       AND ar-inv.inv-no   GE finv
@@ -1442,7 +1457,7 @@ FOR EACH ar-inv
 
   IF vcInvNums MATCHES '*-*' THEN
      vcInvNums = RIGHT-TRIM (SUBSTRING (vcInvNums, 1, INDEX (vcInvNums,'-')), '-') + SUBSTRING (vcInvNums, R-INDEX (vcInvNums, '-')).
-  
+
 END.
 
 v-lines-per-page = lines-per-page.
@@ -1533,9 +1548,9 @@ IF is-xprint-form THEN DO:
 END.
 
 IF LOOKUP(v-print-fmt,"SOUTHPAK,Southpak-xl,PrystupExcel,ASIXprnt,Badger,Badger-Emailed,Southpakl") > 0 THEN DO: 
-    
+
     RUN value(v-program) (lv-multi-faxout,lines-per-page).     
-    
+
 END.
 ELSE IF v-print-fmt = "1/2 Page" AND rd-dest = 6 THEN DO:
     PUT CONTROL CHR(27) CHR(67) CHR(44). 
@@ -1619,7 +1634,7 @@ PROCEDURE set-broker-bol-proc :
   Notes:       
 ------------------------------------------------------------------------------*/
    DO WITH FRAME {&FRAME-NAME}:
-   
+
       IF fi_broker-bol:HIDDEN = NO AND
          begin_inv:SCREEN-VALUE EQ end_inv:SCREEN-VALUE THEN
          DO:
@@ -1627,7 +1642,7 @@ PROCEDURE set-broker-bol-proc :
                  b-broker-bol.reftable EQ "brokerbol" AND
                  b-broker-bol.CODE EQ STRING(begin_inv:SCREEN-VALUE)
                  NO-LOCK NO-ERROR.
-         
+
             IF AVAIL b-broker-bol THEN
             DO:
                fi_broker-bol:SCREEN-VALUE = b-broker-bol.code2.
@@ -1667,7 +1682,7 @@ PROCEDURE SetInvForm :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE INPUT PARAMETER icFormName AS CHAR NO-UNDO.
- 
+
    ASSIGN
       lv-prt-bypass = NO
       is-xprint-form = NO.
@@ -1762,7 +1777,7 @@ PROCEDURE SetInvForm :
              v-program =  "ar/rep/invbluex.p"
              lines-per-page = 66
              is-xprint-form = YES.
-       
+
        WHEN "PAC 1/2" THEN
           ASSIGN
              v-program = "ar/rep/invpack.p"
@@ -2199,7 +2214,7 @@ PROCEDURE SetInvForm :
 
    IF icFormName = "BOXTECH" THEN
       lv-prt-bypass = YES.
-   
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2220,11 +2235,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -2252,25 +2267,25 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
 
   PAGE.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

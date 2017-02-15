@@ -119,7 +119,7 @@ FUNCTION get-iname RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel AUTO-END-KEY 
+DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -303,9 +303,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -362,7 +372,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -432,6 +442,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -445,9 +456,8 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-   
+
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
   IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
@@ -464,6 +474,7 @@ DO:
        when 3 then run output-to-file.
   end case. 
 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -475,7 +486,8 @@ END.
 ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
-  
+
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -685,8 +697,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -704,7 +718,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
      RUN sys/inc/CustListForm.p ( "AL3",cocode, 
                                OUTPUT ou-log,
@@ -718,7 +732,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT 'AL3',
                           INPUT NO,
                           OUTPUT glCustListActive).
-  {sys/inc/chblankcust.i}
   {sys/inc/chblankcust.i ""AL3""}
 
   IF ou-log THEN DO:
@@ -747,6 +760,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
    END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -808,7 +822,7 @@ PROCEDURE CustList :
 
     RUN sys/ref/CustListManager.w(INPUT cocode,
                                   INPUT 'AL3').
-    
+
 
 END PROCEDURE.
 
@@ -868,7 +882,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
      DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -879,9 +893,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
 
 
@@ -900,7 +914,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -947,7 +961,6 @@ DEF VAR fcust AS CHAR NO-UNDO .
 DEF VAR tcust AS CHAR NO-UNDO .
 {custom/statusMsg.i " 'Processing...  '"}
 
-{custom/statusMsg.i " 'Processing...  '"}
     ASSIGN
     lSelected  = tb_cust-list
     fcust      = begin_cust
@@ -967,7 +980,7 @@ FORM tt-report.actnum      COLUMN-LABEL "GL Acct#"
      /*tt-report.i-name      COLUMN-LABEL "Item Description" */
      tt-report.tr-num      COLUMN-LABEL "Run#"     
      tt-report.amt         COLUMN-LABEL "Amount"    FORMAT "->>>,>>>,>>>,>>9.99"
-   
+
     WITH FRAME detail NO-BOX NO-ATTR-SPACE DOWN STREAM-IO WIDTH 132.
 
 
@@ -988,7 +1001,6 @@ IF tb_excel THEN DO:
     excelHeader = 'GL Acct#,Description,Customer,Cust Name,Inv#,PO#,Customer Lot#,Item#,Item Desc,Run#,Date,Amount'.
     PUT STREAM excel UNFORMATTED '"' REPLACE(excelHeader,',','","') '"' SKIP.
   END. /* if tb_excel */
-
   IF lselected THEN DO:
     FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
     IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
@@ -1002,15 +1014,10 @@ FOR EACH tt-report:
 END.
 
 DISPLAY "" WITH FRAME r-top.
-FOR EACH ttCustList 
-    WHERE ttCustList.log-fld
-    NO-LOCK,
-  EACH ar-ledger
 FOR EACH ar-ledger
     WHERE ar-ledger.company EQ cocode
       /*AND ar-ledger.cust-no GE begin_cust
       AND ar-ledger.cust-no LE end_cust*/
-      AND ar-ledger.cust-no EQ ttCustList.cust-no
       AND ar-ledger.cust-no  GE fcust
       AND ar-ledger.cust-no  LE tcust
       AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq ar-ledger.cust-no
@@ -1031,7 +1038,7 @@ FOR EACH ar-ledger
     IF AVAIL ar-inv THEN DO:
       lv-jrnl = IF ar-inv.net EQ ar-inv.gross + ar-inv.freight + ar-inv.tax-amt
                 THEN "ARINV" ELSE "OEINV".
-      
+
       CREATE tt-report.
       BUFFER-COPY ar-ledger TO tt-report
       ASSIGN
@@ -1040,7 +1047,7 @@ FOR EACH ar-ledger
        tt-report.actnum = ar-ctrl.receivables
        tt-report.amt    = (IF lv-jrnl EQ "ARINV"
                            THEN ar-inv.net ELSE ar-inv.gross) * -1.
-          
+
       IF ar-inv.tax-amt NE 0 THEN DO:
         RELEASE stax.
         IF ar-inv.tax-code NE "" THEN
@@ -1048,39 +1055,39 @@ FOR EACH ar-ledger
             WHERE stax.company   EQ ar-inv.company
               AND stax.tax-group EQ ar-inv.tax-code
             NO-LOCK NO-ERROR.
-             
+
         IF AVAIL stax THEN DO:
           assign v-ttl-tax  = 0
                  v-ttl-rate = 0.
 
-     
+
           DO li = 1 TO extent(stax.tax-rate1): 
-           
+
             if stax.tax-rate1[li] = 0 then next.
-           
+
             ld-tax-rate[li] = stax.tax-rate1[li].
-           
+
             IF stax.accum-tax AND li GT 1 THEN
            DO lj = 1 TO li - 1: 
-            
+
               ld-tax-rate[li] = ld-tax-rate[li] +
                                 (ld-tax-rate[li] * (stax.tax-rate[lj] / 100)).
             END.
             v-ttl-rate = v-ttl-rate + ld-tax-rate[li].
           END.
-              
+
           DO li = 1 TO extent(stax.tax-rate1):
             if stax.tax-rate1[li] = 0 then next.
             ASSIGN ld-tax-rate[li] = ROUND(ld-tax-rate[li] / v-ttl-rate *
                                            ar-inv.tax-amt,2)
                    v-ttl-tax = v-ttl-tax + ld-tax-rate[li].
           END.
-              
-              
+
+
           IF ar-inv.tax-amt NE v-ttl-tax THEN
             ld-tax-rate[1] = ld-tax-rate[1] +
                              (ar-inv.tax-amt - v-ttl-tax).
-             
+
           DO li = 1 TO extent(stax.tax-rate1):
             if stax.tax-rate1[li] = 0 then next.
             CREATE tt-report.
@@ -1144,7 +1151,7 @@ FOR EACH ar-ledger
       /* gdm - 09240903 */
       lv-jrnl = IF ar-cashl.amt-paid - ar-cashl.amt-disc GT 0
                 THEN "DBMEM" ELSE "CRMEM".
-              
+
       CREATE tt-report.
       BUFFER-COPY ar-ledger TO tt-report
       ASSIGN
@@ -1406,7 +1413,7 @@ PROCEDURE SetCustRange :
         btnCustList:SENSITIVE = iplChecked
        .
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1427,11 +1434,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1459,23 +1466,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

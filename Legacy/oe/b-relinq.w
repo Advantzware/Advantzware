@@ -307,7 +307,8 @@ DEFINE BROWSE Browser-Table
       oe-relh.printed
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 141 BY 15.71.
+    WITH NO-ASSIGN SEPARATORS SIZE 141 BY 15.71
+    FONT 2. 
 
 
 /* ************************  Frame Definitions  *********************** */

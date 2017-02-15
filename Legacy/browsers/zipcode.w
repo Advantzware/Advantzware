@@ -1,14 +1,12 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi          PROGRESS
+          nosweat          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-USING Consultingwerk.Framework.Collections.CharacterDictionary FROM PROPATH.
-USING Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl FROM PROPATH.
-&SCOPED-DEFINE dataGrid
+{Advantzware\WinKit\admBrowserUsing.i}
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
@@ -212,7 +210,8 @@ END.
 {src/adm/method/browser.i}
 {src/adm/method/query.i}
 {methods/template/browser.i}
-{methods/gridSearch.i}
+
+{Advantzware/WinKit/dataGridProc.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -244,17 +243,17 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "ASI.zipcode"
+     _TblList          = "NOSWEAT.zipcode"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
-     _FldNameList[1]   = ASI.zipcode.zipcode
-     _FldNameList[2]   = ASI.zipcode.pref_type
-     _FldNameList[3]   = ASI.zipcode.pref#
-     _FldNameList[4]   = ASI.zipcode.city
-     _FldNameList[5]   > ASI.zipcode.state
+     _FldNameList[1]   = NOSWEAT.zipcode.zipcode
+     _FldNameList[2]   = NOSWEAT.zipcode.pref_type
+     _FldNameList[3]   = NOSWEAT.zipcode.pref#
+     _FldNameList[4]   = NOSWEAT.zipcode.city
+     _FldNameList[5]   > NOSWEAT.zipcode.state
 "zipcode.state" "State" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   = ASI.zipcode.area_code
-     _FldNameList[7]   = ASI.zipcode.dst
+     _FldNameList[6]   = NOSWEAT.zipcode.area_code
+     _FldNameList[7]   = NOSWEAT.zipcode.dst
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

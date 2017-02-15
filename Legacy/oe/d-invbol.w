@@ -113,7 +113,6 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -245,7 +244,7 @@ DO TRANSACTION:
    oe-relh.r-no     = v-nxt-r-no
    oe-relh.release# = li2
    oe-relh.posted   = YES
-   oe-relh.user-id  = USERID("ASI")
+   oe-relh.user-id  = USERID("nosweat")
    oe-relh.upd-time = TIME
    oe-relh.upd-date = TODAY
    out-recid = RECID(oe-relh).

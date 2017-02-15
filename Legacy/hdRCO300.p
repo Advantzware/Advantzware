@@ -2,7 +2,7 @@
 
 &SCOPED-DEFINE dbDir z:/asi9test/rco300
  
-/* CONNECT -pf {&dbDir}/nosweat.pf. */
+CONNECT -pf {&dbDir}/nosweat.pf.
 CONNECT -pf {&dbDir}/asi.pf.
 CONNECT -pf {&dbDir}/asihelp.pf.
 CONNECT -pf {&dbDir}/addon/emptrack-tst.pf.

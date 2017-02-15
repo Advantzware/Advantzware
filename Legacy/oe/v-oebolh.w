@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -444,7 +448,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -499,7 +503,7 @@ DO:
               IF char-val <> "" THEN DO:
                  FOCUS:SCREEN-VALUE = ENTRY(1,char-val). 
               END.
-              
+
           END.
           /* gdm - */
           WHEN "trailer" THEN DO:              
@@ -510,7 +514,7 @@ DO:
                                       OUTPUT char-val).
               IF char-val <> "" THEN 
                 ASSIGN oe-bolh.trailer:SCREEN-VALUE = ENTRY(1,char-val).
-             
+
           END.
          /* gdm - */
 
@@ -642,9 +646,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-bolh.freight V-table-Win
 ON VALUE-CHANGED OF oe-bolh.freight IN FRAME F-Main /* Freight Cost */
 DO:
-    
+
   lFreightEntered = YES.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -738,13 +742,13 @@ DO:
                           OUTPUT cFile).
 
   IF tgSigned:SCREEN-VALUE = "Yes" THEN DO:
-                 
+
       /* If Signature file still not found, warn user */
       IF cFile EQ "" THEN DO:  
           MESSAGE "Signature image does not exist.  Do you want to mark BOL as signed anyway?" 
               UPDATE lContinue
               VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO.
-          
+
           IF NOT lContinue THEN DO:
               tgSigned:SCREEN-VALUE = "NO".
               RETURN NO-APPLY.                            
@@ -775,20 +779,20 @@ DO:
             ASSIGN
             ls-image1 = IF AVAIL sys-ctrl THEN sys-ctrl.char-fld ELSE ""
             ls-image2 = IF AVAIL sys-ctrl THEN sys-ctrl.char-fld ELSE "".
-                    
+
             ls-image1 = ls-image2.
             IF ls-image1 <> "" AND 
               SUBSTRING(ls-image1,LENGTH(ls-image1),1) <> "\" AND
               SUBSTRING(ls-image1,LENGTH(ls-image1),1) <> "/"
             THEN ls-image1 = ls-image1 + "\".
-          
+
             ls-pdf-image = ls-image1 + TRIM(asi.oe-bolh.bol-no:SCREEN-VALUE) + ".pdf".
 
             IF SEARCH(ls-pdf-image) <> ? THEN
               OS-DELETE VALUE(ls-pdf-image) NO-ERROR.
 
           END. /* If continue to delete files */
-              
+
       END. /* signature found */
 
   END. /* change to 'no' */
@@ -821,7 +825,7 @@ RUN sbo/oerel-recalc-act.p PERSISTENT SET lr-rel-lib.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).   
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -885,7 +889,7 @@ DEF VAR tot-other-freight AS DEC NO-UNDO DECIMALS 10.
 DEF VAR ldMinRate AS DEC NO-UNDO.
 
 
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     IF AVAIL oe-bolh                                     AND
        oe-bolh.cust-no:SCREEN-VALUE NE ""                AND
@@ -910,7 +914,7 @@ DEF VAR ldMinRate AS DEC NO-UNDO.
         oe-bolh.freight = 0.
         dTotFreight = 0.        
 
- 
+
         oe-bolh.tot-pallets = 0.
         FOR EACH oe-boll
             WHERE oe-boll.company EQ oe-bolh.company
@@ -920,21 +924,21 @@ DEF VAR ldMinRate AS DEC NO-UNDO.
         END. /* each oe-boll */        
         RUN oe/calcBolFrt.p (ROWID(oe-bolh), OUTPUT dTotFreight).
         oe-bolh.freight = dTotFreight.
-        
+
         FIND CURRENT oe-bolh NO-LOCK.
         RUN dispatch ("row-available").
         RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'container-source':U,OUTPUT char-hdl).
         hContainer = HANDLE(char-hdl).
-   
+
         IF VALID-HANDLE(hContainer) THEN
           RUN send-item-browse IN hContainer (OUTPUT hItemBrowse).
-      
+
         IF VALID-HANDLE(hItemBrowse) THEN DO:     
- 
+
           RUN adm-row-available IN hItemBrowse.
           RUN local-open-query IN hItemBrowse.
           RUN apply-value-changed IN hItemBrowse.
-                        
+
         END. /* Valid-handle hitembrowse */
        END.  /* If not freight is sensitive */
     END. /* if avail oe-bolh */
@@ -952,7 +956,7 @@ PROCEDURE calc-freight-header :
   Parameters:  <none>
   Notes:       Runs from b-oeboll.w to display newly calculated freight
 ------------------------------------------------------------------------------*/
-  
+
   DEF INPUT PARAMETER ipFreight AS DEC DECIMALS 6 NO-UNDO.
   DEF VAR dFreight AS DEC DECIMALS 6 NO-UNDO.
   DEF VAR dTotFreight AS DEC DECIMALS 6 NO-UNDO.
@@ -960,7 +964,7 @@ PROCEDURE calc-freight-header :
   DEF VAR hContainer AS HANDLE NO-UNDO.
   DEF VAR char-hdl AS CHAR NO-UNDO.
   DEF VAR char-val AS CHAR NO-UNDO.
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     IF AVAIL oe-bolh                                     AND
        oe-bolh.cust-no:SCREEN-VALUE NE ""                AND
@@ -977,7 +981,7 @@ PROCEDURE calc-freight-header :
                            oe-bolh.carrier:SCREEN-VALUE,
                            OUTPUT ipFreight).        */
         oe-bolh.freight:SCREEN-VALUE = STRING(ipFreight).
-     
+
       END.
        ELSE DO:
         FIND CURRENT oe-bolh.
@@ -1053,14 +1057,14 @@ FOR EACH oe-boll
     WHERE oe-boll.company EQ oe-bolh.company
       AND oe-boll.b-no    EQ oe-bolh.b-no: 
     v-qty-prior = 0.
-    
+
     FIND FIRST tt-ord WHERE tt-ord.ord-no EQ oe-boll.ord-no NO-ERROR.
     IF NOT AVAIL tt-ord THEN DO: 
       CREATE tt-ord.
       tt-ord.ord-no = oe-boll.ord-no.
     END.
-    
-    
+
+
 
     check-oe-rel:
     FOR EACH oe-rel
@@ -1098,7 +1102,7 @@ FOR EACH oe-boll
           IF oe-rell.r-no EQ oe-boll.r-no THEN
               LEAVE check-oe-rel.
       END.
-                  
+
     END. /* each oe-rel */
 
     v-last-tag = oe-boll.tag.
@@ -1107,7 +1111,7 @@ FOR EACH oe-boll
         {oe/bollrell.i}
         DELETE oe-boll.
     END.
-    
+
     /* wfk - 6/13/13 - this occurs in delete trigger */
     /* RUN oe/reduce-actrel.p (INPUT v-rel-row, INPUT v-rell-row, INPUT v-qty-prior). */
 
@@ -1140,7 +1144,7 @@ PROCEDURE disable-bol-fields :
   Notes:       
 ------------------------------------------------------------------------------*/
   DO WITH FRAME {&FRAME-NAME}:
-    
+
     DISABLE tgSigned.
   END.
 
@@ -1226,7 +1230,7 @@ PROCEDURE display-shipto-detail :
             ship_state:screen-value     = shipto.ship-state
             ship_zip:screen-value       = shipto.ship-zip
             lv-ship-no = shipto.ship-no.
-            
+
   END.
 END PROCEDURE.
 
@@ -1262,7 +1266,7 @@ PROCEDURE enable-bol-fields :
   Notes:       
 ------------------------------------------------------------------------------*/
   DO WITH FRAME {&FRAME-NAME}:
-    
+
     ENABLE tgSigned.
   END.
 END PROCEDURE.
@@ -1319,7 +1323,7 @@ PROCEDURE local-assign-record :
   DEF VAR hContainer AS HANDLE NO-UNDO.
   DEF VAR char-hdl AS CHAR NO-UNDO.
   DEF VAR char-val AS CHAR NO-UNDO.
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
   ASSIGN
    old-weight  = oe-bolh.tot-wt
@@ -1327,7 +1331,7 @@ PROCEDURE local-assign-record :
    old-bol     = oe-bolh.bol-no
    old-carrier = oe-bolh.carrier
    old-shipid  = oe-bolh.ship-id.
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
@@ -1406,12 +1410,12 @@ PROCEDURE local-assign-record :
 
         END.
   END.
-    
+
 
 
   FIND CURRENT oe-boll NO-LOCK NO-ERROR.
   FIND CURRENT itemfg NO-LOCK NO-ERROR.
-  
+
   /* refresh browse if bol # changes */
 
   IF new-bol NE old-bol THEN DO:  
@@ -1421,18 +1425,18 @@ PROCEDURE local-assign-record :
       RUN adm-open-query.
       RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'container-source':U,OUTPUT char-hdl).
       hContainer = HANDLE(char-hdl).
-   
+
       IF VALID-HANDLE(hContainer) THEN
           RUN send-item-browse IN hContainer (OUTPUT hItemBrowse).
-      
+
       IF VALID-HANDLE(hItemBrowse) THEN DO:     
- 
+
          RUN adm-row-available IN hItemBrowse.
          RUN local-open-query IN hItemBrowse.
          RUN apply-value-changed IN hItemBrowse.
-                        
+
       END.
-          
+
   END.
 END PROCEDURE.
 
@@ -1471,7 +1475,7 @@ PROCEDURE local-create-record :
   /* Code placed here will execute PRIOR to standard behavior. */
   FIND LAST bf-bolh USE-INDEX b-no NO-LOCK NO-ERROR.
   li-next-bol = IF AVAIL bf-bolh THEN bf-bolh.b-no + 1 ELSE 1.
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
@@ -1609,7 +1613,7 @@ PROCEDURE local-display-fields :
   DEF VAR li-hh AS INT NO-UNDO.
   DEF VAR li-ss AS INT NO-UNDO.
   DEF VAR li-mm AS INT NO-UNDO.
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
   ASSIGN
    cust_name  = ""
@@ -1658,13 +1662,13 @@ PROCEDURE local-display-fields :
      tgSigned    = (IF oe-bolh.spare-int-1 EQ 1 THEN TRUE ELSE FALSE).
 
   END.
-                                                                 
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN display-status.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1683,7 +1687,7 @@ PROCEDURE local-enable-fields :
      MESSAGE "BOL has been posted, update not allowed..." VIEW-AS ALERT-BOX ERROR.
      RETURN ERROR.
   END.*/
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
 
@@ -1804,7 +1808,7 @@ PROCEDURE local-update-record :
 
   RUN valid-bol-date NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  
+
   lv-newbol = ROWID(oe-bolh).
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -1834,10 +1838,10 @@ PROCEDURE local-update-record :
       RUN adm-open-query.
       RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'container-source':U,OUTPUT char-hdl).
       hContainer = HANDLE(char-hdl).
-   
+
       IF VALID-HANDLE(hContainer) THEN
           RUN send-item-browse IN hContainer (OUTPUT hItemBrowse).
-      
+
       IF VALID-HANDLE(hItemBrowse) THEN DO:     
          RUN adm-row-available IN hItemBrowse.
          RUN local-open-query IN hItemBrowse.
@@ -1845,7 +1849,7 @@ PROCEDURE local-update-record :
       END.
       llNewBol = FALSE.
   END. 
-    
+
   lFreightEntered = NO.
 END PROCEDURE.
 
@@ -1866,7 +1870,7 @@ PROCEDURE new-carrier :
           AND carrier.loc     EQ g_loc                       
           AND carrier.carrier EQ oe-bolh.carrier:SCREEN-VALUE
         NO-LOCK NO-ERROR.
-        
+
     IF AVAIL carrier AND NOT lFreightEntered THEN RUN calc-freight.
   END.
 
@@ -1952,7 +1956,7 @@ PROCEDURE release-update :
       RETURN ERROR.
     END.
 
-  
+
     FIND CURRENT oe-bolh.
 
     /*if oe-bolh.trailer EQ "HOLD" then
@@ -1993,7 +1997,7 @@ PROCEDURE check-release-update :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER cCheck-rel AS CHARACTER NO-UNDO .
-    
+
     IF AVAIL oe-bolh THEN
         ASSIGN
         cCheck-rel = oe-bolh.stat .
@@ -2180,7 +2184,7 @@ PROCEDURE valid-cust-no :
        RETURN ERROR.
     END.
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2259,7 +2263,7 @@ PROCEDURE valid-ship-id :
       RETURN ERROR.
     END.
   END.
-  
+
 
 END PROCEDURE.
 

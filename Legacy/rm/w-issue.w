@@ -17,7 +17,7 @@
       <none>
 
   History: 
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -144,6 +144,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+/* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
@@ -201,7 +202,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -476,7 +477,7 @@ PROCEDURE select_add :
   Notes:       
 ------------------------------------------------------------------------------*/
   def var char-hdl as cha no-undo.
-  
+
   RUN get-link-handle in adm-broker-hdl(this-procedure,"add-line-target", output char-hdl).
   run add-item in widget-handle(char-hdl).
 END PROCEDURE.

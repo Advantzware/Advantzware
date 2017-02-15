@@ -1,4 +1,4 @@
-1&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
+&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
 &Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
@@ -158,9 +158,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -193,7 +203,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -256,6 +266,7 @@ END.
 ON CHOOSE OF Btn_Cancel IN FRAME FRAME-A /* Cancel */
 DO:
   APPLY "close" TO THIS-PROCEDURE.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -271,7 +282,8 @@ DO:
     MESSAGE "Are you sure you want to download jobs to CorrLink? " 
         VIEW-AS ALERT-BOX WARNING BUTTON YES-NO UPDATE ll-ans AS LOG.
     IF ll-ans THEN run do-download.
-    
+
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -313,8 +325,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -330,6 +344,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   {methods/nowait.i}
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -382,7 +397,7 @@ PROCEDURE do-download :
        job-hdr.job-no >= SUBSTR(v-job-no[1],1,6) AND
        job-hdr.job-no <= SUBSTR(v-job-no[2],1,6)
        NO-LOCK:
-       
+
        IF NOT(FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no))) +
           TRIM(job-hdr.job-no) + STRING(INT(job-hdr.job-no2),"99") GE v-job-no[1] AND
           FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no)))   +
@@ -391,18 +406,18 @@ PROCEDURE do-download :
                and asi2corr.job-no = job-hdr.job-no
                and asi2corr.job-no2 = job-hdr.job-no2) THEN
           NEXT.
-       
+
        create tt-job-hdr.
        assign tt-job-hdr.jobhdr-rowid = rowid(job-hdr).
        RELEASE tt-job-hdr.
    end.
-   
+
    run jc/exp2corr.p.
    SESSION:SET-WAIT-STATE("").
-   
+
    MESSAGE "Download completed."
      view-as alert-box info.
-     
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

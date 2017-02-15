@@ -4,6 +4,10 @@
           emptrack         PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -317,7 +321,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -382,7 +386,7 @@ DO:
       &can-find="shifts WHERE shifts.company = gcompany
                           AND shifts.shift = SELF:SCREEN-VALUE"
       &error-message="Invalid Shift"}
-   
+
    IF CAN-FIND (FIRST b-machshft WHERE b-machshft.company = gcompany and b-machshft.machine = mach.m-code
                       AND b-machshft.shift = SELF:SCREEN-VALUE AND recid(b-machshft) <> recid(machshft))
    THEN DO:
@@ -408,7 +412,7 @@ DO:
   lv-focus = FOCUS.
 
   RUN applhelp.p.
-             
+
   IF g_lookup-var NE "" THEN lv-focus:SCREEN-VALUE = g_lookup-var.
 
   RETURN NO-APPLY.
@@ -466,7 +470,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -513,7 +517,7 @@ PROCEDURE disable-proc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     DISABLE fi_shift {&TIME-FIELDS} WITH FRAME {&FRAME-NAME}.
   END.
@@ -548,7 +552,7 @@ PROCEDURE enable-proc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     ENABLE fi_shift.
   END.
@@ -651,7 +655,7 @@ PROCEDURE local-display-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
- 
+
   /*DISPLAY {&TIME-FIELDS} WITH FRAME {&FRAME-NAME}.*/
 
 
@@ -669,7 +673,7 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   DEF BUFFER b-shifts FOR shifts.
-    
+
   DO WITH FRAME {&FRAME-NAME}:
 
     FIND FIRST b-shifts WHERE
@@ -684,7 +688,7 @@ PROCEDURE local-update-record :
           APPLY "ENTRY" TO fi_shift IN FRAME {&FRAME-NAME}.
           RETURN NO-APPLY.
        END.
-   
+
     ASSIGN
        start_hour:SCREEN-VALUE = SUBSTR(STRING(b-shifts.start_time,"HH:MM AM"),1,2)
        start_minute:SCREEN-VALUE = SUBSTR(STRING(b-shifts.start_time,"HH:MM AM"),4,2)

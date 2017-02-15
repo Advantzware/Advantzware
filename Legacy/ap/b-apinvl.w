@@ -1871,7 +1871,7 @@ PROCEDURE local-add-record :
     RETURN.
   END.
 
-  IF apsecure-log AND ap-inv.user-id NE USERID("ASI") THEN DO:
+  IF apsecure-log AND ap-inv.user-id NE USERID("nosweat") THEN DO:
     MESSAGE "This invoice may only be added to by UserID: " +
             TRIM(ap-inv.user-id) + "..."
          VIEW-AS ALERT-BOX ERROR.
@@ -2061,7 +2061,7 @@ PROCEDURE local-delete-record :
     RETURN.
   END.
 
-  IF apsecure-log AND ap-inv.user-id NE USERID("ASI") THEN DO:
+  IF apsecure-log AND ap-inv.user-id NE USERID("nosweat") THEN DO:
     MESSAGE "This invoice may only be deleted by UserID: " +
             TRIM(ap-inv.user-id) + "..."
          VIEW-AS ALERT-BOX ERROR.
@@ -2150,7 +2150,7 @@ PROCEDURE local-enable-fields :
   IF v-msg EQ "" AND ap-inv.posted THEN
     v-msg = "This invoice has been posted, no changes are allowed!".
   
-  IF v-msg EQ "" AND apsecure-log AND ap-inv.user-id NE USERID("ASI") THEN
+  IF v-msg EQ "" AND apsecure-log AND ap-inv.user-id NE USERID("nosweat") THEN
     v-msg = "This invoice may only be updated by UserID: " +
             TRIM(ap-inv.user-id) + "...".
 

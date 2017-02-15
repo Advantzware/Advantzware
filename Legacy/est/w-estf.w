@@ -18,7 +18,7 @@
       <none>
 
   History: 
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -179,6 +179,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+/* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
@@ -251,7 +252,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -891,14 +892,14 @@ PROCEDURE local-change-page :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */  
   run get-attribute ("current-page").
-   
+
   assign
    li-page[2] = li-page[1]
    li-page[1] = int(return-value).
-  
+
   IF li-page[1] = 1 THEN do: RUN select-page(2). RETURN NO-APPLY. END.
 
   if li-page[1] = 8 then do:  /* quote */
@@ -915,12 +916,12 @@ PROCEDURE local-change-page :
        return no-apply.        
     end.                            
   end.
-   
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -934,9 +935,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -976,12 +977,12 @@ PROCEDURE Select_Add :
 ------------------------------------------------------------------------------*/
 
   def var char-hdl as cha no-undo.
-  
+
   run select-page(2).
   run get-link-handle in adm-broker-hdl(this-procedure,"add-est-target", output char-hdl).
   run add-estimate in widget-handle(char-hdl).
-  
-    
+
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

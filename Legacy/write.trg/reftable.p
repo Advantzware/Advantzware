@@ -136,7 +136,7 @@ PROCEDURE update-est.
   IF AVAIL est THEN DO:
     ASSIGN
      est.updated-date = TODAY
-     est.updated-id   = USERID("ASI")
+     est.updated-id   = USERID("nosweat")
      est.mod-date     = est.updated-date.
   END.
 

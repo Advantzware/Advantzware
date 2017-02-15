@@ -5,7 +5,7 @@
 DEFINE VARIABLE ldummy AS LOGICAL NO-UNDO.
 DEFINE VARIABLE i AS INTEGER NO-UNDO.
 DEFINE NEW SHARED VARIABLE quit_login AS LOGICAL NO-UNDO.
-DEFINE VARIABLE m_id LIKE ASI._user._userid NO-UNDO.
+DEFINE VARIABLE m_id LIKE NOSWEAT._user._userid NO-UNDO.
     
   {sys/inc/tslogin.i}
 
@@ -13,18 +13,18 @@ DEFINE VARIABLE m_id LIKE ASI._user._userid NO-UNDO.
      m_id = OS-GETENV("OPSYSID").
      IF m_id = ? THEN m_id = "".
 
-     IF NOT SETUSERID(m_id,"","ASI") THEN RUN nosweat/login.w.
+     IF NOT SETUSERID(m_id,"","NOSWEAT") THEN RUN nosweat/login.w.
   END.
   ELSE
-     IF SETUSERID("marriett","marriett","ASI") THEN.
+     IF SETUSERID("marriett","marriett","NOSWEAT") THEN.
 
-  IF USERID("ASI") = "" OR quit_login THEN
+  IF USERID("NOSWEAT") = "" OR quit_login THEN
   DO:
     ldummy = SESSION:SET-WAIT-STATE("").
     RETURN error.
   END.
 
-  FIND users WHERE users.user_id = USERID("ASI") NO-LOCK NO-ERROR.
+  FIND users WHERE users.user_id = USERID("NOSWEAT") NO-LOCK NO-ERROR.
   IF NOT AVAILABLE users THEN
   DO:     
     ldummy = SESSION:SET-WAIT-STATE("").
@@ -35,11 +35,11 @@ DEFINE VARIABLE m_id LIKE ASI._user._userid NO-UNDO.
   ASSIGN g_company = ""
          g_loc = "".
 
-  FIND FIRST usercomp WHERE usercomp.user_id = USERID("ASI") AND usercomp.company_default 
+  FIND FIRST usercomp WHERE usercomp.user_id = USERID('NOSWEAT') AND usercomp.company_default 
        NO-LOCK NO-ERROR.
   IF AVAIL usercomp THEN do:
     g_company = usercomp.company.
-    FIND FIRST ASI.usercomp WHERE usercomp.user_id = USERID("ASI") AND
+    FIND FIRST ASI.usercomp WHERE usercomp.user_id = USERID("NOSWEAT") AND
             usercomp.company = g_company AND
             usercomp.loc NE "" AND usercomp.loc_default = yes
             NO-LOCK NO-ERROR.

@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -198,7 +202,25 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+/* ************************  Control Triggers  ************************ */
+
+
+&Scoped-define SELF-NAME loc.loc
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL loc.loc V-table-Win
+ON LEAVE OF loc.loc IN FRAME F-Main /* Locations */
+DO:
+   IF LASTKEY = -1 THEN  RETURN.
+   IF adm-new-record AND loc.loc:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ""
+       THEN DO:
+       MESSAGE "Locations must be entered." VIEW-AS ALERT-BOX ERROR.
+       RETURN NO-APPLY.
+   END.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
@@ -209,7 +231,7 @@ ASSIGN
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -276,6 +298,36 @@ PROCEDURE disable_UI :
   /* Hide all frames. */
   HIDE FRAME F-Main.
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
+PROCEDURE local-update-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  do with frame {&frame-name}:
+     IF adm-new-record THEN DO:
+        IF loc.loc:SCREEN-VALUE = "" THEN DO:
+           MESSAGE "Locations must be entered." VIEW-AS ALERT-BOX ERROR.
+           APPLY "entry" TO loc.loc.
+           RETURN.
+        END.
+     END.
+  END.
+
+  /* ============== end of validations ==================*/
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

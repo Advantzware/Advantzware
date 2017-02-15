@@ -11,7 +11,7 @@ to its TABLEIO-TARGET. "
 
   File: p-rmbom.w same as p-updcan.w but no enabled fields but all variables on target object
                    run set-label from cancel trigger
-                   
+
         This is the standard version of the database
         update SmartPanel. It uses the TABLEIO link
         to communicate with SmartViewers and Smart-
@@ -58,7 +58,7 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE trans-commit AS LOGICAL NO-UNDO.  
 DEFINE VARIABLE panel-type   AS CHARACTER NO-UNDO INIT 'SAVE':U.
 DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
- 
+
 {methods/prgsecdt.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -155,7 +155,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-WIn 
 /* ************************* Included-Libraries *********************** */
 
-{advantzware/winkit/winkit-panel.i}
+{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/panel.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -190,7 +190,7 @@ ASSIGN
 */  /* FRAME Panel-Frame */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -206,6 +206,7 @@ DO:
    END.
    run set-label ("&Update").
    self:sensitive = no.
+  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -246,6 +247,7 @@ DO:
         RUN notify ('update-record':U).
      END.
   END.
+  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -262,11 +264,11 @@ END.
   /* Set the default SmartPanel to the one that has the Commit push */
   /* button displayed (the TABLEIO-TARGETS are not enabled/disabled */
   /* automatically with this type of SmartPanel).                   */
-  
+
   RUN set-attribute-list ("SmartPanelType=Save, 
                            Edge-Pixels=2,
                            AddFunction=One-Record":U). 
-                           
+
   /* If the application hasn't enabled the behavior that a RETURN in a frame = GO,
      then enable the usage of the Save button as the default button. (Note that in
      8.0, the Save button was *always* the default button.) */
@@ -274,7 +276,7 @@ END.
   ASSIGN
       Btn-Save:DEFAULT IN FRAME {&FRAME-NAME} = yes
       FRAME {&FRAME-NAME}:DEFAULT-BUTTON = Btn-Save:HANDLE.
-  
+
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF
@@ -314,7 +316,7 @@ PROCEDURE local-enable :
 
   RUN dispatch ('enable':U).      /* Get all objects enabled to start. */
   RUN set-buttons (adm-panel-state).
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -329,7 +331,7 @@ PROCEDURE local-initialize :
   ------------------------------------------------------------------------*/
 
   DEFINE VARIABLE query-position AS CHARACTER NO-UNDO.
-  
+
   /* Insert pre-dispatch code here. */ 
 
   RUN dispatch IN THIS-PROCEDURE ( INPUT "adm-initialize":U ) .
@@ -358,7 +360,7 @@ PROCEDURE local-initialize :
      END.
      RUN set-buttons (adm-panel-state).
   END.
-    
+
   IF panel-type = 'SAVE':U AND /* Only enable a Save panel if there's a record */
     LOOKUP(query-position,'no-record-available,no-external-record-available':U) = 0
      THEN RUN notify ('enable-fields, TABLEIO-TARGET':U).
@@ -377,7 +379,7 @@ PROCEDURE set-buttons :
            sort of action is occuring to the TABLEIO-TARGET(s) of the panel.
   Parameters:  Character string that denotes which action to set the button
                sensitivities.
-               
+
                The values are: initial - the panel is in a state where no record
                                          changes are occuring; i.e. it is possible
                                          to  Update, Add, Copy, or Delete a record.
@@ -421,9 +423,9 @@ DO WITH FRAME Panel-Frame:
 &ENDIF
 
   END. /* panel-state = 'disable-all' */
-  
+
   ELSE IF panel-state = 'initial':U THEN DO:
-  
+
     /* The panel is not actively changing any of its TABLEIO-TARGET(s). */
 
 &IF LOOKUP("Btn-Save":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
@@ -449,7 +451,7 @@ DO WITH FRAME Panel-Frame:
 &IF LOOKUP("Btn-Cancel":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Cancel:SENSITIVE = NO.
 &ENDIF
-      
+
   END. /* panel-state = 'initial' */
 
   ELSE IF panel-state = 'add-only':U THEN DO:
@@ -478,9 +480,9 @@ DO WITH FRAME Panel-Frame:
 &ENDIF
 
   END. /* panel-state = 'add-only' */
- 
+
   ELSE DO: /* panel-state = action-chosen */ 
-  
+
     /* The panel had one of the buttons capable of changing/adding a record */
     /* pressed. Always force the SAVE/UPDATE button to be sensitive in the  */
     /* the event that the smartpanel is disabled and later enabled prior to */
@@ -579,7 +581,7 @@ PROCEDURE use-smartpaneltype :
 ------------------------------------------------------------------------------*/
   define input parameter inval as character.
   panel-type = inval.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

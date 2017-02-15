@@ -92,6 +92,17 @@ do on error undo:
         SUBSTR(v-item-no,1,LENGTH(TRIM(oe-ordl.i-no)) - 1) =
             SUBSTR(oe-ordl.i-no,1,LENGTH(TRIM(oe-ordl.i-no)) - 1).
       END.
+      ELSE IF can-do("Manual,None,Hold",v-est-fg1)  THEN.
+      ELSE do:
+              
+              RUN fg/autofg.p ( ROWID(bf-eb),
+                                  v-est-fg1, 
+                                  bf-eb.procat,
+                                  IF xest.est-type LE 4 THEN "F" ELSE "C",
+                                  bf-eb.cust-no,
+                                  OUTPUT v-item-no).
+              SUBSTR(v-item-no,1,12) = SUBSTR(oe-ordl.i-no,1,12).
+      END.
     END.
     else do:
       find first itemfg
@@ -207,14 +218,17 @@ do on error undo:
   end. /* each eb */
                                  /** CREATE FINISHED GOODS SET PARTS **/
   {fg/addset.i oe-ordl.i-no}
-
-  IF ll-one-part THEN DO:
-    FIND FIRST itemfg
-        WHERE itemfg.company EQ cocode
-          AND itemfg.i-no    EQ oe-ordl.i-no
-        EXCLUSIVE NO-ERROR.
-    IF AVAIL itemfg THEN itemfg.alloc = YES.
-  END.
+/* Wade Kaldawi   3/9/16
+   Ticket 13466, ll-on-part should not change itemfg.alloc */
+/*   IF ll-one-part THEN DO: */
+/*     FIND FIRST itemfg */
+/*         WHERE itemfg.company EQ cocode */
+/*           AND itemfg.i-no    EQ oe-ordl.i-no */
+/*         EXCLUSIVE NO-ERROR. */
+/*     IF AVAIL itemfg THEN itemfg.alloc = YES. */
+/*     FIND CURRENT itemfg NO-LOCK. */
+/*     RELEASE itemfg. */
+/*   END. */
 
   hide frame eb-part no-pause.
 end.

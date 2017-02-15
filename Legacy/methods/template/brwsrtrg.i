@@ -1,7 +1,6 @@
 /* brwsrtrg.i 
 11/01/01   YSK  changed to have better performance*/
 
-&IF DEFINED(dataGrid) EQ 0 &THEN
 {methods/template/brwsord.i 1}
 {methods/template/brwsord.i 2}
 {methods/template/brwsord.i 3}
@@ -39,7 +38,7 @@ DO:
   &ENDIF
   /*APPLY "CHOOSE" TO Btn_Clear_Find.       ** not run any-printable of browse  but reset auto_find value only
                                                run open-query 3 times  */
-  ASSIGN
+  ASSIGN                   
     auto_find = ""
     auto_find:SCREEN-VALUE = "".
 /*  {methods/wait.i}    */            /* ysk set hour-glass */
@@ -71,7 +70,7 @@ DO:
   ASSIGN
     auto_find:SCREEN-VALUE = auto_find
     save-rowid = ROWID({&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}).
-
+  
   IF current-rowid NE save-rowid THEN
   REPOSITION {&BROWSE-NAME} TO ROWID save-rowid.
 
@@ -102,18 +101,6 @@ DO:
 END.
 &ENDIF
 
-&Scoped-define SELF-NAME Btn_Clear_Find
-ON CHOOSE OF {&SELF-NAME} IN FRAME {&FRAME-NAME} /* Clear Find */
-DO:
-  APPLY LASTKEY.
-  ASSIGN
-    auto_find = ""
-    auto_find:SCREEN-VALUE = "".
-  APPLY "ANY-PRINTABLE" TO {&BROWSE-NAME}.
-END.
-&UNDEFINE SELF-NAME
-&ENDIF
-
 ON RETURN OF {&BROWSE-NAME} IN FRAME {&FRAME-NAME}
 DO:
   APPLY "DEFAULT-ACTION" TO {&BROWSE-NAME}.
@@ -124,3 +111,15 @@ DO:
   IF {methods/chkdevid.i} THEN
   RUN Get_Procedure IN Persistent-Handle ("ruler.",OUTPUT run-proc,yes).
 END.
+
+&Scoped-define SELF-NAME Btn_Clear_Find
+ON CHOOSE OF {&SELF-NAME} IN FRAME {&FRAME-NAME} /* Clear Find */
+DO:
+  APPLY LASTKEY.
+  ASSIGN
+    auto_find = ""
+    auto_find:SCREEN-VALUE = "".
+  APPLY "ANY-PRINTABLE" TO {&BROWSE-NAME}.
+END.
+
+&UNDEFINE SELF-NAME

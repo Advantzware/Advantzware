@@ -5,10 +5,8 @@
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win 
-USING Consultingwerk.Framework.Collections.CharacterDictionary FROM PROPATH.
-USING Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl FROM PROPATH.
-&SCOPED-DEFINE dataGrid
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admBrowserUsing.i}
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
@@ -54,37 +52,6 @@ assign
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
-/*------------------------------------------------------------------------
-
-  File: 
-
-  Description: 
-
-  Input Parameters:
-      <none>
-
-  Output Parameters:
-      <none>
-
-  Author: 
-
-  Created: 01/24/17 -  9:35 am
-
-------------------------------------------------------------------------*/
-/*          This .W file was created with the Progress AppBuilder.       */
-/*----------------------------------------------------------------------*/
-
-/* ***************************  Definitions  ************************** */
-
-/* Parameters Definitions ---                                           */
-
-/* Local Variable Definitions ---                                       */
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -123,7 +90,9 @@ and ap-inv.posted = no NO-LOCK ~
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table 
+&Scoped-Define ENABLED-OBJECTS Browser-Table browse-order auto_find ~
+Btn_Clear_Find RECT-4 
+&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -137,6 +106,26 @@ and ap-inv.posted = no NO-LOCK ~
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON Btn_Clear_Find 
+     LABEL "&Clear Find" 
+     SIZE 13 BY 1
+     FONT 4.
+
+DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Auto Find" 
+     VIEW-AS FILL-IN 
+     SIZE 41 BY 1 NO-UNDO.
+
+DEFINE VARIABLE browse-order AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "N/A", 1
+     SIZE 61 BY 1 NO-UNDO.
+
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     SIZE 134 BY 1.43.
+
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY Browser-Table FOR 
@@ -159,11 +148,11 @@ DEFINE BROWSE Browser-Table
       ap-inv.inv-date FORMAT "99/99/9999":U WIDTH 17.2
       ap-inv.due-date FORMAT "99/99/9999":U WIDTH 16.2
       ap-inv.net FORMAT "->,>>>,>>9.99":U
-      ap-inv.paid FORMAT "->,>>>,>>9.99":U
+      ap-inv.paid FORMAT "->,>>>,>>9.99":U WIDTH 18.2
       ap-inv.due FORMAT "->,>>>,>>9.99":U WIDTH 19.2
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 134 BY 19.52
+    WITH NO-ASSIGN SEPARATORS SIZE 134 BY 18.1
          FONT 2.
 
 
@@ -172,6 +161,15 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
+     browse-order AT ROW 19.33 COL 6 HELP
+          "Select Browser Sort Order" NO-LABEL
+     auto_find AT ROW 19.33 COL 77 COLON-ALIGNED HELP
+          "Enter Auto Find Value"
+     Btn_Clear_Find AT ROW 19.33 COL 121 HELP
+          "CLEAR AUTO FIND Value"
+     RECT-4 AT ROW 19.1 COL 1
+     "By:" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 19.33 COL 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -216,7 +214,8 @@ END.
 {src/adm/method/browser.i}
 {src/adm/method/query.i}
 {methods/template/browser.i}
-{methods/gridSearch.i}
+
+{Advantzware/WinKit/dataGridProc.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -254,17 +253,18 @@ ASSIGN
      _Where[1]         = "ASI.ap-inv.company = g_company
 and ap-inv.posted = no"
      _FldNameList[1]   > ASI.ap-inv.inv-no
-"ap-inv.inv-no" ? ? "character" ? ? ? ? ? ? no ? no no "18.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ap-inv.inv-no" ? ? "character" ? ? ? ? ? ? no ? no no "18.2" yes no no "U" "" ""
      _FldNameList[2]   > ASI.ap-inv.vend-no
-"ap-inv.vend-no" ? ? "character" ? ? ? ? ? ? no ? no no "17.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ap-inv.vend-no" ? ? "character" ? ? ? ? ? ? no ? no no "17.2" yes no no "U" "" ""
      _FldNameList[3]   > ASI.ap-inv.inv-date
-"ap-inv.inv-date" ? ? "date" ? ? ? ? ? ? no ? no no "17.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ap-inv.inv-date" ? ? "date" ? ? ? ? ? ? no ? no no "17.2" yes no no "U" "" ""
      _FldNameList[4]   > ASI.ap-inv.due-date
-"ap-inv.due-date" ? ? "date" ? ? ? ? ? ? no ? no no "16.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ap-inv.due-date" ? ? "date" ? ? ? ? ? ? no ? no no "16.2" yes no no "U" "" ""
      _FldNameList[5]   = ASI.ap-inv.net
-     _FldNameList[6]   = ASI.ap-inv.paid
+     _FldNameList[6]   > ASI.ap-inv.paid
+"ap-inv.paid" ? ? "decimal" ? ? ? ? ? ? no ? no no "18.2" yes no no "U" "" ""
      _FldNameList[7]   > ASI.ap-inv.due
-"ap-inv.due" ? ? "decimal" ? ? ? ? ? ? no ? no no "19.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ap-inv.due" ? ? "decimal" ? ? ? ? ? ? no ? no no "19.2" yes no no "U" "" ""
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -276,7 +276,7 @@ and ap-inv.posted = no"
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -396,7 +396,7 @@ PROCEDURE local-open-query :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-/*  APPLY "value-changed" TO browse-order IN FRAME {&FRAME-NAME}.*/
+  APPLY "value-changed" TO browse-order IN FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
 

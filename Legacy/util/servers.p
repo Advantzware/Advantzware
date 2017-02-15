@@ -16,7 +16,7 @@
       <none>
 
   History: New V9 Version - January 15, 1998
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AB.              */
 /*----------------------------------------------------------------------*/
@@ -155,6 +155,7 @@ Destroy on next read */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB wWin 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm2/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -176,7 +177,7 @@ THEN wWin:HIDDEN = yes.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -222,9 +223,9 @@ DO:
   for each asi._connect where asi._connect._connect-server eq iCurrentServer:
     slUsers:add-last("User: " + string(asi._connect._connect-usr) + "    " 
                      + asi._connect._connect-name).
-    
+
   end.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */

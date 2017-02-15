@@ -205,9 +205,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -231,7 +241,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -268,6 +278,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
     apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -289,6 +300,7 @@ DO:
       VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
 
   IF v-process THEN RUN run-process.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -308,8 +320,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -397,7 +411,7 @@ FOR EACH itemfg NO-LOCK
     WHERE itemfg.company EQ cocode
       AND itemfg.isaset  EQ YES
       AND itemfg.alloc   NE YES,
-    
+
     EACH job-hdr NO-LOCK
     WHERE job-hdr.company EQ itemfg.company
       AND job-hdr.i-no    EQ itemfg.i-no
@@ -415,7 +429,7 @@ FOR EACH itemfg NO-LOCK
                                AND job.close-date GE begin_date
                                AND job.close-date LE end_date)
     USE-INDEX i-no,
-    
+
     EACH fg-bin
     WHERE fg-bin.company EQ job-hdr.company
       AND fg-bin.job-no  EQ job-hdr.job-no
@@ -429,7 +443,7 @@ FOR EACH itemfg NO-LOCK
     FIRST b-itemfg NO-LOCK
     WHERE b-itemfg.company EQ fg-bin.company
       AND b-itemfg.i-no    EQ fg-bin.i-no
-    
+
     BREAK BY fg-bin.i-no
           BY fg-bin.job-no
           BY fg-bin.job-no2:
@@ -448,14 +462,14 @@ FOR EACH itemfg NO-LOCK
 END. /* each job */
 
 STATUS DEFAULT "".
-    
+
 SESSION:SET-WAIT-STATE("").
 
 MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
 APPLY "close" TO THIS-PROCEDURE.
 
 RETURN NO-APPLY.
-  
+
 /* end ---------------------------------- copr. 2006  advanced software, inc. */
 
 END PROCEDURE.

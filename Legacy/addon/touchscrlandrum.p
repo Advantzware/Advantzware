@@ -7,7 +7,7 @@ PROPATH = "..\," + PROPATH.
 DEFINE VARIABLE ldummy AS LOGICAL NO-UNDO.
 DEFINE VARIABLE i AS INTEGER NO-UNDO.
 DEFINE NEW SHARED VARIABLE quit_login AS LOGICAL NO-UNDO.
-DEFINE VARIABLE m_id LIKE ASI._user._userid NO-UNDO.
+DEFINE VARIABLE m_id LIKE NOSWEAT._user._userid NO-UNDO.
 DEF NEW GLOBAL SHARED VAR g-sharpshooter AS LOG NO-UNDO.  /* no, it's yes only from sharpsh.p */
 
 ldummy = SESSION:SET-WAIT-STATE("GENERAL").
@@ -27,7 +27,7 @@ IF ERROR-STATUS:ERROR THEN DO:
    QUIT.
 END.
 
-IF CONNECTED("ASI") THEN DO:
+IF CONNECTED("NOSWEAT") THEN DO:
     RUN ./nosweat/persist.p PERSISTENT SET Persistent-Handle.
     RUN touch/touchscr.w.
 END.

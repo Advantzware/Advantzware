@@ -1,12 +1,12 @@
 /* loadPro.p - ASI as of 2.3.2016 @ 5:45pm */
 
-&SCOPED-DEFINE sbDB ASI
+&SCOPED-DEFINE sbDB nosweat
 &SCOPED-DEFINE ID ASI/ALL
 &SCOPED-DEFINE HOP ASI/HOP
 &SCOPED-DEFINE Fleetwood ASI/Fleetwood
 /* add new fields to procedures loadUserFieldLabelWidth & setUseFields below */
 /* add userField to rptFields.dat, see config.w definitions section to enable field */
-&SCOPED-DEFINE nextUserField 89
+&SCOPED-DEFINE nextUserField 90
 
 /* when expanding userFields mod the following:
    1. scopDir.i (userExtent)
@@ -43,6 +43,7 @@ DEFINE VARIABLE ufIPJobMaterial AS LOGICAL NO-UNDO INIT YES.
 DEFINE VARIABLE ufIPJobMatField AS LOGICAL NO-UNDO INIT YES.
 DEFINE VARIABLE ufIPJobSet AS LOGICAL NO-UNDO INIT YES.
 DEFINE VARIABLE ufItemFG AS LOGICAL NO-UNDO INIT YES.
+DEFINE VARIABLE ufJob AS LOGICAL NO-UNDO INIT YES.
 DEFINE VARIABLE ufJobMch AS LOGICAL NO-UNDO INIT YES.
 DEFINE VARIABLE ufOEOrdl AS LOGICAL NO-UNDO INIT YES.
 DEFINE VARIABLE ufOERel AS LOGICAL NO-UNDO INIT YES.
@@ -518,7 +519,7 @@ END. /* each tresource */
 IF traceON THEN DO:
   OUTPUT TO 'schedule/load.log' APPEND.
   ETIME(TRUE).
-END.
+END. /* if traceON */
 
 /* set values used for getting internal & end cell Len/Width values in ipJobSet */
 ASSIGN
@@ -535,9 +536,10 @@ IF AVAILABLE sys-ctrl THEN DO:
 END. /* avail sys-ctrl */
 
 ASSIGN
-  beginEstType = IF CAN-DO('ASI/ALL*,ASI/Folding*,{&HOP}',ID) THEN 0 ELSE 5
-  endEstType = IF CAN-DO('ASI/ALL*,ASI/Corrugated*,{&Fleetwood}',ID) THEN 99 ELSE 4.
-
+  beginEstType = IF CAN-DO('ASI/ALL*,ASI/Folding*,{&HOP}',ID)          THEN 0  ELSE 5
+  endEstType   = IF CAN-DO('ASI/ALL*,ASI/Corrugated*,{&Fleetwood}',ID) THEN 99 ELSE 4
+  cascadeJob   = SEARCH(findProgram('{&data}/',ID,'/noCascade.dat'))   EQ ?
+  .
 IF CONNECTED('emptrack') THEN
 prodQtyProgram = SEARCH(findProgram('{&loads}/',ID,'/prodQty.r')).
   
@@ -555,8 +557,8 @@ FOR EACH job-hdr NO-LOCK
           BY job-hdr.job-no
           BY job-hdr.job-no2
           BY job-hdr.frm
-          BY job-hdr.blank-no:
-
+          BY job-hdr.blank-no
+    :
   FOR EACH job-mch NO-LOCK
       WHERE job-mch.company EQ job.company
         AND job-mch.job EQ job.job
@@ -570,7 +572,9 @@ FOR EACH job-hdr NO-LOCK
       BREAK BY job-mch.job
             BY job-mch.frm
             BY job-mch.blank-no
-            BY job-mch.line:
+            BY job-mch.line
+      :
+    IF FIRST-OF(job-mch.frm) OR cascadeJob EQ NO THEN resSeq = 0.
 
     IF est.est-type EQ 3 OR est.est-type EQ 4 OR
        est.est-type EQ 7 OR est.est-type EQ 8 THEN DO:
@@ -591,9 +595,7 @@ FOR EACH job-hdr NO-LOCK
         STRING(TIME,'hh:mm:ss') ' ' ETIME
         SKIP
         .
-    END.
-    
-    IF FIRST-OF(job-mch.frm) OR NOT cascadeJob THEN resSeq = 0.
+    END. /* if traceON */
     
     scheduleResource = IF mach.sch-m-code NE '' THEN mach.sch-m-code ELSE mach.m-code.
     {{&loads}/resourceUse.i scheduleResource}
@@ -602,9 +604,10 @@ FOR EACH job-hdr NO-LOCK
     IF useDeptSort THEN DO:
       FIND FIRST bMach NO-LOCK
            WHERE bMach.company EQ asiCompany
-             AND bMach.m-code EQ scheduleResource NO-ERROR.
+             AND bMach.m-code EQ scheduleResource
+           NO-ERROR.
       department = IF AVAILABLE bMach THEN STRING(bMach.d-seq,'99') + STRING(bMach.m-seq,'99')
-                                      ELSE STRING(mach.d-seq,'99') + STRING(mach.m-seq,'99').
+                                      ELSE STRING(mach.d-seq,'99')  + STRING(mach.m-seq,'99').
     END. /* usedeptsort */
     
     ASSIGN
@@ -997,7 +1000,8 @@ FOR EACH job-hdr NO-LOCK
       userField[64] = setUserField(64,IF AVAILABLE itemfg THEN itemfg.part-no ELSE '')
       userField[83] = setUserField(83,job.stat)
       userField[85] = setUserField(85,fDueQty(INT(userField[15]),INT(userField[57]),DEC(userField[86]),DEC(userField[87])))
-      userField[88] = setUserField(88,IF job-mch.speed EQ ? THEN '' ELSE LEFT-TRIM(STRING(job-mch.speed,'zz,zz9')))
+      userField[88] = setUserField(88,IF job-mch.speed EQ ? THEN '' ELSE LEFT-TRIM(STRING(job-mch.speed,'z,zzz,zz9')))
+      userField[89] = setUserField(89,STRING(job.create-date,'99.99.9999'))
       jobDescription = jobText
       .
     IF AVAILABLE itemfg AND NOT job-mch.run-qty * itemfg.t-sqft / 1000 LT 1000000 THEN
@@ -1673,9 +1677,8 @@ END PROCEDURE.
 
 PROCEDURE loadUserFieldLabelWidth:
   ASSIGN
-    cascadeJob = SEARCH(findProgram('{&data}/',ID,'/noCascade.dat')) EQ ?
     changeResource = YES
-    loginID = USERID('ASI') + '.' + STRING(TODAY,'999999') + '.' + STRING(TIME,'99999')
+    loginID = USERID('NoSweat') + '.' + STRING(TODAY,'999999') + '.' + STRING(TIME,'99999')
     statusObject[1] = ',Ready/Pending'
     statusObject[2] = 'Machine MR,Completed/Pending'
     statusObject[3] = 'Machine Run,Completed/Pending'
@@ -1767,6 +1770,7 @@ PROCEDURE loadUserFieldLabelWidth:
     userLabel[86] = 'UnderRun%'       userWidth[86] = 10
     userLabel[87] = 'OverRun%'        userWidth[87] = 10
     userLabel[88] = 'Speed'           userWidth[88] = 10
+    userLabel[89] = 'Created'         userWidth[89] = 15
     .
   /* add userField to rptFields.dat, see config.w definitions section
      to enable field */
@@ -1830,6 +1834,7 @@ PROCEDURE setUseFields:
     ufIPJobMatField = useField[29] OR useField[30] OR useField[31] OR useField[32] OR useField[33]
     ufIPJobSet = useField[65] OR useField[66] OR useField[67] OR useField[68]
     ufItemFG = useField[21] OR useField[34] OR useField[52] OR useField[54] OR useField[64]
+    ufJob = useField[89]
     ufJobMch = useField[9] OR useField[15] OR useField[18] OR useField[19] OR useField[20] OR useField[85] OR useField[88]
     ufOEOrdl = useField[82] OR useField[84] OR useField[86] OR useField[87]
     ufOERel = useField[37] OR useField[38] OR useField[39] OR useField[40] OR useField[52] OR useField[63]

@@ -318,9 +318,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -411,7 +421,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -523,6 +533,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -545,7 +556,7 @@ DO:
        when 2 then run output-to-screen.
        when 3 then run output-to-file.
        when 4 then do:
-           
+
            {custom/asifax.i &begin_cust=begin_cust-no
                             &END_cust=END_cust-no
                             &fax-subject=c-win:title
@@ -571,10 +582,11 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -804,8 +816,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -815,7 +829,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  
+
 /* security check need {methods/prgsecur.i} in definition section */
   IF access-close THEN DO:
      APPLY "close" TO THIS-PROCEDURE.
@@ -823,7 +837,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -831,6 +845,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO begin_cust-no.
   END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -973,7 +988,7 @@ SESSION:SET-WAIT-STATE ("general").
 assign
  str-tit2 = c-win:TITLE
  {sys/inc/ctrtext.i str-tit2 112}
- 
+
  v-cust[1] = begin_cust-no
  v-cust[2] = end_cust-no
  v-styl[1] = begin_style
@@ -1009,18 +1024,18 @@ for each eb
       and ((tb_corr and eb.est-type ge 5) or
            (tb_fold and eb.est-type le 4))
       no-lock,
-      
+
       first ef
       where ef.company eq eb.company
         AND ef.est-no  EQ eb.est-no
         and ef.form-no eq eb.form-no
       no-lock,
-      
+
       first est
       where est.company eq eb.company
         AND est.est-no  EQ eb.est-no
       no-lock
-      
+
       break by (if eb.est-type ge 5 then 1 else 2)
             by (if v-sort then "" else eb.part-no)
             by (if v-sort then "" else eb.cust-no)
@@ -1031,7 +1046,7 @@ for each eb
             by ef.board
             by eb.cust-no
             by eb.est-no:
-            
+
   {custom/statusMsg.i " 'Processing Estimate#:  '  + est.est-no  "}
 
   if first-of(if eb.est-type ge 5 then 1 else 2) then do:
@@ -1073,7 +1088,7 @@ for each eb
                      THEN STRING(est.ord-date,"99/99/99") ELSE "".
 
   RUN sys/inc/numup.p (ef.company,ef.est-no,ef.form-no,OUTPUT v-num-up).
-      
+
   display eb.len                      column-label "Length"
           eb.wid                      column-label "Width"
           eb.dep                      column-label "Depth"
@@ -1091,7 +1106,7 @@ for each eb
                                       format "x(24)"
           est.updated-id              COLUMN-LABEL "Last User"
           v-num-up                    COLUMN-LABEL "# Up"
-                                                    
+
        WITH FRAME detail NO-BOX NO-ATTR-SPACE DOWN STREAM-IO WIDTH 154.
 
   /* gdm - 10130806 */
@@ -1152,12 +1167,12 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha NO-UNDO.
-  
+
   ASSIGN
      lv-frame-hdl = frame {&frame-name}:HANDLE
      lv-group-hdl = lv-frame-hdl:first-child
      lv-field-hdl = lv-group-hdl:first-child.
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1172,7 +1187,7 @@ PROCEDURE show-param :
                   if not valid-handle(lv-field2-hdl) then leave. 
                   if lv-field2-hdl:private-data = lv-field-hdl:name THEN
                      parm-lbl-list = parm-lbl-list + lv-field2-hdl:screen-value + ",".
-                  
+
                   lv-field2-hdl = lv-field2-hdl:next-sibling.                 
               end.       
            end.                 
@@ -1183,23 +1198,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

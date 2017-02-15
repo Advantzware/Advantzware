@@ -33,7 +33,7 @@ DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 {custom/gloc.i}
 {custom/getcmpny.i}
 {custom/getloc.i}
-  
+
 {sys/inc/var.i new shared}
 
 assign
@@ -289,9 +289,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -342,7 +352,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -401,6 +411,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -454,6 +465,7 @@ DO:
        WHEN 6 THEN RUN OUTPUT-to-port.
 
   end case. 
+     {src/WinKit/triggerend.i}
  END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -608,8 +620,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -627,7 +641,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -635,6 +649,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO begin_dept.
   END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -697,7 +712,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
 /*     DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -708,11 +723,11 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.  */
-     
+
  {custom/out2file.i}
 
 END PROCEDURE.
@@ -744,7 +759,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -812,7 +827,7 @@ assign
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i value(lines-per-page)}
-                               
+
 if td-show-parm then run show-param.
 
 display "" with frame r-top.
@@ -877,7 +892,7 @@ display "" with frame r-top.
           job-mch.blank-no EQ 0) AND
           job-mch.run-complete EQ NO)
           no-lock:
-    
+
           find first x-mch where
                x-mch.job-no   = mch-act.job-no AND
                x-mch.job-no2  = mch-act.job-no2 AND
@@ -901,9 +916,9 @@ display "" with frame r-top.
            find FIRST job-code where
                 job-code.code = mch-act.code
                 no-lock no-error.
-             
+
            if not available job-code then next.
-             
+
            if job-code.cat = "MR" then
               x-mch.mr-act = x-mch.mr-act + mch-act.hours.
            else if job-code.cat = "RUN" then
@@ -919,7 +934,7 @@ display "" with frame r-top.
   for each x-mch by x-mch.line:
       create mch.
       BUFFER-COPY x-mch TO mch.
-            
+
       IF mch.run-act > 0 and x-mch.est-speed <> 0 then
       DO:
          IF CAN-FIND(FIRST mach WHERE
@@ -944,7 +959,7 @@ display "" with frame r-top.
                       BY item.mat-type
                       BY job-mat.j-no
                       BY job-mat.rec_key:
-           
+
                 IF x-mch.est-speed NE 0 THEN
                    mch.run-hr = (x-mch.act-qty * job-mat.len / 12) / x-mch.est-speed.
                 LEAVE.
@@ -955,7 +970,7 @@ display "" with frame r-top.
 
       RELEASE mch.
   END.
-      
+
   FOR EACH mch:
 
       RELEASE job-hdr.
@@ -975,18 +990,18 @@ display "" with frame r-top.
               job-hdr.job-no EQ mch.job-no AND
               job-hdr.job-no2 EQ mch.job-no2
               NO-LOCK NO-ERROR.
-      
+
       IF AVAIL job-hdr THEN
          v-cust = job-hdr.cust-no.
       ELSE
          v-cust = "".
-      
+
       FIND FIRST tt-job-mch WHERE
            tt-job-mch.job-no EQ mch.job-no AND
            tt-job-mch.job-no2 EQ mch.job-no2 AND
            tt-job-mch.m-code  EQ mch.m-code
            NO-ERROR.
-      
+
       IF NOT AVAIL tt-job-mch THEN
       DO:
          CREATE tt-job-mch.
@@ -1003,12 +1018,12 @@ display "" with frame r-top.
               (eb.blank-no EQ mch.blank-no OR
                mch.blank-no EQ 0)
               NO-LOCK NO-ERROR.
-      
+
          IF AVAIL eb THEN
             ASSIGN
                tt-job-mch.style = eb.style
                tt-job-mch.die = eb.die-no.
-      
+
          ELSE IF NOT AVAIL eb THEN
          DO:
             FIND FIRST eb WHERE
@@ -1031,16 +1046,16 @@ display "" with frame r-top.
                  eb.die-no NE "" AND
                  eb.form-no NE 0
                  NO-LOCK NO-ERROR.
-      
+
           IF AVAIL eb THEN
              tt-job-mch.die = eb.die-no.
-      
+
           RELEASE eb.
       END.
 
       tt-job-mch.total-hrs = tt-job-mch.total-hrs + mch.mr-hr + mch.run-hr.
   END.
-   
+
   for each tt-job-mch
       break by tt-job-mch.m-code
             BY tt-job-mch.job-no
@@ -1056,7 +1071,7 @@ display "" with frame r-top.
                 SKIP(1)
            WITH FRAME mach-head STREAM-IO width 180 no-labels no-box down.
      END.
-    
+
      IF tb_excel THEN
         EXPORT STREAM excel DELIMITER ","
                tt-job-mch.m-code 
@@ -1074,7 +1089,7 @@ display "" with frame r-top.
              tt-job-mch.style FORMAT "X(6)" COLUMN-LABEL "Style"
              tt-job-mch.total-hrs FORMAT "ZZZ,ZZ9.99" COLUMN-LABEL "Total Hours"
         WITH FRAME mach-job STREAM-IO width 180 no-box down.
-    
+
      v-total-mach-hrs = v-total-mach-hrs + tt-job-mch.total-hrs.
 
      IF LAST-OF(tt-job-mch.m-code) THEN
@@ -1102,13 +1117,13 @@ display "" with frame r-top.
         END.
      END.
   END.
-  
+
   DISPLAY v-line FORMAT "X(80)" SKIP(1)
           SPACE(21)
           "All Machines Total Hours: " FORMAT "X(26)"
           v-total-hrs FORMAT "ZZZ,ZZ9.99"
      WITH FRAME mach-end STREAM-IO width 180 no-labels no-box down.
-  
+
   IF tb_excel THEN
   DO:
      PUT STREAM excel SKIP.
@@ -1152,11 +1167,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1184,23 +1199,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

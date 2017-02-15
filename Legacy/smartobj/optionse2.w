@@ -46,8 +46,8 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS UDF Select_spec Select_dept Select_frac ~
-Select_add Select_appl Select_help 
+&Scoped-Define ENABLED-OBJECTS Select_spec Select_dept Select_frac ~
+Select_Add Select_appl Select_help UDF 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -91,29 +91,29 @@ DEFINE BUTTON Select_help
      LABEL "Help" 
      SIZE 7.8 BY 1.81 TOOLTIP "Help".
 
+DEFINE BUTTON UDF 
+     IMAGE-UP FILE "Graphics/32x32/refresh.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Home" 
+     SIZE 7.8 BY 1.81 TOOLTIP "Home Key".
+
 DEFINE BUTTON Select_spec 
      IMAGE-UP FILE "Graphics/32x32/book_open.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Spec Note" 
      SIZE 7.8 BY 1.81 TOOLTIP "Spec Notes".
 
-DEFINE BUTTON UDF 
-     IMAGE-UP FILE "Graphics/32x32/window_dialog.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
-     LABEL "UDF" 
-     SIZE 7.8 BY 1.81 TOOLTIP "UDF".
-
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     UDF AT ROW 1 COL 41
      Select_spec AT ROW 1 COL 17
      Select_dept AT ROW 1 COL 9
      Select_frac AT ROW 1 COL 49
-     Select_add AT ROW 1 COL 1
+     Select_Add AT ROW 1 COL 1
      Select_appl AT ROW 1 COL 25
      Select_help AT ROW 1 COL 33
+     UDF AT ROW 1 COL 41
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
@@ -154,7 +154,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB s-object 
 /* ************************* Included-Libraries *********************** */
 
-{advantzware/winkit/winkit-panel.i}
+{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/smart.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -187,17 +187,18 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME Select_add
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_add s-object
-ON CHOOSE OF Select_add IN FRAME F-Main /* Add */
+&Scoped-define SELF-NAME Select_Add
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_Add s-object
+ON CHOOSE OF Select_Add IN FRAME F-Main /* Add */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -206,9 +207,10 @@ END.
 
 &Scoped-define SELF-NAME Select_appl
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_appl s-object
-ON CHOOSE OF Select_appl IN FRAME F-Main /* Util Appl */
+ON CHOOSE OF Select_appl IN FRAME F-Main /* Run App */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -219,8 +221,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_dept s-object
 ON CHOOSE OF Select_dept IN FRAME F-Main /* Notes */
 DO:
-  
+
    {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -229,9 +232,10 @@ END.
 
 &Scoped-define SELF-NAME Select_frac
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_frac s-object
-ON CHOOSE OF Select_frac IN FRAME F-Main
+ON CHOOSE OF Select_frac IN FRAME F-Main /* Util_frac */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -243,6 +247,19 @@ END.
 ON CHOOSE OF Select_help IN FRAME F-Main /* Help */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME UDF
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL UDF s-object
+ON CHOOSE OF UDF IN FRAME F-Main /* Home */
+DO:
+  {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -254,17 +271,7 @@ END.
 ON CHOOSE OF Select_spec IN FRAME F-Main /* Spec Note */
 DO:
     {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME UDF
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL UDF s-object
-ON CHOOSE OF UDF IN FRAME F-Main /* UDF */
-DO:
-  {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -321,12 +328,12 @@ PROCEDURE Init-Buttons :
   DEFINE VARIABLE notes-button AS LOGICAL NO-UNDO.
   DEFINE VARIABLE misc_fields-button AS LOGICAL NO-UNDO.
   DEFINE VARIABLE spec-note AS LOGICAL NO-UNDO.
-  
+
   {methods/run_link.i "CONTAINER-SOURCE" "Init-Options-Panel"
     "(OUTPUT search-button,OUTPUT list-button,OUTPUT notes-button,OUTPUT misc_fields-button, output spec-note)"}
 /*  IF NOT search-button THEN
   DISABLE select_search WITH FRAME {&FRAME-NAME}. */
-  
+
   IF NOT notes-button THEN
   DISABLE select_dept WITH FRAME {&FRAME-NAME}.
 /*  IF NOT misc_fields-button THEN
@@ -378,7 +385,7 @@ PROCEDURE state-changed :
       /* Object instance CASEs can go here to replace standard behavior
          or add new cases. */
   END CASE.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

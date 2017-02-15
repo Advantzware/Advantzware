@@ -6,9 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-USING Consultingwerk.Framework.Collections.CharacterDictionary FROM PROPATH.
-USING Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl FROM PROPATH.
-&SCOPED-DEFINE dataGrid
+{Advantzware\WinKit\admBrowserUsing.i}
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
@@ -135,14 +133,14 @@ DEFINE BUTTON Btn_Clear_Find
      FONT 4.
 
 DEFINE BUTTON printBOL 
-     IMAGE-UP FILE "Graphics/32x32/printer_gearwheel.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/printer_gearwheel.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 9 BY 2.14 TOOLTIP "Print BOL".
 
 DEFINE BUTTON printSBOL 
      IMAGE-UP FILE "Graphics/32x32/document_check_edit.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 9 BY 2.14 TOOLTIP "Print BOL".
 
@@ -269,7 +267,8 @@ END.
 {src/adm/method/browser.i}
 {src/adm/method/query.i}
 {methods/template/browser.i}
-{methods/gridSearch.i}
+
+{Advantzware/WinKit/dataGridProc.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

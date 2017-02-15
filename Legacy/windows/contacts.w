@@ -15,7 +15,7 @@
   Output Parameters : None
 
   Author            : Dennis G. Dizon
-  
+
   Created           : 05/30/2007
 
 ------------------------------------------------------------------------*/
@@ -44,7 +44,7 @@ CREATE WIDGET-POOL.
 &ENDIF
 
 /* Temp-Tables */
-DEFINE TEMP-TABLE ttContacts        LIKE ASI.phone.
+DEFINE TEMP-TABLE ttContacts        LIKE NOSWEAT.phone.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -179,13 +179,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("adeicon/rbuild%.ico":U) THEN
-    MESSAGE "Unable to load icon: adeicon/rbuild%.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -217,7 +223,7 @@ OPEN QUERY {&SELF-NAME}
 */  /* BROWSE brContacts */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -254,6 +260,7 @@ END.
 ON CHOOSE OF btnCancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
   APPLY 'CLOSE':U TO THIS-PROCEDURE.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -271,8 +278,8 @@ DO:
   DO i = 1 TO brContacts:NUM-SELECTED-ROWS:
      x = brContacts:FETCH-SELECTED-ROW(i).
      IF x THEN DO:
-       CREATE ASI.phone.
-       BUFFER-COPY ttContacts TO ASI.phone.
+       CREATE NOSWEAT.phone.
+       BUFFER-COPY ttContacts TO NOSWEAT.phone.
        i2 = i2 + 1.
      END.
  END.
@@ -281,6 +288,7 @@ DO:
    VIEW-AS ALERT-BOX INFO BUTTONS OK.
 
  APPLY 'CLOSE':U TO THIS-PROCEDURE.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -301,8 +309,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -312,13 +322,14 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  
+
   STATUS DEFAULT "For Multi-Select: Press and hold 'CTRL' key before clicking.".
 
   RUN enable_UI.
 
   RUN Initialize (icShipRecKey).
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -386,15 +397,15 @@ PROCEDURE Initialize :
       FOR EACH  ASI.cust             NO-LOCK
           WHERE  ASI.cust.company   = bf-cust.company
             AND ASI.cust.active    = 'X',
-           EACH  ASI.phone        NO-LOCK
-          WHERE  ASI.phone.TABLE_rec_key = ASI.cust.rec_key:
-    
+           EACH  NOSWEAT.phone        NO-LOCK
+          WHERE  NOSWEAT.phone.TABLE_rec_key = ASI.cust.rec_key:
+
         IF NOT CAN-FIND (FIRST ttContacts 
                          WHERE ttContacts.table_rec_key = icShipRecKey
-                           AND ttContacts.attention     = ASI.phone.attention) 
+                           AND ttContacts.attention     = NOSWEAT.phone.attention) 
         THEN DO:
              CREATE ttContacts.
-             BUFFER-COPY ASI.phone TO ttContacts.
+             BUFFER-COPY NOSWEAT.phone TO ttContacts.
              ASSIGN ttContacts.table_rec_key = icShipRecKey.
         END.
       END.
@@ -406,21 +417,21 @@ PROCEDURE Initialize :
           WHERE  ASI.cust.company   = ASI.shipto.company
             AND (ASI.cust.cust-no   = ASI.shipto.cust-no
              /*OR  ASI.cust.active    = 'X'*/),
-           EACH  ASI.phone        NO-LOCK
-          WHERE  ASI.phone.TABLE_rec_key = ASI.cust.rec_key:
-    
+           EACH  NOSWEAT.phone        NO-LOCK
+          WHERE  NOSWEAT.phone.TABLE_rec_key = ASI.cust.rec_key:
+
         IF NOT CAN-FIND (FIRST ttContacts 
                          WHERE ttContacts.table_rec_key = icShipRecKey
-                           AND ttContacts.attention     = ASI.phone.attention) 
+                           AND ttContacts.attention     = NOSWEAT.phone.attention) 
         THEN DO:
              CREATE ttContacts.
-             BUFFER-COPY ASI.phone TO ttContacts.
+             BUFFER-COPY NOSWEAT.phone TO ttContacts.
              ASSIGN ttContacts.table_rec_key = icShipRecKey.
         END.
       END.
   END.
   {&OPEN-QUERY-brContacts}
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

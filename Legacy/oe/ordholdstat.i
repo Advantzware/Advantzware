@@ -227,7 +227,7 @@ PROCEDURE os-Process-Hold-Status :
            ASSIGN b-oe-ord.stat = vcStatus
                   b-oe-ord.spare-char-2 = vcHoldType.
        IF AVAILABLE b-oe-ord AND vcStatus = "N" THEN
-           b-oe-ord.approved-id   = USERID("ASI").
+           b-oe-ord.approved-id   = USERID("nosweat").
             
        b-oe-ord.approved-date = TODAY.
        RUN oe/syncJobHold.p (INPUT b-oe-ord.company, INPUT b-oe-ord.ord-no, INPUT (IF b-oe-ord.stat EQ "H" THEN "Hold" ELSE "Release")).

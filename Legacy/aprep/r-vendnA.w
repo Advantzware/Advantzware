@@ -45,10 +45,10 @@ assign
 DEF VAR lv-default-comp AS CHAR NO-UNDO.
 DEF VAR v-count AS INT NO-UNDO INIT 0.
 
-FOR EACH usercomp WHERE usercomp.USER_id = USERID("ASI") AND  usercomp.loc = "" NO-LOCK :
+FOR EACH usercomp WHERE usercomp.USER_id = USERID("nosweat") AND  usercomp.loc = "" NO-LOCK :
     v-count = v-count + 1 .
 END.
-FIND FIRST usercomp WHERE usercomp.USER_id = USERID("ASI") AND
+FIND FIRST usercomp WHERE usercomp.USER_id = USERID("nosweat") AND
                                   usercomp.company_default NO-LOCK NO-ERROR.
 ASSIGN     
 lv-default-comp = IF AVAIL usercomp THEN usercomp.company ELSE "001".
@@ -242,6 +242,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -285,7 +296,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -333,6 +344,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -344,7 +356,7 @@ END.
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   assign rd-dest.
-       
+
   run run-report. 
   STATUS DEFAULT "Processing Complete".
 
@@ -354,6 +366,7 @@ DO:
        when 3 then run output-to-file.
   end case. 
 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -508,8 +521,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -532,15 +547,16 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      begin_comp = lv-default-comp
      end_comp   = lv-default-comp
      .
-  
+
   RUN enable_UI.
 
   IF v-count LE 1 THEN
       ASSIGN
       begin_comp:SENSITIVE = NO
       end_comp:SENSITIVE   = NO .
-  
+
   {methods/nowait.i}
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -635,7 +651,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -693,14 +709,14 @@ FIND FIRST period
       AND period.pst     LE end_date
       AND period.pend    GE end_date
     NO-LOCK NO-ERROR.
-    
+
 IF AVAIL period THEN
   ASSIGN 
    end_date  = period.pend
    .
-   
+
 DISPLAY end_date WITH FRAME {&FRAME-NAME}.
-      
+
 ASSIGN
  str-tit2 = c-win:TITLE
  {sys/inc/ctrtext.i str-tit2 112}
@@ -731,7 +747,7 @@ FOR EACH company WHERE
       AND period.pst     LE end_date
       AND period.pend    GE end_date
     NO-LOCK NO-ERROR.
-    
+
     IF AVAIL period THEN
     ASSIGN
         v-period  = period.pnum
@@ -845,7 +861,7 @@ FOR EACH company WHERE
      ACCUMULATE v-tot-lyd (TOTAL).
    END.
    END.
-   
+
 
    DISPLAY "T O T A L S" to 39
            (ACCUM TOTAL baldue)         FORMAT "->>,>>>,>>9.99"
@@ -895,11 +911,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -927,23 +943,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

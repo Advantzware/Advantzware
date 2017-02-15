@@ -4,6 +4,10 @@
           emptrack         PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -559,7 +563,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -610,7 +614,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -677,7 +681,7 @@ PROCEDURE local-assign-record :
   def var ls-key as cha form "x(20)" no-undo.
   /* Code placed here will execute PRIOR to standard behavior. */
 
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
@@ -698,7 +702,7 @@ PROCEDURE local-assign-record :
 
 
      ls-key = string(today,"99999999") +
-              string(next-value(rec_key_seq,ASI),"99999999").
+              string(next-value(rec_key_seq,nosweat),"99999999").
      asi.rec_key = ls-key.               
      create rec_key.
      assign rec_key.rec_key = asi.rec_key
@@ -813,7 +817,7 @@ PROCEDURE local-display-fields :
 ------------------------------------------------------------------------------*/
   DEF VAR i AS INT NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
- 
+
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
@@ -823,7 +827,7 @@ PROCEDURE local-display-fields :
      FIND FIRST susptype WHERE susptype.suspTYPE = asi.TYPE NO-LOCK NO-ERROR.
   IF AVAIL susptype THEN v-type-dscr:SCREEN-VALUE IN FRAME {&FRAME-NAME} = susptype.dscr.
 
-  
+
 
 END PROCEDURE.
 

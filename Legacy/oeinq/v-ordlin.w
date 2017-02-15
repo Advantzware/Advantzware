@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -34,7 +38,12 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{custom/globdefs.i}
+{sys/inc/var.i new shared }
 
+assign cocode = g_company
+       locode = g_loc.
+{oe/oe-sysct1.i NEW}
 DEF VAR lv-inv-qty LIKE oe-ordl.inv-qty NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
@@ -387,18 +396,21 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
 
 /* ***************************  Main Block  *************************** */
+RUN oe/oe-sysct.p.
+
+ IF NOT v-oecomm-log THEN RUN show-comm (NO).
 
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -478,9 +490,9 @@ PROCEDURE local-initialize :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR cocode AS CHAR NO-UNDO.
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
@@ -499,7 +511,7 @@ PROCEDURE local-initialize :
           NO-LOCK NO-ERROR.
 
      IF AVAIL usergrps AND
-        (NOT CAN-DO(usergrps.users,USERID("ASI")) AND
+        (NOT CAN-DO(usergrps.users,USERID("NOSWEAT")) AND
          TRIM(usergrps.users) NE "*") THEN
         ASSIGN
            oe-ordl.cost:VISIBLE IN FRAME {&FRAME-NAME} = NO.
@@ -575,6 +587,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-comm B-table-Win 
+PROCEDURE show-comm :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ip-visible AS LOGICAL NO-UNDO.
+
+
+  DO WITH FRAME {&FRAME-NAME}:
+    ASSIGN
+     oe-ordl.s-pct[1]:VISIBLE IN FRAME {&FRAME-NAME} = ip-visible
+     oe-ordl.s-pct[2]:VISIBLE IN FRAME {&FRAME-NAME} = ip-visible
+     oe-ordl.s-pct[3]:VISIBLE IN FRAME {&FRAME-NAME} = ip-visible
+     oe-ordl.s-comm[1]:VISIBLE IN FRAME {&FRAME-NAME} = ip-visible
+     oe-ordl.s-comm[2]:VISIBLE IN FRAME {&FRAME-NAME} = ip-visible
+     oe-ordl.s-comm[3]:VISIBLE IN FRAME {&FRAME-NAME} = ip-visible.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-inv-qty V-table-Win 
@@ -587,22 +624,22 @@ FUNCTION get-inv-qty RETURNS DECIMAL
   DEF BUFFER b-oe-ordl FOR oe-ordl.
 
   DEF VAR lp-inv-qty AS INT NO-UNDO.
-  
+
   ASSIGN lp-inv-qty = 0.
-         
+
   FIND b-oe-ordl WHERE ROWID(b-oe-ordl) EQ ROWID(oe-ordl) NO-LOCK.
-  
+
   FOR EACH ar-invl  WHERE
       ar-invl.company EQ oe-ordl.company AND
       ar-invl.ord-no EQ oe-ordl.ord-no AND
       ar-invl.i-no EQ oe-ordl.i-no
       NO-LOCK:
-      
+
       lp-inv-qty = lp-inv-qty + ar-invl.inv-qty.
   END.
 
   RETURN lp-inv-qty.
- 
+
   /* Function return value. */
 
 END FUNCTION.

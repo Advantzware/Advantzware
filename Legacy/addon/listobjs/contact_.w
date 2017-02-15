@@ -479,7 +479,7 @@ DO:
   DEFINE VARIABLE sel-ok AS LOG NO-UNDO.
   DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 
-  init-dir = "users\" + USERID("ASI").
+  init-dir = "users\" + USERID("NOSWEAT").
   selected-name = {&SELF-NAME}:SCREEN-VALUE.
   SYSTEM-DIALOG GET-FILE selected-name
       TITLE      "Choose Mail Merge File to SAVE ..."

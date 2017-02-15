@@ -8,6 +8,6 @@ TRIGGER PROCEDURE FOR WRITE OF {&TABLENAME} OLD BUFFER old-{&TABLENAME}.
 
 ASSIGN
    {&TABLENAME}.updated-date = TODAY
-   {&TABLENAME}.updated-id = USERID("ASI")
+   {&TABLENAME}.updated-id = USERID("NOSWEAT")
    {&TABLENAME}.updated-time = TIME.
 

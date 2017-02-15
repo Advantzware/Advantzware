@@ -73,7 +73,7 @@ DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
 
 &Scoped-define ADM-SUPPORTED-LINKS TableIO-Source
 
-/* Name of designated FRAME-NAME and/or first browse and/or first query */
+/* Name of first Frame and/or Browse and/or first Query                 */
 &Scoped-define FRAME-NAME Panel-Frame
 
 /* Standard List Definitions                                            */
@@ -132,7 +132,7 @@ DEFINE BUTTON Btn-Save
      FONT 4.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
      SIZE 84 BY 1.91.
 
 
@@ -189,7 +189,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-WIn 
 /* ************************* Included-Libraries *********************** */
 
-{advantzware/winkit/winkit-panel.i}
+{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/panel.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -204,7 +204,7 @@ END.
 /* SETTINGS FOR WINDOW C-WIn
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME Panel-Frame
-   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
+   NOT-VISIBLE Size-to-Fit                                              */
 ASSIGN 
        FRAME Panel-Frame:SCROLLABLE       = FALSE
        FRAME Panel-Frame:HIDDEN           = TRUE.
@@ -224,7 +224,7 @@ ASSIGN
 */  /* FRAME Panel-Frame */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -237,12 +237,8 @@ DO:
   add-active = yes.
 
   RUN notify ('add-record':U).
-  
 
-
-  /* Added by WinKit Migration tool 07.02.2016 23:08:45 */
-  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
-
+  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -257,11 +253,7 @@ DO:
       add-active = no.
       RUN notify ('cancel-record':U).
    END.
-
-
-  /* Added by WinKit Migration tool 07.02.2016 23:08:45 */
-  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
-
+  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -274,11 +266,7 @@ ON CHOOSE OF Btn-Copy IN FRAME Panel-Frame /* Copy */
 DO:
 
    RUN notify ('copy-record':U).
-
-
-  /* Added by WinKit Migration tool 07.02.2016 23:08:45 */
-  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
-
+  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -290,11 +278,7 @@ END.
 ON CHOOSE OF Btn-Delete IN FRAME Panel-Frame /* Delete */
 DO:
    RUN notify ('delete-record':U).  
-
-
-  /* Added by WinKit Migration tool 07.02.2016 23:08:45 */
-  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
-
+  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -308,12 +292,8 @@ DO:
     def var char-hdl as cha no-undo.
     run get-link-handle in adm-broker-hdl (this-procedure,"tableio-target",output char-hdl).
     run rebuild-stds in widget-handle(char-hdl).
-    
 
-
-  /* Added by WinKit Migration tool 07.02.2016 23:08:45 */
-  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
-
+  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -327,12 +307,8 @@ DO:
     def var char-hdl as cha no-undo.
     run get-link-handle in adm-broker-hdl (this-procedure,"tableio-target",output char-hdl).
     run recalc-costs in widget-handle(char-hdl).
-    
 
-
-  /* Added by WinKit Migration tool 07.02.2016 23:08:45 */
-  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
-
+  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -344,11 +320,7 @@ END.
 ON CHOOSE OF Btn-Reset IN FRAME Panel-Frame /* Reset */
 DO:
   RUN notify ('reset-record':U).
-
-
-  /* Added by WinKit Migration tool 07.02.2016 23:08:45 */
-  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
-
+  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -389,11 +361,7 @@ DO:
         RUN notify ('update-record':U).
      END.
   END.
-
-
-  /* Added by WinKit Migration tool 07.02.2016 23:08:45 */
-  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
-
+  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -410,11 +378,11 @@ END.
   /* Set the default SmartPanel to the one that has the Commit push */
   /* button displayed (the TABLEIO-TARGETS are not enabled/disabled */
   /* automatically with this type of SmartPanel).                   */
-  
+
   RUN set-attribute-list ("SmartPanelType=Save, 
                            Edge-Pixels=2,
                            AddFunction=One-Record":U). 
-                           
+
   /* If the application hasn't enabled the behavior that a RETURN in a frame = GO,
      then enable the usage of the Save button as the default button. (Note that in
      8.0, the Save button was *always* the default button.) */
@@ -422,7 +390,7 @@ END.
   ASSIGN
       Btn-Save:DEFAULT IN FRAME {&FRAME-NAME} = yes
       FRAME {&FRAME-NAME}:DEFAULT-BUTTON = Btn-Save:HANDLE.
-  
+
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF
@@ -477,7 +445,7 @@ PROCEDURE local-initialize :
   ------------------------------------------------------------------------*/
 
   DEFINE VARIABLE query-position AS CHARACTER NO-UNDO.
-  
+
   /* Insert pre-dispatch code here. */ 
 
   RUN dispatch IN THIS-PROCEDURE ( INPUT "adm-initialize":U ) .
@@ -521,7 +489,7 @@ DO WITH FRAME {&FRAME-NAME}:
      IF v-can-create AND Btn-Save:LABEL = "&Save" THEN btn-save:SENSITIVE = yes.
  END.
 
- 
+
   IF panel-type = 'SAVE':U AND /* Only enable a Save panel if there's a record */
     LOOKUP(query-position,'no-record-available,no-external-record-available':U) = 0
      THEN RUN notify ('enable-fields, TABLEIO-TARGET':U).
@@ -540,7 +508,7 @@ PROCEDURE set-buttons :
            sort of action is occuring to the TABLEIO-TARGET(s) of the panel.
   Parameters:  Character string that denotes which action to set the button
                sensitivities.
-               
+
                The values are: initial - the panel is in a state where no record
                                          changes are occuring; i.e. it is possible
                                          to  Update, Add, Copy, or Delete a record.
@@ -584,9 +552,9 @@ DO WITH FRAME Panel-Frame:
 &ENDIF
 
   END. /* panel-state = 'disable-all' */
-  
+
   ELSE IF panel-state = 'initial':U THEN DO:
-  
+
     /* The panel is not actively changing any of its TABLEIO-TARGET(s). */
 
 &IF LOOKUP("Btn-Save":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
@@ -612,7 +580,7 @@ DO WITH FRAME Panel-Frame:
 &IF LOOKUP("Btn-Cancel":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Cancel:SENSITIVE = NO.
 &ENDIF
-      
+
   END. /* panel-state = 'initial' */
 
   ELSE IF panel-state = 'add-only':U THEN DO:
@@ -641,9 +609,9 @@ DO WITH FRAME Panel-Frame:
 &ENDIF
 
   END. /* panel-state = 'add-only' */
- 
+
   ELSE DO: /* panel-state = action-chosen */ 
-  
+
     /* The panel had one of the buttons capable of changing/adding a record */
     /* pressed. Always force the SAVE/UPDATE button to be sensitive in the  */
     /* the event that the smartpanel is disabled and later enabled prior to */
@@ -731,7 +699,7 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/pustates.i}
   END CASE.
-  
+
   /* change to force buttons after delete style record */
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"tableio-target",OUTPUT char-hdl).
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
@@ -763,7 +731,7 @@ PROCEDURE use-smartpaneltype :
 ------------------------------------------------------------------------------*/
   define input parameter inval as character.
   panel-type = inval.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

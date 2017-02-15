@@ -153,7 +153,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB F-Frame-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 {methods/enhance.i}
 
@@ -533,7 +532,7 @@ PROCEDURE Output-to-File :
   {methods/run_link.i "CONTAINER-SOURCE" "Output-Name" "(OUTPUT output-name)"}
   IF NOT VALID-HANDLE(adm-broker-hdl) THEN
   output-name = "Program Master List.rpt".
-  init-dir = "users\" + USERID("ASI").
+  init-dir = "users\" + USERID("NOSWEAT").
   SYSTEM-DIALOG GET-FILE output-name
       TITLE      "Choose Listing to SAVE ..."
       FILTERS    "Listing Files (*.rpt)" "*.rpt"
@@ -576,7 +575,7 @@ PROCEDURE Output-to-Printer :
     RETURN "CANCEL".
   END.
   FIND FIRST config NO-LOCK.
-  output-name = IF NOT spooled THEN "users~/" + USERID("ASI") + "~/" + output-name
+  output-name = IF NOT spooled THEN "users~/" + USERID("NOSWEAT") + "~/" + output-name
                 ELSE config.spool_dir + "~/" + output-name.
   OUTPUT TO VALUE(output-name).
   OUTPUT CLOSE.
@@ -587,7 +586,7 @@ PROCEDURE Output-to-Printer :
     OUTPUT TO VALUE(output-name).
     EXPORT
       REPLACE(REPLACE(output-name,".spl",""),config.spool_dir + "/","")
-      USERID("ASI")
+      USERID("NOSWEAT")
       progname
       SESSION:PRINTER-CONTROL-HANDLE.
     OUTPUT CLOSE.
@@ -634,9 +633,9 @@ PROCEDURE Output-to-Screen :
   Notes:       
 ------------------------------------------------------------------------------*/
   {methods/run_link.i "CONTAINER-SOURCE" "Output-Name" "(OUTPUT output-name)"}
-  output-name = "users~/" + USERID("ASI") + "~/" + output-name.
+  output-name = "users~/" + USERID("NOSWEAT") + "~/" + output-name.
   IF NOT VALID-HANDLE(adm-broker-hdl) THEN
-  output-name = "users~/" + USERID("ASI") + "~/Program Master List.rpt".
+  output-name = "users~/" + USERID("NOSWEAT") + "~/Program Master List.rpt".
   OUTPUT TO VALUE(output-name).
   OUTPUT CLOSE.
   RUN Process-Selections.
@@ -664,9 +663,9 @@ PROCEDURE Output-to-Viper :
   Notes:       
 ------------------------------------------------------------------------------*/
   {methods/run_link.i "CONTAINER-SOURCE" "Output-Name" "(OUTPUT output-name)"}
-  output-name = "users~/" + USERID("ASI") + "~/" + output-name.
+  output-name = "users~/" + USERID("NOSWEAT") + "~/" + output-name.
   IF NOT VALID-HANDLE(adm-broker-hdl) THEN
-  output-name = "users~/" + USERID("ASI") + "~/Program Master List.rpt".
+  output-name = "users~/" + USERID("NOSWEAT") + "~/Program Master List.rpt".
   OUTPUT TO VALUE(output-name).
   OUTPUT CLOSE.
   RUN Process-Selections.

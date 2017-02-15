@@ -10,7 +10,7 @@ assign
             string(day(today),"99")         +
             string(time,"99999")            +
             string(program-name(1),"x(40)") +
-            string(USERID("ASI"),"x(40)")
+            string(userid("nosweat"),"x(40)")
 
  v-term-2 = string(year(today - 2),"9999")  +
             string(month(today - 2),"99")   +

@@ -6,7 +6,7 @@ TRIGGER PROCEDURE FOR CREATE OF {&TABLENAME}.
 
 
 ASSIGN
- {&TABLENAME}.user-id  = USERID("ASI")
+ {&TABLENAME}.user-id  = USERID('nosweat')
  {&TABLENAME}.upd-date = TODAY
  {&TABLENAME}.upd-time = TIME
- {&TABLENAME}.create-by  = USERID("ASI").
+ {&TABLENAME}.create-by  = USERID('nosweat').

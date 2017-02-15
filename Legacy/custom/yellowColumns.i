@@ -1234,7 +1234,7 @@ PROCEDURE openQuery:
 /* btr - 02/15/2011  */
 &ELSEIF '{&yellowColumnsName}' EQ 'b-wipmach' &THEN
   &SCOPED-DEFINE SORTBY-PHRASE BY ~
-     IF sortColumn EQ 'Machine Department'            THEN dept.fc                    ELSE ~
+     IF sortColumn EQ 'Machine Department'            THEN STRING(dept.fc)                    ELSE ~
         STRING(dept.seq) ~{&SORTED}
 
 
@@ -1262,7 +1262,8 @@ PROCEDURE openQuery:
      END.
         APPLY 'value-changed' TO BROWSE {&browse-name}.
   &ELSEIF '{&yellowColumnsName}' EQ 'inv-head' &THEN
-     IF sortBy THEN DO:
+     IF sortBy THEN
+     DO:
         {oe/j-oeinv-a.i}
      END.
      ELSE DO:
@@ -1272,21 +1273,28 @@ PROCEDURE openQuery:
      
      APPLY 'value-changed' TO BROWSE {&browse-name}. 
   &ELSEIF '{&yellowColumnsName}' EQ 'ar-cash' &THEN
-     IF sortBy THEN DO:
+     IF sortBy THEN
+     DO:
         {ar/j-dbcr.i}
      END.
-     ELSE DO:       
+     ELSE DO:
+        
         {ar/j-dbcr-d.i}
-     END.     
+     END.
+     
      APPLY 'value-changed' TO BROWSE {&browse-name}. 
   &ELSEIF '{&yellowColumnsName}' EQ 'ar-inv' &THEN
-     IF sortBy THEN DO:
+     IF sortBy THEN
+     DO:
         {ar/j-inv.i}
      END.
-     ELSE DO:        
+     ELSE DO:
+        
         {ar/j-inv-d.i}
-     END.     
+     END.
+     
      APPLY 'value-changed' TO BROWSE {&browse-name}.
+
   &ENDIF
 
 END PROCEDURE.
@@ -1319,10 +1327,8 @@ PROCEDURE startSearch:
   ASSIGN
     sortColumn = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:LABEL
     sortDisplay = TRIM(sortColumn + ' - ' + STRING(sortBy,'Ascending/Descending'))
-    &IF DEFINED(dataGrid) EQ 0 &THEN
     &IF DEFINED(noSortByField) EQ 0 &THEN
     fi_sortBy:SCREEN-VALUE IN FRAME {&FRAME-NAME} = sortDisplay
-    &ENDIF
     &ENDIF
     &IF DEFINED(autoFind) NE 0 &THEN
     auto_find:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ''
@@ -1333,7 +1339,16 @@ PROCEDURE startSearch:
     lv-search
     &ENDIF
     .
+ 
+
   IF browserTitle NE '' THEN
   BROWSE {&BROWSE-NAME}:TITLE = browserTitle + ' (sorted by: ' + sortDisplay + ')'.
   RUN openQuery.
 END PROCEDURE.
+
+/* Sort removed from b-cusinq 'Date' */
+/* STRING((YEAR(tt-arinq.tr-date) * 10000000) + ~
+           (MONTH(tt-arinq.tr-date) * 1000)    + ~
+           DAY(tt-arinq.tr-date) + ~
+           (IF tt-arinq.inv-no EQ 0 THEN 99999999 ELSE 0),'99999999') ~
+  ELSE ~*/

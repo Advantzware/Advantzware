@@ -303,6 +303,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -363,7 +374,7 @@ OPEN QUERY {&SELF-NAME}
 */  /* BROWSE brSelectedFields */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -446,6 +457,7 @@ or "CTRL-CURSOR-RIGHT" of brSelectedFields
 or "CTRL-CURSOR-RIGHT" of brAvailableFields
 DO:
   run shootField(brSelectedFields:handle,brAvailableFields:handle).
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -458,6 +470,7 @@ ON CHOOSE OF btMoveDownAvail IN FRAME frDataSettings /* v */
 or "CTRL-CURSOR-DOWN" of brAvailableFields
 DO:
   run moveField(brAvailableFields:handle,yes).
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -470,6 +483,7 @@ ON CHOOSE OF btMoveDownSel IN FRAME frDataSettings /* v */
 or "CTRL-CURSOR-DOWN" of brSelectedFields
 DO:
   run moveField(brSelectedFields:handle,yes).
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -482,6 +496,7 @@ ON CHOOSE OF btMoveUpAvail IN FRAME frDataSettings /* ^ */
 or "CTRL-CURSOR-UP" of brAvailableFields
 DO:
   run moveField(brAvailableFields:handle,no).
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -494,6 +509,7 @@ ON CHOOSE OF btMoveUpSel IN FRAME frDataSettings /* ^ */
 or "CTRL-CURSOR-UP" of brSelectedFields
 DO:
   run moveField(brSelectedFields:handle,no).
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -512,6 +528,7 @@ DO:
     {&OPEN-QUERY-brRawData}
   end.
 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -530,6 +547,7 @@ DO:
     {&OPEN-QUERY-brRawData}
   end.
 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -544,6 +562,7 @@ or "CTRL-CURSOR-LEFT" of brAvailableFields
 or "CTRL-CURSOR-LEFT" of brSelectedFields
 DO:
   run shootField(brAvailableFields:handle,brSelectedFields:handle).
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -563,8 +582,10 @@ DELETE WIDGET  {&WINDOW-NAME}.
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* General procedures for all viewers in the MVC */
 { frLoad.i }
@@ -577,9 +598,10 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  
+
   RUN enable_UI.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -600,7 +622,7 @@ PROCEDURE commitPage :
   define output parameter plTabOk as logical     no-undo.
 
   plTabOk = yes.
-    
+
 
 END PROCEDURE. /* commitPage */
 
@@ -768,7 +790,7 @@ PROCEDURE refreshFrame :
              ttRawData.cFieldValue = cRawData[iField]. 
     end.
   end.
-  
+
   input close. 
 
   /* Show first record */
@@ -783,7 +805,7 @@ PROCEDURE refreshFrame :
                , output table ttField
                ).
   if not can-find(first ttField) then return. 
-  
+
   /* Clean it up a little */
   for each ttField 
     where ttField.cFieldName = 'RECID'

@@ -340,9 +340,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -409,7 +419,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -468,6 +478,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -481,7 +492,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-       
+
   run run-report.
   STATUS DEFAULT "Processing Complete".
 
@@ -491,6 +502,7 @@ DO:
        when 3 then run output-to-file.
   end case. 
 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -799,8 +811,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -829,7 +843,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      tb_corr = INDEX(" CB",SUBSTR(sys-ctrl.char-fld,1,1)) GT 0.
 
   RUN enable_UI.
-     
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -837,6 +851,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO thru_date.
   END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -919,7 +934,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -954,7 +969,7 @@ PROCEDURE run-report :
 /* ----------------------------------------------- jc/rep/jc-summ.p 07/98 JLF */
 /* Job Cost Summary Report                                                    */
 /* -------------------------------------------------------------------------- */
-  
+
 {sys/form/r-top3w.f}
 
 def buffer b-jh for job-hdr.
@@ -1016,12 +1031,12 @@ assign
   v-fdate   = thru_date
   v-fcust   = fi_st-cust
   v-tcust   = fi_end-cust
- 
+
   v-fjob    = fill(" ",6 - length(trim(begin_job-no))) +
                trim(begin_job-no) + string(int(begin_job-no2),"99")
   v-tjob    = fill(" ",6 - length(trim(end_job-no)))   +
                trim(end_job-no)   + string(int(end_job-no2),"99") 
- 
+
   v-hdr[1]  =  fill(" ",150) 
   v-hdr[2]  = "CUSTOMER  JOB#        S  B DIE#            " 
   v-hdr[3]  = "--------- ----------- -- - --------------- " .
@@ -1063,7 +1078,7 @@ ASSIGN
                  IF tb_corr THEN "B" ELSE "F"
               ELSE IF tb_corr THEN "C" 
                  ELSE "" .
-   
+
           ASSIGN
               v-style   = tb_style 
               v-plate   = tb_plate 
@@ -1104,7 +1119,7 @@ IF tb_excel THEN DO:
               excelheader = excelheader + ",GLUED".
           IF  tb_glhr THEN
               excelheader = excelheader + ",GLUE HRS".
-                       
+
           PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' skip.
 END. 
 
@@ -1117,7 +1132,7 @@ SESSION:SET-WAIT-STATE ("general").
     end.
 
     IF TRIM(SUBSTRING(v-fjob, 1, 6)) GT "" THEN DO:    
-      
+
       for each job
           where job.company eq cocode
       {jc/rep/jc-back3.i}
@@ -1127,7 +1142,7 @@ SESSION:SET-WAIT-STATE ("general").
       FOR EACH job-hdr
           WHERE job-hdr.company EQ cocode
         {jc/rep/jc-back4.i}
-   
+
     END.
 
     for each tt-report where tt-report.term-id eq "",
@@ -1146,7 +1161,7 @@ SESSION:SET-WAIT-STATE ("general").
               BY job-hdr.job-no2
               BY job-hdr.frm
               BY job-hdr.blank-no
-              
+
         transaction:
 
         {custom/statusMsg.i " 'Processing Job#  '  + job-hdr.job-no "}
@@ -1157,7 +1172,7 @@ SESSION:SET-WAIT-STATE ("general").
          PUT "" SKIP.
          IF tb_excel THEN 
          EXPORT STREAM excel "".
-               
+
       END.
 
       IF FIRST-OF(job-hdr.blank-no) THEN DO:
@@ -1190,36 +1205,36 @@ SESSION:SET-WAIT-STATE ("general").
                 and mat-act.b-num   eq job-mat.blank-no
                 and mat-act.i-no    eq job-mat.i-no
               use-index job no-lock:
-         
+
             run sys/ref/convquom.p(job-mat.qty-uom, "EA", job-mat.basis-w,
                                    job-mat.len, job-mat.wid, item.s-dep,
                                    mat-act.qty, output v-qty).
-         
+
             /*v-mat-qty = v-mat-qty + v-qty.*/
           end.
-         
+
           assign
            v-pct = 1
            v-up  = 1
            v-on  = 1.
-         
+
           find b-est where b-est.company EQ job-hdr.company
                      AND b-est.est-no  EQ job-hdr.est-no
                    no-lock no-error.
-         
+
           if avail b-est then do:
             run sys/inc/numup.p (b-est.company, b-est.est-no, job-mat.frm, output v-up).
-         
+
             find first ef
                 where ef.company   EQ b-est.company
                   AND ef.est-no    EQ b-est.est-no
                   and ef.form-no eq job-mat.frm
                 no-lock no-error.
-                  
+
             IF AVAIL ef THEN DO:
               RUN est/ef-#out.p (ROWID(ef), OUTPUT v-on).
               /*v-on = v-up * v-on.*/
-         
+
               find first eb
                   where eb.company    EQ ef.company
                     AND eb.est-no     EQ eb.est-no
@@ -1227,31 +1242,31 @@ SESSION:SET-WAIT-STATE ("general").
                     and eb.blank-no   NE 0
                   no-lock no-error.
             end.
-         
+
             if b-est.est-type eq 3 then do:
               v-qty = 0.
-         
+
               for each b-jh FIELDS(qty)
                   where b-jh.company eq job-hdr.company
                     and b-jh.job     eq job-hdr.job
                     and b-jh.job-no  eq job-hdr.job-no
                     and b-jh.job-no2 eq job-hdr.job-no2
                   no-lock:
-         
+
                 v-qty = v-qty + b-jh.qty.
               end.
-         
+
               /*v-pct = job-hdr.qty / v-qty.*/
             end.
-         
+
             /*else
             if est.est-type eq 4 or est.est-type eq 8 then */
               /*v-pct = job-hdr.sq-in / 100*/.
           end.
-         
+
           leave.
       end.
-      
+
       if job-hdr.ord-no ne 0 then
       for each ar-inv FIELDS(x-no)
           where ar-inv.company eq cocode
@@ -1265,7 +1280,7 @@ SESSION:SET-WAIT-STATE ("general").
             and ar-invl.job-no  eq job-hdr.job-no
             and ar-invl.job-no2 eq job-hdr.job-no2
           no-lock:
-         
+
         v-qty = ar-invl.inv-qty.
 
         if tt-report.key-03 eq "SET" and avail eb then do:
@@ -1282,7 +1297,7 @@ SESSION:SET-WAIT-STATE ("general").
                       int(substr(tt-report.key-01,7,2)),
                       int(substr(tt-report.key-01,1,4)))
        v-pct   = 0.
-     
+
       IF AVAIL job-mch AND job-mch.dept  eq "GL" AND job-mch.run-complete then 
          ASSIGN v-gl = "  X".
       IF AVAIL job-mch AND (job-mch.dept  eq "RS" OR job-mch.dept  eq "AA") AND job-mch.run-complete then 
@@ -1320,19 +1335,19 @@ SESSION:SET-WAIT-STATE ("general").
                  (eb.blank-no eq 0                and
                   (b-est.est-type eq 2 or b-est.est-type eq 6)))
           no-lock no-error.
-                             
+
         IF AVAIL eb AND eb.die-no <> "" THEN 
            ASSIGN v-die-no = eb.die-no.
-      
+
         IF LAST-OF(job-hdr.blank-no) THEN DO:
-        
+
           FIND LAST b-job-mch WHERE
                b-job-mch.company EQ cocode AND
                b-job-mch.job-no  EQ job-hdr.job-no AND
                b-job-mch.job-no2 EQ job-hdr.job-no2
                USE-INDEX seq-idx
                NO-LOCK NO-ERROR.
-          
+
           IF AVAIL b-job-mch THEN
           DO:
              v-run-end-date = b-job-mch.end-date.
@@ -1340,7 +1355,7 @@ SESSION:SET-WAIT-STATE ("general").
           END.
           ELSE
              v-run-end-date = ?.
-          
+
 
              PUT
                  tt-report.key-02 space(2)
@@ -1385,7 +1400,7 @@ SESSION:SET-WAIT-STATE ("general").
                  PUT SPACE(12) .
 
              PUT SKIP.
-         
+
           IF tb_excel THEN do:
              PUT STREAM excel UNFORMATTED
               '"'   tt-report.key-02                     '",'
@@ -1429,7 +1444,7 @@ SESSION:SET-WAIT-STATE ("general").
       ASSIGN
       v-first[1] = YES
       v-m-list = "".
-      
+
     END. /* each tt-report */
 
 IF tb_excel THEN DO:
@@ -1464,12 +1479,12 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   ASSIGN
   lv-frame-hdl = frame {&frame-name}:HANDLE
   lv-group-hdl = lv-frame-hdl:first-child
   lv-field-hdl = lv-group-hdl:first-child.
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1485,7 +1500,7 @@ PROCEDURE show-param :
                   if not valid-handle(lv-field2-hdl) then leave. 
                   if lv-field2-hdl:private-data = lv-field-hdl:name THEN
                      parm-lbl-list = parm-lbl-list + lv-field2-hdl:screen-value + ",".
-                  
+
                   lv-field2-hdl = lv-field2-hdl:next-sibling.                 
               end.       
            end.                 
@@ -1500,19 +1515,19 @@ PROCEDURE show-param :
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

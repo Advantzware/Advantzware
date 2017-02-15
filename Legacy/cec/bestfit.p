@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi          PROGRESS
+          nosweat          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &Scoped-define FRAME-NAME D-Dialog
@@ -301,7 +301,6 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */

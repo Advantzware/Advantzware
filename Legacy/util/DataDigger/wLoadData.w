@@ -195,6 +195,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -208,7 +219,7 @@ THEN wLoadData:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -253,6 +264,7 @@ DO:
   &ELSE
       APPLY "CLOSE":U TO THIS-PROCEDURE.
   &ENDIF
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -271,6 +283,7 @@ DO:
     if lOk then run setPage(giPage + 1).
   end.
 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -284,6 +297,7 @@ DO:
 
   if giPage > 1 then run setPage(giPage - 1).
 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -303,8 +317,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -322,6 +338,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   setRegistry('DumpAndLoad', 'LoadFile',  pcFile).
   run setPage(1).
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -392,15 +409,15 @@ PROCEDURE initializeObject :
 
   /* Make sure the lib is running */
   run startDiggerLib.
-  
+
 /* debug */
 /*  load 'DataDigger-nljrpti' base-key 'ini' no-error. */
 /* debug */
 
-  
+
   setData('TargetDatabase', pcDatabase).
   setData('TargetTable', pcTable).
-          
+
 
 END PROCEDURE. /* initializeObject */
 
@@ -415,7 +432,7 @@ PROCEDURE setPage :
   Notes:       
 ------------------------------------------------------------------------------*/
   define input  parameter piTab as integer     no-undo.
-  
+
   define variable iTabHide as integer     no-undo.
 
   /* Allowed to switch to this tab? */
@@ -465,7 +482,7 @@ PROCEDURE startDiggerLib :
   ----------------------------------------------------------------------
   21-10-2009 pti Created
   ----------------------------------------------------------------------*/
-  
+
   define variable hDiggerLib   as handle      no-undo.
   define variable hProcedure   as handle      no-undo.
   define variable cProgDir     as character   no-undo.

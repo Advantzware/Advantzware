@@ -43,7 +43,7 @@ DEF VAR is-xprint-form AS LOG NO-UNDO.
 assign
  cocode = gcompany
  locode = gloc.
- 
+
 {aprep\r-1099m.i NEW}
 {custom/xprint.i}
 
@@ -241,9 +241,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -282,7 +292,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -341,6 +351,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -364,6 +375,7 @@ DO:
        when 3 then run output-to-file.
   end case. 
 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -514,8 +526,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -525,14 +539,14 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  
+
   FIND FIRST company WHERE company.company EQ cocode NO-LOCK NO-ERROR.
   IF AVAIL company THEN v-num-per = company.num-per.
 
   ASSIGN
    begin_date = ?
    end_date   = ?.
-   
+
   FIND FIRST sys-ctrl WHERE
        sys-ctrl.company EQ cocode AND
        sys-ctrl.name    EQ "1099MISC"
@@ -558,8 +572,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -581,9 +596,9 @@ PROCEDURE calc-total-proc :
    DEFINE INPUT PARAMETER ip-last-of-vend AS LOG NO-UNDO.
 
    DO WITH FRAME {&FRAME-NAME}:
-   
+
       iop-vend-tot = iop-vend-tot + (ap-payl.amt-paid - ap-payl.amt-disc).
-            
+
       if ip-last-of-vend then do:
         if iop-vend-tot ne 0 or tb_zero-ven:CHECKED then
         DO:
@@ -599,7 +614,7 @@ PROCEDURE calc-total-proc :
                  tt-1099-m.vend-total = iop-vend-tot.
           RELEASE tt-1099-m.
         END.
-              
+
         iop-vend-tot  = 0.
       END.
    END.
@@ -770,7 +785,7 @@ DEF VAR v-vend-tot AS DEC NO-UNDO.
               ap-payl.memo eq no
               no-lock
          break by vend.vend-no:
-    
+
          RUN calc-total-proc(INPUT-OUTPUT v-vend-tot,
                              INPUT LAST-OF(vend.vend-no)).
      end.

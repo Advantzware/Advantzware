@@ -149,6 +149,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -167,7 +178,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -204,6 +215,7 @@ END.
 ON CHOOSE OF Btn_Cancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -216,6 +228,7 @@ ON CHOOSE OF Btn_Help IN FRAME DEFAULT-FRAME /* Help */
 OR HELP OF FRAME {&FRAME-NAME}
 DO: /* Call Help Function (or a simple message). */
 MESSAGE "Help for File: {&FILE-NAME}":U VIEW-AS ALERT-BOX INFORMATION.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -234,16 +247,16 @@ DO:
   def buffer b-contact for contact.
   def var list-name as cha no-undo.
   def var OKpressed as log no-undo.
-    
+
   lv-contact:hidden = no.
   SESSION:SET-WAIT-STATE("GENERAL").
 
-/*  init-dir = "users\" + USERID("ASI") + "\contactx.rpt". */
+/*  init-dir = "users\" + USERID("NOSWEAT") + "\contactx.rpt". */
   init-dir = session:temp-directory + "\contactx.rpt".
   for each tt-contact:
       delete tt-contact.
   end. 
-  list-name = "users\" + USERID("ASI") + "\contactx" .
+  list-name = "users\" + USERID("NOSWEAT") + "\contactx" .
   if search(init-dir) = ? then do:
      SYSTEM-DIALOG GET-FILE list-name
        TITLE      "Enter Listing Name to Open ..."
@@ -266,13 +279,13 @@ DO:
          return no-apply.
       end.
   end.
-  
-  
+
+
   input from value(init-dir) no-echo.
   num-imports = 0.
   num-update = 0.
   repeat:
-  
+
     insert tt-contact. 
     find first b-contact where b-contact.company eq gcompany
                          and b-contact.cust-no eq tt-contact.cust-no
@@ -289,48 +302,49 @@ DO:
                 lv-contact:screen-value = b-contact.cust-no.
 
     end.
- 
+
   end.  /* repeat */
 
   if search(session:temp-directory + "\contactx.old" ) <> ? 
      then os-delete value(session:temp-directory + "\contactx.old").
   os-rename value(init-dir) value(session:temp-directory + "\contactx.old") .
-  
+
   SESSION:SET-WAIT-STATE("").
   message num-imports " Contacts Added." skip
           num-update  " Contacts Updated."
           view-as alert-box.
   APPLY "CLOSE" TO THIS-PROCEDURE.
   =======================*/
-  
+
    def var init-dir as cha no-undo.
    def var li-num-of-rec as int no-undo.
    def var li-num-of-notes as int no-undo.
-    
+
    SESSION:SET-WAIT-STATE("GENERAL").
    /* ======= connect to server ========*/
   /* connect -pf lapemp.pf no-error.*/
   /* {system/connect.i}*/
    run system/lapnet.p.
-   
+
    if error-status:error then do:
       message "Not connected".
       return no-apply.
    end. 
-  
+
    /*   output to value(init-dir). */
    if connected("emp_server") then
        run system/contup.p (gcompany, input "", input "zzzzz" , output li-num-of-rec, output li-num-of-notes) .
-      
+
    if connected("emp_server") then disconnect  emp_server.
    if connected("nos_server") then disconnect  nos_server.
-  
+
    SESSION:SET-WAIT-STATE("").
    message "Upload Completed. " li-num-of-rec   " Contact Updated. " skip
            "                  " li-num-of-notes " Note    Updated. "
       view-as alert-box.
    APPLY "CLOSE" TO THIS-PROCEDURE.
-  
+
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -354,8 +368,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -367,13 +383,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
   /* this procedure must run from laptop only not on server */
-   if index(dbparam("ASI"),"-1") <= 0 then do:
+   if index(dbparam("nosweat"),"-1") <= 0 then do:
       message "This Procedure Can Run Only From Laptop or Single User." view-as alert-box error.
       APPLY "CLOSE" TO THIS-PROCEDURE.
       return.
    end.
 
   RUN enable_UI.
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

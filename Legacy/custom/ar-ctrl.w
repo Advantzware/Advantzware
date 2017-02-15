@@ -61,7 +61,7 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME ar-ctrl
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn_Update Btn_Close 
+&Scoped-Define ENABLED-OBJECTS RECT-15 RECT-16 Btn_Update Btn_Close 
 &Scoped-Define DISPLAYED-FIELDS ar-ctrl.last-inv ar-ctrl.receivables-dscr ~
 ar-ctrl.receivables ar-ctrl.sales ar-ctrl.sales-dscr ar-ctrl.cash-act ~
 ar-ctrl.cash-act-dscr ar-ctrl.discount ar-ctrl.discount-dscr ar-ctrl.onac ~
@@ -269,13 +269,16 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MESSAGE-AREA       = no
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
 /* ************************* Included-Libraries *********************** */
 
-{advantzware/winkit/embedwindow-nonadm.i}
+{Advantzware/WinKit/embedwindow-nonadm.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -290,14 +293,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME ar-ctrl
    FRAME-NAME                                                           */
-ASSIGN 
-       Btn_Close:PRIVATE-DATA IN FRAME ar-ctrl     = 
-                "ribbon-button".
-
-ASSIGN 
-       Btn_Update:PRIVATE-DATA IN FRAME ar-ctrl     = 
-                "ribbon-button".
-
 /* SETTINGS FOR FILL-IN ar-ctrl.cash-act IN FRAME ar-ctrl
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN ar-ctrl.cash-act-dscr IN FRAME ar-ctrl
@@ -370,10 +365,6 @@ ASSIGN
 ASSIGN 
        ar-ctrl.receivables-dscr:READ-ONLY IN FRAME ar-ctrl        = TRUE.
 
-/* SETTINGS FOR RECTANGLE RECT-15 IN FRAME ar-ctrl
-   NO-ENABLE                                                            */
-/* SETTINGS FOR RECTANGLE RECT-16 IN FRAME ar-ctrl
-   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN ar-ctrl.sales IN FRAME ar-ctrl
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN ar-ctrl.sales-dscr IN FRAME ar-ctrl
@@ -404,7 +395,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME ar-ctrl */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -450,7 +441,7 @@ DO:
       Btn_Update:LABEL = "&Update".
     RUN enable_UI.
   END.
-  {src/winkit/triggerend.i}
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -474,7 +465,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     /* VALIDATION */
     DEF VAR v-avail AS LOG NO-UNDO.
-    
+
     {custom/validate/acct.i ar-ctrl.receivables}
     {custom/validate/acct.i ar-ctrl.sales}
     {custom/validate/acct.i ar-ctrl.cash-act}
@@ -492,7 +483,7 @@ DO:
     ASSIGN {&LIST-1}.
     FIND CURRENT ar-ctrl NO-LOCK.
   END.
-  {src/winkit/triggerend.i}
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -673,7 +664,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
    {Advantzware/WinKit/closewindow-nonadm.i}
-END.   
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -695,12 +686,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   FIND FIRST ar-ctrl WHERE ar-ctrl.company EQ gcompany NO-LOCK NO-ERROR.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   APPLY 'ENTRY':U TO Btn_Update IN FRAME {&FRAME-NAME}.
 
-  {Advantzware/WinKit/embedfinalize-nonadm.i}
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -748,7 +739,7 @@ PROCEDURE enable_UI :
           ar-ctrl.onac ar-ctrl.onac-dscr ar-ctrl.freight ar-ctrl.freight-dscr 
           ar-ctrl.stax ar-ctrl.stax-dscr 
       WITH FRAME ar-ctrl IN WINDOW C-Win.
-  ENABLE Btn_Update Btn_Close 
+  ENABLE RECT-15 RECT-16 Btn_Update Btn_Close 
       WITH FRAME ar-ctrl IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-ar-ctrl}
   VIEW C-Win.

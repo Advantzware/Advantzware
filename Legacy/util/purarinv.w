@@ -214,9 +214,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -254,7 +264,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -313,6 +323,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
     apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -335,6 +346,7 @@ DO:
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
 
   IF v-process THEN RUN run-process.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -386,8 +398,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -404,6 +418,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
   RUN enable_UI.
   {methods/nowait.i}
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -494,13 +509,13 @@ for each ar-inv
       and ar-inv.cust-no  le end_cust-no
       and ar-inv.posted   eq yes
     use-index inv-date:
-      
+
   amt = if ar-inv.net eq ar-inv.gross + ar-inv.freight + ar-inv.tax-amt then
           ar-inv.net else ar-inv.gross.
-      
+
   IF NOT tb_zero THEN
     if v-open then amt = 0.
-    
+
     else
     for each ar-cashl
         where ar-cashl.company  eq ar-inv.company
@@ -552,7 +567,7 @@ for each ar-inv
           and ar-invl.x-no eq ar-inv.x-no:
       delete ar-invl.
     end.
-    
+
     delete ar-inv.
   end.
 end.
@@ -561,7 +576,7 @@ session:set-wait-state("").
 
 message trim(c-win:title) + " Process Is Completed." view-as alert-box.
 apply "close" to this-procedure.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

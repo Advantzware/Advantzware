@@ -18,7 +18,7 @@
       <none>
 
   History: 
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -164,6 +164,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+/* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
@@ -227,7 +228,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -343,7 +344,7 @@ PROCEDURE adm-create-objects :
        RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
              h_options , 'AFTER':U ).
     END. /* Page 0 */
-   
+
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/stylec.w':U ,
@@ -356,7 +357,7 @@ PROCEDURE adm-create-objects :
              OUTPUT h_stylec ).
        RUN set-position IN h_stylec ( 5.05 , 5.00 ) NO-ERROR.
        /* Size in UIB:  ( 12.86 , 142.00 ) */
-       
+
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/p-navico.r':U ,
              INPUT  FRAME F-Main:HANDLE ,
@@ -729,9 +730,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -748,13 +749,13 @@ PROCEDURE local-initialize :
 
   /* Dispatch standard ADM method.                             */
  FIND FIRST style WHERE recid(style) = ip-style NO-LOCK NO-ERROR.
- 
+
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  
+
   APPLY "ENTRY" TO FRAME {&FRAME-NAME}.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -769,9 +770,9 @@ PROCEDURE select_exit :
   Notes:       
 ------------------------------------------------------------------------------*/
    def var char-hdl as cha no-undo.   
-   
+
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
 
 END PROCEDURE.
@@ -787,7 +788,7 @@ PROCEDURE Select_Add :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEF VAR char-hdl AS CHAR NO-UNDO.
-  
+
    RUN select-page(1).
    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"add-item-target", OUTPUT char-hdl).
    RUN add-item IN WIDGET-HANDLE(char-hdl).
@@ -813,7 +814,7 @@ PROCEDURE send-records :
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
-      
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

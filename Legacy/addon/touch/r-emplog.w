@@ -50,9 +50,9 @@ ASSIGN
 
 DEFINE TEMP-TABLE tt-note NO-UNDO
   FIELD employee LIKE emplogin.employee
-  FIELD rec_key LIKE ASI.notes.rec_key
-  FIELD note_date LIKE ASI.notes.note_date
-  FIELD note_title LIKE ASI.notes.note_title
+  FIELD rec_key LIKE nosweat.notes.rec_key
+  FIELD note_date LIKE nosweat.notes.note_date
+  FIELD note_title LIKE nosweat.notes.note_title
   FIELD note_src AS CHARACTER
   INDEX noteindex employee note_date.
 
@@ -318,9 +318,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -411,7 +421,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -459,6 +469,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
   APPLY 'CLOSE' TO THIS-PROCEDURE.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -470,7 +481,7 @@ END.
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   ASSIGN {&displayed-objects}.
-     
+
   RUN run-report.
 
   CASE rd-dest:
@@ -506,6 +517,7 @@ DO:
     END.
     WHEN 6 THEN RUN output-to-port.
   END CASE. 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -648,8 +660,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -672,6 +686,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
   {methods/nowait.i}
   APPLY 'ENTRY' TO begin_employee IN FRAME {&FRAME-NAME}.
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -788,7 +803,7 @@ PROCEDURE output-to-printer :
   DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
   DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
   DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
   RUN custom/prntproc.p (list-name,INT(lv-font-no), lv-ornt).
 
 END PROCEDURE.
@@ -804,7 +819,7 @@ PROCEDURE output-to-screen :
   Notes:       
 ------------------------------------------------------------------------------*/
   RUN scr-rpt.w (list-name,c-win:TITLE,INT(lv-font-no),lv-ornt).
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -818,7 +833,7 @@ PROCEDURE proc-2 :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEF INPUT PARAMETER ip-emp AS CHAR NO-UNDO.
-       
+
     DEFINE VARIABLE li-overtime AS INTEGER LABEL "OT @x1.5" NO-UNDO.
     DEFINE VARIABLE li-2time AS INTEGER LABEL "OT @x2" NO-UNDO.
     DEFINE VARIABLE li-day-time AS INTEGER NO-UNDO.
@@ -836,7 +851,7 @@ PROCEDURE proc-2 :
     DEFINE VARIABLE li-2time-tot-hr AS INTEGER NO-UNDO.
     DEFINE VARIABLE li-2time-tot-min AS INTEGER NO-UNDO.
     DEFINE VARIABLE ll-first-emp AS LOGICAL NO-UNDO.
-    
+
     for each emplogin no-lock WHERE 
         emplogin.company EQ cocode AND
         emplogin.employee = ip-emp and
@@ -844,7 +859,7 @@ PROCEDURE proc-2 :
         emplogin.START_date <= end_end_date AND
         emplogin.machine EQ "CLOCK"
         break by emplogin.employee by emplogin.start_date by start_time:
-    
+
         if first-of(emplogin.employee) then do:
            find emptrack.employee where employee.employee = emplogin.employee  no-lock no-error.
            if not avail employee then next.
@@ -859,7 +874,7 @@ PROCEDURE proc-2 :
                "---------- ----- ---------- ---------- ---------  ---------- -------" skip.
            ASSIGN ll-first-emp = TRUE.
         end.                      
-    
+
         assign li-day-time = emplogin.total_time
                li-overtime = 0
                li-2time = 0
@@ -926,7 +941,7 @@ PROCEDURE proc-2 :
            END.
            li-start-time = 0.  
         end. 
-    
+
         if last-of(emplogin.employee) then do:
            if lv-labor-only then do:
               down with frame det.
@@ -980,7 +995,7 @@ PROCEDURE proc-all :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEF INPUT PARAMETER ip-emp AS CHAR NO-UNDO.
-       
+
     DEFINE VARIABLE li-overtime AS INTEGER LABEL "OT @x1.5" NO-UNDO.
     DEFINE VARIABLE li-2time AS INTEGER LABEL "OT @x2" NO-UNDO.
     DEFINE VARIABLE li-day-time AS INTEGER NO-UNDO.
@@ -998,14 +1013,14 @@ PROCEDURE proc-all :
     DEFINE VARIABLE li-2time-tot-hr AS INTEGER NO-UNDO.
     DEFINE VARIABLE li-2time-tot-min AS INTEGER NO-UNDO.
     DEFINE VARIABLE ll-first-emp AS LOGICAL NO-UNDO.
-    
+
     for each emplogin no-lock WHERE 
         emplogin.company EQ cocode AND
         emplogin.employee = ip-emp and
         emplogin.start_date >= begin_end_date AND
         emplogin.START_date <= end_end_date 
         break by emplogin.employee by emplogin.start_date by start_time:
-    
+
         if first-of(emplogin.employee) then do:
            find emptrack.employee where employee.employee = emplogin.employee  no-lock no-error.
            if not avail employee then next.
@@ -1020,7 +1035,7 @@ PROCEDURE proc-all :
                "---------- ----- ---------- ---------- ---------  ---------- -------" skip.
            ASSIGN ll-first-emp = TRUE.
         end.                      
-    
+
         assign li-day-time = emplogin.total_time
                li-overtime = 0
                li-2time = 0
@@ -1087,7 +1102,7 @@ PROCEDURE proc-all :
            END.
            li-start-time = 0.  
         end. 
-    
+
         if last-of(emplogin.employee) then do:
            if lv-labor-only then do:
               down with frame det.
@@ -1159,26 +1174,26 @@ PROCEDURE run-report :
 
   DEFINE BUFFER bf-employee for emptrack.employee.
   DEFINE BUFFER bf-machemp for machemp.
-  
+
   SESSION:SET-WAIT-STATE('general').
-  
+
   EMPTY TEMP-TABLE tt-note.
 
   {sys/form/r-top3w.f}
-  
+
   FORM HEADER SKIP(1) WITH FRAME r-top.
-  
+
   ASSIGN
      str-tit2 = c-win:TITLE + "  (T-R-9)" 
      {sys/inc/ctrtext.i str-tit2 112}
      str-tit3 = FILL('-',132)
      {sys/inc/ctrtext.i str-tit3 132}.
-  
+
   {sys/inc/print1.i}
   {sys/inc/outprint.i VALUE(lines-per-page)}
-  
+
   IF td-show-parm THEN RUN show-param.
-  
+
   VIEW FRAME r-top.
 
   IF tb_excel THEN DO:
@@ -1188,7 +1203,7 @@ PROCEDURE run-report :
       ",Start Date,Shift,Login Time,Logout Time,Worked,OT @ 1.5, OT @ 2".
     PUT STREAM excel UNFORMATTED excelheader SKIP.
   END.
-  
+
   EMPTY TEMP-TABLE tt-emp.
 
   FOR EACH employee FIELDS(employee) WHERE
@@ -1222,18 +1237,18 @@ PROCEDURE run-report :
        for each bf-employee FIELDS(rec_key employee) where
           bf-employee.company EQ cocode AND
           bf-employee.employee = tt-emp.emp and
-          CAN-FIND(FIRST ASI.note WHERE ASI.note.rec_key = bf-employee.rec_key) NO-LOCK:
-   
+          CAN-FIND(FIRST nosweat.note WHERE nosweat.note.rec_key = bf-employee.rec_key) NO-LOCK:
+
           DO v-date-2 = begin_note-date TO end_note-date:
-             FOR each ASI.note FIELDS(rec_key note_date note_title) where
-                 ASI.note.rec_key = bf-employee.rec_key and
-                 ASI.note.note_date = v-date-2 NO-LOCK:
+             FOR each nosweat.note FIELDS(rec_key note_date note_title) where
+                 nosweat.note.rec_key = bf-employee.rec_key and
+                 nosweat.note.note_date = v-date-2 NO-LOCK:
 
                 create tt-note.
                 assign tt-note.employee = bf-employee.employee
-                       tt-note.rec_key = ASI.note.rec_key
-                       tt-note.note_date = ASI.note.note_date
-                       tt-note.note_title = ASI.note.note_title
+                       tt-note.rec_key = nosweat.note.rec_key
+                       tt-note.note_date = nosweat.note.note_date
+                       tt-note.note_title = nosweat.note.note_title
                        tt-note.note_src = "Employee".                
              END.
           END.
@@ -1241,41 +1256,41 @@ PROCEDURE run-report :
        FOR each emplogin FIELDS(rec_key employee) where
               emplogin.company EQ cocode AND
               emplogin.employee = tt-emp.emp and
-              can-find(FIRST ASI.note WHERE ASI.note.rec_key = emplogin.rec_key
-                       AND ASI.note.note_date >= begin_note-date 
-                       AND ASI.note.note_date <= END_note-date) NO-LOCK:
+              can-find(FIRST nosweat.note WHERE nosweat.note.rec_key = emplogin.rec_key
+                       AND nosweat.note.note_date >= begin_note-date 
+                       AND nosweat.note.note_date <= END_note-date) NO-LOCK:
            DO v-date-2 = begin_note-date TO end_note-date:
-              FOR each ASI.note FIELDS(rec_key note_date note_title) where
-                     ASI.note.rec_key = emplogin.rec_key and 
-                     ASI.note.note_date = v-date-2 no-lock:
-                
+              FOR each nosweat.note FIELDS(rec_key note_date note_title) where
+                     nosweat.note.rec_key = emplogin.rec_key and 
+                     nosweat.note.note_date = v-date-2 no-lock:
+
                      create tt-note.
                      assign tt-note.employee = emplogin.employee
-                            tt-note.rec_key = ASI.note.rec_key
-                            tt-note.note_date = ASI.note.note_date
-                            tt-note.note_title = ASI.note.note_title
+                            tt-note.rec_key = nosweat.note.rec_key
+                            tt-note.note_date = nosweat.note.note_date
+                            tt-note.note_title = nosweat.note.note_title
                             tt-note.note_src = "Log In/Out".
-                     
+
               END.              
            END.
        END. /*end for each emplogin*/
-   
+
        for each bf-machemp FIELDS(rec_key employee) where
               bf-machemp.employee = tt-emp.emp and
-              can-find(FIRST ASI.note WHERE ASI.note.rec_key = bf-machemp.rec_key
-                       AND ASI.note.note_date >= begin_note-date
-                       AND ASI.note.note_date <= END_note-date) NO-LOCK:
+              can-find(FIRST nosweat.note WHERE nosweat.note.rec_key = bf-machemp.rec_key
+                       AND nosweat.note.note_date >= begin_note-date
+                       AND nosweat.note.note_date <= END_note-date) NO-LOCK:
            DO v-date-2 = begin_note-date TO end_note-date:
-              FOR each ASI.note FIELDS(rec_key note_date note_title) where
-                     ASI.note.rec_key = bf-machemp.rec_key and
-                     ASI.note.note_date = v-date-2 NO-LOCK:
+              FOR each nosweat.note FIELDS(rec_key note_date note_title) where
+                     nosweat.note.rec_key = bf-machemp.rec_key and
+                     nosweat.note.note_date = v-date-2 NO-LOCK:
                      create tt-note.
                      assign tt-note.employee = bf-machemp.employee
-                            tt-note.rec_key = ASI.note.rec_key
-                            tt-note.note_date = ASI.note.note_date
-                            tt-note.note_title = ASI.note.note_title
+                            tt-note.rec_key = nosweat.note.rec_key
+                            tt-note.note_date = nosweat.note.note_date
+                            tt-note.note_title = nosweat.note.note_title
                             tt-note.note_src = "Emp. Transaction".
-                  
+
               END.
            END.
        END.              
@@ -1290,7 +1305,7 @@ PROCEDURE run-report :
         emplogin.START_date <= end_end_date AND
         emplogin.machine NE "CLOCK"
         break by emplogin.employee by emplogin.start_date by start_time:
-    
+
         if first-of(emplogin.employee) then do:
           /* find emptrack.employee where employee.employee = emplogin.employee  no-lock no-error.
            if not avail employee then next.
@@ -1305,7 +1320,7 @@ PROCEDURE run-report :
                "---------- ----- ---------- ---------- ---------  ---------- -------" skip.
            ASSIGN ll-first-emp = TRUE.
         end.                      
-    
+
         assign li-day-time = emplogin.total_time
                li-overtime = 0
                li-2time = 0
@@ -1372,7 +1387,7 @@ PROCEDURE run-report :
            END.
            li-start-time = 0.  
         end. 
-    
+
         if last-of(emplogin.employee) then do:
            if lv-labor-only then do:
               down with frame det.
@@ -1462,11 +1477,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"save") > 0
@@ -1494,23 +1509,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1531,11 +1546,11 @@ PROCEDURE show-param1 :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1568,26 +1583,26 @@ PROCEDURE show-param1 :
       num-entries(parm-fld-list,",") SKIP
       parm-fld-list
       VIEW-AS ALERT-BOX INFO BUTTONS OK.
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
 
         MESSAGE entry(i,parm-lbl-list)
             VIEW-AS ALERT-BOX INFO BUTTONS OK.
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

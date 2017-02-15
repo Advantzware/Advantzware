@@ -18,7 +18,7 @@
       <none>
 
   History: New V9 Version - January 15, 1998
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AB.              */
 /*----------------------------------------------------------------------*/
@@ -224,6 +224,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB wWin 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm2/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -269,7 +270,7 @@ THEN wWin:HIDDEN = yes.
 */  /* FRAME fMain */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -551,7 +552,7 @@ DO WITH FRAME {&FRAME-NAME}:
   END CASE.
   IF VALID-HANDLE(h_field) THEN
   h_field:SCREEN-VALUE = REPLACE(field_value,'`',' ').
- 
+
 END.
 
 &IF '{&KEYSTROKE}' = 'ALLMACHS' OR
@@ -581,7 +582,7 @@ h_field:SCREEN-VALUE = FILL('*',LENGTH(field_value)).
 &ENDIF
 
 
-  
+
 MESSAGE "keystroke" VIEW-AS ALERT-BOX.
 
 END PROCEDURE.

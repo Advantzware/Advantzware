@@ -63,7 +63,7 @@
 
 
    FIND FIRST users WHERE
-        users.user_id EQ USERID("ASI")
+        users.user_id EQ USERID("NOSWEAT")
         NO-LOCK NO-ERROR.
 
    IF AVAIL users AND users.user_program[2] NE "" THEN
@@ -179,7 +179,7 @@
            ASSIGN  reftable.reftable = "fg-rctd.user-id"
                  reftable.company  = fg-rctd.company
                  reftable.loc      = STRING(fg-rctd.r-no,"9999999999")
-                 reftable.code     = USERID("ASI").
+                 reftable.code     = USERID("nosweat").
          END.
 
          FOR EACH fg-rcpts

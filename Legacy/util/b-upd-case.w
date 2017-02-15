@@ -510,7 +510,7 @@ reftable.loc      EQ STRING(itemfg.company,""9999999999"")"
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON MOUSE-SELECT-DBLCLICK OF Browser-Table IN FRAME F-Main
 DO:
-/*   IF USERID("ASI") EQ "asi" THEN DO: */
+/*   IF USERID("nosweat") EQ "asi" THEN DO: */
     RUN set-read-only (NO).
 
     APPLY "entry" TO itemfg.i-no IN BROWSE {&browse-name}.
@@ -1087,7 +1087,7 @@ PROCEDURE local-display-fields :
     fi_sort-by:SCREEN-VALUE = TRIM(lv-sort-by-lab)               + " " +
                               TRIM(STRING(ll-sort-asc,"As/Des")) + "cending".
 
-/*     IF USERID("ASI") EQ "ASI" THEN    */
+/*     IF USERID("NOSWEAT") EQ "ASI" THEN    */
 /*        ASSIGN btn_del:HIDDEN = NO         */
 /*               btn_del:SENSITIVE = YES     */
 /*               btn_copy:HIDDEN = NO        */
@@ -1129,7 +1129,7 @@ PROCEDURE local-initialize :
    FI_moveCol = "Sort".
 
   DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
-/*   IF USERID("ASI") NE "ASI" THEN  */
+/*   IF USERID("NOSWEAT") NE "ASI" THEN  */
 /*       ASSIGN btn_copy:VISIBLE = NO    */
 /*              btn_del:VISIBLE = NO     */
 /*              btCompress:VISIBLE = NO. */

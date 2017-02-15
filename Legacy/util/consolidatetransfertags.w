@@ -19,7 +19,7 @@
       <none>
 
   History: New V9 Version - January 15, 1998
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AB.              */
 /*----------------------------------------------------------------------*/
@@ -181,6 +181,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB wWin 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm2/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -212,7 +213,7 @@ THEN wWin:HIDDEN = yes.
 */  /* FRAME fMain */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -308,15 +309,15 @@ PROCEDURE clean-up-transactions :
 
     EMPTY TEMP-TABLE tt-rcpth.
     EMPTY TEMP-TABLE tt-rdtlh.
-    
+
     CURRENT-WINDOW:WIDTH-CHARS = 200.
-    
+
     FOR EACH fg-rcpth NO-LOCK
       WHERE fg-rcpth.company      EQ cocode /* itemfg.company */
         AND fg-rcpth.i-no         EQ ip-i-no /* itemfg.i-no */
         AND fg-rcpth.rita-code    EQ "T" 
       USE-INDEX tran,
-    
+
       EACH fg-rdtlh
       WHERE fg-rdtlh.r-no         EQ fg-rcpth.r-no
         AND fg-rdtlh.rita-code    EQ fg-rcpth.rita-code
@@ -343,25 +344,25 @@ PROCEDURE clean-up-transactions :
           tt-rdtlh.qty = fg-rdtlh.qty.
       END.
       ELSE DO:
-          
+
           tt-rdtlh.qty = tt-rdtlh.qty + fg-rdtlh.qty.
           DELETE fg-rdtlh.
       END.
     END.
-    
+
 
     FOR EACH fg-rcpth NO-LOCK
       WHERE fg-rcpth.company      EQ cocode
         AND fg-rcpth.i-no         EQ ip-i-no
         AND fg-rcpth.rita-code    EQ "T" 
       USE-INDEX tran,
-    
+
       EACH fg-rdtlh
       WHERE fg-rdtlh.r-no         EQ fg-rcpth.r-no
-    
+
         AND fg-rdtlh.rita-code    EQ fg-rcpth.rita-code
       USE-INDEX rm-rdtl.
-    
+
       FIND FIRST tt-rdtlh WHERE tt-rdtlh.company EQ fg-rdtlh.company
                             AND tt-rdtlh.i-no    EQ fg-rdtlh.i-no
                             AND tt-rdtlh.cust-no    EQ fg-rdtlh.cust-no
@@ -379,14 +380,14 @@ PROCEDURE clean-up-transactions :
       IF AVAIL tt-rdtlh THEN
           fg-rdtlh.qty = tt-rdtlh.qty.
     END.
-    
+
     /* If any fg-rdtlh were deleted, make sure no orphan fg-rcpth are left */
     FOR EACH fg-rcpth 
       WHERE fg-rcpth.company      EQ cocode
         AND fg-rcpth.i-no         EQ ip-i-no 
         AND fg-rcpth.rita-code    EQ "T" 
       USE-INDEX tran:
-    
+
       FIND FIRST fg-rdtlh WHERE fg-rdtlh.r-no         EQ fg-rcpth.r-no
                             AND fg-rdtlh.rita-code    EQ fg-rcpth.rita-code
                           USE-INDEX rm-rdtl                     

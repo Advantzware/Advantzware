@@ -17,7 +17,7 @@
       <none>
 
   History: 
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -84,21 +84,21 @@ DEFINE FRAME F-Main
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 150 BY 24
-         BGCOLOR 4 .
+         BGCOLOR 15 .
 
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1
          SIZE 148 BY 1.91
-         BGCOLOR 4 .
+         BGCOLOR 15 .
 
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 24 ROW 2.91
          SIZE 127 BY 1.43
-         BGCOLOR 4 .
+         BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -135,6 +135,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+/* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
@@ -192,7 +193,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -377,7 +378,7 @@ PROCEDURE asi-exit :
    RUN can-exit IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-can-exit).
 
    IF NOT lv-can-exit THEN RETURN ERROR.
-   
+
 
 END PROCEDURE.
 
@@ -434,9 +435,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -455,7 +456,7 @@ PROCEDURE local-view :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'view':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
- 
+
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"init-entry-target", OUTPUT char-hdl).
   RUN apply-entry IN WIDGET-HANDLE(char-hdl).
 

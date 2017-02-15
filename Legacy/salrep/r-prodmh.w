@@ -10,7 +10,7 @@
   File: salrep\r-prodmh.w
 
   Description: Production Highlights
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -228,9 +228,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -268,7 +278,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH mach WHERE
 */  /* BROWSE browse-machine */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -305,6 +315,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -317,11 +328,11 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   DO WITH FRAME {&FRAME-NAME}:
    IF v-runflg THEN DO:
-   
+
     SESSION:SET-WAIT-STATE("general").
 
     ASSIGN {&displayed-objects} fi_company fi_as-of-date.
-    
+
     EMPTY TEMP-TABLE tt-raw-prod.
     EMPTY TEMP-TABLE work-tmp.
     EMPTY TEMP-TABLE tt-report.
@@ -335,7 +346,7 @@ DO:
           APPLY "ENTRY:U" TO fi_company IN FRAME {&FRAME-NAME}.
           LEAVE.
        END.
-   
+
     IF BROWSE browse-machine:NUM-SELECTED-ROWS GT 15 THEN
     DO:
        MESSAGE "More than 15 Machines are Selected."
@@ -346,7 +357,7 @@ DO:
 
     FOR EACH reftable WHERE
         reftable.reftable EQ "HM5" AND
-        reftable.company EQ USERID("ASI") AND
+        reftable.company EQ USERID("NOSWEAT") AND
         reftable.loc = fi_company
         EXCLUSIVE-LOCK:
 
@@ -355,7 +366,7 @@ DO:
 
     do counter = 1 to BROWSE browse-machine:NUM-SELECTED-ROWS:
        BROWSE browse-machine:FETCH-SELECTED-ROW(counter).
-       
+
        CREATE tt-raw-prod.
        ASSIGN tt-raw-prod.m-code = mach.m-code
               tt-raw-prod.DATE   = fi_as-of-date.
@@ -363,7 +374,7 @@ DO:
 
        CREATE reftable.
        ASSIGN reftable.reftable = "HM5"
-              reftable.company = USERID("ASI")
+              reftable.company = USERID("NOSWEAT")
               reftable.loc = fi_company
               reftable.CODE = mach.m-code.
 
@@ -385,6 +396,7 @@ DO:
 
    END.
   END.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -410,9 +422,9 @@ DO:
       IF SELF:MODIFIED THEN
       DO:
          ASSIGN fi_company.
-        
+
          CLOSE QUERY browse-machine.
-        
+
          OPEN QUERY browse-machine FOR EACH mach WHERE
               mach.company = fi_company AND
               mach.loc = locode
@@ -420,7 +432,7 @@ DO:
 
          FOR EACH reftable WHERE
              reftable.reftable EQ "HM5" AND
-             reftable.company EQ USERID("ASI") AND
+             reftable.company EQ USERID("NOSWEAT") AND
              reftable.loc = fi_company:SCREEN-VALUE
              NO-LOCK,
              FIRST mach WHERE
@@ -441,7 +453,7 @@ DO:
 
              LEAVE.
          END.
-          
+
         IF AVAIL b-mach THEN
            REPOSITION browse-machine TO ROWID ROWID(b-mach).
       END.
@@ -466,8 +478,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -484,17 +498,17 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   ASSIGN
     fi_company = cocode.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
   {custom/usrprint.i}
 
   CLOSE QUERY browse-machine.
-     
+
   OPEN QUERY browse-machine FOR EACH mach WHERE
        mach.company = fi_company:SCREEN-VALUE AND
        mach.loc = locode
@@ -502,7 +516,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   FOR EACH reftable WHERE
       reftable.reftable EQ "HM5" AND
-      reftable.company EQ USERID("ASI") AND
+      reftable.company EQ USERID("NOSWEAT") AND
       reftable.loc = fi_company:SCREEN-VALUE
       NO-LOCK,
       FIRST mach WHERE
@@ -523,7 +537,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
       LEAVE.
   END.
-       
+
   IF AVAIL b-mach THEN
      REPOSITION browse-machine TO ROWID ROWID(b-mach).
 
@@ -535,6 +549,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   /* gdm - 03090905 */
   {salrep/SlsMgmt.i}
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -660,7 +675,7 @@ PROCEDURE raw-prod-proc :
        IF AVAIL job-code THEN
        DO:
            IF job-code.cat eq "RUN" THEN DO:
-              
+
               work-tmp.qty = work-tmp.qty
                            + IF mch-act.qty EQ ? THEN 0 ELSE mch-act.qty.
 
@@ -681,7 +696,7 @@ PROCEDURE raw-prod-proc :
                                            + (IF mch-act.qty EQ ? THEN 0 ELSE mch-act.qty)
                        tt-raw-prod.mtd-run-hrs = tt-raw-prod.mtd-run-hrs
                                                + mch-act.hours.
-                 
+
                  ASSIGN
                     tt-raw-prod.ytd-qty = tt-raw-prod.ytd-qty
                                         + (IF mch-act.qty EQ ? THEN 0 ELSE mch-act.qty)
@@ -703,7 +718,7 @@ PROCEDURE raw-prod-proc :
                  assign
                     v-on  = 1
                     v-out = 1.
-         
+
                  if avail b-mach and index("APB",b-mach.p-type) le 0 then do:
                     find first eb WHERE
                          eb.company   eq job-hdr.company AND
@@ -713,19 +728,19 @@ PROCEDURE raw-prod-proc :
                          no-lock no-error.
 
                      if avail eb then v-up = eb.num-up.
-                    
+
                      if job-hdr.n-on ne 0 then v-up = job-hdr.n-on.
-                    
+
                      find first ef
                          where ef.company eq job-hdr.company
                            and ef.est-no  EQ job-hdr.est-no
                            and ef.form-no eq job-hdr.frm
                          no-lock no-error.
-                    
+
                      IF AVAIL ef THEN RUN est/ef-#out.p (ROWID(ef), OUTPUT v-out).
-                    
+
                      v-on = v-up * v-out.
-                      
+
                      IF mch-act.blank-no NE 0 THEN
                      DO:
                         find first est-op WHERE
@@ -771,12 +786,12 @@ PROCEDURE raw-prod-proc :
                                 est-op.line    lt 500
                                 no-lock no-error.
                      END.
-                    
+
                      if avail est-op then
                        run sys/inc/numout.p (recid(est-op), output v-out).
-                    
+
                      else v-out = 1.
-                    
+
                      v-on = v-on / v-out.
                  end.
 
@@ -789,7 +804,7 @@ PROCEDURE raw-prod-proc :
                     IF MONTH(mch-act.op-date) EQ v-month-as-of-date THEN
                        tt-raw-prod.mtd-qty-msf = tt-raw-prod.mtd-qty-msf
                                                + (mch-act.qty * itemfg.t-sqft * v-on / 1000).
-                    
+
                     tt-raw-prod.ytd-qty-msf = tt-raw-prod.ytd-qty-msf
                                             + (mch-act.qty * itemfg.t-sqft * v-on / 1000).
                  END.
@@ -807,7 +822,7 @@ PROCEDURE raw-prod-proc :
                     IF MONTH(mch-act.op-date) EQ v-month-as-of-date THEN
                        tt-raw-prod.mtd-mr-hrs = tt-raw-prod.mtd-mr-hrs
                                               + mch-act.hours.
-                   
+
                     tt-raw-prod.ytd-mr-hrs = tt-raw-prod.ytd-mr-hrs
                                            + mch-act.hours.
                  END.
@@ -824,8 +839,8 @@ PROCEDURE raw-prod-proc :
                     IF MONTH(mch-act.op-date) EQ v-month-as-of-date THEN
                        tt-raw-prod.mtd-dt-charge = tt-raw-prod.mtd-dt-charge
                                                  + mch-act.hours.
-                    
-                    
+
+
                     tt-raw-prod.ytd-dt-charge = tt-raw-prod.ytd-dt-charge
                                               + mch-act.hours.
                  END.
@@ -841,7 +856,7 @@ PROCEDURE raw-prod-proc :
                  IF MONTH(mch-act.op-date) EQ v-month-as-of-date THEN
                     tt-raw-prod.mtd-dt-nc = tt-raw-prod.mtd-dt-nc
                                           + mch-act.hours.
-                 
+
                  tt-raw-prod.ytd-dt-nc = tt-raw-prod.ytd-dt-nc
                                        + mch-act.hours.
               END.
@@ -890,7 +905,7 @@ PROCEDURE raw-prod-proc :
                   job-mch.m-code   eq work-tmp.m-code
                   no-lock no-error.
        END.
-       
+
        if not avail job-mch then
        find first job-mch where job-mch.company eq fi_company and
                                 job-mch.job     eq work-tmp.job and
@@ -920,7 +935,7 @@ PROCEDURE raw-prod-proc :
              IF MONTH(job-mch.start-date) EQ v-month-as-of-date THEN
                 tt-raw-prod.mtd-std-hrs = tt-raw-prod.mtd-std-hrs
                                         + std-hrs-var.
-             
+
              tt-raw-prod.ytd-std-hrs = tt-raw-prod.ytd-std-hrs
                                      + std-hrs-var.
           END.
@@ -953,7 +968,7 @@ PROCEDURE raw-prod-proc :
                                 tt-raw-prod.date-mr-hrs + tt-raw-prod.date-dt-charge +
                                 tt-raw-prod.date-dt-nc) * 100)
                                 ELSE 0)
-       
+
        tt-raw-prod.mtd-eff = (IF (tt-raw-prod.mtd-run-hrs +
                               tt-raw-prod.mtd-mr-hrs +
                               tt-raw-prod.mtd-dt-charge) NE 0 THEN
@@ -998,7 +1013,7 @@ PROCEDURE raw-prod-proc :
                                  tt-raw-prod.ytd-dt-nc) * 100)
                                  ELSE 0).
    END.
-   
+
 
 END PROCEDURE.
 

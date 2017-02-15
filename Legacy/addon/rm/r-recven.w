@@ -192,7 +192,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+/* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -209,7 +221,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -251,7 +263,7 @@ DO:
    DEF VAR op-qty AS INT NO-UNDO.
 
    DO WITH FRAME {&FRAME-NAME}:
-      
+
       RUN validate-tag-proc(OUTPUT op-po-no,
                             OUTPUT op-po-line,
                             OUTPUT op-qty,
@@ -262,7 +274,8 @@ DO:
                               INPUT op-po-line,
                               INPUT op-qty).
    END.
-   
+
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -282,8 +295,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -294,14 +309,14 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
- 
+
 
 /* security check need {methods/prgsecur.i} in definition section */
   IF access-close THEN DO:
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-  
+
   FIND FIRST sys-ctrl NO-LOCK
       WHERE sys-ctrl.company EQ gcompany
         AND sys-ctrl.name    EQ "LOADTAG" NO-ERROR.
@@ -343,6 +358,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   APPLY "ENTRY" TO scr-vend-tag.
 
   {methods/nowait.i}
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -361,7 +377,7 @@ PROCEDURE convert-vend-comp-curr :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE INPUT-OUTPUT PARAMETER ip-cost AS DEC DECIMALS 4 NO-UNDO.
-   
+
   FIND FIRST vend WHERE
        vend.company EQ po-ord.company AND
        vend.vend-no EQ po-ord.vend-no
@@ -416,7 +432,7 @@ PROCEDURE create-loadtag-proc :
                         AND loadtag.tag-no EQ tagNo) THEN LEAVE.
       ipTagNo = ipTagNo + 1.
    END. /* do while */
-  
+
    CREATE loadtag.
    ASSIGN
     loadtag.company      = cocode
@@ -442,12 +458,12 @@ PROCEDURE create-loadtag-proc :
     loadtag.tag-date     = TODAY
     loadtag.tag-time     = TIME
     loadtag.misc-char[1] = TRIM(scr-vend-tag).
-   
+
   RUN sys/ref/asiseq.p (INPUT cocode, INPUT "rm_rcpt_seq", OUTPUT i) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN
     MESSAGE "Could not obtain next sequence #, please contact ASI: " RETURN-VALUE
        VIEW-AS ALERT-BOX INFO BUTTONS OK.
-   
+
    CREATE rm-rctd.
    ASSIGN
     rm-rctd.r-no       = i
@@ -469,10 +485,10 @@ PROCEDURE create-loadtag-proc :
     rm-rctd.loc        = loadtag.loc
     rm-rctd.loc-bin    = loadtag.loc-bin
     rm-rctd.tag        = loadtag.tag-no
-    rm-rctd.user-id  = USERID("ASI")
+    rm-rctd.user-id  = USERID("nosweat")
     rm-rctd.upd-date = TODAY
     rm-rctd.upd-time = TIME. 
-  
+
    RELEASE rm-bin.
    IF w-po.po-no EQ 0 THEN
       FIND FIRST rm-bin NO-LOCK
@@ -481,7 +497,7 @@ PROCEDURE create-loadtag-proc :
             AND rm-bin.i-no    EQ loadtag.i-no
             AND rm-bin.loc-bin EQ loadtag.loc-bin
           NO-ERROR.
-   
+
    IF AVAIL rm-bin THEN DO:
      FIND FIRST item NO-LOCK
          WHERE item.company EQ rm-rctd.company
@@ -491,9 +507,9 @@ PROCEDURE create-loadtag-proc :
       rm-rctd.cost     = rm-bin.cost
       rm-rctd.cost-uom = item.cons-uom.
    END.
-   
+
    RUN get-matrix.
-  
+
    FIND CURRENT rm-rctd NO-LOCK NO-ERROR.
    FIND CURRENT loadtag NO-LOCK NO-ERROR.
 
@@ -561,20 +577,20 @@ PROCEDURE get-matrix :
    DEFINE VARIABLE lv-out-cost LIKE rm-rctd.cost NO-UNDO.
    DEFINE VARIABLE lv-qty-uom LIKE rm-rctd.pur-uom NO-UNDO.
    DEFINE VARIABLE lv-cost-uom LIKE rm-rctd.cost-uom NO-UNDO.
-  
+
    FIND item NO-LOCK WHERE item.company EQ cocode
                        AND item.i-no EQ rm-rctd.i-no
                        USE-INDEX i-no NO-ERROR.
    IF NOT AVAIL item THEN LEAVE.
-  
+
    IF item.cons-uom EQ '' THEN
       item.cons-uom = rm-rctd.pur-uom.
-  
+
    ASSIGN
      lv-qty-uom = item.cons-uom
      lv-cost-uom = item.cons-uom
      v-dep = item.s-dep.
-  
+
    FIND FIRST po-ordl WHERE
         po-ordl.company EQ rm-rctd.company AND
         po-ordl.po-no EQ INTEGER(rm-rctd.po-no) AND
@@ -600,7 +616,7 @@ PROCEDURE get-matrix :
            job.job-no EQ rm-rctd.job-no AND
            job.job-no2 EQ rm-rctd.job-no2
            NO-LOCK NO-ERROR.
-     
+
       IF AVAIL job THEN
       DO:
          FIND FIRST job-mat NO-LOCK WHERE
@@ -620,16 +636,16 @@ PROCEDURE get-matrix :
       IF v-wid EQ 0 THEN v-wid = IF AVAIL item AND item.r-wid NE 0 THEN item.r-wid
                             ELSE IF AVAIL item THEN item.s-wid ELSE 0.
       IF v-bwt EQ 0 THEN v-bwt = IF AVAIL item THEN item.basis-w ELSE 0.
-      
+
       ASSIGN
         lv-qty-uom = item.cons-uom
         lv-cost-uom = item.cons-uom.
    END.
-  
+
    /* convert qty */
    RUN custom/convquom.p(gcompany,rm-rctd.pur-uom,lv-qty-uom,v-bwt,v-len,
                    INPUT v-wid,INPUT v-dep,INPUT rm-rctd.qty,OUTPUT lv-out-qty).
-  
+
    /* convert cost */
    IF rm-rctd.cost-uom EQ 'L' THEN
       lv-out-cost = DEC(rm-rctd.cost) / lv-out-qty.
@@ -639,7 +655,7 @@ PROCEDURE get-matrix :
 
    IF w-po.add-setup AND w-po.type NE "S" THEN
       lv-out-cost = lv-out-cost + (w-po.setup / lv-out-qty).
-   
+
    ASSIGN
      rm-rctd.cost = lv-out-cost
      rm-rctd.cost-uom = lv-cost-uom
@@ -675,7 +691,7 @@ PROCEDURE process-tag-proc :
       LEAVE.
 
    EMPTY TEMP-TABLE w-po.
-  
+
    FIND FIRST po-ord WHERE
         po-ord.company EQ cocode AND
         po-ord.po-no EQ po-ordl.po-no
@@ -706,7 +722,7 @@ PROCEDURE process-tag-proc :
      w-po.rcpt-qty = ip-qty
      w-po.type = po-ord.type
      w-po.setup = po-ordl.setup.
-   
+
    def var v-len like po-ordl.s-len no-undo.
    def var v-wid like po-ordl.s-len no-undo.
    def var v-dep like po-ordl.s-len no-undo. 
@@ -760,37 +776,37 @@ PROCEDURE process-tag-proc :
                           ELSE NO.
 
    RUN rm/getpocst.p (BUFFER po-ordl, w-po.pr-uom, INPUT-OUTPUT w-po.cost).
-   
+
    RUN convert-vend-comp-curr(INPUT-OUTPUT w-po.cost).
    RUN convert-vend-comp-curr(INPUT-OUTPUT w-po.setup).
    RUN convert-vend-comp-curr(INPUT-OUTPUT w-po.cons-cost).
-   
+
    FIND FIRST item WHERE
         item.company EQ cocode AND
         item.i-no EQ po-ordl.i-no
         NO-LOCK NO-ERROR.
-   
+
    IF AVAIL item THEN
       ASSIGN
          w-po.loc = item.loc
          w-po.loc-bin = item.loc-bin
          w-po.cons-uom = item.cons-uom.
-   
+
    ASSIGN
       v-overrun  = IF AVAIL po-ordl THEN po-ordl.over-pct
                    ELSE IF AVAIL po-ord  THEN po-ord.over-pct
                    ELSE IF AVAIL vend    THEN vend.over-pct
                    ELSE 0
       v-qty = po-ordl.ord-qty.
-   
+
    IF w-po.cons-uom NE po-ordl.pr-qty-uom THEN
       RUN sys/ref/convquom.p(po-ordl.pr-qty-uom,
                              w-po.cons-uom, IF AVAIL ITEM THEN ITEM.basis-w ELSE 0,
                              w-po.s-len,  w-po.s-wid, IF AVAIL ITEM THEN item.s-dep ELSE 0,
                              v-qty, OUTPUT v-qty).
-   
+
    w-po.overrun-qty = v-qty + (v-qty * (v-overrun / 100)).
-   
+
    IF NOT checkWhsBin(cocode,w-po.loc,w-po.loc-bin) THEN
    DO:
 
@@ -807,13 +823,13 @@ PROCEDURE process-tag-proc :
              rm-bin.i-no EQ '' AND
              rm-bin.loc-bin NE ''
              NO-LOCK NO-ERROR.
-       
+
         ASSIGN
           w-po.loc = IF AVAILABLE loc THEN loc.loc ELSE ''
           w-po.loc-bin = IF AVAILABLE rm-bin THEN rm-bin.loc-bin ELSE ''.
      END.
    END.
-   
+
    IF NOT CAN-DO("SSLABEL,CentBox",v-loadtag) THEN
       w-po.total-tags = w-po.total-tags + 1.
 
@@ -826,7 +842,7 @@ PROCEDURE process-tag-proc :
 
    IF choice2 THEN
       RUN create-loadtag-proc.
-   
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -897,7 +913,7 @@ PROCEDURE tot-rec-qty-proc :
    END.
 
    tt-po.tot-rec-qty = tt-po.tot-rec-qty + v-qty-2.
-   
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -914,18 +930,18 @@ PROCEDURE validate-tag-proc :
    DEF OUTPUT PARAMETER v-po-line AS INT NO-UNDO.
    DEF OUTPUT PARAMETER v-qty AS INT NO-UNDO.
    DEF OUTPUT PARAMETER op-error AS LOG NO-UNDO.
-   
+
    DO WITH FRAME {&FRAME-NAME}:
 
       ASSIGN scr-vend-tag.
 
       ERROR-STATUS:ERROR = NO.
-        
+
       v-po-no = INT(SUBSTR(scr-vend-tag,1,6)) NO-ERROR.
-      
+
       IF ERROR-STATUS:ERROR THEN
          op-error = YES.
-      
+
       IF op-error = NO THEN
       DO:
          v-po-line = INT(SUBSTR(scr-vend-tag,7,3)) NO-ERROR.
@@ -946,7 +962,7 @@ PROCEDURE validate-tag-proc :
       DO:
          MESSAGE "Invalid Vendor Tag# Format."
             VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-        
+
          RETURN NO-APPLY.
       END.
 

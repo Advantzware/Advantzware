@@ -241,9 +241,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -269,7 +279,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -306,6 +316,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
   APPLY "close" TO THIS-PROCEDURE.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -317,21 +328,21 @@ END.
 ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
 DO:
   DEF VAR v-process AS LOG INIT NO NO-UNDO.
-   
+
   IF NOT oeimport-log THEN DO:
       MESSAGE "Can't import orders. Contact System Administrator!"
           VIEW-AS ALERT-BOX ERROR BUTTONS OK.
       RETURN NO-APPLY.
   END.
 
-  
+
   DO WITH FRAME {&FRAME-NAME}:    
-   
+
     ASSIGN {&DISPLAYED-OBJECTS}.
   END.
-  
+
   IF fcFileName <> "" AND SEARCH(fcFileName) = ? THEN DO:
-  
+
       MESSAGE "Import file is not existing. "
           VIEW-AS ALERT-BOX ERROR BUTTONS OK.
       RETURN NO-APPLY.
@@ -353,6 +364,7 @@ DO:
 
 
   IF v-process THEN RUN run-process.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -365,7 +377,7 @@ ON HELP OF fcFileName IN FRAME FRAME-A /* Import File: */
 DO:
     def var ls-filename as cha no-undo.
    def var ll-ok as log no-undo.
-   
+
    system-dialog get-file ls-filename 
                  title "Select Image File to insert"
                  filters "Excel Comma delimited Files    (*.csv)" "*.csv",
@@ -374,7 +386,7 @@ DO:
                  MUST-EXIST
                  USE-FILENAME
                  UPDATE ll-ok.
-      
+
     IF ll-ok THEN self:screen-value = ls-filename.
 END.
 
@@ -407,8 +419,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -418,7 +432,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  
+
 
 
   RUN enable_UI.
@@ -426,16 +440,17 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   {methods/nowait.i}  
 
   DO WITH FRAME {&frame-name}:
-      
+
   /* special */ RUN runProcess.
-      
+
   /* special */ RETURN.
 /*     find first oe-ctrl WHERE                               */
 /*         oe-ctrl.company = cocode  EXCLUSIVE-LOCK NO-ERROR. */
 /*      iNextOrder# = oe-ctrl.n-ord.                          */
-     
+
   END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -463,21 +478,21 @@ PROCEDURE BuildImpTable :
      INPUT FROM VALUE(ipFileName) NO-ECHO.
      REPEAT:
           IMPORT UNFORMAT cInput.
-          
+
           IF ENTRY(1,cInput) = "H" THEN DO:
               IF NOT CAN-FIND(cust WHERE cust.company = cocode AND cust.cust-no = entry(2,cInput))
                   THEN DO:
                         ASSIGN gcImportError = "Header Error - No Customer:" + entry(2,cInput).
                         RETURN.
               END.
-    
+
               CREATE ttHeader.
               ASSIGN ttHeader.Order# = GetNextOrder#()
                            ttHeader.BillTo = ENTRY(2,cInput)
                            ttHeader.SoldTo = ENTRY(3,cInput)
                          /*  ttHeader.ShipTo = ENTRY(4,cInput)*/
                            ttHeader.DueDate = DATE( ENTRY(4,cInput))
-                   
+
                            ttHeader.Customer# = ENTRY(5,cInput)
                            iOrder# = ttHeader.Order#.
                            IF NUM-ENTRIES(cInput) >= 6 THEN
@@ -488,14 +503,14 @@ PROCEDURE BuildImpTable :
                              ttHeader.CCExpDate = date(ENTRY(8,cInput)).
                            IF NUM-ENTRIES(cInput) >= 9 THEN
                              ttHeader.CCType = ENTRY(9,cInput).
-                                                      
+
                 IF NUM-ENTRIES(cInput) >= 10 THEN
                            ttHeader.Est#  = ENTRY(10,cInput).
                 IF NUM-ENTRIES(cInput) >= 11 THEN
                        ttHeader.Quote# = int(ENTRY(11,cInput)).
-                
+
                 /*iNextOrder# = iNextOrder# + 1.*/
-    
+
           END.
           ELSE DO:
               IF NOT CAN-FIND(itemfg WHERE itemfg.company = cocode AND itemfg.i-no = ENTRY(2,cInput)) 
@@ -503,7 +518,7 @@ PROCEDURE BuildImpTable :
                         ASSIGN gcImportError = "Detail Error - No FG Item:" + entry(2,cInput).
                         RETURN.
               END.
-    
+
               CREATE ttDetail.
               ASSIGN ttDetail.Order# = iOrder#
                            ttDetail.FgItem = ENTRY(2,cInput)
@@ -524,12 +539,12 @@ PROCEDURE BuildImpTable :
                        ttDetail.ShipTo = ENTRY(11,cInput).
               IF NUM-ENTRIES(cInput) > 12  THEN
                            ttDetail.ItemQuote# = int(ENTRY(12,cInput)).
-    
+
           END.
      END.
-    
+
      /* end of import */
-    
+
      /* validate customer and item */    
      FOR EACH ttHeader:
          IF CAN-FIND(cust WHERE cust.company = cocode AND cust.cust-no = ttHeader.BillTo)
@@ -550,9 +565,9 @@ PROCEDURE BuildImpTable :
             ttHeader.est# = FILL(" ",8 - LENGTH(trim(ttHeader.est#)) ) + TRIM(ttHeader.est#).
          END.   
      END.
-    
 
- 
+
+
 
      ASSIGN cPO# = ""
             isPOSame = YES.
@@ -590,9 +605,9 @@ PROCEDURE CreateJob :
   def var v-job-no2 like job.job-no2 no-undo.
   def var li-j-no as int no-undo.
   DEFINE VARIABLE v-prod-cat AS CHARACTER  NO-UNDO.
-    
+
   /* === from oe/oe-ord1.p  ============= */
-         
+
 
   find last job where job.company eq cocode use-index job no-lock no-error.
   v-job-job = if avail job then job.job + 1 else 1.
@@ -633,7 +648,7 @@ PROCEDURE CreateJob :
            AND job.job-no2 EQ v-job-no2:
          DELETE job.
      END.
-  
+
   create job.
   assign job.job        = v-job-job
          job.company    = cocode
@@ -675,7 +690,7 @@ PROCEDURE CreateJob :
          assign job-hdr.std-tot-cost = (job-hdr.std-mat-cost + job-hdr.std-lab-cost +
                                         job-hdr.std-var-cost + job-hdr.std-fix-cost).
    end.
-   
+
    assign job-hdr.est-no  = oe-ordl.est-no
           job-hdr.job     = job.job
           job-hdr.job-no  = job.job-no
@@ -710,7 +725,7 @@ PROCEDURE CreateOrder :
          oe-ord.loc = g_loc
          oe-ord.ord-date = today
          oe-ord.ord-no = ttHeader.Order#
-         oe-ord.user-id = USERID("ASI")
+         oe-ord.user-id = userid("nosweat")
          oe-ord.type = "O"
          oe-ord.stat = "W"  /* OW menu */
          oe-ord.due-code = "ON"
@@ -838,7 +853,7 @@ PROCEDURE CreateOrder :
 
                    {oe/ordltot3.i oe-ordl qty oe-ordl  }
                    {oe/defwhsed.i oe-ordl}
-                
+
                   RUN CreateRelease.
                   IF ttDetail.Notes <> "" THEN RUN CreateSpecNote (RECID(itemfg)).
                   IF ttDetail.ItemEst# <> "" AND
@@ -879,8 +894,8 @@ PROCEDURE createOrdJob :
   DEFINE INPUT PARAMETER ipJobno like oe-ord.job-no no-undo.
   DEFINE INPUT PARAMETER ipJobno2 like oe-ord.job-no2 no-undo.
   DEFINE INPUT PARAMETER ipLoc AS CHARACTER NO-UNDO.
-  
- 
+
+
   def output param op-recid as recid no-undo.
 
   DEF BUFFER v-ord-job-hdr FOR job-hdr.
@@ -889,11 +904,11 @@ PROCEDURE createOrdJob :
   def var v-job-no like job.job-no no-undo.
   def var v-job-no2 like job.job-no2 no-undo.
   def var li-j-no as int no-undo.
-    
+
   FIND CURRENT oe-ord.
 
   /* === from oe/oe-ord1.p  ============= */
-  
+
   find last job where job.company eq ipToCompany no-lock no-error.
   v-job-job = if avail job then job.job + 1 else 1.
   ASSIGN
@@ -931,7 +946,7 @@ PROCEDURE createOrdJob :
          find first itemfg where itemfg.company eq oe-ordl.company
                              and itemfg.i-no    eq oe-ordl.i-no
                              no-lock no-error.   
-         
+
          create job-hdr.
          assign job-hdr.company      = ipToCompany
                 job-hdr.loc          = ipLoc
@@ -991,7 +1006,7 @@ PROCEDURE CreateRelease :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEF VAR iNextRelNo AS INT NO-UNDO.
-  
+
    find first sys-ctrl where sys-ctrl.company eq cocode
                           and sys-ctrl.name    eq "OECARIER"
                no-lock no-error.
@@ -1037,7 +1052,7 @@ PROCEDURE CreateRelease :
            oe-rel.carrier   = if sys-ctrl.char-fld = "Shipto" and avail shipto then shipto.carrier
                               else oe-ord.carrier
            oe-rel.r-no      = iNextRelNo.
-           
+
           IF oereleas-cha eq "LastShip" then
                                oe-rel.rel-date = oe-ord.last-date.
            ELSE IF oereleas-cha EQ "Due Date" THEN
@@ -1103,7 +1118,7 @@ PROCEDURE CreateSpecNote :
          notes.note_text =  ttDetail.Notes
          notes.note_date = TODAY
          notes.note_time = TIME
-         notes.user_id = USERID("ASI").
+         notes.user_id = USERID("NOSWEAT").
 
 
 
@@ -1226,12 +1241,12 @@ PROCEDURE GetPrice :
                       bf-oe-ordl.pr-uom = lv-pr-uom
                       .
           END.
-       
+
         ELSE IF itemfg.i-code = "S" THEN DO:
           /*  Task 04151301 */
               RUN oe/oe-price.p.
           END.
-          
+
 
           /*FIND xoe-ordl WHERE ROWID(xoe-ordl) EQ lv-rowid NO-ERROR. */
           /*{oe/ordltot3.i bf-oe-ordl qty bf-oe-ordl} move to bottom */
@@ -1245,21 +1260,21 @@ PROCEDURE GetPrice :
         END.      
       END.  /* est-no <> "" */
       ELSE DO:
-                
+
         IF AVAIL bf-oe-ordl AND TRIM(bf-oe-ordl.est-no) EQ "" THEN DO:
-    
+
           IF NOT AVAIL xoe-ord THEN
           FIND FIRST xoe-ord WHERE xoe-ord.company EQ g_company
                                AND xoe-ord.ord-no  EQ bf-oe-ordl.ord-no
                                NO-LOCK NO-ERROR.
-    
+
           ASSIGN
            save_id   = RECID(bf-oe-ordl)
            lv-rowid  = ROWID(bf-oe-ordl)
            v-i-item  = bf-oe-ordl.i-no
            v-i-qty   = INT(bf-oe-ordl.qty)
            v-qty-mod = YES. /* new record, so will have been modified */
-    
+
           FIND FIRST itemfg
               WHERE itemfg.company EQ cocode
                 AND itemfg.i-no    EQ v-i-item
@@ -1289,7 +1304,7 @@ PROCEDURE GetPrice :
             ELSE IF itemfg.i-code = "S" THEN DO:
                 RUN oe/oe-price.p.
             END.
-    
+
           END. /* avail itemfg */
         END. /* avail bf-oe-ordl */
       END. /* else (est-no blank) */
@@ -1353,7 +1368,7 @@ PROCEDURE ImportOrder :
 
    RUN createOrder.
 
-   
+
 
 END PROCEDURE.
 
@@ -1370,18 +1385,18 @@ PROCEDURE runProcess :
   DEF VAR cImportFileName AS cha FORM "x(60)"  NO-UNDO.
   DEF VAR cImportCompleted AS cha NO-UNDO.
   DEF VAR cImportErrored AS cha NO-UNDO.
-  
+
 /* Special*/  IF NOT oeimport-log THEN RETURN.    
 
  /* special */ DO :
 
 
-    
-    
+
+
     INPUT FROM OS-DIR(oeimport-cha) NO-ECHO.
     REPEAT:
          IMPORT  cImportFileName.
-     
+
          IF cImportFileName BEGINS "." THEN NEXT.
          IF SUBSTRING(cImportFileName,LENGTH(cImportFileName) - 3,4) <> ".csv" THEN NEXT.
 
@@ -1390,7 +1405,7 @@ PROCEDURE runProcess :
              VIEW-AS ALERT-BOX INFO BUTTONS OK.
          cImportFileName = FILE-INFO:FULL-PATHNAME.
          */
-         
+
          cImportFileName =  IF SUBSTRING(oeimport-cha,LENGTH(oeimport-cha),1) = "/" OR 
                  SUBSTRING(oeimport-cha,LENGTH(oeimport-cha),1) = "\" THEN oeimport-cha + cImportFileName
              ELSE oeimport-cha + "/" + cImportFileName.
@@ -1398,7 +1413,7 @@ PROCEDURE runProcess :
           RUN ImportOrder (cImportFileName).
 
           IF gcImportError <> "" THEN DO:      /* error */
-              
+
               IF SUBSTRING(oeimport-cha,LENGTH(oeimport-cha),1) = "/" OR 
                  SUBSTRING(oeimport-cha,LENGTH(oeimport-cha),1) = "\"
                  THEN cImportErrored = SUBSTRING(oeimport-cha,1,LENGTH(oeimport-cha) - 1).
@@ -1412,7 +1427,7 @@ PROCEDURE runProcess :
              NEXT.
           END.
           ELSE DO:  /* successfully imported, move files to completed folder  */
-             
+
              IF SUBSTRING(oeimport-cha,LENGTH(oeimport-cha),1) = "/" OR 
                  SUBSTRING(oeimport-cha,LENGTH(oeimport-cha),1) = "\"
                  THEN cImportCompleted = SUBSTRING(oeimport-cha,1,LENGTH(oeimport-cha) - 1).
@@ -1420,14 +1435,14 @@ PROCEDURE runProcess :
 
              cImportCompleted = cImportCompleted + "Completed".
              /*IF SEARCH(cImportCompleted) = ? THEN*/
-              
+
               OS-CREATE-DIR VALUE(cImportCompleted).
               OS-COPY VALUE(cImportFileName) VALUE(cImportCompleted).
-              
+
               IF OS-ERROR = 0 THEN 
                   OS-DELETE VALUE(cImportFileName).
 
-              
+
           END.
      END.      /* repeat of input oeimport-cha */
 
@@ -1460,10 +1475,10 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
   DO WHILE CAN-FIND(FIRST bf-oe-ord
                     WHERE bf-oe-ord.company EQ cocode
                       AND bf-oe-ord.ord-no  EQ iNextOrder#):
-    
+
       RUN sys/ref/asiseq.p (INPUT cocode, INPUT "order_seq", OUTPUT iNextOrder#) NO-ERROR.
-   
-    
+
+
   END.
   RETURN iNextOrder#.
 

@@ -421,7 +421,7 @@ IF ip-run EQ 2 THEN DO TRANSACTION:
   FOR EACH w-inv,
       EACH oe-relh WHERE oe-relh.r-no EQ w-inv.r-no:
     ASSIGN oe-relh.printed = YES
-           oe-relh.spare-char-3 = USERID("ASI").
+           oe-relh.spare-char-3 = USERID("NOSWEAT").
   END.
 
   FOR EACH w-inv,

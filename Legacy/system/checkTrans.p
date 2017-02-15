@@ -27,9 +27,9 @@ FOR EACH asi._trans WHERE asi._trans._Trans-Usrnum = _MyConn-UserId .
   lIsTrans = TRUE.
 END.
 
-FIND FIRST ASI._myconnection.
+FIND FIRST nosweat._myconnection.
 
-FOR EACH ASI._trans WHERE ASI._trans._Trans-Usrnum = ASI._myconnection._MyConn-UserId .
+FOR EACH nosweat._trans WHERE nosweat._trans._Trans-Usrnum = nosweat._myconnection._MyConn-UserId .
   lIsTrans = TRUE.
 END.
 

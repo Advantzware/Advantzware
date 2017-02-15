@@ -944,7 +944,7 @@ for each rfqitem of rfq where index(ls-seq-list,string(rfqitem.seq,">>9")) > 0 :
        est.mod-date = 01/01/1900  /* Indiana mods Task# 05110404 */
        est.est-date = TODAY
        ls-key = string(today,"99999999") +
-                string(next-value(rec_key_seq,ASI),"99999999")
+                string(next-value(rec_key_seq,nosweat),"99999999")
        est.rec_key = ls-key.
 
     CREATE est-qty.
@@ -1231,7 +1231,7 @@ PROCEDURE trx-rfq-to-est-4 :
               est.est-date = today 
               est.mod-date = 01/01/1900  /* Indiana mods Task# 05110404 */
       ls-key = string(today,"99999999") +
-             string(next-value(rec_key_seq,ASI),"99999999")
+             string(next-value(rec_key_seq,nosweat),"99999999")
       est.rec_key = ls-key.       
 
       CREATE est-qty.
@@ -1363,7 +1363,7 @@ PROCEDURE trx-rfq-to-est-6 :
               est.est-date = today 
               est.mod-date = 01/01/1900  /* Indiana mods Task# 05110404 */
         ls-key = string(today,"99999999") +
-             string(next-value(rec_key_seq,ASI),"99999999")
+             string(next-value(rec_key_seq,nosweat),"99999999")
         est.rec_key = ls-key
         lv-est-recid = RECID(est).
         CREATE est-qty.

@@ -153,7 +153,7 @@ assign CurActivePrinter = SESSION:PRINTER-NAME
 vcTemplateFile   = "Template\invoice-py.xlt".
 
 FIND FIRST users WHERE
-     users.user_id EQ USERID("ASI")
+     users.user_id EQ USERID("NOSWEAT")
      NO-LOCK NO-ERROR.
 
 IF AVAIL users AND users.user_program[2] NE "" THEN
@@ -682,7 +682,7 @@ ELSE lv-comp-color = "BLACK".
             /* UM */
             ASSIGN v-cell = "R" + STRING(inrowcount) + "C41".
             chExcelApplication:Goto(v-cell) NO-ERROR.
-            ASSIGN chExcelApplication:ActiveCell:Value = ar-invl.ship-qty /*v-price-head*/.
+            ASSIGN chExcelApplication:ActiveCell:Value = ar-invl.inv-qty /*ar-invl.ship-qty*/ .
 
 
             /* Price */

@@ -132,7 +132,6 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -264,7 +263,7 @@ DO:
 
   ASSIGN
    /* list-name = screen-file-name + IF screen-file-name NE "" THEN "rpt" ELSE ""
-      init-dir = "users\" + USERID("ASI").
+      init-dir = "users\" + USERID("NOSWEAT").
    */
     init-dir = "c:\temp\" .
   SYSTEM-DIALOG GET-FILE list-name

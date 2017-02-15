@@ -542,7 +542,7 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON MOUSE-SELECT-DBLCLICK OF Browser-Table IN FRAME F-Main
 DO:
-  IF USERID("ASI") EQ "asi" THEN DO:
+  IF USERID("nosweat") EQ "asi" THEN DO:
     RUN set-read-only (NO).
 
     APPLY "entry" TO rm-rcpth.i-no IN BROWSE {&browse-name}.
@@ -1365,7 +1365,7 @@ PROCEDURE local-display-fields :
     fi_sort-by:SCREEN-VALUE = TRIM(lv-sort-by-lab)               + " " +
                               TRIM(STRING(ll-sort-asc,"As/Des")) + "cending".
   END.
-  IF USERID("ASI") EQ "ASI" THEN
+  IF USERID("NOSWEAT") EQ "ASI" THEN
      ASSIGN btCopy:HIDDEN = NO
             btCopy:SENSITIVE = YES
             btDelete:HIDDEN = NO

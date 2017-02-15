@@ -1,14 +1,12 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi          PROGRESS
+          nosweat          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-USING Consultingwerk.Framework.Collections.CharacterDictionary FROM PROPATH.
-USING Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl FROM PROPATH.
-&SCOPED-DEFINE dataGrid
+{Advantzware\WinKit\admBrowserUsing.i}
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
@@ -173,7 +171,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartNavBrowser
-   External Tables: ASI.users
+   External Tables: NOSWEAT.users
    Allow: Basic,Browse
    Frames: 1
    Add Fields to: External-Tables
@@ -207,7 +205,8 @@ END.
 {src/adm/method/browser.i}
 {src/adm/method/query.i}
 {methods/template/browser.i}
-{methods/gridSearch.i}
+
+{Advantzware/WinKit/dataGridProc.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

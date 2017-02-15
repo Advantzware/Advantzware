@@ -5,10 +5,8 @@
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win 
-USING Consultingwerk.Framework.Collections.CharacterDictionary FROM PROPATH.
-USING Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl FROM PROPATH.
-&SCOPED-DEFINE dataGrid
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admBrowserUsing.i}
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
@@ -37,13 +35,11 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
-/*
-&SCOPED-DEFINE setBrowseFocus
+/*&SCOPED-DEFINE setBrowseFocus
 &SCOPED-DEFINE yellowColumnsName cust
 &SCOPED-DEFINE cellColumnDat browsers-cust
 &SCOPED-DEFINE useMatches
-&SCOPED-DEFINE defaultWhere cust.company = gcompany
-*/
+&SCOPED-DEFINE defaultWhere cust.company = gcompany */
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE browseOnly
 {methods/defines/winReSize.i}
@@ -58,7 +54,7 @@ CREATE WIDGET-POOL.
 
 DEF VAR v-called-setCellColumns AS LOG NO-UNDO.
 DEF VAR v-col-move AS LOG INIT YES NO-UNDO.
- 
+
 DEFINE VARIABLE columnCount AS INTEGER NO-UNDO.
 DEFINE VARIABLE idx AS INTEGER NO-UNDO.
 DEFINE VARIABLE useColors AS CHAR NO-UNDO.
@@ -89,7 +85,7 @@ ASSIGN cocode = g_company
        locode = g_loc.
 
 DO TRANSACTION:
-    {sys/ref/CustList.i NEW}
+     {sys/ref/CustList.i NEW}
     {sys/inc/custlistform.i ""AF1"" }
 END.
 
@@ -501,13 +497,14 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB B-table-Win 
 /* ************************* Included-Libraries *********************** */
 
-/*{src/adm/method/browser.i}  */
-/*{src/adm/method/query.i}    */
-/*{methods/template/browser.i}*/
-/*{custom/yellowColumns.i}    */
+/*{src/adm/method/browser.i}
+{src/adm/method/query.i}
+{methods/template/browser.i}
+{custom/yellowColumns.i}*/
 
 {src/adm/method/navbrows.i}
-{methods/gridSearch.i}
+
+{Advantzware/WinKit/dataGridProc.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -590,7 +587,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -607,7 +604,7 @@ DO:
 
    CASE FOCUS:NAME:
      WHEN "fi_sman" THEN DO:
-         
+
         run windows/l-sman.w  (g_company, output char-val). 
             if char-val <> "" then 
               focus:screen-value in frame {&frame-name} = entry(1,char-val).                
@@ -640,16 +637,16 @@ DO:
      otherwise do:                                                  
            lv-handle = focus:handle.                                
            run applhelp.p.                                           
-                                                                    
+
            if g_lookup-var <> "" then do:                           
               lv-handle:screen-value = g_lookup-var.               
-        
+
            end.   /* g_lookup-var <> "" */
            apply "entry" to lv-handle.
            return no-apply.
 
      end.  /* otherwise */
-      
+
     END CASE.
     /*APPLY "CHOOSE" TO btn_go.*/
     RETURN NO-APPLY.   
@@ -737,9 +734,9 @@ DO:
      tb_act
      tb_in-act
      ll-first = NO.
-    
+
     RUN dispatch ("open-query").
-    
+
     GET FIRST Browser-Table .
     IF NOT AVAIL cust THEN DO: 
         FIND FIRST bf-cust WHERE bf-cust.company = cocode
@@ -752,7 +749,7 @@ DO:
                  AND (bf-cust.TYPE BEGINS fi_type OR fi_type = "")
                  AND (bf-cust.terr BEGINS fi_terr OR fi_terr = "")
                  AND (bf-cust.sman BEGINS fi_sman OR fi_sman = "") NO-LOCK NO-ERROR.
-             
+
          IF AVAIL bf-cust AND ou-log AND LOOKUP(bf-cust.cust-no,custcount) = 0 THEN
              MESSAGE "Customer is not on Users Customer List.  "  SKIP
               "Please add customer to Network Admin - Users Customer List."  VIEW-AS ALERT-BOX WARNING BUTTONS OK.
@@ -774,7 +771,7 @@ ON CHOOSE OF btn_next IN FRAME F-Main /* Show Next */
 DO:
    SESSION:SET-WAIT-STATE("general").
   DO WITH FRAME {&FRAME-NAME}:
-    
+
     ASSIGN
     lv-show-next = YES
     ll-show-all = NO.
@@ -795,7 +792,7 @@ ON CHOOSE OF btn_prev IN FRAME F-Main /* Show Previous */
 DO:
    SESSION:SET-WAIT-STATE("general").
   DO WITH FRAME {&FRAME-NAME}:
-    
+
     ASSIGN
     lv-show-prev = YES
     ll-show-all = NO.
@@ -856,7 +853,7 @@ DO:
 
   APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
   RUN dispatch ("open-query").
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -870,7 +867,7 @@ DO:
      objects when the browser's current row changes. */
   {src/adm/template/brschnge.i}
   {methods/template/local/setvalue.i}
-  
+
   assign s-rec_key = cust.rec_key when avail cust.
   RUN spec-book-image-proc .  /* task 10221306 */
 END.
@@ -1138,7 +1135,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize B-table-Win 
 PROCEDURE local-initialize :
 /*------------------------------------------------------------------------------
@@ -1149,9 +1145,7 @@ PROCEDURE local-initialize :
   /* Code placed here will execute PRIOR to standard behavior. */
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
-  
   RUN pDataGridInit.
-  
   RUN setCellColumns.
   /* Code placed here will execute AFTER standard behavior.    */
   ASSIGN cust.company:READ-ONLY IN BROWSE {&browse-name} = YES
@@ -1168,7 +1162,7 @@ PROCEDURE local-initialize :
          cust.spare-char-2:READ-ONLY IN BROWSE {&browse-name} = YES 
          cust.rec_key:READ-ONLY IN BROWSE {&browse-name} = YES
          FI_moveCol = "Sort".
-  
+
   DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
 
    APPLY 'ENTRY':U TO fi_cust-no IN FRAME {&FRAME-NAME}.
@@ -1177,7 +1171,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
 PROCEDURE local-open-query :
@@ -1237,15 +1230,14 @@ PROCEDURE local-open-query :
       lv-show-next = NO.
 
   /*RUN set-rec_key.*/
-  
+
   APPLY "value-changed" TO BROWSE {&browse-name}.
-  
+
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE move-columns B-table-Win 
 PROCEDURE move-columns :
@@ -1276,7 +1268,7 @@ PROCEDURE navigate-browser :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ipNavType AS CHARACTER NO-UNDO.
   DEFINE OUTPUT PARAMETER opNavType AS CHARACTER NO-UNDO.
- 
+
   IF ipNavType NE '' THEN
   CASE ipNavType:
     WHEN 'F' THEN RUN dispatch ('get-first':U).
@@ -1285,10 +1277,10 @@ PROCEDURE navigate-browser :
     WHEN 'P' THEN RUN dispatch ('get-prev':U).
     WHEN 'G' THEN RUN lookup-eb.
   END CASE.
-    
+
   IF ROWID(cust) EQ lvLastRowID THEN
   opNavType = 'L'.
-      
+
   IF ROWID(cust) EQ lvFirstRowID THEN
   opNavType = IF opNavType EQ 'L' THEN 'B' ELSE 'F'.
 
@@ -1335,7 +1327,7 @@ PROCEDURE query-first :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR li AS INT NO-UNDO.
-  
+
   find first sys-ctrl where sys-ctrl.company eq cocode
                       and sys-ctrl.name    eq "custBrowse"
                         no-lock no-error.
@@ -1355,15 +1347,15 @@ PROCEDURE query-first :
     lv-cust-no = cust.cust-no.
     IF li GE sys-ctrl.int-fld THEN LEAVE.
   END.
-  
+
   &SCOPED-DEFINE open-query                   ~
       OPEN QUERY {&browse-name}               ~
         {&for-eachblank}                      ~
           AND cust.cust-no <= lv-cust-no NO-LOCK
-            
+
   IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                  ELSE {&open-query} {&sortby-phrase-desc}.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1390,7 +1382,7 @@ PROCEDURE query-go :
                sys-ctrl.int-fld = 30.
   end.
 
-  
+
   IF fi_cust-no NE "" AND fi_cust-no BEGINS '*' THEN DO:  
 
 
@@ -1450,7 +1442,7 @@ PROCEDURE query-go :
            {&for-each2}                          ~
              AND cust.cust-no <= lv-cust-no NO-LOCK
 
-            
+
      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                     ELSE {&open-query} {&sortby-phrase-desc}.
   END.
@@ -1472,10 +1464,10 @@ PROCEDURE query-go :
 
        IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                       ELSE {&open-query} {&sortby-phrase-desc}.
-  
+
   END.
   ELSE IF fi_city NE "" AND fi_city BEGINS '*' THEN DO:  
-    
+
         {&for-each2} NO-LOCK
             /* USE-INDEX customer*/
              BY cust.cust-no:
@@ -1489,7 +1481,7 @@ PROCEDURE query-go :
              OPEN QUERY {&browse-name}               ~
                {&for-each2}                          ~
                  AND cust.cust-no <= lv-cust-no NO-LOCK
-                        
+
      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                     ELSE {&open-query} {&sortby-phrase-desc}.
   END.
@@ -1513,7 +1505,7 @@ PROCEDURE query-go :
 
   END.
   ELSE IF fi_stat NE "" AND fi_stat BEGINS '*' THEN DO:  
-  
+
     {&for-each2} NO-LOCK
         BY cust.cust-no :
         ASSIGN
@@ -1526,7 +1518,7 @@ PROCEDURE query-go :
          OPEN QUERY {&browse-name}               ~
            {&for-each2}                          ~
              AND cust.cust-no <= lv-cust-no NO-LOCK
-            
+
      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                     ELSE {&open-query} {&sortby-phrase-desc}.
   END.
@@ -1565,7 +1557,7 @@ PROCEDURE query-go :
            {&for-each2}                          ~
              AND cust.cust-no <= lv-cust-no NO-LOCK
 
-            
+
      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                     ELSE {&open-query} {&sortby-phrase-desc}.
   END.
@@ -1589,7 +1581,7 @@ PROCEDURE query-go :
 
   END.
   ELSE IF fi_type NE "" AND fi_type BEGINS '*' THEN DO:  
-  
+
     {&for-each2} NO-LOCK 
         BY cust.cust-no:
         ASSIGN
@@ -1602,7 +1594,7 @@ PROCEDURE query-go :
          OPEN QUERY {&browse-name}               ~
            {&for-each2}                          ~
              AND cust.cust-no <= lv-cust-no NO-LOCK  
-            
+
      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                     ELSE {&open-query} {&sortby-phrase-desc}.
   END.
@@ -1626,7 +1618,7 @@ PROCEDURE query-go :
 
   END.
   ELSE IF fi_sman NE "" AND fi_sman BEGINS '*' THEN DO:
-  
+
          {&for-each2} NO-LOCK
              /*USE-INDEX estimate*/
              BY cust.cust-no :
@@ -1635,12 +1627,12 @@ PROCEDURE query-go :
             lv-cust-no = cust.cust-no.
             IF li GE sys-ctrl.int-fld THEN LEAVE.
          END.
-    
+
          &SCOPED-DEFINE open-query                   ~
              OPEN QUERY {&browse-name}               ~
                {&for-each2}                          ~
                  AND cust.cust-no <= lv-cust-no NO-LOCK  
-            
+
      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                     ELSE {&open-query} {&sortby-phrase-desc}.
   END.
@@ -1667,7 +1659,7 @@ PROCEDURE query-go :
 
   END.
   ELSE IF fi_terr NE "" AND fi_terr BEGINS '*' THEN DO:
-  
+
          {&for-each2} NO-LOCK
              /*USE-INDEX estimate*/
              BY cust.cust-no :
@@ -1676,12 +1668,12 @@ PROCEDURE query-go :
             lv-cust-no = cust.cust-no.
             IF li GE sys-ctrl.int-fld THEN LEAVE.
          END.
-    
+
          &SCOPED-DEFINE open-query                   ~
              OPEN QUERY {&browse-name}               ~
                {&for-each2}                          ~
                  AND cust.cust-no <= lv-cust-no NO-LOCK  
-            
+
      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                     ELSE {&open-query} {&sortby-phrase-desc}.
   END.
@@ -1719,7 +1711,7 @@ PROCEDURE query-go :
         OPEN QUERY {&browse-name}               ~
            {&for-eachblank}                     ~
              AND cust.cust-no <= lv-cust-no NO-LOCK
-            
+
     IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                    ELSE {&open-query} {&sortby-phrase-desc}.
 
@@ -1738,9 +1730,9 @@ PROCEDURE repo-query :
   Notes:       
 ------------------------------------------------------------------------------*/
   def input parameter ip-rowid as rowid no-undo.
- 
+
   run dispatch in this-procedure ("open-query").
-  
+
   reposition {&browse-name} to rowid ip-rowid no-error.
 
   run dispatch in this-procedure ("row-changed").
@@ -1775,7 +1767,7 @@ RUN set-defaults.
 reposition {&browse-name} to rowid ip-rowid no-error.
 
 run dispatch in this-procedure ("row-changed").
- 
+
 APPLY "value-changed" TO BROWSE {&browse-name}.
 
 END PROCEDURE.
@@ -1829,7 +1821,7 @@ PROCEDURE set-defaults :
     DISP tb_act
          tb_in-act
         WITH FRAME {&FRAME-NAME}.
-    
+
   END.
 
 END PROCEDURE.
@@ -1859,7 +1851,7 @@ PROCEDURE show-prev-next :
 ------------------------------------------------------------------------------*/
   DEF VAR li AS INT NO-UNDO.
   DEF VAR lv-cust-no AS cha NO-UNDO.
-  
+
   find first sys-ctrl where sys-ctrl.company eq cocode
                       and sys-ctrl.name    eq "custBrowse"
                         no-lock no-error.
@@ -1903,7 +1895,7 @@ PROCEDURE show-prev-next :
            lv-cust-no = cust.cust-no.
           IF li GE sys-ctrl.int-fld THEN LEAVE.       
         END.
-       
+
         &SCOPED-DEFINE open-query                   ~
             OPEN QUERY {&browse-name}               ~
             {&for-each1}                          ~
@@ -1913,7 +1905,7 @@ PROCEDURE show-prev-next :
 
      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
      ELSE {&open-query} {&sortby-phrase-desc}.
-  
+
   END.  /* lv-show-prev */
   ELSE IF lv-show-next THEN DO:
       IF fi_cust-no EQ "" AND fi_i-name EQ "" AND fi_city EQ "" AND
@@ -1937,7 +1929,7 @@ PROCEDURE show-prev-next :
       END.
       ELSE
       DO:
-      
+
       {&for-each1} 
          and cust.cust-no >= lv-last-show-cust-no  NO-LOCK:
          ASSIGN
@@ -1960,10 +1952,10 @@ PROCEDURE show-prev-next :
       &SCOPED-DEFINE open-query                   ~
          OPEN QUERY {&browse-name}               ~
            {&for-each1} NO-LOCK                         
-            
+
       IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                      ELSE {&open-query} {&sortby-phrase-desc}.
-    
+
   END. /*show all*/
 
 
@@ -2040,14 +2032,14 @@ PROCEDURE spec-book-image-proc :
 ------------------------------------------------------------------------------*/
    DEF VAR v-spec AS LOG NO-UNDO.
    DEF VAR char-hdl AS CHAR NO-UNDO.
-  
+
   IF AVAIL cust THEN
       v-spec = CAN-FIND(FIRST notes WHERE
                notes.rec_key = cust.rec_key AND
                notes.note_type <> "o").
-   
+
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attachcust-target':U, OUTPUT char-hdl).
-  
+
    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       RUN spec-book-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
 END PROCEDURE.

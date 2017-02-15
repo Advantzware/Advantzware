@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admBrowserUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -61,11 +65,11 @@ def var lv-first-time as log no-undo.
 &Scoped-define FIELDS-IN-QUERY-br_table usr-menu.menu-num usr-menu.descrip 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table 
 &Scoped-define QUERY-STRING-br_table FOR EACH usr-menu ~
-      WHERE USER_ID = USERID("ASI") NO-LOCK ~
+      WHERE USER_ID = USERID('NOSWEAT') NO-LOCK ~
     BY usr-menu.user_id ~
        BY usr-menu.menu-num
 &Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH usr-menu ~
-      WHERE USER_ID = USERID("ASI") NO-LOCK ~
+      WHERE USER_ID = USERID('NOSWEAT') NO-LOCK ~
     BY usr-menu.user_id ~
        BY usr-menu.menu-num.
 &Scoped-define TABLES-IN-QUERY-br_table usr-menu
@@ -213,6 +217,8 @@ END.
 
 {src/adm/method/browser.i}
 
+{Advantzware/WinKit/dataGridProc.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -242,7 +248,7 @@ ASSIGN
      _TblList          = "ASI.usr-menu"
      _Options          = "NO-LOCK"
      _OrdList          = "ASI.usr-menu.user_id|yes,ASI.usr-menu.menu-num|yes"
-     _Where[1]         = "USER_ID = USERID("ASI")"
+     _Where[1]         = "USER_ID = USERID('NOSWEAT')"
      _FldNameList[1]   = ASI.usr-menu.menu-num
      _FldNameList[2]   = ASI.usr-menu.descrip
      _Query            is NOT OPENED
@@ -256,7 +262,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -270,16 +276,16 @@ DO:
    if lv-first-time then assign lv-search = ""
                                 lv-search:screen-value = "".
                                 lv-first-time = no.
-   
+
    if lastkey < 48 or lastkey > 57 then do:
       message "Invalid Number. Please enter numbers only. " view-as alert-box error.
       return no-apply.
    end.               
-                 
+
    assign lv-search = lv-search + keylabel(lastkey)
           .
    display lv-search with frame {&frame-name}.
-           
+
    run find-menu.
 
 END.
@@ -299,7 +305,7 @@ DO:
         MESSAGE "No program available. Contact Advance Software." VIEW-AS ALERT-BOX.
         RETURN NO-APPLY.
     END.
-    
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -348,7 +354,7 @@ ON CHOOSE OF btn-clear IN FRAME F-Main /* Clear Find */
 DO:
     assign lv-search = "".
     display lv-search with frame {&frame-name}.
-    
+
     apply "entry" to browse {&browse-name}.
     return no-apply.
 END.
@@ -362,7 +368,7 @@ END.
 ON LEAVE OF lv-search IN FRAME F-Main /* Find Menu# */
 or return of lv-search
 DO:
-  
+
     assign lv-search.
     run find-menu.
 END.
@@ -377,7 +383,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-ls-user-id = USERID("ASI").
+ls-user-id = userid("nosweat").
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -441,7 +447,7 @@ PROCEDURE find-menu :
      use-index pi-mnu-item no-lock no-error.
   if avail mnu-item then do:
      reposition  {&browse-name} to rowid rowid(mnu-item).
-     
+
   end.   
 END PROCEDURE.
 
@@ -459,7 +465,7 @@ PROCEDURE local-delete-record :
   message "Are you sure you want to delete? " view-as alert-box question
      button yes-no update ll-ans as log.
   if not ll-ans then return .   
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
@@ -478,8 +484,8 @@ PROCEDURE local-enable-fields :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  if USERID("ASI") <> "ASI" then return no-apply.
-  
+  if userid('nosweat') <> "ASI" then return no-apply.
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
 

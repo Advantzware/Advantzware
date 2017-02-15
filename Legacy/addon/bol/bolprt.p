@@ -59,7 +59,7 @@ RUN get-bolform.
 RUN custom/d-prtdes.w (OUTPUT rd-dest,OUTPUT lv-ornt,OUTPUT lv-lines-per-page,OUTPUT lv-font, OUTPUT lv-show-parm).
 
 FIND FIRST users WHERE
-     users.user_id EQ USERID("ASI")
+     users.user_id EQ USERID("NOSWEAT")
      NO-LOCK NO-ERROR.
 
 IF AVAIL users AND users.user_program[2] NE "" THEN

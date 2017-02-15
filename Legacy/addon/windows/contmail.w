@@ -157,9 +157,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -184,7 +194,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -221,6 +231,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -246,13 +257,14 @@ DO:
 
 
   session:set-wait-state("general").
-       
+
   run run-report. 
 
   session:set-wait-state("").
   message "Mail Merge File Generation Is Completed. " view-as alert-box.
   APPLY "CLOSE":U TO THIS-PROCEDURE.
- 
+
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -267,7 +279,7 @@ DO:
   DEFINE VARIABLE sel-ok AS LOG NO-UNDO.
   DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 
-  init-dir = "users\" + USERID("ASI").
+  init-dir = "users\" + USERID("NOSWEAT").
   selected-name = {&SELF-NAME}:SCREEN-VALUE.
   SYSTEM-DIALOG GET-FILE selected-name
       TITLE      "Choose Mail Merge File to SAVE ..."
@@ -279,7 +291,7 @@ DO:
   IF NOT sel-ok THEN
   RETURN NO-APPLY.
   {&SELF-NAME}:SCREEN-VALUE = selected-name.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -344,8 +356,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -356,10 +370,11 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
-               
+
   RUN enable_UI.
-  
+
   {methods/nowait.i}
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -419,7 +434,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
      DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -430,9 +445,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
 
 
@@ -451,7 +466,7 @@ PROCEDURE output-to-label :
      DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
      SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -476,7 +491,7 @@ PROCEDURE output-to-printer :
      DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
      SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -487,7 +502,7 @@ PROCEDURE output-to-printer :
                             INPUT 3, INPUT 0, INPUT 0, INPUT 0, OUTPUT result).    /* portrait */
   else RUN 'adecomm/_osprint.p' (INPUT ?, INPUT list-name,  
                             INPUT 3, INPUT 2, INPUT 0, INPUT 0, OUTPUT result).  /* landscape */
-                          
+
 
 END PROCEDURE.
 
@@ -515,7 +530,7 @@ PROCEDURE run-report :
   Notes:       
 ------------------------------------------------------------------------------*/
   FIND FIRST users WHERE
-       users.user_id EQ USERID("ASI")
+       users.user_id EQ USERID("NOSWEAT")
        NO-LOCK NO-ERROR.
 
   IF AVAIL users AND users.user_program[2] NE "" THEN
@@ -559,17 +574,17 @@ form
       v-lbl-1[4] at 3 v-lbl-2[4] at 45 v-lbl-3[4] at 88 skip
       v-lbl-1[5] at 3 v-lbl-2[5] at 45 v-lbl-3[5] at 88 skip
       with width 130 no-box no-label stream-io down frame lbl.
-      
+
 assign v-start-compress = ""
        v-end-compress = "".
 
  output stream s-mail to value(filename) page-size 0.
-   
+
    /*if  tbMailMrge and contact.maillist  then  */
    do:
       find first maillist where maillist.list-name = ls-mail-list no-lock no-error.
       if not avail maillist then return.
-      
+
       for each mailcont of maillist no-lock,
           each contact no-lock where recid(contact) = mailcont.contact-rec 
                                /*  and contact.company eq selected-company
@@ -595,9 +610,9 @@ assign v-start-compress = ""
                   "country" v-delim skip.
               assign print-head = no.
           end.
-              
+
           v-cust-name = if avail cust then cust.name else "".
-       
+
           put stream s-mail unformatted
               trim(contact.sirname) v-delim
               trim(mailcont.first-name) v-delim
@@ -610,19 +625,19 @@ assign v-start-compress = ""
               trim(contact.state) v-delim
               trim(contact.zip) v-delim
               trim(contact.country) v-delim skip.
-          create ASI.note.
-          assign ASI.note.rec_key = contact.rec_key
-               ASI.note.note_date = TODAY
-               ASI.note.note_time = TIME
-               ASI.note.user_id = USERID("ASI")
-               ASI.note.note_title = FILL-IN-Title
-               ASI.note.note_text = "Automatic Note Generation from Mail Merge Report. " +
+          create nosweat.note.
+          assign nosweat.note.rec_key = contact.rec_key
+               nosweat.note.note_date = TODAY
+               nosweat.note.note_time = TIME
+               nosweat.note.user_id = USERID("NOSWEAT")
+               nosweat.note.note_title = FILL-IN-Title
+               nosweat.note.note_text = "Automatic Note Generation from Mail Merge Report. " +
                                         string(note.note_date,"99/99/9999") + " " +
                                         string(note.note_time,"HH:MM:SS AM").
       end.  /* for each */
-   
+
    end.  /* tbmailmrge */
-   
+
    output stream s-mail close.
 
    return.

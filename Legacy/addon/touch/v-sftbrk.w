@@ -4,6 +4,10 @@
           emptrack         PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -278,7 +282,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -304,7 +308,7 @@ END.
 ON LEAVE OF shift_break.charge_code IN FRAME F-Main /* Charge Code */
 DO:
    IF LASTKEY = -1 THEN return.
-   
+
    RUN valid-chg-code.
    IF RETURN-VALUE <> "" THEN DO:
       MESSAGE RETURN-VALUE VIEW-AS ALERT-BOX ERROR.
@@ -432,7 +436,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -527,9 +531,9 @@ PROCEDURE local-assign-record :
 
   shift_break.end_time = INT(end_hour) * 3600 + INT(end_minute) * 60
                        + INT(end_second).
-  
+
   RUN local-display-fields.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -600,7 +604,7 @@ PROCEDURE local-create-record :
   ASSIGN shift_break.company = shifts.company
          shift_break.shift = shifts.shift
          shift_break.seq = lv-seq + 1.
-        
+
 
 END PROCEDURE.
 
@@ -662,7 +666,7 @@ PROCEDURE local-display-fields :
          end_second:SCREEN-VALUE IN FRAME {&FRAME-NAME} = SUBSTRING(STRING(shift_break.end_time,"hh:mm:ss am"),7,2)
          end_ampm:SCREEN-VALUE IN FRAME {&FRAME-NAME} = SUBSTRING(STRING(shift_break.end_time,"hh:mm am"),7,2).
 
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -696,7 +700,7 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
- 
+
   RUN valid-hour(START_hour:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
 
   IF RETURN-VALUE <> "" THEN DO:
@@ -740,7 +744,7 @@ PROCEDURE local-update-record :
       MESSAGE RETURN-VALUE VIEW-AS ALERT-BOX ERROR.
       RETURN NO-APPLY.
   END.
-      
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -806,8 +810,8 @@ PROCEDURE valid-chg-code :
              WHERE job-code.CODE = shift_break.charge_code:SCREEN-VALUE IN FRAME {&FRAME-NAME} )
    THEN RETURN "Invalie Charge Code!.".
    ELSE RETURN "".
-   
-   
+
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

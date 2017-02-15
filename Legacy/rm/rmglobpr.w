@@ -221,9 +221,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -277,7 +287,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -373,6 +383,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
     apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -388,8 +399,9 @@ DO:
   MESSAGE "Are you sure you want to change the Price Matrix(es) within the " +
           "selection parameters?"
       VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
-    
+
   IF v-process THEN RUN run-process.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -473,7 +485,7 @@ END.
 
 /* ***************************  Main Block  *************************** */
 def var v-mat-list as char no-undo.
-    
+
 {sys/inc/f3helpw.i}
 
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
@@ -482,8 +494,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -493,7 +507,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  
+
   RUN enable_UI.
 
   for each mat:
@@ -501,10 +515,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   end.
   if substr(v-mat-list,length(trim(v-mat-list)),1) eq "," then
     substr(v-mat-list,length(trim(v-mat-list)),1) = "".
-  
+
   select-mat:list-items = v-mat-list.
 
   {methods/nowait.i}
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -572,11 +587,11 @@ PROCEDURE get-params :
   def var lv-field-hdl as handle no-undo.
   def var lv-field2-hdl as handle no-undo.
 
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
     if not valid-handle(lv-field-hdl) then leave.
 
@@ -630,7 +645,7 @@ DEF VAR li AS INT NO-UNDO.
 DO WITH FRAME {&FRAME-NAME}:
   ASSIGN {&displayed-objects}.
 END.
-  
+
 ASSIGN
  v-i-no[1]    = begin_rm-no
  v-i-no[2]    = end_rm-no
@@ -647,9 +662,9 @@ do with frame {&frame-name}:
 
   if v-mtype ne "" and substr(v-mtype,length(trim(v-mtype)),1) eq "," then
     substr(v-mtype,length(trim(v-mtype)),1) = "".
-    
+
   mat-types = v-mtype.
-  
+
   do i = 1 to length(mat-types):
     if substr(mat-types,i,1) eq "," then substr(mat-types,i,1) = " ".
   end.
@@ -669,12 +684,12 @@ ASSIGN
                      STRING(MONTH(TODAY),"99")  +
                      STRING(DAY(TODAY),"99")
  reftable.code     = STRING(TIME,"99999")
- reftable.code2    = USERID("ASI").
+ reftable.code2    = USERID("nosweat").
 
 RUN get-params (OUTPUT reftable.dscr).
 
 reftable.dscr = TRIM(reftable.dscr) + " " + "Mat Types:" + v-mtype.
-        
+
 DO li = 1 TO LENGTH(v-mtype):
   FOR EACH item
       {sys/look/itemW.i}   
@@ -693,7 +708,7 @@ SESSION:SET-WAIT-STATE("").
 MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
 
 APPLY "close" TO THIS-PROCEDURE.
-  
+
 /* end ---------------------------------- copr. 2002  advanced software, inc. */
 
 END PROCEDURE.

@@ -4,7 +4,7 @@
 &Scoped-define FORMAT-1 X(256)
 &ENDIF
 
-/*auto_find:FORMAT IN FRAME {&FRAME-NAME} = "{&FORMAT-1}".*/
+auto_find:FORMAT IN FRAME {&FRAME-NAME} = "{&FORMAT-1}".
 
 IF CAN-DO("notes","{&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}") THEN
 RETURN.

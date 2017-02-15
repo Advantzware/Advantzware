@@ -68,7 +68,7 @@ DEF TEMP-TABLE temp-po-rec NO-UNDO
     FIELD whse AS CHAR
     FIELD cost-each AS DEC format ">>>,>>9.99<<<<"
     FIELD amt-to-inv AS DEC format "->>,>>>,>>9.99"
-    
+
     INDEX temp-vend-no vend-no ASC po-no ASC
     INDEX temp-gl-acct gl-acct ASC po-no ASC.
 
@@ -362,9 +362,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -439,7 +449,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -520,6 +530,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -570,10 +581,11 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -761,8 +773,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -778,11 +792,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-  
+
   begin_rdate = date(1,1,year(today)).
-   
+
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -790,6 +804,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO begin_date.
   END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -842,7 +857,7 @@ PROCEDURE display-data-proc :
        with frame detail.
 
    down with frame detail.
-   
+
    assign
       v-tot-qty = v-tot-qty + temp-po-rec.qty-to-inv
       v-tot-amt = v-tot-amt + temp-po-rec.amt-to-inv.
@@ -866,7 +881,7 @@ PROCEDURE display-data-proc :
       underline temp-po-rec.qty-to-inv temp-po-rec.amt-to-inv with frame detail.
       display v-tot-qty @ temp-po-rec.qty-to-inv v-tot-amt @ temp-po-rec.amt-to-inv with frame detail.
       down 2 with frame detail.
-        
+
       IF tb_excel THEN
         PUT STREAM excel UNFORMATTED
             SKIP(1)
@@ -1016,7 +1031,7 @@ assign
  trdat   = end_rdate
  fvend   = begin_vend
  tvend   = END_vend. 
- 
+
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i value(lines-per-page)}
@@ -1044,7 +1059,7 @@ display "" with frame r-top.
         and po-ordl.po-no     le tpo
         and po-ordl.t-rec-qty gt 0
       USE-INDEX opened no-lock,
-        
+
       first po-ord
       where po-ord.company eq cocode
         and po-ord.po-no   eq po-ordl.po-no
@@ -1061,7 +1076,7 @@ display "" with frame r-top.
      v-qty-i = 0
      v-amt-i = 0
      v-vend-no = po-ord.vend-no.
-      
+
     if po-ordl.item-type then do:
       find first item
           where item.company eq cocode
@@ -1079,28 +1094,28 @@ display "" with frame r-top.
             and rm-rcpth.trans-date le trdat
             and rm-rcpth.rita-code  eq "R"
           use-index item-po no-lock,
-          
+
           first rm-rdtlh
           where rm-rdtlh.r-no   eq rm-rcpth.r-no
             and rm-rdtlh.s-num  eq po-ordl.s-num
           no-lock
-            
+
           by rm-rcpth.trans-date desc:
-            
+
         v-date = rm-rcpth.trans-date.
 
         run sys/inc/po-recqa2.p (recid(po-ordl), frdat, trdat, output v-qty-r, output v-amt-r).
         leave.
       end.
     end.
-      
+
     else do:
       find first itemfg
           where itemfg.company eq cocode
             and itemfg.i-no    eq po-ordl.i-no
           no-lock no-error.
       v-procat = if avail itemfg then itemfg.procat else "".
-       
+
       for each fg-rcpth FIELDS(trans-date)
           where fg-rcpth.company    eq cocode
             and fg-rcpth.i-no       eq po-ordl.i-no
@@ -1109,15 +1124,15 @@ display "" with frame r-top.
             and fg-rcpth.trans-date ge frdat
             and fg-rcpth.trans-date le trdat
           use-index item-po no-lock:
-          
+
         v-date = fg-rcpth.trans-date.
-        
+
         run sys/inc/po-recqa2.p (recid(po-ordl), frdat, trdat, output v-qty-r, output v-amt-r).
-        
+
         leave.
       end.
     end.
-    
+
     if v-amt-r NE 0 then do:
       run sys/inc/po-invqa.p (recid(po-ordl), output v-qty-i, output v-amt-i).
 
@@ -1125,12 +1140,12 @@ display "" with frame r-top.
       DO:
          IF (v-amt-r GT v-amt-i AND v-amt-r GT 0) OR
             (v-amt-r LT v-amt-i AND v-amt-r LT 0) THEN DO:
-        
+
            v-cost = (((IF v-amt-r LT 0 THEN -1 ELSE 1) * v-amt-r) +
                      ((IF v-amt-i LT 0 THEN -1 ELSE 1) * v-amt-i)) /
                     (((IF v-qty-r LT 0 THEN -1 ELSE 1) * v-qty-r) +
                      ((IF v-qty-i LT 0 THEN -1 ELSE 1) * v-qty-i)).
-        
+
            CREATE temp-po-rec.
            ASSIGN
               temp-po-rec.vend-no = v-vend-no
@@ -1249,7 +1264,7 @@ assign
  trdat   = end_rdate
  fvend   = begin_vend
  tvend   = END_vend. 
- 
+
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i value(lines-per-page)}
@@ -1276,7 +1291,7 @@ display "" with frame r-top.
         and po-ordl.po-no     ge fpo
         and po-ordl.po-no     le tpo
       USE-INDEX opened no-lock,
-        
+
       first po-ord
       where po-ord.company eq cocode
         and po-ord.po-no   eq po-ordl.po-no
@@ -1306,7 +1321,7 @@ display "" with frame r-top.
               and fg-rcpth.trans-date ge frdat
               and fg-rcpth.trans-date le trdat) THEN
           NEXT.
-     
+
       assign
        v-date  = 01/01/0001
        v-qty-r = 0
@@ -1314,14 +1329,14 @@ display "" with frame r-top.
        v-qty-i = 0
        v-amt-i = 0
        v-vend-no = po-ord.vend-no.
-        
+
       if po-ordl.item-type then do:
          find first item
              where item.company eq cocode
                and item.i-no    eq po-ordl.i-no
              no-lock no-error.
          v-procat = if avail item then item.procat else "".
-        
+
          for each rm-rcpth FIELDS(trans-date r-no)
              where rm-rcpth.company    eq cocode
                and rm-rcpth.i-no       eq po-ordl.i-no
@@ -1332,20 +1347,20 @@ display "" with frame r-top.
                and rm-rcpth.trans-date le trdat
                and rm-rcpth.rita-code  eq "R"
              use-index item-po no-lock,
-             
+
              first rm-rdtlh
              where rm-rdtlh.r-no   eq rm-rcpth.r-no
                and rm-rdtlh.s-num  eq po-ordl.s-num
              no-lock
-               
+
              by rm-rcpth.trans-date desc:
-               
+
            v-date = rm-rcpth.trans-date.
-        
+
            run sys/inc/po-recqa2.p (recid(po-ordl), frdat, trdat, output v-qty-r, output v-amt-r).
            leave.
          end.
-        
+
          for each rm-rcpth FIELDS(trans-date r-no)
              where rm-rcpth.company    eq cocode
                and rm-rcpth.i-no       eq po-ordl.i-no
@@ -1356,13 +1371,13 @@ display "" with frame r-top.
                and rm-rcpth.trans-date le trdat
                and rm-rcpth.rita-code  eq "R"
              use-index item-po no-lock,
-             
+
              first rm-rdtlh FIELDS(qty trans-date cost frt-cost)
              where rm-rdtlh.r-no   eq rm-rcpth.r-no
                and rm-rdtlh.s-num  eq po-ordl.s-num
                AND rm-rdtlh.qty LT 0
              no-lock:
-        
+
              IF AVAIL ITEM AND ITEM.inv-by-cust THEN
                 NEXT.
 
@@ -1383,14 +1398,14 @@ display "" with frame r-top.
                 END.
          END.
       end.
-        
+
       else do:
         find first itemfg
             where itemfg.company eq cocode
               and itemfg.i-no    eq po-ordl.i-no
             no-lock no-error.
         v-procat = if avail itemfg then itemfg.procat else "".
-         
+
         for each fg-rcpth FIELDS(trans-date)
             where fg-rcpth.company    eq cocode
               and fg-rcpth.i-no       eq po-ordl.i-no
@@ -1399,14 +1414,14 @@ display "" with frame r-top.
               and fg-rcpth.trans-date ge frdat
               and fg-rcpth.trans-date le trdat
             use-index item-po no-lock:
-            
+
           v-date = fg-rcpth.trans-date.
-          
+
           run sys/inc/po-recqa2.p (recid(po-ordl), frdat, trdat, output v-qty-r, output v-amt-r).
-          
+
           leave.
         end.
-     
+
         for each fg-rcpth FIELDS(trans-date rita-code r-no)
             where fg-rcpth.company    eq cocode
               and fg-rcpth.i-no       eq po-ordl.i-no
@@ -1420,7 +1435,7 @@ display "" with frame r-top.
                   fg-rdtlh.rita-code EQ fg-rcpth.rita-code AND
                   fg-rdtlh.qty LT 0
                   NO-LOCK:
-     
+
 /*                IF NOT CAN-FIND(FIRST tt-neg-po-line WHERE             */
 /*                   tt-neg-po-line.po-no EQ po-ordl.po-no AND           */
 /*                   tt-neg-po-line.i-no EQ po-ordl.i-no and             */
@@ -1437,20 +1452,20 @@ display "" with frame r-top.
 /*                   END. */
         end.
       end.
-      
+
       if v-amt-r NE 0 then do:
          run sys/inc/po-invqa.p (recid(po-ordl), output v-qty-i, output v-amt-i).
-         
+
          IF v-qty-r - v-qty-i GT 0 THEN
          DO:
             IF (v-amt-r GT v-amt-i AND v-amt-r GT 0) OR
                (v-amt-r LT v-amt-i AND v-amt-r LT 0) THEN DO:
-           
+
                v-cost = (((IF v-amt-r LT 0 THEN -1 ELSE 1) * v-amt-r) +
                          ((IF v-amt-i LT 0 THEN -1 ELSE 1) * v-amt-i)) /
                         (((IF v-qty-r LT 0 THEN -1 ELSE 1) * v-qty-r) +
                          ((IF v-qty-i LT 0 THEN -1 ELSE 1) * v-qty-i)).
-              
+
                CREATE temp-po-rec.
                ASSIGN
                   temp-po-rec.vend-no = v-vend-no
@@ -1494,11 +1509,11 @@ display "" with frame r-top.
                           {ap/invlline.i -1} eq po-ordl.LINE AND
                           ap-invl.qty        EQ tt-neg-po-line.qty
                           use-index i-no no-lock:
-                      
+
                           ll-neg-inv-found = YES.
                           LEAVE.
                   END.
-              
+
                   IF ll-neg-inv-found = NO THEN
                   DO:
                      CREATE temp-po-rec.
@@ -1516,7 +1531,7 @@ display "" with frame r-top.
                         temp-po-rec.amt-to-inv =  tt-neg-po-line.amt.
                      RELEASE temp-po-rec.
                   END.
-              
+
                   RELEASE tt-neg-po-line.
                END.
             END.
@@ -1549,7 +1564,7 @@ display "" with frame r-top.
                        {ap/invlline.i -1} eq po-ordl.LINE AND
                        ap-invl.qty        EQ tt-neg-po-line.qty
                        use-index i-no no-lock:
-                   
+
                        ll-neg-inv-found = YES.
                        LEAVE.
                END.
@@ -1603,7 +1618,7 @@ display "" with frame r-top.
                     {ap/invlline.i -1} eq po-ordl.LINE AND
                     ap-invl.qty        EQ tt-neg-po-line.qty
                     use-index i-no no-lock:
-                
+
                     ll-neg-inv-found = YES.
                     LEAVE.
             END.
@@ -1700,12 +1715,12 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   ASSIGN
      lv-frame-hdl = frame {&frame-name}:HANDLE
      lv-group-hdl = lv-frame-hdl:first-child
      lv-field-hdl = lv-group-hdl:first-child.
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1733,23 +1748,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

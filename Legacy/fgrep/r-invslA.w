@@ -42,7 +42,7 @@ DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
 ASSIGN
  cocode = gcompany
  locode = gloc.
-     
+
 /*{sys/inc/custlistform.i ""IR5"" }*/
 
 {sys/ref/CustList.i NEW}
@@ -310,9 +310,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -395,7 +405,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -465,6 +475,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    APPLY "close" TO THIS-PROCEDURE.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -524,10 +535,11 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN RUN output-to-port.
   END CASE.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -539,7 +551,8 @@ END.
 ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
-  
+
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -782,8 +795,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -793,7 +808,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-   
+
 /* security check need {methods/prgsecur.i} in definition section */
   IF access-close THEN DO:
      APPLY "close" TO THIS-PROCEDURE.
@@ -801,13 +816,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   RUN enable_UI.
-  
-  {methods/nowait.i}
-  
-  RUN sys/inc/CustListForm.p ( "IR5",cocode, 
-                               OUTPUT ou-log,
-                               OUTPUT ou-cust-int) .
 
+  {methods/nowait.i}
 
   RUN sys/inc/CustListForm.p ( "IR5",cocode, 
                                OUTPUT ou-log,
@@ -840,7 +850,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO"
         btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
         .
-      
+
    IF ou-log AND ou-cust-int = 0 THEN do:
        ASSIGN 
         tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = YES
@@ -851,6 +861,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
    END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -912,7 +923,7 @@ PROCEDURE CustList :
 
     RUN sys/ref/CustListManager.w(INPUT cocode,
                                   INPUT 'IR5').
-    
+
 
 END PROCEDURE.
 
@@ -974,7 +985,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
 /*     DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -985,9 +996,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY. */
 
 {custom/out2file.i}
@@ -1021,7 +1032,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1082,7 +1093,7 @@ DEF VAR v-cust-qty AS INT FORMAT "->>>,>>>,>>9".
 DEF VAR v-sales-rep AS CHAR NO-UNDO.
 DEF VAR sort-opt AS CHAR NO-UNDO INIT "C" FORMAT "!".
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
-    
+
 FORMAT
   itemfg.i-no LABEL "ITEM #"
   itemfg.i-name FORMAT "x(20)" LABEL "DESCRIPTION"
@@ -1120,7 +1131,7 @@ ASSIGN
 IF td-show-parm THEN RUN show-param.
 
 DISPLAY "" WITH FRAME r-top.
-     
+
 SESSION:SET-WAIT-STATE ("general").
 
 IF tb_excel THEN DO:
@@ -1176,7 +1187,7 @@ EMPTY TEMP-TABLE tt-itemfg.
           INPUT itemfg.part-no,
           INPUT itemfg.i-no,
           OUTPUT v-sales-rep).
-          
+
       IF v-sales-rep GE fsman  AND v-sales-rep LE tsman THEN 
       DO:
           CREATE tt-itemfg.
@@ -1214,7 +1225,7 @@ EMPTY TEMP-TABLE tt-itemfg.
         BY (IF sort-opt EQ "C" THEN itemfg.cust-no ELSE itemfg.i-no)
         BY (IF sort-opt EQ "C" THEN itemfg.i-no    ELSE itemfg.cust-no):
 
-      
+
       IF FIRST-OF(tt-itemfg.sales-rep) THEN
       ASSIGN v-frst = YES.
 
@@ -1223,7 +1234,7 @@ EMPTY TEMP-TABLE tt-itemfg.
         v-cost = 0
         v-qty-onh = 0
         v-cust-qty = 0.
-       
+
       FOR EACH fg-bin WHERE fg-bin.company EQ cocode AND
           fg-bin.i-no EQ itemfg.i-no NO-LOCK USE-INDEX i-no
           BREAK BY fg-bin.i-no:
@@ -1392,7 +1403,7 @@ PROCEDURE SetCustRange :
         btnCustList:SENSITIVE = iplChecked
        .
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1413,11 +1424,11 @@ PROCEDURE show-param :
   DEF VAR parm-lbl-list AS cha NO-UNDO.
   DEF VAR i AS INT NO-UNDO.
   DEF VAR lv-label AS cha.
-  
+
   lv-frame-hdl = FRAME {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:FIRST-CHILD.
   lv-field-hdl = lv-group-hdl:FIRST-CHILD .
-  
+
   DO WHILE TRUE:
      IF NOT VALID-HANDLE(lv-field-hdl) THEN LEAVE.
      IF LOOKUP(lv-field-hdl:PRIVATE-DATA,"parm") > 0
@@ -1445,23 +1456,23 @@ PROCEDURE show-param :
   PUT SPACE(28)
       "< Selection Parameters >"
       SKIP(1).
-  
+
   DO i = 1 TO NUM-ENTRIES(parm-fld-list,","):
     IF ENTRY(i,parm-fld-list) NE "" OR
        entry(i,parm-lbl-list) NE "" THEN DO:
-       
+
       lv-label = FILL(" ",34 - length(TRIM(ENTRY(i,parm-lbl-list)))) +
                  trim(ENTRY(i,parm-lbl-list)) + ":".
-                 
+
       PUT lv-label FORMAT "x(35)" AT 5
           SPACE(1)
           TRIM(ENTRY(i,parm-fld-list)) FORMAT "x(40)"
           SKIP.              
     END.
   END.
- 
+
   PUT FILL("-",80) FORMAT "x(80)" SKIP.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -28,9 +28,10 @@ PROCEDURE cXMLOrder:
 END PROCEDURE.
 
 PROCEDURE genOrderHeader:
-  DEFINE INPUT  PARAMETER ipiNextOrderNumber AS INTEGER     NO-UNDO.
-  DEFINE INPUT  PARAMETER ipcOrderDate AS CHARACTER   NO-UNDO.
-  DEFINE OUTPUT  PARAMETER oprOrdRec AS ROWID       NO-UNDO.
+  DEFINE INPUT  PARAMETER ipiNextOrderNumber AS INTEGER NO-UNDO.
+  DEFINE INPUT  PARAMETER ipcOrderDate AS CHARACTER NO-UNDO.
+  DEFINE INPUT  PARAMETER ipcDueDate AS CHARACTER NO-UNDO.
+  DEFINE OUTPUT PARAMETER oprOrdRec AS ROWID NO-UNDO.
     
   CREATE oe-ord.
   ASSIGN
@@ -40,18 +41,22 @@ PROCEDURE genOrderHeader:
     oe-ord.ord-date = DATE(INT(SUBSTR(ipcOrderDate,6,2))
                           ,INT(SUBSTR(ipcOrderDate,9,2))
                           ,INT(SUBSTR(ipcOrderDate,1,4)))
-    oe-ord.ord-no = ipiNextOrderNumber /*INTEGER(orderID)*/
-    oe-ord.user-id = USERID("ASI")
+    oe-ord.due-date = DATE(INT(SUBSTR(ipcDueDate,6,2))
+                          ,INT(SUBSTR(ipcDueDate,9,2))
+                          ,INT(SUBSTR(ipcDueDate,1,4)))
+    oe-ord.ord-no = ipiNextOrderNumber
+    oe-ord.user-id = USERID('NoSweat')
     oe-ord.type = 'O'
     oe-ord.stat = 'W'
-    oe-ord.due-code = 'ON'.
+    oe-ord.due-code = 'ON'
+    .
   oprOrdRec = ROWID(oe-ord).
   FIND CURRENT oe-ord NO-LOCK NO-ERROR.
 END PROCEDURE.
 
 PROCEDURE assignOrderHeader:
-    DEFINE INPUT PARAMETER iprOeOrd AS ROWID NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcShipToID AS CHARACTER   NO-UNDO.
+    DEFINE INPUT  PARAMETER iprOeOrd AS ROWID NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcShipToID AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcReturnValue AS CHARACTER NO-UNDO.
 
     DEFINE VARIABLE payLoadID AS CHARACTER NO-UNDO.
@@ -83,7 +88,6 @@ PROCEDURE assignOrderHeader:
     DEFINE VARIABLE billToState AS CHARACTER NO-UNDO.
     DEFINE VARIABLE billToZip AS CHARACTER NO-UNDO.
     DEFINE VARIABLE custNo AS CHARACTER NO-UNDO.
-
     DEFINE VARIABLE itemLineNumber AS CHARACTER NO-UNDO.
     DEFINE VARIABLE itemQuantity AS CHARACTER NO-UNDO.
     DEFINE VARIABLE itemSupplierPartID AS CHARACTER NO-UNDO.
@@ -92,13 +96,11 @@ PROCEDURE assignOrderHeader:
     DEFINE VARIABLE itemMoney AS CHARACTER NO-UNDO.
     DEFINE VARIABLE itemDescription AS CHARACTER NO-UNDO.
     DEFINE VARIABLE itemUnitOfMeasure AS CHARACTER NO-UNDO.
-
     DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
-
     DEFINE VARIABLE iNextOrderNumber LIKE oe-ord.ord-no NO-UNDO.
-    DEFINE VARIABLE iNextShipNo LIKE shipto.ship-no   NO-UNDO.
+    DEFINE VARIABLE iNextShipNo LIKE shipto.ship-no NO-UNDO.
     DEFINE VARIABLE dItemQtyEach LIKE oe-ordl.qty NO-UNDO.
-    DEFINE VARIABLE cShipToTaxCode AS CHARACTER   NO-UNDO.
+    DEFINE VARIABLE cShipToTaxCode AS CHARACTER NO-UNDO.
     DEFINE VARIABLE rOrdRec AS ROWID NO-UNDO.
 
     DEFINE BUFFER bf-shipto FOR shipto.
@@ -266,7 +268,7 @@ PROCEDURE assignOrderHeader:
         shipto.dest-code = IF AVAIL(bf-shipto) THEN bf-shipto.dest-code 
                          ELSE ""
         .
-        /*10061401*/
+/* 10061401 */
 /*         FIND FIRST stax                          */
 /*             WHERE stax.company EQ oe-ord.company */
 /*               AND stax.tax-group EQ shipToState  */
@@ -300,11 +302,9 @@ PROCEDURE assignOrderHeader:
 END PROCEDURE.
 
 PROCEDURE genOrderLines:
-  DEFINE INPUT  PARAMETER iprOeOrd AS ROWID       NO-UNDO.
-  DEFINE INPUT  PARAMETER ipcShipToID AS CHARACTER   NO-UNDO.
-  DEFINE OUTPUT PARAMETER opcReturnValue AS CHARACTER   NO-UNDO.
-
-  
+  DEFINE INPUT  PARAMETER iprOeOrd AS ROWID NO-UNDO.
+  DEFINE INPUT  PARAMETER ipcShipToID AS CHARACTER NO-UNDO.
+  DEFINE OUTPUT PARAMETER opcReturnValue AS CHARACTER NO-UNDO.
 
   DEFINE VARIABLE itemLineNumber AS CHARACTER NO-UNDO.
   DEFINE VARIABLE itemQuantity AS CHARACTER NO-UNDO.
@@ -314,9 +314,7 @@ PROCEDURE genOrderLines:
   DEFINE VARIABLE itemMoney AS CHARACTER NO-UNDO.
   DEFINE VARIABLE itemDescription AS CHARACTER NO-UNDO.
   DEFINE VARIABLE itemUnitOfMeasure AS CHARACTER NO-UNDO.
-
   DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
-
   DEFINE VARIABLE iNextOrderNumber LIKE oe-ord.ord-no NO-UNDO.
   DEFINE VARIABLE iNextShipNo LIKE shipto.ship-no   NO-UNDO.
   DEFINE VARIABLE dItemQtyEach LIKE oe-ordl.qty NO-UNDO.
@@ -377,6 +375,7 @@ PROCEDURE genOrderLines:
         oe-ordl.q-qty     = oe-ord.t-fuel
         oe-ordl.whsed     = oe-ordl.est-no NE ''
         oe-ordl.q-no      = oe-ord.q-no
+        oe-ordl.prom-date = oe-ord.due-date
         .
 
       IF oe-ordl.price EQ 0 THEN DO:                      
@@ -441,7 +440,7 @@ PROCEDURE genOrderLines:
 END PROCEDURE.
 
 PROCEDURE gencXMLOrder:
-  DEFINE INPUT PARAMETER ipcXMLFile AS CHARACTER NO-UNDO.
+  DEFINE INPUT  PARAMETER ipcXMLFile     AS CHARACTER NO-UNDO.
   DEFINE OUTPUT PARAMETER opcReturnValue AS CHARACTER NO-UNDO.
 
   DEFINE VARIABLE payLoadID AS CHARACTER NO-UNDO.
@@ -449,17 +448,14 @@ PROCEDURE gencXMLOrder:
   DEFINE VARIABLE orderDate AS CHARACTER NO-UNDO.
   DEFINE VARIABLE custNo AS CHARACTER NO-UNDO.
   DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
-
   DEFINE VARIABLE iNextOrderNumber LIKE oe-ord.ord-no NO-UNDO.
   DEFINE VARIABLE iNextShipNo LIKE shipto.ship-no   NO-UNDO.
   DEFINE VARIABLE dItemQtyEach LIKE oe-ordl.qty NO-UNDO.
   DEFINE VARIABLE cShipToTaxCode AS CHARACTER   NO-UNDO.
   DEFINE VARIABLE rOrdRec AS ROWID NO-UNDO.
   DEFINE VARIABLE cShipToID AS CHARACTER   NO-UNDO.
-  DEFINE VARIABLE cReturn AS CHAR NO-UNDO.
-
-  DEFINE BUFFER bf-shipto FOR shipto.
-  DEFINE BUFFER bf-shipto-state FOR shipto.
+  DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cDueDate AS CHARACTER NO-UNDO.
 
   RUN XMLOutput/XMLParser.p (ipcXMLFile).
   ASSIGN
@@ -467,22 +463,21 @@ PROCEDURE gencXMLOrder:
     fromIdentity = getNodeValue('From','Identity')
     orderDate = getNodeValue('OrderRequestHeader','orderDate')
     custNo = getCustNo(fromIdentity)
+    cDueDate = getNodeValue('','')
     .
-  
   FIND FIRST cust NO-LOCK
        WHERE cust.company EQ cocode
-         AND cust.cust-no EQ custNo NO-ERROR.
+         AND cust.cust-no EQ custNo
+       NO-ERROR.
   IF NOT AVAILABLE cust THEN DO:
     opcReturnValue = 'Customer: ' + custNo + ' not found'.
     RETURN.
   END.
 
-
   iNextOrderNumber = GetNextOrder#().
-  RUN genOrderHeader (INPUT iNextOrderNumber, INPUT orderDate, OUTPUT rOrdRec).
+  RUN genOrderHeader (INPUT iNextOrderNumber, INPUT orderDate, INPUT cDueDate, OUTPUT rOrdRec).
   RUN assignOrderHeader (INPUT rOrdRec, OUTPUT cShipToID, OUTPUT cReturn).  
-  RUN genOrderLines (INPUT rOrdRec, INPUT cShipToID, OUTPUT cReturn).  
-  
+  RUN genOrderLines (INPUT rOrdRec, INPUT cShipToID, OUTPUT cReturn).
   RUN touchOrder (INPUT rOrdRec, OUTPUT cReturn).
 
   RELEASE oe-ord.  
@@ -490,17 +485,18 @@ PROCEDURE gencXMLOrder:
   RELEASE oe-ord-whs-order.
   RELEASE oe-ordl-whs-item.
   
-  opcReturnValue =  'Successfully Generated Order'.
+  opcReturnValue = 'Successfully Generated Order'.
   
 END PROCEDURE.
 
 PROCEDURE touchOrder:
   /* Allow the oe-ord write trigger to fire after order lines created */
-    DEFINE INPUT  PARAMETER iprOeOrd AS ROWID       NO-UNDO.
-  DEFINE OUTPUT PARAMETER opcReturnValue AS CHARACTER   NO-UNDO.
+  DEFINE INPUT  PARAMETER iprOeOrd       AS ROWID     NO-UNDO.
+  DEFINE OUTPUT PARAMETER opcReturnValue AS CHARACTER NO-UNDO.
 
-  FIND oe-ord WHERE ROWID(oe-ord) EQ iprOeOrd EXCLUSIVE-LOCK NO-ERROR.
-
+  FIND FIRST oe-ord EXCLUSIVE-LOCK
+       WHERE ROWID(oe-ord) EQ iprOeOrd
+       NO-ERROR.
   /* t-revenue is recalculated in trigger */
   oe-ord.t-revenue = 1.
   FIND CURRENT oe-ord NO-LOCK.

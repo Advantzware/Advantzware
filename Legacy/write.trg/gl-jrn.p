@@ -8,7 +8,7 @@ TRIGGER PROCEDURE FOR WRITE OF {&TABLENAME} OLD BUFFER old-{&TABLENAME}.
 
 
 IF {&TABLENAME}.user-id EQ "" THEN
-  {&TABLENAME}.user-id  = USERID("ASI").
+  {&TABLENAME}.user-id  = USERID("nosweat").
 
 IF {&TABLENAME}.reverse THEN {&TABLENAME}.from-reverse = NO.
 IF {&TABLENAME}.from-reverse THEN {&TABLENAME}.reverse = NO.

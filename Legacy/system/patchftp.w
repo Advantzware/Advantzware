@@ -205,9 +205,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -224,7 +234,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -262,6 +272,7 @@ ON CHOOSE OF btnCheckPatch IN FRAME DEFAULT-FRAME /* Check for Current Patch */
 DO:
   RUN checkPatch.
   RUN uploadPatchDat.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -274,6 +285,7 @@ ON CHOOSE OF btnDownloadPatch IN FRAME DEFAULT-FRAME /* Download Current Patch *
 DO:
   RUN downloadPatch.
   RUN uploadPatchDat.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -286,6 +298,7 @@ ON CHOOSE OF btnImcomplete IN FRAME DEFAULT-FRAME /* Re-Run Incomplete Patches *
 DO:
   RUN runPatchHst.
   RUN uploadPatchDat.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -297,6 +310,7 @@ END.
 ON CHOOSE OF btnRemovePatch IN FRAME DEFAULT-FRAME /* Remove Selected Patch */
 DO:
   RUN removePatch.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -309,6 +323,7 @@ ON CHOOSE OF btnRunPatch IN FRAME DEFAULT-FRAME /* Run Latest Patch Downloaded *
 DO:
   RUN runPatchDownload.
   RUN uploadPatchDat.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -320,6 +335,7 @@ END.
 ON CHOOSE OF btnShowHistory IN FRAME DEFAULT-FRAME /* Show Patch History */
 DO:
   RUN system/patchhst.w PERSISTENT.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -339,8 +355,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -358,6 +376,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
   patchDat = clientid.client-id + '.patch.dat'.
   RUN getCurrentPatches.
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -380,7 +399,7 @@ PROCEDURE buildPatchDat :
     EXPORT patchhst.
   END.
   OUTPUT CLOSE.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -519,7 +538,7 @@ PROCEDURE getPatchKeys :
   DEFINE OUTPUT PARAMETER opPatch AS INTEGER NO-UNDO.
   DEFINE OUTPUT PARAMETER opVersion AS CHARACTER NO-UNDO.
   DEFINE OUTPUT PARAMETER opSeq AS CHARACTER NO-UNDO.
-  
+
   DEFINE VARIABLE lvTmp AS CHARACTER NO-UNDO.
 
   ASSIGN
@@ -766,12 +785,12 @@ PROCEDURE runUtility :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  patchhst.user_id = USERID("ASI").
+  patchhst.user_id = USERID('NOSWEAT').
   IF SEARCH(patchhst.utility) NE ? THEN DO:
     IF dependancyOK(patchhst.patch,patchhst.version,
                     patchhst.seq,patchhst.dependancy) THEN DO:
       IF patchhst.utility BEGINS 'db_delta' THEN DO:
-        IF INDEX(DBPARAM("ASI"),'-1') NE 0 THEN DO:
+        IF INDEX(DBPARAM('NOSWEAT'),'-1') NE 0 THEN DO:
           patchhst.returnvalue = timeStamp('Not Yet Implemented').
         END. /* if lookup */
         ELSE patchhst.returnvalue = timeStamp('Multi User Mode').

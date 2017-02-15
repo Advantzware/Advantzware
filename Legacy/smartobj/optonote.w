@@ -61,10 +61,10 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_ONote 
-     IMAGE-UP FILE "Graphics/32x32/gearwheels.png":U
+     IMAGE-UP FILE "Graphics/32x32/gearwheels.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
-     LABEL "Operator Notes" 
-     SIZE 8 BY 1.81 TOOLTIP "Notes".
+     LABEL "" 
+     SIZE 8 BY 1.81 TOOLTIP "Job Notes".
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -111,7 +111,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB s-object 
 /* ************************* Included-Libraries *********************** */
 
-{advantzware/winkit/winkit-panel.i}
+{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/smart.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -144,7 +144,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -154,13 +154,9 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_ONote s-object
 ON CHOOSE OF Select_ONote IN FRAME F-Main /* Operator Notes */
 DO:
-  
+
    {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
-
-
-  /* Added by WinKit Migration tool 07.02.2016 21:12:47 */
-  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
-
+  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -218,12 +214,12 @@ PROCEDURE Init-Buttons :
   DEFINE VARIABLE misc_fields-button AS LOGICAL NO-UNDO.
   DEFINE VARIABLE spec-note AS LOGICAL NO-UNDO.
   */
-  
+
 /*  {methods/run_link.i "CONTAINER-SOURCE" "Init-Options-Panel"
     "(OUTPUT search-button,OUTPUT list-button,OUTPUT notes-button,OUTPUT misc_fields-button, output spec-note)"}
   IF NOT search-button THEN
   DISABLE select_search WITH FRAME {&FRAME-NAME}. */
-  
+
   /*
   {methods/run_link.i "ONote-link-target" "disable-note" "(output notes-button)"}
   IF NOT notes-button THEN
@@ -297,7 +293,7 @@ PROCEDURE state-changed :
       /* Object instance CASEs can go here to replace standard behavior
          or add new cases. */
   END CASE.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

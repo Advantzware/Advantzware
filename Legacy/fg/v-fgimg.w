@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -207,7 +211,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -224,7 +228,7 @@ DO:
    DEF VAR v_path    AS CHAR FORMAT "X(100)" NO-UNDO.
 
    DO WITH FRAME {&FRAME-NAME}:
-   
+
       ASSIGN
          v_path = itemfg.box-image:SCREEN-VALUE.
 
@@ -237,7 +241,7 @@ DO:
               THEN ASSIGN v_path = TRIM(sys-ctrl.char-fld).
               ELSE ASSIGN v_path = "boximage\".
       END.
-           
+
       SYSTEM-DIALOG GET-FILE ls-filename 
                     TITLE "Select Image File to insert"
                     FILTERS "Acrobat Files(*.pdf)" "*.pdf",
@@ -250,9 +254,9 @@ DO:
                     MUST-EXIST
                     USE-FILENAME
                     UPDATE ll-ok.
-         
+
        IF ll-ok THEN self:screen-value = ls-filename.
-    
+
    END.
 END.
 
@@ -276,7 +280,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -402,7 +406,7 @@ if avail xbox-design-hdr then do:
          assign  box-design-line.wscore     = w-box-design-line.wscore-c
                  box-design-line.wcum-score = w-box-design-line.wcum-score-c.
    end.
- 
+
    if v-rebuild ne "B" then do:
       if v-rebuild eq "S" then
          box-design-hdr.description = w-box-h.description.
@@ -413,7 +417,7 @@ if avail xbox-design-hdr then do:
 
       for each w-box-l of box-design-hdr no-lock,
           first box-design-line of w-box-l:
-      
+
           if v-rebuild eq "S" then
              assign box-design-line.line-no    = w-box-l.line-no
                      box-design-line.line-text  = w-box-l.line-text.
@@ -505,7 +509,7 @@ PROCEDURE refresh-boximg :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEF VAR ll-dummy AS LOG NO-UNDO.
-  
+
 
    FIND CURRENT itemfg NO-LOCK NO-ERROR.
    IF NOT AVAIL itemfg THEN RETURN.
@@ -517,7 +521,7 @@ PROCEDURE refresh-boximg :
      ll-dummy = box-image-2:load-image(box-design-hdr.box-3d-image) in frame {&frame-name}.
      /*assign box-image:height-pixels = box-image:height-pixels - 10
             box-image:width-pixels =  box-image:width-pixels - 10.
-            
+
      */
    end.
    ELSE */
@@ -526,7 +530,7 @@ PROCEDURE refresh-boximg :
      ll-dummy = box-image-2:load-image(itemfg.box-image) in frame {&frame-name}.
      /*assign box-image:height-pixels = box-image:height-pixels - 10
             box-image:width-pixels =  box-image:width-pixels - 10.
-            
+
      */
    end.
    ll-box-refreshed = YES.
@@ -591,7 +595,7 @@ PROCEDURE update-fgitem-img :
   DEF VAR tInt AS INT NO-UNDO.
   DEF VAR ls-image1 AS cha FORM "x(300)" NO-UNDO.
   DEF VAR v-program AS CHAR NO-UNDO.
-  
+
   v-program = "mspaint.exe" .
   lv-cmd = "custom\mspaint.exe".
 
@@ -599,7 +603,7 @@ PROCEDURE update-fgitem-img :
 
      IF itemfg.box-image MATCHES "*.pdf*"  THEN DO:
         RUN ShellExecuteA(0, "open", itemfg.box-image, "", "", 0, OUTPUT tInt).
-      
+
         IF tInt LE 32 THEN
         DO:
            RUN custom/runapdf.p (OUTPUT lv-cmd).
@@ -616,7 +620,7 @@ PROCEDURE update-fgitem-img :
         IF tInt LE 32 THEN
             DO:
             IF ls-image1 <> "" THEN do:
-                
+
                 OS-COMMAND SILENT START value(trim(v-program)) value(lv-cmd).
            END.
         END.
@@ -657,12 +661,12 @@ PROCEDURE update-image :
 
      /* not working on window 98/me    */
      OS-COMMAND  VALUE('"' + lv-cmd + " " + itemfg.box-image + '"').
-     
+
 
     /* lv-cmd = ('"' + lv-cmd + " " + itemfg.box-image + '"'). */
      /* for win 98/me 
      lv-cmd = lv-cmd + chr(32) + itemfg.box-image.
-     
+
      RUN WinExec (INPUT lv-cmd, INPUT 1,OUTPUT lv-return).     
                                                    */
 

@@ -60,13 +60,13 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_Page_3 
-     IMAGE-UP FILE "Graphics/32x32/window_split_ver.png":U
+     IMAGE-UP FILE "Graphics/32x32/window_split_ver.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Browser" 
      SIZE 7.8 BY 1.81 TOOLTIP "Browser".
 
 DEFINE BUTTON Select_Page_4 
-     IMAGE-UP FILE "Graphics/32x32/window_dialog.png":U
+     IMAGE-UP FILE "Graphics/32x32/window_dialog.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Viewer" 
      SIZE 7.8 BY 1.81 TOOLTIP "Viewer".
@@ -139,13 +139,13 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB s-object 
 /* ************************* Included-Libraries *********************** */
 
-{advantzware/winkit/winkit-panel.i}
+{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/smart.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -161,11 +161,7 @@ ASSIGN
 ON CHOOSE OF Select_Page_3 IN FRAME F-Main /* Page_3 */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
-
-
-  /* Added by WinKit Migration tool 07.02.2016 21:13:15 */
-  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
-
+  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -177,11 +173,7 @@ END.
 ON CHOOSE OF Select_Page_4 IN FRAME F-Main /* Page_4 */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
-
-
-  /* Added by WinKit Migration tool 07.02.2016 21:13:15 */
-  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
-
+  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -242,7 +234,7 @@ PROCEDURE state-changed :
       /* Object instance CASEs can go here to replace standard behavior
          or add new cases. */
   END CASE.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

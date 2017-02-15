@@ -15,7 +15,7 @@ FOR EACH box-design-hdr OF {&TABLENAME}
       AND est.est-no  EQ {&TABLENAME}.est-no:
   ASSIGN
    est.updated-date = TODAY
-   est.updated-id   = USERID("ASI").
+   est.updated-id   = USERID("nosweat").
   LEAVE.
 END.
 

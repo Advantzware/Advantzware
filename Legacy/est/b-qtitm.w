@@ -857,7 +857,7 @@ DEF BUFFER bf-quoteitm FOR quoteitm.
        quoteqty.price      = quoteitm.price
        quoteqty.uom        = quoteitm.uom
        quoteqty.quote-date = TODAY
-       quoteqty.quote-user = USERID("ASI").
+       quoteqty.quote-user = USERID("nosweat").
 
       RELEASE itemfg.
 
@@ -980,7 +980,7 @@ PROCEDURE local-create-record :
          quoteitm.q-no = quotehd.q-no
          quoteitm.line = li-next-line
          quoteitm.upd-date = TODAY
-         quoteitm.upd-user = USERID("ASI").
+         quoteitm.upd-user = USERID("nosweat").
   
 END PROCEDURE.
 

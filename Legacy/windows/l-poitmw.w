@@ -61,7 +61,7 @@ DEF VAR period_pos AS INTEGER NO-UNDO.
 IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
    INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
    INDEX(PROGRAM-NAME(1),".ped") NE 0 THEN
-v-prgmname = USERID("ASI") + "..".
+v-prgmname = USERID("NOSWEAT") + "..".
 ELSE
 ASSIGN
   period_pos = INDEX(PROGRAM-NAME(1),".")

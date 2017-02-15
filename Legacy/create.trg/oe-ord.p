@@ -7,8 +7,8 @@ TRIGGER PROCEDURE FOR CREATE OF {&TABLENAME}.
 
 /* RUN oe/ordupdat.p ({&TABLENAME}.company, {&TABLENAME}.ord-no, YES). */
 ASSIGN
-    {&TABLENAME}.USER-ID = USERID("ASI")
-    {&TABLENAME}.entered-id = USERID("ASI").
+    {&TABLENAME}.USER-ID = USERID("nosweat")
+    {&TABLENAME}.entered-id = USERID("nosweat").
 
 /* Clear out any error-status from find with no-error that is false */
 DEF VAR ll-error AS LOG NO-UNDO.

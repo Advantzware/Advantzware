@@ -438,6 +438,9 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+IF NOT WINDOW-1:LOAD-ICON("Graphics\asiicon.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -521,7 +524,7 @@ THEN WINDOW-1:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -533,6 +536,7 @@ THEN WINDOW-1:HIDDEN = no.
 ON CHOOSE OF Btn_OK IN FRAME FRAME-A /* OK */
 DO:
   APPLY "CHOOSE" TO Btn_Save.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -545,7 +549,7 @@ ON CHOOSE OF Btn_Reset IN FRAME FRAME-A /* Reset */
 DO:
   IF prgm-name = "" THEN
   DO:
-    FIND users WHERE users.user_id = USERID("ASI") NO-LOCK.
+    FIND users WHERE users.user_id = USERID("NOSWEAT") NO-LOCK.
     DO k = 1 TO 13:
       ASSIGN
         w-bgc[k] = users.widget_bgc[k]
@@ -572,6 +576,7 @@ DO:
   widget-list:SCREEN-VALUE = widget-list:ENTRY(1).
   APPLY "VALUE-CHANGED" TO widget-list.
   APPLY "ENTRY" TO widget-list.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -585,6 +590,7 @@ DO:
   ASSIGN
     m-example:BGCOLOR = ?
     w-bgc[list-pos] = ?.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -598,6 +604,7 @@ DO:
   ASSIGN
     m-example:FGCOLOR = ?
     w-fgc[list-pos] = ?.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -612,6 +619,7 @@ DO:
     m-example:FONT = ?
     w-font[list-pos] = ?
     widget-fonts:SCREEN-VALUE = ?.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -627,7 +635,7 @@ DO:
     use_colors.
   IF prgm-name = "" THEN
   DO:
-    FIND users WHERE users.user_id = USERID("ASI") EXCLUSIVE-LOCK.
+    FIND users WHERE users.user_id = USERID("NOSWEAT") EXCLUSIVE-LOCK.
     DO k = 1 TO 13:
       ASSIGN
         users.widget_bgc[k] = w-bgc[k]
@@ -653,6 +661,7 @@ DO:
   END.
   Btn_Cancel:LABEL = "&Close".
   DISABLE Btn_Reset WITH FRAME {&FRAME-NAME}.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1070,8 +1079,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* These events will close the window and terminate the procedure.      */
 /* (NOTE: this will override any user-defined triggers previously       */
@@ -1094,7 +1105,7 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   ASSIGN 
-    {&WINDOW-NAME}:TITLE = IF prgm-name = "" THEN "User '" + USERID("ASI")
+    {&WINDOW-NAME}:TITLE = IF prgm-name = "" THEN "User '" + USERID("NOSWEAT")
                                 ELSE "Program '" + prgm-name
     {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + "' Font and Color Settings".
   widget-fonts:DELIMITER = "@".
@@ -1102,6 +1113,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN Get_Fonts.
   APPLY "CHOOSE" TO Btn_Reset.
   {methods/nowait.i}
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1184,7 +1196,7 @@ PROCEDURE Get_Fonts :
     GET-KEY-VALUE SECTION "fonts" KEY "font" + STRING(i) VALUE x.
     ldummy = widget-fonts:ADD-LAST(STRING(i) + ", " + x).
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

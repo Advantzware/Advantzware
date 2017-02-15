@@ -462,9 +462,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -617,7 +627,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -701,6 +711,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -722,11 +733,11 @@ DO:
           tb_collate lv-scr-num-copies
           tb_cust-copy tb_office-copy tb_sman-copy
           /* gdm - 12080817 */ tb_setcomp.
-        
+
     IF fi_broker-bol:SENSITIVE THEN
        ASSIGN fi_broker-bol.
   END.
-  
+
   IF rs_no_PN:HIDDEN = NO THEN
      ASSIGN rs_no_PN
             svi-print-item = rs_no_PN.
@@ -734,13 +745,13 @@ DO:
   IF tb_prt-zero-qty:HIDDEN = NO THEN
      ASSIGN tb_prt-zero-qty
             s-print-zero-qty = tb_prt-zero-qty.
-
-  IF tb_posted AND begin_inv <> END_inv THEN DO:
+  /*   Ticket - 18922  */
+  /*IF tb_posted AND begin_inv <> END_inv THEN DO:
      MESSAGE "Beginning Invoice# and Ending Invoice# must be the same for Reprint Posted Invoice."
          VIEW-AS ALERT-BOX ERROR.
      APPLY "entry" TO begin_inv.
      RETURN .
-  END.
+  END.*/
 
   IF fi_broker-bol:SENSITIVE AND
      fi_broker-bol:SCREEN-VALUE NE "" AND
@@ -766,7 +777,7 @@ DO:
      APPLY "entry" TO rd_sort.
      RETURN.
   END.
-  
+
   IF v-invpass THEN
   DO:
      RUN sys/ref/d-passwd.w(6, OUTPUT ll-secure).
@@ -863,7 +874,7 @@ DO:
                   BREAK BY b-ar-inv.company
                         BY b-ar-inv.cust-no
                         BY b-ar-inv.ship-id:
-                  
+
                   IF FIRST-OF(b-ar-inv.ship-id) THEN
                   DO:
                       /* Find INVPRINT shipto for customer, ship location and a form name. */
@@ -910,7 +921,7 @@ DO:
         DO:
            RUN SetInvPostForm(vcDefaultForm).
            v-print-fmt = vcDefaultForm.
-       
+
            RUN run-report-posted("", FALSE).
            RUN GenerateReport(INPUT lv-fax-type,
                               INPUT begin_cust,
@@ -970,7 +981,7 @@ DO:
                            sys-ctrl-shipto.ship-id = '' AND /* stacey */
                            sys-ctrl-shipto.char-fld > ''
                            NO-LOCK NO-ERROR.
-                      
+
                       IF AVAIL sys-ctrl-shipto THEN
                       DO:
                          RUN SetInvForm(sys-ctrl-shipto.char-fld).
@@ -994,7 +1005,7 @@ DO:
            DO:
               RUN SetInvForm(vcDefaultForm).
               v-print-fmt = vcDefaultForm.
-       
+
               RUN run-report("","", FALSE).
               RUN GenerateReport(INPUT lv-fax-type,
                                  INPUT begin_cust,
@@ -1008,7 +1019,7 @@ DO:
 
      IF NOT tb_BatchMail:CHECKED THEN DO:
        IF begin_cust <> end_cust THEN DO:
-            
+
 /*          IF NOT tb_BatchMail:SENSITIVE THEN DO: */
 
            MESSAGE 'Please check Batch E-Mail to send to multiple customers in the specified range.'
@@ -1027,13 +1038,13 @@ DO:
 /*           MESSAGE 'In-House Customer not defined.'                 */
 /*             VIEW-AS ALERT-BOX INFO BUTTONS OK.                     */
 /*           RETURN.                                                  */
-/*          END. */
+/*         END.                                                       */
        END.
 
        ELSE RUN BatchMail (begin_cust, begin_cust).
-       
+
      END.
-         
+
      ELSE RUN BatchMail (begin_cust, end_cust).
     END.
 
@@ -1047,7 +1058,7 @@ IF rd-dest:SCREEN-VALUE = '1' then do:
                   b-ar-inv.cust-no LE end_cust AND
                   b-ar-inv.printed EQ tb_reprint
                   NO-LOCK NO-ERROR.
-                
+
                     FIND FIRST sys-ctrl-shipto WHERE
                         sys-ctrl-shipto.company = cocode AND
                         sys-ctrl-shipto.NAME = "INVPRINT" AND
@@ -1066,7 +1077,7 @@ IF rd-dest:SCREEN-VALUE = '1' then do:
                         sys-ctrl-shipto.ship-id = '' AND /* stacey */
                         sys-ctrl-shipto.char-fld > ''
                         NO-LOCK NO-ERROR.
-                    
+
                     IF AVAIL sys-ctrl-shipto THEN
                         DO:
                         RUN SetInvPostForm(sys-ctrl-shipto.char-fld).
@@ -1096,7 +1107,7 @@ IF rd-dest:SCREEN-VALUE = '1' then do:
              buf-inv-head.inv-no ge begin_inv and
              buf-inv-head.inv-no le end_inv))
              NO-LOCK NO-ERROR.
-             
+
                 FIND FIRST sys-ctrl-shipto WHERE
                     sys-ctrl-shipto.company = cocode AND
                     sys-ctrl-shipto.NAME = "INVPRINT" AND
@@ -1141,6 +1152,7 @@ IF rd-dest:SCREEN-VALUE = '1' then do:
   RELEASE inv-line .
   RELEASE inv-misc .
 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1472,8 +1484,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -1511,11 +1525,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    vcDefaultForm = v-print-fmt.
 
   if sys-ctrl.date-fld ne ? then end_date = sys-ctrl.date-fld.
-  
+
   glPaperless  = GetPaperlessLogical().
-  
+
   FIND FIRST users WHERE
-       users.user_id EQ USERID("ASI")
+       users.user_id EQ USERID("NOSWEAT")
        NO-LOCK NO-ERROR.
 
   IF AVAIL users AND users.user_program[2] NE "" THEN
@@ -1559,7 +1573,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             rs_no_PN:SENSITIVE = TRUE.
 
   DO WITH FRAME {&FRAME-NAME}:
-    
+
     IF lookup(v-print-fmt,"PremierX,Coburn,Axis,BlueRx,ColoniaX,ABC,Knight,Knight1,Central,ACPI,ColorX,ColonialLot#,Carded,CCCFGLot,CCCFGL3,Peachtreefgl3,Peachtree,PremierS") > 0 THEN
       ASSIGN
        tb_cust-copy:HIDDEN      = NO
@@ -1642,7 +1656,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
            end_date:SCREEN-VALUE = STRING(oe-bolh.bol-date).
       END.
     END.
-    
+
     /* 05301305 - IF from-to invoice is completed, then the from-to bol# is */
     /* irrelevant and was causing problems                                  */
     IF INT(begin_inv:SCREEN-VALUE) GT 0 AND INT(end_inv:SCREEN-VALUE) GT 0 THEN
@@ -1660,6 +1674,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         tb_email-orig = NO.
   END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
      WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1677,7 +1692,7 @@ PROCEDURE BatchMail :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DEFINE INPUT PARAM icBegCustNo  AS CHAR NO-UNDO.
   DEFINE INPUT PARAM icEndCustNo  AS CHAR NO-UNDO.
 
@@ -1721,7 +1736,7 @@ PROCEDURE BatchMail :
         BREAK BY b1-ar-inv.cust-no:
 
       IF FIRST-OF (b1-ar-inv.cust-no) THEN DO:
-      
+
         ASSIGN  vlSkipRec = YES
                 vcBegCustNo = b1-ar-inv.cust-no
                 vcEndCustNo = b1-ar-inv.cust-no.
@@ -1759,17 +1774,17 @@ PROCEDURE BatchMail :
         AND (b2-cust.log-field[1] OR NOT tb_Batchmail OR tb_override-email)
         AND ((b2-cust.inv-meth EQ ? AND b1-inv-head.multi-invoice) OR
              (b2-cust.inv-meth NE ? AND NOT b1-inv-head.multi-invoice))
-             
+
          /*AND CAN-FIND(FIRST inv-line OF b1-inv-head)*/
       no-lock
       BREAK BY b2-cust.cust-no:
-      
+
       IF FIRST-OF (b2-cust.cust-no) THEN DO:
-      
+
         ASSIGN  vlSkipRec = YES
                 vcBegCustNo = b1-inv-head.cust-no
                 vcEndCustNo = b1-inv-head.cust-no.
-        vSoldToNo = "". 
+        vSoldToNo = "".
         if b1-inv-head.multi-invoice then do: 
            find first b2-inv-head 
                       WHERE b2-inv-head.company       EQ b1-inv-head.company
@@ -1788,7 +1803,7 @@ PROCEDURE BatchMail :
            vSoldToNo = IF AVAIL oe-ord THEN oe-ord.sold-id ELSE "". 
            vShipToNo = b1-inv-head.sold-no.
         END.
-      
+
         RUN output-to-mail (b1-inv-head.cust-no).
       END.
       lEmailed = YES.
@@ -1797,7 +1812,7 @@ PROCEDURE BatchMail :
   END.
 
   ELSE DO:  /* not tb_post */
-      
+
     for each b1-inv-head
        where b1-inv-head.company         eq cocode
          and b1-inv-head.cust-no         ge icBegCustNo
@@ -1818,9 +1833,9 @@ PROCEDURE BatchMail :
         /*AND CAN-FIND(FIRST inv-line OF b1-inv-head)*/
       no-lock
       BREAK BY b2-cust.cust-no :
-      
+
       IF FIRST-OF (b2-cust.cust-no) THEN DO:
-      
+
         ASSIGN  vlSkipRec = YES
                 vcBegCustNo = b1-inv-head.cust-no
                 vcEndCustNo = b1-inv-head.cust-no.
@@ -1847,7 +1862,7 @@ PROCEDURE BatchMail :
 /*               "," AVAIL oe-ord "," oe-ord.sold-no RECID(oe-ord) SKIP                               */
 /*               "cust: " b2-cust.cust-no  "  inv#: " b1-inv-head.inv-no  " r-no:  " b1-inv-head.r-no */
 /*               VIEW-AS ALERT-BOX INFO BUTTONS OK.                                                   */
-           
+
           RUN output-to-mail (b1-inv-head.cust-no).
       END.
       lEmailed = YES.
@@ -1872,7 +1887,7 @@ PROCEDURE BatchMail :
 /*          IF AVAIL b2-cust AND NOT b2-cust.log-field[1] THEN                                           */
 /*          MESSAGE "Customer is Mail Only because Email Only toggle box in customer file is unchecked." */
 /*              VIEW-AS ALERT-BOX WARNING BUTTONS OK.                                                    */
-    
+
   END.
 
 END PROCEDURE.
@@ -1974,22 +1989,22 @@ PROCEDURE GenerateEmail :
    DEFINE INPUT PARAMETER icCustNo AS CHAR NO-UNDO.
 
    DO WITH FRAME {&FRAME-NAME}:
-   
+
       IF vlSkipRec THEN RETURN.
-      
+
       IF v-print-fmt EQ "Southpak-xl" OR v-print-fmt EQ "PrystupExcel" THEN
       DO:
         OS-DELETE VALUE(init-dir + "\Invoice").
         OS-COPY VALUE(init-dir + "\Invoice.pdf") VALUE(init-dir + "\Invoice").
         ASSIGN list-name = init-dir + "\Invoice".
       END.
-      
+
       lv-pdf-file = lv-pdf-file + vcInvNums + '.pdf'.
-      
+
       IF is-xprint-form THEN DO:
          IF v-print-fmt NE "Southpak-xl" AND v-print-fmt NE "PrystupExcel" THEN
             RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
-      
+
             IF cActualPDF ne lv-pdf-file AND SEARCH(cActualPDF) NE ? THEN DO:
               OS-COPY VALUE(cActualPDF) VALUE(lv-pdf-file).
               OS-DELETE VALUE(cActualPDF).           
@@ -2075,7 +2090,7 @@ PROCEDURE output-to-fax-prt :
         END.
         lv-file-name = "".   
      END.
-     
+
   END.
 
 END PROCEDURE.
@@ -2105,9 +2120,9 @@ PROCEDURE output-to-mail :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAM icCustNo AS CHAR NO-UNDO.
-  
+
   DO WITH FRAME {&FRAME-NAME}:
-  
+
      IF tb_posted THEN
      DO:
         IF CAN-FIND(FIRST sys-ctrl-shipto WHERE
@@ -2125,7 +2140,7 @@ PROCEDURE output-to-mail :
                NO-LOCK
                BREAK BY b-ar-inv.company
                      BY b-ar-inv.cust-no:
-               
+
                IF FIRST-OF(b-ar-inv.cust-no) THEN
                DO:
                   FIND FIRST sys-ctrl-shipto WHERE
@@ -2145,7 +2160,7 @@ PROCEDURE output-to-mail :
                           sys-ctrl-shipto.cust-vend-no = b-ar-inv.cust-no AND
                           sys-ctrl-shipto.char-fld > ''
                           NO-LOCK NO-ERROR.
-    
+
                   IF AVAIL sys-ctrl-shipto THEN
                   DO:
                      RUN SetInvPostForm(sys-ctrl-shipto.char-fld).
@@ -2156,7 +2171,7 @@ PROCEDURE output-to-mail :
                      RUN SetInvPostForm(vcDefaultForm).
                      v-print-fmt = vcDefaultForm.
                   END.
-    
+
                   ASSIGN
                      vcInvNums = ""
                      lv-pdf-file = init-dir + "\Inv".
@@ -2183,13 +2198,13 @@ PROCEDURE output-to-mail :
               vcInvNums = ""
               lv-pdf-file = init-dir + "\Inv"
               v-print-fmt = vcDefaultForm.
-        
+
            RUN run-report-posted("", FALSE).
            RUN GenerateEmail(icCustNo).
         END.
      END.
      ELSE /*not posted*/
-     DO:
+     DO:         
         IF CAN-FIND(FIRST sys-ctrl-shipto WHERE
            sys-ctrl-shipto.company = cocode AND
            sys-ctrl-shipto.NAME = "INVPRINT") THEN
@@ -2213,7 +2228,7 @@ PROCEDURE output-to-mail :
                 no-lock
                 BREAK BY buf-inv-head.company
                       BY buf-inv-head.cust-no:
-    
+
                 IF FIRST-OF(buf-inv-head.cust-no) THEN
                 DO:
                    FIND FIRST sys-ctrl-shipto WHERE
@@ -2233,7 +2248,7 @@ PROCEDURE output-to-mail :
                         sys-ctrl-shipto.cust-vend-no = buf-inv-head.cust-no AND
                         sys-ctrl-shipto.char-fld > ''
                         NO-LOCK NO-ERROR.
-    
+
                    IF AVAIL sys-ctrl-shipto THEN
                    DO:
                       RUN SetInvForm(sys-ctrl-shipto.char-fld).
@@ -2244,7 +2259,7 @@ PROCEDURE output-to-mail :
                       RUN SetInvForm(vcDefaultForm).
                       v-print-fmt = vcDefaultForm.
                    END.
-    
+
                    ASSIGN
                      vcInvNums = ""
                      lv-pdf-file = init-dir + "\Inv".
@@ -2270,10 +2285,10 @@ PROCEDURE output-to-mail :
                          vSoldToNo = IF AVAIL oe-ord THEN oe-ord.sold-id ELSE "". 
                   END.
                   vShipToNo = buf-inv-head.sold-no.
-                   RUN GenerateEmail(buf-inv-head.cust-no).
+                  RUN GenerateEmail(buf-inv-head.cust-no).
                 END.
            END.
-        
+
         ELSE
         DO:
            RUN SetInvForm(vcDefaultForm).
@@ -2282,13 +2297,13 @@ PROCEDURE output-to-mail :
               v-print-fmt = vcDefaultForm
               vcInvNums = ""
               lv-pdf-file = init-dir + "\Inv".
-        
+
            RUN run-report("","", FALSE).
            RUN GenerateEmail(icCustNo).
         END.
      END.
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2341,7 +2356,7 @@ PROCEDURE output-to-screen :
   END.
   ELSE
       run custom/scr-rpt2.w (list-name,c-win:title,int(lv-font-no),lv-ornt,lv-prt-bypass).
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2414,7 +2429,7 @@ if td-show-parm then run show-param.
 
 {sa/sa-sls01.i}
 
-v-term-id = v-term + USERID("ASI").
+v-term-id = v-term + USERID("nosweat").
 
 SESSION:SET-WAIT-STATE ("general").
 
@@ -2434,7 +2449,7 @@ for each inv-head
            inv-head.bol-no LE tbol) OR inv-head.multi-invoice EQ YES)
     /* gdm - 10150909 end*/
     no-lock,
-             
+
     first cust
     where cust.company eq cocode
       and cust.cust-no eq inv-head.cust-no
@@ -2451,7 +2466,7 @@ for each inv-head
             AND b-inv-head.inv-no        EQ inv-head.inv-no
             AND b-inv-head.multi-invoice EQ NO            
             AND INDEX(vcHoldStats, b-inv-head.stat) EQ 0:
-    
+
         {oe/rep/bolcheck.i b-inv-head build-report}
         IF tb_attachBOL AND SEARCH(vcBOLSignDir + "\" + string(b-inv-head.bol-no) + ".pdf") NE ?  THEN 
           vcBOLFiles = vcBOLFiles + "," + SEARCH(vcBOLSignDir + "\" + string(b-inv-head.bol-no) + ".pdf").
@@ -2471,7 +2486,7 @@ for each inv-head
    /* dont include inv-head on printing when it's a MASTER invoice (multi-inv) AND 
       no SLAVE invoices found which is NOT on HOLD Status (inv-head.stat NE "H") AH 07/08/10 */
   IF cust.inv-meth EQ ? AND inv-head.multi-invoice AND dtl-ctr LE 0 THEN NEXT.
-      
+
   vlSkipRec = NO.
 
 /* WFK - 15063 - Removed this change since it was causing lots of problems */
@@ -2495,7 +2510,7 @@ for each inv-head
 
   IF vcInvNums MATCHES '*-*' THEN
      vcInvNums = RIGHT-TRIM (SUBSTRING (vcInvNums, 1, INDEX (vcInvNums,'-')), '-') + SUBSTRING (vcInvNums, R-INDEX (vcInvNums, '-')).
-  
+
   /* update loadtag status - Bill of lading task#: 10190414 */
   IF NOT inv-head.printed THEN
   FOR EACH bf-inv-line OF inv-head NO-LOCK:
@@ -2507,14 +2522,14 @@ for each inv-head
           AND oe-boll.po-no   EQ bf-inv-line.po-no
           AND CAN-FIND(FIRST oe-bolh WHERE oe-bolh.b-no   EQ bf-inv-line.b-no
                        AND oe-bolh.posted EQ YES) NO-LOCK:
-         
+
          FIND FIRST loadtag EXCLUSIVE-LOCK WHERE loadtag.company EQ inv-head.company
                            AND loadtag.item-type EQ NO
                            AND loadtag.i-no EQ bf-inv-line.i-no
                            AND loadtag.job-no EQ oe-boll.job-no
                            AND loadtag.job-no2 EQ oe-boll.job-no2
                            AND loadtag.tag-no EQ oe-boll.tag NO-ERROR.
-      
+
          IF AVAIL loadtag THEN loadtag.sts = "Invoiced".
          RELEASE loadtag.
       END.
@@ -2531,7 +2546,7 @@ FOR EACH save-line WHERE save-line.reftable EQ "save-line" + v-term-id,
 END.
 
 v-lines-per-page = lines-per-page.
-   
+
 IF v-print-fmt NE "Fibrex" THEN
 DO:
    find first sys-ctrl WHERE
@@ -2608,7 +2623,7 @@ IF is-xprint-form THEN DO:
             cActualPDF = lv-pdf-file + vcInvNums + ".pdf".
           END.  
       END.
-            
+
    END CASE.
 
    PUT "</PROGRESS>".
@@ -2661,16 +2676,16 @@ vcInvNums = "".
 for each report where report.term-id eq v-term-id no-lock,        
     first inv-head where recid(inv-head) eq report.rec-id no-lock
     break by inv-head.inv-no:
-              
+
       assign 
           vcInvNums      = vcInvNums + '-' + STRING (inv-head.inv-no)
           vcInvNums      = LEFT-TRIM (vcInvNums, '-').
-          
+
       /* Extract first and last inv# with '-' in between */
       IF vcInvNums MATCHES '*-*' THEN
          vcInvNums = RIGHT-TRIM (SUBSTRING (vcInvNums, 1, INDEX (vcInvNums,'-')), '-') +     
                      SUBSTRING (vcInvNums, R-INDEX (vcInvNums, '-')).
-        
+
 end.
 
 FOR EACH save-line WHERE save-line.reftable EQ "save-line" + v-term-id:
@@ -2715,7 +2730,7 @@ ASSIGN
      ASSIGN
        v-print-dept = LOGICAL(tb_print-dept:SCREEN-VALUE)
        v-depts = fi_depts:SCREEN-VALUE.
- 
+
 IF ip-sys-ctrl-ship THEN
    ASSIGN
       fcust = ip-cust-no
@@ -2756,7 +2771,7 @@ FOR EACH ar-inv
       AND ar-inv.printed                EQ v-print
       AND CAN-FIND(FIRST ar-invl WHERE ar-invl.x-no = ar-inv.x-no)
     USE-INDEX inv-no NO-LOCK:
-      
+
   IF NOT(ar-inv.posted EQ NO OR
          ar-inv.posted EQ v-posted) THEN NEXT.
 
@@ -2906,12 +2921,12 @@ PROCEDURE SendMail-1 :
   ASSIGN  vcSubject   = "INVOICE:" + vcInvNums + '   ' + STRING (TODAY, '99/99/9999') + STRING (TIME, 'HH:MM:SS AM')
           vcSubject   = IF tb_reprint AND NOT tb_email-orig THEN '[REPRINT] ' + vcSubject ELSE vcSubject
           vcMailBody  = "Please review attached Invoice(s) for Invoice #: " + vcInvNums.
-  
-  
+
+
   IF NOT SEARCH (list-name) = ? THEN DO: 
 
     IF NOT is-xprint-form AND NOT v-print-fmt EQ "Southpak-xl" AND NOT v-print-fmt EQ "PrystupExcel" THEN DO:
-      
+
       OS-RENAME VALUE (SEARCH (list-name)) VALUE (SEARCH (list-name) + '.txt').
 
       IF OS-ERROR NE 0 THEN DO:
@@ -2939,15 +2954,15 @@ PROCEDURE SendMail-1 :
       VIEW-AS ALERT-BOX INFO BUTTONS OK.
     RETURN.
   END.
-  
+
   IF tb_attachBOL THEN
       list-name = list-name + "," + TRIM(vcBOLfiles, ",").
-  
-  IF vSoldToNo <> "" THEN
-     ASSIGN icRecType = "SoldTo"
+
+  IF vSoldToNo <> "" THEN 
+     ASSIGN icRecType = "SoldTo"     
             icIdxKey = icIdxKey + "|" + (vSoldToNo) +
                        if vShipToNo <> "" then "|" + vShipToNo else "".
-  RUN custom/xpmail2.p   (input   icRecType,
+ RUN custom/xpmail2.p   (input   icRecType,
                           input   'R-INVPRT.',
                           input   list-name,
                           input   icIdxKey,
@@ -2956,7 +2971,6 @@ PROCEDURE SendMail-1 :
                           OUTPUT  vcErrorMsg).
   /* for email by sold-to: need type "SoldTo" and icIdxKey(cust-no) and new key
      to have sold-no */
-
 
 END PROCEDURE.
 
@@ -2971,7 +2985,7 @@ PROCEDURE set-broker-bol-proc :
   Notes:       
 ------------------------------------------------------------------------------*/
    DO WITH FRAME {&FRAME-NAME}:
-   
+
       IF fi_broker-bol:SENSITIVE AND
          begin_inv:SCREEN-VALUE EQ end_inv:SCREEN-VALUE THEN
          DO:
@@ -2979,7 +2993,7 @@ PROCEDURE set-broker-bol-proc :
                  b-broker-bol.reftable EQ "brokerbol" AND
                  b-broker-bol.CODE EQ STRING(begin_inv:SCREEN-VALUE)
                  NO-LOCK NO-ERROR.
-         
+
             IF AVAIL b-broker-bol THEN
             DO:
                fi_broker-bol:SCREEN-VALUE = b-broker-bol.code2.
@@ -3599,7 +3613,7 @@ PROCEDURE SetInvForm :
              lines-per-page = 55.
 
    END CASE.
-    
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3613,7 +3627,7 @@ PROCEDURE SetInvPostForm :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE INPUT PARAMETER icFormName AS CHAR NO-UNDO.
-  
+
    is-xprint-form = NO.
 
    CASE icFormName:
@@ -3711,7 +3725,7 @@ PROCEDURE SetInvPostForm :
              v-program =  "ar/rep/invbluex.p"
              lines-per-page = 66
              is-xprint-form = YES.
-       
+
        WHEN "PAC 1/2" THEN
           ASSIGN
              v-program = "ar/rep/invpack.p"
@@ -4034,7 +4048,7 @@ PROCEDURE SetInvPostForm :
              v-program      = "ar/rep/invcapitol.p"
              lines-per-page = 71
              is-xprint-form = YES.
-          
+
        WHEN "allwest" THEN
           ASSIGN
              v-program      = "ar/rep/invallws.p"
@@ -4161,11 +4175,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -4193,25 +4207,25 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
 
   PAGE.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

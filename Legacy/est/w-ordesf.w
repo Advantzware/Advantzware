@@ -18,7 +18,7 @@
       <none>
 
   History: 
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -199,7 +199,7 @@ THEN W-Win:HIDDEN = yes.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -922,10 +922,10 @@ PROCEDURE allow-create :
 /*  &Scoped-define ACCESSTYPE create
   {methods/template/security.i}
 */
- 
+
   def output param op-flag as log no-undo.
   op-flag = YES.
- 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1068,7 +1068,7 @@ PROCEDURE init-box-design :
   RUN add-link IN adm-broker-hdl ( h_b-estitm , 'Record':U , h_q-boxdes ).
   RUN add-link IN adm-broker-hdl ( ip-handle, 'box-calc':U , h_q-boxdes ).
   RUN dispatch IN h_q-boxdes ('initialize').
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1080,14 +1080,14 @@ PROCEDURE local-change-page :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
- 
+
   /* Code placed here will execute PRIOR to standard behavior. */  
   run get-attribute ("current-page").
-   
+
   assign
    li-page[2] = li-page[1]
    li-page[1] = int(return-value).
-  
+
   if li-page[1] = 10 then do:  /* quote */
     def buffer bf-quote for quotehd .
     find first bf-quote where bf-quote.company = g_company and
@@ -1102,12 +1102,12 @@ PROCEDURE local-change-page :
        return no-apply.        
     end.                            
   end.
-   
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1156,9 +1156,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

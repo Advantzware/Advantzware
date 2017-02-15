@@ -1,14 +1,12 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi          PROGRESS
+          nosweat          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-USING Consultingwerk.Framework.Collections.CharacterDictionary FROM PROPATH.
-USING Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl FROM PROPATH.
-&SCOPED-DEFINE dataGrid
+{Advantzware\WinKit\admBrowserUsing.i}
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
@@ -228,7 +226,8 @@ END.
 {src/adm/method/browser.i}
 {src/adm/method/query.i}
 {methods/template/browser.i}
-{methods/gridSearch.i}
+
+{Advantzware/WinKit/dataGridProc.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -262,18 +261,18 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "ASI.phone"
+     _TblList          = "NOSWEAT.phone"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
      _Where[1]         = "phone.table_rec_key = ip-rec_key"
-     _FldNameList[1]   > ASI.phone.attention
+     _FldNameList[1]   > NOSWEAT.phone.attention
 "phone.attention" ? ? "character" ? ? ? ? ? ? no ? no no "29" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[2]   = ASI.phone.phone_city_code
-     _FldNameList[3]   = ASI.phone.phone
-     _FldNameList[4]   = ASI.phone.phone_ext
-     _FldNameList[5]   = ASI.phone.fax_city_code
-     _FldNameList[6]   = ASI.phone.fax
-     _FldNameList[7]   > ASI.phone.e_mail
+     _FldNameList[2]   = NOSWEAT.phone.phone_city_code
+     _FldNameList[3]   = NOSWEAT.phone.phone
+     _FldNameList[4]   = NOSWEAT.phone.phone_ext
+     _FldNameList[5]   = NOSWEAT.phone.fax_city_code
+     _FldNameList[6]   = NOSWEAT.phone.fax
+     _FldNameList[7]   > NOSWEAT.phone.e_mail
 "phone.e_mail" "E-Mail Address" ? "character" ? ? ? ? ? ? no ? no no "34" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */

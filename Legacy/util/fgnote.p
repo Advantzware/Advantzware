@@ -9,7 +9,7 @@ for each itemfg where itemfg.rec_key = "".
 
 
 ls-key = string(today,"99999999") +
-               string(next-value(rec_key_seq,ASI),"99999999").
+               string(next-value(rec_key_seq,nosweat),"99999999").
 
 itemfg.rec_key = ls-key.               
 create rec_key.

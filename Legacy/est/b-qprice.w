@@ -112,7 +112,7 @@ DO:
         NO-LOCK NO-ERROR.
 
    IF AVAIL usergrps AND
-      (NOT CAN-DO(usergrps.users,USERID("ASI")) AND
+      (NOT CAN-DO(usergrps.users,USERID("NOSWEAT")) AND
        TRIM(usergrps.users) NE "*") THEN
       ASSIGN
          v-hide-cost = YES.
@@ -652,10 +652,10 @@ DO:
 
     IF tt-ordl.IS-SELECTED:SCREEN-VALUE IN BROWSE {&browse-name} = "YES"
       AND  DEC(tt-ordl.e-qty:SCREEN-VALUE IN BROWSE {&browse-name}) LE 0 THEN DO:
-      APPLY 'entry' TO tt-ordl.e-qty IN BROWSE {&browse-name}.
+    /*  APPLY 'entry' TO tt-ordl.e-qty IN BROWSE {&browse-name}.
       MESSAGE "Please enter a valid quantity."
         VIEW-AS ALERT-BOX INFO BUTTONS OK.
-      RETURN NO-APPLY.
+      RETURN NO-APPLY.*/
     END.   
     /* Do not disable this code or no updates will take place except
      by pressing the Save button on an Update SmartPanel. */
@@ -906,6 +906,7 @@ END.
 
 ON 'value-changed':U OF tt-ordl.IS-SELECTED IN BROWSE br_table
 DO:
+   ASSIGN tt-ordl.IS-SELECTED = LOGICAL( tt-ordl.IS-SELECTED:SCREEN-VALUE IN BROWSE {&browse-name} ) .
   IF tt-ordl.IS-SELECTED:SCREEN-VALUE IN BROWSE {&browse-name} = "YES" THEN
   APPLY 'entry' TO tt-ordl.e-qty IN BROWSE {&browse-name}.
 END.
@@ -926,10 +927,10 @@ DO:
   IF tt-ordl.IS-SELECTED:SCREEN-VALUE IN BROWSE {&browse-name} EQ "YES" THEN
   RUN validate-qty NO-ERROR.
 
-  IF ERROR-STATUS:ERROR THEN DO: 
+  /*IF ERROR-STATUS:ERROR THEN DO: 
     MESSAGE "Quantity must be greater than 0" VIEW-AS ALERT-BOX.
     RETURN NO-APPLY.
-  END.
+  END.*/
 
   RUN oe/GetPriceMatrix.p (BUFFER bf-oe-prmtx,
                           INPUT ROWID(itemfg),
@@ -1294,6 +1295,7 @@ PROCEDURE get-row-id :
   
   RELEASE itemfg.
   DO WITH FRAME f-main:
+   ASSIGN {&DISPLAYED-OBJECTS}.
       IF AVAIL tt-ordl THEN
       FIND FIRST itemfg WHERE RECID(itemfg) EQ tt-ordl.tt-recid NO-LOCK NO-ERROR.
 
@@ -1307,9 +1309,17 @@ PROCEDURE get-row-id :
 /*             FIND FIRST itemfg WHERE RECID(itemfg) EQ tt-ordl.tt-recid NO-LOCK NO-ERROR. */
 /*             IF AVAIL itemfg THEN                                                         */
 /*             op-rowid-list = op-rowid-list + string(ROWID(itemfg)) + ",".                 */
-/*         END.                                                                              */
+/*         END.  
+                                                                            */
+     FOR EACH tt-ordl WHERE tt-ordl.IS-SELECTED  :
+         IF tt-ordl.e-qty EQ 0 THEN DO:
+             MESSAGE "Please enter a valid quantity for " tt-ordl.i-no "."
+                 VIEW-AS ALERT-BOX INFO BUTTONS OK.
+             RETURN ERROR .
+         END.
+     END.
 
-      FOR EACH tt-ordl WHERE tt-ordl.IS-SELECTED:
+      FOR EACH tt-ordl WHERE tt-ordl.IS-SELECTED  :
 
           FIND FIRST itemfg WHERE RECID(itemfg) EQ tt-ordl.tt-recid NO-LOCK NO-ERROR.
 

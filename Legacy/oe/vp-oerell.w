@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &SCOPED-DEFINE WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -211,7 +215,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -236,7 +240,7 @@ DO:
      END.
 
      RUN oe/d-oerell.w (?, RECID(oe-relh), "add",OUTPUT lv-rowid).
-     
+
      FOR EACH bf-oe-rell NO-LOCK
          WHERE bf-oe-rell.company EQ oe-relh.company
            AND bf-oe-rell.r-no EQ oe-relh.r-no
@@ -260,6 +264,20 @@ END.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE add-line C-WIn 
+PROCEDURE add-line :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ APPLY "choose" TO btn-add IN FRAME {&FRAME-NAME}.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &SCOPED-DEFINE SELF-NAME Btn-copy
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-copy V-table-Win
 ON CHOOSE OF Btn-copy IN FRAME F-Main /* Copy */
@@ -277,19 +295,19 @@ DO:
             BY bf-oe-rell.line:
           iL[1] = iL[1] + 1.
       END.
-     
+
       FIND LAST bf-oe-rell NO-LOCK
            WHERE bf-oe-rell.company EQ oe-relh.company
              AND bf-oe-rell.r-no EQ oe-relh.r-no NO-ERROR.
 
       z = IF AVAILABLE bf-oe-rell THEN bf-oe-rell.line + 1 ELSE 1.
-      
+
       CREATE bf-oe-rell.
       BUFFER-COPY oe-rell EXCEPT rec_key line TO bf-oe-rell.
       /*bf-oe-rell.LINE = z.*/
-     
+
       RUN oe/d-oerell.w (RECID(bf-oe-rell), RECID(oe-relh), "Copy",OUTPUT lv-rowid).
-     
+
       FOR EACH bf-oe-rell NO-LOCK
           WHERE bf-oe-rell.company EQ oe-relh.company
             AND bf-oe-rell.r-no EQ oe-relh.r-no
@@ -299,9 +317,9 @@ DO:
               iL[2]    = iL[2] + 1.
           /*lv-rowid = ROWID(bf-oe-rell)*/ 
       END.
-     
+
       IF iL[2] GT 0 AND (iL[1] NE iL[2] OR iL[2] EQ 1) THEN DO:
-          
+
        RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
        RUN local-open-query IN WIDGET-HANDLE(char-hdl).
        RUN reopen-query IN WIDGET-HANDLE(char-hdl) .
@@ -331,10 +349,10 @@ END.
 ON CHOOSE OF btn-selbin IN FRAME F-Main /* Recost Board */
 DO:
     DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
-    
+
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"tableio-target", OUTPUT char-hdl).
     RUN select-bintags IN WIDGET-HANDLE(char-hdl) .
-    
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -351,18 +369,18 @@ DO:
     DO:
       IF oe-relh.stat NE "c" THEN DO:   
        EMPTY TEMP-TABLE tt-oe-rell.
-      
+
        CREATE tt-oe-rell.
        BUFFER-COPY oe-rell TO tt-oe-rell.
-      
+
        RUN oe/d-oerell.w (RECID(oe-rell),RECID(oe-relh), "update", OUTPUT lv-rowid) . 
-      
+
        BUFFER-COMPARE tt-oe-rell TO oe-rell SAVE RESULT IN ll.
-       
+
        RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
        RUN reopen-query IN WIDGET-HANDLE(char-hdl) .
-       RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(oe-rell)).
-      
+       RUN repo-query IN WIDGET-HANDLE(char-hdl) (lv-rowid).
+
        /*RUN reopen-po-ord-query.*/
       END.
     END.
@@ -392,7 +410,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) NE 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -443,7 +461,7 @@ PROCEDURE browser-dbclicked :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- /*  APPLY "choose" TO btn-view IN FRAME {&FRAME-NAME}.*/
+   APPLY "choose" TO Btn-Save IN FRAME {&FRAME-NAME}.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -536,7 +554,7 @@ PROCEDURE reopen-po-ord-query :
 
   /*IF AVAIL oe-rell THEN DO:
     lv-rowid = ROWID(oe-rell).
-      
+
     run get-link-handle in adm-broker-hdl(this-procedure,"record-source", output char-hdl).
     run get-link-handle in adm-broker-hdl(widget-handle(char-hdl),"record-source", output char-hdl).
 

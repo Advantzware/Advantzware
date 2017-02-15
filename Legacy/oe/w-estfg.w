@@ -18,7 +18,7 @@
       <none>
 
   History: 
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -189,7 +189,7 @@ THEN W-Win:HIDDEN = yes.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -214,7 +214,7 @@ ON WINDOW-CLOSE OF W-Win /* FG Item */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
-  
+
   def var char-hdl as cha no-undo.
   /*run get-link-handle in adm-broker-hdl(this-procedure,"quote-source", output char-hdl).
   run hide-estimate in widget-handle(char-hdl).*/
@@ -237,7 +237,7 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-  
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1022,9 +1022,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1041,19 +1041,19 @@ PROCEDURE local-initialize :
 
   /* Dispatch standard ADM method.                             */
  FIND FIRST eb WHERE recid(eb) = ip-eb NO-LOCK NO-ERROR.
- 
+
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
   DEFINE VARIABLE IsASet AS LOGICAL NO-UNDO.
-  
+
   RUN IsASet IN h_itemfg (OUTPUT IsASet).
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "PAGE-SOURCE", OUTPUT char-hdl).
   IF IsASet THEN RUN enable-folder-page IN WIDGET-HANDLE(char-hdl) (5) NO-ERROR.
   ELSE RUN disable-folder-page IN WIDGET-HANDLE(char-hdl) (5) NO-ERROR.
-  
+
   APPLY "ENTRY" TO FRAME {&FRAME-NAME}.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

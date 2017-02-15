@@ -121,7 +121,7 @@ for each ap-inv
       IF AVAIL terms THEN v-terms = terms.dscr.
       display vend.vend-no vend.NAME v-terms
           with no-labels no-box no-attr-space frame vendor1{1}1.
-      display m3 SPACE(2) vend.TYPE  with frame vendor2{1} no-labels no-box stream-io width 132.
+      display m3 SPACE(2) vend.TYPE  with frame vendor2{1} no-labels no-box stream-io width 144.
       first-time = no.
 
       IF tb_excel AND ll-mult-curr THEN
@@ -172,22 +172,25 @@ for each ap-inv
     DO:
       display ap-inv.inv-no     at 3        format "x(12)"
               space(2)
-              v-date
-              space(3)
+              v-date FORMAT "99/99/99"
+              space(1)
+              ap-inv.due-date FORMAT "99/99/99"
+              space(1)
               v-amt
               d                             format "-999"
-              ag[1]             to 67       when ag[1] ne 0
-              ag[2]             to 83       when ag[2] ne 0
-              ag[3]             to 99       when ag[3] ne 0
-              ag[4]             to 115      when ag[4] ne 0 
-              ag[5]             to 131      when ag[5] ne 0
+              ag[1]             to 75       when ag[1] ne 0
+              ag[2]             to 91       when ag[2] ne 0
+              ag[3]             to 107       when ag[3] ne 0
+              ag[4]             to 123      when ag[4] ne 0 
+              ag[5]             to 139      when ag[5] ne 0
               
-          with frame detail{1} no-labels no-box stream-io width 132.
+          with frame detail{1} no-labels no-box stream-io width 144.
 
       IF tb_excel THEN
          PUT STREAM excel UNFORMATTED
              '"' ap-inv.inv-no                              '",'
              '"' v-date                                     '",'
+             '"' ap-inv.due-date                            '",'
              '"' STRING(v-amt,"->,>>>,>>>,>>9.99")          '",'
              '"' STRING(d,"-999")                           '",'
              '"' IF ag[1] NE 0 THEN
@@ -208,15 +211,15 @@ for each ap-inv
     if ni gt 1 then m3 = "".
     if ni eq 1 then m3 = m2.
     
-    display space (10) "VENDOR TOTALS" t1 to 44
-            cust-t[1] to 67
-            cust-t[2] to 83
-            cust-t[3] to 99
-            cust-t[4] to 115
-            cust-t[5] to 131
+    display space (10) "VENDOR TOTALS" t1 to 51
+            cust-t[1] to 75
+            cust-t[2] to 91
+            cust-t[3] to 107
+            cust-t[4] to 123
+            cust-t[5] to 139
             skip(1)
             
-        with frame vendor3{1} no-labels no-box no-attr-space stream-io width 132.
+        with frame vendor3{1} no-labels no-box no-attr-space stream-io width 144.
         
     IF tb_excel THEN
     DO:
@@ -227,6 +230,7 @@ for each ap-inv
              '"' "" '",'.
 
        PUT STREAM excel UNFORMATTED
+           '"' ""                                  '",'
            '"' ""                                  '",'
            '"' ""                                  '",'
            '"' ""                                  '",'

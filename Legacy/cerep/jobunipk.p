@@ -368,7 +368,7 @@ for each job-hdr NO-LOCK
           IF AVAIL job THEN
             ASSIGN
              job.pr-printed    = YES
-             job.pr-user-id-p  = USERID("ASI")
+             job.pr-user-id-p  = USERID("nosweat")
              job.pr-print-date = TODAY
              job.pr-print-time = TIME
              li                = 1000.
@@ -398,14 +398,14 @@ for each job-hdr NO-LOCK
             IF NOT job.cs-printed THEN
               ASSIGN
                job.cs-printed    = YES
-               job.cs-user-id-p  = USERID("ASI")
+               job.cs-user-id-p  = USERID("nosweat")
                job.cs-print-date = TODAY
                job.cs-print-time = TIME.
      
             IF approve THEN
               ASSIGN
                job.cs-to-pr      = YES
-               job.cs-user-id-t  = USERID("ASI")
+               job.cs-user-id-t  = USERID("nosweat")
                job.cs-trans-date = TODAY
                job.cs-trans-time = TIME.
           END.
@@ -901,7 +901,7 @@ for each job-hdr NO-LOCK
              v-po-duedate = IF AVAIL po-ordl THEN po-ordl.due-date ELSE ?.
 
              PUT "<P10>" v-fill SKIP                       /*REQ'D*/                 
-                 "<B>BOARD CODE            DUE DATE   SHEETS SHEET SIZE       CALIPER DIE SIZE      BOARD PO# VENDOR#  DIE#     PLATE#   CAD#</B>"
+                 "<B>BOARD CODE            DUE DATE   SHEETS SHEET SIZE       CALIPER DIE SIZE      BOARD PO# VENDOR#  DIE#     PRE-PRESS CAD#</B>"
                  SKIP.
             /** PRINT SHEET **/
              x = 2.
@@ -924,7 +924,7 @@ for each job-hdr NO-LOCK
                     v-board-po  
                     v-vend  
                     eb.die-no FORM "x(8)"
-                    eb.plate-no FORM "x(8)"
+                    eb.plate-no FORM "x(8)" SPACE(2)
                     eb.cad-no FORM "x(6)"
                     /*"Caliper:" AT 68 wrk-sheet.cal space(5) "Board:"
                     wrk-sheet.brd-dscr "Form:" AT 123 wrk-sheet.form-no*/
@@ -1092,7 +1092,7 @@ for each job-hdr NO-LOCK
                        v-ink1[j] FORM "x(43)" 
                        "  UNIT"  v-num-of-inks FORM ">9: "
                        v-ink2[j] FORM "x(43)" .
-                  IF j = 1 THEN PUT    "<C90>PLATE#:"   SKIP.
+                  IF j = 1 THEN PUT    "<C90>PRE-PRESS:"   SKIP.
                   ELSE IF j = 2 THEN PUT "<C90>" eb.plate-no SKIP.
                   ELSE PUT  SKIP.
                 /*  PUT v-fill AT 1 "<R-1>" SKIP.*/

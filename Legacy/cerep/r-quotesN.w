@@ -346,9 +346,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -417,7 +427,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -487,6 +497,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -500,7 +511,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-       
+
   RUN GetSelectionList.
   RUN run-report. 
   STATUS DEFAULT "Processing Complete".
@@ -540,6 +551,7 @@ DO:
        WHEN 6 THEN RUN OUTPUT-to-port.
   END CASE. 
 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -565,6 +577,7 @@ DO:
   sl_selected:LIST-ITEM-PAIRS = cSelectedList.
   sl_avail:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
   */
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -579,7 +592,8 @@ DO:
 
   RUN DisplaySelectionDefault.  /* task 04041406 */ 
   RUN DisplaySelectionList2 .
-  
+
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -591,6 +605,7 @@ END.
 ON CHOOSE OF btn_down IN FRAME FRAME-A /* Move Down */
 DO:
   RUN Move-Field ("Down").
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -607,6 +622,7 @@ DO:
   END
   */
   APPLY "DEFAULT-ACTION" TO sl_selected  .
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -618,6 +634,7 @@ END.
 ON CHOOSE OF btn_Up IN FRAME FRAME-A /* Move Up */
 DO:
   RUN Move-Field ("Up").
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -750,7 +767,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
-  
+
    IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
        sl_selected:NUM-ITEMS = 0)
    THEN ASSIGN ldummy = sl_selected:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
@@ -758,7 +775,7 @@ DO:
               /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
                .
 
-  
+
 /* for pairs
     DEF VAR cSelectedList AS cha NO-UNDO.
     cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
@@ -801,7 +818,7 @@ DO:
   ASSIGN
     {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}:ENTRY(1)
     .
-    
+
 
 END.
 
@@ -854,8 +871,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -882,6 +901,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY 'ENTRY' TO begin_cust-no.
   END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -920,7 +940,7 @@ PROCEDURE DisplaySelectionDefault :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  
+
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
      cListContents = cListContents +                   
@@ -946,7 +966,7 @@ PROCEDURE DisplaySelectionList :
   DEF VAR iCount AS INT NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
-     
+
      RETURN.
   END.
 
@@ -959,7 +979,7 @@ PROCEDURE DisplaySelectionList :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -967,9 +987,9 @@ PROCEDURE DisplaySelectionList :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 END PROCEDURE.
 
@@ -990,7 +1010,7 @@ PROCEDURE DisplaySelectionList2 :
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
-        
+
   EMPTY TEMP-TABLE ttRptList.
 
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
@@ -1000,7 +1020,7 @@ PROCEDURE DisplaySelectionList2 :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1008,9 +1028,9 @@ PROCEDURE DisplaySelectionList2 :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
   DO iCount = 1 TO sl_selected:NUM-ITEMS:
@@ -1071,7 +1091,7 @@ PROCEDURE GetSelectionList :
 
  DO i = 1 TO sl_selected:NUM-ITEMS /* IN FRAME {&FRAME-NAME}*/ :
     FIND FIRST ttRptList WHERE ttRptList.TextList = ENTRY(i,cTmpList) NO-LOCK NO-ERROR.     
-  
+
     CREATE ttRptSelected.
     ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
            ttRptSelected.FieldList = ttRptList.FieldList
@@ -1080,7 +1100,7 @@ PROCEDURE GetSelectionList :
            ttRptSelected.HeadingFromLeft = IF entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
-           
+
  END.
 
 END PROCEDURE.
@@ -1158,7 +1178,7 @@ PROCEDURE output-to-printer :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/   
-     
+
      RUN custom/prntproc.p (list-name,int(lv-font-no),lv-ornt).
 
 
@@ -1256,7 +1276,7 @@ SESSION:SET-WAIT-STATE ("general").
 assign
  str-tit2 = "Quote List"
  {sys/inc/ctrtext.i str-tit2 112}
-  
+
  fcust = begin_cust-no
  tcust = end_cust-no
  fsman = begin_slsmn
@@ -1267,7 +1287,7 @@ assign
   .
 
 EMPTY TEMP-TABLE tt-report.
-  
+
 
 DEF VAR cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
@@ -1342,9 +1362,9 @@ FOR EACH quotehd
       AND quotehd.quo-date GE fdate
       AND quotehd.quo-date LE tdate
     NO-LOCK,
-    
+
     FIRST quoteitm OF quotehd NO-LOCK,
-    
+
     FIRST quoteqty OF quoteitm NO-LOCK:
 
     {custom/statusMsg.i " 'Processing Estimate#:  '  + quotehd.est-no  "}
@@ -1367,11 +1387,11 @@ for each tt-report where tt-report.term-id eq "",
 
     break by tt-report.key-01
           by tt-report.key-02:
-    
+
      {custom/statusMsg.i " 'Processing Estimate#:  '  + quotehd.est-no  "}
 
   IF FIRST-OF(tt-report.key-02) THEN lv-q-qty[1] = lv-q-qty[1] + 1.
-    
+
   find first sman
       where sman.company eq quotehd.company
         and sman.sman    eq quotehd.sman
@@ -1381,12 +1401,12 @@ for each tt-report where tt-report.term-id eq "",
   ASSIGN v_sname = IF AVAIL sman THEN sman.sname ELSE "".
 
   for each quoteitm of quotehd  no-lock,
-  
+
       each quoteqty of quoteitm no-lock
-      
+
       break by quoteitm.part-no
             by quoteqty.qty
-      
+
       with frame quote:
 
     IF quoteqty.uom EQ "M" THEN
@@ -1409,7 +1429,7 @@ for each tt-report where tt-report.term-id eq "",
        v-dscr   = quoteitm.part-dscr1.
 
       if v-dscr eq "" then v-dscr = quoteitm.part-no.
-      
+
       if not first(quoteitm.part-no) then put skip(1).
 
       /*display quotehd.q-no
@@ -1419,13 +1439,13 @@ for each tt-report where tt-report.term-id eq "",
               quotehd.quo-date
               sman.sname when avail sman
               v-ext.
-            
+
       put skip(1)
           "    Qty     Price/M      Cost/M         GP$      GP%"
           space(5)
           v-cst-hdr
           skip. */
-           
+
     end.
 
      ASSIGN cDisplay = ""                                                              
@@ -1433,7 +1453,7 @@ for each tt-report where tt-report.term-id eq "",
                    cVarValue = ""                                                      
                    cExcelDisplay = ""
                    cExcelVarValue = "".
-          
+
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
@@ -1454,16 +1474,16 @@ for each tt-report where tt-report.term-id eq "",
                          WHEN "dl"               THEN cVarValue = STRING(quoteqty.lab-cost,"->>>,>>9.99<<<") .
                          WHEN "bo"                   THEN cVarValue = STRING(quoteqty.vo-cost,"->>>,>>9.99<<<") .
                          WHEN "fo"               THEN cVarValue = STRING(quoteqty.fo-cost,"->>>,>>9.99<<<") .
-                        
+
 
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+
             PUT UNFORMATTED cDisplay SKIP.
             IF tb_excel THEN DO:
                  PUT STREAM excel UNFORMATTED  
@@ -1556,9 +1576,9 @@ for each tt-report where tt-report.term-id eq "",
           and quotechg.line eq quoteqty.line
           and quotechg.qty eq quoteqty.qty
         break by quotechg.charge:
-    
+
       if first(quotechg.charge) then put skip(1).
-    
+
       if (quotechg.labf ne 0 or  quotechg.labm ne 0) and
          (quotechg.matf eq 0 and quotechg.matm eq 0) then
         v-misc = "L".
@@ -1572,14 +1592,14 @@ for each tt-report where tt-report.term-id eq "",
         v-misc = "T".
       else
         v-misc = "".
-   
+
       put space(40)
           v-misc
           quotechg.charge
           space(43)
           quotechg.amt
           skip.
-      
+
       /* gdm - 10130805 */
       IF tb_excel THEN DO:
 
@@ -1609,7 +1629,7 @@ for each tt-report where tt-report.term-id eq "",
                    SKIP.*/
           END.
       END. 
-      
+
       if last(quotechg.charge) then put skip(1). 
 
     end.
@@ -1645,7 +1665,7 @@ for each tt-report where tt-report.term-id eq "",
                    cVarValue = ""
                    cExcelDisplay = ""
                    cExcelVarValue = "".
-          
+
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
@@ -1666,16 +1686,16 @@ for each tt-report where tt-report.term-id eq "",
                          WHEN "dl"               THEN cVarValue = "" .
                          WHEN "bo"                   THEN cVarValue = "" .
                          WHEN "fo"               THEN cVarValue = "" .
-                        
+
 
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+
             PUT str-line SKIP.
             IF v-srt THEN do:
             PUT UNFORMATTED  "Customer Totals                               " + "# of Quotes:"  + TRIM(STRING(lv-q-qty[1],">,>>>,>>9"))
@@ -1684,9 +1704,9 @@ for each tt-report where tt-report.term-id eq "",
             ELSE DO:
                 PUT UNFORMATTED  "SalesRep Totals                               " + "# of Quotes:"  + TRIM(STRING(lv-q-qty[1],">,>>>,>>9")) 
                 substring(cDisplay,60,350) SKIP.
-                
+
             END.
-             
+
             PUT SKIP(1) .
 
     assign
@@ -1716,7 +1736,7 @@ for each tt-report where tt-report.term-id eq "",
                    cVarValue = ""
                    cExcelDisplay = ""
                    cExcelVarValue = "".
-          
+
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
@@ -1737,21 +1757,21 @@ for each tt-report where tt-report.term-id eq "",
                          WHEN "dl"               THEN cVarValue = "" .
                          WHEN "bo"                   THEN cVarValue = "" .
                          WHEN "fo"               THEN cVarValue = "" .
-                        
+
 
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+
             PUT str-line SKIP.
             PUT UNFORMATTED  "Grand Totals                                  " + "# of Quotes:"  + TRIM(STRING(lv-q-qty[2],">,>>>,>>9")) 
                 substring(cDisplay,60,350) SKIP.
   END.
-            
+
 
   delete tt-report.
 end.
@@ -1788,11 +1808,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1820,23 +1840,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -20,7 +20,7 @@
 */
 /* dgd 05/06/2007 - formatted for readability. */
 
-&Scoped-define search-db          ASI.
+&Scoped-define search-db          NOSWEAT.
 &Scoped-define search-file        phone
 &Scoped-define where-statement    phone.table_rec_key = s-rec_key
 &Scoped-define return-field       attention

@@ -23,7 +23,7 @@ IF ap-inv.posted THEN DO:
   RETURN ERROR.
 END.
 
-IF apsecure-log AND ap-inv.user-id NE USERID("ASI") THEN DO:
+IF apsecure-log AND ap-inv.user-id NE USERID("nosweat") THEN DO:
   MESSAGE "This invoice may only be deleted by UserID: " +
           TRIM(ap-inv.user-id) + "..."
        VIEW-AS ALERT-BOX ERROR.

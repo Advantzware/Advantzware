@@ -18,7 +18,7 @@
       <none>
 
   History: 
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -187,6 +187,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+/* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
@@ -259,7 +260,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -916,14 +917,14 @@ PROCEDURE local-change-page :
 
   end.   
   ==== */
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/winReSizePgChg.i}
 
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -936,7 +937,7 @@ PROCEDURE local-create-objects :
   Notes:       
 ------------------------------------------------------------------------------*/
   def var char-hdl as cha no-undo.
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -965,9 +966,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -981,7 +982,7 @@ PROCEDURE select_add :
   Notes:       
 ------------------------------------------------------------------------------*/
   def var char-hdl as cha no-undo.
-  
+
   run select-page(2).
   run get-link-handle in adm-broker-hdl(this-procedure,"add-item-target", output char-hdl).
   run add-item in widget-handle(char-hdl).

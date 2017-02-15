@@ -146,7 +146,6 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -243,7 +242,7 @@ DO:
 
   ASSIGN
    /* list-name = screen-file-name + IF screen-file-name NE "" THEN "rpt" ELSE ""
-      init-dir = "users\" + USERID("ASI").
+      init-dir = "users\" + USERID("NOSWEAT").
    */
     init-dir = "c:\temp\" .
   SYSTEM-DIALOG GET-FILE list-name
@@ -286,7 +285,7 @@ DO:
     ELSE do:
         FIND FIRST usergrps WHERE usergrps.usergrps = "Notepad" 
             NO-LOCK NO-ERROR.
-        IF AVAIL usergrps AND LOOKUP(string(USERID("ASI")),usergrps.users) <> 0 THEN DO:
+        IF AVAIL usergrps AND LOOKUP(string(USERID("NOSWEAT")),usergrps.users) <> 0 THEN DO:
             OS-COMMAND NO-WAIT notepad VALUE(list-name).
             RETURN.
         END.

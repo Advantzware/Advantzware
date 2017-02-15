@@ -120,6 +120,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -133,7 +144,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -170,6 +181,7 @@ END.
 ON CHOOSE OF btn_comp IN FRAME DEFAULT-FRAME /* Compile All */
 DO:
   RUN run-compile.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -189,8 +201,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -207,6 +221,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
              'P:\asi10test\pco1010' + '\addon,' + PROPATH.
 
   RUN enable_UI.
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -276,7 +291,7 @@ DISCONNECT asihlp NO-ERROR.
 DISCONNECT emptrack NO-ERROR.
 DISCONNECT nosweat NO-ERROR.
 
-/* CONNECT -pf {&dbDir}/nosweat.pf. */
+CONNECT -pf {&dbDir}/nosweat.pf.
 CONNECT -pf {&dbDir}/asi.pf.
 CONNECT -pf {&dbDir}/asihelp.pf.
 CONNECT -pf {&dbDir}/addon/emptrack-tst.pf.

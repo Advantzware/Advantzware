@@ -149,9 +149,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -168,7 +178,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -217,6 +227,7 @@ ON CHOOSE OF btn_cancel IN FRAME FRAME-A /* Cancel */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -229,6 +240,7 @@ ON CHOOSE OF Btn_Help IN FRAME FRAME-A /* Help */
 OR HELP OF FRAME {&FRAME-NAME}
 DO: /* Call Help Function (or a simple message). */
 MESSAGE "Help for File: {&FILE-NAME}":U VIEW-AS ALERT-BOX INFORMATION.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -239,7 +251,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_ok C-Win
 ON CHOOSE OF btn_ok IN FRAME FRAME-A /* OK */
 DO:   /* must run from laptop only not from server */
-   
+
    def var init-dir as cha no-undo.
    def var li-num-of-rec as int no-undo.
    def var li-num-of-notes as int no-undo.
@@ -248,9 +260,9 @@ DO:   /* must run from laptop only not from server */
            "Are you sure you want to download contacts from SERVER?"
            view-as alert-box question button yes-no update ll-ans as log.
    if not ll-ans then return no-apply.
-               
-  /* init-dir = "users\" + USERID("ASI") + "\contactx.rpt".  */
-  
+
+  /* init-dir = "users\" + USERID("NOSWEAT") + "\contactx.rpt".  */
+
    SESSION:SET-WAIT-STATE("GENERAL").
    status default "Connecting to Server. Please wait." .
    /* ======= connect to server ========*/
@@ -262,39 +274,40 @@ DO:   /* must run from laptop only not from server */
       message "Not connected".
       return no-apply.
    end. 
-  
+
    /*   output to value(init-dir). */
    if connected("emp_server") then
        run system/contdown.p (gcompany, input begin-sman, input end-sman, output li-num-of-rec, output li-num-of-notes) .
-   
+
    /*
    for each emp_server.contact no-lock where emp_server.contact.sman >= begin-sman and
                                              emp_server.contact.sman <= end-sman
                                   :
        find emp_server.usergrps where emp_server.usergrps.usergrps = "sman" no-lock no-error.
-       if not can-do(emp_server.usergrps.users,USERID("ASI")) then next.
+       if not can-do(emp_server.usergrps.users,userid("Nosweat")) then next.
 
-       find emp_server.usergrps where emp_server.usergrps.usergrps = USERID("ASI") no-lock no-error.
+       find emp_server.usergrps where emp_server.usergrps.usergrps = userid("nosweat") no-lock no-error.
        if not can-do(emp_server.usergrps.users,contact.sman) then next.
 
        /*export contact.*/
        buffer-copy emp_server.contact to emptrack.contact.
-       
+
    end.                               
    output close.
    os-copy value(init-dir) value(session:temp-directory + "\contactx.rpt").
    */
-   
+
    if connected("emp_server") then disconnect  emp_server.
    if connected("nos_server") then disconnect  nos_server.
-  
+
    SESSION:SET-WAIT-STATE("").
    message "Download Completed. " li-num-of-rec   " Contact Updated. " skip
            "                    " li-num-of-notes " Notes   Updated."
       view-as alert-box.
    APPLY "CLOSE" TO THIS-PROCEDURE.
-                          
 
+
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -325,8 +338,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -336,9 +351,9 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
- 
+
   /* this procedure must run from laptop only not on server */
-   if index(dbparam("ASI"),"-1") <= 0 then do:
+   if index(dbparam("nosweat"),"-1") <= 0 then do:
       message "This Procedure Can Run Only From Laptop or Single User." view-as alert-box error.
       APPLY "CLOSE" TO THIS-PROCEDURE.
       return.
@@ -353,8 +368,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                  no-lock no-error.
   if avail sman then end-sman = sman.sman.
   RUN enable_UI.
-  
+
   {methods/nowait.i}
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

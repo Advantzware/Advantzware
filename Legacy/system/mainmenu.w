@@ -313,7 +313,7 @@ ON CLOSE OF THIS-PROCEDURE
 ON WINDOW-CLOSE OF {&WINDOW-NAME} 
     DO:  
         closeMenu = YES.
-        IF USERID('ASI') NE "Nosweat" THEN
+        IF USERID('nosweat') NE "Nosweat" THEN
             MESSAGE 'Exit AdvantzWare?' VIEW-AS ALERT-BOX
                 QUESTION BUTTONS YES-NO UPDATE closeMenu.
         IF NOT closeMenu THEN RETURN NO-APPLY.
@@ -324,7 +324,7 @@ ON WINDOW-CLOSE OF {&WINDOW-NAME}
             NO-ERROR. 
   
         FIND FIRST userLog NO-LOCK 
-            WHERE userLog.user_id       = USERID("ASI")       
+            WHERE userLog.user_id       = USERID("NOSWEAT")       
             AND userLog.sessionID     = asi._connect._connect-pid
             NO-ERROR.
         
@@ -381,7 +381,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     DO TRANSACTION:
         CREATE userLog.
         ASSIGN 
-            userLog.user_id       = USERID("ASI")       
+            userLog.user_id       = USERID("NOSWEAT")       
             userLog.sessionID     = asi._myconnection._myconn-pid 
             userLog.userName      = asi._connect._connect-name
             userLog.IpAddress     = asi._connect._connect-ip
@@ -569,8 +569,8 @@ PROCEDURE Read_Menus :
     IF SEARCH(ls-menu-lst[1]) <> ? THEN
         ls-menu-lst[1] = SEARCH(ls-menu-lst[1]) .
 
-    IF SEARCH("usermenu\" + USERID("ASI") + "\" + ls-menu-lst[1]) <> ? THEN
-        ls-menu-lst[1] = SEARCH("usermenu\" + USERID("ASI") + "\" + ls-menu-lst[1]).
+    IF SEARCH("usermenu\" + USERID("nosweat") + "\" + ls-menu-lst[1]) <> ? THEN
+        ls-menu-lst[1] = SEARCH("usermenu\" + USERID("nosweat") + "\" + ls-menu-lst[1]).
 
     INPUT FROM VALUE(ls-menu-lst[1]) NO-ECHO.
     REPEAT:

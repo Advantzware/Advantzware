@@ -142,6 +142,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -157,7 +168,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -194,6 +205,7 @@ END.
 ON CHOOSE OF BtnCancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
     APPLY "close" TO THIS-PROCEDURE.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -210,40 +222,40 @@ DEFINE VARIABLE lCheck AS LOGICAL NO-UNDO.
 
 
 FIND FIRST users WHERE
-     users.user_id EQ USERID("ASI")
+     users.user_id EQ USERID("NOSWEAT")
      NO-LOCK NO-ERROR.
 
    cDir =  SESSION:TEMP-DIRECTORY .
 
-  
+
    DO WITH FRAME {&FRAME-NAME}:
 
       ASSIGN del_date file_format .
- 
+
       SESSION:SET-WAIT-STATE("general"). 
 
       INPUT FROM OS-DIR (cDir).
       REPEAT:
           CREATE tt-file.
           IMPORT tt-file.tfile.
-          
+
           FILE-INFO:FILE-NAME = cDir + tt-file.tfile.
-          
+
           ASSIGN 
               tt-file.createDate = FILE-INFO:FILE-CREATE-DATE
               tt-file.createtime = FILE-INFO:FILE-CREATE-TIME 
               tt-file.extfile = SUBSTRING(tt-file.tfile,INDEX(tt-file.tfile,".") + 1)  .
       END.
-     
+
       FOR EACH tt-file NO-LOCK
           WHERE tt-file.createDate LE (del_date - 1) 
                BY tt-file.createDate BY tt-file.createtime:
-         
+
             {custom/statusMsg.i " 'Processing Files#  '  + tt-file.tfile "}
             lCheck = NO .
-           
+
             DO iCount = 1 TO NUM-ENTRIES(file_format):
-                
+
                 IF tt-file.tfile MATCHES ("*" + ENTRY(iCount,file_format) + "*") THEN DO:
                  lCheck = YES .
                 END.
@@ -251,19 +263,20 @@ FIND FIRST users WHERE
 
             IF lCheck EQ NO THEN
                 IF LOOKUP(tt-file.extfile,file_format) EQ 0  THEN NEXT .
-          
+
             IF tt-file.tfile EQ "." THEN NEXT .
             ELSE DO:
                  OS-DELETE VALUE(cDir + tt-file.tfile) .
              END.
              DELETE tt-file .
       END.
-      
+
       MESSAGE "Operation Complete."
           VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
 
       SESSION:SET-WAIT-STATE(""). 
    END.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -283,8 +296,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -295,19 +310,20 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
     DO WITH FRAME {&FRAME-NAME}:
-        
+
        del_date:SCREEN-VALUE = STRING(TODAY). 
        del_date = TODAY .
-       
+
       scr-text:SCREEN-VALUE = "Temp Directory - " + SESSION:TEMP-DIRECTORY .
       ASSIGN scr-text .
-        
+
     END.
     RUN enable_UI.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
- 
+
 END.
 
 /* _UIB-CODE-BLOCK-END */

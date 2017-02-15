@@ -35,7 +35,7 @@ DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
    INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
    INDEX(PROGRAM-NAME(1),".ped") NE 0 THEN
-v-prgmname = USERID("ASI") + "..".
+v-prgmname = USERID("NOSWEAT") + "..".
 ELSE
 ASSIGN
   period_pos = INDEX(PROGRAM-NAME(1),".")
@@ -58,7 +58,7 @@ ASSIGN
  def var lFileOK as log no-undo.
 
  &GLOBAL-DEFINE LOG-FILE shipto-import-log.txt
- 
+
  DEFINE VAR gcTempDir AS CHAR INIT "C:\tmp\" NO-UNDO.
  DEFINE VAR gcLogFile AS CHAR INIT "C:\tmp\{&LOG-FILE}" NO-UNDO.
  DEF VAR iRowCount AS INT INIT 2  NO-UNDO.
@@ -256,9 +256,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -282,7 +292,7 @@ ASSIGN
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -319,6 +329,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
     apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -331,7 +342,7 @@ DO:
   IF LASTKEY NE -1 THEN DO:
       RUN valid-carrier NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-    
+
   END.
 
 END.
@@ -346,7 +357,7 @@ DO:
   IF LASTKEY NE -1 THEN DO:
       RUN valid-loc NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-    
+
   END.
 
 END.
@@ -361,7 +372,7 @@ DO:
   IF LASTKEY NE -1 THEN DO:
       RUN valid-file-path NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-    
+
   END.
 
 END.
@@ -379,10 +390,10 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-  
+
   ASSIGN
       cExcelFile = lv-file .
-                            
+
     RUN valid-carrier NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
     RUN valid-loc NO-ERROR.
@@ -393,7 +404,7 @@ DO:
   FOR EACH tt-shipto:
     DELETE tt-shipto.
    END.
-   
+
   IF lFileOK THEN DO:
     IF LENGTH(cExcelFile) LT 4 OR
         (SUBSTR(cExcelFile,LENGTH(cExcelFile) - 3) NE ".xls" AND
@@ -406,7 +417,7 @@ DO:
   END. /*lFileOK*/
 
     SESSION:SET-WAIT-STATE ("general").
-    
+
     /* Initialize Excel. */
     CREATE "Excel.Application" chExcelApplication NO-ERROR.
 
@@ -430,7 +441,7 @@ DO:
         chWorkSheet = chExcelApplication:Sheets:ITEM(1).
     REPEAT:
         IF chWorkSheet:Range("A" + STRING(iRowCount)):VALUE = ? THEN LEAVE.
-        
+
         FIND FIRST tt-shipto WHERE tt-shipto.cout EQ iRowCount NO-LOCK NO-ERROR.
         IF NOT AVAIL tt-shipto THEN
         CREATE tt-shipto.
@@ -438,13 +449,13 @@ DO:
         tt-shipto.ship-zip           = chWorkSheet:Range("B" + STRING(iRowCount)):VALUE NO-ERROR.
         tt-shipto.dest-code          = chWorkSheet:Range("C" + STRING(iRowCount)):VALUE NO-ERROR.
         tt-shipto.cout               = v-rowcnt .
-        
+
         v-rowcnt = v-rowcnt + 1 .
         ASSIGN
             tt-shipto.row-no = iRowCount
             iRowCount = iRowCount + 1.
     END. /*REPEAT*/
-  
+
 
   /*Free memory*/
   chWorkbook = chExcelApplication:Workbooks:CLOSE() NO-ERROR.
@@ -472,12 +483,13 @@ END.
      ELSE
          ASSIGN shipto.dest-code =  def_zone .
 END.
-    
+
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
     SESSION:SET-WAIT-STATE("").
     MESSAGE " Process Complete..." VIEW-AS ALERT-BOX.
     apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -534,7 +546,7 @@ DO:
             if char-val <> "" then 
               focus:screen-value in frame {&frame-name} = entry(1,char-val).
           end.
-          
+
           when "begin_carr-no" then do:
             run windows/l-carrie.w  (cocode, enter_loc:SCREEN-VALUE IN FRAME {&FRAME-NAME}, focus:screen-value, output char-val). 
             if char-val <> "" then 
@@ -548,15 +560,15 @@ DO:
           otherwise do:
            lv-handle = focus:handle.
            run applhelp.p.
-             
+
            if g_lookup-var <> "" then do:
               lv-handle:screen-value = g_lookup-var.
-        
+
            end.   /* g_lookup-var <> "" */
            apply "entry" to lv-handle.
            return no-apply.
           end.  /* otherwise */
-          
+
     END CASE.
 END.
 
@@ -576,8 +588,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -593,7 +607,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    end_date   = TODAY.*/
 
   RUN enable_UI.
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
         APPLY "entry" TO begin_ship-to.
@@ -662,7 +676,7 @@ PROCEDURE valid-carrier :
 ------------------------------------------------------------------------------*/
 
   DO WITH FRAME {&FRAME-NAME}:
-    
+
       IF begin_carr-no:SCREEN-VALUE EQ "" THEN do:
         MESSAGE "Truck/Carrier may not be blank, Try help..." VIEW-AS ALERT-BOX ERROR.
          APPLY "entry" TO begin_carr-no.
@@ -682,7 +696,7 @@ PROCEDURE valid-loc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     IF enter_loc:SCREEN-VALUE EQ "" THEN do:
         MESSAGE "Carrier Location may not be blank, Try help..." VIEW-AS ALERT-BOX ERROR.
@@ -703,7 +717,7 @@ PROCEDURE valid-file-path :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     IF lv-file:SCREEN-VALUE EQ "" THEN do:
         MESSAGE "Please enter excel file path..." VIEW-AS ALERT-BOX ERROR.
@@ -725,9 +739,9 @@ PROCEDURE InitializeLogFile :
   Notes:       
 ------------------------------------------------------------------------------*/
 FIND FIRST users 
-    WHERE users.user_id EQ USERID("ASI")  
+    WHERE users.user_id EQ USERID("nosweat")  
     NO-LOCK NO-ERROR.
- 
+
 IF AVAIL users AND users.user_program[2] NE "" THEN
      ASSIGN 
         gcTempDir = users.user_program[2]
@@ -737,7 +751,7 @@ IF SEARCH(gcLogFile) <> ? THEN
     OS-DELETE VALUE(gcLogFile).
 
 OUTPUT STREAM log-file TO VALUE(gcLogFile).
-        
+
 
 END PROCEDURE.
 

@@ -225,7 +225,9 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
+IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -245,7 +247,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -285,6 +287,7 @@ DO:
   APPLY "CHOOSE" TO Btn_Add_Label.
   APPLY "CHOOSE" TO Btn_Add_Field.
   APPLY "CHOOSE" TO Btn_Add_Dash.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -298,6 +301,7 @@ DO:
   IF header-include:SCREEN-VALUE NE "" THEN
   ldummy = header-include:INSERT-STRING(" +").
   ldummy = header-include:INSERT-STRING(" ' - '").
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -321,6 +325,7 @@ DO:
         ELSE
         "STRING(" + table-names:SCREEN-VALUE + "." + field-names:SCREEN-VALUE + ")"
     ldummy = header-include:INSERT-STRING(" " + field-string).
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -340,6 +345,7 @@ DO:
                 OUTPUT cdummy).
   ldummy = header-include:INSERT-STRING("'" + cdummy + ": '").
   {methods/nowait.i}
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -352,6 +358,7 @@ ON CHOOSE OF Btn_Add_WO_Dash IN FRAME DEFAULT-FRAME /* Add W/O Dash */
 DO:
   APPLY "CHOOSE" TO Btn_Add_Label.
   APPLY "CHOOSE" TO Btn_Add_Field.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -363,6 +370,7 @@ END.
 ON CHOOSE OF Btn_Cancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -376,6 +384,7 @@ DO:
   ASSIGN
     header-include:SCREEN-VALUE = ""
     include_name:SCREEN-VALUE = "".
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -388,6 +397,7 @@ ON CHOOSE OF Btn_OK IN FRAME DEFAULT-FRAME /* OK */
 DO:
   APPLY "CHOOSE" TO Btn_Save.
   APPLY "CLOSE" TO THIS-PROCEDURE.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -434,6 +444,7 @@ DO:
       RETURN.
     END.
   END.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -448,6 +459,7 @@ DO:
   include_name:SCREEN-VALUE = table-names:SCREEN-VALUE + ".i".
   ldummy = header-include:SAVE-FILE("methods/headers/" + include_name:SCREEN-VALUE).
   Btn_Cancel:LABEL = "&Close".
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -492,8 +504,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -509,6 +523,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       db-names:ENTRY(1) IN FRAME {&FRAME-NAME}.
   APPLY "VALUE-CHANGED" TO db-names.
   {methods/nowait.i}
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -572,7 +587,7 @@ PROCEDURE Get_DBs :
   Notes:       
 -------------------------------------------------------------*/
   DEFINE VARIABLE list-items AS CHARACTER NO-UNDO.
-  
+
   RUN Get_Procedure IN Persistent-Handle (INPUT "db_list.",OUTPUT run-proc,no) NO-ERROR.
   IF run-proc NE "" THEN
   RUN VALUE(run-proc) (OUTPUT list-items).
@@ -592,7 +607,7 @@ PROCEDURE Get_Fields :
   Notes:       
 -------------------------------------------------------------*/
   DEFINE VARIABLE list-items AS CHARACTER NO-UNDO.
-  
+
   CREATE ALIAS dictdb FOR DATABASE VALUE(db-names:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
   RUN Get_Procedure IN Persistent-Handle (INPUT "fld_list.",OUTPUT run-proc,no) NO-ERROR.
   IF run-proc NE "" THEN
@@ -613,7 +628,7 @@ PROCEDURE Get_Tables :
   Notes:       
 -------------------------------------------------------------*/
   DEFINE VARIABLE list-items AS CHARACTER NO-UNDO.
-  
+
   CREATE ALIAS dictdb FOR DATABASE VALUE(db-names:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
   RUN Get_Procedure IN Persistent-Handle (INPUT "filelist.",OUTPUT run-proc,no) NO-ERROR.
   IF run-proc NE "" THEN

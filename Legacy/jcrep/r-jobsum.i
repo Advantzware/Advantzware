@@ -632,7 +632,7 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
 
         if v-prod-p = ? then v-prod-p = 0.
         
-        display work-prep.code
+        display work-prep.CODE format "x(11)"
                 work-prep.dscr at 13
                 work-prep.est-cost format ">,>>>,>>9-" to 48
                 work-prep.act-cost format ">,>>>,>>9-" to 59

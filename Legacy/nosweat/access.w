@@ -235,9 +235,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -256,7 +266,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -293,6 +303,7 @@ END.
 ON CHOOSE OF Btn_Cancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -314,6 +325,7 @@ DO:
       m_default:SCREEN-VALUE = m_menus:ENTRY(i).
     LEAVE.
   END.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -340,6 +352,7 @@ DO:
   Btn_Cancel:LABEL = "&Close".
   {methods/nowait.i}.
   MESSAGE "Access Permissions for Highlighted Selections Set" VIEW-AS ALERT-BOX.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -353,6 +366,7 @@ DO:
   DO i = 1 TO m_menus:NUM-ITEMS:
     m_menus:SCREEN-VALUE = m_menus:ENTRY(i).
   END.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -364,6 +378,7 @@ END.
 ON CHOOSE OF Btn_Unselect IN FRAME DEFAULT-FRAME /* Unselect */
 DO:
   m_menus:SCREEN-VALUE = "".
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -383,8 +398,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -405,6 +422,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN Get_Menus.
   INPUT CLOSE.
   {methods/nowait.i}
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -556,7 +574,7 @@ PROCEDURE Get_Menus :
       ldummy = m_menus:ADD-LAST(m_level + CAPS(m_item1),m_item1).
     END.
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

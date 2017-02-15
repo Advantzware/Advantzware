@@ -77,7 +77,7 @@ PROCEDURE Enhance :
 "BROWSE,BUTTON,COMBO-BOX,DIALOG-BOX,EDITOR,FILL-IN,FRAME,~
 LITERAL,RADIO-SET,SELECTION-LIST,SLIDER,TEXT,TOGGLE-BOX" NO-UNDO.
 
-  FIND users WHERE users.user_id = USERID("ASI") NO-LOCK NO-ERROR.
+  FIND users WHERE users.user_id = USERID("NOSWEAT") NO-LOCK NO-ERROR.
   IF AVAILABLE users THEN
   ASSIGN
     use_fonts = users.use_font
@@ -186,7 +186,7 @@ PROCEDURE Get_Procedure :
       IF buf-prgrms.track_usage OR g_track_usage THEN DO:
         FIND FIRST config NO-LOCK.
         OUTPUT TO VALUE(config.logs_dir + "/trackuse.log") APPEND.
-        EXPORT USERID("ASI") buf-prgrms.prgmname TODAY FORMAT "99/99/9999" TIME.
+        EXPORT USERID("NOSWEAT") buf-prgrms.prgmname TODAY FORMAT "99/99/9999" TIME.
         OUTPUT CLOSE.
       END.
       IF run-now THEN DO:

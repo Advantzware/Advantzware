@@ -51,7 +51,7 @@ DEF VAR init-dir AS CHA NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/VAR.i new shared}
-    
+
 assign
  cocode = gcompany
  locode = gloc.
@@ -257,9 +257,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -299,7 +309,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -347,6 +357,7 @@ END.
 ON CHOOSE OF Btn_Cancel IN FRAME FRAME-F /* Cancel */
 DO:
   apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -362,7 +373,7 @@ DO:
 
   run check-date.
   if not ll-valid then return no-apply.
-      
+
   ASSIGN
     tran-date 
     tran-period
@@ -379,7 +390,7 @@ DO:
        when 2 then run output-to-screen.
        when 3 then run output-to-file.
   end case.
- 
+
   IF v-postable AND ip-post THEN do:
     lv-post = NO.
 
@@ -396,6 +407,7 @@ DO:
 
   ELSE IF ip-post THEN MESSAGE "No Returns available for posting..." VIEW-AS ALERT-BOX ERROR.
 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -509,7 +521,7 @@ END.
 ON LEAVE OF tran-date IN FRAME FRAME-F /* Transaction Date */
 DO:
   assign {&self-name}.
-  
+
   if lastkey ne -1 then do:
     run check-date.
     if not ll-valid then return no-apply.
@@ -535,8 +547,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -561,9 +575,10 @@ ASSIGN
   /*RUN check-date.*/
 
   IF NOT ip-post THEN DISABLE tran-date WITH FRAME {&FRAME-NAME}.
-  
+
   {methods/nowait.i}
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -583,7 +598,7 @@ PROCEDURE check-date :
 ------------------------------------------------------------------------------*/
   DO with frame {&frame-name}:
     ll-valid = YES.
-  
+
     find first period                   
         where period.company eq cocode
           and period.pst     le tran-date
@@ -680,7 +695,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
      DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -691,9 +706,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
 
 
@@ -712,7 +727,7 @@ PROCEDURE output-to-printer :
      DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -737,7 +752,7 @@ PROCEDURE output-to-screen :
   Notes:       
 ------------------------------------------------------------------------------*/
  run scr-rpt.w (list-name,c-win:title,int(lv-font-no),lv-ornt). /* open file-name, title */ 
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -808,13 +823,13 @@ FOR EACH oe-reth
   AND oe-reth.ra-no   LE v-e-ra-no
   USE-INDEX ra-no
   TRANSACTION:
-  
+
   ASSIGN
   oe-reth.posted = YES
   v-c-no         = v-c-no + 1
   v-memo-no      = v-memo-no + 1
   ldAmt-Disc     = 0.
-  
+
   /* create CREDIT MEMO RECORD FOR RETURN */
   CREATE ar-cash.
   ASSIGN
@@ -825,26 +840,26 @@ FOR EACH oe-reth
   ar-cash.check-amt  = oe-reth.tot-return-amt
   ar-cash.cust-no    = oe-reth.cust-no
   ar-cash.check-no   = v-memo-no.
-  
+
   /* UPDATE FINISHED GOODS INVENTORY & GL WORK FILE */
   FOR EACH oe-retl
     WHERE oe-retl.company EQ oe-reth.company
     AND oe-retl.r-no    EQ oe-reth.r-no
     EXCLUSIVE-LOCK
     BREAK BY oe-retl.i-no:
-    
+
     FIND FIRST itemfg
       WHERE itemfg.company EQ cocode
         AND itemfg.i-no    EQ oe-retl.i-no
       NO-LOCK.
-    
+
     RELEASE fgcat.
     IF AVAIL itemfg THEN
       FIND FIRST fgcat
         WHERE fgcat.company EQ itemfg.company
           AND fgcat.procat  EQ itemfg.procat
         NO-LOCK NO-ERROR.
-    
+
     v-fac = IF oe-retl.uom       EQ "CS" AND
               avail itemfg              AND
               itemfg.case-count NE 0    THEN itemfg.case-count
@@ -867,15 +882,15 @@ FOR EACH oe-reth
           NO-LOCK NO-ERROR.
         IF AVAILABLE ar-invl THEN v-disc = ar-invl.disc.
     END.
-    
+
     ldAmt-Disc = ldAmt-Disc + 
         (ROUND((IF avail ar-invl THEN ar-invl.unit-pr ELSE oe-retl.unit-pr) * oe-retl.tot-qty-return / v-fac
         * (100 - v-disc) / 100, 2)).
-       
+
     STATUS DEFAULT "Processing... ".      
-    
+
     IF last-of(oe-retl.i-no) THEN DO:
-        
+
         STATUS DEFAULT "Processing Summary...".      
      /* Summarize multiple records for an item and write to ar-cashl */
       FIND ar-inv
@@ -891,7 +906,7 @@ FOR EACH oe-reth
         NO-LOCK NO-ERROR.
         IF AVAILABLE ar-invl THEN v-disc = ar-invl.disc.
       END.
-      
+
       CREATE ar-cashl.
       ASSIGN
       ar-cashl.memo     = YES
@@ -907,34 +922,34 @@ FOR EACH oe-reth
       ar-cashl.dscr     = TRIM(ar-cashl.dscr) +
       FILL(" ",50 - LENGTH(TRIM(ar-cashl.dscr))) +
       STRING(oe-reth.r-no,"999999999999").
-      
+
       RUN create-reftable.
     END. /* Create of ar-cashl */
     IF AVAIL(ar-invl) THEN
     v-cas-cnt = getBolCaseCnt(ROWID(ar-invl)).
     X         = 0.
-    
+
     FIND FIRST oe-ordl
       WHERE oe-ordl.company EQ cocode
         AND oe-ordl.ord-no  EQ oe-retl.ord-no
         AND oe-ordl.i-no    EQ oe-retl.i-no
       NO-ERROR.
-    
+
     IF avail oe-ordl THEN
     DO:
-      
+
       ASSIGN
       oe-ordl.ship-qty = oe-ordl.ship-qty -
       MIN(oe-ordl.ship-qty,oe-retl.qty-return-inv).
       IF v-cas-cnt EQ 0 THEN
         v-cas-cnt        = oe-ordl.cas-cnt.
-      
+
       FIND CURRENT oe-ordl NO-LOCK.
     END.
-    
+
     IF v-cas-cnt EQ 0 THEN
       v-cas-cnt = itemfg.case-count.
-    
+
     FIND LAST fg-rctd USE-INDEX fg-rctd NO-LOCK NO-ERROR.
       IF AVAIL fg-rctd AND fg-rctd.r-no GT X THEN X = fg-rctd.r-no.
 
@@ -968,10 +983,10 @@ FOR EACH oe-reth
     fg-rctd.i-name    = oe-retl.i-name
     fg-rctd.job-no    = oe-retl.job-no
     fg-rctd.job-no2   = oe-retl.job-no2.
-    
+
     RUN sys/ref/convcuom.p("M", fg-rctd.pur-uom, 0, 0, 0, 0,
     fg-rctd.std-cost, OUTPUT fg-rctd.std-cost).
-    
+
     IF v-cas-cnt GT 0 THEN
       ASSIGN
       fg-rctd.partial = fg-rctd.t-qty MODULO v-cas-cnt
@@ -980,10 +995,10 @@ FOR EACH oe-reth
       ASSIGN
       fg-rctd.partial = fg-rctd.t-qty
       fg-rctd.cases   = 0.
-    
+
     IF fg-rctd.t-qty LE 0 OR
     fg-rctd.cases EQ ? THEN fg-rctd.cases = 0.
-    
+
     FIND FIRST fg-bin
       WHERE fg-bin.company EQ fg-rctd.company
         AND fg-bin.job-no  EQ fg-rctd.job-no
@@ -1006,17 +1021,17 @@ FOR EACH oe-reth
       fg-bin.aging-date = fg-rctd.rct-date
       fg-bin.pur-uom    = fg-rctd.pur-uom.
     END.
-    
+
     IF fg-bin.case-count EQ 0 OR
     fg-bin.case-count EQ ? THEN fg-bin.case-count = v-cas-cnt.
-    
+
     FIND FIRST job-hdr
       WHERE job-hdr.company EQ cocode
         AND job-hdr.job-no  EQ fg-bin.job-no
         AND job-hdr.job-no2 EQ fg-bin.job-no2
         AND job-hdr.i-no    EQ fg-bin.i-no
       USE-INDEX job-no NO-LOCK NO-ERROR.
-    
+
     ASSIGN
     fg-bin.std-mat-cost = IF avail job-hdr THEN job-hdr.std-mat-cost
     ELSE itemfg.std-mat-cost
@@ -1030,7 +1045,7 @@ FOR EACH oe-reth
     ELSE itemfg.std-tot-cost
     fg-bin.last-cost    = IF avail job-hdr THEN job-hdr.std-tot-cost
     ELSE itemfg.std-tot-cost.
-    
+
     FIND FIRST jc-ctrl WHERE jc-ctrl.company EQ cocode NO-LOCK NO-ERROR.
     IF avail itemfg AND avail jc-ctrl THEN DO:
       FOR EACH prodl
@@ -1041,51 +1056,51 @@ FOR EACH oe-reth
         WHERE prod.company EQ cocode
         AND prod.prolin  EQ prodl.prolin
         NO-LOCK:
-        
+
         RUN oe/invpostx.p(INPUT prod.cgs-dl,  fg-bin.std-lab-cost,
         oe-retl.qty-return-inv, NO,itemfg.i-no,
         oe-reth.inv-no, itemfg.prod-uom).
-        
+
         RUN oe/invpostx.p(INPUT prod.fg-lab,  fg-bin.std-lab-cost,
         oe-retl.qty-return-inv, YES,itemfg.i-no,
         oe-reth.inv-no, itemfg.prod-uom).
-        
+
         RUN oe/invpostx.p(INPUT prod.cgs-fo,  fg-bin.std-fix-cost,
         oe-retl.qty-return-inv, NO,itemfg.i-no,
         oe-reth.inv-no, itemfg.prod-uom).
-        
+
         RUN oe/invpostx.p(INPUT prod.fg-fo ,  fg-bin.std-fix-cost,
         oe-retl.qty-return-inv, YES,itemfg.i-no,
         oe-reth.inv-no, itemfg.prod-uom).
-        
+
         RUN oe/invpostx.p(INPUT prod.cgs-vo,  fg-bin.std-var-cost,
         oe-retl.qty-return-inv, NO,itemfg.i-no,
         oe-reth.inv-no, itemfg.prod-uom).
-        
+
         RUN oe/invpostx.p(INPUT prod.fg-vo ,  fg-bin.std-var-cost,
         oe-retl.qty-return-inv, YES,itemfg.i-no,
         oe-reth.inv-no, itemfg.prod-uom).
-        
+
         RUN oe/invpostx.p(INPUT prod.cgs-mat, fg-bin.std-mat-cost,
         oe-retl.qty-return-inv, NO,itemfg.i-no,
         oe-reth.inv-no, itemfg.prod-uom).
-        
+
         RUN oe/invpostx.p(INPUT prod.fg-mat,  fg-bin.std-mat-cost,
         oe-retl.qty-return-inv, YES,itemfg.i-no,
         oe-reth.inv-no, itemfg.prod-uom).
-        
+
         LEAVE.
       END.
-      
+
       v-l-no = oe-retl.LINE.
     END.
   END. /* for each oe-retl record */
-  
+
   FIND LAST oe-retl USE-INDEX r-no
   WHERE oe-retl.company = oe-reth.company
   AND oe-retl.r-no = oe-reth.r-no NO-LOCK NO-ERROR.
   IF AVAILABLE oe-retl THEN v-l-no = oe-retl.LINE.
-  
+
   IF oe-reth.tot-freight NE 0 THEN DO:
     CREATE ar-cashl.
     ASSIGN
@@ -1103,10 +1118,10 @@ FOR EACH oe-reth
     ar-cashl.dscr     = TRIM(ar-cashl.dscr) +
     FILL(" ",50 - LENGTH(TRIM(ar-cashl.dscr))) +
     STRING(oe-reth.r-no,"999999999999").
-    
+
     RUN create-reftable.
   END.
-  
+
   IF oe-reth.tot-tax NE 0 THEN DO:
     CREATE ar-cashl.
     ASSIGN
@@ -1124,7 +1139,7 @@ FOR EACH oe-reth
     ar-cashl.dscr     = TRIM(ar-cashl.dscr) +
     FILL(" ",50 - LENGTH(TRIM(ar-cashl.dscr))) +
     STRING(oe-reth.r-no,"999999999999").
-    
+
     RUN create-reftable.
   END.
 END. /* for each oe-reth record */
@@ -1157,7 +1172,7 @@ FOR EACH work-job BREAK BY work-job.actnum:
   gltrans.tr-date = tran-date
   gltrans.period  = tran-period
   gltrans.trnum   = xtrnum.
-  
+
   IF work-job.fg THEN
     ASSIGN
     gltrans.tr-amt  = work-job.amt
@@ -1166,7 +1181,7 @@ FOR EACH work-job BREAK BY work-job.actnum:
     ASSIGN
     gltrans.tr-amt  = - work-job.amt
     gltrans.tr-dscr = "ORDER ENTRY INVOICE COGS".
-  
+
   RELEASE gltrans.
 END. /* each work-job */
 STATUS DEFAULT "Posting Complete.".
@@ -1206,8 +1221,8 @@ assign
        v-s-ra-no   = begin_ra-no
        v-e-ra-no   = END_ra-no
        v-notes     = tb_prt-notes.
-           
-     
+
+
 
 {sys/inc/print1.i}
 
@@ -1236,9 +1251,9 @@ for each oe-reth where oe-reth.company = cocode and
            oe-reth.cust-no at 10
            cust.name at 20 format "x(20)"
            oe-reth.inv-no at 43.
-           
+
        v-noted = no.
-                  
+
        if v-notes then do i = 1 to 4:
          if oe-reth.notes[i] ne "" then do:
            if not v-noted then put skip(1) "Notes:" at 10.
@@ -1246,7 +1261,7 @@ for each oe-reth where oe-reth.company = cocode and
            v-noted = yes.
          end.
        end.
-           
+
        if v-noted then put skip(1).
 
        for each oe-retl where oe-retl.company = oe-reth.company and
@@ -1261,7 +1276,7 @@ for each oe-reth where oe-reth.company = cocode and
 
            assign v-tot-qty-return = v-tot-qty-return + oe-retl.tot-qty-return
                   v-qty-return-inv = v-qty-return-inv + oe-retl.qty-return-inv.
-         
+
 
          v-noted = no.
 
@@ -1317,11 +1332,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1349,23 +1364,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

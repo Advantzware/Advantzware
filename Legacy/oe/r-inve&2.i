@@ -32,7 +32,7 @@
                 int(tt-report.key-03)  @ inv-head.inv-no
                 tt-report.key-04       @ inv-line.i-no
                 v-tmp-amt
-                ld-pton WHEN tb_ton
+                ld-pton FORMAT "->>>>>>9.999" WHEN tb_ton 
                 ld-t[1] WHEN tb_ton
             with frame gl-det.
         down with frame gl-det.
@@ -55,7 +55,7 @@
           IF tb_ton THEN DO:
             ld-pton = v-disp-amt / ld-t[2].
             IF ld-pton EQ ? THEN ld-pton = 0.
-            PUT ld-pton TO 138 ld-t[2] TO 148 SKIP(1).
+            PUT ld-pton FORMAT "->>>>>>9.999" TO 141 ld-t[2] TO 151 SKIP(1).
           END.
           ELSE PUT skip.
         END.
@@ -65,7 +65,7 @@
                   v-dscr
                   tran-date
                   v-disp-amt
-                  ld-pton WHEN tb_ton
+                  ld-pton FORMAT "->>>>>>9.999" WHEN tb_ton 
                   ld-t[2] WHEN tb_ton
               with frame gl-sum.
           down with frame gl-sum.

@@ -371,7 +371,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+/* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -400,7 +412,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -459,6 +471,7 @@ DO:
     IF select-list:IS-SELECTED(i) THEN
     select-list:SCREEN-VALUE = "".
   END.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -470,6 +483,7 @@ END.
 ON CHOOSE OF Btn_Cancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -501,6 +515,7 @@ DO:
     OTHERWISE
     m_status:SCREEN-VALUE = "DELETE Cancelled".
   END CASE.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -547,6 +562,7 @@ DO:
       m-order-values:SENSITIVE = NOT auto_set
       m_status:SCREEN-VALUE = "DESCRIPTION Lookup Created".
   END.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -567,6 +583,7 @@ DO:
       shandle:SCREEN-VALUE = shandle:ENTRY(i + 1).
     LEAVE.
   END.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -580,7 +597,7 @@ DO:
   DEFINE VARIABLE get_field AS CHARACTER NO-UNDO.
 
   IF m-lookup-db = "" THEN
-  m-lookup-db = "ASI".
+  m-lookup-db = "NOSWEAT".
   CREATE ALIAS dictdb FOR DATABASE VALUE(m-lookup-db).
   get_field = m-lookup-db:SCREEN-VALUE + "." +
         m-lookup-file:SCREEN-VALUE + "." + 
@@ -602,6 +619,7 @@ DO:
     IF AVAILABLE prgrms THEN
     m-frame-title:SCREEN-VALUE = prgrms.prgtitle + " Lookup".
   END.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -614,6 +632,7 @@ ON CHOOSE OF Btn_OK IN FRAME DEFAULT-FRAME /* OK */
 DO:
   APPLY "CHOOSE" TO Btn_Save.
   APPLY "CLOSE" TO THIS-PROCEDURE.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -626,6 +645,7 @@ ON CHOOSE OF Btn_Remove IN FRAME DEFAULT-FRAME /* Remove */
 DO:
   IF shandle:SCREEN-VALUE NE "" THEN
   APPLY "DEFAULT-ACTION" TO shandle.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -642,6 +662,7 @@ DO:
   ASSIGN
     m-order-values:SENSITIVE = NOT auto_set
     m_status:SCREEN-VALUE = "Lookup Record RESET".
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -703,7 +724,7 @@ DO:
   ASSIGN m-end-include = REPLACE(m-end-include,'"','""').
 
   PUT UNFORMATTED "/* " m_lookup_prgm "p - Generated " TODAY FORMAT "99/99/9999"
-    " - " STRING(TIME,"HH:MM am") " by " USERID("ASI") SKIP
+    " - " STRING(TIME,"HH:MM am") " by " USERID("NOSWEAT") SKIP
     "~"" m_lookup_prgm " ~" ~~" SKIP
     "~"" m-lookup-db " ~" ~~" SKIP
     "~"" m-lookup-file " ~" ~~" SKIP         
@@ -805,7 +826,7 @@ DO:
     "~{methods/lookup.i}" SKIP.
 
   OUTPUT CLOSE.
-  
+
   MESSAGE "Compile Lookup?" VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
       UPDATE compile-lookup AS LOGICAL.
   IF compile-lookup THEN
@@ -814,6 +835,7 @@ DO:
   ASSIGN
     Btn_Cancel:LABEL = "&Close"
     m_status:SCREEN-VALUE = "Lookup SAVEd".
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -834,6 +856,7 @@ DO:
       shandle:SCREEN-VALUE = shandle:ENTRY(i - 1).
     LEAVE.
   END.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -844,7 +867,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m-ui-prgmname C-Win
 ON HELP OF m-ui-prgmname IN FRAME DEFAULT-FRAME /* UI Program */
 DO:
-  CREATE ALIAS dictdb FOR DATABASE ASI.
+  CREATE ALIAS dictdb FOR DATABASE NOSWEAT.
   RUN "lookups/ui_lkup.p".
   ASSIGN
     {&SELF-NAME}:SCREEN-VALUE = g_lookup-var
@@ -961,8 +984,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -978,6 +1003,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   APPLY "VALUE-CHANGED" TO selected-set.
   {methods/enhance.i}
   {methods/nowait.i}
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1098,7 +1124,7 @@ PROCEDURE Get_Lookup :
   END.
   ELSE
   m-lookup-prgm = m_lookup_prgm.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

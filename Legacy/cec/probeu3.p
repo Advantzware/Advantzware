@@ -53,7 +53,7 @@ FIND FIRST sys-ctrl WHERE
 ASSIGN
    cerunc-dec = sys-ctrl.dec-fld
    cerunc     = sys-ctrl.char-fld.
-
+/*
 IF cerunc-dec EQ 0 THEN
 DO:
    put unformatted
@@ -91,7 +91,7 @@ DO:
      fill(" ",8 - length(trim(ce-ctrl.hd-net))) + trim(ce-ctrl.hd-net)     format "x(8)"
      "         Price           /BSF Sheets     MSF"
      skip.
-END.
+END.*/
 
 IF cerunc-dec EQ 0 THEN
 FOR EACH probe

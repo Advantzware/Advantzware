@@ -325,9 +325,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -365,7 +375,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -424,6 +434,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -448,7 +459,7 @@ DO:
    end_est#    = FILL(" ",8 - LENGTH(TRIM(end_est#))) + TRIM(end_est#).
 
    v-format-str = "SPECSHT".
-  
+
    CASE rd-dest:
       WHEN 1 THEN ASSIGN LvOutputSelection = "Printer".
       WHEN 2 THEN ASSIGN LvOutputSelection = "Screen". 
@@ -457,7 +468,7 @@ DO:
       WHEN 5 THEN ASSIGN LvOutputSelection = "Email".
       WHEN 6 THEN ASSIGN LvOutputSelection = "Port".
    END CASE.
-       
+
    IF NOT rd-dest = 5 THEN
    DO:
 /*        /* find sysctrl */                    */
@@ -609,11 +620,12 @@ DO:
 /*                  VIEW-AS ALERT-BOX INFO BUTTONS OK.                                */
 /*                                                                                    */
    END.
-  
+
    SESSION:SET-WAIT-STATE ("").
-  
+
    EMPTY TEMP-TABLE tt-email.
-  
+
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -709,9 +721,9 @@ DO:
     assign tb_MailBatchMode:sensitive  = true.
     apply 'value-changed':u to tb_MailBatchMode.
   end.
-    
+
   ELSE DO:
-  
+
     assign tb_MailBatchMode:sensitive  = false.
 
     APPLY 'VALUE-CHANGED':U TO tb_EmailAdvNotice.
@@ -758,8 +770,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -782,14 +796,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
 
   FIND FIRST users WHERE
-       users.user_id EQ USERID("ASI")
+       users.user_id EQ USERID("NOSWEAT")
        NO-LOCK NO-ERROR.
 
   IF AVAIL users AND users.user_program[2] NE "" THEN
      init-dir = users.user_program[2].
   ELSE
      init-dir = "c:\tmp".
- 
+
   RUN getCESAMPLE.
 
   RUN SetSpecForm(INPUT v-print-fmt).
@@ -797,7 +811,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
 
   RUN enable_UI.
-  
+
   /*{methods/nowait.i} */
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -842,10 +856,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             find first sys-ctrl WHERE sys-ctrl.company eq cocode 
                                   AND sys-ctrl.name    eq "CESample"
                                 EXCLUSIVE-LOCK no-error.      
-    
+
              v-next-num = sys-ctrl.int-fld + 1.
              sys-ctrl.int-fld = v-next-num.
-    
+
               CREATE reftable.
               ASSIGN 
                   reftable.reftable = "SPECSAMP"     
@@ -857,9 +871,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
           END.
           v-next-num = integer(reftable.code2).
           fiSampleNum:SCREEN-VALUE = STRING(v-next-num).
-    
+
         END.
-    
+
         IF AVAIL eb AND AVAIL est THEN DO:
             RUN calc-values (INPUT ROWID(est), ROWID(eb)).
             fiNoCells:SCREEN-VALUE = STRING((v-strips1 + 1) * (v-strips2 + 1)).
@@ -871,9 +885,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     DISABLE lines-per-page.
 
     APPLY 'value-changed':u TO rd-dest.
-    
+
   END.
- 
+
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -891,7 +906,7 @@ PROCEDURE ASIMail :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   def input param icMailMode  as char no-undo.
   def input param icCustNo    as char no-undo.
   def input param icSubBody   as char no-undo.
@@ -947,12 +962,12 @@ PROCEDURE build-work :
               report.key-08   = STRING(fiNoCells)
                .
        END.
-    
+
     status default 'Now Processing Estimate: ' + string (eb.est-no) + '....'.
-  
+
 
   END.
-  
+
   v-lines-per-page = lines-per-page.
 
   status default ''.
@@ -1208,7 +1223,7 @@ PROCEDURE GenerateMail :
       WHEN 'ShipTo':U     THEN RUN SendMail-1 (ic2ndKey, 'ShipTo'). 
     END CASE.
   END.
-  
+
   /* Not XPrint */
   ELSE DO:
 
@@ -1260,19 +1275,19 @@ PROCEDURE run-report :
 /* --------------------------------------------- oe/rep/oe-lad.p 3/94 RM ---- */
 /* print bill of ladings                                                      */
 /* -------------------------------------------------------------------------- */
- 
+
   {sys/form/r-top.i}
 
   {sys/inc/print1.i} 
-  
+
   {sys/inc/outprint.i value(lines-per-page)}
-  
+
   if td-show-parm then run show-param.
-  
+
   SESSION:SET-WAIT-STATE ("general").
-  
+
   {sa/sa-sls01.i} 
-              
+
   v-term-id = v-term.
   DEF VAR ret-code AS INT.
   run build-work ('').
@@ -1296,34 +1311,34 @@ PROCEDURE run-report :
     END. 
     WHEN 5 THEN RUN custom/d-print.w (list-name).
   END CASE.
-  
+
   END.
-  
+
   RUN value(v-program).
 
   for each report where report.term-id eq v-term-id:
       delete report.
   end.
-  
+
   OUTPUT CLOSE.
   FILE-INFO:FILE-NAME = list-name.
 
     IF is-xprint-form THEN
       CASE rd-dest:
-        
+
         WHEN 1 THEN RUN printfile (FILE-INFO:FILE-NAME).
         WHEN 2 THEN RUN printfile (FILE-INFO:FILE-NAME).
         WHEN 3 THEN DO:
            {custom/out2file.i}
         END. 
         WHEN 4 THEN DO:
-            
+
           RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
 
           run custom/xpmail.p ("CUSTOMER",lv-pdf-file + ".pdf","",
                             'Sample Spec Sheet',
                             'Sample Spec Sheet',OUTPUT ret-code).
-                            
+
         END.   
         WHEN 5 THEN RUN custom/d-print.w (list-name).
         WHEN 7 THEN DO:
@@ -1334,10 +1349,10 @@ PROCEDURE run-report :
                              'Estimate',OUTPUT ret-code).
         END.      
       END CASE.
-      
+
   IF rd-dest NE 4 THEN
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
-  
+
   SESSION:SET-WAIT-STATE ("").
 
 end procedure.
@@ -1355,7 +1370,7 @@ PROCEDURE run-report-mail :
   DEFINE INPUT PARAM iLprinted AS LOG NO-UNDO.
 
   {sys/form/r-top.i}
-  
+
 /*   assign                                                    */
 /*     v-s-cust            = icCustNo                          */
 /*     v-e-cust            = icCustNo                          */
@@ -1376,33 +1391,33 @@ PROCEDURE run-report-mail :
 /*      ASSIGN                                                 */
 /*         v-print-dept = LOGICAL(tb_print-dept:SCREEN-VALUE)  */
 /*         v-depts = fi_depts:SCREEN-VALUE.                    */
-  
+
   {sys/inc/print1.i}
-  
+
   {sys/inc/outprint.i value(lines-per-page)}
-  
+
   if td-show-parm then run show-param.
-  
+
   SESSION:SET-WAIT-STATE ("general").
-  
+
   {sa/sa-sls01.i}
-  
+
   v-term-id = v-term.
-  
+
   run build-work (ic2ndKey).
-  
+
 
   status default 'Processing... Please wait.'.
 
   if can-find (first report where report.term-id eq v-term-id) then
   do:
-  
+
     IF IS-xprint-form THEN DO:      
         PUT "<PDF=DIRECT><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(60)".
     END.
 
   END.
-  
+
   else do:
     MESSAGE 'No records to process. Job aborted.'
       VIEW-AS ALERT-BOX INFO BUTTONS OK.
@@ -1413,7 +1428,7 @@ PROCEDURE run-report-mail :
      where report.term-id eq v-term-id:
     delete report.
   end.
-  
+
   OUTPUT CLOSE.
 
 end procedure.
@@ -1443,7 +1458,7 @@ PROCEDURE send-mail-uni-xl :
 
   ASSIGN  vcSubject   = "CofC for BOL: " 
           vcMailBody  = "Please review attached CofC for BOL #: " .
-                      
+
   RUN custom/xpmail2.p   (input   icRecType,
                           input   'R-BOLPRT.',
                           input   lv-pdf-file,
@@ -1463,18 +1478,18 @@ PROCEDURE SendMail-1 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DEFINE INPUT PARAM icIdxKey   AS CHAR NO-UNDO.
   DEFINE INPUT PARAM icRecType  AS CHAR NO-UNDO.    
 
   DEFINE VARIABLE vcSubject   AS CHARACTER  NO-UNDO.
   DEFINE VARIABLE vcMailBody  AS CHARACTER  NO-UNDO.
   DEFINE VARIABLE vcErrorMsg  AS CHARACTER  NO-UNDO.
-  
+
   ASSIGN  vcSubject   = "BOL: " +  '   ' + STRING (TODAY, '99/99/9999') + STRING (TIME, 'HH:MM:SS AM')
           vcSubject   = vcSubject
           vcMailBody  = "Please review attached Bill of Lading(s) for BOL #: " .
-                      
+
   RUN custom/xpmail2.p   (input   icRecType,
                           input   'R-BOLPRT.',
                           input   lv-pdf-file,
@@ -1495,7 +1510,7 @@ PROCEDURE SendMail-2 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DEFINE INPUT PARAM icIdxKey   AS CHAR NO-UNDO.
   DEFINE INPUT PARAM icRecType  AS CHAR NO-UNDO.    
 
@@ -1524,7 +1539,7 @@ PROCEDURE SendMail-2 :
   ASSIGN  vcSubject   = "BOL: " +  '   ' + STRING (TODAY, '99/99/9999') + STRING (TIME, 'HH:MM:SS AM')
           vcSubject   = vcSubject
           vcMailBody  = "Please review attached Bill of Lading(s) for BOL #: " .
-                      
+
   RUN custom/xpmail2.p   (input   icRecType,
                           input   'R-BOLPRT.',
                           input   list-name,
@@ -1564,7 +1579,7 @@ PROCEDURE SetSpecForm :
             ASSIGN 
                is-xprint-form = NO
                v-program      = "oe/rep/cocbrick.p".
-     
+
          OTHERWISE
             ASSIGN
                is-xprint-form = NO
@@ -1591,12 +1606,12 @@ PROCEDURE show-param :
   def var parm-lbl-list as char no-undo.
   def var i as int no-undo.
   def var lv-label as cha NO-UNDO.
-  
+
   ASSIGN
   lv-frame-hdl = frame {&frame-name}:HANDLE
   lv-group-hdl = lv-frame-hdl:first-child
   lv-field-hdl = lv-group-hdl:first-child.
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1622,24 +1637,24 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
   PAGE.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1658,7 +1673,7 @@ FUNCTION removeChars RETURNS CHARACTER
    DEFINE VARIABLE replaceChars AS CHARACTER NO-UNDO INITIAL "'',".
    DEFINE VARIABLE i AS INTEGER NO-UNDO.
    DEFINE VARIABLE k AS INTEGER NO-UNDO.
-  
+
    k = NUM-ENTRIES(invalidChars).
    DO i = 1 TO k:
      ipField = REPLACE(ipField,ENTRY(i,invalidChars),ENTRY(i,replaceChars)).

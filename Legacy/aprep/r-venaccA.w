@@ -274,9 +274,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -335,7 +345,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -405,6 +415,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -418,7 +429,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-       
+
   run run-report. 
  STATUS DEFAULT "Processing Complete".
   case rd-dest:
@@ -427,6 +438,7 @@ DO:
        when 3 then run output-to-file.
   end case. 
 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -592,8 +604,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -611,7 +625,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -619,6 +633,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO begin_vend.
   END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -659,11 +674,11 @@ FOR EACH bf-ap-pay where bf-ap-pay.company EQ cocode
         NO-LOCK NO-ERROR.
  IF NOT AVAIL bf-ap-inv THEN
      RETURN.
-              
+
    t-dscr = "Payment".
-           
+
    if bf-ap-payl.memo then t-dscr = "CR MEMO".
-            
+
    if bf-ap-payl.amt-paid            lt 0  and
       bf-ap-payl.memo                eq no and
       bf-ap-inv.net + bf-ap-inv.freight gt 0  then t-dscr = "Void Chk".
@@ -773,7 +788,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -838,7 +853,7 @@ FORM tt-report.actnum      COLUMN-LABEL "GL Acct#"
      tt-report.trnum       COLUMN-LABEL "Run#"
      tt-report.tr-date     COLUMN-LABEL "Date"
      tt-report.amt         COLUMN-LABEL "Amount"    FORMAT "->>>,>>>,>>>,>>9.99"
-   
+
     WITH FRAME detail NO-BOX NO-ATTR-SPACE DOWN STREAM-IO WIDTH 132.
 
 
@@ -929,14 +944,14 @@ FOR EACH ap-ledger
   ELSE
   IF ap-ledger.refnum BEGINS "MEMO#" THEN DO:
     lv-jrnl = "APMEM".
-    
+
     FOR EACH ap-payl
         WHERE ap-payl.inv-no EQ SUBSTR(ap-ledger.refnum,6,20)
           AND NOT CAN-FIND(FIRST tt-report WHERE tt-report.row-id EQ ROWID(ap-payl))
         NO-LOCK,
 
         FIRST ap-pay {&where-ap-pay} NO-LOCK
-        
+
         BREAK BY ap-payl.c-no:
 
       CREATE tt-report.
@@ -993,7 +1008,7 @@ FOR EACH ap-ledger
           AND ap-pay.vend-no   EQ ap-ledger.vend-no
           AND CAN-FIND(FIRST ap-payl WHERE ap-payl.c-no EQ ap-pay.c-no)
         NO-LOCK,
-        
+
         EACH ap-payl WHERE ap-payl.c-no EQ ap-pay.c-no NO-LOCK:
 
         {custom/statusMsg.i " 'Processing Vendor#  '  + ap-pay.vend-no "}
@@ -1037,7 +1052,7 @@ FOR EACH ap-ledger
           AND ap-pay.bank-code EQ bank.bank-code
           AND CAN-FIND(FIRST ap-payl WHERE ap-payl.c-no EQ ap-pay.c-no)
         NO-LOCK,
-        
+
         EACH ap-payl WHERE ap-payl.c-no EQ ap-pay.c-no NO-LOCK:
 
         {custom/statusMsg.i " 'Processing Vendor#  '  + ap-pay.vend-no "}
@@ -1082,7 +1097,7 @@ FOR EACH ap-ledger
     ASSIGN
      lv-jrnl     = "APVOIDCK" 
      li-check-no = INT(SUBSTR(ap-ledger.refnum,13,8)) NO-ERROR.
-     
+
     IF NOT ERROR-STATUS:ERROR THEN
     FOR EACH bank
         WHERE bank.company EQ ap-ledger.company
@@ -1098,7 +1113,7 @@ FOR EACH ap-ledger
           AND ap-pay.reconciled EQ ?
           AND CAN-FIND(FIRST ap-payl WHERE ap-payl.c-no EQ ap-pay.c-no)
         NO-LOCK:
-      
+
       ASSIGN
        li-lines = 0
        li-line  = 0
@@ -1303,7 +1318,7 @@ FOR EACH tt-report
             "Totals"   @ tt-report.inv-no
             lv-amt[3]  @ tt-report.amt.
     DOWN.
-  
+
     IF tb_excel THEN  
        EXPORT STREAM excel DELIMITER ","
               " "
@@ -1315,7 +1330,7 @@ FOR EACH tt-report
               " "                            
               lv-amt[3]
               SKIP.    
-    
+
   END.
 END.
 
@@ -1351,11 +1366,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1383,23 +1398,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

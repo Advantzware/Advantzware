@@ -326,9 +326,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -417,7 +427,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -522,6 +532,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -571,6 +582,7 @@ DO:
        END.
        WHEN 6 THEN RUN OUTPUT-to-port.
   END CASE.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -804,8 +816,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -830,7 +844,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {custom/usrprint.i}
      APPLY "entry" TO begin_whs.
   END.
-  
+
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -896,7 +911,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
  /*    DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -907,9 +922,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
    */
   {custom\out2file.i}
@@ -942,7 +957,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1031,7 +1046,7 @@ assign
  v-item-bin   = rd_sort
  v-prnt-onh   = tb_qty-oh
  v-prnt-zer   = tb_zero-bal.
- 
+
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i value(lines-per-page)}
@@ -1039,7 +1054,7 @@ assign
 if td-show-parm then run show-param.
 
 VIEW frame r-top.
- 
+
 SESSION:SET-WAIT-STATE("general").
 
 IF tb_excel THEN DO:
@@ -1080,9 +1095,9 @@ if v-item-bin EQ "Item" then
 
          assign price = 0
                 alloc = 0.
-      
+
          if first-of(rm-bin.i-no) then put skip(1).
-      
+
          display rm-bin.i-no    when first-of(rm-bin.i-no)
                  item.i-name    when first-of(rm-bin.i-no)
                  rm-bin.loc     when first-of(rm-bin.loc)
@@ -1128,13 +1143,13 @@ ELSE IF v-item-bin EQ "Bin" THEN
                by rm-bin.tag
                by rm-bin.i-no 
         with frame itemx:
-         
+
      assign
        price = 0
        alloc = 0.
-   
+
      if first-of(rm-bin.tag) then put skip(1).
-  
+
      display rm-bin.i-no
              item.i-name
              rm-bin.loc
@@ -1179,9 +1194,9 @@ ELSE
 
          assign price = 0
                 alloc = 0.
-      
+
          if first-of(item.i-name) then put skip(1).
-      
+
          display rm-bin.i-no    when first-of(rm-bin.i-no)
                  item.i-name    when first-of(ITEM.i-name)
                  rm-bin.loc     when first-of(rm-bin.loc)
@@ -1234,11 +1249,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1266,23 +1281,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

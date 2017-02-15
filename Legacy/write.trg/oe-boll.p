@@ -290,7 +290,7 @@ FOR EACH oe-bolh WHERE oe-bolh.b-no EQ {&TABLENAME}.b-no:
      ASSIGN
        oe-bolh.upd-date = TODAY
        oe-bolh.upd-time = TIME
-       oe-bolh.user-id  = USERID("ASI").
+       oe-bolh.user-id  = USERID("nosweat").
 
   RUN oe/bolhtots.p (ROWID(oe-bolh)).
 

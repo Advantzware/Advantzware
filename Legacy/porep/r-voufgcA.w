@@ -281,9 +281,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -357,7 +367,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -438,6 +448,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -486,10 +497,11 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -682,7 +694,7 @@ END.
 
 /* ***************************  Main Block  *************************** */
 def var v-mat-list as char no-undo.
-    
+
 {sys/inc/f3helpw.i}
 
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
@@ -691,8 +703,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -708,7 +722,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   RUN enable_UI.
 
   for each mat:
@@ -716,10 +730,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   end.
   if substr(v-mat-list,length(trim(v-mat-list)),1) eq "," then
     substr(v-mat-list,length(trim(v-mat-list)),1) = "".
-  
+
   select-mat:list-items = v-mat-list.
-  
+
   {methods/nowait.i}
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -741,7 +756,7 @@ PROCEDURE create-tt-report :
 FOR EACH reftable
    {ap/ap-reftbW.i po-ordl.po-no}
    NO-LOCK,
-    
+
    EACH ap-inv
    WHERE ap-inv.company EQ cocode
      AND ap-inv.i-no    EQ INT(reftable.code2)
@@ -749,13 +764,13 @@ FOR EACH reftable
      AND (ap-inv.po-no  EQ po-ordl.po-no OR ap-inv.po-no EQ 0)
      AND ap-inv.posted  EQ yes
    USE-INDEX i-no NO-LOCK,
-        
+
    EACH ap-invl
    WHERE ap-invl.i-no       EQ ap-inv.i-no
      AND (ap-invl.po-no     EQ po-ordl.po-no OR ap-inv.po-no NE 0)
      AND {ap/invlline.i -1} EQ po-ordl.line
    USE-INDEX i-no NO-LOCK,
-   
+
    FIRST ap-ledger
    WHERE ap-ledger.company  EQ ap-inv.company
      AND ap-ledger.vend-no  EQ ap-inv.vend-no
@@ -764,7 +779,7 @@ FOR EACH reftable
      AND ap-ledger.tr-date  GE begin_date
      AND ap-ledger.tr-date  LE end_date
    NO-LOCK:
-    
+
   CREATE tt-report.
   ASSIGN
    tt-report.rec-id = RECID(po-ordl)
@@ -837,7 +852,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
  /*    DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -848,9 +863,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY. */
 {custom/out2file.i}
 
@@ -883,7 +898,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -938,7 +953,7 @@ form itemfg.i-no        column-label "FG Item#"
      po-ordl.actnum     column-label "G/L Account"
      v-amt[1]         column-label "Amt Invoiced"
                         format "->>,>>>,>>9.99"
-                        
+
     with frame detail down no-box STREAM-IO width 132.
 
 FORM HEADER
@@ -946,7 +961,7 @@ FORM HEADER
     "FG Product Category:"
     v-procat
     SKIP(1)
-    
+
     WITH FRAME r-top.
 
 
@@ -969,7 +984,7 @@ do with frame {&frame-name}:
     if select-mat:is-selected(i) then
       v-mtype = v-mtype + trim(substr(select-mat:entry(i),1,5)) + ",".
   end.
-  
+
   IF length(TRIM(v-mtype)) EQ 0 THEN
   DO:
      MESSAGE "No Material Type Selected."
@@ -980,16 +995,16 @@ do with frame {&frame-name}:
 
   if substr(v-mtype,length(trim(v-mtype)),1) eq "," then
     substr(v-mtype,length(trim(v-mtype)),1) = "".
-    
+
   mat-types = v-mtype.
-  
+
   do i = 1 to length(mat-types):
     if substr(mat-types,i,1) eq "," then substr(mat-types,i,1) = " ".
   end.
-  
+
   display mat-types.
 end.
- 
+
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i value(lines-per-page)}
@@ -1020,12 +1035,12 @@ if td-show-parm then run show-param.
              LOOKUP("B",v-mtype) GT 0 OR
              LOOKUP("P",v-mtype) GT 0)
       NO-LOCK,
-        
+
       FIRST po-ord
       WHERE po-ord.company EQ po-ordl.company
         AND po-ord.po-no   EQ po-ordl.po-no
       NO-LOCK,
-      
+
       FIRST itemfg
       WHERE itemfg.company EQ po-ordl.company
         AND itemfg.i-no    EQ po-ordl.i-no
@@ -1049,7 +1064,7 @@ if td-show-parm then run show-param.
                        AND item.i-no    EQ po-ordl.i-no
                        AND LOOKUP(item.mat-type,v-mtype) GT 0)
       NO-LOCK,
-        
+
       FIRST po-ord
       WHERE po-ord.company EQ po-ordl.company
         AND po-ord.po-no   EQ po-ordl.po-no
@@ -1081,7 +1096,7 @@ if td-show-parm then run show-param.
       END.
     END.
   END.
-      
+
   FOR EACH tt-report,
 
       FIRST po-ordl WHERE RECID(po-ordl) EQ tt-report.rec-id NO-LOCK
@@ -1108,7 +1123,7 @@ if td-show-parm then run show-param.
               po-ordl.i-no
               tt-report.key-05    @ po-ordl.actnum
               v-amt[1]
- 
+
           WITH FRAME detail.
 
       DOWN WITH FRAME detail.
@@ -1138,7 +1153,7 @@ if td-show-parm then run show-param.
 
       DISPLAY "FG Prod Cat Totals"  @ po-ordl.actnum
               v-amt[2]              @ v-amt[1]
- 
+
           WITH FRAME detail.
 
       IF tb_excel THEN
@@ -1187,11 +1202,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1219,23 +1234,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

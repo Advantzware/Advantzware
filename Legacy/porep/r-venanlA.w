@@ -362,9 +362,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -474,7 +484,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -577,6 +587,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -624,10 +635,11 @@ IF v-valid THEN
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -871,8 +883,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -888,23 +902,24 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-    
+
   assign
     begin_due-date = today.
- 
+
   RUN enable_UI.
-  
+
  for each mat:
     v-mat-list = v-mat-list + string(mat.mat,"x(5)") + " " + mat.dscr + ",".
   end.
   if substr(v-mat-list,length(trim(v-mat-list)),1) eq "," then
     substr(v-mat-list,length(trim(v-mat-list)),1) = "".
-  
+
   select-mat:list-items = v-mat-list.
 
   {methods/nowait.i}
 
 APPLY "entry" TO begin_due-date IN FRAME {&FRAME-NAME}.
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -972,7 +987,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
  /*    DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -983,11 +998,11 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY. */
-     
+
 {custom/out2file.i}.
 
 END PROCEDURE.
@@ -1018,7 +1033,7 @@ PROCEDURE output-to-printer :
 ------------------------------------------------------------------------------*/     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
  /*    DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1111,7 +1126,7 @@ SESSION:SET-WAIT-STATE ("general").
 assign
  str-tit2 = c-win:title
  {sys/inc/ctrtext.i str-tit2 112}
-    
+
  p-date#       = begin_due-date
  b-vendor#     = begin_vend-no
  e-vendor#     = end_vend-no
@@ -1144,7 +1159,7 @@ do with frame {&frame-name}:
 
   IF substr(v-mattype-list,length(trim(v-mattype-list)),1) eq "," then
     substr(v-mattype-list,length(trim(v-mattype-list)),1) = "".
-    
+
   mat-types = v-mattype-list.
   do i = 1 to length(mat-types):
     if substr(mat-types,i,1) eq "," then substr(mat-types,i,1) = " ".
@@ -1190,13 +1205,13 @@ END.
       where period.company eq cocode
         and period.yr      eq starting-year#
       no-lock.
- 
+
   b-date# = period.pst.
 
   do with frame f-detail:
     if v-type eq "R" or v-type eq "B" then
     {po/rep/rmanalys.i "item" item.flute}
-     
+
     if v-type eq "F" or v-type eq "B" then
     {po/rep/rmanalys.i "itemfg" b-flute#}
   end.        
@@ -1208,7 +1223,7 @@ IF tb_excel THEN DO:
 END.
 
 SESSION:SET-WAIT-STATE ("").
-  
+
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 
 end procedure.
@@ -1231,11 +1246,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1263,23 +1278,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -132,6 +132,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -150,7 +161,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -187,6 +198,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
     apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -207,17 +219,17 @@ DO:
                             AND reftable.company  = fg-rctd.company 
                             AND reftable.loc      = STRING(fg-rctd.r-no,"9999999999") NO-ERROR.
 
-      
+
           IF AVAIL reftable AND reftable.CODE NE  ""  THEN
               ASSIGN
               fg-rctd.created-by =  reftable.code
               fg-rctd.updated-by =  reftable.code2 
                v-cnt = v-cnt + 1.
-    
+
       STATUS DEFAULT "Processing.... " + TRIM(STRING(v-cnt)).
 
    END.
- 
+
    STATUS DEFAULT "".
 
    SESSION:SET-WAIT-STATE("").
@@ -225,8 +237,9 @@ DO:
    MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
 
    APPLY "close" TO THIS-PROCEDURE.  
-   
 
+
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -246,8 +259,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.

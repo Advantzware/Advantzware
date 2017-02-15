@@ -11,7 +11,7 @@ IF {&TABLENAME}.partial EQ ? THEN {&TABLENAME}.partial = 0.
 IF {&TABLENAME}.qty-case LT 0 THEN
   {&TABLENAME}.qty-case = {&TABLENAME}.qty-case * -1.
 
-ASSIGN {&tablename}.upd-user = USERID("ASI")
+ASSIGN {&tablename}.upd-user = USERID("NOSWEAT")
        {&tablename}.upd-date = TODAY
        {&tablename}.upd-time = TIME.
 

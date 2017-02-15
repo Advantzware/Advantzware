@@ -1,5 +1,5 @@
 /* prgrms.i
-"ASI" "prgrms"
+"NOSWEAT" "prgrms"
 "prgmname" "Program" ""
 "prgtitle" "Title" ""
 "can_run" "View ID's" ""

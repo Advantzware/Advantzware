@@ -18,6 +18,6 @@ DEFINE VARIABLE is-running AS LOGICAL NO-UNDO.
 DEFINE VARIABLE help-page AS INTEGER NO-UNDO.
 
 &IF DEFINED(UIB_is_Running) NE 0 &THEN
-RUN ./nosweat/persist.p PERSISTENT SET Persistent-Handle.
-RUN ./lstlogic/persist.p PERSISTENT SET ListLogic-Handle.
+RUN addon/nosweat/persist.p PERSISTENT SET Persistent-Handle.
+RUN addon/lstlogic/persist.p PERSISTENT SET ListLogic-Handle.
 &ENDIF

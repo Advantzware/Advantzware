@@ -444,9 +444,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -608,7 +618,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -678,6 +688,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -702,10 +713,10 @@ DO:
                          end_job-no + "-" + string(int(end_job-no2),"99")
       .
   DEF BUFFER b-mach FOR mach.
-  
+
   &IF DEFINED(tsPurge) NE 0 &THEN
   IF t-purge THEN DO:
-     
+
       IF tg_MachTrans THEN DO:
 
          MESSAGE 
@@ -736,7 +747,7 @@ DO:
                                 AND mach.m-code = b-machtran.machine
                                 AND mach.industry = "X"))
                       NO-LOCK:
-                   
+
                       logDelMachTran = TRUE.
                       FIND MachTran WHERE ROWID(MachTran) EQ ROWID(b-MachTran)
                                     EXCLUSIVE-LOCK NO-WAIT NO-ERROR.
@@ -744,7 +755,7 @@ DO:
                          FOR EACH b-MachEmp 
                             WHERE b-MachEmp.table_rec_key EQ MachTran.rec_key
                              NO-LOCK:
-                      
+
                              FIND MachEmp WHERE ROWID(MachEmp) EQ ROWID(b-MachEmp)
                                           EXCLUSIVE-LOCK NO-WAIT NO-ERROR.
                              IF AVAILABLE(MachEmp) THEN
@@ -752,15 +763,15 @@ DO:
                              ELSE
                                logDelMachTran = FALSE.
                          END. /* b-MachEmp */
-                      
+
                       IF logDelMachTran THEN
                         DELETE machtran.
              END. /* each machtran*/
-                 
+
              MESSAGE 
                  "Machine Transaction Purge is completed."
                 VIEW-AS ALERT-BOX INFORMATION.
-             
+
           END. /* if ll-ans*/
       END.  /* tg_MachTrans */
 
@@ -795,7 +806,7 @@ DO:
                                 AND mach.m-code = b-machtran.machine
                                 AND mach.industry = "X"))
                       NO-LOCK:
-                   
+
                       logDelMachTran = TRUE.
                       FIND MachTran WHERE ROWID(MachTran) EQ ROWID(b-MachTran)
                                     EXCLUSIVE-LOCK NO-WAIT NO-ERROR.
@@ -803,7 +814,7 @@ DO:
                          FOR EACH b-MachEmp 
                             WHERE b-MachEmp.table_rec_key EQ MachTran.rec_key
                              NO-LOCK:
-                      
+
                              FIND MachEmp WHERE ROWID(MachEmp) EQ ROWID(b-MachEmp)
                                           EXCLUSIVE-LOCK NO-WAIT NO-ERROR.
                              IF AVAILABLE(MachEmp) THEN
@@ -811,18 +822,18 @@ DO:
                              ELSE
                                logDelMachTran = FALSE.
                          END. /* b-MachEmp */
-                      
+
                       IF logDelMachTran THEN
                         DELETE machtran.
              END. /* each machtran*/
-                 
+
              MESSAGE 
                  "Machine Transaction Purge is completed."
                 VIEW-AS ALERT-BOX INFORMATION.
-             
+
           END. /* if ll-ans3*/
       END.  /* tg_MachReltdTrans */
-      
+
 
       IF tg_EmpMachTrans THEN DO:
 
@@ -848,7 +859,7 @@ DO:
                       b-MachEmp.end_date LE end_date AND
                       b-MachEmp.posted EQ YES
                       NO-LOCK:
-                      
+
                       FIND FIRST MachTran WHERE
                            MachTran.rec_key EQ b-MachEmp.table_rec_key AND
                            machtran.machine GE begin_machine AND 
@@ -856,7 +867,7 @@ DO:
                            NO-LOCK NO-ERROR.
 
                       IF AVAILABLE(MachTran) THEN DO:
-                              
+
                          FIND MachEmp WHERE
                               ROWID(MachEmp) EQ ROWID(b-MachEmp)
                               EXCLUSIVE-LOCK NO-WAIT NO-ERROR.
@@ -871,7 +882,7 @@ DO:
                 VIEW-AS ALERT-BOX INFORMATION.
           END.
       END. /* tg_EmpMachTrans */
-      
+
       RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
       RETURN.
@@ -892,11 +903,11 @@ DO:
   this flag is updated in run-report.
   it is updated in post_.i
   */
-  
+
   lv-valid-to-post = NO. 
 
   RUN run-report.
-  
+
   case rd-dest:
        when 1 then run output-to-printer.
        when 2 then run output-to-screen.
@@ -931,7 +942,7 @@ DO:
        WHEN 6 THEN RUN OUTPUT-to-port.
 
   end case. 
- 
+
   IF lv-valid-to-post THEN DO:
       MESSAGE 
           "Are you ready to Post?" 
@@ -946,9 +957,10 @@ DO:
       MESSAGE "No Transactions Valid to Post."
           VIEW-AS ALERT-BOX WARNING BUTTONS OK.
   END.
-      
+
 
   &ENDIF
+    {src/WinKit/triggerend.i}
 end.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1109,7 +1121,7 @@ DO:
 IF tg_MachTrans:SCREEN-VALUE = "yes" THEN 
   t-purge:SCREEN-VALUE = "yes".
 
-      
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1148,7 +1160,7 @@ DO:
 IF tg_MachTrans:SCREEN-VALUE = "yes" THEN 
   t-purge:SCREEN-VALUE = "yes".
 
-      
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1168,8 +1180,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -1188,7 +1202,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   RUN init-proc.
   RUN enable_UI.
-  
+
   &IF DEFINED(tsPurge) EQ 0 &THEN
     {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + ' Posting'.
     HIDE {&purgeItems} NO-PAUSE.
@@ -1196,14 +1210,15 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + ' Purge History'.
     HIDE {&nonPurgeItems} NO-PAUSE.
   &ENDIF
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
      {custom/usrprint.i}
      APPLY "entry" TO begin_machine.
   END.
-  
+
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1261,7 +1276,7 @@ FOR EACH b-mach fields(m-code) WHERE
       AND machtran.job_sub LE int(end_job-no2):
 
 
- 
+
     /* don't post to ASI only set posted flag to yes 
        07/30/01  YSK                                  */
     /*find first mach where mach.company = machtran.company and
@@ -1377,11 +1392,11 @@ PROCEDURE gl-from-work :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-run AS INT NO-UNDO.
   DEF INPUT PARAM ip-trnum AS INT NO-UNDO.
-  
+
   def var credits as dec init 0 no-undo.
   def var debits as dec init 0 no-undo. 
 
-  
+
   FIND FIRST period
       WHERE period.company EQ cocode
         AND period.pst     LE TODAY
@@ -1392,7 +1407,7 @@ PROCEDURE gl-from-work :
       where (ip-run eq 1 and work-gl.job-no ne "")
          or (ip-run eq 2 and work-gl.job-no eq "")
       break by work-gl.actnum:
-      
+
     assign
      debits  = debits  + work-gl.debits
      credits = credits + work-gl.credits.
@@ -1477,7 +1492,7 @@ PROCEDURE output-to-screen :
 ------------------------------------------------------------------------------*/
   run scr-rpt.w (list-name,c-win:title,INT(lv-font-no),lv-ornt). /* open file-name, title */ 
 
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1522,7 +1537,7 @@ FOR EACH tt-report NO-LOCK,
     break by pc-prdd.m-code
 
     TRANSACTION:
-             
+
   find first w-job where w-job.job eq job.job no-error.
   if not avail w-job then create w-job.
   w-job.job = job.job.
@@ -1597,7 +1612,7 @@ FOR EACH tt-report NO-LOCK,
       RUN est/ef-#out.p (ROWID(ef), OUTPUT v-on).
       v-on = v-up * v-on.
     END.
-                      
+
     find first est-op
         where est-op.company eq est.company
           and est-op.est-no  eq est.est-no
@@ -1617,7 +1632,7 @@ FOR EACH tt-report NO-LOCK,
         run sys/inc/numout.p (recid(est-op), output v-out).
 
       else v-out = 1.
-               
+
       v-up = v-up * v-out.
     end.
 
@@ -1625,7 +1640,7 @@ FOR EACH tt-report NO-LOCK,
 
     v-on = v-on / v-up.
   end.
-           
+
   v-up-hs = 1.
 
   if pc-prdd.dept eq "HS" and
@@ -1633,9 +1648,9 @@ FOR EACH tt-report NO-LOCK,
      mach.therm           and
      mach.p-type eq "S"   then
     run sys/inc/numup.p (est.company, est.est-no, pc-prdd.frm, output v-up-hs).
-           
+
   {pc/pcmchact.i}
-           
+
   if pc-prdd.complete then do:
     RUN pc/pcprdd4u.p (ROWID(pc-prdd)).
 
@@ -1666,14 +1681,14 @@ FOR EACH tt-report NO-LOCK,
        fg-rctd.i-no       = tt-job-hdr.i-no
        fg-rctd.job-no     = pc-prdd.job-no
        fg-rctd.job-no2    = pc-prdd.job-no2.
-                 
+
       assign
        v-up  = 1
        v-out = 1.
-                 
+
       if avail est and index("APB",mach.p-type) le 0 then do:
         run sys/inc/numup.p (est.company, est.est-no, pc-prdd.frm, output v-up).
-                 
+
         find first est-op
             where est-op.company eq est.company
               and est-op.est-no  eq est.est-no
@@ -1687,7 +1702,7 @@ FOR EACH tt-report NO-LOCK,
             no-lock no-error.
         if avail est-op and est-op.n-out ne 0 then v-out = est-op.n-out.
       end.
-                 
+
       ASSIGN
        fg-rctd.b-num      = pc-prdd.blank-no
        fg-rctd.s-num      = pc-prdd.frm
@@ -1717,7 +1732,7 @@ FOR EACH tt-report NO-LOCK,
          fg-rctd.qty-case   = reftable.val[2]
          fg-rctd.cases-unit = reftable.val[3]
          fg-rctd.partial    = fg-rctd.t-qty - (fg-rctd.cases * fg-rctd.qty-case).
-        
+
         FIND FIRST fg-bin 
             WHERE fg-bin.rec_key EQ reftable.code2 /*RECID(fg-bin) EQ INT(reftable.code2)*/ 
             NO-LOCK NO-ERROR.
@@ -1728,7 +1743,7 @@ FOR EACH tt-report NO-LOCK,
          v-loc       = fg-bin.loc
          v-loc-bin   = fg-bin.loc-bin
          fg-rctd.tag = fg-bin.tag.
-                
+
       else
       if v-auto-bin eq "ShipTo" then do:
         /*get estimate blank file from finished goods item file*/
@@ -1761,7 +1776,7 @@ FOR EACH tt-report NO-LOCK,
                  v-loc     = shipto.loc
                  v-loc-bin = shipto.loc-bin.
             end.
-                          
+
             if v-loc eq "" and v-loc-bin eq "" then do:
               find first fg-bin
                   where fg-bin.company eq cocode
@@ -1790,14 +1805,14 @@ FOR EACH tt-report NO-LOCK,
            v-loc     = itemfg.def-loc
            v-loc-bin = itemfg.def-loc-bin.
       end. /*else FGFILE*/
-          
+
       /*if bin and warehouse are blank, goto cust "X" shipto file*/
       if v-loc eq "" and v-loc-bin eq "" then do:
         find first cust
             where cust.company eq cocode
               and cust.active  eq "X"
             no-lock no-error.
-                                
+
         if avail cust then do:
           find first shipto
               where shipto.company eq cocode
@@ -1900,11 +1915,11 @@ SESSION:SET-WAIT-STATE("general").
 {sys/form/r-top3w.f}
 
 FORM HEADER SKIP(1) WITH FRAME r-top.
- 
+
 assign
    str-tit2 = c-win:TITLE
    {sys/inc/ctrtext.i str-tit2 112}
- 
+
    str-tit3 = "TS Posting "
    {sys/inc/ctrtext.i str-tit3 132}.
 
@@ -1969,11 +1984,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -2003,23 +2018,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2035,7 +2050,7 @@ PROCEDURE update-plate-die :
   DEF INPUT PARAM ip-rowid    AS   ROWID NO-UNDO.
   DEF INPUT PARAM ip-upd-type AS   CHAR NO-UNDO.
   DEF INPUT PARAM ip-est-type LIKE est.est-type NO-UNDO.
-  
+
   DEF BUFFER b-pc-prdd FOR pc-prdd.
   DEF BUFFER bf-job FOR job.
 
@@ -2056,12 +2071,12 @@ PROCEDURE update-plate-die :
           AND (job-hdr.frm      EQ b-pc-prdd.frm OR
                ip-est-type      EQ 2)
         NO-LOCK:
-   
+
       FIND FIRST itemfg
           WHERE itemfg.company EQ cocode
             AND itemfg.i-no    EQ job-hdr.i-no
           NO-LOCK NO-ERROR.
-   
+
       IF ip-est-type EQ 2 AND job.est-no NE "" AND
          AVAIL itemfg AND itemfg.isaset        THEN
       FOR EACH eb
@@ -2075,7 +2090,7 @@ PROCEDURE update-plate-die :
           NO-LOCK:
         LEAVE.
       END.
-   
+
       IF AVAIL itemfg THEN DO:
 
         IF ip-upd-type EQ "P" AND itemfg.plate-no NE "" THEN
@@ -2083,26 +2098,26 @@ PROCEDURE update-plate-die :
             WHERE prep.company EQ cocode
               AND prep.code    EQ itemfg.plate-no
             NO-ERROR.
-   
+
         ELSE
         IF ip-upd-type EQ "D" AND itemfg.die-no NE "" THEN
         FIND FIRST prep
             WHERE prep.company EQ cocode
               AND prep.code    EQ itemfg.die-no
             NO-ERROR.
-   
+
         IF AVAIL prep THEN DO:
           ASSIGN prep.no-of-impressions = prep.no-of-impressions +
                                           b-pc-prdd.qty + b-pc-prdd.waste
                   prep.last-date        = b-pc-prdd.op-date.
-   
+
           FIND FIRST reftable WHERE
                reftable.reftable EQ "PREPLASTJOB" AND
                reftable.company  EQ prep.company AND
                reftable.loc      EQ prep.loc AND
                reftable.code     EQ prep.CODE
                NO-ERROR.
-   
+
           IF NOT AVAIL reftable THEN DO:
             CREATE reftable.
             ASSIGN
@@ -2111,11 +2126,11 @@ PROCEDURE update-plate-die :
               reftable.loc      = prep.loc
               reftable.code     = prep.CODE. 
           END.
-          
+
           ASSIGN
             reftable.code2    = b-pc-prdd.job-no
             reftable.val[1]   = b-pc-prdd.job-no2.
-   
+
           RELEASE reftable.
           RELEASE prep.
         END.

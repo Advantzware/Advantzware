@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admBrowserUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -210,6 +214,8 @@ END.
 
 {src/adm/method/browser.i}
 
+{Advantzware/WinKit/dataGridProc.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -256,7 +262,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -419,9 +425,9 @@ PROCEDURE get-recid :
   Notes:       
 ------------------------------------------------------------------------------*/
   def output parameter op-recid as recid no-undo.
-  
+
   op-recid = recid(mach).
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -438,6 +444,7 @@ PROCEDURE local-initialize :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+  RUN pDataGridInit.
 
   /* Code placed here will execute AFTER standard behavior.    */
   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
@@ -456,13 +463,13 @@ PROCEDURE new-mach-copied :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
-  
+
   DEF VAR char-hdl AS CHAR NO-UNDO.
-      
+
   DEF BUFFER bf-mstd FOR mstd.
   DEF BUFFER bf-mach FOR mach.
 
-  
+
   FIND FIRST bf-mstd WHERE ROWID(bf-mstd) EQ ip-rowid NO-LOCK NO-ERROR.
 
   IF AVAIL bf-mstd THEN DO:
@@ -502,7 +509,7 @@ PROCEDURE repo-query :
   DO WITH FRAME {&frame-name}:
     REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
   END.
-  
+
   RUN dispatch ("row-changed").
 
 END PROCEDURE.

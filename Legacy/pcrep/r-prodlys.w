@@ -286,9 +286,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -341,7 +351,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -454,6 +464,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -480,6 +491,7 @@ DO:
 
   run run-report.
 
+     {src/WinKit/triggerend.i}
  END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -491,7 +503,8 @@ DO:
 ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
-  
+
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -601,8 +614,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -619,13 +634,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      RETURN .
   END.
 
-   
+
   assign
    begin_date = date(month(TODAY), 1, year(TODAY))
    end_date   = today.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -654,7 +669,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO"
         btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
         .
-      
+
    IF ou-log AND ou-cust-int = 0 THEN do:
        ASSIGN 
         tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = YES
@@ -665,6 +680,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
    END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -723,12 +739,12 @@ PROCEDURE CleanUp :
   Parameters: <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   /* RELEASE OBJECTS */
   RELEASE OBJECT chWorkbook         NO-ERROR.
   RELEASE OBJECT chWorkSheet        NO-ERROR.
   RELEASE OBJECT chExcelApplication NO-ERROR.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -744,7 +760,7 @@ PROCEDURE CustList :
 
     RUN sys/ref/CustListManager.w(INPUT cocode,
                                   INPUT 'DE2').
-    
+
 
 END PROCEDURE.
 
@@ -811,7 +827,7 @@ PROCEDURE InitializeExcel :
 
   /* Set the Excel Template to be used. */
   ASSIGN chFile = search (FILE-INFO:FULL-PATHNAME) no-error.
-  
+
   if search (chFile) = ? then do:
     MESSAGE 'Spreadsheet File: ' FILE-INFO:FULL-PATHNAME
             'cannot be found. Please verify that the file exists.'
@@ -1038,10 +1054,10 @@ run InitializeExcel.
 
 /* Open our Excel Template. */  
   assign chWorkbook = chExcelApplication:Workbooks:Open(chfile)  no-error.
-  
+
   /* Do not display Excel error messages. */
   chExcelApplication:DisplayAlerts = false  no-error.
-  
+
   /* Disable screen updating so it will go faster */
   chExcelApplication:ScreenUpdating = False.
 
@@ -1055,7 +1071,7 @@ run InitializeExcel.
      chWorkSheet = chExcelApplication:Sheets:item({&summary-sheet})
      /* enable screen updating */
      chExcelApplication:ScreenUpdating = TRUE.
-  
+
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
     /*run MainLoop.*/
@@ -1089,7 +1105,7 @@ PROCEDURE SetCustRange :
         btnCustList:SENSITIVE = iplChecked
        .
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

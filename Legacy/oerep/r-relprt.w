@@ -452,9 +452,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -583,7 +593,7 @@ THEN C-Win:HIDDEN = NO.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -632,7 +642,7 @@ ON LEAVE OF begin_date IN FRAME FRAME-A /* Beginning Date */
 DO:
   IF DATE(end_date:SCREEN-VALUE) EQ end_date AND v-ddate EQ ? THEN
     end_date:SCREEN-VALUE = begin_date:SCREEN-VALUE.
-     
+
   ASSIGN {&self-name}.
 END.
 
@@ -689,6 +699,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    APPLY "close" TO THIS-PROCEDURE.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -699,31 +710,31 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
-    
+
   DEF VAR ll AS LOG NO-UNDO.
   DEF VAR v-num-custs AS INT NO-UNDO.
   ASSIGN v-1st-page = YES
          v-multi-cust = NO
          lExclCust    = tb_excl_cust.
-         
+
     IF tmp-dir = "" THEN
     DO:
         FIND FIRST users WHERE
-            users.user_id EQ USERID("ASI")
+            users.user_id EQ USERID("NOSWEAT")
             NO-LOCK NO-ERROR.
-    
+
         IF AVAIL users AND users.user_program[2] NE "" THEN
             tmp-dir = users.user_program[2].
         ELSE
             tmp-dir = "c:\tmp".
     END. 
-    
+
     /* Used if multiple customers in range */
     cRptFile = "RPT" + STRING(TIME).
-    
+
   /* Will later merge these files into listfile for printing */          
   tfile = tmp-dir + "\" + cRptFile + ".txt".
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
@@ -740,7 +751,7 @@ DO:
   IF v-hldflg THEN
     DO TRANSACTION:
       IF (begin_relnum:SCREEN-VALUE EQ end_relnum:SCREEN-VALUE) THEN DO:
-         
+
         FIND FIRST oe-relh NO-LOCK
             WHERE oe-relh.company  EQ cocode
               AND oe-relh.release# EQ INT(begin_relnum:SCREEN-VALUE) NO-ERROR.
@@ -749,12 +760,12 @@ DO:
             RUN check-4-hold (OUTPUT v-chkflg).                       
 
             IF v-chkflg THEN DO:
-            
+
                 MESSAGE 
                     "Release # " begin_relnum:SCREEN-VALUE " is on CREDIT HOLD." 
                     "Please contact your supervisor." 
                     VIEW-AS ALERT-BOX INFO BUTTONS OK.
-        
+
                 RETURN.
             END.
         END.
@@ -797,7 +808,7 @@ DO:
                IF FIRST-OF(b-oe-relh.cust-no) THEN
                    v-num-custs = v-num-custs + 1.
   END.
- 
+
   IF v-num-custs > 1 THEN DO:
       v-multi-cust = YES.
       DOS SILENT DEL VALUE(tmp-dir + "\" + cRptFile + ".txt*").
@@ -844,7 +855,7 @@ DO:
                           sys-ctrl-shipto.cust-vend-no = b-oe-relh.cust-no AND
                           sys-ctrl-shipto.char-fld > ''
                           NO-LOCK NO-ERROR.
-    
+
                   IF AVAIL sys-ctrl-shipto THEN
                   DO:
                      v-relprint = sys-ctrl-shipto.char-fld.
@@ -852,16 +863,16 @@ DO:
                   ELSE DO:
                       v-relprint = vcDefaultForm .
                   END.
-                  
+
                   RUN set-report.
                   RUN run-report.
                   IF v-multi-cust THEN DO:
-                                               
+
                     tfile = tfile + "1".
                     PAUSE 1.
                     OUTPUT CLOSE.
                     DOS SILENT COPY VALUE(list-name) VALUE(tfile).
-                    
+
                   END.
           END.
 
@@ -916,7 +927,7 @@ END CASE.
     FOR EACH tt-except:
       DELETE tt-except.
     END.
- 
+
     FOR EACH tt-fg-bin:
       DELETE tt-fg-bin.
     END.
@@ -950,7 +961,8 @@ END CASE.
 
     MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.
   END.
-  
+
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -979,7 +991,7 @@ DO:
       APPLY "entry" TO {&self-name}.
       RETURN NO-APPLY.
     END.
-      
+
     ASSIGN {&self-name}.
   END.
 END.
@@ -1319,8 +1331,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -1336,7 +1350,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   FIND FIRST sys-ctrl
       WHERE sys-ctrl.company EQ cocode
         AND sys-ctrl.name    EQ "RELPACK"
@@ -1386,7 +1400,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   RUN enable_UI.
-  
+
   IF tgMultipleReleases:SCREEN-VALUE NE "YES" THEN DO:
       ASSIGN END_relnum:VISIBLE = FALSE begin_relnum:LABEL = "Release#".
       DISABLE END_relnum.
@@ -1407,17 +1421,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         /*OR v-relprint EQ "Prystup" */
         OR v-relprint EQ "StClair" THEN
        rd-print-what:ADD-LAST("Summary of Bins On Hand","S").
-    
+
     {custom/usrprint.i}
 
-     IF v-relprint EQ "Prystup" THEN
+     IF v-relprint EQ "Prystup" OR v-relprint EQ "NStock" THEN
          ASSIGN  rd-print-what:SCREEN-VALUE = "R"
             rd-print-what = "R".
-
-     IF v-relprint EQ "NStock" THEN
-         ASSIGN  rd-print-what:SCREEN-VALUE = "I"
-            rd-print-what = "I".
-    
 
     IF tgMultipleReleases:SCREEN-VALUE NE "YES" THEN DO:
         ASSIGN END_relnum:VISIBLE = FALSE begin_relnum:LABEL = "Release#".
@@ -1431,7 +1440,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
           AND sys-ctrl.name EQ "RELCREDT" NO-ERROR.
     IF AVAIL sys-ctrl THEN  ASSIGN v-hldflg = sys-ctrl.log-fld.
     /* gdm - 02020902 - CHECK FOR RELEASE HOLD end */        
-    
+
     APPLY "entry" TO begin_cust-no.
 
     ASSIGN
@@ -1469,7 +1478,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         tb_print-spec:HIDDEN = YES
         fi_specs:HIDDEN = YES.
 
-    
+
     IF v-relprint EQ "Sonoco" 
        /* gdm - 10080912 */
        OR v-relprint EQ "Rosmar" 
@@ -1518,7 +1527,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             tb_p-bin:SENSITIVE = NO
             rd-print-what:SCREEN-VALUE = "R"
             rd-print-what = "R".
-        
+
     IF v-relprint EQ "Indiana" THEN
        tb_pricing:SENSITIVE = YES.
 
@@ -1527,12 +1536,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    IF v-ddate NE ?  THEN DO:
     ASSIGN begin_date:SCREEN-VALUE =  STRING("01/01/" + substring(STRING(v-ddate),7,4)) 
         end_date:SCREEN-VALUE = STRING(v-ddate) .       /*task# 05291409*/
-        
+
    END.
- 
+
 
   END.    
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
      WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1629,7 +1639,7 @@ hDoc:APPEND-CHILD(hRoot).
   hDoc:CREATE-NODE(hRow,"Order","ELEMENT"). /*create a row node*/
   hRoot:APPEND-CHILD(hRow). /*put the row in the tree*/
   hRow:SET-ATTRIBUTE("Release_Number",STRING(oe-relh.release#)).
-  
+
   RUN oe/custxship.p (oe-relh.company,
                           oe-relh.cust-no,
                           oe-relh.ship-id,
@@ -1645,8 +1655,8 @@ hDoc:APPEND-CHILD(hRoot).
     /*attach the text to the field*/
     hField:APPEND-CHILD(hText).
     hText:NODE-VALUE = STRING(oe-relh.cust-no) NO-ERROR.
-    
-   
+
+
   /*create a tag Ship To */ 
    hDoc:CREATE-NODE(hField, "Ship_To", "ELEMENT").
    /*put the new field as next child of row*/
@@ -1680,7 +1690,7 @@ hDoc:APPEND-CHILD(hRoot).
      /*attach the text to the field*/
      hField:APPEND-CHILD(hText).
      hText:NODE-VALUE = STRING(oe-rell.ord-no).
-     
+
      /*create a tag with the field name*/ 
     hDoc:CREATE-NODE(hField, "Item_NO", "ELEMENT").
     /*put the new field as next child of row*/
@@ -1721,7 +1731,7 @@ hDoc:APPEND-CHILD(hRoot).
      hField:APPEND-CHILD(hText).
      hText:NODE-VALUE = STRING(oe-rell.qty).
 
-  
+
    /*create a tag with the field name*/ 
     hDoc:CREATE-NODE(hField, "Order_Qty", "ELEMENT").
     /*put the new field as next child of row*/
@@ -1731,7 +1741,7 @@ hDoc:APPEND-CHILD(hRoot).
      /*attach the text to the field*/
      hField:APPEND-CHILD(hText).
      hText:NODE-VALUE = STRING(oe-ordl.qty).
-  
+
 
     /*create a tag with the field name*/ 
    hDoc:CREATE-NODE(hField, "Due_Date", "ELEMENT").
@@ -1823,7 +1833,7 @@ PROCEDURE new-relnum :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     IF INT(begin_relnum:SCREEN-VALUE) NE 0                            AND
        INT(begin_relnum:SCREEN-VALUE) EQ INT(end_relnum:SCREEN-VALUE) THEN DO:
@@ -1882,7 +1892,7 @@ PROCEDURE output-to-printer :
      RUN printfile (FILE-INFO:FILE-NAME).
   END.
   ELSE RUN custom/prntproc.p (list-name,INT(lv-font-no),lv-ornt).
- 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1975,7 +1985,7 @@ PROCEDURE run-report :
 /* -------------------------------------------- oe/rep/oe-pick.p 6/94 rd ---- */
 /* print oe Release/Picking tickets                                           */
 /* -------------------------------------------------------------------------- */
-    
+
 {sys/FORM/r-top.i}
 
 ASSIGN
@@ -2083,11 +2093,11 @@ IF IS-xprint-form AND (v-1st-page OR v-multi-cust = NO) THEN DO:
     CASE rd-dest:
         WHEN 1 THEN PUT  "<PRINTER?></PROGRESS>".
         WHEN 2 THEN DO:
-            
+
             IF v-relprint = "StClair" THEN  PUT "<PREVIEW><OLANDSCAPE></PROGRESS>".
             ELSE PUT "<PREVIEW></PROGRESS>".        
         END.
-        
+
         WHEN 4 THEN DO:
            ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".
            PUT UNFORMATTED "</PROGRESS><PRINTER?><EXPORT=" Ls-fax-file ",BW>".
@@ -2161,7 +2171,7 @@ PROCEDURE set-report :
     ASSIGN
      lv-program     = "oe/rep/relcard.p"
      lines-per-page = 60.
-  
+
   ELSE
   IF v-relprint EQ "Pacific" THEN
     ASSIGN
@@ -2237,7 +2247,7 @@ PROCEDURE set-report :
     lv-program     = "oe/rep/relpchtr.p"
     lines-per-page = 75
     is-xprint-form = YES  . /*60*/
-  
+
   ELSE IF v-relprint EQ "Multicell" THEN
    ASSIGN
     lv-program     = "oe/rep/relmcell.p"
@@ -2412,12 +2422,12 @@ PROCEDURE show-param :
   DEF VAR parm-lbl-list AS cha NO-UNDO.
   DEF VAR i AS INT NO-UNDO.
   DEF VAR lv-label AS cha NO-UNDO.
-  
+
   ASSIGN
   lv-frame-hdl = FRAME {&frame-name}:HANDLE
   lv-group-hdl = lv-frame-hdl:FIRST-CHILD
   lv-field-hdl = lv-group-hdl:FIRST-CHILD.
-  
+
   DO WHILE TRUE:
      IF NOT VALID-HANDLE(lv-field-hdl) THEN LEAVE.
      IF LOOKUP(lv-field-hdl:PRIVATE-DATA,"parm") > 0
@@ -2443,24 +2453,24 @@ PROCEDURE show-param :
   PUT SPACE(28)
       "< Selection Parameters >"
       SKIP(1).
-  
+
   DO i = 1 TO NUM-ENTRIES(parm-fld-list,","):
     IF ENTRY(i,parm-fld-list) NE "" OR
        entry(i,parm-lbl-list) NE "" THEN DO:
-       
+
       lv-label = FILL(" ",34 - length(TRIM(ENTRY(i,parm-lbl-list)))) +
                  trim(ENTRY(i,parm-lbl-list)) + ":".
-                 
+
       PUT lv-label FORMAT "x(35)" AT 5
           SPACE(1)
           TRIM(ENTRY(i,parm-fld-list)) FORMAT "x(40)"
           SKIP.              
     END.
   END.
- 
+
   PUT FILL("-",80) FORMAT "x(80)" SKIP.
   PAGE.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -189,7 +189,9 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
+IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -230,7 +232,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME DEFAULT-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -268,6 +270,7 @@ END.
 ON CHOOSE OF Btn_Close IN FRAME DEFAULT-FRAME /* Close */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -286,6 +289,7 @@ DO:
   OS-DELETE VALUE(config.spool_dir + "/" + spool_title:SCREEN-VALUE + ".spl").
   OS-DELETE VALUE(config.spool_dir + "/" + spool_title:SCREEN-VALUE + ".rpt").
   RUN Get-Spool-Requests.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -298,6 +302,7 @@ ON CHOOSE OF Btn_Process IN FRAME DEFAULT-FRAME /* Process */
 DO:
   RUN Get_Procedure IN Persistent-Handle ("chkspool.",OUTPUT run-proc,yes).
   RUN Get-Spool-Requests.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -328,8 +333,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -343,6 +350,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   FIND FIRST config NO-LOCK.
   RUN Get-Spool-Requests.
   {methods/nowait.i}
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

@@ -38,7 +38,7 @@ IF AVAIL est THEN DO:
 
   ASSIGN
    est.updated-date = TODAY
-   est.updated-id   = USERID("ASI")
+   est.updated-id   = USERID("nosweat")
    est.mod-date     = est.updated-date.
 
   IF (est.est-type EQ 1 OR est.est-type GE 5)                   AND

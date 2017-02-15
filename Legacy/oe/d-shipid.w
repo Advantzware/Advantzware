@@ -314,7 +314,7 @@ PROCEDURE setup-ship-from :
       cLocList = "".
       liNumUsrx = 0.
       FOR EACH usrx WHERE usrx.company EQ g_company
-           AND usrx.uid EQ USERID("ASI")
+           AND usrx.uid EQ USERID("NOSWEAT")
           NO-LOCK:
           FIND loc WHERE loc.company EQ usrx.company
                      AND loc.loc     EQ usrx.loc

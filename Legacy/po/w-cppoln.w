@@ -17,7 +17,7 @@
       <none>
 
   History: 
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -146,6 +146,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+/* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
@@ -210,7 +211,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -239,7 +240,7 @@ DO:
   IF VALID-HANDLE(h_b-cppoln-3) THEN
   RUN get-results IN h_b-cppoln-3 (OUTPUT result-list).
    op-result-list = result-list.
-  
+
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -505,13 +506,13 @@ PROCEDURE local-change-page :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/winReSizePgChg.i}
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -529,7 +530,7 @@ PROCEDURE local-create-objects :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-objects':U ) .
   /*
-    
+
     IF VALID-HANDLE(h_b-cppoln-3) THEN
         RUN set-cont-handle IN h_b-cppoln-3 (INPUT THIS-PROCEDURE).
         */
@@ -552,9 +553,9 @@ PROCEDURE local-exit :
 -------------------------------------------------------------*/
 
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -568,14 +569,14 @@ PROCEDURE local-hide :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  
+
   DEF VAR result-list AS CHAR.
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
   IF VALID-HANDLE(h_b-cppoln-3) THEN
   RUN get-results IN h_b-cppoln-3 (OUTPUT result-list).
    op-result-list = result-list.
- 
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'hide':U ) .
 

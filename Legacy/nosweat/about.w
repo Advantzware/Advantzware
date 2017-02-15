@@ -277,8 +277,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       FRAME {&FRAME-NAME}:TITLE = FRAME {&FRAME-NAME}:TITLE + ' ' + prgrms.prgtitle
       prgmTitle:SCREEN-VALUE = prgrms.prgtitle.
     ASSIGN
-      winReSize = 'users/' + USERID("ASI") + '/' + callingprgm + 'winReSize'
-      winReSizeDat = 'users/' + USERID("ASI") + '/winReSize.dat'
+      winReSize = 'users/' + USERID('NOSWEAT') + '/' + callingprgm + 'winReSize'
+      winReSizeDat = 'users/' + USERID('NOSWEAT') + '/winReSize.dat'
       autoMaximize:SCREEN-VALUE = STRING(SEARCH(winReSize) NE ?)
       autoMaximize.
     IF SEARCH(winReSizeDat) NE ? THEN DO:

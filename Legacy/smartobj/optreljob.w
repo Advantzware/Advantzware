@@ -61,7 +61,7 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_jobrel 
-     IMAGE-UP FILE "Graphics/32x32/document_check_edit.png":U
+     IMAGE-UP FILE "Graphics/32x32/document_check_edit.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "JobsCard" 
      SIZE 8 BY 1.81 TOOLTIP "Job Card".
@@ -111,7 +111,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB s-object 
 /* ************************* Included-Libraries *********************** */
 
-{advantzware/winkit/winkit-panel.i}
+{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/smart.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -144,7 +144,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -154,13 +154,9 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_jobrel s-object
 ON CHOOSE OF Select_jobrel IN FRAME F-Main /* JobsCard */
 DO:
-  
+
    {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
-
-
-  /* Added by WinKit Migration tool 07.02.2016 21:13:07 */
-  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
-
+  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -218,7 +214,7 @@ PROCEDURE local-initialize :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -239,7 +235,7 @@ PROCEDURE state-changed :
       /* Object instance CASEs can go here to replace standard behavior
          or add new cases. */
   END CASE.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

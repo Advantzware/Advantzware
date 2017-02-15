@@ -5,6 +5,10 @@
           asihlp           PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -61,17 +65,14 @@ CREATE WIDGET-POOL.
 DEFINE QUERY external_tables FOR hlp-head.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS hlp-head.FLD-NAME hlp-head.FRM-TITLE ~
-hlp-head.FIL-NAME hlp-head.FRM-NAME hlp-head.help-txt hlp-head.showinglossary ~
-hlp-head.reviewstatus
+hlp-head.FIL-NAME hlp-head.FRM-NAME hlp-head.help-txt 
 &Scoped-define ENABLED-TABLES hlp-head
 &Scoped-define FIRST-ENABLED-TABLE hlp-head
 &Scoped-Define ENABLED-OBJECTS RECT-1 
 &Scoped-Define DISPLAYED-FIELDS hlp-head.MSG-NUM hlp-head.FLD-NAME ~
-hlp-head.FRM-TITLE hlp-head.FIL-NAME hlp-head.FRM-NAME hlp-head.help-txt ~
-hlp-head.showinglossary hlp-head.reviewstatus
+hlp-head.FRM-TITLE hlp-head.FIL-NAME hlp-head.FRM-NAME hlp-head.help-txt 
 &Scoped-define DISPLAYED-TABLES hlp-head
 &Scoped-define FIRST-DISPLAYED-TABLE hlp-head
-
 
 
 /* Custom List Definitions                                              */
@@ -110,7 +111,7 @@ RUN set-attribute-list (
 /* Definitions of the field level widgets                               */
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 144 BY 17.14.     
+     SIZE 144 BY 17.14.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -118,16 +119,7 @@ DEFINE RECTANGLE RECT-1
 DEFINE FRAME F-Main
      hlp-head.MSG-NUM AT ROW 1.24 COL 29 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 11 BY 1 
-    hlp-head.reviewstatus AT ROW 1.25 COL 60 NO-LABEL
-          VIEW-AS RADIO-SET HORIZONTAL 
-          RADIO-BUTTONS 
-             "Blank", "B":U,
-             "Reviewed", "R":U
-          SIZE 35 BY .81
-    hlp-head.showinglossary AT ROW 1.25 COL 100 LABEL "Show in Glossary"
-          VIEW-AS TOGGLE-BOX
-          SIZE 29 BY .81
+          SIZE 11 BY 1
      hlp-head.FLD-NAME AT ROW 2.19 COL 29 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 32 BY 1
@@ -146,8 +138,6 @@ DEFINE FRAME F-Main
           SIZE 115 BY 13.1
      "Help Contents:" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 4.33 COL 10
-     "Status:" VIEW-AS TEXT
-          SIZE 10 BY .81 AT ROW 1.24 COL 50
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -215,7 +205,6 @@ ASSIGN
    EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN hlp-head.FRM-TITLE IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
-
 ASSIGN 
        hlp-head.help-txt:RETURN-INSERTED IN FRAME F-Main  = TRUE.
 
@@ -234,7 +223,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
@@ -245,7 +234,7 @@ ASSIGN
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -318,14 +307,14 @@ PROCEDURE local-create-record :
   /* Code placed here will execute AFTER standard behavior.    */
   def buffer bf-hlp for hlp-head.
   def var li-next-num as int no-undo.
-  
+
   find last bf-hlp use-index mess-num no-lock no-error.
   if avail bf-hlp then li-next-num = bf-hlp.msg-num + 1.
   else li-next-num = 1.
-  
+
   hlp-head.msg-num = li-next-num.
   display hlp-head.msg-num with frame {&frame-name}.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -353,7 +342,7 @@ PROCEDURE local-update-record :
   session:set-wait-state("").
 
 /* mod - sewa for Web Services task 08211210 */
-  
+
 find first sys-ctrl  WHERE sys-ctrl.name    eq "UpdateService"
         no-lock no-error.
   IF AVAIL sys-ctrl THEN
@@ -431,31 +420,6 @@ PROCEDURE local-delete-record :
   /* mod- sewa*/
 
 
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
-PROCEDURE local-display-fields :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-  IF AVAIL hlp-head THEN DO:
-    
-    IF hlp-head.reviewstatus EQ "" OR hlp-head.reviewstatus NE "R" THEN
-        ASSIGN 
-            hlp-head.reviewstatus:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "B" .
-  END.
-
-    /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
-
-  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

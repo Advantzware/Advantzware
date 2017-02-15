@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admBrowserUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -45,7 +49,7 @@ ASSIGN cocode = g_company
        locode = g_loc.
 
 &SCOPED-DEFINE browse2 ar/j-dbcr.i
-           
+
 DEF VAR ld-not-applied AS DEC NO-UNDO.
 DEF BUFFER bf-cashl FOR ar-cashl.
 
@@ -226,6 +230,8 @@ END.
 {src/adm/method/query.i}
 {methods/template/browser2.i}
 
+{Advantzware/WinKit/dataGridProc.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -287,7 +293,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -453,7 +459,7 @@ IF AVAIL ar-cash THEN
                               STRING(ar-cash.check-date,'99/99/9999') + ',' + 
                               STRING(ar-cash.ret-memo) + ',' + STRING(ar-cash.posted)
                              ).
-   
+
 
 END PROCEDURE.
 
@@ -469,11 +475,11 @@ PROCEDURE reopen-query :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
-  
+
   DO WITH FRAME {&FRAME-NAME}:
       browse-order = 1 .
       browse-order:SCREEN-VALUE = string(1) .
-    
+
     RUN dispatch ("open-query").
     REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
     IF NOT ERROR-STATUS:ERROR THEN RUN dispatch ('row-changed').

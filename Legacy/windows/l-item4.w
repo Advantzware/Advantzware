@@ -55,7 +55,7 @@ DEF VAR period_pos AS INTEGER NO-UNDO.
 IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
    INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
    INDEX(PROGRAM-NAME(1),".ped") NE 0 THEN
-v-prgmname = USERID("ASI") + "..".
+v-prgmname = USERID("NOSWEAT") + "..".
 ELSE
 ASSIGN
   period_pos = INDEX(PROGRAM-NAME(1),".")
@@ -441,6 +441,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   RUN enable_UI.
+  IF ip-cur-val <> "" THEN
+      ASSIGN
+      rd-sort:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "1"
+      rd-sort = 1 .
+  
   RUN new-rd-sort.
   
   /* gdm - 05260910*/

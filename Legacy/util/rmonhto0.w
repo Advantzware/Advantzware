@@ -189,9 +189,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -210,7 +220,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -247,6 +257,7 @@ END.
 ON CHOOSE OF btn-build IN FRAME FRAME-A /* Start Process */
 DO:
     run run-process.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -258,6 +269,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
     apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -277,8 +289,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -297,6 +311,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   FIND ap-ctrl WHERE ap-ctrl.company = gcompany NO-LOCK NO-ERROR.
   RUN enable_UI.
   {methods/nowait.i}
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -360,29 +375,29 @@ def var titm        like fitm               init "zzzzzzzzzz".
 
 def var v-recid     as   recid.
 def var x           as   int.
-  
-  
+
+
 session:set-wait-state("General").
-  
+
 do with frame {&frame-name}:
   assign
    begin_rm-no
    end_rm-no.
 end.
-  
+
 assign
  fitm = begin_rm-no
  titm = end_rm-no.
-   
+
 {util/rmonhto0.i}
-     
+
 session:set-wait-state("").
 
 message trim(c-win:title) + " Process Complete..." view-as alert-box.
 apply "close" to this-procedure.
 
 return no-apply.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

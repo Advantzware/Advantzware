@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admBrowserUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -206,6 +210,8 @@ END.
 
 {src/adm/method/browser.i}
 
+{Advantzware/WinKit/dataGridProc.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -253,7 +259,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-glhist,
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -364,7 +370,7 @@ PROCEDURE build-inquiry :
   FOR EACH report WHERE report.term-id EQ v-term:
     DELETE report.
   END.
-  
+
   FOR EACH glhist NO-LOCK
       WHERE glhist.company EQ lv-company
         AND glhist.tr-num  EQ lv-tr-num:
@@ -400,7 +406,7 @@ PROCEDURE build-inquiry :
        report.key-01  = lv-inv-no.
     END.
   END.
- 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -435,6 +441,7 @@ PROCEDURE local-initialize :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+  RUN pDataGridInit.
 
   /* Code placed here will execute AFTER standard behavior.   */
   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.

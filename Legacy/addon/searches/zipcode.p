@@ -19,7 +19,7 @@
 "zipcode. " ~
 */
 
-&Scoped-define search-db ASI.
+&Scoped-define search-db NOSWEAT.
 &Scoped-define search-file zipcode
 &Scoped-define where-statement TRUE
 &Scoped-define return-field zipcode

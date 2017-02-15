@@ -1,14 +1,12 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi          PROGRESS
+          nosweat          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-USING Consultingwerk.Framework.Collections.CharacterDictionary FROM PROPATH.
-USING Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl FROM PROPATH.
-&SCOPED-DEFINE dataGrid
+{Advantzware\WinKit\admBrowserUsing.i}
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
@@ -210,7 +208,8 @@ END.
 {src/adm/method/browser.i}
 {src/adm/method/query.i}
 {methods/template/browser.i}
-{methods/gridSearch.i}
+
+{Advantzware/WinKit/dataGridProc.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -244,18 +243,18 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "ASI.notes"
+     _TblList          = "NOSWEAT.notes"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
      _Where[1]         = "notes.rec_key = ip-rec_key
- AND ASI.notes.note_type = ""S"""
-     _FldNameList[1]   = ASI.notes.note_date
+ AND NOSWEAT.notes.note_type = ""S"""
+     _FldNameList[1]   = NOSWEAT.notes.note_date
      _FldNameList[2]   > "_<CALC>"
 "STRING(notes.note_time,'HH:MM:SS am') @ notetime" "Note Time" "X(11)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[3]   > ASI.notes.note_title
+     _FldNameList[3]   > NOSWEAT.notes.note_title
 "notes.note_title" ? "X(50)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[4]   = ASI.notes.user_id
-     _FldNameList[5]   > ASI.notes.note_code
+     _FldNameList[4]   = NOSWEAT.notes.user_id
+     _FldNameList[5]   > NOSWEAT.notes.note_code
 "notes.note_code" "Spec" "X(3)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */

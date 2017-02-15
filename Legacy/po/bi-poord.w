@@ -6,9 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-USING Consultingwerk.Framework.Collections.CharacterDictionary FROM PROPATH.
-USING Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl FROM PROPATH.
-&SCOPED-DEFINE dataGrid
+{Advantzware\WinKit\admBrowserUsing.i}
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
@@ -271,7 +269,8 @@ END.
 {src/adm/method/browser.i}
 {src/adm/method/query.i}
 {methods/template/browser.i}
-{methods/gridSearch.i}
+
+{Advantzware/WinKit/dataGridProc.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -551,7 +550,7 @@ PROCEDURE delete_item :
   END.
   SESSION:SET-WAIT-STATE("general").
 
-  FIND CURRENT po-ordl NO-ERROR.
+  FIND CURRENT po-ordl EXCLUSIVE-LOCK NO-ERROR.
 
   IF AVAIL po-ordl THEN DO:
     IF CAN-FIND(FIRST b-po-ordl
@@ -590,6 +589,7 @@ PROCEDURE delete_item :
       RUN dispatch ('row-changed').
     END.
   END.
+  FIND CURRENT po-ordl NO-LOCK NO-ERROR.
 
   SESSION:SET-WAIT-STATE("").
 
@@ -626,9 +626,9 @@ PROCEDURE local-display-fields :
   /* Code placed here will execute PRIOR to standard behavior. */
 
   IF AVAIL(po-ordl) AND  po-ordl.item-type = NO  THEN
-    FIND itemfg WHERE itemfg.company EQ po-ordl.company
+    FIND itemfg NO-LOCK WHERE itemfg.company EQ po-ordl.company
       AND itemfg.i-no EQ po-ordl.i-no
-    NO-LOCK NO-ERROR.
+    NO-ERROR.
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
@@ -678,7 +678,7 @@ FOR EACH tt-po-ordl-renum:
         bf-po-ordl.LINE = tt-po-ordl-renum.po-line-num.
     END.
     DELETE tt-po-ordl-renum.
-
+    FIND CURRENT bf-po-ordl NO-LOCK NO-ERROR.
 
 END.
 
@@ -701,9 +701,9 @@ PROCEDURE reopen-query :
 
   RUN dispatch ('open-query').
   IF ip-rowid = ? THEN DO:
-     FIND LAST bf-ordl WHERE bf-ordl.company = po-ordl.company
+     FIND LAST bf-ordl NO-LOCK WHERE bf-ordl.company = po-ordl.company
                          AND bf-ordl.po-no = po-ordl.po-no
-                         NO-LOCK NO-ERROR.
+                         NO-ERROR.
      IF AVAIL bf-ordl THEN DO:
         REPOSITION {&browse-name} TO ROWID ROWID(bf-ordl) NO-ERROR.
         RUN dispatch ('row-changed').

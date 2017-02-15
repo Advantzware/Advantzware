@@ -80,7 +80,7 @@ display wk-sh-ord.due-date
             v-cst-rem when v-cost     
             po-ordl.s-wid >>,>>9.99<<<
             po-ordl.s-len
-     
+
 */
 ASSIGN cTextListToSelect = "Due Date,Order#,Customer Name,Vendor Name,Order Qty,Rcpt Qty," + 
                            "Cost Due,MSF Due,Machine#,P/O#,FG Item#,RM Item#,Width,Length,UOM,Job#,Job Due" 
@@ -93,7 +93,7 @@ ASSIGN cTextListToSelect = "Due Date,Order#,Customer Name,Vendor Name,Order Qty,
 {sys/inc/ttRptSel.i}
  ASSIGN cTextListToDefault  = "Due Date,Order#,Order Qty,UOM,Rcpt Qty,Customer Name,Vendor Name," + 
                               "Machine#,P/O#,FG Item#,RM Item#,MSF Due,Cost Due" .
-                              
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -413,9 +413,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -511,7 +521,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -570,6 +580,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -624,10 +635,11 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -654,6 +666,7 @@ DO:
   sl_selected:LIST-ITEM-PAIRS = cSelectedList.
   sl_avail:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
   */
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -667,7 +680,8 @@ DO:
 
   RUN DisplaySelectionDefault.  /* task 04041406 */ 
   RUN DisplaySelectionList2 .
-  
+
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -678,6 +692,7 @@ END.
 ON CHOOSE OF btn_down IN FRAME FRAME-A /* Move Down */
 DO:
   RUN Move-Field ("Down").
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -694,6 +709,7 @@ DO:
   END
   */
   APPLY "DEFAULT-ACTION" TO sl_selected  .
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -705,6 +721,7 @@ END.
 ON CHOOSE OF btn_Up IN FRAME FRAME-A /* Move Up */
 DO:
   RUN Move-Field ("Up").
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -850,7 +867,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
-  
+
    IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
        sl_selected:NUM-ITEMS = 0)
    THEN ASSIGN ldummy = sl_selected:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
@@ -858,7 +875,7 @@ DO:
               /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
                .
 
-  
+
 /* for pairs
     DEF VAR cSelectedList AS cha NO-UNDO.
     cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
@@ -901,7 +918,7 @@ DO:
   ASSIGN
     {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}:ENTRY(1)
     .
-    
+
 
 END.
 
@@ -977,8 +994,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -994,14 +1013,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-    
+
     assign            
     begin_due-date =  TODAY
     end_due-date   =  date(12,31,year(today)).
-  
+
   RUN DisplaySelectionList.
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -1010,6 +1029,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO begin_vend-no.
   END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1065,7 +1085,7 @@ DEF VAR cListContents AS cha NO-UNDO.
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .    
   END.
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
 END PROCEDURE.
@@ -1087,7 +1107,7 @@ PROCEDURE DisplaySelectionList2 :
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
-        
+
   EMPTY TEMP-TABLE ttRptList.
 
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
@@ -1128,7 +1148,7 @@ PROCEDURE DisplaySelectionDefault :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  
+
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
      cListContents = cListContents +                   
@@ -1244,7 +1264,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
   /*   DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -1255,11 +1275,11 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY. */
-     
+
 {custom/out2file.i}
 
 END PROCEDURE.
@@ -1291,7 +1311,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1388,14 +1408,14 @@ assign
  v-subtotal-flag  = tb_date
  v-sortby         = rd_sort
  v-closed         = tb_closed.
-  
+
 IF v-cost THEN DO: 
   IF NOT ll-secure THEN RUN sys/ref/d-passwd.w (3, OUTPUT ll-secure).
   v-cost = ll-secure. 
 END.
 
 FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
-    
+
   IF LENGTH(ttRptSelected.TextList) = ttRptSelected.FieldLength 
   THEN ASSIGN str-tit4 = str-tit4 + ttRptSelected.TextList + " "
               str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
@@ -1462,7 +1482,7 @@ display "" with frame r-top.
           no-lock no-error.
       if avail item and index("1234BPR",item.mat-type) gt 0 then do:
         {po/po-fibr1.i v-mach[1] v-mach[2] v-mach[3] v-mach[4]}
-       
+
         create wk-sh-ord.
         assign
          wk-sh-ord.due-date = po-ordl.due-date
@@ -1492,7 +1512,7 @@ display "" with frame r-top.
            LEAVE.
          END.
         END.  /* Task 11071308 */
-        
+
         IF v-sortby = "D" THEN 
             ASSIGN wk-sh-ord.key1 = string(year(po-ordl.due-date),"9999") +  
                                     string(MONTH(po-ordl.due-date),"99") + 
@@ -1505,17 +1525,17 @@ display "" with frame r-top.
 
   for each wk-sh-ord,
       each po-ordl where recid(po-ordl) eq wk-sh-ord.rec-id no-lock,
-      
+
       FIRST po-ord WHERE
             po-ord.company EQ po-ordl.company and
             po-ord.po-no   EQ po-ordl.po-no
             no-lock,
-      
+
       first item
       where item.company eq cocode
         and item.i-no    eq po-ordl.i-no
       no-lock
-      
+
       break by wk-sh-ord.key1 
             BY wk-sh-ord.due-date:
 
@@ -1533,7 +1553,7 @@ display "" with frame r-top.
        ASSIGN iSubCount = 0.
     iSubCount = iSubCount + 1.
     {po/pol-dims.i}
-    
+
     if v-wid eq 0 then v-wid = 12.
     if v-len eq 0 OR lv-uom EQ "ROLL" then v-len = 12.
 
@@ -1609,18 +1629,18 @@ display "" with frame r-top.
             and vend.vend-no = po-ord.vend-no
           no-lock no-error.
       if avail vend then ASSIGN v-vend-name = vend.name.
-    
+
     release oe-ord.
-   
+
     find first job-hdr
         where job-hdr.company eq cocode
           and job-hdr.job-no  eq po-ordl.job-no
           and job-hdr.job-no2 eq po-ordl.job-no2
         no-lock no-error.
-        
+
     if avail job-hdr then v-jobDueDate = job-hdr.due-date.
     IF wk-sh-ord.machine = "" and avail job-hdr THEN DO:
-    
+
       v-mch-rowid = ?.
       FOR FIRST job-mch 
           WHERE job-mch.company = cocode
@@ -1661,7 +1681,7 @@ display "" with frame r-top.
              THEN do:
             FIND FIRST itemfg WHERE itemfg.company EQ cocode
             AND itemfg.i-no EQ job-hdr.i-no NO-LOCK NO-ERROR.
-            
+
             IF AVAIL itemfg THEN
                 v-prt-name = itemfg.cust-name .
         END.
@@ -1692,7 +1712,7 @@ display "" with frame r-top.
                      cTmpField = substring(GetFieldValue(hField),1,int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength))).
                      IF ENTRY(i,cSelectedList) = "Job#" THEN
                         cTmpField = cTmpField + IF cTmpField <> "" THEN "-" + string(job-hdr.job-no2,"99") ELSE "".                  
-                     
+
                      cDisplay = cDisplay + cTmpField + 
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField))
                                .
@@ -1799,19 +1819,19 @@ display "" with frame r-top.
                     ELSE "")                                        '",'*/
                SKIP.*/
       end.
-      
+
       assign
        tot-cons-qty[2] = tot-cons-qty[2] + tot-cons-qty[1]
        tot-rec-qty[2]  = tot-rec-qty[2]  + tot-rec-qty[1]
        tot-msf-rem[2]  = tot-msf-rem[2]  + tot-msf-rem[1]
        tot-cst-rem[2]  = tot-cst-rem[2]  + tot-cst-rem[1]
-       
+
        tot-cons-qty[1] = 0
        tot-rec-qty[1]  = 0
        tot-msf-rem[1]  = 0
        tot-cst-rem[1]  = 0.
     end.
-    
+
     if LAST(wk-sh-ord.key1) then do:
     /* task 12311303  */        
         PUT   
@@ -1919,11 +1939,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1951,23 +1971,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

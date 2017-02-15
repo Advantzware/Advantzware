@@ -185,9 +185,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -221,7 +231,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -258,6 +268,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
     apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -270,8 +281,8 @@ ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
 DO:
     DEFINE VARIABLE lProcess AS LOGICAL     NO-UNDO.
     DEFINE VARIABLE cMessage AS CHARACTER   NO-UNDO.
-    
-    
+
+
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN {&displayed-objects}.
         RUN ValidateCompany(OUTPUT lProcess).
@@ -289,6 +300,7 @@ DO:
         END.
     END.
     IF lProcess THEN RUN RunProcess.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -338,7 +350,7 @@ END.
 ON LEAVE OF fi_level IN FRAME FRAME-A /* Level to Change */
 DO:
     DEFINE VARIABLE lValid AS LOGICAL     NO-UNDO.
-    
+
     IF LASTKEY NE -1 THEN DO:
         ASSIGN {&displayed-objects}.
         RUN ValidateLevel(OUTPUT lValid).
@@ -385,8 +397,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -445,7 +459,7 @@ PROCEDURE CheckHistory :
                 NO-LOCK NO-ERROR.
         oplOK = NOT AVAIL bf-gltrans AND NOT AVAIL bf-glhist.
     END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -522,9 +536,9 @@ PROCEDURE GetSubstringArgs :
                 opiStart = opiStart + gbf-company.acc-dig[iLevCount - 1].
             END.
         END.
-       
+
     END.
-    
+
 
 END PROCEDURE.
 
@@ -571,7 +585,7 @@ IF lProcess THEN DO:
         PUT STREAM log-out "Old Account: " bf-account.actnum FORMAT "x(30)" " Changed to: " cNewAccount FORMAT "x(30)" SKIP. 
 
         bf-account.actnum = cNewAccount.
-     
+
     END.
 END.
 ELSE 

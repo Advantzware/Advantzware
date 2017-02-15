@@ -18,7 +18,7 @@
       <none>
 
   History: 
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -98,18 +98,18 @@ DEFINE FRAME F-Main
          SIZE 150 BY 24
          BGCOLOR 15 .
 
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 1
-         SIZE 148 BY 1.91
-         BGCOLOR 15 .
-
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 46 ROW 2.91
          SIZE 105 BY 1.43
+         BGCOLOR 15 .
+
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 2 ROW 1
+         SIZE 148 BY 1.91
          BGCOLOR 15 .
 
 
@@ -147,6 +147,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MESSAGE-AREA       = no
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -211,7 +212,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -492,9 +493,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -508,7 +509,7 @@ PROCEDURE Select_Add :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEF VAR char-hdl AS CHAR NO-UNDO.
-  
+
    RUN select-page(2).
    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"add-item-target", OUTPUT char-hdl).
    RUN add-item IN WIDGET-HANDLE(char-hdl).

@@ -143,9 +143,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -167,7 +177,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -204,6 +214,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
     apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -215,12 +226,13 @@ END.
 ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
 DO:
   v-process  = NO.
-   
+
   MESSAGE "Are you sure you want to" TRIM(c-win:TITLE) + "?"
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
           UPDATE v-process.
-        
+
   IF v-process THEN RUN run-process.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -240,8 +252,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -311,7 +325,7 @@ def buffer b-cacct for account.
 
 def var v-fisc-yr like period.yr no-undo.
 def var v-date as date no-undo.
-    
+
 
 SESSION:SET-WAIT-STATE("General").
 
@@ -330,48 +344,48 @@ assign
 for each gltrans
     where gltrans.company  eq cocode
       and gltrans.tr-date  lt v-date,
-    
+
     first period
     where period.company eq cocode
       and period.pst     le gltrans.tr-date
       and period.pend    ge gltrans.tr-date
     no-lock,
-    
+
     first account
     where account.company eq cocode
       and account.actnum  eq gltrans.actnum
-    
+
     transaction:
-      
+
   if period.yr eq v-fisc-yr then
     account.cyr[period.pnum] = account.cyr[period.pnum] + gltrans.tr-amt.
-    
+
   else
   if period.yr eq v-fisc-yr - 1 then do:
     account.lyr[period.pnum] = account.lyr[period.pnum] + gltrans.tr-amt.
-    
+
     if index("ALCT",account.type) ne 0 then
       account.cyr-open = account.cyr-open + gltrans.tr-amt.
   end.
-  
+
   else
   if period.yr eq v-fisc-yr - 2 and index("ALCT",account.type) ne 0 then
     account.lyr-open = account.lyr-open + gltrans.tr-amt.
-  
+
   if index("RE",account.type) gt 0 then do:
     find first b-racct
         where b-racct.company eq cocode
           and b-racct.actnum  eq gl-ctrl.ret.
-                  
+
     if period.yr eq v-fisc-yr then
       b-racct.cyr[period.pnum] = b-racct.cyr[period.pnum] + gltrans.tr-amt.
-    
+
     else
     if period.yr eq v-fisc-yr - 1 then
       assign
        b-racct.lyr[period.pnum] = b-racct.lyr[period.pnum] + gltrans.tr-amt
        b-racct.cyr-open         = b-racct.cyr-open         + gltrans.tr-amt.
-    
+
     else
     if period.yr eq v-fisc-yr - 2 then
       b-racct.lyr-open = b-racct.lyr-open + gltrans.tr-amt.
@@ -382,7 +396,7 @@ for each gltrans
 
     if period.yr eq v-fisc-yr then
       b-cacct.cyr[period.pnum] = b-cacct.cyr[period.pnum] - gltrans.tr-amt.
-      
+
     else
     if period.yr eq v-fisc-yr - 1 then
       b-cacct.lyr[period.pnum] = b-cacct.lyr[period.pnum] - gltrans.tr-amt.
@@ -398,7 +412,7 @@ for each gltrans
    glhist.tr-date = gltrans.tr-date
    glhist.tr-num  = gltrans.trnum
    glhist.tr-amt  = gltrans.tr-amt.
-       
+
   delete gltrans.
 end.
 
@@ -407,7 +421,7 @@ SESSION:SET-WAIT-STATE("").
 MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
 
 APPLY "close" TO THIS-PROCEDURE.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

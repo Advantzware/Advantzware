@@ -18,7 +18,7 @@
       <none>
 
   History: 
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -169,7 +169,7 @@ THEN W-Win:HIDDEN = yes.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -507,9 +507,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -528,7 +528,7 @@ PROCEDURE local-initialize :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  IF SEARCH('users/' + USERID("ASI") + '/w-glinvl.winReSize') EQ ? THEN DO:
+  IF SEARCH('users/' + USERID('NOSWEAT') + '/w-glinvl.winReSize') EQ ? THEN DO:
     {&WINDOW-NAME}:WINDOW-STATE = 1.
     RUN winReSize.
   END.
@@ -676,7 +676,7 @@ PROCEDURE winReSize :
     DEFINE VARIABLE wPixels AS INTEGER NO-UNDO.
     DEFINE VARIABLE noReSize AS LOGICAL NO-UNDO.
     DEFINE VARIABLE noReSizeName AS CHARACTER NO-UNDO.
-    
+
     ASSIGN
       hPixels = FRAME {&FRAME-NAME}:HEIGHT-PIXELS
       wPixels = FRAME {&FRAME-NAME}:WIDTH-PIXELS

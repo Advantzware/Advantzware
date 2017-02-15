@@ -1,6 +1,6 @@
 /* zipcode.i
 "zipcode"
-"ASI"
+"NOSWEAT"
 "zipcode"
 "zipcode"
 "Zip/Postal Code"

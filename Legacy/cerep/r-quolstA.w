@@ -257,9 +257,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -318,7 +328,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -388,6 +398,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -405,7 +416,7 @@ DO:
 
   assign rd-dest
          lines-per-page .
-       
+
   run run-report. 
   STATUS DEFAULT "Processing Complete".
 
@@ -444,6 +455,7 @@ DO:
        WHEN 6 THEN RUN OUTPUT-to-port.
   END CASE. 
 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -609,8 +621,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -631,7 +645,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
           END_date    = TODAY.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
    /* gdm - 10130807 */
@@ -640,6 +654,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO begin_cust-no.
    END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -733,7 +748,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -873,7 +888,7 @@ IF tb_excel THEN DO:
     SKIP.
 
 END.
-    
+
 
    for each quotehd
         where quotehd.company  eq cocode
@@ -901,19 +916,19 @@ END.
         FIRST est   WHERE est.company    EQ quotehd.company                     
                       AND est.est-no     EQ quotehd.est-no NO-LOCK
         break by report.key-01: 
-  
+
         {custom/statusMsg.i " 'Processing Estimate#:  '  + quotehd.est-no  "}
 
       find first cust
           where cust.company eq quotehd.company
             and cust.cust-no eq quotehd.cust-no
           no-lock no-error.     
-          
+
       find first sman
           where sman.company eq quotehd.company
             and sman.sman    eq quotehd.sman
          no-lock no-error.
-         
+
       if first-of(report.key-01) then do:
         v-sname = if avail sman then sman.sname else quotehd.sman.
         if first(report.key-01) then VIEW frame r-top.
@@ -925,12 +940,12 @@ END.
             v_city   = cust.city     
             v_st     = cust.state    
             v_zip    = cust.zip.
-        
+
         page.
       end.
-      
+
       for each quoteitm OF quotehd no-lock:
-          
+
         find first eb where eb.company = quoteitm.company
                         AND eb.est-no = est.est-no                     
                         and eb.part-no eq quoteitm.part-no
@@ -941,13 +956,13 @@ END.
                         AND eb.est-no = est.est-no                     
                         and eb.form-no ne 0
                         no-lock no-error.
-        
+
         if avail eb then
            find first ef where ef.company = quoteitm.company
                            AND ef.est-no   eq est.est-no
                            and ef.form-no eq eb.form-no
                            no-lock no-error.
-          
+
         v-rels = 1.
 
         ASSIGN v_style  = IF AVAIL eb THEN eb.style ELSE "".              
@@ -963,7 +978,7 @@ END.
             leave.
           end.  
         end.
-  
+
         if j ne 0 then v-rels = int(quote.prof-on[quoteit.line]).
   */        
       FOR EACH quoteqty WHERE quoteqty.company = quoteitm.company
@@ -976,7 +991,7 @@ END.
         ELSE
           RUN sys/ref/convcuom.p (quoteqty.uom, "M", 0, 0, 0, 0,
                                   quoteqty.price, OUTPUT v-price).
-        
+
         ASSIGN v_quo-dt = STRING(quotehd.quo-date,"99/99/99").
 
         display quoteqty.qty        label "Qty"
@@ -1000,9 +1015,9 @@ END.
                 quotehd.q-no        label "Quote#"
                 quotehd.est-no      label "    Est#"    FORMAT "x(8)"
                 quotehd.quo-date    label "Date"        FORMAT "99/99/99"
-                
+
             with frame detail down no-attr-space no-box STREAM-IO width 150.
-            
+
         down with frame detail.
 
         /* gdm - 10130808 */
@@ -1033,7 +1048,7 @@ END.
 
       END.
       put skip(1).
-      
+
       delete report.
     end.
 
@@ -1071,11 +1086,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1103,23 +1118,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

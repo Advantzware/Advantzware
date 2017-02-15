@@ -204,7 +204,7 @@ IF {&TABLENAME}.posted EQ NO THEN DO:
   ASSIGN
    {&TABLENAME}.upd-date = TODAY
    {&TABLENAME}.upd-time = TIME
-   {&TABLENAME}.user-id  = USERID("ASI").
+   {&TABLENAME}.user-id  = USERID("nosweat").
 
   IF {&TABLENAME}.printed     EQ YES AND
      old-{&TABLENAME}.printed EQ NO  THEN

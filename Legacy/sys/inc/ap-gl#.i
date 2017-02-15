@@ -4,26 +4,26 @@ DEFINE VARIABLE ap-gl#-cha LIKE sys-ctrl.char-fld NO-UNDO.
 
 
 FIND FIRST sys-ctrl NO-LOCK
-    where sys-ctrl.company eq cocode
-      and sys-ctrl.name    eq "AP GL#"
-    no-error.
-do transaction:
+    WHERE sys-ctrl.company EQ cocode
+    AND sys-ctrl.name    EQ "AP GL#"
+    NO-ERROR.
+DO TRANSACTION:
     IF NOT AVAILABLE sys-ctrl THEN 
     DO:
-    create sys-ctrl.
-    assign
-     sys-ctrl.company  = cocode
-     sys-ctrl.name     = "AP GL#"
-     sys-ctrl.descrip  = "Default GL# from Purchasing?"
-     sys-ctrl.log-fld  = no.
+        CREATE sys-ctrl.
+        ASSIGN
+            sys-ctrl.company = cocode
+            sys-ctrl.name    = "AP GL#"
+            sys-ctrl.descrip = "Default GL# from Purchasing?"
+            sys-ctrl.log-fld = NO.
        
-  end.
+    END.
   
-  if sys-ctrl.char-fld eq "" then sys-ctrl.char-fld = "Asset".
+    IF sys-ctrl.char-fld EQ "" THEN sys-ctrl.char-fld = "Asset".
     FIND CURRENT sys-ctrl NO-LOCK.
-end.
+END.
 
-assign
- ap-gl#-log = sys-ctrl.log-fld
- ap-gl#-cha = sys-ctrl.char-fld.
+ASSIGN
+    ap-gl#-log = sys-ctrl.log-fld
+    ap-gl#-cha = sys-ctrl.char-fld.
  

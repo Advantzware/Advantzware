@@ -509,9 +509,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -670,7 +680,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -795,6 +805,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -808,7 +819,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-           
+
   RUN run-report.
 
   case rd-dest:
@@ -844,6 +855,7 @@ DO:
            END.
        END. 
   end case. 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1004,11 +1016,11 @@ DO:
     ASSIGN lv-font-no = "12"
            lines-per-page = 55
            lv-font-name = "Courier New Size=8 (12CPI)".
-    
+
  ELSE    ASSIGN lv-font-no = "11"
                 lines-per-page = 99
                 lv-font-name = "Courier New Size=7 (17 cpi for 132 CLMN REPORT)".
- 
+
  DISPL lv-font-no lines-per-page lv-font-name WITH FRAME {&FRAME-NAME}.
 /*  {custom/chgfont.i} */
 END.
@@ -1247,8 +1259,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -1264,13 +1278,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   assign
    begin_date = today
    rd_sort    = "Release Date".
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -1278,6 +1292,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO begin_cust-no.
   END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1350,7 +1365,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
 /*     DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -1361,11 +1376,11 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.  */
-     
+
      {custom/out2file.i}
 
 END PROCEDURE.
@@ -1383,7 +1398,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1451,11 +1466,11 @@ PROCEDURE show-param :
   /* gdm - 08070905 */
   DEF VAR v-lstcnt AS INT NO-UNDO.
   DEF VAR v-lstcnt2 AS INT NO-UNDO.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1487,7 +1502,7 @@ PROCEDURE show-param :
 /* gdm - 08070905 */
 
   ASSIGN v-lstcnt = NUM-ENTRIES(parm-fld-list,",").
-  
+
   IF v-lstcnt LT 0 THEN ASSIGN v-lstcnt = v-lstcnt  * -1.
 
   IF NUM-ENTRIES(parm-fld-list,",") LT NUM-ENTRIES(parm-lbl-list,",") 
@@ -1496,7 +1511,7 @@ PROCEDURE show-param :
       ASSIGN
        parm-fld-list = parm-fld-list + "," + " ".
   END.
-  
+
   IF NUM-ENTRIES(parm-lbl-list,",") LT NUM-ENTRIES(parm-fld-list,",") 
     THEN DO v-lstcnt2 = 1 TO v-lstcnt:
 
@@ -1523,7 +1538,7 @@ PROCEDURE show-param :
   end.
 
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -1,8 +1,9 @@
-    
-    for each cust
+for each cust
         where cust.company eq cocode
-          and cust.cust-no ge fcust
-          and cust.cust-no le tcust
+          AND cust.cust-no GE fcust
+          AND cust.cust-no LE tcust
+          AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
+          AND ttCustList.log-fld no-lock) else true)
         no-lock:
         {custom/statusMsg.i " 'Processing Customer#  '  + cust.cust-no "}
       {sa/sa-sls03.i "fdate" "tdate"}

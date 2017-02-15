@@ -160,13 +160,13 @@ IF {&TABLENAME}.company NE "" AND {&TABLENAME}.r-no NE 0 THEN DO:
      reftable.reftable = "fg-rctd.user-id"
      reftable.company  = {&TABLENAME}.company
      reftable.loc      = STRING({&TABLENAME}.r-no,"9999999999")
-     reftable.code     = USERID("ASI").
+     reftable.code     = USERID("nosweat").
   END.
 
-  {&TABLENAME}.updated-by = USERID("ASI").
+  {&TABLENAME}.updated-by = USERID("nosweat").
 
   ASSIGN
-   reftable.code2        = USERID("ASI")
+   reftable.code2        = USERID("nosweat")
    {&TABLENAME}.upd-date = TODAY
    {&TABLENAME}.upd-time = TIME.
 
@@ -178,7 +178,7 @@ IF {&TABLENAME}.company NE "" AND {&TABLENAME}.r-no NE 0 THEN DO:
 END.
 
 IF {&TABLENAME}.created-by EQ "" THEN
-  {&TABLENAME}.created-by = USERID("ASI").
+  {&TABLENAME}.created-by = USERID("nosweat").
 
 /* Clear out any error-status from find with no-error that is false */
 DEF VAR ll-error AS LOG NO-UNDO.

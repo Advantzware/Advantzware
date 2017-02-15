@@ -59,7 +59,7 @@ DEFINE VARIABLE v-prgmname LIKE b-prgrms.prgmname NO-UNDO.
 IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
    INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
    INDEX(PROGRAM-NAME(1),".ped") NE 0 THEN
-v-prgmname = USERID("ASI") + "..".
+v-prgmname = USERID("NOSWEAT") + "..".
 ELSE
 ASSIGN
 /*   period_pos = INDEX(PROGRAM-NAME(1),".")                                             */

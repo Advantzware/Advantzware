@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admBrowserUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -258,6 +262,8 @@ END.
 
 {src/adm/method/browser.i}
 
+{Advantzware/WinKit/dataGridProc.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -317,7 +323,7 @@ ap-invl.po-no = po-ordl.po-no and
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -504,7 +510,7 @@ FUNCTION get-acct-dscr RETURNS CHARACTER
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-  
+
   find first account
       where account.company eq ap-invl.company
         and account.actnum  eq ap-invl.actnum

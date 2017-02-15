@@ -193,9 +193,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -220,7 +230,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -260,6 +270,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -274,10 +285,10 @@ DO:
     ASSIGN {&displayed-objects}.
   END.
 
- 
+
   RUN windows/w-message.w PERSISTENT SET hStatus.
   RUN setWindowTitle IN hStatus (INPUT "Searching for Items").
-    
+
 
   run process-items. 
 
@@ -286,16 +297,17 @@ DO:
 
   RUN windows/w-message.w PERSISTENT SET hStatus.
   RUN setWindowTitle IN hStatus (INPUT "Deactivating Items").
-    
+
   IF VALID-HANDLE(hStatus) THEN
      DELETE OBJECT hStatus.
   MESSAGE "Done!"
      VIEW-AS ALERT-BOX INFO BUTTONS OK.
-    
+
   IF VALID-HANDLE(hStatus) THEN
       DELETE OBJECT hStatus.
-    
-       
+
+
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -326,8 +338,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -346,7 +360,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 APPLY "entry" TO begin_rm-i-no .
 
   RUN enable_UI.
-  
+
 SUBSCRIBE TO "CancelIt" ANYWHERE.
 SUBSCRIBE TO "NumDel" ANYWHERE.
   {methods/nowait.i}
@@ -356,6 +370,7 @@ SUBSCRIBE TO "NumDel" ANYWHERE.
     APPLY "entry" TO begin_rm-i-no .
   END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -548,7 +563,7 @@ PROCEDURE process-items :
 
 
        END. /* each rm-rcpth */      
- 
+
 
 END PROCEDURE.
 

@@ -398,9 +398,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -509,7 +519,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -625,6 +635,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -638,9 +649,9 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-  
+
   run run-report. 
- 
+
   case rd-dest:
        when 1 then run output-to-printer.
        when 2 then run output-to-screen.
@@ -672,10 +683,11 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -942,8 +954,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -953,7 +967,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-   
+
 /* security check need {methods/prgsecur.i} in definition section */
   IF access-close THEN DO:
      APPLY "close" TO THIS-PROCEDURE.
@@ -961,14 +975,15 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
      APPLY "entry" TO begin_loc.
   END.
-  
+
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1075,7 +1090,7 @@ PROCEDURE get-first-date :
              (fg-rdtlh.loc     EQ fg-bin.loc     AND
               fg-rdtlh.loc-bin EQ fg-bin.loc-bin))
       USE-INDEX tag NO-LOCK,
-          
+
       EACH fg-rcpth
       WHERE fg-rcpth.r-no      EQ fg-rdtlh.r-no
         AND fg-rcpth.rita-code EQ fg-rdtlh.rita-code
@@ -1104,7 +1119,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
      DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -1115,9 +1130,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
 
 
@@ -1150,7 +1165,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1236,7 +1251,7 @@ ASSIGN
 {sys/inc/outprint.i VALUE(lines-per-page)}
 
 IF td-show-parm THEN RUN show-param.
-     
+
 SESSION:SET-WAIT-STATE ("general").
 
 DISPLAY "" WITH FRAME r-top.
@@ -1262,7 +1277,7 @@ FOR EACH fg-bin NO-LOCK WHERE fg-bin.company EQ cocode
                   AND itemfg.cust-no LE v-cust[2]
                   AND itemfg.procat  GE v-cat[1]
                   AND itemfg.procat  LE v-cat[2] NO-LOCK:
-   
+
    CREATE tt-report.
    ASSIGN
       tt-report.rec-id = RECID(fg-bin)
@@ -1314,7 +1329,7 @@ ELSE DO:
 
    IF lv-job-no NE "" THEN 
       lv-job-no = lv-job-no + STRING(fg-bin.job-no2,"99").
-        
+
    ASSIGN
       li-palls = (IF fg-bin.case-count   EQ 0 THEN 1 ELSE fg-bin.case-count)   *
                  (IF fg-bin.cases-unit   EQ 0 THEN 1 ELSE fg-bin.cases-unit)   *
@@ -1342,7 +1357,7 @@ ELSE DO:
       ELSE 
          v-i-name = "".
    END.
-     
+
    v-cnt = v-cnt + 1.
 
    IF SUBSTR(fg-bin.tag,1,15) EQ fg-bin.i-no THEN
@@ -1376,7 +1391,7 @@ ELSE DO:
          v-writein
       WITH FRAME itemx.            
       DOWN WITH FRAME itemx.
-        
+
       DISPLAY 
          itemfg.part-dscr1 WHEN FIRST-OF(tt-report.key-02) @ itemfg.i-name
       WITH FRAME itemx.           
@@ -1419,11 +1434,11 @@ ELSE DO:
          v-writein
       WITH FRAME itemx2.            
       DOWN WITH FRAME itemx2.
-        
+
       DISPLAY itemfg.part-dscr1 WHEN FIRST-OF(tt-report.key-02) @ itemfg.i-name
          WITH FRAME itemx2.           
       DOWN WITH FRAME itemx2.
-      
+
       IF tb_excel THEN 
          PUT STREAM excel UNFORMATTED
              '"' (IF FIRST-OF(tt-report.key-02) THEN REPLACE(fg-bin.i-no, '"', "") ELSE "") '",'
@@ -1494,7 +1509,7 @@ FOR EACH tt-report
          li-palls = fg-bin.qty / li-palls.
 
   {sys/inc/roundup.i li-palls}
-    
+
   IF FIRST-OF(tt-report.key-03) THEN DO:
 
       ASSIGN
@@ -1515,7 +1530,7 @@ FOR EACH tt-report
      ELSE 
         v-i-name = "".
   END.
-   
+
   ASSIGN v-cnt = v-cnt + 1.
 
   IF SUBSTR(fg-bin.tag,1,15) EQ fg-bin.i-no THEN
@@ -1547,7 +1562,7 @@ FOR EACH tt-report
         v-writein
      WITH FRAME itemx.            
      DOWN WITH FRAME itemx.
-       
+
      DISPLAY 
         itemfg.part-dscr1 WHEN FIRST-OF(tt-report.key-02) @ itemfg.i-name
      WITH FRAME itemx.           
@@ -1588,11 +1603,11 @@ FOR EACH tt-report
          v-writein
       WITH FRAME itemx2.            
       DOWN WITH FRAME itemx2.
-        
+
       DISPLAY itemfg.part-dscr1 WHEN FIRST-OF(tt-report.key-02) @ itemfg.i-name
          WITH FRAME itemx2.           
       DOWN WITH FRAME itemx2.
-      
+
       IF tb_excel THEN 
         PUT STREAM excel UNFORMATTED
             '"' (IF FIRST-OF(tt-report.key-02) THEN REPLACE(fg-bin.i-no, '"', "") ELSE "") '",'
@@ -1633,11 +1648,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1665,23 +1680,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

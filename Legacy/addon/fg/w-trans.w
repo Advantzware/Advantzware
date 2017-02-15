@@ -82,21 +82,21 @@ DEFINE FRAME F-Main
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 150 BY 24
-         BGCOLOR 4 .
+         BGCOLOR 15 .
 
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 24 ROW 2.91
          SIZE 127 BY 1.43
-         BGCOLOR 4 .
+         BGCOLOR 15 .
 
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1
          SIZE 148 BY 1.91
-         BGCOLOR 4 .
+         BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -194,7 +194,6 @@ THEN W-Win:HIDDEN = yes.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 {methods/template/windows.i}
 

@@ -17,7 +17,7 @@
       <none>
 
   History: 
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -148,6 +148,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+/* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
@@ -211,7 +212,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -239,7 +240,7 @@ DO:
   RUN check-balanced NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-  
+
 
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
@@ -594,11 +595,11 @@ PROCEDURE local-change-page :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   {methods/winReSizePgChg.i}
-  
+
   RUN GET-ATTRIBUTE ("current-page").
   ASSIGN lv-prev-page = lv-curr-page
          lv-curr-page = int(return-value).
-  
+
   IF lv-prev-page = 2  THEN DO:
      RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"is-balanced-source",OUTPUT char-hdl).
      RUN check-balanced IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-balanced).
@@ -624,7 +625,7 @@ PROCEDURE local-change-page :
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/winReSizePgChg.i NO}
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -639,9 +640,9 @@ PROCEDURE local-exit :
 -------------------------------------------------------------*/
 
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -655,7 +656,7 @@ PROCEDURE select_add :
   Notes:       
 ------------------------------------------------------------------------------*/
   def var char-hdl as cha no-undo.
-  
+
   run select-page(2).
   run get-link-handle in adm-broker-hdl(this-procedure,"add-item-target", output char-hdl).
   run add-item in widget-handle(char-hdl).

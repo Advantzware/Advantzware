@@ -35,7 +35,7 @@ DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 {custom/getloc.i}
 
     {sys/inc/var.i new shared}
-  
+
 assign
  cocode = gcompany
  locode = gloc.
@@ -358,9 +358,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -481,7 +491,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -562,6 +572,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -610,10 +621,11 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -813,8 +825,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -830,28 +844,28 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   assign
    begin_po-date = date(1,1,year(today))
    end_po-date   = today.
 
   RUN enable_UI.
-  
+
  for each mat:
     v-mat-list = v-mat-list + string(mat.mat,"x(5)") + " " + mat.dscr + ",".
   end.
   if substr(v-mat-list,length(trim(v-mat-list)),1) eq "," then
     substr(v-mat-list,length(trim(v-mat-list)),1) = "".
-  
+
   select-mat:list-items = v-mat-list.
-        
+
   do i = 1 to select-mat:num-items:
     if trim(substr(select-mat:entry(i),1,5)) eq "B" then do:
       select-mat:screen-value = entry(i,v-mat-list).
       leave.
     end.
   end.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -859,6 +873,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO begin_po-no.
   END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -909,7 +924,7 @@ DEF BUFFER xjob-mat FOR job-mat.
           and ((po-ord.stat eq "C" and ipv-stat eq "C") or
                (po-ord.stat ne "C" and ipv-stat eq "O") or ipv-stat eq "A")
         no-lock,
-          
+
         each po-ordl
         where po-ordl.company   EQ po-ord.company
           AND po-ordl.po-no     EQ po-ord.po-no
@@ -922,18 +937,18 @@ DEF BUFFER xjob-mat FOR job-mat.
           and ((po-ordl.item-type eq yes and ipv-type eq "R") or
                (po-ordl.item-type eq no  and ipv-type eq "F") or ipv-type eq "B")
         no-lock:
-      
+
       release item.
       release job-hdr.
       release job-mat.
-      
+
       find first item
           where item.company eq cocode
             and item.i-no    eq po-ordl.i-no
           no-lock no-error.
-      
+
       if po-ordl.item-type and not avail item then next.
-      
+
       if index(ipv-mattype-list,"A") ne 0 and
          po-ordl.job-no ne ""           and 
          avail item                     and
@@ -943,7 +958,7 @@ DEF BUFFER xjob-mat FOR job-mat.
             and job-hdr.job-no  eq po-ordl.job-no
             and job-hdr.job-no2 eq po-ordl.job-no2
           no-lock no-error.
-       
+
       if avail job-hdr then
       find first job-mat
           where job-mat.company  eq cocode
@@ -953,7 +968,7 @@ DEF BUFFER xjob-mat FOR job-mat.
             and job-mat.rm-i-no  eq po-ordl.i-no
             and job-mat.frm      eq po-ordl.s-num
           no-lock no-error. 
-      
+
       if avail job-mat then
       for each xjob-mat
           where xjob-mat.company  eq cocode
@@ -965,7 +980,7 @@ DEF BUFFER xjob-mat FOR job-mat.
                                       and item.i-no     eq xjob-mat.i-no
                                       and item.mat-type eq "A")
           no-lock:
-        
+
         create report.
         assign
          report.term-id = ipv-term
@@ -978,7 +993,7 @@ DEF BUFFER xjob-mat FOR job-mat.
          report.key-07  = xjob-mat.qty-uom
          report.rec-id  = recid(po-ordl).
       end.
-      
+
       if avail item and index(ipv-mattype-list,item.mat-type) eq 0 then next.
 
       create report.
@@ -1106,7 +1121,7 @@ PROCEDURE excel-3-proc :
   DEF INPUT PARAMETER ip-dec2 AS DEC NO-UNDO.
   DEF INPUT PARAMETER ip-dec3 AS DEC NO-UNDO.
   DEF INPUT PARAMETER ip-dec4 AS DEC NO-UNDO.
-  
+
   PUT STREAM excel UNFORMATTED
       SKIP
       '"' ""                                    '",' 
@@ -1159,7 +1174,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
  /*    DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -1170,11 +1185,11 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.*/
-     
+
  {custom/out2file.i}.
 
 END PROCEDURE.
@@ -1206,7 +1221,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1243,7 +1258,7 @@ PROCEDURE run-report :
 /* -------------------------------------------------------------------------- */
 
 {sys/form/r-topw.f}
-  
+
 def buffer xjob-mat for job-mat.
 
 def var v-foot-rem like ap-invl.amt-msf no-undo.
@@ -1306,13 +1321,13 @@ FORM po-ord.po-no          column-label "PO #"
      v-uom    COLUMN-LABEL "UOM"
      v-balance             column-label "Balance Due"     
      with frame main no-box no-attr-space down STREAM-IO width 165 /*131*/ .
-  
+
  {ce/msfcalc.i} 
 
 assign
  str-tit2 = c-win:title
  {sys/inc/ctrtext.i str-tit2 112}
-   
+
  v-s-pono    = begin_po-no
  v-e-pono    = END_po-no
  v-s-date    = begin_po-date
@@ -1337,21 +1352,21 @@ do with frame {&frame-name}:
     if select-mat:is-selected(i) then
       v-mattype-list = v-mattype-list + trim(substr(select-mat:entry(i),1,5)) + ",".
   end.
-  
+
   if LENGTH(TRIM(v-mattype-list)) NE 0 AND substr(v-mattype-list,length(trim(v-mattype-list)),1) eq "," then
     substr(v-mattype-list,length(trim(v-mattype-list)),1) = "".
-    
+
   mat-types = v-mattype-list.
-  
+
   do i = 1 to length(mat-types):
     if substr(mat-types,i,1) eq "," then substr(mat-types,i,1) = " ".
   end.
-  
+
   display mat-types.
 end.
 
 {sa/sa-sls01.i}
- 
+
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i value(lines-per-page)}
@@ -1366,7 +1381,7 @@ END.
 if td-show-parm then run show-param.
 
 SESSION:SET-WAIT-STATE ("general").
-  
+
 DISPLAY WITH frame r-top.
 
  {custom/statusMsg.i " 'Processing...'"}
@@ -1429,38 +1444,38 @@ RUN build-report-recs (
       end.
 
       v-cons-qty = po-ordl.cons-qty.
-      
+
       if po-ordl.item-type then do:
         find first item
             where item.company eq cocode
               and item.i-no    eq report.key-05
             no-lock no-error.
-            
+
         if po-ordl.i-no ne report.key-05 and
            report.key-07 ne ""           then do:
-           
+
           find first item
               where item.company eq cocode
                 and item.i-no    eq po-ordl.i-no
               no-lock no-error. 
-           
+
           if po-ordl.cons-uom ne "EA" then
             run sys/ref/convquom.p (po-ordl.cons-uom, "EA", item.basis-w,
                                     po-ordl.s-len, po-ordl.s-wid, item.s-dep,
                                     v-cons-qty, output v-cons-qty).
-        
+
           find first item
               where item.company eq cocode
                 and item.i-no    eq report.key-05
               no-lock no-error.
-            
+
           if "EA" ne report.key-07 then
             run sys/ref/convquom.p ("EA", report.key-07, item.basis-w,
                                     po-ordl.s-len, po-ordl.s-wid, item.s-dep,
                                     v-cons-qty, output v-cons-qty).
         end.
       end.
- 
+
       else do:
         find first itemfg
             where itemfg.company eq cocode
@@ -1474,7 +1489,7 @@ RUN build-report-recs (
       assign
        v-ord[4]  = v-ord[4] + v-cons-qty
        v-balance = v-cons-qty.
-       
+
       display po-ord.po-no
               po-ord.vend-no
               report.key-05
@@ -1526,27 +1541,27 @@ RUN build-report-recs (
           down with frame main.
           clear frame main.
         end.
-        
+
         v-cons-qty = rm-rdtlh.qty.
-        
+
         if po-ordl.i-no ne report.key-05 and
            report.key-07 ne ""           then do:
-           
+
           find first item
               where item.company eq cocode
                 and item.i-no    eq po-ordl.i-no
               no-lock no-error. 
-           
+
           if po-ordl.cons-uom ne "EA" then
             run sys/ref/convquom.p (po-ordl.cons-uom, "EA", item.basis-w,
                                     po-ordl.s-len, po-ordl.s-wid, item.s-dep,
                                     v-cons-qty, output v-cons-qty).
-        
+
           find first item
               where item.company eq cocode
                 and item.i-no    eq report.key-05
               no-lock no-error.
-            
+
           if "EA" ne report.key-07 then
             run sys/ref/convquom.p ("EA", report.key-07, item.basis-w,
                                     po-ordl.s-len, po-ordl.s-wid, item.s-dep,
@@ -1605,7 +1620,7 @@ RUN build-report-recs (
                      (IF fg-rcpth.pur-uom EQ "M" THEN 1000 ELSE 1)
          v-amt[4]  = v-amt[4] + v-amount
          v-uom     = "M".
-         
+
         display fg-rcpth.trans-date @ rm-rcpth.trans-date
                 fg-rdtlh.qty        @ rm-rdtlh.qty
                 v-amount v-uom
@@ -1622,7 +1637,7 @@ RUN build-report-recs (
                             INPUT v-uom).
         END.
       end.
-      
+
       display v-balance with frame main.
 
       IF tb_excel THEN
@@ -1632,7 +1647,7 @@ RUN build-report-recs (
       clear frame main.
 
       v-bal[4] = v-bal[4] + v-balance.
-      
+
       if last-of(report.key-04) then do:
         put skip(1).
 
@@ -1742,7 +1757,7 @@ END.
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
 SESSION:SET-WAIT-STATE ("").   
- 
+
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 
 end procedure.
@@ -1765,11 +1780,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1797,23 +1812,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

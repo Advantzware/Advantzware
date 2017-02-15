@@ -42,7 +42,7 @@ CREATE WIDGET-POOL.
 &Scoped-define PROCEDURE-TYPE SmartObject
 &Scoped-define DB-AWARE no
 
-/* Name of designated FRAME-NAME and/or first browse and/or first query */
+/* Name of first Frame and/or Browse and/or first Query                 */
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
@@ -61,10 +61,10 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnCRM 
-     IMAGE-UP FILE "Graphics/32x32/handshake.png":U
+     IMAGE-UP FILE "Graphics/32x32/handshake.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "CRM" 
-     SIZE 7.8 BY 1.81 TOOLTIP "CRM".
+     SIZE 7.8 BY 1.81 TOOLTIP "Phone Info.".
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -111,7 +111,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB s-object 
 /* ************************* Included-Libraries *********************** */
 
-{advantzware/winkit/winkit-panel.i}
+{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/smart.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -126,7 +126,7 @@ END.
 /* SETTINGS FOR WINDOW s-object
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
+   NOT-VISIBLE Size-to-Fit                                              */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -144,7 +144,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -162,6 +162,7 @@ DO:
     RUN util/chk-mod.p ("ASI", crmType) NO-ERROR.
     IF NOT ERROR-STATUS:ERROR THEN
     RUN pCRM IN WIDGET-HANDLE(cHandle).
+  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -221,7 +222,7 @@ PROCEDURE state-changed :
       /* Object instance CASEs can go here to replace standard behavior
          or add new cases. */
   END CASE.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

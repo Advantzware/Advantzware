@@ -142,12 +142,12 @@ END.
 ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* OK */
 DO:
    ASSIGN v-old-password v-new-pass.
-   IF ASI._user._password <> ENCODE(v-old-password) THEN DO:
+   IF nosweat._user._password <> ENCODE(v-old-password) THEN DO:
        MESSAGE "Invalid current password!. " VIEW-AS ALERT-BOX ERROR.
        APPLY "ENTRY" TO v-old-password.
        RETURN NO-APPLY.
    END.
-   ASI._user._password = ENCODE(v-new-pass).
+   nosweat._user._password = ENCODE(v-new-pass).
 
 
 END.
@@ -173,7 +173,7 @@ THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  FIND FIRST ASI._user WHERE RECID(_user) = ip-recid.
+  FIND FIRST nosweat._user WHERE RECID(_user) = ip-recid.
 
   RUN enable_UI.
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.

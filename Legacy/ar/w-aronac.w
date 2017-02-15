@@ -17,7 +17,7 @@
       <none>
 
   History: 
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -143,6 +143,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+/* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
@@ -206,7 +207,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -441,10 +442,10 @@ PROCEDURE check-applied-amt :
 
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"onacct-source",OUTPUT char-hdl).
    RUN check-applied-amt IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-ok).
-   
+
    IF NOT lv-ok THEN RETURN ERROR.
 
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -499,7 +500,7 @@ PROCEDURE local-change-page :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR lv-ok AS LOG NO-UNDO.
-   
+
   /* Code placed here will execute PRIOR to standard behavior. */
   {methods/winReSizePgChg.i}
 
@@ -545,9 +546,9 @@ PROCEDURE local-exit :
    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

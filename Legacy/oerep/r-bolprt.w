@@ -555,9 +555,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -725,7 +735,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -785,7 +795,7 @@ ON LEAVE OF begin_date IN FRAME FRAME-A /* Beginning Date */
 DO:
   if date(end_date:SCREEN-VALUE) eq end_date THEN
     end_date:SCREEN-VALUE = begin_date:SCREEN-VALUE.
-     
+
   assign {&self-name}.
 END.
 
@@ -809,6 +819,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -826,10 +837,10 @@ DO:
    /* Initilize temp-table */
    EMPTY TEMP-TABLE tt-filelist.
    EMPTY TEMP-TABLE tt-post.
-  
+
    IF tb_barcode:CHECKED THEN
       EMPTY TEMP-TABLE tt-packslip.
-  
+
    DO WITH FRAME {&FRAME-NAME}:
      ASSIGN {&displayed-objects}.
    END.
@@ -857,8 +868,8 @@ DO:
    END.
    ELSE
       v-format-str = "BOLCERT".
-  
-   
+
+
    CASE rd-dest:
       WHEN 1 THEN ASSIGN LvOutputSelection = "Printer".
       WHEN 2 THEN ASSIGN LvOutputSelection = "Screen". 
@@ -867,7 +878,7 @@ DO:
       WHEN 5 THEN ASSIGN LvOutputSelection = "Email".
       WHEN 6 THEN ASSIGN LvOutputSelection = "Port".
    END CASE.
-       
+
    IF NOT rd-dest = 5 THEN
    DO:
       IF CAN-FIND(FIRST sys-ctrl-shipto WHERE
@@ -907,7 +918,7 @@ DO:
                    NO-LOCK
                    BREAK BY b-oe-bolh.company
                          BY b-oe-bolh.cust-no:
-      
+
                    IF FIRST-OF(b-oe-bolh.cust-no) THEN
                    DO:
                       FIND FIRST sys-ctrl-shipto WHERE
@@ -918,7 +929,7 @@ DO:
                            sys-ctrl-shipto.ship-id      = b-oe-bolh.ship-id AND
                            sys-ctrl-shipto.char-fld > ''
                            NO-LOCK NO-ERROR.
-      
+
                       IF NOT AVAIL sys-ctrl-shipto THEN
                          FIND FIRST sys-ctrl-shipto WHERE
                            sys-ctrl-shipto.company = cocode AND
@@ -928,7 +939,7 @@ DO:
                            sys-ctrl-shipto.ship-id EQ '' AND
                            sys-ctrl-shipto.char-fld > ''
                            NO-LOCK NO-ERROR.
-  
+
                       IF AVAIL sys-ctrl-shipto THEN
                       DO:
                          RUN SetBolForm(sys-ctrl-shipto.char-fld).
@@ -956,14 +967,14 @@ DO:
                             v-print-fmt = v-def-coc-fmt.
                          END.
                       END.
-      
+
                       RUN SetVariables.
                       RUN run-report(b-oe-bolh.cust-no,YES).
                       RUN GenerateReport(b-oe-bolh.cust-no,YES).
 
                       IF v-print-fmt EQ "Badger"  OR v-print-fmt EQ "BadgerSoldTo" THEN DO:
                           IF begin_bol#:SCREEN-VALUE EQ end_bol#:SCREEN-VALUE THEN DO:
-                              
+
                               MESSAGE " Do you want to print a Packing List?  "  
                                   VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO 
                                   UPDATE td-pck-lst . 
@@ -989,7 +1000,7 @@ DO:
          END.
          ELSE
             v-print-fmt = v-def-coc-fmt.
-        
+
          RUN SetBolForm(v-print-fmt).
          RUN SetVariables.
          RUN run-report("",NO).
@@ -997,11 +1008,11 @@ DO:
 
          IF v-print-fmt EQ "Badger"  OR v-print-fmt EQ "BadgerSoldTo" THEN DO:
                IF begin_bol#:SCREEN-VALUE EQ end_bol#:SCREEN-VALUE THEN DO:
-                   
+
                    MESSAGE " Do you want to print a Packing List?  "  
                        VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO 
                        UPDATE td-pck-lst . 
-          
+
                    IF td-pck-lst EQ YES THEN do:
                        RUN run-packing-list("",NO) .
                        RUN GenerateReport(begin_cust,NO).
@@ -1009,7 +1020,7 @@ DO:
                END.
           END. /* IF v-print-fmt EQ "Badger"  OR v-print-fmt EQ "BadgerSoldTo" THEN */
       END.
-      
+
       if tb_EmailAdvNotice:CHECKED IN FRAME {&frame-name} AND
          tb_MailBatchMode then
          MESSAGE "Your E-Mails have been sent in Silent Mode."  skip
@@ -1056,7 +1067,7 @@ DO:
                    USE-INDEX post
                    BREAK BY b-oe-bolh.company
                          BY b-oe-bolh.cust-no:
-           
+
                    IF FIRST-OF(b-oe-bolh.cust-no) THEN
                    DO:
                       FIND FIRST sys-ctrl-shipto WHERE
@@ -1076,7 +1087,7 @@ DO:
                               sys-ctrl-shipto.cust-vend-no = b-oe-bolh.cust-no AND
                               sys-ctrl-shipto.char-fld > ''
                               NO-LOCK NO-ERROR.
-                     
+
                       IF AVAIL sys-ctrl-shipto THEN
                       DO:
                          RUN SetBolForm(sys-ctrl-shipto.char-fld).
@@ -1103,7 +1114,7 @@ DO:
                             v-print-fmt = v-def-coc-fmt.
                          END.
                       END.
-                     
+
                       RUN SetVariables.
                       RUN output-to-mail(INPUT b-oe-bolh.cust-no,YES,b-oe-bolh.ship-id).
                    END.
@@ -1120,44 +1131,44 @@ DO:
          END.
          ELSE
             v-print-fmt = v-def-coc-fmt.
-        
+
          RUN SetBOLForm(v-print-fmt).
          RUN SetVariables.
          RUN output-to-mail(INPUT "",NO,"").
       END.
-  
+
       if tb_MailBatchMode then
          MESSAGE "Your E-Mails have been sent in Silent Mode."  skip
                  "Please verify transmission in your SENT folder."
                  VIEW-AS ALERT-BOX INFO BUTTONS OK.
    END.
-  
+
    SESSION:SET-WAIT-STATE ("").
-  
+
    IF tb_barcode:CHECKED THEN
       RUN barcode-proc.
-  
+
    IF lv-run-commercial = "YES" AND NOT IS-xprint-form THEN 
       RUN run-report-ci.
-  
+
    IF tb_ComInvoice:CHECKED THEN
       RUN CommercialInvoice.
-  
+
    EMPTY TEMP-TABLE tt-fg-bin.
    EMPTY TEMP-TABLE tt-email.
-  
+
    ll = tb_post-bol AND NOT tb_posted.
-  
+
    IF ll AND oe-ctrl.u-inv AND v-check-qty THEN
       FOR EACH tt-post,
           FIRST oe-bolh NO-LOCK 
           WHERE ROWID(oe-bolh) EQ tt-post.row-id:
-     
+
           RUN oe/bolcheck.p (ROWID(oe-bolh)).
           FIND FIRST w-except WHERE w-except.bol-no EQ oe-bolh.bol-no
                               NO-LOCK NO-ERROR.
           IF AVAIL(w-except) THEN DO:
-         
+
             MESSAGE "BOL has insufficient inventory and cannot be posted..."
                  VIEW-AS ALERT-BOX ERROR.
 
@@ -1180,14 +1191,14 @@ DO:
             LEAVE.
           END.
    END.
-  
+
    IF ll THEN DO:
        FOR EACH tt-post,
            FIRST oe-bolh NO-LOCK 
            WHERE ROWID(oe-bolh) EQ tt-post.row-id,
            EACH oe-boll WHERE oe-boll.company EQ oe-bolh.company
                           AND oe-boll.bol-no  EQ oe-bolh.bol-no: 
-  
+
           IF oe-bolh.stat = "H" THEN DO:  
             MESSAGE "BOL is on HOLD status, cannot post..."
                     VIEW-AS ALERT-BOX ERROR.
@@ -1200,7 +1211,7 @@ DO:
             WHERE cust.company EQ oe-bolh.company
               AND cust.cust-no EQ oe-bolh.cust-no 
             NO-LOCK NO-ERROR.
-                
+
           IF AVAIL(cust) AND cust.ACTIVE EQ "X"
               AND oe-bolh.ship-id = oe-boll.loc THEN DO:
             MESSAGE "Cannot transfer to the same location..."
@@ -1211,8 +1222,8 @@ DO:
 
        END.
    END.
-   
-   
+
+
 
    IF ll THEN DO:
       ll = NO.
@@ -1220,14 +1231,15 @@ DO:
          VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
          UPDATE ll.
    END.
-  
+
    IF ll THEN do:
       RUN post-bol.
       FIND FIRST tt-email NO-LOCK NO-ERROR.
       IF AVAIL tt-email THEN RUN email-reorderitems.
-  
+
       MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.
    END.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1267,7 +1279,7 @@ DO:
       APPLY "entry" TO {&self-name}.
       RETURN NO-APPLY.
     END.
-      
+
     assign {&self-name}.
   END.
 END.
@@ -1375,9 +1387,9 @@ DO:
     assign tb_MailBatchMode:sensitive  = true.
     apply 'value-changed':u to tb_MailBatchMode.
   end.
-    
+
   ELSE DO:
-  
+
     assign tb_MailBatchMode:sensitive  = false.
 
     APPLY 'VALUE-CHANGED':U TO tb_EmailAdvNotice.
@@ -1416,12 +1428,12 @@ ON VALUE-CHANGED OF tb_EMailAdvNotice IN FRAME FRAME-A /* E-Mail Advanced Ship N
 DO:
 
   IF NOT rd-dest:SCREEN-VALUE EQ '5' THEN DO:
-  
+
     IF SELF:CHECKED THEN DO:
       ASSIGN tb_MailBatchMode:sensitive  = true.
       APPLY 'value-changed':u to tb_MailBatchMode.
     end.
-      
+
     ELSE
       assign  tb_MailBatchMode:sensitive  = false.
   END.
@@ -1517,8 +1529,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -1546,7 +1560,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         + (IF PROGRAM-NAME(7) NE ? THEN "," + PROGRAM-NAME(7) ELSE "").
    IF index(cPgmList, "fgpstall") GT 0 THEN
         llBlockPost = TRUE.    
-      
+
 
   find first company where company.company eq cocode no-lock no-error.
 
@@ -1599,7 +1613,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      sys-ctrl.name     = "BOLCERT"
      sys-ctrl.descrip  = "Print Certificate of Compliance forms?"
      sys-ctrl.log-fld  = no.
-   
+
   end.
   assign
    v-print-coc = sys-ctrl.log-fld
@@ -1618,15 +1632,15 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      sys-ctrl.name    = "BOLPOST"
      sys-ctrl.descrip = "Post BOL if BOL Qty > Bin Qty"
      choice           = yes.
-   
+
     MESSAGE sys-ctrl.descrip
         VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
         UPDATE choice.
-  
+
     if not choice then sys-ctrl.char-fld eq "Bin>Qty".
   end.
   v-check-qty = sys-ctrl.char-fld eq "Bin>Qty".
-  
+
   IF NOT CAN-FIND (FIRST sys-ctrl 
                    WHERE sys-ctrl.company = cocode
                    AND sys-ctrl.NAME    = 'CINVOICE') THEN
@@ -1642,7 +1656,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   FIND FIRST users WHERE
-       users.user_id EQ USERID("ASI")
+       users.user_id EQ USERID("NOSWEAT")
        NO-LOCK NO-ERROR.
 
   IF AVAIL users AND users.user_program[2] NE "" THEN
@@ -1696,13 +1710,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
              END_bol#:SENSITIVE = YES.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
 
     {custom/usrprint.i}
-    
+
     APPLY "entry" TO begin_cust.
 
     lines-per-page:SCREEN-VALUE = STRING(v-lines-per-page).
@@ -1718,7 +1732,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       DISABLE tb_print-component.
     END.
 
-    
+
     IF v-print-fmt = "Xprint"    or
        v-print-fmt = "bolfmt 1"    or
        v-print-fmt = "Lakeside"    or
@@ -1771,7 +1785,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     tb_EMailAdvNotice:SENSITIVE = YES.
     APPLY 'value-changed':u TO rd-dest.
-    
+
   END.
 
 
@@ -1798,6 +1812,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    td-show-parm:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO" .
    td-show-parm:HIDDEN IN FRAME {&FRAME-NAME} = YES .
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1861,9 +1876,9 @@ PROCEDURE AdvancedNotice :
      WHERE b1-cust.company EQ cocode
        AND b1-cust.cust-no GE v-s-cust
        AND b1-cust.cust-no LE v-e-cust,
-     
+
       EACH b1-shipto NO-LOCK OF b1-cust,
-    
+
      FIRST b1-oe-bolh NO-LOCK
      where b1-oe-bolh.company eq cocode
        and b1-oe-bolh.bol-no  ge v-s-bol
@@ -1980,7 +1995,7 @@ PROCEDURE AdvancedNotice :
   status default 'Enter data or ESC to end.'.
 
   RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
-  
+
   SESSION:SET-WAIT-STATE ("").
 
 END PROCEDURE.
@@ -1995,7 +2010,7 @@ PROCEDURE ASIMail :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   def input param icMailMode  as char no-undo.
   def input param icCustNo    as char no-undo.
   def input param icSubBody   as char no-undo.
@@ -2007,7 +2022,7 @@ PROCEDURE ASIMail :
                       &mail-subject   = icSubBody
                       &mail-body      = icSubBody
                       &mail-file      = lv-pdf-file}
-                      
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2028,15 +2043,15 @@ PROCEDURE barcode-proc :
    DEF VAR v-ps1-note AS cha FORM "x(80)" EXTENT 8 NO-UNDO.
    DEF VAR v-ps2-note AS cha FORM "x(80)" EXTENT 8 NO-UNDO.
    DEF VAR v-ps3-note AS cha FORM "x(80)" EXTENT 8 NO-UNDO.
-   
-   
+
+
    {sys/form/r-top3.f}
    {sys/inc/print1.i}
    {sys/inc/outprint.i value(lines-per-page)}
 
    VIEW FRAME r-top.
    VIEW FRAME top.
-  
+
    OUTPUT STREAM barcode TO VALUE(v-packslip).    
    PUT STREAM barcode UNFORMATTED
        "BOL#,Release#,CustBillTo,CustBillToName,Shipto,ShiptoName,Carrier,"
@@ -2057,7 +2072,7 @@ PROCEDURE barcode-proc :
             oe-boll.company EQ oe-bolh.company AND
             oe-boll.b-no = oe-bolh.b-no
             NO-LOCK:
-  
+
         PUT STREAM barcode UNFORMATTED 
             "~"" removeChars(STRING(oe-bolh.bol-no,">>>>>>>9"))  "~","
             "~"" removeChars(STRING(oe-bolh.release#)) "~","
@@ -2161,7 +2176,7 @@ PROCEDURE barcode-proc :
             "~"" removeChars(v-lot-no) "~",".
 
         EMPTY TEMP-TABLE tt-formtext.
-               
+
         ASSIGN
            lv-text = ""
            v-ps1-note = ""
@@ -2174,7 +2189,7 @@ PROCEDURE barcode-proc :
              no-lock no-error.
 
         if avail itemfg THEN DO:        
-           
+
            FOR EACH notes WHERE
                notes.rec_key = itemfg.rec_key AND
                notes.note_code = "PS1"
@@ -2357,7 +2372,7 @@ PROCEDURE build-work :
                        AND oe-boll.ord-no  GE v-s-ord
                        AND oe-boll.ord-no  LE v-e-ord)
       USE-INDEX post:
-  
+
     IF NOT oe-ctrl.p-bol THEN
     FOR EACH oe-boll
        WHERE oe-boll.company EQ oe-bolh.company
@@ -2374,7 +2389,7 @@ PROCEDURE build-work :
 
       NEXT build-work.
     END.
-  
+
     IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "RFCX" OR v-print-fmt = "PremierCX" OR 
        v-print-fmt = "PremierPX" OR v-print-fmt =  "PremierBroker"  THEN DO:
        IF AVAIL oe-bolh THEN do:
@@ -2397,14 +2412,14 @@ PROCEDURE build-work :
    USE-INDEX tag:
       loadtag.sts = "Bill of Lading".
     END.
-  
+
     IF ic2ndKey NE ? AND ic2ndKey NE '' THEN DO:
       FIND FIRST shipto NO-LOCK
            WHERE shipto.rec_key = ic2ndKey 
              AND shipto.ship-id = oe-bolh.ship-id NO-ERROR.
       IF NOT AVAIL shipto THEN NEXT build-work.
     END.
- 
+
     FIND FIRST sys-ctrl-shipto WHERE
          sys-ctrl-shipto.company      EQ oe-bolh.company AND
          sys-ctrl-shipto.name         EQ "BOLFMT" AND
@@ -2420,7 +2435,7 @@ PROCEDURE build-work :
          sys-ctrl-shipto.cust-vend-no EQ oe-bolh.cust-no AND
          sys-ctrl-shipto.ship-id      EQ ''
          NO-LOCK NO-ERROR.
-  
+
 
     ASSIGN
        reportKey10     = oe-bolh.printed /* 05291402 */
@@ -2448,13 +2463,13 @@ PROCEDURE build-work :
                                 ELSE "N" /*BOL only*/ 
               report.key-04   = IF AVAIL sys-ctrl-shipto THEN sys-ctrl-shipto.char-fld ELSE "".
        END.
-       
+
     status default 'Now Processing BOL: ' + string (oe-bolh.bol-no) + '....'.
-    
+
     lv-run-bol        = IF lv-run-bol = "" AND report.key-04 = "FIBRECI" THEN  "NO" ELSE  "Yes" .
     IF lv-run-commercial = "" AND report.key-03 <> "N" AND v-coc-fmt <> "CCC" AND v-coc-fmt <> "CCCWPP" THEN
          lv-run-commercial = "YES".
-    
+
     IF NOT CAN-FIND(FIRST tt-post WHERE tt-post.row-id = ROWID(oe-bolh)) THEN
     DO:
        CREATE tt-post.
@@ -2470,7 +2485,7 @@ PROCEDURE build-work :
           RELEASE tt-packslip.
        END.
   END.
-  
+
   v-lines-per-page = lines-per-page.
 
   status default ''.
@@ -2513,10 +2528,10 @@ DO:
     LEAVE.
   END.
 
-  IF NOT CAN-DO(b-prgrms.can_run,USERID("ASI")) AND
-     NOT CAN-DO(b-prgrms.can_update,USERID("ASI")) AND
-     NOT CAN-DO(b-prgrms.can_create,USERID("ASI")) AND
-     NOT CAN-DO(b-prgrms.can_delete,USERID("ASI")) AND NOT group-ok THEN
+  IF NOT CAN-DO(b-prgrms.can_run,USERID("NOSWEAT")) AND
+     NOT CAN-DO(b-prgrms.can_update,USERID("NOSWEAT")) AND
+     NOT CAN-DO(b-prgrms.can_create,USERID("NOSWEAT")) AND
+     NOT CAN-DO(b-prgrms.can_delete,USERID("NOSWEAT")) AND NOT group-ok THEN
   DO:
     /*MESSAGE 
         "User access to POST BOL this Program Denied - Contact Systems Manager" 
@@ -2541,7 +2556,7 @@ PROCEDURE CommercialInvoice :
   Notes:       
 ------------------------------------------------------------------------------*/
   SESSION:SET-WAIT-STATE ("general").
-  
+
   EMPTY TEMP-TABLE tt-ci-form.
 
   RUN oerep\r-coinvbol.w(INPUT begin_bol#,
@@ -2619,7 +2634,7 @@ PROCEDURE create-reorder :
  ASSIGN
      v-qty-avail = v-qty-onh /*+ (if v-inconh then itemfg.q-ono else 0)*/
                     -  itemfg.q-alloc.
- 
+
  if itemfg.ord-level gt v-qty-avail then do:
     v-reord-qty = itemfg.ord-level - v-qty-avail.
 
@@ -2640,7 +2655,7 @@ PROCEDURE create-reorder :
            tt-email.i-no = bf-oeboll.i-no
            tt-email.qty = v-reord-qty
            tt-email.cust-no = oe-bolh.cust-no.
-                                    
+
  END.
 
 END PROCEDURE.
@@ -2688,7 +2703,7 @@ PROCEDURE email-reorderitems :
   DEF VAR v-qty-onOrder AS INT NO-UNDO.
 
   FIND FIRST users WHERE
-        users.user_id EQ USERID("ASI")
+        users.user_id EQ USERID("NOSWEAT")
         NO-LOCK NO-ERROR.
   IF AVAIL users AND users.user_program[2] NE "" THEN v-dir = users.user_program[2] + "\".
   ELSE v-dir = "c:\tmp\".
@@ -2728,7 +2743,7 @@ PROCEDURE email-reorderitems :
                        v-qty-alloc.
 
        END.
-       
+
        PUT STREAM st-email UNFORMATTED
                  STRING(tt-email.bol-no) FORM "x(9)"
                  string(tt-email.ord-no) FORM "x(10)"
@@ -2813,7 +2828,7 @@ DEF VAR dis-tag AS CHAR NO-UNDO.
         UPDATE td-full-tag .
 
   FORM HEADER SKIP(1) WITH FRAME r-top.
- 
+
   FIND first period                   
       where period.company eq gcompany
         and period.pst     le tran-date
@@ -2823,7 +2838,7 @@ DEF VAR dis-tag AS CHAR NO-UNDO.
   assign
    str-tit2 = "BOL - Insufficient Inventory Report"
    {sys/inc/ctrtext.i str-tit2 112}
- 
+
    str-tit3 = "Period " + STRING(tran-period,"99") + " - " +
               IF AVAIL period THEN
                 (STRING(period.pst) + " to " + STRING(period.pend)) ELSE ""
@@ -2832,9 +2847,9 @@ DEF VAR dis-tag AS CHAR NO-UNDO.
   {sys/inc/print1.i}
 
   {sys/inc/outprint.i value(lines-per-page)}
-  
+
   display with frame r-top.
-  
+
   for each w-except,
 
       first oe-bolh
@@ -2885,14 +2900,14 @@ DEF VAR dis-tag AS CHAR NO-UNDO.
             STRING(w-except.rel-no,">>9") + "-" + STRING(w-except.b-ord-no,"99") COLUMN-LABEL "Rel.#"    
             w-except.loc COLUMN-LABEL "Whse."
             w-except.loc-bin COLUMN-LABEL "Bin Loc"   
-            
+
             w-except.cases format "->>>,>>9"   COLUMN-LABEL "   Cases"
             w-except.qty-case format "->>>,>>9" COLUMN-LABEL "Qty/Case" 
             w-except.partial format "->>>,>>9"  COLUMN-LABEL " Partial"
             w-except.weight format "->>>,>>9"   COLUMN-LABEL "  Weight"
         with frame boll2 DOWN NO-BOX NO-ATTR-SPACE STREAM-IO WIDTH 165.
     down with frame boll2.
-    
+
     put skip(1).
   END.
 
@@ -2915,7 +2930,7 @@ PROCEDURE GenerateMail :
 
   /* XPrint */
   IF is-xprint-form THEN DO:
-    
+
     RUN run-report-mail (INPUT ic1stKey,
                          INPUT ic2ndKey,
                          INPUT iiMode,
@@ -2925,7 +2940,7 @@ PROCEDURE GenerateMail :
 
     IF v-print-fmt = "SouthPak-XL" OR v-print-fmt = "Prystup-Excel" THEN do:
        ASSIGN lv-pdf-file = init-dir + "\" + string(b1-oe-bolh.bol-no) + ".pdf".
-       
+
        END.
 
 
@@ -2936,7 +2951,7 @@ PROCEDURE GenerateMail :
       ELSE
          RUN printPDF (lv-pdf-file, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").                            
     END.
-    
+
     CASE icType:
 
       WHEN 'Customer1':U  THEN RUN SendMail-1 (ic1stKey, 'Customer1',"").
@@ -2946,7 +2961,7 @@ PROCEDURE GenerateMail :
 
     END CASE.
   END.
-  
+
   /* Not XPrint */
   ELSE DO:
 
@@ -3084,7 +3099,7 @@ PROCEDURE output-exception-file :
   Notes:       
 ------------------------------------------------------------------------------*/
      DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\tmp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -3095,9 +3110,9 @@ PROCEDURE output-exception-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
 END PROCEDURE.
 
@@ -3141,7 +3156,7 @@ PROCEDURE output-to-fax :
   DEFINE INPUT PARAMETER ip-sys-ctrl-shipto AS LOG NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
-  
+
     {custom/asifax3.i &type         = "Customer"
                      &begin_cust   = ip-cust-no
                      &END_cust     = ip-cust-no
@@ -3149,7 +3164,7 @@ PROCEDURE output-to-fax :
                      &fax-body     = "BOL"
                      &fax-file     = list-name
                      &end-widget   = begin_cust}
-                     
+
     /* Intercept Advanced Ship Notice Job */
     IF tb_EMailAdvNotice:CHECKED IN FRAME {&FRAME-NAME} THEN
        RUN AdvancedNotice(INPUT ip-cust-no, INPUT ip-sys-ctrl-shipto).
@@ -3171,7 +3186,7 @@ PROCEDURE output-to-file :
   DEFINE INPUT PARAMETER ip-sys-ctrl-shipto AS LOG NO-UNDO.
 
   {custom/out2file.i}
-  
+
   /* Intercept Advanced Ship Notice Job */
   IF tb_EMailAdvNotice:CHECKED IN FRAME {&FRAME-NAME} THEN
      RUN AdvancedNotice(INPUT ip-cust-no, INPUT ip-sys-ctrl-shipto).
@@ -3225,7 +3240,7 @@ PROCEDURE output-to-mail :
      WHERE b1-cust.company EQ cocode
        AND b1-cust.cust-no GE v-s-cust
        AND b1-cust.cust-no LE v-e-cust,
-    
+
      FIRST b1-oe-bolh NO-LOCK
      where b1-oe-bolh.company eq cocode
        and b1-oe-bolh.bol-no  ge v-s-bol
@@ -3241,7 +3256,7 @@ PROCEDURE output-to-mail :
                        AND b1-oe-boll.ord-no  GE v-s-ord
                        AND b1-oe-boll.ord-no  LE v-e-ord)
     USE-INDEX post:
-    
+
     ASSIGN  
       vcBOLNums   = '' 
       lv-pdf-file = init-dir + '\BOL'
@@ -3249,7 +3264,7 @@ PROCEDURE output-to-mail :
                                         else 'Customer'.  /* Dialog Box */
     /* XPrint */
     IF is-xprint-form THEN DO:
-      
+
       RUN run-report-mail (INPUT b1-cust.cust-no,
                            INPUT '',
                            INPUT 1,
@@ -3267,12 +3282,12 @@ PROCEDURE output-to-mail :
           THEN RUN printPDF (list-name,   "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
           ELSE RUN printPDF (lv-pdf-file, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").  
       END.
-     
+
       if vcMailMode = 'Customer1' then RUN SendMail-1 (b1-cust.cust-no, 'Customer1', b1-oe-bolh.ship-id). /* Silent Mode */
                                   else RUN SendMail-1 (b1-cust.cust-no, 'Customer', b1-oe-bolh.ship-id).  /* Dialog Box */
 
     END.
-    
+
     /* Not XPrint */
     ELSE DO:
 
@@ -3284,7 +3299,7 @@ PROCEDURE output-to-mail :
       IF NOT v-print-bol AND (v-coc-fmt EQ "Unipak-XL" OR v-coc-fmt EQ "CCC" OR v-coc-fmt EQ "CCCWPP")  THEN
       DO:
          lv-pdf-file = init-dir + "\cofc.pdf".
-        
+
          CASE vcMailMode:
             WHEN 'Customer1':U  THEN RUN send-mail-uni-xl(b1-cust.cust-no,'Customer1').
             WHEN 'Customer':U   THEN RUN send-mail-uni-xl(b1-cust.cust-no,'Customer'). 
@@ -3292,7 +3307,7 @@ PROCEDURE output-to-mail :
       END.
       ELSE
          CASE vcMailMode:
-        
+
            WHEN 'Customer1':U  THEN RUN SendMail-2 (b1-cust.cust-no, 'Customer1').
            WHEN 'Customer':U   THEN RUN SendMail-2 (b1-cust.cust-no, 'Customer').
          END CASE.
@@ -3310,7 +3325,7 @@ PROCEDURE output-to-mail :
   status default 'Enter data or ESC to end.'.
 
   RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
-  
+
   SESSION:SET-WAIT-STATE ("").
 
 END PROCEDURE.
@@ -3333,7 +3348,7 @@ PROCEDURE output-to-port :
   /* Intercept Advanced Ship Notice Job */
   IF tb_EMailAdvNotice:CHECKED IN FRAME {&FRAME-NAME} THEN
      RUN AdvancedNotice(INPUT ip-cust-no, INPUT ip-sys-ctrl-shipto).
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3383,7 +3398,7 @@ PROCEDURE output-to-screen :
   END.
   ELSE
      run custom/scr-rpt2.w (list-name,c-win:title,int(lv-font-no),lv-ornt,lv-prt-bypass).
-  
+
   /* Intercept Advanced Ship Notice Job */
 
  IF tb_EMailAdvNotice:CHECKED IN FRAME {&FRAME-NAME} THEN
@@ -3424,7 +3439,7 @@ PROCEDURE post-bol :
           NO-WAIT NO-ERROR.
 
       IF AVAIL oe-bolh AND oe-bolh.posted EQ NO THEN DO:
-          
+
         FOR EACH oe-boll NO-LOCK WHERE oe-boll.b-no EQ oe-bolh.b-no,
           EACH oe-ordl NO-LOCK
              WHERE oe-ordl.company EQ oe-boll.company
@@ -3438,22 +3453,22 @@ PROCEDURE post-bol :
                   AND oe-rel.stat = "P"
                   AND oe-rel.link-no GT 0 
                   AND oe-rel.rel-no GT 0:
-    
-                  
+
+
                 IF AVAIL oe-rel /*AND avail(tt-rels) */ AND VALID-HANDLE(lr-rel-lib) THEN 
                    RUN recalc-act-qty IN lr-rel-lib (INPUT ROWID(oe-rel), OUTPUT d-out).
-    
+
           END.
         END.
 
         FOR EACH oe-boll NO-LOCK WHERE oe-boll.b-no EQ oe-bolh.b-no:
-          
+
           RUN oe/bol-pre-post.p (ROWID(oe-boll), v-term).
           FIND cust WHERE cust.company = oe-bolh.company
                       AND cust.cust-no = oe-bolh.cust-no NO-LOCK NO-ERROR.
           IF fgreorder-log AND cust.ACTIVE = "E" 
             THEN RUN create-reorder (ROWID(oe-boll)) .  
-          
+
 
           IF v-EDIBOLPost-log THEN
           DO:
@@ -3462,12 +3477,12 @@ PROCEDURE post-bol :
              IF ERROR-STATUS:ERROR OR INT(oe-bolh.ship-id) > 99 THEN lotNo = ''. ELSE
              lotNo = 'MG' + STRING(INT(oe-bolh.ship-id),'99') + STRING(DAY(oe-boll.bol-date),'99').
              &ENDIF
-          
+
              FIND FIRST oe-ordl NO-LOCK
                   WHERE oe-ordl.company EQ oe-boll.company
                     AND oe-ordl.ord-no EQ oe-boll.ord-no
                     AND oe-ordl.line EQ oe-boll.line NO-ERROR.
-          
+
              CREATE ediOutFile.
              ASSIGN
                ediOutFile.bolNo = oe-boll.bol-no
@@ -3489,7 +3504,7 @@ PROCEDURE post-bol :
       END.
     END.
   END.
-  
+
   RUN oe/oe-bolp3.p (v-term).
 
   /* close transfer order here */
@@ -3507,7 +3522,7 @@ PROCEDURE post-bol :
       IF AVAIL oe-bolh THEN DO:
 
         FOR EACH oe-boll NO-LOCK WHERE oe-boll.b-no EQ oe-bolh.b-no:
-                         
+
           FIND FIRST oe-ordl NO-LOCK
             WHERE oe-ordl.company EQ oe-boll.company
               AND oe-ordl.ord-no EQ oe-boll.ord-no
@@ -3519,7 +3534,7 @@ PROCEDURE post-bol :
       END.
     END.
   END.
-  
+
   FOR EACH w-ord:
       RUN oe/close.p (w-ord.rec-id, YES).  
       /*
@@ -3533,7 +3548,7 @@ PROCEDURE post-bol :
       END.
       */
   END.
-  
+
   IF v-EDIBOLPost-log THEN
   FOR EACH sys-ctrl-shipto NO-LOCK
       WHERE sys-ctrl-shipto.company EQ cocode
@@ -3575,7 +3590,7 @@ PROCEDURE post-bol :
       END. /* each edioutfile, when rheem */
     END CASE.
   END. /* each sys-ctrl-shipto */
- 
+
   IF VALID-HANDLE(lr-rel-lib) THEN
      DELETE OBJECT lr-rel-lib.
 END PROCEDURE.
@@ -3590,9 +3605,9 @@ PROCEDURE run-packing-list :
 /* -------------------------------------------------------------------------- */
   DEFINE INPUT PARAMETER ip-cust-no AS CHAR NO-UNDO.
   DEFINE INPUT PARAMETER ip-sys-ctrl-ship-to AS LOG NO-UNDO.
-    
+
   {sys/form/r-top.i}
-  
+
   assign
     v-s-bol             = begin_bol#
     v-e-bol             = end_bol#
@@ -3627,24 +3642,24 @@ PROCEDURE run-packing-list :
   IF tb_print_ship :HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
      ASSIGN
         v-ship-inst = LOGICAL(tb_print_ship:SCREEN-VALUE) .
-         
+
 
   {sys/inc/print1.i}
-  
+
   {sys/inc/outprint.i value(lines-per-page)}
-  
+
   /*if td-show-parm then run show-param.*/
-  
+
   SESSION:SET-WAIT-STATE ("general").
-  
+
   {sa/sa-sls01.i}
-  
+
   v-term-id = v-term.
-  
+
   run build-work ('').
-  
+
   IF IS-xprint-form THEN DO:
-  
+
       CASE rd-dest:
           WHEN 1 THEN PUT "<PRINTER?>".
           WHEN 2 THEN PUT "<PREVIEW>".        
@@ -3692,20 +3707,20 @@ PROCEDURE run-packing-list :
     END.
 
   END.
-  
+
   /*IF lv-run-commercial = "YES" AND IS-xprint-form THEN
      RUN oerep/runbolci.p. */
-  
+
   ASSIGN td-pck-lst = NO . 
 
   for each report where report.term-id eq v-term-id:
       delete report.
   end.
-  
+
   OUTPUT CLOSE.
-  
+
   RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
-  
+
   SESSION:SET-WAIT-STATE ("").
 
 end procedure.
@@ -3720,9 +3735,9 @@ PROCEDURE run-report :
 /* -------------------------------------------------------------------------- */
   DEFINE INPUT PARAMETER ip-cust-no AS CHAR NO-UNDO.
   DEFINE INPUT PARAMETER ip-sys-ctrl-ship-to AS LOG NO-UNDO.
-    
+
   {sys/form/r-top.i}
-  
+
   assign
     v-s-bol             = begin_bol#
     v-e-bol             = end_bol#
@@ -3758,24 +3773,24 @@ PROCEDURE run-report :
   IF tb_print_ship :HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
      ASSIGN
         v-ship-inst = LOGICAL(tb_print_ship:SCREEN-VALUE) .
-         
+
 
   {sys/inc/print1.i}
-  
+
   {sys/inc/outprint.i value(lines-per-page)}
-  
+
   /*if td-show-parm then run show-param.*/
-  
+
   SESSION:SET-WAIT-STATE ("general").
-  
+
   {sa/sa-sls01.i}
-  
+
   v-term-id = v-term.
-  
+
   run build-work ('').
-  
+
   IF IS-xprint-form THEN DO:
-  
+
       CASE rd-dest:
           WHEN 1 THEN PUT "<PRINTER?>".
           WHEN 2 THEN PUT "<PREVIEW>".        
@@ -3815,20 +3830,20 @@ PROCEDURE run-report :
          ELSE RUN VALUE(v-program).
       END.
   END.
-  
+
   IF lv-run-commercial = "YES" AND IS-xprint-form THEN
      RUN oerep/runbolci.p.
-  
+
   ASSIGN td-pck-lst = NO .
 
   for each report where report.term-id eq v-term-id:
       delete report.
   end.
-  
+
   OUTPUT CLOSE.
-  
+
   RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
-  
+
   SESSION:SET-WAIT-STATE ("").
 
 end procedure.
@@ -3946,7 +3961,7 @@ FOR EACH oe-bolh
      report.rec-id  = RECID(oe-bolh)) THEN
      DO:
         CREATE report.
-       
+
         ASSIGN
          report.term-id  = v-term-id
          report.key-01   = oe-bolh.cust-no
@@ -3958,7 +3973,7 @@ FOR EACH oe-bolh
                            ELSE                                                                "N" /*BOL only*/ 
          report.key-04   = IF AVAIL sys-ctrl-shipto THEN    sys-ctrl-shipto.char-fld ELSE "".     
      END.
-                            
+
   IF lv-run-bol        EQ "" AND report.key-03 <> "C" THEN lv-run-bol        = "YES" .
   IF lv-run-commercial EQ "" AND report.key-03 <> "N" THEN lv-run-commercial = "YES".
 end.
@@ -3989,7 +4004,7 @@ END.
 IF lv-run-commercial = "YES" THEN DO:
    RUN oerep/runbolci.p.
 END.
-       
+
 
 OUTPUT CLOSE.
 
@@ -3999,7 +4014,7 @@ DO WITH FRAME {&FRAME-NAME}:
     when 2 then run output-to-screen(INPUT "", INPUT NO).
     when 3 then run output-to-file(INPUT "", INPUT NO).
     when 4 then do:
-       
+
        {custom/asifax.i       &type         = "Customer"
                               &begin_cust   = begin_cust 
                               &end_cust     = begin_cust
@@ -4026,7 +4041,7 @@ DO WITH FRAME {&FRAME-NAME}:
                               &mail-subject = current-window:title
                               &mail-body    = CURRENT-WINDOW:TITLE
                               &mail-file    = list-name }
-    
+
        END.
     END. 
     WHEN 6 THEN RUN output-to-port(INPUT "", INPUT NO).
@@ -4057,7 +4072,7 @@ PROCEDURE run-report-mail :
   DEFINE INPUT PARAM iLprinted AS LOG NO-UNDO.
 
   {sys/form/r-top.i}
-  
+
   assign
     v-s-cust            = icCustNo
     v-e-cust            = icCustNo
@@ -4084,28 +4099,28 @@ PROCEDURE run-report-mail :
    IF tb_print_ship :HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
      ASSIGN
         v-ship-inst = LOGICAL(tb_print_ship:SCREEN-VALUE) .
-  
+
   {sys/inc/print1.i}
-  
+
   {sys/inc/outprint.i value(lines-per-page)}
-  
+
   /*if td-show-parm then run show-param.*/
-  
+
   SESSION:SET-WAIT-STATE ("general").
-  
+
   {sa/sa-sls01.i}
-  
+
   v-term-id = v-term.
-  
+
   run build-work (ic2ndKey).
-  
+
   IF NOT vcBOLNums > '' THEN RETURN.
 
   status default 'Processing... Please wait.'.
 
   if can-find (first report where report.term-id eq v-term-id) then
   do:
-  
+
     IF IS-xprint-form THEN DO:
       IF v-print-fmt = "Century"                     /*<PDF-LEFT=5mm><PDF-TOP=10mm>*/
         THEN PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=2.5mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(100)".
@@ -4133,13 +4148,13 @@ PROCEDURE run-report-mail :
             RUN value(v-program).
       END.
     END.
-  
+
     IF lv-run-commercial = "YES" AND 
        IS-xprint-form THEN DO:
        RUN oerep/runbolci.p.
     END.
   END.
-  
+
   else do:
     MESSAGE 'No records to process. Job aborted.'
       VIEW-AS ALERT-BOX INFO BUTTONS OK.
@@ -4150,7 +4165,7 @@ PROCEDURE run-report-mail :
      where report.term-id eq v-term-id:
     delete report.
   end.
-  
+
   OUTPUT CLOSE.
 
 end procedure.
@@ -4180,7 +4195,7 @@ PROCEDURE send-mail-uni-xl :
 
   ASSIGN  vcSubject   = "CofC for BOL: " + vcBOLNums 
           vcMailBody  = "Please review attached CofC for BOL #: " + vcBOLNums.
-                      
+
   RUN custom/xpmail2.p   (input   icRecType,
                           input   'R-BOLPRT.',
                           input   lv-pdf-file,
@@ -4200,19 +4215,19 @@ PROCEDURE SendMail-1 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DEFINE INPUT PARAM icIdxKey   AS CHAR NO-UNDO.
-  DEFINE INPUT PARAM icRecType  AS CHAR NO-UNDO.    
+  DEFINE INPUT PARAM icRecType  AS CHAR NO-UNDO.  
   DEFINE INPUT PARAMETER icShipId AS CHARACTER NO-UNDO.  
 
   DEFINE VARIABLE vcSubject   AS CHARACTER  NO-UNDO.
   DEFINE VARIABLE vcMailBody  AS CHARACTER  NO-UNDO.
   DEFINE VARIABLE vcErrorMsg  AS CHARACTER  NO-UNDO.
-  
+
   ASSIGN  vcSubject   = "BOL: " + vcBOLNums + '   ' + STRING (TODAY, '99/99/9999') + STRING (TIME, 'HH:MM:SS AM')
           vcSubject   = IF tb_reprint THEN '[REPRINT] ' + vcSubject ELSE vcSubject
           vcMailBody  = "Please review attached Bill of Lading(s) for BOL #: " + vcBOLNums.
-       
+
   IF icShipId <> "" THEN icRecType = icRecType + "|" + icShipId. /* cust# + shipto */     
 
   RUN custom/xpmail2.p   (input   icRecType,
@@ -4235,7 +4250,7 @@ PROCEDURE SendMail-2 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DEFINE INPUT PARAM icIdxKey   AS CHAR NO-UNDO.
   DEFINE INPUT PARAM icRecType  AS CHAR NO-UNDO.    
 
@@ -4264,7 +4279,7 @@ PROCEDURE SendMail-2 :
   ASSIGN  vcSubject   = "BOL: " + vcBOLNums + '   ' + STRING (TODAY, '99/99/9999') + STRING (TIME, 'HH:MM:SS AM')
           vcSubject   = IF tb_reprint THEN '[REPRINT] ' + vcSubject ELSE vcSubject
           vcMailBody  = "Please review attached Bill of Lading(s) for BOL #: " + vcBOLNums.
-                      
+
   RUN custom/xpmail2.p   (input   icRecType,
                           input   'R-BOLPRT.',
                           input   list-name,
@@ -4285,7 +4300,7 @@ PROCEDURE SetBOLForm :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE INPUT PARAMETER icFormName AS CHAR NO-UNDO.
-   
+
    IF rd_bolcert EQ "BOL" THEN
    DO:
       {sys/inc/bolform.i}
@@ -4302,7 +4317,7 @@ PROCEDURE SetBOLForm :
             ASSIGN 
                is-xprint-form = YES
                v-program      = "oe/rep/cocpryst.p".
-     
+
          WHEN "PremierPkg" THEN
             ASSIGN
                is-xprint-form = YES
@@ -4317,7 +4332,7 @@ PROCEDURE SetBOLForm :
             ASSIGN
                is-xprint-form = YES
                v-program = "oe/rep/cocprempkgu.p".
-         
+
          WHEN "PremierPkgM" THEN
             ASSIGN
                is-xprint-form = YES
@@ -4332,19 +4347,19 @@ PROCEDURE SetBOLForm :
               ASSIGN 
                 is-xprint-form = NO
                 v-program = "oe/rep/cocacpi.p".
-        
+
          WHEN "CCC" OR WHEN "CCCWPP" THEN
               ASSIGN 
                 is-xprint-form = NO
                 v-program = "oe/rep/cocccc.p".
-     
+
          OTHERWISE
             ASSIGN
                is-xprint-form = NO
                v-program = "oe/rep/cocuni.p".
      END CASE.
    END.
-   
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4392,12 +4407,12 @@ PROCEDURE show-param :
   def var parm-lbl-list as char no-undo.
   def var i as int no-undo.
   def var lv-label as cha NO-UNDO.
-  
+
   ASSIGN
   lv-frame-hdl = frame {&frame-name}:HANDLE
   lv-group-hdl = lv-frame-hdl:first-child
   lv-field-hdl = lv-group-hdl:first-child.
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -4423,24 +4438,24 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
   PAGE.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4459,7 +4474,7 @@ FUNCTION removeChars RETURNS CHARACTER
    DEFINE VARIABLE replaceChars AS CHARACTER NO-UNDO INITIAL "'',".
    DEFINE VARIABLE i AS INTEGER NO-UNDO.
    DEFINE VARIABLE k AS INTEGER NO-UNDO.
-  
+
    k = NUM-ENTRIES(invalidChars).
    DO i = 1 TO k:
      ipField = REPLACE(ipField,ENTRY(i,invalidChars),ENTRY(i,replaceChars)).

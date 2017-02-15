@@ -432,7 +432,7 @@ END FUNCTION.
         IF AVAIL job THEN
           ASSIGN
            job.pr-printed    = YES
-           job.pr-user-id-p  = USERID("ASI")
+           job.pr-user-id-p  = USERID("nosweat")
            job.pr-print-date = TODAY
            job.pr-print-time = TIME
            li                = 1000.
@@ -462,14 +462,14 @@ END FUNCTION.
           IF NOT job.cs-printed THEN
             ASSIGN
              job.cs-printed    = YES
-             job.cs-user-id-p  = USERID("ASI")
+             job.cs-user-id-p  = USERID("nosweat")
              job.cs-print-date = TODAY
              job.cs-print-time = TIME.
 
           IF approve THEN
             ASSIGN
              job.cs-to-pr      = YES
-             job.cs-user-id-t  = USERID("ASI")
+             job.cs-user-id-t  = USERID("nosweat")
              job.cs-trans-date = TODAY
              job.cs-trans-time = TIME.
         END.

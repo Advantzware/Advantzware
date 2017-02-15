@@ -335,10 +335,10 @@ for each xxreport where xxreport.term-id eq v-term-id,
 
       IF ll-consol-bolls THEN DO:
          IF (oe-boll.qty-case * oe-boll.cases) NE 0 THEN
-            RUN create-tt-boll (oe-boll.qty-case, oe-boll.cases).
+            RUN create-tt-boll (oe-boll.qty-case, oe-boll.cases,1).
 
          IF oe-boll.qty - (oe-boll.qty-case * oe-boll.cases) NE 0 THEN
-            RUN create-tt-boll (oe-boll.qty - (oe-boll.qty-case * oe-boll.cases), 1).
+            RUN create-tt-boll (oe-boll.qty - (oe-boll.qty-case * oe-boll.cases), 1,2).
       END.
       ELSE DO:
         CREATE tt-boll.
@@ -451,12 +451,13 @@ for each xxreport where xxreport.term-id eq v-term-id,
 
 /*      {oe/rep/bolmet2.i} */
      {oe/rep/bolmet3.i}
-
+      
      /* gross weight */
      ASSIGN v-gross-wt = v-tot-wt + (v-tot-plt * 50) + (v-tot-cwt).
      
      v-last-page = page-number.
   end.
+
   
   PUT "<R43><C40><#7><C-6>Shipper Signature"
       "<=7><C+10><FROM><R+2><C+20><RECT> " 
@@ -545,6 +546,7 @@ END.
 PROCEDURE create-tt-boll.
   DEF INPUT PARAM ip-qty-case LIKE oe-boll.qty-case NO-UNDO.
   DEF INPUT PARAM ip-cases    LIKE oe-boll.cases NO-UNDO.
+  DEF INPUT PARAM ip-partial    LIKE oe-boll.cases NO-UNDO.
 
   IF ip-qty-case LT 0 THEN
     ASSIGN
@@ -578,8 +580,12 @@ PROCEDURE create-tt-boll.
    tt-boll.cases  = tt-boll.cases + ip-cases
    tt-boll.qty    = tt-boll.qty + (ip-qty-case * ip-cases)
    tt-boll.weight = tt-boll.weight + 
-                    ((ip-qty-case * ip-cases) / oe-boll.qty * oe-boll.weight)
+                    ((ip-qty-case * ip-cases) / oe-boll.qty * oe-boll.weight).
+  IF ip-partial <> 2 THEN
    tt-boll2.pallets = tt-boll2.pallets + v-pal.
+  ELSE
+   tt-boll2.pallets = 0.
+
 
   IF oe-boll.p-c THEN tt-boll.p-c = YES.
 

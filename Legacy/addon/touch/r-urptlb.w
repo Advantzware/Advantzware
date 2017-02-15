@@ -50,9 +50,9 @@ ASSIGN
 
 DEFINE TEMP-TABLE tt-note NO-UNDO
   FIELD employee LIKE emplogin.employee
-  FIELD rec_key LIKE ASI.notes.rec_key
-  FIELD note_date LIKE ASI.notes.note_date
-  FIELD note_title LIKE ASI.notes.note_title
+  FIELD rec_key LIKE nosweat.notes.rec_key
+  FIELD note_date LIKE nosweat.notes.note_date
+  FIELD note_title LIKE nosweat.notes.note_title
   FIELD note_src AS CHARACTER
   INDEX noteindex employee note_date.
 
@@ -82,7 +82,7 @@ DEF TEMP-TABLE tt-emp-time NO-UNDO
 DEF VAR lv-shift-list AS CHAR NO-UNDO.
 DEF VAR lv-shifts AS CHAR NO-UNDO.
 DEF VAR ll-shifts AS LOG NO-UNDO.
- 
+
 /* RUN pcrep/defshift.p (cocode, OUTPUT lv-shift-list). */
 
 ASSIGN ll-shifts = lv-shift-list NE "".
@@ -327,9 +327,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -393,7 +403,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -430,6 +440,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
   APPLY 'CLOSE' TO THIS-PROCEDURE.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -443,7 +454,7 @@ DO:
    DEF VAR I AS INT NO-UNDO.
 
    ASSIGN {&displayed-objects}.
-  
+
    ASSIGN shifts = "" lv-shifts = "".
 
    DO WITH FRAME {&FRAME-NAME}:
@@ -456,7 +467,7 @@ DO:
 
        IF SUBSTR(lv-shifts,LENGTH(TRIM(lv-shifts)),1) EQ "," 
          THEN SUBSTR(lv-shifts,LENGTH(TRIM(lv-shifts)),1) = "".
-       
+
        shifts = lv-shifts.
 
        DO i = 1 TO LENGTH(shifts):
@@ -504,6 +515,7 @@ DO:
     END.
     WHEN 6 THEN RUN output-to-port.
   END CASE. 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -657,8 +669,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -697,6 +711,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   {methods/nowait.i}
 
   APPLY 'ENTRY' TO begin_employee IN FRAME {&FRAME-NAME}.
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -790,10 +805,10 @@ FOR EACH emplogin NO-LOCK
       AND CAN-DO(lv-shifts,emplogin.shift)
      BREAK BY emplogin.employee BY emplogin.start_date BY start_time:
 
-    
+
     IF FIRST-OF(emplogin.employee) 
       THEN  ASSIGN ll-first-emp = TRUE.
-     
+
     ASSIGN 
         li-day-time = emplogin.total_time
         li-overtime = 0 li-2time = 0 
@@ -924,7 +939,7 @@ DEF VAR li-2time-tot-min AS INT                  NO-UNDO.
 DEF VAR ll-first-emp     AS LOG                  NO-UNDO.
 DEF VAR v-date           AS DATE                 NO-UNDO.
 DEF VAR v-date-2         AS DATE                 NO-UNDO.
-                                                         
+
 DEF BUFFER bf-employee FOR emptrack.employee.            
 
 FOR EACH machemp NO-LOCK 
@@ -1007,8 +1022,8 @@ FOR EACH machemp NO-LOCK
           li-emp-over  = li-emp-over + li-overtime 
           li-emp-2time = li-emp-2time + li-2time.
 
-        
-            
+
+
             FIND FIRST tt-emp-time 
                 WHERE tt-emp-time.t-empid  EQ machemp.employee 
                   AND tt-emp-time.t-lgStDt EQ machemp.start_date NO-ERROR.
@@ -1022,16 +1037,16 @@ FOR EACH machemp NO-LOCK
                     tt-emp-time.t-shift  = machemp.shift . 
             END.
 
-            
+
             ASSIGN
               tt-emp-time.t-MlgInTm  = li-start-time
               tt-emp-time.t-MlgOutTm = li-end-time
               tt-emp-time.t-MHrWrk   = ((ACCUM TOTAL BY machemp.start_date li-day-time) - li-lunch-time)
               tt-emp-time.t-MOT      = li-overtime 
               tt-emp-time.t-MOT2     = li-2time.
-            
+
             ASSIGN ll-first-emp = FALSE.
-        
+
 
         ASSIGN li-start-time = 0.  
 
@@ -1072,7 +1087,7 @@ DEF VAR li-2time-tot-min AS INT                  NO-UNDO.
 DEF VAR ll-first-emp     AS LOG                  NO-UNDO.
 DEF VAR v-date           AS DATE                 NO-UNDO.
 DEF VAR v-date-2         AS DATE                 NO-UNDO.
-                                                         
+
 DEF BUFFER bf-employee FOR emptrack.employee.            
 DEF BUFFER bf-machemp  FOR machemp.                      
 
@@ -1159,8 +1174,8 @@ FOR EACH emplogin NO-LOCK
         ASSIGN 
           li-emp-over  = li-emp-over + li-overtime 
           li-emp-2time = li-emp-2time + li-2time.
-       
-            
+
+
             FIND FIRST tt-emp-time 
                 WHERE tt-emp-time.t-empid  EQ emplogin.employee 
                   AND tt-emp-time.t-lgStDt EQ emplogin.start_date NO-ERROR.
@@ -1182,15 +1197,15 @@ FOR EACH emplogin NO-LOCK
               tt-emp-time.t-HrWrk   = ((ACCUM TOTAL BY emplogin.start_date li-day-time) - li-lunch-time)
               tt-emp-time.t-OT      = li-overtime 
               tt-emp-time.t-OT2     = li-2time.
-            
+
             ASSIGN ll-first-emp = FALSE.
-        
+
         ASSIGN li-start-time = 0.  
 
 
 
     END. /* IF LAST-OF(emplogin.start_date) */
-                   
+
 END. /* for each tt-emp-time */
 
 
@@ -1257,7 +1272,7 @@ PROCEDURE output-to-printer :
   DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
   DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
   DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
   RUN custom/prntproc.p (list-name,INT(lv-font-no), lv-ornt).
 
 END PROCEDURE.
@@ -1273,7 +1288,7 @@ PROCEDURE output-to-screen :
   Notes:       
 ------------------------------------------------------------------------------*/
   RUN scr-rpt.w (list-name,c-win:TITLE,INT(lv-font-no),lv-ornt).
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1332,7 +1347,7 @@ IF tb_excel THEN DO:
         "EmployeeId,Employee Name,Start Date,Shift,Login Time,Logout Time," +
         "Hrs Worked,OT @x1.5,OT @x2,Login  Mach Time,Logout Mach Time,"   +
         "Total Mach Time" .
-    
+
     PUT STREAM excel UNFORMATTED excelheader SKIP.
 
   END.
@@ -1372,9 +1387,9 @@ FOR EACH tt-emp-time
         ASSIGN
             tt-emp-time.t-MHrWrk = tt-emp-time.t-MlgOutTm -
                                    tt-emp-time.t-MlgInTm.
-      
+
       IF FIRST-OF(tt-emp-time.t-empid) THEN DO:      
-          
+
           PUT 
             "Employee: " tt-emp-time.t-empid "  " tt-emp-time.t-fname tt-emp-time.t-lname 
            SKIP
@@ -1445,8 +1460,8 @@ FOR EACH tt-emp-time
                  STRING(tt-emp-time.t-MHrWrk,"HH:MM").
 
          END.
-              
-               
+
+
 
       IF LAST-OF(tt-emp-time.t-empid) THEN DO:
 
@@ -1465,8 +1480,8 @@ FOR EACH tt-emp-time
                      STRING(li-emp-tot,"HH:MM")                  
                    ELSE "" FORMAT "x(5)"
                 SKIP (3).
-              
-          
+
+
 
           ASSIGN 
               li-day-time = 0 li-emp-tot = 0.
@@ -1506,11 +1521,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1538,23 +1553,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

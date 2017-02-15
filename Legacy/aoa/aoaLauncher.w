@@ -213,6 +213,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -257,7 +268,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttModule.
 */  /* BROWSE browseModule */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -319,6 +330,7 @@ ON CHOOSE OF btnClose IN FRAME DEFAULT-FRAME /* Close */
 DO:
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -331,6 +343,7 @@ ON CHOOSE OF btnLaunch IN FRAME DEFAULT-FRAME /* Launch */
 DO:
   RUN VALUE("aoa/" + ttAOA.progID + "p").
   RETURN NO-APPLY.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -351,8 +364,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -365,6 +380,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   {&WINDOW-NAME}:TITLE = "AOA " + ipcLaunchType + " Launcher".
   RUN enable_UI.
   RUN pGetAOAFiles (ipcLaunchType).
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

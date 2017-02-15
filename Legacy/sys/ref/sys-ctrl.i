@@ -109,7 +109,7 @@ ASSIGN
                 "TriLakes,TriLakes2,Spectrum,Michcor,CapCity,colonialPL," +
                 "Allwest,LoyLang,Badger,Delta,PQP,RFC2,Peachtree,BlueRidg," +
                 "Oklahoma,Protagon,TriState,Soule,Adapt,Freedman,BELL,VINELAND,Axis,Lakeside,PFS," +
-                "jobcardc 1,jobcardc 2" 
+                "jobcardc 1,jobcardc 2,Printers" 
  str-init[33] = "ASI,HOP,Fibre,Century,Interpac,FibreFC,HPB,Dayton,Livngstn,CentBox,Metro,Keystone,Frankstn,Colonial,Unipak,OTTPkg,Shelby,CCC,Indiana-XL,PPI,Accord,Knight,MidYork,Dee,Badger,Rosmar,Carded,Carded2,PackRite,Prystup,Knight***,Coburn," + /*MWFibre=Keystone*/
                 "jobcardf 1,jobcardf 2"
  str-init[34] = "Manual,Matrix"
@@ -131,7 +131,7 @@ ASSIGN
  str-init[50] = "ASI,Hughes"  .
 ASSIGN
  str-init[51] = "None,CorrTrim,Alliance,HRMS,CorSuply,Corr-U-KraftII,GP," +
-                "Vendor,Kiwi,Smurfit,CorrChoice,Pratt,AlliFlutes,iPaper"  
+                "Vendor,Kiwi,Smurfit,CorrChoice,Pratt,AlliFlutes,iPaper,KiwiT"  
  str-init[52] = "Percent,$/Pallet,$/MSF"
  str-init[53] = "AllItems,POOnly,None" 
  str-init[54] = "Sheet,Blank" 
@@ -236,7 +236,7 @@ ASSIGN str-init[125] = "Ship Only,Invoice Only,Bill and Ship,Transfer Only"
        str-init[152] = ",Open,Hold"
        str-init[153] = "Trailer#,ShipTo,Indiana"
        str-init[154] = "Square Feet,Board Cost"
-    .
+       .
 
 	
 IF PROGRAM-NAME(1) MATCHES "*windows/l-syschr.w*" then do:

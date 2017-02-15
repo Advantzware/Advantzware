@@ -90,7 +90,7 @@ DEFINE NEW SHARED TEMP-TABLE tt-filelist
 /* ***************************  Main Block  *************************** */
 
 FIND FIRST users WHERE
-     users.user_id EQ USERID("ASI")
+     users.user_id EQ USERID("NOSWEAT")
      NO-LOCK NO-ERROR.
 
 IF AVAIL users AND users.user_program[2] NE "" THEN

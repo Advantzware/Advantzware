@@ -226,6 +226,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -888,12 +893,12 @@ PROCEDURE loadWidgetData :
     MESSAGE "No '" + ipcGroup + "' Group Exists!!!" VIEW-AS ALERT-BOX INFORMATION.
     RETURN "EMPTY".
   END.
-  OUTPUT TO VALUE("users/" + USERID("ASI") + "/miscflds.dat").
+  OUTPUT TO VALUE("users/" + USERID("NOSWEAT") + "/miscflds.dat").
   FOR EACH {&dbnm}mfdata NO-LOCK:
     PUT UNFORMATTED {&dbnm}mfdata.miscflds_data SKIP.
   END.
   OUTPUT CLOSE.
-  INPUT FROM VALUE("users/" + USERID("ASI") + "/miscflds.dat") NO-ECHO.
+  INPUT FROM VALUE("users/" + USERID("NOSWEAT") + "/miscflds.dat") NO-ECHO.
   REPEAT:
     CREATE ttAttrb.
     IMPORT ttAttrb.

@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -482,7 +486,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -569,7 +573,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -663,7 +667,7 @@ PROCEDURE enable-style-formular :
   Notes:       
 ------------------------------------------------------------------------------*/
   /* callled in methods/viewers/enable/style.i */
-  
+
   enable ld-box-fit with frame {&frame-name}.
 
 END PROCEDURE.
@@ -697,7 +701,7 @@ PROCEDURE local-assign-record :
             reftable.code = "DIM-FIT".
   end.
   reftable.val[1] = dec( ld-box-fit:screen-value in frame {&frame-name}) * k_frac. 
-  
+
 
 END PROCEDURE.
 
@@ -737,7 +741,7 @@ PROCEDURE local-display-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
   if not avail style then return.
-  
+
   find first reftable where reftable.reftable = "STYFLU" 
                         and reftable.company = style.style
                         and reftable.loc = flute.code

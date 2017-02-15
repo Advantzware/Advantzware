@@ -19,7 +19,7 @@
 " " ~
 */
 
-&Scoped-define search-db ASI.
+&Scoped-define search-db NOSWEAT.
 &Scoped-define search-file address
 &Scoped-define where-statement address.table_rec_key = s-rec_key
 &Scoped-define return-field zipcode

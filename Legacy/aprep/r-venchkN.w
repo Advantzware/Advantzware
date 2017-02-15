@@ -5,7 +5,7 @@
 /*------------------------------------------------------------------------
 
   File: aprep\r-venchk.w
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -82,9 +82,9 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "CHECK#,CHK DATE,INVOICE#,VENDOR#,VEND NAME,DUE DATE,GROSS AMT,DISCOUNT,NET AMT" 
-                           
+
        cFieldListToSelect = "chk,chk-date,inv,vend,vend-name,due-date,gross-amt,dis,net-amt" 
-                           
+
        cFieldLength = "8,8,12,8,30,8,14,10,14" /*+ "7,15,7,4,20,6,13,12"*/
        cFieldType = "i,c,c,c,c,c,i,i,i" /*+ "c,c,c,i,c,i,i,i" */
     .
@@ -382,9 +382,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -451,7 +461,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -532,6 +542,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -548,7 +559,7 @@ DO:
   RUN GetSelectionList. 
   RUN run-report.
   STATUS DEFAULT "Processing Complete".
-      
+
   IF tb_excel THEN DO:
     OUTPUT STREAM excel CLOSE.
     IF tb_runExcel THEN
@@ -590,6 +601,7 @@ DO:
        WHEN 6 THEN run output-to-port.
   end case. 
 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -616,6 +628,7 @@ DO:
   sl_selected:LIST-ITEM-PAIRS = cSelectedList.
   sl_avail:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
   */
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -630,7 +643,8 @@ DO:
 
   RUN DisplaySelectionDefault.  /* task 04041406 */ 
   RUN DisplaySelectionList2 .
-  
+
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -642,6 +656,7 @@ END.
 ON CHOOSE OF btn_down IN FRAME FRAME-A /* Move Down */
 DO:
   RUN Move-Field ("Down").
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -658,6 +673,7 @@ DO:
   END
   */
   APPLY "DEFAULT-ACTION" TO sl_selected  .
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -669,6 +685,7 @@ END.
 ON CHOOSE OF btn_Up IN FRAME FRAME-A /* Move Up */
 DO:
   RUN Move-Field ("Up").
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -725,7 +742,7 @@ ON HELP OF fi_file IN FRAME FRAME-A /* If Yes, File Name */
 DO:
    def var ls-filename as cha no-undo.
    def var ll-ok as log no-undo.
-   
+
    system-dialog get-file ls-filename 
                  title "Select File to Save "
                  filters "Excel Files    (*.csv)" "*.csv",
@@ -734,7 +751,7 @@ DO:
                  MUST-EXIST
                  USE-FILENAME
                  UPDATE ll-ok.
-      
+
     IF ll-ok THEN self:screen-value = ls-filename.
 END.
 
@@ -825,7 +842,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
-  
+
    IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
        sl_selected:NUM-ITEMS = 0)
    THEN ASSIGN ldummy = sl_selected:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
@@ -833,7 +850,7 @@ DO:
               /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
                .
 
-  
+
 /* for pairs
     DEF VAR cSelectedList AS cha NO-UNDO.
     cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
@@ -876,7 +893,7 @@ DO:
   ASSIGN
     {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}:ENTRY(1)
     .
-    
+
 
 END.
 
@@ -952,8 +969,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -971,7 +990,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
   RUN DisplaySelectionList.
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -980,6 +999,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO begin_vend.
   END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1018,7 +1038,7 @@ PROCEDURE DisplaySelectionDefault :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  
+
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
      cListContents = cListContents +                   
@@ -1044,7 +1064,7 @@ PROCEDURE DisplaySelectionList :
   DEF VAR iCount AS INT NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
-     
+
      RETURN.
   END.
 
@@ -1057,7 +1077,7 @@ PROCEDURE DisplaySelectionList :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1065,9 +1085,9 @@ PROCEDURE DisplaySelectionList :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 END PROCEDURE.
 
@@ -1088,7 +1108,7 @@ PROCEDURE DisplaySelectionList2 :
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
-        
+
   EMPTY TEMP-TABLE ttRptList.
 
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
@@ -1098,7 +1118,7 @@ PROCEDURE DisplaySelectionList2 :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1106,9 +1126,9 @@ PROCEDURE DisplaySelectionList2 :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
   DO iCount = 1 TO sl_selected:NUM-ITEMS:
@@ -1171,7 +1191,7 @@ PROCEDURE GetSelectionList :
 
  DO i = 1 TO sl_selected:NUM-ITEMS /* IN FRAME {&FRAME-NAME}*/ :
     FIND FIRST ttRptList WHERE ttRptList.TextList = ENTRY(i,cTmpList) NO-LOCK NO-ERROR.     
-  
+
     CREATE ttRptSelected.
     ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
            ttRptSelected.FieldList = ttRptList.FieldList
@@ -1180,7 +1200,7 @@ PROCEDURE GetSelectionList :
            ttRptSelected.HeadingFromLeft = IF entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
-           
+
  END.
 
 END PROCEDURE.
@@ -1263,7 +1283,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1319,7 +1339,7 @@ FORM HEADER
  WITH NO-LABELS NO-BOX NO-UNDERLINE FRAME f-top45 PAGE-TOP WIDTH 190 STREAM-IO.
 
   DISPLAY "" WITH FRAME f-top45.
-    
+
 IF tb_excel THEN DO:
  /* OUTPUT STREAM excel TO VALUE(fi_file).*/
   excelHeader = 'ACCOUNT,ACT DESCRIPTION,CHECK#,PO#,DATE,VENDOR#,INVOICE#,LINE,DESCRIPTION,QTY,UNIT PRICE,AMT PAID'.
@@ -1361,23 +1381,23 @@ FOR EACH tt-report2,
           USE-INDEX vend
     BREAK BY ap-inv.vend-no
           BY ap-inv.inv-no:
-   
+
     IF FIRST(ap-inv.inv-no) THEN DO:
        FIND FIRST account WHERE
             account.company EQ ap-inv.company AND
             account.actnum  EQ v-frt-acct
             NO-LOCK NO-ERROR.
-    
+
        ASSIGN v-acct-dscr = (IF AVAIL account THEN account.dscr ELSE "Not on file") .
 
        PUT v-frt-acct + " - " +
           (IF AVAIL account THEN account.dscr ELSE "Not on file") FORMAT "x(40)"
           SKIP.
     END. /* FIRST(ap-inv.vend-no)*/
-     
+
     ASSIGN v-frgt-amt = ap-payl.amt-paid * 
                         (ap-inv.freight / (ap-inv.net + ap-inv.freight)).
-    
+
     PUT ap-payl.check-no FORMAT ">>>>>>>>" AT 6
         ap-inv.inv-date         AT 41   FORMAT "99/99/99"
         SPACE(1)
@@ -1392,14 +1412,14 @@ FOR EACH tt-report2,
         ap-inv.freight          TO 118
         v-frgt-amt              TO 131
         SKIP.
-    
+
     ACCUM v-frgt-amt (TOTAL).
 
     IF LAST(ap-inv.inv-no) THEN
        PUT "** TOTAL " TO 114
            (ACCUM TOTAL v-frgt-amt) FORMAT "->>,>>>,>>9.99" TO 128
            " *" SKIP(1).
-    
+
     IF tb_excel THEN
     PUT STREAM excel UNFORMATTED
         '"' STRING(v-frt-acct) '",'
@@ -1466,7 +1486,7 @@ FOR EACH tt-report2,
             account.company eq ap-inv.company AND
             account.actnum  eq ap-invl.actnum
             NO-LOCK NO-ERROR.
-     
+
        ASSIGN v-acct-dscr = (IF AVAIL account THEN account.dscr ELSE "Not on file")  .
 
        PUT ap-invl.actnum + " - " +
@@ -1475,7 +1495,7 @@ FOR EACH tt-report2,
 
     ASSIGN v-line-amt = ap-payl.amt-paid * 
                         (ap-invl.amt / (ap-inv.net + ap-inv.freight)).
-    
+
     PUT ap-payl.check-no FORMAT ">>>>>>>>" AT 6
         ap-invl.po-no         AT 34
         SPACE(1)
@@ -1496,7 +1516,7 @@ FOR EACH tt-report2,
         v-line-amt
         SPACE(1)
         SKIP.
-    
+
     ACCUM v-line-amt (TOTAL BY ap-invl.actnum).
     ACCUM v-line-amt (TOTAL).
 
@@ -1567,7 +1587,7 @@ FORM tt-report.check-no    FORMAT ">>>>>>>>"  COLUMN-LABEL "Check#"
      tt-report.gross-amt                      COLUMN-LABEL "Gross Amt"
      tt-report.amt-disc                       COLUMN-LABEL "Discount"
      tt-report.amt-paid                       COLUMN-LABEL "Net Amt"
-     
+
     WITH NO-BOX FRAME ap-chk DOWN WIDTH 180 STREAM-IO.  
 
 
@@ -1576,7 +1596,7 @@ SESSION:SET-WAIT-STATE ("general").
 ASSIGN
  str-tit2 = c-win:TITLE
  {sys/inc/ctrtext.i str-tit2 112}. 
-  
+
 /*"CHECK#,CHK DATE,INVOICE#,VENDOR#,VEND NAME,DUE DATE,GROSS AMT,DISCOUNT,NET AMT," +
                            "ACCOUNT,PO#,ACC DATE,LINE,DESCRIPTION,QTY,UNIT PRICE,AMT PAID"*/
 
@@ -1643,9 +1663,9 @@ FOR EACH ap-pay
       AND ap-pay.posted     EQ YES
       AND ap-pay.memo       EQ NO
     USE-INDEX vend-no NO-LOCK,
-      
+
     EACH ap-payl WHERE ap-payl.c-no EQ ap-pay.c-no NO-LOCK
-      
+
     BREAK BY ap-pay.check-act
           BY ap-pay.check-no
           BY ap-payl.inv-no
@@ -1688,7 +1708,7 @@ FOR EACH ap-pay
         IF AVAILABLE(vend) THEN
            v-vend-name = vend.NAME.
      END.
-  
+
     /* rtc end */
 
     ASSIGN
@@ -1713,7 +1733,7 @@ FOR EACH ap-pay
 
      RELEASE vend.
   END.
-            
+
   IF LAST-OF(ap-pay.check-no) THEN DO:
     IF NOT FIRST-OF(ap-pay.check-no) OR v-gross-amt EQ 0 THEN DO:
       CREATE tt-report.
@@ -1769,7 +1789,7 @@ END.
 
 /* gdm - */
 
-    
+
 IF tb_excel THEN DO:
   OUTPUT STREAM excel TO VALUE(fi_file).
   /*excelHeader = 'Check#,Check Date,Vendor#,Name,Invoice#,Due Date,Gross Amt,Discount,Net Amt'.*/
@@ -1801,17 +1821,17 @@ FOR EACH tt-report NO-LOCK /*WITH FRAME ap-chk*/
               tt-report.amt-disc
               tt-report.amt-paid. 
     DOWN.
-    
+
     CLEAR NO-PAUSE.*/ 
   END.
-  
+
   IF tt-report.key-03 NE FILL("z",100) + "TOTAL" OR tt-report.inv-no EQ "Void" THEN
     ASSIGN
      v-gross-amt = v-gross-amt + tt-report.gross-amt
      v-amt-disc  = v-amt-disc  + tt-report.amt-disc
      v-amt-paid  = v-amt-paid  + tt-report.amt-paid.
 
-   
+
 
  /* DISPLAY tt-report.check-no
           tt-report.check-date
@@ -1833,7 +1853,7 @@ FOR EACH tt-report NO-LOCK /*WITH FRAME ap-chk*/
                    cVarValue = ""
                    cExcelDisplay = ""
                    cExcelVarValue = "".
-          
+
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
@@ -1847,13 +1867,13 @@ FOR EACH tt-report NO-LOCK /*WITH FRAME ap-chk*/
                          WHEN "dis"  THEN cVarValue = STRING(tt-report.amt-disc,"->>>>>9.99") .
                          WHEN "net-amt"  THEN cVarValue = STRING(tt-report.amt-paid,"->>,>>>,>>9.99") .
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+
             PUT UNFORMATTED cDisplay SKIP.
             IF tb_excel THEN DO:
                  PUT STREAM excel UNFORMATTED  
@@ -1874,7 +1894,7 @@ FOR EACH tt-report NO-LOCK /*WITH FRAME ap-chk*/
         SKIP.*/
 
   RELEASE vend NO-ERROR.
-  
+
   IF LAST-OF(tt-report.key-02) THEN /*DOWN 2*/ PUT SKIP(2) .
 
   IF LAST(tt-report.key-01) THEN DO:
@@ -1885,7 +1905,7 @@ FOR EACH tt-report NO-LOCK /*WITH FRAME ap-chk*/
                    cVarValue = ""
                    cExcelDisplay = ""
                    cExcelVarValue = "".
-          
+
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
@@ -1899,13 +1919,13 @@ FOR EACH tt-report NO-LOCK /*WITH FRAME ap-chk*/
                          WHEN "dis"  THEN cVarValue = STRING(v-amt-disc,"->>>>>9.99") .
                          WHEN "net-amt"  THEN cVarValue = STRING(v-amt-paid,"->>,>>>,>>9.99") .
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+
             PUT UNFORMATTED cDisplay SKIP.
             IF tb_excel THEN DO:
                  PUT STREAM excel UNFORMATTED  
@@ -1921,7 +1941,7 @@ IF tb_prt-acc THEN DO:
     RUN print-gl-acct. 
 END.
 
-   
+
 OUTPUT STREAM excel CLOSE.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
@@ -1950,11 +1970,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1982,23 +2002,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

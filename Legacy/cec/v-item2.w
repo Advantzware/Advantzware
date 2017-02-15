@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -507,7 +511,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -518,7 +522,7 @@ ASSIGN
 ON HELP OF FRAME F-Main
 DO:
     def var char-val as cha no-undo.
-   
+
 
     case focus:name :
         when "cons-uom"  then do:
@@ -550,7 +554,7 @@ DO:
                        .
         end.
         when "loc-bin" then do:
-        
+
              run windows/l-locbin.w (gcompany,item.loc:screen-value,focus:screen-value, output char-val).
              if char-val <> "" then 
                 assign focus:screen-value in frame {&frame-name} = entry(1,char-val)
@@ -716,7 +720,7 @@ cocode = gcompany.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).
   &ENDIF
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -831,9 +835,9 @@ PROCEDURE local-cancel-record :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
-  
+
   /* Code placed here will execute AFTER standard behavior.    */
-  
+
 
 END PROCEDURE.
 
@@ -899,17 +903,17 @@ PROCEDURE local-display-fields :
      run get-link-handle in adm-broker-hdl (this-procedure, "container-source", output char-hdl).  
      RUN get-attribute IN widget-handle(char-hdl) ('Current-Page':U).
      if int(return-value) = 5 then do:     
- 
+
         run select-page in widget-handle(char-hdl) (6).
         return no-apply.
      end.   
   end.   
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  
+
   IF NOT lv-rolls-hide-var THEN
   DO:
      IF lv-s-len EQ 0 THEN
@@ -969,13 +973,13 @@ PROCEDURE local-display-fields :
                                   lv-r-wid,
                                   lv-s-dep,                    
                                   lv-q-ono, OUTPUT lv-q-ono).
-          
+
            RUN sys/ref/convquom.p(lv-cons-uom, "LF", lv-basis-w,
                                   12,
                                   lv-r-wid,
                                   lv-s-dep,                    
                                   lv-q-comm, OUTPUT lv-q-comm).
-          
+
            RUN sys/ref/convquom.p(lv-cons-uom, "LF", lv-basis-w,
                                   12,
                                   lv-r-wid,
@@ -983,18 +987,18 @@ PROCEDURE local-display-fields :
                                   lv-q-back, OUTPUT lv-q-back).
         END.
      END.
-     
+
      IF lv-s-len NE 0 THEN
      DO:
         ASSIGN
           lv-q-ono = lv-q-ono / lv-s-len
           lv-q-comm = lv-q-comm / lv-s-len
           lv-q-back = lv-q-back / lv-s-len.
-          
+
         {sys/inc/roundup.i lv-q-ono}
         {sys/inc/roundup.i lv-q-comm}
         {sys/inc/roundup.i lv-q-back}
-        
+
      END.
      ELSE
      DO:
@@ -1054,7 +1058,7 @@ PROCEDURE local-enable-fields :
      ENABLE {&list-3} WITH FRAME {&FRAME-NAME}.
   END.
   ELSE do with frame {&frame-name} :
-    
+
      if item.cons-uom = "" or ( 
           item.q-onh = 0 and item.q-ono = 0 and item.q-comm = 0 and
           item.q-back = 0 )
@@ -1064,7 +1068,7 @@ PROCEDURE local-enable-fields :
      then do:      end.
      else disable item.pur-uom.
   end.
-   
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1095,7 +1099,7 @@ PROCEDURE local-update-record :
        APPLY "entry" TO ITEM.cons-uom.
        return no-apply.
     end.
-   
+
     if item.pur-uom:screen-value <> "" and
       /* not can-find(uom where uom.uom = self:screen-value)  */
        LOOKUP(ITEM.pur-uom:SCREEN-VALUE,uom-list) <= 0
@@ -1159,9 +1163,9 @@ PROCEDURE override :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   IF NOT ll-secure THEN RUN sys/ref/d-passwd.w (3, OUTPUT ll-secure).
-      
+
   IF ll-secure THEN DO:
     lv-override = YES.
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"tableio-source",OUTPUT char-hdl).
@@ -1183,14 +1187,14 @@ PROCEDURE recalc-qty :
 ------------------------------------------------------------------------------*/
   DEF VAR char-hdl AS CHAR NO-UNDO.
 
-                                     
+
   RUN rm/d-rmrqty.w (ROWID(item), YES).
 
   FIND CURRENT item NO-LOCK.
   RUN dispatch IN THIS-PROCEDURE ("display-fields").
-  
+
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, "bin-target", OUTPUT char-hdl).
-  
+
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
     RUN dispatch IN WIDGET-HANDLE(char-hdl) ("open-query").
 
@@ -1267,13 +1271,13 @@ PROCEDURE update-rolls-proc :
                                 item.r-wid,
                                 item.s-dep,                    
                                 DEC(item.q-ono:SCREEN-VALUE), OUTPUT lv-q-ono).
-         
+
           RUN sys/ref/convquom.p(item.cons-uom, "LF", item.basis-w,
                                  12,
                                  item.r-wid,
                                  item.s-dep,                    
                                  DEC(item.q-comm:SCREEN-VALUE), OUTPUT lv-q-comm).
-         
+
           RUN sys/ref/convquom.p(item.cons-uom, "LF", item.basis-w,
                                  12,
                                  item.r-wid,
@@ -1292,7 +1296,7 @@ PROCEDURE update-rolls-proc :
            lv-q-ono = lv-q-ono / item.s-len
            lv-q-comm = lv-q-comm / item.s-len
            lv-q-back = lv-q-back / item.s-len.
-      
+
          {sys/inc/roundup.i lv-q-ono}
          {sys/inc/roundup.i lv-q-comm}
          {sys/inc/roundup.i lv-q-back}
@@ -1302,20 +1306,20 @@ PROCEDURE update-rolls-proc :
          FIND FIRST uom WHERE
               uom.uom = "ROLL"
               NO-LOCK NO-ERROR.
-      
+
          IF AVAIL uom THEN
          DO:
             v-roll-multp = uom.mult.
             RELEASE uom.
          END.
-           
+
          IF v-roll-multp NE 0 THEN
          DO:
             ASSIGN
              lv-q-ono = lv-q-ono / v-roll-multp
              lv-q-comm = lv-q-comm / v-roll-multp
              lv-q-back = lv-q-back / v-roll-multp.
-      
+
            {sys/inc/roundup.i lv-q-ono}
            {sys/inc/roundup.i lv-q-comm}
            {sys/inc/roundup.i lv-q-back}
@@ -1326,7 +1330,7 @@ PROCEDURE update-rolls-proc :
               lv-q-comm = 0
               lv-q-back = 0.
       END.
-      
+
       ASSIGN
          lv-rolls-on-order:SCREEN-VALUE = STRING(lv-q-ono)
          lv-rolls-comm:SCREEN-VALUE = STRING(lv-q-comm)
@@ -1373,7 +1377,7 @@ PROCEDURE valid-loc-bin :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     IF item.loc-bin:SCREEN-VALUE NE ""                                 AND
        NOT CAN-FIND(FIRST rm-bin

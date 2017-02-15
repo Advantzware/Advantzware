@@ -18,7 +18,7 @@
       <none>
 
   History: 
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -152,6 +152,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+/* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
@@ -215,7 +216,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -372,7 +373,7 @@ PROCEDURE adm-create-objects :
              OUTPUT h_stylef-2 ).
        RUN set-position IN h_stylef-2 ( 4.57 , 5.00 ) NO-ERROR.
        /* Size in UIB:  ( 18.33 , 143.00 ) */
-       
+
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/p-navico.r':U ,
              INPUT  FRAME F-Main:HANDLE ,
@@ -566,9 +567,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -583,7 +584,7 @@ PROCEDURE Print-List :
 ------------------------------------------------------------------------------*/
 
  RUN listobjs/stylef_.w.
- 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -597,7 +598,7 @@ PROCEDURE Select_Add :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEF VAR char-hdl AS CHAR NO-UNDO.
-  
+
    RUN select-page(2).
    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"add-item-target", OUTPUT char-hdl).
    RUN add-item IN WIDGET-HANDLE(char-hdl).

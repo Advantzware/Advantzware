@@ -18,7 +18,7 @@
       <none>
 
   History: 
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -307,7 +307,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -350,7 +350,7 @@ DO:
    DEF VAR char-val AS cha NO-UNDO.
    DEF VAR lw-focus AS HANDLE NO-UNDO.
 
-  
+
    lw-focus = FOCUS.
 
    case lw-focus:name :
@@ -416,7 +416,7 @@ DO:
                          IF lw-focus:NAME EQ "ls-cad-no" THEN 7 ELSE
                          IF lw-focus:NAME EQ "ls-die-no" THEN 6 ELSE
                          IF lw-focus:NAME EQ "ls-i-name" THEN 5 ELSE 2.
-             
+
            run est/l-ebcst.w (g_company,g_loc,ls-cur-val,ls-int-val,chk-box-1,ld-len,ld-wid,ld-dep, output lv-eb-tmpid).
            if lv-eb-tmpid <> ? then do:
               FIND FIRST eb WHERE RECID(eb) = lv-eb-tmpid NO-LOCK NO-ERROR.
@@ -434,7 +434,7 @@ DO:
            end.
            return no-apply.
        end.  /* cust-no*/
-         
+
   end case.  
 END.
 
@@ -544,7 +544,7 @@ DO:
       APPLY "help" TO FRAME {&FRAME-NAME}.
     END.
   END.
-  
+
   IF AVAIL eb THEN
   FIND FIRST est
       WHERE est.company EQ eb.company
@@ -694,7 +694,7 @@ END.
    {sys/inc/f3helpw.i}
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-  
+
    IF v-cecscrn-char EQ "Decimal" THEN
      ASSIGN
         ld-len:FORMAT = ">>9.999999"
@@ -805,9 +805,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

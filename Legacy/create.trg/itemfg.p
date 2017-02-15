@@ -47,7 +47,7 @@ ASSIGN
  {&TABLENAME}.i-no = "               " + {&TABLENAME}.rec_key
  {&TABLENAME}.prod-uom     = "M"
  {&TABLENAME}.stat         = "A"
- {&tablename}.spare-char-5 = USERID("ASI") + " " + STRING(TODAY) 
+ {&tablename}.spare-char-5 = USERID("Nosweat") + " " + STRING(TODAY) 
                              + " " + STRING(TIME, "hh:mm") 
                              + " " + cPgmStack.
 

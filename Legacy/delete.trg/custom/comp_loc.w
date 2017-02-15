@@ -67,7 +67,7 @@ DEFINE VARIABLE save-rowid AS ROWID NO-UNDO.
 &Scoped-define ENABLED-FIELDS-IN-QUERY-companies 
 &Scoped-define FIELD-PAIRS-IN-QUERY-companies
 &Scoped-define OPEN-QUERY-companies OPEN QUERY companies FOR EACH usercomp ~
-      WHERE usercomp.user_id = USERID("ASI") AND ~
+      WHERE usercomp.user_id = USERID('NOSWEAT') AND ~
 usercomp.loc = '' AND ~
 (IF g_init THEN usercomp.company_default = yes ~
  ELSE TRUE) NO-LOCK, ~
@@ -82,7 +82,7 @@ usercomp.loc = '' AND ~
 &Scoped-define ENABLED-FIELDS-IN-QUERY-locations 
 &Scoped-define FIELD-PAIRS-IN-QUERY-locations
 &Scoped-define OPEN-QUERY-locations OPEN QUERY locations FOR EACH usercomp ~
-      WHERE usercomp.user_id = USERID("ASI") AND ~
+      WHERE usercomp.user_id = USERID("NOSWEAT") AND ~
 usercomp.company = company.company AND ~
 usercomp.loc NE "" AND ~
 (IF g_init THEN usercomp.loc_default = yes ~
@@ -214,7 +214,9 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
+IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -241,7 +243,7 @@ THEN C-Win:HIDDEN = no.
 /* Query rebuild information for BROWSE companies
      _TblList          = "ASI.usercomp,ASI.company WHERE ASI.usercomp ..."
      _Options          = "NO-LOCK"
-     _Where[1]         = "usercomp.user_id = USERID("ASI") AND
+     _Where[1]         = "usercomp.user_id = USERID('NOSWEAT') AND
 usercomp.loc = '' AND
 (IF g_init THEN usercomp.company_default = yes
  ELSE TRUE)"
@@ -256,7 +258,7 @@ usercomp.loc = '' AND
 /* Query rebuild information for BROWSE locations
      _TblList          = "ASI.usercomp,ASI.loc OF ASI.usercomp"
      _Options          = "NO-LOCK"
-     _Where[1]         = "usercomp.user_id = USERID(""ASI"") AND
+     _Where[1]         = "usercomp.user_id = USERID(""NOSWEAT"") AND
 usercomp.company = company.company AND
 usercomp.loc NE """" AND
 (IF g_init THEN usercomp.loc_default = yes
@@ -267,7 +269,7 @@ usercomp.loc NE """" AND
 */  /* BROWSE locations */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -305,6 +307,7 @@ END.
 ON CHOOSE OF Btn_Cancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -317,6 +320,7 @@ ON CHOOSE OF Btn_OK IN FRAME DEFAULT-FRAME /* OK */
 DO:
   RUN Set-comp_loc.
   APPLY "CLOSE" TO THIS-PROCEDURE.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -371,8 +375,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -402,6 +408,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   DISPLAY sysdate WITH FRAME {&FRAME-NAME}.
   {methods/enhance.i}
   {methods/nowait.i}
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
   IF onlyone THEN

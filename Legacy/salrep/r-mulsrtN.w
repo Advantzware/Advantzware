@@ -104,8 +104,8 @@ DEF VAR iColumnLength AS INT NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
 
-                     
-                     
+
+
 
 ASSIGN cTextListToSelect = "Customer,Name,SRep,Ship To#,Ship Zip,Inv#,Inv Date," 
                            + "Order#,Item No,Item Name,Item Description,Cust Part#,"
@@ -180,7 +180,7 @@ FUNCTION getInvSman RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel AUTO-END-KEY 
+DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -489,9 +489,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -586,7 +596,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -678,6 +688,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -697,7 +708,7 @@ DO:
   ELSE is-xprint-form = NO.
 
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -745,6 +756,7 @@ DO:
 
   end case. 
   SESSION:SET-WAIT-STATE("").
+     {src/WinKit/triggerend.i}
  END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -756,7 +768,8 @@ DO:
 ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
-  
+
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -783,6 +796,7 @@ DO:
   sl_selected:LIST-ITEM-PAIRS = cSelectedList.
   sl_avail:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
   */
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -797,7 +811,8 @@ DO:
 
   RUN DisplaySelectionDefault.  /* task 04041406 */ 
   RUN DisplaySelectionList2 .
-  
+
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -809,6 +824,7 @@ END.
 ON CHOOSE OF btn_down IN FRAME FRAME-A /* Move Down */
 DO:
   RUN Move-Field ("Down").
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -825,6 +841,7 @@ DO:
   END
   */
   APPLY "DEFAULT-ACTION" TO sl_selected  .
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -836,6 +853,7 @@ END.
 ON CHOOSE OF btn_Up IN FRAME FRAME-A /* Move Up */
 DO:
   RUN Move-Field ("Up").
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -996,7 +1014,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
-  
+
    IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
        sl_selected:NUM-ITEMS = 0)
    THEN ASSIGN ldummy = sl_selected:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
@@ -1004,7 +1022,7 @@ DO:
               /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
                .
 
-  
+
 /* for pairs
     DEF VAR cSelectedList AS cha NO-UNDO.
     cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
@@ -1047,7 +1065,7 @@ DO:
   ASSIGN
     {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}:ENTRY(1)
     .
-    
+
 
 END.
 
@@ -1125,8 +1143,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -1142,14 +1162,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-  
+
   ASSIGN
      begin_inv-date = date(01,01,year(today))
      END_inv-date   = TODAY
      fi_file = "c:\tmp\multisal.csv".
   RUN DisplaySelectionList.
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   RUN sys/inc/CustListForm.p ( "HR10",cocode, 
@@ -1166,7 +1186,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT 'HR10',
                           INPUT NO,
                           OUTPUT glCustListActive).
-  {sys/inc/chblankcust.i}
+  {sys/inc/chblankcust.i ""HR10""}
 
   IF ou-log THEN DO:
       ASSIGN 
@@ -1194,6 +1214,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
    END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1255,7 +1276,7 @@ PROCEDURE CustList :
 
     RUN sys/ref/CustListManager.w(INPUT cocode,
                                   INPUT 'HR10').
-    
+
 
 END PROCEDURE.
 
@@ -1290,7 +1311,7 @@ PROCEDURE DisplaySelectionDefault :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  
+
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
      cListContents = cListContents +                   
@@ -1316,7 +1337,7 @@ PROCEDURE DisplaySelectionList :
   DEF VAR iCount AS INT NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
-     
+
      RETURN.
   END.
 
@@ -1329,7 +1350,7 @@ PROCEDURE DisplaySelectionList :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1337,9 +1358,9 @@ PROCEDURE DisplaySelectionList :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 END PROCEDURE.
 
@@ -1360,7 +1381,7 @@ PROCEDURE DisplaySelectionList2 :
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
-        
+
   EMPTY TEMP-TABLE ttRptList.
 
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
@@ -1370,7 +1391,7 @@ PROCEDURE DisplaySelectionList2 :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1378,9 +1399,9 @@ PROCEDURE DisplaySelectionList2 :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
   DO iCount = 1 TO sl_selected:NUM-ITEMS:
@@ -1439,8 +1460,8 @@ PROCEDURE get-sort-fields1 :
 ------------------------------------------------------------------------------*/
   def input  parameter ip-sort as char no-undo.
   def output parameter op-sort as char no-undo.
-  
-  
+
+
   op-sort = if ip-sort eq "C" then ar-inv.cust-no                       else
             if ip-sort eq "I" then string(ar-inv.inv-no,"9999999999")   else
             if ip-sort eq "D" then string(year(ar-inv.inv-date),"9999") +
@@ -1450,7 +1471,7 @@ PROCEDURE get-sort-fields1 :
             if ip-sort eq "Z" then v-shpz                               else
             if ip-sort eq "O" then string(ar-invl.ord-no,"9999999999")  else
             if ip-sort eq "R" then v-sman-no                            else "".
-                                   
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1465,8 +1486,8 @@ PROCEDURE get-sort-fields2 :
 ------------------------------------------------------------------------------*/
 def input  parameter ip-sort as char no-undo.
   def output parameter op-sort as char no-undo.
-  
-  
+
+
   op-sort = if ip-sort eq "C" then ar-cash.cust-no                      else
             if ip-sort eq "I" then string(ar-cashl.inv-no,"9999999999") else
             if ip-sort eq "D" then string(year(ar-cash.check-date),"9999") +
@@ -1476,7 +1497,7 @@ def input  parameter ip-sort as char no-undo.
             if ip-sort eq "Z" then v-shpz                               else
             if ip-sort eq "O" then "0000000000"                         else
             if ip-sort eq "R" then cust.sman                            else "".
-                
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1497,7 +1518,7 @@ PROCEDURE GetSelectionList :
 
  DO i = 1 TO sl_selected:NUM-ITEMS /* IN FRAME {&FRAME-NAME}*/ :
     FIND FIRST ttRptList WHERE ttRptList.TextList = ENTRY(i,cTmpList) NO-LOCK NO-ERROR.     
-  
+
     CREATE ttRptSelected.
     ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
            ttRptSelected.FieldList = ttRptList.FieldList
@@ -1506,7 +1527,7 @@ PROCEDURE GetSelectionList :
            ttRptSelected.HeadingFromLeft = IF entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
-           
+
  END.
 
 END PROCEDURE.
@@ -1635,7 +1656,7 @@ PROCEDURE report-from-inv :
      xtt-report.key-08 = v-ship
      xtt-report.key-09 = tt-report.key-09
      xtt-report.key-10 = v-shpz.
-           
+
     run get-sort-fields1 (substr(v-sort,1,1), output xtt-report.key-01).
     run get-sort-fields1 (substr(v-sort,2,1), output xtt-report.key-02).
     run get-sort-fields1 (substr(v-sort,3,1), output xtt-report.key-03).
@@ -1674,6 +1695,7 @@ DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 
 form space(8)
      w-data.i-no
@@ -1686,7 +1708,7 @@ form space(8)
      v-amt[1]             format "->>,>>>,>>9.99"       label "Inv Amt"
 
     with no-box frame detail down STREAM-IO WIDTH 132.
-    
+
 /*form header
      skip(1)
      "Customer"
@@ -1715,7 +1737,7 @@ form space(8)
      skip(1)
 
     with frame r-top.*/
-    
+
 form cust.cust-no
      cust.name
      tt-report.key-05     format "x(3)"
@@ -1731,7 +1753,7 @@ form cust.cust-no
      skip(1)
     with no-box no-labels frame summary down STREAM-IO WIDTH 132.
 
-  
+
   SESSION:SET-WAIT-STATE ("general").
 
   assign
@@ -1750,7 +1772,8 @@ form cust.cust-no
    tdate       = END_inv-date
    /*v-det       = tb_detailed*/
    v-inc-fc    = tb_fin-chg
-   v-sort      = fi_SORT.
+   v-sort      = fi_SORT
+   lSelected   = tb_cust-list.
 
   DEF VAR cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
@@ -1775,6 +1798,12 @@ form cust.cust-no
         ELSE
          str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
  END.
+ IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
+ END.
 
   {sys/inc/print1.i}
 
@@ -1789,14 +1818,14 @@ form cust.cust-no
       ELSE
          excelheader = "Customer,Name,SRep,Ship To#,Ship Zip,Inv#,Inv Date,"
                      + "Order#,Qty,Inv Amt".*/
-      
+
       PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
   END.
 
   if td-show-parm then run show-param.
-   
+
   display "" with frame r-top.
-  
+
   ASSIGN
    v-qty = 0
    v-amt = 0
@@ -1806,15 +1835,13 @@ form cust.cust-no
     DELETE tt-report.
   END.
 
-FOR EACH ttCustList 
-    WHERE ttCustList.log-fld
-    NO-LOCK,
-  each ar-inv
+FOR each ar-inv
       where ar-inv.company  eq cocode
         and ar-inv.posted   eq yes
-        /*and ar-inv.cust-no  ge fcust
-        and ar-inv.cust-no  le tcust*/ 
-        and ar-inv.cust-no  EQ ttCustList.cust-no
+        AND ar-inv.cust-no  GE fcust
+        AND ar-inv.cust-no  LE tcust
+        AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq ar-inv.cust-no
+        AND ttCustList.log-fld no-lock) else true)
         and ar-inv.inv-date ge fdate
         and ar-inv.inv-date le tdate
         and (ar-inv.type    ne "FC" or v-inc-fc)
@@ -1823,22 +1850,20 @@ FOR EACH ttCustList
 
     create tt-report.
 
-  
+
     assign
      tt-report.key-09 = ar-inv.cust-no
      tt-report.key-10 = "ar-inv"
      tt-report.rec-id = recid(ar-inv).
-     
+
   end.
 
-  FOR EACH ttCustList 
-    WHERE ttCustList.log-fld
-    NO-LOCK,
-     each cust
+  FOR each cust
       where cust.company eq cocode
-        /*and cust.cust-no ge fcust
-        and cust.cust-no le tcust*/
-        and cust.cust-no EQ ttCustList.cust-no
+        AND cust.cust-no GE fcust
+        AND cust.cust-no LE tcust
+        AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
+        AND ttCustList.log-fld no-lock) else true)
       no-lock,
 
       each ar-cash
@@ -1864,9 +1889,9 @@ FOR EACH ttCustList
      tt-report.key-09 = cust.cust-no
      tt-report.key-10 = "ar-cashl"
      tt-report.rec-id = recid(ar-cashl).
-    
+
   end.
-        
+
   for each tt-report
       where tt-report.key-01 eq ""
         and tt-report.key-02 eq ""
@@ -1885,9 +1910,9 @@ FOR EACH ttCustList
       transaction:
      {custom/statusMsg.i " 'Processing Customer#  '  + cust.cust-no "}
     if tt-report.key-10 eq "ar-inv" then do:
-        
+
       find ar-inv where recid(ar-inv) eq tt-report.rec-id no-lock.
-      
+
       run ship-info.
 
       if v-ship ge fship and
@@ -1925,7 +1950,7 @@ FOR EACH ttCustList
       ASSIGN
        lv-r-no = 0
        lv-type = "".
-          
+
       IF AVAIL reftable THEN
         ASSIGN
          lv-r-no = reftable.val[1]
@@ -1947,7 +1972,7 @@ FOR EACH ttCustList
                and ar-inv.cust-no eq oe-reth.cust-no
                and ar-inv.inv-no  eq oe-reth.inv-no
              no-lock no-error.
-             
+
         run ship-info.
 
         if v-ship ge fship and
@@ -2019,10 +2044,10 @@ FOR EACH ttCustList
          v-exc         = no
          tt-report.key-08 = cust.cust-no
          tt-report.key-10 = cust.zip.
-         
+
       if avail tt-report then do:
         if v-exc then delete tt-report.
-      
+
         else do:
           run get-sort-fields2 (substr(v-sort,1,1), output tt-report.key-01).
           run get-sort-fields2 (substr(v-sort,2,1), output tt-report.key-02).
@@ -2031,6 +2056,10 @@ FOR EACH ttCustList
       end.
     end.
   end.
+
+  FOR EACH xtt-report:
+
+  END.
 
   for each tt-report,
 
@@ -2053,12 +2082,12 @@ FOR EACH ttCustList
      w-data.i-no    = tt-report.key-07
      w-data.inv-no  = int(tt-report.key-04)
      w-data.rec-id  = tt-report.rec-id.
-     
+
     find first itemfg
         where itemfg.company eq cocode
           and itemfg.i-no    eq w-data.i-no
         no-lock no-error.
-     
+
     find first ar-invl
         where recid(ar-invl) eq w-data.rec-id
         no-lock no-error.
@@ -2129,7 +2158,7 @@ FOR EACH ttCustList
           if avail ar-invl then do:
             /* Added for decimal problem */
             assign v-pric = ar-invl.unit-pr.
-              
+
             do i = 1 to 3:
               if ar-invl.sman[i] eq tt-report.key-05 then
                 assign
@@ -2184,28 +2213,28 @@ FOR EACH ttCustList
                          WHEN "qty"   THEN cVarValue = STRING(v-qty[1],"->>,>>>,>>>") .
                          WHEN "inv-amt"  THEN cVarValue = STRING(v-amt[1],"->>,>>>,>>9.99") .
                          WHEN "inv-wt"  THEN cVarValue = IF AVAIL ar-invl THEN STRING(v-tot-wght[1],">>>,>>9.99") ELSE "" .
-                         
+
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+
             PUT UNFORMATTED cDisplay SKIP.
             IF tb_excel THEN DO:
                  PUT STREAM excel UNFORMATTED  
                        cExcelDisplay SKIP.
              END.
 
-      
-    
+
+
     assign
      v-qty[2] = v-qty[2] + v-qty[1]
      v-amt[2] = v-amt[2] + v-amt[1]
      v-tot-wght[2] = v-tot-wght[2] + v-tot-wght[1] .
-     
+
     if last-of(tt-report.key-06) then do with frame summary:
       /*display cust.cust-no
               cust.name
@@ -2219,7 +2248,7 @@ FOR EACH ttCustList
               v-amt[2].
 
       down.
-      
+
       IF NOT v-det AND tb_excel THEN
          PUT STREAM excel UNFORMATTED
              '"' cust.cust-no      '",'
@@ -2243,11 +2272,11 @@ FOR EACH ttCustList
        v-amt[2] = 0
        v-tot-wght[2] = 0   .
     end.
-    
+
     if last-of(tt-report.key-03) then do:
       if index("CSM",substr(v-sort,3,1)) ne 0 then do with frame summary:
         /*underline cust.name v-qty[2] v-amt[2].*/
-        
+
         v-total = entry(index(v-sort-list,substr(v-sort,3,1)),v-sort-desc).
 
        /* display fill(" ",23 - length(trim(v-total))) + trim(v-total) +
@@ -2282,15 +2311,15 @@ FOR EACH ttCustList
                          WHEN "qty"   THEN cVarValue = STRING(v-qty[3],"->>,>>>,>>>") .
                          WHEN "inv-amt"  THEN cVarValue = STRING(v-amt[3],"->>,>>>,>>9.99") .
                          WHEN "inv-wt"  THEN cVarValue = STRING(v-tot-wght[3],">>>,>>9.99") .
-                         
+
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+
             PUT UNFORMATTED fill(" ",23 - length(trim(v-total))) + trim(v-total) +  " Total"  substring(cDisplay,30,350) SKIP.
             IF tb_excel THEN DO:
                  PUT STREAM excel UNFORMATTED  fill(" ",23 - length(trim(v-total))) + trim(v-total) + ' Totals ,'
@@ -2300,7 +2329,7 @@ FOR EACH ttCustList
 
         put skip(1).
       end.
-      
+
       assign
        v-qty[4] = v-qty[4] + v-qty[3]
        v-amt[4] = v-amt[4] + v-amt[3]
@@ -2314,7 +2343,7 @@ FOR EACH ttCustList
     if last-of(tt-report.key-02) then do:
       if index("CSM",substr(v-sort,2,1)) ne 0 then do with frame summary:
         /*underline cust.name v-qty[2] v-amt[2].*/
-        
+
         v-total = entry(index(v-sort-list,substr(v-sort,2,1)),v-sort-desc).
 
         /*display fill(" ",23 - length(trim(v-total))) + trim(v-total) +
@@ -2347,15 +2376,15 @@ FOR EACH ttCustList
                          WHEN "qty"   THEN cVarValue = STRING(v-qty[4],"->>,>>>,>>>") .
                          WHEN "inv-amt"  THEN cVarValue = STRING(v-amt[4],"->>,>>>,>>9.99") .
                          WHEN "inv-wt"  THEN cVarValue = STRING(v-tot-wght[4],">>>,>>9.99") .
-                         
+
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+
             PUT UNFORMATTED fill(" ",23 - length(trim(v-total))) + trim(v-total) + " Total"  substring(cDisplay,30,350) SKIP.
             IF tb_excel THEN DO:
                  PUT STREAM excel UNFORMATTED  fill(" ",23 - length(trim(v-total))) + trim(v-total) + ' Totals ,'
@@ -2375,11 +2404,11 @@ FOR EACH ttCustList
        v-amt[4] = 0
        v-tot-wght[4] = 0.
     end.
-    
+
     if last-of(tt-report.key-01) then do:
       if index("CSM",substr(v-sort,1,1)) ne 0 then do with frame summary:
         /*underline cust.name v-qty[2] v-amt[2].*/
-        
+
         v-total = entry(index(v-sort-list,substr(v-sort,1,1)),v-sort-desc).
 
         /*display fill(" ",23 - length(trim(v-total))) + trim(v-total) +
@@ -2414,15 +2443,15 @@ FOR EACH ttCustList
                          WHEN "qty"   THEN cVarValue = STRING(v-qty[5],"->>,>>>,>>>") .
                          WHEN "inv-amt"  THEN cVarValue = STRING(v-amt[5],"->>,>>>,>>9.99") .
                          WHEN "inv-wt"  THEN cVarValue = STRING(v-tot-wght[5],">>>,>>9.99") .
-                         
+
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+
             PUT UNFORMATTED fill(" ",23 - length(trim(v-total))) + trim(v-total) + " Total"  substring(cDisplay,30,350) SKIP.
             IF tb_excel THEN DO:
                  PUT STREAM excel UNFORMATTED  fill(" ",23 - length(trim(v-total))) + trim(v-total) + ' Totals ,'
@@ -2468,9 +2497,9 @@ FOR EACH ttCustList
                          WHEN "qty"   THEN cVarValue = STRING(v-qty[6],"->>,>>>,>>>") .
                          WHEN "inv-amt"  THEN cVarValue = STRING(v-amt[6],"->>,>>>,>>9.99") .
                          WHEN "inv-wt"  THEN cVarValue = STRING(v-tot-wght[6],">>>,>>9.99") .
-                         
+
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
@@ -2497,7 +2526,7 @@ FOR EACH ttCustList
   RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
   SESSION:SET-WAIT-STATE ("").
-    
+
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 
 end procedure.
@@ -2523,7 +2552,7 @@ PROCEDURE SetCustRange :
         btnCustList:SENSITIVE = iplChecked
        .
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2536,13 +2565,13 @@ PROCEDURE ship-info :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   if avail ar-inv then 
     if ar-inv.ship-id ne "" then
       assign
        v-ship = ar-inv.ship-id
        v-shpz = ar-inv.sold-zip.
-     
+
     else
     if ar-inv.sold-id ne "" then
       assign
@@ -2559,7 +2588,7 @@ PROCEDURE ship-info :
     assign
      v-ship = cust.cust-no
      v-shpz = cust.zip.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2580,12 +2609,12 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha NO-UNDO.
-  
+
   ASSIGN
   lv-frame-hdl = frame {&frame-name}:HANDLE
   lv-group-hdl = lv-frame-hdl:first-child
   lv-field-hdl = lv-group-hdl:first-child.
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -2600,7 +2629,7 @@ PROCEDURE show-param :
                   if not valid-handle(lv-field2-hdl) then leave. 
                   if lv-field2-hdl:private-data = lv-field-hdl:name THEN
                      parm-lbl-list = parm-lbl-list + lv-field2-hdl:screen-value + ",".
-                  
+
                   lv-field2-hdl = lv-field2-hdl:next-sibling.                 
               end.       
            end.                 
@@ -2611,23 +2640,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -128,16 +128,3 @@ PROCEDURE pCreate_ttUDF:
         ttUDF.udfSBField  = ipiSBField
         .
 END PROCEDURE.
-    ASSIGN
-        ttUDF.udfRecKey   = ipcRecKey
-        ttUDF.udfTab      = ipiTab
-        ttUDF.udfOrder    = ipiOrder
-        ttUDF.udfID       = ipcID
-        ttUDF.udfDataType = ipcDataType
-        ttUDF.udfFormat   = ipcFormat
-        ttUDF.udfLabel    = ipcLabel
-        ttUDF.udfValue    = ipcValue
-        ttUDF.udfColLabel = ipcColLabel
-        ttUDF.udfSBField  = ipiSBField
-        .
-END PROCEDURE.

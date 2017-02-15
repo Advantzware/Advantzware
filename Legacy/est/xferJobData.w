@@ -465,9 +465,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -595,7 +605,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttblEstOp.
 */  /* BROWSE ttblEstOp */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -658,6 +668,7 @@ END.
 ON CHOOSE OF btnApplyDateFilter IN FRAME DEFAULT-FRAME /* Select Jobs Using Date Range */
 DO:
   RUN applyDateFilter.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -669,6 +680,7 @@ END.
 ON CHOOSE OF btnApplyJobFilter IN FRAME DEFAULT-FRAME /* Select Jobs Using Job # Range */
 DO:
   RUN applyJobFilter.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -680,6 +692,7 @@ END.
 ON CHOOSE OF btnApplyQtyFilter IN FRAME DEFAULT-FRAME /* Select Jobs Using Quantity Range */
 DO:
   RUN applyQtyFilter.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -691,6 +704,7 @@ END.
 ON CHOOSE OF btnSubmit IN FRAME DEFAULT-FRAME /* Transfer "Actual Job Data" to "Estimate Standards" */
 DO:
   RUN submitJobData.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -702,6 +716,7 @@ END.
 ON CHOOSE OF btnSubmitDownLeft IN FRAME DEFAULT-FRAME
 DO:
   RUN submitJobData.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -713,6 +728,7 @@ END.
 ON CHOOSE OF btnSubmitDownRight IN FRAME DEFAULT-FRAME
 DO:
   RUN submitJobData.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -861,8 +877,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
 DO:
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
   RUN disable_UI.
 END.
 
@@ -900,7 +918,7 @@ END.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  
+
   {&OPEN-QUERY-jobBrowse}
 
   FIND FIRST est NO-LOCK
@@ -909,7 +927,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        NO-ERROR.
   IF AVAILABLE est THEN
   RUN getQty.
-  
+
   RUN createTtblEstOp.
   RUN enable_UI.
   RUN loadFilters.
@@ -944,6 +962,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   HIDE {&FILTERS}.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1243,7 +1262,7 @@ PROCEDURE getJobAverages :
 
         IF mch-act.blank-no EQ 0 THEN
         ASSIGN pctWaste = IF mch-act.blank-no EQ 0 THEN job-hdr.sq-in * .01 ELSE 1.
-        
+
         FIND FIRST job-code NO-LOCK
              WHERE job-code.code EQ mch-act.code
              NO-ERROR.
@@ -1439,19 +1458,19 @@ PROCEDURE submitJobData :
 
       FIND est-op EXCLUSIVE-LOCK WHERE ROWID(est-op) EQ ttblEstOp.estOpRowID NO-ERROR.
       IF NOT AVAILABLE est-op THEN NEXT.
-      
+
       IF ttblEstOp.opSpeed THEN
       est-op.op-speed = ttblEstOp.op-speed.
-      
+
       IF ttblEstOp.mrHR THEN
       est-op.op-mr = ttblEstOp.mr-hr.
-      
+
       IF ttblEstOp.opSpoil THEN
       est-op.op-spoil = ttblEstOp.op-spoil.
-      
+
       IF ttblEstOp.mrStd THEN
       est-op.op-waste = ttblEstOp.mr-waste.
-      
+
       RELEASE est-op.
     END. /* if any toggles checked */
   END. /* each ttblest-op */

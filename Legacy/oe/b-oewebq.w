@@ -577,7 +577,7 @@ DEFINE BROWSE Browser-Table
             WIDTH 21
       oe-ordl.i-name COLUMN-LABEL "Item Name" FORMAT "x(30)":U
             LABEL-BGCOLOR 14
-      oe-ordl.line FORMAT "99":U
+      oe-ordl.line FORMAT ">>99":U
       get-cost() @ ld-cost COLUMN-LABEL "Cost" WIDTH 20
       get-cost-uom() @ ld-cost-uom COLUMN-LABEL "Cost!UOM"
       oe-ordl.po-no-po FORMAT ">>>>>9":U
@@ -819,7 +819,7 @@ oe-ordl.ord-no eq 999999999"
      _FldNameList[28]   > ASI.oe-ordl.i-name
 "oe-ordl.i-name" "Item Name" ? "character" ? ? ? 14 ? ? yes "" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[29]   > ASI.oe-ordl.line
-"oe-ordl.line" ? ? "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-ordl.line" ? ">>99" "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[30]   > "_<CALC>"
 "get-cost() @ ld-cost" "Cost" ? ? ? ? ? ? ? ? no ? no no "20" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[31]   > "_<CALC>"

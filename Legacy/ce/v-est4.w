@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -183,11 +187,11 @@ DEFINE VARIABLE fi_spec-qty-08 AS DECIMAL FORMAT ">>>>>>>>9.9<<<<" INITIAL 0
 
 DEFINE RECTANGLE RECT-15
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 105 BY 7.62.
+     SIZE 115.1 BY 7.62.
 
 DEFINE RECTANGLE RECT-24
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 105 BY 9.29.
+     SIZE 115.1 BY 9.29.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -200,25 +204,25 @@ DEFINE FRAME F-Main
      ef.mis-bnum[1] AT ROW 2.43 COL 7 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
-     ef.mis-cost[1] AT ROW 2.43 COL 15 COLON-ALIGNED NO-LABEL
+     ef.mis-cost[1] AT ROW 2.43 COL 14.4 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 26 BY 1
-     ef.mis-matf[1] AT ROW 2.43 COL 42 COLON-ALIGNED NO-LABEL
+     ef.mis-matf[1] AT ROW 2.43 COL 41 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-     ef.mis-labf[1] AT ROW 2.43 COL 53 COLON-ALIGNED NO-LABEL
+     ef.mis-labf[1] AT ROW 2.43 COL 52 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-     ef.mis-matm[1] AT ROW 2.43 COL 64 COLON-ALIGNED NO-LABEL
+     ef.mis-matm[1] AT ROW 2.43 COL 63 COLON-ALIGNED NO-LABEL FORMAT ">>,>>>,>>9.99"
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
-     ef.mis-labm[1] AT ROW 2.43 COL 75 COLON-ALIGNED NO-LABEL
+          SIZE 18 BY 1
+     ef.mis-labm[1] AT ROW 2.43 COL 80.8 COLON-ALIGNED NO-LABEL FORMAT ">>,>>>,>>9.99"
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
-     ef.mis-simon[1] AT ROW 2.43 COL 88 COLON-ALIGNED NO-LABEL
+          SIZE 18 BY 1
+     ef.mis-simon[1] AT ROW 2.43 COL 99.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
-     ef.mis-mkup[1] AT ROW 2.43 COL 94 COLON-ALIGNED NO-LABEL
+     ef.mis-mkup[1] AT ROW 2.43 COL 104.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
      ef.mis-snum[2] AT ROW 3.43 COL 2 NO-LABEL FORMAT ">>>"
@@ -227,25 +231,25 @@ DEFINE FRAME F-Main
      ef.mis-bnum[2] AT ROW 3.43 COL 7 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
-     ef.mis-cost[2] AT ROW 3.43 COL 15 COLON-ALIGNED NO-LABEL
+     ef.mis-cost[2] AT ROW 3.43 COL 14.4 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 26 BY 1
-     ef.mis-matf[2] AT ROW 3.43 COL 42 COLON-ALIGNED NO-LABEL
+     ef.mis-matf[2] AT ROW 3.43 COL 41 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-     ef.mis-labf[2] AT ROW 3.43 COL 53 COLON-ALIGNED NO-LABEL
+     ef.mis-labf[2] AT ROW 3.43 COL 52 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-     ef.mis-matm[2] AT ROW 3.43 COL 64 COLON-ALIGNED NO-LABEL
+     ef.mis-matm[2] AT ROW 3.43 COL 63 COLON-ALIGNED NO-LABEL FORMAT ">>,>>>,>>9.99"
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
-     ef.mis-labm[2] AT ROW 3.43 COL 75 COLON-ALIGNED NO-LABEL
+          SIZE 18 BY 1
+     ef.mis-labm[2] AT ROW 3.43 COL 80.8 COLON-ALIGNED NO-LABEL FORMAT ">>,>>>,>>9.99"
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
-     ef.mis-simon[2] AT ROW 3.43 COL 88 COLON-ALIGNED NO-LABEL
+          SIZE 18 BY 1
+     ef.mis-simon[2] AT ROW 3.43 COL 99.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
-     ef.mis-mkup[2] AT ROW 3.43 COL 94 COLON-ALIGNED NO-LABEL
+     ef.mis-mkup[2] AT ROW 3.43 COL 104.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
      ef.mis-snum[3] AT ROW 4.43 COL 2 NO-LABEL FORMAT ">>>"
@@ -254,25 +258,25 @@ DEFINE FRAME F-Main
      ef.mis-bnum[3] AT ROW 4.43 COL 7 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
-     ef.mis-cost[3] AT ROW 4.43 COL 15 COLON-ALIGNED NO-LABEL
+     ef.mis-cost[3] AT ROW 4.43 COL 14.4 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 26 BY 1
-     ef.mis-matf[3] AT ROW 4.43 COL 42 COLON-ALIGNED NO-LABEL
+     ef.mis-matf[3] AT ROW 4.43 COL 41 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-     ef.mis-labf[3] AT ROW 4.43 COL 53 COLON-ALIGNED NO-LABEL
+     ef.mis-labf[3] AT ROW 4.43 COL 52 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-     ef.mis-matm[3] AT ROW 4.43 COL 64 COLON-ALIGNED NO-LABEL
+     ef.mis-matm[3] AT ROW 4.43 COL 63 COLON-ALIGNED NO-LABEL FORMAT ">>,>>>,>>9.99"
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
-     ef.mis-labm[3] AT ROW 4.43 COL 75 COLON-ALIGNED NO-LABEL
+          SIZE 18 BY 1
+     ef.mis-labm[3] AT ROW 4.43 COL 80.8 COLON-ALIGNED NO-LABEL FORMAT ">>,>>>,>>9.99"
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
-     ef.mis-simon[3] AT ROW 4.43 COL 88 COLON-ALIGNED NO-LABEL
+          SIZE 18 BY 1
+     ef.mis-simon[3] AT ROW 4.43 COL 99.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
-     ef.mis-mkup[3] AT ROW 4.43 COL 94 COLON-ALIGNED NO-LABEL
+     ef.mis-mkup[3] AT ROW 4.43 COL 104.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
      ef.mis-snum[4] AT ROW 5.43 COL 2 NO-LABEL FORMAT ">>>"
@@ -288,25 +292,25 @@ DEFINE FRAME F-Main
      ef.mis-bnum[4] AT ROW 5.43 COL 7 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
-     ef.mis-cost[4] AT ROW 5.43 COL 15 COLON-ALIGNED NO-LABEL
+     ef.mis-cost[4] AT ROW 5.43 COL 14.4 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 26 BY 1
-     ef.mis-matf[4] AT ROW 5.43 COL 42 COLON-ALIGNED NO-LABEL
+     ef.mis-matf[4] AT ROW 5.43 COL 41 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-     ef.mis-labf[4] AT ROW 5.43 COL 53 COLON-ALIGNED NO-LABEL
+     ef.mis-labf[4] AT ROW 5.43 COL 52 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-     ef.mis-matm[4] AT ROW 5.43 COL 64 COLON-ALIGNED NO-LABEL
+     ef.mis-matm[4] AT ROW 5.43 COL 63 COLON-ALIGNED NO-LABEL FORMAT ">>,>>>,>>9.99"
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
-     ef.mis-labm[4] AT ROW 5.43 COL 75 COLON-ALIGNED NO-LABEL
+          SIZE 18 BY 1
+     ef.mis-labm[4] AT ROW 5.43 COL 80.8 COLON-ALIGNED NO-LABEL FORMAT ">>,>>>,>>9.99"
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
-     ef.mis-simon[4] AT ROW 5.43 COL 88 COLON-ALIGNED NO-LABEL
+          SIZE 18 BY 1
+     ef.mis-simon[4] AT ROW 5.43 COL 99.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
-     ef.mis-mkup[4] AT ROW 5.43 COL 94 COLON-ALIGNED NO-LABEL
+     ef.mis-mkup[4] AT ROW 5.43 COL 104.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
      ef.mis-snum[5] AT ROW 6.48 COL 2 NO-LABEL FORMAT ">>>"
@@ -315,25 +319,25 @@ DEFINE FRAME F-Main
      ef.mis-bnum[5] AT ROW 6.48 COL 7 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
-     ef.mis-cost[5] AT ROW 6.48 COL 15 COLON-ALIGNED NO-LABEL
+     ef.mis-cost[5] AT ROW 6.48 COL 14.4 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 26 BY 1
-     ef.mis-matf[5] AT ROW 6.48 COL 42 COLON-ALIGNED NO-LABEL
+     ef.mis-matf[5] AT ROW 6.48 COL 41 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-     ef.mis-labf[5] AT ROW 6.48 COL 53 COLON-ALIGNED NO-LABEL
+     ef.mis-labf[5] AT ROW 6.48 COL 52 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-     ef.mis-matm[5] AT ROW 6.48 COL 64 COLON-ALIGNED NO-LABEL
+     ef.mis-matm[5] AT ROW 6.48 COL 63 COLON-ALIGNED NO-LABEL FORMAT ">>,>>>,>>9.99"
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
-     ef.mis-labm[5] AT ROW 6.48 COL 75 COLON-ALIGNED NO-LABEL
+          SIZE 18 BY 1
+     ef.mis-labm[5] AT ROW 6.48 COL 80.8 COLON-ALIGNED NO-LABEL FORMAT ">>,>>>,>>9.99"
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
-     ef.mis-simon[5] AT ROW 6.48 COL 88 COLON-ALIGNED NO-LABEL
+          SIZE 18 BY 1
+     ef.mis-simon[5] AT ROW 6.48 COL 99.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
-     ef.mis-mkup[5] AT ROW 6.48 COL 94 COLON-ALIGNED NO-LABEL
+     ef.mis-mkup[5] AT ROW 6.48 COL 104.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
      ef.mis-snum[6] AT ROW 7.43 COL 2 NO-LABEL FORMAT ">>>"
@@ -342,30 +346,27 @@ DEFINE FRAME F-Main
      ef.mis-bnum[6] AT ROW 7.43 COL 7 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
-     ef.mis-cost[6] AT ROW 7.43 COL 15 COLON-ALIGNED NO-LABEL
+     ef.mis-cost[6] AT ROW 7.43 COL 14.4 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 26 BY 1
-     ef.mis-matf[6] AT ROW 7.43 COL 42 COLON-ALIGNED NO-LABEL
+     ef.mis-matf[6] AT ROW 7.43 COL 41 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-     ef.mis-labf[6] AT ROW 7.43 COL 53 COLON-ALIGNED NO-LABEL
+     ef.mis-labf[6] AT ROW 7.43 COL 52 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-     ef.mis-matm[6] AT ROW 7.43 COL 64 COLON-ALIGNED NO-LABEL
+     ef.mis-matm[6] AT ROW 7.43 COL 63 COLON-ALIGNED NO-LABEL FORMAT ">>,>>>,>>9.99"
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
-     ef.mis-labm[6] AT ROW 7.43 COL 75 COLON-ALIGNED NO-LABEL
+          SIZE 18 BY 1
+     ef.mis-labm[6] AT ROW 7.43 COL 80.8 COLON-ALIGNED NO-LABEL FORMAT ">>,>>>,>>9.99"
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
-     ef.mis-simon[6] AT ROW 7.43 COL 88 COLON-ALIGNED NO-LABEL
+          SIZE 18 BY 1
+     ef.mis-simon[6] AT ROW 7.43 COL 99.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
-     ef.mis-mkup[6] AT ROW 7.43 COL 94 COLON-ALIGNED NO-LABEL
+     ef.mis-mkup[6] AT ROW 7.43 COL 104.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
-     ef.spec-no[1] AT ROW 10.05 COL 2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 22 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -373,6 +374,9 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     ef.spec-no[1] AT ROW 10.05 COL 2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 22 BY 1
      ef.spec-dscr[1] AT ROW 10.05 COL 26 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 41 BY 1
@@ -447,7 +451,6 @@ DEFINE FRAME F-Main
      ef.spec-dscr[8] AT ROW 17.05 COL 26 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 41 BY 1
-     fi_spec-qty-08 AT ROW 17.05 COL 69 COLON-ALIGNED NO-LABEL
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -455,19 +458,20 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     fi_spec-qty-08 AT ROW 17.05 COL 69 COLON-ALIGNED NO-LABEL
      ef.spec-uom[8] AT ROW 17.05 COL 90 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 5.6 BY 1
      "Mat/M" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 1.71 COL 67
+          SIZE 10 BY .62 AT ROW 1.71 COL 66
      "Markup" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 1.71 COL 96
+          SIZE 9 BY .62 AT ROW 1.71 COL 106.2
      "S  /  B" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 1.71 COL 5
      "Special Materials" VIEW-AS TEXT
           SIZE 21 BY .62 AT ROW 8.62 COL 3
      "Simon" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.71 COL 88
+          SIZE 7 BY .62 AT ROW 1.71 COL 98.8
      "UOM" VIEW-AS TEXT
           SIZE 6 BY .62 AT ROW 9.33 COL 92
      "Qty / FG (Set)" VIEW-AS TEXT
@@ -475,15 +479,15 @@ DEFINE FRAME F-Main
      "Item #" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 9.33 COL 6
      "Misc. Cost" VIEW-AS TEXT
-          SIZE 16 BY .62 AT ROW 1.71 COL 22
+          SIZE 16 BY .62 AT ROW 1.71 COL 21.4
      "Lab/SU" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 1.71 COL 56
+          SIZE 10 BY .62 AT ROW 1.71 COL 55
      "Mat/SU" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 1.71 COL 45
+          SIZE 10 BY .62 AT ROW 1.71 COL 44
      "Description" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 9.33 COL 31
      "Lab/M" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 1.71 COL 78
+          SIZE 9 BY .62 AT ROW 1.71 COL 83.4
      RECT-15 AT ROW 1 COL 1
      RECT-24 AT ROW 8.86 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -619,7 +623,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -649,7 +653,7 @@ DO:
               return no-apply.
          end.
     end case.
-    
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -667,7 +671,7 @@ DO:
         {cec/refestg2.i "LAB" 1}
 
     END.
-    
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -693,7 +697,7 @@ DO:
         def var lv-ref-rec-cst as recid no-undo.
         {cec/refestg2.i "MAT" 2}
         {cec/refestg2.i "LAB" 2}
-        
+
     END.
 
 END.
@@ -721,7 +725,7 @@ DO:
         def var lv-ref-rec-cst as recid no-undo.
         {cec/refestg2.i "MAT" 3}
         {cec/refestg2.i "LAB" 3}
-        
+
     END.
 
 END.
@@ -749,7 +753,7 @@ DO:
         def var lv-ref-rec-cst as recid no-undo.
         {cec/refestg2.i "MAT" 4}
         {cec/refestg2.i "LAB" 4}
-        
+
     END.
 
 END.
@@ -777,7 +781,7 @@ DO:
         def var lv-ref-rec-cst as recid no-undo.
         {cec/refestg2.i "MAT" 5}
         {cec/refestg2.i "LAB" 5}
-        
+
     END.
 
 END.
@@ -805,7 +809,7 @@ DO:
         def var lv-ref-rec-cst as recid no-undo.
         {cec/refestg2.i "MAT" 6}
         {cec/refestg2.i "LAB" 6}
-        
+
     END.
 END.
 
@@ -1212,7 +1216,7 @@ END.
 ON LEAVE OF ef.spec-no[1] IN FRAME F-Main /* RM Item#[1] */
 DO:
     if lastkey = -1 then return.
-    
+
     find first item where item.company = ef.company and
                           item.indus = "1" and
                           INDEX("MOXY789@",ITEM.mat-type) GT 0 and
@@ -1227,7 +1231,7 @@ DO:
        return no-apply.
     end.                          
     ef.spec-dscr[1]:screen-value = item.i-name.                      
-       
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1239,7 +1243,7 @@ END.
 ON LEAVE OF ef.spec-no[2] IN FRAME F-Main /* RM Item#[2] */
 DO:
     if lastkey = -1 then return.
-    
+
     find first item where item.company = ef.company and
                           item.indus = "1" and
                           INDEX("MOXY789",ITEM.mat-type) GT 0 and
@@ -1254,7 +1258,7 @@ DO:
        return no-apply.
     end.                          
     ef.spec-dscr[2]:screen-value = item.i-name.      
-                    
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1266,7 +1270,7 @@ END.
 ON LEAVE OF ef.spec-no[3] IN FRAME F-Main /* RM Item#[3] */
 DO:
       if lastkey = -1 then return.
-    
+
     find first item where item.company = ef.company and
                           item.indus = "1" and
                           INDEX("MOXY789",ITEM.mat-type) GT 0 and
@@ -1293,7 +1297,7 @@ END.
 ON LEAVE OF ef.spec-no[4] IN FRAME F-Main /* RM Item#[4] */
 DO:
       if lastkey = -1 then return.
-    
+
     find first item where item.company = ef.company and
                           item.indus = "1" and
                           INDEX("MOXY789",ITEM.mat-type) GT 0 and
@@ -1320,7 +1324,7 @@ END.
 ON LEAVE OF ef.spec-no[5] IN FRAME F-Main /* RM Item#[5] */
 DO:
       if lastkey = -1 then return.
-    
+
     find first item where item.company = ef.company and
                           item.indus = "1" and
                           INDEX("MOXY789",ITEM.mat-type) GT 0 and
@@ -1347,7 +1351,7 @@ END.
 ON LEAVE OF ef.spec-no[6] IN FRAME F-Main /* RM Item#[6] */
 DO:
       if lastkey = -1 then return.
-    
+
     find first item where item.company = ef.company and
                           item.indus = "1" and
                           INDEX("MOXY789",ITEM.mat-type) GT 0 and
@@ -1374,7 +1378,7 @@ END.
 ON LEAVE OF ef.spec-no[7] IN FRAME F-Main /* RM Item#[7] */
 DO:
       if lastkey = -1 then return.
-    
+
     find first item where item.company = ef.company and
                           item.indus = "2" and
                           INDEX("MOXY789",ITEM.mat-type) GT 0 and
@@ -1401,7 +1405,7 @@ END.
 ON LEAVE OF ef.spec-no[8] IN FRAME F-Main /* RM Item#[8] */
 DO:
       if lastkey = -1 then return.
-    
+
     find first item where item.company = ef.company and
                           item.indus = "1" and
                           INDEX("MOXY789",ITEM.mat-type) GT 0 and
@@ -1433,7 +1437,7 @@ SESSION:data-entry-return = yes.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -1680,7 +1684,7 @@ PROCEDURE local-display-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
   lv-spec-qty = 0.
 
@@ -1689,7 +1693,7 @@ PROCEDURE local-display-fields :
     RUN custom/extradec.p (.0001, ef.spec-qty[li-sq],
                            OUTPUT lv-spec-qty[li-sq]).
   END.
-  
+
   ASSIGN
    fi_spec-qty-01 = lv-spec-qty[01]
    fi_spec-qty-02 = lv-spec-qty[02]
@@ -1720,11 +1724,11 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN new-mis-upcost.
-  
+
   /* validation ==*/
   RUN valid-mis-simon (0) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  
+
   IF ceprepprice-chr EQ "Profit" THEN
   DO:
      RUN valid-markup(0,OUTPUT op-error).
@@ -1922,9 +1926,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-mis-upcost V-table-Win 
-PROCEDURE new-mis-upcost:
+PROCEDURE new-mis-upcost :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
@@ -1959,7 +1962,7 @@ PROCEDURE new-mis-upcost:
     IF ef.mis-cost[6]:SCREEN-VALUE NE "" AND
        ef.mis-bnum[6]:SCREEN-VALUE EQ "" THEN ef.mis-bnum[6]:SCREEN-VALUE = "1".
   END.
-    
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2028,7 +2031,7 @@ PROCEDURE valid-markup :
     ASSIGN
      li     = 1
      ip-int = 6.
-                              
+
   DO li = li TO ip-int WITH FRAME {&FRAME-NAME}:
     CASE li:
       WHEN 1 THEN lv = DEC(EF.mis-mkup[1]:SCREEN-VALUE).
@@ -2042,7 +2045,7 @@ PROCEDURE valid-markup :
     IF lv GE 100 THEN DO:
        MESSAGE "Invalid Markup."
             VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-           
+
        CASE li:
          WHEN 1 THEN APPLY "entry" TO ef.mis-mkup[1].
          WHEN 2 THEN APPLY "entry" TO ef.mis-mkup[2].
@@ -2054,7 +2057,7 @@ PROCEDURE valid-markup :
        op-error = YES.
        RETURN.
     END.
-    
+
   END.
 END PROCEDURE.
 
@@ -2069,7 +2072,7 @@ PROCEDURE valid-mis-simon :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-int AS INT NO-UNDO.
-  
+
   DEF VAR li AS INT NO-UNDO.
   DEF VAR lv AS CHAR NO-UNDO.
 
@@ -2080,7 +2083,7 @@ PROCEDURE valid-mis-simon :
     ASSIGN
      li     = 1
      ip-int = 6.
-                              
+
   DO li = li TO ip-int WITH FRAME {&FRAME-NAME}:
     CASE li:
       WHEN 1 THEN lv = ef.mis-cost[1]:SCREEN-VALUE.

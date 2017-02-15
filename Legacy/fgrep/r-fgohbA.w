@@ -530,9 +530,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -731,7 +741,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -834,6 +844,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -893,11 +904,12 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case.
   SESSION:SET-WAIT-STATE("").
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -909,7 +921,8 @@ END.
 ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
-  
+
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1152,7 +1165,7 @@ DO:
   IF tb_po-num:SCREEN-VALUE EQ "yes" THEN {&self-name}:SCREEN-VALUE = "no".*/
   IF {&self-name}:SCREEN-VALUE EQ "yes" THEN tb_sell-pr:SCREEN-VALUE = "no".
   IF {&self-name}:SCREEN-VALUE EQ "yes" THEN tb_po-num:SCREEN-VALUE = "no".
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1201,7 +1214,7 @@ DO:
    /*IF tb_fg-lot:SCREEN-VALUE EQ "yes" THEN {&self-name}:SCREEN-VALUE = "no".*/
    IF tb_po-num:SCREEN-VALUE EQ "yes" THEN {&self-name}:SCREEN-VALUE = "yes".
    IF {&self-name}:SCREEN-VALUE EQ "yes" THEN tb_fg-lot:SCREEN-VALUE = "no".
- 
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1276,8 +1289,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -1295,12 +1310,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
-  
-  RUN sys/inc/CustListForm.p ( "IR2",cocode, 
-                               OUTPUT ou-log,
-                               OUTPUT ou-cust-int) .
 
   RUN sys/inc/CustListForm.p ( "IR2",cocode, 
                                OUTPUT ou-log,
@@ -1338,7 +1349,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO"
         btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
         .
-      
+
    IF ou-log AND ou-cust-int = 0 THEN do:
        ASSIGN 
         tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = YES
@@ -1349,6 +1360,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
    END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1410,7 +1422,7 @@ PROCEDURE CustList :
 
     RUN sys/ref/CustListManager.w(INPUT cocode,
                                   INPUT 'IR2').
-    
+
 
 END PROCEDURE.
 
@@ -1480,7 +1492,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
 /*     DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -1491,9 +1503,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY. */
 
 {custom/out2file.i}
@@ -1527,7 +1539,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1923,7 +1935,7 @@ if v-prt-c then do:
    v-label1[2] = "UOM COST"
    v-label1[3] = "--------"
    v-label2[5] = "-----------".
-       
+
   if v-dl-mat then
     assign
      v-label2[1] = "     DIRECT"
@@ -1950,7 +1962,7 @@ if v-prt-p then do:
       excel-header-var-3 = "COST".
   END.
   ELSE DO:
-  
+
     assign
      v-label2[2] = "    SELLING" + if v-po-type eq "L"
                                    then " LINE"
@@ -2006,7 +2018,7 @@ ELSE
 
 IF tb_excel THEN DO:
    OUTPUT STREAM excel TO VALUE(fi_file).
-   
+
    IF v-rct-date = TRUE AND v-prt-cpn = TRUE THEN DO:
       EXPORT STREAM excel DELIMITER ","   
          " "
@@ -2236,12 +2248,12 @@ END. /* IF tb_excel THEN DO: */
                                    run fg/rep/fg-ibtg5.p.
 
     put skip(1).
-    
+
     IF v-rct-date THEN
     if v-prt-cpn then do:
         IF v-summ-bin THEN DO:
             PUT "GRAND TOTALS" TO 113.
-            
+
             IF v-prt-msf THEN
                 PUT v-tot-qty[3] FORMAT "->>>,>>9.999" TO 125.
             ELSE
@@ -2251,12 +2263,12 @@ END. /* IF tb_excel THEN DO: */
         END.
         ELSE do:
             PUT "GRAND TOTALS" TO 120.
-            
+
             IF v-prt-msf THEN
               PUT v-tot-qty[3] FORMAT "->>>,>>9.999" TO 134.
             ELSE
               PUT v-tot-qty[3] TO 134.
-            
+
             if v-prt-c then put v-tot-cst[3] to 160.
             if v-prt-p then put v-tot-ext[3] to 173 skip(1).
         END.
@@ -2298,7 +2310,7 @@ END. /* IF tb_excel THEN DO: */
       if v-prt-c then put v-tot-cst[3] to 135.
       if v-prt-p then put v-tot-ext[3] to 146 skip(1).
     end.
-   
+
 
     STATUS DEFAULT "".
 
@@ -2379,7 +2391,7 @@ RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
          (if v-prt-p THEN v-tot-ext[3] ELSE 0).
     end.
  END.
- 
+
  IF tb_excel THEN DO:
      OUTPUT STREAM excel CLOSE.
      IF tb_runExcel THEN
@@ -2413,7 +2425,7 @@ PROCEDURE SetCustRange :
         btnCustList:SENSITIVE = iplChecked
        .
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2434,11 +2446,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -2466,23 +2478,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi          PROGRESS
+          nosweat          PROGRESS
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
@@ -178,7 +178,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartBrowser
-   External Tables: ASI.users
+   External Tables: NOSWEAT.users
    Allow: Basic,Browse
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -237,7 +237,7 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE br_table
 /* Query rebuild information for BROWSE br_table
-     _TblList          = "ASI.usr-menu OF ASI.users"
+     _TblList          = "ASI.usr-menu OF NOSWEAT.users"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _FldNameList[1]   > ASI.usr-menu.menu-num
 "usr-menu.menu-num" ? ? "integer" ? ? 0 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no

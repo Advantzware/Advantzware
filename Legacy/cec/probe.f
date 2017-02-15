@@ -101,8 +101,8 @@ form
      vtot-msf
      skip
      header
-     "     E S T I M A T E  " + "#" + trim(xest.est-no) +
-     "   A N A L Y S I S   P e r  T h o u s a n d     " format "x(78)" skip
+     /*"     E S T I M A T E  " + "#" + trim(xest.est-no) +
+     "   A N A L Y S I S   P e r  T h o u s a n d     " format "x(78)" skip*/
      "                              "
      space(10)
      "                                              Total      Sell    Price  Total   Total" skip
@@ -123,8 +123,8 @@ form
      vtot-msf
      skip
      header
-     "     E S T I M A T E  " + "#" + trim(xest.est-no) +
-     "   A N A L Y S I S   P e r  T h o u s a n d     " format "x(78)" skip
+     /*"     E S T I M A T E  " + "#" + trim(xest.est-no) +
+     "   A N A L Y S I S   P e r  T h o u s a n d     " format "x(78)" skip*/
      "                              "
      space(10)
      "                                                      Total          Sell     Price  Total   Total" skip

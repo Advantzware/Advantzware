@@ -24,7 +24,7 @@ DEFINE TEMP-TABLE ttMachineTransactions NO-UNDO
     FIELD xxRecKey        LIKE machtran.rec_key
     FIELD xxSort          AS CHARACTER                LABEL "Sort"              FORMAT "x(100)"
     FIELD xxTotalTime     AS INTEGER                  LABEL "TotTime"           FORMAT "99999"
-    FIELD loginDateTime   AS CHARACTER                LABEL "Log In Date-Time"   
-    FIELD logoutDateTime  AS CHARACTER                LABEL "Log Out Date-Time"  
+    FIELD loginDateTime   AS CHARACTER                LABEL "Log In Date-Time"  FORMAT "x(19)"  
+    FIELD logoutDateTime  AS CHARACTER                LABEL "Log Out Date-Time" FORMAT "x(19)" 
         INDEX sortBy IS PRIMARY rowType xxSort
         .

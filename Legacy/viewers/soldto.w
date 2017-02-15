@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -257,7 +261,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -308,7 +312,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -382,7 +386,7 @@ PROCEDURE local-create-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/viewers/create/soldto.i}
-   
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -415,10 +419,10 @@ PROCEDURE local-delete-record :
               DELETE buff-soldto .
       END.
    END.
-     
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
-  
+
 END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -430,11 +434,11 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-    
+
   /* Code placed here will execute PRIOR to standard behavior. */
   DEF BUFFER bf-soldto FOR soldto . 
   DEF VAR thisOne AS CHAR NO-UNDO.
-    
+
   RUN sold-zip.
 
   /* Dispatch standard ADM method.                             */
@@ -445,7 +449,7 @@ PROCEDURE local-update-record :
   IF v-cust-log THEN DO:  
     DO I = 1 TO NUM-ENTRIES(v-cust-fmt):
         ASSIGN thisOne = ENTRY(i,v-cust-fmt).
-        
+
         FIND FIRST bf-soldto WHERE bf-soldto.cust-no = soldto.cust-no 
                           AND bf-soldto.sold-id = soldto.sold-id 
                           AND bf-soldto.company = thisOne NO-LOCK NO-ERROR.
@@ -491,16 +495,16 @@ PROCEDURE sold-zip :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     IF soldto.sold-zip:SCREEN-VALUE NE "" THEN
-    FIND FIRST ASI.zipcode
-        WHERE ASI.zipcode.zipcode EQ soldto.sold-zip:SCREEN-VALUE
+    FIND FIRST nosweat.zipcode
+        WHERE nosweat.zipcode.zipcode EQ soldto.sold-zip:SCREEN-VALUE
         NO-LOCK NO-ERROR.
-    IF AVAIL ASI.zipcode THEN do:
-      soldto.sold-state:SCREEN-VALUE = ASI.zipcode.state.
+    IF AVAIL nosweat.zipcode THEN do:
+      soldto.sold-state:SCREEN-VALUE = nosweat.zipcode.state.
       IF soldto.sold-city:SCREEN-VALUE EQ "" THEN
-        soldto.sold-city:SCREEN-VALUE = ASI.zipcode.city.
+        soldto.sold-city:SCREEN-VALUE = nosweat.zipcode.city.
     END.
   END.
 END PROCEDURE.
@@ -537,12 +541,12 @@ PROCEDURE soldto-new-log :
 ------------------------------------------------------------------------------*/
 DEF INPUT PARAMETER thisOne AS CHAR NO-UNDO.
 DEFINE BUFFER buff-soldto FOR soldto .
- 
+
  FIND CURRENT soldto NO-LOCK.
      CREATE buff-soldto .
      ASSIGN buff-soldto.company = thisone.
      BUFFER-COPY soldto EXCEPT company  TO buff-soldto.
- 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -556,18 +560,18 @@ PROCEDURE soldto-update-log :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
 DEF INPUT PARAMETER thisOne AS CHAR NO-UNDO.
 DEFINE BUFFER buff-soldto FOR soldto .
 
      FIND CURRENT soldto NO-LOCK NO-ERROR.
-  
+
      FIND FIRST buff-soldto WHERE buff-soldto.cust-no = soldto.cust-no 
                           AND buff-soldto.sold-id = soldto.sold-id 
                           AND buff-soldto.company = thisOne EXCLUSIVE-LOCK NO-ERROR.
      IF AVAIL buff-soldto THEN
      BUFFER-COPY soldto EXCEPT cust-no company sold-id TO buff-soldto.
-    
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

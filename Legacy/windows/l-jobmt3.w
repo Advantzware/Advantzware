@@ -72,7 +72,7 @@ and job-mat.job-no2 = job.job-no2 NO-LOCK, ~
       FIRST item WHERE item.company = job-mat.company ~
   AND item.i-no = job-mat.rm-i-no NO-LOCK, ~
       FIRST report WHERE report.rec_key = string(rowid(ASI.job-mat)) ~
-      AND report.term-id eq v-term + USERID("ASI") NO-LOCK ~
+      AND report.term-id eq v-term + USERID("nosweat") NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH job-mat WHERE ~{&KEY-PHRASE} ~
       AND job-mat.company = job.company ~
@@ -82,7 +82,7 @@ and job-mat.job-no2 = job.job-no2 NO-LOCK, ~
       FIRST item WHERE item.company = job-mat.company ~
   AND item.i-no = job-mat.rm-i-no NO-LOCK, ~
       FIRST report WHERE report.rec_key = string(rowid(ASI.job-mat)) ~
-      AND report.term-id eq v-term + USERID("ASI") NO-LOCK ~
+      AND report.term-id eq v-term + USERID("nosweat") NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-BROWSE-1 job-mat item report
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 job-mat
@@ -233,7 +233,7 @@ and job-mat.job-no2 = job.job-no2"
      _JoinCode[2]      = "ASI.item.company = ASI.job-mat.company
   AND ASI.item.i-no = ASI.job-mat.rm-i-no"
      _JoinCode[3]      = "ASI.report.rec_key = string(rowid(ASI.job-mat))"
-     _Where[3]         = "ASI.report.term-id eq v-term + USERID(""ASI"")"
+     _Where[3]         = "ASI.report.term-id eq v-term + USERID(""nosweat"")"
      _FldNameList[1]   > ASI.job-mat.job-no
 "job-mat.job-no" "Job#" ? "character" ? ? ? ? ? ? no ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.job-mat.job-no2
@@ -611,7 +611,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
          CREATE xreport.
           ASSIGN
-           xreport.term-id = v-term + USERID("ASI")
+           xreport.term-id = v-term + USERID("nosweat")
            xreport.rec_key = STRING(ROWID(job-mat))
            ll-rec-created  = YES.
      
@@ -634,7 +634,7 @@ END.
 
 RUN disable_UI.
 
-FOR EACH xreport WHERE xreport.term-id EQ v-term + USERID("ASI"):
+FOR EACH xreport WHERE xreport.term-id EQ v-term + USERID("nosweat"):
   DELETE xreport.
 END.
 

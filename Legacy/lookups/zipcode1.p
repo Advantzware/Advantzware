@@ -18,7 +18,7 @@
 "zipcode1. " ~
 */
 
-&Scoped-define lookup-db ASI.
+&Scoped-define lookup-db NOSWEAT.
 &Scoped-define lookup-file zipcode
 &Scoped-define where-statement TRUE
 &Scoped-define return-field zipcode

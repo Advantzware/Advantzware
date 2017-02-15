@@ -1,6 +1,10 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -155,7 +159,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
@@ -177,18 +181,18 @@ ON CHOOSE OF btn-re-seq IN FRAME F-Main /* Proceed Re-Sequence */
 DO:
      def buffer bf-file for file.
      def var i as int no-undo.
-     
+
      Message "Are you sure you want to re-sequence reference file?" 
              view-as alert-box question button yes-no update ll-ans as log.
      if not ll-ans then return no-apply.
-     
+
      session:set-wait-state("General").
      i = 1000.
      for each bf-file where bf-file.seq < 1000 by bf-file.grp by bf-file.seq:
          assign i = i + 5
                 bf-file.seq = i. 
                 .
-         
+
      end.
      for each bf-file where bf-file.seq > 1000 by bf-file.seq:
          assign bf-file.seq = bf-file.seq - 1000.
@@ -212,7 +216,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */

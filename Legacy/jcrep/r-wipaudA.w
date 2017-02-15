@@ -274,9 +274,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -343,7 +353,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -402,6 +412,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -415,7 +426,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-       
+
   run run-report. 
 
   case rd-dest:
@@ -425,7 +436,7 @@ DO:
        WHEN 5 THEN
        DO:
           DEF VAR lv-tmp AS CHAR INIT "-0" NO-UNDO.
-          
+
           {custom/asimailr.i &TYPE="Customer"
                              &begin_cust=lv-tmp
                              &END_cust=lv-tmp
@@ -436,6 +447,7 @@ DO:
 
   end case. 
 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -612,8 +624,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -631,7 +645,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -639,6 +653,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO begin_job-no.
   END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -708,38 +723,38 @@ PROCEDURE excel-job-totals-proc :
    DEFINE INPUT PARAMETER ip-v-hrs-job AS DEC NO-UNDO.
    DEFINE INPUT PARAMETER ip-v-fg-job  AS DEC NO-UNDO.
    DEFINE INPUT PARAMETER ip-v-oth-job AS DEC NO-UNDO.
-   
+
    PUT STREAM excel UNFORMATTED
        SKIP(1).
-  
+
    RUN excel-spaces-proc(INPUT 5).
-  
+
    PUT STREAM excel UNFORMATTED
        '"' ip-text                           '",'.
-  
+
    PUT STREAM excel UNFORMATTED
        '"' "BOARD TOTALS - "                 '",'
        '"' STRING(ip-v-brd-job,">>>>>>>>9-") '",'
        SKIP.
-  
+
    RUN excel-spaces-proc(INPUT 6).
-  
+
    PUT STREAM excel UNFORMATTED
        '"' "MACHINE TOTALS - "               '",'
        '"' STRING(ip-v-mch-job,">>>>>>>>9-") '",'
        '"' STRING(ip-v-wst-job,">>>>>>9-")   '",'
        '"' STRING(ip-v-hrs-job,">>>>9.99-")  '",'
        SKIP.
-  
+
    RUN excel-spaces-proc(INPUT 6).
-  
+
    PUT STREAM excel UNFORMATTED
        '"' "FINISHED GOODS TOTALS:"          '",'
        '"' STRING(ip-v-fg-job,">>>>>>>>9-")  '",'
        SKIP.
-  
+
    RUN excel-spaces-proc(INPUT 6).
-  
+
    PUT STREAM excel UNFORMATTED
        '"' "OTHER MATERIAL TOTALS:"          '",'
        '"' STRING(ip-v-oth-job,">>>>>>>>9-") '",'
@@ -757,7 +772,7 @@ PROCEDURE excel-spaces-proc :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE INPUT PARAMETER ip-spaces AS INT NO-UNDO.
-  
+
    DEF VAR viLoop AS INT NO-UNDO.
 
    DO viLoop = 1 TO ip-spaces:
@@ -793,7 +808,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -909,7 +924,7 @@ assign
   v-job-no[2]   = fill(" ",6 - length(trim(end_job-no)))   +
                   trim(end_job-no)   + string(int(end_job-no2),"99") 
   v-only-opn    = tb_wip
-     
+
     /*
  v-job-no[1]    = begin_job-no
  v-job-no[2]    = end_job-no
@@ -973,7 +988,7 @@ display "" with frame r-top.
                   and mach.m-code  eq mch-act.m-code
                 no-lock no-error.
             if not available mach then next.
-  
+
             create work-aud.
             assign work-aud.job-no = mch-act.job-no
                    work-aud.tran-date = mch-act.op-date
@@ -1019,13 +1034,13 @@ display "" with frame r-top.
                and fg-act.job     eq job.job
              use-index job-idx no-lock:
             if v-only-opn and not fg-act.opn then next.
-     
+
             find itemfg
                 where itemfg.company eq cocode
                   and itemfg.i-no    eq fg-act.i-no
                 no-lock no-error.
             if not available itemfg then next.
-     
+
             create work-aud.
             assign work-aud.job-no = fg-act.job-no
                    work-aud.job-no2 = fg-act.job-no2
@@ -1246,11 +1261,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1282,19 +1297,19 @@ PROCEDURE show-param :
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

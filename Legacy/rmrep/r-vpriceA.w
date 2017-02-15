@@ -301,9 +301,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -360,7 +370,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -430,6 +440,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -479,6 +490,7 @@ DO:
        END.
        WHEN 6 THEN RUN OUTPUT-to-port.
   end case.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -644,8 +656,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -663,14 +677,15 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     APPLY "entry" TO begin_rm-no.
   END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -734,7 +749,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
   /*   DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -745,9 +760,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
     */
     {custom/out2file.i}
@@ -780,7 +795,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -866,12 +881,12 @@ if td-show-parm then run show-param.
 SESSION:SET-WAIT-STATE ("general").
 
   display "" with frame r-top.
-    
+
   IF tb_excel THEN
   DO:
-  
+
    OUTPUT STREAM st-excel TO VALUE(v-excel-file).
-  
+
    PUT STREAM st-excel
        "Item Number,"
        "Vendor Number,"
@@ -896,7 +911,7 @@ SESSION:SET-WAIT-STATE ("general").
        "Up to Quantity,"
        "Cost," 
        SKIP.
-       
+
   END.
 
   DEF VAR xx AS INT.
@@ -934,8 +949,8 @@ SESSION:SET-WAIT-STATE ("general").
             "* Blank *" @ vend.vend-no 
          with frame f-minor.
 
-        
-        
+
+
         IF tb_excel THEN        
            PUT STREAM st-excel
                item.i-no
@@ -946,7 +961,7 @@ SESSION:SET-WAIT-STATE ("general").
                v-comma
                item.pur-uom
                v-comma.
-        
+
 
         j = 0.
 
@@ -955,8 +970,8 @@ SESSION:SET-WAIT-STATE ("general").
                 j = j + 1.
                 if e-item.run-qty[i] = 0 and e-item.run-cost[i] = 0 then do:
                    down with frame f-minor.
-                  
-                   
+
+
                    IF tb_excel THEN
                      PUT STREAM st-excel SKIP.
 
@@ -969,14 +984,14 @@ SESSION:SET-WAIT-STATE ("general").
                    e-item.run-cost[i] @ e-item-vend.run-cost[j]
                with frame f-minor.
 
-               
+
                IF tb_excel THEN
                DO:
-                   
+
                    PUT STREAM st-excel 
-                              e-item.run-qty[i]  FORMAT "ZZZZZZZ9.99" 
+                              e-item.run-qty[i]  FORMAT "ZZZZZZZ9.9999" 
                               v-comma
-                              e-item.run-cost[i] FORMAT "ZZZZZZZ9.99"
+                              e-item.run-cost[i] FORMAT "ZZZZZZZ9.9999"
                               v-comma.
                END.
 
@@ -988,7 +1003,7 @@ SESSION:SET-WAIT-STATE ("general").
                    j = 0.
                end.
             end. /*do i = 1 to 9*/
-            
+
             if i gt 1 then do:
               underline
                   item.i-no vend.vend-no vend.name
@@ -1003,11 +1018,11 @@ SESSION:SET-WAIT-STATE ("general").
 
             end.
 
-                 
+
         end. /*avail e-item*/
        else
        DO:
-       
+
            down with frame f-minor.
 
             IF tb_excel THEN
@@ -1016,7 +1031,7 @@ SESSION:SET-WAIT-STATE ("general").
        END.
 
     end.
-    
+
     /*non blank vendor*/
     for each e-item-vend
         where e-item-vend.company eq item.company
@@ -1029,7 +1044,7 @@ SESSION:SET-WAIT-STATE ("general").
                 find   vend where vend.company eq e-item-vend.company
                               and vend.vend-no eq e-item-vend.vend-no
                   no-lock no-error.
-        
+
               ASSIGN v-vend-no   = IF AVAIL vend THEN vend.vend-no ELSE e-item-vend.vend-no
                      v-vend-name = IF AVAIL vend THEN vend.NAME ELSE "not avail".
 
@@ -1040,7 +1055,7 @@ SESSION:SET-WAIT-STATE ("general").
                   v-vend-name 
                 with frame f-minor.
 
-              
+
               IF tb_excel THEN
                  PUT STREAM st-excel
                      item.i-no
@@ -1051,7 +1066,7 @@ SESSION:SET-WAIT-STATE ("general").
                      v-comma
                      item.pur-uom
                      v-comma.
-              
+
                 j = 0.
                 do i = 1 to 9:
                  j = j + 1.
@@ -1060,21 +1075,21 @@ SESSION:SET-WAIT-STATE ("general").
                       IF tb_excel THEN PUT STREAM st-excel SKIP.
                       LEAVE.
                   END.
-            
+
                   display
                     e-item-vend.run-qty[i] @ e-item-vend.run-qty[j]
                     e-item-vend.run-cost[i] @ e-item-vend.run-cost[j]
                   with frame f-minor.
 
-                  
+
                   IF tb_excel THEN
                      PUT STREAM st-excel
-                         e-item-vend.run-qty[i]  FORMAT "ZZZZZZ9.99"
+                         e-item-vend.run-qty[i]  FORMAT "ZZZZZZ9.9999"
                          v-comma
-                         e-item-vend.run-cost[i] FORMAT "ZZZZZZ9.99"
+                         e-item-vend.run-cost[i] FORMAT "ZZZZZZ9.9999"
                          v-comma.
-                 
-                  
+
+
 
                   if j eq 3 then
                   do:
@@ -1133,11 +1148,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1165,23 +1180,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

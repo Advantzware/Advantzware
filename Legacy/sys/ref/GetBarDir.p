@@ -189,7 +189,7 @@ DEFINE OUTPUT PARAMETER opcDirectory AS CHAR NO-UNDO.
 DEFINE BUFFER bf-users FOR users.
 
 FIND FIRST bf-users 
-    WHERE bf-users.user_id = USERID("ASI")  
+    WHERE bf-users.user_id = USERID("nosweat")  
     NO-LOCK NO-ERROR.
 IF AVAIL bf-users AND bf-users.user_program[3] <> "" THEN
     opcDirectory = bf-users.user_program[3].

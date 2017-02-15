@@ -18,7 +18,7 @@
       <none>
 
   History: 
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -186,7 +186,7 @@ THEN W-Win:HIDDEN = yes.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -211,7 +211,7 @@ ON WINDOW-CLOSE OF W-Win /* FG Item */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
-  
+
   def var char-hdl as cha no-undo.
 
   run get-link-handle in adm-broker-hdl(this-procedure,"quote-source", output char-hdl).
@@ -990,9 +990,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1012,7 +1012,7 @@ PROCEDURE local-initialize :
 
   /* Code placed here will execute AFTER standard behavior.    */
   apply "entry" to frame {&frame-name}.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

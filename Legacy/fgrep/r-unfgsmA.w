@@ -306,9 +306,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -389,7 +399,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -470,6 +480,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -526,10 +537,11 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -541,7 +553,8 @@ END.
 ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
-  
+
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -742,8 +755,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -753,7 +768,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-            
+
 /* security check need {methods/prgsecur.i} in definition section */
   IF access-close THEN DO:
      APPLY "close" TO THIS-PROCEDURE.
@@ -761,9 +776,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
-  
+
   RUN sys/inc/CustListForm.p ( "IL2",cocode, 
                                OUTPUT ou-log,
                                OUTPUT ou-cust-int) .
@@ -772,12 +787,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {custom/usrprint.i}
     APPLY "entry" TO lbl_ord-stat.
   END.
-    
+
   RUN sys/ref/CustList.p (INPUT cocode,
                           INPUT 'IL2',
                           INPUT NO,
                           OUTPUT glCustListActive).
-  {sys/inc/chblankcust.i}
+  {sys/inc/chblankcust.i ""IL2""}
 
   IF ou-log THEN DO:
       ASSIGN 
@@ -794,7 +809,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO"
         btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
         .
-      
+
    IF ou-log AND ou-cust-int = 0 THEN do:
        ASSIGN 
         tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = YES
@@ -805,8 +820,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
    END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
-    
+
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 
@@ -891,9 +907,9 @@ def var v-loc like oe-boll.loc.
         no-lock,
 
         first shipto of oe-rel no-lock:
-        
+
       {fg/rep/fg-unsum.i}
-      
+
       if v-loc ge begin_whse and v-loc le end_whse then do:
         create tt-report.
         assign
@@ -919,7 +935,7 @@ PROCEDURE CustList :
 
     RUN sys/ref/CustListManager.w(INPUT cocode,
                                   INPUT 'IL2').
-    
+
 
 END PROCEDURE.
 
@@ -981,7 +997,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
 /*     DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -992,11 +1008,11 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY. */
-     
+
 {custom/out2file.i} 
 
 END PROCEDURE.
@@ -1028,7 +1044,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1109,7 +1125,7 @@ assign
  v-titem   = end_i-no
  v-floc    = begin_whse
  v-tloc    = end_whse.
- 
+
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i value(lines-per-page)}
@@ -1126,7 +1142,7 @@ END.
 SESSION:SET-WAIT-STATE("general").
 
 display "" with frame r-top.
-   
+
 FOR EACH tt-report:
   DELETE tt-report.
 END.
@@ -1152,18 +1168,18 @@ END.
     FOR EACH oe-ordl {&where-phrase} NO-LOCK:
       RUN create-report. 
     END.
-    
+
     for each tt-report WHERE tt-report.term-id EQ "",
-    
+
         first oe-rel where recid(oe-rel) eq tt-report.rec-id no-lock,
-        
+
         first oe-ordl
         where oe-ordl.company eq cocode
           and oe-ordl.ord-no  eq oe-rel.ord-no
           and oe-ordl.i-no    eq oe-rel.i-no
           and oe-ordl.line    eq oe-rel.line
         no-lock,
-        
+
         first oe-ord of oe-ordl no-lock,
 
         first itemfg
@@ -1172,17 +1188,17 @@ END.
         no-lock,
 
         first shipto of oe-rel no-lock
-        
+
         break by tt-report.key-01
               by tt-report.key-02 
               by tt-report.key-03
-              
+
         transaction:
-            
+
         {custom/statusMsg.i " 'Processing FG Item '  + oe-ordl.i-no"}
 
       {fg/rep/fg-unsum.i}
-            
+
       v-ono[1] = v-ono[1] + oe-rel.qty.
 
       if avail ar-invl then v-shp[1] = v-shp[1] + ar-invl.ship-qty.
@@ -1316,7 +1332,7 @@ IF tb_excel THEN DO:
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
-    
+
 SESSION:SET-WAIT-STATE("").
 
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
@@ -1344,7 +1360,7 @@ PROCEDURE SetCustRange :
         btnCustList:SENSITIVE = iplChecked
        .
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1365,11 +1381,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1397,23 +1413,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

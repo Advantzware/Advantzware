@@ -61,7 +61,7 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON printAck 
-     IMAGE-UP FILE "Graphics/32x32/printer_ok.png":U
+     IMAGE-UP FILE "Graphics/32x32/printer_ok.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 7.8 BY 1.81 TOOLTIP "Print Acknowledgement".
@@ -111,7 +111,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB s-object 
 /* ************************* Included-Libraries *********************** */
 
-{advantzware/winkit/winkit-panel.i}
+{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/smart.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -144,7 +144,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -155,11 +155,7 @@ ASSIGN
 ON CHOOSE OF printAck IN FRAME F-Main
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
-
-
-  /* Added by WinKit Migration tool 07.02.2016 21:13:33 */
-  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
-
+  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -245,7 +241,7 @@ PROCEDURE state-changed :
       /* Object instance CASEs can go here to replace standard behavior
          or add new cases. */
   END CASE.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

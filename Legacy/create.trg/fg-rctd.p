@@ -6,4 +6,4 @@ TRIGGER PROCEDURE FOR CREATE OF {&TABLENAME}.
 
 ASSIGN fg-rctd.upd-date = TODAY
        fg-rctd.upd-time = TIME
-       fg-rctd.created-by = USERID("ASI").
+       fg-rctd.created-by = USERID("NOSWEAT").

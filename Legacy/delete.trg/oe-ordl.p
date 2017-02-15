@@ -54,7 +54,7 @@ END.
 FOR EACH oe-ord OF {&TABLENAME}:
   RUN oe/ordlline.p (ROWID(oe-ord)).
 
-  IF oeuserid-log THEN oe-ord.user-id = USERID("ASI").
+  IF oeuserid-log THEN oe-ord.user-id = USERID("nosweat").
 
   LEAVE.
 END.

@@ -142,7 +142,7 @@ for each {1}fg-rctd
     create fg-rdtlh.
     {fg/fg-rdtl.i fg-rdtlh {1}fg-rctd}
       ASSIGN
-        fg-rdtlh.USER-ID = USERID("ASI") 
+        fg-rdtlh.USER-ID = USERID("NOSWEAT") 
         fg-rdtlh.upd-date = TODAY
         fg-rdtlh.upd-time = TIME.
     
@@ -157,7 +157,7 @@ for each {1}fg-rctd
       create fg-rdtlh.      
       {fg/fg-rdtl.i fg-rdtlh {1}fg-rctd}
       ASSIGN
-        fg-rdtlh.USER-ID = USERID("ASI") 
+        fg-rdtlh.USER-ID = USERID("NOSWEAT") 
         fg-rdtlh.upd-date = TODAY
         fg-rdtlh.upd-time = TIME.
     end.
@@ -165,7 +165,7 @@ for each {1}fg-rctd
   create fg-rcpth.
   {fg/fg-rcpts.i fg-rcpth {1}fg-rctd}   /* Create History Record */
    ASSIGN
-      fg-rcpth.USER-ID = USERID("ASI") 
+      fg-rcpth.USER-ID = USERID("NOSWEAT") 
       fg-rcpth.upd-date = TODAY
       fg-rcpth.upd-time = TIME.
 

@@ -324,10 +324,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-  
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -396,7 +405,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -434,7 +443,7 @@ ON LEAVE OF begin_contact_sman IN FRAME FRAME-A /* Beginning Salesman */
 DO:
     def var ll-got-it as log no-undo.
     if lastkey <> -1 then do:
-         
+
        find first maillist where maillist.list-name = ls-mail-list:screen-value no-lock no-error.
        ll-got-it = no.
        for each mailcont of maillist no-lock, 
@@ -459,10 +468,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no C-Win
 ON LEAVE OF begin_cust-no IN FRAME FRAME-A /* Beginning Customer Number */
 DO:
-    
+
     def var ll-got-it as log no-undo.
     if lastkey <> -1 then do:
-         
+
        find first maillist where maillist.list-name = ls-mail-list:screen-value no-lock no-error.
        ll-got-it = no.
        for each mailcont of maillist no-lock where mailcont.cust-no >= self:screen-value : 
@@ -486,6 +495,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -502,12 +512,12 @@ DO:
         apply "entry" to ls-mail-list in frame {&frame-name}.
         return no-apply.
     end.
-  
+
 
 
   session:set-wait-state("general").
   assign rd-dest tb_excel tblastorder v-export-name.
-       
+
 /*  run run-report.  for laser */
   run run-report-jet.
 
@@ -543,12 +553,13 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
 
   session:set-wait-state("").
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -561,7 +572,7 @@ ON LEAVE OF end_contact_sman IN FRAME FRAME-A /* Ending Salesman */
 DO:
     def var ll-got-it as log no-undo.
     if lastkey <> -1 then do:
-         
+
        find first maillist where maillist.list-name = ls-mail-list:screen-value no-lock no-error.
        ll-got-it = no.
        for each mailcont of maillist no-lock, 
@@ -589,7 +600,7 @@ ON LEAVE OF end_cust-no IN FRAME FRAME-A /* Ending Customer Number */
 DO:
     def var ll-got-it as log no-undo.
     if lastkey <> -1 then do:
-         
+
        find first maillist where maillist.list-name = ls-mail-list:screen-value no-lock no-error.
        ll-got-it = no.
        for each mailcont of maillist no-lock where mailcont.cust-no <= self:screen-value : 
@@ -741,8 +752,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -754,7 +767,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
   FIND FIRST users WHERE
-      users.user_id EQ USERID("ASI")
+      users.user_id EQ USERID("NOSWEAT")
       NO-LOCK NO-ERROR.
 
   IF AVAIL users AND users.user_program[2] NE "" THEN
@@ -767,10 +780,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     cocode = g_company.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
   apply "entry" to ls-mail-list in frame {&frame-name}.
-  
+
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -854,7 +868,7 @@ PROCEDURE output-to-label :
      DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
      SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -891,7 +905,7 @@ PROCEDURE output-to-printer :
   else RUN 'adecomm/_osprint.p' (INPUT ?, INPUT list-name,  
                             INPUT 3, INPUT 2, INPUT 0, INPUT 0, OUTPUT result).  /* landscape */
 
-                          
+
 
 END PROCEDURE.
 
@@ -960,14 +974,14 @@ form
       v-lbl-1[4] at 3 v-lbl-2[4] at 45 v-lbl-3[4] at 88 skip
       v-lbl-1[5] at 3 v-lbl-2[5] at 45 v-lbl-3[5] at 88 skip
       with width 130 no-box no-label stream-io down frame lbl.
-      
+
 assign v-start-compress = ""
        v-end-compress = "".
 
 if t-sortby then do:  /* yes all the time */
 
     output to value(list-name) page-size 80.
-      
+
     find first asi.printer where printer.company eq gcompany
                      and asi.printer.loc     eq gloc
                      and asi.printer.pr-no   eq selected-printer no-lock no-error.
@@ -992,7 +1006,7 @@ for each cust where cust.company eq gcompany
 
     find first maillist where maillist.list-name = ls-mail-list no-lock no-error.
     if not avail maillist then return.
-      
+
     for each mailcont of maillist no-lock where mailcont.maillist,
         each contact where recid(contact) = mailcont.contact-rec
                        and contact.company eq selected-company
@@ -1028,9 +1042,9 @@ for each cust where cust.company eq gcompany
               "country" v-delim skip.
           assign print-head = no.
         end.
-       
+
         v-cust-name = if avail cust then cust.name else "".
-       
+
         put stream s-mail unformatted
             trim(contact.sirname) v-delim
             trim(contact.first-name) v-delim
@@ -1043,13 +1057,13 @@ for each cust where cust.company eq gcompany
             trim(contact.state) v-delim
             trim(contact.zip) v-delim
             trim(contact.country) v-delim skip.
-        create ASI.note.
-        assign ASI.note.rec_key = contact.rec_key
-               ASI.note.note_date = TODAY
-               ASI.note.note_time = TIME
-               ASI.note.user_id = USERID("ASI")
-               ASI.note.note_title = FILL-IN-Title
-               ASI.note.note_text = "Automatic Note Generation from Mail Merge Report. " +
+        create nosweat.note.
+        assign nosweat.note.rec_key = contact.rec_key
+               nosweat.note.note_date = TODAY
+               nosweat.note.note_time = TIME
+               nosweat.note.user_id = USERID("NOSWEAT")
+               nosweat.note.note_title = FILL-IN-Title
+               nosweat.note.note_text = "Automatic Note Generation from Mail Merge Report. " +
                                         string(note.note_date,"99/99/9999") + " " +
                                         string(note.note_time,"HH:MM:SS AM").
       end.  
@@ -1071,7 +1085,7 @@ for each cust where cust.company eq gcompany
                                   v-lbl-2[4] = contact.addr2
                                   v-lbl-2[5] = contact.city + ", " + contact.state + " " + contact.zip
                                                + " " + contact.country.
-                                               
+
      else if v-lbl-cnt = 3 then assign v-lbl-3[1] = v-sname
                                        v-lbl-3[2] = contact.cust-name
                                        v-lbl-3[3] = contact.addr1
@@ -1079,7 +1093,7 @@ for each cust where cust.company eq gcompany
                                        v-lbl-3[5] = contact.city + ", " + contact.state + " " + contact.zip
                                                + " " + contact.country
                                        .
-    
+
      if v-lbl-cnt >= 3 then do:
         if v-lbl-1[4] = "" then assign v-lbl-1[4] = v-lbl-1[5]
                                        v-lbl-1[5] = "".
@@ -1119,7 +1133,7 @@ for each cust where cust.company eq gcompany
    do:
       find first maillist where maillist.list-name = ls-mail-list no-lock no-error.
       if not avail maillist then return.
-      
+
       for each mailcont of maillist no-lock,
           each contact no-lock where recid(contact) = mailcont.contact-rec 
                                  and contact.company eq selected-company
@@ -1145,9 +1159,9 @@ for each cust where cust.company eq gcompany
                   "country" v-delim skip.
               assign print-head = no.
           end.
-              
+
           v-cust-name = if avail cust then cust.name else "".
-       
+
           put stream s-mail unformatted
               trim(contact.sirname) v-delim
               trim(mailcont.first-name) v-delim
@@ -1160,22 +1174,22 @@ for each cust where cust.company eq gcompany
               trim(contact.state) v-delim
               trim(contact.zip) v-delim
               trim(contact.country) v-delim skip.
-          create ASI.note.
-          assign ASI.note.rec_key = contact.rec_key
-               ASI.note.note_date = TODAY
-               ASI.note.note_time = TIME
-               ASI.note.user_id = USERID("ASI")
-               ASI.note.note_title = FILL-IN-Title
-               ASI.note.note_text = "Automatic Note Generation from Mail Merge Report. " +
+          create nosweat.note.
+          assign nosweat.note.rec_key = contact.rec_key
+               nosweat.note.note_date = TODAY
+               nosweat.note.note_time = TIME
+               nosweat.note.user_id = USERID("NOSWEAT")
+               nosweat.note.note_title = FILL-IN-Title
+               nosweat.note.note_text = "Automatic Note Generation from Mail Merge Report. " +
                                         string(note.note_date,"99/99/9999") + " " +
                                         string(note.note_time,"HH:MM:SS AM").
       end.  /* for each */
-   
+
    end.  /* tbmailmrge */
-   
+
    output stream s-mail close.
  =====================================*/
- 
+
    output close.
    return.
 end.
@@ -1197,7 +1211,7 @@ PROCEDURE run-report-jet :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- 
+
   DEF VAR v-delimit AS cha INIT "," FORM "x" NO-UNDO.
 
   assign list-name = v-dir + "\contlbl.rpt"
@@ -1241,7 +1255,7 @@ form
       v-lbl-1[4] at 3 v-lbl-2[4] at 45 v-lbl-3[4] at 88 skip
       v-lbl-1[5] at 3 v-lbl-2[5] at 45 v-lbl-3[5] at 88 skip(1)
       with width 130 no-box no-label stream-io down frame lbl.
-      
+
 assign v-start-compress = ""
        v-end-compress = "".
 
@@ -1254,7 +1268,7 @@ if t-sortby then do:  /* yes all the time */
 
     output to value(list-name) page-size 0.
     put skip(2).  /* for jet */
-      
+
     find first asi.printer where asi.printer.company eq gcompany
                      and asi.printer.loc     eq gloc
                      and asi.printer.pr-no   eq selected-printer no-lock no-error.
@@ -1279,7 +1293,7 @@ for each cust where cust.company eq gcompany
 
     find first maillist where maillist.list-name = ls-mail-list no-lock no-error.
     if not avail maillist then return.
-      
+
     for each mailcont of maillist no-lock where mailcont.maillist,
         each contact where recid(contact) = mailcont.contact-rec
                        and contact.company eq selected-company
@@ -1297,7 +1311,7 @@ for each cust where cust.company eq gcompany
         find sman where sman.company eq selected-company
                   and sman.sman eq contact.sman
               no-lock no-error.
-     
+
 
        /*v-sname = if avail sman then sman.sname else "".  */
        v-sname = contact.first-name + " " + contact.middle-initial + " " + contact.last-name.
@@ -1316,7 +1330,7 @@ for each cust where cust.company eq gcompany
                                   v-lbl-2[4] = contact.addr2
                                   v-lbl-2[5] = contact.city + ", " + contact.state + " " + contact.zip
                                                + " " + contact.country.
-                                               
+
      else if v-lbl-cnt = 3 then assign v-lbl-3[1] = v-sname
                                        v-lbl-3[2] = contact.cust-name
                                        v-lbl-3[3] = contact.addr1

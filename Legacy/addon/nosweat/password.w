@@ -33,8 +33,8 @@
 {methods/prgsecur.i}
 
 DEFINE VARIABLE tries AS INTEGER NO-UNDO.
-DEFINE VARIABLE v-save_userid LIKE ASI._user._userid NO-UNDO.
-DEFINE VARIABLE v-save_password LIKE ASI._user._password NO-UNDO.
+DEFINE VARIABLE v-save_userid LIKE NOSWEAT._user._userid NO-UNDO.
+DEFINE VARIABLE v-save_password LIKE NOSWEAT._user._password NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -189,10 +189,10 @@ DO:
   END.
   
   DO TRANSACTION:
-    FIND ASI._user WHERE ASI._user._userid = v-username:SCREEN-VALUE
+    FIND NOSWEAT._user WHERE NOSWEAT._user._userid = v-username:SCREEN-VALUE
          EXCLUSIVE-LOCK NO-ERROR.
-    IF NOT AVAILABLE ASI._user OR
-       ASI._user._password NE ENCODE(v-current_password:SCREEN-VALUE) THEN
+    IF NOT AVAILABLE NOSWEAT._user OR
+       NOSWEAT._user._password NE ENCODE(v-current_password:SCREEN-VALUE) THEN
     DO:
       MESSAGE "Userid/Password is incorrect." VIEW-AS ALERT-BOX ERROR.
       DISABLE {&Update-Fields} WITH FRAME {&FRAME-NAME}.
@@ -200,7 +200,7 @@ DO:
       APPLY "ENTRY" TO v-username IN FRAME {&FRAME-NAME}.
       RETURN NO-APPLY.
     END.
-    ASSIGN ASI._user._password = ENCODE(v-new_password:SCREEN-VALUE).
+    ASSIGN NOSWEAT._user._password = ENCODE(v-new_password:SCREEN-VALUE).
   END. /* TRANSACTION */
 END.
 
@@ -213,7 +213,7 @@ END.
 ON LEAVE OF v-current_password IN FRAME Dialog-Frame /* Current Password */
 DO: 
   IF NOT SETUSERID(v-username:SCREEN-VALUE,
-                   {&SELF-NAME}:SCREEN-VALUE,"ASI") THEN
+                   {&SELF-NAME}:SCREEN-VALUE,"NOSWEAT") THEN
   DO:
     MESSAGE "Userid/Password is incorrect." VIEW-AS ALERT-BOX ERROR.
     IF tries GT 3 THEN QUIT. /* only allow 3 tries*/
@@ -300,21 +300,21 @@ THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  FIND ASI._user WHERE ASI._user._userid = USERID("ASI") NO-LOCK NO-ERROR.
-  IF NOT AVAILABLE ASI._user THEN
+  FIND NOSWEAT._user WHERE NOSWEAT._user._userid = USERID("NOSWEAT") NO-LOCK NO-ERROR.
+  IF NOT AVAILABLE NOSWEAT._user THEN
   DO:
-    MESSAGE "User:" USERID("ASI") "not on file" VIEW-AS ALERT-BOX ERROR.
+    MESSAGE "User:" USERID("NOSWEAT") "not on file" VIEW-AS ALERT-BOX ERROR.
     {methods/nowait.i}
     RETURN.
   END.
-  ASSIGN v-username = ASI._user._userid.
+  ASSIGN v-username = NOSWEAT._user._userid.
   RUN enable_UI.
   {methods/nowait.i}
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
-IF USERID("ASI") NE v-save_userid THEN
-  IF NOT SETUSERID(v-save_userid,v-save_password,"ASI") THEN
-    MESSAGE "Current Userid is" USERID("ASI") VIEW-AS ALERT-BOX WARNING.
+IF USERID("NOSWEAT") NE v-save_userid THEN
+  IF NOT SETUSERID(v-save_userid,v-save_password,"NOSWEAT") THEN
+    MESSAGE "Current Userid is" USERID("NOSWEAT") VIEW-AS ALERT-BOX WARNING.
 RUN disable_UI.
 
 /* _UIB-CODE-BLOCK-END */

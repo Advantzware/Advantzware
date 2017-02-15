@@ -128,7 +128,7 @@ PROCEDURE List-Header:
   DEFINE VARIABLE rpt_title AS CHARACTER FORMAT "x(36)" NO-UNDO.
   DEFINE VARIABLE rpt_name AS CHARACTER FORMAT "x(20)" NO-UNDO.
 
-  FIND users WHERE users.user_id = USERID("ASI") NO-LOCK.
+  FIND users WHERE users.user_id = USERID("NOSWEAT") NO-LOCK.
 
   RUN GetPageNo IN h_Viper (OUTPUT rpt_page).
   RUN SetCellText IN h_Viper ('Date-Cell','Header1','Date: ' + STRING(TODAY,'99/99/9999')).

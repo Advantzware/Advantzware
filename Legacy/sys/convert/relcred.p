@@ -29,5 +29,5 @@ DO TRANSACTION:
 
    CREATE reftable.
    ASSIGN reftable.reftable = "relcredconv"
-          reftable.code2    = STRING(TIME) + " " + USERID("ASI").
+          reftable.code2    = STRING(TIME) + " " + USERID("nosweat").
 END.

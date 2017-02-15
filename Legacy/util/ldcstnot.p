@@ -28,7 +28,7 @@ REPEAT:
        IF AVAIL cust THEN do:
           if cust.rec_key = '' THEN DO:
               ls-key = string(today,"99999999") +
-                       string(next-value(rec_key_seq,ASI),"99999999").             
+                       string(next-value(rec_key_seq,nosweat),"99999999").             
  
              create rec_key.
              assign rec_key.rec_key = ls-key
@@ -74,7 +74,7 @@ REPEAT:
         IF AVAIL cust THEN DO:
            if cust.rec_key = '' THEN DO:
               ls-key = string(today,"99999999") +
-                       string(next-value(rec_key_seq,ASI),"99999999").             
+                       string(next-value(rec_key_seq,nosweat),"99999999").             
  
              create rec_key.
              assign rec_key.rec_key = ls-key

@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -237,7 +241,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -260,11 +264,11 @@ DO:
    IF AVAIL oe-ord THEN
    FIND FIRST sys-ctrl-shipto OF sys-ctrl WHERE 
         sys-ctrl-shipto.cust-vend-no = oe-ord.cust-no NO-LOCK NO-ERROR.
-   
+
     IF AVAIL sys-ctrl-shipto THEN do:
         pushpin-char = sys-ctrl-shipto.char-fld .
     END.
-   
+
    /* get pushpin-char - nk1 */
    system-dialog get-file ls-filename 
                  title "Select Image File to insert"
@@ -284,7 +288,7 @@ DO:
                  MUST-EXIST
                  USE-FILENAME
                  UPDATE ll-ok.
-      
+
     IF ll-ok THEN self:screen-value = ls-filename.
 END.
 
@@ -347,7 +351,7 @@ ON HELP OF attach.run-program IN FRAME F-Main /* Program to excute */
 DO:
    def var ls-filename as cha no-undo.
    def var ll-ok as log no-undo.
-   
+
    system-dialog get-file ls-filename 
                  title "Select Application to open with"
                  filters "Executable Files (*.exe)" "*.exe", 
@@ -356,7 +360,7 @@ DO:
                  MUST-EXIST
                  USE-FILENAME
                  UPDATE ll-ok.
-      
+
     IF ll-ok THEN self:screen-value = CHR(34) + ls-filename + CHR(34).
 END.
 
@@ -396,9 +400,9 @@ PROCEDURE WinExec EXTERNAL "KERNEL32.DLL":
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).
   &ENDIF
-  
-    
-  
+
+
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -512,9 +516,9 @@ PROCEDURE local-add-record :
 
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source",OUTPUT char-hdl).
   RUN get-ip-rec_key IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-rec_key,OUTPUT lv-ord-no).
-  
+
   DO WITH FRAME {&FRAME-NAME}:
-  
+
      ASSIGN
         attach.creat-date:SCREEN-VALUE = STRING(TODAY)
         ATTACH.est-no:SCREEN-VALUE = lv-ord-no.
@@ -546,7 +550,7 @@ PROCEDURE local-assign-record :
 
   ASSIGN attach.rec_key = lv-rec_key
          attach.company = g_company.
-     
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -606,10 +610,10 @@ PROCEDURE local-display-fields :
   /* Code placed here will execute AFTER standard behavior.    */
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source", OUTPUT char-hdl).
   RUN get-ip-rec_key IN WIDGET-HANDLE(char-hdl) (OUTPUT op-char, OUTPUT op-ord-no).
-  
+
   IF op-ord-no EQ "" THEN
      ATTACH.est-no:HIDDEN IN FRAME {&FRAME-NAME} = YES.
-  
+
 
 END PROCEDURE.
 
@@ -641,9 +645,9 @@ PROCEDURE local-initialize :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
@@ -664,7 +668,7 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 

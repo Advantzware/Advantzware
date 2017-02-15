@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admBrowserUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -224,6 +228,8 @@ END.
 
 {src/adm/method/browser.i}
 
+{Advantzware/WinKit/dataGridProc.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -274,7 +280,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -334,8 +340,8 @@ DO:
   DEF VAR CHAR-hdl AS cha NO-UNDO.
   DEF VAR ROWID_list AS cha NO-UNDO.
   DEF VAR TARGET_hdl AS HANDLE NO-UNDO.
-        
-  
+
+
   IF LASTKEY NE -1 THEN DO:
     FIND ar-inv
         WHERE ar-inv.company EQ cocode

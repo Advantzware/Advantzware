@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -226,7 +230,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -338,7 +342,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -521,7 +525,7 @@ PROCEDURE valid-acct :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-int AS INT NO-UNDO.
-    
+
   DEF VAR lv-value AS CHAR NO-UNDO.
   DEF VAR lv-label AS CHAR NO-UNDO.
   DEF VAR lv-type AS CHAR INIT "A,E,E,L" NO-UNDO.

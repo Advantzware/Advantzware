@@ -16,7 +16,7 @@
       <none>
 
   History: New V9 Version - January 15, 1998
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AB.              */
 /*----------------------------------------------------------------------*/
@@ -151,6 +151,7 @@ Destroy on next read */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB wWin 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
     {src/adm2/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -172,7 +173,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(wWin)
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -208,9 +209,9 @@ ON WINDOW-CLOSE OF wWin /* Advantzware License Code Entry */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btAccept btAccept
 ON CHOOSE OF btAccept /* Advantzware License Code Entry */
     DO:
-     
 
-    
+
+
         cNewLicense = CAPS(fiNewLic:SCREEN-VALUE).
         DO iCnt = 1 TO LENGTH(cNewLicense):
             IF ASC(SUBSTRING(cNewLicense, iCnt, 1)) GE 65 AND
@@ -222,22 +223,22 @@ ON CHOOSE OF btAccept /* Advantzware License Code Entry */
             cNumUsers   = SUBSTRING(cNewLicense, 6, 4)
             cExpireDate = SUBSTRING(cNewLicense, 10, 8)
             cSite       = SUBSTRING(cnewLicense, 1, 5).
-        
+
         iNumUsers = INTEGER (cNumUsers) NO-ERROR.
         dExpireDate = DATE (cExpireDate)  NO-ERROR. 
         iSite = INTEGER (cSite) NO-ERROR.
-    
+
         FIND FIRST sys-ctrl WHERE sys-ctrl.name = "site number" NO-LOCK NO-ERROR.
         IF AVAILABLE sys-ctrl AND avail(asi._license) THEN 
         DO:
-            
+
             IF iSite EQ  sys-ctrl.int-fld 
                 AND iNumUsers = asi._license._Lic-ValidUsers THEN 
             DO:
                 FOR EACH module EXCLUSIVE-LOCK WHERE:
                     module.expire-date = dExpireDate.
                 END.                
-                  
+
                 MESSAGE "The new license code has been accepted."
                     VIEW-AS ALERT-BOX.
             END.
@@ -246,8 +247,8 @@ ON CHOOSE OF btAccept /* Advantzware License Code Entry */
                 MESSAGE "Incorrect license code entered."
                     VIEW-AS ALERT-BOX.
             END. 
-            
-            
+
+
         END.       
         ELSE 
         DO:

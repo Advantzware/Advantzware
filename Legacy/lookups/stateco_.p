@@ -18,7 +18,7 @@
 "statecod. " ~
 */
 
-&Scoped-define lookup-db ASI.
+&Scoped-define lookup-db NOSWEAT.
 &Scoped-define lookup-file statecod
 &Scoped-define where-statement TRUE
 &Scoped-define return-field description

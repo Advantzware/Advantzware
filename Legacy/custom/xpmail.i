@@ -29,7 +29,7 @@ DEFINE VARIABLE vcRecordID          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE ls-to-list2         AS CHARACTER NO-UNDO.
 
 DEFINE BUFFER b2-cust               FOR cust.
-
+    
 IF ipType BEGINS 'CUSTOMER' THEN DO:
 
    FIND FIRST cust NO-LOCK
@@ -97,20 +97,7 @@ ELSE IF ipType BEGINS 'SHIPTO' THEN DO:
 
 END.
 ELSE IF ipType begins 'SoldTo' THEN DO:
-  /*==
-   FIND FIRST cust NO-LOCK
-        WHERE cust.company EQ g_company
-          AND cust.cust-no EQ entry(1,ipIdxKey,"|") NO-ERROR.
-   
-   IF AVAILABLE cust THEN DO:
-      vcRecordId = cust.cust-no.
-      RUN buildToList (input  cust.rec_key,   /* Rec_Key        */
-                       input  cust.email,     /* Email Address  */
-                       input  ipGroupTitle,   /* Title          */
-                       output ls-to-list).    /* Recepients     */
-   END.
-   ELSE ls-to-list = ''.
-   =========*/
+  
    FIND FIRST soldto NO-LOCK
           WHERE soldto.company EQ g_company
             AND soldto.cust-no EQ ENTRY(1,ipIdxKey,"|")
@@ -130,11 +117,42 @@ ELSE IF ipType begins 'SoldTo' THEN DO:
                              input  ipGroupTitle,   /* Title          */
                              output ls-to-list2).    /* Recepients     */
             IF ls-to-list2 <> "" THEN
-                ls-to-list = ls-to-list2 + ";" + ls-to-list.
+                ls-to-list = ls-to-list2 + "," + ls-to-list.
          END.
+         if num-entries (ipIdxKey,"|") >= 3 then do:  /* shipto */
+            FIND FIRST shipto NO-LOCK WHERE shipto.company EQ g_company
+                                        AND shipto.cust-no EQ ENTRY(1,ipIdxKey,"|")
+                                        AND shipto.ship-id EQ (entry(3,ipIdxKey,"|")) NO-ERROR.         
+            if AVAILABLE shipto THEN DO:
+              ls-to-list2 = "".  
+              vcRecordId = shipto.cust-no + ' ' + shipto.ship-id.              
+              RUN buildToList (input  shipto.rec_key, /* Rec_Key        */
+                             input  '',             /* Email Address  */
+                             input  ipGroupTitle,   /* Title          */
+                             output ls-to-list2).    /* Recepients     */
+              IF ls-to-list2 <> "" THEN ls-to-list = ls-to-list2 + "," + ls-to-list.                         
+           end.
+         end.
    END.
    ELSE ls-to-list = ''.
 
+   IF ls-to-list = '' THEN DO:
+     ipType = "Customer".
+     FIND FIRST cust NO-LOCK
+        WHERE cust.company EQ g_company
+          AND cust.cust-no EQ entry(1,ipIdxKey,"|") NO-ERROR.
+
+     IF AVAILABLE cust THEN DO:
+      vcRecordId = cust.cust-no.
+      RUN buildToList (input  cust.rec_key,   /* Rec_Key        */
+                       input  cust.email,     /* Email Address  */
+                       input  ipGroupTitle,   /* Title          */
+                       output ls-to-list).    /* Recepients     */
+         
+     END.
+     ELSE ls-to-list = ''.     
+   END.
+  
 END.
 
 ELSE IF ipType begins 'SalesRep' THEN DO:
@@ -179,17 +197,19 @@ IF lv-mailattach MATCHES('*xpr*') AND SEARCH('viewer.exe') NE ? THEN
 /* Customer, Vendor, ShipTo   = DIALOG BOX        */
 IF TRIM(ipType) EQ "" OR SUBSTRING (ipType, LENGTH (ipType)) ne '1' THEN
 do:
+    
   RUN mail (lv-mailto,        /* Mail Recepients  */
             lv-mailsubject,   /* Subject          */
             lv-mailbody,      /* Body             */
             lv-mailattach,    /* Attachment       */
             1,                /* Mail Dialog Type */
             OUTPUT retcode).  /* Return Code      */
+  
 end.
 
 /* Customer1, Vendor1, ShipTo1 = SILENT MODE      */ 
 else do:
-  
+             
   RUN mail (lv-mailto,        /* Mail Recepients  */
             lv-mailsubject,   /* Subject          */
             lv-mailbody,      /* Body             */

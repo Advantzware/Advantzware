@@ -5,7 +5,7 @@
 /*------------------------------------------------------------------------
 
   File              : jcrep/r-ticket.w
-  
+
   History           : dgd 04/04/2007  - TN 02160708 Dept Toggle Boxes
                       gdm 07130906 - ADDED HIDDEN FILL IN fl-jobord.
 ------------------------------------------------------------------------*/
@@ -531,9 +531,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -707,7 +717,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -746,7 +756,7 @@ END.
 ON RETURN OF FRAME FRAME-A
 ANYWHERE
 DO:
-  
+
    IF SELF:TYPE <> "Button" THEN  do:
       APPLY "tab" TO SELF.
       RETURN NO-APPLY.
@@ -799,6 +809,7 @@ DO:
   IF lv-format-f = 'Indiana-XL' AND tb_fold:CHECKED IN FRAME {&FRAME-NAME} THEN
      run CleanUp. 
   apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -818,23 +829,23 @@ DO:
     IF string(begin_job1:SCREEN-VALUE) <> "" THEN
     ASSIGN begin_job1:SCREEN-VALUE = FILL(" ",6 - LENGTH(TRIM(begin_job1:SCREEN-VALUE))) +
                  TRIM(begin_job1:SCREEN-VALUE)  .
-    
+
     IF string(end_job1:SCREEN-VALUE) <> "" THEN
     ASSIGN end_job1:SCREEN-VALUE = FILL(" ",6 - LENGTH(TRIM(end_job1:SCREEN-VALUE))) +
                  TRIM(end_job1:SCREEN-VALUE)  . /* Task 10181302  */
-    
+
     IF tb_tray-2:HIDDEN = NO THEN
        ASSIGN tb_tray-2.
-    
+
     IF string(begin_job1:SCREEN-VALUE) = "" AND string(end_job1:SCREEN-VALUE) = "" THEN DO:
          MESSAGE "Job Number can't be blank. Please enter a valid Job.." VIEW-AS ALERT-BOX ERROR.
          RETURN no-apply.
      END.
      IF begin_job1:SCREEN-VALUE <> "" AND begin_job1:SCREEN-VALUE EQ end_job1:SCREEN-VALUE THEN DO:
-         
+
          FIND FIRST job-hdr WHERE job-hdr.company EQ cocode
              AND trim(job-hdr.job-no) EQ trim(SUBSTR(begin_job1:SCREEN-VALUE,1,6)) NO-LOCK NO-ERROR.
-        
+
          IF NOT AVAIL job-hdr THEN do:
              MESSAGE "Enter a Valid Job No.." VIEW-AS ALERT-BOX ERROR.
              RETURN no-apply.
@@ -864,7 +875,7 @@ DO:
     END.
 
   END.  
-    
+
   ASSIGN lv-pdf-file = INIT-dir +  "\Job" + STRING(begin_job1 + "-" + STRING(begin_job2, "99"))
          s-prt-mstandard = tb_prt-mch
          s-prt-shipto  = tb_prt-shipto
@@ -911,7 +922,7 @@ DO:
                              &mail-file=lv-pdf-file + ".pdf" }             
            END.
            ELSE IF lv-format-f = "prystup"  THEN RUN ExcelEmail.
-                           
+
            ELSE DO:
                {custom/asimailr.i &TYPE = ''
                                   &begin_cust= begin_job1
@@ -921,7 +932,7 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
@@ -947,6 +958,7 @@ DO:
       c-win:TITLE = hold-title.      
   END.
 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -960,7 +972,7 @@ DO:
    DEF VAR char-val AS CHAR NO-UNDO.
    DEF VAR ip-char-val AS CHAR NO-UNDO.
    DEF VAR i-cnt AS INT NO-UNDO.
-   
+
    ASSIGN spec_codes
           ip-char-val = "".
 
@@ -972,7 +984,7 @@ DO:
        CREATE tt-specCd.
        ASSIGN tt-char-val = TRIM(ENTRY(i-cnt,spec_codes)).
    END.
-   
+
    FOR FIRST  tt-specCd NO-LOCK 
        BY tt-specCd.tt-char-val:
 
@@ -1104,7 +1116,7 @@ DO:
    DEF VAR char-val AS CHAR NO-UNDO.
    DEF VAR ip-char-val AS CHAR NO-UNDO.
    DEF VAR i-cnt AS INT NO-UNDO.
-   
+
    ASSIGN spec_codes
           ip-char-val = "".
 
@@ -1116,7 +1128,7 @@ DO:
        CREATE tt-specCd.
        ASSIGN tt-char-val = TRIM(ENTRY(i-cnt,spec_codes)).
    END.
-   
+
    FOR FIRST  tt-specCd NO-LOCK 
        BY tt-specCd.tt-char-val:
 
@@ -1154,7 +1166,7 @@ DO:
 
   DEF VAR v-min-job-no AS CHAR INIT "zzzzzz00" NO-UNDO.
   DEF VAR v-max-job-no AS CHAR NO-UNDO.
-  
+
   assign {&self-name}.
 
   IF tb_app-unprinted EQ YES THEN
@@ -1501,8 +1513,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -1514,9 +1528,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
   DEF VAR plev AS INT NO-UNDO.
-  
 
-  
+
+
 /* security check need {methods/prgsecur.i} in definition section */
   IF access-close THEN DO:
      APPLY "close" TO THIS-PROCEDURE.
@@ -1577,7 +1591,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
              sys-ctrl.char-fld EQ "Foldware"
    tb_corr = AVAIL sys-ctrl AND
              (sys-ctrl.char-fld EQ "Both" OR sys-ctrl.char-fld EQ "Corrware").
-  
+
    {sys/inc/jobcard.i "F"}
    ASSIGN
     lv-format-f = sys-ctrl.char-fld
@@ -1585,7 +1599,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     lv-default-f = sys-ctrl.char-fld.
    IF /*index("Interpac,Dayton,FibreFC,Livngstn",lv-format-f) > 0*/
      lookup(lv-format-f,"Interpac,FibreFC,HPB,metro,Dayton,Livngstn,CentBox,Frankstn,Colonial,Unipak,Ottpkg,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Dee,Carded,Carded2,Coburn,Knight***") > 0 THEN lines-per-page = 55.
-  
+
    {sys/inc/jobcard.i "C"}
    ASSIGN
     lv-format-c = sys-ctrl.char-fld
@@ -1638,7 +1652,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       tb_fgimage:SENSITIVE = NO
       revsn_no:HIDDEN IN FRAME FRAME-A = YES      
       tb_prt-rev:SENSITIVE = NO.
-  
+
   IF tb_dept-note = YES THEN
       dept_codes:HIDDEN IN FRAME FRAME-A = NO.
   ELSE
@@ -1659,7 +1673,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         tb_tray-2:SENSITIVE = YES.
 
   FIND FIRST users WHERE
-       users.user_id EQ USERID("ASI")
+       users.user_id EQ USERID("NOSWEAT")
        NO-LOCK NO-ERROR.
 
   IF AVAIL users AND users.user_program[2] NE "" THEN
@@ -1668,7 +1682,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      init-dir = "c:\tmp".
 
   RUN enable_UI.
-  
+
   IF lv-format-c = "PEACHTREE" THEN
       ASSIGN
          tb_tray-2:HIDDEN = YES
@@ -1681,20 +1695,20 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       ASSIGN
          tb_make_hold:HIDDEN = YES
          tb_make_hold:SENSITIVE = NO.
-  
-   
+
+
   {methods/nowait.i}
- 
+
   DO WITH FRAME {&frame-name}:
 
     {custom/usrprint.i}
-    
+
     IF lv-format-c = "ColonialPL" OR lv-format-f = "Colonial" THEN
       ASSIGN
         tb_draft:HIDDEN = NO
         tb_draft:SENSITIVE = YES
         tb_draft:SCREEN-VALUE = "NO".
-                      
+
          revsn_no:HIDDEN IN FRAME FRAME-A           = TRUE.
      IF LOOKUP(lv-format-c,"Protagon") > 0 THEN
      ASSIGN tb_prt-rev:SENSITIVE = YES
@@ -1745,7 +1759,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         tb_prt-shipto:SENSITIVE   = YES
         tb_prt-sellprc:SENSITIVE  = YES
         rd_print-speed:SENSITIVE  = YES .            
-            
+
     ELSE do:
         ASSIGN tb_prt-mch = NO
                tb_prt-shipto = NO
@@ -1769,7 +1783,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
          ASSIGN
             tb_approve:HIDDEN    = NO
             tb_approve:SENSITIVE = YES.
-      
+
       ELSE IF lv-format-c EQ "Artios" AND lv-format-f EQ "FibreFC" THEN
          ASSIGN
             tb_app-unprinted:HIDDEN    = NO
@@ -1818,9 +1832,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                            tb_approve:SCREEN-VALUE = "no"   
                            tb_approve:HIDDEN    =  NO
                            tb_approve:SENSITIVE =  YES .
-               
+
            END.
-      
+
            IF can-find(FIRST b-reftable-freeze WHERE
               b-reftable-freeze.reftable EQ "FREEZENOTE" AND
               b-reftable-freeze.company  EQ cocode AND
@@ -1834,7 +1848,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
               b-reftable-split.loc      EQ TRIM(job-hdr.job-no) AND
               b-reftable-split.code     EQ STRING(job-hdr.job-no2,"9999999999")) THEN
               tb_prompt-ship:SCREEN-VALUE = "YES".
-          
+
        END.  /* avail job-hdr */
     END.
 
@@ -1856,7 +1870,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       ELSE
         revsn_no:HIDDEN IN FRAME FRAME-A = NO .
 
-    tb_prt-set-header:SENSITIVE = CAN-DO("Artios,Premier,Xprint,jobcardc 1,jobcardc 2,Lakeside,VINELAND,Suthrlnd,United,MulticellGA,MCPartitions,oklahoma,Hughes,Protagon,Spectrum,CapCity,Allwest,LoyLang,PQP,RFC2,PEACHTREE,Soule,BELL",lv-format-c).
+    tb_prt-set-header:SENSITIVE = CAN-DO("Artios,Premier,Xprint,jobcardc 1,jobcardc 2,Printers,Lakeside,VINELAND,Suthrlnd,United,MulticellGA,MCPartitions,oklahoma,Hughes,Protagon,Spectrum,CapCity,Allwest,LoyLang,PQP,RFC2,PEACHTREE,Soule,BELL",lv-format-c).
     IF NOT tb_prt-set-header:SENSITIVE THEN
       tb_prt-set-header:SCREEN-VALUE = "no".
 
@@ -1879,7 +1893,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                 AND job.job-no2 EQ job-hdr.job-no2
               NO-ERROR.
           IF AVAIL job THEN tb_reprint:SCREEN-VALUE = STRING(job.pr-printed). 
-        
+
         END.
       END.
     END.    
@@ -1887,10 +1901,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO begin_job1.    
   END.  
 
-  
- 
+
+
   RUN new-job-no.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1917,7 +1932,7 @@ PROCEDURE AddWorkSheet :
   DEF VAR my-range AS cha NO-UNDO.
 
   ASSIGN iCols = 8.
- 
+
   chExcel:workbooks:ITEM(1):worksheets:ADD(,chWorkSheet). 
   IF VALID-HANDLE (chworksheet) 
                  THEN  RELEASE OBJECT chworksheet.
@@ -1925,7 +1940,7 @@ PROCEDURE AddWorkSheet :
   chWorksheet = chExcel:sheets:ITEM(2).
   chWorksheet:NAME = "Job Card 2nd Page".
   chworksheet:SELECT. 
-  
+
   chWorkSheet:PageSetup:PaperSize = 5 /*1 - xlPaperLetter, 5 - xlPaperLegal */ .
   chWorkSheet:PageSetup:Orientation = 2 /*xlLandscape*/ .
   /*chWorkSheet:PageSetup:PrintArea = "A1:O28". */
@@ -1942,7 +1957,7 @@ PROCEDURE AddWorkSheet :
   chWorkSheet:Range(cRange):SELECT().   
   chExcel:Selection:Font:Name = "Arial".
   chExcel:SELECTION():FONT:SIZE = 18.
-  
+
   /*chExcel:SELECTION():HorizontalAlignment = -4108 /* center */ */.
 
   /*ASSIGN my-range = "A1:O28"*/
@@ -1952,7 +1967,7 @@ PROCEDURE AddWorkSheet :
       /*
          chExcel:SELECTION():ShrinkToFit = True
          chExcel:Selection:Font:Bold = TRUE.
-         
+
          ShrinkToFit = False
          MergeCells = False
         */ 
@@ -1965,8 +1980,8 @@ PROCEDURE AddWorkSheet :
   chExcel:Selection:Font:Bold = False.
   chExcel:SELECTION():HorizontalAlignment = -4108.  /*center*/
   chExcel:SELECTION():WrapText = TRUE.
-  
-  
+
+
   chWorkSheet:Cells(1,1):SELECT().     
   chExcel:SELECTION():Borders(7):linestyle = 1. /*Border left*/
   chExcel:SELECTION():Borders(7):weight = 4.  /* xLThick = 4, XLThin = 2 */
@@ -1977,16 +1992,16 @@ PROCEDURE AddWorkSheet :
   chWorkSheet:Cells(1,16):SELECT().     
   chExcel:SELECTION():Borders(10):linestyle = 1. /*Border right*/
   chExcel:SELECTION():Borders(10):weight = 4.  /* xLThick = 4, XLThin = 2 */
-  
-  
+
+
   cRange = setRange("A1",16) + "1".
   chWorkSheet:Range(cRange):SELECT().     
   chExcel:SELECTION():Borders(9):linestyle = 1. /*Border top*/
   chExcel:SELECTION():Borders(9):weight = 4.  /* xLThick = 4, XLThin = 2 */
-  
-  
+
+
   DO iRows = 2 TO 40:
-  
+
   DO iCol = 1 TO 16:  /* 2nd BreakOut Page */  
 
      chWorkSheet:Cells(iRows,iCol):SELECT().     
@@ -2005,8 +2020,8 @@ PROCEDURE AddWorkSheet :
         chExcel:SELECTION():Borders(7):linestyle = 1. /*Border left*/
         chExcel:SELECTION():Borders(7):weight = 4.  /* xLThick = 4, XLThin = 2 */
      END.
-     
-     
+
+
      IF iRows = 2 THEN
      CASE iCol:
          WHEN 1 THEN ASSIGN chExcel:SELECTION():ColumnWidth = 19.43.
@@ -2031,7 +2046,7 @@ PROCEDURE AddWorkSheet :
        chWorkSheet:Cells(iRows,iCol):SELECT().     
        chExcel:SELECTION():Borders(9):linestyle = 1. /*Border left*/
        chExcel:SELECTION():Borders(9):weight = 4.  /* xLThick = 4, XLThin = 2 */
-     
+
      END.
   END.
 
@@ -2045,7 +2060,7 @@ PROCEDURE AddWorkSheet :
      chWorkSheet:Cells(iRow,icols + 7):SELECT().     
      chExcel:SELECTION():Borders(10):linestyle = 1. /*Border right*/
      chExcel:SELECTION():Borders(10):weight = 4.  /* xLThick = 4, XLThin = 2 */
-     
+
   END.
   */
 
@@ -2063,7 +2078,7 @@ PROCEDURE CleanUp :
   Parameters: <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   /* Excel Handle */
   def var chExcelApplication  as com-handle no-undo.
   def var chWorkbook          as com-handle no-undo.
@@ -2132,7 +2147,7 @@ PROCEDURE CreateExcel :
                        FitToPagesTall = 1 
   */
   chExcel:ScreenUpdating = no.
-  
+
   cRange = setRange("A1",iCols) + "5".
   chWorkSheet:Range(cRange):SELECT().   
   chExcel:Selection:Font:Name = "Calibri".
@@ -2200,14 +2215,14 @@ PROCEDURE CreateExcel :
      chWorkSheet:Cells(1,iCol):SELECT().
      chExcel:SELECTION():RowHeight = 26.25.
      /*chExcel:Selection:Font:size = 20.*/
-     
+
      chWorkSheet:Cells(4,iCol):SELECT().
      chExcel:SELECTION():RowHeight = 25.25.
      chExcel:SELECTION():Borders(8):linestyle = 1. /*Border top*/
      chExcel:SELECTION():Borders(8):weight = 4.  /* xLThick = 4, XLThin = 2 */
      chExcel:SELECTION():Borders(9):linestyle = 1.  /*Border bottom */
      chExcel:SELECTION():Borders(9):weight = 4.
-     
+
      /*chExcel:SELECTION():Borders(7):linestyle = 1. /*Border left*/
      chExcel:SELECTION():Borders(7):weight = 4.  /* xLThick = 4, XLThin = 2 */     
      chExcel:SELECTION():Borders(10):linestyle = 1. /*Border right*/
@@ -2216,7 +2231,7 @@ PROCEDURE CreateExcel :
      chWorkSheet:Cells(9,iCol):SELECT().
      chExcel:SELECTION():Borders(9):linestyle = 1.  /*Border bottom */
      chExcel:SELECTION():Borders(9):weight = 4.
-     
+
      IF iCol <= 9  THEN DO:
          chWorkSheet:Cells(10,iCol):SELECT().     
          /*chExcel:SELECTION():Borders(7):linestyle = 1. /*Border left*/
@@ -2224,7 +2239,7 @@ PROCEDURE CreateExcel :
          */
          chExcel:SELECTION():Borders(10):linestyle = 1. /*Border right*/
          chExcel:SELECTION():Borders(10):weight = 4.  /* xLThick = 4, XLThin = 2 */
-    
+
          /*chWorkSheet:Cells(11,iCol):SELECT().     
          chExcel:SELECTION():Borders(10):linestyle = 1. /*Border right*/
          chExcel:SELECTION():Borders(10):weight = 4.  /* xLThick = 4, XLThin = 2 */
@@ -2237,14 +2252,14 @@ PROCEDURE CreateExcel :
          chExcel:SELECTION():Borders(9):weight = 4.  /* xLThick = 4, XLThin = 2 */
          chExcel:SELECTION():Borders(10):linestyle = 1. /*Border right*/
          chExcel:SELECTION():Borders(10):weight = 4.  /* xLThick = 4, XLThin = 2 */
-    
+
          chWorkSheet:Cells(12,iCol):SELECT().     
          chExcel:SELECTION():Borders(9):linestyle = 1. /*Border bottom*/
          chExcel:SELECTION():Borders(9):weight = 4.  /* xLThick = 4, XLThin = 2 */
          chExcel:SELECTION():Borders(10):linestyle = 1. /*Border right*/
          chExcel:SELECTION():Borders(10):weight = 4.  /* xLThick = 4, XLThin = 2 */
          /*chExcel:SELECTION():NumberFormat = "0" */
-    
+
          chWorkSheet:Cells(13,iCol):SELECT().     
          chExcel:SELECTION():Borders(9):linestyle = 1. /*Border bottom*/
          chExcel:SELECTION():Borders(9):weight = 4.  /* xLThick = 4, XLThin = 2 */
@@ -2287,7 +2302,7 @@ PROCEDURE CreateExcel :
          WHEN 8 THEN ASSIGN chExcel:SELECTION():ColumnWidth = 12.29 /* 9.29*/ . /* H*/
          WHEN 9 THEN ASSIGN chExcel:SELECTION():ColumnWidth = 13.71 /*18.71*/ . /*I*/
          WHEN 10 THEN ASSIGN chExcel:SELECTION():ColumnWidth = 13.14. /*J*/
-         
+
      END CASE.
 
 
@@ -2306,7 +2321,7 @@ PROCEDURE CreateExcel :
   chWorkSheet:Cells(27,1):SELECT().
   chExcel:Selection:Font:Bold = False.
 
-  
+
   DO iRow = 5 TO 16:
      IF iRow = 13 OR iRow = 18 THEN NEXT.
 
@@ -2319,14 +2334,14 @@ PROCEDURE CreateExcel :
        chExcel:SELECTION():Borders(10):weight = 4.  /* xLThick = 4, XLThin = 2 */
      END.
   END.
-  
+
   DO iRow = 14 TO 18:
      IF iRow < 18 THEN DO:     
          chWorkSheet:Cells(iRow,1):SELECT().     
          chExcel:SELECTION():Borders(7):linestyle = 1. /*Border left*/
          chExcel:SELECTION():Borders(7):weight = 4.  /* xLThick = 4, XLThin = 2 */     
          /*chExcel:SELECTION():ColumnWidth = 32.*/
-    
+
          /*chWorkSheet:Cells(iRow,2):SELECT().     
          chExcel:SELECTION():Borders(7):linestyle = 1. /*Border left*/
          chExcel:SELECTION():Borders(7):weight = 4.  /* xLThick = 4, XLThin = 2 */     
@@ -2336,12 +2351,12 @@ PROCEDURE CreateExcel :
          chExcel:SELECTION():Borders(10):linestyle = 1. /*Border right*/
          chExcel:SELECTION():Borders(10):weight = 4.  /* xLThick = 4, XLThin = 2 */
 
-     
+
          chWorkSheet:Cells(iRow,3):SELECT().     
          chExcel:SELECTION():Borders(7):linestyle = 1. /*Border left*/
          chExcel:SELECTION():Borders(7):weight = 4.  /* xLThick = 4, XLThin = 2 */     
          /*chExcel:SELECTION():ColumnWidth = 32.*/
-    
+
          /*chWorkSheet:Cells(iRow,4):SELECT().     
          chExcel:SELECTION():Borders(7):linestyle = 1. /*Border left*/
          chExcel:SELECTION():Borders(7):weight = 4.  /* xLThick = 4, XLThin = 2 */     
@@ -2351,7 +2366,7 @@ PROCEDURE CreateExcel :
          chExcel:SELECTION():Borders(7):linestyle = 1. /*Border left*/
          chExcel:SELECTION():Borders(7):weight = 4.  /* xLThick = 4, XLThin = 2 */     
          /*chExcel:SELECTION():ColumnWidth = 32.*/
-    
+
          chWorkSheet:Cells(iRow,7):SELECT().     
          chExcel:SELECTION():Borders(7):linestyle = 1. /*Border left*/
          chExcel:SELECTION():Borders(7):weight = 4.  /* xLThick = 4, XLThin = 2 */     
@@ -2383,7 +2398,7 @@ PROCEDURE CreateExcel :
   chexcel:range("D4:E4"):SELECT().
   chexcel:SELECTION():MergeCells = TRUE.
   chexcel:SELECTION():WrapText = TRUE.
-  
+
   chexcel:range("A14:B14"):SELECT().
   chexcel:SELECTION():MergeCells = TRUE.
   chexcel:SELECTION():WrapText = TRUE.
@@ -2467,9 +2482,9 @@ PROCEDURE CreateExcel :
 
 
   RUN AddWorkSheet.
-  
+
   chExcel:ScreenUpdating = YES. /* no - to fast generation */
- 
+
   /*chWorkSheet:Sheets("Job Card FrontPage"):Select(). */
   cExcelOutput = cFileName.
   chexcel:worksheets:ITEM(1):SELECT.
@@ -2562,7 +2577,7 @@ MESSAGE "email" cExcelOutput
                              &mail-subject="Factory Ticket"
                              &mail-body="Factory Ticket"
                              &mail-file=cExcelOutput }             
-           
+
 
 END PROCEDURE.
 
@@ -2576,7 +2591,7 @@ PROCEDURE HideDeptBoxes :
   Parameters  : ilHide - yes/no
   Notes       : Task#: 02160708 - dgd 04/04/2007
 ------------------------------------------------------------------------------*/
-  
+
   /* Parameters */
   def input param ilHide  as log no-undo.
 
@@ -2589,7 +2604,7 @@ PROCEDURE HideDeptBoxes :
       tb_GL:hidden  = ilHide
       tb_SW:hidden  = ilHide no-error.
   end.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2613,7 +2628,7 @@ PROCEDURE new-job-no :
         WHERE sys-ctrl.company EQ cocode
           AND sys-ctrl.name    EQ "CEMENU"
         NO-LOCK NO-ERROR.
-  
+
     FIND FIRST job NO-LOCK
          WHERE job.company EQ cocode
          AND job.job-no EQ SUBSTR(fjob-no,1,6) NO-ERROR.
@@ -2661,12 +2676,12 @@ PROCEDURE new-job-no :
           AND job.job-no2                   EQ job-hdr.job-no2
           AND job.stat                      NE "H"
         NO-LOCK,
-        
+
         FIRST est
         WHERE est.company = job.company
           AND est.est-no                    EQ job.est-no
         NO-LOCK
-        
+
         BREAK BY job-hdr.company:
 
       IF FIRST(job-hdr.company) THEN
@@ -2712,7 +2727,7 @@ PROCEDURE new-job-no :
 /*                  ASSIGN                                                                                 */
 /*                     tb_dept-note:HIDDEN IN FRAME FRAME-A = YES                                          */
 /*                     tb_dept-note:SENSITIVE = NO .                                                       */
-                 
+
           FIND FIRST sys-ctrl-shipto WHERE
               sys-ctrl-shipto.company = cocode AND
               sys-ctrl-shipto.NAME = "JOBCARDF" AND
@@ -2735,7 +2750,7 @@ PROCEDURE new-job-no :
     ASSIGN
      tb_fold:SCREEN-VALUE = STRING(ll-fold)
      tb_corr:SCREEN-VALUE = STRING(ll-corr).
-    
+
     IF v-freezenotes-log EQ NO THEN
     DO:
        IF (lv-format-f NE "Accord" OR lv-format-f NE "Carded2" OR lv-format-f NE "Coburn" OR lv-format-f NE "Knight***") AND AVAIL job-hdr AND
@@ -2766,7 +2781,7 @@ PROCEDURE output-to-fax :
    /*run output-to-fax.*/
    DO WITH FRAME {&FRAME-NAME}:
 
-   
+
            {custom/asifax.i &begin_cust=begin_job1
                             &END_cust=END_job1
                             &fax-subject=c-win:title
@@ -2808,7 +2823,7 @@ PROCEDURE output-to-mail :
                              &mail-subject="Factory Ticket"
                              &mail-body="Factory Ticket"
                              &mail-file=lv-pdf-file + ".pdf" }  
-                             
+
   END.
   ELSE DO:
       {custom/asimailr.i &TYPE = ''
@@ -2819,7 +2834,7 @@ PROCEDURE output-to-mail :
                                   &mail-file=list-name }
 
   END.
- 
+
  END.
 END PROCEDURE.
 
@@ -2851,7 +2866,7 @@ PROCEDURE output-to-printer :
 
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
-       
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -2877,7 +2892,7 @@ PROCEDURE output-to-printer :
       END.
       ELSE RUN custom/prntproc.p (list-name, lv-font-no, lv-ornt).
    END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2957,11 +2972,11 @@ PROCEDURE run-report :
   DEF BUFFER b-reftable FOR reftable.
   DEF BUFFER b-eb FOR eb.
 
-  
+
   {sys/form/r-top.i}
-  
+
   RUN set-job-vars.
-  
+
   ASSIGN 
     print-box               = tb_box
     reprint                 = tb_reprint
@@ -2982,7 +2997,7 @@ PROCEDURE run-report :
       ASSIGN revision-no             = string(revsn_no).
   ELSE
       ASSIGN revision-no             = "".
-    
+
   FOR EACH wrk-ink:
       DELETE wrk-ink.
   END.
@@ -3002,7 +3017,7 @@ PROCEDURE run-report :
      RUN custom/usrprint.p ("r-ticket.", FRAME {&FRAME-NAME}:HANDLE).
   ELSE IF INDEX(PROGRAM-NAME(1),"r-ticket") NE 0 THEN
      RUN custom/usrprint.p ("job_.", FRAME {&FRAME-NAME}:HANDLE).
-  
+
   SESSION:SET-WAIT-STATE ("").
 
 end procedure.
@@ -3056,11 +3071,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -3088,23 +3103,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3118,7 +3133,7 @@ PROCEDURE split-ship-proc :
   Notes:       
 ------------------------------------------------------------------------------*/
    DO WITH FRAME {&FRAME-NAME}:
-   
+
       FIND FIRST reftable WHERE
            reftable.reftable EQ "SPLITSHIP" AND
            reftable.company  EQ cocode AND
@@ -3126,14 +3141,14 @@ PROCEDURE split-ship-proc :
                                 + begin_job1:SCREEN-VALUE AND
            reftable.CODE     EQ STRING(begin_job2:SCREEN-VALUE,"99")
            NO-LOCK NO-ERROR.
-     
+
       IF AVAIL reftable THEN
       DO:
          tb_prompt-ship:CHECKED = YES.
          RELEASE reftable.
       END.
    END.
-     
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3169,10 +3184,10 @@ FUNCTION setRange RETURNS CHARACTER
   DEF VAR i    AS INT  NO-UNDO.
   DEF VAR k    AS INT  NO-UNDO.    
   DEF VAR j    AS INT  NO-UNDO.
-   
+
    i =  TRUNCATE(pciCol / 26,0).
    j = pciCol MOD 26.
-   
+
    IF i GT 0  AND j <> 0 THEN cVar = CHR(64 + i).
    IF j = 0   THEN DO:
       k = i - 1.
@@ -3180,7 +3195,7 @@ FUNCTION setRange RETURNS CHARACTER
       cVar = cVar + CHR( 64  + 26). 
    END.
    IF j GT 0 THEN cVar = cVar + CHR(64 + j).
-   
+
   RETURN pcSCol + ":" + cVar.   /* Function return value. */
 
 END FUNCTION.
@@ -3195,7 +3210,7 @@ FUNCTION setSize RETURNS LOGICAL
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-  
+
   chExcel:Selection:Font:Size = iN#.
   RETURN FALSE.   /* Function return value. */
 

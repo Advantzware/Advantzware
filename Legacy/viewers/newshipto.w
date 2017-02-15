@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -452,7 +456,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -509,7 +513,7 @@ DO:
           otherwise do:
              lv-handle = focus:handle.
              run applhelp.p.
-             
+
              if g_lookup-var <> "" then do:
                 lv-handle:screen-value = g_lookup-var.        
              end.   /* g_lookup-var <> "" */
@@ -657,7 +661,7 @@ DO:
     RUN valid-loc NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
- 
+
   {methods/dispflds.i}
 END.
 
@@ -705,12 +709,12 @@ DO:
     RUN valid-ship-id NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
- 
+
   {methods/dispflds.i}
   */
   /* will run only create new record */
   RUN display-new-shipto.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -725,7 +729,7 @@ DO:
     RUN valid-ship-state NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
- 
+
   {methods/dispflds.i}
 END.
 
@@ -765,7 +769,7 @@ DO:
     RUN valid-tax-code NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
- 
+
   {methods/dispflds.i}
 END.
 
@@ -784,7 +788,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -837,7 +841,7 @@ PROCEDURE disable-shipto :
   DO WITH FRAME {&FRAME-NAME}:
     DISABLE fi_jded-id tb_mandatory-tax.
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -995,15 +999,15 @@ PROCEDURE local-create-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   /* Code placed here will execute BEFORE standard behavior.   */
-                          
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/viewers/create/shipto.i}
-      
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1148,7 +1152,7 @@ PROCEDURE reftable-values :
       fi_jded-id = reftable.dscr.
     ELSE
       reftable.dscr = fi_jded-id.
-          
+
     FIND FIRST reftable {&where-mand-tax} NO-ERROR.
     IF NOT AVAIL reftable THEN DO:
       CREATE reftable.
@@ -1203,16 +1207,16 @@ PROCEDURE ship-zip :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     IF shipto.ship-zip:SCREEN-VALUE NE "" THEN
-    FIND FIRST ASI.zipcode
-        WHERE ASI.zipcode.zipcode EQ shipto.ship-zip:SCREEN-VALUE
+    FIND FIRST nosweat.zipcode
+        WHERE nosweat.zipcode.zipcode EQ shipto.ship-zip:SCREEN-VALUE
         NO-LOCK NO-ERROR.
-    IF AVAIL ASI.zipcode THEN do:
-      shipto.ship-state:SCREEN-VALUE = ASI.zipcode.state.
+    IF AVAIL nosweat.zipcode THEN do:
+      shipto.ship-state:SCREEN-VALUE = nosweat.zipcode.state.
       IF shipto.ship-city:SCREEN-VALUE EQ "" THEN
-        shipto.ship-city:SCREEN-VALUE = ASI.zipcode.city.
+        shipto.ship-city:SCREEN-VALUE = nosweat.zipcode.city.
     END.
   END. 
 END PROCEDURE.
@@ -1276,7 +1280,7 @@ PROCEDURE update-shipto :
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "tableio-source", OUTPUT char-hdl).
 
   RUN set-buttons IN WIDGET-HANDLE(char-hdl) ("action-chosen").
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1342,7 +1346,7 @@ PROCEDURE valid-loc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     shipto.loc:SCREEN-VALUE = CAPS(shipto.loc:SCREEN-VALUE).
 
@@ -1459,7 +1463,7 @@ PROCEDURE valid-tax-code :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     shipto.tax-code:SCREEN-VALUE = CAPS(shipto.tax-code:SCREEN-VALUE).
 

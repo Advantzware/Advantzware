@@ -272,9 +272,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -321,7 +331,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -391,6 +401,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -437,10 +448,11 @@ DO:
                                   &mail-body="Customer List"
                                   &mail-file=list-name }
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -606,8 +618,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -629,7 +643,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    begin_date-3 = begin_date-2 + 7.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
     DO WITH FRAME {&FRAME-NAME}:
@@ -637,6 +651,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO begin_date-1.
   END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -791,9 +806,9 @@ form header
      "Disc       Gross     Disc       Gross     Disc         Gross     Disc company"
      skip
      fill("_",145) format "x(145)"
-     
+
     with page-top frame b-top stream-io width 145 no-box.
-    
+
 form ap-inv.inv-no
      ap-inv.inv-date format "99/99/99"
      ap-inv.due-date format "99/99/99"
@@ -808,7 +823,7 @@ form ap-inv.inv-no
      ws_gross
      ws_disc-avail
      ap-inv.company FORMAT "x(8)"
-     
+
     with stream-io width 150 frame b no-labels down no-box.
 
 form header
@@ -817,9 +832,9 @@ form header
      "Disc       Gross     Disc       Gross     Disc         Gross     Disc"
      skip
      fill("_",137) format "x(137)"
-     
+
     with page-top frame f-top stream-io width 137 no-box.
-    
+
 form ap-inv.inv-no
      ap-inv.inv-date format "99/99/99"
      ap-inv.due-date format "99/99/99"
@@ -833,7 +848,7 @@ form ap-inv.inv-no
      inv-d[4] format "->>>>.99" 
      ws_gross
      ws_disc-avail
-     
+
     with stream-io width 137 frame a no-labels down no-box.
 
 EMPTY TEMP-TABLE tt-report.
@@ -841,7 +856,7 @@ EMPTY TEMP-TABLE tt-report.
 assign
  str-tit2 = c-win:title
  {sys/inc/ctrtext.i str-tit2 112}
- 
+
  b-comp = begin_company
  e-comp = end_company
  d1[1]  = begin_date-1
@@ -888,7 +903,7 @@ SESSION:SET-WAIT-STATE ("general").
         and ap-inv.posted  eq yes
         and ap-inv.due     ne 0
       no-lock,
-      
+
       first vend
       where vend.company eq ap-inv.company 
         and vend.vend-no eq ap-inv.vend-no
@@ -909,7 +924,7 @@ SESSION:SET-WAIT-STATE ("general").
 
   for each tt-report,
       first ap-inv where recid(ap-inv) eq tt-report.rec-id no-lock
-      
+
       break by tt-report.key-01
             by tt-report.key-02
             by tt-report.key-03:
@@ -922,55 +937,55 @@ SESSION:SET-WAIT-STATE ("general").
         where vend.company eq ap-inv.company
           and vend.vend-no eq ap-inv.vend-no
         no-lock no-error.
-    
+
     if first-of (tt-report.key-02) then do:
       put ap-inv.vend-no.
       if avail vend then put vend.name.
       put skip.
     end.
-    
+
     assign
      ws_gross      = ap-inv.due
      ws_disc-avail = if ap-inv.net ne 0 then
                        (ap-inv.net * (ap-inv.disc-% / 100) - ap-inv.disc-taken)
                      else 0.
-                     
+
     do i = 1 to 4:
       assign
        inv-t[i] = 0
        inv-d[i] = 0.
     end.
-                     
+
     if ap-inv.due-date gt d1[3] then
       assign
        vend-t[4] = vend-t[4] + ws_gross
        inv-t[4]  = ws_gross.
-       
+
     else
     if ap-inv.due-date gt d1[2] then
       assign
        vend-t[3] = vend-t[3] + ws_gross
        inv-t[3]  = ws_gross.
-    
+
     else
     if ap-inv.due-date gt d1[1] then
       assign
        vend-t[2] = vend-t[2] + ws_gross
        inv-t[2]  = ws_gross.
-    
+
     else
       assign
        vend-t[1] = vend-t[1] + ws_gross
        inv-t[1]  = ws_gross.
-       
+
     v-disc-date = if avail terms then
                     (ap-inv.inv-date + terms.disc-days) else ap-inv.due-date.
-       
+
     if v-disc-date gt d1[3] then
       assign
        vend-d[4] = vend-d[4] + ws_disc-avail
        inv-d[4]  = ws_disc-avail.
-              
+
     else
     if v-disc-date gt d1[2] then
       assign
@@ -982,7 +997,7 @@ SESSION:SET-WAIT-STATE ("general").
       assign
        vend-d[2] = vend-d[2] + ws_disc-avail
        inv-d[2]  = ws_disc-avail.
-    
+
     else
       assign
        vend-d[1] = vend-d[1] + ws_disc-avail
@@ -1003,7 +1018,7 @@ SESSION:SET-WAIT-STATE ("general").
             inv-d[4] when inv-d[4] ne 0
             ws_gross
             ws_disc-avail
-           
+
         with frame a.
     down with frame a.
   END. 
@@ -1024,11 +1039,11 @@ SESSION:SET-WAIT-STATE ("general").
             ws_gross
             ws_disc-avail
             ap-inv.company
-            
+
         with frame b.
     down with frame b.
    END.
-    
+
     IF tb_excel THEN
        PUT STREAM excel UNFORMATTED
           '"' IF first-of(tt-report.key-02) THEN
@@ -1068,7 +1083,7 @@ SESSION:SET-WAIT-STATE ("general").
               vend-d[4]  @ inv-d[4]
               vend-t[1] + vend-t[2] + vend-t[3] + vend-t[4] @ ws_gross
               vend-d[1] + vend-d[2] + vend-d[3] + vend-d[4] @ ws_disc-avail
-              
+
           with frame a.
       down 2 with frame a.
         END.
@@ -1084,7 +1099,7 @@ SESSION:SET-WAIT-STATE ("general").
               vend-d[4]  @ inv-d[4]
               vend-t[1] + vend-t[2] + vend-t[3] + vend-t[4] @ ws_gross
               vend-d[1] + vend-d[2] + vend-d[3] + vend-d[4] @ ws_disc-avail
-              
+
           with frame b.
       down 2 with frame b.
       END.
@@ -1112,12 +1127,12 @@ SESSION:SET-WAIT-STATE ("general").
         assign
          grand-t[i] = grand-t[i] + vend-t[i]
          grand-d[i] = grand-d[i] + vend-d[i]
-         
+
          vend-t[i]  = 0
          vend-d[i]  = 0.
       end.
     end.  /* last-of loop */
-    
+
     if last(tt-report.key-02) then do:
       IF NOT v-company THEN DO:
       down 1 with frame a.
@@ -1133,7 +1148,7 @@ SESSION:SET-WAIT-STATE ("general").
               grand-d[4] @ inv-d[4]
               grand-t[1] + grand-t[2] + grand-t[3] + grand-t[4] @ ws_gross
               grand-d[1] + grand-d[2] + grand-d[3] + grand-d[4] @ ws_disc-avail
-          
+
           with frame a.
       END.
       ELSE do:
@@ -1150,7 +1165,7 @@ SESSION:SET-WAIT-STATE ("general").
               grand-d[4] @ inv-d[4]
               grand-t[1] + grand-t[2] + grand-t[3] + grand-t[4] @ ws_gross
               grand-d[1] + grand-d[2] + grand-d[3] + grand-d[4] @ ws_disc-avail
-          
+
           with frame b.
       END.
       IF tb_excel THEN
@@ -1207,11 +1222,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1239,23 +1254,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

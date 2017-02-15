@@ -372,9 +372,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -447,7 +457,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -517,6 +527,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -530,7 +541,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-       
+
   RUN GetSelectionList.
   run run-report. 
 
@@ -542,6 +553,7 @@ DO:
        when 3 then run output-to-file.
   end case. 
 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -568,6 +580,7 @@ DO:
   sl_selected:LIST-ITEM-PAIRS = cSelectedList.
   sl_avail:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
   */
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -582,7 +595,8 @@ DO:
 
   RUN DisplaySelectionDefault.  /* task 04041406 */ 
   RUN DisplaySelectionList2 .
-  
+
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -594,6 +608,7 @@ END.
 ON CHOOSE OF btn_down IN FRAME FRAME-A /* Move Down */
 DO:
   RUN Move-Field ("Down").
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -610,6 +625,7 @@ DO:
   END
   */
   APPLY "DEFAULT-ACTION" TO sl_selected  .
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -621,6 +637,7 @@ END.
 ON CHOOSE OF btn_Up IN FRAME FRAME-A /* Move Up */
 DO:
   RUN Move-Field ("Up").
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -755,7 +772,7 @@ DO:
   ELSE
     ASSIGN lbl_beg-date:SCREEN-VALUE = " Beginning Job Close Date:" 
              lbl_end-date:SCREEN-VALUE = "Ending Job Close date:" .
- 
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -766,7 +783,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
-  
+
    IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
        sl_selected:NUM-ITEMS = 0)
    THEN ASSIGN ldummy = sl_selected:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
@@ -774,7 +791,7 @@ DO:
               /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
                .
 
-  
+
 /* for pairs
     DEF VAR cSelectedList AS cha NO-UNDO.
     cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
@@ -817,7 +834,7 @@ DO:
   ASSIGN
     {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}:ENTRY(1)
     .
-    
+
 
 END.
 
@@ -871,8 +888,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -915,6 +934,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO begin_mach.
   END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -953,7 +973,7 @@ PROCEDURE DisplaySelectionDefault :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  
+
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
      cListContents = cListContents +                   
@@ -979,7 +999,7 @@ PROCEDURE DisplaySelectionList :
   DEF VAR iCount AS INT NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
-     
+
      RETURN.
   END.
 
@@ -992,7 +1012,7 @@ PROCEDURE DisplaySelectionList :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1000,9 +1020,9 @@ PROCEDURE DisplaySelectionList :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 END PROCEDURE.
 
@@ -1023,7 +1043,7 @@ PROCEDURE DisplaySelectionList2 :
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
-        
+
   EMPTY TEMP-TABLE ttRptList.
 
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
@@ -1033,7 +1053,7 @@ PROCEDURE DisplaySelectionList2 :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1041,9 +1061,9 @@ PROCEDURE DisplaySelectionList2 :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
   DO iCount = 1 TO sl_selected:NUM-ITEMS:
@@ -1105,7 +1125,7 @@ PROCEDURE GetSelectionList :
 
  DO i = 1 TO sl_selected:NUM-ITEMS /* IN FRAME {&FRAME-NAME}*/ :
     FIND FIRST ttRptList WHERE ttRptList.TextList = ENTRY(i,cTmpList) NO-LOCK NO-ERROR.     
-  
+
     CREATE ttRptSelected.
     ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
            ttRptSelected.FieldList = ttRptList.FieldList
@@ -1114,7 +1134,7 @@ PROCEDURE GetSelectionList :
            ttRptSelected.HeadingFromLeft = IF entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
-           
+
  END.
 
 END PROCEDURE.
@@ -1197,7 +1217,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1310,21 +1330,21 @@ assign
  /*v-q-m      = rd_print EQ "Qty"*/
  v-fdat     = begin_date
  v-tdat     = end_date. 
- 
+
 if v-q-m then
   assign
    v-lab[1] = "  # of Sheets"
    v-lab[2] = "      # of FG"
    v-lab[3] = "#Scrap Sheets"
    v-lab[4] = "      Job Qty".
-     
+
 else
   assign
    v-lab[1] = "MSF of Sheets"
    v-lab[2] = "    MSF of FG"
    v-lab[3] = "    Scrap MSF"
    v-lab[4] = "      Job MSF".
-         
+
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i value(lines-per-page)}
@@ -1374,7 +1394,7 @@ VIEW FRAME r-top.
         and mch-act.shift   ge v-fshf
         and mch-act.shift   le v-tshf
       use-index operation no-lock,
-      
+
       first job
       where job.company            eq cocode
         and job.job                eq mch-act.job
@@ -1390,7 +1410,7 @@ VIEW FRAME r-top.
               job.start-date       le v-tdat and
               job.opened))
       use-index job no-lock
-      
+
       break by mch-act.m-code
             by mch-act.shift
             by mch-act.job
@@ -1398,11 +1418,11 @@ VIEW FRAME r-top.
             by mch-act.job-no2
             by mch-act.frm
             by mch-act.blank-no:
-            
+
        {custom/statusMsg.i "'Processing Machine Code ' + string(mch-act.m-code)"} 
 
     if first-of(mch-act.m-code) then page.        
-            
+
     find first est
         where est.company eq job.company
           and est.est-no  eq job.est-no
@@ -1431,9 +1451,9 @@ VIEW FRAME r-top.
             and job-hdr.frm       eq mch-act.frm
             and (job-hdr.blank-no eq mch-act.blank-no or mch-act.blank-no eq 0)
           no-lock:
-        
+
         v-job-qty = v-job-qty + job-hdr.qty.
-        
+
           find first itemfg
               where itemfg.company eq cocode
                 and itemfg.i-no    eq job-hdr.i-no
@@ -1441,7 +1461,7 @@ VIEW FRAME r-top.
           v-job-msf = v-job-msf +
                       (job-hdr.qty * (if avail itemfg then itemfg.t-sqft
                                                      else 1) / 1000).              
-        
+
 /*         for each fg-act                                                     */
 /*             where fg-act.company eq cocode                                  */
 /*               and fg-act.job     eq job-hdr.job                             */
@@ -1463,7 +1483,7 @@ VIEW FRAME r-top.
 /*                                                                             */
 /*         end.                                                                */
       end.
-      
+
       if avail est then
       for each eb
           where eb.company   eq est.company
@@ -1471,13 +1491,13 @@ VIEW FRAME r-top.
             and eb.form-no   eq mch-act.frm
             and (eb.blank-no eq mch-act.blank-no or mch-act.blank-no eq 0)
           no-lock:
-        
+
         v-up = v-up + eb.num-up.
       end.
-      
+
       else v-up = v-up + 1.
     end.
-    
+
     if last-of(mch-act.frm) then do:
       for each job-mat
           where job-mat.company eq cocode
@@ -1486,7 +1506,7 @@ VIEW FRAME r-top.
             and job-mat.job-no2 eq mch-act.job-no2
             and job-mat.frm     eq mch-act.frm
           use-index seq-idx no-lock,
-          
+
           first item
           where item.company  eq cocode
             and item.i-no     eq job-mat.i-no
@@ -1502,12 +1522,12 @@ VIEW FRAME r-top.
             and mat-act.b-num   eq job-mat.blank-no
             and mat-act.i-no    eq job-mat.i-no
           use-index job no-lock:
-          
+
         run sys/ref/convquom.p(job-mat.qty-uom, "EA",
                                job-mat.basis-w, job-mat.len,
                                job-mat.wid, item.s-dep,
                                mat-act.qty, output v-qty).
-                               
+
         v-sheets[1] = v-sheets[1] + v-qty.
         v-sheetup   = job-mat.n-up .
 
@@ -1523,9 +1543,9 @@ end.
         RUN sys/inc/slitshts.p (ROWID(job),mch-act.frm, OUTPUT v-sheets[1]).
       IF v-sht-msf[1] EQ 0 THEN      /* get sheets from slitter */
         RUN sys/inc/slitshts.p (ROWID(job),mch-act.frm, OUTPUT v-sht-msf[1]).
-      
+
       release ef.
-      
+
       if avail est then
       find first ef
           where ef.company eq est.company
@@ -1534,16 +1554,16 @@ end.
           no-lock no-error.
 
      {sys/inc/roundup.i v-sheets[1]}
-     
+
       if v-up eq 0 then v-up = 1.
-      
+
       IF AVAIL ef THEN RUN est/ef-#out.p (ROWID(ef), OUTPUT v-out).
 
       v-up  = v-up * v-out.
 
       IF v-sheetup = 0 THEN
           ASSIGN v-sheetup = 1.
-       
+
       /*2 pc box test*/
       IF AVAIL est AND est.est-type EQ 2 OR est.est-type EQ 6 
           THEN DO:
@@ -1573,24 +1593,24 @@ end.
        v-pct-msf[1]    = v-scrp-msf[1] / v-sht-msf[1] * 100
        v-pct[2]    = v-blanks[1] / v-job-qty * 100.
        v-pct-msf[2]    = v-blnk-msf[1] / v-job-msf * 100.
-       
+
       if v-pct[1] eq ? then v-pct[1] = 0.
       if v-pct-msf[1] eq ? then v-pct-msf[1] = 0.
       if v-pct[2] eq ? then v-pct[2] = 0.
       if v-pct-msf[2] eq ? then v-pct-msf[2] = 0.
-      
+
       v-first-24 = string(mch-act.m-code,"x(8)") + " "         +
                    string(mch-act.shift,">>")    + fill(" ",4) +
                    string(trim(job.job-no) + "-" +
                           string(job.job-no2,"99"),"x(9)").
-       
+
 
       ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
                    cExcelDisplay = ""
                    cExcelVarValue = "".
-                                      
+
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
@@ -1621,22 +1641,22 @@ end.
 
                          WHEN "rece"           THEN cVarValue = STRING(v-pct[2],"->>,>>9.999") .
                          WHEN "rece-msf"           THEN cVarValue = STRING(v-pct-msf[2],"->>,>>9.999") .
-                         
-                         
+
+
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+
             PUT UNFORMATTED cDisplay SKIP.
             IF tb_excel THEN DO:
                  PUT STREAM s-temp UNFORMATTED  
                        cExcelDisplay SKIP.
              END.
-      
+
       assign
        v-sheets[2] = v-sheets[2] + v-sheets[1]
        v-sht-msf[2] = v-sht-msf[2] + v-sht-msf[1]
@@ -1644,7 +1664,7 @@ end.
        v-blnk-msf[2] = v-blnk-msf[2] + v-blnk-msf[1]
        v-scraps[2] = v-scraps[2] + v-scraps[1]
        v-scrp-msf[2] = v-scrp-msf[2] + v-scrp-msf[1]
-       
+
        v-sheets[1] = 0
        v-sht-msf[1] = 0
        v-blanks[1] = 0
@@ -1656,17 +1676,17 @@ end.
        v-sheetup   = 0
        v-forms     = v-forms + 1.
     end.
-    
+
     if last-of(mch-act.job-no2) then do:
       if v-forms gt 1 then do:
         /*underline v-sheets[1] v-blanks[1] v-scraps[1] v-pct[1] with frame scrap.*/
-        
+
         v-pct[1] = v-scraps[2] / v-sheets[2] * 100.
         v-pct-msf[1] = v-scrp-msf[2] / v-sht-msf[2] * 100.
-        
+
         if v-pct[1] eq ? then v-pct[1] = 0.
         if v-pct-msf[1] eq ? then v-pct-msf[1] = 0.
-        
+
 
         PUT SKIP str-line SKIP .
         ASSIGN cDisplay = ""
@@ -1674,7 +1694,7 @@ end.
                    cVarValue = ""
                    cExcelDisplay = ""
                    cExcelVarValue = "".
-                                      
+
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
@@ -1705,19 +1725,19 @@ end.
 
                          WHEN "rece"           THEN cVarValue = "" .
                          WHEN "rece-msf"           THEN cVarValue = "" .
-                         
-                         
+
+
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+
             PUT UNFORMATTED "   Job Totals *" substring(cDisplay,16,300) SKIP.
       end.
-            
+
       put skip(1).
 
       CREATE tt-report .
@@ -1737,7 +1757,7 @@ end.
       v-blnk-msf[3] = v-blnk-msf[3] + v-blnk-msf[2]
        v-scraps[3] = v-scraps[3] + v-scraps[2]
        v-scrp-msf[3] = v-scrp-msf[3] + v-scrp-msf[2]
-       
+
        v-sheets[2] = 0
        v-sht-msf[2] = 0
        v-blanks[2] = 0
@@ -1748,13 +1768,13 @@ end.
     end.
 
     if last-of(mch-act.shift) then do:
-        
+
       v-pct[1] = v-scraps[3] / v-sheets[3] * 100.
       v-pct-msf[1] = v-scrp-msf[3] / v-sht-msf[3] * 100.
-        
+
       if v-pct[1] eq ? then v-pct[1] = 0.
       if v-pct-msf[1] eq ? then v-pct-msf[1] = 0.
-        
+
 
       PUT SKIP str-line SKIP .
       ASSIGN cDisplay = ""
@@ -1762,7 +1782,7 @@ end.
                    cVarValue = ""
                    cExcelDisplay = ""
                    cExcelVarValue = "".
-                                      
+
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
@@ -1793,22 +1813,22 @@ end.
 
                          WHEN "rece"           THEN cVarValue = "" .
                          WHEN "rece-msf"           THEN cVarValue = "" .
-                         
-                         
+
+
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+
             PUT UNFORMATTED "   Shift Totals *" substring(cDisplay,18,300) SKIP.
-            
+
       put skip(1).
-      
+
       assign
-       
+
        v-sheets[3] = 0
        v-sht-msf[3] = 0
        v-blanks[3] = 0
@@ -1816,11 +1836,11 @@ end.
        v-scraps[3] = 0
        v-scrp-msf[3] = 0   .
     end.
-    
+
     if last-of(mch-act.m-code) then do:
       /*underline v-sheets[1] v-blanks[1] v-scraps[1] v-pct[1] with frame scrap.
       underline v-sheets[1] v-blanks[1] v-scraps[1] v-pct[1] with frame scrap. */
-        
+
       FOR EACH tt-report NO-LOCK
           BREAK BY tt-report.job-no
           BY tt-report.job-no2:
@@ -1836,10 +1856,10 @@ end.
 
       v-pct[1] = v-scraps[4] / v-sheets[4] * 100.
       v-pct-msf[1] = v-scrp-msf[4] / v-sht-msf[4] * 100.
-        
+
       if v-pct[1] eq ? then v-pct[1] = 0.
       if v-pct-msf[1] eq ? then v-pct-msf[1] = 0.
-      
+
 
       PUT SKIP str-line SKIP .
       ASSIGN cDisplay = ""
@@ -1847,7 +1867,7 @@ end.
                    cVarValue = ""
                    cExcelDisplay = ""
                    cExcelVarValue = "".
-                                      
+
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
@@ -1878,22 +1898,22 @@ end.
 
                          WHEN "rece"           THEN cVarValue = "" .
                          WHEN "rece-msf"           THEN cVarValue = "" .
-                         
-                         
+
+
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+
             PUT UNFORMATTED "   Machine Totals *" substring(cDisplay,20,300) SKIP.
 
       FOR EACH tt-report NO-LOCK :
           DELETE tt-report.
       END.
-            
+
       put skip(1).
 
       assign
@@ -1905,7 +1925,7 @@ end.
        v-scrp-msf[4] = 0    .
     end.
   end.
-  
+
   IF tb_excel THEN DO:
   OUTPUT STREAM s-temp CLOSE.
   IF tb_runExcel THEN
@@ -1915,7 +1935,7 @@ END.
 SESSION:SET-WAIT-STATE("").
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).  
-    
+
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 
 end procedure.
@@ -1938,11 +1958,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1974,19 +1994,19 @@ PROCEDURE show-param :
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

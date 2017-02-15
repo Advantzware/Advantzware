@@ -8,7 +8,7 @@
 /*------------------------------------------------------------------------
 
   File              : windows/cust.w
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -150,6 +150,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+/* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
@@ -187,7 +188,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -264,7 +265,7 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
 
     END. /* Page 0 */
-    
+
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/cust.w':U ,
@@ -678,7 +679,7 @@ PROCEDURE disable-note :
   Notes:       
 ------------------------------------------------------------------------------*/
   def output parameter op-need-note as log no-undo.
-  
+
   op-need-note = no.
 END PROCEDURE.
 
@@ -785,9 +786,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -804,13 +805,13 @@ PROCEDURE local-initialize :
 
   /* Dispatch standard ADM method.                             */
  FIND FIRST cust WHERE recid(cust) = ip-cust NO-LOCK NO-ERROR.
- 
+
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  
+
   APPLY "ENTRY" TO FRAME {&FRAME-NAME}.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -837,7 +838,7 @@ PROCEDURE local-row-available :
           ATTACH.est-no EQ "").
 
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attach-target':U, OUTPUT char-hdl).
-  
+
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
      RUN pushpin-image IN WIDGET-HANDLE(char-hdl) (INPUT v-att).
 
@@ -854,7 +855,7 @@ PROCEDURE Select_Add :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEF VAR char-hdl AS CHAR NO-UNDO.
-  
+
    RUN select-page(1).
    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"add-item-target", OUTPUT char-hdl).
    RUN add-item IN WIDGET-HANDLE(char-hdl).
@@ -908,9 +909,9 @@ PROCEDURE select_exit :
   Notes:       
 ------------------------------------------------------------------------------*/
    def var char-hdl as cha no-undo.   
-   
+
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
 
 END PROCEDURE.
@@ -984,7 +985,7 @@ PROCEDURE value-changed-proc :
           ATTACH.est-no  = "").
 
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attach-target':U, OUTPUT char-hdl).
-  
+
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
      RUN pushpin-image IN WIDGET-HANDLE(char-hdl) (INPUT v-att).
 END PROCEDURE.

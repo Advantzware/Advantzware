@@ -6,9 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-USING Consultingwerk.Framework.Collections.CharacterDictionary FROM PROPATH.
-USING Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl FROM PROPATH.
-&SCOPED-DEFINE dataGrid
+{Advantzware\WinKit\admBrowserUsing.i}
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
@@ -293,7 +291,7 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       oe-ordl.line FORMAT ">>99":U WIDTH 6 LABEL-BGCOLOR 14
       oe-ordl.est-no FORMAT "x(8)":U WIDTH 12 LABEL-BGCOLOR 14
-      oe-ordl.i-no FORMAT "x(15)":U LABEL-BGCOLOR 14
+      oe-ordl.i-no FORMAT "x(15)":U LABEL-BGCOLOR 14  WIDTH 21 
       oe-ordl.qty FORMAT "->>,>>>,>>9":U LABEL-BGCOLOR 14
       oe-ordl.i-name FORMAT "x(30)":U LABEL-BGCOLOR 14
       oe-ordl.part-no COLUMN-LABEL "Part #" FORMAT "x(15)":U LABEL-BGCOLOR 14
@@ -379,7 +377,8 @@ END.
 {src/adm/method/browser.i}
 {src/adm/method/query.i}
 {methods/template/browser.i}
-{methods/gridSearch.i}
+
+{Advantzware/WinKit/dataGridProc.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -426,7 +425,7 @@ ASI.oe-ordl.line LT 99999999"
      _FldNameList[2]   > ASI.oe-ordl.est-no
 "oe-ordl.est-no" ? "x(8)" "character" ? ? ? 14 ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.oe-ordl.i-no
-"oe-ordl.i-no" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-ordl.i-no" ? ? "character" ? ? ? 14 ? ? no ? no no "21" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.oe-ordl.qty
 "oe-ordl.qty" ? "->>,>>>,>>9" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.oe-ordl.i-name

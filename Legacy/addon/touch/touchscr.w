@@ -15,7 +15,7 @@
       <none>
 
   History: 
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -110,6 +110,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+/* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
@@ -137,7 +138,7 @@ THEN W-Win:HIDDEN = yes.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -310,9 +311,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -336,7 +337,7 @@ PROCEDURE local-initialize :
     {&WINDOW-NAME}:X = 0
     {&WINDOW-NAME}:Y = 0.
 
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -372,9 +373,9 @@ PROCEDURE Set_Title :
   DEFINE VARIABLE labelLanguage AS CHARACTER NO-UNDO.
 
   RUN Get_Value IN h_touchfrm ('Label_Language',OUTPUT labelLanguage). */
-  
+
   {&WINDOW-NAME}:TITLE = window_title.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

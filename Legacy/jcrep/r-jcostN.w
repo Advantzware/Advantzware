@@ -1,6 +1,6 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
-&Scoped-define WINDOW-NAME C-Win
+&SCOPED-DEFINE WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -82,9 +82,9 @@ DEFINE VARIABLE tb_exclude_prep AS LOGICAL NO-UNDO.
 {custom/getcmpny.i}
 {custom/getloc.i}
 
-{sys/inc/var.i new shared}
+{sys/inc/var.i NEW SHARED}
 
-assign
+ASSIGN 
  cocode = gcompany
  locode = gloc.
 
@@ -116,7 +116,7 @@ ASSIGN cTextListToSelect = "JOB#,FG ITEM,ITEM DESCRIPTION,FG CATEGORY,CUSTOMER,C
                            "CONT. STAND,CONT. ACTUAL,%CONT. STAND,%CONT ACTUAL,TOTAL VARIANCE," +      /*5*/ 
                            "QTY INVOICED,BOX SALES,PREP COST,TOTAL COST,LAB ACT COST STD CREW," +      /*5*/
                            "MAT & FARM ACT COST"
-           
+
 
        cFieldListToSelect = "v-job-no,work-item.i-no,v-i-name,v-fgcat,work-item.cust-no,v-custname," + 
                             "v-qty-ord,v-qty-prod,v-act-mAT-cost,v-est-mAT-cost,v-var-mat-cost,v-var%-mat-cost," +
@@ -183,7 +183,7 @@ ASSIGN cTextListToSelect = "JOB#,FG ITEM,ITEM DESCRIPTION,FG CATEGORY,CUSTOMER,C
                     / v-gact-price) * 100.00),">>>,>>>,>>9.99-") '",'.
 
     */
-    
+
        cFieldLength = "9,15,25,11,8,30," + "13,13,13,13,13,13," + "13,13,13,13," + "13,13,13,13," + "13,13,13,13," +
                       "13,13,13,13," + "13,13,13,13," + "13,13,13,13," + "13,13,13,13,13," + "13,13,13,13,21,19"
        cFieldType   = "c,c,c,c,c,c," + "i,i,i,i,i,i," + "i,i,i,i," + "i,i,i,i," + "i,i,i,i," + 
@@ -210,19 +210,19 @@ ASSIGN cTextListToSelect = "JOB#,FG ITEM,ITEM DESCRIPTION,FG CATEGORY,CUSTOMER,C
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&Scoped-define PROCEDURE-TYPE Window
-&Scoped-define DB-AWARE no
+&SCOPED-DEFINE PROCEDURE-TYPE WINDOW
+&SCOPED-DEFINE DB-AWARE NO
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
-&Scoped-define FRAME-NAME FRAME-A
+&SCOPED-DEFINE FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_job-no begin_job-no2 ~
+&SCOPED-DEFINE ENABLED-OBJECTS RECT-6 RECT-7 begin_job-no begin_job-no2 ~
 end_job-no end_job-no2 begin_clsdate end_clsdate begin_cust-no end_cust-no ~
 begin_fgcat end_fgcat Btn_Def sl_avail sl_selected Btn_Add Btn_Remove btn_Up ~
 btn_down rd-dest lv-ornt lines-per-page lv-font-no td-show-parm tb_excel ~
 tb_runExcel fi_file btn-ok btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS begin_job-no begin_job-no2 begin_clsdate ~
+&SCOPED-DEFINE DISPLAYED-OBJECTS begin_job-no begin_job-no2 begin_clsdate ~
 end_clsdate begin_cust-no end_cust-no begin_fgcat end_fgcat sl_avail ~
 sl_selected rd-dest lv-ornt lines-per-page lv-font-no lv-font-name ~
 td-show-parm tb_excel tb_runExcel fi_file 
@@ -408,39 +408,39 @@ DEFINE VARIABLE sl_selected AS CHARACTER
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      SIZE 35 BY 6.43 NO-UNDO.
 
-DEFINE VARIABLE exclude-billed-prep AS LOGICAL INITIAL no 
+DEFINE VARIABLE exclude-billed-prep AS LOGICAL INITIAL NO  
      LABEL "Exclude Billed Prep" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL YES  
      LABEL "Export To Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3 FGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE tb_invoiced AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_invoiced AS LOGICAL INITIAL NO  
      LABEL "Print Only Invoiced Jobs If yes, then" 
      VIEW-AS TOGGLE-BOX
      SIZE 29 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL NO  
      LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3 FGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE tb_sep_board AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_sep_board AS LOGICAL INITIAL NO  
      LABEL "Separate Board / Other Mat'l" 
      VIEW-AS TOGGLE-BOX
      SIZE 33 BY 1 NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL yes 
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL YES  
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tgl_SumTot AS LOGICAL INITIAL no 
+DEFINE VARIABLE tgl_SumTot AS LOGICAL INITIAL NO  
      LABEL "Print Summary - Grand Total Only" 
      VIEW-AS TOGGLE-BOX
      SIZE 36 BY 1 NO-UNDO.
@@ -540,20 +540,30 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 204.8
-         RESIZE             = yes
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = YES 
+         SCROLL-BARS        = NO 
+         STATUS-AREA        = YES 
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         KEEP-FRAME-Z-ORDER = YES 
+         THREE-D            = YES 
+         MESSAGE-AREA       = NO 
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
-
 
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -684,13 +694,13 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME C-Win
+&SCOPED-DEFINE SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON END-ERROR OF C-Win /* Job Actual/Standard Cost */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
@@ -716,7 +726,7 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME begin_clsdate
+&SCOPED-DEFINE SELF-NAME begin_clsdate
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_clsdate C-Win
 ON LEAVE OF begin_clsdate IN FRAME FRAME-A /* From Close Date */
 DO:
@@ -727,7 +737,7 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME begin_cust-no
+&SCOPED-DEFINE SELF-NAME begin_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no C-Win
 ON LEAVE OF begin_cust-no IN FRAME FRAME-A /* From Cust # */
 DO:
@@ -740,18 +750,18 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME begin_date
+&SCOPED-DEFINE SELF-NAME begin_date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_date C-Win
 ON LEAVE OF begin_date IN FRAME FRAME-A /* Beginning InvDate */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME begin_fgcat
+&SCOPED-DEFINE SELF-NAME begin_fgcat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_fgcat C-Win
 ON LEAVE OF begin_fgcat IN FRAME FRAME-A /* From FG Category */
 DO:
@@ -764,7 +774,7 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME begin_job-no
+&SCOPED-DEFINE SELF-NAME begin_job-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_job-no C-Win
 ON LEAVE OF begin_job-no IN FRAME FRAME-A /* Beginning Job# */
 DO:
@@ -777,11 +787,11 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME begin_job-no2
+&SCOPED-DEFINE SELF-NAME begin_job-no2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_job-no2 C-Win
 ON LEAVE OF begin_job-no2 IN FRAME FRAME-A
 DO:
-  assign 
+  ASSIGN 
      {&self-name}
      end_job-no2:SCREEN-VALUE = begin_job-no2.
 END.
@@ -790,18 +800,19 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn-cancel
+&SCOPED-DEFINE SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
-   apply "close" to this-procedure.
+   APPLY "close" TO THIS-PROCEDURE.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn-ok
+&SCOPED-DEFINE SELF-NAME btn-ok
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
@@ -821,34 +832,35 @@ DO:
       tgl_SumTot
       exclude-billed-prep
       tb_exclude_prep = exclude-billed-prep.
-       
-  RUN GetSelectionList.
-  run run-report. 
 
-  case rd-dest:
-       when 1 then run output-to-printer.
-       when 2 then run output-to-screen.
-       when 3 then run output-to-file.
+  RUN GetSelectionList.
+  RUN run-report. 
+
+  CASE rd-dest:
+       WHEN 1 THEN RUN output-to-printer.
+       WHEN 2 THEN RUN output-to-screen.
+       WHEN 3 THEN RUN output-to-file.
        WHEN 5 THEN
        DO:
           DEFINE VARIABLE lv-tmp AS CHARACTER INITIAL "-0" NO-UNDO.
-          
+
           {custom/asimailr.i &TYPE="Customer"
                              &begin_cust=lv-tmp
                              &END_cust=lv-tmp
-                             &mail-subject=c-win:title
-                             &mail-body=c-win:title
+                             &mail-subject=c-win:TITLE 
+                             &mail-body=c-win:TITLE 
                              &mail-file=list-name }
        END.
-  end case. 
+  END CASE. 
 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn_Add
+&SCOPED-DEFINE SELF-NAME Btn_Add
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add C-Win
 ON CHOOSE OF Btn_Add IN FRAME FRAME-A /* Add >> */
 DO:
@@ -868,13 +880,14 @@ DO:
   sl_selected:LIST-ITEM-PAIRS = cSelectedList.
   sl_avail:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
   */
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn_Def
+&SCOPED-DEFINE SELF-NAME Btn_Def
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Def C-Win
 ON CHOOSE OF Btn_Def IN FRAME FRAME-A /* Default */
 DO:
@@ -882,25 +895,27 @@ DO:
 
   RUN DisplaySelectionDefault.  /* task 04141411 */ 
   RUN DisplaySelectionList2 .
-  
+
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn_down
+&SCOPED-DEFINE SELF-NAME btn_down
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_down C-Win
 ON CHOOSE OF btn_down IN FRAME FRAME-A /* Move Down */
 DO:
   RUN Move-Field ("Down").
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn_Remove
+&SCOPED-DEFINE SELF-NAME Btn_Remove
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Remove C-Win
 ON CHOOSE OF Btn_Remove IN FRAME FRAME-A /* << Remove */
 DO:
@@ -910,24 +925,26 @@ DO:
   END
   */
   APPLY "DEFAULT-ACTION" TO sl_selected  .
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn_Up
+&SCOPED-DEFINE SELF-NAME btn_Up
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_Up C-Win
 ON CHOOSE OF btn_Up IN FRAME FRAME-A /* Move Up */
 DO:
   RUN Move-Field ("Up").
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME end_clsdate
+&SCOPED-DEFINE SELF-NAME end_clsdate
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_clsdate C-Win
 ON LEAVE OF end_clsdate IN FRAME FRAME-A /* To Close Date */
 DO:
@@ -938,7 +955,7 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME end_cust-no
+&SCOPED-DEFINE SELF-NAME end_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no C-Win
 ON LEAVE OF end_cust-no IN FRAME FRAME-A /* To Cust # */
 DO:
@@ -950,18 +967,18 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME end_date
+&SCOPED-DEFINE SELF-NAME end_date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_date C-Win
 ON LEAVE OF end_date IN FRAME FRAME-A /* Ending InvDate */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME end_fgcat
+&SCOPED-DEFINE SELF-NAME end_fgcat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_fgcat C-Win
 ON LEAVE OF end_fgcat IN FRAME FRAME-A /* To FG Category */
 DO:
@@ -973,51 +990,51 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME end_job-no
+&SCOPED-DEFINE SELF-NAME end_job-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_job-no C-Win
 ON LEAVE OF end_job-no IN FRAME FRAME-A /* Ending Job# */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME end_job-no2
+&SCOPED-DEFINE SELF-NAME end_job-no2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_job-no2 C-Win
 ON LEAVE OF end_job-no2 IN FRAME FRAME-A
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME fi_file
+&SCOPED-DEFINE SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
 ON LEAVE OF fi_file IN FRAME FRAME-A /* If Yes, File Name */
 DO:
-     assign {&self-name}.
+     ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME lines-per-page
+&SCOPED-DEFINE SELF-NAME lines-per-page
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lines-per-page C-Win
 ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME lv-font-no
+&SCOPED-DEFINE SELF-NAME lv-font-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
 DO:
@@ -1043,7 +1060,7 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME lv-ornt
+&SCOPED-DEFINE SELF-NAME lv-ornt
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-ornt C-Win
 ON LEAVE OF lv-ornt IN FRAME FRAME-A
 DO:
@@ -1064,33 +1081,33 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME rd-dest
+&SCOPED-DEFINE SELF-NAME rd-dest
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME rd_qty
+&SCOPED-DEFINE SELF-NAME rd_qty
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_qty C-Win
 ON VALUE-CHANGED OF rd_qty IN FRAME FRAME-A
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME sl_avail
+&SCOPED-DEFINE SELF-NAME sl_avail
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
-  
+
    IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
        sl_selected:NUM-ITEMS = 0)
    THEN ASSIGN ldummy = sl_selected:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
@@ -1098,7 +1115,7 @@ DO:
               /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
                .
 
-  
+
 /* for pairs
     DEF VAR cSelectedList AS cha NO-UNDO.
     cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
@@ -1125,13 +1142,13 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME sl_selected
+&SCOPED-DEFINE SELF-NAME sl_selected
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_selected C-Win
 ON DEFAULT-ACTION OF sl_selected IN FRAME FRAME-A
 DO:
    DO i = 1 TO {&SELF-NAME}:NUM-ITEMS:
     IF {&SELF-NAME}:IS-SELECTED(i) THEN DO:
-       ASSIGN ldummy = sl_Avail:add-last({&SELF-NAME}:SCREEN-VALUE)
+       ASSIGN ldummy = sl_Avail:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
               ldummy = /*{&SELF-NAME}:DELETE(i)*/
                        {&SELF-NAME}:DELETE({&SELF-NAME}:SCREEN-VALUE)
               .
@@ -1141,7 +1158,7 @@ DO:
   ASSIGN
     {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}:ENTRY(1)
     .
-    
+
 
 END.
 
@@ -1149,51 +1166,51 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tb_excel
+&SCOPED-DEFINE SELF-NAME tb_excel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel C-Win
 ON VALUE-CHANGED OF tb_excel IN FRAME FRAME-A /* Export To Excel? */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tb_invoiced
+&SCOPED-DEFINE SELF-NAME tb_invoiced
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_invoiced C-Win
 ON VALUE-CHANGED OF tb_invoiced IN FRAME FRAME-A /* Print Only Invoiced Jobs If yes, then */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tb_runExcel
+&SCOPED-DEFINE SELF-NAME tb_runExcel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
 ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME td-show-parm
+&SCOPED-DEFINE SELF-NAME td-show-parm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-show-parm C-Win
 ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
 DO:
-    assign {&self-name}.
+    ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tgl_SumTot
+&SCOPED-DEFINE SELF-NAME tgl_SumTot
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tgl_SumTot C-Win
 ON VALUE-CHANGED OF tgl_SumTot IN FRAME FRAME-A /* Print Summary - Grand Total Only */
 DO:
@@ -1217,8 +1234,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -1237,7 +1256,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   RUN DisplaySelectionList.
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -1246,6 +1265,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO begin_job-no.
   END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1301,7 +1321,7 @@ DEFINE VARIABLE cListContents AS CHARACTER NO-UNDO.
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .    
   END.
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
 END PROCEDURE.
@@ -1323,7 +1343,7 @@ PROCEDURE DisplaySelectionList2 :
   IF NUM-ENTRIES(cTextListToSelect) NE NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
-        
+
   EMPTY TEMP-TABLE ttRptList.
 
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
@@ -1364,7 +1384,7 @@ PROCEDURE DisplaySelectionDefault :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE cListContents AS CHARACTER NO-UNDO.
   DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
-  
+
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
      cListContents = cListContents +                   
@@ -1509,16 +1529,16 @@ PROCEDURE GetSelectionList :
 
  DO i = 1 TO sl_selected:NUM-ITEMS /* IN FRAME {&FRAME-NAME}*/ :
     FIND FIRST ttRptList NO-LOCK WHERE ttRptList.TextList = ENTRY(i,cTmpList) NO-ERROR.     
-  
+
     CREATE ttRptSelected.
     ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
            ttRptSelected.FieldList = ttRptList.FieldList
            ttRptSelected.FieldLength = INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldLength))
            ttRptSelected.DisplayOrder = i
-           ttRptSelected.HeadingFromLeft = IF entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
+           ttRptSelected.HeadingFromLeft = IF ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
-           
+
  END.
 END PROCEDURE.
 
@@ -1681,7 +1701,7 @@ PROCEDURE output-detail-proc :
 
    IF tb_excel THEN DO:
       PUT STREAM excel UNFORMATTED
-        
+
         '"' v-act-mAT-cost '",'              
         '"' v-est-mAT-cost '",'  
         '"' (v-est-mAT-cost - v-act-mAT-cost) '",'
@@ -1976,7 +1996,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
  /*    DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -1987,9 +2007,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY. */
 
 {custom/out2file.i}
@@ -2023,7 +2043,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -2084,33 +2104,33 @@ DEFINE VARIABLE iOrder AS INTEGER NO-UNDO.
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 
 ASSIGN
- v-est-mAT-cost = 0
+ v-est-mAT-cost       = 0
  v-est-board-mat-cost = 0
  v-est-other-mat-cost = 0
- v-est-lab-cost = 0
- v-est-foh-cost = 0
- v-est-voh-cost = 0
- v-act-mAT-cost = 0
+ v-est-lab-cost       = 0
+ v-est-foh-cost       = 0
+ v-est-voh-cost       = 0
+ v-act-mAT-cost       = 0
  v-act-board-mat-cost = 0
  v-act-other-mat-cost = 0
- v-act-lab-cost = 0
- v-act-foh-cost = 0
- v-act-voh-cost = 0
- v-std-price    = 0
- v-act-price    = 0
- v-op-cost     = 0
- v-gest-mAT-cost = 0
- v-gest-lab-cost = 0
- v-gest-foh-cost = 0
- v-gest-voh-cost = 0
- v-gact-mAT-cost = 0
- v-gact-lab-cost = 0
- v-gact-foh-cost = 0
- v-gact-voh-cost = 0
- v-gstd-price    = 0
- v-gact-price    = 0
- v-constn        = 0
- v-conact        = 0.
+ v-act-lab-cost       = 0
+ v-act-foh-cost       = 0
+ v-act-voh-cost       = 0
+ v-std-price          = 0
+ v-act-price          = 0
+ v-op-cost            = 0
+ v-gest-mAT-cost      = 0
+ v-gest-lab-cost      = 0
+ v-gest-foh-cost      = 0
+ v-gest-voh-cost      = 0
+ v-gact-mAT-cost      = 0
+ v-gact-lab-cost      = 0
+ v-gact-foh-cost      = 0
+ v-gact-voh-cost      = 0
+ v-gstd-price         = 0
+ v-gact-price         = 0
+ v-constn             = 0
+ v-conact             = 0.
 
 DEFINE VARIABLE v-ip-basis-w LIKE job-mAT.basis-w NO-UNDO.
 DEFINE VARIABLE v-ip-len LIKE job-mAT.len NO-UNDO.
@@ -2146,7 +2166,7 @@ FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
              .        
  END.
 {sys/inc/print1.i}
-{sys/inc/outprint.i value(lines-per-page)}
+{sys/inc/outprint.i VALUE(lines-per-page)}
 
 IF td-show-parm THEN RUN show-param.
 
@@ -2274,7 +2294,7 @@ FOR EACH tt-report,
             END. /* IF tb_excel */               
             */
 
-        
+
 
         {jc/rep/job-clsm.i}             /*** Get the MATerial Costs ***/
         {jc/rep/job-clsr.i}             /*** Get the Routing Costs  ***/
@@ -2317,8 +2337,8 @@ FOR EACH tt-report,
                            AND itemfg.i-no EQ work-item.i-no NO-ERROR.
 
        {jcrep/r-jcostN1.i}
-       
-       
+
+
       /*  IF NOT tgl_SumTot THEN DO:
            IF NOT tb_sep_board THEN
               RUN output-detail-proc.
@@ -2385,7 +2405,7 @@ END PROCEDURE.
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
+&ANALYZE-RESUME   
 
 /*
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-tot-cost C-Win 
@@ -2460,7 +2480,7 @@ if v-est then do:
         NO-LOCK NO-ERROR.
     IF AVAIL oe-boll OR iOrder EQ 0 THEN DO:
         /* get freight from boll's */
-    
+
         FOR EACH oe-boll WHERE oe-boll.company EQ job.company
                            AND oe-boll.ord-no EQ iOrder
                            AND oe-boll.i-no   EQ job-hdr.i-no
@@ -2469,32 +2489,32 @@ if v-est then do:
                     WHERE oe-bolh.company = oe-boll.company 
                       AND oe-bolh.b-no = oe-boll.b-no                      
                     NO-LOCK.
-    
+
                 v-frate = v-frate + oe-boll.freight.
         END.
     END.
     ELSE DO:
         /* Original Code */
         v-wt = itemfg.weight-100 * work-item.qty-prod / 100.
-    
+
         if eb.fr-out-c ne 0 then
           v-frate = v-frate + (eb.fr-out-c * (v-wt / 100)).
-    
+
         else
         if eb.fr-out-m ne 0 then
           v-frate = v-frate + (eb.fr-out-m * (work-item.qty-prod / 1000)).
-    
+
         else do:
           v-rate = 0.
-    
+
           release carr-mtx.
-    
+
           find first carrier
               where carrier.company eq cocode
                 and carrier.loc     eq locode
                 and carrier.carrier eq eb.carrier
               no-lock no-error.
-            
+
           if avail carrier then
           find first carr-mtx
               where carr-mtx.company  eq cocode
@@ -2502,37 +2522,37 @@ if v-est then do:
                 and carr-mtx.carrier  eq carrier.carrier
                 and carr-mtx.del-zone eq eb.dest-code
               no-lock no-error.
-                   
+
           if avail carr-mtx then do:
             if carrier.by-pallet ne ? THEN DO:
               run util/ucarrier.p (recid(carrier)).
               FIND CURRENT carrier NO-LOCK NO-ERROR.
             END.
-    
+
             if carrier.chg-method eq "P" then do:
               v-wt = work-item.qty-prod / (eb.cas-cnt * eb.cas-pal).
-              
+
               {sys/inc/roundup.i v-wt}
             end.
-            
+
             else
             if carrier.chg-method eq "M" then
               v-wt = (if v-corr then (work-item.qty-prod * itemfg.t-sqin * .007)
                                 else (work-item.qty-prod * itemfg.t-sqin / 144)) /
                      1000.
-            
+
             do i = 1 to 10:
               if carr-mtx.weight[i] ge v-wt then do:
                 v-rate = carr-mtx.rate[i].
                 leave.
               end.
             end.
-         
+
             v-rate = v-rate * v-wt / (if carrier.chg-method eq "W" then 100 else 1).
-            
+
             if v-rate lt carr-mtx.min-rate then v-rate = carr-mtx.min-rate.
           end. /* avail carr-mtx */
-          
+
           IF v-rate NE ? THEN v-frate = v-frate + v-rate.
         end. /* eb.fr-out is zero */
     END. /* not avail an oe-boll */
@@ -2546,7 +2566,7 @@ if v-est then do:
   if avail eb then v-com = eb.comm.
   v-comm  = v-sale * (v-com / 100).
 end.
-         
+
 /***  Print Grand Totals and Profit ***/
 assign
 /* v-lab-m = v-labor * v-lab-mrk / 100*/
@@ -2575,55 +2595,55 @@ PROCEDURE show-param :
   DEFINE VARIABLE parm-lbl-list AS CHARACTER NO-UNDO.
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
   DEFINE VARIABLE lv-label AS CHARACTER.
-  
-  lv-frame-hdl = frame {&frame-name}:handle.
-  lv-group-hdl = lv-frame-hdl:first-child.
-  lv-field-hdl = lv-group-hdl:first-child .
-  
-  do while true:
-     if not valid-handle(lv-field-hdl) then leave.
+
+  lv-frame-hdl = FRAME {&FRAME-NAME}:HANDLE.
+  lv-group-hdl = lv-frame-hdl:FIRST-CHILD.
+  lv-field-hdl = lv-group-hdl:FIRST-CHILD .
+
+  DO WHILE TRUE:
+     IF NOT VALID-HANDLE(lv-field-hdl) THEN LEAVE.
      IF LOOKUP(lv-field-hdl:PRIVATE-DATA,"parm") GT 0
-        then do:
+        THEN DO:
            IF lv-field-hdl:LABEL NE ? THEN 
-              assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
-                     parm-lbl-list = parm-lbl-list + lv-field-hdl:label + "," 
+              ASSIGN parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
+                     parm-lbl-list = parm-lbl-list + lv-field-hdl:LABEL + "," 
                      .
-           else do:  /* radio set */
-              assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
+           ELSE DO:  /* radio set */
+              ASSIGN parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
                      .
-              lv-field2-hdl = lv-group-hdl:first-child.
-              repeat:
-                  if not valid-handle(lv-field2-hdl) then leave. 
-                  if lv-field2-hdl:private-data = lv-field-hdl:name then do:
-                     parm-lbl-list = parm-lbl-list + lv-field2-hdl:screen-value + ",".
-                  end.
-                  lv-field2-hdl = lv-field2-hdl:next-sibling.                 
-              end.       
-           end.                 
-        end.            
-     lv-field-hdl = lv-field-hdl:next-sibling.   
-  end.
+              lv-field2-hdl = lv-group-hdl:FIRST-CHILD.
+              REPEAT:
+                  IF NOT VALID-HANDLE(lv-field2-hdl) THEN LEAVE. 
+                  IF lv-field2-hdl:PRIVATE-DATA = lv-field-hdl:NAME THEN DO:
+                     parm-lbl-list = parm-lbl-list + lv-field2-hdl:SCREEN-VALUE + ",".
+                  END.
+                  lv-field2-hdl = lv-field2-hdl:NEXT-SIBLING.                 
+              END.       
+           END.                 
+        END.            
+     lv-field-hdl = lv-field-hdl:NEXT-SIBLING.   
+  END.
 
-  put space(28)
+  PUT SPACE(28)
       "< Selection Parameters >"
-      skip(1).
+      SKIP(1).
 
-  do i = 1 to num-entries(parm-fld-list,","):
-    if entry(i,parm-fld-list) ne "" or
-       entry(i,parm-lbl-list) ne "" then do:
-       
-      lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
-                 trim(entry(i,parm-lbl-list)) + ":".
-                 
-      put lv-label format "x(35)" at 5
-          space(1)
-          trim(entry(i,parm-fld-list)) format "x(40)"
-          skip.              
-    end.
-  end.
- 
-  put fill("-",80) format "x(80)" skip.
-  
+  DO i = 1 TO NUM-ENTRIES(parm-fld-list,","):
+    IF ENTRY(i,parm-fld-list) NE "" OR
+       ENTRY(i,parm-lbl-list) ne "" THEN DO:
+
+      lv-label = FILL(" ",34 - LENGTH(TRIM(ENTRY(i,parm-lbl-list)))) +
+                 TRIM(ENTRY(i,parm-lbl-list)) + ":".
+
+      PUT lv-label FORMAT "x(35)" AT 5
+          SPACE(1)
+          TRIM(ENTRY(i,parm-fld-list)) FORMAT "x(40)"
+          SKIP.              
+    END.
+  END.
+
+  PUT FILL("-",80) FORMAT "x(80)" SKIP.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2639,7 +2659,7 @@ FUNCTION GetFieldValue RETURNS CHARACTER
     Notes:  
 ------------------------------------------------------------------------------*/
   /*RETURN string(hField:BUFFER-VALUE, hField:FORMAT) */
-  RETURN string(hipField:BUFFER-VALUE).
+  RETURN STRING(hipField:BUFFER-VALUE).
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2669,7 +2689,7 @@ FOR EACH oe-ord NO-LOCK WHERE oe-ord.company EQ cocode
     EACH oe-ordl OF oe-ord NO-LOCK,
     EACH oe-boll NO-LOCK WHERE oe-boll.company EQ oe-ordl.company
       AND oe-boll.ord-no EQ oe-ordl.ord-no
-   
+
     BREAK BY oe-boll.bol-no:
     IF FIRST-OF(oe-boll.bol-no) THEN DO:
         ASSIGN v-inv-total    = 0
@@ -2681,7 +2701,7 @@ FOR EACH oe-ord NO-LOCK WHERE oe-ord.company EQ cocode
                v-subtot-prep  = 0.
         FOR EACH inv-head NO-LOCK WHERE inv-head.company EQ oe-boll.company
             AND inv-head.bol-no EQ oe-boll.bol-no :
-            
+
             FOR EACH inv-line NO-LOCK WHERE inv-line.r-no EQ inv-head.r-no
               AND inv-line.job-no EQ ipcJob
               AND inv-line.job-no2 EQ ipcJobNo2:
@@ -2690,7 +2710,7 @@ FOR EACH oe-ord NO-LOCK WHERE oe-ord.company EQ cocode
                 FOR EACH inv-misc NO-LOCK WHERE inv-misc.r-no EQ inv-line.r-no
                   AND inv-misc.LINE EQ inv-line.LINE :
                   v-subtot-prep = v-subtot-prep + misc.cost.
-                  
+
                 END.
             END.
             v-inv-freight = IF inv-head.f-bill THEN inv-head.t-inv-freight ELSE 0.
@@ -2723,12 +2743,12 @@ FOR EACH oe-ord NO-LOCK WHERE oe-ord.company EQ cocode
             ASSIGN v-subtot-lines = v-subtot-lines + ar-invl.amt
                    v-subtot-qty   = v-subtot-qty   + ar-invl.inv-qty
                    v-save-x       = ar-invl.x-no.
-                                             
+
             /* Avoid doing a break by since assiging inv-total each time */
             v-inv-freight = IF NOT(ar-inv.freight EQ 0 OR NOT ar-inv.f-bill) THEN
                           ar-inv.freight 
                        ELSE 0.
-            
+
 
         END.
         ASSIGN v-inv-total = v-subtot-lines  /* + /* 8/5/14 ar-inv.tax-amt + */ v-inv-freight */
@@ -2738,12 +2758,12 @@ FOR EACH oe-ord NO-LOCK WHERE oe-ord.company EQ cocode
           FOR EACH ar-invl NO-LOCK WHERE ar-invl.x-no EQ v-save-x
               AND ar-invl.prep-charge GT "" ,
               FIRST ar-inv NO-LOCK WHERE ar-inv.x-no EQ ar-invl.x-no .
-       
+
                v-subtot-prep  = v-subtot-prep  + ar-invl.amt.                                         
           END.
           ASSIGN v-total-prep = v-total-prep + v-subtot-prep.
         END.
-           
+
         CASE ipcPriceOrQty:
           WHEN "Price" THEN
             dInvTot = dInvTot + v-inv-total.

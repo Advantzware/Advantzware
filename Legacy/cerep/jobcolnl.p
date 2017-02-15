@@ -344,7 +344,7 @@ FOR EACH job-hdr NO-LOCK
            IF AVAILABLE job THEN
              ASSIGN
               job.pr-printed    = YES
-              job.pr-user-id-p  = USERID("ASI")
+              job.pr-user-id-p  = USERID("nosweat")
               job.pr-print-date = TODAY
               job.pr-print-time = TIME
               li                = 1000.
@@ -374,14 +374,14 @@ FOR EACH job-hdr NO-LOCK
             IF NOT job.cs-printed THEN
               ASSIGN
                job.cs-printed    = YES
-               job.cs-user-id-p  = USERID("ASI")
+               job.cs-user-id-p  = USERID("nosweat")
                job.cs-print-date = TODAY
                job.cs-print-time = TIME.
       
             IF approve THEN
               ASSIGN
                job.cs-to-pr      = YES
-               job.cs-user-id-t  = USERID("ASI")
+               job.cs-user-id-t  = USERID("nosweat")
                job.cs-trans-date = TODAY
                job.cs-trans-time = TIME.
           END.
@@ -512,7 +512,7 @@ FOR EACH job-hdr NO-LOCK
             "Shipto:</B>" v-shipto[1] SPACE(6) "Prev.Ord#:" v-per-ord v-req-date AT 67 v-due-date AT 79 TRIM(job-hdr.est-no) FORMAT "x(8)" AT 92
             TODAY FORMAT "99/99/9999" AT 112
             SKIP
-            v-shipto[2] AT 7 /*"Order Qty:" AT 62   "Job Qty:" AT 87*/  STRING(TIME,"HH:MM am/pm") AT 107 " by " USERID("ASI")
+            v-shipto[2] AT 7 /*"Order Qty:" AT 62   "Job Qty:" AT 87*/  STRING(TIME,"HH:MM am/pm") AT 107 " by " USERID("nosweat")
             v-shipto[4] AT 7  /*"QC/SPC#:" AT 38 v-spc-no*/
             /*ord-qty format "->,>>>,>>9" AT 62 v-job-qty format "->,>>>,>>9" AT 85*/  SKIP
             /*"Pharma Code:" AT 38 v-upc-no*/ "Overrun: " AT 65 lv-over-run "Underrun: " AT 86 lv-under-run SKIP
@@ -885,6 +885,12 @@ FOR EACH job-hdr NO-LOCK
             FIND FIRST itemfg NO-LOCK WHERE itemfg.company EQ job-hdr.company
                                         AND itemfg.i-no    EQ job-hdr.i-no NO-ERROR.
 
+          IF AVAILABLE itemfg THEN
+              DO:
+              v-cas-wt = (itemfg.weight-100) * eb.cas-cnt / 100.
+          END.
+          ELSE v-cas-wt = 0.
+
             
            DISPLAY v-job-no + "-" + TRIM(STRING(eb.form-no,">>9")) + 
                     trim(STRING(eb.blank-no,">>9")) FORMAT "x(11)" 
@@ -904,12 +910,14 @@ FOR EACH job-hdr NO-LOCK
             v-upc-no = IF AVAILABLE eb THEN eb.upc-no ELSE "".
 
               PUT
-                 "<P9><B>            Quantity        QC/SPC #        Pharma Code      Style          Carton Size" "</B>" SKIP.  /* Style  Carton Size*/
-              PUT (IF AVAILABLE oe-ordl THEN oe-ordl.qty ELSE 0) FORMAT "->,>>>,>>9" AT 11 
-                  v-spc-no AT 29 
-                  v-upc-no  AT 45
-                  eb.style FORMAT "x(8)" AT 62 SPACE(7)
-                  v-size[1] FORMAT "x(30)" SKIP .
+                 "<P9><B>            Ord Qty         Job Qty         QC/SPC #         Pharma Code     Style            Carton Size                    Case Wt." "</B>" SKIP.  /* Style  Carton Size*/
+              PUT (IF AVAILABLE oe-ordl THEN oe-ordl.qty ELSE 0) FORMAT "->,>>>,>>9" AT 10 
+                  job-hdr.qty FORMAT "->,>>>,>>9" AT 26
+                  v-spc-no  AT 45 
+                  v-upc-no  AT 62
+                  eb.style FORMAT "x(8)" AT 78 SPACE(10)
+                  v-size[1] FORMAT "x(30)" 
+                  v-cas-wt  SKIP .
 
             v-itm-printed = v-itm-printed + 1. 
             /*ord-qty format "->,>>>,>>9" AT 62 v-job-qty format "->,>>>,>>9" AT 85*/  

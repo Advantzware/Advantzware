@@ -31,13 +31,13 @@ IF ll EQ YES THEN DO:
   
 /*                                                                      */
 /*                                                                      */
-/*   FIND FIRST usercomp WHERE usercomp.user_id = USERID("ASI") AND */
+/*   FIND FIRST usercomp WHERE usercomp.user_id = USERID('NOSWEAT') AND */
 /*   usercomp.loc = '' AND                                              */
 /*   usercomp.company_default = YES NO-LOCK NO-ERROR.                   */
 /*   g_company = IF AVAIL usercomp THEN usercomp.company ELSE "001".    */
 /*                                                                      */
 /*                                                                      */
-/*   FIND FIRST usercomp WHERE usercomp.user_id = USERID("ASI") AND */
+/*   FIND FIRST usercomp WHERE usercomp.user_id = USERID("NOSWEAT") AND */
 /*   usercomp.company = g_company AND                                   */
 /*   usercomp.loc NE "" AND                                             */
 /*   usercomp.loc_default = YES                                         */
@@ -55,7 +55,7 @@ IF ll EQ YES THEN DO:
   /* ******************************************************************** */
   
   /****************************/
-  FOR EACH usercomp WHERE usercomp.user_id = USERID("ASI") AND
+  FOR EACH usercomp WHERE usercomp.user_id = USERID('NOSWEAT') AND
     usercomp.loc_default = YES NO-LOCK
       /*EACH company,*/,
    EACH itemfg WHERE itemfg.company = usercomp.company 

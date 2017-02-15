@@ -18,7 +18,7 @@
       <none>
 
   History: 
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -66,7 +66,7 @@ DEF VAR v-calling-program AS WIDGET-HANDLE NO-UNDO.
 
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR oe-ordl.
-   
+
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
@@ -104,21 +104,21 @@ DEFINE FRAME F-Main
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 150 BY 24
-         BGCOLOR 4 .
+         BGCOLOR 15 .
 
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1
          SIZE 148 BY 1.91
-         BGCOLOR 4 .
+         BGCOLOR 15 .
 
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 46 ROW 2.91
          SIZE 105 BY 1.43
-         BGCOLOR 4 .
+         BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -157,6 +157,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+/* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
@@ -220,7 +221,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -390,7 +391,7 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_oe-prmtx ).
         RUN add-link IN adm-broker-hdl ( h_q-ordlfg , 'Record':U , h_oe-prmtx ).
         RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'Record':U , h_q-ordlfg ).
-       
+
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_oe-prmtx ,
              h_folder , 'AFTER':U ).
@@ -436,7 +437,7 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_oe-prmtx , 'Record':U , h_oe-prmtx-2 ).
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_oe-prmtx-2 ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'add-item':U , h_oe-prmtx-2 ).
-        
+
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_oe-prmtx-2 ,
              h_folder , 'AFTER':U ).
@@ -483,7 +484,7 @@ PROCEDURE adm-row-available :
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
   {src/adm/template/row-end.i}
-    
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -578,9 +579,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -596,11 +597,11 @@ PROCEDURE Select_Add :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEF VAR char-hdl AS CHAR NO-UNDO.
-  
+
    RUN select-page(2).
    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"add-item-target", OUTPUT char-hdl).
    RUN add-item IN WIDGET-HANDLE(char-hdl).
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -709,7 +710,7 @@ IF AVAIL oe-prmtx AND v-initial-customer GT ""
    RUN adm-initialize IN h_oe-prmtx-2.
 
 END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

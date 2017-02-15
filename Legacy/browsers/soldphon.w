@@ -1,15 +1,13 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi          PROGRESS
+          nosweat          PROGRESS
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-USING Consultingwerk.Framework.Collections.CharacterDictionary FROM PROPATH.
-USING Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl FROM PROPATH.
-&SCOPED-DEFINE dataGrid
+{Advantzware\WinKit\admBrowserUsing.i}
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
@@ -268,7 +266,8 @@ END.
 {src/adm/method/browser.i}
 {src/adm/method/query.i}
 {methods/template/browser.i}
-{methods/gridSearch.i}
+
+{Advantzware/WinKit/dataGridProc.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -301,22 +300,22 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "ASI.phone WHERE asi.emailcod <external> ... ...,asi.soldto WHERE ASI.phone ..."
+     _TblList          = "NOSWEAT.phone WHERE asi.emailcod <external> ... ...,asi.soldto WHERE NOSWEAT.phone ..."
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED, USED,"
-     _JoinCode[1]      = "NOT ASI.phone.table_rec_key = ''"
-     _JoinCode[2]      = "asi.soldto.rec_key = ASI.phone.table_rec_key"
+     _JoinCode[1]      = "NOT NOSWEAT.phone.table_rec_key = ''"
+     _JoinCode[2]      = "asi.soldto.rec_key = NOSWEAT.phone.table_rec_key"
      _FldNameList[1]   > asi.soldto.cust-no
 "asi.soldto.cust-no" ? ? "character" ? ? ? 4 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.soldto.sold-id
 "asi.soldto.sold-id" ? ? "character" ? ? ? 4 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.soldto.sold-name
 "asi.soldto.sold-name" ? ? "character" ? ? ? 4 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > ASI.phone.attention
-"ASI.phone.attention" ? ? "character" ? ? ? 4 15 ? no ? no no "38" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > ASI.phone.titlcode
-"ASI.phone.titlcode" "Title" ? "character" ? ? ? 4 15 ? no ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   = ASI.phone.rec_key
+     _FldNameList[4]   > NOSWEAT.phone.attention
+"NOSWEAT.phone.attention" ? ? "character" ? ? ? 4 15 ? no ? no no "38" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[5]   > NOSWEAT.phone.titlcode
+"NOSWEAT.phone.titlcode" "Title" ? "character" ? ? ? 4 15 ? no ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[6]   = NOSWEAT.phone.rec_key
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

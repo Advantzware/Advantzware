@@ -37,7 +37,7 @@ DEF VAR lv-audit-dir AS CHAR NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/VAR.i new shared}
-    
+
 assign
  cocode = gcompany
  locode = gloc.
@@ -225,13 +225,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -273,7 +279,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -321,6 +327,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -332,14 +339,14 @@ END.
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   DEF VAR lv-post AS LOG NO-UNDO.
-  
+
   RUN check-date.
   IF v-invalid THEN RETURN NO-APPLY. 
 
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&DISPLAYED-OBJECTS}.
   END.
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
      rd-dest
@@ -361,7 +368,7 @@ DO:
     END. /* REPEAT */
     /* gdm - 11050906 */
   END.
-  
+
   run run-report.
 
   case rd-dest:
@@ -369,7 +376,7 @@ DO:
        when 2 then run output-to-screen.
        when 3 then run output-to-file.
   end case.
-  
+
   find first ap-ctrl where ap-ctrl.company eq cocode no-lock no-error.
   if not avail ap-ctrl then return.
   IF AVAIL ap-ctrl  AND ap-ctrl.payables EQ "" THEN DO:
@@ -397,6 +404,7 @@ DO:
       MESSAGE "No Debit/Credit Memos available for posting..." VIEW-AS ALERT-BOX ERROR.
       RUN undo-trnum.  
   END.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -499,7 +507,7 @@ END.
 ON LEAVE OF tran-date IN FRAME FRAME-A /* Post Date */
 DO:
   assign {&self-name}.
-  
+
   if lastkey ne -1 then do:
     run check-date.
     if v-invalid then return no-apply.
@@ -534,8 +542,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -576,6 +586,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   {methods/nowait.i}
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -595,7 +606,7 @@ PROCEDURE check-date :
 ------------------------------------------------------------------------------*/
   DO with frame {&frame-name}:
     v-invalid = no.
-  
+
     find first period                   
         where period.company eq cocode
           and period.pst     le tran-date
@@ -677,7 +688,7 @@ PROCEDURE init-proc :
     sys-ctrl.company eq cocode AND
     sys-ctrl.name    eq "AUDITDIR"
     no-lock no-error.
-  
+
   if not avail sys-ctrl then DO TRANSACTION:
      create sys-ctrl.
      assign
@@ -707,7 +718,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
      DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -718,9 +729,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
 
 
@@ -773,7 +784,7 @@ PROCEDURE post-gl :
 
    DEF BUFFER b-rm-bin FOR rm-bin.
 
-   
+
    SESSION:SET-WAIT-STATE("general").
 
    EMPTY TEMP-TABLE tt-rm-bin.
@@ -833,11 +844,11 @@ PROCEDURE post-gl :
                     FIRST rm-rcpth NO-LOCK
                     WHERE rm-rcpth.r-no      EQ rm-rdtlh.r-no
                       AND rm-rcpth.rita-code EQ rm-rdtlh.rita-code:
-               
+
                   ASSIGN
                    rm-rdtlh.cost     = rm-rdtlh.cost * ld-pct
                    rm-rdtlh.frt-cost = rm-rdtlh.frt-cost * ld-pct.
-               
+
                   IF NOT CAN-FIND(FIRST tt-rm-bin
                                   WHERE tt-rm-bin.company EQ rm-rcpth.company
                                     AND tt-rm-bin.i-no    EQ rm-rcpth.i-no
@@ -887,7 +898,7 @@ PROCEDURE post-gl :
                ASSIGN
                vend.hibal = vend.acc-bal
                vend.hibal-date = ap-pay.check-date.
-            
+
             create ap-ledger.
             assign
                ap-ledger.company  = cocode
@@ -942,12 +953,12 @@ PROCEDURE post-gl :
               AND rm-rcpth.rita-code EQ rm-rdtlh.rita-code
               AND rm-rcpth.i-no      EQ fg-bin.i-no
             USE-INDEX r-no
-    
+
             BY rm-rcpth.trans-date
             BY rm-rcpth.rec_key
             BY rm-rdtlh.rec_key
             BY rm-rcpth.r-no:
-    
+
           {rm/rm-mkbin.i}
         END. /* each rm-rcpth */
 
@@ -963,12 +974,12 @@ PROCEDURE post-gl :
               AND rm-rdtlh.loc-bin   EQ fg-bin.loc-bin
               AND rm-rdtlh.tag       EQ fg-bin.tag
             USE-INDEX rm-rdtl no-lock
-    
+
             BY rm-rcpth.trans-date
             BY rm-rcpth.rec_key
             BY rm-rdtlh.rec_key
             BY rm-rcpth.r-no:
-    
+
           {rm/rm-mkbin.i}
         END. /* each rm-rcpth */
 
@@ -1034,7 +1045,7 @@ form
     ap-payl.amt-disc format "->>,>>>,>>9.99" space(3)
     ap-payl.amt-paid space(5)
     ap-payl.actnum with frame dbcr-memo no-box no-labels STREAM-IO width 132.
- 
+
 
 SESSION:SET-WAIT-STATE("general").
 
@@ -1048,7 +1059,7 @@ ASSIGN
 
  g1 = 0
  g2 = 0.
-    
+
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i value(lines-per-page)}
@@ -1056,7 +1067,7 @@ ASSIGN
 if td-show-parm then run show-param.
 
 DISPLAY "" WITH frame r-top.
- 
+
    FOR EACH ap-pay
        WHERE ap-pay.company EQ cocode
          AND ap-pay.memo    EQ YES
@@ -1139,12 +1150,12 @@ PROCEDURE show-param :
   DEF VAR parm-lbl-list as cha no-undo.
   DEF VAR i as int no-undo.
   DEF VAR lv-label as cha.
-  
+
   ASSIGN
   lv-frame-hdl = frame {&frame-name}:HANDLE
   lv-group-hdl = lv-frame-hdl:first-child
   lv-field-hdl = lv-group-hdl:first-child.
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1161,7 +1172,7 @@ PROCEDURE show-param :
                   if not valid-handle(lv-field2-hdl) then leave. 
                   if lv-field2-hdl:private-data = lv-field-hdl:name THEN
                      parm-lbl-list = parm-lbl-list + lv-field2-hdl:screen-value + ",".
-                  
+
                   lv-field2-hdl = lv-field2-hdl:next-sibling.                 
               end.       
            end.                 
@@ -1172,23 +1183,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1201,7 +1212,7 @@ PROCEDURE undo-trnum :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO TRANSACTION:
     /* gdm - 11050906 */
     REPEAT:
@@ -1234,7 +1245,7 @@ PROCEDURE copy-report-to-audit-dir :
   DEF VAR dirname1 AS CHAR FORMAT "X(20)" NO-UNDO.
   DEF VAR dirname2 AS CHAR FORMAT "X(20)" NO-UNDO.
   DEF VAR dirname3 AS CHAR FORMAT "X(20)" NO-UNDO.
-  
+
   ASSIGN targetfile = lv-audit-dir + "\AP\VW2\Run#"
                     + STRING(xtrnum) + ".txt"
          dirname1 = lv-audit-dir

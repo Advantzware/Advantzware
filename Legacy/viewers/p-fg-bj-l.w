@@ -1,6 +1,10 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -185,7 +189,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -196,8 +200,8 @@ ASSIGN
 ON CHOOSE OF btn-update IN FRAME F-Main /* Update Cost/Unit/Count */
 DO:
   def var char-hdl as cha no-undo.
-      
-  
+
+
   IF NOT ll-secure THEN do:  
      RUN sys/ref/d-passwd.w (1, OUTPUT ll-secure). 
      IF NOT ll-secure THEN RETURN NO-APPLY.
@@ -238,7 +242,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */

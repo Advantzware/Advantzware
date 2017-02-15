@@ -448,17 +448,22 @@ PROCEDURE local-assign-record :
   DEFINE VARIABLE lvUom AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lvRels AS INTEGER NO-UNDO.
   DEFINE VARIABLE v-tot-cost AS DEC NO-UNDO.
-  IF AVAIL quoteqty THEN
-  ASSIGN
-    lvPrice = quoteqty.price
-    lvUom = quoteqty.uom.
+  DEFINE VARIABLE iPrvQty AS INTEGER NO-UNDO.
+  DEFINE VARIABLE rowidqty AS ROWID NO-UNDO.
+  IF AVAIL quoteqty THEN DO:
+      ASSIGN
+          lvPrice = quoteqty.price 
+          lvUom = quoteqty.uom 
+          iPrvQty = quoteqty.qty
+          .
+  END.
   
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  ASSIGN quoteqty.quote-user = USERID("ASI")
+  ASSIGN quoteqty.quote-user = USERID('nosweat')
         /* quoteqty.quote-date = TODAY*/ .
 
   /* update rfqitem qty - start */
@@ -494,11 +499,27 @@ PROCEDURE local-assign-record :
     END. /* if est-no = "" */
   END.
 
-  IF NOT AVAILABLE quotehd OR quotehd.rfq EQ '' THEN RETURN.
+  IF AVAILABLE quoteqty AND quoteqty.qty NE iPrvQty AND NOT adm-new-record  THEN DO:
+  
+      FOR EACH quotechg EXCLUSIVE-LOCK
+         WHERE quotechg.company EQ quoteqty.company 
+           AND quotechg.loc EQ quoteqty.loc 
+           AND quotechg.q-no EQ quoteqty.q-no 
+           AND ASI.quotechg.line EQ quoteqty.line
+           AND quotechg.qty EQ iPrvQty  :
+          ASSIGN quotechg.qty = quoteqty.qty  .
+      END.
+      ASSIGN rowidqty = ROWID(quoteqty) .
+       BROWSE {&BROWSE-NAME}:REFRESH().
+       RUN dispatch ('open-query').
+       REPOSITION {&browse-name} TO ROWID rowidqty NO-ERROR.
+       RUN dispatch IN THIS-PROCEDURE ("row-changed").
+       APPLY "value-changed" TO BROWSE {&browse-name}.
+  END.
+
+   IF NOT AVAILABLE quotehd OR quotehd.rfq EQ '' THEN RETURN.
   {custom/rfq-qty.i}
   /* update rfqitem qty - end */
-
-
 
 END PROCEDURE.
 
@@ -523,7 +544,7 @@ PROCEDURE local-create-record :
         quoteqty.q-no = quoteitm.q-no
         quoteqty.line = quoteitm.line
         quoteqty.quote-date = TODAY
-        quoteqty.quote-user = USERID("ASI")
+        quoteqty.quote-user = USERID("nosweat")
         .
 
 END PROCEDURE.
@@ -541,10 +562,21 @@ PROCEDURE local-delete-record :
   /* Code placed here will execute PRIOR to standard behavior. */
   {custom/askdel.i}
 
+  /* Code Placed here after confirm delete*/
+  FOR EACH quotechg EXCLUSIVE-LOCK
+      WHERE quotechg.company EQ quoteqty.company 
+        AND quotechg.loc EQ quoteqty.loc 
+        AND quotechg.q-no EQ quoteqty.q-no 
+        AND ASI.quotechg.line EQ quoteqty.line
+        AND quotechg.qty EQ quoteqty.qty  :
+      DELETE quotechg .
+  END.
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  
 
 END PROCEDURE.
 

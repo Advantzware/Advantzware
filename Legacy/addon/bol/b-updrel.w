@@ -148,6 +148,10 @@ DEFINE VARIABLE lvrOeOrd          AS ROWID            NO-UNDO.
 DEFINE VARIABLE lvlReturnNoApply  AS LOGICAL          NO-UNDO.
 DEFINE VARIABLE lvlReturnCancel   AS LOGICAL          NO-UNDO.
 DEFINE VARIABLE gvlCheckOrdStat   AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE lSaveToTempfile AS LOGICAL NO-UNDO.
+DEFINE STREAM sTmpSaveInfo.
+DEFINE VARIABLE cTmpSaveFile AS CHARACTER NO-UNDO.
+   
 /* Just for compatibility with b-relbol.w, not used */
 DEFINE VARIABLE v-job-qty AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
      LABEL "Job Qty" 
@@ -557,6 +561,17 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL scr-rel# B-table-Win
+ON NEXT-FRAME OF scr-rel# IN FRAME F-Main /* Release# */
+DO:
+  RUN restoreSavedRecs.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &UNDEFINE SELF-NAME
@@ -1073,11 +1088,50 @@ DO:
    END.
 END.
 
+cTmpSaveFile = "logs/UpdRel" + STRING(TODAY, "999999") + STRING(TIME, "999999") + USERID("nosweat") + ".txt".
+lSaveToTempfile = FALSE.
+IF SEARCH("logs/updRel.txt") NE ? THEN 
+   lSaveToTempfile = TRUE. 
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
 /* **********************  Internal Procedures  *********************** */
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE restoreSavedRecs B-table-Win
+PROCEDURE restoreSavedRecs:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+DEF VAR lFileSelected AS LOG NO-UNDO.
+SYSTEM-DIALOG GET-FILE cTmpSaveFile   
+    FILTERS "restore (updrel*)" "updrel*"
+    INITIAL-DIR ".\logs"
+    UPDATE lFileSelected
+    MUST-EXIST
+    TITLE "Select Restore File". 
+     
+IF lFileSelected THEN DO:
+    INPUT STREAM sTmpSaveInfo FROM VALUE(cTmpSaveFile).
+    REPEAT:
+        CREATE tt-relbol. 
+        IMPORT STREAM sTmpSaveInfo tt-relbol except tt-relbol.oerell-row rowid. 
+         
+    END.
+    INPUT STREAM sTmpSaveInfo CLOSE.
+END.
+RUN dispatch ('open-query').
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available B-table-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
@@ -2395,7 +2449,13 @@ PROCEDURE local-update-record :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
-
+  
+  /* Save to .txt file just in case data is lost */
+  IF lSaveToTempfile THEN DO:
+      OUTPUT STREAM sTmpSaveInfo TO VALUE(cTmpSaveFile) APPEND.
+      EXPORT STREAM sTmpSaveInfo tt-relbol EXCEPT oerell-row rowid.
+      OUTPUT STREAM sTmpSaveInfo CLOSE. 
+  END. 
   /* Saves values outside of this session */
   RUN update-ssrelbol.
 
@@ -2512,7 +2572,7 @@ BolPostLog = SEARCH('logs/bolpstall.log') NE ?.
 IF BolPostLog THEN
 OUTPUT STREAM logFile TO VALUE('logs/bolpstall.' +
      STRING(TODAY,'99999999') + '.' + STRING(TIME) + '.log').
-IF BolPostLog THEN RUN BolPostLog ('Started updrel ' + USERID("ASI")).
+IF BolPostLog THEN RUN BolPostLog ('Started updrel ' + USERID("NOSWEAT")).
 IF BolPostLog AND avail(tt-relbol) THEN RUN BolPostLog ('Current Release ' + STRING(tt-relbol.release#)).
 
 {sa/sa-sls01.i}

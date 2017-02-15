@@ -303,7 +303,7 @@ DEFINE VARIABLE aoaRptFile AS CHARACTER FORMAT "X(256)":U
      SIZE 90 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE autoSetParameters AS LOGICAL INITIAL yes 
+DEFINE VARIABLE autoSetParameters AS LOGICAL INITIAL no 
      LABEL "Auto Set Parameters" 
      VIEW-AS TOGGLE-BOX
      SIZE 23.4 BY .81 NO-UNDO.
@@ -459,9 +459,9 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          TITLE              = "AOA Report Modifier"
          HEIGHT             = 40.71
          WIDTH              = 320
-         MAX-HEIGHT         = 320
+         MAX-HEIGHT         = 40.71
          MAX-WIDTH          = 320
-         VIRTUAL-HEIGHT     = 320
+         VIRTUAL-HEIGHT     = 40.71
          VIRTUAL-WIDTH      = 320
          RESIZE             = yes
          SCROLL-BARS        = no
@@ -475,6 +475,17 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -564,7 +575,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttSubject.
 */  /* BROWSE ttSubject */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -588,7 +599,7 @@ END.
 ON WINDOW-CLOSE OF C-Win /* AOA Report Modifier */
 DO:
   /* This event will close the window and terminate the procedure.  */
-  
+
   RELEASE OBJECT PAReportEngine.
   RELEASE OBJECT PAApplication.
 
@@ -616,6 +627,7 @@ END.
 ON CHOOSE OF btnDetailOnFormat IN FRAME DEFAULT-FRAME /* Detail OnFormat */
 DO:
   OS-COMMAND NO-WAIT notepad.exe aoa\vbScript\Rpt.Detail.OnFormat.dat.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -627,6 +639,7 @@ END.
 ON CHOOSE OF btnGroupFooterOnFormat IN FRAME DEFAULT-FRAME /* Group Footer OnFormat */
 DO:
   OS-COMMAND NO-WAIT notepad.exe aoa\vbScript\Rpt.GroupFooter.OnFormat.dat.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -638,6 +651,7 @@ END.
 ON CHOOSE OF btnGroupHeaderOnFormat IN FRAME DEFAULT-FRAME /* Group Header OnFormat */
 DO:
   OS-COMMAND NO-WAIT notepad.exe aoa\vbScript\Rpt.GroupHeader.OnFormat.dat.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -649,6 +663,7 @@ END.
 ON CHOOSE OF btnOnReportEnd IN FRAME DEFAULT-FRAME /* OnReportEnd */
 DO:
   OS-COMMAND NO-WAIT notepad.exe aoa\vbScript\Rpt.OnReportEnd.dat.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -660,6 +675,7 @@ END.
 ON CHOOSE OF btnOnReportStart IN FRAME DEFAULT-FRAME /* OnReportStart */
 DO:
   OS-COMMAND NO-WAIT notepad.exe aoa\vbScript\Rpt.OnReportStart.dat.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -681,6 +697,7 @@ DO:
         cID = SEARCH(cID).
         RUN pOpenAOAProgram (cID).
     END.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -692,6 +709,7 @@ END.
 ON CHOOSE OF btnPublish IN FRAME DEFAULT-FRAME /* Publish */
 DO:
     RUN pPublish (YES).
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -704,13 +722,14 @@ ON CHOOSE OF btnSave IN FRAME DEFAULT-FRAME /* Save */
 DO:
     ASSIGN {&aoaReportValue}
         hReport:Sections:Item("ReportHeader"):Controls:Item("ReportTitle"):Caption = aoaReportTitle
-        hReport:Sections:Item("ReportHeader"):Controls:Item("ReportTitle"):Width   = LENGTH(aoaReportTitle) * {&aoaMultiplier} + 35
+        hReport:Sections:Item("ReportHeader"):Controls:Item("ReportTitle"):Width   = 11520
         hReport:PrintWidth = aoaReportWidth
         .
     RUN pSetScript.
     RUN pSetReportFields.
     PAReportEngine:SaveReport(INPUT-OUTPUT hReport,aoaRptFile).
     MESSAGE "Report:" aoaReportTitle "Updates Saved" VIEW-AS ALERT-BOX.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -722,6 +741,7 @@ END.
 ON CHOOSE OF btnSetName IN FRAME DEFAULT-FRAME /* Set Names */
 DO:
   RUN pSetNames.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -739,6 +759,7 @@ DO:
     /*
     RUN aoa/aoaSubRpt.w (aoaProgramID, {&SELF-NAME}:PRIVATE-DATA).
     */
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -750,6 +771,7 @@ END.
 ON CHOOSE OF btnUpdate IN FRAME DEFAULT-FRAME /* Update Scripts  Publish */
 DO:
   RUN pUpdate.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -786,8 +808,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -801,6 +825,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN pCreateObjects.
   RUN pGetAOAFiles.
   RUN enable_UI.
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -937,10 +962,10 @@ PROCEDURE pGetReportFields :
     DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cDataField AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCaption   AS CHARACTER NO-UNDO.
-    
+
     PAReportEngine:OpenReport(ipcReportName).
     hReport = PAReportEngine:Report.
-    
+
     IF NOT VALID-HANDLE(hReport) THEN DO:
         MESSAGE "Report:" ipcReportName "- Failed to Open"
             VIEW-AS ALERT-BOX ERROR.
@@ -1060,7 +1085,7 @@ PROCEDURE pGetTempTableFields :
 
     DEFINE VARIABLE idx    AS INTEGER NO-UNDO.
     DEFINE VARIABLE iOrder AS INTEGER NO-UNDO.
-    
+
     IF NOT VALID-HANDLE(iphTable) THEN RETURN.
 
     EMPTY TEMP-TABLE ttSubject.
@@ -1137,7 +1162,7 @@ PROCEDURE pOpenAOAProgram :
 
     RUN VALUE(cAppSrv) PERSISTENT SET hAppSrv.
     hTable = DYNAMIC-FUNCTION('fGetTableHandle' IN hAppSrv, aoaProgramID).
-    
+
     RUN pGetTempTableFields (hTable).
     RUN pGetReportFields (aoaRptFile).
 
@@ -1179,7 +1204,7 @@ PROCEDURE pPublish :
         publishExe " ~"" aoaRptFile "~" guest password > "
         REPLACE(publishBat,".bat",".log") SKIP.
     OUTPUT CLOSE.
-    
+
     SESSION:SET-WAIT-STATE("General").
     OS-COMMAND SILENT VALUE(publishBat).
     SESSION:SET-WAIT-STATE("").
@@ -1192,7 +1217,7 @@ PROCEDURE pPublish :
        logText = logText + txtLine.
     END.
     INPUT CLOSE.
-    
+
     IF iplShow THEN DO:
         IF logText EQ "success" THEN
             MESSAGE "Published OK" VIEW-AS ALERT-BOX.
@@ -1307,14 +1332,14 @@ PROCEDURE pSetNames :
         IF AVAILABLE ttPageHeader OR AVAILABLE ttDetail THEN
         iLeft = iLeft + ttSubject.ttSize + 50.
     END. /* each subject */
-    
+
     IF autoSetParameters THEN DO:
         FIND FIRST ttParameter WHERE ttParameter.pOrder EQ 0 NO-ERROR.
         IF AVAILABLE ttParameter THEN
         ASSIGN
             ttParameter.pCaption = aoaReportTitle
             ttParameter.pWidth   = LENGTH(aoaReportTitle) * 180.
-        
+
         FIND FIRST user-print NO-LOCK
              WHERE user-print.company    EQ "001"
                AND user-print.program-id EQ aoaProgramID
@@ -1351,7 +1376,7 @@ PROCEDURE pSetNames :
             MESSAGE "No User-Print Record Exists to Set Parameters"
                 VIEW-AS ALERT-BOX ERROR.
     END. /* if setparameternames */
-    
+
     aoaReportWidth:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(iLeft).
 
     {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
@@ -1492,7 +1517,7 @@ PROCEDURE pUpdate :
             cID = "aoa/" + ttAOA.progID + "p"
             cID = SEARCH(cID)
             .
-        RUN pOpenAOAProgram (cID).
+        RUN pOpenAOAProgram (ttAOA.module, cID).
         RUN pSetScript.
         RUN pPublish (NO).
     END. /* each ttaoa */

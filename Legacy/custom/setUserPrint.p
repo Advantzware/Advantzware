@@ -9,7 +9,7 @@ DEFINE VARIABLE i AS INTEGER NO-UNDO.
 DEFINE VARIABLE j AS INTEGER NO-UNDO.
 DEF VAR v-userid AS CHAR NO-UNDO.
 
-v-userid = USERID("ASI").
+v-userid = USERID('NoSweat').
 
 IF CAN-FIND(FIRST user-print WHERE
    user-print.company EQ ipCompany AND

@@ -63,16 +63,16 @@ IF {&TABLENAME}.company NE "" AND {&TABLENAME}.r-no NE 0 THEN DO:
      reftable.reftable = "fg-rctd.user-id"
      reftable.company  = {&TABLENAME}.company
      reftable.loc      = STRING({&TABLENAME}.r-no,"9999999999")
-     reftable.code     = USERID("ASI").
+     reftable.code     = USERID("nosweat").
   END.
   IF NEW reftable                                                        OR
      NOT CAN-FIND(FIRST fg-rctd WHERE fg-rctd.r-no EQ {&TABLENAME}.r-no) THEN
     ASSIGN
-     reftable.code2        = USERID("ASI")
+     reftable.code2        = USERID("nosweat")
      {&TABLENAME}.upd-date = TODAY
      {&TABLENAME}.upd-time = TIME.
 END.
-{&TABLENAME}.update-by = USERID("ASI").
+{&TABLENAME}.update-by = USERID("nosweat").
 /* Clear out any error-status from find with no-error that is false */
 DEF VAR ll-error AS LOG NO-UNDO.
 ll-error = YES NO-ERROR.

@@ -1,6 +1,10 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -163,7 +167,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -175,7 +179,7 @@ ON CHOOSE OF btn-delall IN FRAME F-Main /* Delete All */
 DO:
    def var char-hdl as cha no-undo.   
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'del-source':U,OUTPUT char-hdl).
-   
+
    RUN del-selected in WIDGET-HANDLE(char-hdl).
 END.
 
@@ -193,7 +197,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */

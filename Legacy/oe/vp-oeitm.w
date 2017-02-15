@@ -4,11 +4,15 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
   File: oe\vp-oeitm.w
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -251,7 +255,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -436,7 +440,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -480,12 +484,12 @@ PROCEDURE add-rebuild :
     ASSIGN
      ll-canceled = NO
      lv-job      = oe-ord.job-no + "-" + STRING(oe-ord.job-no2,"99").
-   
+
     IF AVAIL oe-ordl THEN
       lv-job = oe-ordl.job-no + "-" + STRING(oe-ordl.job-no2,"99").
-   
+
     RELEASE est.
-   
+
     IF oe-ord.est-no NE "" OR (AVAIL oe-ordl AND oe-ordl.est-no NE "") THEN
     FIND FIRST est NO-LOCK
         WHERE est.company EQ oe-ord.company
@@ -493,23 +497,23 @@ PROCEDURE add-rebuild :
                                  oe-ordl.est-no NE "" THEN oe-ordl.est-no
                                                       ELSE oe-ord.est-no)
         NO-ERROR.
-   
+
     IF ip-function EQ "REBUILD" THEN DO:
       ll-canceled = AVAIL est.
-          
+
       IF ll-canceled THEN
         MESSAGE "Do you wish rebuild job standards for Job#: " + TRIM(lv-job)
             VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
             UPDATE ll-canceled.
-   
+
       ll-canceled = NOT ll-canceled. 
-   
+
       IF ll-canceled THEN ip-function = "CANCEL".
     END.
-    
+
     ELSE ll-combo = AVAIL est AND
                     (est.est-type EQ 3 OR est.est-type EQ 4 OR est.est-type EQ 8).
-   
+
     IF ll-combo THEN
       RUN oe/d-addlin.w (CAN-FIND(FIRST eb
                                   WHERE eb.company       EQ oe-ord.company
@@ -517,23 +521,23 @@ PROCEDURE add-rebuild :
                                     AND eb.master-est-no NE "" 
                                     AND eb.master-est-no NE est.est-no),
                          OUTPUT ip-function).
-   
+
     IF ip-function EQ "REBUILD" THEN DO:
       RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
-   
+
       IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
         RUN get-link-handle IN adm-broker-hdl(WIDGET-HANDLE(char-hdl),"record-source", OUTPUT char-hdl).
-   
+
       IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
         SESSION:SET-WAIT-STATE ("general").
-   
+
         IF ll-combo THEN DO:
           RUN order-from-est IN WIDGET-HANDLE(char-hdl) (?).
-   
+
           RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
           IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
             RUN reopen-query IN WIDGET-HANDLE(char-hdl) (?).
-   
+
             FOR EACH b-oe-ordl OF oe-ord
                 WHERE b-oe-ordl.est-no EQ oe-ord.est-no
                   AND NOT CAN-FIND(FIRST eb
@@ -549,22 +553,22 @@ PROCEDURE add-rebuild :
             END.
           END.
         END.
-   
+
         ELSE DO:
           ASSIGN
            fil_id       = RECID(oe-ordl)
            nufile       = YES
            v-create-job = YES
            v-qty-mod    = YES.
-   
+
           FIND xoe-ord WHERE ROWID(xoe-ord) EQ ROWID(oe-ord) NO-LOCK.
           RUN oe/estupl.p.
         END.
-   
+
         SESSION:SET-WAIT-STATE ("").
       END.
     END.
-   
+
     ELSE
     IF ip-function NE "CANCEL" THEN
       RUN oe/d-oeitem.w (?, oe-ord.ord-no, ip-function, INPUT TABLE tt-item-qty-price, 
@@ -572,17 +576,17 @@ PROCEDURE add-rebuild :
 
     IF NOT ll-canceled THEN DO:
       RELEASE b-oe-ordl.
-   
+
       FOR EACH b-oe-ordl OF oe-ord NO-LOCK BY b-oe-ordl.line DESC:
         LEAVE.
       END.
       fil_id = IF AVAIL b-oe-ordl THEN RECID(b-oe-ordl) ELSE
                IF AVAIL oe-ordl   THEN RECID(oe-ordl)   ELSE ?.
-   
+
       RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
       RUN reopen-query IN WIDGET-HANDLE(char-hdl) (?).
       RUN reposit-item IN WIDGET-HANDLE(char-hdl) (RECID(oe-ord), fil_id).
-      
+
       /* If user has selected multiple records during 'add', then run proper validation on them via d-oeitem */
       IF v-out-rowid-list NE "" THEN DO:
           DO li = 1 TO NUM-ENTRIES(v-out-rowid-list):
@@ -675,7 +679,7 @@ PROCEDURE delete-process :
         END.
       END.
     END. /* delete-comps */
-    
+
     RUN reposit-item IN WIDGET-HANDLE(char-hdl) (RECID(oe-ord), RECID(b-oe-ordl)).
     IF ip-prompt THEN DO:
         IF NOT CAN-FIND(FIRST c-oe-ordl {sys/inc/ordlcomp.i c-oe-ordl b-oe-ordl}) THEN
@@ -738,7 +742,7 @@ PROCEDURE local-display-fields :
   FIND FIRST oe-ord OF oe-ordl NO-LOCK NO-ERROR.
 
   DO WITH FRAME {&FRAME-NAME}:
-    
+
     IF AVAIL oe-ord AND NOT oe-ord.opened THEN
       DISABLE Btn-Save Btn-Add Btn-Delete Btn-Price .
     ELSE DO:
@@ -787,7 +791,7 @@ PROCEDURE local-display-fields :
        btn-Save:LABEL EQ "&Save" THEN btn-save:SENSITIVE = YES.
 
     /*IF NOT v-do-bol THEN btn-bol:SENSITIVE = NO.*/
-    
+
     RUN methods/prgsecur.p(INPUT "OEItmPrc",
                              INPUT "Update", /* based on run, create, update, delete or all */
                              INPUT NO,    /* use the directory in addition to the program */
@@ -833,7 +837,7 @@ PROCEDURE local-display-fields :
                              OUTPUT lAccessClose, /* used in template/windows.i  */
                              OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
     IF NOT lAccess THEN btn-update:SENSITIVE = NO.
-    
+
 
     IF NOT v-can-run THEN DISABLE ALL.
   END.
@@ -851,8 +855,8 @@ PROCEDURE reopen-oe-ord-query :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR char-hdl AS CHAR no-undo.
-      
-  
+
+
   run get-link-handle in adm-broker-hdl(this-procedure,"record-source", output char-hdl).
   run get-link-handle in adm-broker-hdl(widget-handle(char-hdl),"record-source", output char-hdl).
   run get-link-handle in adm-broker-hdl(widget-handle(char-hdl),"record-source", output char-hdl).
@@ -969,16 +973,16 @@ PROCEDURE update-process :
     END.
     ELSE DO:
         FIND CURRENT oe-ordl NO-LOCK NO-ERROR.
-    
+
         IF lv-prev-qty NE oe-ordl.qty AND ll-has-components THEN
           RUN update-components IN WIDGET-HANDLE(char-hdl).
-    
+
         FIND b-oe-ordl WHERE ROWID(b-oe-ordl) EQ ROWID(oe-ordl) NO-LOCK NO-ERROR.
-    
+
         RUN record-updated IN WIDGET-HANDLE(char-hdl) (ROWID(oe-ordl)).
-    
+
         /*RUN reposit-item IN WIDGET-HANDLE(char-hdl) (RECID(oe-ord), IF AVAIL b-oe-ordl THEN RECID(b-oe-ordl) ELSE ?).*/
-    
+
         /*RUN reopen-oe-ord-query. */
     END.
 

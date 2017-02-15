@@ -1,9 +1,13 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi          PROGRESS
+          nosweat          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -131,7 +135,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartViewer
-   External Tables: ASI.usersman
+   External Tables: NOSWEAT.usersman
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -199,7 +203,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -226,7 +230,7 @@ DO:
 
       RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'record-source':U,OUTPUT char-hdl).
       RUN Get-Values in WIDGET-HANDLE(char-hdl) (OUTPUT op-user_id).
-      
+
       FOR EACH tt-sman:
 
           IF NOT CAN-FIND(FIRST usersman WHERE
@@ -261,7 +265,7 @@ DO:
       FOR EACH sman FIELDS(sman) WHERE
           sman.company EQ cocode
           NO-LOCK:
-      
+
           IF NOT CAN-FIND(FIRST usersman WHERE
              usersman.user_id EQ op-user_id AND
              usersman.company EQ cocode AND
@@ -301,7 +305,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -365,7 +369,7 @@ PROCEDURE local-create-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -387,7 +391,7 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   DEF VAR op-user_id AS CHAR NO-UNDO.
-  
+
   RUN valid-sman NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 

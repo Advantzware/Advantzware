@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -590,7 +594,82 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
+/* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME cust-markup.cust-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust-markup.cust-no V-table-Win
+ON HELP OF cust-markup.cust-no IN FRAME F-Main /* Ack. Date */
+DO:
+    DEF VAR char-val AS CHARACTER NO-UNDO.
+
+   RUN windows/l-cust.w (g_company, cust-markup.cust-no:SCREEN-VALUE, OUTPUT char-val).
+   cust-markup.cust-no:SCREEN-VALUE = ENTRY(1,char-val) .
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust-markup.cust-no V-table-Win
+ON LEAVE OF cust-markup.cust-no IN FRAME F-Main /* cust */
+DO:
+  IF LASTKEY NE -1  THEN DO:
+    IF TRIM(cust-markup.cust-no:SCREEN-VALUE) NE "" THEN DO:
+
+      RUN valid-cust-no NO-ERROR.
+      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+    END.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust-markup.style V-table-Win
+ON LEAVE OF cust-markup.style IN FRAME F-Main /* cust */
+DO:
+  IF LASTKEY NE -1  THEN DO:
+    IF TRIM(cust-markup.style:SCREEN-VALUE) NE "" THEN DO:
+
+      RUN valid-style NO-ERROR.
+      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+    END.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust-markup.procat V-table-Win
+ON LEAVE OF cust-markup.procat IN FRAME F-Main /* cust */
+DO:
+  IF LASTKEY NE -1  THEN DO:
+    IF TRIM(cust-markup.procat:SCREEN-VALUE) NE "" THEN DO:
+
+      RUN valid-procat NO-ERROR.
+      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+    END.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cb_markup-on-01 V-table-Win
+ON LEAVE OF cb_markup-on-01 IN FRAME F-Main /* cust */
+DO:
+    cb_markup-on-01 = cb_markup-on-01:SCREEN-VALUE .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
@@ -601,7 +680,7 @@ ASSIGN
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -688,19 +767,19 @@ PROCEDURE local-assign-record :
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
-
+    DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
-        cust-markup.markup-on[01] = SUBSTR(cb_markup-on-01,2,1)
-        cust-markup.markup-on[02] = SUBSTR(cb_markup-on-02,2,1)
-        cust-markup.markup-on[03] = SUBSTR(cb_markup-on-03,2,1)
-        cust-markup.markup-on[04] = SUBSTR(cb_markup-on-04,2,1)
-        cust-markup.markup-on[05] = SUBSTR(cb_markup-on-05,2,1)
-        cust-markup.markup-on[06] = SUBSTR(cb_markup-on-06,2,1)
-        cust-markup.markup-on[07] = SUBSTR(cb_markup-on-07,2,1)
-        cust-markup.markup-on[08] = SUBSTR(cb_markup-on-08,2,1)
-        cust-markup.markup-on[09] = SUBSTR(cb_markup-on-09,2,1)
-        cust-markup.markup-on[10] = SUBSTR(cb_markup-on-10,2,1).
-
+        cust-markup.markup-on[01] = SUBSTR(cb_markup-on-01:SCREEN-VALUE,2,1)
+        cust-markup.markup-on[02] = SUBSTR(cb_markup-on-02:SCREEN-VALUE,2,1)
+        cust-markup.markup-on[03] = SUBSTR(cb_markup-on-03:SCREEN-VALUE,2,1)
+        cust-markup.markup-on[04] = SUBSTR(cb_markup-on-04:SCREEN-VALUE,2,1)
+        cust-markup.markup-on[05] = SUBSTR(cb_markup-on-05:SCREEN-VALUE,2,1)
+        cust-markup.markup-on[06] = SUBSTR(cb_markup-on-06:SCREEN-VALUE,2,1)
+        cust-markup.markup-on[07] = SUBSTR(cb_markup-on-07:SCREEN-VALUE,2,1)
+        cust-markup.markup-on[08] = SUBSTR(cb_markup-on-08:SCREEN-VALUE,2,1)
+        cust-markup.markup-on[09] = SUBSTR(cb_markup-on-09:SCREEN-VALUE,2,1)
+        cust-markup.markup-on[10] = SUBSTR(cb_markup-on-10:SCREEN-VALUE,2,1).
+    END.
 
 END PROCEDURE.
 
@@ -788,7 +867,7 @@ PROCEDURE local-display-fields :
 
         IF NOT lFound OR cLookupDisplay EQ "" THEN 
             cLookupDisplay = "Square Feet".
-        
+
         fiLookupValue:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cLookupDisplay.
 
     END.
@@ -807,7 +886,18 @@ PROCEDURE local-update-record :
 
 
     /* Code placed here will execute PRIOR to standard behavior. */
-    
+
+    RUN valid-cust-no NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+    RUN valid-procat NO-ERROR.
+     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+    RUN valid-style NO-ERROR.
+     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+
+
     RUN pDisableAll.
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
@@ -842,17 +932,20 @@ PROCEDURE pDisplayMarkupOn :
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
+
     DO WITH FRAME {&FRAME-NAME}:
-    {viewers/custmark.i 01}
-    {viewers/custmark.i 02}
-    {viewers/custmark.i 03}
-    {viewers/custmark.i 04}
-    {viewers/custmark.i 05}
-    {viewers/custmark.i 06}
-    {viewers/custmark.i 07}
-    {viewers/custmark.i 08}
-    {viewers/custmark.i 09}
-    {viewers/custmark.i 10}
+        IF NOT adm-new-record THEN DO:
+            {viewers/custmark.i 01}
+            {viewers/custmark.i 02}
+            {viewers/custmark.i 03}
+            {viewers/custmark.i 04}
+            {viewers/custmark.i 05}
+            {viewers/custmark.i 06}
+            {viewers/custmark.i 07}
+            {viewers/custmark.i 08}
+            {viewers/custmark.i 09}
+            {viewers/custmark.i 10}
+        END.
     END.
 
 END PROCEDURE.
@@ -883,7 +976,7 @@ PROCEDURE proc-enable :
             cb_markup-on-09
             cb_markup-on-10.
     END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -953,6 +1046,89 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cust-no V-table-Win 
+PROCEDURE valid-cust-no :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DO WITH FRAME {&FRAME-NAME}:
+   IF cust-markup.cust-no:SCREEN-VALUE <> "" THEN do:
+    FIND FIRST cust NO-LOCK
+        WHERE cust.company EQ g_company 
+          AND cust.cust-no EQ cust-markup.cust-no:SCREEN-VALUE NO-ERROR.
+
+    IF NOT AVAIL cust THEN DO:
+        MESSAGE "This customer does not exist, Try Help.."
+            VIEW-AS ALERT-BOX INFO .
+        APPLY "entry" TO cust-markup.cust-no.
+        RETURN ERROR.
+    END.
+   END.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-style V-table-Win 
+PROCEDURE valid-style :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DO WITH FRAME {&FRAME-NAME}:
+   IF cust-markup.style:SCREEN-VALUE <> "" THEN do:
+    FIND FIRST style NO-LOCK
+        WHERE style.company EQ g_company 
+          AND style.style EQ cust-markup.style:SCREEN-VALUE NO-ERROR.
+
+    IF NOT AVAIL style THEN DO:
+        MESSAGE "Invalid Style, Try Help.."
+            VIEW-AS ALERT-BOX INFO .
+        APPLY "entry" TO cust-markup.style.
+        RETURN ERROR.
+    END.
+   END.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-procat V-table-Win 
+PROCEDURE valid-procat :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DO WITH FRAME {&FRAME-NAME}:
+    IF cust-markup.procat:SCREEN-VALUE <> "" THEN do:
+    FIND FIRST fgcat NO-LOCK
+        WHERE fgcat.company EQ g_company 
+          AND fgcat.procat EQ cust-markup.procat:SCREEN-VALUE NO-ERROR.
+        IF NOT AVAIL fgcat THEN DO:
+            MESSAGE "Invalid Category, Try Help.."
+                VIEW-AS ALERT-BOX INFO .
+            APPLY "entry" TO cust-markup.procat.
+            RETURN ERROR.
+        END.
+    END.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 /* ************************  Function Implementations ***************** */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getCustName V-table-Win 
@@ -963,7 +1139,7 @@ FUNCTION getCustName RETURNS CHARACTER
         Notes:  
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cCust AS CHARACTER NO-UNDO. 
-    
+
     IF ipCustNo EQ "" THEN 
         cCust = "All Customers".
     ELSE 
@@ -992,7 +1168,7 @@ FUNCTION getProCatDscr RETURNS CHARACTER
         Notes:  
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
-  
+
     IF ipProCat EQ "" THEN 
         cDescription = "All Categories".
     ELSE 
@@ -1020,12 +1196,12 @@ FUNCTION getStyleDscr RETURNS CHARACTER
         Notes:  
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cStyle AS CHARACTER NO-UNDO.
-    
+
     IF ipStyle EQ "" THEN
         cStyle = "All Styles".
     ELSE 
     DO:
-        
+
         FIND FIRST style NO-LOCK
             WHERE style.company EQ g_company
             AND style.style EQ ipStyle

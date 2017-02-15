@@ -41,12 +41,12 @@ DEFINE VARIABLE ldummy AS LOGICAL NO-UNDO.
 &Scoped-define PROCEDURE-TYPE DIALOG-BOX
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME DIALOG-1
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS m_id m_password Btn_Help Btn_Cancel Btn_OK ~
-RECT-9 
+&Scoped-Define ENABLED-OBJECTS RECT-9 IMAGE-2 m_id m_password Btn_Help ~
+Btn_Cancel Btn_OK 
 &Scoped-Define DISPLAYED-OBJECTS m_id m_password 
 
 /* Custom List Definitions                                              */
@@ -87,26 +87,31 @@ DEFINE VARIABLE m_password AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 44.8 BY 1 NO-UNDO.
 
+DEFINE IMAGE IMAGE-2
+     FILENAME "Graphics/splashscreen.bmp":U
+     SIZE 82 BY 12.62.
+
 DEFINE RECTANGLE RECT-9
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 44.4 BY 1.43.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DIALOG-1
-     m_id AT ROW 2.43 COL 11 COLON-ALIGNED
-     m_password AT ROW 3.62 COL 11 COLON-ALIGNED BLANK 
-     Btn_Help AT ROW 5.05 COL 14
-     Btn_Cancel AT ROW 5.05 COL 31
-     Btn_OK AT ROW 5.05 COL 44
-     RECT-9 AT ROW 4.81 COL 13
+     m_id AT ROW 15.29 COL 19 COLON-ALIGNED
+     m_password AT ROW 16.48 COL 19 COLON-ALIGNED PASSWORD-FIELD 
+     Btn_Help AT ROW 17.91 COL 22
+     Btn_Cancel AT ROW 17.91 COL 39
+     Btn_OK AT ROW 17.91 COL 52
      "Enter User Login ID and Password" VIEW-AS TEXT
-          SIZE 49 BY 1.24 AT ROW 1 COL 1
-     SPACE(7.80) SKIP(4.00)
+          SIZE 49 BY 1.24 AT ROW 13.86 COL 21
+     RECT-9 AT ROW 17.67 COL 21
+     IMAGE-2 AT ROW 1.24 COL 2 WIDGET-ID 2
+     SPACE(0.19) SKIP(5.65)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         TITLE "System Login"
+         TITLE "Advantzware Login"
          DEFAULT-BUTTON Btn_OK CANCEL-BUTTON Btn_Cancel.
 
 
@@ -125,7 +130,7 @@ DEFINE FRAME DIALOG-1
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR DIALOG-BOX DIALOG-1
-                                                                        */
+   FRAME-NAME                                                           */
 ASSIGN 
        FRAME DIALOG-1:SCROLLABLE       = FALSE.
 
@@ -164,7 +169,7 @@ END.
 ON CHOOSE OF Btn_OK IN FRAME DIALOG-1 /* OK */
 DO:                
   ASSIGN m_id m_password.
-  IF NOT SETUSERID(m_id,m_password,"ASI") THEN
+  IF NOT SETUSERID(m_id,m_password,"NOSWEAT") THEN
   MESSAGE "Invalid User ID / Password, Please Re-enter" 
       VIEW-AS ALERT-BOX ERROR.
   ELSE
@@ -216,10 +221,11 @@ ON WINDOW-CLOSE OF FRAME {&FRAME-NAME} APPLY "END-ERROR":U TO SELF.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+
   RUN enable_UI.
-  IF USERID("ASI") NE "" THEN
+  IF USERID("NOSWEAT") NE "" THEN
   DO:
-    m_id:SCREEN-VALUE = USERID("ASI").
+    m_id:SCREEN-VALUE = USERID("NOSWEAT").
     APPLY "ENTRY" TO m_password.
   END.
   ldummy = SESSION:SET-WAIT-STATE("").
@@ -263,7 +269,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY m_id m_password 
       WITH FRAME DIALOG-1.
-  ENABLE m_id m_password Btn_Help Btn_Cancel Btn_OK RECT-9 
+  ENABLE RECT-9 IMAGE-2 m_id m_password Btn_Help Btn_Cancel Btn_OK 
       WITH FRAME DIALOG-1.
   {&OPEN-BROWSERS-IN-QUERY-DIALOG-1}
 END PROCEDURE.

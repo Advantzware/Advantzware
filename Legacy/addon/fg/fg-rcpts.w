@@ -7,7 +7,7 @@
 /*------------------------------------------------------------------------
 
   File: addon\fg\fg-rcpt.w
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -78,14 +78,14 @@ DEFINE FRAME F-Main
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 129.8 BY 13.05
-         BGCOLOR 4 .
+         BGCOLOR 15 .
 
 DEFINE FRAME FRAME-A
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          THREE-D 
          AT COL 31 ROW 1
          SIZE 99 BY 1.19
-         BGCOLOR 4  WIDGET-ID 100.
+         BGCOLOR 15  WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -122,6 +122,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+/* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
@@ -173,7 +174,7 @@ THEN W-Win:HIDDEN = YES.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -186,7 +187,7 @@ OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
      application would exit. */
-    
+
   IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
 END.
 
@@ -399,7 +400,7 @@ PROCEDURE asi-exit :
    /*DEF VAR lv-can-exit AS LOG NO-UNDO.
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"can-exit-source", OUTPUT char-hdl).
    RUN can-exit IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-can-exit).*/
-   
+
    /*IF NOT lv-can-exit THEN RETURN ERROR.*/
    RUN do-cancel IN h_p-updba2.
 
@@ -474,11 +475,11 @@ PROCEDURE local-exit :
   Parameters:  <none>
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
- 
+
     APPLY "CLOSE":U TO THIS-PROCEDURE.
-  
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -531,7 +532,7 @@ PROCEDURE setUserExit :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEF VAR char-hdl AS cha NO-UNDO.
-  
+
    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"cancel-item-target", OUTPUT char-hdl).
    RUN cancel-item IN WIDGET-HANDLE(char-hdl).
 END PROCEDURE.

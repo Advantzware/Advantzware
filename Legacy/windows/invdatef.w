@@ -17,7 +17,7 @@
       <none>
 
   History: 
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -141,7 +141,7 @@ THEN W-Win:HIDDEN = yes.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -199,7 +199,7 @@ PROCEDURE add-the-links :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAMETER ip-handle AS HANDLE NO-UNDO.
   DEF output PARAMETER op-handle AS HANDLE NO-UNDO.
-      
+
   DEF VAR CHAR-hdl AS cha NO-UNDO.
   RUN GET-link-handle IN adm-broker-hdl (ip-handle,"record-target", OUTPUT char-hdl).
   IF NOT VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
@@ -337,9 +337,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

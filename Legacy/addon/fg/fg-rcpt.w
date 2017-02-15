@@ -2,12 +2,12 @@
 &ANALYZE-RESUME
 /* Connected Databases 
 */
-&Scoped-define WINDOW-NAME W-Win
+&SCOPED-DEFINE WINDOW-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS W-Win 
 /*------------------------------------------------------------------------
 
   File: addon\fg\fg-rcpt.w
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -23,18 +23,18 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
-DEF INPUT PARAM ip-do-what AS cha NO-UNDO.
+DEF INPUT PARAM ip-do-what AS CHARACTER NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 
 {custom/gcompany.i}
-DEF VAR lvlAutoAdd AS LOG NO-UNDO.
-DEF VAR lvcReturnChar AS CHAR NO-UNDO.
-DEF VAR lvlRecFound AS LOG NO-UNDO.
+DEFINE VARIABLE lvlAutoAdd AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lvcReturnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lvlRecFound AS LOGICAL NO-UNDO.
 
 
 
-&scoped-define asi-exit asi-exit
+&SCOPED-DEFINE asi-exit asi-exit
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -44,13 +44,13 @@ DEF VAR lvlRecFound AS LOG NO-UNDO.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&Scoped-define PROCEDURE-TYPE SmartWindow
-&Scoped-define DB-AWARE no
+&SCOPED-DEFINE PROCEDURE-TYPE SmartWindow
+&SCOPED-DEFINE DB-AWARE NO 
 
-&Scoped-define ADM-CONTAINER WINDOW
+&SCOPED-DEFINE ADM-CONTAINER WINDOW
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
-&Scoped-define FRAME-NAME F-Main
+&SCOPED-DEFINE FRAME-NAME F-Main
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -82,23 +82,23 @@ DEFINE VARIABLE h_p-fgrcpt AS HANDLE NO-UNDO.
 DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
+         AT COLUMN 1 ROW 1
          SIZE 150 BY 24
-         BGCOLOR 4 .
+         BGCOLOR 15 .
 
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 1
+         AT COLUMN 2 ROW 1
          SIZE 148 BY 1.91
-         BGCOLOR 4 .
+         BGCOLOR 15 .
 
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 31 ROW 2.91
+         AT COLUMN 31 ROW 2.91
          SIZE 120 BY 1.43
-         BGCOLOR 4 .
+         BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -125,16 +125,17 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 204.8
-         RESIZE             = no
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = NO 
+         SCROLL-BARS        = NO 
+         STATUS-AREA        = YES 
          BGCOLOR            = ?
          FGCOLOR            = ?
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         THREE-D            = YES 
+         MESSAGE-AREA       = NO 
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+/* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
@@ -198,13 +199,13 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME W-Win
+&SCOPED-DEFINE SELF-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
 ON END-ERROR OF W-Win /* WAREHOUSE TRANSACTION RECEIPTS(FINISHED GOODS) */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
@@ -223,12 +224,13 @@ ON WINDOW-CLOSE OF W-Win /* WAREHOUSE TRANSACTION RECEIPTS(FINISHED GOODS) */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
-  DEF VAR lv-can-exit AS LOG NO-UNDO.
+  /*DEF VAR lv-can-exit AS LOG NO-UNDO.
 
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"can-exit-source", OUTPUT char-hdl).
   RUN can-exit IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-can-exit).
-  IF NOT lv-can-exit THEN RETURN NO-apply.
+  IF NOT lv-can-exit THEN RETURN NO-apply.*/
 
+  RUN do-cancel IN h_p-updbar.
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -245,10 +247,10 @@ END.
 /* ***************************  Main Block  *************************** */
 
 {custom/getcmpny.i}
-RUN sys/ref/nk1look.p (gcompany, "SSFGSCAN", "I", no, no, "", "", 
+RUN sys/ref/nk1look.p (gcompany, "SSFGSCAN", "I", NO, NO, "", "", 
                        Output lvcReturnChar, OUTPUT lvlRecFound).
-If lvlRecFound then
-	lvlAutoAdd = IF INT(lvcReturnChar) = 0 THEN YES ELSE NO.
+If lvlRecFound THEN 
+	lvlAutoAdd = IF INTEGER(lvcReturnChar) = 0 THEN YES ELSE NO.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
@@ -268,7 +270,7 @@ PROCEDURE adm-create-objects :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE adm-current-page  AS INTEGER NO-UNDO.
 
-  RUN get-attribute IN THIS-PROCEDURE ('Current-Page':U).
+  RUN GET-ATTRIBUTE IN THIS-PROCEDURE ('Current-Page':U).
   ASSIGN adm-current-page = INTEGER(RETURN-VALUE).
 
   CASE adm-current-page: 
@@ -297,7 +299,7 @@ PROCEDURE adm-create-objects :
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 21.67 , 148.00 ) NO-ERROR.
+       RUN SET-SIZE IN h_folder ( 21.67 , 148.00 ) NO-ERROR.
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
@@ -311,23 +313,23 @@ PROCEDURE adm-create-objects :
              INPUT  'addon/fg/b-rcptd.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Initial-Lock = NO-LOCK,
-                     Hide-on-Init = no,
-                     Disable-on-Init = no,
+                     Hide-on-Init = NO,
+                     Disable-on-Init = NO,
                      Layout = ,
-                     Create-On-Add = Yes':U ,
+                     Create-On-Add = YES':U ,
              OUTPUT h_b-rcptd ).
        RUN set-position IN h_b-rcptd ( 5.05 , 3.00 ) NO-ERROR.
-       RUN set-size IN h_b-rcptd ( 17.38 , 145.00 ) NO-ERROR.
+       RUN SET-SIZE IN h_b-rcptd ( 17.38 , 145.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'p-updbar.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
-                     SmartPanelType = Update,
+                     SmartPanelType = UPDATE,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updbar ).
        RUN set-position IN h_p-updbar ( 22.67 , 28.00 ) NO-ERROR.
-       RUN set-size IN h_p-updbar ( 1.91 , 85.00 ) NO-ERROR.
+       RUN SET-SIZE IN h_p-updbar ( 1.91 , 85.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'addon/fg/v-post.w':U ,
@@ -355,31 +357,31 @@ PROCEDURE adm-create-objects :
              INPUT  'addon/fg/f-rcptd.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Initial-Lock = NO-LOCK,
-                     Hide-on-Init = no,
-                     Disable-on-Init = no,
+                     Hide-on-Init = NO,
+                     Disable-on-Init = NO,
                      Layout = ,
-                     Create-On-Add = Yes':U ,
+                     CREATE-ON-ADD = YES':U ,
              OUTPUT h_b-rcptd-2 ).
        RUN set-position IN h_b-rcptd-2 ( 4.81 , 3.00 ) NO-ERROR.
-       RUN set-size IN h_b-rcptd-2 ( 17.38 , 145.00 ) NO-ERROR.
-       
+       RUN SET-SIZE IN h_b-rcptd-2 ( 17.38 , 145.00 ) NO-ERROR.
+
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'p-updbar.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
-                     SmartPanelType = Update,
+                     SmartPanelType = UPDATE,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updbar ).
        RUN set-position IN h_p-updbar ( 22.67 , 37.00 ) NO-ERROR.
-       RUN set-size IN h_p-updbar ( 1.76 , 82.00 ) NO-ERROR.
-         
+       RUN SET-SIZE IN h_p-updbar ( 1.76 , 82.00 ) NO-ERROR.
+
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
-       
+
        /* Links to SmartNavBrowser h_b-rcptd-2. */
        RUN add-link IN adm-broker-hdl ( h_b-rcptd , 'linker':U , h_b-rcptd-2 ).
        RUN add-link IN adm-broker-hdl ( h_p-updbar , 'TableIO':U , h_b-rcptd-2 ).
-      
+
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-rcptd-2 ,
              h_folder , 'AFTER':U ).
@@ -389,7 +391,7 @@ PROCEDURE adm-create-objects :
 
   END CASE.
   /* Select a Startup page. */
-  IF adm-current-page eq 0 
+  IF adm-current-page EQ 0 
   THEN RUN select-page IN THIS-PROCEDURE ( 1 ).
 
 END PROCEDURE.
@@ -430,9 +432,9 @@ PROCEDURE asi-exit :
 
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"can-exit-source", OUTPUT char-hdl).
    RUN can-exit IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-can-exit).
-  
+
    IF NOT lv-can-exit THEN RETURN ERROR.*/
-   
+
     RUN do-cancel IN h_p-updbar.
 
 END PROCEDURE.
@@ -489,7 +491,7 @@ PROCEDURE get-do-what :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF OUTPUT PARAM op-do-what AS cha NO-UNDO.
+  DEFINE OUTPUT PARAMETER op-do-what AS CHARACTER NO-UNDO.
 
   op-do-what = ip-do-what.
   IF op-do-what = "Delete" THEN
@@ -508,9 +510,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -563,10 +565,10 @@ PROCEDURE setUserExit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   def var char-hdl as cha no-undo.
-  
-   run get-link-handle in adm-broker-hdl(this-procedure,"cancel-item-target", output char-hdl).
-   run cancel-item in widget-handle(char-hdl).
+   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+
+   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"cancel-item-target", OUTPUT char-hdl).
+   RUN cancel-item IN WIDGET-HANDLE(char-hdl).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

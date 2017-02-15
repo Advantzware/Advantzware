@@ -283,9 +283,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -366,7 +376,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -425,6 +435,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -473,10 +484,11 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -664,8 +676,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -675,7 +689,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-   
+
  /* security check need {methods/prgsecur.i} in definition section */
   IF access-close THEN DO:
      APPLY "close" TO THIS-PROCEDURE.
@@ -685,14 +699,15 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
  begin_date = date(1,1,year(today)).
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     APPLY "entry" TO begin_date.
   END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -760,7 +775,7 @@ PROCEDURE gt-excel-1 :
   DEF INPUT PARAMETER ip-amt AS DEC NO-UNDO.
   DEF INPUT PARAMETER ip-perc AS DEC NO-UNDO.
   DEF INPUT PARAMETER ip-com AS DEC NO-UNDO.
-  
+
   PUT STREAM excel UNFORMATTED
       '"' ""                                         '",'
       '"' "Grand Totals:"                            '",'
@@ -787,7 +802,7 @@ PROCEDURE gt-excel-2 :
   DEF INPUT PARAMETER ip-paid AS DEC NO-UNDO.
   DEF INPUT PARAMETER ip-dsc AS DEC NO-UNDO.
   DEF INPUT PARAMETER ip-amt AS DEC NO-UNDO.
-  
+
   PUT STREAM excel UNFORMATTED
       '"' ""                                   '",'
       '"' "Grand Totals:"                      '",'
@@ -825,7 +840,7 @@ PROCEDURE output-to-port :
   Notes:       
 ------------------------------------------------------------------------------*/
   RUN custom/d-print.w (list-name).
-   
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -841,7 +856,7 @@ PROCEDURE output-to-printer :
  /*    DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -943,7 +958,7 @@ END.
 if tb_show-parm then run show-param.
 
 display str-tit with frame r-top STREAM-IO.
- 
+
 {sa/sa-sls01.i}
 
   for each cust where cust.company eq cocode no-lock:
@@ -960,9 +975,9 @@ display str-tit with frame r-top STREAM-IO.
         each ar-invl
         where ar-invl.x-no eq ar-inv.x-no
         no-lock
-        
+
         transaction:
-          
+
         {custom/statusMsg.i " 'Processing Customer#  '  + string(cust.cust-no) "}
 
       do i = 1 to 3:
@@ -1010,7 +1025,7 @@ display str-tit with frame r-top STREAM-IO.
                (ar-cash.check-date - ar-cashl.inv-date gt v-days and
                 ar-cashl.inv-no ne 0))
         no-lock
-      
+
         transaction:
 
         {custom/statusMsg.i " 'Processing Customer#  '  + string(ar-cash.cust-no) "}
@@ -1051,7 +1066,7 @@ display str-tit with frame r-top STREAM-IO.
           end.
         end.
       end.
-      
+
       else
       if cust.sman ge fsman and
          cust.sman le tsman then do:
@@ -1065,7 +1080,7 @@ display str-tit with frame r-top STREAM-IO.
             no-lock no-error.
         if not avail report then do:
           create report.
-        
+
           assign
            report.term-id = v-term
            report.key-01  = v-sman
@@ -1077,58 +1092,58 @@ display str-tit with frame r-top STREAM-IO.
       end.
     end.
   end.
-  
+
   if v-cust then
   for each report where report.term-id eq v-term:
     assign
      report.key-03 = report.key-02
      report.key-02 = report.key-09.
   end.
-  
+
   for each report where report.term-id eq v-term,
-  
+
       first cust
       where cust.company eq cocode
         and cust.cust-no eq report.key-09
       no-lock
-          
+
       break by report.key-01
             by report.key-02
             by report.key-03
-      
+
       transaction:
-      
+
       {custom/statusMsg.i " 'Processing Customer#  '  + string(cust.cust-no) "}
 
     find first sman
         where sman.company eq cocode
           and sman.sman    eq report.key-01
         no-lock no-error.
-        
+
     release ar-inv.
     release ar-cash.
-    
+
     find ar-cashl where recid(ar-cashl) eq report.rec-id no-lock no-error.    
-        
+
     if avail ar-cashl then do:
       find first ar-cash where ar-cash.c-no eq ar-cashl.c-no no-lock.
-      
+
       assign
        v-dsc[1] = if v-disc then ar-cashl.amt-disc else 0
        v-amt[1] = ar-cashl.amt-paid + v-dsc[1]
        v-amt[2] = v-amt[1]
        v-com    = v-amt[1] * 
                   (if avail sman then (sman.scomm / 100) else 0).
-                  
+
       if ar-cashl.inv-no ne 0 then
       for each ar-invl
           where ar-invl.company eq cocode
             and ar-invl.cust-no eq ar-cash.cust-no
             and ar-invl.inv-no  eq ar-cashl.inv-no
           no-lock,
-          
+
           first ar-inv where ar-inv.x-no eq ar-invl.x-no no-lock
-          
+
           break by ar-invl.inv-no:
 
         FIND FIRST itemfg
@@ -1147,9 +1162,9 @@ display str-tit with frame r-top STREAM-IO.
            v-amt[1] = ar-inv.tax-amt +
                       (if ar-inv.f-bill then ar-inv.freight else 0)
            v-com    = 0.
-           
+
         v-amt[1] = v-amt[1] + ar-invl.amt.
-        
+
         if ar-invl.sman[1] ne "" then
         do i = 1 to 3:
           if report.key-01 eq ar-invl.sman[i] then do:
@@ -1161,7 +1176,7 @@ display str-tit with frame r-top STREAM-IO.
             leave.
           end.
         end.
-        
+
         else
           assign
            v-amt[2] = v-amt[2] + ar-invl.amt
@@ -1169,16 +1184,16 @@ display str-tit with frame r-top STREAM-IO.
                       ((ar-invl.amt - if v-basis EQ "G" then ar-invl.t-cost else 0) *
                        (if avail sman then (sman.scomm / 100) else 0)).
       end.
-      
+
       assign
        v-pct    = v-amt[2] / v-amt[1]
        v-amt[1] = (ar-cashl.amt-paid + v-dsc[1]) * v-pct
        v-pct    = v-amt[1] / v-amt[2]
        v-com    = v-com * v-pct.
-       
+
       release ar-inv.
     end.
-    
+
     else do:
       find ar-invl where recid(ar-invl) eq report.rec-id no-lock.
       find first ar-inv where ar-inv.x-no eq ar-invl.x-no no-lock.
@@ -1197,14 +1212,14 @@ display str-tit with frame r-top STREAM-IO.
        v-com    = (ar-invl.amt - if v-basis EQ "G" then ar-invl.t-cost else 0) *
                   (if avail sman then (sman.scomm / 100) else 0).
     end.
-    
+
     if v-com    eq ? then v-com    = 0.
     if v-amt[1] eq ? then v-amt[1] = 0.
-    
+
     v-c-% = v-com / v-amt[1] * 100.
-    
+
     if v-c-% eq ? then v-c-% = 0.
-    
+
     v-paid[1] = v-amt[1] - v-dsc[1].
 
     if v-cust THEN
@@ -1279,22 +1294,22 @@ display str-tit with frame r-top STREAM-IO.
             '"' STRING(v-amt[1],"->>,>>>,>>9.99")                 '",'
            SKIP.
     END.
-          
+
     assign
      v-tot-paid[1] = v-tot-paid[1] + v-paid[1]
      v-tot-dsc[1] = v-tot-dsc[1] + v-dsc[1]
      v-tot-amt[1] = v-tot-amt[1] + v-amt[1]
      v-tot-com[1] = v-tot-com[1] + v-com.
-     
+
     if last-of(report.key-02) then do:
       if v-cust then do:
         put skip(1).
-      
+
         clear frame detail1 no-pause.
         clear frame detail2 no-pause.
-        
+
         v-c-% = v-tot-com[1] / v-tot-amt[1] * 100.
-        
+
         if v-c-% eq ? then v-c-% = 0.
 
         display "Customer Totals:" @ report.key-09
@@ -1304,7 +1319,7 @@ display str-tit with frame r-top STREAM-IO.
                 v-c-%
                 v-tot-com[1]       @ v-com
             with frame detail1.
-          
+
         if not last-of(report.key-01) then put skip(1).
 
         IF tb_excel THEN
@@ -1326,7 +1341,7 @@ display str-tit with frame r-top STREAM-IO.
        v-tot-dsc[2] = v-tot-dsc[2] + v-tot-dsc[1]
        v-tot-amt[2] = v-tot-amt[2] + v-tot-amt[1]
        v-tot-com[2] = v-tot-com[2] + v-tot-com[1]
-       
+
        v-tot-paid[1] = 0
        v-tot-dsc[1] = 0
        v-tot-amt[1] = 0
@@ -1335,12 +1350,12 @@ display str-tit with frame r-top STREAM-IO.
 
     if last-of(report.key-01) then do:
       put skip(1).
-      
+
       clear frame detail1 no-pause.
       clear frame detail2 no-pause.
-      
+
       v-c-% = v-tot-com[2] / v-tot-amt[2] * 100.
-      
+
       if v-c-% eq ? then v-c-% = 0.
 
       if v-cust THEN
@@ -1356,7 +1371,7 @@ display str-tit with frame r-top STREAM-IO.
         IF tb_excel THEN
           RUN sales-total-excel-1(v-tot-paid[2], v-tot-dsc[2], v-tot-amt[2], v-c-%, v-tot-com[2]).
       END.
-                  
+
       else
       DO:
         display "SalesRep Totals:" @ cust.name
@@ -1376,7 +1391,7 @@ display str-tit with frame r-top STREAM-IO.
        v-tot-dsc[3] = v-tot-dsc[3] + v-tot-dsc[2]
        v-tot-amt[3] = v-tot-amt[3] + v-tot-amt[2]
        v-tot-com[3] = v-tot-com[3] + v-tot-com[2]
-       
+
        v-tot-paid[2] = 0
        v-tot-dsc[2] = 0
        v-tot-amt[2] = 0
@@ -1386,9 +1401,9 @@ display str-tit with frame r-top STREAM-IO.
     if last(report.key-01) then do:
       clear frame detail1 no-pause.
       clear frame detail2 no-pause.
-      
+
       v-c-% = v-tot-com[3] / v-tot-amt[3] * 100.
-      
+
       if v-c-% eq ? then v-c-% = 0.
 
       if v-cust then
@@ -1403,7 +1418,7 @@ display str-tit with frame r-top STREAM-IO.
 
         IF tb_excel THEN
           RUN gt-excel-1(v-tot-paid[3], v-tot-dsc[3], v-tot-amt[3], v-c-%, v-tot-com[3]).
-        
+
       END.
       else
       DO:
@@ -1507,11 +1522,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1539,23 +1554,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

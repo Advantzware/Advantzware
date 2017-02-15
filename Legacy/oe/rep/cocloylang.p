@@ -204,7 +204,7 @@ for each report where report.term-id eq v-term-id NO-LOCK,
 
     
               ASSIGN
-                  ls-image-s = "signature\" + USERID("ASI") + ".jpg" 
+                  ls-image-s = "signature\" + USERID("nosweat") + ".jpg" 
                   FILE-INFO:FILE-NAME = ls-image-s
                   ls-full-img-s = FILE-INFO:FULL-PATHNAME + ">".
 
@@ -212,7 +212,7 @@ for each report where report.term-id eq v-term-id NO-LOCK,
            "Approved By: <R-2> "  "<C10><#1><R+4><C+30><IMAGE#1=" ls-full-img-s  SKIP
            "<||5><C10><R-1><FROM><C30><LINE>" SKIP.
       FIND FIRST users 
-          WHERE users.user_id = USERID("ASI")
+          WHERE users.user_id = USERID("nosweat")
           NO-LOCK NO-ERROR.
       IF AVAIL users THEN 
           PUT UNFORMATTED

@@ -298,6 +298,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -361,7 +372,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -431,6 +442,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -444,7 +456,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-  
+
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
   IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
       EMPTY TEMP-TABLE ttCustList.
@@ -486,10 +498,11 @@ DO:
                                   &mail-body="Bank Deposit List"
                                   &mail-file=list-name }
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -501,7 +514,8 @@ END.
 ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
-  
+
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -711,8 +725,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -732,7 +748,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   assign
    begin_date = date(1,1,year(today))
    end_date   = today.
-   
+
   find first bank where bank.company eq gcompany no-lock no-error.
   if avail bank then
     assign
@@ -740,7 +756,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      end_bank   = bank.bank-code.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   RUN sys/inc/CustListForm.p ( "AR8",cocode, 
@@ -785,6 +801,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    END.
 
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -846,7 +863,7 @@ PROCEDURE CustList :
 
     RUN sys/ref/CustListManager.w(INPUT cocode,
                                   INPUT 'AR8').
-    
+
 
 END PROCEDURE.
 
@@ -920,17 +937,17 @@ PROCEDURE get-detail-values :
   IF ip-jrnl EQ "CASHR" THEN DO:
      lv-check-no = INT(SUBSTR(ip-dscr,INDEX(ip-dscr," Inv# ") - 10,10)) NO-ERROR.
      IF ERROR-STATUS:ERROR THEN lv-check-no = 0.
-    
+
      lv-inv-no = INT(SUBSTR(ip-dscr,INDEX(ip-dscr," Inv# ") + 6,10)) NO-ERROR.
      IF ERROR-STATUS:ERROR THEN lv-inv-no = 0.
-    
+
      RELEASE ar-inv.
      IF lv-inv-no NE 0 THEN
      FIND FIRST ar-inv NO-LOCK
          WHERE ar-inv.company EQ cocode
            AND ar-inv.inv-no  EQ lv-inv-no
          NO-ERROR.
-    
+
      IF lv-check-no NE 0 THEN
      FOR EACH ar-cash FIELDS(company cust-no c-no) NO-LOCK
          WHERE ar-cash.company  EQ cocode
@@ -941,13 +958,13 @@ PROCEDURE get-detail-values :
          WHERE cust.company EQ ar-cash.company
            AND cust.cust-no EQ ar-cash.cust-no
          NO-LOCK:
-    
+
        ASSIGN
         lv-cust-no = ar-cash.cust-no
         lv-name    = cust.name.
-    
+
        IF lv-inv-no EQ 0 OR ip-void THEN lv-amt = ip-amt.
-    
+
        ELSE
        FOR EACH ar-cashl FIELDS(amt-paid)
            WHERE ar-cashl.c-no   EQ ar-cash.c-no
@@ -1067,7 +1084,7 @@ SESSION:SET-WAIT-STATE ("general").
 assign
  str-tit2 = c-win:title
  {sys/inc/ctrtext.i str-tit2 56}
-   
+
  v-s-date = begin_date
  v-e-date = end_date
  v-s-bank = begin_bank
@@ -1127,7 +1144,7 @@ FOR EACH ar-cash NO-LOCK
                         WHERE reftable.reftable = "ARCASHLVDDATE"
                           AND reftable.rec_key = ar-cashl.rec_key
                         USE-INDEX rec_key).
-    
+
       IF NOT v-void THEN
         FIND FIRST ar-ledger NO-LOCK
              WHERE ar-ledger.company EQ ar-cash.company
@@ -1144,9 +1161,9 @@ FOR EACH ar-cash NO-LOCK
                AND ar-ledger.tr-date GE v-s-date
                AND ar-ledger.tr-date LE v-e-date
              NO-ERROR.
-    
+
       IF NOT AVAIL ar-ledger THEN NEXT.
-    
+
       CREATE tt-gltrans.
       ASSIGN
         tt-gltrans.company = ar-cash.company
@@ -1210,7 +1227,7 @@ FOR EACH bank
           and tt-gltrans.actnum  eq bank.bank-code
           and tt-gltrans.tr-date eq date-loop
         no-lock
-             
+
         break by tt-gltrans.tr-date
               BY tt-gltrans.trnum
               BY tt-gltrans.tr-dscr:
@@ -1221,7 +1238,7 @@ FOR EACH bank
       DO:
         display bank.bank-code when v-frst
                 bank.actnum when v-frst
-                       
+
             with frame day-log.
 
         IF tb_excel THEN
@@ -1233,10 +1250,10 @@ FOR EACH bank
 
       IF tb_det THEN DO:
          IF v-frst THEN DOWN WITH FRAME day-log.
-        
+
          RUN get-detail-values (tt-gltrans.jrnl, tt-gltrans.tr-dscr, tt-gltrans.tr-amt,
                                 tt-gltrans.VOID).
-        
+
          IF lv-amt EQ 0 THEN lv-amt = tt-gltrans.tr-amt.
 
          IF lv-check-no NE 0 THEN DO:
@@ -1246,10 +1263,10 @@ FOR EACH bank
                       "Inv " + TRIM(STRING(lv-inv-no,">>>>>>>")) ELSE "")
                                @ v-tr-num
                    lv-amt      @ tot-daily[2]
-                        
+
                WITH FRAME day-log.
            DOWN WITH FRAME day-log.
-        
+
            IF tb_excel THEN
              PUT STREAM excel UNFORMATTED
                  '"' ""      '",'
@@ -1285,7 +1302,7 @@ FOR EACH bank
         display tt-gltrans.tr-date @ v-date
                 TRIM(STRING(tt-gltrans.trnum,">>>>>>>>>>")) @ v-tr-num
                 tot-daily[1] @ tot-daily[2]
-                       
+
             with frame day-log.
         down with frame day-log.
 
@@ -1323,7 +1340,7 @@ FOR EACH bank
         END.
 
         display tot-daily[2]
-                
+
             with frame day-log.
         down with frame day-log.
 
@@ -1337,7 +1354,7 @@ FOR EACH bank
               SKIP.
 
         PUT SKIP(1).
-             
+
         assign
          bank-tot     = bank-tot + tot-daily[2]
          tot-daily[2] = 0.
@@ -1366,7 +1383,7 @@ FOR EACH bank
          SKIP(2).
     END.
   END.
-              
+
 
   dep-tot = dep-tot + bank-tot.
 end.
@@ -1417,7 +1434,7 @@ PROCEDURE SetCustRange :
         btnCustList:SENSITIVE = iplChecked
        .
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1438,12 +1455,12 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha NO-UNDO.
-                  
+
   ASSIGN
   lv-frame-hdl = frame {&frame-name}:HANDLE
   lv-group-hdl = lv-frame-hdl:first-child
   lv-field-hdl = lv-group-hdl:first-child.
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1469,23 +1486,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

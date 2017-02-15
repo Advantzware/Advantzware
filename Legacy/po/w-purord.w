@@ -18,7 +18,7 @@
       <none>
 
   History: 
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -111,18 +111,18 @@ DEFINE FRAME F-Main
          SIZE 152.6 BY 24
          BGCOLOR 15 .
 
-DEFINE FRAME message-frame
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 90 ROW 2.91
-         SIZE 63 BY 1.43
-         BGCOLOR 15 .
-
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 34 ROW 1
          SIZE 119 BY 1.91
+         BGCOLOR 15 .
+
+DEFINE FRAME message-frame
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 90 ROW 2.91
+         SIZE 63 BY 1.43
          BGCOLOR 15 .
 
 
@@ -133,7 +133,7 @@ DEFINE FRAME OPTIONS-FRAME
    Type: SmartWindow
    External Tables: asi.po-ordl,asi.po-ord
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 1
+   Design Page: 3
    Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -151,16 +151,17 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
          VIRTUAL-WIDTH      = 320
-         RESIZE             = no
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = NO
+         SCROLL-BARS        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+/* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
@@ -198,7 +199,7 @@ ASSIGN XXTABVALXX = FRAME OPTIONS-FRAME:MOVE-BEFORE-TAB-ITEM (FRAME message-fram
 /* SETTINGS FOR FRAME OPTIONS-FRAME
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
-THEN W-Win:HIDDEN = yes.
+THEN W-Win:HIDDEN = YES.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -224,7 +225,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -554,7 +555,7 @@ PROCEDURE adm-create-objects :
 
   END CASE.
   /* Select a Startup page. */
-  IF adm-current-page eq 0 
+  IF adm-current-page EQ 0 
   THEN RUN select-page IN THIS-PROCEDURE ( 1 ).
 
 END PROCEDURE.
@@ -665,9 +666,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -687,7 +688,7 @@ PROCEDURE local-row-available :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN setUserPrint.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -700,11 +701,11 @@ PROCEDURE select_add :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var char-hdl as cha no-undo.
-  
-  run select-page(2).
-  run get-link-handle in adm-broker-hdl(this-procedure,"add-po-target", output char-hdl).
-  run add-po in widget-handle(char-hdl).
+  DEF VAR char-hdl AS cha NO-UNDO.
+
+  RUN select-page(2).
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"add-po-target", OUTPUT char-hdl).
+  RUN add-po IN WIDGET-HANDLE(char-hdl).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -717,11 +718,11 @@ PROCEDURE select_addbest :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   def var char-hdl as cha no-undo.
-  
-   run select-page(1).
-   run get-link-handle in adm-broker-hdl(this-procedure,"add-po-best-target", output char-hdl).
-   run add-po-best in widget-handle(char-hdl).
+   DEF VAR char-hdl AS cha NO-UNDO.
+
+   RUN select-page(1).
+   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"add-po-best-target", OUTPUT char-hdl).
+   RUN add-po-best IN WIDGET-HANDLE(char-hdl).
 
 END PROCEDURE.
 

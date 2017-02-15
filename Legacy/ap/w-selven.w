@@ -7,7 +7,7 @@
 /*------------------------------------------------------------------------
 
   File: ap\w-selven.w
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -32,7 +32,7 @@ DEF SHARED VAR g_loc AS cha NO-UNDO.
 DEF SHARED VAR g_period AS INT NO-UNDO.
 */
 {methods/defines/hndldefs.i}               
-    
+
 {sys/inc/VAR.i NEW SHARED}
 {ap/d-selinv.i NEW}
 
@@ -322,7 +322,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-sel WHERE NOT tt-deleted .
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -347,7 +347,7 @@ ON WINDOW-CLOSE OF W-Win /* Payment Selection by Vendor */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
-  
+
   /*  APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
   */
@@ -384,7 +384,7 @@ DO:
                 tt-sel.amt-due:READ-ONLY = YES*/
                 tt-sel.disc-amt:READ-ONLY = YES
                 tt-sel.amt-paid:READ-ONLY = YES.
-   
+
     /*  ELSE IF lv-in-update THEN  ASSIGN  tt-sel.disc-amt:READ-ONLY = NO
                                        tt-sel.amt-due:READ-ONLY = no
                                        tt-sel.amt-paid:READ-ONLY = no
@@ -412,7 +412,7 @@ DO:
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
 
-  
+
   ASSIGN
    lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
    lv-column-nam = lh-column:NAME
@@ -424,7 +424,7 @@ DO:
      lv-sort-by     = lv-column-nam.
  /*    lv-sort-by-lab = lv-column-lab.
 */
-  
+
 
   APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
 
@@ -476,7 +476,7 @@ DO:
    btn-change:LABEL = "Save".
    ENABLE btn-change btn-cancel WITH FRAME {&FRAME-NAME}.
    DISABLE btn-delete btn-add btn-finish WITH FRAME {&FRAME-NAME}.
-   
+
    ASSIGN
       lv-first = no
       lv-in-update = NO.
@@ -505,7 +505,7 @@ DO:
              tt-sel.amt-due:READ-ONLY = YES*/
              tt-sel.disc-amt:READ-ONLY = NO                 
              tt-sel.amt-paid:READ-ONLY = NO.
-      
+
       ENABLE btn-delete btn-add btn-finish WITH FRAME {&FRAME-NAME}.
   END.
   ELSE DO:  /* add and cancel */
@@ -528,12 +528,12 @@ DO:
    DEF BUFFER bf-tsel FOR tt-sel.
 
        IF SELF:LABEL = "Save"   THEN DO:  
-           
+
           lv-amount = 0.
           FOR EACH bf-tsel where bf-tsel.vend-no = lv-vend-no:
                lv-amount = lv-amount + bf-tsel.amt-paid.
           END.
-        
+
            /* ======= validation ==========*/
           FIND FIRST ap-inv WHERE ap-inv.company = g_company 
                         AND ap-inv.vend-no = lv-vend-no
@@ -595,7 +595,7 @@ DO:
                     /* need to create ap-sel */
           END.
           lv-amount = lv-amount - lv-pre-paid .
-      
+
      /*  do when post
           ASSIGN ap-inv.paid = ap-inv.paid - lv-pre-paid
                  ap-inv.due = ap-inv.due + lv-pre-paid + lv-pre-disc
@@ -660,8 +660,8 @@ DO:
               IF AVAIL bank THEN
                   lv-proamt:SCREEN-VALUE = STRING(bank.bal - lv-amount) .
           END.
-          
- 
+
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -720,7 +720,7 @@ DO:
               IF AVAIL bank THEN
                   lv-proamt:SCREEN-VALUE = STRING(bank.bal - lv-amount) .
           END.
-          
+
 
     ASSIGN
        ll-dum = BROWSE {&browse-name}:DELETE-CURRENT-ROW()
@@ -754,7 +754,7 @@ DO:
 
         FIND CURRENT ap-sel NO-LOCK.
     END.
-    
+
     for each ap-chk
         where ap-chk.company   eq cocode
           and ap-chk.man-check eq no:
@@ -772,7 +772,7 @@ DO:
               and ap-chk.vend-no   eq ap-sel.vend-no
               and ap-chk.man-check eq no
             no-error.
- 
+
          if not avail ap-chk then do:
             create ap-chk.
             ASSIGN ap-chk.company   = cocode
@@ -791,7 +791,7 @@ DO:
            DELETE tt-sel.
        END.
        {&open-query-{&browse-name}}
-       
+
     END.
     SESSION:SET-WAIT-STATE("").
     IF NOT ll-continue AND NOT lNegCheck THEN APPLY "close" TO  this-procedure.
@@ -824,7 +824,7 @@ DO:
 
     v-show-disc = tb_disc.
     choice = YES.
-    
+
     IF choice THEN DO WITH FRAME {&FRAME-NAME}:
       RUN build-table.
 
@@ -880,7 +880,7 @@ DO:
     END.
     vend_name = vend.NAME.
     fil_id = if avail vend then recid(vend) else ?.
-    
+
     APPLY "choose" TO btn-go.
     DISABLE lv-vend-no tb_disc btn-go WITH FRAME {&FRAME-NAME}.
     ENABLE btn-change btn-add btn-delete btn-continue btn-finish
@@ -971,7 +971,7 @@ DO:
        ASSIGN tt-sel.disc-amt:SCREEN-VALUE = "0.00"
               tt-sel.amt-due:SCREEN-VALUE = string(ap-inv.due).
     END.   
-        
+
     ASSIGN tt-sel.due-date:SCREEN-VALUE IN BROWSE {&browse-name} = string(ap-inv.due-date,"99/99/9999")
            tt-sel.inv-bal:SCREEN-VALUE = STRING(ap-inv.due)
            ld-tot-line = 0
@@ -1017,7 +1017,7 @@ DO:
                   END.
               END.
           END.
-          
+
 END.
 ON 'help':U OF  tt-sel.inv-no IN BROWSE {&browse-name} 
 DO:
@@ -1044,7 +1044,7 @@ DO:
                   = string(
                       dec(tt-sel.inv-bal:SCREEN-VALUE) - dec(tt-sel.disc-amt:SCREEN-VALUE))
               tt-sel.amt-paid:SCREEN-VALUE = tt-sel.amt-due:SCREEN-VALUE.
-    
+
     lv-pre-disc = IF AVAIL tt-sel THEN tt-sel.disc-amt ELSE 0.
 END.
 ON 'leave':U OF tt-sel.amt-paid IN BROWSE {&browse-name}
@@ -1103,7 +1103,7 @@ PROCEDURE build-table :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- 
+
  EMPTY TEMP-TABLE tt-sel.
 
  find vend where recid(vend) eq fil_id no-lock no-error.
@@ -1149,13 +1149,13 @@ PROCEDURE build-table :
              tt-sel.amt-due = ap-sel.inv-bal - ap-sel.disc-amt
              tt-sel.due-date = IF AVAIL ap-inv THEN ap-inv.due-date ELSE ap-sel.due-date
              lv-num-rec = lv-num-rec + 1.
-    
+
  end.
- 
+
 
  if lv-amount = 0 then nufile = yes.
  DISPLAY lv-amount WITH FRAME {&FRAME-NAME}.
- 
+
 
 END PROCEDURE.
 
@@ -1169,11 +1169,11 @@ PROCEDURE create-apsel :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
 
   FOR EACH tt-inv WHERE tt-inv.selekt:
       RUN create-one (tt-inv.rec-id).
-      
+
       /*
       ASSIGN ap-inv.paid = ap-inv.paid + ap-sel.amt-paid
              ap-inv.due = ap-inv.due - ap-sel.amt-paid - ap-sel.disc-amt
@@ -1263,7 +1263,7 @@ PROCEDURE create-one :
                   lv-proamt:SCREEN-VALUE = STRING(bank.bal - lv-amount) .
                   END.
               END.
-             
+
           END.
   END.
 
@@ -1322,9 +1322,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1342,7 +1342,7 @@ PROCEDURE local-initialize :
 
 
   /* Code placed here will execute PRIOR to standard behavior. */
-    
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
@@ -1351,7 +1351,7 @@ PROCEDURE local-initialize :
      APPLY "window-close" TO current-window.
      RETURN .
   END.
-    
+
   for each ap-sel WHERE ap-sel.company = g_company
                     AND ap-sel.man-check = NO
               and not can-find(first ap-inv where ap-inv.company eq cocode

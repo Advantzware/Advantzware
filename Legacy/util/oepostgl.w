@@ -172,9 +172,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -205,7 +215,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -253,6 +263,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
   APPLY "close" TO THIS-PROCEDURE.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -269,13 +280,14 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
      ASSIGN tran-period tran-date begin_inv END_inv.
   END.
-  
+
   MESSAGE "Are you sure you want to " + TRIM(c-win:TITLE) + " " +
            "?"
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
       UPDATE v-process.
 
   IF v-process THEN RUN run-process.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -298,7 +310,7 @@ END.
 ON LEAVE OF tran-date IN FRAME FRAME-A /* Post Date */
 DO:
   assign {&self-name}.
-  
+
   if lastkey ne -1 then do:
     run check-date.
     if v-invalid then return no-apply.
@@ -345,8 +357,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -356,7 +370,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  
+
   RUN enable_UI.
 
   IF postdate-log THEN DO:
@@ -375,12 +389,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   {methods/nowait.i}
 
   DO WITH FRAME {&frame-name}:
-    
+
     {custom/usrprint.i}
     APPLY "entry" TO tran-date.
-    
+
   END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -400,7 +415,7 @@ PROCEDURE check-date :
 ------------------------------------------------------------------------------*/
    DO with frame {&frame-name}:
     v-invalid = no.
-  
+
     find first period                   
         where period.company eq cocode
           and period.pst     le tran-date
@@ -496,19 +511,19 @@ FOR EACH ar-inv
       AND ar-inv.inv-no  GE begin_inv
       AND ar-inv.inv-no  LE END_inv
     NO-LOCK,
-    
+
     FIRST ar-ledger
     WHERE ar-ledger.company EQ ar-inv.company
       AND ar-ledger.ref-num EQ "INV# " + string(ar-inv.inv-no)
     NO-LOCK,
-    
+
     FIRST period
     WHERE period.company EQ ar-ledger.company
       AND period.pstat   EQ YES
       AND period.pst     LE ar-ledger.tr-date
       AND period.pend    GE ar-ledger.tr-date
     NO-LOCK
-    
+
     BREAK BY tr-num:
 
         ASSIGN
@@ -547,7 +562,7 @@ FOR EACH ar-inv
                  AND oe-ordl.ord-no  EQ ar-invl.ord-no
                  AND oe-ordl.i-no    EQ ar-invl.i-no
                USE-INDEX ord-no NO-LOCK NO-ERROR.
-          
+
           ASSIGN
            v-cas-cnt = if ar-invl.cas-cnt ne 0 then
                          ar-invl.cas-cnt
@@ -593,7 +608,7 @@ FOR EACH ar-inv
              v-inv-disc  = v-inv-disc + (v-invl-pric - ar-invl.amt).
 
           tt-report.key-05 = STRING(v-invl-pric).
-          
+
           v-line-tot = v-line-tot + ar-invl.amt.
         END. /* each ar-invl */
 
@@ -640,37 +655,37 @@ FOR EACH ar-inv
                 where stax.company = ar-inv.company AND
                 stax.tax-group eq ar-inv.tax-code
                 no-lock no-error.
-            
+
             if avail stax then do:
               do i = 1 to 3:
                 v-tax-rate[i] = stax.tax-rate[i].
-                
+
                 if stax.company eq "yes" and i gt 1 then
                 do k = 1 to i - 1:
                   v-tax-rate[i] = v-tax-rate[i] +
                                   (v-tax-rate[i] * (stax.tax-rate[k] / 100)).
                 end.
               end.
-              
+
               v-tax-rate[4] = v-tax-rate[1] + v-tax-rate[2] + v-tax-rate[3].
-              
+
               do i = 1 to 3:
                 v-tax-rate[i] = round(v-tax-rate[i] / v-tax-rate[4] *
                                       ar-inv.tax-amt,2).
               end.
-              
+
               v-tax-rate[4] = v-tax-rate[1] + v-tax-rate[2] + v-tax-rate[3].
-              
+
               if ar-inv.tax-amt ne v-tax-rate[4] then
                 v-tax-rate[1] = v-tax-rate[1] +
                                 (ar-inv.tax-amt - v-tax-rate[4]).
-              
+
               do i = 1 to 3:
                 find first account
                     where account.company eq cocode
                       and account.actnum  eq stax.tax-acc[i]
                     no-lock no-error.
-                    
+
                 if avail account then do:
                   create tt-report.
                   assign
@@ -682,7 +697,7 @@ FOR EACH ar-inv
                    tt-report.key-05  = string(v-tax-rate[i]).
                 end. /* avail account */
 
-                
+
               end. /* 1 to 3 */
 
             end. /* avail stax */
@@ -702,7 +717,7 @@ FOR EACH ar-inv
              tt-report.key-05  = string(ar-inv.tax-amt).
           end.
         end.
-       
+
         v-post-total = v-post-total + ar-inv.gross.
 
         /** if Freight Is Billable then Post to GL **/
@@ -828,7 +843,7 @@ FOR EACH ar-inv
      gltrans.tr-amt  = v-post-freight
      gltrans.period  = period.pnum
      gltrans.trnum   = ar-ledger.tr-num.
-     
+
                                            /** POST DISCOUNT TO G/L TRANS **/
     create gltrans.
     assign
@@ -867,7 +882,7 @@ FOR EACH ar-inv
   END.
 END.
 
- 
+
 
 END PROCEDURE.
 
@@ -906,13 +921,13 @@ PROCEDURE valid-date :
    DO WITH FRAME {&FRAME-NAME}:
      IF NOT ll-warned THEN DO:
         ll = NO.
-     
+
         FOR EACH period NO-LOCK
             WHERE period.company EQ cocode
               AND period.pst     LE TODAY
               AND period.pend    GE TODAY
             BY period.pst:
-     
+
           IF period.pst  GT DATE(tran-date:SCREEN-VALUE) OR
              period.pend LT DATE(tran-date:SCREEN-VALUE) THEN DO:
             ll = YES.
@@ -921,15 +936,15 @@ PROCEDURE valid-date :
                 VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
                 UPDATE ll.
           END.
-     
+
           IF ll THEN DO:
             APPLY "entry" TO tran-date.
             RETURN ERROR.
           END.
-     
+
           LEAVE.
         END.
-     
+
         ll-warned = YES.
       END.
    END.

@@ -17,7 +17,7 @@ ASSIGN
  locode = g_loc.
 
 ASSIGN
- {&TABLENAME}.user-id  = USERID("ASI")
+ {&TABLENAME}.user-id  = USERID("nosweat")
  {&TABLENAME}.upd-date = TODAY
  {&TABLENAME}.upd-time = TIME.
 

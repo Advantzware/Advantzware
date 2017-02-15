@@ -1,10 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS Procedure
-USING Infragistics.Win.UltraWinToolbars.ToolBase FROM ASSEMBLY.
-&ANALYZE-RESUME
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS s-object
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS s-object 
 /*------------------------------------------------------------------------
 
   File: smartobj/options.w
@@ -18,9 +15,9 @@ USING Infragistics.Win.UltraWinToolbars.ToolBase FROM ASSEMBLY.
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
 
-/* Create an unnamed pool to store all the widgets created
+/* Create an unnamed pool to store all the widgets created 
      by this procedure. This is a good default which assures
-     that this procedure's triggers and internal procedures
+     that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
 
@@ -38,7 +35,7 @@ CREATE WIDGET-POOL.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK
+&ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -49,8 +46,8 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS UDF Select_list Select_frac Select_dept ~
-Select_spec Select_appl Select_help
+&Scoped-Define ENABLED-OBJECTS Select_list Select_frac Select_dept ~
+Select_spec Select_appl Select_help UDF 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -64,61 +61,61 @@ Select_spec Select_appl Select_help
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Select_appl
+DEFINE BUTTON Select_appl 
      IMAGE-UP FILE "Graphics/32x32/window_gear.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
-     LABEL "Run App"
+     LABEL "Run App" 
      SIZE 7.8 BY 1.81 TOOLTIP "Utility Application".
 
-DEFINE BUTTON Select_dept
+DEFINE BUTTON Select_dept 
      IMAGE-UP FILE "Graphics/32x32/edit.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
-     LABEL "Notes"
+     LABEL "Notes" 
      SIZE 7.8 BY 1.81 TOOLTIP "Notes".
 
-DEFINE BUTTON Select_frac
+DEFINE BUTTON Select_frac 
      IMAGE-UP FILE "Graphics/32x32/calculator.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
-     LABEL "Calculate"
+     LABEL "Calculate" 
      SIZE 7.8 BY 1.81 TOOLTIP "Conversions".
 
-DEFINE BUTTON Select_help
+DEFINE BUTTON Select_help 
      IMAGE-UP FILE "Graphics/32x32/question.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
-     LABEL "Help"
+     LABEL "Help" 
      SIZE 7.8 BY 1.81 TOOLTIP "Help".
 
-DEFINE BUTTON Select_list
+DEFINE BUTTON UDF 
+     IMAGE-UP FILE "Graphics/32x32/refresh.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Home" 
+     SIZE 7.8 BY 1.81 TOOLTIP "Home Key".
+
+DEFINE BUTTON Select_list 
      IMAGE-UP FILE "Graphics/32x32/printer.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
-     LABEL "List"
+     LABEL "List" 
      SIZE 7.8 BY 1.81 TOOLTIP "Job Ticket".
 
-DEFINE BUTTON Select_spec
+DEFINE BUTTON Select_spec 
      IMAGE-UP FILE "Graphics/32x32/book_open.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
-     LABEL "Spec Note"
+     LABEL "Spec Note" 
      SIZE 7.8 BY 1.81 TOOLTIP "Spec Notes".
-
-DEFINE BUTTON UDF
-     IMAGE-UP FILE "Graphics/32x32/window_dialog.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
-     LABEL "UDF"
-     SIZE 7.8 BY 1.81 TOOLTIP "Home Key".
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     UDF AT ROW 1 COL 33
      Select_list AT ROW 1 COL 49
      Select_frac AT ROW 1 COL 41
      Select_dept AT ROW 1 COL 1
      Select_spec AT ROW 1 COL 9
      Select_appl AT ROW 1 COL 17
      Select_help AT ROW 1 COL 25
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY
-         SIDE-LABELS NO-UNDERLINE THREE-D
+     UDF AT ROW 1 COL 33
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
 
 
@@ -146,7 +143,7 @@ END.
 /* *************************  Create Window  ************************** */
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
-/* DESIGN Window definition (used by the UIB)
+/* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
          HEIGHT             = 1.95
          WIDTH              = 56.2.
@@ -154,10 +151,10 @@ END.
                                                                         */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB s-object
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB s-object 
 /* ************************* Included-Libraries *********************** */
 
-{advantzware/winkit/winkit-panel.i}
+{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/smart.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -173,7 +170,7 @@ END.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-ASSIGN
+ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
@@ -201,6 +198,7 @@ ASSIGN
 ON CHOOSE OF Select_appl IN FRAME F-Main /* Run App */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -213,6 +211,7 @@ ON CHOOSE OF Select_dept IN FRAME F-Main /* Notes */
 DO:
 
    {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -224,6 +223,7 @@ END.
 ON CHOOSE OF Select_frac IN FRAME F-Main /* Calculate */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -235,6 +235,19 @@ END.
 ON CHOOSE OF Select_help IN FRAME F-Main /* Help */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME UDF
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL UDF s-object
+ON CHOOSE OF UDF IN FRAME F-Main /* Home */
+DO:
+  {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -246,6 +259,7 @@ END.
 ON CHOOSE OF Select_list IN FRAME F-Main /* List */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -257,17 +271,7 @@ END.
 ON CHOOSE OF Select_spec IN FRAME F-Main /* Spec Note */
 DO:
     {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME UDF
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL UDF s-object
-ON CHOOSE OF UDF IN FRAME F-Main /* UDF */
-DO:
-  {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -276,14 +280,14 @@ END.
 
 &UNDEFINE SELF-NAME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK s-object
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK s-object 
 
 
 /* ***************************  Main Block  *************************** */
 
-/* If testing in the UIB, initialize the SmartObject. */
-&IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN
-  RUN dispatch IN THIS-PROCEDURE ('initialize':U).
+/* If testing in the UIB, initialize the SmartObject. */  
+&IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
+  RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
 
 RUN Tool_Tips IN Persistent-Handle (FRAME {&FRAME-NAME}:HANDLE).
@@ -294,37 +298,21 @@ RUN Tool_Tips IN Persistent-Handle (FRAME {&FRAME-NAME}:HANDLE).
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dept-pen-image s-object
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dept-pen-image s-object 
 PROCEDURE dept-pen-image :
 /*------------------------------------------------------------------------------
-  Purpose:
+  Purpose:     
   Parameters:  <none>
-  Notes:
+  Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE INPUT PARAMETER ip-log AS LOG NO-UNDO.
 
-
-   DEFINE VARIABLE oTool AS ToolBase NO-UNDO . 
-
-   IF VALID-OBJECT (oPanelRibbonTab) AND oPanelRibbonTab:Groups[cPanelRibbonGroupKey]:Tools:Exists ("SELECT_dept") THEN DO:
-
-       oTool = oPanelRibbonTab:Groups[cPanelRibbonGroupKey]:Tools ["SELECT_dept"]:SharedProps:RootTool .
-
-       IF NOT ip-log THEN 
-           oTool:SharedProps:AppearancesLarge:Appearance:Image = Consultingwerk.Util.ImageHelper:Load ("Graphics/32x32/edit.png") .
-       ELSE 
-           oTool:SharedProps:AppearancesLarge:Appearance:Image = Consultingwerk.Util.ImageHelper:Load ("Graphics/32x32/edit_star.png") .
+   DO WITH FRAME {&FRAME-NAME}:
+      IF NOT ip-log THEN
+         SELECT_dept:LOAD-IMAGE("Graphics/32x32/edit.ico").
+      ELSE
+         SELECT_dept:LOAD-IMAGE("Graphics/32x32/edit_star.ico").
    END.
-    
-  // Ron says, we don't need this anymore ... 
-
-/*   DO WITH FRAME {&FRAME-NAME}:                                 */
-/*      IF NOT ip-log THEN                                        */
-/*         SELECT_dept:LOAD-IMAGE("Graphics/32x32/edit.ico").     */
-/*      ELSE                                                      */
-/*         SELECT_dept:LOAD-IMAGE("Graphics/32x32/edit_star.ico").*/
-/*   END.                                                         */
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -336,7 +324,7 @@ PROCEDURE disable_UI :
   Purpose:     DISABLE the User Interface
   Parameters:  <none>
   Notes:       Here we clean-up the user-interface by deleting
-               dynamic widgets we have created and/or hide
+               dynamic widgets we have created and/or hide 
                frames.  This procedure is usually called when
                we are ready to "clean-up" after running.
 ------------------------------------------------------------------------------*/
@@ -348,12 +336,12 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Init-Buttons s-object
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Init-Buttons s-object 
 PROCEDURE Init-Buttons :
 /*------------------------------------------------------------------------------
   Purpose:     Find out from container-source program which buttons are not needed
   Parameters:  OUTPUT search-button, list-button, misc_fields-button
-  Notes:
+  Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE search-button AS LOGICAL NO-UNDO.
   DEFINE VARIABLE list-button AS LOGICAL NO-UNDO.
@@ -382,11 +370,11 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize s-object
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize s-object 
 PROCEDURE local-initialize :
 /*------------------------------------------------------------------------------
   Purpose:     Override standard ADM method
-  Notes:
+  Notes:       
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
@@ -402,12 +390,12 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Spec-Book-Image s-object
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Spec-Book-Image s-object 
 PROCEDURE Spec-Book-Image :
 /*------------------------------------------------------------------------------
-  Purpose:
+  Purpose:     
   Parameters:  <none>
-  Notes:
+  Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE INPUT PARAMETER ip-log AS LOG NO-UNDO.
 
@@ -422,13 +410,13 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed s-object
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed s-object 
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
   Purpose:     Receive and process 'state-changed' methods
                (issued by 'new-state' event).
   Parameters:  <none>
-  Notes:
+  Notes:       
 -------------------------------------------------------------*/
   DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE    NO-UNDO.
   DEFINE INPUT PARAMETER p-state      AS CHARACTER NO-UNDO.

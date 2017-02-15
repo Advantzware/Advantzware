@@ -5,4 +5,4 @@ ASSIGN
   notes.rec_key = ip-rec_key
   notes.note_date = TODAY
   notes.note_time = TIME
-  notes.user_id = USERID("ASI").
+  notes.user_id = USERID("NOSWEAT").

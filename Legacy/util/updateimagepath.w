@@ -177,6 +177,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -190,7 +201,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -227,6 +238,7 @@ END.
 ON CHOOSE OF BtnCancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
     APPLY "close" TO THIS-PROCEDURE.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -246,7 +258,7 @@ DO:
     vcStartingPath  = right-trim (fi_OldPath:screen-value, '~/~\')
     vcNewImagePath  = right-trim (fi_NewPath:screen-value, '~/~\')
     viRecordCount   = 0.
-  
+
   /* Go through all matching records. */
   if cbImageType:screen-value = 'CAD' then
   do:
@@ -281,6 +293,7 @@ DO:
   MESSAGE 'Modified ' viRecordCount ' record(s)!'
     VIEW-AS ALERT-BOX INFO BUTTONS OK.
 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -316,8 +329,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -328,9 +343,10 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN enable_UI.
-  
+
   apply 'value-changed':u to cbImageType.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -402,7 +418,7 @@ PROCEDURE UpdateImagePath :
                       ' Est #: '     + box-design-hdr.est-no  + 
                       ' Path: ' + box-design-hdr.box-image.
   status default vcStatusDefault.
-  
+
   /* Update the Box Image Path. */
   box-design-hdr.box-image = caps (vcNewImagePath) + substring (box-design-hdr.box-image, length (vcStartingPath) + 1).
 

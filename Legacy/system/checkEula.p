@@ -48,7 +48,7 @@ END.
 INPUT CLOSE.
 
 FIND FIRST userEula NO-LOCK WHERE userEula.eula_code EQ cVersion
-  AND userEula.user_id = USERID("ASI") NO-ERROR.
+  AND userEula.user_id = USERID("nosweat") NO-ERROR.
 IF AVAILABLE userEula AND userEula.accepted EQ TRUE THEN 
   oplEulaAccepted = TRUE.
 opcEulaVersion = cVersion.

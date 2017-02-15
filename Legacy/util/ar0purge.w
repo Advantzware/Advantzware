@@ -187,9 +187,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -219,7 +229,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -267,6 +277,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
     apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -283,8 +294,9 @@ DO:
   message "Are you sure you want to delete paid on-account transactions " +
           "posted w/0?"
       view-as alert-box question button yes-no update v-process.
-      
+
   if v-process then run run-process.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -315,8 +327,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -335,6 +349,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   FIND ap-ctrl WHERE ap-ctrl.company = gcompany NO-LOCK NO-ERROR.
   RUN enable_UI.
   {methods/nowait.i}
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -408,11 +423,11 @@ FOR EACH ar-cashl
       AND ar-cashl.amt-disc EQ 0
       AND (ar-cashl.on-account EQ YES OR ar-cashl.inv-no EQ 0)
     USE-INDEX inv-no
-      
+
     TRANSACTION:
-    
+
   DELETE ar-cashl.
-    
+
   IF AVAIL ar-cash AND
      NOT CAN-FIND(FIRST b-ar-cashl WHERE b-ar-cashl.c-no EQ ar-cash.c-no) THEN DO:
     ar-cash.posted = NO.
@@ -428,12 +443,12 @@ FOR EACH ar-cashl
       /*AND ar-cashl.memo        EQ NO*/
       AND (ar-cashl.on-account EQ YES OR ar-cashl.inv-no EQ 0)
     USE-INDEX ar-cashl,
-      
+
     FIRST ar-cash
     WHERE ar-cash.c-no       EQ ar-cashl.c-no
       AND ar-cash.check-date GE begin_date
       AND ar-cash.check-date LE end_date
-      
+
     TRANSACTION:
 
   DELETE ar-cashl.

@@ -290,7 +290,7 @@ DEF VAR v-die-no  LIKE eb.die-no NO-UNDO.
 format HEADER 
        "<OLANDSCAPE><P12>" skip
         "<B>JOB NUMBER:<B><P13>" v-job-no space(0) "-" space(0) v-job-no2 format "99" "</B>"
-        "<B><P12>Carded Graphics, LLC Factory Ticket</B><P10>" at 47   SKIP
+        "<B><P12>Graphic Packaging International, Inc.</B><P10>" at 47   SKIP
         "       <B>FORM#:" string(lv-pg-num2,">9") + " of " + string(lv-tot-pg)  "</B>ORDER DATE:" at 100 v-start-date  
     v-fill
     with no-box frame head no-labels stream-io width 155.
@@ -432,7 +432,7 @@ END FUNCTION.
         IF AVAIL job THEN
           ASSIGN
            job.pr-printed    = YES
-           job.pr-user-id-p  = USERID("ASI")
+           job.pr-user-id-p  = USERID("nosweat")
            job.pr-print-date = TODAY
            job.pr-print-time = TIME
            li                = 1000.
@@ -462,14 +462,14 @@ END FUNCTION.
           IF NOT job.cs-printed THEN
             ASSIGN
              job.cs-printed    = YES
-             job.cs-user-id-p  = USERID("ASI")
+             job.cs-user-id-p  = USERID("nosweat")
              job.cs-print-date = TODAY
              job.cs-print-time = TIME.
 
           IF approve THEN
             ASSIGN
              job.cs-to-pr      = YES
-             job.cs-user-id-t  = USERID("ASI")
+             job.cs-user-id-t  = USERID("nosweat")
              job.cs-trans-date = TODAY
              job.cs-trans-time = TIME.
         END.
@@ -1222,7 +1222,7 @@ END FUNCTION.
                     v-vend = IF AVAIL vend THEN vend.NAME
                              ELSE IF AVAIL oe-ordl THEN oe-ordl.vend-no ELSE "".
                  END.
-                /* v-po-duedate = IF AVAIL vend THEN vend.due-date ELSE "" .*/
+                 v-po-duedate = IF AVAIL oe-ordl THEN oe-ordl.req-date ELSE ? .
                  v-board-po = IF AVAIL oe-ordl THEN oe-ordl.po-no-po ELSE 0.
 
                 IF ef.xgrain EQ "S" THEN 

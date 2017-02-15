@@ -40,7 +40,7 @@ ASSIGN
  cocode = gcompany
  locode = gloc.
 
-   
+
 DEF NEW SHARED VAR v-s-vend LIKE vend.vend-no INIT "".
 DEF NEW SHARED VAR v-e-vend LIKE vend.vend-no INIT "zzzzzzzz".
 DEF NEW SHARED VAR v-s-date LIKE po-ord.po-date INIT TODAY FORMAT "99/99/9999".
@@ -410,9 +410,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -521,7 +531,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -613,6 +623,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -664,10 +675,11 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -900,8 +912,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -917,21 +931,21 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-    
+
     assign            
      begin_due-date =  TODAY
      end_due-date   =  date(12,31,9999).
 
   RUN enable_UI.
-  
+
  for each mat:
     v-mat-list = v-mat-list + string(mat.mat,"x(5)") + " " + mat.dscr + ",".
   end.
   if substr(v-mat-list,length(trim(v-mat-list)),1) eq "," then
     substr(v-mat-list,length(trim(v-mat-list)),1) = "".
-  
+
   select-mat:list-items = v-mat-list.
-        
+
   do i = 1 to select-mat:num-items:
     if trim(substr(select-mat:entry(i),1,5)) eq "B" then do:
       select-mat:screen-value = entry(i,v-mat-list).
@@ -946,6 +960,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO begin_vend-no.
   END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1108,12 +1123,12 @@ PROCEDURE create-tt :
 
     IF po-ordl.item-type THEN DO:
        lv-uom = po-ordl.pr-qty-uom.
-      
+
        FIND FIRST item NO-LOCK
            WHERE item.company EQ po-ordl.company
              AND item.i-no    EQ po-ordl.i-no
            NO-ERROR.
-      
+
        IF AVAIL item THEN DO:
           v-dep = item.s-dep.
           {po/pol-dims.i}
@@ -1122,12 +1137,12 @@ PROCEDURE create-tt :
 
     ELSE DO:
        lv-uom = "EA".
-      
+
        FIND FIRST itemfg NO-LOCK
            WHERE itemfg.company EQ po-ordl.company
              AND itemfg.i-no    EQ po-ordl.i-no
            NO-ERROR.
-      
+
        IF AVAIL itemfg THEN DO:
           IF v-len EQ 0 THEN v-len = itemfg.t-len.
           IF v-wid EQ 0 THEN v-wid = itemfg.t-wid.
@@ -1144,7 +1159,7 @@ PROCEDURE create-tt :
        RUN sys/ref/convquom.p(po-ordl.cons-uom, lv-uom,
                               v-bwt, v-len, v-wid, v-dep,
                               v-qty, OUTPUT v-qty).
-                              
+
        RUN sys/ref/convcuom.p(po-ordl.cons-uom, lv-uom,
                               v-bwt, v-len, v-wid, v-dep,
                               v-cost, OUTPUT v-cost).
@@ -1160,12 +1175,12 @@ PROCEDURE create-tt :
        RUN sys/ref/convquom.p(po-ordl.cons-uom, lv-uom,
                               v-bwt, v-len, v-wid, v-dep,
                               po-ordl.ord-qty, OUTPUT v-ord-qty).
-      
+
     /*IF po-ordl.ord-qty - v-qty GT 0 THEN DO:*/
     IF (v-ord-qty - v-qty GT 0 OR v-show-posted) THEN DO:
 
        IF v-cost EQ ? THEN v-cost = 0.
-             
+
        CREATE tt-sched.
        ASSIGN
         tt-sched.job-no    = po-ordl.job-no
@@ -1193,12 +1208,12 @@ PROCEDURE create-tt :
               WHERE vend.company EQ po-ord.company
                 AND vend.vend-no EQ po-ord.vend-no
               NO-ERROR.
-         
+
           ASSIGN
              tt-sched.vend-name = IF AVAIL vend THEN vend.name ELSE ""
              v-s-num = po-ordl.s-num
              tt-sched.amt-msf = tt-sched.cons-qty - tt-sched.t-rec-qty.
-          
+
           IF tt-sched.cons-uom NE "MSF" THEN
             RUN sys/ref/convquom.p(tt-sched.cons-uom, "MSF",
                                    v-bwt, v-len, v-wid, v-dep,
@@ -1475,7 +1490,7 @@ FORM HEADER
        tt-sched.carrier SPACE(2)
       lv-job-no FORMAT "x(13)"
        WITH DOWN STREAM-IO WIDTH 200 NO-LABELS NO-BOX NO-UNDERLINE FRAME sch-rcts-item.
-            
+
   FORM tt-sched.vend-no FORMAT "x(10)"
        tt-sched.vend-name FORMAT "x(25)"
        tt-sched.i-no
@@ -1491,7 +1506,7 @@ FORM HEADER
        /*tt-sched.amt-msf FORMAT "->,>>9.999" */ SPACE(2)
        tt-sched.carrier SKIP
        WITH DOWN STREAM-IO WIDTH 200 NO-LABELS NO-BOX NO-UNDERLINE FRAME sch-rcts-vend.
-      
+
   {ce/msfcalc.i}
 
 ASSIGN
@@ -1518,7 +1533,7 @@ do with frame {&frame-name}:
     if select-mat:is-selected(i) then
        v-mattype-list = v-mattype-list + trim(substr(select-mat:entry(i),1,5)) + ",".
   end.
-  
+
   IF length(TRIM(v-mattype-list)) EQ 0 THEN
   DO:
      MESSAGE "No Material Type Selected."
@@ -1529,13 +1544,13 @@ do with frame {&frame-name}:
 
   if substr(v-mattype-list,length(trim(v-mattype-list)),1) eq "," then
      substr(v-mattype-list,length(trim(v-mattype-list)),1) = "".
-    
+
   mat-types = v-mattype-list.
-  
+
   do i = 1 to length(mat-types):
      if substr(mat-types,i,1) eq "," then substr(mat-types,i,1) = " ".
   end.
-  
+
   display mat-types.
 end.
 
@@ -1565,7 +1580,7 @@ IF td-show-parm THEN RUN show-param.
 SESSION:SET-WAIT-STATE ("general").
 
 DISPLAY "" WITH FRAME r-top.
- 
+
   IF v-sort EQ "J" THEN
     DISPLAY WITH FRAME sch-head-job.
   ELSE
@@ -1592,7 +1607,7 @@ DISPLAY "" WITH FRAME r-top.
 
      lv-job-no = IF tt-sched.job-no EQ "" THEN ""
                  ELSE TRIM(tt-sched.job-no) + "-" + STRING(tt-sched.job-no2,"99").
-    
+
      DISPLAY lv-job-no
              tt-sched.i-no
              tt-sched.loc-bin
@@ -1606,7 +1621,7 @@ DISPLAY "" WITH FRAME r-top.
              tt-sched.due-date
              tt-sched.carrier
          WITH FRAME sch-rcts-job.
-    
+
      IF tb_excel THEN
         PUT STREAM excel UNFORMATTED
           '"' lv-job-no                                    '",'
@@ -1625,9 +1640,9 @@ DISPLAY "" WITH FRAME r-top.
                   STRING(tt-sched.due-date) ELSE "")       '",'
           '"' tt-sched.carrier                             '",'
           SKIP.
-     
+
      IF tb_printNotes THEN RUN printNotes (tt-sched.rec_key).
-    
+
      DOWN WITH FRAME sch-rcts-job.
      {porep\r-rschrp.i sch-rcts-job}
   END.
@@ -1641,7 +1656,7 @@ DISPLAY "" WITH FRAME r-top.
       USE-INDEX i-no BREAK BY tt-sched.i-no:
      lv-job-no = IF tt-sched.job-no EQ "" THEN ""
                  ELSE TRIM(tt-sched.job-no) + "-" + STRING(tt-sched.job-no2,"99").
-    
+
      DISPLAY lv-job-no
              tt-sched.i-no
              tt-sched.loc-bin
@@ -1655,7 +1670,7 @@ DISPLAY "" WITH FRAME r-top.
              tt-sched.due-date
              tt-sched.carrier
          WITH FRAME sch-rcts-item.
-    
+
      IF tb_excel THEN
         PUT STREAM excel UNFORMATTED
           '"' tt-sched.i-no                                '",'
@@ -1674,9 +1689,9 @@ DISPLAY "" WITH FRAME r-top.
           '"' tt-sched.carrier                             '",'
           '"' lv-job-no                                    '",'
           SKIP.
-     
+
      IF tb_printNotes THEN RUN printNotes (tt-sched.rec_key).
-    
+
      DOWN WITH FRAME sch-rcts-item.
      {porep\r-rschrp.i sch-rcts-item}
   END.
@@ -1689,12 +1704,12 @@ DISPLAY "" WITH FRAME r-top.
       USE-INDEX vend BREAK BY tt-sched.vend-no:
      lv-job-no = IF tt-sched.job-no EQ "" THEN ""
                  ELSE TRIM(tt-sched.job-no) + "-" + STRING(tt-sched.job-no2,"99").
-    
+
      IF FIRST-OF(tt-sched.vend-no) THEN DO:
         PUT SKIP(1).
         DISPLAY tt-sched.vend-no tt-sched.vend-name WITH FRAME sch-rcts-vend.
      END.
-    
+
      DISPLAY lv-job-no
              tt-sched.i-no
              tt-sched.loc-bin
@@ -1707,7 +1722,7 @@ DISPLAY "" WITH FRAME r-top.
              /*tt-sched.amt-msf */
              tt-sched.carrier
          WITH FRAME sch-rcts-vend.
-    
+
      IF tb_excel THEN
         PUT STREAM excel UNFORMATTED
           '"' (IF FIRST-OF(tt-sched.vend-no) THEN
@@ -1729,10 +1744,10 @@ DISPLAY "" WITH FRAME r-top.
           '"' tt-sched.carrier                             '",'
           '"' lv-job-no                                    '",'
           SKIP.
-    
-     
+
+
      IF tb_printNotes THEN RUN printNotes (tt-sched.rec_key).
-    
+
      DOWN WITH FRAME sch-rcts-vend.
      {porep\r-rschrp.i sch-rcts-vend}
   END. 
@@ -1749,7 +1764,7 @@ END.
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
 SESSION:SET-WAIT-STATE ("").
-      
+
   /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 
 end procedure.
@@ -1772,12 +1787,12 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha NO-UNDO.
-  
+
   ASSIGN
      lv-frame-hdl = frame {&frame-name}:HANDLE
      lv-group-hdl = lv-frame-hdl:first-child
      lv-field-hdl = lv-group-hdl:first-child.
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1803,23 +1818,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

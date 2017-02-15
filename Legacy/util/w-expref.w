@@ -21,7 +21,7 @@
       <none>
 
   History: 
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -168,7 +168,7 @@ THEN W-Win:HIDDEN = yes.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -209,7 +209,7 @@ DO:
   RUN exportEmailCode (output cnt1).
   RUN exportJobHdr (output cnt2).
   RUN exportPhoneRec (output cnt3).  
-  
+
   message "Exported " cnt1 "Email Records" skip
           cnt2 "Job Hdr Records" skip
           cnt3 "PHone Records" skip
@@ -229,7 +229,7 @@ DO:
   RUN importEmail (output cnt1).
   RUN importJobHdr (output cnt2).
   RUN importPhone (output cnt3).  
-  
+
   message "Imported " cnt1 "Email Records" skip
           cnt2 "Job Hdr Records" skip
           cnt3 "PHone Records" skip
@@ -346,7 +346,7 @@ output stream s1 to c:\temp\emailcod-rec.d.
 i = 0.
 for each phone:
   for each emailcod:
-                     
+
         find FIRST reftable NO-LOCK
        WHERE reftable.rec_key = STRING (recid(phone))
          AND reftable.CODE    = emailcod.emailcod
@@ -466,20 +466,20 @@ def output parameter opCnt as int.
  def var cPHone_table_rec_key as char.
  def var cAttention as char.
  def var cEmailCod as char.
- 
- 
+
+
 DISABLE TRIGGERS FOR LOAD OF reftable.
 i = 0.
 input stream s1 from c:\temp\emailcod-rec.d.
 repeat:
 
- 
+
  import stream s1  cRec_key cCode cPhone_rec_Key cPhone_table_rec_key
                    cAttention cEmailCod.
-        
+
  find first reftable where reftable.rec_key = cRec_key
                       and reftable.code = cCode  no-error.
-                      
+
  find first phone where phone.rec_key = cPhone_rec_key
                    and phone.table_rec_key = cPhone_table_rec_key
                    and phone.attention = cAttention 
@@ -521,22 +521,22 @@ repeat:
 
   import stream s1
     cRef cComp cCode cRec_key cJob cJob2.
-    
+
   find first reftable where reftable.reftable = cRef
     and reftable.company = cComp
     and reftable.code = cCode
   exclusive-lock no-error.
-  
+
   find first job-hdr where job-hdr.rec_key eq cRec_key
     and job-hdr.job-no eq cJob
     and job-hdr.job-no2 eq cJob2
   no-lock no-error.
-  
+
   if avail reftable and avail job-hdr then do:
    i = i + 1.
    reftable.code     = STRING(RECID(job-hdr)).
   end.
-   
+
 end.
 input stream s1 close.
 
@@ -560,8 +560,8 @@ def output parameter opCnt as int.
  def var cphone_rec_key as char.
  def var cAttention as char.
  def var cPHone_table_rec_key as char.
- 
- 
+
+
 input stream s1 from c:\temp\phone-rec.d.
 DISABLE TRIGGERS FOR LOAD OF reftable.
 
@@ -572,14 +572,14 @@ repeat:
  find first phone where phone.rec_key = cPhone_rec_key
    and phone.table_rec_key = cPhone_table_rec_key
   and phone.attention = cAttention no-lock no-error.
-  
-  
+
+
   if avail reftable then do:
     reftable.rec_key = string(recid(phone)).
     i = i + 1.
   end.
-  
-  
+
+
 end.
 input stream s1 close.
 opCnt = i.
@@ -598,9 +598,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

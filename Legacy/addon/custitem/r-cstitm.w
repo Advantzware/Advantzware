@@ -355,6 +355,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -382,7 +393,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -463,6 +474,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -474,7 +486,7 @@ END.
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   ASSIGN {&displayed-objects}.
-     
+
   RUN run-report.
 
   CASE rd-dest:
@@ -510,6 +522,7 @@ DO:
     END.
     WHEN 6 THEN RUN output-to-port.
   END CASE. 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -763,8 +776,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -788,6 +803,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
   {methods/nowait.i}
   APPLY 'ENTRY' TO begin_cust-no IN FRAME {&FRAME-NAME}.
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -907,7 +923,7 @@ PROCEDURE output-to-printer :
   DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
   DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
   DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
   RUN custom/prntproc.p (list-name,INT(lv-font-no), lv-ornt).
 
 END PROCEDURE.
@@ -977,7 +993,7 @@ ELSE ls-selection = "".
 
 {sys/inc/sa-sls01.i}
 
-FIND FIRST users WHERE users.user_id EQ USERID("ASI") NO-LOCK NO-ERROR.
+FIND FIRST users WHERE users.user_id EQ USERID("NOSWEAT") NO-LOCK NO-ERROR.
 
 IF AVAIL users AND users.user_program[2] NE "" THEN
    init-dir = users.user_program[2].
@@ -999,7 +1015,7 @@ FORM HEADER
    WITH FRAME rpt-ttl WIDTH 159 NO-BOX NO-LABEL STREAM-IO.
 
 VIEW FRAME rpt-ttl.     
-     
+
 ASSIGN 
    cocode = gcompany
    v-cust[1] = begin_cust-no
@@ -1015,7 +1031,7 @@ ASSIGN
    v-inconh = t-include-order
    v-totrel = IF rd-tot-rel = "T" OR rd-tot-rel = "A" THEN YES ELSE NO
    v-date = ldt-as-of.
-              
+
 IF rd-tot-rel = "A" THEN DO:
    FOR EACH itemfg WHERE itemfg.company = cocode
                      AND itemfg.cust-no >= v-cust[1] 
@@ -1028,7 +1044,7 @@ IF rd-tot-rel = "A" THEN DO:
                           (NOT itemfg.ord-policy AND v-lot-reo = "L") OR v-lot-reo = "A")
                      AND ((itemfg.pur-man        AND v-pur-man = "P") OR
                           (NOT itemfg.pur-man    AND v-pur-man = "M") OR v-pur-man = "A") USE-INDEX i-no NO-LOCK:
-    
+
       ASSIGN  
          v-qty-avail = itemfg.q-onh + (IF v-inconh THEN itemfg.q-ono ELSE 0)
          v-alloc-qty = 0.
@@ -1098,7 +1114,7 @@ IF rd-tot-rel = "A" THEN DO:
                              AND oe-rel.line    = oe-ordl.line NO-LOCK
                               BY oe-rel.rel-date DESC
                               BY oe-rel.r-no     DESC:
-        
+
                IF oe-rel.cust-no ge v-cust[1] AND oe-rel.cust-no LE v-cust[2] AND
                   oe-rel.ship-id ge v-ship[1] AND oe-rel.ship-id le v-ship[2] THEN DO: /* added logic for customer's inventory */
                   ASSIGN 
@@ -1175,7 +1191,7 @@ IF rd-tot-rel = "A" THEN DO:
          v-coverage = (INT(report.key-05) + INT(report.key-06)) / (INT(report.key-07) / 12)  /* monthly , weekly : 52 */
          v-mon-coverage = IF (INT(report.key-07) / 12) = ? THEN 0 ELSE (INT(report.key-07) / 12).
       IF v-coverage = ? THEN v-coverage = 0.
-                          
+
       IF rd-tot-rel = "A" AND v-reord-qty < 0 THEN 
          v-reord-qty = 0. /* display even if v-reord-qty < 0 when rd-tot-rel = "A" */
       ls-key-06 = IF INT(report.key-06) <> 0 THEN 
@@ -1247,7 +1263,7 @@ ELSE DO: /* ========= reorder report =========*/
 
             v-alloc-qty = v-alloc-qty + oe-rel.qty.
          END.
-      
+
       v-qty-avail = v-qty-avail - v-alloc-qty.
 
       IF itemfg.ord-level GT v-qty-avail THEN
@@ -1263,7 +1279,7 @@ ELSE DO: /* ========= reorder report =========*/
                oe-rel.cust-no LE v-cust[2] AND
                oe-rel.ship-id GE v-ship[1] AND
                oe-rel.ship-id LE v-ship[2] THEN DO:
-        
+
                /* added logic for customer's inventory */
                ASSIGN 
                   v-tot-cust-qty = 0
@@ -1330,7 +1346,7 @@ ELSE DO: /* ========= reorder report =========*/
                 "JobQty" 
                 "NewQty" .
    END.
- 
+
    /* = display information = */
    FOR EACH report WHERE report.term-id = v-term,
       FIRST oe-rel WHERE RECID(oe-rel) = report.rec-id NO-LOCK,
@@ -1430,11 +1446,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1462,23 +1478,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

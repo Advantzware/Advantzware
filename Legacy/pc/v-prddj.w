@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -205,7 +209,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -227,7 +231,7 @@ DO:
                    ASSIGN pc-prdd.job-no:SCREEN-VALUE = job-hdr.job-no
                           pc-prdd.job-no2:SCREEN-VALUE = string(job-hdr.job-no2)
                           li-help-job = job-hdr.job.
-                            
+
              END.
         END.
     END CASE.
@@ -303,7 +307,7 @@ SESSION:DATA-ENTRY-RETURN = YES.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -385,7 +389,7 @@ PROCEDURE local-assign-record :
   DEF VAR old-job-no2 LIKE pc-prdd.job-no2 NO-UNDO.
   DEF VAR old-op-date LIKE pc-prdd.op-date NO-UNDO.
   DEF VAR old-shift LIKE pc-prdd.shift NO-UNDO.
-  
+
   DEF BUFFER bf-prdd FOR pc-prdd.
 
 
@@ -412,7 +416,7 @@ PROCEDURE local-assign-record :
                    AND job.job-no2 = pc-prdd.job-no2
                  NO-LOCK NO-ERROR.
   IF AVAIL job THEN pc-prdd.job = job.job.
-                           
+
   IF ll-new-record THEN DO:
       FIND FIRST job WHERE job.company = pc-prdd.company
                        AND job.job-no = pc-prdd.job-no
@@ -420,7 +424,7 @@ PROCEDURE local-assign-record :
                        NO-LOCK NO-ERROR.
       IF AVAIL job THEN pc-prdd.rec_key = job.rec_key.
   END.
- 
+
   FOR EACH bf-prdd
       WHERE (bf-prdd.company EQ pc-prdd.company AND
              bf-prdd.job-no  EQ old-job-no      AND

@@ -322,7 +322,7 @@ PROCEDURE GetOutputDir:
     DEFINE BUFFER bf-users FOR users.
 
     FIND FIRST bf-users WHERE
-       bf-users.user_id EQ USERID("ASI")
+       bf-users.user_id EQ USERID("NOSWEAT")
        NO-LOCK NO-ERROR.
 
   IF AVAIL bf-users AND bf-users.user_program[2] NE "" THEN

@@ -22,6 +22,6 @@ ELSE
    END.
 
 ASSIGN
- reftable.loc   = USERID("ASI")
+ reftable.loc   = USERID("nosweat")
  reftable.code  = STRING(TODAY,"99/99/9999")
  reftable.code2 = STRING(TIME,"99999").

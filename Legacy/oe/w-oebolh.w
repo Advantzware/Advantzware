@@ -18,7 +18,7 @@
       <none>
 
   History: 
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -164,6 +164,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+/* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
@@ -232,7 +233,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -637,7 +638,7 @@ PROCEDURE local-change-page :
   {methods/winReSizePgChg.i}
 
   RUN GET-ATTRIBUTE ('current-page').
-  
+
 /*   IF int(RETURN-VALUE) = 2 THEN DO:                                                                                          */
 /*      RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source", OUTPUT char-hdl).                                */
 /*      IF valid-handle(WIDGET-HANDLE(char-hdl)) THEN RUN is-row-available IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-is-row-avail). */
@@ -651,7 +652,7 @@ PROCEDURE local-change-page :
 /*   END.                                                                                                                       */
 /*                                                                                                                              */
 
-    
+
 
 END PROCEDURE.
 
@@ -666,9 +667,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

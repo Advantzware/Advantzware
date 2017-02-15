@@ -170,9 +170,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -197,7 +207,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -245,6 +255,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
     apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -256,13 +267,14 @@ END.
 ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
 DO:
   v-process  = NO.
-   
+
   MESSAGE "Are you sure you want to" TRIM(c-win:TITLE)
           "within the selected parameters?"       
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
           UPDATE v-process.
-        
+
   IF v-process THEN RUN run-process.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -293,8 +305,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -313,6 +327,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
 
   {methods/nowait.i}
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -372,7 +387,7 @@ END PROCEDURE.
 PROCEDURE run-process :
 DEF VAR v-char AS CHAR NO-UNDO.
 
-  
+
 SESSION:SET-WAIT-STATE("General").
 
 FOR EACH cust
@@ -385,11 +400,11 @@ FOR EACH cust
       WHERE ar-cash.company EQ cust.company
         AND ar-cash.cust-no EQ cust.cust-no
       USE-INDEX ar-cash
-        
+
       TRANSACTION:
 
     ar-cash.posted = NO.
-        
+
     DELETE ar-cash.
   END.
 
@@ -397,47 +412,47 @@ FOR EACH cust
       WHERE ar-inv.company EQ cust.company
         AND ar-inv.cust-no EQ cust.cust-no
       USE-INDEX ar-inv
-        
+
       TRANSACTION:
 
     ar-inv.posted = NO.
 
     DELETE ar-inv.
   END.
-    
+
   FOR EACH ar-ledger
       WHERE ar-ledger.company EQ cust.company
         AND ar-ledger.cust-no EQ cust.cust-no
       USE-INDEX ar-ledger
-        
+
       TRANSACTION:
-        
+
     DELETE ar-ledger.
   END.
-    
+
   v-char = "".
-    
+
   FIND FIRST eb
       WHERE eb.company EQ cust.company
       USE-INDEX cust NO-LOCK NO-ERROR.
 
   DO WHILE AVAIL eb:
     v-char = eb.loc.
-      
+
     FOR EACH eb
         WHERE eb.company EQ cust.company
           AND eb.loc     EQ v-char
           AND eb.cust-no EQ cust.cust-no
         USE-INDEX cust
-        
+
         TRANSACTION:
-        
+
       FOR EACH probeit
           WHERE probeit.company EQ eb.company
             AND probeit.est-no  EQ eb.est-no
             AND probeit.cust-no EQ cust.cust-no
           USE-INDEX probe-item:
-        
+
         DELETE probeit.
       END.
 
@@ -447,13 +462,13 @@ FOR EACH cust
             AND quote.est-no  EQ eb.est-no
             AND quote.cust-no EQ cust.cust-no
           USE-INDEX qqq:
-        
+
         DELETE quote.
       END.
 
       DELETE eb.
     END.
-      
+
     FIND FIRST eb
         WHERE eb.company EQ cust.company
           AND eb.loc     GT v-char
@@ -463,38 +478,38 @@ FOR EACH cust
   FOR EACH EDIVTran
       WHERE EDIVTran.company EQ cust.company
         AND EDIVTran.cust    EQ cust.cust-no
-        
+
       TRANSACTION:
-        
+
     DELETE EDIVTran.
   END.
-    
+
   FOR EACH EDMast WHERE EDMast.cust EQ cust.cust-no
-        
+
       TRANSACTION:
-        
+
     DELETE EDMast.
   END.
 
   FOR EACH EDPD WHERE EDPD.cust EQ cust.cust-no
-        
+
       TRANSACTION:
-        
+
     DELETE EDPD.
   END.
 
   FOR EACH EDPOTran WHERE EDPOTran.cust EQ cust.cust-no
-        
+
       TRANSACTION:
-        
+
     DELETE EDPOTran.
   END.
 
   FOR EACH EDShipto WHERE EDShipto.cust EQ cust.cust-no
       USE-INDEX ByCustShip
-        
+
       TRANSACTION:
-        
+
     DELETE EDShipto.
   END.
 
@@ -503,9 +518,9 @@ FOR EACH cust
       WHERE fg-rcpts.company EQ cust.company
         AND fg-rcpts.cust-no EQ cust.cust-no
       USE-INDEX cust-no
-        
+
       TRANSACTION:
-        
+
     DELETE fg-rcpts.
   END.
 
@@ -513,17 +528,17 @@ FOR EACH cust
       WHERE inv-head.company EQ cust.company
         AND inv-head.cust-no EQ cust.cust-no
       USE-INDEX cust
-        
+
       TRANSACTION:
-        
+
     FOR EACH inv-line
         WHERE inv-line.r-no    EQ inv-head.r-no
           AND inv-line.cust-no EQ cust.cust-no
         USE-INDEX r-no:
-         
+
       DELETE inv-line.
     END.
-  
+
     DELETE inv-head.
   END.
 
@@ -532,28 +547,28 @@ FOR EACH cust
       WHERE itemfg.company EQ cust.company
         AND itemfg.cust-no EQ cust.cust-no
       USE-INDEX customer
-        
+
       TRANSACTION:
-        
+
     FOR EACH itemfgdtl
         WHERE itemfgdtl.company EQ cust.company
           AND itemfgdtl.i-no    EQ itemfg.i-no
           AND itemfgdtl.cust-no EQ cust.cust-no
         USE-INDEX pi-itemfgdtl:
-          
+
       itemfgdtl.cust-no = "".
     END.
-        
+
     itemfg.cust-no = "".
   END.
-    
+
   FOR EACH job-hdr
       WHERE job-hdr.company eq cust.company
         AND job-hdr.cust-no eq cust.cust-no
       USE-INDEX cust-idx
-        
+
       TRANSACTION:
-        
+
     FOR EACH fg-act
         WHERE fg-act.company EQ cust.company
           AND fg-act.job     EQ job-hdr.job
@@ -561,36 +576,36 @@ FOR EACH cust
           AND fg-act.job-no2 EQ job-hdr.job-no2
           AND fg-act.cust-no EQ cust.cust-no
         USE-INDEX job-idx:
-        
+
       DELETE fg-act.
     END.
-      
+
     FOR EACH fg-hist
         WHERE fg-hist.company EQ cust.company
           AND fg-hist.i-no    EQ job-hdr.i-no
           AND fg-hist.job-no  EQ job-hdr.job-no
           AND fg-hist.cust-no EQ cust.cust-no
         USE-INDEX ino:
-        
+
       DELETE fg-hist.
     END.
 
     DELETE job-hdr.
   END.
-    
+
   FOR EACH oe-bolh
       WHERE oe-bolh.company eq cust.company
         AND oe-bolh.cust-no eq cust.cust-no
       USE-INDEX cust
-        
+
       TRANSACTION:
-        
+
     FOR EACH oe-ship
         WHERE oe-ship.company EQ cust.company
           AND oe-ship.bol-no  EQ STRING(oe-bolh.bol-no,"99999999")
           AND oe-ship.cust-no EQ cust.cust-no
         USE-INDEX pi-oe-ship:
-        
+
       DELETE oe-ship.
     END.
 
@@ -601,9 +616,9 @@ FOR EACH cust
       WHERE oe-ordl.company EQ cust.company
         AND oe-ordl.cust-no EQ cust.cust-no
       USE-INDEX cust
-        
+
       TRANSACTION:
-        
+
     FOR EACH oe-rel
         WHERE oe-rel.company EQ cust.company
           AND oe-rel.ord-no  EQ oe-ordl.ord-no
@@ -611,7 +626,7 @@ FOR EACH cust
           AND oe-rel.line    EQ oe-ordl.line
           AND oe-rel.cust-no EQ cust.cust-no
         USE-INDEX ord-item:
-        
+
       DELETE oe-rel.
     END.
 
@@ -622,21 +637,21 @@ FOR EACH cust
       WHERE oe-ord.company EQ cust.company
         AND oe-ord.cust-no EQ cust.cust-no
       USE-INDEX cust
-        
+
       TRANSACTION:
-        
+
     FOR EACH oe-rell
         WHERE oe-rell.company EQ cust.company
           AND oe-rell.ord-no  eq oe-ord.ord-no:
-        
+
       DELETE oe-rell.
     END.
-        
+
     DELETE oe-ord.
   END.
 
   v-char = "".
-    
+
   IF cust.cust-no NE "" THEN
   FIND FIRST oe-prmtx
       WHERE oe-prmtx.company EQ cust.company
@@ -644,18 +659,18 @@ FOR EACH cust
 
   DO WHILE AVAIL oe-prmtx:
     v-char = oe-prmtx.custype.
-      
+
     FOR EACH oe-prmtx
         WHERE oe-prmtx.company EQ cust.company
           AND oe-prmtx.custype EQ v-char
           AND oe-prmtx.cust-no EQ cust.cust-no
         USE-INDEX custitem
-        
+
         TRANSACTION:
-        
+
       DELETE oe-prmtx.
     END.
-      
+
     FIND FIRST oe-prmtx
         WHERE oe-prmtx.company EQ cust.company
           AND oe-prmtx.custype GT v-char
@@ -670,36 +685,36 @@ FOR EACH cust
           AND oe-reth.applied EQ (i MODULO 2 EQ 0)
           AND oe-reth.cust-no EQ cust.cust-no
         USE-INDEX posted
-        
+
         TRANSACTION:
-        
+
       DELETE oe-reth.
     END.
   END.
-    
+
   FOR EACH pdh WHERE pdh.cust eq cust.cust-no
-        
+
       TRANSACTION:
-        
+
     DELETE pdh.
   END.
-    
+
   IF cust.cust-no NE "" THEN
   FOR EACH po-ord
       WHERE po-ord.company EQ cust.company
         AND po-ord.cust-no EQ cust.cust-no
-        
+
       TRANSACTION:
-        
+
     FOR EACH po-ordl
         WHERE po-ordl.company EQ cust.company
           AND po-ordl.po-no   EQ po-ord.po-no
           AND po-ordl.cust-no EQ cust.cust-no
         USE-INDEX po-no:
-        
+
       DELETE po-ordl.
     END.
-        
+
     DELETE po-ord.
   END.
 
@@ -708,20 +723,20 @@ FOR EACH cust
       WHERE po-ordl.company EQ cust.company
         AND po-ordl.cust-no EQ cust.cust-no
       USE-INDEX cust
-        
+
       TRANSACTION:
-        
+
     DELETE po-ordl.
   END.
-    
+
   FOR EACH shipto 
       WHERE shipto.company EQ cust.company
         AND shipto.cust-no EQ cust.cust-no
       USE-INDEX ship-id:
-        
+
     DELETE shipto. 
   END.
-    
+
   FOR EACH soldto 
       WHERE soldto.company EQ cust.company
         AND soldto.cust-no EQ cust.cust-no
@@ -740,7 +755,7 @@ SESSION:SET-WAIT-STATE("").
 MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
 
 APPLY "close" TO THIS-PROCEDURE.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

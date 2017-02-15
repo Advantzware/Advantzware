@@ -183,9 +183,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -233,7 +243,7 @@ and itemfg-loc.i-no = itemfg.i-no"
 */  /* BROWSE BROWSE-2 */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -295,8 +305,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btCancel C-Win
 ON CHOOSE OF btCancel IN FRAME FRAME-A /* Exit */
 DO:
- 
+
   APPLY 'close' TO THIS-PROCEDURE.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -310,7 +321,7 @@ DO:
     DEF VAR lCancel AS LOG NO-UNDO.
 
 
-  
+
   lCancel = NO.
   RUN promptAddValues (INPUT "COPY", OUTPUT lCancel, OUTPUT fiCreateFor, OUTPUT tgCopyReOrder,
                  OUTPUT fiCopyReOrder).
@@ -340,8 +351,9 @@ DO:
     opAddedRecord = TRUE.
     browse-2:REFRESH() NO-ERROR.
     RUN enable_ui.
- 
+
   END.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -398,6 +410,7 @@ DO:
           END.
       END.
   END.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -408,7 +421,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btOk C-Win
 ON CHOOSE OF btOk IN FRAME FRAME-A /* Add */
 DO:
-  
+
   DEF VAR lCancel AS LOG NO-UNDO.
   lCancel = NO.
   RUN promptAddValues (INPUT "ADD", OUTPUT lCancel, OUTPUT fiCreateFor, OUTPUT tgCopyReOrder,
@@ -429,7 +442,7 @@ DO:
   ELSE DO:
     RUN createRecord.
     opAddedRecord = TRUE.
-    
+
     browse-2:REFRESH() NO-ERROR.
 /*     RUN adm-initialize. */
 
@@ -437,6 +450,7 @@ DO:
     /* APPLY 'close' TO THIS-PROCEDURE. */
   END.
 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -469,8 +483,10 @@ IF AVAIL bf-itemfgloc THEN
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -525,7 +541,7 @@ IF tgCopyReOrder THEN DO:
           AND bfItemfg-loc.i-no    EQ itemfg.i-no
           AND bfItemfg-loc.loc     EQ fiCopyReOrder
         NO-LOCK NO-ERROR.         
-    
+
     IF AVAIL bfItemfg-loc THEN
       ASSIGN 
         itemfg-loc.ord-min      = bfItemfg-loc.ord-min
@@ -534,14 +550,14 @@ IF tgCopyReOrder THEN DO:
         itemfg-loc.lead-days    = bfItemfg-loc.lead-days.
 
     IF fiCopyReOrder = "ALL" THEN DO:
- 
+
 
           ASSIGN
             itemfg-loc.ord-min      = Itemfg.ord-min
             itemfg-loc.ord-max      = Itemfg.ord-max
             itemfg-loc.ord-level    = Itemfg.ord-level
             itemfg-loc.lead-days    = Itemfg.lead-days.
-  
+
     END.
 END.
 END PROCEDURE.
@@ -621,12 +637,12 @@ IF ipcMode EQ "ADD" THEN
 ip-parms = 
    /* Box Title */
    "type=literal,name=label11,row=2,col=18,enable=false,width=58,scrval=" + lcUserPrompt + ",FORMAT=X(58)" 
-      
+
     /* Set Attributes */
     + "|type=attrib,name=cust-no,row=1,col=1,enable=false,width=2,inpval=" + itemfg.i-no
     + "|type=attrib,name=company,row=1,col=1,enable=false,width=2,inpval=" + cocode
     + "|type=attrib,name=loc,row=1,col=1,enable=false,width=2,inpval=" + locode
-    
+
 
     /* Warehouse Location Code */
     + "|type=literal,name=label6,row=2.2,col=31,enable=false,width=58,scrval=" + "Add Location:" + ",FORMAT=X(58)"
@@ -641,7 +657,7 @@ ip-parms =
    /* + "|type=literal,name=label10,row=6,col=52,enable=false,width=9,scrval=" + "Del Date:" + ",FORMAT=X(9)" */
     + "|type=literal,name=label9,row=3.5,col=53,enable=false,width=30,depfield=tb_replace,scrval=" + "From:" + ",FORMAT=X(38)" 
     + "|type=fill-in,name=fi_FromLoc,row=3.3,col=62,enable=true,width=15,depfield=tb_replace"
-    
+
 
     + "|type=image,image=webspeed\images\question.gif,name=im1,row=3,col=4,enable=true,width=12,height=3 " 
     /* Box Title */
@@ -669,7 +685,7 @@ prompt-loop:
 DO WHILE TRUE:
 
     RUN custom/d-prompt.w (INPUT "", ip-parms, "", OUTPUT op-values).
-    
+
     /* Process values using names given above */
     DO i = 1 TO NUM-ENTRIES(op-values) BY 2.
         IF ENTRY(i, op-values) EQ "default" THEN
@@ -691,13 +707,13 @@ DO WHILE TRUE:
 
     lvErrMsg = "".
     IF choice NE "CANCEL" THEN DO:
-    
+
         FIND FIRST loc WHERE loc.company = cocode             
               AND loc.loc EQ lclocation
             NO-LOCK NO-ERROR.
         IF NOT AVAIL loc THEN
             lvErrMsg = "Please enter a valid location id".
-        
+
         IF llReplace THEN DO:
           FIND FIRST loc WHERE loc.company = cocode             
                 AND loc.loc EQ lcCopyFrom

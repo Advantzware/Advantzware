@@ -406,9 +406,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -501,7 +511,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -572,15 +582,15 @@ ON HELP OF begin_est IN FRAME FRAME-A /* Beginning Estimate# */
 DO:
      DEF VAR char-val AS cha NO-UNDO.
      DEF var lv-eb-tmpid as recid no-undo.
-    
+
      run windows/l-est.w (g_company,g_loc,focus:screen-value, output char-val).
-              
+
      if char-val <> "" then do:                 
             FIND FIRST eb WHERE string(RECID(eb)) = (char-val) NO-LOCK NO-ERROR.
             IF AVAIL eb THEN ASSIGN FOCUS:SCREEN-VALUE = eb.est-no
                                            lv-eb-tmpid = RECID(eb)    
                                 begin_est:SCREEN-VALUE = eb.est-no.
-                                
+
             END.
 END.
 
@@ -625,6 +635,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -638,7 +649,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-       
+
   RUN GetSelectionList.
   run run-report. 
   STATUS DEFAULT "Processing Complete".
@@ -678,6 +689,7 @@ DO:
        WHEN 6 THEN RUN OUTPUT-to-port.
   END CASE. 
 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -703,6 +715,7 @@ DO:
   sl_selected:LIST-ITEM-PAIRS = cSelectedList.
   sl_avail:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
   */
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -717,7 +730,8 @@ DO:
 
   RUN DisplaySelectionDefault.  /* task 04041406 */ 
   RUN DisplaySelectionList2 .
-  
+
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -729,6 +743,7 @@ END.
 ON CHOOSE OF btn_down IN FRAME FRAME-A /* Move Down */
 DO:
   RUN Move-Field ("Down").
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -745,6 +760,7 @@ DO:
   END
   */
   APPLY "DEFAULT-ACTION" TO sl_selected  .
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -756,6 +772,7 @@ END.
 ON CHOOSE OF btn_Up IN FRAME FRAME-A /* Move Up */
 DO:
   RUN Move-Field ("Up").
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -765,7 +782,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
-  
+
    IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
        sl_selected:NUM-ITEMS = 0)
    THEN ASSIGN ldummy = sl_selected:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
@@ -773,7 +790,7 @@ DO:
               /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
                .
 
-  
+
 /* for pairs
     DEF VAR cSelectedList AS cha NO-UNDO.
     cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
@@ -815,7 +832,7 @@ DO:
   ASSIGN
     {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}:ENTRY(1)
     .
-    
+
 
 END.
 
@@ -871,15 +888,15 @@ ON HELP OF end_est IN FRAME FRAME-A /* Ending Estimate# */
 DO:
      DEF VAR char-val AS cha NO-UNDO.
      DEF var lv-eb-tmpid as recid no-undo.
-    
+
      run windows/l-est.w (g_company,g_loc,focus:screen-value, output char-val).
-              
+
      if char-val <> "" then do:                 
             FIND FIRST eb WHERE string(RECID(eb)) = (char-val) NO-LOCK NO-ERROR.
             IF AVAIL eb THEN ASSIGN FOCUS:SCREEN-VALUE = eb.est-no
                                            lv-eb-tmpid = RECID(eb)    
                                   end_est:SCREEN-VALUE = eb.est-no.
-                                
+
             END.
 END.
 
@@ -1089,8 +1106,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -1100,7 +1119,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  
+
 /* security check need {methods/prgsecur.i} in definition section */
   IF access-close THEN DO:
      APPLY "close" TO THIS-PROCEDURE.
@@ -1109,7 +1128,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   RUN DisplaySelectionList.
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -1119,6 +1138,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO begin_cust-no.
   END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1175,7 +1195,7 @@ PROCEDURE DisplaySelectionList :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .    
   END.
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
 
@@ -1198,7 +1218,7 @@ PROCEDURE DisplaySelectionList2 :
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
-        
+
   EMPTY TEMP-TABLE ttRptList.
 
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
@@ -1208,7 +1228,7 @@ PROCEDURE DisplaySelectionList2 :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1216,9 +1236,9 @@ PROCEDURE DisplaySelectionList2 :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
   DO iCount = 1 TO sl_selected:NUM-ITEMS:
@@ -1246,7 +1266,7 @@ PROCEDURE DisplaySelectionDefault :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  
+
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
      cListContents = cListContents +                   
@@ -1396,7 +1416,7 @@ PROCEDURE output-to-printer :
  /*    DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1483,7 +1503,7 @@ FORM HEADER
      "Machine:"
      lv-hdr-m-dscr
      SKIP(1)
-      
+
     WITH FRAME r-top2 NO-LABELS NO-BOX WIDTH 132 STREAM-IO NO-UNDERLINE PAGE-TOP.
 
 /*form skip(1)
@@ -1512,7 +1532,7 @@ header "Est#     Customer Name                  Part # / Description           S
 
 
 SESSION:SET-WAIT-STATE ("general").    
-    
+
 assign
  str-tit2 = trim(c-win:title) + " - by Estimate Number"
  {sys/inc/ctrtext.i str-tit2 112}
@@ -1527,12 +1547,12 @@ assign
  test     = FILL(" ",8 - LENGTH(TRIM(end_est))) + TRIM(end_est).
 
 FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
-    
+
     ASSIGN str-tit4 = str-tit4 + 
                ttRptSelected.TextList + FILL(" ",ttRptSelected.FieldLength + 1 - LENGTH(ttRptSelected.TextList))
             str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
             excelheader = excelHeader + ttRptSelected.TextList + ",".        
-   
+
 END.
 
 
@@ -1556,7 +1576,7 @@ END.
 IF tb_excel AND tb_break EQ NO THEN DO:
         PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END. 
-    
+
 
 if td-show-parm then run show-param.
 
@@ -1583,7 +1603,7 @@ FOR EACH est
                          WHERE oe-ordl.company EQ est.company
                            AND oe-ordl.est-no  EQ est.est-no)))
     NO-LOCK,
- 
+
     FIRST est-qty
     WHERE est-qty.company EQ est.company
       AND est-qty.est-no  EQ est.est-no
@@ -1597,13 +1617,13 @@ FOR EACH est
       AND eb.sman    GE fsman
       AND eb.sman    LE tsman
     NO-LOCK,
-    
+
     FIRST ef
     WHERE ef.company EQ eb.company
       AND ef.est-no  EQ eb.est-no
       AND ef.form-no EQ eb.form-no
     NO-LOCK
-    
+
     BREAK BY est.est-no:
 
     {custom/statusMsg.i " 'Processing Estimate#:  '  + eb.est-no  "}
@@ -1648,13 +1668,13 @@ END.
 FOR EACH tt-eb,
 
     FIRST eb WHERE ROWID(eb) EQ tt-eb.row-id NO-LOCK,
-    
+
     FIRST ef
     WHERE ef.company EQ eb.company
       AND ef.est-no  EQ eb.est-no
       AND ef.form-no EQ eb.form-no
     NO-LOCK,
- 
+
     FIRST est
     WHERE est.company EQ ef.company
       AND est.est-no  EQ ef.est-no
@@ -1679,7 +1699,7 @@ FOR EACH tt-eb,
                     (IF AVAIL mach THEN mach.m-dscr ELSE "Not on File...").
 
     IF FIRST(tt-eb.m-code) THEN VIEW FRAME r-top2.
-    
+
     PAGE.
 
     /* gdm - 10130804 */
@@ -1691,10 +1711,10 @@ FOR EACH tt-eb,
          SKIP
          '"' REPLACE(excelheader,',','","') '"' SKIP.
 
-    
+
 
   END.
-  
+
   find first item
       where item.company eq cocode
         and item.i-no    eq ef.board
@@ -1737,7 +1757,7 @@ FOR EACH tt-eb,
 
 
   if first-of(eb.cust-no) or tb_sort THEN DO: 
-  
+
   /*  display trim(eb.est-no)     @ eb.est-no
              cust.name          when avail cust
                eb.ship-name     when not avail cust or eb.cust-no eq "TEMP"
@@ -1758,7 +1778,7 @@ FOR EACH tt-eb,
              skip
              eb.part-dscr2
              item.i-name        when avail item
-             
+
          with frame est.
 
     /* gdm - 10130804 */
@@ -1786,7 +1806,7 @@ FOR EACH tt-eb,
 
        DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
          cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
-         
+
          IF INDEX(cTmpField,".") > 0 THEN DO:
                  cFieldName = cTmpField.
                  cTmpField = SUBSTRING(cTmpField,INDEX(cTmpField,".") + 1).
@@ -1798,7 +1818,7 @@ FOR EACH tt-eb,
 
                      IF ENTRY(i,cSelectedList) = "Last Order#" THEN
                         cTmpField = IF cTmpField <> "0" THEN cTmpField ELSE "".   
-                     
+
                      cDisplay = cDisplay + cTmpField + 
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField))
                                .
@@ -1827,7 +1847,7 @@ FOR EACH tt-eb,
                  WHEN "add4" THEN cVarValue = STRING(adder[4]).
                  WHEN "add5" THEN cVarValue = STRING(adder[5]).
             END CASE.
-            
+
             cExcelVarValue = cVarValue.
             cDisplay = cDisplay + cVarValue +
                        FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
@@ -1843,7 +1863,7 @@ FOR EACH tt-eb,
 
   END.
   /*else if first-of(eb.part-no) then do:
-      
+
       put eb.part-dscr2 at 41.
 
       /* gdm - 10130804 */
@@ -1852,18 +1872,18 @@ FOR EACH tt-eb,
             ',,,'
             '"' eb.part-dscr2                '"'
           SKIP.
-            
+
 
   END. */
 
   if last-of(eb.cust-no) or tb_sort then down with frame est.
-  
+
   /* gdm - 10130804 */
   IF tb_break AND tb_excel AND LAST-OF(tt-eb.m-code)
     THEN PUT STREAM excel UNFORMATTED SKIP(1).   
 
   if last(tt-eb.m-code) THEN DO:
-  
+
     put skip(2)
         space(10)
         "Total Estimates:" + " " + trim(string(v-qty,">>>,>>>,>>9"))
@@ -1922,11 +1942,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1954,23 +1974,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" SKIP.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

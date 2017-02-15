@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi          PROGRESS
+          nosweat          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &Scoped-define FRAME-NAME Dialog-Frame
@@ -136,11 +136,11 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
 /* Query rebuild information for BROWSE BROWSE-1
-     _TblList          = "ASI.usergrps"
+     _TblList          = "NOSWEAT.usergrps"
      _Options          = "NO-LOCK"
-     _FldNameList[1]   > ASI.usergrps.usergrps
+     _FldNameList[1]   > NOSWEAT.usergrps.usergrps
 "usergrps" "Group" ? "character" ? ? ? ? ? ? no ?
-     _FldNameList[2]   = ASI.usergrps.dscr
+     _FldNameList[2]   = NOSWEAT.usergrps.dscr
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME

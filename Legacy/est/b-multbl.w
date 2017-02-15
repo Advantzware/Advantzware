@@ -102,7 +102,8 @@ display-yld-qty () @ eb.yld-qty eb.yrprice display-num-wid () @ eb.num-wid ~
 eb.num-wid display-num-wid () @ eb.num-wid display-num-len () @ eb.num-len ~
 eb.num-len display-num-len () @ eb.num-len eb.num-up 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table reftable.val[1] ~
-reftable.val[2] eb.part-no eb.bl-qty eb.yrprice eb.num-wid eb.num-len 
+reftable.val[2] eb.part-no eb.bl-qty eb.yld-qty eb.yrprice eb.num-wid ~
+eb.num-len 
 &Scoped-define ENABLED-TABLES-IN-QUERY-br_table reftable eb
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table reftable
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-br_table eb
@@ -227,14 +228,6 @@ FUNCTION display-yld-qty RETURNS INTEGER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getMaxRequest B-table-Win
-FUNCTION getMaxRequest RETURNS DECIMAL 
-  (ipcEst AS char, ipiForm AS int  ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -279,6 +272,7 @@ DEFINE BROWSE br_table
       reftable.val[2]
       eb.part-no
       eb.bl-qty
+      eb.yld-qty
       eb.yrprice
       eb.num-wid
       eb.num-len
@@ -391,7 +385,7 @@ reftable.val[3]   eq dec(recid(eb))"
      _FldNameList[7]   > "_<CALC>"
 "display-yld-qty () @ eb.yld-qty" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.eb.yld-qty
-"eb.yld-qty" ? "->>>,>>>,>>>" "integer" ? ? ? ? ? ? no ? no no "13" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.yld-qty" ? "->>>,>>>,>>>" "integer" ? ? ? ? ? ? yes ? no no "13" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > "_<CALC>"
 "display-yld-qty () @ eb.yld-qty" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.eb.yrprice
@@ -447,6 +441,29 @@ DO:
   END.*/
 
   RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
+ON ROW-DISPLAY OF br_table IN FRAME F-Main
+DO:   
+   DEFINE VARIABLE bl-qty AS INTEGER NO-UNDO .
+   DEFINE VARIABLE yld-qty AS INTEGER NO-UNDO .
+  IF AVAIL eb THEN DO:
+      ASSIGN
+          bl-qty  = display-bl-qty ()
+          yld-qty = display-yld-qty () .
+      
+      IF bl-qty NE yld-qty THEN
+          ASSIGN 
+          eb.bl-qty:BGCOLOR IN BROWSE {&BROWSE-NAME}       = 12
+          eb.yld-qty:BGCOLOR IN BROWSE {&BROWSE-NAME}      = 12 
+              .
+  END. /* avail eb */
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -806,7 +823,7 @@ PROCEDURE finish-assign :
   DEF VAR li-qty AS INT NO-UNDO.
   DEF VAR lv-frm LIKE eb.form-no INIT 0 NO-UNDO.
   DEF VAR lv-blk LIKE eb.blank-no INIT 0 NO-UNDO.
-  DEFINE VARIABLE dMaxQtyReq AS DECIMAL NO-UNDO.
+
   DEF BUFFER multbl FOR reftable.
 
 
@@ -829,31 +846,28 @@ PROCEDURE finish-assign :
       NO-LOCK NO-ERROR.
 
   IF AVAIL xef THEN DO:
-    dMaxQtyReq = getMaxRequest(eb.est-no, eb.form-no).
-    v-qty = dMaxQtyReq.
-/*    v-qty = dMaxQtyReq / eb.num-up.*/
-/*    {sys/inc/roundup.i v-qty}      */
-
+    v-qty = eb.yld-qty / eb.num-up.
+    {sys/inc/roundup.i v-qty}
     ASSIGN
      eb.yld-qty = v-qty * eb.num-up
      /*xef.die-in = eb.die-in*/.
 
-/*    ll-ans = NO.                                                                          */
-/*                                                                                          */
-/*    FOR EACH xeb                                                                          */
-/*        WHERE xeb.company EQ xef.company                                                  */
-/*          AND xeb.est-no  EQ xef.est-no                                                   */
-/*          AND xeb.form-no EQ xef.form-no                                                  */
-/*          AND RECID(xeb)  NE RECID(eb)                                                    */
-/*          AND xeb.yld-qty NE v-qty * xeb.num-up:                                          */
-/*      ll-ans = YES.                                                                       */
-/*      MESSAGE "For all other Blanks on this Form..." SKIP                                 */
-/*              "Click the YES button to calculate the layout based on the Request Qty" SKIP*/
-/*              "Click the NO  button to calculate the layout based on the Yield Qty"       */
-/*          VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO                                        */
-/*          UPDATE ll-ans.                                                                  */
-/*      LEAVE.                                                                              */
-/*    END.                                                                                  */
+    ll-ans = NO.
+
+    FOR EACH xeb
+        WHERE xeb.company EQ xef.company
+          AND xeb.est-no  EQ xef.est-no
+          AND xeb.form-no EQ xef.form-no
+          AND RECID(xeb)  NE RECID(eb)
+          AND xeb.yld-qty NE v-qty * xeb.num-up:
+      ll-ans = YES.
+      MESSAGE "For all other Blanks on this Form..." SKIP
+              "Click the YES button to calculate the layout based on the Request Qty" SKIP
+              "Click the NO  button to calculate the layout based on the Yield Qty"
+          VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+          UPDATE ll-ans.
+      LEAVE.
+    END.
     RELEASE xeb.
 
     FOR EACH xeb
@@ -867,7 +881,7 @@ PROCEDURE finish-assign :
       IF xeb.yld-qty EQ 0 THEN xeb.yld-qty = xeb.bl-qty.
         
       ASSIGN
-       li-qty      = xeb.bl-qty
+       li-qty      = IF ll-ans THEN xeb.bl-qty ELSE xeb.yld-qty
        lv-die-in   = xeb.die-in
        xeb.die-in  = xeb.die-in / xeb.num-up
        xeb.num-up  = TRUNC(li-qty / v-qty,0) + INT(li-qty MODULO v-qty GT 0)
@@ -1279,7 +1293,6 @@ PROCEDURE valid-bl-yld-up :
   DEF VAR ll-one-bl-per-form AS LOG NO-UNDO.
   DEF VAR li-first-bl AS INT NO-UNDO.
   DEF VAR li-cnt AS INT NO-UNDO.
-  DEFINE VARIABLE dMaxReq AS DECIMAL NO-UNDO.
   DEF BUFFER b-ref FOR reftable.
     
   ll-one-bl-per-form = YES.
@@ -1343,12 +1356,7 @@ PROCEDURE valid-bl-yld-up :
             VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
             UPDATE ll-ans.
       IF ll-ans THEN DO:
-        dMaxReq = getMaxRequest(est.est-no, eb.form-no).
-        IF dMaxReq GE DEC(eb.bl-qty:SCREEN-VALUE IN BROWSE {&browse-name}) / DEC(eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name}) THEN
-         v-qty = dMaxReq .
-        ELSE 
-         v-qty = DEC(eb.bl-qty:SCREEN-VALUE IN BROWSE {&browse-name}) / DEC(eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name}).
-        
+        v-qty = DEC(eb.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name}) / DEC(eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name}).
         {sys/inc/roundup.i v-qty}
         eb.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name} =
             STRING(v-qty * DEC(eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name})).
@@ -1544,36 +1552,4 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getMaxRequest B-table-Win
-FUNCTION getMaxRequest RETURNS DECIMAL 
-  (ipcEst AS char, ipiForm AS int  ):
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE opdResult AS DECIMAL NO-UNDO.
-    DEF BUFFER bf-eb FOR eb.
-    DEF VAR iMaxRequest AS DEC NO-UNDO.
-    DEF VAR iNumUp AS DEC NO-UNDO.
-    iMaxRequest = 0.
-    FOR EACH bf-eb WHERE bf-eb.company EQ cocode
-        AND bf-eb.est-no EQ ipcEst
-        AND bf-eb.form-no EQ ipiForm
-        NO-LOCK:
-        IF bf-eb.bl-qty GT iMaxRequest THEN 
-            ASSIGN iMaxRequest = bf-eb.bl-qty iNumUp = bf-eb.num-up.
-    END.
-    IF iNumUp GT 0 THEN
-      iMaxRequest = iMaxRequest / iNumUp.
-    {sys/inc/roundup.i iMaxRequest}
-    opdResult = iMaxRequest.
-   
-    RETURN opdResult.
-
-END FUNCTION.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 

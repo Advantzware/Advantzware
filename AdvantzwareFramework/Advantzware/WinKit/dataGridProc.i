@@ -1,5 +1,5 @@
 /*------------------------------------------------------------------------
-    File        : gridSearch.i
+    File        : dataGridProc.i
     Purpose     : 
 
     Syntax      :
@@ -87,7 +87,7 @@ PROCEDURE pDataGridInit:
   DEFINE VARIABLE cGridSearch AS CHARACTER NO-UNDO.
   
   IF VALID-OBJECT (oRenderedBrowseControl) THEN DO:      
-      INPUT FROM VALUE(SEARCH("gridSearch/gridSearch.dat")) NO-ECHO.
+      INPUT FROM VALUE(SEARCH("dataGrid/dataGrid.dat")) NO-ECHO.
       REPEAT:
           IMPORT UNFORMATTED cGridSearch.
           IF cGridSearch EQ THIS-PROCEDURE:NAME THEN DO:
@@ -98,8 +98,8 @@ PROCEDURE pDataGridInit:
       END. /* repeat */
       INPUT CLOSE.
       ASSIGN 
-          cGridQuery = REPLACE (cGridQuery,"%g_company%", "~"" + g_company + "~"")
-          cGridQuery = REPLACE (cGridQuery,"%g_loc%","~""      + g_loc     + "~"")
+          cGridQuery = REPLACE (cGridQuery,"%company%", "~"" + g_company + "~"")
+          cGridQuery = REPLACE (cGridQuery,"%loc%","~""      + g_loc     + "~"")
           .
       IF Consultingwerk.Util.ProcedureHelper:HasEntry(THIS-PROCEDURE, "pApplyFilterHandler") THEN 
           CAST (oRenderedBrowseControl, Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl):ApplyFilter:Subscribe ("pApplyFilterHandler") .          
@@ -110,3 +110,22 @@ PROCEDURE pDataGridInit:
 
 END PROCEDURE.
 
+PROCEDURE InitializeGrid:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    IF NOT VALID-OBJECT (oRenderedBrowseControl) THEN
+        RETURN .
+
+    /*
+    // Ability to not allow user to group (Based on the number of records that would be loaded)
+    oRenderedBrowseControl:DisplayLayout:ViewStyleBand =
+        Infragistics.Win.UltraWinGrid.ViewStyleBand:Horizontal .
+
+    // Disable sort on a per column base
+    oRenderedBrowseControl:DisplayLayout:Bands[0]:Columns["industry"]:SortIndicator =
+        Infragistics.Win.UltraWinGrid.SortIndicator:Disabled .
+    */
+
+END PROCEDURE.

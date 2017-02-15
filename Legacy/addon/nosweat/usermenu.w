@@ -300,11 +300,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-
-&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -321,7 +329,7 @@ THEN C-Win:HIDDEN = yes.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -358,6 +366,7 @@ END.
 ON CHOOSE OF Btn_Add_Menu IN FRAME DEFAULT-FRAME /* Add Menu Item */
 DO:
   RUN Add_Item ("Menu").
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -369,6 +378,7 @@ END.
 ON CHOOSE OF Btn_Add_Program IN FRAME DEFAULT-FRAME /* Add Program Item */
 DO:
   RUN Add_Item ("Program").
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -380,6 +390,7 @@ END.
 ON CHOOSE OF Btn_Add_Rule IN FRAME DEFAULT-FRAME /* Rule */
 DO:
   RUN Add_Item ("RULE").
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -391,6 +402,7 @@ END.
 ON CHOOSE OF Btn_Add_Skip IN FRAME DEFAULT-FRAME /* Skip */
 DO:
   RUN Add_Item ("SKIP").
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -405,7 +417,7 @@ DO:
   IF RETURN-VALUE = "ERROR" THEN
   RETURN NO-APPLY.
 
-  OUTPUT TO VALUE("users/" + USERID("ASI") + "/menu.tmp").
+  OUTPUT TO VALUE("users/" + USERID("NOSWEAT") + "/menu.tmp").
   RUN Save_Menu.
   OUTPUT CLOSE.
 
@@ -423,7 +435,7 @@ DO:
     wk-ptrs.menu-name = "popup"
     wk-ptrs.smenu-ptr = popup-ptr.
 
-  INPUT FROM VALUE("users/" + USERID("ASI") + "/menu.tmp") NO-ECHO.
+  INPUT FROM VALUE("users/" + USERID("NOSWEAT") + "/menu.tmp") NO-ECHO.
   REPEAT:                          
     IMPORT m_item1 m_item2.
     IF CAN-DO("RULE,SKIP",m_item1) OR INDEX(m_item1,".") NE 0 THEN
@@ -436,7 +448,7 @@ DO:
     wk-ptrs.smenu-ptr = menu-bar-ptr.
   END.
 
-  INPUT FROM VALUE("users/" + USERID("ASI") + "/menu.tmp") NO-ECHO.
+  INPUT FROM VALUE("users/" + USERID("NOSWEAT") + "/menu.tmp") NO-ECHO.
   REPEAT:
     IMPORT m_item1 m_item2.
     IF m_item1 = m_item2 THEN
@@ -476,6 +488,7 @@ DO:
   {&WINDOW-NAME}:MENUBAR = menu-bar-ptr:HANDLE.
   {methods/nowait.i}
 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -486,9 +499,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel C-Win
 ON CHOOSE OF Btn_Cancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
-  IF SEARCH("users/" + USERID("ASI") + "/menu.tmp") NE ? THEN
-  OS-DELETE VALUE("users/" + USERID("ASI") + "/menu.tmp").
+  IF SEARCH("users/" + USERID("NOSWEAT") + "/menu.tmp") NE ? THEN
+  OS-DELETE VALUE("users/" + USERID("NOSWEAT") + "/menu.tmp").
   APPLY "CLOSE" TO THIS-PROCEDURE.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -499,8 +513,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Default C-Win
 ON CHOOSE OF Btn_Default IN FRAME DEFAULT-FRAME /* Default */
 DO:
-  OS-COPY "./menu.lst" VALUE("users/" + USERID("ASI") + "/menu.lst").
+  OS-COPY "./menu.lst" VALUE("users/" + USERID("NOSWEAT") + "/menu.lst").
   APPLY "CHOOSE" TO Btn_Reset.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -512,6 +527,7 @@ END.
 ON CHOOSE OF Btn_Down IN FRAME DEFAULT-FRAME /* Down */
 DO:
   RUN Move_Item ("Down").
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -523,6 +539,7 @@ END.
 ON CHOOSE OF Btn_Left IN FRAME DEFAULT-FRAME /* << */
 DO:
   RUN Shift_Item ("Left").
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -544,6 +561,7 @@ DO:
     RUN Select_Item (menu-items:ENTRY(i)).
   END.
   APPLY "VALUE-CHANGED" TO menu-items.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -561,14 +579,14 @@ DO:
       program-names:LIST-ITEMS = ""
       menu-items:LIST-ITEMS = "".
     FOR EACH prgrms WHERE
-             prgrms.menu_item AND CAN-DO(prgrms.can_run,USERID("ASI"))
+             prgrms.menu_item AND CAN-DO(prgrms.can_run,USERID("NOSWEAT"))
         NO-LOCK USE-INDEX si-prgtitle:
       ldummy = IF INDEX(prgrms.prgmname,".") = 0 THEN
                menu-names:ADD-LAST(prgrms.prgtitle) ELSE
                program-names:ADD-LAST(prgrms.prgtitle).
     END.
-    IF SEARCH("users/" + USERID("ASI") + "/menu.lst") NE ? THEN
-    INPUT FROM VALUE("users/" + USERID("ASI") + "/menu.lst") NO-ECHO.
+    IF SEARCH("users/" + USERID("NOSWEAT") + "/menu.lst") NE ? THEN
+    INPUT FROM VALUE("users/" + USERID("NOSWEAT") + "/menu.lst") NO-ECHO.
     ELSE
     INPUT FROM VALUE("menu.lst") NO-ECHO.
     RUN Build_Menu_Items.
@@ -583,6 +601,7 @@ DO:
   APPLY "CHOOSE" TO Btn_Build.
   {methods/nowait.i}
 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -594,6 +613,7 @@ END.
 ON CHOOSE OF Btn_Right IN FRAME DEFAULT-FRAME /* >> */
 DO:
   RUN Shift_Item ("Right").
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -607,13 +627,14 @@ DO:
   RUN Check_Menu.
   IF ERROR-STATUS:ERROR THEN
   RETURN NO-APPLY.
-  OUTPUT TO VALUE("users/" + USERID("ASI") + "/menu.lst").
+  OUTPUT TO VALUE("users/" + USERID("NOSWEAT") + "/menu.lst").
   RUN Save_Menu.
   OUTPUT CLOSE.
   APPLY "CHOOSE" TO Btn_Build.
   ASSIGN
     Btn_Cancel:LABEL IN FRAME {&FRAME-NAME} = "&Close"
     init_menu = yes.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -625,6 +646,7 @@ END.
 ON CHOOSE OF Btn_Up IN FRAME DEFAULT-FRAME /* Up */
 DO:
   RUN Move_Item ("Up").
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -696,8 +718,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -715,6 +739,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   APPLY "CHOOSE" TO Btn_Reset.
   APPLY "CHOOSE" TO Btn_Build.
   {methods/nowait.i}
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

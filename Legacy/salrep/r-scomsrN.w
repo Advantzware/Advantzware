@@ -134,7 +134,7 @@ DEF VAR cFieldType AS cha NO-UNDO.
 DEF VAR iColumnLength AS INT NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
- 
+
 ASSIGN cTextListToSelect = "Name,City,State,Rep,Budget Year,Sales1,Delta1,%-OF Sales Differ1," +
                            "Sales2,Delta2,%-OF Sales Differ2,Sales3,Delta3,%-OF Sales Differ3," +
                            "Sales4,Delta4,%-OF Sales Differ4" 
@@ -502,9 +502,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -629,7 +639,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -692,7 +702,7 @@ END.
 ON LEAVE OF begin_date1 IN FRAME FRAME-A /* 1 */
 DO:
   assign {&self-name}.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -748,6 +758,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -761,7 +772,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&DISPLAYED-OBJECTS}.
   END.
-  
+
   SESSION:SET-WAIT-STATE("general").
   RUN GetSelectionList.
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
@@ -808,10 +819,11 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -823,7 +835,8 @@ END.
 ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
-  
+
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -850,6 +863,7 @@ DO:
   sl_selected:LIST-ITEM-PAIRS = cSelectedList.
   sl_avail:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
   */
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -864,7 +878,8 @@ DO:
 
   RUN DisplaySelectionDefault.  /* task 04041406 */ 
   RUN DisplaySelectionList2 .
-  
+
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -876,6 +891,7 @@ END.
 ON CHOOSE OF btn_down IN FRAME FRAME-A /* Move Down */
 DO:
   RUN Move-Field ("Down").
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -892,6 +908,7 @@ DO:
   END
   */
   APPLY "DEFAULT-ACTION" TO sl_selected  .
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -903,6 +920,7 @@ END.
 ON CHOOSE OF btn_Up IN FRAME FRAME-A /* Move Up */
 DO:
   RUN Move-Field ("Up").
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1103,7 +1121,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
-  
+
    IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
        sl_selected:NUM-ITEMS = 0)
    THEN ASSIGN ldummy = sl_selected:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
@@ -1111,7 +1129,7 @@ DO:
               /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
                .
 
-  
+
 /* for pairs
     DEF VAR cSelectedList AS cha NO-UNDO.
     cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
@@ -1154,7 +1172,7 @@ DO:
   ASSIGN
     {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}:ENTRY(1)
     .
-    
+
 
 END.
 
@@ -1250,8 +1268,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -1280,7 +1300,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   RUN DisplaySelectionList.
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   RUN sys/inc/CustListForm.p ( "HR16",cocode, 
@@ -1342,7 +1362,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO"
         btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
         .
-      
+
    IF ou-log AND ou-cust-int = 0 THEN do:
        ASSIGN 
         tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = YES
@@ -1353,6 +1373,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
    END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1414,7 +1435,7 @@ PROCEDURE CustList :
 
     RUN sys/ref/CustListManager.w(INPUT cocode,
                                   INPUT 'HR16').
-    
+
 
 END PROCEDURE.
 
@@ -1449,7 +1470,7 @@ PROCEDURE DisplaySelectionDefault :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  
+
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
      cListContents = cListContents +                   
@@ -1475,7 +1496,7 @@ PROCEDURE DisplaySelectionList :
   DEF VAR iCount AS INT NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
-     
+
      RETURN.
   END.
 
@@ -1488,7 +1509,7 @@ PROCEDURE DisplaySelectionList :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1496,9 +1517,9 @@ PROCEDURE DisplaySelectionList :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 END PROCEDURE.
 
@@ -1519,7 +1540,7 @@ PROCEDURE DisplaySelectionList2 :
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
-        
+
   EMPTY TEMP-TABLE ttRptList.
 
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
@@ -1529,7 +1550,7 @@ PROCEDURE DisplaySelectionList2 :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1537,9 +1558,9 @@ PROCEDURE DisplaySelectionList2 :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
   DO iCount = 1 TO sl_selected:NUM-ITEMS:
@@ -1604,7 +1625,7 @@ PROCEDURE GetSelectionList :
 
  DO i = 1 TO sl_selected:NUM-ITEMS /* IN FRAME {&FRAME-NAME}*/ :
     FIND FIRST ttRptList WHERE ttRptList.TextList = ENTRY(i,cTmpList) NO-LOCK NO-ERROR.     
-  
+
     CREATE ttRptSelected.
     ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
            ttRptSelected.FieldList = ttRptList.FieldList
@@ -1613,7 +1634,7 @@ PROCEDURE GetSelectionList :
            ttRptSelected.HeadingFromLeft = IF entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
-           
+
  END.
 
 END PROCEDURE.
@@ -1829,21 +1850,21 @@ PROCEDURE nosort :
                          WHEN "sals4"    THEN cVarValue = STRING(tt-report2.Sales4,"$->,>>>,>>>,>>9.99")    .                              
                          WHEN "delt4"    THEN cVarValue = STRING(tt-report2.Delta4,"$->,>>>,>>>,>>9.99")    .                              
                          WHEN "diff4"    THEN cVarValue = IF tt-report2.per4 = 0 OR tt-report2.per4 = ? THEN "" ELSE STRING(tt-report2.per4,"->,>>>,>>>,>>9.99%") .
-                         
+
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+
             PUT UNFORMATTED cDisplay SKIP.
             IF tb_excel THEN DO:
                  PUT STREAM excel UNFORMATTED  
                        cExcelDisplay SKIP.
             END.
-               
+
                ASSIGN
                    sal-tot[1] = sal-tot[1] + tt-report2.curr-year 
                    sal-tot[2] = sal-tot[2] + tt-report2.Sales1 
@@ -1941,15 +1962,15 @@ PROCEDURE nosort :
                          WHEN "sals4"    THEN cVarValue = STRING(sal-tot[5],"$->,>>>,>>>,>>9.99")    .                              
                          WHEN "delt4"    THEN cVarValue = STRING(sal-del[4],"$->,>>>,>>>,>>9.99")    .                              
                          WHEN "diff4"    THEN cVarValue = IF sal-per[4] = 0 OR sal-per[4] = ? THEN "" ELSE STRING(sal-per[4],"->,>>>,>>>,>>9.99%") .
-                         
+
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+
             PUT UNFORMATTED "TOTAL Sales  " substring(cDisplay,14,350) SKIP.
             IF tb_excel THEN DO:
                  PUT STREAM excel UNFORMATTED  "TOTAL Sales " + tt-report2.sman
@@ -1973,7 +1994,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
 /*     DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -1984,11 +2005,11 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY. */
-     
+
 {custom/out2file.i}
 
 END PROCEDURE.
@@ -2020,7 +2041,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -2092,7 +2113,7 @@ FORMAT tt-report2.cust     FORMAT "X(30)"
      tt-report2.per4        format "->,>>>,>>>,>>9.99"
 
      with frame custx down no-labels no-box stream-io width 380.
-  
+
 assign
  str-tit2 = c-win:title
  {sys/inc/ctrtext.i str-tit2 112}
@@ -2109,12 +2130,12 @@ assign
  tdate[4]   = end_date4
  fsman      = begin_slsmn
  tsman      = end_slsmn
- 
+
  v-custs    = 0
  v-sort     = rd_print EQ "Customer"
  v-inc      = tb_zer-col
  lSelected  = tb_cust-list. 
- 
+
 IF lselected THEN DO:
     FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
     IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
@@ -2208,7 +2229,7 @@ format header
        "------------------"
        "------------------"
        "------------------"
-       
+
     with frame r-top-2 stream-io width 380 no-labels
          no-box no-underline page-top.
 
@@ -2251,9 +2272,9 @@ format header
           excelheader = excelHeader + ttRptSelected.TextList + ","
           .        
           cSlist = cSlist + ttRptSelected.FieldList + ",".
-         
+
  END.
-                                 
+
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i value(lines-per-page)}
@@ -2274,12 +2295,12 @@ EMPTY TEMP-TABLE tt-budget.
 ASSIGN
     salecount = ""
     custcount = "" 
-    
+
      .
 
 
 SESSION:SET-WAIT-STATE ("general").
-      
+
         FOR EACH ar-inv
           WHERE ar-inv.company  EQ cocode
             AND ar-inv.cust-no  GE fcust
@@ -2290,7 +2311,7 @@ SESSION:SET-WAIT-STATE ("general").
             AND ar-inv.inv-date LE hi-date
             AND ar-inv.posted   EQ YES
           USE-INDEX inv-date NO-LOCK,
-          
+
           FIRST cust
           WHERE cust.company EQ ar-inv.company
             AND cust.cust-no EQ ar-inv.cust-no
@@ -2319,12 +2340,12 @@ SESSION:SET-WAIT-STATE ("general").
                             (ar-invl.s-pct[i] eq 0 and i eq 1) then 100
                          else ar-invl.s-pct[i]
              v-amt1    = ar-invl.amt * v-slsp[1] / 100.
-            
+
             v-amt[1] = v-amt[1] + v-amt1.
             v-tot = v-tot + v-amt1.
             create tt-budget.
             assign
-             
+
              tt-budget.cust    = cust.cust-no
              tt-budget.sman    = v-slsm[1]
              tt-budget.vyear   = ar-inv.inv-date
@@ -2338,14 +2359,14 @@ SESSION:SET-WAIT-STATE ("general").
       END.
 
 
- 
+
 
       FOR each cust where cust.company eq cocode
           AND cust.cust-no GE fcust
           AND cust.cust-no LE tcust
           AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
           AND ttCustList.log-fld no-lock) else true) no-lock,
-       
+
           each ar-cash
           where ar-cash.company    eq cocode
             and ar-cash.cust-no    eq cust.cust-no
@@ -2398,13 +2419,13 @@ SESSION:SET-WAIT-STATE ("general").
                        else ar-invl.s-pct[i]
            v-amt1    = (ar-cashl.amt-paid - ar-cashl.amt-disc) *
                        v-slsp[1] / 100.
-         
+
 
           v-amt[1] = v-amt[1] + v-amt1.
-          
+
             create tt-budget.
             assign
-             
+
              tt-budget.cust    = cust.cust-no
              tt-budget.sman    = v-slsm[1]
              tt-budget.vyear   = ar-cash.check-date
@@ -2420,9 +2441,9 @@ SESSION:SET-WAIT-STATE ("general").
        FOR EACH tt-budget 
           WHERE tt-budget.vyear  GE date( "01/01/" + string(v-get-year))
            AND tt-budget.vyear LE date("12/31/" + string(v-get-year))  NO-LOCK:
-           
+
           IF tt-budget.budget = 0  THEN NEXT.
-           
+
            CREATE tt-report .
            ASSIGN
                 tt-report.cust    = tt-budget.cust
@@ -2443,8 +2464,8 @@ SESSION:SET-WAIT-STATE ("general").
                 ASSIGN custcount = custcount + tt-budget.cust + "," .
           END.
       END.   
-        
-  
+
+
        FOR EACH tt-budget 
           WHERE tt-budget.vyear  GE fdate[1]
            AND tt-budget.vyear LE tdate[1]
@@ -2464,7 +2485,7 @@ SESSION:SET-WAIT-STATE ("general").
            AND LOOKUP(tt-budget.cust,custcount) <> 0 
            AND LOOKUP(tt-budget.sman,salecount) <> 0 NO-LOCK:
               IF tt-budget.budget = 0 THEN NEXT.
-           
+
            CREATE tt-report .
            ASSIGN
                 tt-report.cust    = tt-budget.cust
@@ -2478,7 +2499,7 @@ SESSION:SET-WAIT-STATE ("general").
            AND LOOKUP(tt-budget.cust,custcount) <> 0 
            AND LOOKUP(tt-budget.sman,salecount) <> 0 NO-LOCK:
            IF tt-budget.budget = 0 THEN NEXT.
-          
+
            CREATE tt-report .
            ASSIGN
                 tt-report.cust    = tt-budget.cust
@@ -2499,9 +2520,9 @@ SESSION:SET-WAIT-STATE ("general").
                 tt-report.sman    = tt-budget.sman
                 tt-report.Sales4  = tt-budget.budget .
       END. 
-     
+
       FOR EACH tt-report NO-LOCK BREAK BY tt-report.sman  BY tt-report.cust:
-          
+
           {custom/statusMsg.i "'Processing Customer # ' + string(tt-report.cust)"} 
 
           IF FIRST-OF(tt-report.cust)  THEN do:
@@ -2544,7 +2565,7 @@ SESSION:SET-WAIT-STATE ("general").
           IF tt-report2.per3 = ? THEN ASSIGN tt-report2.per3 = 100.
           IF tt-report2.per4 = ? THEN ASSIGN tt-report2.per4 = 100.
 
-          
+
 
       END.
 
@@ -2587,7 +2608,7 @@ SESSION:SET-WAIT-STATE ("general").
                   tt-report2.Delta4    FORMAT "$->,>>>,>>>,>>9.99" SPACE(1) 
                   tt-report2.per4      FORMAT "->,>>>,>>>,>>9.99%" SKIP 
                     . */
-              
+
           /*PUT SKIP .*/
 
          /* IF tb_excel THEN
@@ -2608,7 +2629,7 @@ SESSION:SET-WAIT-STATE ("general").
                '"' "$ " + STRING(tt-report2.Delta4,"->,>>>,>>>,>>9.99")   '",'
                '"' IF tt-report2.per4 = 0 THEN "" ELSE STRING(tt-report2.per4,"->,>>>,>>>,>>9.99") + "%"  '",'
                SKIP. */
-   
+
           ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
@@ -2634,15 +2655,15 @@ SESSION:SET-WAIT-STATE ("general").
                          WHEN "sals4"    THEN cVarValue = STRING(tt-report2.Sales4,"$->,>>>,>>>,>>9.99")    .                              
                          WHEN "delt4"    THEN cVarValue = STRING(tt-report2.Delta4,"$->,>>>,>>>,>>9.99")    .                              
                          WHEN "diff4"    THEN cVarValue = IF tt-report2.per4 = 0 THEN "" ELSE STRING(tt-report2.per4,"->,>>>,>>>,>>9.99%") .
-                         
+
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+
             PUT UNFORMATTED cDisplay SKIP.
             IF tb_excel THEN DO:
                  PUT STREAM excel UNFORMATTED  
@@ -2690,7 +2711,7 @@ PROCEDURE SetCustRange :
         btnCustList:SENSITIVE = iplChecked
        .
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2711,11 +2732,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -2743,23 +2764,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

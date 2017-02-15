@@ -84,11 +84,11 @@ END.
 IF {&TABLENAME}.entered-id EQ "" THEN
   ASSIGN
    {&TABLENAME}.entered-date = TODAY
-   {&TABLENAME}.entered-id   = USERID("ASI").
+   {&TABLENAME}.entered-id   = USERID("nosweat").
 ELSE
   ASSIGN
    {&TABLENAME}.updated-date = TODAY
-   {&TABLENAME}.updated-id   = USERID("ASI")
+   {&TABLENAME}.updated-id   = USERID("nosweat")
    {&TABLENAME}.mod-date     = {&TABLENAME}.updated-date.
 
 /* Clear out any error-status from find with no-error that is false */

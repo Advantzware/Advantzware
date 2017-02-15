@@ -327,7 +327,7 @@ FOR EACH ar-cash
         v-printline = v-printline + 1.
 
         /* gdm - 02200906 */
-        FIND FIRST  ASI.notes NO-LOCK
+        FIND FIRST  nosweat.notes NO-LOCK
             WHERE notes.rec_key = ar-cashl.rec_key
              AND TRIM(notes.note_text) NE "" NO-ERROR.
         IF AVAIL notes THEN DO:
@@ -336,7 +336,7 @@ FOR EACH ar-cash
 
             v-printline = v-printline + 1.
 
-            FOR EACH ASI.notes NO-LOCK
+            FOR EACH nosweat.notes NO-LOCK
                 WHERE notes.rec_key = ar-cashl.rec_key
                 BY note_date BY note_time:
 

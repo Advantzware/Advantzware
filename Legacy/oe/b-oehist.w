@@ -100,7 +100,7 @@ DO:
         NO-LOCK NO-ERROR.
 
    IF AVAIL usergrps AND
-      (NOT CAN-DO(usergrps.users,USERID("ASI")) AND
+      (NOT CAN-DO(usergrps.users,USERID("NOSWEAT")) AND
        TRIM(usergrps.users) NE "*") THEN
       ASSIGN
          v-hide-cost = YES.

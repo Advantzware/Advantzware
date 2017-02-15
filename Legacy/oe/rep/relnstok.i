@@ -320,7 +320,8 @@ END.
                                       AND oe-rell.po-no    EQ w-oe-rell.po-no
                                       AND oe-rell.loc      EQ fg-bin.loc
                                       AND oe-rell.loc-bin  EQ fg-bin.loc-bin
-                                      AND oe-rell.tag      EQ fg-bin.tag) THEN
+                                      AND oe-rell.tag      EQ fg-bin.tag 
+                                      AND fg-bin.tag NE "" ) THEN
                   NEXT.
               
                create tt-bin-file.
@@ -347,7 +348,7 @@ END.
              END.
 
          
-    IF i EQ 0 THEN DO:
+    /*IF i EQ 0 THEN DO:
       FIND FIRST b-cust
       WHERE b-cust.company EQ cocode
       AND b-cust.active  EQ "X"
@@ -368,7 +369,7 @@ END.
          
         END.
       END.
-    END.
+    END.*/
 
     IF i = 0 THEN do:
           create tt-bin-file.
@@ -495,7 +496,8 @@ FOR EACH tt-item NO-LOCK:
                                       AND oe-rell.po-no    EQ w-oe-rell.po-no
                                       AND oe-rell.loc      EQ fg-bin.loc
                                       AND oe-rell.loc-bin  EQ fg-bin.loc-bin
-                                      AND oe-rell.tag      EQ fg-bin.tag) THEN
+                                      AND oe-rell.tag      EQ fg-bin.tag 
+                                      AND fg-bin.tag NE "" ) THEN
                   NEXT.
               
                create w-bin.
@@ -546,7 +548,7 @@ FOR EACH tt-item NO-LOCK:
       
     END.
     
-    IF i EQ 0 THEN DO:
+   /* IF i EQ 0 THEN DO:
       FIND FIRST b-cust
       WHERE b-cust.company EQ cocode
       AND b-cust.active  EQ "X"
@@ -565,7 +567,7 @@ FOR EACH tt-item NO-LOCK:
           w-bin.w-date-time = "29991201000000".
         END.
       END.
-    END.
+    END.*/
    
     DO i = i TO 7:
       CREATE w-bin.

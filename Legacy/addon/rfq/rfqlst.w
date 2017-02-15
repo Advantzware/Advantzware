@@ -228,7 +228,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+/* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -247,7 +259,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -294,7 +306,7 @@ DO:
           otherwise do:
            lv-handle = focus:handle.
            run applhelp.p.
-             
+
            if g_lookup-var <> "" then do:
               lv-handle:screen-value = g_lookup-var.
            end.   /* g_lookup-var <> "" */
@@ -336,6 +348,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -347,7 +360,7 @@ END.
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   assign rd-dest begin_cust-no END_cust-no begin_rfq-no END_rfq-no.
-       
+
   if lv-show-detail then run run-report-detail.
   else run run-report. 
 
@@ -371,6 +384,7 @@ DO:
        END. 
        WHEN 6 THEN run output-to-port.
     END.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -526,8 +540,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -541,7 +557,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   /*find first rfq no-lock no-error.
   if avail rfq then begin_rfq-no = rfq.rfq-no.
   */
-  
+
   find last rfq USE-INDEX rfq no-lock no-error.
   if avail rfq then assign begin_rfq-no = rfq.rfq-no
                            end_rfq-no = rfq.rfq-no.
@@ -554,6 +570,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   {methods/nowait.i}
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -679,7 +696,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
      DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -690,9 +707,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
 
 
@@ -711,7 +728,7 @@ PROCEDURE output-to-printer :
      DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -763,14 +780,14 @@ PROCEDURE run-report :
   DEF VAR lv-delimiter AS cha FORM "x" NO-UNDO.
 
   FIND FIRST users WHERE
-     users.user_id EQ USERID("ASI")
+     users.user_id EQ USERID("NOSWEAT")
      NO-LOCK NO-ERROR.
 
   IF AVAIL users AND users.user_program[2] NE "" THEN
      init-dir = users.user_program[2].
   ELSE
      init-dir = "c:\temp".
- 
+
   list-name = init-dir + "\rfqlist.rpt".
 
   output to value(list-name) page-size 45.
@@ -790,7 +807,7 @@ FOR EACH rfq WHERE /* rfq.company */
                    ,
     EACH rfqitem OF rfq no-lock
                    BREAK BY rfq.rfq-no BY rfqitem.seq:
-       
+
     if FIRST-OF(rfq.rfq-no) then do:
        find cust where cust.company = rfq.company and
                        cust.cust-no = rfq.cust-no
@@ -810,7 +827,7 @@ FOR EACH rfq WHERE /* rfq.company */
                        no-lock no-error.
        lv-sman-name = if avail sman then sman.sname else "".                                                            
        lv-fob = if rfq.fob-code = "D" then "Destination" else "Origin".
-       
+
        DISPLAY   "Customer:" rfq.ship-name at 12  "   Warehouse Month:" rfq.wh-month       "                 RFQ Date     :" rfq.req-date
                   lv-addr1 at 12 form "x(30)"     "   Freight Charge: " rfq.chg-method form "x(13)" "      Required Date:" rfq.due-date    
                   lv-addr2 at 12 form "x(30)"     "   FOB Point:      " lv-fob    
@@ -827,10 +844,10 @@ FOR EACH rfq WHERE /* rfq.company */
  "  Length    Width    Depth Ink Coat Board      Caliper" skip
  "-- --------------- --------------- ------------------------------ -----"
  "-------- -------- -------- --- ---- ---------- -------"skip                
-   
+
                   with frame rfq-hd no-labels width 137 no-box stream-io.
     end.              
-    
+
 
     find style where style.company = rfq.company and
                       style.style = rfqitem.style
@@ -838,7 +855,7 @@ FOR EACH rfq WHERE /* rfq.company */
 
     if avail style and style.industry = "2" then   ll-is-corr-style = yes.
     else ll-is-corr-style = no.
-    
+
     if ll-is-corr-style AND v-cecscrn-char NE "Decimal" then 
         ASSIGN lv-len = round(trunc(rfqitem.len,0) + ((rfqitem.len - trunc(rfqitem.len,0)) / K_FRAC),2)
                lv-wid = round(trunc(rfqitem.wid,0) + ((rfqitem.wid - trunc(rfqitem.wid,0)) / K_FRAC),2)
@@ -847,7 +864,7 @@ FOR EACH rfq WHERE /* rfq.company */
     else ASSIGN lv-len = rfqitem.len
                 lv-wid = rfqitem.wid
                 lv-dep = rfqitem.dep.
-   
+
    IF LL-IS-CORR-STYLE THEN
       PUT rfqitem.seq /*label "Ln"*/ form ">9"         
           lv-delimiter
@@ -913,7 +930,7 @@ FOR EACH rfq WHERE /* rfq.company */
          */
          skip
          with frame qty no-box no-label stream-io width 132.
-            
+
     if last-of(rfq.rfq-no) then do:
        disp 
             fill("-",136) form "x(136)" at 2 skip
@@ -974,16 +991,16 @@ PROCEDURE run-report-detail :
   DEF VAR lv-wid AS DEC NO-UNDO.
   DEF VAR lv-dep AS DEC NO-UNDO.
   DEF VAR lv-delimiter AS cha FORM "x" NO-UNDO.
-  
+
   FIND FIRST users WHERE
-       users.user_id EQ USERID("ASI")
+       users.user_id EQ USERID("NOSWEAT")
        NO-LOCK NO-ERROR.
 
   IF AVAIL users AND users.user_program[2] NE "" THEN
      init-dir = users.user_program[2].
   ELSE
      init-dir = "c:\temp".
- 
+
   list-name = init-dir + "\rfqlist.rpt".
 
   output to value(list-name) page-size 60.
@@ -1005,7 +1022,7 @@ FOR EACH rfq WHERE /* rfq.company */
                    ,
     EACH rfqitem OF rfq no-lock
                    BREAK BY rfq.rfq-no BY rfqitem.seq:
-       
+
     if FIRST-OF(rfq.rfq-no) then do:
        find cust where cust.company = rfq.company and
                        cust.cust-no = rfq.cust-no
@@ -1034,7 +1051,7 @@ FOR EACH rfq WHERE /* rfq.company */
                        no-lock no-error.
        lv-sman-name = if avail sman then sman.sname else "".                                                            
        lv-fob = if rfq.fob-code = "D" then "Destination" else "Origin".
-    
+
 
        DISPLAY   "Customer:" rfq.ship-name at 12  "             Warehouse Month:" rfq.wh-month                "RFQ Date     :" at 100 rfq.req-date        "   Group#: _____________" skip
                   lv-addr1 at 12 form "x(40)"     "   Freight Charge: " rfq.chg-method form "x(13)" "Required Date:" at 100 rfq.due-date        "  Pharma#: _____________" skip
@@ -1060,7 +1077,7 @@ FOR EACH rfq WHERE /* rfq.company */
                             no-lock no-error.
      lv-last-order-no = if avail est then est.ord-no else 0.              
      ls-est-no = rfqitem.est-no.
-       
+
      if ls-est-no = "" then do:
           find itemfg where itemfg.company = rfq.company and
                             itemfg.i-no = rfqitem.stock-no
@@ -1079,7 +1096,7 @@ FOR EACH rfq WHERE /* rfq.company */
 
     if avail style and style.industry = "2" then   ll-is-corr-style = yes.
     else ll-is-corr-style = no.
-    
+
     if ll-is-corr-style AND v-cecscrn-char NE "Decimal" then 
         ASSIGN lv-len = round(trunc(rfqitem.len,0) + ((rfqitem.len - trunc(rfqitem.len,0)) / K_FRAC),2)
                lv-wid = round(trunc(rfqitem.wid,0) + ((rfqitem.wid - trunc(rfqitem.wid,0)) / K_FRAC),2)
@@ -1088,7 +1105,7 @@ FOR EACH rfq WHERE /* rfq.company */
     else ASSIGN lv-len = rfqitem.len
                 lv-wid = rfqitem.wid
                 lv-dep = rfqitem.dep.
-  
+
    IF ll-is-corr-style THEN
        PUT rfqitem.seq /*label "Ln"*/ form ">9" at 2
            lv-delimiter
@@ -1177,7 +1194,7 @@ FOR EACH rfq WHERE /* rfq.company */
                  ls-label4 = "Laminate  :".
      else assign ls-label3 = "Joint Mat.:"
                  ls-label4 = "           ".
-                       
+
      disp
 /*        fill("-",136) form "x(136)" at 2    */
           "---------------------------------------------  Miscellaneous Materials --------------------------------------------------"  at 10 skip
@@ -1193,14 +1210,14 @@ FOR EACH rfq WHERE /* rfq.company */
           rfqitem.i-ps[4] at 10 rfqitem.i-code[4]  rfqitem.i-dscr[4] rfqitem.i-ps[9] rfqitem.i-code[9] rfqitem.i-dscr[9] skip
           rfqitem.i-ps[5] at 10 rfqitem.i-code[5]  rfqitem.i-dscr[5] rfqitem.i-ps[10] rfqitem.i-code[10] rfqitem.i-dscr[10] skip
          with frame det no-box no-label stream-io width 150.
-     
+
     li-ln-cnt = li-ln-cnt + 1.
     if li-ln-cnt >= 2 then do:  /* display 2 line per page */
        page.
        view frame rfq-hd.
        li-ln-cnt = 0.
     end.
-    
+
     if last-of(rfq.rfq-no) then do:
 
        disp 

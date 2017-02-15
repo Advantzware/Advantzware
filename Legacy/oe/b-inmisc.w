@@ -41,7 +41,7 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 ASSIGN cocode = g_company
        locode = g_loc.
-
+{oe/oe-sysct1.i NEW}
  def BUFFER bf-head FOR inv-head.
  DEF BUFFER bf-misc FOR inv-misc.
  DEF VAR v-tax AS DEC NO-UNDO.
@@ -708,6 +708,9 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+RUN oe/oe-sysct.p.
+
+ IF NOT v-oecomm-log THEN RUN show-comm (NO).
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -895,7 +898,7 @@ PROCEDURE local-enable-fields :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  IF NOT v-oecomm-log THEN RUN show-comm (NO).
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
 
@@ -946,6 +949,8 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN refresh-value.
+
+  IF NOT v-oecomm-log THEN RUN show-comm (NO).
 
 END PROCEDURE.
 
@@ -1445,6 +1450,31 @@ PROCEDURE valid-tax :
       APPLY "entry" TO inv-misc.tax.
       RETURN ERROR.     
     END.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-comm B-table-Win 
+PROCEDURE show-comm :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ip-visible AS LOGICAL NO-UNDO.
+
+  DO WITH FRAME {&FRAME-NAME}:
+    ASSIGN
+     inv-misc.s-pct[1]:VISIBLE IN BROWSE {&browse-name}  = ip-visible
+     inv-misc.s-pct[2]:VISIBLE IN BROWSE {&browse-name}  = ip-visible
+     inv-misc.s-pct[3]:VISIBLE IN BROWSE {&browse-name}  = ip-visible
+     inv-misc.s-comm[1]:VISIBLE IN BROWSE {&browse-name} = ip-visible
+     inv-misc.s-comm[2]:VISIBLE IN BROWSE {&browse-name} = ip-visible
+     inv-misc.s-comm[3]:VISIBLE IN BROWSE {&browse-name} = ip-visible.
   END.
 
 END PROCEDURE.

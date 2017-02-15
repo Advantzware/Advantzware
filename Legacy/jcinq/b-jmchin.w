@@ -4,11 +4,15 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admBrowserUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
   File: jcinq\b-jmchin.w 
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -250,6 +254,8 @@ END.
 {src/adm/method/browser.i}
 {custom/yellowColumns.i}
 
+{Advantzware/WinKit/dataGridProc.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -294,7 +300,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH mch ~{&SORTBY-PHRASE}.
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -498,9 +504,9 @@ PROCEDURE local-open-query :
     end.
     find job-code where job-code.code = mch-act.code
                         no-lock no-error.
-      
+
     if not available job-code then next.
-      
+
     if job-code.cat = "MR" then
        x-mch.mr-act = x-mch.mr-act + (mch-act.hours * v-pct).
     else if job-code.cat = "RUN" then
@@ -517,7 +523,7 @@ PROCEDURE local-open-query :
   for each x-mch break by x-mch.line:
     create mch.
     BUFFER-COPY x-mch TO mch.
-          
+
     if mch.run-act > 0 and x-mch.est-speed <> 0 then
     DO:
        IF CAN-FIND(FIRST mach WHERE
@@ -537,12 +543,12 @@ PROCEDURE local-open-query :
                     item.company eq cocode AND
                     item.i-no eq job-mat.i-no
                     no-lock
-         
+
               BREAK BY job-mat.frm
                     BY item.mat-type
                     BY job-mat.j-no
                     BY job-mat.rec_key:
-         
+
               mch.run-hr = (x-mch.act-qty * job-mat.len / 12) / x-mch.est-speed.
               LEAVE.
           END.
@@ -580,7 +586,7 @@ PROCEDURE local-open-query :
    mch.mr-hr    = v-std-tot[2]
    mch.mr-act   = v-act-tot[2]
    mch.mr-var   = v-var-tot[2].
- 
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 

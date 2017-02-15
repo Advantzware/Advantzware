@@ -1,6 +1,10 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -196,7 +200,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -252,11 +256,11 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-  
+
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -330,10 +334,10 @@ PROCEDURE do-button :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAMETER ip-button AS CHAR NO-UNDO.
-  
+
   DEF VAR char-hdl AS CHAR NO-UNDO.
   DEF VAR lv-nav-type AS CHAR NO-UNDO.
-  
+
 
   RUN get-link-handle IN adm-broker-hdl
                       (THIS-PROCEDURE, "nav-itm-source", OUTPUT char-hdl).
@@ -343,9 +347,9 @@ PROCEDURE do-button :
 
     DO WITH FRAME {&FRAME-NAME}:
       ENABLE ALL.
-  
+
       IF lv-nav-type EQ "F" THEN DISABLE btn-first btn-prev.
-    
+
       IF lv-nav-type EQ "L" THEN DISABLE btn-last btn-next.
 
       IF lv-nav-type EQ "B" THEN DISABLE ALL.
@@ -371,7 +375,7 @@ PROCEDURE local-initialize :
 
   /* Code placed here will execute AFTER standard behavior.    */
   run do-button ("").
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -383,7 +387,7 @@ PROCEDURE local-view :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -391,7 +395,7 @@ PROCEDURE local-view :
 
   /* Code placed here will execute AFTER standard behavior.    */ 
   run do-button ("").
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

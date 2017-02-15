@@ -203,9 +203,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -224,7 +234,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -261,6 +271,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
   apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -276,8 +287,9 @@ DO:
 
   MESSAGE "Are you sure you want to " + TRIM(c-win:TITLE)
         VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
-          
+
   IF v-process THEN RUN run-process.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -297,8 +309,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -317,6 +331,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
 
   {methods/nowait.i}
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -380,9 +395,9 @@ DEF VAR v-cost-m LIKE ar-invl.cost EXTENT 4 NO-UNDO.
 DEF VAR v-basis AS CHAR NO-UNDO.
 DEF VAR v-comm AS DEC NO-UNDO.
 
-                                                     
+
 SESSION:SET-WAIT-STATE("General").
-  
+
 DO WITH FRAME {&FRAME-NAME}:
   ASSIGN
    begin_inv
@@ -453,25 +468,25 @@ FOR EACH ar-inv
         IF v-uom NE "M" THEN
           RUN sys/ref/convcuom.p(v-uom, "M", 0, 0, 0, 0,
                                  v-cost-m[li], OUTPUT v-cost-m[li]).
-                                       
+
          v-cost[li] = v-cost[li] + (v-cost-m[li] * oe-boll.qty / 1000).
       END.                           
     END.
-  
+
     DO li = 1 TO 4:
       v-cost[li] = v-cost[li] / (v-qty / 1000).
-    
+
       IF v-cost[li] EQ ? THEN v-cost[li] = 0.
     END.
-   
+
     ASSIGN
        ar-invl.cost = v-cost[1] + v-cost[2] + v-cost[3] + v-cost[4]
        ar-invl.dscr[1] = "M".
-          
+
     IF ar-invl.cost EQ ? THEN ar-invl.cost = 0.
 
     ar-inv.t-cost = ar-inv.t-cost - ar-invl.t-cost.
-          
+
     ar-invl.t-cost = ar-invl.cost * ar-invl.inv-qty / 1000.
 
     IF ar-invl.t-cost EQ ? THEN ar-invl.t-cost = 0.
@@ -493,13 +508,13 @@ FOR EACH ar-inv
     END.
   END.
 END.
-    
+
 SESSION:SET-WAIT-STATE("").
-    
+
 MESSAGE TRIM(c-win:TITLE) + " Process Complete..." VIEW-AS ALERT-BOX.
-    
+
 APPLY "close" TO THIS-PROCEDURE.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

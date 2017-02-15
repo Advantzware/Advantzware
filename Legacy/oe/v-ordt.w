@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -246,7 +250,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -260,7 +264,7 @@ DO:
       STRING(DEC(oe-ord.t-revenue:SCREEN-VALUE) +
              (DEC(oe-ord.t-freight:SCREEN-VALUE) *
               (IF oe-ord.f-bill:SCREEN-VALUE EQ "Y" THEN 1 ELSE -1))).
-        
+
   IF v-fr-tax THEN
     oe-ord.tax:SCREEN-VALUE = 
         STRING(DEC(oe-ord.tax:SCREEN-VALUE) +
@@ -320,7 +324,7 @@ DO:
         STRING(DEC(oe-ord.t-revenue:SCREEN-VALUE) +
                DEC(oe-ord.t-freight:SCREEN-VALUE) -
                DEC(lv-prev-value)).
-        
+
     IF v-fr-tax THEN
       oe-ord.tax:SCREEN-VALUE = 
           STRING(DEC(oe-ord.tax:SCREEN-VALUE) +
@@ -348,7 +352,7 @@ END.
 
   RUN oe/oe-sysct.p.
 
-  IF v-oecomm-cha NE "Manual" THEN RUN hide-comm (YES).
+  IF NOT v-oecomm-log  THEN RUN hide-comm (YES).
 
   IF fgsecurity-log THEN
   DO:
@@ -357,7 +361,7 @@ END.
           NO-LOCK NO-ERROR.
 
      IF AVAIL usergrps AND
-        (NOT CAN-DO(usergrps.users,USERID("ASI")) AND
+        (NOT CAN-DO(usergrps.users,USERID("NOSWEAT")) AND
          TRIM(usergrps.users) NE "*") THEN
         ASSIGN
            oe-ord.t-cost:VISIBLE IN FRAME {&FRAME-NAME} = NO.
@@ -366,7 +370,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -447,7 +451,7 @@ PROCEDURE disable-fields :
     DISABLE oe-ord.t-comm.
   END.
 
-  IF v-oecomm-cha NE "Manual" THEN RUN hide-comm (YES).
+  IF NOT v-oecomm-log  THEN RUN hide-comm (YES).
 
 END PROCEDURE.
 
@@ -500,7 +504,7 @@ PROCEDURE local-assign-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -527,7 +531,7 @@ PROCEDURE local-assign-statement :
 
   /* Code placed here will execute BEFORE standard behavior.    */
   lv-freight = oe-ord.t-freight.
-  
+
   FIND FIRST cust
       {sys/ref/custW.i}
         AND cust.cust-no = oe-ord.cust-no
@@ -657,8 +661,8 @@ PROCEDURE proc-enable :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  RUN hide-comm (NO).
-
+ IF NOT v-oecomm-log THEN  RUN hide-comm (YES).
+  IF v-oecomm-log THEN
   DO WITH FRAME {&FRAME-NAME}:
     ENABLE oe-ord.t-comm.
   END.

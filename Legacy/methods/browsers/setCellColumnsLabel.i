@@ -11,7 +11,7 @@ DEF VAR v-index AS INT NO-UNDO.
 &SCOPED-DEFINE cellColumnDat {&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}
 &ENDIF
 
-cellColumnDat = 'users/' + USERID("ASI") + '/{&cellColumnDat}.dat'.
+cellColumnDat = 'users/' + USERID('nosweat') + '/{&cellColumnDat}.dat'.
 
 PROCEDURE setCellColumns:
   DEFINE VARIABLE userColumn AS CHARACTER NO-UNDO EXTENT 200.

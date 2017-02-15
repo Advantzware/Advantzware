@@ -153,9 +153,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -172,7 +182,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -209,6 +219,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
   apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -226,10 +237,10 @@ DO:
   MESSAGE "Are you sure you wish to continue?"
           VIEW-AS ALERT-BOX QUESTION BUTTON yes-no
           UPDATE ll-process.
-      
+
   IF ll-process THEN DO:
     SESSION:SET-WAIT-STATE ("general").
-        
+
     RUN run-process.
 
     SESSION:SET-WAIT-STATE("").
@@ -237,6 +248,7 @@ DO:
     MESSAGE trim(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
     APPLY "close" TO THIS-PROCEDURE.
   END.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -256,8 +268,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -270,6 +284,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   fi_file = "inven2.asc".
   RUN enable_UI.
   {methods/nowait.i}
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -342,23 +357,23 @@ def var v-uom-qty like fg-rdtl.t-qty no-undo.
      v-ip-file = fi_file
      v-op-file = "inven2.quo".
   end.
-   
+
   if opsys eq "UNIX" then
     unix silent quoter -c 1-3000 value(search(v-ip-file)) > value(v-op-file).
   else
     dos  silent quoter -c 1-3000 value(search(v-ip-file)) > value(v-op-file).
 
   input from value(v-op-file).
-  
+
   output to value("inven2.err").
 
   repeat:
     assign
      v-file = ""
      v-int  = v-int + 1.
-    
+
     import v-file.
-    
+
     find first itemfg
         where itemfg.company eq cocode
           and itemfg.i-no    eq substr(entry(1,v-file),1,15)
@@ -370,7 +385,7 @@ def var v-uom-qty like fg-rdtl.t-qty no-undo.
       v-err = v-err + 1.
       put unformatted v-int " No FG Record " v-file skip.
     end.
-    
+
     else do:
       find first fg-rcpts
           where fg-rcpts.company      eq cocode
@@ -380,15 +395,15 @@ def var v-uom-qty like fg-rdtl.t-qty no-undo.
             and fg-rcpts.trans-date   eq today
             and fg-rcpts.rita-code    eq "C"
           no-lock no-error.
-      
+
       if not avail fg-rcpts then do:
         find last fg-rcpts use-index r-no no-lock no-error.
         i = if avail fg-rcpts then fg-rcpts.r-no else 0.
-        
+
         find last fg-rcpth where fg-rcpth.r-no gt i
             use-index r-no no-lock no-error.
         if avail fg-rcpth then i = fg-rcpth.r-no.
-        
+
         create fg-rcpts.
         assign
          fg-rcpts.r-no         = i + 1 
@@ -402,7 +417,7 @@ def var v-uom-qty like fg-rdtl.t-qty no-undo.
          fg-rcpts.user-id      = userid("asi")
          fg-rcpts.pur-uom      = itemfg.sell-uom.
       end.
-              
+
       create fg-rdtl.
       assign
        fg-rdtl.r-no          = fg-rcpts.r-no
@@ -417,7 +432,7 @@ def var v-uom-qty like fg-rdtl.t-qty no-undo.
                                dec(entry(40,v-file)) +
                                dec(entry(41,v-file)) +
                                dec(entry(42,v-file)).
-       
+
       find first fg-bin
           where fg-bin.company eq cocode
             and fg-bin.tag     eq fg-rdtl.tag
@@ -431,13 +446,13 @@ def var v-uom-qty like fg-rdtl.t-qty no-undo.
         assign
          fg-rdtl.std-cost = fg-bin.std-tot-cost
          fg-rdtl.uom      = fg-bin.pur-uom.
-  
+
       v-uom-qty = fg-rdtl.t-qty.
-  
+
       if fg-rdtl.uom ne "EA" then
         run sys/ref/convquom.p("EA", fg-rdtl.uom, 0, 0, 0, 0,
                                v-uom-qty, output v-uom-qty).
-                          
+
       fg-rdtl.ext-cost = fg-rdtl.std-cost * v-uom-qty.
     end.
   end.
@@ -448,7 +463,7 @@ def var v-uom-qty like fg-rdtl.t-qty no-undo.
   status default "".
 
   if v-err gt 0 then message "Errors output to inven2.err" VIEW-AS ALERT-BOX.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

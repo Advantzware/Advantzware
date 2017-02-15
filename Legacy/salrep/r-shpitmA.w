@@ -302,10 +302,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-     VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -372,7 +381,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -468,6 +477,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -522,11 +532,12 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
   SESSION:SET-WAIT-STATE ("").
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -538,7 +549,8 @@ END.
 ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
-  
+
+    {src/WinKit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -742,8 +754,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i}
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -759,7 +773,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   assign
    begin_inv-date = date(1,1,year(today))
    end_inv-date   = today.
@@ -771,11 +785,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN sys/inc/CustListForm.p ( "HR6",cocode, 
                                OUTPUT ou-log,
                                OUTPUT ou-cust-int) .
-  
-  RUN sys/inc/CustListForm.p ( "HR6",cocode, 
-                               OUTPUT ou-log,
-                               OUTPUT ou-cust-int) .
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     APPLY "entry" TO begin_cust-no IN FRAME {&FRAME-NAME}.
@@ -813,6 +823,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
    END.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -874,7 +885,7 @@ PROCEDURE CustList :
 
     RUN sys/ref/CustListManager.w(INPUT cocode,
                                   INPUT 'HR6').
-    
+
 
 END PROCEDURE.
 
@@ -935,7 +946,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
 /*     DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -946,11 +957,11 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY. */
-     
+
  {custom/out2file.i}
 
 END PROCEDURE.
@@ -982,7 +993,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1060,7 +1071,7 @@ form ar-invl.i-no           column-label "PRODUCT"
      ar-invl.amt            column-label "TOTAL SALE"   format "->>>>>>>9.99"
 
     with frame itemx no-box no-attr-space down STREAM-IO width 132.
-         
+
 
  ASSIGN
   str-tit2 = c-win:title
@@ -1075,9 +1086,9 @@ form ar-invl.i-no           column-label "PRODUCT"
   fdate      = begin_inv-date
   tdate      = end_inv-date
   lSelected  = tb_cust-list.
-  
+
 {sys/inc/print1.i}
-       
+
 {sys/inc/outprint.i value(lines-per-page)}
 
 IF tb_excel THEN DO:
@@ -1101,10 +1112,10 @@ SESSION:SET-WAIT-STATE ("general").
 
 EMPTY TEMP-TABLE tt-report.
 
-  for each cust
+  FOR each cust
       where cust.company eq cocode
-        and cust.cust-no ge fcust
-        and cust.cust-no le tcust
+        AND cust.cust-no GE fcust
+        AND cust.cust-no LE tcust
         AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
         AND ttCustList.log-fld no-lock) else true)
       no-lock:
@@ -1163,7 +1174,7 @@ EMPTY TEMP-TABLE tt-report.
          tt-report2.key-05  = string(ar-invl.inv-no,"9999999999").
       end.   
     end.
-    
+
     delete tt-report.
   end.
 
@@ -1181,7 +1192,7 @@ EMPTY TEMP-TABLE tt-report.
             by tt-report.key-05
 
       transaction
-      
+
       with frame itemx:
 
       {custom/statusMsg.i "'Processing Customer # ' + string(cust.cust-no)"} 
@@ -1193,7 +1204,7 @@ EMPTY TEMP-TABLE tt-report.
           where itemfg.company eq cocode
             and itemfg.i-no    eq tt-report.key-01
           no-lock no-error.
-          
+
     if avail ar-invl then do:
 
       FIND FIRST bf-ar-inv NO-LOCK
@@ -1209,29 +1220,29 @@ EMPTY TEMP-TABLE tt-report.
          v-name = shipto.ship-name
          v-city = shipto.ship-city
          v-stat = shipto.ship-state.
-         
+
       else do:
         find first soldto
             where soldto.company eq cocode
               and soldto.cust-no eq tt-report.key-02
               and soldto.sold-id eq tt-report.key-03
             no-lock no-error.
-            
+
         if avail soldto then
           assign
            v-name = soldto.sold-name
            v-city = soldto.sold-city
            v-stat = soldto.sold-state.
-           
+
         else
           assign
            v-name = cust.name
            v-city = cust.city
            v-stat = cust.state.
       end.
-      
+
       v-pric = ar-invl.amt / ar-invl.inv-qty.
-      
+
       if v-pric eq ? then v-pric = 0.
 
       display ar-invl.i-no
@@ -1247,7 +1258,7 @@ EMPTY TEMP-TABLE tt-report.
               v-pric
               ar-invl.amt.
       down with frame itemx.        
-     
+
       IF tb_excel THEN
          PUT STREAM excel UNFORMATTED
              '"' ar-invl.i-no                                   '",'
@@ -1327,7 +1338,7 @@ EMPTY TEMP-TABLE tt-report.
              '"' ""                                   '",'
              '"' STRING(v-amt[2],"->>>>>>>9.99")      '",'.
     end.
-    
+
     delete tt-report.
   end. 
 
@@ -1366,7 +1377,7 @@ PROCEDURE SetCustRange :
         btnCustList:SENSITIVE = iplChecked
        .
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1387,11 +1398,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1419,23 +1430,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

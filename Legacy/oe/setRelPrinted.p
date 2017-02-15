@@ -11,7 +11,7 @@ IF NOT AVAIL oe-relh THEN
 ASSIGN oe-relh.printed = iplPrintStatus.
 IF  NOT (iplPrintStatus EQ YES AND oe-relh.spare-char-3 GT "") THEN 
        oe-relh.spare-char-3 = (IF iplPrintStatus EQ YES THEN 
-                                 USERID("ASI")
+                                 USERID("NOSWEAT")
                                ELSE
                                  "").
 RELEASE oe-relh.

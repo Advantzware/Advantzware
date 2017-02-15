@@ -876,7 +876,7 @@ PROCEDURE local-create-record :
          rm-rctd.rita-code = "T"
          rm-rctd.s-num     = 0
          rm-rctd.rct-date  = today
-         rm-rctd.user-id  = USERID("ASI")
+         rm-rctd.user-id  = USERID("nosweat")
          rm-rctd.upd-date = TODAY
          rm-rctd.upd-time = TIME.
 

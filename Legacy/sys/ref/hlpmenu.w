@@ -15,7 +15,7 @@
       <none>
 
   History: 
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -188,7 +188,7 @@ THEN W-Win:HIDDEN = yes.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -276,7 +276,7 @@ find first hlp-head where hlp-head.fld-name = ip-field and
                                  hlp-head.fil-name = ip-table
                                  no-lock no-error.
 if not avail hlp-head then do:                                /* program-name */
- 
+
    find first hlp-head where hlp-head.fld-name matches ("*" +  ip-frame + "*")  no-lock no-error.
    if not avail hlp-head then do: 
       ip-frame = replace(ip-frame,".w",".r").
@@ -309,7 +309,7 @@ else lv-help-title = "Help On " + hlp-head.frm-title +  " For " +
 lv-frame-name = "Frame Name: " + ip-frame.
 lv-program = "Procedure: " + ip-field.
 ed-text = hlp-head.help-txt.
-          
+
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
 
@@ -403,9 +403,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

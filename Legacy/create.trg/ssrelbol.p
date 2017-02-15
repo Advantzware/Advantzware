@@ -6,7 +6,7 @@ TRIGGER PROCEDURE FOR CREATE OF {&TABLENAME}.
 
 ASSIGN
    {&TABLENAME}.created-date = TODAY
-   {&TABLENAME}.created-id = USERID("ASI")
+   {&TABLENAME}.created-id = USERID("NOSWEAT")
    {&TABLENAME}.created-time = TIME.
        
        

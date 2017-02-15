@@ -1,14 +1,14 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi          PROGRESS
+          nosweat          PROGRESS
 */
 &Scoped-define WINDOW-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS W-Win 
 /*------------------------------------------------------------------------
 
   File: windows/emailcod.w
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -138,7 +138,7 @@ DEFINE FRAME OPTIONS-FRAME
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
-   External Tables: ASI.emailcod
+   External Tables: NOSWEAT.emailcod
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
    Design Page: 6
    Other Settings: COMPILE
@@ -168,6 +168,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+/* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
@@ -237,7 +238,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -758,7 +759,7 @@ PROCEDURE local-change-page :
     WHEN 5 THEN s-rec_key = STRING (DYNAMIC-FUNCTION ('GetCurrBillTo' in h_cuserphon)).
     otherwise   s-rec_key = string (dynamic-function ('GetCurrBillTo' in h_custphon)).
   end case.
- 
+
   CASE INT (RETURN-VALUE):
     WHEN 3 THEN DYNAMIC-FUNCTION ('ApplyValueChanged' IN h_vendphon).
     WHEN 5 THEN DYNAMIC-FUNCTION ('ApplyValueChanged' IN h_cuserphon).
@@ -780,9 +781,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

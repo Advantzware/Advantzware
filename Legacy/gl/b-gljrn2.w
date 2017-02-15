@@ -626,14 +626,15 @@ PROCEDURE local-enable-fields :
     RETURN.
   END.
 
-  IF USERID("ASI") NE gl-jrn.user-id AND
+  /* ticket 15382 */
+  /*IF USERID("nosweat") NE gl-jrn.user-id AND
      gl-jrn.user-id NE ""                THEN DO:
     MESSAGE "This Journal was created by User: " +
             TRIM(gl-jrn.user-id) + ", do you wish update anyway?"
         VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
         UPDATE ll.
     IF NOT ll THEN RETURN.
-  END.
+  END.*/ 
 
   /* Dispatch standard ADM method.                             */  
 

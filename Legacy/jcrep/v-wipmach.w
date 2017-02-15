@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -518,7 +522,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -567,9 +571,9 @@ END.
 
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).      
-    
+
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -658,16 +662,16 @@ PROCEDURE local-add-record :
   /* overwrite all adm for no database tables*/
   newRecord = YES.
   RUN dispatch ('add-record').
-  
+
 /*   RUN dispatch ('enable-fields').                                             */
 /*                                                                               */
 /*   RUN notify ('add-record, GROUP-ASSIGN-TARGET':U).                           */
 /*   RUN new-state('update':U). /* Signal that we're in a record update now. */  */
 /*   RUN dispatch IN THIS-PROCEDURE ('apply-entry':U).                           */
-      
+
   /* Code placed here will execute AFTER standard behavior.    */
   ASSIGN fi_m-dscr:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -684,7 +688,7 @@ PROCEDURE local-assign-statement :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-statement':U ) .
-  
+
   /* Code placed here will execute AFTER standard behavior.    */
 
   IF adm-new-record THEN DO:
@@ -714,10 +718,10 @@ PROCEDURE local-cancel-record :
   RUN notify ('cancel-record, GROUP-ASSIGN-TARGET':U).
 
   RUN new-state('update-complete':U).
-  
+
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"tableio-source",OUTPUT char-hdl).
   RUN set-buttons IN WIDGET-HANDLE(char-hdl) ('initial').
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -806,7 +810,7 @@ PROCEDURE local-display-fields :
      ASSIGN fi_created-time:SCREEN-VALUE = STRING(wiptag.crt-time,"HH:MM:SS")
             fi_updated-time:SCREEN-VALUE = STRING(wiptag.upd-time,"HH:MM:SS")
             fi_tag-time:SCREEN-VALUE = STRING(wiptag.tag-time,"HH:MM:SS").
- 
+
   FIND FIRST mach NO-LOCK WHERE mach.company = g_company AND
                                 mach.loc = g_loc AND
                                 mach.m-code = wiptag-mch.m-code:SCREEN-VALUE
@@ -814,7 +818,7 @@ PROCEDURE local-display-fields :
 
   IF AVAIL mach THEN ASSIGN fi_m-dscr:SCREEN-VALUE = mach.m-dscr.
   ELSE ASSIGN fi_m-dscr:SCREEN-VALUE = "".
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -856,7 +860,7 @@ PROCEDURE local-row-available :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'row-available':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  
+
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"tableio-source", OUTPUT char-hdl).
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
      RUN set-buttons IN WIDGET-HANDLE(char-hdl) ('initial').
@@ -872,10 +876,10 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
- 
+
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  IF USERID("ASI") NE "ASI" THEN do:
+  IF USERID("NOSWEAT") NE "ASI" THEN do:
        MESSAGE "User not ASI update not allow... " VIEW-AS ALERT-BOX ERROR .
        RETURN NO-APPLY.
    END.

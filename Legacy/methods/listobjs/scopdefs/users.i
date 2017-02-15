@@ -1,6 +1,6 @@
 /* users.i
 "users"
-"ASI"
+"NOSWEAT"
 "users"
 "user_id"
 "User ID's"

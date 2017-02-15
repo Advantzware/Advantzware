@@ -1,21 +1,19 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
-/* Connected Databases
+/* Connected Databases 
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-USING Consultingwerk.Framework.Collections.CharacterDictionary FROM PROPATH.
-USING Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl FROM PROPATH.
-&SCOPED-DEFINE dataGrid
+{Advantzware\WinKit\admBrowserUsing.i}
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
-  File: browsers/mach.w
+  File:  browsers/<table>.w
 
-  Description:
+  Description: from BROWSER.W - Basic SmartBrowser Object Template
 
   Input Parameters:
       <none>
@@ -23,17 +21,20 @@ USING Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchContr
   Output Parameters:
       <none>
 
-  Author:
-
-  Created: 01/17/17 - 10:28 am
-
 ------------------------------------------------------------------------*/
-/*          This .W file was created with the Progress AppBuilder.       */
+/*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
+
+/* Create an unnamed pool to store all the widgets created 
+     by this procedure. This is a good default which assures
+     that this procedure's triggers and internal procedures 
+     will execute in this procedure's storage, and that proper
+     cleanup will occur on deletion of the procedure. */
 
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE sizeOption HEIGHT
 {methods/defines/winReSize.i}
@@ -42,61 +43,33 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
+
 {sys/inc/VAR.i NEW SHARED}
 
 ASSIGN
  cocode = g_company
  locode = g_loc.
 
-FOR EACH dept {sys/ref/deptW.i} NO-LOCK,
-    EACH mach WHERE mach.dept[1] EQ dept.code
-    :
+for each dept {sys/ref/deptW.i} no-lock,
+    each mach where mach.dept[1] eq dept.code:
+
   mach.d-seq = dept.fc.
-END.
+end.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win
-/*------------------------------------------------------------------------
-
-  File:
-
-  Description:
-
-  Input Parameters:
-      <none>
-
-  Output Parameters:
-      <none>
-
-  Author:
-
-  Created: 01/17/17 - 11:00 am
-
-------------------------------------------------------------------------*/
-/*          This .W file was created with the Progress AppBuilder.       */
-/*----------------------------------------------------------------------*/
-
-/* ***************************  Definitions  ************************** */
-
-/* Parameters Definitions ---                                           */
-
-/* Local Variable Definitions ---                                       */
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK
+&ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
 
 /* ********************  Preprocessor Definitions  ******************** */
 
 &Scoped-define PROCEDURE-TYPE SmartNavBrowser
 &Scoped-define DB-AWARE no
 
-/* Name of designated FRAME-NAME and/or first browse and/or first query */
+&Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target,Navigation-Target
+
+/* Name of first Frame and/or Browse and/or first Query                 */
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME Browser-Table
 
@@ -110,8 +83,8 @@ END.
 &Scoped-define FIELDS-IN-QUERY-Browser-Table mach.m-code ~
 string(mach.dept[1] + mach.dept[2] + mach.dept[3] + mach.dept[4]) @ mach.dept[1] ~
 mach.m-dscr mach.industry mach.loc mach.sch-m-code mach.dept[1] mach.d-seq ~
-mach.m-seq mach.p-type mach.run-spoil mach.mr-waste
-&Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table
+mach.m-seq mach.p-type mach.run-spoil mach.mr-waste 
+&Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH mach WHERE ~{&KEY-PHRASE} ~
       AND mach.company = g_company NO-LOCK ~
     ~{&SORTBY-PHRASE}
@@ -125,7 +98,9 @@ mach.m-seq mach.p-type mach.run-spoil mach.mr-waste
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table
+&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
+Btn_Clear_Find 
+&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -139,9 +114,29 @@ mach.m-seq mach.p-type mach.run-spoil mach.mr-waste
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON Btn_Clear_Find 
+     LABEL "&Clear Find" 
+     SIZE 13 BY 1
+     FONT 4.
+
+DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Auto Find" 
+     VIEW-AS FILL-IN 
+     SIZE 60 BY 1 NO-UNDO.
+
+DEFINE VARIABLE browse-order AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "N/A", 1
+     SIZE 55 BY 1 NO-UNDO.
+
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 145 BY 1.43.
+
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
-DEFINE QUERY Browser-Table FOR
+DEFINE QUERY Browser-Table FOR 
       mach
     FIELDS(mach.m-code
       mach.dept
@@ -171,6 +166,7 @@ DEFINE BROWSE Browser-Table
       mach.industry FORMAT "x":U
       mach.loc FORMAT "x(5)":U
       mach.sch-m-code COLUMN-LABEL "Sched Mach" FORMAT "x(6)":U
+            WIDTH 14
       mach.dept[1] FORMAT "x(2)":U
       mach.d-seq FORMAT ">9":U
       mach.m-seq FORMAT "99":U
@@ -179,7 +175,7 @@ DEFINE BROWSE Browser-Table
       mach.mr-waste FORMAT ">>>9":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 145 BY 19.52
+    WITH NO-ASSIGN SEPARATORS SIZE 145 BY 18.1
          FONT 2.
 
 
@@ -188,9 +184,18 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY
-         SIDE-LABELS NO-UNDERLINE THREE-D
-         AT COL 1 ROW 1 SCROLLABLE
+     browse-order AT ROW 19.33 COL 6 HELP
+          "Select Browser Sort Order" NO-LABEL
+     auto_find AT ROW 19.33 COL 70 COLON-ALIGNED HELP
+          "Enter Auto Find Value"
+     Btn_Clear_Find AT ROW 19.33 COL 132 HELP
+          "CLEAR AUTO FIND Value"
+     "By:" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 19.33 COL 2
+     RECT-4 AT ROW 19.1 COL 1
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
          BGCOLOR 8 FGCOLOR 0 .
 
 
@@ -218,7 +223,7 @@ END.
 /* *************************  Create Window  ************************** */
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
-/* DESIGN Window definition (used by the UIB)
+/* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
          HEIGHT             = 19.52
          WIDTH              = 145.
@@ -226,13 +231,14 @@ END.
                                                                         */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB B-table-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB B-table-Win 
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/browser.i}
 {src/adm/method/query.i}
 {methods/template/browser.i}
-{methods/gridSearch.i}
+
+{Advantzware/WinKit/dataGridProc.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -246,14 +252,14 @@ END.
 /* SETTINGS FOR WINDOW B-table-Win
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table 1 F-Main */
-ASSIGN
+   NOT-VISIBLE Size-to-Fit                                              */
+/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
+ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
-ASSIGN
-       Browser-Table:PRIVATE-DATA IN FRAME F-Main           =
+ASSIGN 
+       Browser-Table:PRIVATE-DATA IN FRAME F-Main           = 
                 "2".
 
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -275,7 +281,7 @@ ASSIGN
      _FldNameList[4]   = ASI.mach.industry
      _FldNameList[5]   = ASI.mach.loc
      _FldNameList[6]   > ASI.mach.sch-m-code
-"mach.sch-m-code" "Sched Mach" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"mach.sch-m-code" "Sched Mach" ? "character" ? ? ? ? ? ? no ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   = ASI.mach.dept[1]
      _FldNameList[8]   = ASI.mach.d-seq
      _FldNameList[9]   = ASI.mach.m-seq
@@ -339,13 +345,13 @@ END.
 
 &UNDEFINE SELF-NAME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK B-table-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK B-table-Win 
 
 
 /* ***************************  Main Block  *************************** */
 
-&IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN
-RUN dispatch IN THIS-PROCEDURE ('initialize':U).
+&IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
+RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
 
 {methods/winReSize.i}
@@ -355,26 +361,6 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 
 
 /* **********************  Internal Procedures  *********************** */
-
-/**
- * Purpose:
- * Notes:
- */
-PROCEDURE InitializeGrid:
-
-    IF NOT VALID-OBJECT (oRenderedBrowseControl) THEN
-        RETURN .
-
-    // Ability to not allow user to group (Based on the number of records that would be loaded)
-    oRenderedBrowseControl:DisplayLayout:ViewStyleBand =
-        Infragistics.Win.UltraWinGrid.ViewStyleBand:Horizontal .
-
-    // Disable sort on a per column base
-    oRenderedBrowseControl:DisplayLayout:Bands[0]:Columns["industry"]:SortIndicator =
-        Infragistics.Win.UltraWinGrid.SortIndicator:Disabled  .
-
-
-END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available B-table-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
@@ -404,7 +390,7 @@ PROCEDURE disable_UI :
   Purpose:     DISABLE the User Interface
   Parameters:  <none>
   Notes:       Here we clean-up the user-interface by deleting
-               dynamic widgets we have created and/or hide
+               dynamic widgets we have created and/or hide 
                frames.  This procedure is usually called when
                we are ready to "clean-up" after running.
 ------------------------------------------------------------------------------*/
@@ -416,42 +402,49 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE entry-to-browse B-table-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE entry-to-browse B-table-Win 
 PROCEDURE entry-to-browse :
 /*------------------------------------------------------------------------------
-  Purpose:
+  Purpose:     
   Parameters:  <none>
-  Notes:
+  Notes:       
 ------------------------------------------------------------------------------*/
-    APPLY "ENTRY":U TO BROWSE {&browse-name}.
+
+APPLY "entry" TO BROWSE {&browse-name}.
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win
-PROCEDURE export-xl :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
+PROCEDURE local-open-query :
 /*------------------------------------------------------------------------------
-  Purpose:
-  Parameters:  <none>
-  Notes:
+  Purpose:     Override standard ADM method
+  Notes:       
 ------------------------------------------------------------------------------*/
 
-RUN fg/m-mchexp.w ("","m-code").
+  /* Code placed here will execute PRIOR to standard behavior. */
 
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
+  /* Code placed here will execute AFTER standard behavior.    */
+
+  DO WITH FRAME {&FRAME-NAME}:
+    APPLY "value-changed" TO browse-order.
+  END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query B-table-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query B-table-Win 
 PROCEDURE repo-query :
 /*------------------------------------------------------------------------------
-  Purpose:
+  Purpose:     
   Parameters:  <none>
-  Notes:
+  Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
 
@@ -468,6 +461,24 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
+PROCEDURE export-xl :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+RUN fg/m-mchexp.w (auto_find,browse-order).
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
@@ -491,12 +502,12 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed B-table-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed B-table-Win 
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
-  Purpose:
+  Purpose:     
   Parameters:  <none>
-  Notes:
+  Notes:       
 -------------------------------------------------------------*/
   DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE    NO-UNDO.
   DEFINE INPUT PARAMETER p-state      AS CHARACTER NO-UNDO.
