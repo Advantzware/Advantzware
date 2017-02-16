@@ -75,15 +75,15 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON bQuit 
      LABEL "Leave" 
-     SIZE 15 BY 1.11.
+     SIZE 15 BY 1.1.
 
 DEFINE BUTTON bStart 
      LABEL "Start Monitor" 
-     SIZE 15 BY 1.11.
+     SIZE 15 BY 1.1.
 
 DEFINE BUTTON bStop 
      LABEL "Stop Monitor" 
-     SIZE 15 BY 1.11.
+     SIZE 15 BY 1.1.
 
 DEFINE VARIABLE fiInterval AS INTEGER FORMAT ">>9":U INITIAL 3 
      LABEL "Refresh Interval (secs)" 
@@ -97,27 +97,27 @@ DEFINE VARIABLE fiTable AS CHARACTER FORMAT "X(256)":U INITIAL "*"
 
 DEFINE VARIABLE slLockList AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
-     SIZE 95 BY 12.37
+     SIZE 95 BY 12.38
      FONT 2 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     slLockList AT ROW 2.32 COL 3 NO-LABEL
-     bStart AT ROW 15.21 COL 3
-     bStop AT ROW 15.21 COL 19
-     fiInterval AT ROW 15.21 COL 57 COLON-ALIGNED
-     bQuit AT ROW 15.21 COL 67
-     fiTable AT ROW 16.79 COL 29 COLON-ALIGNED
+     slLockList AT ROW 2.33 COL 3 NO-LABEL
+     bStart AT ROW 15.19 COL 3
+     bStop AT ROW 15.19 COL 19
+     fiInterval AT ROW 15.19 COL 57 COLON-ALIGNED
+     bQuit AT ROW 15.19 COL 67
+     fiTable AT ROW 16.81 COL 29 COLON-ALIGNED
      "Table" VIEW-AS TEXT
-          SIZE 11 BY .68 AT ROW 1.26 COL 39
+          SIZE 11 BY .67 AT ROW 1.24 COL 39
      "Rec Key" VIEW-AS TEXT
-          SIZE 12 BY .68 AT ROW 1.26 COL 56
+          SIZE 12 BY .67 AT ROW 1.24 COL 56
      "Type" VIEW-AS TEXT
-          SIZE 8 BY .68 AT ROW 1.26 COL 87
+          SIZE 8 BY .67 AT ROW 1.24 COL 87
      "User" VIEW-AS TEXT
-          SIZE 8 BY .68 AT ROW 1.26 COL 4
+          SIZE 8 BY .67 AT ROW 1.24 COL 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -141,11 +141,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Record Lock Viewer"
-         HEIGHT             = 18.11
+         HEIGHT             = 18.1
          WIDTH              = 99.2
-         MAX-HEIGHT         = 18.11
+         MAX-HEIGHT         = 18.1
          MAX-WIDTH          = 99.2
-         VIRTUAL-HEIGHT     = 18.11
+         VIRTUAL-HEIGHT     = 18.1
          VIRTUAL-WIDTH      = 99.2
          RESIZE             = yes
          SCROLL-BARS        = no
@@ -400,12 +400,9 @@ PROCEDURE ipMonitor :
                 IF AVAIL _field THEN ASSIGN
                     hbhRecKey2 = hbRecKey:BUFFER-FIELD(_field._field-physpos).
             END.
-            FIND z_user WHERE
-                z_user.user-id = _lock._lock-name
-                NO-LOCK NO-ERROR.
             IF AVAIL (_file) THEN ASSIGN
                 cDisp = FILL(" ",80)
-                SUBSTRING(cDisp,1,24) = IF AVAIL z_user THEN z_user.main-tag ELSE _lock._lock-name
+                SUBSTRING(cDisp,1,24) = _lock._lock-name
                 SUBSTRING(cDisp,26,LENGTH(_file._file-name)) = _file._file-name
                 SUBSTRING(cDisp,36,22) = (IF VALID-HANDLE(hbhRecKey1) THEN TRIM(hbhRecKey1:STRING-VALUE) ELSE "") + "|" + 
                                          (IF VALID-HANDLE(hbhRecKey2) THEN TRIM(hbhRecKey2:STRING-VALUE) ELSE "")
