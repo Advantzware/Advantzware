@@ -1234,7 +1234,7 @@ END FUNCTION.
                     /*eb.cad-no   FORM "x(13)"*/ " " 
                     v-board-po FORM ">>>>>>99" "  "
                     v-po-duedate  FORM "99/99/9999" "  " 
-                    v-vend   FORM "x(10)" " "         SKIP
+                    v-vend   FORM "x(20)" " "         SKIP
                     /*v-die-size FORM "x(16)" AT 78*/
                     SKIP.
                 X = 1.
