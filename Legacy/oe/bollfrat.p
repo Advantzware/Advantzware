@@ -6,7 +6,7 @@ DEF INPUT  PARAM ip-carrier     LIKE oe-bolh.carrier        NO-UNDO.
 DEF OUTPUT PARAM op-freight     AS   DEC DECIMALS 10        NO-UNDO.
 MESSAGE "Internal Error - Program Out of Date"
   VIEW-AS ALERT-BOX INFO BUTTONS OK.
-RETURN.
+IF TRUE THEN RETURN.
 DEF BUFFER b-oe-boll FOR oe-boll.
 {custom/globdefs.i}
 

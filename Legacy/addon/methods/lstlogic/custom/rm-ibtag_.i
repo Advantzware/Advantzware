@@ -100,7 +100,8 @@ assign fitm = begin_i-no
 message fitm titm floc tloc fcat tcat skip
         ftyp ttyp zbal psubtot pgtot
         view-as alert-box .
-return.
+
+if true then return.
         
 find first ce-ctrl where ce-ctrl.company = gcompany no-lock.
 

@@ -668,7 +668,7 @@ PROCEDURE delete-process :
         IF ROWID(oe-ordl) EQ ROWID(c-oe-ordl) THEN DO:
           RUN delete-item IN WIDGET-HANDLE(char-hdl) (FIRST(c-oe-ordl.line), YES).
           IF ROWID(oe-ordl) EQ ROWID(c-oe-ordl) THEN DO:
-            UNDO delete-comps.
+            IF TRUE THEN UNDO delete-comps.
             RUN dispatch IN WIDGET-HANDLE(char-hdl) ("open-query").
             LEAVE.
           END.

@@ -164,7 +164,7 @@ DEF TEMP-TABLE tt-fg-bin NO-UNDO
   MESSAGE "Running phys-ct-pst.p"
       VIEW-AS ALERT-BOX INFO BUTTONS OK.
 
-  RETURN.
+  IF TRUE THEN RETURN.
 
   IF tg_account THEN DO:
      RUN fg/d-fginvp.w (OUTPUT tran-date, OUTPUT tran-period).
