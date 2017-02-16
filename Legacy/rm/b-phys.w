@@ -679,8 +679,9 @@ PROCEDURE crt-pcount :
           op-rowid = ROWID(bf-rctd).
   IF lv-date-ent NE ? THEN
       bf-rctd.rct-date = lv-date-ent.
+  lv-date-ent = ?.
  END.
- lv-date-ent = ?.
+ 
 
 END PROCEDURE.
 
