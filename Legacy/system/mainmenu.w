@@ -435,6 +435,9 @@ PROCEDURE Create_Buttons :
             (IF INDEX(ttbl.menu1,'.') NE 0 OR ttbl.menu1 = 'Exit' THEN ''
             ELSE ' >').
 
+        IF AVAILABLE prgrms AND prgrms.prgmname EQ "custproc." 
+            AND USER("nosweat") NE "asi" THEN NEXT .
+
         RUN Mneumonic (INPUT-OUTPUT button-label).
 
         CREATE BUTTON button-widget IN WIDGET-POOL "dyn-buttons"
