@@ -38,6 +38,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{custom/globdefs.i}
 def new shared var sh-emp like employee.employee no-undo.
 def new shared var sh-date like emplogin.start_date no-undo.
 

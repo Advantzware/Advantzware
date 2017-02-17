@@ -38,6 +38,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{custom/globdefs.i}
 
 def temp-table tt-note  like note
                field note-src as cha form "x(20)" label "Note From" .

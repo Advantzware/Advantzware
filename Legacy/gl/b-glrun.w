@@ -41,6 +41,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{custom/globdefs.i}
 DEF TEMP-TABLE tt-glhist NO-UNDO LIKE glhist.
 
 {sa/sa-sls01.i}

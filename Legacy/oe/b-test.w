@@ -38,6 +38,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{custom/globdefs.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

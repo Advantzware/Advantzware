@@ -38,6 +38,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{custom/globdefs.i}
 
 DEFINE VARIABLE jobs_cadcam_status AS CHARACTER NO-UNDO.
 DEFINE VARIABLE jobs_scheduling_status AS CHARACTER NO-UNDO.

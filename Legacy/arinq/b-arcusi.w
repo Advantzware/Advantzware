@@ -42,6 +42,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{custom/globdefs.i}
 DEF VAR ld-inv-amt AS DEC NO-UNDO.
 DEF VAR li-days-old AS INT NO-UNDO.
 

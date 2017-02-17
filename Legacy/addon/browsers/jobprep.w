@@ -38,6 +38,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{custom/globdefs.i}
 DEF VAR code-desc AS cha FORM "x(20)" NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */

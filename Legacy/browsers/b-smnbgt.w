@@ -43,6 +43,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{custom/globdefs.i}
 
 DEF TEMP-TABLE tt-budget FIELD yr AS int
                          FIELD prd AS INT

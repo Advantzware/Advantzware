@@ -408,8 +408,10 @@ PROCEDURE winkit-destroy:
 
     RUN dispatch IN THIS-PROCEDURE ("destroy") .
 
+    &IF DEFINED (WinKitFormType) NE 0 &THEN
     IF VALID-OBJECT (oForm) AND TYPE-OF (oForm, Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWindowTabFolderForm) THEN
         CAST (oForm, Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWindowTabFolderForm):CloseTabs () .
+    &ENDIF
 
 END PROCEDURE.
 
@@ -466,8 +468,10 @@ PROCEDURE winkit-view:
 
     RUN dispatch IN THIS-PROCEDURE ("view") .
 
+    &IF DEFINED (WinKitFormType) NE 0 &THEN
     IF VALID-OBJECT (oFormControl) THEN
         oFormControl:Activate () .
+    &ENDIF
 
 END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */

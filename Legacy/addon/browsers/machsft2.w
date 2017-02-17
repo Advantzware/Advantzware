@@ -39,6 +39,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{custom/globdefs.i}
 
 
 DEFINE VARIABLE mach_m-dscr AS CHARACTER NO-UNDO.

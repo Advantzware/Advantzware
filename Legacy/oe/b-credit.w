@@ -38,6 +38,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{custom/globdefs.i}
 
 def var ld-inv-amt as dec form "->>>,>>>,>>9.99" no-undo.
 def var li-days-old as int no-undo.

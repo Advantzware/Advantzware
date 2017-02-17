@@ -38,6 +38,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{custom/globdefs.i}
 DEF VAR lv-stime AS CHAR NO-UNDO.
 DEF VAR lv-etime AS CHAR NO-UNDO.
 DEF VAR lv-date AS DATE INIT TODAY NO-UNDO.

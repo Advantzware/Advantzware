@@ -8,7 +8,7 @@
 {methods/defines/hndldefs.i &NEW="NEW"}
 
 DEFINE NEW SHARED        VARIABLE quit_login      AS LOGICAL   NO-UNDO.
-DEFINE                   VARIABLE m_id            LIKE NOSWEAT._user._userid NO-UNDO.
+DEFINE                   VARIABLE m_id            LIKE ASI._user._userid NO-UNDO.
 DEFINE                   VARIABLE ldummy          AS LOGICAL   NO-UNDO.
 DEFINE                   VARIABLE i               AS INTEGER   NO-UNDO.
 DEFINE                   VARIABLE cEulaFile       AS CHARACTER NO-UNDO.
@@ -28,16 +28,16 @@ m_id = OS-GETENV("opsysid").
 
 IF m_id = ? THEN m_id = "".
 
-IF NOT SETUSERID(m_id,"","NOSWEAT") OR m_id EQ "" THEN
+IF NOT SETUSERID(m_id,"","ASI") OR m_id EQ "" THEN
     RUN nosweat/login.w.
 
-IF USERID("NOSWEAT") = "" OR quit_login  THEN
+IF USERID("ASI") = "" OR quit_login  THEN
 DO:
     ldummy = SESSION:SET-WAIT-STATE("").
     QUIT.
 END.
 
-FIND users WHERE users.user_id = USERID("NOSWEAT") NO-LOCK NO-ERROR.
+FIND users WHERE users.user_id = USERID("ASI") NO-LOCK NO-ERROR.
 IF NOT AVAILABLE users THEN
 DO:     
     ldummy = SESSION:SET-WAIT-STATE("").
@@ -73,13 +73,15 @@ END.
   Load program & lookup data 
   =========*/
 
-IF USERID("nosweat") = "ASI" OR USERID("nosweat") = "NOSWEAT" THEN RUN asiload.p.
+IF USERID("ASI") = "ASI" OR USERID("ASI") = "NOSWEAT" THEN RUN asiload.p.
 
 RUN chkdate.p.
 cEulaFile = SEARCH("Eula.txt").
   
-IF CONNECTED("NOSWEAT") THEN
+IF CONNECTED("ASI") THEN
 DO:
+    CREATE ALIAS NoSweat FOR DATABASE ASI NO-ERROR.
+    
     lEulaAccepted = NO.
     IF cEulaFile NE ? THEN 
     DO:
@@ -103,7 +105,7 @@ DO:
     RUN Get_Procedure IN Persistent-HANDLE ("user_dir.",OUTPUT run-proc,YES).
     g_groups = "". /* YSK need to reset */
     FOR EACH usergrps NO-LOCK:
-        IF CAN-DO(usergrps.users,USERID("NOSWEAT")) THEN
+        IF CAN-DO(usergrps.users,USERID("ASI")) THEN
             g_groups = g_groups + usergrps.usergrps + ",".  /* YSK "," added  */
     END.
   
@@ -116,7 +118,7 @@ END.
 ELSE
 DO:
     ldummy = SESSION:SET-WAIT-STATE("").
-    MESSAGE "CONNECT to NOSWEAT'S Database Failed" SKIP(1)
+    MESSAGE "CONNECT to ASI'S Database Failed" SKIP(1)
         "Contact Systems Manager" VIEW-AS ALERT-BOX ERROR.
 END. 
 

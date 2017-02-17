@@ -270,13 +270,14 @@ PROCEDURE local-initialize :
       "{&FIRST-EXTERNAL-TABLE}" EQ "oe-ord" &THEN
     {methods/windows/initial/{&FIRST-EXTERNAL-TABLE}.i}
   &ENDIF
-
+  
         /* check if maximized for user */
   IF SEARCH('users/' + USERID('ASI') + '/' + v-prgmname + 'winReSize') NE ? OR
         /* check if maximized for all users */
      SEARCH('users/' + v-prgmname + 'winReSize') NE ? OR
         /* check if maximized for all users all programs */
-     SEARCH('users/winReSizeAll') NE ? THEN DO:
+     SEARCH('users/winReSizeAll') NE ? OR 
+     VALID-OBJECT (oForm) THEN DO:
     {&WINDOW-NAME}:WINDOW-STATE = 1.
     RUN winReSize.
     {methods/winReSizePgChg.i}
@@ -602,7 +603,7 @@ PROCEDURE winReSize PRIVATE :
         iOldColDiff = colDiff
         .
 
-/*    IF {&WINDOW-NAME}:WINDOW-STATE NE 1 THEN RETURN.*/
+    IF NOT VALID-OBJECT (oForm) AND {&WINDOW-NAME}:WINDOW-STATE NE 1 THEN RETURN.
 
     winReSizeDat = 'users/' + USERID('ASI') + '/winReSize.dat'.
     IF SEARCH(winReSizeDat) NE ? THEN DO:
@@ -632,7 +633,7 @@ PROCEDURE winReSize PRIVATE :
       FRAME message-frame:WIDTH-PIXELS = FRAME message-frame:WIDTH-PIXELS + wPixels
       .
 
-     IF rowDiff EQ 0 AND colDiff EQ 0 THEN DO:
+     IF VALID-OBJECT (oForm) AND rowDiff EQ 0 AND colDiff EQ 0 THEN DO:
         ASSIGN
             rowDiff = iOldRowDiff
             colDiff = iOldColDiff

@@ -38,12 +38,13 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{custom/globdefs.i}
 
 DEFINE VARIABLE start-time AS CHARACTER NO-UNDO.
 DEFINE VARIABLE end-time AS CHARACTER NO-UNDO.
 DEFINE VARIABLE total-time AS CHARACTER NO-UNDO.
-DEF VAR g_batch AS LOG NO-UNDO.
-DEF VAR g_batch-rowid AS ROWID NO-UNDO.
+/*DEF VAR g_batch AS LOG NO-UNDO.*/
+/*DEF VAR g_batch-rowid AS ROWID NO-UNDO.*/
 DEF VAR cocode AS CHAR NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */

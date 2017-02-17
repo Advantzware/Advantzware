@@ -41,7 +41,7 @@ IF i = 1 THEN
       ELSE
       INPUT FROM VALUE(SEARCH (m_menu-lst[1])) NO-ECHO.
     ELSE
-    INPUT FROM popup.lst NO-ECHO.
+    INPUT FROM VALUE(SEARCH ("popup.lst")) NO-ECHO.
     REPEAT:
       ASSIGN
        m_item1 = ""
@@ -67,7 +67,7 @@ IF i = 1 THEN
       ELSE
       INPUT FROM VALUE(SEARCH (m_menu-lst[1])) NO-ECHO.
     ELSE
-    INPUT FROM popup.lst NO-ECHO.
+    INPUT FROM VALUE(SEARCH ("popup.lst")) NO-ECHO.
     REPEAT:
       ASSIGN
        m_item1 = ""

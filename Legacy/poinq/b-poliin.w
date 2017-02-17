@@ -42,6 +42,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{custom/globdefs.i}
 
 DEF VAR cf-acct-dscr LIKE account.dscr NO-UNDO.
 
