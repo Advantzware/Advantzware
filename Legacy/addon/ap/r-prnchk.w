@@ -65,6 +65,17 @@ DEFINE VARIABLE gcRemittanceDefault AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE gcPDFFile AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE gcDefVend AS CHARACTER   NO-UNDO.
 
+DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
+
+ RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.
+
 {custom/xprint.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -1142,11 +1153,16 @@ do on error undo outers, leave outers :
     IF ll-is-xprint-form THEN DO:
         CASE rd-dest:
             WHEN 1 THEN PUT "<PRINTER?>" /*"</PROGRESS>"*/ .
-            WHEN 2 THEN PUT "<PREVIEW>" /*"</PROGRESS>"*/.        /* Task 09301303*/    
-/*           WHEN 4 THEN do:                                                                                                    */
+            WHEN 2 THEN do:
+               IF NOT lBussFormModle THEN
+                PUT "<PREVIEW><MODAL=NO>". 
+               ELSE
+                PUT "<PREVIEW>".        
+            END. 
+/*          WHEN 4 THEN do:                                                                                                    */
 /*                 ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".                                                          */
 /*                 PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW>".                                                     */
-/*           END.                                                                                                               */
+/*          END.                                                                                                               */
           WHEN 5 THEN do:
               gcPDFFile = init-dir + "\RemitRun.pdf".
               PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=2.5mm><PDF-OUTPUT=" + gcPdfFile + ">" FORM "x(100)".

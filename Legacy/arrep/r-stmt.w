@@ -94,6 +94,17 @@ DEF VAR vcDefaultForm AS CHAR NO-UNDO.
 DEF VAR v-dir AS CHAR FORMAT "X(80)" NO-UNDO.
 DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
 
+DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
+
+ RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.
+
 {custom/xprint.i}
 
 /* Buffers */
@@ -1704,8 +1715,13 @@ ELSE
 IF is-xprint-form THEN DO:
    CASE rd-dest :
         WHEN 1 THEN PUT "<PRINTER?>" FORM "x(30)".
-        WHEN 2 THEN PUT "<PREVIEW>" FORM "x(30)".
-          WHEN 4 THEN do:
+        WHEN 2 THEN do:
+            IF NOT lBussFormModle THEN        
+              PUT "<PREVIEW><MODAL=NO>" FORM "x(30)". 
+            ELSE
+              PUT "<PREVIEW>" FORM "x(30)".
+        END.
+        WHEN 4 THEN do:
               ls-fax-file = "c:\tmp\fx" + STRING(TIME) + ".tif".
               PUT UNFORMATTED "<PRINT=NO><EXPORT=" Ls-fax-file ",BW></PROGRESS>".
         END.        
@@ -2516,8 +2532,13 @@ is-xprint-form = YES.
 IF is-xprint-form THEN DO:
    CASE rd-dest :
         WHEN 1 THEN PUT "<PRINTER?>" FORM "x(30)".
-        WHEN 2 THEN PUT "<PREVIEW>" FORM "x(30)".
-          WHEN 4 THEN do:
+        WHEN 2 THEN do:
+            IF NOT lBussFormModle THEN        
+              PUT "<PREVIEW><MODAL=NO>" FORM "x(30)". 
+            ELSE
+              PUT "<PREVIEW>" FORM "x(30)".
+        END.
+        WHEN 4 THEN do:
               ls-fax-file = "c:\tmp\fx" + STRING(TIME) + ".tif".
               PUT UNFORMATTED "<PRINT=NO><EXPORT=" Ls-fax-file ",BW></PROGRESS>".
         END.        
@@ -3234,8 +3255,13 @@ ELSE
 IF is-xprint-form THEN DO:
    CASE rd-dest :
         WHEN 1 THEN PUT "<PRINTER?>" FORM "x(30)".
-        WHEN 2 THEN PUT "<PREVIEW>" FORM "x(30)".
-          WHEN 4 THEN do:
+        WHEN 2 THEN do:
+            IF NOT lBussFormModle THEN        
+              PUT "<PREVIEW><MODAL=NO>" FORM "x(30)". 
+            ELSE
+              PUT "<PREVIEW>" FORM "x(30)".
+        END.
+        WHEN 4 THEN do:
               ls-fax-file = "c:\tmp\fx" + STRING(TIME) + ".tif".
               PUT UNFORMATTED "<PRINT=NO><EXPORT=" Ls-fax-file ",BW></PROGRESS>".
         END.        

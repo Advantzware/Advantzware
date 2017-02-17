@@ -65,6 +65,17 @@ DEF VAR choice AS LOG NO-UNDO.
 
 {custom/xprint.i}
 
+DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
+
+ RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.
+
 DEF VAR lv-prt-bypass     AS LOG NO-UNDO.  /* bypass window's printer driver */
 
 /* Build a Table to keep sequence of pdf files */
@@ -1284,7 +1295,12 @@ PROCEDURE run-report :
   IF IS-xprint-form THEN DO:
   CASE rd-dest:
     WHEN 1 THEN PUT "<PRINTER?></PROGRESS>".
-    WHEN 2 THEN PUT "<PREVIEW>".  
+    WHEN 2 THEN do:
+    IF NOT lBussFormModle THEN
+        PUT "<PREVIEW><MODAL=NO>". 
+    ELSE
+        PUT "<PREVIEW>".      
+    END.  
     WHEN 3 THEN DO:
      /*  {custom/out2file.i} */
     END.

@@ -51,6 +51,18 @@ DEF VAR is-xprint-form AS LOG NO-UNDO.
 def {1} SHARED var v-print-fmt  as char NO-UNDO.
 DEF VAR ls-fax-file AS CHAR NO-UNDO.
 
+DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
+
+ RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.
+
+
 DEF VAR rd_lComments AS LOGICAL INIT YES NO-UNDO.
 
 DEF TEMP-TABLE tt-report NO-UNDO LIKE report 

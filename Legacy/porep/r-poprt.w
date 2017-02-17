@@ -71,7 +71,6 @@ DEFINE TEMP-TABLE w-export NO-UNDO
 {custom/xprint.i}
 DEFINE NEW SHARED VARIABLE s-group-notes AS LOG NO-UNDO.
 DEFINE NEW SHARED VARIABLE s-print-prices AS LOG NO-UNDO.
-
 /* Variables defined for Excel */
 /* Build a Table to keep sequence of pdf files */
 
@@ -103,6 +102,17 @@ RUN sys/ref/nk1look.p (cocode, "POPaperClip", "L", NO, NO, "", "",
                           OUTPUT cRtnChar, OUTPUT llRecFound).
 IF llRecFound THEN
         poPaperClip-log = LOGICAL(cRtnChar).
+        
+DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
+
+ RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.
+       
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1540,7 +1550,12 @@ PROCEDURE run-report :
   
       CASE rd-dest:
           WHEN 1 THEN PUT  "<PRINTER?></PROGRESS>".
-          WHEN 2 THEN PUT "<PREVIEW></PROGRESS>".        
+          WHEN 2 THEN do:
+              IF NOT lBussFormModle THEN
+                PUT "<PREVIEW><MODAL=NO></PROGRESS>".     
+              ELSE
+                PUT "<PREVIEW></PROGRESS>".     
+          END.          
           WHEN 4 THEN DO:
               ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".
                     /*(IF is-xprint-form THEN ".xpr" ELSE ".txt").*/

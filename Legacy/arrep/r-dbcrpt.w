@@ -91,6 +91,17 @@ DEF VAR v-ftp-done AS LOG NO-UNDO.
 DEF VAR v-print-fmt AS cha NO-UNDO.
 DEF NEW SHARED VAR v-term-id AS cha NO-UNDO.
 
+DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
+
+ RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.
+
 /* gdm - 03120909 */
 DEF VAR v-chrfld  AS CHAR NO-UNDO.
 
@@ -935,7 +946,14 @@ v-term-id = v-term.
   IF IS-xprint-form THEN DO:
     CASE rd-dest:
         WHEN 1 THEN PUT  "<PRINTER?></PROGRESS>".
-        WHEN 2 THEN PUT "<PREVIEW></PROGRESS>".        
+        WHEN 2 THEN do:
+            IF NOT lBussFormModle THEN
+              PUT "<PREVIEW><MODAL=NO></PROGRESS>".
+            ELSE 
+              PUT "<PREVIEW></PROGRESS>". 
+        END.    
+             
+      
         WHEN  4 THEN do:
               ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".
                   /*(IF is-xprint-form THEN ".xpr" ELSE ".txt").*/

@@ -61,6 +61,17 @@ DEF VAR ls-fax-file AS cha NO-UNDO.
 
 DEF VAR lv-pdf-file AS cha NO-UNDO.
 
+DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
+
+ RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -892,7 +903,12 @@ if td-show-parm then run show-param.
 SESSION:SET-WAIT-STATE ("general").
 is-xprint-form = yes.
 
-IF rd-dest EQ 2 THEN PUT "<PREVIEW>".
+IF rd-dest EQ 2 THEN do:
+ IF NOT lBussFormModle THEN
+   PUT "<PREVIEW><MODAL=NO>". 
+ ELSE
+   PUT "<PREVIEW>".
+END.
 ELSE IF rd-dest EQ 1 THEN PUT "<PRINTER?>".
 ELSE IF rd-dest eq  4 THEN do:
         ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".

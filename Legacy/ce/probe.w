@@ -149,6 +149,17 @@ ASSIGN
  cocode = g_company
  locode = g_loc.
 
+DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
+
+ RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lBussFormModle = LOGICAL(cRtnChar) NO-ERROR. 
+    
 find first sys-ctrl where
     sys-ctrl.company eq cocode AND
     sys-ctrl.name    eq "CEBROWSE"
@@ -3013,8 +3024,13 @@ PROCEDURE printProbe :
   
   IF is-xprint-form THEN DO:
     OUTPUT TO VALUE(ls-xfile).
-    IF lv-dest = 1 THEN PUT "<PRINTER?></PROGRESS>".  /*<REVIEW>*/
-    ELSE IF lv-dest = 2 THEN PUT "<PREVIEW=115></PROGRESS>".  /*<REVIEW>*/
+    IF lv-dest = 1 THEN PUT "<PRINTER?></PROGRESS>".  /*<REVIEW>*/      
+    ELSE IF lv-dest EQ 2 THEN DO:
+      IF NOT lBussFormModle THEN
+         PUT "<PREVIEW=115><MODAL=NO></PROGRESS>".
+      ELSE
+         PUT "<PREVIEW=115></PROGRESS>".        
+    END.       
     ELSE IF lv-dest = 4 THEN DO:
        ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".
        PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW></PROGRESS>".
