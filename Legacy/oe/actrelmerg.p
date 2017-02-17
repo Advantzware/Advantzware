@@ -942,7 +942,7 @@ CASE ipcMergeType:
                                       1/1/1980 ELSE 
                                    oe-rel.rel-date,"99-99-99") +
                                   "/" + oe-rel.i-no.
-    WHEN "AllOrders" THEN ASSIGN 
+    WHEN "AllOrders" OR WHEN "AllOrders&NotRunShip" THEN ASSIGN 
         cMessage = "A previous release exists for Customer/Ship-To/Date"
         cMessageCore = TRIM(oe-rel.cust-no) + "/" +
                                   TRIM(oe-rel.ship-id) + "/" +

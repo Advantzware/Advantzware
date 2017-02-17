@@ -420,6 +420,41 @@ END.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-period-to B-table-Win
+ON LEAVE OF lv-period-to IN FRAME F-Main /* Account Number */
+DO:
+   IF LASTKEY = -1 THEN RETURN.
+   ASSIGN {&self-name}.
+
+   IF lv-period-to:SCREEN-VALUE < lv-period-fr:SCREEN-VALUE THEN DO:
+       MESSAGE "Ending Period must be same or later period..." VIEW-AS ALERT-BOX ERROR.
+       RETURN NO-APPLY.
+   END.
+
+   IF lv-period-fr:SCREEN-VALUE EQ "0" OR lv-period-to:SCREEN-VALUE EQ "0" THEN DO:
+       MESSAGE "Period should not be zero..." VIEW-AS ALERT-BOX ERROR.
+       RETURN NO-APPLY.
+   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-period-fr B-table-Win
+ON LEAVE OF lv-period-fr IN FRAME F-Main /* Account Number */
+DO:
+   IF LASTKEY = -1 THEN RETURN.
+   ASSIGN {&self-name}.
+
+   IF  lv-period-fr:SCREEN-VALUE EQ "0" THEN DO:
+       MESSAGE "Period should not be zero..." VIEW-AS ALERT-BOX ERROR.
+       RETURN NO-APPLY.
+   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &Scoped-define BROWSE-NAME br_table
 &Scoped-define SELF-NAME br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
@@ -539,11 +574,15 @@ END.
 ON CHOOSE OF btn-all IN FRAME F-Main /* Show All */
 DO:
       ASSIGN begin_acct = ""
-             lv-year = 0
-             lv-period-fr = 0
+             lv-period-fr = 1
              lv-period-to = 12.
+      ASSIGN lv-year.
+      
+      IF lv-year:SCREEN-VALUE EQ "0" THEN 
+                 lv-year = YEAR(TODAY).
+      
       DISPLAY begin_acct lv-year lv-period-fr lv-period-to WITH FRAME {&FRAME-NAME}.
-
+      
       RUN build-inquiry.
       {&open-query-{&browse-name}}
       DISPLAY lv-open-bal lv-close-bal WITH FRAME {&FRAME-NAME}.
@@ -559,10 +598,21 @@ END.
 ON CHOOSE OF btn-go IN FRAME F-Main /* Go */
 DO:
       ASSIGN {&list-1}.
+      
+      IF lv-period-to:SCREEN-VALUE < lv-period-fr:SCREEN-VALUE THEN DO:
+          MESSAGE "Ending Period must be same or later period" VIEW-AS ALERT-BOX ERROR.
+          RETURN NO-APPLY.
+      END.
 
+      IF lv-period-fr:SCREEN-VALUE EQ "0" OR lv-period-to:SCREEN-VALUE EQ "0" THEN DO:
+          MESSAGE "Period should not be zero..." VIEW-AS ALERT-BOX ERROR.
+          RETURN NO-APPLY.
+      END.
+      
       RUN build-inquiry.
       {&open-query-{&browse-name}}
-      DISPLAY lv-open-bal lv-close-bal WITH FRAME {&FRAME-NAME}.
+          DISPLAY lv-open-bal lv-close-bal WITH FRAME {&FRAME-NAME}.
+      
       
 END.
 
@@ -726,7 +776,6 @@ PROCEDURE build-inquiry :
   ASSIGN
      v-max-dscr-length = 0
      uperiod = lv-period-fr.
-
   FIND first account WHERE account.company = g_company
                        AND account.actnum = begin_acct NO-LOCK NO-ERROR.
 
@@ -738,8 +787,7 @@ PROCEDURE build-inquiry :
                       AND period.yr = lv-year
                       AND period.pnum = lv-period-to NO-LOCK NO-ERROR.
   tmp-end = IF AVAIL period THEN period.pend ELSE 12/31/9999 /*01/01/0001*/ .
-
-  RUN gl/gl-opend.p (ROWID(account), tmp-start, OUTPUT lv-open-bal).
+ RUN gl/gl-opend.p (ROWID(account), tmp-start, OUTPUT lv-open-bal).
 
   lv-close-bal = lv-open-bal.
 
@@ -885,6 +933,8 @@ PROCEDURE local-initialize :
            FI_moveCol = "Sort"
            .
         DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
+        APPLY 'ENTRY':U TO begin_acct IN FRAME {&FRAME-NAME}.
+
 
 END PROCEDURE.
 

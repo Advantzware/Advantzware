@@ -48,7 +48,7 @@ def temp-table tt-job field job-no like job.job-no
 &Scoped-define PROCEDURE-TYPE SmartObject
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
@@ -245,7 +245,7 @@ DEFINE BUTTON Btn_sort
      SIZE 39 BY 1.67 TOOLTIP "SORT / Job".
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 124 BY 12.95.
 
 
@@ -348,7 +348,7 @@ END.
 /* SETTINGS FOR WINDOW s-object
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -1204,11 +1204,13 @@ PROCEDURE schedule-proc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  IF LOOKUP(PROPATH,'schedule') EQ 0 THEN
-  PROPATH = '..\schedule,' + PROPATH.
+  IF LOOKUP(PROPATH,"../") EQ 0 THEN
+    PROPATH = "../," + PROPATH.
+
   FIND FIRST sys-ctrl NO-LOCK
        WHERE sys-ctrl.company EQ company_code
-         AND sys-ctrl.name    EQ "SCHEDULE" NO-ERROR.
+         AND sys-ctrl.name    EQ "SCHEDULE"
+       NO-ERROR.
   IF NOT AVAIL sys-ctrl THEN
   DO TRANSACTION:
     CREATE sys-ctrl.
@@ -1216,11 +1218,12 @@ PROCEDURE schedule-proc :
      sys-ctrl.company  = company_code
      sys-ctrl.name     = "SCHEDULE"
      sys-ctrl.descrip  = "Update Order Due date and Promise date via Scheduled Job Start Date?"
-     sys-ctrl.char-fld = "None".
+     sys-ctrl.char-fld = "None"
+     .
     FIND CURRENT sys-ctrl NO-LOCK.
   END.
-  IF sys-ctrl.log-fld THEN RUN VALUE(SEARCH('sbView.r')).
-  ELSE RUN VALUE(SEARCH('sbBasic.r')). /*jcsch/w-jobsc3.w (machine_code).*/
+  IF sys-ctrl.log-fld THEN RUN VALUE(SEARCH('schedule\sbView.r')).
+  ELSE RUN VALUE(SEARCH('schedule\sbBasic.r')). /*jcsch/w-jobsc3.w (machine_code).*/
 
 END PROCEDURE.
 

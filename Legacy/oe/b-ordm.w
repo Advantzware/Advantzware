@@ -862,7 +862,7 @@ END.
 
 RUN oe/oe-sysct.p.
 
-IF v-oecomm-cha NE "Manual" THEN RUN show-comm (NO).
+ IF NOT v-oecomm-log THEN RUN show-comm (NO).
 
 FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK NO-ERROR.    
 
@@ -1331,7 +1331,7 @@ PROCEDURE local-cancel-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */    
-  IF v-oecomm-cha NE "Manual" THEN RUN show-comm (NO).
+  IF NOT v-oecomm-log THEN RUN show-comm (NO).
 
 END PROCEDURE.
 
@@ -1456,7 +1456,7 @@ PROCEDURE local-enable-fields :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  RUN show-comm (YES).
+  IF NOT v-oecomm-log THEN RUN show-comm (NO).
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
@@ -1529,7 +1529,7 @@ PROCEDURE local-update-record :
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
      RUN Redisplay IN WIDGET-HANDLE(CHAR-hdl).
       
-  IF v-oecomm-cha NE "Manual" THEN RUN show-comm (NO).
+  IF NOT v-oecomm-log THEN RUN show-comm (NO).
 
   RUN reopen-query(ROWID(oe-ordm)).
 
@@ -1799,9 +1799,6 @@ PROCEDURE show-comm :
 
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
-     oe-ordm.s-man[1]:VISIBLE IN BROWSE {&browse-name}  = ip-visible
-     oe-ordm.s-man[2]:VISIBLE IN BROWSE {&browse-name}  = ip-visible
-     oe-ordm.s-man[3]:VISIBLE IN BROWSE {&browse-name}  = ip-visible
      oe-ordm.s-pct[1]:VISIBLE IN BROWSE {&browse-name}  = ip-visible
      oe-ordm.s-pct[2]:VISIBLE IN BROWSE {&browse-name}  = ip-visible
      oe-ordm.s-pct[3]:VISIBLE IN BROWSE {&browse-name}  = ip-visible

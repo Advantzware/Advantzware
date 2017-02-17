@@ -290,7 +290,7 @@ DEF VAR v-die-no  LIKE eb.die-no NO-UNDO.
 format HEADER 
        "<OLANDSCAPE><P12>" skip
         "<B>JOB NUMBER:<B><P13>" v-job-no space(0) "-" space(0) v-job-no2 format "99" "</B>"
-        "<B><P12>Carded Graphics, LLC Factory Ticket</B><P10>" at 47   SKIP
+        "<B><P12>Graphic Packaging International, Inc.</B><P10>" at 47   SKIP
         "       <B>FORM#:" string(lv-pg-num2,">9") + " of " + string(lv-tot-pg)  "</B>ORDER DATE:" at 100 v-start-date  
     v-fill
     with no-box frame head no-labels stream-io width 155.
@@ -1214,15 +1214,9 @@ END FUNCTION.
                  
                  IF AVAIL oe-ord THEN FIND FIRST vend WHERE vend.company = oe-ordl.company
                                                    AND vend.vend-no = oe-ordl.vend-no NO-LOCK NO-ERROR.
-                 v-vend = /*IF AVAIL po-ord THEN po-ord.vend-no ELSE "".*/
-                         IF AVAIL vend THEN vend.NAME ELSE "".
-                 IF v-vend = "" AND AVAIL bf-item THEN DO:
-                    FIND FIRST vend WHERE vend.company = oe-ordl.company
-                                       AND vend.vend-no = bf-item.vend-no NO-LOCK NO-ERROR.
-                    v-vend = IF AVAIL vend THEN vend.NAME
-                             ELSE IF AVAIL oe-ordl THEN oe-ordl.vend-no ELSE "".
-                 END.
-                /* v-po-duedate = IF AVAIL vend THEN vend.due-date ELSE "" .*/
+                 v-vend = IF AVAIL vend THEN vend.NAME ELSE "".
+
+                 v-po-duedate = IF AVAIL oe-ordl THEN oe-ordl.req-date ELSE ? .
                  v-board-po = IF AVAIL oe-ordl THEN oe-ordl.po-no-po ELSE 0.
 
                 IF ef.xgrain EQ "S" THEN 
@@ -1240,7 +1234,7 @@ END FUNCTION.
                     /*eb.cad-no   FORM "x(13)"*/ " " 
                     v-board-po FORM ">>>>>>99" "  "
                     v-po-duedate  FORM "99/99/9999" "  " 
-                    v-vend   FORM "x(10)" " "         SKIP
+                    v-vend   FORM "x(20)" " "         SKIP
                     /*v-die-size FORM "x(16)" AT 78*/
                     SKIP.
                 X = 1.

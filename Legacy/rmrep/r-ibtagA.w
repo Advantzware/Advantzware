@@ -1209,8 +1209,8 @@ ASSIGN
 
 IF tb_excel THEN DO:
 
-    excelheader = "Whse,Item,Description,Bin,Tag,Rct Date," +
-                  "Quantity,Unit Cost,Total Cost Value,Item Name".
+    excelheader = "Whse,Item,Item Name,Bin,Tag,Rct Date," +
+                  "Quantity,Unit Cost,Total Cost Value".
 
     OUTPUT STREAM excel TO VALUE(fi_file).
     PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
@@ -1327,10 +1327,14 @@ SESSION:SET-WAIT-STATE ("general").
             tt-rm-bin.i-no         WHEN FIRST-OF(tt-rm-bin.i-no)
                                      OR v-prnt-line EQ 0
                                    LABEL "Item"
-            ITEM.i-dscr            WHEN FIRST-OF(tt-rm-bin.i-no)
+            ITEM.i-name            WHEN FIRST-OF(tt-rm-bin.i-no)
                                      OR v-prnt-line EQ 0
                                    FORMAT "x(30)"
-                                   LABEL "Description"
+                                   LABEL "Item Name"
+            /*ITEM.i-dscr            WHEN FIRST-OF(tt-rm-bin.i-no)
+                                     OR v-prnt-line EQ 0
+                                   FORMAT "x(30)"
+                                   LABEL "Description"*/
             tt-rm-bin.loc-bin      LABEL "Bin"
             tt-rm-bin.tag          LABEL "Tag" FORMAT "x(22)"
             tt-rm-bin.trans-date   FORMAT "99/99/99"
@@ -1340,11 +1344,7 @@ SESSION:SET-WAIT-STATE ("general").
             v-cost                 FORMAT ">,>>>,>>9.99<<<<"
                                    LABEL "Unit Cost"
             tt-rm-bin.qty * v-cost FORMAT  "->,>>>,>>9.99"
-                                   COLUMN-LABEL "Total!Cost Value"
-            ITEM.i-name            WHEN FIRST-OF(tt-rm-bin.i-no)
-                                     OR v-prnt-line EQ 0
-                                   FORMAT "x(30)"
-                                   LABEL "Item Name"  SKIP 
+                                   COLUMN-LABEL "Total!Cost Value" SKIP 
 
          WITH FRAME itemx NO-BOX NO-ATTR-SPACE DOWN STREAM-IO WIDTH 164.
 
@@ -1356,9 +1356,9 @@ SESSION:SET-WAIT-STATE ("general").
           chrTotCostVal = STRING(tt-rm-bin.qty * v-cost, "->>>>>9.99").
         
         EXPORT STREAM excel DELIMITER ","
-          tt-rm-bin.loc tt-rm-bin.i-no ITEM.i-dscr tt-rm-bin.loc-bin
+          tt-rm-bin.loc tt-rm-bin.i-no ITEM.i-name tt-rm-bin.loc-bin
           chrRmBinTag tt-rm-bin.trans-date tt-rm-bin.qty v-cost 
-          chrTotCostVal ITEM.i-name.
+          chrTotCostVal.
     
     END.
 

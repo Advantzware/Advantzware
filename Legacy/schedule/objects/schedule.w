@@ -41,6 +41,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+{system/sysconst.i}
 {schedule/scopDir.i}
 {{&includes}/defBoard.i}
 

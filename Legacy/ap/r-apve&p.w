@@ -804,6 +804,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN init-proc.
 
   RUN enable_UI.
+  {methods/nowait.i}
 
   DO WITH FRAME {&frame-name}:
     {custom/usrprint.i}
@@ -820,9 +821,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO tran-date.
   END.
 
-  {methods/nowait.i}
+  
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
+
 END.
 
 /* _UIB-CODE-BLOCK-END */

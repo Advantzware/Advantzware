@@ -320,7 +320,8 @@ END.
                                       AND oe-rell.po-no    EQ w-oe-rell.po-no
                                       AND oe-rell.loc      EQ fg-bin.loc
                                       AND oe-rell.loc-bin  EQ fg-bin.loc-bin
-                                      AND oe-rell.tag      EQ fg-bin.tag) THEN
+                                      AND oe-rell.tag      EQ fg-bin.tag 
+                                      AND fg-bin.tag NE "" ) THEN
                   NEXT.
               
                create tt-bin-file.
@@ -495,7 +496,8 @@ FOR EACH tt-item NO-LOCK:
                                       AND oe-rell.po-no    EQ w-oe-rell.po-no
                                       AND oe-rell.loc      EQ fg-bin.loc
                                       AND oe-rell.loc-bin  EQ fg-bin.loc-bin
-                                      AND oe-rell.tag      EQ fg-bin.tag) THEN
+                                      AND oe-rell.tag      EQ fg-bin.tag 
+                                      AND fg-bin.tag NE "" ) THEN
                   NEXT.
               
                create w-bin.

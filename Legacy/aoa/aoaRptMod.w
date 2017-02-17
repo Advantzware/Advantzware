@@ -303,7 +303,7 @@ DEFINE VARIABLE aoaRptFile AS CHARACTER FORMAT "X(256)":U
      SIZE 90 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE autoSetParameters AS LOGICAL INITIAL yes 
+DEFINE VARIABLE autoSetParameters AS LOGICAL INITIAL no 
      LABEL "Auto Set Parameters" 
      VIEW-AS TOGGLE-BOX
      SIZE 23.4 BY .81 NO-UNDO.
@@ -459,9 +459,9 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          TITLE              = "AOA Report Modifier"
          HEIGHT             = 40.71
          WIDTH              = 320
-         MAX-HEIGHT         = 320
+         MAX-HEIGHT         = 40.71
          MAX-WIDTH          = 320
-         VIRTUAL-HEIGHT     = 320
+         VIRTUAL-HEIGHT     = 40.71
          VIRTUAL-WIDTH      = 320
          RESIZE             = yes
          SCROLL-BARS        = no
@@ -704,7 +704,7 @@ ON CHOOSE OF btnSave IN FRAME DEFAULT-FRAME /* Save */
 DO:
     ASSIGN {&aoaReportValue}
         hReport:Sections:Item("ReportHeader"):Controls:Item("ReportTitle"):Caption = aoaReportTitle
-        hReport:Sections:Item("ReportHeader"):Controls:Item("ReportTitle"):Width   = LENGTH(aoaReportTitle) * {&aoaMultiplier} + 35
+        hReport:Sections:Item("ReportHeader"):Controls:Item("ReportTitle"):Width   = 11520
         hReport:PrintWidth = aoaReportWidth
         .
     RUN pSetScript.
@@ -1492,7 +1492,7 @@ PROCEDURE pUpdate :
             cID = "aoa/" + ttAOA.progID + "p"
             cID = SEARCH(cID)
             .
-        RUN pOpenAOAProgram (cID).
+        RUN pOpenAOAProgram (ttAOA.module, cID).
         RUN pSetScript.
         RUN pPublish (NO).
     END. /* each ttaoa */

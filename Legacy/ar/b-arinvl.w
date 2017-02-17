@@ -691,7 +691,7 @@ END.
 
 RUN oe/oe-sysct.p.
 
-IF v-oecomm-cha NE "Manual" THEN RUN show-comm (NO).
+IF NOT v-oecomm-log THEN RUN show-comm (NO).
 
 {sys/inc/f3help.i}
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
@@ -897,7 +897,7 @@ PROCEDURE local-cancel-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */   
-  IF v-oecomm-cha NE "Manual" THEN RUN show-comm (NO).
+  IF NOT v-oecomm-log THEN RUN show-comm (NO).
 
 END PROCEDURE.
 
@@ -995,7 +995,7 @@ PROCEDURE local-enable-fields :
      RETURN .
   END.
 
-  RUN show-comm (YES).
+  IF NOT v-oecomm-log THEN RUN show-comm (NO).
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
@@ -1051,7 +1051,7 @@ PROCEDURE local-update-record :
   FIND CURRENT ar-invl NO-LOCK NO-ERROR.
   RUN dispatch ('display-fields').
       
-  IF v-oecomm-cha NE "Manual" THEN RUN show-comm (NO).
+  IF NOT v-oecomm-log THEN RUN show-comm (NO).
 
   IF ll-new-record THEN RUN auto-add.
 
@@ -1117,9 +1117,6 @@ PROCEDURE show-comm :
 
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
-     ar-invl.sman[1]:VISIBLE IN BROWSE {&browse-name}  = ip-visible
-     ar-invl.sman[2]:VISIBLE IN BROWSE {&browse-name}  = ip-visible
-     ar-invl.sman[3]:VISIBLE IN BROWSE {&browse-name}  = ip-visible
      ar-invl.s-pct[1]:VISIBLE IN BROWSE {&browse-name}  = ip-visible
      ar-invl.s-pct[2]:VISIBLE IN BROWSE {&browse-name}  = ip-visible
      ar-invl.s-pct[3]:VISIBLE IN BROWSE {&browse-name}  = ip-visible

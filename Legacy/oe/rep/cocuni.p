@@ -163,7 +163,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
        END.
 
     ASSIGN
-      chWorkSheet:Range("k52"):VALUE = IF v-manuf-date NE 12/31/2999 THEN
+      chWorkSheet:Range("k58"):VALUE = IF v-manuf-date NE 12/31/2999 THEN
                                           STRING(v-manuf-date) ELSE ""
       chWorkSheet:Range("AH6"):VALUE = TODAY
       chWorkSheet:Range("J16"):VALUE = cust.NAME
@@ -171,13 +171,13 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
       chWorkSheet:Range("J18"):VALUE = cust.addr[2]
       chWorkSheet:Range("J19"):VALUE = v-cust-addr3
       chWorkSheet:Range("K25"):VALUE = oe-boll.po-no
-      chWorkSheet:Range("K50"):VALUE = v-bol-qty. 
+      chWorkSheet:Range("K56"):VALUE = v-bol-qty. 
 
     IF AVAILABLE oe-ordl THEN
     DO:
        ASSIGN
          chWorkSheet:Range("K27"):VALUE = "'" + oe-ordl.part-no
-         chWorkSheet:Range("K44"):VALUE = oe-ordl.ord-no.
+         chWorkSheet:Range("K50"):VALUE = oe-ordl.ord-no.
 
        FIND FIRST eb NO-LOCK WHERE
             eb.company EQ cocode AND
@@ -191,29 +191,38 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
        ELSE
           chWorkSheet:Range("K29"):VALUE = oe-ordl.i-name.
 
+       IF AVAILABLE eb AND eb.part-dscr1 NE "" THEN
+          chWorkSheet:Range("K31"):VALUE = ITEMfg.part-dscr1.
+
+       IF AVAILABLE eb AND eb.part-dscr1 NE "" THEN
+          chWorkSheet:Range("K33"):VALUE = itemfg.part-dscr2.
+
+       IF AVAILABLE eb AND eb.part-dscr1 NE "" THEN
+          chWorkSheet:Range("K35"):VALUE = itemfg.part-dscr3.
+
        IF AVAILABLE eb AND eb.cad-no NE "" THEN
-          chWorkSheet:Range("K31"):VALUE = eb.cad-no.
+          chWorkSheet:Range("K37"):VALUE = eb.cad-no.
        ELSE
-          chWorkSheet:Range("K31"):VALUE = itemfg.cad-no.
+          chWorkSheet:Range("K37"):VALUE = itemfg.cad-no.
        
        IF AVAILABLE eb AND eb.die-no NE "" THEN
-           chWorkSheet:Range("K36"):VALUE = eb.die-no.
+           chWorkSheet:Range("K42"):VALUE = eb.die-no.
        ELSE
-           chWorkSheet:Range("K36"):VALUE = itemfg.die-no.
+           chWorkSheet:Range("K42"):VALUE = itemfg.die-no.
        
        v-dim = STRING(itemfg.l-score[50]) + "X" + STRING(itemfg.w-score[50]) + "X" + STRING(itemfg.d-score[50]).  
-       chWorkSheet:Range("K38"):VALUE = v-dim.
+       chWorkSheet:Range("K44"):VALUE = v-dim.
        
-       IF AVAILABLE eb THEN chWorkSheet:Range("K40"):VALUE = eb.i-coldscr. 
+       IF AVAILABLE eb THEN chWorkSheet:Range("K46"):VALUE = eb.i-coldscr. 
        
        FIND FIRST ef WHERE
             ef.company EQ cocode AND
             ef.est-no EQ oe-ordl.est-no AND
             ef.form-no EQ oe-ordl.form-no
             NO-LOCK NO-ERROR.
-       IF AVAILABLE ef THEN chWorkSheet:Range("K42"):VALUE = ef.brd-dscr.
+       IF AVAILABLE ef THEN chWorkSheet:Range("K48"):VALUE = ef.brd-dscr.
        
-       chWorkSheet:Range("K48"):VALUE = v-total-cases.
+       chWorkSheet:Range("K54"):VALUE = v-total-cases.
        
        FOR EACH oe-rel NO-LOCK
            WHERE oe-rel.company   EQ oe-ordl.company
@@ -231,13 +240,13 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
        END.
 
        IF v-rel-date NE 12/31/2999 THEN
-          chWorkSheet:Range("K54"):VALUE =  v-rel-date.
+          chWorkSheet:Range("K60"):VALUE =  v-rel-date.
     END.
 
     IF SEARCH(FILE-INFO:FULL-PATHNAME) NE ? THEN DO:
-       mypict = chExcelApplication:Range("B55"):PARENT:Pictures:INSERT(FILE-INFO:FULL-PATHNAME).
-       mypict:TOP = chExcelApplication:Range("B55"):TOP.
-       mypict:LEFT = chExcelApplication:Range("B55"):LEFT.
+       mypict = chExcelApplication:Range("B61"):PARENT:Pictures:INSERT(FILE-INFO:FULL-PATHNAME).
+       mypict:TOP = chExcelApplication:Range("B61"):TOP.
+       mypict:LEFT = chExcelApplication:Range("B61"):LEFT.
        RELEASE OBJECT mypict.
     END.
 
@@ -246,7 +255,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
        v-total-cases = 0
        v-rel-date = 12/31/2999
        v-manuf-date = 12/31/2999
-       chExcelApplication:activeSheet:PageSetup:PrintArea = "$A$AM:$AM$56" .
+       chExcelApplication:activeSheet:PageSetup:PrintArea = "$A$AM:$AM$62" .
   end.
 end. /* for each report */   
 

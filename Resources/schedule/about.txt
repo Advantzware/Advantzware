@@ -12,6 +12,9 @@
 
  History:
 
+ v3.005 (updated 1.27.2017)
+ * added field job "created" date
+
  v3.004 (updated 1.5.2017)
  * ability to load udf fields
  * added field "speed"

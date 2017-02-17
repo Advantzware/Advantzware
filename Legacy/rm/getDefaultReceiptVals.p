@@ -12,7 +12,8 @@ DEFINE OUTPUT PARAMETER svqty-case  AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER svCases  AS CHARACTER NO-UNDO. 
 DEFINE OUTPUT PARAMETER svcases-unit  AS CHARACTER NO-UNDO. 
 DEFINE OUTPUT PARAMETER svpartial    AS CHARACTER NO-UNDO. 
-DEFINE OUTPUT PARAMETER svt-qty  AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER svt-qty  AS CHARACTER NO-UNDO.  
+DEFINE OUTPUT PARAMETER svqty-uom  as char no-undo. 
 DEFINE OUTPUT PARAMETER svcost-uom  AS CHARACTER NO-UNDO  . 
 DEFINE OUTPUT PARAMETER svstd-cost  AS CHARACTER NO-UNDO.
 
@@ -31,7 +32,8 @@ def var svqty-case  as char no-undo.
 def var svCases  as char no-undo. 
 def var svcases-unit  as char no-undo. 
 def var svpartial    as char no-undo. 
-def var svt-qty  as char no-undo.
+def var svt-qty  as char no-undo
+def var svqty-uom  as char no-undo  . 
 def var svcost-uom  as char no-undo  . 
 def var svstd-cost  as char no-undo.  
 
@@ -48,7 +50,8 @@ run rm/getDefaultReceiptVals.p ( input fg-rctd.company,
 								output svqty-case  , 
 								output svCases  , 
 								output svcases-unit  , 
-								output svpartial    , 
+								output svpartial    ,
+								output svqty-uom
 								output svt-qty  ,
 								output svcost-uom  ,   
 								output svstd-cost    
@@ -77,7 +80,7 @@ DEFINE VARIABLE lv-qty-case   LIKE fg-rctd.qty-case NO-UNDO.
 DEFINE VARIABLE lv-cases      LIKE fg-rctd.cases NO-UNDO.
 DEFINE VARIABLE lv-cases-unit LIKE fg-rctd.cases-unit NO-UNDO.
 DEFINE VARIABLE lv-partial    LIKE fg-rctd.partial NO-UNDO.
-
+DEFINE VARIABLE lv-totalQty   LIKE fg-rctd.partial NO-UNDO.
 
 
 FIND FIRST loadtag NO-LOCK
@@ -99,7 +102,7 @@ IF AVAILABLE rm-bin THEN
         lv-loc        = rm-bin.loc
         lv-loc-bin    = rm-bin.loc-bin        
         lv-cases      = rm-bin.qty
-        
+        lv-totalQty   = rm-bin.qty
         .
 
 ELSE
@@ -109,8 +112,9 @@ ELSE
         lv-qty-case   = loadtag.qty-case
         lv-cases      = loadtag.case-bundle
         lv-cases-unit = loadtag.case-bundle
-        lv-partial    = loadtag.partial.
-
+        lv-partial    = loadtag.partial
+		lv-totalQty   = loadtag.qty
+		.
 
 ASSIGN
     svpo-no      = IF loadtag.po-no = 0 THEN "" ELSE STRING(loadtag.po-no)
@@ -124,12 +128,18 @@ ASSIGN
     svcases      = STRING(lv-cases)
     svcases-unit = STRING(lv-cases-unit)
     svpartial    = STRING(lv-partial)
-    svt-qty      = STRING((INT(svcases) *
-                                     INT(svqty-case)) +
-                                    INT(svpartial))
-    .
-RUN get-rm-bin-cost.
+    svt-qty      = STRING(lv-totalQty)
+    .  
 
+RUN get-rm-bin-cost.
+  
+FIND FIRST item NO-LOCK WHERE item.company eq g_company
+   AND item.i-no eq loadtag.i-no
+   NO-ERROR.  
+IF AVAIL item THEN
+  ASSIGN  
+   svqty-uom = item.cons-uom  
+   svcost-uom = item.cons-uom.  
 FIND FIRST job-hdr  NO-LOCK WHERE job-hdr.company = g_company
     AND job-hdr.job-no = loadtag.job-no
     AND job-hdr.job-no2 = loadtag.job-no2
@@ -169,9 +179,12 @@ ELSE
         DO:
             RUN sys/ref/convcuom.p(po-ordl.pr-uom, svcost-uom, 0,
                 po-ordl.s-len, po-ordl.s-wid, 0,
-                po-ordl.cost, OUTPUT v-cost).
-
-            svstd-cost  = STRING(v-cost).
+                po-ordl.cost, OUTPUT v-cost). 
+            ASSIGN
+              svqty-uom   = po-ordl.pr-qty-uom  
+              svcost-uom  = po-ordl.pr-uom
+              svstd-cost  = STRING(v-cost)  
+              .
         END.
      
         ELSE

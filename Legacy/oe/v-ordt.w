@@ -348,7 +348,7 @@ END.
 
   RUN oe/oe-sysct.p.
 
-  IF v-oecomm-cha NE "Manual" THEN RUN hide-comm (YES).
+  IF NOT v-oecomm-log  THEN RUN hide-comm (YES).
 
   IF fgsecurity-log THEN
   DO:
@@ -447,7 +447,7 @@ PROCEDURE disable-fields :
     DISABLE oe-ord.t-comm.
   END.
 
-  IF v-oecomm-cha NE "Manual" THEN RUN hide-comm (YES).
+  IF NOT v-oecomm-log  THEN RUN hide-comm (YES).
 
 END PROCEDURE.
 
@@ -657,8 +657,8 @@ PROCEDURE proc-enable :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  RUN hide-comm (NO).
-
+ IF NOT v-oecomm-log THEN  RUN hide-comm (YES).
+  IF v-oecomm-log THEN
   DO WITH FRAME {&FRAME-NAME}:
     ENABLE oe-ord.t-comm.
   END.

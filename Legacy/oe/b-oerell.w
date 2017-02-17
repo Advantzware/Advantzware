@@ -1602,7 +1602,7 @@ PROCEDURE repo-query :
   DO WITH FRAME {&FRAME-NAME}:
     REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
   END.
-
+ APPLY "VALUE-CHANGED":U TO BROWSE {&browse-name}.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
