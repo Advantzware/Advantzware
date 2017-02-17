@@ -82,8 +82,8 @@ ce-ctrl.lab-pct[6] ce-ctrl.shp-add ce-ctrl.spec-add[6] ce-ctrl.spec-add[8]
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-20 RECT-21 RECT-22 RECT-23 Btn_Update ~
-Btn_Close 
+&Scoped-Define ENABLED-OBJECTS Btn_Close Btn_Update RECT-20 RECT-21 RECT-22 ~
+RECT-23 
 &Scoped-Define DISPLAYED-FIELDS ce-ctrl.e-num ce-ctrl.e-range[1] ~
 ce-ctrl.e-range[2] ce-ctrl.q-num ce-ctrl.q-range[1] ce-ctrl.q-range[2] ~
 ce-ctrl.ls-width ce-ctrl.ls-triml ce-ctrl.fg-rate ce-ctrl.ls-length ~
@@ -141,13 +141,13 @@ ce-ctrl.spec-add[8]
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Close 
+DEFINE BUTTON Btn_Close  NO-FOCUS FLAT-BUTTON
      LABEL "&Close" 
-     SIZE 15 BY 1.14.
+     SIZE 8 BY 1.91.
 
-DEFINE BUTTON Btn_Update 
+DEFINE BUTTON Btn_Update  NO-FOCUS FLAT-BUTTON
      LABEL "&Update" 
-     SIZE 15 BY 1.14.
+     SIZE 8 BY 1.91.
 
 DEFINE VARIABLE fi_broker-pct AS DECIMAL FORMAT ">>9.99":U INITIAL 0 
      LABEL "Broker Comm %" 
@@ -223,10 +223,6 @@ DEFINE VARIABLE rd-sp-3 AS INTEGER
 "$", 2
      SIZE 12 BY 1 NO-UNDO.
 
-DEFINE RECTANGLE RECT-15
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 33 BY 1.67.
-
 DEFINE RECTANGLE RECT-20
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 54 BY 8.81.
@@ -252,6 +248,10 @@ DEFINE QUERY DEFAULT-FRAME FOR
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
+     Btn_Close AT ROW 23.38 COL 108 HELP
+          "Cancel Update or Close Window"
+     Btn_Update AT ROW 23.38 COL 100 HELP
+          "Update/Save System Configurations"
      ce-ctrl.e-num AT ROW 1.24 COL 22 COLON-ALIGNED
           LABEL "Last Estimate Number" FORMAT ">>>>>>>9"
           VIEW-AS FILL-IN 
@@ -344,12 +344,6 @@ DEFINE FRAME DEFAULT-FRAME
           SIZE 15.6 BY 1
           BGCOLOR 15 
      fi_fold-pct AT ROW 9.1 COL 86.6 COLON-ALIGNED WIDGET-ID 2
-     fi_broker-pct AT ROW 10.1 COL 86.6 COLON-ALIGNED WIDGET-ID 4
-     ce-ctrl.def-coat AT ROW 10.29 COL 9 COLON-ALIGNED
-          LABEL "Coating"
-          VIEW-AS FILL-IN 
-          SIZE 15.6 BY 1
-          BGCOLOR 15 
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -357,6 +351,12 @@ DEFINE FRAME DEFAULT-FRAME
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME DEFAULT-FRAME
+     fi_broker-pct AT ROW 10.1 COL 86.6 COLON-ALIGNED WIDGET-ID 4
+     ce-ctrl.def-coat AT ROW 10.29 COL 9 COLON-ALIGNED
+          LABEL "Coating"
+          VIEW-AS FILL-IN 
+          SIZE 15.6 BY 1
+          BGCOLOR 15 
      ce-ctrl.comm-mrkup AT ROW 10.29 COL 38 COLON-ALIGNED
           LABEL "Comm. Rate"
           VIEW-AS FILL-IN 
@@ -440,6 +440,13 @@ DEFINE FRAME DEFAULT-FRAME
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 116.2 BY 24.43.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME DEFAULT-FRAME
      ce-ctrl.sell-by AT ROW 17.76 COL 93 COLON-ALIGNED
           LABEL "Calculate Sell Price on Net or Gross"
           VIEW-AS FILL-IN 
@@ -449,13 +456,6 @@ DEFINE FRAME DEFAULT-FRAME
           VIEW-AS FILL-IN 
           SIZE 11.8 BY 1
           BGCOLOR 15 
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 116.2 BY 24.43.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME DEFAULT-FRAME
      ce-ctrl.mat-pct[3] AT ROW 18.48 COL 14 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
@@ -535,6 +535,13 @@ DEFINE FRAME DEFAULT-FRAME
           VIEW-AS FILL-IN 
           SIZE 11.8 BY 1
           BGCOLOR 15 
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 116.2 BY 24.43.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME DEFAULT-FRAME
      ce-ctrl.lab-pct[6] AT ROW 22.05 COL 43 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
@@ -547,46 +554,34 @@ DEFINE FRAME DEFAULT-FRAME
           LABEL "GS&&A"
           VIEW-AS TOGGLE-BOX
           SIZE 12 BY .81
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 116.2 BY 24.43.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME DEFAULT-FRAME
      ce-ctrl.spec-add[8] AT ROW 22.29 COL 103
           LABEL "Royalty"
           VIEW-AS TOGGLE-BOX
           SIZE 12 BY .81
-     Btn_Update AT ROW 23.95 COL 69 HELP
-          "Update/Save System Configurations"
-     Btn_Close AT ROW 23.95 COL 85 HELP
-          "Cancel Update or Close Window"
      ls-mtx-title AT ROW 14.67 COL 3 COLON-ALIGNED NO-LABEL
      ls-title1 AT ROW 15.38 COL 4 COLON-ALIGNED NO-LABEL
      ls-title2 AT ROW 15.38 COL 15 COLON-ALIGNED NO-LABEL
      ls-title3 AT ROW 15.38 COL 34 COLON-ALIGNED NO-LABEL
      ls-title4 AT ROW 15.38 COL 44 COLON-ALIGNED NO-LABEL
-     "Estimating Defaults" VIEW-AS TEXT
-          SIZE 22 BY .62 AT ROW 3.62 COL 4
-          FONT 6
-     "Add to Fact. Costs" VIEW-AS TEXT
-          SIZE 18 BY .81 AT ROW 21.33 COL 58
      "Farm" VIEW-AS TEXT
           SIZE 6 BY .62 AT ROW 3.62 COL 103
           FONT 6
+     "Add to Fact. Costs" VIEW-AS TEXT
+          SIZE 18 BY .81 AT ROW 21.33 COL 58
      "Mark Up Options" VIEW-AS TEXT
           SIZE 20 BY .62 AT ROW 3.62 COL 59
           FONT 6
      "Press Feed Type:" VIEW-AS TEXT
           SIZE 16.6 BY 1 AT ROW 6.71 COL 7
-     "What If/Print Options" VIEW-AS TEXT
-          SIZE 25 BY .62 AT ROW 14.67 COL 59
+     "Estimating Defaults" VIEW-AS TEXT
+          SIZE 22 BY .62 AT ROW 3.62 COL 4
           FONT 6
      "MFG" VIEW-AS TEXT
           SIZE 6 BY .62 AT ROW 3.62 COL 91
           FONT 6
-     RECT-15 AT ROW 23.71 COL 68
+     "What If/Print Options" VIEW-AS TEXT
+          SIZE 25 BY .62 AT ROW 14.67 COL 59
+          FONT 6
      RECT-20 AT ROW 3.86 COL 2
      RECT-21 AT ROW 14.91 COL 2
      RECT-22 AT ROW 3.86 COL 57
@@ -781,8 +776,6 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR RADIO-SET rd-sp-3 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
-/* SETTINGS FOR RECTANGLE RECT-15 IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN ce-ctrl.rm-rate IN FRAME DEFAULT-FRAME
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN ce-ctrl.sell-by IN FRAME DEFAULT-FRAME
@@ -934,9 +927,8 @@ DO:
             DISABLE {&LIST-1}
                 rd-sp-1 rd-sp-2 rd-sp-3.
 
-            ASSIGN
-                {&SELF-NAME}:LABEL = "&Close"
-                Btn_Update:LABEL   = "&Update".
+           {methods/setButton.i Btn_Update "Update"}
+           {methods/setButton.i Btn_Close "Close"}
 
             RUN enable_UI.
             FIND CURRENT ce-ctrl NO-LOCK NO-ERROR.
@@ -957,9 +949,8 @@ DO:
             ENABLE {&LIST-1}
                 rd-sp-1 rd-sp-2 rd-sp-3.
 
-            ASSIGN
-                {&SELF-NAME}:LABEL = "&Save"
-                Btn_Close:LABEL    = "&Cancel".
+           {methods/setButton.i Btn_Update "Save"}
+           {methods/setButton.i Btn_Close "Cancel"}
 
             APPLY "ENTRY" TO ce-ctrl.e-num.
         END.
@@ -971,9 +962,9 @@ DO:
             DISABLE {&LIST-1}
                 rd-sp-1 rd-sp-2 rd-sp-3.
 
-            ASSIGN
-                {&SELF-NAME}:LABEL = "&Update"
-                Btn_Close:LABEL    = "&Close".
+           {methods/setButton.i Btn_Update "Update"}
+           {methods/setButton.i Btn_Close "Close"}
+
             FIND CURRENT ce-ctrl EXCLUSIVE-LOCK.  
             ASSIGN {&LIST-1}
                 rd-sp-1 rd-sp-2 rd-sp-3.
@@ -1156,6 +1147,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     RUN spec-%or$ (100).
 
     {methods/nowait.i}
+    {methods/setButton.i Btn_Update "Update"}
+    {methods/setButton.i Btn_Close "Close"}
     {Advantzware/WinKit/embedfinalize-nonadm.i}
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -1223,7 +1216,7 @@ PROCEDURE enable_UI :
           ce-ctrl.lab-pct[6] ce-ctrl.shp-add ce-ctrl.spec-add[6] 
           ce-ctrl.spec-add[8] 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-20 RECT-21 RECT-22 RECT-23 Btn_Update Btn_Close 
+  ENABLE Btn_Close Btn_Update RECT-20 RECT-21 RECT-22 RECT-23 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.

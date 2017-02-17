@@ -9,14 +9,19 @@
       currentWidget = currentWidget:FIRST-CHILD
       .
     DO WHILE currentWidget NE ?:
-
       IF currentWidget:INSTANTIATING-PROCEDURE EQ {&h_Object{1}} AND
          NOT CAN-DO(winObjects,'{&h_Object{1}}') AND iPagerowDiff NE 0 THEN DO:
-
         IF CAN-DO('{&moveRight}','{&h_Object{1}}') THEN /* move right */
-            currentWidget:x = oWinKitControl:Width - currentWidget:WIDTH-PIXELS .
-        ELSE /* move down */
-            currentWidget:y = currentwidget:y + iPageRowDiff .
+            IF VALID-OBJECT (oFormControl) THEN
+            currentWidget:X = oWinKitControl:Width - currentWidget:WIDTH-PIXELS.
+            ELSE
+            RUN set-position IN {&h_Object{1}} (currentWidget:ROW,currentWidget:COL + colDiff) NO-ERROR.
+        ELSE DO: /* move down */
+            IF VALID-OBJECT (oFormControl) THEN
+            currentWidget:Y = currentwidget:Y + iPageRowDiff.
+            ELSE 
+            RUN set-position IN {&h_Object{1}} (currentWidget:ROW + rowDiff,currentWidget:COL) NO-ERROR.
+        END.
         winObjects = winObjects + '{&h_Object{1}}' + ','.
       END.
       currentWidget = currentWidget:NEXT-SIBLING.
