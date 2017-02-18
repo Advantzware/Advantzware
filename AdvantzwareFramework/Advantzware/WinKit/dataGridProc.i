@@ -105,7 +105,7 @@ PROCEDURE pDataGridInit:
           CAST (oRenderedBrowseControl, Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl):ApplyFilter:Subscribe ("pApplyFilterHandler") .          
       IF Consultingwerk.Util.ProcedureHelper:HasEntry(THIS-PROCEDURE, "pCustomizeGrid") THEN 
           RUN pCustomizeGrid IN THIS-PROCEDURE .
-  END.       
+  END. /* valid-object */       
 
 
 END PROCEDURE.

@@ -78,11 +78,11 @@ listname = "p-machsd." .
 
 &Scoped-define ADM-SUPPORTED-LINKS TableIO-Source
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME Panel-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn-Save Btn-Cancel 
+&Scoped-Define ENABLED-OBJECTS Btn-Cancel Btn-Save 
 
 /* Custom List Definitions                                              */
 /* Box-Rectangle,List-2,List-3,List-4,List-5,List-6                     */
@@ -97,26 +97,26 @@ listname = "p-machsd." .
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn-Cancel 
+DEFINE BUTTON Btn-Cancel  NO-FOCUS FLAT-BUTTON
      LABEL "Ca&ncel" 
-     SIZE 9 BY 1.29
+     SIZE 8 BY 1.9
      FONT 4.
 
-DEFINE BUTTON Btn-Save 
+DEFINE BUTTON Btn-Save  NO-FOCUS FLAT-BUTTON
      LABEL "&Save" 
-     SIZE 9 BY 1.29
+     SIZE 8 BY 1.91
      FONT 4.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 31 BY 1.76.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 21 BY 2.38.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Panel-Frame
-     Btn-Save AT ROW 1.29 COL 2
-     Btn-Cancel AT ROW 1.29 COL 20.8
+     Btn-Cancel AT ROW 1.24 COL 13
+     Btn-Save AT ROW 1.24 COL 2
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY NO-HELP 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -150,7 +150,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW C-WIn ASSIGN
-         HEIGHT             = 1.86
+         HEIGHT             = 4.24
          WIDTH              = 31.4.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -174,7 +174,7 @@ END.
 /* SETTINGS FOR WINDOW C-WIn
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME Panel-Frame
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME Panel-Frame:SCROLLABLE       = FALSE
        FRAME Panel-Frame:HIDDEN           = TRUE.
@@ -194,7 +194,7 @@ ASSIGN
 */  /* FRAME Panel-Frame */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -207,6 +207,8 @@ DO:
   DO WITH FRAME Panel-Frame:
       add-active = no.
       RUN notify ('cancel-record':U).
+      {methods/setButton.i Btn-Save "Update"}
+      {methods/setButton.i Btn-Cancel "Cancel"}
    END.
   {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 END.
@@ -220,6 +222,8 @@ END.
 ON CHOOSE OF Btn-Save IN FRAME Panel-Frame /* Save */
 DO:
 &IF LOOKUP("Btn-Add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+  {methods/setButton.i Btn-Save "Update"}
+  {methods/setButton.i Btn-Cancel "Cancel"}
   /* If we're in a persistent add-mode then don't change any labels. Just make */
   /* a call to update the last record and then add another record.             */
   RUN get-attribute IN THIS-PROCEDURE ('AddFunction':U).
@@ -238,6 +242,8 @@ DO:
         DO:
            RUN new-state('update-begin':U).
            ASSIGN add-active = no.
+           {methods/setButton.i Btn-Save "Save"}
+           {methods/setButton.i Btn-Cancel "Cancel"}
         END.
         ELSE 
         DO: /* Save */
@@ -278,11 +284,14 @@ END.
   ASSIGN
       Btn-Save:DEFAULT IN FRAME {&FRAME-NAME} = yes
       FRAME {&FRAME-NAME}:DEFAULT-BUTTON = Btn-Save:HANDLE.
-
+            
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF
 
+  {methods/setButton.i Btn-Save "Update"}
+  {methods/setButton.i Btn-Cancel "Cancel"}
+        
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

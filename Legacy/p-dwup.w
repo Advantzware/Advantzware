@@ -1,4 +1,4 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
+&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 /* Procedure Description
 "This SmartPanel sends update, add, 
 copy, reset, delete, and cancel messages 
@@ -70,15 +70,16 @@ def var phandle as handle no-undo.
 /* ********************  Preprocessor Definitions  ******************** */
 
 &Scoped-define PROCEDURE-TYPE SmartPanel
+&Scoped-define DB-AWARE no
 
-&Scoped-define ADM-SUPPORTED-LINKS             TableIO-Source
+&Scoped-define ADM-SUPPORTED-LINKS TableIO-Source
 
 /* Name of first Frame and/or Browse and/or first Query                 */
 &Scoped-define FRAME-NAME Panel-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn-down Btn-up Btn-right Btn-left Btn-first ~
-Btn-last 
+&Scoped-Define ENABLED-OBJECTS Btn-down Btn-first Btn-last Btn-left ~
+Btn-right Btn-up 
 
 /* Custom List Definitions                                              */
 /* Box-Rectangle,List-2,List-3,List-4,List-5,List-6                     */
@@ -93,50 +94,50 @@ Btn-last
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn-down 
+DEFINE BUTTON Btn-down  NO-FOCUS FLAT-BUTTON
      LABEL "&Down" 
      SIZE 9 BY 1.29
      FONT 4.
 
-DEFINE BUTTON Btn-first 
+DEFINE BUTTON Btn-first  NO-FOCUS FLAT-BUTTON
      LABEL "&First" 
      SIZE 9 BY 1.29
      FONT 4.
 
-DEFINE BUTTON Btn-last 
+DEFINE BUTTON Btn-last  NO-FOCUS FLAT-BUTTON
      LABEL "L&Ast" 
      SIZE 9 BY 1.29
      FONT 4.
 
-DEFINE BUTTON Btn-left 
+DEFINE BUTTON Btn-left  NO-FOCUS FLAT-BUTTON
      LABEL "&Left" 
      SIZE 9 BY 1.29
      FONT 4.
 
-DEFINE BUTTON Btn-right 
+DEFINE BUTTON Btn-right  NO-FOCUS FLAT-BUTTON
      LABEL "&Right" 
      SIZE 9 BY 1.29
      FONT 4.
 
-DEFINE BUTTON Btn-up 
+DEFINE BUTTON Btn-up  NO-FOCUS FLAT-BUTTON
      LABEL "&Up" 
      SIZE 9 BY 1.29
      FONT 4.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 57 BY 1.76.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Panel-Frame
-     Btn-down AT ROW 1.29 COL 2
-     Btn-up AT ROW 1.29 COL 11
-     Btn-right AT ROW 1.29 COL 20
-     Btn-left AT ROW 1.29 COL 28.8
-     Btn-first AT ROW 1.29 COL 37.8
-     Btn-last AT ROW 1.29 COL 48
+     Btn-down AT ROW 1.24 COL 47
+     Btn-first AT ROW 1.24 COL 2
+     Btn-last AT ROW 1.24 COL 29
+     Btn-left AT ROW 1.24 COL 11
+     Btn-right AT ROW 1.24 COL 20
+     Btn-up AT ROW 1.24 COL 38
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY NO-HELP 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -158,7 +159,7 @@ DEFINE FRAME Panel-Frame
 /* This procedure should always be RUN PERSISTENT.  Report the error,  */
 /* then cleanup and return.                                            */
 IF NOT THIS-PROCEDURE:PERSISTENT THEN DO:
-  MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT."
+  MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
           VIEW-AS ALERT-BOX ERROR BUTTONS OK.
   RETURN.
 END.
@@ -170,14 +171,25 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW C-WIn ASSIGN
-         HEIGHT             = 1.86
+         HEIGHT             = 1.76
          WIDTH              = 57.8.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-WIn 
+/* ************************* Included-Libraries *********************** */
 
-/* ***************  Runtime Attributes and UIB Settings  ************** */
+{Advantzware/WinKit/winkit-panel.i}
+{src/adm/method/panel.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+/* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR WINDOW C-WIn
@@ -203,18 +215,7 @@ ASSIGN
 */  /* FRAME Panel-Frame */
 &ANALYZE-RESUME
 
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-WIn 
-/* ************************* Included-Libraries *********************** */
-
-{Advantzware/WinKit/winkit-panel.i}
-{src/adm/method/panel.i}
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
+ 
 
 
 
@@ -225,7 +226,7 @@ ASSIGN
 ON CHOOSE OF Btn-down IN FRAME Panel-Frame /* Down */
 DO:
    {methods/run_link.i "tableio-target" "proc-down"}
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -237,7 +238,7 @@ END.
 ON CHOOSE OF Btn-first IN FRAME Panel-Frame /* First */
 DO:
      {methods/run_link.i "tableio-target" "proc-first"}
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -249,7 +250,7 @@ END.
 ON CHOOSE OF Btn-last IN FRAME Panel-Frame /* LAst */
 DO:
      {methods/run_link.i "tableio-target" "proc-last"}
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -261,8 +262,7 @@ END.
 ON CHOOSE OF Btn-left IN FRAME Panel-Frame /* Left */
 DO:
        {methods/run_link.i "tableio-target" "proc-left"}
-
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -274,8 +274,7 @@ END.
 ON CHOOSE OF Btn-right IN FRAME Panel-Frame /* Right */
 DO:
        {methods/run_link.i "tableio-target" "proc-right"}
-
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -287,8 +286,7 @@ END.
 ON CHOOSE OF Btn-up IN FRAME Panel-Frame /* Up */
 DO:
        {methods/run_link.i "tableio-target" "proc-up"}
-
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -320,13 +318,20 @@ END.
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF
 
+  {methods/setButton.i Btn-First "First"}
+  {methods/setButton.i Btn-Last "Last"}
+  {methods/setButton.i Btn-Left "Left"}
+  {methods/setButton.i Btn-Right "Right"}
+  {methods/setButton.i Btn-Up "Up"}
+  {methods/setButton.i Btn-Down "Down"}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-WIn _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-WIn  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -344,7 +349,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable C-WIn 
 PROCEDURE local-enable :
 /*------------------------------------------------------------------------------
@@ -361,7 +365,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize C-WIn 
 PROCEDURE local-initialize :
@@ -414,7 +417,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-buttons C-WIn 
 PROCEDURE set-buttons :
@@ -562,7 +564,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-label C-WIn 
 PROCEDURE set-label :
 /*------------------------------------------------------------------------------
@@ -582,7 +583,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed C-WIn 
 PROCEDURE state-changed :
@@ -604,7 +604,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE use-smartpaneltype C-WIn 
 PROCEDURE use-smartpaneltype :
 /*------------------------------------------------------------------------------
@@ -623,5 +622,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
