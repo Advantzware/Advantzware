@@ -1637,9 +1637,7 @@ The logic is to print the history of the shipment first back to the release stat
         ELSE IF buf-oe-rel.stat = "S" THEN 8         
         ELSE 12)
     :
- 
-        RETURN buf-oe-rel.ship-id.
-        LEAVE.
+    RETURN buf-oe-rel.ship-id.
   END.
 END FUNCTION.
 

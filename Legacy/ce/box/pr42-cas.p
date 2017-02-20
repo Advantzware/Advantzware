@@ -283,7 +283,9 @@ for each xeb where xeb.company = xest.company
          no-lock no-error.
 
          if item.mat-type eq "Z" then v-pallets = no.
-         leave.
+         
+         if true then leave.
+         
          find first e-item of item no-lock no-error.
          create cas.
          assign

@@ -3606,7 +3606,7 @@ PROCEDURE validRMLoadTag :
               MESSAGE "RM Tag# " tt-rmtags.rmtagno skip
                       "Is not a valid RM Loadtag #, Please Try Again ..." VIEW-AS ALERT-BOX ERROR.
               RETURN NO-APPLY.
-              APPLY "entry" TO FRAME {&FRAME-NAME}.
+              /* APPLY "entry" TO FRAME {&FRAME-NAME}. */
            END.
        END.
 

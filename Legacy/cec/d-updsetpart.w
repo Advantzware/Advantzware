@@ -469,7 +469,7 @@ DO:
       message "Cannot have more than " v-16-or-32 - 0.01 " as decimal, field is (inches.16ths/32nd's) "
          view-as alert-box error.
       RETURN NO-APPLY.
-
+      /*
       IF v-cecscrn-dec THEN
       DO:
          RUN valid-64-dec(INPUT v-dec, OUTPUT op-error).
@@ -479,6 +479,7 @@ DO:
             RETURN NO-APPLY.
          END.
       END.
+      */
    END.
 END.
 

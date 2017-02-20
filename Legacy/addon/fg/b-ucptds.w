@@ -1069,7 +1069,7 @@ PROCEDURE local-add-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  RETURN "adm-error".
+  IF TRUE THEN RETURN "adm-error".
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'add-record':U ) .
