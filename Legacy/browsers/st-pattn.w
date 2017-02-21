@@ -153,7 +153,7 @@ DEFINE BROWSE Browser-Table
              strap.val[1] strap.code2 strap.dscr pattern.dscr
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 126 BY 18.1
+    WITH NO-ASSIGN SEPARATORS SIZE 196 BY 18.1
          FONT 2.
 
 
@@ -404,7 +404,7 @@ END.
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
 
-{methods/winReSize.i}
+/*{methods/winReSize.i}*/
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
