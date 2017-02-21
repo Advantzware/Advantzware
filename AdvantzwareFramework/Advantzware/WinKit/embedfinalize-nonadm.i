@@ -76,6 +76,9 @@ IF VALID-OBJECT (oForm) AND NOT oForm:Finalized THEN DO:
     ASSIGN cRibbonButtonHandles = Consultingwerk.Util.WidgetHelper:FindAllWidgetsOfTypeAndPrivateData(FRAME {&FRAME-NAME}:HANDLE, "BUTTON":U, "ribbon-button":U) .
 
     IF cRibbonButtonHandles > "":U THEN DO:
+
+        ASSIGN cRibbonButtonHandles = Consultingwerk.Util.WidgetHelper:OrderWidgetsByRowCol (cRibbonButtonHandles) .
+
         oRibbonTab = oForm:ToolbarsManager:Ribbon:Tabs:Add (THIS-PROCEDURE:FILE-NAME) .
         oRibbonTab:Caption = {&WINDOW-NAME}:TITLE .
 
