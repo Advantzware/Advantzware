@@ -34,7 +34,7 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE browseOnly
 {methods/defines/winReSize.i}
-
+{custom/globdefs.i}
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -83,8 +83,9 @@ is-it-paid() @ v-paidflg
       AND reftable.reftable eq "AP-INVL" and ~
 reftable.company  eq ""        and ~
 reftable.loc      eq ""        and ~
-reftable.code     eq string(po-ordl.po-no,"9999999999") NO-LOCK, ~
+reftable.code     EQ string(po-ordl.po-no,"9999999999") NO-LOCK, ~
       EACH ap-invl WHERE TRUE /* Join to reftable incomplete */ ~
+      AND ap-invl.company EQ g_company ~
       AND ap-invl.i-no       eq int(reftable.code2) and ~
 ap-invl.po-no = po-ordl.po-no and ~
 (ap-invl.line + (ap-invl.po-no * -1000)) eq po-ordl.line NO-LOCK, ~
@@ -95,8 +96,9 @@ ap-invl.po-no = po-ordl.po-no and ~
       AND reftable.reftable eq "AP-INVL" and ~
 reftable.company  eq ""        and ~
 reftable.loc      eq ""        and ~
-reftable.code     eq string(po-ordl.po-no,"9999999999") NO-LOCK, ~
+reftable.code     EQ string(po-ordl.po-no,"9999999999") NO-LOCK, ~
       EACH ap-invl WHERE TRUE /* Join to reftable incomplete */ ~
+      AND ap-invl.company EQ g_company ~
       AND ap-invl.i-no       eq int(reftable.code2) and ~
 ap-invl.po-no = po-ordl.po-no and ~
 (ap-invl.line + (ap-invl.po-no * -1000)) eq po-ordl.line NO-LOCK, ~
@@ -290,7 +292,8 @@ ASSIGN
 reftable.company  eq """"        and
 reftable.loc      eq """"        and
 reftable.code     eq string(po-ordl.po-no,""9999999999"")"
-     _Where[2]         = "ap-invl.i-no       eq int(reftable.code2) and
+     _Where[2]         =  "ap-invl.company EQ g_company and
+      ap-invl.i-no       eq int(reftable.code2) and
 ap-invl.po-no = po-ordl.po-no and
 (ap-invl.line + (ap-invl.po-no * -1000)) eq po-ordl.line"
      _Where[3]         = "ap-inv.i-no eq ap-invl.i-no"
