@@ -26,7 +26,7 @@
               hWinKitFrame:VIRTUAL-HEIGHT-PIXELS = MAXIMUM (hWinKitFrame:HEIGHT-PIXELS, hWinKitFrame:HEIGHT-PIXELS + iPagerowDiff)
               hWinKitFrame:VIRTUAL-WIDTH-PIXELS  = MAXIMUM (hWinKitFrame:WIDTH-PIXELS, hWinKitFrame:WIDTH-PIXELS + iPagecolDiff)
               .
-          IF iPageColDiff NE 0 AND iPageRowDiff NE 0 THEN DO:
+          IF iPageColDiff NE 0 OR iPageRowDiff NE 0 THEN DO:
               /* scop-def h_ObjectXX in window container */
               {methods/moveObject.i 01}
               {methods/moveObject.i 02}

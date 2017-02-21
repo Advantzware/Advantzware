@@ -10,7 +10,7 @@
       .
     DO WHILE currentWidget NE ?:
       IF currentWidget:INSTANTIATING-PROCEDURE EQ {&h_Object{1}} AND
-         NOT CAN-DO(winObjects,'{&h_Object{1}}') AND iPagerowDiff NE 0 THEN DO:
+         NOT CAN-DO(winObjects,'{&h_Object{1}}') THEN DO:
         IF CAN-DO('{&moveRight}','{&h_Object{1}}') THEN /* move right */
             IF VALID-OBJECT (oFormControl) THEN
             currentWidget:X = oWinKitControl:Width - currentWidget:WIDTH-PIXELS.
