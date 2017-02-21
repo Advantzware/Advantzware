@@ -69,7 +69,6 @@ DEF VAR v-print-fmt AS CHARACTER NO-UNDO.
 DEF VAR is-xprint-form AS LOGICAL.
 DEF VAR ls-fax-file AS CHAR NO-UNDO.
 DEF BUFFER b-reftable2 FOR reftable.
-DEFINE VARIABLE cCustStatCheck AS CHARACTER NO-UNDO .
 
 DO TRANSACTION:
   {sys/inc/postdate.i}
@@ -490,7 +489,6 @@ DO:
     IF lv-post THEN do:      
         RUN post-gl.
         RUN copy-report-to-audit-dir.
-        RUN check-status .
       MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.
     END.
     ELSE RUN undo-trnum.  
@@ -1068,9 +1066,7 @@ FORMAT HEADER
       break by ar-cash.cust-no
             by ar-cash.check-no
       with frame a1:
-
-      IF LOOKUP(ar-cash.cust-no,cCustStatCheck) EQ 0 THEN
-        ASSIGN cCustStatCheck = cCustStatCheck + ar-cash.cust-no + "," .
+      
 
     FIND FIRST reftable WHERE
          reftable.reftable = "ARCASHHOLD" AND
@@ -1421,11 +1417,7 @@ PROCEDURE check-status :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-FOR EACH cust EXCLUSIVE-LOCK
-    WHERE cust.company EQ cocode
-      AND LOOKUP(cust.cust-no,cCustStatCheck) NE 0
-      AND cust.cust-no NE "" :
-
+IF AVAIL cust THEN do:
     FIND FIRST  terms NO-LOCK
         WHERE terms.company = cust.company
           AND terms.t-code  = cust.terms NO-ERROR.
@@ -1457,7 +1449,7 @@ FOR EACH cust EXCLUSIVE-LOCK
             END.
         END.  /* for each ar-inv */
     END. /* cust.cr-hold */
-END. /* for cust */
+END. /* avail cust */
 
 END PROCEDURE.
 

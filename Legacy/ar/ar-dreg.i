@@ -96,6 +96,7 @@
         THEN
       ASSIGN cust.hibal      = cust.acc-bal
              cust.hibal-date = ar-cash.check-date.
+       RUN check-status .
       RELEASE cust.
 
       g2 = g2 + t1.
