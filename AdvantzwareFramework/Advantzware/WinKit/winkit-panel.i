@@ -164,42 +164,50 @@ PROCEDURE set-position :
     DEFINE INPUT PARAMETER p-row    AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER p-col    AS DECIMAL NO-UNDO.
 
-/*    IF VALID-HANDLE(adm-object-hdl) THEN                                       */
-/*    DO:                                                                        */
-/*      /* If this is a Window or a Dialog box which is being positioned,        */
-/*         then the special value 0 means to center the object in that           */
-/*         dimension (0,0 means center on the screen - 0 can be used to          */
-/*         signal this because 0 is an invalid row or column position). */       */
-/*      &IF "{&ADM-CONTAINER}":U NE "":U &THEN                                   */
-/*        DEFINE VARIABLE parent-hdl AS HANDLE NO-UNDO.                          */
-/*        IF adm-object-hdl:TYPE = "WINDOW":U THEN                               */
-/*        DO:                                                                    */
-/*          IF p-row = 0 THEN p-row =                                            */
-/*            (SESSION:HEIGHT-CHARS - adm-object-hdl:HEIGHT-CHARS) / 2.          */
-/*          IF p-col = 0 THEN p-col =                                            */
-/*            (SESSION:WIDTH-CHARS - adm-object-hdl:WIDTH-CHARS) / 2.            */
-/*        END.                                                                   */
-/*        /* A Dialog naturally centers on its parent and positions relative     */
-/*           to its parent, so we must adjust for that. */                       */
-/*        ELSE IF adm-object-hdl:TYPE = "DIALOG-BOX":U THEN                      */
-/*        DO:                                                                    */
-/*          parent-hdl = adm-object-hdl:PARENT.                                  */
-/*          IF p-row = 0 THEN p-row =                                            */
-/*            ((SESSION:HEIGHT-CHARS - adm-object-hdl:HEIGHT-CHARS) / 2) -       */
-/*              parent-hdl:ROW.                                                  */
-/*          IF p-col = 0 THEN p-col =                                            */
-/*            ((SESSION:WIDTH-CHARS - adm-object-hdl:WIDTH-CHARS) / 2) -         */
-/*              parent-hdl:COL.                                                  */
-/*        END.                                                                   */
-/*        /* If the row or column wound up being between 0 and 1 after the       */
-/*           calculation, change it, because otherwise Progress will complain. */*/
-/*        IF p-row GE 0 AND p-row < 1 THEN p-row = 1.                            */
-/*        IF p-col GE 0 AND p-col < 1 THEN p-col = 1.                            */
-/*      &ENDIF                                                                   */
-/*      /* Set object's position */                                              */
-/*      ASSIGN adm-object-hdl:ROW    =   p-row                                   */
-/*             adm-object-hdl:COLUMN =   p-col.                                  */
-/*    END.                                                                       */
+    DEFINE VARIABLE adm-object-hdl AS HANDLE NO-UNDO.
+
+    IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive = FALSE THEN DO:
+
+        ASSIGN adm-object-hdl = FRAME {&frame-name}:HANDLE .
+
+        IF VALID-HANDLE(adm-object-hdl) THEN
+        DO:
+          /* If this is a Window or a Dialog box which is being positioned,
+             then the special value 0 means to center the object in that
+             dimension (0,0 means center on the screen - 0 can be used to
+             signal this because 0 is an invalid row or column position). */
+          &IF "{&ADM-CONTAINER}":U NE "":U &THEN
+            DEFINE VARIABLE parent-hdl AS HANDLE NO-UNDO.
+            IF adm-object-hdl:TYPE = "WINDOW":U THEN
+            DO:
+              IF p-row = 0 THEN p-row =
+                (SESSION:HEIGHT-CHARS - adm-object-hdl:HEIGHT-CHARS) / 2.
+              IF p-col = 0 THEN p-col =
+                (SESSION:WIDTH-CHARS - adm-object-hdl:WIDTH-CHARS) / 2.
+            END.
+            /* A Dialog naturally centers on its parent and positions relative
+               to its parent, so we must adjust for that. */
+            ELSE IF adm-object-hdl:TYPE = "DIALOG-BOX":U THEN
+            DO:
+              parent-hdl = adm-object-hdl:PARENT.
+              IF p-row = 0 THEN p-row =
+                ((SESSION:HEIGHT-CHARS - adm-object-hdl:HEIGHT-CHARS) / 2) -
+                  parent-hdl:ROW.
+              IF p-col = 0 THEN p-col =
+                ((SESSION:WIDTH-CHARS - adm-object-hdl:WIDTH-CHARS) / 2) -
+                  parent-hdl:COL.
+            END.
+            /* If the row or column wound up being between 0 and 1 after the
+               calculation, change it, because otherwise Progress will complain. */
+            IF p-row GE 0 AND p-row < 1 THEN p-row = 1.
+            IF p-col GE 0 AND p-col < 1 THEN p-col = 1.
+          &ENDIF
+          /* Set object's position */
+          ASSIGN adm-object-hdl:ROW    =   p-row
+                 adm-object-hdl:COLUMN =   p-col.
+        END.
+
+    END.
 
     IF VALID-OBJECT (oPanelRibbonTab) THEN
         oPanelRibbonTab:Groups[cPanelRibbonGroupKey]:MergeOrder = p-col .
