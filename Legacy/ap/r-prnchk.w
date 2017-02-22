@@ -1419,6 +1419,10 @@ ELSE DO:
           assign
              max-per-chk  = 10
              next-program = "ap/ap-ckmyork.p". /* new format */
+       WHEN "Lovepac" then
+          assign
+             max-per-chk  = 10
+             next-program = "ap/ap-cklovep.p". /* new format */
        WHEN "STCLaser" THEN
           assign
              max-per-chk  = 10
