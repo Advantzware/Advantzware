@@ -1244,7 +1244,7 @@ PROCEDURE local-change-page :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  {methods/winReSizePgChg.i}
+  /* {methods/winReSizePgChg.i} */
   IF NOT ll-false-page-change THEN DO:
   run get-attribute ("current-page").
   l-spec-modified = NO.

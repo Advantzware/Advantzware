@@ -1337,7 +1337,7 @@ PROCEDURE local-create-objects :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-objects':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  {methods/winReSizePgChg.i}
+  /* {methods/winReSizePgChg.i} */
 
 END PROCEDURE.
 
