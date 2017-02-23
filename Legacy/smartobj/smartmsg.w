@@ -257,6 +257,7 @@ PROCEDURE local-initialize :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+  DEFINE VARIABLE lUDFActive AS LOGICAL NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
 
@@ -267,12 +268,21 @@ PROCEDURE local-initialize :
   IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive EQ TRUE THEN
   DO WITH FRAME {&FRAME-NAME}:
     {methods/setButton.i btnNote "No Note" 16}
-    {methods/setButton.i btnUDF "No UDF" 16}
+    {methods/run_link.i "CONTAINER-SOURCE" "pUDFACtive" "(OUTPUT lUDFActive)"}
+    IF lUDFActive EQ NO THEN DO:
+        ASSIGN 
+            btnUDF:HIDDEN = YES 
+            btnUDF:LABEL  = ""
+            .
+        btnUDF:LOAD-IMAGE("").
+    END.
+    ELSE 
+        {methods/setButton.i btnUDF "No UDF" 16}     
   END.
   ELSE 
   ASSIGN 
     btnNote:HIDDEN = YES 
-    btnUDF:HIDDEN   = YES 
+    btnUDF:HIDDEN  = YES 
     .
 
 END PROCEDURE.

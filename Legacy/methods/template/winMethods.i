@@ -231,11 +231,11 @@ PROCEDURE Init-Options-Panel :
   ASSIGN
     MENU-ITEM m_{&MENUITEM}:SENSITIVE IN MENU MENU-BAR-{&WINDOW-NAME}   = NO 
     MENU-ITEM p_{&MENUITEM}:SENSITIVE IN MENU POPUP-MENU-{&WINDOW-NAME} = NO .
-/*  &Scoped-define MENUITEM udf                                                 */
-/*  IF NOT {&MENUITEM}-button THEN                                              */
-/*  ASSIGN                                                                      */
-/*    MENU-ITEM m_{&MENUITEM}:SENSITIVE IN MENU MENU-BAR-{&WINDOW-NAME}   = NO  */
-/*    MENU-ITEM p_{&MENUITEM}:SENSITIVE IN MENU POPUP-MENU-{&WINDOW-NAME} = NO .*/
+  &Scoped-define MENUITEM udf
+  IF NOT {&MENUITEM}-button THEN
+  ASSIGN
+    MENU-ITEM m_{&MENUITEM}:SENSITIVE IN MENU MENU-BAR-{&WINDOW-NAME}   = NO
+    MENU-ITEM p_{&MENUITEM}:SENSITIVE IN MENU POPUP-MENU-{&WINDOW-NAME} = NO .
 &ENDIF
 
 END PROCEDURE.
@@ -320,6 +320,24 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUDFActive Include
+PROCEDURE pUDFActive:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opUDFActive AS LOGICAL NO-UNDO.
+    
+    opUDFActive = CAN-FIND(FIRST mfgroup WHERE LOOKUP(v-prgmname,mfgroup.mfgroup_data,"|") NE 0) .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Reset-g_rec_key Include
 PROCEDURE Reset-g_rec_key :
