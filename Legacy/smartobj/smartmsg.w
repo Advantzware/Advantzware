@@ -354,11 +354,11 @@ PROCEDURE Show-MF-Message :
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
             mf-message:SENSITIVE = YES
-            mf-message:SCREEN-VALUE = " UDF Data "
-                                    + IF ip-misc-flds THEN "Exists"
+            mf-message:SCREEN-VALUE = "UDF Data"
+                                    + IF ip-misc-flds THEN " Exists"
                                       ELSE ""
             .
-        IF VALID-OBJECT (oForm) THEN DO:
+        IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive EQ TRUE THEN DO:
              IF ip-misc-flds THEN
              {methods/setButton.i btnUDF "UDF" 16}
              ELSE 
@@ -384,9 +384,9 @@ PROCEDURE Show-Notes-Message :
   DO WITH FRAME {&FRAME-NAME}:
      ASSIGN
       notes-message:HIDDEN = NOT ip-notes
-      notes-message:SCREEN-VALUE = IF ip-notes THEN " Notes Exist " ELSE ""
+      notes-message:SCREEN-VALUE = IF ip-notes THEN "Notes Exist " ELSE ""
       .
-    IF VALID-OBJECT (oForm) THEN DO:
+    IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive EQ TRUE THEN DO:
          IF ip-notes THEN
          {methods/setButton.i btnNote "Note" 16}
          ELSE 

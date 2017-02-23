@@ -197,26 +197,23 @@ PROCEDURE Init-Options-Panel :
 ------------------------------------------------------------------------------*/
 
 &IF "{&NOMENUS}" NE "yes" &THEN
-  DEFINE OUTPUT PARAMETER search-button AS LOGICAL NO-UNDO.
-  DEFINE OUTPUT PARAMETER list-button AS LOGICAL NO-UNDO.
-  DEFINE OUTPUT PARAMETER notes-button AS LOGICAL NO-UNDO.
-  DEFINE OUTPUT PARAMETER misc_fields-button AS LOGICAL NO-UNDO.
+  DEFINE OUTPUT PARAMETER search-button    AS LOGICAL NO-UNDO.
+  DEFINE OUTPUT PARAMETER list-button      AS LOGICAL NO-UNDO.
+  DEFINE OUTPUT PARAMETER notes-button     AS LOGICAL NO-UNDO.
+  DEFINE OUTPUT PARAMETER udf-button       AS LOGICAL NO-UNDO.
   DEFINE OUTPUT PARAMETER spec-note-button AS LOGICAL NO-UNDO.
+  
   DEFINE VARIABLE listname AS CHARACTER NO-UNDO.
 
   ASSIGN
-    listname = SUBSTR("{&FIRST-EXTERNAL-TABLE}",1,7) + "_"
-    search-button = IF SEARCH("searches/{&FIRST-EXTERNAL-TABLE}.r") = ? AND
-                       SEARCH("searches/{&FIRST-EXTERNAL-TABLE}.p") = ? THEN NO 
-                    ELSE YES 
-    list-button = IF SEARCH("listobjs/" + listname + ".r") = ? AND
-                     SEARCH("listobjs/" + listname + ".w") = ? THEN NO 
-                  ELSE YES 
-    notes-button = IF /*INDEX("{&NORECKEY}","{&FIRST-EXTERNAL-TABLE}")*/
-                       lookup("{&FIRST-EXTERNAL-TABLE}","{&NORECKEY}"," ") = 0 THEN YES 
-                   ELSE NO 
-    misc_fields-button = IF b-prgrms.mfgroup = "" THEN no ELSE YES 
-    spec-note-button = LOOKUP ("{&FIRST-EXTERNAL-TABLE}","est,item,itemfg,cust,vend,oe-ord,job,pc-prdd,pc-prdh,oe-ordl,po-ordl,quotehd,oe-relh") GT 0
+    listname         = SUBSTR("{&FIRST-EXTERNAL-TABLE}",1,7) + "_"
+    search-button    = SEARCH("searches/{&FIRST-EXTERNAL-TABLE}.r") NE ? OR 
+                       SEARCH("searches/{&FIRST-EXTERNAL-TABLE}.p") NE ? 
+    list-button      = SEARCH("listobjs/" + listname + ".r") NE ? OR
+                       SEARCH("listobjs/" + listname + ".w") NE ? 
+    notes-button     = LOOKUP("{&FIRST-EXTERNAL-TABLE}","{&NORECKEY}"," ") GT 0 
+    spec-note-button = LOOKUP("{&FIRST-EXTERNAL-TABLE}","est,item,itemfg,cust,vend,oe-ord,job,pc-prdd,pc-prdh,oe-ordl,po-ordl,quotehd,oe-relh") GT 0
+    udf-button       = CAN-FIND(FIRST mfgroup WHERE LOOKUP(v-prgmname,mfgroup.mfgroup_data,"|") NE 0)    
     .
 
   &Scoped-define MENUITEM search
@@ -234,11 +231,11 @@ PROCEDURE Init-Options-Panel :
   ASSIGN
     MENU-ITEM m_{&MENUITEM}:SENSITIVE IN MENU MENU-BAR-{&WINDOW-NAME}   = NO 
     MENU-ITEM p_{&MENUITEM}:SENSITIVE IN MENU POPUP-MENU-{&WINDOW-NAME} = NO .
-  &Scoped-define MENUITEM misc_fields
-  IF NOT {&MENUITEM}-button THEN
-  ASSIGN
-    MENU-ITEM m_{&MENUITEM}:SENSITIVE IN MENU MENU-BAR-{&WINDOW-NAME}   = NO 
-    MENU-ITEM p_{&MENUITEM}:SENSITIVE IN MENU POPUP-MENU-{&WINDOW-NAME} = NO .
+/*  &Scoped-define MENUITEM udf                                                 */
+/*  IF NOT {&MENUITEM}-button THEN                                              */
+/*  ASSIGN                                                                      */
+/*    MENU-ITEM m_{&MENUITEM}:SENSITIVE IN MENU MENU-BAR-{&WINDOW-NAME}   = NO  */
+/*    MENU-ITEM p_{&MENUITEM}:SENSITIVE IN MENU POPUP-MENU-{&WINDOW-NAME} = NO .*/
 &ENDIF
 
 END PROCEDURE.

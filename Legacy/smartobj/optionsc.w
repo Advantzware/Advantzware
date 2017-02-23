@@ -355,8 +355,8 @@ PROCEDURE Init-Buttons :
   DISABLE select_list WITH FRAME {&FRAME-NAME}.
   IF NOT notes-button THEN
   DISABLE select_notes WITH FRAME {&FRAME-NAME}.
-/*  IF NOT misc_fields-button THEN
-  DISABLE select_misc_fields WITH FRAME {&FRAME-NAME}.  */
+  IF NOT misc_fields-button THEN
+  DISABLE UDF WITH FRAME {&FRAME-NAME}.
   IF NOT spec-note THEN
   DISABLE select_spec WITH FRAME {&FRAME-NAME}.
 
