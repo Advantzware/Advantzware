@@ -46,7 +46,7 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS UDF 
+&Scoped-Define ENABLED-OBJECTS btnNote btnUDF 
 &Scoped-Define DISPLAYED-OBJECTS mf-message notes-message 
 
 /* Custom List Definitions                                              */
@@ -61,27 +61,32 @@ CREATE WIDGET-POOL.
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnNote  NO-FOCUS FLAT-BUTTON
+     LABEL "No Note" 
+     SIZE 5 BY 1.14.
+
+DEFINE BUTTON btnUDF  NO-FOCUS FLAT-BUTTON
+     LABEL "No UDF" 
+     SIZE 5 BY 1.14.
+
 DEFINE VARIABLE mf-message AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
-     SIZE 28 BY .62
+     SIZE 22 BY .62
      FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE notes-message AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
-     SIZE 28 BY .62
+     SIZE 22 BY .62
      FGCOLOR 0  NO-UNDO.
-
-DEFINE RECTANGLE UDF
-     EDGE-PIXELS 0    
-     SIZE 2.6 BY .62.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     mf-message AT ROW 1 COL 5 NO-LABEL
-     notes-message AT ROW 1.52 COL 5 NO-LABEL
-     UDF AT ROW 1 COL 2 WIDGET-ID 4
+     btnNote AT ROW 1 COL 1 WIDGET-ID 8
+     btnUDF AT ROW 1 COL 6 WIDGET-ID 10
+     mf-message AT ROW 1 COL 11 NO-LABEL
+     notes-message AT ROW 1.52 COL 11 NO-LABEL
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -115,7 +120,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
          HEIGHT             = 1.14
-         WIDTH              = 32.
+         WIDTH              = 32.6.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -123,6 +128,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB s-object 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/smart.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -165,6 +171,28 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
+&Scoped-define SELF-NAME btnNote
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnNote s-object
+ON CHOOSE OF btnNote IN FRAME F-Main /* No Note */
+DO:
+    {methods/run_link.i "CONTAINER-SOURCE" "Select_Notes"}  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnUDF
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnUDF s-object
+ON CHOOSE OF btnUDF IN FRAME F-Main /* No UDF */
+DO:
+    {methods/run_link.i "CONTAINER-SOURCE" "UDF"}  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME mf-message
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL mf-message s-object
 ON LEFT-MOUSE-DOWN OF mf-message IN FRAME F-Main
@@ -176,11 +204,11 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME UDF
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL UDF s-object
-ON LEFT-MOUSE-DOWN OF UDF IN FRAME F-Main
+&Scoped-define SELF-NAME notes-message
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL notes-message s-object
+ON LEFT-MOUSE-DOWN OF notes-message IN FRAME F-Main
 DO:
-    {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+    {methods/run_link.i "CONTAINER-SOURCE" "Select_Notes"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -218,6 +246,35 @@ PROCEDURE disable_UI :
   /* Hide all frames. */
   HIDE FRAME F-Main.
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize s-object 
+PROCEDURE local-initialize :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive EQ TRUE THEN
+  DO WITH FRAME {&FRAME-NAME}:
+    {methods/setButton.i btnNote "No Note" 16}
+    {methods/setButton.i btnUDF "No UDF" 16}
+  END.
+  ELSE 
+  ASSIGN 
+    btnNote:HIDDEN = YES 
+    btnUDF:HIDDEN   = YES 
+    .
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -261,6 +318,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRefreshRibbonButtons s-object 
+PROCEDURE pRefreshRibbonButtons :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE hWinKitWidgetHandle AS HANDLE NO-UNDO.
+
+    Consultingwerk.Util.UltraToolbarsHelper:RefreshTools (oForm:ToolbarsManager) .
+    {Consultingwerk/foreach.i Infragistics.Win.UltraWinToolbars.ToolBase oTool in oForm:ToolbarsManager:Tools}
+        hWinKitWidgetHandle = WIDGET-HANDLE (UNBOX (oTool:Tag)) .
+        IF VALID-HANDLE (hWinKitWidgetHandle) AND CAN-QUERY (hWinKitWidgetHandle, "LABEL":U) THEN DO:
+                oTool:SharedProps:Caption = hWinKitWidgetHandle:LABEL .
+                {Consultingwerk/foreach.i Infragistics.Win.UltraWinToolbars.ToolBase oInstance in oTool:SharedProps:ToolInstances }
+                oInstance:InstanceProps:Caption = hWinKitWidgetHandle:LABEL .
+            END.        
+        END.
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Show-MF-Message s-object 
 PROCEDURE Show-MF-Message :
 /*------------------------------------------------------------------------------
@@ -272,13 +353,18 @@ PROCEDURE Show-MF-Message :
     
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
-            UDF:BGCOLOR = IF ip-misc-flds THEN 3 ELSE 0
             mf-message:SENSITIVE = YES
-         /* mf-message:HIDDEN = NOT ip-misc-flds */
             mf-message:SCREEN-VALUE = " UDF Data "
                                     + IF ip-misc-flds THEN "Exists"
                                       ELSE ""
             .
+        IF VALID-OBJECT (oForm) THEN DO:
+             IF ip-misc-flds THEN
+             {methods/setButton.i btnUDF "UDF" 16}
+             ELSE 
+             {methods/setButton.i btnUDF "No UDF" 16}
+             RUN pRefreshRibbonButtons.     
+        END.
     END.
 
 END PROCEDURE.
@@ -294,13 +380,19 @@ PROCEDURE Show-Notes-Message :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ip-notes AS LOGICAL NO-UNDO.
-
+  
   DO WITH FRAME {&FRAME-NAME}:
      ASSIGN
       notes-message:HIDDEN = NOT ip-notes
-      notes-message:SCREEN-VALUE = IF ip-notes THEN
-          " Notes Exist " ELSE ""
+      notes-message:SCREEN-VALUE = IF ip-notes THEN " Notes Exist " ELSE ""
       .
+    IF VALID-OBJECT (oForm) THEN DO:
+         IF ip-notes THEN
+         {methods/setButton.i btnNote "Note" 16}
+         ELSE 
+         {methods/setButton.i btnNote "No Note" 16}
+         RUN pRefreshRibbonButtons.     
+    END.
   END.
 
 END PROCEDURE.

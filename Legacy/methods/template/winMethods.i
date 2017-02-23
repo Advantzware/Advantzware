@@ -588,15 +588,18 @@ PROCEDURE winReSize PRIVATE :
   Notes:
 ------------------------------------------------------------------------------*/
   &IF DEFINED(winReSize) NE 0 &THEN
-    DEFINE VARIABLE hPixels       AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE wPixels       AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE noReSize      AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE noReSizeName  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE screenRatio   AS DECIMAL   NO-UNDO INITIAL 1.
-    DEFINE VARIABLE winReSizeDat  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE currentWidget AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE iOldRowDiff   AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iOldColDiff   AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE hPixels            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE wPixels            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE noReSize           AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE noReSizeName       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE screenRatio        AS DECIMAL   NO-UNDO INITIAL 1.
+    DEFINE VARIABLE winReSizeDat       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE currentWidget      AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE iOldRowDiff        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iOldColDiff        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iWinKitCurrentPage AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE hWinKitFrame       AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE oWinKitControl     AS System.Windows.Forms.Control NO-UNDO.    
 
     ASSIGN
         iOldRowDiff = rowDiff
@@ -607,9 +610,9 @@ PROCEDURE winReSize PRIVATE :
 
     winReSizeDat = 'users/' + USERID('ASI') + '/winReSize.dat'.
     IF SEARCH(winReSizeDat) NE ? THEN DO:
-      INPUT FROM VALUE(winReSizeDat).
-      IMPORT ^ screenRatio.
-      INPUT CLOSE.
+        INPUT FROM VALUE(winReSizeDat).
+        IMPORT ^ screenRatio.
+        INPUT CLOSE.
     END.
 
     ASSIGN
@@ -633,14 +636,26 @@ PROCEDURE winReSize PRIVATE :
       FRAME message-frame:WIDTH-PIXELS = FRAME message-frame:WIDTH-PIXELS + wPixels
       .
 
-     IF VALID-OBJECT (oForm) AND rowDiff EQ 0 AND colDiff EQ 0 THEN DO:
+   IF VALID-OBJECT (oForm) AND rowDiff EQ 0 AND colDiff EQ 0 THEN DO:
         ASSIGN
             rowDiff = iOldRowDiff
             colDiff = iOldColDiff
             .
         RETURN .
-     END.
+   END.
 
+   RUN GET-ATTRIBUTE('CURRENT-PAGE').
+   iWinKitCurrentPage = INTEGER(RETURN-VALUE).
+
+   IF VALID-OBJECT (oFormControl) THEN DO:
+     ASSIGN
+       hWinKitFrame   = oFormControl:GetTabPageFrame (iWinKitCurrentPage)
+       oWinKitControl = oFormControl:GetTabPageControl (iWinKitCurrentPage)
+       iPage1ColDiff = (oWinKitControl:Width - hWinKitFrame:WIDTH-PIXELS) // SESSION:PIXELS-PER-COLUMN
+       iPage1RowDiff = (oWinKitControl:Height - hWinKitFrame:HEIGHT-PIXELS) // SESSION:PIXELS-PER-ROW
+       .
+   END.
+  
     IF VALID-HANDLE(h_folder) THEN
     RUN set-size IN h_folder (FRAME {&FRAME-NAME}:HEIGHT - 1,FRAME {&FRAME-NAME}:WIDTH - 1) NO-ERROR.
 

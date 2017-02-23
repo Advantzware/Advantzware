@@ -21,8 +21,10 @@
         .
       IF oWinKitControl:Width NE 0 AND oWinKitControl:Height NE 0 THEN DO:
           ASSIGN
-              iPageColDiff = (oWinKitControl:Width - hWinKitFrame:WIDTH-PIXELS) // SESSION:PIXELS-PER-COLUMN
-              iPageRowDiff = (oWinKitControl:Height - hWinKitFrame:HEIGHT-PIXELS) // SESSION:PIXELS-PER-ROW
+              iPageColDiff = IF iWinKitCurrentPage EQ 1 THEN iPage1ColDiff
+                             ELSE oWinKitControl:Width  - hWinKitFrame:WIDTH-PIXELS // SESSION:PIXELS-PER-COLUMN
+              iPageRowDiff = IF iWinKitCurrentPage EQ 1 THEN iPage1RowDiff
+                             ELSE oWinKitControl:Height - hWinKitFrame:HEIGHT-PIXELS // SESSION:PIXELS-PER-ROW
               hWinKitFrame:VIRTUAL-HEIGHT-PIXELS = MAXIMUM (hWinKitFrame:HEIGHT-PIXELS, hWinKitFrame:HEIGHT-PIXELS + iPagerowDiff)
               hWinKitFrame:VIRTUAL-WIDTH-PIXELS  = MAXIMUM (hWinKitFrame:WIDTH-PIXELS, hWinKitFrame:WIDTH-PIXELS + iPagecolDiff)
               .

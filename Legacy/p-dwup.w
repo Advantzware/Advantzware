@@ -94,32 +94,32 @@ Btn-right Btn-up
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn-down  NO-FOCUS FLAT-BUTTON
+DEFINE BUTTON Btn-down  NO-FOCUS
      LABEL "&Down" 
      SIZE 9 BY 1.29
      FONT 4.
 
-DEFINE BUTTON Btn-first  NO-FOCUS FLAT-BUTTON
+DEFINE BUTTON Btn-first  NO-FOCUS
      LABEL "&First" 
      SIZE 9 BY 1.29
      FONT 4.
 
-DEFINE BUTTON Btn-last  NO-FOCUS FLAT-BUTTON
+DEFINE BUTTON Btn-last  NO-FOCUS
      LABEL "L&Ast" 
      SIZE 9 BY 1.29
      FONT 4.
 
-DEFINE BUTTON Btn-left  NO-FOCUS FLAT-BUTTON
+DEFINE BUTTON Btn-left  NO-FOCUS
      LABEL "&Left" 
      SIZE 9 BY 1.29
      FONT 4.
 
-DEFINE BUTTON Btn-right  NO-FOCUS FLAT-BUTTON
+DEFINE BUTTON Btn-right  NO-FOCUS
      LABEL "&Right" 
      SIZE 9 BY 1.29
      FONT 4.
 
-DEFINE BUTTON Btn-up  NO-FOCUS FLAT-BUTTON
+DEFINE BUTTON Btn-up  NO-FOCUS
      LABEL "&Up" 
      SIZE 9 BY 1.29
      FONT 4.

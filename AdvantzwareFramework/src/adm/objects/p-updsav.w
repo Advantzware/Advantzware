@@ -230,6 +230,7 @@ DO:
   add-active = yes.
 
   RUN notify ('add-record':U).
+  {methods/setButton.i Btn-Save "Save"}
   
 
 
@@ -249,6 +250,7 @@ DO:
   DO WITH FRAME Panel-Frame:
       add-active = no.
       RUN notify ('cancel-record':U).
+      {methods/setButton.i Btn-Save "Update"}
    END.
 
 
@@ -267,6 +269,7 @@ ON CHOOSE OF Btn-Copy IN FRAME Panel-Frame /* Copy */
 DO:
 
    RUN notify ('copy-record':U).
+   {methods/setButton.i Btn-Save "Save"}
 
 
   /* Added by WinKit Migration tool 07.02.2016 21:10:38 */
@@ -333,15 +336,18 @@ DO:
         DO:
            RUN new-state('update-begin':U).
            ASSIGN add-active = no.
+           {methods/setButton.i Btn-Save "Save"}
         END.
         ELSE 
         DO: /* Save */
            RUN notify ('update-record':U).
+           {methods/setButton.i Btn-Save "Update"}
         END.                              
      END.
      ELSE 
      DO: /* Normal 'Save'-style SmartPanel */
         RUN notify ('update-record':U).
+        {methods/setButton.i Btn-Save "Update"}
      END.
   END.
 
@@ -381,6 +387,13 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF
+  
+  {methods/setButton.i Btn-Save "Update"}  
+  {methods/setButton.i Btn-Reset "Reset"}
+  {methods/setButton.i Btn-Add "Add"}
+  {methods/setButton.i Btn-Copy "Copy"}
+  {methods/setButton.i Btn-Delete "Delete"}
+  {methods/setButton.i Btn-Cancel "Cancel"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

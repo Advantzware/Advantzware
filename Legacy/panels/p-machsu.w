@@ -97,25 +97,25 @@ listname = "p-machsd." .
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn-Cancel  NO-FOCUS FLAT-BUTTON
+DEFINE BUTTON Btn-Cancel  NO-FOCUS
      LABEL "Ca&ncel" 
-     SIZE 8 BY 1.9
+     SIZE 11 BY 1.43
      FONT 4.
 
-DEFINE BUTTON Btn-Save  NO-FOCUS FLAT-BUTTON
+DEFINE BUTTON Btn-Save  NO-FOCUS
      LABEL "&Save" 
-     SIZE 8 BY 1.91
+     SIZE 11 BY 1.43
      FONT 4.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 21 BY 2.38.
+     SIZE 28 BY 1.91.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Panel-Frame
-     Btn-Cancel AT ROW 1.24 COL 13
+     Btn-Cancel AT ROW 1.24 COL 14
      Btn-Save AT ROW 1.24 COL 2
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY NO-HELP 
@@ -284,14 +284,14 @@ END.
   ASSIGN
       Btn-Save:DEFAULT IN FRAME {&FRAME-NAME} = yes
       FRAME {&FRAME-NAME}:DEFAULT-BUTTON = Btn-Save:HANDLE.
-            
+ 
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF
 
   {methods/setButton.i Btn-Save "Update"}
   {methods/setButton.i Btn-Cancel "Cancel"}
-        
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
