@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -194,6 +190,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -276,6 +273,7 @@ DO:
        RUN set-rec-key IN WIDGET-HANDLE(char-hdl).
      END.
   END.
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -331,6 +329,7 @@ DO:
         RUN reopen-po-ord-query.
       END.
    END.
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -343,6 +342,7 @@ ON CHOOSE OF Btn-Delete IN FRAME F-Main /* Delete */
 DO:
    run get-link-handle in adm-broker-hdl(this-procedure,"record-source", output char-hdl).
    run delete_item in widget-handle(char-hdl).
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -360,6 +360,7 @@ DO:
         RUN reopen-query IN WIDGET-HANDLE(char-hdl) (ROWID(po-ordl)).
 /*         RUN reopen-po-ord-query. */
     END.
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -406,6 +407,7 @@ DO:
           RETURN NO-APPLY.
       END.
     END.
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -418,6 +420,7 @@ ON CHOOSE OF btn-scores IN FRAME F-Main /* Scores */
 DO:
   IF AVAIL po-ordl THEN
      run po/d-scores.w (ROWID(po-ordl)).
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -430,6 +433,7 @@ ON CHOOSE OF Btn-View IN FRAME F-Main /* View */
 DO:
    IF AVAIL po-ord THEN
       run po/d-poordl.w (recid(po-ordl), po-ord.po-no, "view"). 
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

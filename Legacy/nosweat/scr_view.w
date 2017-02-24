@@ -304,7 +304,7 @@ END.
 ON CHOOSE OF Btn_Close IN FRAME DEFAULT-FRAME /* Close */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -324,7 +324,7 @@ DO:
     search-string:SCREEN-VALUE = "".
   OS-DELETE VALUE(list-name).
   DISABLE {&LIST-2} WITH FRAME {&FRAME-NAME}.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -336,7 +336,7 @@ END.
 ON CHOOSE OF Btn_Font IN FRAME DEFAULT-FRAME /* Font */
 DO:
   SYSTEM-DIALOG FONT 9 FIXED-ONLY.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -356,7 +356,7 @@ DO:
     ldummy = screen-report:SET-SELECTION(screen-report:CURSOR-OFFSET -
          LENGTH(search-string:SCREEN-VALUE),screen-report:CURSOR-OFFSET).
   END.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -391,7 +391,7 @@ DO:
     search-string:SCREEN-VALUE = "".
   ENABLE {&LIST-2} WITH FRAME {&FRAME-NAME}.
   APPLY "LEAVE" TO search-string IN FRAME {&FRAME-NAME}.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -411,7 +411,7 @@ DO:
     ldummy = screen-report:SET-SELECTION(screen-report:CURSOR-OFFSET,
          screen-report:CURSOR-OFFSET + LENGTH(search-string:SCREEN-VALUE)).
   END.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -445,7 +445,7 @@ DO:
   END.
   INPUT CLOSE.
   OUTPUT CLOSE.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -479,7 +479,7 @@ DO:
         R-INDEX(list-name,".") - R-INDEX(list-name,"\"))
     ldummy = screen-report:SAVE-FILE(list-name)
     {&WINDOW-NAME}:TITLE = "Screen Viewer - '" + screen-file-name + "'".
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -493,7 +493,7 @@ DO:
   ENABLE search-string WITH FRAME {&FRAME-NAME}.
   APPLY "ENTRY" TO search-string.
   RETURN NO-APPLY.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

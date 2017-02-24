@@ -287,7 +287,7 @@ DO:
   APPLY "CHOOSE" TO Btn_Add_Label.
   APPLY "CHOOSE" TO Btn_Add_Field.
   APPLY "CHOOSE" TO Btn_Add_Dash.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -301,7 +301,7 @@ DO:
   IF header-include:SCREEN-VALUE NE "" THEN
   ldummy = header-include:INSERT-STRING(" +").
   ldummy = header-include:INSERT-STRING(" ' - '").
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -325,7 +325,7 @@ DO:
         ELSE
         "STRING(" + table-names:SCREEN-VALUE + "." + field-names:SCREEN-VALUE + ")"
     ldummy = header-include:INSERT-STRING(" " + field-string).
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -345,7 +345,7 @@ DO:
                 OUTPUT cdummy).
   ldummy = header-include:INSERT-STRING("'" + cdummy + ": '").
   {methods/nowait.i}
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -358,7 +358,7 @@ ON CHOOSE OF Btn_Add_WO_Dash IN FRAME DEFAULT-FRAME /* Add W/O Dash */
 DO:
   APPLY "CHOOSE" TO Btn_Add_Label.
   APPLY "CHOOSE" TO Btn_Add_Field.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -370,7 +370,7 @@ END.
 ON CHOOSE OF Btn_Cancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -384,7 +384,7 @@ DO:
   ASSIGN
     header-include:SCREEN-VALUE = ""
     include_name:SCREEN-VALUE = "".
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -397,7 +397,7 @@ ON CHOOSE OF Btn_OK IN FRAME DEFAULT-FRAME /* OK */
 DO:
   APPLY "CHOOSE" TO Btn_Save.
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -444,7 +444,7 @@ DO:
       RETURN.
     END.
   END.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -459,7 +459,7 @@ DO:
   include_name:SCREEN-VALUE = table-names:SCREEN-VALUE + ".i".
   ldummy = header-include:SAVE-FILE("methods/headers/" + include_name:SCREEN-VALUE).
   Btn_Cancel:LABEL = "&Close".
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

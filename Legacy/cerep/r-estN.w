@@ -635,7 +635,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -689,7 +689,7 @@ DO:
        WHEN 6 THEN RUN OUTPUT-to-port.
   END CASE. 
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -715,7 +715,7 @@ DO:
   sl_selected:LIST-ITEM-PAIRS = cSelectedList.
   sl_avail:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
   */
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -731,7 +731,7 @@ DO:
   RUN DisplaySelectionDefault.  /* task 04041406 */ 
   RUN DisplaySelectionList2 .
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -743,7 +743,7 @@ END.
 ON CHOOSE OF btn_down IN FRAME FRAME-A /* Move Down */
 DO:
   RUN Move-Field ("Down").
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -760,7 +760,7 @@ DO:
   END
   */
   APPLY "DEFAULT-ACTION" TO sl_selected  .
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -772,7 +772,7 @@ END.
 ON CHOOSE OF btn_Up IN FRAME FRAME-A /* Move Up */
 DO:
   RUN Move-Field ("Up").
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1506,33 +1506,6 @@ FORM HEADER
 
     WITH FRAME r-top2 NO-LABELS NO-BOX WIDTH 132 STREAM-IO NO-UNDERLINE PAGE-TOP.
 
-/*form skip(1)
-     eb.est-no                      format "x(8)"
-     cust.name                    at 10
-     eb.part-no                    at 41
-     style.dscr                     at 72
-     v-blk-dim format "x(27)" at 99
-     v-booked                      to 138 format "x(6)"
-     skip
-     "Last used:"                 at 10
-     est.mod-date
-     eb.part-dscr1                at 41
-     eb.t-wid                       at 72                                       
-     " x "                            at 82                                       
-     eb.t-len                        at 85                                       
-     "Print:"                        at 99
-     eb.i-coldscr skip    
-     eb.part-dscr2               at 41
-     "Board:" at 99
-     item.i-name format "x(26)"
-     skip
-header "Est#     Customer Name                  Part # / Description           Style/Blank size           Item Size/Print/Board             Status"
-
-    with frame est no-labels no-box centered width 150 down stream-io.*/
-
-
-SESSION:SET-WAIT-STATE ("general").    
-
 assign
  str-tit2 = trim(c-win:title) + " - by Estimate Number"
  {sys/inc/ctrtext.i str-tit2 112}
@@ -1560,23 +1533,16 @@ END.
 
 {sys/inc/outprint.i  value(lines-per-page)}
 
-/*/* gdm - 10130804 */
 IF tb_excel THEN DO:
-   OUTPUT STREAM excel TO VALUE(fi_file).  
-   IF NOT tb_break THEN
-       PUT STREAM excel UNFORMATTED
-         "Est#,Customer Name,Last used,Part #,Description 1,Description 2,Style,Blank size,Item Size,Print,Board,Status"
-        SKIP.
 
-END.  */
-IF tb_excel THEN DO:
-        OUTPUT STREAM excel TO VALUE(fi_file).
+        OUTPUT STREAM excel TO VALUE(fi_file) .
 END. 
 
 IF tb_excel AND tb_break EQ NO THEN DO:
         PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END. 
 
+SESSION:SET-WAIT-STATE ("general"). 
 
 if td-show-parm then run show-param.
 

@@ -67,6 +67,17 @@ DEF VAR lv-default-c AS CHAR NO-UNDO.
 DEF VAR lv-int-f AS INT NO-UNDO.
 DEF VAR lv-int-c AS INT NO-UNDO.
 
+DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
+
+ RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.
+
 {jcrep/r-ticket.i "new shared"}
 {custom/xprint.i}
 
@@ -778,7 +789,7 @@ DO:
   IF lv-format-f = 'Indiana-XL' AND tb_fold:CHECKED IN FRAME {&FRAME-NAME} THEN
      run CleanUp. 
   apply "close" to this-procedure.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -889,7 +900,7 @@ DO WITH FRAME {&FRAME-NAME}:
       APPLY "entry" TO btn-cancel.
    END.
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

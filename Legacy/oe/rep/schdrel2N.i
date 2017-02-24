@@ -418,13 +418,6 @@ form header
 
   STATUS DEFAULT "Printing...".
 
-  IF NOT CAN-FIND(FIRST tt-report WHERE tt-report.term-id EQ "") THEN DO:
-    CREATE tt-report.
-    ASSIGN
-     tt-report.term-id = ""
-     ll-show-top-only  = YES.
-  END.
-
   RELEASE tt-report.
 
   for each tt-report where tt-report.term-id eq ""
@@ -433,13 +426,7 @@ form header
             by tt-report.key-03
             by tt-report.key-04:
 
-   /* IF v-sort EQ "CR" AND FIRST-OF(tt-report.key-02) THEN DO:
-      lv-cr-rating = tt-report.key-02.
-      IF FIRST(tt-report.key-02) THEN VIEW FRAME r-top2.
-      PAGE.
-    END.
-
-    ELSE*/ 
+   
       IF FIRST(tt-report.key-01) THEN do:
           /*VIEW FRAME r-top.*/
           /*PAGE.*/

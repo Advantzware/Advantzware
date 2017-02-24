@@ -643,7 +643,7 @@ END.
 ON CHOOSE OF btnClear IN FRAME DEFAULT-FRAME /* Clear */
 DO:
   RUN Clear-Data.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -655,7 +655,7 @@ END.
 ON CHOOSE OF btnDelete IN FRAME DEFAULT-FRAME /* Delete */
 DO:
   RUN Delete-Record.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -675,7 +675,7 @@ DO:
   &ELSE
       APPLY "CLOSE":U TO THIS-PROCEDURE.
   &ENDIF
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -687,7 +687,7 @@ END.
 ON CHOOSE OF btnFile IN FRAME DEFAULT-FRAME /* <> */
 DO:
     RUN Select-File.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -699,7 +699,7 @@ END.
 ON CHOOSE OF btnImport IN FRAME DEFAULT-FRAME /* Import */
 DO:
   RUN Import-Data.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -711,7 +711,7 @@ END.
 ON CHOOSE OF btnLoad IN FRAME DEFAULT-FRAME /* Load */
 DO:
   RUN Process-Data.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -723,7 +723,7 @@ END.
 ON CHOOSE OF btnRemove IN FRAME DEFAULT-FRAME /* Remove */
 DO:
   RUN Remove-Data.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

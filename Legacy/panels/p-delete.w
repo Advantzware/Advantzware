@@ -183,7 +183,7 @@ ASSIGN
 ON CHOOSE OF Btn-Delete IN FRAME Panel-Frame /* Delete selected Job */
 DO:
    RUN notify ('delete-record':U).  
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

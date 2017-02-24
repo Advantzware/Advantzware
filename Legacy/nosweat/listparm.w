@@ -596,7 +596,7 @@ END.
 ON CHOOSE OF Btn_Cancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -615,7 +615,7 @@ DO:
   IF NOT deleteok THEN
   RETURN NO-APPLY.
   OS-DELETE VALUE(listparm).
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -628,7 +628,7 @@ ON CHOOSE OF Btn_OK IN FRAME DEFAULT-FRAME /* OK */
 DO:
   APPLY "CHOOSE"TO Btn_Save.
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -640,7 +640,7 @@ END.
 ON CHOOSE OF Btn_Open IN FRAME DEFAULT-FRAME /* Open */
 DO:
   RUN Open-ListParm.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -652,7 +652,7 @@ END.
 ON CHOOSE OF Btn_Save IN FRAME DEFAULT-FRAME /* Save */
 DO:
   RUN Save-ListParm.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

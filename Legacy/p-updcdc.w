@@ -223,7 +223,7 @@ DO:
       add-active = no.
       RUN notify ('cancel-record':U).
    END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -237,7 +237,7 @@ DO:
    IF NOT v-can-create THEN RETURN no-apply.
 
    RUN notify ('copy-record':U).
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -251,7 +251,7 @@ DO:
    IF NOT v-can-delete THEN RETURN no-apply.
 
    RUN notify ('delete-record':U).  
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -263,7 +263,7 @@ END.
 ON CHOOSE OF Btn-Reset IN FRAME Panel-Frame /* Reset */
 DO:
   RUN notify ('reset-record':U).
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -304,7 +304,7 @@ DO:
         RUN notify ('update-record':U).
      END.
   END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

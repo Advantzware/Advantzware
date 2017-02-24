@@ -193,7 +193,7 @@ END.
 ON CHOOSE OF btn-job IN FRAME F-Main /* From Jobs */
 DO:
     message "It will be available soon...." view-as alert-box.
-    return.
+    if true then return.
 
      run loadtags/loadjobs.w.
 END.

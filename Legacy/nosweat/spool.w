@@ -270,7 +270,7 @@ END.
 ON CHOOSE OF Btn_Close IN FRAME DEFAULT-FRAME /* Close */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -289,7 +289,7 @@ DO:
   OS-DELETE VALUE(config.spool_dir + "/" + spool_title:SCREEN-VALUE + ".spl").
   OS-DELETE VALUE(config.spool_dir + "/" + spool_title:SCREEN-VALUE + ".rpt").
   RUN Get-Spool-Requests.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -302,7 +302,7 @@ ON CHOOSE OF Btn_Process IN FRAME DEFAULT-FRAME /* Process */
 DO:
   RUN Get_Procedure IN Persistent-Handle ("chkspool.",OUTPUT run-proc,yes).
   RUN Get-Spool-Requests.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

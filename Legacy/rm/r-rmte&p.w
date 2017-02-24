@@ -563,7 +563,7 @@ END.
 ON CHOOSE OF Btn_Cancel IN FRAME FRAME-F /* Cancel */
 DO:
   APPLY "close" TO THIS-PROCEDURE.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -720,7 +720,7 @@ DO:
   END.
 
   RUN util/fxissues.p.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

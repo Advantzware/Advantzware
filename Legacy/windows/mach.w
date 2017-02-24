@@ -502,8 +502,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_p-dwup ).
-       RUN set-position IN h_p-dwup ( 9.57 , 132.00 ) NO-ERROR.
-       RUN set-size IN h_p-dwup ( 9.05 , 16.00 ) NO-ERROR.
+       RUN set-position IN h_p-dwup ( 6.95 , 132.00 ) NO-ERROR.
+       RUN set-size IN h_p-dwup ( 11.67 , 16.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'panels/p-machsu.w':U ,
@@ -512,8 +512,8 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-machsu ).
-       RUN set-position IN h_p-machsu ( 20.29 , 132.00 ) NO-ERROR.
-       RUN set-size IN h_p-machsu ( 3.33 , 16.00 ) NO-ERROR.
+       RUN set-position IN h_p-machsu ( 18.86 , 132.00 ) NO-ERROR.
+       RUN set-size IN h_p-machsu ( 4.76 , 16.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('3':U) NO-ERROR.

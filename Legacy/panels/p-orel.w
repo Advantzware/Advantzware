@@ -204,7 +204,7 @@ DO:
     run get-link-handle in adm-broker-hdl(this-procedure, "ordrel-target", output lv-char-hdl).
     run release-item in widget-handle(lv-char-hdl).
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

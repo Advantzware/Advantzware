@@ -168,7 +168,7 @@ DO:
     IF lv-rowid NE ? THEN
       RUN reopen-query IN WIDGET-HANDLE(char-hdl) (lv-rowid) NO-ERROR.
   END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

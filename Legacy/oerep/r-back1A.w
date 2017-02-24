@@ -608,7 +608,7 @@ DO:
 
     else apply "close" to this-procedure.
   end.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -663,7 +663,7 @@ DO:
        END.
        WHEN 6 THEN RUN OUTPUT-to-port.
   end case. 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

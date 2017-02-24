@@ -227,7 +227,7 @@ END.
 ON CHOOSE OF BtnCancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
     APPLY "close" TO THIS-PROCEDURE.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -300,7 +300,7 @@ DO:
 
   if v-process then run run-process.
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

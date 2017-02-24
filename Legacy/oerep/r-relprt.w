@@ -71,6 +71,17 @@ DEF BUFFER b-oe-relh FOR oe-relh.
 
 {sys/ref/relpost.i}
 
+DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
+
+ RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.
+
 /* gdm - 02020902 */
 DEF VAR v-hldflg AS LOG NO-UNDO.
 DEF VAR v-chkflg AS LOG NO-UNDO.
@@ -699,7 +710,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    APPLY "close" TO THIS-PROCEDURE.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -962,7 +973,7 @@ END CASE.
     MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.
   END.
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2093,9 +2104,14 @@ IF IS-xprint-form AND (v-1st-page OR v-multi-cust = NO) THEN DO:
     CASE rd-dest:
         WHEN 1 THEN PUT  "<PRINTER?></PROGRESS>".
         WHEN 2 THEN DO:
-
-            IF v-relprint = "StClair" THEN  PUT "<PREVIEW><OLANDSCAPE></PROGRESS>".
-            ELSE PUT "<PREVIEW></PROGRESS>".        
+            IF NOT lBussFormModle THEN DO:            
+              IF v-relprint = "StClair" THEN  PUT "<PREVIEW><MODAL=NO><OLANDSCAPE></PROGRESS>".
+              ELSE PUT "<PREVIEW><MODAL=NO></PROGRESS>". 
+            END. 
+            ELSE DO:
+              IF v-relprint = "StClair" THEN  PUT "<PREVIEW><OLANDSCAPE></PROGRESS>".
+              ELSE PUT "<PREVIEW></PROGRESS>".
+            END.      
         END.
 
         WHEN 4 THEN DO:

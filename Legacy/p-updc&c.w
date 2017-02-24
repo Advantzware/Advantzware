@@ -209,7 +209,7 @@ DO:
       add-active = no.
       RUN notify ('cancel-record':U).
    END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -228,7 +228,7 @@ DO:
       IF VALID-HANDLE(widget-handle(source-str)) THEN 
           run copy-misc in widget-handle(source-str). 
    END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -269,7 +269,7 @@ DO:
         RUN notify ('update-record':U).
      END.
   END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

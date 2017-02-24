@@ -307,7 +307,7 @@ ON CHOOSE OF btCancel IN FRAME FRAME-A /* Exit */
 DO:
 
   APPLY 'close' TO THIS-PROCEDURE.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -353,7 +353,7 @@ DO:
     RUN enable_ui.
 
   END.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -410,7 +410,7 @@ DO:
           END.
       END.
   END.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -450,7 +450,7 @@ DO:
     /* APPLY 'close' TO THIS-PROCEDURE. */
   END.
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

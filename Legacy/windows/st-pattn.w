@@ -92,21 +92,21 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 150 BY 24
+         SIZE 222.2 BY 23.86
          BGCOLOR 15 .
 
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 1
-         SIZE 148 BY 1.91
+         AT COL 73.8 ROW 1
+         SIZE 148.4 BY 1.91
          BGCOLOR 15 .
 
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 46 ROW 2.91
-         SIZE 105 BY 1.43
+         AT COL 48 ROW 2.91
+         SIZE 175 BY 1.43
          BGCOLOR 15 .
 
 
@@ -130,7 +130,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Stack Patterns"
          HEIGHT             = 24
-         WIDTH              = 150.2
+         WIDTH              = 222.4
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
@@ -272,7 +272,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_f-add ).
-       RUN set-position IN h_f-add ( 1.00 , 77.00 ) NO-ERROR.
+       RUN set-position IN h_f-add ( 1.00 , 77.40 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -282,14 +282,14 @@ PROCEDURE adm-create-objects :
                      FOLDER-TAB-TYPE = 1':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 21.67 , 148.00 ) NO-ERROR.
+       RUN set-size IN h_folder ( 21.67 , 221.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/smartmsg.w':U ,
              INPUT  FRAME message-frame:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_smartmsg ).
-       RUN set-position IN h_smartmsg ( 1.00 , 72.00 ) NO-ERROR.
+       RUN set-position IN h_smartmsg ( 1.00 , 131.80 ) NO-ERROR.
        /* Size in UIB:  ( 1.14 , 32.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -297,7 +297,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_options ).
-       RUN set-position IN h_options ( 1.00 , 85.00 ) NO-ERROR.
+       RUN set-position IN h_options ( 1.00 , 85.20 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 55.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -325,7 +325,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updsav ).
-       RUN set-position IN h_p-updsav ( 7.67 , 132.00 ) NO-ERROR.
+       RUN set-position IN h_p-updsav ( 7.67 , 204.20 ) NO-ERROR.
        RUN set-size IN h_p-updsav ( 14.52 , 16.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -337,8 +337,8 @@ PROCEDURE adm-create-objects :
                      Layout = ,
                      Create-On-Add = Yes':U ,
              OUTPUT h_st-pattn ).
-       RUN set-position IN h_st-pattn ( 4.81 , 4.00 ) NO-ERROR.
-       RUN set-size IN h_st-pattn ( 19.52 , 126.00 ) NO-ERROR.
+       RUN set-position IN h_st-pattn ( 4.71 , 4.00 ) NO-ERROR.
+       RUN set-size IN h_st-pattn ( 19.52 , 196.00 ) NO-ERROR.
 
        /* Links to SmartNavBrowser h_st-pattn. */
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_st-pattn ).

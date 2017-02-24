@@ -282,7 +282,7 @@ END.
 ON CHOOSE OF Btn_Cancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
   apply "close" to this-procedure.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -325,7 +325,7 @@ DO:
       MESSAGE "Are you sure you want to copy ERelease Note?"
          VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans.
    */
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

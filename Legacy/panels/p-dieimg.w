@@ -198,7 +198,7 @@ DO:
    IF valid-handle(widget-handle(char-hdl))
       THEN RUN die-image IN WIDGET-HANDLE(char-hdl).
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

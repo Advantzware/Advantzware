@@ -160,7 +160,7 @@ DO:
 
   IF connected("asinos") THEN DISCONNECT value("asinos").
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

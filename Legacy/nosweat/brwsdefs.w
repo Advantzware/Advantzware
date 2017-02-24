@@ -328,7 +328,7 @@ END.
 ON CHOOSE OF Btn_Add IN FRAME DEFAULT-FRAME /* -->> Add -->> */
 DO:
   APPLY "DEFAULT-ACTION" TO fieldnames.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -340,7 +340,7 @@ END.
 ON CHOOSE OF Btn_Cancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -359,7 +359,7 @@ DO:
   IF NOT deleteok THEN
   RETURN NO-APPLY.
   OS-DELETE VALUE(brwsdefs).
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -371,7 +371,7 @@ END.
 ON CHOOSE OF Btn_Down IN FRAME DEFAULT-FRAME /* Move Down */
 DO:
   RUN Move-Field ("Down").
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -384,7 +384,7 @@ ON CHOOSE OF Btn_OK IN FRAME DEFAULT-FRAME /* OK */
 DO:
   APPLY "CHOOSE"TO Btn_Save.
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -396,7 +396,7 @@ END.
 ON CHOOSE OF Btn_Open IN FRAME DEFAULT-FRAME /* Open */
 DO:
   RUN Open-brwsdefs.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -408,7 +408,7 @@ END.
 ON CHOOSE OF Btn_Remove IN FRAME DEFAULT-FRAME /* Remove <<-- */
 DO:
   APPLY "DEFAULT-ACTION" TO selected-fields.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -420,7 +420,7 @@ END.
 ON CHOOSE OF Btn_Save IN FRAME DEFAULT-FRAME /* Save */
 DO:
   RUN Save-brwsdefs.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -432,7 +432,7 @@ END.
 ON CHOOSE OF Btn_Up IN FRAME DEFAULT-FRAME /* Move Up */
 DO:
   RUN Move-Field ("Up").
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

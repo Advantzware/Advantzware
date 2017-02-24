@@ -2001,7 +2001,7 @@ ON CHOOSE OF btnAbout IN FRAME frSettings /* Que */
 DO:
   hide frame frSettings.
   run value(getProgramDir() + 'dAbout.w') persistent.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2032,7 +2032,7 @@ DO:
   btnDelete:sensitive = FALSE.  
   btnAdd:sensitive = FALSE.
   */
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2064,7 +2064,7 @@ DO:
       apply 'value-changed' to brTables.
     run setWindowTitle.
   end.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2092,7 +2092,7 @@ DO:
   if cOldTable <> getCurrentTable() then
     apply 'value-changed' to brTables.
   run setWindowTitle.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2112,7 +2112,7 @@ DO:
   else 
     ficWhere2:replace-selection-text(substitute(' &1 ', self:label)).
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2133,7 +2133,7 @@ DO:
   else 
     ficWhere2:replace-selection-text(substitute(' ( &1 ) ', ficWhere2:selection-text)).
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2146,7 +2146,7 @@ ON CHOOSE OF btnCancel-2 IN FRAME frWhere /* Cancel */
 DO:
   ficWhere2:screen-value in frame frWhere = ficWhere:screen-value in frame frMain. 
   setQueryEditor('Hidden').
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2170,7 +2170,7 @@ DO:
   if iHelpId > 0 then
     system-help cHelpfile context iHelpId.
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2211,7 +2211,7 @@ DO:
               , '' 
               ).  
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2225,7 +2225,7 @@ DO:
 
   run btnClearDataFilterChoose. 
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2257,7 +2257,7 @@ DO:
 
   apply 'choose' to btnFieldFilter.
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2279,7 +2279,7 @@ DO:
 
   apply 'choose' to btnIndexFilter.
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2308,7 +2308,7 @@ DO:
 
   apply 'choose' to btnTableFilter.
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2342,7 +2342,7 @@ do:
   cQuery = formatQueryString(cQuery, yes).
   clipboard:value = getReadableQuery(cQuery).
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2359,7 +2359,7 @@ do:
 
   /* run value(getProgramDir() + 'wDataDigger.w') persistent. */
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 end.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2371,7 +2371,7 @@ end.
 ON CHOOSE OF btnDataFilter IN FRAME frMain /* Y */
 do:
   run reopenDataBrowse('',?).
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2385,7 +2385,7 @@ DO:
 
   run btnDeleteChoose.
 
-                              {src/WinKit/triggerend.i}
+                              {Advantzware/WinKit/winkit-panel-triggerend.i}
 END. /* choose of btnDelete */
 
 /* _UIB-CODE-BLOCK-END */
@@ -2400,7 +2400,7 @@ ON CHOOSE OF btnDump-2 IN FRAME frSettings /* Dmp */
 DO:
   hide frame frSettings.
   run btnDumpChoose. 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2421,7 +2421,7 @@ do:
 
   run btnEditChoose.
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 end.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2455,7 +2455,7 @@ DO:
     apply 'value-changed' to brTables.
   run setWindowTitle.
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2471,7 +2471,7 @@ ON CHOOSE OF btnFavorites IN FRAME frSettings /* Fav */
 DO:
   hide frame frSettings.
   run btnFavouritesChoose.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2486,7 +2486,7 @@ or 'return' of fiOrderFilter, fiNameFilter, fiTypeFilter, fiFormatFilter, fiLabe
 DO:
   run reopenFieldBrowse(?,?). /* reopen, while maintaining original sort */
   apply 'entry' to brFields.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2501,7 +2501,7 @@ DO:
 
   run startWinHelp(focus).
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2514,7 +2514,7 @@ ON CHOOSE OF btnIndexFilter IN FRAME frMain /* Y */
 or 'return' of fiIndexNameFilter, fiFlagsFilter, fiFieldsFilter
 DO:
   run reopenIndexBrowse(?,?). /* reopen, while maintaining original sort */
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2549,7 +2549,7 @@ DO:
 
   apply "entry" to cbAndOr.
   return no-apply.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2564,7 +2564,7 @@ ON CHOOSE OF btnLoad-2 IN FRAME frSettings /* Load */
 DO:
   hide frame frSettings.
   run loadData.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2580,7 +2580,7 @@ DO:
 
   run moveField('bottom').
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2595,7 +2595,7 @@ DO:
 
   run moveField('down').
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2610,7 +2610,7 @@ DO:
 
   run moveField('top').
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2625,7 +2625,7 @@ DO:
 
   run moveField('up').
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2639,7 +2639,7 @@ or 'page-up' of ficWhere       in frame frMain
 or 'choose'  of btnNextQuery-2 in frame frWhere
 do:
   setQuery(-1).
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 end.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2652,7 +2652,7 @@ end.
 ON CHOOSE OF btnOK IN FRAME frWhere /* OK */
 DO:
   setQueryEditor('Hidden').
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2667,7 +2667,7 @@ OR 'page-down' of ficWhere       in frame frMain
 or 'choose'    of btnPrevQuery-2 in frame frWhere
 do:
   setQuery(+1).
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 end.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2689,7 +2689,7 @@ DO:
   else 
     ficWhere2:replace-selection-text(substitute('"&1"', ficWhere2:selection-text)).
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2731,7 +2731,7 @@ DO:
   end.
 
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2751,7 +2751,7 @@ DO:
   hide frame frSettings.
   run btnQueriesChoose.
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2775,7 +2775,7 @@ DO:
   if file-info:full-pathname <> ? then
     run value(cQueryTesterPath) persistent.
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2805,7 +2805,7 @@ DO:
     run setWindowTitle.
   end.
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2832,7 +2832,7 @@ DO:
     run setWindowTitle.
   end.
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2858,7 +2858,7 @@ DO:
 
   run reopenFieldBrowse('iOrder', yes).
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2873,7 +2873,7 @@ ON CHOOSE OF btnSettings IN FRAME frSettings /* INI */
 DO:
   hide frame frSettings.
   run btnSettingsChoose.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2910,7 +2910,7 @@ ON CHOOSE OF btnTabFields IN FRAME frMain /* Fld */
 or 'ctrl-1' of frame {&frame-name} anywhere
 DO:
   run setPage(1).
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2923,7 +2923,7 @@ ON CHOOSE OF btnTabIndexes IN FRAME frMain /* Idx */
 or 'ctrl-2' of frame {&frame-name} anywhere
 DO:
   run setPage(2).
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2972,7 +2972,7 @@ DO:
   apply 'value-changed' to brTables.
   apply 'entry' to brTables.
   return no-apply.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3001,7 +3001,7 @@ DO:
 
   apply 'entry' to btnSettings in frame frSettings.
   return no-apply.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3015,7 +3015,7 @@ DO:
 
   run btnViewChoose.
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3054,7 +3054,7 @@ do:
 
   if valid-handle(ghDataBrowse) then
     apply 'entry' to ghDataBrowse. 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 end.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3080,7 +3080,7 @@ DO:
 
   end case.
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3562,7 +3562,7 @@ DO:
   apply 'value-changed' to brTables.  /* this sets the gcCurrentDatabase */
   apply 'choose' to btnTableFilter. 
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 end.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3601,7 +3601,7 @@ DO:
   cbDatabaseFilter:list-items = ',' + cDatabases.
   cbDatabaseFilter:screen-value = cLogicalName.
   apply 'value-changed' to cbDatabaseFilter. 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3632,7 +3632,7 @@ END.
 ON CHOOSE OF MENU-ITEM m_View_as_Excel /* View as Excel */
 DO:
   run setViewType('XLS').
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3644,7 +3644,7 @@ END.
 ON CHOOSE OF MENU-ITEM m_View_as_HTML /* View as HTML */
 DO:
   run setViewType('HTML').
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3656,7 +3656,7 @@ END.
 ON CHOOSE OF MENU-ITEM m_View_as_text /* View as TEXT */
 DO:
   run setViewType('TXT').
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

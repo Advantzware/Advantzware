@@ -209,7 +209,7 @@ DO:
       add-active = no.
       RUN notify ('cancel-record':U).
    END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -254,7 +254,7 @@ DO:
         btn_frt:SENSITIVE = YES.
      END.
   END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -277,7 +277,7 @@ DO:
     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"tableio-target", OUTPUT char-hdl).
     RUN calc-freight IN WIDGET-HANDLE(char-hdl).
   END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

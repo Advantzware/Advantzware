@@ -391,7 +391,7 @@ DO:
   end.
 
   apply 'close' to this-procedure. 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -406,7 +406,7 @@ do:
   run btnGoChoose(output polSuccess).
   if not polSuccess then return no-apply.
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 end.
 
 /* _UIB-CODE-BLOCK-END */

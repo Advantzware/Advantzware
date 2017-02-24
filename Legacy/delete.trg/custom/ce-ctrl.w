@@ -860,7 +860,7 @@ DO:
       Btn_Update:LABEL = "&Update".
     RUN enable_UI.
   END.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -892,7 +892,7 @@ DO:
     find current ce-ctrl exclusive-lock.  
     ASSIGN {&LIST-1}.
   END.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

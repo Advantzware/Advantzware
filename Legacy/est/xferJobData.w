@@ -668,7 +668,7 @@ END.
 ON CHOOSE OF btnApplyDateFilter IN FRAME DEFAULT-FRAME /* Select Jobs Using Date Range */
 DO:
   RUN applyDateFilter.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -680,7 +680,7 @@ END.
 ON CHOOSE OF btnApplyJobFilter IN FRAME DEFAULT-FRAME /* Select Jobs Using Job # Range */
 DO:
   RUN applyJobFilter.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -692,7 +692,7 @@ END.
 ON CHOOSE OF btnApplyQtyFilter IN FRAME DEFAULT-FRAME /* Select Jobs Using Quantity Range */
 DO:
   RUN applyQtyFilter.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -704,7 +704,7 @@ END.
 ON CHOOSE OF btnSubmit IN FRAME DEFAULT-FRAME /* Transfer "Actual Job Data" to "Estimate Standards" */
 DO:
   RUN submitJobData.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -716,7 +716,7 @@ END.
 ON CHOOSE OF btnSubmitDownLeft IN FRAME DEFAULT-FRAME
 DO:
   RUN submitJobData.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -728,7 +728,7 @@ END.
 ON CHOOSE OF btnSubmitDownRight IN FRAME DEFAULT-FRAME
 DO:
   RUN submitJobData.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

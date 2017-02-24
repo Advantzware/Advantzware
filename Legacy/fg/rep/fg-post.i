@@ -58,6 +58,7 @@
     assign
      /*v-fg-qty   = w-fg-rctd.t-qty*/
      /*v-fg-cost  = w-fg-rctd.ext-cost*/
+     v-fg-cost = 0
      v-fg-value = 0
      v-msf[1]   = 0
      v-msf[2]   = 0.
@@ -574,11 +575,11 @@
     END.
 
     if v-pr-tots OR v-pr-tots2  then do:
-
          v-tot-qty = v-tot-qty + v-fg-qty.
          v-grd-tot-qty = v-grd-tot-qty + v-fg-qty.
          v-tot-cost = v-tot-cost + v-fg-cost.
-         v-grd-tot-cost  = v-grd-tot-cost  + v-tot-cost.         
+         v-grd-tot-cost  = v-grd-tot-cost  + v-fg-cost
+             .         
          v-tot-value = v-tot-value + round(v-fg-value,2).
          
          v-grd-tot-value = v-grd-tot-value + v-fg-value.   

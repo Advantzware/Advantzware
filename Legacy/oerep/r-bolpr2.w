@@ -67,6 +67,17 @@ DEF VAR ls-pdf-image AS CHAR NO-UNDO.
 
 {custom/xprint.i}
 
+DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
+
+ RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.
+
 DEF VAR lv-prt-bypass AS LOG NO-UNDO.  /* bypass window's printer driver */
 
 /* _UIB-CODE-BLOCK-END */
@@ -468,7 +479,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -546,7 +557,7 @@ DO:
        END. 
        WHEN 6 THEN RUN output-to-port.
   end case. 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1018,7 +1029,12 @@ ELSE IF is-xprint-form AND rd-dest = 1 THEN PUT "<PRINTER?>".
 IF IS-xprint-form THEN DO:
     CASE rd-dest:
         WHEN 1 THEN PUT  "<PRINTER?>".
-        WHEN 2 THEN PUT "<PREVIEW>".        
+        WHEN 2 THEN do:
+            IF NOT lBussFormModle THEN
+              PUT "<PREVIEW><MODAL=NO>". 
+            ELSE
+              PUT "<PREVIEW>".      
+        END.        
         WHEN  4 THEN do:
               ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".
               PUT UNFORMATTED "<PRINT=NO><EXPORT=" Ls-fax-file ",BW></PROGRESS>".

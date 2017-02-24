@@ -204,7 +204,7 @@ DO:
     run get-link-handle in adm-broker-hdl(this-procedure, "ordbol-target", output lv-char-hdl).
     run create-bol in widget-handle(lv-char-hdl).
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

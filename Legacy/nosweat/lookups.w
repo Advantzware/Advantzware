@@ -455,7 +455,7 @@ DO:
     IF svAvailableSelections:IS-SELECTED(i) THEN
     svAvailableSelections:SCREEN-VALUE = "".
   END.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -467,7 +467,7 @@ END.
 ON CHOOSE OF btnCancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -498,7 +498,7 @@ DO:
     OTHERWISE
     svStatus:SCREEN-VALUE = "DELETE Cancelled".
   END CASE.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -546,7 +546,7 @@ DO:
       svStatus:SCREEN-VALUE = "DESCRIPTION Lookup Created"
       .
   END.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -567,7 +567,7 @@ DO:
       .
     LEAVE.
   END.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -605,7 +605,7 @@ DO:
     IF AVAILABLE prgrms THEN
     svFrameTitle:SCREEN-VALUE = prgrms.prgtitle + " Lookup".
   END.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -618,7 +618,7 @@ ON CHOOSE OF btnOK IN FRAME DEFAULT-FRAME /* OK */
 DO:
   APPLY "CHOOSE" TO btnSave.
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -631,7 +631,7 @@ ON CHOOSE OF btnRemove IN FRAME DEFAULT-FRAME /* Remove */
 DO:
   IF sHandle:SCREEN-VALUE NE "" THEN
   APPLY "DEFAULT-ACTION" TO sHandle.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -649,7 +649,7 @@ DO:
     svOrderValues:SENSITIVE = NOT svAutoSet
     svStatus:SCREEN-VALUE = "Lookup Record RESET"
     .
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -823,7 +823,7 @@ DO:
     btnCancel:LABEL = "&Close"
     svStatus:SCREEN-VALUE = "Lookup SAVEd"
     .
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -844,7 +844,7 @@ DO:
       .
     LEAVE.
   END.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

@@ -213,7 +213,7 @@ DO:
       enable btn-recalc-qty with frame {&frame-name}.
 
    END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -226,7 +226,7 @@ ON CHOOSE OF Btn-recalc-qty IN FRAME Panel-Frame /* Recalc Qty */
 DO:
     run get-link-handle in adm-broker-hdl (this-procedure, "tableio-target", output char-hdl).
     run recalc-qty in widget-handle(char-hdl).
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -270,7 +270,7 @@ DO:
         RUN notify ('update-record':U).
      END.
   END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

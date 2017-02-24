@@ -1065,7 +1065,7 @@ DO:
       RUN PROCESS(INPUT NO).
     END.
   END.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1109,7 +1109,7 @@ DO:
     END.
   END.
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1234,7 +1234,7 @@ DO:
           APPLY "entry" TO LvEmployee.
     END.
   END.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1276,7 +1276,7 @@ DO:
                            INPUT DECIMAL(Hdl-VACHrs[5]:SCREEN-VALUE),
                            INPUT DECIMAL(Hdl-VACHrs[6]:SCREEN-VALUE),
                            INPUT DECIMAL(Hdl-VACHrs[7]:SCREEN-VALUE)).
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1340,7 +1340,7 @@ DO:
 
     RUN PROCESS(INPUT YES).
   END.                   
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

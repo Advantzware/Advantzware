@@ -202,7 +202,7 @@ END.
 ON CHOOSE OF Btn_Cancel IN FRAME FRAME-A /* Cancel */
 DO:
   APPLY "close" TO THIS-PROCEDURE.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -220,7 +220,7 @@ DO:
     SESSION:SET-WAIT-STAT("").
     MESSAGE "Uploading completed." VIEW-AS ALERT-BOX.
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

@@ -216,7 +216,7 @@ END.
 ON CHOOSE OF Btn_Cancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -238,7 +238,7 @@ DO:
   END.
   Btn_Cancel:LABEL = "&Close".
   APPLY "ENTRY" TO m_lookup_prgm.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -251,7 +251,7 @@ ON CHOOSE OF Btn_Test IN FRAME DEFAULT-FRAME /* Test Run */
 DO:
   IF SEARCH("lookups/" + m_lookup_prgm:SCREEN-VALUE + "p") NE ? THEN
   RUN VALUE("lookups/" + m_lookup_prgm:SCREEN-VALUE + "p").
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

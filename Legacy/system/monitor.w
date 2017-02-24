@@ -282,7 +282,7 @@ END.
 ON CHOOSE OF btnClose IN FRAME DEFAULT-FRAME /* Close */
 DO:
   APPLY 'CLOSE' TO THIS-PROCEDURE.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -304,7 +304,7 @@ DO:
 
   END.
   RETURN NO-APPLY.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

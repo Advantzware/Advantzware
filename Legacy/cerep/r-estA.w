@@ -564,7 +564,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -617,7 +617,7 @@ DO:
        WHEN 6 THEN RUN OUTPUT-to-port.
   END CASE. 
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1103,7 +1103,7 @@ header "Est#     Customer Name                  Part # / Description           S
     with frame est no-labels no-box centered width 150 down stream-io.
 
 
-SESSION:SET-WAIT-STATE ("general").    
+
 
 assign
  str-tit2 = trim(c-win:title) + " - by Estimate Number"
@@ -1132,7 +1132,7 @@ IF tb_excel THEN DO:
 
 END.
 
-
+SESSION:SET-WAIT-STATE ("general").    
 if td-show-parm then run show-param.
 
 VIEW FRAME r-top.

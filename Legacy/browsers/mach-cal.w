@@ -8,6 +8,10 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
 {Advantzware\WinKit\admBrowserUsing.i}
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admBrowserUsing.i}
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -38,6 +42,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{custom/globdefs.i}
 {custom/globdefs.i}
 DEF VAR lv-stime AS CHAR NO-UNDO.
 DEF VAR lv-etime AS CHAR NO-UNDO.
@@ -277,6 +282,8 @@ END.
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/browser.i}
+
+{Advantzware/WinKit/dataGridProc.i}
 
 {Advantzware/WinKit/dataGridProc.i}
 
@@ -589,6 +596,7 @@ PROCEDURE local-initialize :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+  RUN pDataGridInit.
   RUN pDataGridInit.
 
   /* Code placed here will execute AFTER standard behavior.    */

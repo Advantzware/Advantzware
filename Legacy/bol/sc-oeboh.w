@@ -319,7 +319,7 @@ DO:
   end.
   */
   APPLY 'CLOSE' TO THIS-PROCEDURE.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -362,7 +362,7 @@ DO:
     CLEAR FRAME {&FRAME-NAME} NO-PAUSE.
     APPLY "entry" TO scan_order.
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -407,7 +407,7 @@ DO:
     APPLY "entry" TO scan_order.
    */
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -421,7 +421,7 @@ DO:
     CLEAR FRAME {&FRAME-NAME} NO-PAUSE.
     APPLY "entry" TO scan_order.
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -438,7 +438,7 @@ DO:
     CLEAR FRAME {&FRAME-NAME} NO-PAUSE.
     APPLY "entry" TO scan_order.
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -486,7 +486,7 @@ DO:
 
     APPLY "leave" TO scan_order.
     APPLY "leave" TO scan_tag.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -614,7 +614,7 @@ DO:
   APPLY "TAB".
 */
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

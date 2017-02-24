@@ -318,7 +318,7 @@ DO:
 
       OPEN QUERY browse-1 FOR EACH tt-gltrans.
    END.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

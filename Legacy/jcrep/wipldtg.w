@@ -718,7 +718,7 @@ DO:
    EMPTY TEMP-TABLE tt-rmtags NO-ERROR.
    EMPTY TEMP-TABLE tt-used-tags NO-ERROR.
    apply "close" to this-procedure.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -730,7 +730,7 @@ END.
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   RUN ok-button.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3546,7 +3546,7 @@ PROCEDURE validRMLoadTag :
               MESSAGE "RM Tag# " tt-rmtags.rmtagno skip
                       "Is not a valid RM Loadtag #, Please Try Again ..." VIEW-AS ALERT-BOX ERROR.
               RETURN NO-APPLY.
-              APPLY "entry" TO FRAME {&FRAME-NAME}.
+              /* APPLY "entry" TO FRAME {&FRAME-NAME}. */
            END.
        END.
 

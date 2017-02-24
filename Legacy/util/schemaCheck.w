@@ -252,7 +252,7 @@ ON WINDOW-CLOSE OF C-Win /* Transaction Monitor */
 ON CHOOSE OF btnClose IN FRAME DEFAULT-FRAME /* Close */
     DO:
         APPLY 'CLOSE' TO THIS-PROCEDURE.
-        {src/WinKit/triggerend.i}
+        {Advantzware/WinKit/winkit-panel-triggerend.i}
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -267,7 +267,7 @@ ON CHOOSE OF btnCompareSchema IN FRAME DEFAULT-FRAME /* Compare Schema */
         RUN pShowNeededDeltas.
         RETURN NO-APPLY.
 
-        {src/WinKit/triggerend.i}
+        {Advantzware/WinKit/winkit-panel-triggerend.i}
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -369,6 +369,17 @@ PROCEDURE pCreateObjectReferences:
     ------------------------------------------------------------------------------*/
     CREATE ttDeltaList.
     ASSIGN 
+        ttDeltaList.allFileName  = "asi_delta_16.3.4"
+        ttDeltaList.awVersion    = "16.3.4"
+        ttDeltaList.dbTable      = "EDPOTran"
+        ttDeltaList.dbField      = "Ack-Date"
+        ttDeltaList.objectType   = "field"
+        ttDeltaList.shouldExist  = YES
+        ttDeltaList.databaseName = "ASI" 
+        .  
+
+    CREATE ttDeltaList.
+    ASSIGN 
         ttDeltaList.allFileName  = "asi_delta_16.3.0"
         ttDeltaList.awVersion    = "16.3.0"
         ttDeltaList.dbTable      = "cust-markup"
@@ -422,6 +433,16 @@ PROCEDURE pCreateObjectReferences:
         ttDeltaList.databaseName = "ASI" 
         .
 
+    CREATE ttDeltaList.
+    ASSIGN 
+        ttDeltaList.allFileName  = "addon\nosweat_delta_16.3.0"
+        ttDeltaList.awVersion    = "16.3.0"
+        ttDeltaList.dbTable      = "mfgroup"
+        ttDeltaList.dbField      = "mfgroup_data"
+        ttDeltaList.objectType   = "field"
+        ttDeltaList.shouldExist  = YES
+        ttDeltaList.databaseName = "NOSWEAT" 
+        .
 
 END PROCEDURE.
 	
@@ -446,6 +467,11 @@ PROCEDURE pShowNeededDeltas:
 
 
     DO WITH FRAME {&frame-name}:
+        FIND FIRST ttDeltaList WHERE ttDeltaList.allFileName BEGINS "addon"
+           NO-ERROR.
+        IF AVAIL ttDeltaList THEN
+          MESSAGE "Please run this utility from advantzware and addons also"
+            VIEW-AS ALERT-BOX INFO BUTTONS OK.
         edLocks:SCREEN-VALUE = "".
         ASSIGN fiVersion.
 

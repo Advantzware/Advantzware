@@ -348,7 +348,7 @@ DO:
 
       OPEN QUERY browse-1 FOR EACH tt-oe-rel,FIRST tt-report WHERE tt-report.rec-id eq tt-oe-rel.tt-recid.
    END.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -380,7 +380,7 @@ DO:
    END.
 
    APPLY "CHOOSE" TO btn-pop IN FRAME {&FRAME-NAME}.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

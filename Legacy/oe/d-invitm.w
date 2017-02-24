@@ -545,7 +545,7 @@ DO:
       RUN oe/d-invbol.w (ROWID(inv-line), OUTPUT ll-canceled).
 
       IF ll-canceled THEN DO WITH FRAME {&FRAME-NAME}:
-        UNDO upd-blok.
+        IF TRUE THEN UNDO upd-blok.
         BUFFER-COPY w-inv-line TO inv-line.
         APPLY "choose" TO btn_cancel.
       END.

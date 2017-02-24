@@ -181,7 +181,7 @@ END.
 ON CHOOSE OF btn_comp IN FRAME DEFAULT-FRAME /* Compile All */
 DO:
   RUN run-compile.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

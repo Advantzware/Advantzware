@@ -63,6 +63,17 @@ DEF VAR vcBOLFiles   AS CHAR NO-UNDO.
 DEF VAR vcBOLSignDir AS CHAR NO-UNDO.
 DEF VAR v-rec-found  AS LOG  NO-UNDO.
 
+DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
+
+ RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.
+
 DEF BUFFER b-ar-inv FOR ar-inv.
 DEF BUFFER b-broker-bol FOR reftable.
 
@@ -577,7 +588,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -713,7 +724,7 @@ DO:
 
   IF v-ftp-done THEN MESSAGE "File Export/FTP is completed." VIEW-AS ALERT-BOX INFORMATION.
   OS-DELETE value(init-dir + "\Invoice.pdf").
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1527,7 +1538,12 @@ IF is-xprint-form THEN DO:
 
    CASE rd-dest :
         WHEN 1 THEN PUT "<COPIES=" + string(lv-copy#) + "><PRINTER?>" FORM "x(30)".
-        WHEN 2 THEN PUT "<COPIES=" + string(lv-copy#) + "><PREVIEW>" FORM "x(30)".
+        WHEN 2 THEN do:
+            IF NOT lBussFormModle THEN
+              PUT "<COPIES=" + string(lv-copy#) + "><PREVIEW><MODAL=NO>" FORM "x(30)".
+            ELSE
+              PUT "<COPIES=" + string(lv-copy#) + "><PREVIEW>" FORM "x(30)".
+        END.        
         WHEN 4 THEN do:
               ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".
               PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW>".

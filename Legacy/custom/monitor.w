@@ -280,7 +280,7 @@ DO:
                 '.log').
   monitorActivity:SAVE-FILE(monitorImportDir + '/monitor/monitor.log').
   monitorActivity:SCREEN-VALUE = ''.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -292,7 +292,7 @@ END.
 ON CHOOSE OF btnClose IN FRAME DEFAULT-FRAME /* Close */
 DO:
   APPLY 'CLOSE' TO THIS-PROCEDURE.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -305,7 +305,7 @@ ON CHOOSE OF btnViewLog IN FRAME DEFAULT-FRAME /* View Log */
 DO:
   OS-COMMAND NO-WAIT notepad.exe VALUE(monitorImportDir + '/monitor/monitor.log').
   RETURN NO-APPLY.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

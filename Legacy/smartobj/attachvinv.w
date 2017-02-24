@@ -155,7 +155,7 @@ DO:
 
    IF char-hdl NE "" THEN
       RUN value-changed-proc IN WIDGET-HANDLE(char-hdl).
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

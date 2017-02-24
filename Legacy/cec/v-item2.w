@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -404,6 +400,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -574,6 +571,7 @@ END.
 ON CHOOSE OF btnAvailable IN FRAME F-Main /* Available */
 DO:
   RUN rm/w-rminq.w ('RM Balance Inquiry','rminq/b-rmcoinq.w',ROWID(item)).
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -585,6 +583,7 @@ END.
 ON CHOOSE OF btnCommitted IN FRAME F-Main /* Committed */
 DO:
   RUN rm/w-rminq.w ('RM Committed Inquiry','rminq/b-rmainq.w',ROWID(item)).
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -596,6 +595,7 @@ END.
 ON CHOOSE OF btnOnHand IN FRAME F-Main /* On Hand */
 DO:
   RUN rm/w-rminq.w ('RM On Hand Inquiry','browsers/rm-ibin.w',ROWID(item)).
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -607,6 +607,7 @@ END.
 ON CHOOSE OF btnOnOrder IN FRAME F-Main /* On Order */
 DO:
   RUN rm/w-rminq.w ('RM On Order Inquiry','browsers/item-pos.w',ROWID(item)).
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

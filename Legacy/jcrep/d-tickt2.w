@@ -65,6 +65,17 @@ DEF NEW SHARED VAR s-run-speed AS LOG NO-UNDO.
 DEF NEW SHARED VAR s-committed-board-only AS LOG NO-UNDO.
 DEF NEW SHARED VAR s-sample-required AS LOG NO-UNDO.
 
+DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
+
+ RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.
+
 {cerep/jc-keyst.i "NEW"}
 {cerep/jc-keys2.i "NEW"}
 {cecrep/jc-prem.i "NEW"}

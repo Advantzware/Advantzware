@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &SCOPED-DEFINE WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -183,6 +179,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -258,6 +255,7 @@ DO:
        RUN repo-query IN WIDGET-HANDLE(char-hdl) (lv-rowid).
      END.
   END.
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -326,6 +324,7 @@ DO:
        RUN repo-query IN WIDGET-HANDLE(char-hdl) (lv-rowid).
       END.
    END.
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -338,6 +337,7 @@ ON CHOOSE OF Btn-Delete IN FRAME F-Main /* Delete */
 DO:
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
   RUN delete_item IN WIDGET-HANDLE(char-hdl).
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -353,6 +353,7 @@ DO:
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"tableio-target", OUTPUT char-hdl).
     RUN select-bintags IN WIDGET-HANDLE(char-hdl) .
 
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -384,6 +385,7 @@ DO:
        /*RUN reopen-po-ord-query.*/
       END.
     END.
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -397,6 +399,7 @@ DO:
   DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
   IF AVAILABLE oe-rell THEN
       RUN oe/d-oerell.w (RECID(oe-rell), RECID(oe-relh), "view",OUTPUT lv-rowid). 
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

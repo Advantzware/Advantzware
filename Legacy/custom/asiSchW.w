@@ -236,7 +236,7 @@ ON CHOOSE OF btExit IN FRAME DEFAULT-FRAME /* Exit */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
   RETURN NO-APPLY.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -248,7 +248,7 @@ END.
 ON CHOOSE OF btRun IN FRAME DEFAULT-FRAME /* Run Now */
 DO:
   RUN Check4tasks.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

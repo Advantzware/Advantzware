@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &SCOPED-DEFINE WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &SCOPED-DEFINE FRAME-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Dialog-Frame 
 /*------------------------------------------------------------------------
@@ -257,6 +253,7 @@ DEFINE FRAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB Dialog-Frame 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/viewer.i}
 /*{methods/template/viewer.i} */
 
@@ -448,6 +445,7 @@ DO:
        IF AVAILABLE oe-rell THEN DELETE oe-rell .
     END.
     APPLY 'GO':U TO FRAME {&FRAME-NAME}.
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -463,6 +461,7 @@ DO:
   &ELSE
       APPLY "CLOSE":U TO THIS-PROCEDURE.
   &ENDIF
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -567,6 +566,7 @@ DO:
 
 APPLY "go" TO FRAME {&FRAME-NAME}.
 
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

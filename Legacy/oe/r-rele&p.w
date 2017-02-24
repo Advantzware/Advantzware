@@ -549,7 +549,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -611,7 +611,7 @@ IF tgMultipleReleases:SCREEN-VALUE NE "YES" THEN
 
     ELSE MESSAGE "No releases available for posting..." VIEW-AS ALERT-BOX ERROR.
   END.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

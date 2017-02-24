@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -219,6 +215,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -345,6 +342,7 @@ END.
 ON CHOOSE OF btnFirst IN FRAME F-Main /* First */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "changeImage" "('first')"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -356,6 +354,7 @@ END.
 ON CHOOSE OF btnLast IN FRAME F-Main /* Last */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "changeImage" "('last')"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -367,6 +366,7 @@ END.
 ON CHOOSE OF btnNext IN FRAME F-Main /* Next */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "changeImage" "('next')"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -378,6 +378,7 @@ END.
 ON CHOOSE OF btnPrevious IN FRAME F-Main /* Previous */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "changeImage" "('prev')"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

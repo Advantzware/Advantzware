@@ -511,7 +511,7 @@ DO:
   ENABLE {&List-2} WITH FRAME {&FRAME-NAME}.
   APPLY 'ENTRY':U TO intervalValue.
   RETURN NO-APPLY.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -549,7 +549,7 @@ DO:
     APPLY 'ENTRY':U TO intervalValue.
   END.
   RETURN NO-APPLY.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -561,7 +561,7 @@ END.
 ON CHOOSE OF Btn_Close IN FRAME DEFAULT-FRAME /* Close */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -588,7 +588,7 @@ DO:
     DELETE user-print.
   END. /* avail user-print */
   RUN getSpoolRequests.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -601,7 +601,7 @@ ON CHOOSE OF Btn_Process IN FRAME DEFAULT-FRAME /* Process */
 DO:
   RUN runSpool.
   RUN getSpoolRequests.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

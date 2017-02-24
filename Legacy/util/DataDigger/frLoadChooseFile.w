@@ -261,7 +261,7 @@ DO:
   if lOk then
     fiDataFile:screen-value = cFile.
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

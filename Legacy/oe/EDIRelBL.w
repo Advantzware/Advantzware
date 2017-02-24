@@ -488,7 +488,7 @@ ON CHOOSE OF btnClose IN FRAME DEFAULT-FRAME /* Close */
 DO:
   APPLY 'CLOSE':U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -502,7 +502,7 @@ DO:
   IF EDIBOLPostCharFld NE '' THEN RUN ftpFiles.
   MESSAGE 'BOL Post FTP Complete' VIEW-AS ALERT-BOX.
   RETURN NO-APPLY.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -516,7 +516,7 @@ DO:
   IF EDIReleaseCharFld NE '' THEN RUN loadFiles.
   MESSAGE 'Release Auto Load & Create Complete' VIEW-AS ALERT-BOX.
   RETURN NO-APPLY.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -534,7 +534,7 @@ DO:
   ENABLE {&List-2} WITH FRAME {&FRAME-NAME}.
   APPLY 'ENTRY':U TO intervalValue.
   RETURN NO-APPLY.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -548,7 +548,7 @@ DO:
   ftpData:SAVE-FILE(custFTP).
   DISABLE btnUndo WITH FRAME {&FRAME-NAME}.
   MESSAGE 'FTP Data Information SAVED' VIEW-AS ALERT-BOX.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -588,7 +588,7 @@ DO:
     APPLY 'ENTRY':U TO intervalValue.
   END.
   RETURN NO-APPLY.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -601,7 +601,7 @@ ON CHOOSE OF btnUndo IN FRAME DEFAULT-FRAME /* Undo Change */
 DO:
   ftpData:READ-FILE(custFTP).
   DISABLE btnUndo WITH FRAME {&FRAME-NAME}.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

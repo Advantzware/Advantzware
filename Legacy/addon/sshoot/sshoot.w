@@ -216,7 +216,7 @@ END.
 ON CHOOSE OF btn-bol IN FRAME DEFAULT-FRAME /* Bill of Lading */
 DO:
    RUN addon/bol/boltrans.w.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -228,7 +228,7 @@ END.
 ON CHOOSE OF btn-close IN FRAME DEFAULT-FRAME /* Close */
 DO:
    APPLY "close" TO THIS-PROCEDURE.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -240,7 +240,7 @@ END.
 ON CHOOSE OF btn-fg IN FRAME DEFAULT-FRAME /* Finished Goods */
 DO:
    RUN addon/fg/fgtransa.w.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -252,7 +252,7 @@ END.
 ON CHOOSE OF btn-rm IN FRAME DEFAULT-FRAME /* Material */
 DO:
    RUN addon/rm/rmtransa.w.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -264,7 +264,7 @@ END.
 ON CHOOSE OF btn-tag IN FRAME DEFAULT-FRAME /* Load Tag Creation */
 DO:
    RUN addon/loadtags/ldtagtrs.w.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

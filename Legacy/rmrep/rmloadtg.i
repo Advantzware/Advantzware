@@ -85,5 +85,5 @@ DEFINE {1} SHARED TEMP-TABLE w-po NO-UNDO
   FIELD total-tags AS INT
   FIELD vend-name LIKE vend.NAME 
   FIELD overrun-qty AS INT
-  FIELD add-setup AS LOG
+  FIELD add-setup AS LOG  
   INDEX po IS PRIMARY po-no ASC line ASC.

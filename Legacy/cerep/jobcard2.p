@@ -1214,14 +1214,8 @@ END FUNCTION.
                  
                  IF AVAIL oe-ord THEN FIND FIRST vend WHERE vend.company = oe-ordl.company
                                                    AND vend.vend-no = oe-ordl.vend-no NO-LOCK NO-ERROR.
-                 v-vend = /*IF AVAIL po-ord THEN po-ord.vend-no ELSE "".*/
-                         IF AVAIL vend THEN vend.NAME ELSE "".
-                 IF v-vend = "" AND AVAIL bf-item THEN DO:
-                    FIND FIRST vend WHERE vend.company = oe-ordl.company
-                                       AND vend.vend-no = bf-item.vend-no NO-LOCK NO-ERROR.
-                    v-vend = IF AVAIL vend THEN vend.NAME
-                             ELSE IF AVAIL oe-ordl THEN oe-ordl.vend-no ELSE "".
-                 END.
+                 v-vend = IF AVAIL vend THEN vend.NAME ELSE "".
+
                  v-po-duedate = IF AVAIL oe-ordl THEN oe-ordl.req-date ELSE ? .
                  v-board-po = IF AVAIL oe-ordl THEN oe-ordl.po-no-po ELSE 0.
 
@@ -1240,7 +1234,7 @@ END FUNCTION.
                     /*eb.cad-no   FORM "x(13)"*/ " " 
                     v-board-po FORM ">>>>>>99" "  "
                     v-po-duedate  FORM "99/99/9999" "  " 
-                    v-vend   FORM "x(10)" " "         SKIP
+                    v-vend   FORM "x(20)" " "         SKIP
                     /*v-die-size FORM "x(16)" AT 78*/
                     SKIP.
                 X = 1.

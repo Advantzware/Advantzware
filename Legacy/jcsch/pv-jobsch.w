@@ -240,7 +240,7 @@ DO:
       RUN notify ('cancel-record':U).
       ENABLE {&list-4}.
    END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -256,7 +256,7 @@ DO:
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"tableio-target",OUTPUT char-hdl).
     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
        RUN do-lock IN WIDGET-HANDLE(char-hdl) .
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -272,7 +272,7 @@ DO:
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"tableio-target",OUTPUT char-hdl).
     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
        RUN do-print IN WIDGET-HANDLE(char-hdl) .
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -288,7 +288,7 @@ DO:
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"tableio-target",OUTPUT char-hdl).
     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
        RUN do-release IN WIDGET-HANDLE(char-hdl) .
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -332,7 +332,7 @@ DO:
         DISABLE {&list-4}.
      END.
   END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -348,7 +348,7 @@ DO:
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"tableio-target",OUTPUT char-hdl).
     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
        RUN do-schedule IN WIDGET-HANDLE(char-hdl) .
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -364,7 +364,7 @@ DO:
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"tableio-target",OUTPUT char-hdl).
     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
        RUN do-sort IN WIDGET-HANDLE(char-hdl) .
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

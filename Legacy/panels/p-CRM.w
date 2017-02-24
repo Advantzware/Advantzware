@@ -162,7 +162,7 @@ DO:
     RUN util/chk-mod.p ("ASI", crmType) NO-ERROR.
     IF NOT ERROR-STATUS:ERROR THEN
     RUN pCRM IN WIDGET-HANDLE(cHandle).
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

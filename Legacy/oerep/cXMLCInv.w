@@ -262,7 +262,7 @@ END.
 ON CHOOSE OF btnCancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
   APPLY 'CLOSE':U TO THIS-PROCEDURE.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -325,7 +325,7 @@ DO:
   MESSAGE cMessage
         VIEW-AS ALERT-BOX INFO BUTTONS OK.
   ENABLE {&List-1} {&List-2} WITH FRAME {&FRAME-NAME}.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -337,7 +337,7 @@ END.
 ON CHOOSE OF calendar-1 IN FRAME DEFAULT-FRAME
 DO:
   APPLY 'HELP':U TO invStart.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -349,7 +349,7 @@ END.
 ON CHOOSE OF calendar-2 IN FRAME DEFAULT-FRAME
 DO:
   APPLY 'HELP':U TO invEnd.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

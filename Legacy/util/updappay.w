@@ -268,7 +268,7 @@ DO:
          END.
      END.
   END.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -311,7 +311,7 @@ DO:
          APPLY "ENTRY":U TO fi_check-no IN FRAME {&FRAME-NAME}.
       END.
    END.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

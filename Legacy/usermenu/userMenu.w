@@ -474,7 +474,7 @@ END.
 ON CHOOSE OF btnAddItem IN FRAME DEFAULT-FRAME
 DO:
     RUN pInsert (ttItem.prgmName,ttItem.prgTitle,"").
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -486,7 +486,7 @@ END.
 ON CHOOSE OF btnAddMenu IN FRAME DEFAULT-FRAME
 DO:
     RUN pInsert (ttMenu.prgmName,ttMenu.prgTitle,"[MENU]").
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -499,7 +499,7 @@ ON CHOOSE OF btnDefault IN FRAME DEFAULT-FRAME
 DO:
   OS-COPY "./menu.lst" VALUE("usermenu/" + userName + "/menu.lst").
   RUN pReset.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -511,7 +511,7 @@ END.
 ON CHOOSE OF btnExit IN FRAME DEFAULT-FRAME
 DO:
     APPLY "CLOSE":U TO THIS-PROCEDURE.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -523,7 +523,7 @@ END.
 ON CHOOSE OF btnMoveDown IN FRAME DEFAULT-FRAME
 DO:
     RUN pMove (1).
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -535,7 +535,7 @@ END.
 ON CHOOSE OF btnMoveUp IN FRAME DEFAULT-FRAME
 DO:
     RUN pMove (-1).
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -547,7 +547,7 @@ END.
 ON CHOOSE OF btnRemove IN FRAME DEFAULT-FRAME
 DO:
     RUN pRemove.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -559,7 +559,7 @@ END.
 ON CHOOSE OF btnReset IN FRAME DEFAULT-FRAME
 DO:
     RUN pReset.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -578,7 +578,7 @@ DO:
   OS-COPY VALUE("usermenu/" + userName + "/menu.lst") VALUE("usermenu/" + userName + "/menu.fol").
   OS-COPY VALUE("usermenu/" + userName + "/menu.lst") VALUE("usermenu/" + userName + "/menu.cor") .
   RUN pReset.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -590,7 +590,7 @@ END.
 ON CHOOSE OF btnShiftLeft IN FRAME DEFAULT-FRAME
 DO:
     RUN pShift (-1).
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -602,7 +602,7 @@ END.
 ON CHOOSE OF btnShiftRight IN FRAME DEFAULT-FRAME
 DO:
     RUN pShift (1).
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

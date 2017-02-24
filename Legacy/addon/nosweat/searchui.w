@@ -216,7 +216,7 @@ END.
 ON CHOOSE OF Btn_Cancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -238,7 +238,7 @@ DO:
   END.
   Btn_Cancel:LABEL = "&Close".
   APPLY "ENTRY" TO m_search_prgm.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -253,7 +253,7 @@ DO:
 
   IF SEARCH("searches/" + m_search_prgm:SCREEN-VALUE + "p") NE ? THEN
   RUN VALUE("searches/" + m_search_prgm:SCREEN-VALUE + "p") (OUTPUT drowid).
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

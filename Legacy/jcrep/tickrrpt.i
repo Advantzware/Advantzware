@@ -371,8 +371,12 @@ is-xprint-form = (ip-industry EQ "Corr") OR
 
 IF is-xprint-form THEN DO:
 
-  IF rd-dest EQ 2 THEN 
-    PUT "<PREVIEW>".
+  IF rd-dest EQ 2 THEN DO:
+     IF NOT lBussFormModle THEN
+       PUT "<PREVIEW><MODAL=NO>".
+     ELSE
+       PUT "<PREVIEW>".
+  END.
 
   ELSE IF rd-dest EQ 1 THEN 
     PUT "<PRINTER?>".

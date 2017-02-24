@@ -276,7 +276,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -297,7 +297,7 @@ DO:
    message "Are you sure you wish to create finance charges?" VIEW-AS ALERT-BOX question
         BUTTON YES-NO update choice.
    if choice THEN RUN bill-finance.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

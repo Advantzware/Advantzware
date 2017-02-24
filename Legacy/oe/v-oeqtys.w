@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -202,6 +198,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -251,6 +248,7 @@ ASSIGN
 ON CHOOSE OF btn_all IN FRAME F-Main /* Allocated */
 DO:
   IF li-all NE 0 THEN RUN oe/w-inqord.w (ROWID(itemfg), YES).
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -262,6 +260,7 @@ END.
 ON CHOOSE OF btn_onh IN FRAME F-Main /* On Hand */
 DO:
   IF li-onh NE 0 THEN RUN fg/w-inqonh.w (ROWID(itemfg), NO).
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -301,6 +300,7 @@ DO:
         NO-LOCK NO-ERROR.
     IF AVAIL po-ordl THEN RUN po/w-inqpo.w (ROWID(itemfg), YES).
   END.
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

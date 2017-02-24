@@ -536,7 +536,7 @@ THEN WINDOW-1:HIDDEN = no.
 ON CHOOSE OF Btn_OK IN FRAME FRAME-A /* OK */
 DO:
   APPLY "CHOOSE" TO Btn_Save.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -576,7 +576,7 @@ DO:
   widget-list:SCREEN-VALUE = widget-list:ENTRY(1).
   APPLY "VALUE-CHANGED" TO widget-list.
   APPLY "ENTRY" TO widget-list.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -590,7 +590,7 @@ DO:
   ASSIGN
     m-example:BGCOLOR = ?
     w-bgc[list-pos] = ?.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -604,7 +604,7 @@ DO:
   ASSIGN
     m-example:FGCOLOR = ?
     w-fgc[list-pos] = ?.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -619,7 +619,7 @@ DO:
     m-example:FONT = ?
     w-font[list-pos] = ?
     widget-fonts:SCREEN-VALUE = ?.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -661,7 +661,7 @@ DO:
   END.
   Btn_Cancel:LABEL = "&Close".
   DISABLE Btn_Reset WITH FRAME {&FRAME-NAME}.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

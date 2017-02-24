@@ -227,7 +227,7 @@ ON CHOOSE OF btn_cancel IN FRAME FRAME-A /* Cancel */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -240,7 +240,7 @@ ON CHOOSE OF Btn_Help IN FRAME FRAME-A /* Help */
 OR HELP OF FRAME {&FRAME-NAME}
 DO: /* Call Help Function (or a simple message). */
 MESSAGE "Help for File: {&FILE-NAME}":U VIEW-AS ALERT-BOX INFORMATION.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -307,7 +307,7 @@ DO:   /* must run from laptop only not from server */
    APPLY "CLOSE" TO THIS-PROCEDURE.
 
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

@@ -238,7 +238,7 @@ DO:
   /* Call External Tables dialog */
   RUN adeuib/_uib_dlg.p (INT(proc-recid), "EXTERNAL-TABLES":U, INPUT-OUTPUT arg).
   RUN Check_TblList.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -250,7 +250,7 @@ END.
 ON CHOOSE OF b_HelpXT IN FRAME DEFAULT-FRAME /* Help on External Tables */
 DO:
   RUN adecomm/_adehelp.p ("UIB":U, "CONTEXT":U, {&Wiz_External_Tables}, ?).  
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

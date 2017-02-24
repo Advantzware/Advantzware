@@ -202,7 +202,7 @@ DO:
      IF valid-handle(widget-handle(char-hdl))
          THEN RUN refresh-boximg IN WIDGET-HANDLE(char-hdl).
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -251,7 +251,7 @@ DO:
      IF valid-handle(widget-handle(char-hdl))
          THEN RUN update-image IN WIDGET-HANDLE(char-hdl).
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

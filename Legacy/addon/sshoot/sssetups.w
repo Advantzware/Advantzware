@@ -204,7 +204,7 @@ END.
 ON CHOOSE OF btn-close IN FRAME DEFAULT-FRAME /* Close */
 DO:
    APPLY "close" TO THIS-PROCEDURE.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -217,7 +217,7 @@ ON CHOOSE OF btn-count IN FRAME DEFAULT-FRAME /* Setup / Returns */
 DO:
    RUN /* addon/fg/fg-physi.w.  /* for window screen*/  */
        addon/fg/fg-phyi2.w. /* pocket pc */  
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -229,7 +229,7 @@ END.
 ON CHOOSE OF btn-post IN FRAME DEFAULT-FRAME /* Post Returns */
 DO:
      RUN fg/fgpstall.w PERSISTENT (?,"SETUP").
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

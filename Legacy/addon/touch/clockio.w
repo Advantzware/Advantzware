@@ -218,7 +218,7 @@ ON CHOOSE OF btn-clock-in IN FRAME DEFAULT-FRAME /* Clock In */
 DO:
    /*RUN addon/touch/w-clocki.w (YES).*/
    RUN addon/touch/d-clocki.w (YES).
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -231,7 +231,7 @@ ON CHOOSE OF btn-clock-out IN FRAME DEFAULT-FRAME /* Clock Out */
 DO:
     /*RUN addon/touch/w-clocki.w (NO).*/
     RUN addon/touch/d-clocki.w (NO).
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

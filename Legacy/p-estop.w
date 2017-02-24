@@ -246,7 +246,7 @@ DO:
 
   run get-link-handle in adm-broker-hdl (this-procedure,"tableio-target",output char-hdl).
   run set-import-stds in widget-handle(char-hdl) ("add", yes).
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -266,7 +266,7 @@ DO:
 
   run get-link-handle in adm-broker-hdl (this-procedure,"tableio-target",output char-hdl).
   run set-import-stds in widget-handle(char-hdl) ("add", no).
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -283,7 +283,7 @@ DO:
   run get-link-handle in adm-broker-hdl (this-procedure,"tableio-target",output char-hdl).
 
   run build-route in widget-handle(char-hdl).
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -299,7 +299,7 @@ DO:
       RUN notify ('cancel-record':U).
       enable btn-import btn-build with frame {&frame-name}.
    END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -316,7 +316,7 @@ DO:
   run get-link-handle in adm-broker-hdl (this-procedure,"tableio-target",output char-hdl).
 
   run op-copy in widget-handle(char-hdl).
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -329,7 +329,7 @@ ON CHOOSE OF btn-delete IN FRAME Panel-Frame /* Delete */
 DO:
    RUN notify ('delete-record':U).  
   /* disable btn-import btn-build with frame {&frame-name}.*/
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -349,7 +349,7 @@ DO:
   disable btn-add-stds btn-import btn-build with frame {&frame-name}.
   run get-link-handle in adm-broker-hdl (this-procedure,"tableio-target",output char-hdl).
   run set-import-stds in widget-handle(char-hdl) ("update", yes).
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -398,7 +398,7 @@ def var char-hdl as cha no-undo.
         RUN notify ('update-record':U).
      END.
   END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

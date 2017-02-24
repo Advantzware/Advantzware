@@ -48,6 +48,17 @@ def var laser-list as char no-undo
 DEFINE VARIABLE laser-list-ach AS CHARACTER NO-UNDO 
     INIT "ASI,Badger".
 
+DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
+
+ RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.    
+
 def var next-program as char no-undo init "ap/ap-chks.p".    /* std */
 DEF VAR lv-prt-bypass AS LOG NO-UNDO.
 DEF VAR ll-warned AS LOG NO-UNDO.
@@ -445,7 +456,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -554,7 +565,7 @@ DO:
      RUN GenerateReport.
   END.
   RUN SetParamDefaults(INPUT NO).
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1153,7 +1164,12 @@ do on error undo outers, leave outers :
     IF ll-is-xprint-form THEN DO:
         CASE rd-dest:
             WHEN 1 THEN PUT "<PRINTER?>" /*"</PROGRESS>"*/ .
-            WHEN 2 THEN PUT "<PREVIEW>" /*"</PROGRESS>"*/.        /* Task 09301303*/    
+            WHEN 2 THEN do:
+               IF NOT lBussFormModle THEN
+                PUT "<PREVIEW><MODAL=NO>". 
+               ELSE
+                PUT "<PREVIEW>".        
+            END.
 /*           WHEN 4 THEN do:                                                                                                    */
 /*                 ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".                                                          */
 /*                 PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW>".                                                     */
@@ -1414,6 +1430,10 @@ ELSE DO:
           assign
              max-per-chk  = 10
              next-program = "ap/ap-ckmyork.p". /* new format */
+       WHEN "Lovepac" then
+          assign
+             max-per-chk  = 10
+             next-program = "ap/ap-cklovep.p". /* new format */
        WHEN "STCLaser" THEN
           assign
              max-per-chk  = 10

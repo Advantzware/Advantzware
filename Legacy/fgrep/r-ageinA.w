@@ -1073,7 +1073,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1090,7 +1090,7 @@ DO:
 
   SESSION:SET-WAIT-STATE("general").
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -1126,7 +1126,7 @@ DO:
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1139,7 +1139,7 @@ ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2657,7 +2657,7 @@ ELSE DO:
     END.
 END.
 
-FOR EACH tt-file.
+/*FOR EACH tt-file.
     IF tt-file.tt-cust = "" THEN DO:
         FIND FIRST cust WHERE cust.company = cocode NO-LOCK NO-ERROR.
         IF AVAIL cust THEN
@@ -2665,7 +2665,7 @@ FOR EACH tt-file.
         IF AVAIL cust AND tt-file.tt-sman EQ "" THEN
             ASSIGN tt-file.tt-sman = s-man[1].
     END.
-END.
+END.*/
 
 for each tt-file WHERE
     (tt-qohi[1] NE 0 OR
@@ -2677,12 +2677,7 @@ for each tt-file WHERE
          0 */
     AND NOT (NOT v-curr AND (tt-qohi[1] + tt-qohi[2] + tt-qohi[3]) GT 0)
     AND tt-file.tt-sman GE fslm
-    AND tt-file.tt-sman LE tslm
-    ,    
-    first cust
-    where cust.company eq cocode
-      and cust.cust-no eq tt-cust-no
-    no-lock,    
+    AND tt-file.tt-sman LE tslm ,    
     first itemfg
     where itemfg.company eq cocode
       and itemfg.i-no    eq tt-i-no
@@ -2692,13 +2687,18 @@ for each tt-file WHERE
           /*by tt-i-no*/
           by (IF sort-opt EQ "I" THEN itemfg.i-no ELSE  itemfg.part-no ):
 
+  FIND first cust NO-LOCK
+       where cust.company eq cocode
+         and cust.cust-no eq tt-cust-no
+    NO-ERROR.
+
   FIND FIRST sman NO-LOCK
       WHERE sman.company EQ cocode
         AND sman.sman    EQ tt-sman
       NO-ERROR.
 
   lv-sname = IF AVAIL sman AND sman.sname NE "" THEN sman.sname ELSE
-             IF cust.sman EQ "" THEN "No Sales Rep Name" ELSE "Not on File".
+             IF AVAIL cust AND cust.sman EQ "" THEN "No Sales Rep Name" ELSE "Not on File".
 
   if first-of(tt-sman)                  or
      (first-of(tt-cust-no) and v-break) then do:
@@ -2709,7 +2709,7 @@ for each tt-file WHERE
     /* ELSE page. 01031332 no longer breaking */
   END.
 
-  /*if first-of(tt-cust-no) then*/ v-cus = cust.name.
+  /*if first-of(tt-cust-no) then*/ v-cus = IF AVAIL cust THEN cust.NAME ELSE "".
 
   FIND LAST fg-rcpth NO-LOCK 
       WHERE fg-rcpth.company EQ cocode 
@@ -3027,6 +3027,7 @@ PROCEDURE produce-report :
   DEF VAR lvlIncludeOld AS LOG NO-UNDO.
   DEF VAR v-sales-rep AS CHAR NO-UNDO.
   DEFINE VARIABLE cNewRep AS CHARACTER NO-UNDO.
+  DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 
   ASSIGN
     vdat       = as-of-date
@@ -3056,6 +3057,14 @@ PROCEDURE produce-report :
     list_class = ""
     sort-opt   = SUBSTR(rd_sort,1,1) 
     lvlIncludeOld = tb_include_old_items.
+    lSelected      = tb_cust-list .
+
+    IF lselected THEN DO:
+        FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+        IF AVAIL ttCustList THEN ASSIGN fcus = ttCustList.cust-no .
+        FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+        IF AVAIL ttCustList THEN ASSIGN tcus = ttCustList.cust-no .
+    END.
 
   DO li = 1 TO NUM-ENTRIES(v-class):
     list_class = list_class + " " + (IF ENTRY(li,v-class) EQ "" THEN "Spaces"
@@ -3171,14 +3180,13 @@ PROCEDURE produce-report :
       END.
 
   END.
-  ELSE DO:
-      FOR EACH ttCustList 
-        WHERE ttCustList.log-fld
-        NO-LOCK,
-        EACH cust NO-LOCK
-        WHERE cust.company          EQ cocode
-        AND cust.cust-no          EQ ttCustList.cust-no, /*fcus
-        AND cust.cust-no          LE tcus*/
+  ELSE DO: 
+      FOR EACH cust NO-LOCK
+        WHERE cust.company        EQ cocode
+        AND cust.cust-no          GE fcus
+        AND cust.cust-no          LE tcus
+        AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
+        AND ttCustList.log-fld no-lock) else true),
 /*        AND cust.sman             GE fslm */
 /*        AND cust.sman             LE tslm,*/
 
@@ -3313,8 +3321,8 @@ PROCEDURE produce-report :
              AND cust.cust-no EQ itemfg.cust-no
              NO-LOCK NO-ERROR.
 
-        IF NOT AVAIL cust THEN
-            FIND FIRST cust WHERE cust.company = cocode NO-LOCK.
+        /*IF NOT AVAIL cust THEN
+            FIND FIRST cust WHERE cust.company = cocode NO-LOCK.*/
         DEF VAR lv-rct-date AS DATE.
         DEF VAR v-buck AS INT.
 
@@ -3350,6 +3358,7 @@ PROCEDURE produce-report :
           END.
         END.
         ELSE DO:
+            IF AVAIL cust THEN
             FIND FIRST sman WHERE sman.company = cust.company
                 AND sman.sman = cust.sman NO-LOCK NO-ERROR.
 
@@ -3476,7 +3485,7 @@ PROCEDURE produce-report :
          CREATE tt-file.
           ASSIGN
             tt-file.tt-sman    = (IF v-ord-slsmn GT "" THEN v-ord-slsmn ELSE v-sales-rep)
-            tt-file.tt-cust-no = cust.cust-no
+            tt-file.tt-cust-no = IF AVAIL cust THEN cust.cust-no ELSE ""
             tt-file.tt-i-no    = itemfg.i-no
             tt-file.tt-cst[1]  = v-cst[1]
             tt-file.tt-val[1]  = (IF v-qohi[1] NE 0 OR v-qohi[2] NE 0 OR v-qohi[3] NE 0 OR v-qohi[4] NE 0 OR v-qohi[5] NE 0 THEN v-val[1] ELSE 0)

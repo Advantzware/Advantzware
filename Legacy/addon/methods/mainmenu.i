@@ -24,7 +24,7 @@
       ELSE
       INPUT FROM menu.lst NO-ECHO.
     ELSE
-    INPUT FROM VALUE (SEARCH ("popup.lst")) NO-ECHO.
+    INPUT FROM popup.lst NO-ECHO.
     REPEAT:                          
       IMPORT m_item1 m_item2.
       IF CAN-DO("RULE,SKIP",m_item1) OR INDEX(m_item1,".") NE 0 THEN
@@ -45,7 +45,7 @@
       ELSE
       INPUT FROM VALUE("menu.lst") NO-ECHO.
     ELSE
-    INPUT FROM VALUE (SEARCH ("popup.lst")) NO-ECHO.
+    INPUT FROM popup.lst NO-ECHO.
     REPEAT:
       IMPORT m_item1 m_item2.
       IF m_item1 = m_item2 THEN

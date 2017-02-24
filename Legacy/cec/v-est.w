@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -616,6 +612,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/viewer.i}
 {methods/template/viewer.i}
 
@@ -1059,6 +1056,7 @@ DO:
                v-code = lv-code /* just in cse this is needed somewhere */.
 
 
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1087,6 +1085,7 @@ DO:
     IF lv-code GT "" THEN
         ASSIGN eb.plate-no:SCREEN-VALUE   = lv-code
                v-code = lv-code /* just in case this is needed somewhere */.
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1125,6 +1124,7 @@ DO:
                 MUST-EXIST USE-FILENAME UPDATE okClicked.
   IF okClicked THEN
   eb.cad-no:SCREEN-VALUE = imageName(cadfile).
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1191,6 +1191,7 @@ DO:
   IF okClicked THEN
      ASSIGN eb.die-no:SCREEN-VALUE = IF eb.die-no:SCREEN-VALUE = "" THEN imageName(dieFile) ELSE eb.die-no:SCREEN-VALUE
             ef.cad-image:SCREEN-VALUE = imageName(dieFile).
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1207,6 +1208,7 @@ DO:
 
    IF AVAIL itemfg THEN
    RUN oe/w-estfg.w(RECID(eb)) .
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1223,6 +1225,7 @@ DO:
 
    IF AVAIL style THEN
    RUN windows/stylec-e.w(RECID(style)) .
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1239,6 +1242,7 @@ DO:
 
    IF AVAIL ITEM THEN
    RUN cec/w-itemc.w(RECID(ITEM)) .
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1255,6 +1259,7 @@ DO:
 
    IF AVAIL cust THEN
    RUN windows/v-cust.w(RECID(cust)) .
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1266,6 +1271,7 @@ END.
 ON CHOOSE OF btn_qty-msf IN FRAME Corr
 DO:
   IF AVAIL eb THEN RUN est/d-estmsf.w (ROWID(eb)).
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

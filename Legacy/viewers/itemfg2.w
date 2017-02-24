@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -354,6 +350,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/viewer.i}
 {methods/template/viewer.i}
 
@@ -477,6 +474,7 @@ DO:
       RUN reset-cbloc.
   C-Win:SHOW-IN-TASKBAR=TRUE.
   C-Win:SENSITIVE = TRUE.
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -490,6 +488,7 @@ DO:
   IF itemfg.q-alloc NE 0 THEN RUN oe/w-inqord.w PERSISTENT SET h_w-inqord (ROWID(itemfg), YES).
   IF VALID-HANDLE(h_w-inqord) THEN
     RUN adm-initialize IN h_w-inqord.
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -501,6 +500,7 @@ END.
 ON CHOOSE OF btn_onh IN FRAME F-Main /* On Hand */
 DO:
   IF itemfg.q-onh NE 0 THEN RUN fg/w-inqonh.w (ROWID(itemfg), NO).
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -542,6 +542,7 @@ DO:
         NO-LOCK NO-ERROR.
     IF AVAIL po-ordl THEN RUN po/w-inqpo.w (ROWID(itemfg), YES).
   END.
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

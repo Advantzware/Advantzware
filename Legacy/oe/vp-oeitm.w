@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -223,6 +219,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -266,6 +263,7 @@ ASSIGN
 ON CHOOSE OF Btn-Add IN FRAME F-Main /* Add */
 DO:
   RUN add-rebuild ("ADD").
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -277,6 +275,7 @@ END.
 ON CHOOSE OF Btn-Delete IN FRAME F-Main /* Delete */
 DO:
   RUN delete-process (INPUT YES).
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -290,6 +289,7 @@ DO:
    run get-link-handle in adm-broker-hdl(this-procedure,"record-source", output char-hdl).
    run select-his in widget-handle(char-hdl).
 
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -306,6 +306,7 @@ DO:
 
     RUN reopen-oe-ord-query.
   END.
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -317,6 +318,7 @@ END.
 ON CHOOSE OF Btn-Rebuild IN FRAME F-Main /* Rebuild Job Stds */
 DO:
   RUN add-rebuild ("REBUILD").
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -369,6 +371,7 @@ DO:
           v-out-rowid-list = "".
       END.
   END.
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -381,6 +384,7 @@ ON CHOOSE OF btn-stat IN FRAME F-Main /* Stat */
 DO:
    run get-link-handle in adm-broker-hdl(this-procedure,"record-source", output char-hdl).
    run select-stat in widget-handle(char-hdl).
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -412,6 +416,7 @@ DO:
                          oe-ordl.price).
     END.
   END.
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -424,6 +429,7 @@ ON CHOOSE OF Btn-View IN FRAME F-Main /* View */
 DO:
     run oe/d-oeitem.w (recid(oe-ordl), oe-ordl.ord-no, "View",INPUT TABLE tt-item-qty-price,
                        OUTPUT v-out-rowid-list, OUTPUT ll-canceled).
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -672,7 +678,7 @@ PROCEDURE delete-process :
         IF ROWID(oe-ordl) EQ ROWID(c-oe-ordl) THEN DO:
           RUN delete-item IN WIDGET-HANDLE(char-hdl) (FIRST(c-oe-ordl.line), YES).
           IF ROWID(oe-ordl) EQ ROWID(c-oe-ordl) THEN DO:
-            UNDO delete-comps.
+            IF TRUE THEN UNDO delete-comps.
             RUN dispatch IN WIDGET-HANDLE(char-hdl) ("open-query").
             LEAVE.
           END.

@@ -70,6 +70,17 @@ DEF VAR counter AS INT NO-UNDO.
 RUN sys/ref/nk1look.p (cocode, "BOLMaster", "C", NO, NO, "", "", 
                       OUTPUT v-print-fmt, OUTPUT lvFound).
 
+DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
+
+ RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.                      
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -326,7 +337,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -370,7 +381,7 @@ DO:
 
   RUN GenerateReport("",NO).
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -398,7 +409,7 @@ DO:
 
        END.
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -821,7 +832,12 @@ PROCEDURE run-report :
 
       CASE rd-dest:
           WHEN 1 THEN PUT "<PRINTER?>".
-          WHEN 2 THEN PUT "<PREVIEW>".
+          WHEN 2 THEN do:
+             IF NOT lBussFormModle THEN
+               PUT "<PREVIEW><MODAL=NO>". 
+             ELSE
+               PUT "<PREVIEW>".        
+          END.
           WHEN 3 THEN DO:
                PUT "<PDF-OUTPUT=" + lv-pdf-file + ">" FORM "x(100)".
           END.

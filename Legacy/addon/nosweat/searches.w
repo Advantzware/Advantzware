@@ -456,7 +456,7 @@ DO:
     IF select-list:IS-SELECTED(i) THEN
     select-list:SCREEN-VALUE = "".
   END.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -468,7 +468,7 @@ END.
 ON CHOOSE OF Btn_Cancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -500,7 +500,7 @@ DO:
     OTHERWISE
     m_status:SCREEN-VALUE = "DELETE Cancelled".
   END CASE.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -521,7 +521,7 @@ DO:
       shandle:SCREEN-VALUE = shandle:ENTRY(i + 1).
     LEAVE.
   END.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -558,7 +558,7 @@ DO:
     IF AVAILABLE prgrms THEN
     m-frame-title:SCREEN-VALUE = prgrms.prgtitle + " Search".
   END.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -571,7 +571,7 @@ ON CHOOSE OF Btn_OK IN FRAME DEFAULT-FRAME /* OK */
 DO:
   APPLY "CHOOSE" TO Btn_Save.
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -584,7 +584,7 @@ ON CHOOSE OF Btn_Remove IN FRAME DEFAULT-FRAME /* Remove */
 DO:
   IF shandle:SCREEN-VALUE NE "" THEN
   APPLY "DEFAULT-ACTION" TO shandle.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -601,7 +601,7 @@ DO:
   ASSIGN
     m-order-values:SENSITIVE = NOT auto_set
     m_status:SCREEN-VALUE = "Search Record RESET".
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -777,7 +777,7 @@ DO:
   ASSIGN
     Btn_Cancel:LABEL = "&Close"
     m_status:SCREEN-VALUE = "Search SAVEd".
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -798,7 +798,7 @@ DO:
       shandle:SCREEN-VALUE = shandle:ENTRY(i - 1).
     LEAVE.
   END.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

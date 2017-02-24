@@ -207,7 +207,7 @@ DO:
   RUN pSelectDataFile.
   APPLY 'LEAVE':U TO dataFile.
   RETURN NO-APPLY.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -219,7 +219,7 @@ END.
 ON CHOOSE OF btnClose IN FRAME DEFAULT-FRAME /* Close */
 DO:
   APPLY 'CLOSE':U TO THIS-PROCEDURE.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -231,7 +231,7 @@ END.
 ON CHOOSE OF btnOK IN FRAME DEFAULT-FRAME /* OK */
 DO:
   RUN pProcessFile.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

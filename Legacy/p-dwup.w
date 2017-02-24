@@ -78,8 +78,8 @@ def var phandle as handle no-undo.
 &Scoped-define FRAME-NAME Panel-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn-down Btn-first Btn-last Btn-left ~
-Btn-right Btn-up 
+&Scoped-Define ENABLED-OBJECTS Btn-first Btn-left Btn-right Btn-last Btn-up ~
+Btn-down 
 
 /* Custom List Definitions                                              */
 /* Box-Rectangle,List-2,List-3,List-4,List-5,List-6                     */
@@ -94,32 +94,32 @@ Btn-right Btn-up
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn-down  NO-FOCUS
+DEFINE BUTTON Btn-down 
      LABEL "&Down" 
      SIZE 9 BY 1.29
      FONT 4.
 
-DEFINE BUTTON Btn-first  NO-FOCUS
+DEFINE BUTTON Btn-first 
      LABEL "&First" 
      SIZE 9 BY 1.29
      FONT 4.
 
-DEFINE BUTTON Btn-last  NO-FOCUS
+DEFINE BUTTON Btn-last 
      LABEL "L&Ast" 
      SIZE 9 BY 1.29
      FONT 4.
 
-DEFINE BUTTON Btn-left  NO-FOCUS
+DEFINE BUTTON Btn-left 
      LABEL "&Left" 
      SIZE 9 BY 1.29
      FONT 4.
 
-DEFINE BUTTON Btn-right  NO-FOCUS
+DEFINE BUTTON Btn-right 
      LABEL "&Right" 
      SIZE 9 BY 1.29
      FONT 4.
 
-DEFINE BUTTON Btn-up  NO-FOCUS
+DEFINE BUTTON Btn-up 
      LABEL "&Up" 
      SIZE 9 BY 1.29
      FONT 4.
@@ -132,12 +132,12 @@ DEFINE RECTANGLE RECT-1
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Panel-Frame
-     Btn-down AT ROW 1.24 COL 47
      Btn-first AT ROW 1.24 COL 2
-     Btn-last AT ROW 1.24 COL 29
      Btn-left AT ROW 1.24 COL 11
      Btn-right AT ROW 1.24 COL 20
+     Btn-last AT ROW 1.24 COL 29
      Btn-up AT ROW 1.24 COL 38
+     Btn-down AT ROW 1.24 COL 47
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY NO-HELP 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -262,6 +262,7 @@ END.
 ON CHOOSE OF Btn-left IN FRAME Panel-Frame /* Left */
 DO:
        {methods/run_link.i "tableio-target" "proc-left"}
+
   {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
@@ -274,6 +275,7 @@ END.
 ON CHOOSE OF Btn-right IN FRAME Panel-Frame /* Right */
 DO:
        {methods/run_link.i "tableio-target" "proc-right"}
+
   {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
@@ -286,6 +288,7 @@ END.
 ON CHOOSE OF Btn-up IN FRAME Panel-Frame /* Up */
 DO:
        {methods/run_link.i "tableio-target" "proc-up"}
+
   {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
@@ -317,13 +320,13 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF
-
-  {methods/setButton.i Btn-First "First"}
-  {methods/setButton.i Btn-Last "Last"}
-  {methods/setButton.i Btn-Left "Left"}
-  {methods/setButton.i Btn-Right "Right"}
-  {methods/setButton.i Btn-Up "Up"}
-  {methods/setButton.i Btn-Down "Down"}
+  
+  {methods/setButton.i Btn-first "First"}
+  {methods/setButton.i Btn-left "Left"}
+  {methods/setButton.i Btn-right "Right"}
+  {methods/setButton.i Btn-last "Last"}
+  {methods/setButton.i Btn-up "Up"}
+  {methods/setButton.i Btn-down "Down"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

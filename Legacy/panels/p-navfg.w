@@ -246,7 +246,7 @@ DO:
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"navigation-target",OUTPUT char-hdl).
     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
        RUN Navigate-FG IN WIDGET-HANDLE(char-hdl) ("FIRST").
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -263,7 +263,7 @@ DO:
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"navigation-target",OUTPUT char-hdl).
     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
        RUN Navigate-FG IN WIDGET-HANDLE(char-hdl) ("LAST").
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -280,7 +280,7 @@ DO:
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"navigation-target",OUTPUT char-hdl).
     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
        RUN Navigate-FG IN WIDGET-HANDLE(char-hdl) ("NEXT").
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -297,7 +297,7 @@ DO:
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"navigation-target",OUTPUT char-hdl).
     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
        RUN Navigate-FG IN WIDGET-HANDLE(char-hdl) ("PREV").
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

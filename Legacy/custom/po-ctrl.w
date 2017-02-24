@@ -264,7 +264,7 @@ DO:
               VIEW-AS ALERT-BOX INFO BUTTONS OK.
     fiNextPo:SCREEN-VALUE = STRING(giCurrPo  + 1, ">>>>>>").    
   END.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -315,7 +315,7 @@ DO:
 
     FIND CURRENT po-ctrl NO-LOCK.
   END.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

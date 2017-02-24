@@ -553,7 +553,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME fMain /* Cancel */
 DO:
    APPLY "close" TO THIS-PROCEDURE.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -566,7 +566,7 @@ ON CHOOSE OF btn-del IN FRAME fMain /* Delete */
 DO:
     MESSAGE "Deletion of AR lines in NOT Allowed"
         VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -578,7 +578,7 @@ END.
 ON CHOOSE OF btn-exit IN FRAME fMain /* Exit */
 DO:
    APPLY "close" TO THIS-PROCEDURE.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -591,7 +591,7 @@ ON CHOOSE OF btn-update IN FRAME fMain /* Update */
 DO:
   RUN update-ar-invl.
   APPLY "close" TO THIS-PROCEDURE.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

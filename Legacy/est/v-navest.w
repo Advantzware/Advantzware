@@ -1,10 +1,6 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -166,6 +162,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/winkit-panel.i}
+{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -211,6 +209,8 @@ ASSIGN
 ON CHOOSE OF Btn-First IN FRAME F-Main /* First */
 DO:
   RUN do-button ("F").
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -222,6 +222,8 @@ END.
 ON CHOOSE OF Btn-Last IN FRAME F-Main /* Last */
 DO:
   RUN do-button ("L").
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -233,6 +235,8 @@ END.
 ON CHOOSE OF Btn-Next IN FRAME F-Main /* Next */
 DO:
   RUN do-button ("N").
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -244,6 +248,8 @@ END.
 ON CHOOSE OF Btn-Prev IN FRAME F-Main /* Prev */
 DO:
   RUN do-button ("P").
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
+  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

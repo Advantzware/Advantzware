@@ -457,7 +457,7 @@ or "CTRL-CURSOR-RIGHT" of brSelectedFields
 or "CTRL-CURSOR-RIGHT" of brAvailableFields
 DO:
   run shootField(brSelectedFields:handle,brAvailableFields:handle).
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -470,7 +470,7 @@ ON CHOOSE OF btMoveDownAvail IN FRAME frDataSettings /* v */
 or "CTRL-CURSOR-DOWN" of brAvailableFields
 DO:
   run moveField(brAvailableFields:handle,yes).
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -483,7 +483,7 @@ ON CHOOSE OF btMoveDownSel IN FRAME frDataSettings /* v */
 or "CTRL-CURSOR-DOWN" of brSelectedFields
 DO:
   run moveField(brSelectedFields:handle,yes).
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -496,7 +496,7 @@ ON CHOOSE OF btMoveUpAvail IN FRAME frDataSettings /* ^ */
 or "CTRL-CURSOR-UP" of brAvailableFields
 DO:
   run moveField(brAvailableFields:handle,no).
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -509,7 +509,7 @@ ON CHOOSE OF btMoveUpSel IN FRAME frDataSettings /* ^ */
 or "CTRL-CURSOR-UP" of brSelectedFields
 DO:
   run moveField(brSelectedFields:handle,no).
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -528,7 +528,7 @@ DO:
     {&OPEN-QUERY-brRawData}
   end.
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -547,7 +547,7 @@ DO:
     {&OPEN-QUERY-brRawData}
   end.
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -562,7 +562,7 @@ or "CTRL-CURSOR-LEFT" of brAvailableFields
 or "CTRL-CURSOR-LEFT" of brSelectedFields
 DO:
   run shootField(brAvailableFields:handle,brSelectedFields:handle).
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

@@ -441,7 +441,7 @@ DO:
       Btn_Update:LABEL = "&Update".
     RUN enable_UI.
   END.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -483,7 +483,7 @@ DO:
     ASSIGN {&LIST-1}.
     FIND CURRENT ar-ctrl NO-LOCK.
   END.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

@@ -243,7 +243,7 @@ DO:
     ldummy = audit-tables:ADD-LAST(table-names:ENTRY(i)).
   END.
   table-names:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -257,7 +257,7 @@ DO:
   DO i = 1 TO audit-tables:NUM-ITEMS WITH FRAME {&FRAME-NAME}:
     audit-tables:SCREEN-VALUE = audit-tables:ENTRY(i).
   END.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -269,7 +269,7 @@ END.
 ON CHOOSE OF Btn_Cancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -283,7 +283,7 @@ DO:
   FIND FIRST config EXCLUSIVE-LOCK.
   config.audit_tables = audit-tables:LIST-ITEMS IN FRAME {&FRAME-NAME}.
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -298,7 +298,7 @@ DO:
     IF audit-tables:IS-SELECTED(i) THEN
     ldummy = audit-tables:DELETE(i).
   END.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -312,7 +312,7 @@ DO:
   DO i = 1 TO table-names:NUM-ITEMS WITH FRAME {&FRAME-NAME}:
     table-names:SCREEN-VALUE = table-names:ENTRY(i).
   END.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

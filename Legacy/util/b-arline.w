@@ -273,7 +273,7 @@ DO:
     DELETE ar-invl.
 
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -285,7 +285,7 @@ END.
 ON CHOOSE OF btn-exit IN FRAME DEFAULT-FRAME /* Exit */
 DO:
    APPLY "close" TO THIS-PROCEDURE.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -301,7 +301,7 @@ DO:
 
     RUN util/v-arline.w (BUFFER ar-invl).
 
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

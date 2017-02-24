@@ -272,7 +272,7 @@ ON CHOOSE OF btnCheckPatch IN FRAME DEFAULT-FRAME /* Check for Current Patch */
 DO:
   RUN checkPatch.
   RUN uploadPatchDat.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -285,7 +285,7 @@ ON CHOOSE OF btnDownloadPatch IN FRAME DEFAULT-FRAME /* Download Current Patch *
 DO:
   RUN downloadPatch.
   RUN uploadPatchDat.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -298,7 +298,7 @@ ON CHOOSE OF btnImcomplete IN FRAME DEFAULT-FRAME /* Re-Run Incomplete Patches *
 DO:
   RUN runPatchHst.
   RUN uploadPatchDat.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -310,7 +310,7 @@ END.
 ON CHOOSE OF btnRemovePatch IN FRAME DEFAULT-FRAME /* Remove Selected Patch */
 DO:
   RUN removePatch.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -323,7 +323,7 @@ ON CHOOSE OF btnRunPatch IN FRAME DEFAULT-FRAME /* Run Latest Patch Downloaded *
 DO:
   RUN runPatchDownload.
   RUN uploadPatchDat.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -335,7 +335,7 @@ END.
 ON CHOOSE OF btnShowHistory IN FRAME DEFAULT-FRAME /* Show Patch History */
 DO:
   RUN system/patchhst.w PERSISTENT.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

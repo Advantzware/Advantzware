@@ -208,7 +208,7 @@ END.
 ON CHOOSE OF Btn_Cancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
   {methods/template/exit.i}
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -221,7 +221,7 @@ ON CHOOSE OF Btn_OK IN FRAME DEFAULT-FRAME /* OK */
 DO:
   FIND prgrms WHERE prgrms.prgtitle = popup_selections:SCREEN-VALUE NO-LOCK.
   RUN Get_Procedure IN Persistent-Handle (prgrms.prgmname,OUTPUT run-proc,yes).
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

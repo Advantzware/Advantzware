@@ -288,7 +288,7 @@ END.
 ON CHOOSE OF Btn_Backspace IN FRAME DEFAULT-FRAME /* BACKSPACE */
 DO:
   RUN Apply_Key (SELF:TOOLTIP).
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -300,7 +300,7 @@ END.
 ON CHOOSE OF Btn_Clear IN FRAME DEFAULT-FRAME /* CLEAR */
 DO:
   RUN Apply_Key (SELF:TOOLTIP).
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -312,7 +312,7 @@ END.
 ON CHOOSE OF Btn_Eight IN FRAME DEFAULT-FRAME /* 8 */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -324,7 +324,7 @@ END.
 ON CHOOSE OF Btn_Five IN FRAME DEFAULT-FRAME /* 5 */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -336,7 +336,7 @@ END.
 ON CHOOSE OF Btn_Four IN FRAME DEFAULT-FRAME /* 4 */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -348,7 +348,7 @@ END.
 ON CHOOSE OF Btn_Minus IN FRAME DEFAULT-FRAME /* - */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -360,7 +360,7 @@ END.
 ON CHOOSE OF Btn_Nine IN FRAME DEFAULT-FRAME /* 9 */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -372,7 +372,7 @@ END.
 ON CHOOSE OF Btn_One IN FRAME DEFAULT-FRAME /* 1 */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -384,7 +384,7 @@ END.
 ON CHOOSE OF Btn_Period IN FRAME DEFAULT-FRAME /* . */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -396,7 +396,7 @@ END.
 ON CHOOSE OF Btn_Seven IN FRAME DEFAULT-FRAME /* 7 */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -408,7 +408,7 @@ END.
 ON CHOOSE OF Btn_Six IN FRAME DEFAULT-FRAME /* 6 */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -420,7 +420,7 @@ END.
 ON CHOOSE OF Btn_Three IN FRAME DEFAULT-FRAME /* 3 */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -432,7 +432,7 @@ END.
 ON CHOOSE OF Btn_Two IN FRAME DEFAULT-FRAME /* 2 */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -444,7 +444,7 @@ END.
 ON CHOOSE OF Btn_Zero IN FRAME DEFAULT-FRAME /* 0 */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

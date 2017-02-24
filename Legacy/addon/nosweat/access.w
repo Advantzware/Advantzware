@@ -302,7 +302,7 @@ END.
 ON CHOOSE OF Btn_Cancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -324,7 +324,7 @@ DO:
       m_default:SCREEN-VALUE = m_menus:ENTRY(i).
     LEAVE.
   END.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -351,7 +351,7 @@ DO:
   Btn_Cancel:LABEL = "&Close".
   {methods/nowait.i}.
   MESSAGE "Access Permissions for Highlighted Selections Set" VIEW-AS ALERT-BOX.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -365,7 +365,7 @@ DO:
   DO i = 1 TO m_menus:NUM-ITEMS:
     m_menus:SCREEN-VALUE = m_menus:ENTRY(i).
   END.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -377,7 +377,7 @@ END.
 ON CHOOSE OF Btn_Unselect IN FRAME DEFAULT-FRAME /* Unselect */
 DO:
   m_menus:SCREEN-VALUE = "".
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

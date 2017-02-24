@@ -475,7 +475,7 @@ PROCEDURE AutoCreateRBOLPrt :
   IF vrPhone EQ ? THEN DO:
   {&OPEN-QUERY-Browser-Table}
   END.
-  RETURN.  /* commented this procedure */
+  IF TRUE THEN RETURN.  /* commented this procedure */
 
 
   FOR EACH emailcod WHERE emailcod.emailcod begins 'r-bolprt' NO-LOCK:

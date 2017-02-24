@@ -224,7 +224,7 @@ DO:
             DISPLAY scrProgressBarValue WITH FRAME {&FRAME-NAME}.       
          END.   
    END.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

@@ -207,7 +207,7 @@ ON CHOOSE OF Btn_Can IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
    APPLY "CLOSE":U TO THIS-PROCEDURE.
    RETURN NO-APPLY.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -242,7 +242,7 @@ DO:
          RETURN NO-APPLY.
       END.
    END.
-    {src/WinKit/triggerend.i}
+    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
