@@ -646,6 +646,7 @@ DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
+  {Advantzware/WinKit/closewindow-nonadm.i}
   RETURN NO-APPLY.
 END.
 
@@ -1016,6 +1017,7 @@ END.
 RUN VALUE("aoa/appServer/aoa" + fGetModule(aoaProgramID) + ".p") PERSISTENT SET hAppSrv.
 
 /* Include custom  Main Block code for SmartWindows. */
+{Advantzware/WinKit/embedfinalize-nonadm.i}
 {src/adm/template/windowmn.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -2219,6 +2221,19 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE winReSize W-Win
+PROCEDURE winReSize:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ************************  Function Implementations ***************** */
 

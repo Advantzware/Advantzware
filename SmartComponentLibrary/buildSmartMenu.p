@@ -18,6 +18,7 @@ DEFINE TEMP-TABLE ttblItem NO-UNDO
     FIELD seq       AS INTEGER 
     FIELD mneumonic AS CHARACTER 
     FIELD adm       AS LOGICAL
+    FIELD menuImage AS CHARACTER
         INDEX ttblItems IS PRIMARY UNIQUE menuOrder menu2
         INDEX menu2 menu2 menuOrder
         .
@@ -59,7 +60,7 @@ FOR EACH ttblItem:
     ASSIGN cFunctionGuid = "" .
     
     IF INDEX (ttblItem.menu1,".") NE 0 THEN 
-    RUN asiSmartFunction (BUFFER prgrms, SmartModule.ModuleGuid, ttblItem.mneumonic, ttblItem.adm, OUTPUT cFunctionGuid) .
+    RUN asiSmartFunction (BUFFER prgrms, SmartModule.ModuleGuid, ttblItem.mneumonic, ttblItem.adm, ttblItem.menuImage, ttblItem.menu2, OUTPUT cFunctionGuid) .
     
     IF ttblItem.menu2 EQ "file" THEN  
     ASSIGN cParentMenuGuid = cRootMenuGuid .
@@ -69,7 +70,7 @@ FOR EACH ttblItem:
         ASSIGN cParentMenuGuid = ttblMenu.menuGuid .
     END .
 
-    RUN asiSmartMenu (BUFFER prgrms, ttblItem.seq, cFunctionGuid, INPUT-OUTPUT cParentMenuGuid) .
+    RUN asiSmartMenu (BUFFER prgrms, ttblItem.seq, cFunctionGuid, ttblItem.menuImage, INPUT-OUTPUT cParentMenuGuid) .
     
     IF INDEX (ttblItem.menu1,".") EQ 0 THEN DO:
         FIND FIRST ttblMenu WHERE ttblMenu.menuName EQ ttblItem.menu1 NO-ERROR .
@@ -87,6 +88,7 @@ FOR EACH ttblItem:
         prgrms.prgmname
         ttblItem.mneumonic
         ttblItem.adm
+        ttblItem.menuImage
             WITH WIDTH 200 STREAM-IO .
 &endif    
 END.
@@ -99,7 +101,6 @@ FOR EACH ttblMenu :
         ttblMenu.menuCount
             WITH STREAM-IO .
 END.
-
 OUTPUT CLOSE .
 OS-COMMAND NO-WAIT notepad.exe "c:\tmp\results.txt" .
 &endif
@@ -111,10 +112,11 @@ PROCEDURE asiMenu:
     DEFINE VARIABLE cType      AS CHARACTER NO-UNDO .
     DEFINE VARIABLE idx        AS INTEGER   NO-UNDO .
     DEFINE VARIABLE cMneumonic AS CHARACTER NO-UNDO .
+    DEFINE VARIABLE cImage     AS CHARACTER NO-UNDO .
 
-    INPUT FROM c:\tmp\winKitMenu.txt NO-ECHO .
+    INPUT FROM C:\Advantzware\v17\SmartComponentLibrary\winKitMenu.txt NO-ECHO .
     REPEAT:
-        IMPORT cPrgrm cMenu lAdm cType .
+        IMPORT cPrgrm cMenu lAdm cType cImage .
         
         IF CAN-DO ("mainmenu",cMenu) THEN NEXT .
         IF CAN-DO ("rule,skip",cPrgrm) THEN NEXT .
@@ -122,10 +124,16 @@ PROCEDURE asiMenu:
         /*IF cMenu EQ "file" THEN ASSIGN cMenu = cPrgrm .*/
         
         FIND FIRST prgrms NO-LOCK WHERE prgrms.prgmname EQ cPrgrm NO-ERROR .
+        /*
         ASSIGN cMneumonic = SUBSTRING (prgrms.prgtitle,1,1) WHEN AVAILABLE prgrms .
+        */
 
         FIND FIRST ttblMenu WHERE ttblMenu.menuName EQ cMenu NO-ERROR .
-        ASSIGN cMneumonic = ttblMenu.mneumonic + cMneumonic WHEN AVAILABLE ttblMenu .
+
+        /*
+        IF  AVAILABLE ttblMenu THEN
+        ASSIGN cMneumonic = ttblMenu.mneumonic + cMneumonic .
+        */
 
         IF INDEX (cPrgrm,".") EQ 0 THEN DO:
             FIND FIRST ttblMenu WHERE ttblMenu.menuName EQ cPrgrm NO-ERROR .
@@ -142,8 +150,13 @@ PROCEDURE asiMenu:
         
         IF NOT CAN-FIND (FIRST prgrms WHERE prgrms.prgmname EQ cPrgrm) THEN NEXT .
 
+        /*
         IF LENGTH (cMneumonic) EQ 3 THEN
-        ASSIGN cMneumonic = SUBSTRING (cMneumonic,1,2) + STRING (ttblMenu.menuCount) .  
+        ASSIGN cMneumonic = SUBSTRING (cMneumonic,1,2) + STRING (ttblMenu.menuCount) .
+        
+        IF LENGTH (cMneumonic) GT 4 THEN
+        cMneumonic = SUBSTRING (cMneumonic,1,4) .
+        */
 
         CREATE ttblItem .
         ASSIGN 
@@ -154,6 +167,7 @@ PROCEDURE asiMenu:
             ttblItem.menu2     = cMenu
             ttblItem.mneumonic = cMneumonic
             ttblItem.adm       = lAdm
+            ttblItem.menuImage = cImage
             .
             
     END . /* repeat */
@@ -162,7 +176,7 @@ PROCEDURE asiMenu:
     FOR EACH ttblItem USE-INDEX menu2 BREAK BY ttblItem.menu2 :
         IF FIRST-OF (ttblItem.menu2) THEN ASSIGN idx = 0 .
         ASSIGN
-            idx         = idx + 1
+            idx          = idx + 1
             ttblItem.seq = idx
             .
     END .
@@ -174,8 +188,12 @@ PROCEDURE asiSmartFunction:
     DEFINE INPUT PARAMETER ipcModuleGuid AS CHARACTER NO-UNDO .
     DEFINE INPUT PARAMETER ipcMneumonic  AS CHARACTER NO-UNDO .
     DEFINE INPUT PARAMETER iplAdm        AS LOGICAL   NO-UNDO .
+    DEFINE INPUT PARAMETER ipImage       AS CHARACTER NO-UNDO .
+    DEFINE INPUT PARAMETER ipMenuGroup   AS CHARACTER NO-UNDO .
     
     DEFINE OUTPUT PARAMETER opcFunctionGuid AS CHARACTER NO-UNDO .
+    
+    DEFINE VARIABLE dirGroup AS CHARACTER NO-UNDO .
 
 &if "{&buildMenu}" EQ "no" &then
     IF TRUE THEN RETURN .
@@ -183,9 +201,10 @@ PROCEDURE asiSmartFunction:
     
     /* create menu function record */
     ASSIGN 
+        dirGroup                     = IF ipMenuGroup BEGINS "AOA" THEN "AOA" ELSE prgrms.dir_group
         oCallParameter               = NEW RunProcedureCallParameter () 
         oCallParameter:AllowMultiple = FALSE 
-        oCallParameter:ProcedureName = prgrms.dir_group + "/" + prgrms.prgmname + "w"
+        oCallParameter:ProcedureName = dirGroup + "/" + prgrms.prgmname + "w"
         oCallParameter:RunPersistent = TRUE
         .
         
@@ -204,6 +223,8 @@ PROCEDURE asiSmartFunction:
         SmartFunction.FunctionModuleGuid    = ipcModuleGuid
         SmartFunction.ExternalId            = ipcMneumonic 
         SmartFunction.FunctionCallParameter = oCallParameter:Serialize()
+        SmartFunction.FunctionSmallImage    = "Graphics/16x16/" + ipImage
+        SmartFunction.FunctionLargeImage    = "Graphics/32x32/" + ipImage
         opcFunctionGuid                     = SmartFunction.FunctionGuid
         .
     
@@ -215,6 +236,7 @@ PROCEDURE asiSmartMenu:
     
     DEFINE INPUT        PARAMETER ipSeq          AS INTEGER   NO-UNDO .
     DEFINE INPUT        PARAMETER ipFunctionGuid AS CHARACTER NO-UNDO .    
+    DEFINE INPUT        PARAMETER ipImage        AS CHARACTER NO-UNDO .
     DEFINE INPUT-OUTPUT PARAMETER iopMenuGuid    AS CHARACTER NO-UNDO .
     
     DEFINE BUFFER SmartMenu FOR SmartMenu .
@@ -234,6 +256,8 @@ PROCEDURE asiSmartMenu:
         ASSIGN
             SmartMenu.ParentMenuGuid    = iopMenuGuid
             SmartMenu.MenuName          = prgrms.prgtitle
+            SmartMenu.MenuSmallImage    = "Graphics/16x16/" + ipImage
+            SmartMenu.MenuLargeImage    = "Graphics/32x32/" + ipImage
             SmartMenu.MenuSequence      = ipSeq
             SmartMenu.MenuStructureType = (IF ipFunctionGuid NE "" THEN "Item" ELSE "Menu")
             SmartMenu.FunctionGuid      = (IF ipFunctionGuid NE "" THEN ipFunctionGuid ELSE "")
