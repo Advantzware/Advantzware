@@ -646,7 +646,6 @@ DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
-  {Advantzware/WinKit/closewindow-nonadm.i}
   RETURN NO-APPLY.
 END.
 
@@ -1017,7 +1016,6 @@ END.
 RUN VALUE("aoa/appServer/aoa" + fGetModule(aoaProgramID) + ".p") PERSISTENT SET hAppSrv.
 
 /* Include custom  Main Block code for SmartWindows. */
-{Advantzware/WinKit/embedfinalize-nonadm.i}
 {src/adm/template/windowmn.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -2043,26 +2041,33 @@ PROCEDURE pSetWinSize :
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE iHeight AS INTEGER NO-UNDO.
     DEFINE VARIABLE iWidth  AS INTEGER NO-UNDO.
+    DEFINE VARIABLE hWinKitFrame       AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE oWinKitControl     AS System.Windows.Forms.Control NO-UNDO.    
+    
 
     RUN get-attribute IN h_aoaParam ('adm-object-handle':U).
     hParamFrame = WIDGET-HANDLE(RETURN-VALUE).
 
     IF NOT VALID-HANDLE(hParamFrame) THEN RETURN.
-
+    
+    hWinKitFrame = IF VALID-OBJECT (oFormControl) THEN oFormControl:GetTabPageFrame (0)
+                   ELSE {&WINDOW-NAME}:HANDLE . 
+   
     DO WITH FRAME {&FRAME-NAME}:
         IF aoaType EQ "Report" THEN
-        iWidth = FRAME frameShow:WIDTH-PIXELS + 5 + FRAME frameColumns:WIDTH-PIXELS + 5.
+        iWidth = FRAME frameShow:WIDTH-PIXELS    + 5
+               + FRAME frameColumns:WIDTH-PIXELS + 5.
 
         ASSIGN
-            {&WINDOW-NAME}:WIDTH-PIXELS               = hParamFrame:WIDTH-PIXELS + 5 + iWidth
-            {&WINDOW-NAME}:HEIGHT-PIXELS              = hParamFrame:HEIGHT-PIXELS + 5
+            hWinKitFrame:WIDTH-PIXELS                 = hParamFrame:WIDTH-PIXELS + 5 + iWidth
+            hWinKitFrame:HEIGHT-PIXELS                = hParamFrame:HEIGHT-PIXELS + 5
                                                       + btnView:HEIGHT-PIXELS + 5
-            {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS      = {&WINDOW-NAME}:HEIGHT-PIXELS
-            {&WINDOW-NAME}:VIRTUAL-WIDTH-PIXELS       = {&WINDOW-NAME}:WIDTH-PIXELS
-            FRAME {&FRAME-NAME}:WIDTH-PIXELS          = {&WINDOW-NAME}:WIDTH-PIXELS
-            FRAME {&FRAME-NAME}:HEIGHT-PIXELS         = {&WINDOW-NAME}:HEIGHT-PIXELS
-            FRAME {&FRAME-NAME}:VIRTUAL-WIDTH-PIXELS  = {&WINDOW-NAME}:WIDTH-PIXELS
-            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
+            hWinKitFrame:VIRTUAL-HEIGHT-PIXELS        = hWinKitFrame:HEIGHT-PIXELS
+            hWinKitFrame:VIRTUAL-WIDTH-PIXELS         = hWinKitFrame:WIDTH-PIXELS
+            FRAME {&FRAME-NAME}:WIDTH-PIXELS          = hWinKitFrame:WIDTH-PIXELS
+            FRAME {&FRAME-NAME}:HEIGHT-PIXELS         = hWinKitFrame:HEIGHT-PIXELS
+            FRAME {&FRAME-NAME}:VIRTUAL-WIDTH-PIXELS  = hWinKitFrame:WIDTH-PIXELS
+            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT-PIXELS = hWinKitFrame:HEIGHT-PIXELS
             btnView:Y                                 = hParamFrame:HEIGHT-PIXELS + 5
             btnCancel:Y                               = hParamFrame:HEIGHT-PIXELS + 5
             btnExcel:Y                                = hParamFrame:HEIGHT-PIXELS + 5

@@ -4,7 +4,10 @@
 {aoa/includes/aoaDefs.i}
 
 &IF "{&aoaParam}" EQ "YES" &THEN
-    RUN aoa/aoaParam.w (g_company,g_loc,paramStr).
+    IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive EQ TRUE THEN
+    RUN aoa/aoaParam.w PERSISTENT (g_company,g_loc,paramStr) .
+    ELSE 
+    RUN aoa/aoaParam.w (g_company,g_loc,paramStr) .
 &ELSE
     /* with no param screen, aoaParamDefs.i, needs this var */
     DEFINE VARIABLE ipcCompany  AS CHARACTER NO-UNDO.

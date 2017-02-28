@@ -139,7 +139,6 @@ END.
 /* ************************* Included-Libraries *********************** */
 
 {Advantzware/WinKit/winkit-panel.i}
-{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -192,7 +191,6 @@ DO:
     IF valid-handle(widget-handle(char-hdl))
            THEN RUN update-fgitem-img IN WIDGET-HANDLE(char-hdl).
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
   {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 

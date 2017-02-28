@@ -662,14 +662,13 @@ PROCEDURE winReSize PRIVATE :
    RUN GET-ATTRIBUTE('CURRENT-PAGE').
    iWinKitCurrentPage = INTEGER(RETURN-VALUE).
 
-   IF VALID-OBJECT (oFormControl) THEN DO:
-     ASSIGN
+   IF VALID-OBJECT (oFormControl) THEN
+   ASSIGN
        hWinKitFrame   = oFormControl:GetTabPageFrame (iWinKitCurrentPage)
        oWinKitControl = oFormControl:GetTabPageControl (iWinKitCurrentPage)
        iPage1ColDiff = (oWinKitControl:Width - hWinKitFrame:WIDTH-PIXELS) // SESSION:PIXELS-PER-COLUMN
        iPage1RowDiff = (oWinKitControl:Height - hWinKitFrame:HEIGHT-PIXELS) // SESSION:PIXELS-PER-ROW
        .
-   END.
   
     IF VALID-HANDLE(h_folder) THEN
     RUN set-size IN h_folder (FRAME {&FRAME-NAME}:HEIGHT - 1,FRAME {&FRAME-NAME}:WIDTH - 1) NO-ERROR.
@@ -677,8 +676,6 @@ PROCEDURE winReSize PRIVATE :
     {methods/sizeBrowse.i 01}
     {methods/sizeBrowse.i 02}
     {methods/sizeBrowse.i 03}
-
-/*    {methods/winReSizeOptions.i}*/
   &ENDIF
 
 END PROCEDURE.
