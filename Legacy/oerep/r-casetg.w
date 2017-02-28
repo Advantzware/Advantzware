@@ -33,6 +33,7 @@ DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 {custom/gloc.i}
 {custom/getcmpny.i}
 {custom/getloc.i}
+{custom/xprint.i}
 
 {sys/inc/var.i new shared}
 
@@ -92,7 +93,7 @@ DEF VAR v-auto-print    AS LOG NO-UNDO.
 /* gdm - 11050806 */
 DEF VAR v-casflg        AS LOG NO-UNDO.
 DEF VAR v-lcnt          AS INT NO-UNDO.
-
+DEFINE VARIABLE cBarCodeProgram AS CHARACTER NO-UNDO .
 
 def TEMP-TABLE w-file NO-UNDO field w-key AS ROWID.
 DEF TEMP-TABLE tt-tag NO-UNDO FIELD tt-recid AS RECID.
@@ -975,7 +976,7 @@ END.
 &Scoped-define SELF-NAME btn-ok
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
-DO:
+DO: 
 
     IF begin_i-no:SCREEN-VALUE EQ "" AND 
        (begin_job:SCREEN-VALUE NE "" OR begin_job:SCREEN-VALUE NE "" OR 
@@ -2268,7 +2269,8 @@ PROCEDURE ok-button :
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-
+  ASSIGN
+      cBarCodeProgram = IF scr-label-file MATCHES "*.xpr*" THEN "xprint" ELSE "" .
   IF scr-auto-print AND scr-label-file = "" THEN
   DO:
      MESSAGE "Label Matrix Label File cannot be blank."
@@ -2811,17 +2813,19 @@ ASSIGN
   END.    /* TRIAD INTERMEC BARCODE PRINT ROUTINE */
 
   ELSE DO:
-    OUTPUT TO VALUE(v-out).
-    PUT UNFORMATTED
-        "CUSTOMER,ORDNUMBER,JOBNUMBER,ITEM,CUSTPARTNO,INAME,IDSCR1,IDSCR2," +
-        "IDSCR3,CUSTPONO,PCS,BUNDLE,TOTAL," +
-        "BILLNAME,BILLADD1,BILLADD2,BILLCITY,BILLSTATE,BILLZIP,BILLCOUNTRY," +
-        "SOLDNAME,SOLDADD1,SOLDADD2,SOLDCITY,SOLDSTATE,SOLDZIP,SOLDCOUNTRY," +
-        "SHIPNAME,SHIPADD1,SHIPADD2,SHIPCITY,SHIPSTATE,SHIPZIP,SHIPCOUNTRY," +
-        "DUEDATE,RELDATE,UPCNO,LENGTH,WIDTH,DEPTH,FLUTE,TEST,VENDOR,GROSSWGT," +
-        "TAREWGT,NETWGT,SHEETWGT,UOM,MIDDLESEXJOBNUMBER,MIDDLESEXCUSTPONO," +
-        "TAG#,PARTIAL,CASECODE,COLOR,CODE,CASEWGT,FG LOT#,RELLOT#,DRAWING#,POLINE#,PONO,FORM,BLANK,".
-    PUT SKIP.
+    IF cBarCodeProgram EQ "" THEN DO:
+        OUTPUT TO VALUE(v-out).
+        PUT UNFORMATTED
+            "CUSTOMER,ORDNUMBER,JOBNUMBER,ITEM,CUSTPARTNO,INAME,IDSCR1,IDSCR2," +
+            "IDSCR3,CUSTPONO,PCS,BUNDLE,TOTAL," +
+            "BILLNAME,BILLADD1,BILLADD2,BILLCITY,BILLSTATE,BILLZIP,BILLCOUNTRY," +
+            "SOLDNAME,SOLDADD1,SOLDADD2,SOLDCITY,SOLDSTATE,SOLDZIP,SOLDCOUNTRY," +
+            "SHIPNAME,SHIPADD1,SHIPADD2,SHIPCITY,SHIPSTATE,SHIPZIP,SHIPCOUNTRY," +
+            "DUEDATE,RELDATE,UPCNO,LENGTH,WIDTH,DEPTH,FLUTE,TEST,VENDOR,GROSSWGT," +
+            "TAREWGT,NETWGT,SHEETWGT,UOM,MIDDLESEXJOBNUMBER,MIDDLESEXCUSTPONO," +
+            "TAG#,PARTIAL,CASECODE,COLOR,CODE,CASEWGT,FG LOT#,RELLOT#,DRAWING#,POLINE#,PONO,FORM,BLANK,".
+        PUT SKIP.
+    END.
 
     FOR EACH w-ord:
       IF tb_16ths THEN
@@ -2915,9 +2919,8 @@ ASSIGN
                    loadtag.misc-char[2] = w-ord.lot
                    lv-tag-no = loadtag.tag-no.
         /*END.*/
-
+        IF cBarCodeProgram EQ "" THEN
         DO i = 1 TO (lv-how-many-tags ):
-           
            PUT UNFORMATTED
             "~""  removeChars(w-ord.cust-name)  "~","
             w-ord.ord-no ","
@@ -2987,10 +2990,33 @@ ASSIGN
       end.
     end.
     output close.
-    RUN AutoPrint.
+
+    IF cBarCodeProgram EQ "" THEN
+        RUN AutoPrint.
+
   end.    /* NOT TRIAD */
 
   RUN update-counts.
+  IF cBarCodeProgram EQ "xprint" THEN do:
+    {sys/inc/print1.i}
+        
+    {sys/inc/outprint.i value(85)}
+
+    PUT "<PREVIEW>".  
+    
+    FOR EACH w-ord NO-LOCK BREAK 
+                          BY w-ord.ord-no
+                          BY w-ord.i-no :
+       {oe/rep/case2xprnt.i}
+       IF NOT LAST(w-ord.i-no) THEN PAGE .
+    END.
+
+     OUTPUT CLOSE.
+
+     FILE-INFO:FILE-NAME = list-name.
+     RUN printfile (FILE-INFO:FILE-NAME).
+  END.
+
   
 SESSION:SET-WAIT-STATE ("").
 end procedure.
