@@ -1531,6 +1531,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         
     IF v-relprint EQ "Indiana" THEN
        tb_pricing:SENSITIVE = YES.
+       
+       IF v-relprint EQ "StClair" THEN
+        ASSIGN 
+            rd-print-what:SENSITIVE = NO
+            rd-print-what:SCREEN-VALUE = "I"
+            rd-print-what = "I".
+
 
     RUN new-relnum. 
 

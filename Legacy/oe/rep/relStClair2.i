@@ -68,7 +68,7 @@
          "<R22><C93><FROM><R24><C93><LINE>" SKIP
 
          "<FArial><=5><C31>TAG/Whs/Bin<C48>Receipt Date<C81>QOH: RelQty: Ship<C94>Pallets:   Total" SKIP
-         "<=5><R+1> Order# <C8>Item/Desc/Lot#<C31>Vendor Name/PO#(Job#)<C48>PO/Job Due Date<C60>Units<C65>Unit Count<C74>Partial<C81>Qty<C94>Pallets" SKIP
+         "<=5><R+1> Order# <C8>Item/Desc/Lot#<C31>Vendor Name/PO#(Job#)<C60>Units<C65>Unit Count<C74>Partial<C81>Qty<C94>Pallets" SKIP
          "<FCourier New>"
          "<|10><R24><C1><#7><FROM><R45><C104><RECT><=5><R+2>" SKIP    
          "<R24><C93><FROM><R45><C93><LINE>" "<R24><C80><FROM><R45><C80><LINE>" /*qty vert line*/
