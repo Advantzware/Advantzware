@@ -384,7 +384,6 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                       /*by fg-rcpth.job-no
                       by fg-rcpth.job-no2
                       by fg-bin.qty*/ :
-                 
                       w-bin.w-date-time = STRING(YEAR(fg-rcpth.trans-date),"9999")
                                         + STRING(MONTH(fg-rcpth.trans-date),"99")
                                         + STRING(DAY(fg-rcpth.trans-date),"99")
@@ -710,13 +709,13 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                  WHEN 1 THEN DO:
                     IF iPallets NE 0 THEN
                         cPallet = "<C93.5>" + STRING(iPallets,">>>9") + " Pallets".
-                     lvTransDate = /*date(
+                    /* lvTransDate = /*date(
                          int(SUBSTRING(w-bin.w-date-time,5,2)),
                          int(SUBSTRING(w-bin.w-date-time,7,2)),
                          int(SUBSTRING(w-bin.w-date-time,1,4)) ) */
                         IF ldtRctDate <> ? THEN ldtRctDate ELSE ? .
                     IF lOHAvail THEN cDate = STRING(lvTransDate).
-                        ELSE cDate = "".
+                        ELSE cDate = "".*/
                  END.
                  WHEN 2 THEN DO:
                      IF iPalletsPartial NE 0 THEN
@@ -746,7 +745,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                                       " " + IF AVAIL vend THEN substring(vend.NAME,1,10) ELSE "".                         
                            END.
                         END.
-                        cDate = string(ldtPoDate).                     
+                        /*cDate = string(ldtPoDate).*/                     
                      END.
                  END.
                      
@@ -764,25 +763,18 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                                        ldtJobDate = job-hdr.due-date
                                        .                            
                         END.
-                        cDate = STRING(ldtJobDate).
+                       /* cDate = STRING(ldtJobDate).*/
                      END.
                  END.
                  WHEN 4 THEN DO:
                      lvTransDate = ?.
-                     /*IF v-bin = "" THEN v-bin = string(oe-ordl.job-no) + "-" + STRING(oe-ordl.job-no2,"99").
-                     IF v-bin = "" THEN v-bin = "00" */
-                     cDate = "".
                       
                  END.
-                 OTHERWISE ASSIGN cDate = "" lvTransDate = ?.
              END CASE.
              IF cDate = "" AND v-bin NE "" AND SUBSTRING(w-bin.w-date-time,3,2) NE "99" THEN
                  cDate =  SUBSTRING(w-bin.w-date-time,5,2) + "/" + 
                       SUBSTRING(w-bin.w-date-time,7,2) + "/" + 
-                      SUBSTRING(w-bin.w-date-time,3,2).         
-                     
-            
-             /*ASSIGN  v-partial =  w-oe-rell.partial .*/
+                      SUBSTRING(w-bin.w-date-time,1,4).
 
              display {2}
                      w-oe-rell.ord-no when FIRST(w-bin.w-date-time)
