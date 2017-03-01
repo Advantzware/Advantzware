@@ -1399,7 +1399,6 @@ form header
      str-tit5 SKIP
     with frame r-top.
 
-SESSION:SET-WAIT-STATE ("general").
 
 assign
  str-tit2 = c-win:TITLE
@@ -1451,6 +1450,7 @@ IF tb_excel THEN do:
     OUTPUT STREAM excel TO VALUE(fi_file).  
     /*PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.*/
 END.
+SESSION:SET-WAIT-STATE ("general").
 
 
 for each eb

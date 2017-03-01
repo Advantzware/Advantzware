@@ -573,6 +573,7 @@ DO:
        END. 
        WHEN 6 THEN RUN OUTPUT-to-port.
   END CASE.
+  SESSION:SET-WAIT-STATE ("").
   
   IF ip-post THEN
     IF v-postable THEN DO: 

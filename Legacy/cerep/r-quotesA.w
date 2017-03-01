@@ -862,7 +862,6 @@ header "Quote#     Est# Customer                     Part Description           
    with frame quote no-labels no-attr-space stream-io width 150 down.
 
 
-SESSION:SET-WAIT-STATE ("general").
 
 assign
  str-tit2 = "Quote List"
@@ -905,6 +904,7 @@ IF tb_excel THEN DO:
             SKIP.
 
 END.
+SESSION:SET-WAIT-STATE ("general").
 
 
 

@@ -586,6 +586,7 @@ IF tgMultipleReleases:SCREEN-VALUE NE "YES" THEN
        when 2 then run output-to-screen.
        when 3 then run output-to-file.
   end case.
+  SESSION:SET-WAIT-STATE ("").
 
   IF ip-post THEN DO:
     IF v-tot-post GT 0 THEN DO:

@@ -304,6 +304,7 @@ DO:
        when 2 then run output-to-screen.
        when 3 then run output-to-file.
   end case. 
+  SESSION:SET-WAIT-STATE ("").
 
 END.
 

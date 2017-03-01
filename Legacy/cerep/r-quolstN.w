@@ -1173,7 +1173,6 @@ PROCEDURE run-report :
 /* QUOTED PRICE LIST                                                          */                                                                       
 /* -------------------------------------------------------------------------- */
 
-SESSION:SET-WAIT-STATE("general").
 /*{sys/form/r-top3w.f}*/
 
 def var fcust like quote.cust-no NO-UNDO.
@@ -1321,6 +1320,7 @@ IF tb_excel THEN do:
   OUTPUT STREAM excel TO VALUE(fi_file).
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
+SESSION:SET-WAIT-STATE("general").
 
 
    for each quotehd

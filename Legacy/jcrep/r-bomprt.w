@@ -473,8 +473,8 @@ DO:
            RUN OUTPUT-to-mail.
                   END. 
        WHEN 6 THEN run output-to-port.
-  end case. 
-
+  end case.
+  SESSION:SET-WAIT-STATE ("").
 END.
 
 /* _UIB-CODE-BLOCK-END */
