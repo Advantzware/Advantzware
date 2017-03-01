@@ -1173,7 +1173,6 @@ IF v-print-cost THEN DO:
   v-print-cost = ll-secure. 
 END.
 
-SESSION:SET-WAIT-STATE ("general").
 
 EMPTY TEMP-TABLE tt-report.
 EMPTY TEMP-TABLE w-comm.
@@ -1181,6 +1180,8 @@ EMPTY TEMP-TABLE w-comm.
 IF tb_excel THEN do:
   OUTPUT STREAM st-excell TO VALUE(fi_file).
 END.
+SESSION:SET-WAIT-STATE ("general").
+
 
 {sys/inc/print1.i}
 

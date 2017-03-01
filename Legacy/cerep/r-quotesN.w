@@ -1255,8 +1255,6 @@ header "Quote#     Est# Customer                     Part Description           
    with frame quote no-labels no-attr-space stream-io width 150 down. */
 
 
-SESSION:SET-WAIT-STATE ("general").
-
 assign
  str-tit2 = "Quote List"
  {sys/inc/ctrtext.i str-tit2 112}
@@ -1310,6 +1308,8 @@ IF tb_excel THEN do:
   OUTPUT STREAM excel TO VALUE(fi_file).
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
+SESSION:SET-WAIT-STATE ("general").
+
 
 /* gdm - 10130805 */
 /*IF tb_excel THEN DO:

@@ -1437,8 +1437,6 @@ IF v-print-cost THEN DO:
   v-print-cost = ll-secure. 
 END.
 
-SESSION:SET-WAIT-STATE ("general").
-
 FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
     
     ASSIGN str-tit4 = str-tit4 + 
@@ -1468,6 +1466,8 @@ IF tb_excel THEN DO:
   OUTPUT STREAM st-excell TO VALUE(fi_file).
   PUT STREAM st-excell UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
+SESSION:SET-WAIT-STATE ("general").
+
 
 if td-show-parm then run show-param.
 

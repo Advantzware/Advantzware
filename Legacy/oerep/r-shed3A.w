@@ -1204,9 +1204,7 @@ DEF BUFFER b-oe-ordl FOR oe-ordl.
        SKIP(1)
 
       WITH FRAME r-top2 PAGE-TOP NO-ATTR-SPACE NO-BOX WIDTH 200 STREAM-IO.
-
-  SESSION:SET-WAIT-STATE ("general").
-
+  
   ASSIGN v-tot-qty = 0
          v-tot-msf = 0
          v-tot-val = 0.
@@ -1254,12 +1252,6 @@ DEF BUFFER b-oe-ordl FOR oe-ordl.
     tb_show-val = ll-secure.
     DISPLAY tb_show-val.
   END.
-   
-  {sys/inc/print1.i}
-
-  {sys/inc/outprint.i VALUE(lines-per-page)}
-
-  IF td-show-parm THEN RUN show-param.
 
   IF tb_excel THEN DO:
     excelheader = "Customer Name,Release Date,Rel Num,Ship To,Carrier," +
@@ -1270,6 +1262,14 @@ DEF BUFFER b-oe-ordl FOR oe-ordl.
     OUTPUT STREAM excel TO VALUE(fi_file).
     PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' skip.
   END.
+
+  {sys/inc/print1.i}
+
+  {sys/inc/outprint.i VALUE(lines-per-page)}
+
+  SESSION:SET-WAIT-STATE ("general").
+
+  IF td-show-parm THEN RUN show-param.
       
   VIEW FRAME r-top.
 

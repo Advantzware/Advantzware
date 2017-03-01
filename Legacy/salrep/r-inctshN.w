@@ -749,7 +749,8 @@ DO:
        END.
        WHEN 6 THEN RUN OUTPUT-to-port.
 
-  end case. 
+  end case.
+  SESSION:SET-WAIT-STATE (""). 
 END.
 
 /* _UIB-CODE-BLOCK-END */

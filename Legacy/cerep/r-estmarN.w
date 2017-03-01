@@ -1342,7 +1342,6 @@ DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
 
-SESSION:SET-WAIT-STATE ("general").    
     
 ASSIGN
  str-tit2 = TRIM(c-win:TITLE) + ""
@@ -1392,6 +1391,8 @@ IF tb_excel THEN do:
       "ost,Selling Price"
       SKIP. */
 END.
+SESSION:SET-WAIT-STATE ("general").    
+
 
 IF td-show-parm THEN RUN show-param.
 

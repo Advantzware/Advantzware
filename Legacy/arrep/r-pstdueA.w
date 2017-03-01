@@ -630,6 +630,7 @@ DO:
        END. 
        WHEN 6 THEN RUN OUTPUT-to-port.
   end case.
+  SESSION:SET-WAIT-STATE ("").
    current-window:WINDOW-STATE  = WINDOW-NORMAL.
 
 END.

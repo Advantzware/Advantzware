@@ -1837,7 +1837,6 @@ FORMAT HEADER
     WITH FRAME r-top2 STREAM-IO WIDTH 180 NO-BOX PAGE-TOP.
 
 
-SESSION:SET-WAIT-STATE ("general").
 
 ASSIGN
  str-tit2 = c-win:TITLE 
@@ -1899,6 +1898,7 @@ IF tb_excel THEN DO:
 
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
+SESSION:SET-WAIT-STATE ("general").
 
 IF tb_break THEN VIEW FRAME r-top1.
 

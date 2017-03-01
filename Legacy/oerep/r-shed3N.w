@@ -794,7 +794,8 @@ DO:
            END.
        END. 
       WHEN 6 THEN RUN output-to-port.
-  end case. 
+  end case.
+  SESSION:SET-WAIT-STATE (""). 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1584,7 +1585,7 @@ DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
 
       WITH FRAME r-top2 PAGE-TOP NO-ATTR-SPACE NO-BOX WIDTH 200 STREAM-IO.
 
-  SESSION:SET-WAIT-STATE ("general").
+  
 
   ASSIGN v-tot-qty = 0
          v-tot-msf = 0
@@ -1653,37 +1654,23 @@ DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
  END.
 
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
-        IF LOOKUP(ttRptSelected.TextList, "Sales Value") <> 0    THEN
+        IF LOOKUP(ttRptSelected.TextList, "Sales Value") <> 0 AND NOT ll-secure   THEN
         RUN sys/ref/d-passwd.w (3, OUTPUT ll-secure).
  END.
-  /*IF tb_show-val THEN DO WITH FRAME {&FRAME-NAME}:
-    IF NOT ll-secure THEN RUN sys/ref/d-passwd.w (3, OUTPUT ll-secure).
-    tb_show-val = ll-secure.
-    DISPLAY tb_show-val.
-  END.*/
-   
-  {sys/inc/print1.i}
-
-  {sys/inc/outprint.i VALUE(lines-per-page)}
-
-  IF td-show-parm THEN RUN show-param.
-
-  /*IF tb_excel THEN DO:
-    excelheader = "Customer Name,Release Date,Rel Num,Ship To,Carrier," +
-                  "Order Number,Customer Part#,Description,FG Item#,"   +
-                  "Po Number,Quantity On Hand,release Qty,Sales Value," +
-                  "No. of Pallets,Status".
-        
-    OUTPUT STREAM excel TO VALUE(fi_file).
-    PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' skip.
-  END.*/
 
   IF tb_excel THEN DO:
   OUTPUT STREAM excel TO VALUE(fi_file).
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
   END.
+ 
+  {sys/inc/print1.i}
+
+  {sys/inc/outprint.i VALUE(lines-per-page)}
+  IF td-show-parm THEN RUN show-param.
       
   VIEW FRAME r-top.
+
+SESSION:SET-WAIT-STATE ("general").
 
   FOR EACH tt-report:
     DELETE tt-report.

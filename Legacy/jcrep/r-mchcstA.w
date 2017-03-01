@@ -505,7 +505,8 @@ DO:
        when 1 then run output-to-printer.
        when 2 then run output-to-screen.
        when 3 then run output-to-file.
-  end case. 
+  end case.
+  SESSION:SET-WAIT-STATE (""). 
 
 END.
 

@@ -972,7 +972,7 @@ form header
      skip(1)
     with frame r-top.
 
-SESSION:SET-WAIT-STATE ("general").
+
 
 assign
  str-tit2 = c-win:TITLE
@@ -996,7 +996,9 @@ if td-show-parm then run show-param.
 
 /* gdm - 10130806 */
 IF tb_excel THEN 
-    OUTPUT STREAM excel TO VALUE(fi_file).      
+    OUTPUT STREAM excel TO VALUE(fi_file). 
+SESSION:SET-WAIT-STATE ("general").  
+        
 
 for each eb
     where eb.company eq cocode
