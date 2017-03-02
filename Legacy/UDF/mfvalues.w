@@ -468,6 +468,7 @@ PROCEDURE createTabs :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
+  IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive EQ FALSE THEN
   RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
   DELETE WIDGET-POOL "widget-pool-tabs" NO-ERROR.
   CREATE WIDGET-POOL "widget-pool-tabs" PERSISTENT.

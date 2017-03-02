@@ -15,12 +15,10 @@
 DEFINE VARIABLE cGridColumns AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cGridQuery   AS CHARACTER NO-UNDO.
 
-
 /* ********************  Preprocessor Definitions  ******************** */
 
 
 /* ***************************  Main Block  *************************** */
-
 
 
 /* **********************  Internal Procedures  *********************** */

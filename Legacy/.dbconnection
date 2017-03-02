@@ -5,4 +5,5 @@
 <connectionentry identifier="emptrack"/>
 <connectionentry identifier="jobs"/>
 <connectionentry identifier="rfq"/>
+<connectionentry identifier="SmartDB"/>
 </connection>
