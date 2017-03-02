@@ -775,6 +775,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                  cDate =  SUBSTRING(w-bin.w-date-time,5,2) + "/" + 
                       SUBSTRING(w-bin.w-date-time,7,2) + "/" + 
                       SUBSTRING(w-bin.w-date-time,1,4).
+             IF cDate = "//" THEN ASSIGN cDate = "" .
 
              display {2}
                      w-oe-rell.ord-no when FIRST(w-bin.w-date-time)
