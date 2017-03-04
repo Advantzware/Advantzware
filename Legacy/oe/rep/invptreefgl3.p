@@ -36,7 +36,7 @@ DEF VAR v-bill-i       AS CHAR FORMAT "x(25)" NO-UNDO.
 DEF VAR v-ship-i       AS CHAR FORMAT "x(25)" NO-UNDO.
 DEF VAR v-price-head   AS CHAR FORMAT "x(5)"  NO-UNDO.
 DEF VAR ls-image1      AS CHAR                NO-UNDO.
-DEF VAR ls-full-img1   AS CHAR FORMAT "x(50)" NO-UNDO.
+DEF VAR ls-full-img1   AS CHAR FORMAT "x(150)" NO-UNDO.
 DEF VAR v-comp-add1    AS CHAR FORM "x(30)"   NO-UNDO.
 DEF VAR v-comp-add2    AS CHAR FORM "x(30)"   NO-UNDO.
 DEF VAR v-comp-add3    AS CHAR FORM "x(30)"   NO-UNDO.
@@ -454,6 +454,8 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
         ASSIGN v-case-cnt = ""
                v-pc       = "P" /* partial*/ 
                i          = 0.
+
+        IF inv-line.inv-qty EQ 0 AND inv-line.ship-qty EQ 0 THEN NEXT .
 
         FIND FIRST reftable NO-LOCK
           WHERE reftable.reftable EQ "inv-line.lot-no"
