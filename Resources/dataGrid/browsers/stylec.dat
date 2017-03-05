@@ -1,0 +1,5 @@
+FOR EACH style NO-LOCK WHERE style.company EQ %company% AND style.industry EQ "2"      
+style,dscr
+// Indexed: style
+// Non-Idx: dscr
+// Generated 03.04.2017 @ 11:24:25 pm by: rstark

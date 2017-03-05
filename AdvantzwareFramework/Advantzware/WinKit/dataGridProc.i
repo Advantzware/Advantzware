@@ -32,7 +32,7 @@ PROCEDURE pApplyFilterHandler:
   DEFINE INPUT PARAMETER e      AS System.EventArgs NO-UNDO. 
   
   DEFINE VARIABLE oFilterValues AS Consultingwerk.Framework.Collections.CharacterDictionary NO-UNDO. 
-  DEFINE VARIABLE cellColumn    AS HANDLE    NO-UNDO.
+  DEFINE VARIABLE hCellColumn   AS HANDLE    NO-UNDO.
   DEFINE VARIABLE cQuery        AS CHARACTER NO-UNDO.
   DEFINE VARIABLE idx           AS INTEGER   NO-UNDO.
   
@@ -42,14 +42,14 @@ PROCEDURE pApplyFilterHandler:
         cQuery = cGridQuery
         .
       DO idx = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME} :
-          cellColumn = {&BROWSE-NAME}:GET-BROWSE-COLUMN(idx).
-          IF NOT CAN-DO (oFilterValues:Keys,cellColumn:NAME) THEN NEXT .
+          hCellColumn = {&BROWSE-NAME}:GET-BROWSE-COLUMN(idx).
+          IF NOT CAN-DO (oFilterValues:Keys,hCellColumn:NAME) THEN NEXT .
           cQuery = cQuery + "AND "
-                 + cellColumn:TABLE + "."
-                 + cellColumn:NAME
-                 + (IF cellColumn:DATA-TYPE EQ "Character" THEN  " BEGINS ~"" ELSE " EQ ")
-                 + oFilterValues:GetValue (cellColumn:NAME)
-                 + (IF cellColumn:DATA-TYPE EQ "Character" THEN "~"" ELSE "")
+                 + hCellColumn:TABLE + "."
+                 + hCellColumn:NAME
+                 + (IF hCellColumn:DATA-TYPE EQ "Character" THEN  " BEGINS ~"" ELSE " EQ ")
+                 + oFilterValues:GetValue (hCellColumn:NAME)
+                 + (IF hCellColumn:DATA-TYPE EQ "Character" THEN "~"" ELSE "")
                  .             
       END. /* do idx */
   
@@ -58,6 +58,54 @@ PROCEDURE pApplyFilterHandler:
   END. /* valid-object */
 
 END PROCEDURE.
+
+PROCEDURE pCreateDataGridDat:
+    DEFINE INPUT PARAMETER ipcGridSearch AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE hCellColumn AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cIdxNames   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cNonIdx     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE CQueryStr   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE idx         AS INTEGER   NO-UNDO.
+    
+    DO idx = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME} :
+        hCellColumn = {&BROWSE-NAME}:GET-BROWSE-COLUMN(idx).
+        FIND FIRST asi._file NO-LOCK
+             WHERE asi._file._file-name EQ hCellColumn:TABLE
+             NO-ERROR.
+        IF AVAILABLE asi._file THEN DO: 
+            FIND FIRST asi._field OF asi._file NO-LOCK
+                 WHERE asi._field._field-name EQ hCellColumn:NAME
+                 NO-ERROR.
+            IF AVAILABLE asi._field AND asi._field._extent EQ 0 THEN DO: 
+                IF CAN-FIND (FIRST asi._index-field OF asi._field) THEN 
+                cIdxNames   = cIdxNames + hCellColumn:NAME + ",".
+                ELSE cNonIdx   = cNonIdx + hCellColumn:NAME + ",".
+            END. /* avail _field */
+            ELSE cNonIdx   = cNonIdx + hCellColumn:NAME + ",".
+        END. /* avail _file */
+        ELSE cNonIdx   = cNonIdx + hCellColumn:NAME + ",".
+    END. /* do idx */
+    ASSIGN 
+        cIdxNames     = TRIM (cIdxNames,",")
+        cNonIdx       = TRIM (cNonIdx,",")
+        ipcGridSearch = REPLACE (SEARCH ("dataGrid/dataGrid.dat"),"dataGrid\dataGrid.dat",ipcGridSearch)
+        cQueryStr     = '{&QUERY-STRING-{&BROWSE-NAME}}'
+        cQueryStr     = REPLACE (cQueryStr," NO-LOCK","")
+        cQueryStr     = REPLACE (cQueryStr,"WHERE","NO-LOCK WHERE")
+        cQueryStr     = REPLACE (cQueryStr,"g_company","%company%")
+        cQueryStr     = REPLACE (cQueryStr,"=","EQ")
+        .
+    OUTPUT TO VALUE (ipcGridSearch).
+    PUT UNFORMATTED cQueryStr SKIP.
+    PUT UNFORMATTED cIdxNames SKIP.
+    PUT UNFORMATTED "// Indexed: " cIdxNames SKIP.
+    PUT UNFORMATTED "// Non-Idx: " cNonIdx SKIP.
+    PUT UNFORMATTED "// Generated " STRING (TODAY, "99.99.9999") " @ " STRING (TIME, "hh:mm:ss am") " by: ".
+    OUTPUT CLOSE.
+    OS-COMMAND SILENT notepad.exe VALUE (ipcGridSearch).
+    
+END PROCEDURE.    
 
 PROCEDURE pCustomizeGrid:
 /*------------------------------------------------------------------------------
@@ -84,27 +132,25 @@ PROCEDURE pDataGridInit:
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE cGridSearch AS CHARACTER NO-UNDO.
   
-  IF VALID-OBJECT (oRenderedBrowseControl) THEN DO:      
-      INPUT FROM VALUE(SEARCH("dataGrid/dataGrid.dat")) NO-ECHO.
-      REPEAT:
-          IMPORT UNFORMATTED cGridSearch.
-          IF cGridSearch EQ THIS-PROCEDURE:NAME THEN DO:
-              IMPORT UNFORMATTED cGridColumns.
-              IMPORT UNFORMATTED cGridQuery.
-              LEAVE.
-          END. /* if cgridsearch */
-      END. /* repeat */
-      INPUT CLOSE.
-      ASSIGN 
-          cGridQuery = REPLACE (cGridQuery,"%company%", "~"" + g_company + "~"")
-          cGridQuery = REPLACE (cGridQuery,"%loc%","~""      + g_loc     + "~"")
-          .
-      IF Consultingwerk.Util.ProcedureHelper:HasEntry(THIS-PROCEDURE, "pApplyFilterHandler") THEN 
-          CAST (oRenderedBrowseControl, Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl):ApplyFilter:Subscribe ("pApplyFilterHandler") .          
-      IF Consultingwerk.Util.ProcedureHelper:HasEntry(THIS-PROCEDURE, "pCustomizeGrid") THEN 
-          RUN pCustomizeGrid IN THIS-PROCEDURE .
-  END. /* valid-object */       
-
+  IF VALID-OBJECT (oRenderedBrowseControl) THEN DO: 
+      cGridSearch = "dataGrid/" + REPLACE (THIS-PROCEDURE:NAME,".w",".dat").
+      IF SEARCH (cGridSearch) EQ ? AND CAN-DO("ASI,NoSweat",USERID("ASI")) THEN
+      RUN pCreateDataGridDat (cGridSearch).
+      IF SEARCH (cGridSearch) NE ? THEN DO:      
+          INPUT FROM VALUE(SEARCH(cGridSearch)) NO-ECHO.
+          IMPORT UNFORMATTED cGridQuery.
+          IMPORT UNFORMATTED cGridColumns.
+          INPUT CLOSE.
+          ASSIGN 
+              cGridQuery = REPLACE (cGridQuery,"%company%", "~"" + g_company + "~"")
+              cGridQuery = REPLACE (cGridQuery,"%loc%","~""      + g_loc     + "~"")
+              .
+          IF Consultingwerk.Util.ProcedureHelper:HasEntry(THIS-PROCEDURE, "pApplyFilterHandler") THEN 
+              CAST (oRenderedBrowseControl, Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl):ApplyFilter:Subscribe ("pApplyFilterHandler") .          
+          IF Consultingwerk.Util.ProcedureHelper:HasEntry(THIS-PROCEDURE, "pCustomizeGrid") THEN 
+              RUN pCustomizeGrid IN THIS-PROCEDURE .
+      END. /* if search */
+  END. /* valid-object */    
 
 END PROCEDURE.
 

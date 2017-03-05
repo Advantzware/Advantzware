@@ -1,0 +1,5 @@
+FOR EACH mach NO-LOCK WHERE mach.company EQ %company%     
+m-code,m-dscr,industry,loc,sch-m-code
+// Indexed: m-code,industry,loc,d-seq,m-seq
+// Non-Idx: dept,m-dscr,sch-m-code,p-type,run-spoil,mr-waste
+// Generated 03.04.2017 @ 11:25:03 pm by: rstark
