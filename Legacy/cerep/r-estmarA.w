@@ -926,7 +926,7 @@ DEF VAR ld-pct AS DEC NO-UNDO.
 DEF VAR k_frac AS DEC INIT "6.25" NO-UNDO.
 
 
-SESSION:SET-WAIT-STATE ("general").    
+    
     
 ASSIGN
  str-tit2 = TRIM(c-win:TITLE) + ""
@@ -951,6 +951,7 @@ IF tb_excel THEN do:
       "ost,Selling Price"
       SKIP.
 END.
+SESSION:SET-WAIT-STATE ("general").
 
 IF td-show-parm THEN RUN show-param.
 

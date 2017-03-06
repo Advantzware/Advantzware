@@ -509,6 +509,7 @@ DO:
        END. 
        WHEN 6 THEN RUN OUTPUT-to-port.
   end case.
+  SESSION:SET-WAIT-STATE ("").
 
 END.
 

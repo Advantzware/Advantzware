@@ -575,6 +575,7 @@ DO:
        END.
        WHEN 6 THEN RUN OUTPUT-to-port.
   END CASE.
+  SESSION:SET-WAIT-STATE ("").  
 END.
 
 /* _UIB-CODE-BLOCK-END */

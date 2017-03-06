@@ -78,7 +78,7 @@ ASSIGN cTextListToSelect = "PO #,Vendor #,Due Date,Ship ID,Ship Name," +
                             "Vendor Name,Vendor Address 1,Vendor Address 2,Vendor City,Vendor State,Vendor Zip," +
                             "Setup,Discount,GL Number,Overrun,Underrun," +
                             "Customer #,Order #,Customer # From Order,FG Item # From Job,Cust Part#,Adder," +
-                            "RM Item Code,FG Item Code"
+                            "RM Item Code,FG Item Code,Style from Job"
        cFieldListToSelect = "po-ordl.po-no,po-ord.vend-no,po-ordl.due-date,po-ord.ship-id,po-ord.ship-name," +
                             "po-ord.ship-addr[1],po-ord.ship-addr[2],po-ord.ship-city,po-ord.ship-state,po-ord.ship-zip," +
                             "po-ord.carrier,po-ord.t-freight,po-ord.frt-pay,po-ord.fob-code," +
@@ -92,7 +92,7 @@ ASSIGN cTextListToSelect = "PO #,Vendor #,Due Date,Ship ID,Ship Name," +
                             "vend.name,vend.add1,vend.add2,vend.city,vend.state,vend.zip," +
                             "po-ordl.setup,po-ordl.disc,po-ordl.actnum,po-ordl.over-pct,po-ordl.under-pct," +
                             "po-ordl.cust-no,po-ordl.ord-no,po-ordl.dfuncCustfromOrder,po-ordl.dfuncFGFromJob,cust-part,adders," +
-                            "rm-item,fg-item"
+                            "rm-item,fg-item,style-job"
     .
 
 /*vend.name
@@ -1229,6 +1229,7 @@ PROCEDURE run-report :
 DEF VAR v-excelheader AS CHAR NO-UNDO.
 DEF VAR v-excel-detail-lines AS CHAR NO-UNDO.
 DEF VAR v-adder AS CHAR NO-UNDO.
+DEFINE VARIABLE cFGItem AS CHAR NO-UNDO .
 DEF BUFFER xjob-mat FOR job-mat.
 DEF BUFFER xitem    FOR item.
 
@@ -1278,7 +1279,7 @@ FOR EACH po-ordl WHERE po-ordl.company = cocode
 /* "po-ord.stat,po-ord.printed,po-ordl.opened"                                        */
     FOR EACH ttRptSelected:
 
-        IF lookup(ttRptSelected.FieldList,"cust-part,adders,rm-item,fg-item") EQ 0 THEN do:
+        IF lookup(ttRptSelected.FieldList,"cust-part,adders,rm-item,fg-item,style-job") EQ 0 THEN do:
         v-excel-detail-lines = v-excel-detail-lines + 
             appendXLLine(getValue(BUFFER po-ordl,BUFFER po-ord,BUFFER vend,ttRptSelected.FieldList)).
         END.
@@ -1318,6 +1319,27 @@ FOR EACH po-ordl WHERE po-ordl.company = cocode
                  IF AVAIL itemfg AND itemfg.i-no NE "" THEN
                      v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(itemfg.i-no)).                          
                  ELSE v-excel-detail-lines = v-excel-detail-lines + "," .
+             END.
+             WHEN "style-job" THEN DO:
+                 FIND FIRST job-hdr NO-LOCK
+                      WHERE job-hdr.company = po-ordl.company
+                        AND job-hdr.job-no = po-ordl.job-no
+                        AND job-hdr.job-no2 = po-ordl.job-no2
+                        AND job-hdr.job-no NE ""  NO-ERROR.
+
+                 IF AVAIL job-hdr THEN 
+                     ASSIGN cFGItem = job-hdr.i-no .
+                 ELSE cFGItem = "" .
+                
+                   FIND FIRST itemfg NO-LOCK
+                     WHERE itemfg.company EQ job-hdr.company
+                       AND itemfg.i-no EQ cFGItem 
+                       AND itemfg.i-no NE "" NO-ERROR.
+
+                 IF AVAIL itemfg AND itemfg.i-no NE "" THEN
+                     v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(itemfg.style)).                          
+                 ELSE v-excel-detail-lines = v-excel-detail-lines + "," .
+
              END.
              WHEN "adders" THEN DO:
 

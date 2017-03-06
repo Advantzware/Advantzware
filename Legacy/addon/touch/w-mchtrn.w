@@ -368,15 +368,17 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'addon/touch/b-mchtr2.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
+             INPUT  'Layout = ':U ,
              OUTPUT h_b-mchtr2 ).
-       /* Position in AB:  ( 3.14 , 3.00 ) */
+       RUN set-position IN h_b-mchtr2 ( 3.14 , 3.00 ) NO-ERROR.
        /* Size in UIB:  ( 7.86 , 115.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'p-updca2.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
+             INPUT  'Edge-Pixels = 2,
+                     SmartPanelType = Update,
+                     AddFunction = One-Record':U ,
              OUTPUT h_p-updca2-2 ).
        RUN set-position IN h_p-updca2-2 ( 11.00 , 40.00 ) NO-ERROR.
        RUN set-size IN h_p-updca2-2 ( 1.43 , 38.00 ) NO-ERROR.
@@ -384,19 +386,24 @@ PROCEDURE adm-create-objects :
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
 
-       /* Links to  h_b-mchtr2. */
+       /* Links to SmartNavBrowser h_b-mchtr2. */
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_b-mchtr2 ).
        RUN add-link IN adm-broker-hdl ( h_p-updca2-2 , 'TableIO':U , h_b-mchtr2 ).
        RUN add-link IN adm-broker-hdl ( h_b-mchtr2 , 'Record':U , THIS-PROCEDURE ).
 
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_b-mchtr2 ,
+             h_folder , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updca2-2 ,
+             h_b-mchtr2 , 'AFTER':U ).
     END. /* Page 1 */
     WHEN 2 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/machtran.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
+             INPUT  'Layout = ':U ,
              OUTPUT h_machtran ).
-       /* Position in AB:  ( 3.14 , 3.00 ) */
+       RUN set-position IN h_machtran ( 3.14 , 3.00 ) NO-ERROR.
        /* Size in UIB:  ( 7.38 , 115.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -412,7 +419,9 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'panels/p-tchupd.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
+             INPUT  'Edge-Pixels = 2,
+                     SmartPanelType = Update,
+                     AddFunction = One-Record':U ,
              OUTPUT h_p-tchupd ).
        RUN set-position IN h_p-tchupd ( 10.52 , 59.00 ) NO-ERROR.
        RUN set-size IN h_p-tchupd ( 1.76 , 59.20 ) NO-ERROR.
@@ -420,13 +429,17 @@ PROCEDURE adm-create-objects :
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
-       /* Links to  h_machtran. */
+       /* Links to SmartViewer h_machtran. */
        RUN add-link IN adm-broker-hdl ( h_b-mchtr2 , 'Record':U , h_machtran ).
        RUN add-link IN adm-broker-hdl ( h_p-tchupd , 'TableIO':U , h_machtran ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-navico ,
+       RUN adjust-tab-order IN adm-broker-hdl ( h_machtran ,
              h_folder , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-navico ,
+             h_machtran , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-tchupd ,
+             h_p-navico , 'AFTER':U ).
     END. /* Page 2 */
 
   END CASE.

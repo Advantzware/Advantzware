@@ -36,7 +36,7 @@ DEFINE VARIABLE scanAgain AS LOGICAL NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/var.i new shared}
-
+{custom/xprint.i}
 assign
  cocode = gcompany
  locode = gloc.
@@ -195,6 +195,7 @@ DEFINE VARIABLE lFGSetAssembly AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE cFGSetAssembly AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE cResult AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE lGetBin AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE cBarCodeProgram AS CHARACTER NO-UNDO .
 RUN sys/ref/nk1look.p (INPUT cocode,
                        INPUT "FGSetAssembly",
                        INPUT "L",
@@ -259,6 +260,8 @@ DEF BUFFER bf-po-ord  FOR po-ord.
 DEF BUFFER bf-po-ordl FOR po-ordl.
 
 DEF BUFFER bf-jobhdr FOR job-hdr.
+DEFINE TEMP-TABLE tt-word-print LIKE w-ord 
+    FIELD tag-no AS CHARACTER .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -281,14 +284,14 @@ begin_job2 end_job end_job2 begin_i-no end_i-no rd_order-sts rd_print ~
 begin_date end_date rd_comps tb_dept-note tb_rel tb_over tb_16ths ~
 tb_ship-id scr-auto-print scr-freeze-label scr-label-file begin_labels ~
 begin_form btn-ok btn-cancel tb_xfer-lot tb_override-mult begin_ship-to ~
-end_ship-to RECT-7 RECT-8 RECT-11 RECT-12 
+end_ship-to RECT-7 RECT-8 RECT-11 RECT-12 tb_close 
 &Scoped-Define DISPLAYED-OBJECTS tbPartSelect loadtagFunction tb_ret ~
 tb_reprint-tag v-ord-list v-job-list begin_ord-no end_ord-no begin_job ~
 begin_job2 end_job end_job2 begin_i-no end_i-no rd_order-sts rd_print ~
 begin_date end_date rd_comps v-dept-list tb_dept-note tb_rel tb_over ~
 tb_16ths tb_ship-id v-ship-id scr-auto-print scr-freeze-label ~
 scr-label-file begin_labels begin_form begin_filename typeLabel statusLabel ~
-lbl_po-no tb_xfer-lot tb_override-mult begin_ship-to end_ship-to 
+lbl_po-no tb_xfer-lot tb_override-mult begin_ship-to end_ship-to tb_close 
 
 /* Custom List Definitions                                              */
 /* jobFields,NonReprint,List-3,List-4,List-5,F1                         */
@@ -514,6 +517,11 @@ DEFINE VARIABLE scr-freeze-label AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 28 BY 1 NO-UNDO.
 
+DEFINE VARIABLE tb_close AS LOGICAL INITIAL no 
+     LABEL "Close?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 14.4 BY 1 NO-UNDO.
+
 DEFINE VARIABLE tbPartSelect AS LOGICAL INITIAL no 
      LABEL "Select Components" 
      VIEW-AS TOGGLE-BOX
@@ -623,6 +631,7 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Release Shipto" WIDGET-ID 36
      end_ship-to AT ROW 14.71 COL 82.6 COLON-ALIGNED HELP
           "Enter Ending Release shipto" WIDGET-ID 38
+     tb_close AT ROW 20.38 COL 81 WIDGET-ID 40
      "Output Options:" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 19.76 COL 4 WIDGET-ID 22
           FONT 6
@@ -636,9 +645,6 @@ DEFINE FRAME FRAME-A
      "Data Parameters:" VIEW-AS TEXT
           SIZE 20 BY .62 AT ROW 4.57 COL 4 WIDGET-ID 10
           FONT 6
-     "Print Options:" VIEW-AS TEXT
-          SIZE 16 BY .62 AT ROW 13.14 COL 4 WIDGET-ID 14
-          FONT 6
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -646,6 +652,9 @@ DEFINE FRAME FRAME-A
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME FRAME-A
+     "Print Options:" VIEW-AS TEXT
+          SIZE 16 BY .62 AT ROW 13.14 COL 4 WIDGET-ID 14
+          FONT 6
      RECT-7 AT ROW 1.24 COL 2
      RECT-8 AT ROW 4.81 COL 2 WIDGET-ID 8
      RECT-11 AT ROW 13.38 COL 2 WIDGET-ID 18
@@ -807,6 +816,10 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN statusLabel IN FRAME FRAME-A
    NO-ENABLE ALIGN-L                                                    */
+ASSIGN 
+       tb_close:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
 /* SETTINGS FOR TOGGLE-BOX tb_16ths IN FRAME FRAME-A
    2                                                                    */
 ASSIGN 
@@ -1115,6 +1128,12 @@ END.
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:  
   ASSIGN {&displayed-objects}.
+
+   ASSIGN
+      cBarCodeProgram = IF scr-label-file MATCHES "*.xpr*" THEN "xprint" ELSE "" .
+   FOR EACH tt-word-print:
+       DELETE tt-word-print .
+   END.
   
   ASSIGN 
       v-auto-print = scr-auto-print
@@ -3714,6 +3733,12 @@ PROCEDURE create-text-file :
           END. /*not SSLABEL, Centbox*/
 
         end. /*w-ord.total-tags > 0*/
+        IF cBarCodeProgram EQ "xprint" THEN do:
+            CREATE tt-word-print .
+            BUFFER-COPY w-ord TO tt-word-print .
+            ASSIGN 
+                tt-word-print.tag-no = loadtag.tag-no .
+        END.
         delete w-ord.
       end.
 
@@ -3723,6 +3748,7 @@ PROCEDURE create-text-file :
       /* Rename to expected file name / location */
       IF SEARCH(v-out) NE ? THEN
         OS-DELETE VALUE(v-out).
+      IF cBarCodeProgram EQ ""  THEN
       OS-RENAME VALUE(cTmpFile) VALUE(v-out).
 
 
@@ -4338,7 +4364,7 @@ PROCEDURE enable_UI :
           rd_comps v-dept-list tb_dept-note tb_rel tb_over tb_16ths tb_ship-id 
           v-ship-id scr-auto-print scr-freeze-label scr-label-file begin_labels 
           begin_form begin_filename typeLabel statusLabel lbl_po-no tb_xfer-lot 
-          tb_override-mult begin_ship-to end_ship-to 
+          tb_override-mult begin_ship-to end_ship-to tb_close 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE tbPartSelect loadtagFunction tb_ret tb_reprint-tag v-ord-list 
          v-job-list begin_ord-no end_ord-no begin_job begin_job2 end_job 
@@ -4346,7 +4372,7 @@ PROCEDURE enable_UI :
          rd_comps tb_dept-note tb_rel tb_over tb_16ths tb_ship-id 
          scr-auto-print scr-freeze-label scr-label-file begin_labels begin_form 
          btn-ok btn-cancel tb_xfer-lot tb_override-mult begin_ship-to 
-         end_ship-to RECT-7 RECT-8 RECT-11 RECT-12 
+         end_ship-to RECT-7 RECT-8 RECT-11 RECT-12 tb_close 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -6603,7 +6629,7 @@ PROCEDURE ok-button :
     
   APPLY "entry" TO fi_cas-lab IN FRAME {&FRAME-NAME}.
   
-  IF lv-ok-ran AND NOT tb_reprint-tag THEN
+  IF lv-ok-ran AND NOT tb_reprint-tag AND tb_close THEN
       APPLY "close" TO THIS-PROCEDURE.
   /*
   case rd-dest:
@@ -6908,6 +6934,35 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE print-loadtg C-Win 
+PROCEDURE print-loadtg :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  
+    {sys/inc/print1.i}
+    {sys/inc/outprint.i value(85)}
+
+    PUT "<PREVIEW>".  
+
+    FOR EACH tt-word-print NO-LOCK BREAK
+                            BY tt-word-print.ord-no 
+                            BY tt-word-print.i-no:
+     {oe/rep/lodxprnt.i}
+     IF NOT LAST(tt-word-print.i-no) THEN PAGE .
+    END.
+
+     OUTPUT CLOSE.
+     FILE-INFO:FILE-NAME = list-name.
+     RUN printfile (FILE-INFO:FILE-NAME).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reprint-tag C-Win 
 PROCEDURE reprint-tag :
 /*------------------------------------------------------------------------------
@@ -6941,10 +6996,17 @@ PROCEDURE reprint-tag :
   END.
   
   RUN create-text-file.
-  IF (NOT is-from-addons() OR SSLoadTag-log = TRUE) THEN
-  MESSAGE "Loadtag reprint is completed." VIEW-AS ALERT-BOX INFORMATION.
+  
+  
+  IF cBarCodeProgram EQ "" THEN    
+    RUN AutoPrint.
+  ELSE IF cBarCodeProgram EQ "xprint" THEN 
+    RUN print-loadtg  .
+
+  IF (NOT is-from-addons() OR SSLoadTag-log = TRUE) THEN 
+      MESSAGE "Loadtag reprint is completed." VIEW-AS ALERT-BOX INFORMATION.
   SESSION:SET-WAIT-STATE ("").
-  RUN AutoPrint.
+
 
 END PROCEDURE.
 
@@ -7024,7 +7086,12 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :
 {oerep/r-loadtg1.i}
-RUN AutoPrint.
+
+IF cBarCodeProgram EQ "" THEN    
+    RUN AutoPrint.
+ELSE IF cBarCodeProgram EQ "xprint" THEN 
+    RUN print-loadtg .
+
 /*     IF scr-auto-print THEN                                                  */
 /*     DO:                                                                     */
 /*        DEF VAR v-int AS INT NO-UNDO.                                        */

@@ -120,6 +120,7 @@ DEF VAR lv-comp-name AS cha FORM "x(30)" NO-UNDO.
 DEF VAR lv-comp-color AS cha NO-UNDO.
 DEF VAR lv-other-color AS cha INIT "BLACK" NO-UNDO.
 DEF VAR v-page-num AS INT NO-UNDO.
+DEFINE BUFFER bf-inv-head FOR inv-head .
 
 find first sys-ctrl where sys-ctrl.company eq cocode
                       and sys-ctrl.name    eq "INVPRINT" no-lock no-error.
@@ -615,8 +616,13 @@ ELSE lv-comp-color = "BLACK".
         end. /* each inv-misc */
 
         if v-prntinst then do:
+            FIND FIRST bf-inv-head NO-LOCK
+                 WHERE bf-inv-head.company EQ inv-head.company
+                   AND bf-inv-head.inv-no EQ inv-head.inv-no
+                   AND bf-inv-head.multi-invoice = no  NO-ERROR .
+         IF AVAIL bf-inv-head THEN
          do i = 1 to 4:
-          if inv-head.bill-i[i] ne "" then do:
+          if bf-inv-head.bill-i[i] ne "" then do:
        /*     if v-printline gt 29 then
             do:
               put skip(30 - v-printline) "* CONTINUED *" at 72.
@@ -624,8 +630,8 @@ ELSE lv-comp-color = "BLACK".
               page.
 
             end.
-       */
-            put inv-head.bill-i[i] at 10 skip.
+       */ 
+            put bf-inv-head.bill-i[i] at 10 skip.
             assign v-printline = v-printline + 1.
           end.
          end. /* 1 to 4 */

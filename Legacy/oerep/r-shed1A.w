@@ -847,7 +847,8 @@ DO:
 
            END.
        END. 
-  end case. 
+  end case.
+  SESSION:SET-WAIT-STATE (""). 
 END.
 
 /* _UIB-CODE-BLOCK-END */

@@ -774,7 +774,7 @@ PROCEDURE run-report :
 /* QUOTED PRICE LIST                                                          */                                                                       
 /* -------------------------------------------------------------------------- */
 
-SESSION:SET-WAIT-STATE("general").
+
 {sys/form/r-top3w.f}
 
 str-tit = coname + " - " + loname.
@@ -877,6 +877,7 @@ IF tb_excel THEN DO:
     SKIP.
 
 END.
+SESSION:SET-WAIT-STATE("general").
     
 
    for each quotehd

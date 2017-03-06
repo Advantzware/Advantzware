@@ -1495,6 +1495,15 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        tb_post-rel:SCREEN-VALUE = "no"
        tb_post-rel:HIDDEN       = YES.
 
+    IF v-relprint EQ "StClair" THEN
+        ASSIGN 
+            rd-print-what:SENSITIVE = NO
+            rd-print-what:SCREEN-VALUE = "I"
+            rd-print-what = "I" .
+            tb_p-bin:SCREEN-VALUE = "Yes".
+            tb_p-bin:SENSITIVE = NO .
+            tb_p-bin = YES.
+
     IF LOOKUP(v-relprint,"Carded") > 0 THEN
        ASSIGN rd-print-what:sensitive = YES
               begin_loc:SENSITIVE = IF rd-print-what:SCREEN-VALUE = "I" THEN YES ELSE NO
@@ -1528,6 +1537,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             tb_p-bin:SENSITIVE = NO
             rd-print-what:SCREEN-VALUE = "R"
             rd-print-what = "R".
+    
+    IF v-relprint EQ "StClair" THEN
+        ASSIGN 
+            rd-print-what:SENSITIVE = NO .
         
     IF v-relprint EQ "Indiana" THEN
        tb_pricing:SENSITIVE = YES.
