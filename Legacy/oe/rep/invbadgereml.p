@@ -97,7 +97,7 @@ END.
 FIND FIRST inv-head NO-LOCK NO-ERROR.
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(50)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
 ASSIGN
    ls-image1 = "images\badger.jpg"
    FILE-INFO:FILE-NAME = ls-image1
@@ -406,9 +406,10 @@ for each report where report.term-id eq v-term-id no-lock,
             
             v-price-head = inv-line.pr-uom.
             PUT space(1) v-ship-qty format "->>>>>9" SPACE(4)
-                v-i-dscr  format "x(30)" SPACE(18)
-                lv-weight FORMAT ">>,>>9" SPACE
-                v-price  format "->,>>9.999" SPACE(4)
+               v-i-dscr  format "x(30)" SPACE(10)
+                lv-weight FORMAT ">>,>>9" SPACE(3)
+                v-price  format "->>>,>>9.999" SPACE(3)
+                v-price-head FORMAT "x(4)" SPACE(3)
                 inv-line.t-price  format "->>>,>>9.99"                       
                 SKIP.
              
