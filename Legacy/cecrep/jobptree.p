@@ -459,6 +459,7 @@ ASSIGN
        "<=1><R+20><C66><FROM><C106><LINE><||3>"    /*item desc*/
        "<=1><R+8><C33><P8>                 <U>Dept Notes:</U> "
        "<=1><R+27><C1><FROM><C32><LINE><||3>"   /*packing*/
+       {cecrep/p-wastebox.i} 
        "<=1><R+28><C66><FROM><C106><LINE><||3>"   /*Printint*/
        "<=1><R+35><C1><FROM><C32><LINE><||3>"   /*machine routing*/
        "<=1><R+35><C20.8><FROM><R+10><LINE><||3>"
