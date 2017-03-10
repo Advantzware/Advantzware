@@ -197,6 +197,16 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* BROWSE-TAB BROWSE-3 RECT-17 FRAME-A */
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
@@ -218,7 +228,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttReportMaster.
 */  /* BROWSE BROWSE-3 */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -275,7 +285,7 @@ DO:
   MESSAGE "Are you sure you want to " + TRIM(c-win:TITLE) +
           " for the selected parameters?"
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll.
-        
+
   IF ll THEN RUN RunProcess.
 END.
 
@@ -310,7 +320,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN InitializeLists.
   RUN enable_UI.
-  
+
   WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 
@@ -466,7 +476,7 @@ DO iEntry = 1 TO NUM-ENTRIES(gcReportHotkeyList):
         ttReportMaster.ProgramOrig = ENTRY(iEntry,gcReportProgramListOrig)
         ttReportMaster.ProgramOld = ENTRY(iEntry,gcReportProgramListOld)
         ttReportMaster.ProgramNew = ENTRY(iEntry,gcReportProgramListNew).
-    
+
 END.
 
 END PROCEDURE.

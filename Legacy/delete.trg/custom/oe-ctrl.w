@@ -362,6 +362,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    Custom                                                               */
+ASSIGN
+       Btn_Close:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
+ASSIGN
+       Btn_Update:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR TOGGLE-BOX oe-ctrl.f-tax IN FRAME DEFAULT-FRAME
    NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR RADIO-SET oe-ctrl.i-code IN FRAME DEFAULT-FRAME
@@ -436,7 +446,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME DEFAULT-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 

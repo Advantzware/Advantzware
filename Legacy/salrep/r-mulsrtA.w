@@ -428,6 +428,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -518,7 +528,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -701,7 +711,7 @@ DO:
 ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -970,14 +980,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-  
+
   ASSIGN
      begin_inv-date = date(01,01,year(today))
      END_inv-date   = TODAY
      fi_file = "c:\tmp\multisal.csv".
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   RUN sys/inc/CustListForm.p ( "HR10",cocode, 
@@ -1083,7 +1093,7 @@ PROCEDURE CustList :
 
     RUN sys/ref/CustListManager.w(INPUT cocode,
                                   INPUT 'HR10').
-    
+
 
 END PROCEDURE.
 
@@ -1148,8 +1158,8 @@ PROCEDURE get-sort-fields1 :
 ------------------------------------------------------------------------------*/
   def input  parameter ip-sort as char no-undo.
   def output parameter op-sort as char no-undo.
-  
-  
+
+
   op-sort = if ip-sort eq "C" then ar-inv.cust-no                       else
             if ip-sort eq "I" then string(ar-inv.inv-no,"9999999999")   else
             if ip-sort eq "D" then string(year(ar-inv.inv-date),"9999") +
@@ -1159,7 +1169,7 @@ PROCEDURE get-sort-fields1 :
             if ip-sort eq "Z" then v-shpz                               else
             if ip-sort eq "O" then string(ar-invl.ord-no,"9999999999")  else
             if ip-sort eq "R" then v-sman-no                            else "".
-                                   
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1174,8 +1184,8 @@ PROCEDURE get-sort-fields2 :
 ------------------------------------------------------------------------------*/
 def input  parameter ip-sort as char no-undo.
   def output parameter op-sort as char no-undo.
-  
-  
+
+
   op-sort = if ip-sort eq "C" then ar-cash.cust-no                      else
             if ip-sort eq "I" then string(ar-cashl.inv-no,"9999999999") else
             if ip-sort eq "D" then string(year(ar-cash.check-date),"9999") +
@@ -1185,7 +1195,7 @@ def input  parameter ip-sort as char no-undo.
             if ip-sort eq "Z" then v-shpz                               else
             if ip-sort eq "O" then "0000000000"                         else
             if ip-sort eq "R" then cust.sman                            else "".
-                
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1277,7 +1287,7 @@ PROCEDURE report-from-inv :
      xtt-report.key-08 = v-ship
      xtt-report.key-09 = tt-report.key-09
      xtt-report.key-10 = v-shpz.
-           
+
     run get-sort-fields1 (substr(v-sort,1,1), output xtt-report.key-01).
     run get-sort-fields1 (substr(v-sort,2,1), output xtt-report.key-02).
     run get-sort-fields1 (substr(v-sort,3,1), output xtt-report.key-03).
@@ -1313,7 +1323,7 @@ form space(8)
      v-amt[1]             format "->>,>>>,>>9.99"       label "Inv Amt"
 
     with no-box frame detail down STREAM-IO WIDTH 132.
-    
+
 form header
      skip(1)
      "Customer"
@@ -1342,7 +1352,7 @@ form header
      skip(1)
 
     with frame r-top.
-    
+
 form cust.cust-no
      cust.name
      tt-report.key-05     format "x(3)"
@@ -1358,7 +1368,7 @@ form cust.cust-no
      skip(1)
     with no-box no-labels frame summary down STREAM-IO WIDTH 132.
 
-  
+
   SESSION:SET-WAIT-STATE ("general").
 
   assign
@@ -1393,7 +1403,7 @@ form cust.cust-no
       ELSE
          excelheader = "Customer,Name,SRep,Ship To#,Ship Zip,Inv#,Inv Date,"
                      + "Order#,Qty,Inv Amt".
-      
+
       PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
   END.
   IF lselected THEN DO:
@@ -1404,9 +1414,9 @@ form cust.cust-no
   END.
 
   if td-show-parm then run show-param.
-   
+
   display "" with frame r-top.
-  
+
   ASSIGN
    v-qty = 0
    v-amt = 0.
@@ -1429,12 +1439,12 @@ FOR each ar-inv
       {custom/statusMsg.i " 'Processing Customer#  '  + ar-inv.cust-no "}                 
     create tt-report.
 
-  
+
     assign
      tt-report.key-09 = ar-inv.cust-no
      tt-report.key-10 = "ar-inv"
      tt-report.rec-id = recid(ar-inv).
-     
+
   end.
 
   FOR each cust
@@ -1468,9 +1478,9 @@ FOR each ar-inv
      tt-report.key-09 = cust.cust-no
      tt-report.key-10 = "ar-cashl"
      tt-report.rec-id = recid(ar-cashl).
-    
+
   end.
-        
+
   for each tt-report
       where tt-report.key-01 eq ""
         and tt-report.key-02 eq ""
@@ -1489,9 +1499,9 @@ FOR each ar-inv
       transaction:
       {custom/statusMsg.i " 'Processing Customer#  '  + cust.cust-no "}
     if tt-report.key-10 eq "ar-inv" then do:
-        
+
       find ar-inv where recid(ar-inv) eq tt-report.rec-id no-lock.
-      
+
       run ship-info.
 
       if v-ship ge fship and
@@ -1529,7 +1539,7 @@ FOR each ar-inv
       ASSIGN
        lv-r-no = 0
        lv-type = "".
-          
+
       IF AVAIL reftable THEN
         ASSIGN
          lv-r-no = reftable.val[1]
@@ -1551,7 +1561,7 @@ FOR each ar-inv
                and ar-inv.cust-no eq oe-reth.cust-no
                and ar-inv.inv-no  eq oe-reth.inv-no
              no-lock no-error.
-             
+
         run ship-info.
 
         if v-ship ge fship and
@@ -1623,10 +1633,10 @@ FOR each ar-inv
          v-exc         = no
          tt-report.key-08 = cust.cust-no
          tt-report.key-10 = cust.zip.
-         
+
       if avail tt-report then do:
         if v-exc then delete tt-report.
-      
+
         else do:
           run get-sort-fields2 (substr(v-sort,1,1), output tt-report.key-01).
           run get-sort-fields2 (substr(v-sort,2,1), output tt-report.key-02).
@@ -1637,7 +1647,7 @@ FOR each ar-inv
   end.
 
   FOR EACH xtt-report:
-      
+
   END.
 
   for each tt-report,
@@ -1661,12 +1671,12 @@ FOR each ar-inv
      w-data.i-no    = tt-report.key-07
      w-data.inv-no  = int(tt-report.key-04)
      w-data.rec-id  = tt-report.rec-id.
-     
+
     find first itemfg
         where itemfg.company eq cocode
           and itemfg.i-no    eq w-data.i-no
         no-lock no-error.
-     
+
     find first ar-invl
         where recid(ar-invl) eq w-data.rec-id
         no-lock no-error.
@@ -1736,7 +1746,7 @@ FOR each ar-inv
           if avail ar-invl then do:
             /* Added for decimal problem */
             assign v-pric = ar-invl.unit-pr.
-              
+
             do i = 1 to 3:
               if ar-invl.sman[i] eq tt-report.key-05 then
                 assign
@@ -1769,7 +1779,7 @@ FOR each ar-inv
               v-uom
               v-qty[1]
               v-amt[1].
-      
+
       down.
 
       IF tb_excel THEN
@@ -1795,11 +1805,11 @@ FOR each ar-inv
              '"' STRING(v-amt[1],"->>>>>>>9.99") '",'
              SKIP.
     end.
-    
+
     assign
      v-qty[2] = v-qty[2] + v-qty[1]
      v-amt[2] = v-amt[2] + v-amt[1].
-     
+
     if last-of(tt-report.key-06) then do with frame summary:
       display cust.cust-no
               cust.name
@@ -1813,7 +1823,7 @@ FOR each ar-inv
               v-amt[2].
 
       down.
-      
+
       IF NOT v-det AND tb_excel THEN
          PUT STREAM excel UNFORMATTED
              '"' cust.cust-no      '",'
@@ -1835,11 +1845,11 @@ FOR each ar-inv
        v-qty[2] = 0
        v-amt[2] = 0.
     end.
-    
+
     if last-of(tt-report.key-03) then do:
       if index("CSM",substr(v-sort,3,1)) ne 0 then do with frame summary:
         underline cust.name v-qty[2] v-amt[2].
-        
+
         v-total = entry(index(v-sort-list,substr(v-sort,3,1)),v-sort-desc).
 
         display fill(" ",23 - length(trim(v-total))) + trim(v-total) +
@@ -1850,7 +1860,7 @@ FOR each ar-inv
         down.
         put skip(1).
       end.
-      
+
       assign
        v-qty[4] = v-qty[4] + v-qty[3]
        v-amt[4] = v-amt[4] + v-amt[3]
@@ -1862,7 +1872,7 @@ FOR each ar-inv
     if last-of(tt-report.key-02) then do:
       if index("CSM",substr(v-sort,2,1)) ne 0 then do with frame summary:
         underline cust.name v-qty[2] v-amt[2].
-        
+
         v-total = entry(index(v-sort-list,substr(v-sort,2,1)),v-sort-desc).
 
         display fill(" ",23 - length(trim(v-total))) + trim(v-total) +
@@ -1881,11 +1891,11 @@ FOR each ar-inv
        v-qty[4] = 0
        v-amt[4] = 0.
     end.
-    
+
     if last-of(tt-report.key-01) then do:
       if index("CSM",substr(v-sort,1,1)) ne 0 then do with frame summary:
         underline cust.name v-qty[2] v-amt[2].
-        
+
         v-total = entry(index(v-sort-list,substr(v-sort,1,1)),v-sort-desc).
 
         display fill(" ",23 - length(trim(v-total))) + trim(v-total) +
@@ -1927,7 +1937,7 @@ FOR each ar-inv
   RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
   SESSION:SET-WAIT-STATE ("").
-    
+
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 
 end procedure.
@@ -1953,7 +1963,7 @@ PROCEDURE SetCustRange :
         btnCustList:SENSITIVE = iplChecked
        .
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1966,13 +1976,13 @@ PROCEDURE ship-info :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   if avail ar-inv then 
     if ar-inv.ship-id ne "" then
       assign
        v-ship = ar-inv.ship-id
        v-shpz = ar-inv.sold-zip.
-     
+
     else
     if ar-inv.sold-id ne "" then
       assign
@@ -1989,7 +1999,7 @@ PROCEDURE ship-info :
     assign
      v-ship = cust.cust-no
      v-shpz = cust.zip.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2010,12 +2020,12 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha NO-UNDO.
-  
+
   ASSIGN
   lv-frame-hdl = frame {&frame-name}:HANDLE
   lv-group-hdl = lv-frame-hdl:first-child
   lv-field-hdl = lv-group-hdl:first-child.
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -2030,7 +2040,7 @@ PROCEDURE show-param :
                   if not valid-handle(lv-field2-hdl) then leave. 
                   if lv-field2-hdl:private-data = lv-field-hdl:name THEN
                      parm-lbl-list = parm-lbl-list + lv-field2-hdl:screen-value + ",".
-                  
+
                   lv-field2-hdl = lv-field2-hdl:next-sibling.                 
               end.       
            end.                 
@@ -2041,23 +2051,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

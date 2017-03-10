@@ -57,7 +57,7 @@ assign
 DEF TEMP-TABLE tt-report LIKE report.
 
 DEF BUFFER xreport FOR tt-report.
-  
+
 DEF VAR v-print-fmt AS CHAR NO-UNDO.
 DEF VAR is-xprint-form AS LOG.
 DEF VAR ls-fax-file AS CHAR NO-UNDO.
@@ -398,6 +398,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_cust:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -448,7 +458,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -623,7 +633,7 @@ DO:
 
   RUN DisplaySelectionDefault.  /* task 04041406 */ 
   RUN DisplaySelectionList2 .
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -785,7 +795,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
-  
+
    IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
        sl_selected:NUM-ITEMS = 0)
    THEN ASSIGN ldummy = sl_selected:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
@@ -793,7 +803,7 @@ DO:
               /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
                .
 
-  
+
 /* for pairs
     DEF VAR cSelectedList AS cha NO-UNDO.
     cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
@@ -836,7 +846,7 @@ DO:
   ASSIGN
     {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}:ENTRY(1)
     .
-    
+
 
 END.
 
@@ -909,7 +919,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
   RUN DisplaySelectionList.
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -956,7 +966,7 @@ PROCEDURE DisplaySelectionDefault :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  
+
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
      cListContents = cListContents +                   
@@ -982,7 +992,7 @@ PROCEDURE DisplaySelectionList :
   DEF VAR iCount AS INT NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
-     
+
      RETURN.
   END.
 
@@ -995,7 +1005,7 @@ PROCEDURE DisplaySelectionList :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1003,9 +1013,9 @@ PROCEDURE DisplaySelectionList :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 END PROCEDURE.
 
@@ -1026,7 +1036,7 @@ PROCEDURE DisplaySelectionList2 :
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
-        
+
   EMPTY TEMP-TABLE ttRptList.
 
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
@@ -1036,7 +1046,7 @@ PROCEDURE DisplaySelectionList2 :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1044,9 +1054,9 @@ PROCEDURE DisplaySelectionList2 :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
   DO iCount = 1 TO sl_selected:NUM-ITEMS:
@@ -1109,7 +1119,7 @@ PROCEDURE GetSelectionList :
 
  DO i = 1 TO sl_selected:NUM-ITEMS /* IN FRAME {&FRAME-NAME}*/ :
     FIND FIRST ttRptList WHERE ttRptList.TextList = ENTRY(i,cTmpList) NO-LOCK NO-ERROR.     
-  
+
     CREATE ttRptSelected.
     ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
            ttRptSelected.FieldList = ttRptList.FieldList
@@ -1118,7 +1128,7 @@ PROCEDURE GetSelectionList :
            ttRptSelected.HeadingFromLeft = IF entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
-           
+
  END.
 
 END PROCEDURE.
@@ -1180,14 +1190,14 @@ DEF VAR v-pallets AS INT NO-UNDO.
 
 FIND bf-oe-boll WHERE ROWID(bf-oe-boll) = v-oe-boll NO-LOCK.
 FIND FIRST oe-bolh WHERE oe-bolh.b-no EQ bf-oe-boll.b-no NO-LOCK NO-ERROR.
-                  
+
 IF AVAIL oe-bolh THEN
 FIND FIRST bf-shipto
       WHERE bf-shipto.company EQ oe-bolh.company
         AND bf-shipto.cust-no EQ oe-bolh.cust-no
     AND bf-shipto.ship-id EQ oe-bolh.ship-id
       NO-LOCK NO-ERROR.
-      
+
 IF AVAIL bf-shipto THEN
 FIND FIRST bf-carrier
     WHERE bf-carrier.company EQ bf-shipto.company
@@ -1241,7 +1251,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
 /*     DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -1252,9 +1262,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
   */
 
@@ -1288,7 +1298,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1351,7 +1361,7 @@ DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
 assign
  str-tit2 = c-win:title
  {sys/inc/ctrtext.i str-tit2 112}
-    
+
  v-job[1] = FILL(" ",6 - LENGTH(TRIM(begin_job-no))) +
             TRIM(begin_job-no) + STRING(begin_job-no2,"99")    
  v-job[2] = FILL(" ",6 - LENGTH(TRIM(end_job-no))) +
@@ -1402,7 +1412,7 @@ END.
 
 /*IF tb_excel THEN
 DO:
-  
+
    OUTPUT STREAM st-excel TO VALUE(v-excel-file).
 
    PUT STREAM st-excel
@@ -1443,12 +1453,12 @@ for each ar-inv
           STRING(ar-invl.job-no2,"99") LE v-job[2]
       and not ar-invl.misc
     no-lock,
-    
+
     FIRST itemfg
     WHERE itemfg.company EQ ar-inv.company
       AND itemfg.i-no    EQ ar-invl.i-no
     NO-LOCK
-      
+
     BREAK BY ar-inv.inv-no BY ar-inv.inv-date:
 
     {custom/statusMsg.i "'Processing Invoice# ' + string(ar-inv.inv-no)"} 
@@ -1466,13 +1476,13 @@ for each ar-inv
       USE-INDEX b-no NO-LOCK,
 
       FIRST oe-bolh OF oe-boll NO-LOCK,
-      
+
       FIRST shipto
       WHERE shipto.company EQ cocode
         AND shipto.cust-no EQ oe-bolh.cust-no
         AND shipto.ship-id EQ oe-bolh.ship-id
       NO-LOCK,
-      
+
       FIRST carrier OF oe-bolh NO-LOCK:
 
     FIND FIRST fg-bin
@@ -1541,7 +1551,7 @@ for each ar-inv
                    cVarValue = ""
                    cExcelDisplay = ""
                    cExcelVarValue = "".
-          
+
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
@@ -1553,15 +1563,15 @@ for each ar-inv
                          WHEN "skid"  THEN cVarValue = STRING(v-pallets,"->>,>>>,>>9") .
                          WHEN "wgt"   THEN cVarValue = STRING(itemfg.weight-100,"->>>,>>9.99") .
                          WHEN "frt"  THEN cVarValue = STRING(v-frate[1],"->>,>>>,>>9.99") .
-                         
+
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+
             PUT UNFORMATTED cDisplay SKIP.
             IF tb_excel THEN DO:
                  PUT STREAM st-excel UNFORMATTED  
@@ -1576,7 +1586,7 @@ for each ar-inv
           v-pallets                                 COLUMN-LABEL "# of Skids"
           itemfg.weight-100                         COLUMN-LABEL "Wgt/100"
           v-frate[1]        FORMAT "->>,>>>,>>9.99" COLUMN-LABEL "Freight Charge"
-   
+
       WITH FRAME detail NO-BOX NO-ATTR-SPACE DOWN STREAM-IO WIDTH 132. 
 
   IF tb_excel THEN 
@@ -1608,7 +1618,7 @@ for each ar-inv
                    cVarValue = ""
                    cExcelDisplay = ""
                    cExcelVarValue = "".
-          
+
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
@@ -1620,15 +1630,15 @@ for each ar-inv
                          WHEN "skid"  THEN cVarValue = "" .
                          WHEN "wgt"   THEN cVarValue = "" .
                          WHEN "frt"  THEN cVarValue = STRING(v-frate[2],"->>,>>>,>>9.99") .
-                         
+
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+
             PUT UNFORMATTED "       Total Freight" + substring(cDisplay,21,300)  SKIP.
             IF tb_excel THEN DO:
                  PUT STREAM st-excel UNFORMATTED  
@@ -1675,11 +1685,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1707,23 +1717,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

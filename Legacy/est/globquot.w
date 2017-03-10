@@ -313,6 +313,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_cust:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -399,7 +409,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -500,7 +510,7 @@ DO:
   message "Are you sure you want to change the Quote Price(s) within the " +
           "selection parameters?"
           view-as alert-box question button yes-no update v-process.
-          
+
   if v-process then run run-process.
 END.
 
@@ -717,11 +727,11 @@ PROCEDURE get-params :
   def var lv-field-hdl as handle no-undo.
   def var lv-field2-hdl as handle no-undo.
 
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
     if not valid-handle(lv-field-hdl) then leave.
 
@@ -817,7 +827,7 @@ DEF VAR lv-reft LIKE reftable.reftable NO-UNDO.
 DEF VAR lv-dscr LIKE reftable.dscr NO-UNDO.
 
 DEF BUFFER bf-quoteitm FOR quoteitm.
-  
+
 assign
  fcust   = begin_cust
  tcust   = end_cust
@@ -855,7 +865,7 @@ for each quotehd
       and quotehd.quo-date ge fdate
       and quotehd.quo-date le tdate
     use-index cust2,
-      
+
     each quoteitm
     where quoteitm.company eq quotehd.company
       and quoteitm.loc     eq quotehd.loc
@@ -865,7 +875,7 @@ for each quotehd
     no-lock
 
     break by quotehd.q-no:
- 
+
   IF begin_rm-no NE "" AND NOT END_rm-no BEGINS "zzzzz" AND quotehd.est-no NE "" THEN DO:
       FIND FIRST eb
           WHERE eb.company EQ quotehd.company
@@ -930,7 +940,7 @@ for each quotehd
         AND NOT CAN-FIND(FIRST tt-rowid
                          WHERE tt-rowid.row-id EQ ROWID(quoteqty))
       BREAK BY quoteqty.qty:
-          
+
     ll = YES.
 
     /* In case they mix buck and penny - task 10151205 */
@@ -956,7 +966,7 @@ for each quotehd
     else
       quoteqty.price = quoteqty.price + (quoteqty.price * v-pct / 100).
     v-orig-price = quoteqty.price.
-    
+
     /* Perform rounding */
     IF NOT v-round = "N" AND quoteqty.uom NE "EA" THEN DO:
         quoteqty.price = ROUND(quoteqty.price, v).    
@@ -985,7 +995,7 @@ for each quotehd
                      EXCLUSIVE-LOCK NO-ERROR.
     IF AVAIL bf-quoteitm THEN DO:
        bf-quoteitm.price = quoteqty.price.
-       
+
         RELEASE bf-quoteitm.
         LEAVE.
     END.
@@ -1003,7 +1013,7 @@ session:set-wait-state("").
 message trim(c-win:title) + " Process Is Completed." view-as alert-box.
 
 apply "close" to this-procedure.
-  
+
 /* end ---------------------------------- copr. 2002  advanced software, inc. */
 
 END PROCEDURE.

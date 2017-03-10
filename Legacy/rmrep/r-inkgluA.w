@@ -5,7 +5,7 @@
 /*------------------------------------------------------------------------
 
   File: rmrep\r-inkglu.w
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -447,6 +447,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_cat:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -524,7 +534,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -657,7 +667,7 @@ DO:
      run run-report. 
      STATUS DEFAULT "Processing Complete". 
      SESSION:SET-WAIT-STATE("").
-    
+
      case rd-dest:
           when 1 then run output-to-printer.
           when 2 then run output-to-screen.
@@ -695,7 +705,7 @@ DO:
   ELSE
      MESSAGE "No Material Type Selected."
          VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -946,11 +956,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   end_date = today.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -959,7 +969,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   RUN fill-select-box.
-  
+
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1041,7 +1051,7 @@ DO WITH FRAME {&FRAME-NAME}:
 
    IF SUBSTR(v-mat-list,LENGTH(TRIM(v-mat-list)),1) EQ "," THEN
       SUBSTR(v-mat-list,LENGTH(TRIM(v-mat-list)),1) = "".
-  
+
    select-mat:LIST-ITEMS = v-mat-list.
 END.
 
@@ -1058,7 +1068,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
  /*    DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -1069,11 +1079,11 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.  */
-     
+
      {custom/out2file.i}
 
 END PROCEDURE.
@@ -1105,7 +1115,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1177,7 +1187,7 @@ DO WITH FRAME {&FRAME-NAME}:
 
    IF SUBSTR(v-mtype,LENGTH(TRIM(v-mtype)),1) EQ "," THEN
       SUBSTR(v-mtype,LENGTH(TRIM(v-mtype)),1) = "".
-    
+
    mat-types = v-mtype.
    DO i = 1 TO LENGTH(mat-types):
       IF SUBSTR(mat-types,i,1) EQ "," THEN 
@@ -1197,7 +1207,7 @@ IF td-show-parm THEN
 SESSION:SET-WAIT-STATE ("general").
 
 DISPLAY "" WITH FRAME r-top.
-     
+
 IF v-export THEN DO:
    OUTPUT STREAM s-temp TO VALUE(v-exp-name).
    PUT STREAM s-temp UNFORMATTED v-hdr SKIP.
@@ -1240,12 +1250,12 @@ FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
                  TRIM(rm-rdtlh.job-no) + "-" + STRING(rm-rdtlh.job-no2,"99").
 
       IF v-job-no begins "-" THEN v-job-no = "".
-   
+
       v-rm-qty = rm-rdtlh.qty.
-   
+
       IF rm-rcpth.pur-uom ne "LB" THEN
          run sys/ref/convquom.p(rm-rcpth.pur-uom, "LB", 0, 0, 0, 0, v-rm-qty, output v-rm-qty).
-      
+
       ASSIGN
          v-qty[1] = v-qty[1] + v-rm-qty
          v-qty[3] = v-qty[3] + v-rm-qty.
@@ -1258,7 +1268,7 @@ FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
             v-len = 0
             v-wid = 0
             v-basis-w = 0.
-      
+
          FOR EACH job WHERE job.company EQ rm-rdtlh.company
                         AND job.job-no  EQ rm-rdtlh.job-no
                         AND job.job-no2 EQ rm-rdtlh.job-no2 NO-LOCK,
@@ -1312,13 +1322,13 @@ FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
                      v-brd-qty[2] = v-brd-qty[2] + v-brd-qty[1].
                   END. 
                END. 
-       
+
                FOR EACH mch-act WHERE mch-act.company EQ cocode
                                   AND mch-act.job-no  EQ job.job-no
                                   AND mch-act.job-no2 EQ job.job-no2
                                   AND (mch-act.frm    EQ rm-rdtlh.s-num OR rm-rdtlh.s-num EQ 0)
                                   AND (mat-act.b-num EQ rm-rdtlh.b-num OR rm-rdtlh.b-num EQ 0)  NO-LOCK,
-              
+
                   FIRST mach WHERE mach.company EQ cocode
                                AND mach.loc     EQ locode 
                                AND mach.m-code  EQ mch-act.m-code
@@ -1332,7 +1342,7 @@ FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
                                                                mach.dept[4] EQ "PR"))) NO-LOCK
                           BREAK BY mch-act.frm      desc
                                 BY mch-act.blank-no desc:
-                       
+
                    {custom/statusMsg.i "'Processing Item # ' + string(rm-rcpth.i-no)"} 
 
                   IF (item.mat-type EQ "G"               AND
@@ -1342,7 +1352,7 @@ FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
                      (item.mat-type EQ "I" AND
                       mch-act.dept EQ "PR")                   OR
                      last(mch-act.frm)                        THEN DO:
-               
+
                      v-m-code = mach.m-code.
                      leave.
                   END.
@@ -1366,10 +1376,10 @@ FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
                                                                   mach.dept[2] EQ "PR" OR
                                                                   mach.dept[3] EQ "PR" OR
                                                                   mach.dept[4] EQ "PR"))) NO-LOCK
-                                
+
                              BREAK BY job-mch.frm      DESC
                                    BY job-mch.blank-no DESC:
-              
+
                    {custom/statusMsg.i "'Processing Item # ' + string(rm-rcpth.i-no)"} 
 
                      IF (item.mat-type    EQ "G"               AND
@@ -1384,10 +1394,10 @@ FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
                         LEAVE.
                      END.
                   END. 
-  
+
                IF v-board[2] EQ "" THEN 
                   v-board[2] = v-board[1].
-               
+
                ASSIGN
                   v-board-msf = 0
                   v-board-weight = 0
@@ -1441,7 +1451,7 @@ IF TG_sort-cat = NO THEN DO:
          tt-wax-coats.qty          
          WITH FRAME item-x.
       DOWN WITH FRAME item-x.
-         
+
       ASSIGN 
          v-tot-board-weight =  v-tot-board-weight + tt-wax-coats.board-weight
          v-tot-wax-coat-weight = v-tot-wax-coat-weight + tt-wax-coats.wax-coat-weight
@@ -1462,7 +1472,7 @@ IF TG_sort-cat = NO THEN DO:
                v-tot-wax-coat-weight = 0
                v-tot-job-hdr-qty     = 0.
       END.
-      
+
       IF v-export THEN
          PUT STREAM s-temp UNFORMATTED
             TRIM(STRING(tt-wax-coats.trans-date,tt-wax-coats.trans-date:FORMAT))
@@ -1590,7 +1600,7 @@ FORM tt-inks-glues.trans-date     LABEL "Issue Date"
      v-qty[1]               LABEL "Qty Issued/Lbs"
      v-m-code               LABEL "Machine"
      tt-inks-glues.procat   LABEL "FG Category"
-     
+
      SKIP
     WITH FRAME itemx NO-BOX DOWN STREAM-IO WIDTH 132.
 
@@ -1640,17 +1650,17 @@ DO WITH FRAME {&FRAME-NAME}:
       IF select-mat:IS-SELECTED(i) THEN
          v-mtype = v-mtype + TRIM(SUBSTR(select-mat:ENTRY(i),1,5)) + ",".
    END.
-  
+
    IF SUBSTR(v-mtype,LENGTH(TRIM(v-mtype)),1) EQ "," THEN
       SUBSTR(v-mtype,LENGTH(TRIM(v-mtype)),1) = "".
-    
+
    mat-types = v-mtype.
-  
+
    DO i = 1 TO LENGTH(mat-types):
       IF SUBSTR(mat-types,i,1) EQ "," THEN 
          SUBSTR(mat-types,i,1) = " ".
    END.
-  
+
    DISPLAY mat-types.
 
    mat-types:HIDDEN = YES.
@@ -1668,7 +1678,7 @@ IF td-show-parm THEN
 SESSION:SET-WAIT-STATE ("general").
 
 DISPLAY "" WITH FRAME r-top.
-     
+
 IF v-export THEN DO:
    OUTPUT STREAM s-temp TO VALUE(v-exp-name).
    PUT STREAM s-temp UNFORMATTED v-hdr SKIP.
@@ -1712,12 +1722,12 @@ FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
                  TRIM(rm-rdtlh.job-no) + "-" + STRING(rm-rdtlh.job-no2,"99").
 
       IF v-job-no begins "-" THEN v-job-no = "".
-   
+
       v-rm-qty = rm-rdtlh.qty.
-   
+
       IF rm-rcpth.pur-uom ne "LB" THEN
          run sys/ref/convquom.p(rm-rcpth.pur-uom, "LB", 0, 0, 0, 0, v-rm-qty, output v-rm-qty).
-      
+
       ASSIGN
          v-qty[1] = v-qty[1] + v-rm-qty
          v-qty[3] = v-qty[3] + v-rm-qty.
@@ -1728,7 +1738,7 @@ FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
             v-brd-qty = 0
             v-m-code  = "".
 
-         
+
          FOR EACH job WHERE job.company EQ rm-rdtlh.company
                         AND job.job-no  EQ rm-rdtlh.job-no
                         AND job.job-no2 EQ rm-rdtlh.job-no2 NO-LOCK,
@@ -1777,13 +1787,13 @@ FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
                      v-brd-qty[2] = v-brd-qty[2] + v-brd-qty[1].
                   END. /* FOR EACH mat-act */
                END. /* FOR EACH job-mat */
-       
+
                FOR EACH mch-act WHERE mch-act.company EQ cocode
                                   AND mch-act.job-no  EQ job.job-no
                                   AND mch-act.job-no2 EQ job.job-no2
                                   AND (mch-act.frm    EQ rm-rdtlh.s-num OR rm-rdtlh.s-num EQ 0)
                                   AND (mat-act.b-num EQ rm-rdtlh.b-num OR rm-rdtlh.b-num EQ 0)  NO-LOCK,
-              
+
                   FIRST mach WHERE mach.company EQ cocode
                                AND mach.loc     EQ locode 
                                AND mach.m-code  EQ mch-act.m-code
@@ -1797,7 +1807,7 @@ FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
                                                                mach.dept[4] EQ "PR"))) NO-LOCK
                           BREAK BY mch-act.frm      desc
                                 BY mch-act.blank-no desc:
-              
+
                    {custom/statusMsg.i "'Processing Item # ' + string(rm-rcpth.i-no)"} 
 
                   IF (item.mat-type EQ "G"               AND
@@ -1807,7 +1817,7 @@ FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
                      (item.mat-type EQ "I" AND
                       mch-act.dept EQ "PR")                   OR
                      last(mch-act.frm)                        THEN DO:
-               
+
                      v-m-code = mach.m-code.
                      leave.
                   END.
@@ -1831,10 +1841,10 @@ FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
                                                                   mach.dept[2] EQ "PR" OR
                                                                   mach.dept[3] EQ "PR" OR
                                                                   mach.dept[4] EQ "PR"))) NO-LOCK
-                                
+
                              BREAK BY job-mch.frm      DESC
                                    BY job-mch.blank-no DESC:
-              
+
                    {custom/statusMsg.i "'Processing Item # ' + string(rm-rcpth.i-no)"} 
 
                      IF (item.mat-type    EQ "G"               AND
@@ -1849,7 +1859,7 @@ FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
                         LEAVE.
                      END.
                   END. /* FOR EACH job-mch */
-  
+
             IF v-board[2] EQ "" THEN 
                v-board[2] = v-board[1].
             CREATE tt-inks-glues.
@@ -1874,7 +1884,7 @@ FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
 /*                WITH FRAME itemx.                   */
 /*             DOWN WITH FRAME itemx.                 */
 
-        
+
             ASSIGN
                v-qty[2] = v-qty[2] + v-qty[1]
                v-qty[1] = 0
@@ -1926,7 +1936,7 @@ IF TG_sort-cat = NO THEN DO:
             WITH FRAME itemb NO-LABELS.
          v-tot-trans-qty = 0.
       END.
-      
+
       IF v-export THEN
          PUT STREAM s-temp UNFORMATTED
             TRIM(STRING(tt-inks-glues.trans-date,tt-inks-glues.trans-date:FORMAT))
@@ -2087,16 +2097,16 @@ do with frame {&frame-name}:
     if select-mat:is-selected(i) then
       v-mtype = v-mtype + trim(substr(select-mat:entry(i),1,5)) + ",".
   end.
-  
+
   if substr(v-mtype,length(trim(v-mtype)),1) eq "," then
     substr(v-mtype,length(trim(v-mtype)),1) = "".
-    
+
   mat-types = v-mtype.
-  
+
   do i = 1 to length(mat-types):
     if substr(mat-types,i,1) eq "," then substr(mat-types,i,1) = " ".
   end.
-  
+
   display mat-types.
 
   mat-types:HIDDEN = YES.
@@ -2112,10 +2122,10 @@ if td-show-parm then run show-param.
 SESSION:SET-WAIT-STATE ("general").
 
 display "" with frame r-top.
- 
+
     if v-export then do:
       output stream s-temp to value(v-exp-name).
-    
+
       put stream s-temp unformatted v-hdr skip.
     end.
 
@@ -2166,13 +2176,13 @@ display "" with frame r-top.
                  trim(rm-rdtlh.job-no) + "-" + string(rm-rdtlh.job-no2,"99").
 
       if v-job-no begins "-" then v-job-no = "".
-      
+
       v-rm-qty = rm-rdtlh.qty.
-      
+
       if rm-rcpth.pur-uom ne "LB" then
         run sys/ref/convquom.p(rm-rcpth.pur-uom, "LB", 0, 0, 0, 0,
                                v-rm-qty, output v-rm-qty).
-      
+
       v-qty[1] = v-qty[1] + v-rm-qty.
       v-qty[3] = v-qty[3] + v-rm-qty.
       if last-of(rm-rdtlh.b-num) then do: 
@@ -2180,7 +2190,7 @@ display "" with frame r-top.
          v-board   = ""
          v-brd-qty = 0
          v-m-code  = "".
-         
+
         for each job
             where job.company eq rm-rcpth.company
               and job.job-no  eq rm-rdtlh.job-no
@@ -2204,15 +2214,15 @@ display "" with frame r-top.
                    and job-mat.job-no2 eq job.job-no2
                    and (job-mat.frm    eq rm-rdtlh.s-num or rm-rdtlh.s-num eq 0)
                  use-index seq-idx no-lock,
-   
+
                  first b-item
                  where b-item.company  eq job-mat.company
                    and b-item.i-no     eq job-mat.i-no
                    and index("1234BPRWV",b-item.mat-type) gt 0
                  no-lock:
-   
+
                if v-board[1] eq "" then v-board[1] = b-item.i-no.
-   
+
                for each mat-act
                    where mat-act.company eq cocode
                      and mat-act.job     eq job-mat.job
@@ -2222,17 +2232,17 @@ display "" with frame r-top.
                      and mat-act.b-num   eq job-mat.blank-no
                      and mat-act.i-no    eq job-mat.i-no
                    use-index job no-lock:
-   
+
                  if v-board[2] eq "" then v-board[2] = b-item.i-no.
-   
+
                  run sys/ref/convquom.p(job-mat.qty-uom, "EA", job-mat.basis-w,
                                         job-mat.len, job-mat.wid, b-item.s-dep,
                                         mat-act.qty, output v-brd-qty[1]).
-   
+
                  v-brd-qty[2] = v-brd-qty[2] + v-brd-qty[1].
                end.
              end.
-          
+
              for each mch-act
                  where mch-act.company eq cocode
                    and mch-act.job     eq job.job
@@ -2240,7 +2250,7 @@ display "" with frame r-top.
                    and mch-act.job-no2 eq job.job-no2
                    and (mch-act.frm    eq rm-rdtlh.s-num or rm-rdtlh.s-num eq 0)
                  no-lock,
-                 
+
                  first mach
                  where mach.company eq cocode
                    and mach.loc     eq locode 
@@ -2254,10 +2264,10 @@ display "" with frame r-top.
                                                    mach.dept[3] eq "PR" or
                                                    mach.dept[4] eq "PR")))
                  no-lock
-                 
+
                  break by mch-act.frm      desc
                        by mch-act.blank-no desc:
-                 
+
                if (item.mat-type eq "G"               and
                    mch-act.frm      eq rm-rdtlh.s-num and
                    mch-act.blank-no eq rm-rdtlh.b-num and
@@ -2265,12 +2275,12 @@ display "" with frame r-top.
                   (item.mat-type eq "I" and
                    mch-act.dept eq "PR")                   or
                   last(mch-act.frm)                        then do:
-                  
+
                  v-m-code = mach.m-code.
                  leave.
                end.
              end.
-   
+
              if v-m-code eq "" then
              for each job-mch
                  where job-mch.company eq cocode
@@ -2279,7 +2289,7 @@ display "" with frame r-top.
                    and job-mch.job-no2 eq job.job-no2
                    and (job-mch.frm    eq rm-rdtlh.s-num or rm-rdtlh.s-num eq 0)
                  no-lock,
-                 
+
                  first mach
                  where mach.company eq cocode
                    and mach.loc     eq locode 
@@ -2293,10 +2303,10 @@ display "" with frame r-top.
                                                    mach.dept[3] eq "PR" or
                                                    mach.dept[4] eq "PR")))
                  no-lock
-                 
+
                  break by job-mch.frm      desc
                        by job-mch.blank-no desc:
-                 
+
                if (item.mat-type eq "G"               and
                    job-mch.frm      eq rm-rdtlh.s-num and
                    job-mch.blank-no eq rm-rdtlh.b-num and
@@ -2304,15 +2314,15 @@ display "" with frame r-top.
                   (item.mat-type eq "I" and
                    job-mch.dept eq "PR")                   or
                   last(job-mch.frm)                        then do:
-                  
+
                  v-m-code = mach.m-code.
                  leave.
                end.
              end.
            end.
-     
+
            if v-board[2] eq "" then v-board[2] = v-board[1].
-   
+
            display rm-rcpth.trans-date when v-first[1]
                    v-job-no
                    v-board[2]
@@ -2322,7 +2332,7 @@ display "" with frame r-top.
                    v-m-code
                with frame itemx.
            down with frame itemx.
-   
+
            if v-export then 
              put stream s-temp unformatted
                  trim(string(rm-rcpth.trans-date,rm-rcpth.trans-date:format))
@@ -2334,19 +2344,19 @@ display "" with frame r-top.
                  trim(string(v-qty[1],"->>>>>>>>>9.9<<<<"))        + "," +
                  trim(v-m-code)
                  skip.
-           
+
            assign
             v-qty[2] = v-qty[2] + v-qty[1]
-            
+
             v-qty[1] = 0
-   
+
             v-first[1] = no.
          end.
- 
+
          if last(rm-rcpth.trans-date) then do:
            underline v-qty[1]
                with frame itemx.
-   
+
            display "GRAND TOTALS" @ rm-rcpth.i-no
                    v-qty[3]       @ v-qty[1]
                  with frame itemx.
@@ -2389,11 +2399,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -2421,23 +2431,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

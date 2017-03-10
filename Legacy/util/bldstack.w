@@ -239,6 +239,16 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FILL-IN lbl_delete IN FRAME FRAME-A
    NO-ENABLE                                                            */
 /* SETTINGS FOR FRAME FRAME-B
@@ -249,7 +259,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -396,7 +406,7 @@ PROCEDURE run-process :
 /* ------------------------------------------------ util/bldstack.p 08/99 JLF */
 /*  Build Stacking Matrices                                                   */
 /* -------------------------------------------------------------------------- */
-  
+
 def var fflute      like item.flute         format "x(3)".
 def var tflute      like fflute             init "zzz".
 def var ftest       like item.reg-no        format "x(6)".
@@ -409,7 +419,7 @@ DEF VAR ll AS LOG NO-UNDO.
 DEF VAR lv-page-no LIKE stack-flute.page-no NO-UNDO.
 
 session:set-wait-state("General").
-  
+
 do with frame {&frame-name}:
   assign
    begin_flute
@@ -421,7 +431,7 @@ do with frame {&frame-name}:
    fi_height
    tb_delete.
 end.
-  
+
 assign
  fflute   = begin_flute
  tflute   = end_flute
@@ -431,7 +441,7 @@ assign
  tpall    = end_pallet
  v-height = fi_height
  v-delete = tb_delete.
-                                             
+
 IF v-delete THEN
 FOR EACH stack-flute
     WHERE stack-flute.company EQ cocode
@@ -505,14 +515,14 @@ FOR EACH item
     END.
   END.
 END.
-     
+
 session:set-wait-state("").
 
 message trim(c-win:title) + " Process Is Completed." view-as alert-box.
 apply "close" to this-procedure.
 
 return no-apply.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.
@@ -531,7 +541,7 @@ PROCEDURE update-stack-flute :
 
   DEF VAR li AS INT NO-UNDO.
   DEF VAR lj AS INT NO-UNDO.
-  
+
 
   DO li = 1 TO 15:
     IF stack-flute.row-value[li] EQ ""          OR

@@ -276,6 +276,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_ord-date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -310,7 +320,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -583,11 +593,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   begin_ord-date = today.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   APPLY "entry" TO begin_ord-date IN FRAME {&FRAME-NAME}.
@@ -654,7 +664,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
  /*    DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -665,9 +675,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
    */
     {custom/out2file.i}
@@ -700,7 +710,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -787,9 +797,9 @@ format w-sman-no    column-label "No"
            "---------Daily-----------" at 25 space(2)
            "-----Period to date------" space(2)
            "-------Year to date------"
-           
+
     with no-box frame itemx down stream-io width 132.
-    
+
 assign
  fdate      = today
  tdate      = today
@@ -798,11 +808,11 @@ assign
 assign
  str-tit2 = c-win:title
  {sys/inc/ctrtext.i str-tit2 112}
- 
+
  fdate = begin_ord-date
  fsman = begin_slsmn
  tsman = end_slsmn.
- 
+
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i value(lines-per-page)}
@@ -845,7 +855,7 @@ display "" with frame r-top.
         where period.company eq cocode
           and period.yr      eq v-year
         no-lock no-error.
-        
+
     assign
      v-ytd-first = if avail period then period.pst
                                    else date(1,1,year(tdate))
@@ -855,7 +865,7 @@ display "" with frame r-top.
         where oe-ord.company  eq cocode
           and oe-ord.ord-date ge v-ytd-first
           and oe-ord.ord-date le v-ytd-last,
-         
+
         each oe-ordl
         where oe-ordl.company eq cocode
           and oe-ordl.ord-no  eq oe-ord.ord-no
@@ -889,10 +899,10 @@ display "" with frame r-top.
            v-amt     = oe-ordl.t-price
            v-pct     = 1
            v-misc    = yes.
-           
+
         else   /* If blank Sales Rep # then ignore */
         if oe-ordl.s-man[cnt] eq "" then next.
-        
+
         /* There must be at least 1 Sales Rep in either pos'n 1, 2 or 3 */
         else do:
           find first itemfg
@@ -923,7 +933,7 @@ display "" with frame r-top.
         assign
          w-ytd-sqft = w-ytd-sqft + v-sqft
          w-ytd-amt  = w-ytd-amt  + v-amt.
-         
+
         if oe-ord.ord-date ge v-ptd-first and
            oe-ord.ord-date le v-ptd-last  then
           assign
@@ -937,7 +947,7 @@ display "" with frame r-top.
       end. /* do cnt = 1 to 3... */
     end.  /* for each oe-ord */
 
-    
+
     for each w-data where w-sman-no ne "MISC" break by w-sname
         with frame itemx:
       {custom/statusMsg.i "'Processing Sales Rep # ' + w-sman-no"}
@@ -950,7 +960,7 @@ display "" with frame r-top.
               w-ptd-amt
               w-ytd-sqft
               w-ytd-amt
-              
+
          with frame itemx down.
       down with frame itemx.
 
@@ -976,7 +986,7 @@ display "" with frame r-top.
               w-ytd-sqft
               w-ytd-amt
         with frame itemx.
-      
+
     display "   TOTAL SALES"    @ w-sname
             v-gtot-sqft         @ w-sqft
             v-gtot-amt          @ w-amt
@@ -984,7 +994,7 @@ display "" with frame r-top.
             v-gtot-ptd-amt      @ w-ptd-amt
             v-gtot-ytd-sqft     @ w-ytd-sqft
             v-gtot-ytd-amt      @ w-ytd-amt
-            
+
         with frame itemx.
    ASSIGN v-gtot-sqft = 0
           v-gtot-amt = 0
@@ -1020,11 +1030,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1052,23 +1062,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

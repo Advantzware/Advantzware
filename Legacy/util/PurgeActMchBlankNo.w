@@ -194,6 +194,16 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -202,7 +212,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -391,10 +401,10 @@ FOR EACH bf-mch-act
         DELETE bf-job-mch.
 
     END. /*each bf-job-mch*/
-    
+
     /*set errornous blank number to 0 for roll/sheet fed machines*/
     bf-mch-act.blank-no = 0.
-    
+
 END. /*each bf-mch-act*/
 
 SESSION:SET-WAIT-STATE("").

@@ -48,14 +48,14 @@ DEFINE VARIABLE oeprep-char AS CHARACTER NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/VAR.i new shared}
-    
+
 ASSIGN
  cocode = gcompany
  locode = gloc.
-    
+
 FIND FIRST company WHERE company.company EQ cocode NO-LOCK NO-ERROR.
 IF AVAILABLE company THEN lv-comp-curr = company.curr-code.
-    
+
 DEFINE NEW SHARED BUFFER xoe-relh FOR oe-relh.
 DEFINE NEW SHARED BUFFER yoe-relh FOR oe-relh.
 DEFINE NEW SHARED BUFFER xoe-rell FOR oe-rell.
@@ -206,7 +206,7 @@ DO TRANSACTION:
         sys-ctrl.company EQ cocode AND
         sys-ctrl.name    EQ "AUDITDIR"
         NO-LOCK NO-ERROR.
-   
+
    IF NOT AVAILABLE sys-ctrl THEN DO:
       CREATE sys-ctrl.
       ASSIGN
@@ -215,12 +215,12 @@ DO TRANSACTION:
          sys-ctrl.descrip = "Audit Trails directory"
          sys-ctrl.char-fld = ".\AUDIT TRAILS".
    END.
-  
+
    lv-audit-dir = sys-ctrl.char-fld.
-  
+
    IF LOOKUP(SUBSTR(lv-audit-dir,LENGTH(lv-audit-dir),1),"/,\") > 0 THEN
       lv-audit-dir = SUBSTR(lv-audit-dir,1,LENGTH(lv-audit-dir) - 1).
-  
+
    RELEASE sys-ctrl.
 END.
 
@@ -455,6 +455,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -510,7 +520,7 @@ THEN C-Win:HIDDEN = NO.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -626,7 +636,7 @@ DO:
     /* gdm - 11050906 */
 
   END.
-  
+
   RUN run-report.
 
     CASE rd-dest:
@@ -660,13 +670,13 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN RUN output-to-port.
   END CASE. 
 
   IF v-postable THEN DO:
-    
+
     lv-post = NO.
 
     IF v-balance = 0 THEN
@@ -689,7 +699,7 @@ DO:
 
       IF v-export EQ "Sonoco" THEN
          RUN ar/sonoinv.p ("total", t-rec-written, OUTPUT v-rec-written).
-          
+
       FOR EACH w-ord BREAK BY w-ord.ord-no:
           IF NOT FIRST-OF(w-ord.ord-no) THEN DELETE w-ord.
       END.
@@ -728,7 +738,7 @@ DO:
 
 
       END. /* Each w-ord */
-      
+
       cust-bal:
       FOR EACH tt-custbal,
         FIRST cust WHERE cust.company EQ cocode
@@ -775,7 +785,7 @@ DO:
         END.
       END. /* Each w-ord */
 
-       
+
       MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.
 
       IF oeclose-log THEN
@@ -970,7 +980,7 @@ END.
 ON LEAVE OF tran-date IN FRAME FRAME-A /* Post Date */
 DO:
   ASSIGN {&self-name}.
-  
+
   IF LASTKEY NE -1 THEN DO:
     RUN check-date.
     IF v-invalid THEN RETURN NO-APPLY.
@@ -1048,9 +1058,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         AND inv-head.stat    NE "H"
       USE-INDEX prnt NO-LOCK NO-ERROR.
   IF AVAILABLE inv-head THEN begin_inv = inv-head.inv-no.
-   
+
   end_date = TODAY.
-  
+
   RUN enable_UI.
 
   DO WITH FRAME {&frame-name}:
@@ -1090,7 +1100,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             "'Update Inventory When Posting' flag in the Order Entry"
             "control file is set to 'INV'."
             VIEW-AS ALERT-BOX.
-  
+
   {methods/nowait.i}
 
 
@@ -1164,25 +1174,25 @@ IF NOT AVAILABLE bf-inv-head THEN
         END.
         v-ttl-rate = v-ttl-rate + v-tax-rate[i].
       END.
-      
+
       DO i = 1 TO EXTENT(stax.tax-rate1):
         IF stax.tax-rate1[i] = 0 THEN NEXT.
         ASSIGN v-tax-rate[i] = ROUND(v-tax-rate[i] / v-ttl-rate *
                                      bf-inv-head.t-inv-tax,2)
                v-ttl-tax = v-ttl-tax + v-tax-rate[i].
       END.
-      
+
       IF bf-inv-head.t-inv-tax NE v-ttl-tax THEN
         v-tax-rate[1] = v-tax-rate[1] +
                         (bf-inv-head.t-inv-tax - v-ttl-tax).
-      
+
       DO i = 1 TO EXTENT(stax.tax-rate1):
         IF stax.tax-rate1[i] = 0 THEN NEXT.
         FIND FIRST account
             WHERE account.company EQ cocode
               AND account.actnum  EQ stax.tax-acc1[i]
             NO-LOCK NO-ERROR.
-            
+
         IF AVAILABLE account AND v-tax-rate[i] NE 0 THEN DO:
           CREATE tt-report.
           ASSIGN
@@ -1241,7 +1251,7 @@ PROCEDURE check-date :
 ------------------------------------------------------------------------------*/
   DO WITH FRAME {&frame-name}:
     v-invalid = NO.
-  
+
     FIND FIRST period                   
         WHERE period.company EQ cocode
           AND period.pst     LE tran-date
@@ -1291,7 +1301,7 @@ PROCEDURE close-order-lines :
   Notes:       
 ------------------------------------------------------------------------------*/
    /* mdp adds logic to close lines from clslinchk.p */
-   
+
    DEFINE BUFFER lb-oe-ordl FOR oe-ordl.
 
    FOR EACH oe-ordl NO-LOCK
@@ -1299,7 +1309,7 @@ PROCEDURE close-order-lines :
         AND oe-ordl.ord-no  EQ oe-ord.ord-no:
 
       FIND itemfg OF oe-ordl NO-LOCK NO-ERROR.
-    
+
       IF (oe-ordl.inv-qty  GE oe-ordl.qty * (1 - (oe-ordl.under-pct / 100)) OR
           oe-ordl.is-a-component)                                               AND
          (oe-ordl.ship-qty GE oe-ordl.qty * (1 - (oe-ordl.under-pct / 100)) OR
@@ -1327,7 +1337,7 @@ PROCEDURE copy-report-to-audit-dir :
   DEFINE VARIABLE dirname1 AS CHARACTER FORMAT "X(20)" NO-UNDO.
   DEFINE VARIABLE dirname2 AS CHARACTER FORMAT "X(20)" NO-UNDO.
   DEFINE VARIABLE dirname3 AS CHARACTER FORMAT "X(20)" NO-UNDO.
-  
+
   ASSIGN targetfile = lv-audit-dir + "\OP\OB4\Run#"
                     + STRING(v-trnum) + ".txt"
          dirname1 = lv-audit-dir
@@ -1354,7 +1364,7 @@ PROCEDURE create-save-line :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    
+
     DISABLE TRIGGERS FOR LOAD OF inv-line.
     DISABLE TRIGGERS FOR LOAD OF inv-misc.
 
@@ -1565,11 +1575,11 @@ FORM account.actnum
         AND period.pst     LE tran-date
         AND period.pend    GE tran-date
       NO-LOCK NO-ERROR.
- 
+
   ASSIGN
    str-tit2 = TRIM(c-win:TITLE) + " - GL POSTING REGISTER - RUN# " + TRIM(STRING(v-trnum))
    {sys/inc/ctrtext.i str-tit2 112}
- 
+
    str-tit3 = "Period " + string(tran-period,"99") + " - " +
               IF AVAILABLE period THEN
                 (STRING(period.pst) + " to " + string(period.pend)) ELSE ""
@@ -1586,7 +1596,7 @@ FORM account.actnum
     list-name = TRIM(lv-list-name) + ".001".
 
     {sys/inc/outprint.i value(lines-per-page)}
-  
+
     VIEW FRAME r-top.
 
     IF v-gldetail THEN VIEW FRAME f-top-d.
@@ -1605,7 +1615,7 @@ FORM account.actnum
 
     /** LIST G/L FOR CURRENCY GAIN/LOSS **/
     {oe/r-inve&2.i work-curr "CURRENCY GAIN/LOSS"}
-    
+
     /** LIST G/L FOR FG/COGS **/
     IF v-gldetail THEN DO:
       ASSIGN
@@ -2103,11 +2113,11 @@ PROCEDURE list-post-inv :
     w-ord-misc.dscr LABEL "Description"
     w-ord-misc.amt FORMAT "->>>,>>9.99" TO 71 LABEL "Price" SKIP
     WITH STREAM-IO DOWN NO-BOX FRAME invm.
-  
+
   SESSION:SET-WAIT-STATE ("general").
 
   RUN oe/invpostd.p ("").
-      
+
   v-post = ip-list-post EQ "post".
 
   DISABLE TRIGGERS FOR LOAD OF inv-head.
@@ -2120,11 +2130,11 @@ PROCEDURE list-post-inv :
 
   ordblock:
   FOR EACH w-report WHERE w-report.term-id EQ "" NO-LOCK,
-    
+
       FIRST inv-head WHERE RECID(inv-head) EQ w-report.rec-id
-        
+
       TRANSACTION
-      
+
       BY w-report.key-01:
 
     {oe/r-inve&p.i}
@@ -2194,7 +2204,7 @@ PROCEDURE output-to-screen :
   Notes:       
 ------------------------------------------------------------------------------*/
   RUN scr-rpt.w (list-name,c-win:TITLE,int(lv-font-no),lv-ornt). /* open file-name, title */ 
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2208,7 +2218,7 @@ PROCEDURE post-gl :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE lv-dscr LIKE gltrans.tr-dscr NO-UNDO. 
-   
+
 
   /** POST TO GENERAL LEDGER ACCOUNTS TRANSACTION FILE **/
   DO TRANSACTION:
@@ -2455,24 +2465,24 @@ PROCEDURE run-report :
     FILL("=",138) FORMAT "x(138)"
     lv-label-ton[2] TO 158
     WITH FRAME r-top WIDTH 180.
-  
+
   FIND FIRST period                   
       WHERE period.company EQ gcompany
         AND period.pst     LE tran-date
         AND period.pend    GE tran-date
       NO-LOCK NO-ERROR.
- 
+
   ASSIGN
    str-tit2 = TRIM(c-win:TITLE) + " - " +
               TRIM(STRING(tb_detailed,"Detail/Summary")) +
               " - RUN# " + TRIM(STRING(v-trnum))
    {sys/inc/ctrtext.i str-tit2 112}
- 
+
    str-tit3 = "Period " + string(tran-period,"99") + " - " +
               IF AVAILABLE period THEN
                 (STRING(period.pst) + " to " + STRING(period.pend)) ELSE ""
    {sys/inc/ctrtext.i str-tit3 132}
-   
+
    str-tit4 = "Post Date " + STRING(tran-date, "99/99/99")
    v-s-inv-no = begin_inv
    v-e-inv-no = end_inv
@@ -2501,7 +2511,7 @@ PROCEDURE run-report :
         AND inv-head.inv-date LE v-e-date
         AND inv-head.stat     NE "H"
       USE-INDEX prnt,
-             
+
       FIRST cust NO-LOCK
       WHERE cust.company EQ cocode
         AND cust.cust-no EQ inv-head.cust-no
@@ -2522,7 +2532,7 @@ PROCEDURE run-report :
        tt-report.term-id = ""
        tt-report.key-01  = STRING(xinv-head.inv-no,"9999999999")
        tt-report.rec-id  = RECID(xinv-head).
-           
+
       IF inv-head.multi-invoice THEN
         IF CAN-FIND(FIRST b-inv-head
                     WHERE b-inv-head.company       EQ inv-head.company
@@ -2568,11 +2578,11 @@ PROCEDURE run-report :
   IF td-show-parm THEN RUN show-param.
 
   lv-list-name = list-name.
-  
+
   DISPLAY WITH FRAME r-top.
 
   RUN list-post-inv ("list").
-  
+
   OUTPUT CLOSE.
 
   /* export invoices to factor */   
@@ -2693,12 +2703,12 @@ PROCEDURE show-param :
   DEFINE VARIABLE parm-lbl-list AS cha NO-UNDO.
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
   DEFINE VARIABLE lv-label AS cha NO-UNDO.
-  
+
   ASSIGN
   lv-frame-hdl = FRAME {&frame-name}:HANDLE
   lv-group-hdl = lv-frame-hdl:FIRST-CHILD
   lv-field-hdl = lv-group-hdl:FIRST-CHILD.
-  
+
   DO WHILE TRUE:
      IF NOT VALID-HANDLE(lv-field-hdl) THEN LEAVE.
      IF LOOKUP(lv-field-hdl:PRIVATE-DATA,"parm") > 0
@@ -2725,23 +2735,23 @@ PROCEDURE show-param :
   PUT SPACE(28)
       "< Selection Parameters >"
       SKIP(1).
-  
+
   DO i = 1 TO NUM-ENTRIES(parm-fld-list,","):
     IF ENTRY(i,parm-fld-list) NE "" OR
        entry(i,parm-lbl-list) NE "" THEN DO:
-       
+
       lv-label = FILL(" ",34 - length(TRIM(ENTRY(i,parm-lbl-list)))) +
                  trim(ENTRY(i,parm-lbl-list)) + ":".
-                 
+
       PUT lv-label FORMAT "x(35)" AT 5
           SPACE(1)
           TRIM(ENTRY(i,parm-fld-list)) FORMAT "x(40)"
           SKIP.              
     END.
   END.
- 
+
   PUT FILL("-",80) FORMAT "x(80)" SKIP.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

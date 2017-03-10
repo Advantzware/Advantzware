@@ -197,6 +197,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -205,7 +215,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -353,16 +363,16 @@ PROCEDURE run-process :
 def var v-comm as dec format ">>9.99" init 0 no-undo.
 def var v-over as log init no no-undo.
 
-  
+
 assign
  v-over    = tb_over
  v-comm    = new_comm
  v-process = no.
-   
+
 message "Are you sure you want set the sales rep commissions with the"
         "selection parameters"
         view-as alert-box question button yes-no update v-process.
-          
+
 if v-process then do:
   session:set-wait-state("General").
 
@@ -375,16 +385,16 @@ if v-process then do:
         assign sman-mtx.comm[i] = v-comm.
     end.
   end.
-    
+
   session:set-wait-state("").
-    
+
   message trim(c-win:title) + " Process Complete..." view-as alert-box.
-    
+
   apply "close" to this-procedure.
 end.
 
 return no-apply.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

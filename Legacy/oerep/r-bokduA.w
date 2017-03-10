@@ -279,6 +279,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_ord-date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -325,7 +335,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -615,13 +625,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   assign
    begin_ord-date = today
    end_ord-date   = today.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -692,7 +702,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
 /*     DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -703,9 +713,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
   */
       {custom/out2file.i}
@@ -739,7 +749,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -806,7 +816,7 @@ form oe-ordl.req-date  column-label "Due Date"             format "99/99/99"
      v-price           column-label "Price/M"
      oe-ordl.t-price   column-label "Ext Price"
      v-msf             column-label "MSF"
-    
+
     with frame det no-box no-attr-space down stream-io width 132.
 
 
@@ -835,7 +845,7 @@ END.
 SESSION:SET-WAIT-STATE ("general").
 
 display "" with frame r-top.
-  
+
     for each oe-ord
          where oe-ord.company  eq cocode
            and oe-ord.ord-date ge fdate
@@ -863,7 +873,7 @@ display "" with frame r-top.
                by oe-ord.cust-no
                by oe-ordl.i-no
                by oe-ord.ord-no
-               
+
          with frame det:
        {custom/statusMsg.i "'Processing Order # ' + string(oe-ordl.ord-no)"} 
       release eb.
@@ -890,7 +900,7 @@ display "" with frame r-top.
           FIND FIRST bf-itemfg WHERE bf-itemfg.company = cocode
                     AND bf-itemfg.i-no = fg-set.set-no NO-LOCK NO-ERROR.
 
-      
+
       IF tb_ex-msf  THEN do:
           v-change = FALSE .
           FOR EACH bf-oe-ordl WHERE bf-oe-ordl.company = cocode
@@ -898,14 +908,14 @@ display "" with frame r-top.
               AND bf-oe-ordl.i-no   = bf-itemfg.i-no NO-LOCK :
               ASSIGN v-change = TRUE .
           END.
-            
+
           IF v-change = TRUE THEN do:
           IF AVAIL fg-set AND AVAIL bf-itemfg AND bf-itemfg.alloc THEN
             ASSIGN v-msf = 0 .
           END.
           ELSE
               v-msf   = itemfg.t-sqft * oe-ordl.qty / 1000 .
-          
+
       END.
       ELSE DO:
             IF itemfg.alloc  AND itemfg.isaset THEN 
@@ -913,10 +923,10 @@ display "" with frame r-top.
             ELSE
                 ASSIGN v-msf = itemfg.t-sqft * oe-ordl.qty / 1000 .
       END.
-    
+
       assign
        v-price = oe-ordl.t-price / (oe-ordl.qty / 1000) .
-     
+
 
       display oe-ordl.req-date
               oe-ord.cust-no
@@ -935,7 +945,7 @@ display "" with frame r-top.
       down.
 
       IF tb_excel THEN DO:
-      
+
         ASSIGN
          i-name-no-var = ""
          style-var = "".
@@ -1019,11 +1029,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1051,23 +1061,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

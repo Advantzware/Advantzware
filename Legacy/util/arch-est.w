@@ -283,6 +283,16 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        fi_file_path:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -299,7 +309,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -363,7 +373,7 @@ DO:
      TITLE "Select Archive Files Path".
 
   fi_file_path:SCREEN-VALUE = v-file-path + "\".
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -474,7 +484,7 @@ PROCEDURE run-process :
 /* ------------------------------------------------ sys/del/est.p 3/29/95 CTS */
 /* Delete / Archive old estimates                                             */
 /* -------------------------------------------------------------------------- */
-  
+
 def var festno like est.est-no no-undo.
 def var testno like festno no-undo.
 def var fcust like eb.cust-no no-undo.
@@ -575,7 +585,7 @@ ELSE
 
 message lv-msg
         view-as alert-box question button yes-no update v-process.
-          
+
 if v-process then do:
 
   session:set-wait-state("General").
@@ -619,7 +629,7 @@ if v-process then do:
                                     and asi.eb.cust-no le tcust
                                     and asi.eb.form-no ne 0)
       exclusive with frame f-est
-          
+
       transaction:
 
     IF tb_no-orders AND asi.est.ord-no NE 0 THEN NEXT.
@@ -633,13 +643,13 @@ if v-process then do:
         where asi.e-item-vend.company eq asi.est.company
           and asi.e-item-vend.est-no  eq asi.est.est-no
         exclusive with frame f-e-item-vend:
-        
+
       if archive then do:
         output to value(v-file-path + "e-item-vend" + STRING(est.est-no,"X(8)") + ".d") APPEND.
         export asi.e-item-vend.
         output close.
       end.
-      
+
       delete asi.e-item-vend.
     end.
 
@@ -652,13 +662,13 @@ if v-process then do:
         where asi.e-itemfg-vend.company eq asi.est.company
           and asi.e-itemfg-vend.est-no  eq asi.est.est-no
         exclusive with frame f-e-itemfg-vend:
-        
+
       if archive then do:
         output to value(v-file-path + "e-itemfg-vend" + STRING(est.est-no,"X(8)") + ".d") APPEND.
         export asi.e-itemfg-vend.
         output close.
       end.
-      
+
       delete asi.e-itemfg-vend.
     end.
 
@@ -671,13 +681,13 @@ if v-process then do:
         where asi.eb.company eq asi.est.company
           and asi.eb.est-no  eq asi.est.est-no
         exclusive with frame f-eb:
-        
+
       if archive then do:
         output to value(v-file-path + "eb" + STRING(est.est-no,"X(8)") + ".d") APPEND.
         export asi.eb.
         output close.
       end.
-      
+
       delete asi.eb.
     end.
 
@@ -699,7 +709,7 @@ if v-process then do:
            export reftable.
            output close.
         end.
-      
+
         delete reftable.
     END.
 
@@ -712,7 +722,7 @@ if v-process then do:
         asi.ef.company eq asi.est.company AND
         asi.ef.est-no  eq asi.est.est-no
         exclusive with frame f-ef:
-      
+
         for each reftable WHERE
             reftable.reftable eq "EST-MISC" AND
             reftable.company  eq ef.company AND
@@ -725,7 +735,7 @@ if v-process then do:
                export reftable.
                output close.
             end.
-      
+
             delete reftable.
         END.
 
@@ -734,7 +744,7 @@ if v-process then do:
            export asi.ef.
            output close.
         end.
-      
+
         delete asi.ef.
     end.
 
@@ -747,13 +757,13 @@ if v-process then do:
         where asi.ef-nsh.company eq asi.est.company
           and asi.ef-nsh.est-no  eq asi.est.est-no
         exclusive with frame f-ef-nsh:
-      
+
       if archive then do:
         output to value(v-file-path + "ef-nsh" + STRING(est.est-no,"X(8)") + ".d") APPEND.
         export asi.ef-nsh.
         output close.
       end.
-      
+
       delete asi.ef-nsh.
     end.
 
@@ -766,13 +776,13 @@ if v-process then do:
         where asi.est-flm.company eq asi.est.company
           and asi.est-flm.est-no  eq asi.est.est-no
         exclusive with frame f-est-flm:
-        
+
       if archive then do:
         output to value(v-file-path + "est-flm" + STRING(est.est-no,"X(8)") + ".d") APPEND.
         export asi.est-flm.
         output close.
       end.
-      
+
       delete asi.est-flm.
     end.
 
@@ -785,13 +795,13 @@ if v-process then do:
         where asi.est-inst.company eq asi.est.company
           and asi.est-inst.est-no  eq asi.est.est-no
         exclusive with frame f-est-inst:
-        
+
       if archive then do:
         output to value(v-file-path + "est-inst" + STRING(est.est-no,"X(8)") + ".d") APPEND.
         export asi.est-inst.
         output close.
       end.
-      
+
       delete asi.est-inst.
     end.
 
@@ -804,13 +814,13 @@ if v-process then do:
         where asi.est-op.company eq asi.est.company
           and asi.est-op.est-no  eq asi.est.est-no
         exclusive with frame f-est-op:
-        
+
       if archive then do: 
         output to value(v-file-path + "est-op" + STRING(est.est-no,"X(8)") + ".d") APPEND.
         export asi.est-op.
         output close.
       end.
-      
+
       delete asi.est-op.
     end.
 
@@ -823,13 +833,13 @@ if v-process then do:
         where asi.est-prep.company eq asi.est.company
           and asi.est-prep.est-no  eq asi.est.est-no
         exclusive with frame f-est-prep:
-        
+
       if archive then do:
         output to value(v-file-path + "est-prep" + STRING(est.est-no,"X(8)") + ".d") APPEND.
         export asi.est-prep.
         output close.
       end.
-      
+
       delete asi.est-prep.
     end.
 
@@ -842,13 +852,13 @@ if v-process then do:
         where asi.est-qty.company eq asi.est.company
           and asi.est-qty.est-no  eq asi.est.est-no
         exclusive with frame f-est-qty:
-        
+
       if archive then do:
         output to value(v-file-path + "est-qty" + STRING(est.est-no,"X(8)") + ".d") APPEND.
         export asi.est-qty.
         output close.
       end.
-      
+
       delete asi.est-qty.
     end.
 
@@ -861,13 +871,13 @@ if v-process then do:
         where asi.est-summ.company eq asi.est.company
           and asi.est-summ.est-no  eq asi.est.est-no
         exclusive with frame f-est-summ:
-        
+
       if archive then do:
         output to value(v-file-path + "est-summ" + STRING(est.est-no,"X(8)") + ".d") APPEND.
         export asi.est-summ.
         output close.
       end.
-      
+
       delete asi.est-summ.
     end.
 
@@ -879,13 +889,13 @@ if v-process then do:
     for each notes
         where notes.rec_key EQ est.rec_key
         exclusive with frame f-notes:
-        
+
       if archive then do:
         output to value(v-file-path + "notes" + STRING(est.est-no,"X(8)") + ".d") APPEND.
         export notes.
         output close.
       end.
-      
+
       delete notes.
     end.
 
@@ -898,17 +908,17 @@ if v-process then do:
         where asi.probe.company eq asi.est.company
           and asi.probe.est-no  eq asi.est.est-no
         exclusive with frame f-probe:
-        
+
       DO viDirCount = 1 TO 3:
 
          IF viDirCount EQ 2 THEN tmp-dir = "users\".
          ELSE IF viDirCount EQ 3 THEN tmp-dir = ".\".
-        
+
          v-probe-fmt = IF probe.LINE LT 100 THEN "99" ELSE "999".
-        
+
          OS-COMMAND SILENT VALUE("copy " + tmp-dir + TRIM(probe.est-no) + "-*.*" + STRING(probe.LINE,v-probe-fmt)
             + " " + v-file-path).
-    
+
          OS-COMMAND SILENT VALUE("copy " + tmp-dir + TRIM(probe.est-no) +  ".*" + STRING(probe.LINE,v-probe-fmt)
             + " " + v-file-path).
 
@@ -921,7 +931,7 @@ if v-process then do:
         export asi.probe.
         output close.
       end.
-      
+
       delete asi.probe.
     end.
 
@@ -934,13 +944,13 @@ if v-process then do:
         where asi.probeit.company eq asi.est.company
           and asi.probeit.est-no  eq asi.est.est-no
         exclusive with frame f-probeit:
-        
+
       if archive then do:
         output to value(v-file-path + "probeit" + STRING(est.est-no,"X(8)") + ".d") APPEND.
         export asi.probeit.
         output close.
       end.
-      
+
       delete asi.probeit.
     end.
 
@@ -956,24 +966,24 @@ if v-process then do:
         where asi.box-design-hdr.company   eq asi.est.company
           and asi.box-design-hdr.est-no    eq asi.est.est-no
           and asi.box-design-hdr.design-no eq 0:
-        
+
       for each asi.box-design-line of box-design-hdr exclusive:
-      
+
         if archive then do:
           output to value(v-file-path + "box-design-line" + STRING(est.est-no,"X(8)") + ".d") APPEND.
           export asi.box-design-line.
           output close.
         end.
-        
+
         delete asi.box-design-line.
       end.
-      
+
       if archive then do:
         output to value(v-file-path + "box-design-hdr" + STRING(est.est-no,"X(8)") + ".d") APPEND.
         export asi.box-design-hdr.
         output close.
       end.
-      
+
       delete asi.box-design-hdr.
     end.
 
@@ -989,7 +999,7 @@ if v-process then do:
            export reftable.
            output close.
         end.
-      
+
         delete reftable.
     END.
 
@@ -1005,7 +1015,7 @@ if v-process then do:
            export reftable.
            output close.
         end.
-      
+
         delete reftable.
     END.
 
@@ -1021,7 +1031,7 @@ if v-process then do:
            export reftable.
            output close.
         end.
-      
+
         delete reftable.
     END.
 
@@ -1037,7 +1047,7 @@ if v-process then do:
            export reftable.
            output close.
         end.
-      
+
         delete reftable.
     END.
 
@@ -1052,7 +1062,7 @@ if v-process then do:
            export reftable.
            output close.
         end.
-      
+
         delete reftable.
     END.
 
@@ -1068,7 +1078,7 @@ if v-process then do:
            export reftable.
            output close.
         end.
-      
+
         delete reftable.
     END.
 
@@ -1084,7 +1094,7 @@ if v-process then do:
            export reftable.
            output close.
         end.
-      
+
         delete reftable.
     END.
 
@@ -1100,7 +1110,7 @@ if v-process then do:
            export reftable.
            output close.
         end.
-      
+
         delete reftable.
     END.
 
@@ -1115,7 +1125,7 @@ if v-process then do:
            export reftable.
            output close.
         end.
-      
+
         delete reftable.
     END.
 
@@ -1124,13 +1134,13 @@ if v-process then do:
         reftable.company  eq est.company AND
         reftable.code     eq est.est-no
         EXCLUSIVE WITH FRAME f-dropslit:
-    
+
         if archive then do:
            output to value(v-file-path + "reftable" + STRING(est.est-no,"X(8)") + ".d") APPEND.
            export reftable.
            output close.
         end.
-      
+
         delete reftable.
     END.
 
@@ -1140,13 +1150,13 @@ if v-process then do:
         reftable.loc      EQ est.loc AND
         reftable.code     EQ est.est-no
         EXCLUSIVE WITH FRAME f-getqty:
-    
+
         if archive then do:
            output to value(v-file-path + "reftable" + STRING(est.est-no,"X(8)") + ".d") APPEND.
            export reftable.
            output close.
         end.
-      
+
         delete reftable.
     END.
 
@@ -1156,13 +1166,13 @@ if v-process then do:
         reftable.loc      EQ est.loc AND
         reftable.code     EQ est.est-no
         EXCLUSIVE WITH FRAME f-dmultbl:
-    
+
         if archive then do:
            output to value(v-file-path + "reftable" + STRING(est.est-no,"X(8)") + ".d") APPEND.
            export reftable.
            output close.
         end.
-      
+
         delete reftable.
     END.
 
@@ -1172,13 +1182,13 @@ if v-process then do:
         reftable.loc      EQ est.loc AND
         reftable.code     EQ est.est-no
         EXCLUSIVE WITH FRAME f-grpcst:
-    
+
         if archive then do:
            output to value(v-file-path + "reftable" + STRING(est.est-no,"X(8)") + ".d") APPEND.
            export reftable.
            output close.
         end.
-      
+
         delete reftable.
     END.
 
@@ -1188,13 +1198,13 @@ if v-process then do:
         AND reftable.loc      EQ ""
         AND reftable.code     EQ est.est-no
         EXCLUSIVE WITH FRAME f-getqty2:
-    
+
         if archive then do:
            output to value(v-file-path + "reftable" + STRING(est.est-no,"X(8)") + ".d") APPEND.
            export reftable.
            output close.
         end.
-      
+
         delete reftable.
     END.
 
@@ -1203,13 +1213,13 @@ if v-process then do:
         reftable.company  EQ est.company AND
         reftable.loc      EQ est.est-no
         EXCLUSIVE WITH FRAME f-plate:
-    
+
         if archive then do:
            output to value(v-file-path + "reftable" + STRING(est.est-no,"X(8)") + ".d") APPEND.
            export reftable.
            output close.
         end.
-      
+
         delete reftable.
     END.
 
@@ -1218,13 +1228,13 @@ if v-process then do:
         reftable.company  EQ est.company AND
         reftable.loc      EQ est.est-no
         EXCLUSIVE WITH FRAME f-v-est3:
-    
+
         if archive then do:
            output to value(v-file-path + "reftable" + STRING(est.est-no,"X(8)") + ".d") APPEND.
            export reftable.
            output close.
         end.
-      
+
         delete reftable.
     END.
 
@@ -1233,16 +1243,16 @@ if v-process then do:
         reftable.company  EQ est.company AND
         reftable.loc      EQ est.est-no
         EXCLUSIVE WITH FRAME f-depth:
-    
+
         if archive then do:
            output to value(v-file-path + "reftable" + STRING(est.est-no,"X(8)") + ".d") APPEND.
            export reftable.
            output close.
         end.
-      
+
         delete reftable.
     END.
-      
+
     IF archive THEN DO:
        output to value(v-file-path + "est" + STRING(est.est-no,"X(8)") + ".d").
        output close.
@@ -1253,7 +1263,7 @@ if v-process then do:
       export asi.est.
       output close.
     end.
-    
+
     delete asi.est.
   end.
 
@@ -1264,7 +1274,7 @@ if v-process then do:
 end.
 
 return no-apply.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

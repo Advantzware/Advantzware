@@ -303,6 +303,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -359,7 +369,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -453,7 +463,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-       
+
   run run-report. 
 
   case rd-dest:
@@ -796,7 +806,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -864,9 +874,9 @@ PROCEDURE print-excel-total :
           '"' STRING(ip-dec1,"$>>,>>9.99") '",'
           SKIP.
 
-   
 
-   
+
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -934,7 +944,7 @@ FORM HEADER SKIP(1)
             "-----"
             "------------"
             SKIP
-            
+
     WITH FRAME r-top.
 
 
@@ -948,12 +958,12 @@ ASSIGN
  v-tdat     = end_date  
  v-export   = tb_exp-exel
  v-exp-name = exp-name
- 
+
  v-fjob     = FILL(" ",6 - LENGTH(TRIM(begin_job-no))) +
               TRIM(begin_job-no) + STRING(INT(begin_job-no2),"99")
  v-tjob     = FILL(" ",6 - LENGTH(TRIM(end_job-no)))   +
               TRIM(end_job-no)   + STRING(INT(end_job-no2),"99"). 
-         
+
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i VALUE(lines-per-page)}
@@ -1000,7 +1010,7 @@ IF td-show-parm THEN RUN show-param.
         AND job.job-no  EQ mch-act.job-no
         AND job.job-no2 EQ mch-act.job-no2
       USE-INDEX job,
-      
+
       FIRST job-hdr NO-LOCK
       WHERE job-hdr.company EQ mch-act.company
         AND job-hdr.job     EQ mch-act.job
@@ -1123,7 +1133,7 @@ IF td-show-parm THEN RUN show-param.
       NO-LOCK,
 
       FIRST job-code WHERE job-code.code EQ mch-act.code NO-LOCK
-      
+
       BREAK BY tt-report.key-01
             BY tt-report.key-02
             BY mch-act.op-date
@@ -1153,10 +1163,10 @@ IF td-show-parm THEN RUN show-param.
             tt-report.waste               FORMAT "->>,>>>,>>9"
             mch-act.shift                 FORMAT ">>>>>"
             ld-sqft                       FORMAT "->,>>>,>>9.9<<<<"
-              
+
         WITH FRAME detail NO-ATTR-SPACE NO-BOX NO-LABELS DOWN STREAM-IO WIDTH 132.
     DOWN WITH FRAME detail.
-      
+
     IF v-export THEN DO:
 
       PUT STREAM s-temp UNFORMATTED
@@ -1188,36 +1198,36 @@ IF td-show-parm THEN RUN show-param.
      ld-tot-cost = ld-tot-cost + (ld-time * ld-rate)
      ld-tot-time = ld-tot-time + ld-time
      ld-tot-sqft = ld-tot-sqft + ld-sqft.
-    
+
     IF LAST(tt-report.key-01) THEN DO:
       UNDERLINE ld-time ld-sqft WITH FRAME detail.
-        
+
       DISPLAY "           Total Time"           @ lv-date
               ld-tot-time                       @ ld-time
               ld-tot-sqft                       @ ld-sqft
-              
+
           WITH FRAME detail.
       DOWN WITH FRAME detail.
-            
+
       PUT SKIP(1).
 
       ld-time:FORMAT IN FRAME detail = "$>>,>>9.99".
-        
+
       DISPLAY "  Labor Per Crew Hour"           @ lv-date
               ld-tot-cost / ld-tot-time         @ ld-time
-              
+
           WITH FRAME detail.
       DOWN WITH FRAME detail.
-        
+
       DISPLAY "   Total Direct Labor"           @ lv-date
               ld-tot-cost                       @ ld-time
-              
+
           WITH FRAME detail.
       DOWN WITH FRAME detail.
-        
+
       DISPLAY "         Cost Per MSF"           @ lv-date
               ld-tot-cost / ld-tot-sqft * 1000  @ ld-time
-              
+
           WITH FRAME detail.
       DOWN WITH FRAME detail.
 
@@ -1238,7 +1248,7 @@ IF td-show-parm THEN RUN show-param.
       END.
     END.
   END.
-  
+
 SESSION:SET-WAIT-STATE("").
 
 IF v-export THEN DO:
@@ -1248,7 +1258,7 @@ IF v-export THEN DO:
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).  
-    
+
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 
 end procedure.
@@ -1271,11 +1281,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1307,19 +1317,19 @@ PROCEDURE show-param :
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

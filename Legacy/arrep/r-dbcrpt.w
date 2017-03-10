@@ -339,6 +339,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_cust:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -387,7 +397,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -514,7 +524,7 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
@@ -732,7 +742,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-   
+
 /* security check need {methods/prgsecur.i} in definition section */
   IF access-close THEN DO:
      APPLY "close" TO THIS-PROCEDURE.
@@ -759,7 +769,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      (TRIM(sys-ctrl.char-fld) NE "" AND
       TRIM(sys-ctrl.char-fld) NE "HOP")
     THEN IS-xprint-form = TRUE.  
-  
+
   do transaction:
     {sys/inc/inexport.i}
   end.
@@ -767,7 +777,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   lines-per-page = 58.
 
   RUN enable_UI.
- 
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -784,7 +794,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     DISABLE lines-per-page.
     IF tb_posted:SCREEN-VALUE = 'yes' THEN tb_reprint:SCREEN-VALUE = "YES".
   END.
-  
+
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -878,7 +888,7 @@ PROCEDURE output-to-printer :
  /*    DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -952,8 +962,8 @@ v-term-id = v-term.
             ELSE 
               PUT "<PREVIEW></PROGRESS>". 
         END.    
-             
-      
+
+
         WHEN  4 THEN do:
               ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".
                   /*(IF is-xprint-form THEN ".xpr" ELSE ".txt").*/
@@ -1037,7 +1047,7 @@ find first company where company.company eq cocode no-lock no-error.
 find first oe-ctrl where oe-ctrl.company eq cocode no-lock no-error.
 
 if avail oe-ctrl and oe-ctrl.prcom then do:
-   
+
   assign
    letterhead[1] = ""
    letterhead[2] =  company.name
@@ -1106,7 +1116,7 @@ SESSION:SET-WAIT-STATE("general").
     END.
 
     release reftable no-error.
-    
+
     IF can-find(FIRST ar-cashl WHERE ar-cashl.company = cocode and
                                ar-cashl.c-no = ar-cash.c-no AND
                                (ar-cashl.amt-paid + ar-cashl.amt-disc) < 0 )
@@ -1150,7 +1160,7 @@ SESSION:SET-WAIT-STATE("general").
         "---------------------------------------------" at 4 "---------" at 55
         "--------------" to 78
             with frame crdb-header no-box no-labels width 80 PAGE-TOP STREAM-IO.
-     
+
     end.
     view frame crdb-header.
     if first-of(ar-cash.check-no) then PAGE.
@@ -1194,7 +1204,7 @@ SESSION:SET-WAIT-STATE("general").
        v1 = 0
        v2 = 0.
     end.
-    
+
     find first reftable
         where reftable.reftable eq "AR-CASH"
           and reftable.code     eq string(ar-cash.c-no,"9999999999")
@@ -1274,7 +1284,7 @@ CASE icFormName:
         v-program = "ar/rep/AlWstMem.p"
         lines-per-page = 66
         is-xprint-form = YES.
-       
+
     WHEN "PremierPkg" THEN
      ASSIGN
         v-program = "ar/rep/prpkgmem.p"
@@ -1298,7 +1308,7 @@ CASE icFormName:
 
 END CASE.
 
-   
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1319,11 +1329,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1351,25 +1361,25 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
 
   PAGE.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

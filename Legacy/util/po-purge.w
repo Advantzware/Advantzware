@@ -198,6 +198,16 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -206,7 +216,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -358,7 +368,7 @@ def var tpo like fpo initial 999999 no-undo.
 
 
 session:set-wait-state("General").
-  
+
 do with frame {&frame-name}:
   assign
    begin_po
@@ -366,9 +376,9 @@ do with frame {&frame-name}:
    begin_date
    end_date.
 end.
-    
+
 session:set-wait-state("").
- 
+
 assign
  fpo       = begin_po
  tpo       = end_po
@@ -385,17 +395,17 @@ if v-process then do:
         and po-ord.po-no   le tpo
         and po-ord.po-date ge begin_date
         and po-ord.po-date le end_date:
-                     
+
     for each po-ordl WHERE
         po-ordl.company EQ po-ord.company AND
         po-ordl.po-no   EQ po-ord.po-no:
       {po/po-ordls.i}
       if avail b-ref1 then delete b-ref1.
       if avail b-ref2 then delete b-ref2.
-    
+
       delete po-ordl.
     end.
-    
+
     delete po-ord.
   end.
 
@@ -404,7 +414,7 @@ if v-process then do:
 end.
 
 return no-apply.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

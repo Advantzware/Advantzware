@@ -44,11 +44,11 @@ CREATE WIDGET-POOL.
 {custom/getloc.i}
 
 {sys/inc/VAR.i new shared}
-    
+
 assign
  cocode = gcompany
  locode = gloc.
-    
+
 def var v-pct          as   dec  format ">9.99" NO-UNDO.
 def var v-date         as   date format "99/99/9999" init today NO-UNDO.
 
@@ -195,6 +195,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_cust:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -222,7 +232,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -324,7 +334,7 @@ ON LEAVE OF tran-date IN FRAME FRAME-A /* As of */
 DO:
   assign {&self-name}.
   DO with frame {&frame-name}:
-  
+
     find first period                   
         where period.company eq cocode
           and period.pst     le tran-date
@@ -373,11 +383,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        APPLY "close" TO THIS-PROCEDURE.
        RETURN .
     END.
-   
+
   tran-date = TODAY.
-  
+
   RUN enable_UI.
-    
+
   {methods/nowait.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -543,16 +553,16 @@ PROCEDURE bill-finance :
        ar-inv.due      = ar-inv.net
        ar-inv.gross    = ar-inv.net
        ar-inv.curr-code[1] = cust.curr-code    .
-      
+
       find first ar-ctrl where ar-ctrl.company eq cocode exclusive-lock.
-      
+
       assign
        ar-inv.inv-no    = ar-ctrl.last-inv + 1
        ar-ctrl.last-inv = ar-inv.inv-no.
-      
+
      /* {ar/ar-invl.a} */
      x = 1.
-     
+
      find last ar-invl where ar-invl.x-no = ar-inv.x-no use-index x-no
      no-lock no-error.
      if available ar-invl then x = ar-invl.line + 1.
@@ -572,7 +582,7 @@ PROCEDURE bill-finance :
        ar-invl.pr-qty-uom = "EA"
        ar-invl.amt        = ar-inv.net
        ar-invl.actnum     = ar-ctrl.onac.
-      
+
     end.
   END.
   SESSION:SET-WAIT-STATE("").

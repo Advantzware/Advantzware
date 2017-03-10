@@ -203,6 +203,21 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process-report:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -211,7 +226,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -437,7 +452,7 @@ FOR EACH bf-fg-rctd
               and reftable.dscr begins "fg-rctd: " 
            NO-LOCK NO-ERROR.
         IF AVAIL reftable THEN DO:
-          
+
           FIND FIRST bf-fg-rctd-SH
                   WHERE bf-fg-rctd-SH.company EQ bf-fg-rctd.company
                     AND bf-fg-rctd-SH.rita-code EQ "R"

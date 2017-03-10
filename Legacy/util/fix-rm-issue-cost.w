@@ -217,6 +217,16 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -257,7 +267,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -358,7 +368,7 @@ DO:
   MESSAGE "Are you sure you want to " + TRIM(c-win:TITLE) +
           " for the selected parameters?"
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll.
-        
+
   IF ll THEN RUN run-process.
 END.
 
@@ -594,12 +604,12 @@ FOR EACH b-rh NO-LOCK
              (rm-rcpth.trans-date EQ b-rh.trans-date AND
               rm-rcpth.r-no       LT b-rh.r-no))
       USE-INDEX r-no
-    
+
       BY rm-rcpth.trans-date
       BY rm-rcpth.r-no
       BY RECID(rm-rcpth)
       BY RECID(rm-rdtlh):
-    
+
     {rm/rm-mkbin.i tt-}
   END. /* each rm-rcpth */
 
@@ -619,12 +629,12 @@ FOR EACH b-rh NO-LOCK
         AND rm-rdtlh.loc-bin   EQ tt-rm-bin.loc-bin
         AND rm-rdtlh.tag       EQ tt-rm-bin.tag
       USE-INDEX rm-rdtl
-    
+
       BY rm-rcpth.trans-date
       BY rm-rcpth.r-no
       BY RECID(rm-rcpth)
       BY RECID(rm-rdtlh):
-    
+
     {rm/rm-mkbin.i tt-}
   END. /* each rm-rcpth */
 
@@ -638,7 +648,7 @@ FOR EACH b-rh NO-LOCK
         AND job-mat.i-no     EQ b-rh.i-no
       NO-LOCK
       BREAK BY job-mat.blank-no DESC:
-  
+
     IF LAST(job-mat.blank-no) OR job-mat.blank-no EQ b-rd.b-num THEN LEAVE.
   END.
 

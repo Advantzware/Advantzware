@@ -303,6 +303,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -345,7 +355,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -495,7 +505,7 @@ DO:
 ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -623,13 +633,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      RETURN .
   END.
 
-   
+
   assign
    begin_date = date(month(TODAY), 1, year(TODAY))
    end_date   = today.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -658,7 +668,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO"
         btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
         .
-      
+
    IF ou-log AND ou-cust-int = 0 THEN do:
        ASSIGN 
         tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = YES
@@ -727,12 +737,12 @@ PROCEDURE CleanUp :
   Parameters: <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   /* RELEASE OBJECTS */
   RELEASE OBJECT chWorkbook         NO-ERROR.
   RELEASE OBJECT chWorkSheet        NO-ERROR.
   RELEASE OBJECT chExcelApplication NO-ERROR.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -748,7 +758,7 @@ PROCEDURE CustList :
 
     RUN sys/ref/CustListManager.w(INPUT cocode,
                                   INPUT 'DE2').
-    
+
 
 END PROCEDURE.
 
@@ -815,7 +825,7 @@ PROCEDURE InitializeExcel :
 
   /* Set the Excel Template to be used. */
   ASSIGN chFile = search (FILE-INFO:FULL-PATHNAME) no-error.
-  
+
   if search (chFile) = ? then do:
     MESSAGE 'Spreadsheet File: ' FILE-INFO:FULL-PATHNAME
             'cannot be found. Please verify that the file exists.'
@@ -1042,10 +1052,10 @@ run InitializeExcel.
 
 /* Open our Excel Template. */  
   assign chWorkbook = chExcelApplication:Workbooks:Open(chfile)  no-error.
-  
+
   /* Do not display Excel error messages. */
   chExcelApplication:DisplayAlerts = false  no-error.
-  
+
   /* Disable screen updating so it will go faster */
   chExcelApplication:ScreenUpdating = False.
 
@@ -1059,7 +1069,7 @@ run InitializeExcel.
      chWorkSheet = chExcelApplication:Sheets:item({&summary-sheet})
      /* enable screen updating */
      chExcelApplication:ScreenUpdating = TRUE.
-  
+
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
     /*run MainLoop.*/
@@ -1093,7 +1103,7 @@ PROCEDURE SetCustRange :
         btnCustList:SENSITIVE = iplChecked
        .
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

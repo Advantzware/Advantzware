@@ -234,6 +234,16 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -258,7 +268,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -498,13 +508,13 @@ for each ar-inv
       and ar-inv.cust-no  le end_cust-no
       and ar-inv.posted   eq yes
     use-index inv-date:
-      
+
   amt = if ar-inv.net eq ar-inv.gross + ar-inv.freight + ar-inv.tax-amt then
           ar-inv.net else ar-inv.gross.
-      
+
   IF NOT tb_zero THEN
     if v-open then amt = 0.
-    
+
     else
     for each ar-cashl
         where ar-cashl.company  eq ar-inv.company
@@ -556,7 +566,7 @@ for each ar-inv
           and ar-invl.x-no eq ar-inv.x-no:
       delete ar-invl.
     end.
-    
+
     delete ar-inv.
   end.
 end.
@@ -565,7 +575,7 @@ session:set-wait-state("").
 
 message trim(c-win:title) + " Process Is Completed." view-as alert-box.
 apply "close" to this-procedure.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

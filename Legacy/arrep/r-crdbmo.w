@@ -218,6 +218,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
    NO-ENABLE                                                            */
 ASSIGN 
@@ -232,7 +242,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -317,7 +327,7 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
@@ -459,7 +469,7 @@ SESSION:DATA-ENTRY-RETURN=YES.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-   
+
 /* security check need {methods/prgsecur.i} in definition section */
   IF access-close THEN DO:
      APPLY "close" TO THIS-PROCEDURE.
@@ -470,7 +480,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   tran-date = TODAY.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -490,7 +500,7 @@ PROCEDURE check-date :
   Notes:       
 ------------------------------------------------------------------------------*/
  v-invalid = no.
-  
+
   find first period
       where period.company eq gcompany
         and period.pst     le tran-date
@@ -591,7 +601,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -627,9 +637,9 @@ PROCEDURE run-report :
 /* ---------------------------------------------------- ar/ar-dreg.p  7/94 RM */
 /* A/R Credit/Debit Memo Edit Register Program - A/R Module                   */
 /* -------------------------------------------------------------------------- */
- 
+
  {sys/form/r-top3w.f}
- 
+
    DEFINE VARIABLE qfirst AS l.
    DEFINE VARIABLE g1 AS DECIMAL format "->,>>>,>>9.99".
    DEFINE VARIABLE archk AS DECIMAL FORMAT ">>>>>>99".
@@ -650,7 +660,7 @@ PROCEDURE run-report :
      "INVOICE   G/L DISTRIBUTION" AT 70 SKIP FILL("_",132) FORMAT "x(132)"
      WITH NO-LABELS NO-BOX NO-UNDERLINE FRAME f-top PAGE-TOP STREAM-IO WIDTH 132.
 
- 
+
     FIND FIRST ar-ctrl WHERE ar-ctrl.company = cocode NO-LOCK.
     xar-acct = ar-ctrl.receivables.
     xcs-acct = ar-ctrl.cash-act.
@@ -711,7 +721,7 @@ PROCEDURE run-report :
 
   DISPLAY  "** GRAND TOTAL  "  AT 90  g2 TO 126 " **"
     WITH NO-LABELS NO-UNDERLINE STREAM-IO WIDTH 132 FRAME GT.
-  
+
     HIDE FRAME f-top.
 
   FORMAT HEADER
@@ -733,7 +743,7 @@ PROCEDURE run-report :
     DO:
       FIND cust {ar/ar-custW.i} AND cust.cust-no = ar-cash.cust-no
         NO-LOCK NO-ERROR.
-  
+
       IF FIRST-OF(ar-cashl.actnum) THEN
       DO:
         FIND FIRST account WHERE account.company = cocode AND
@@ -767,9 +777,9 @@ PROCEDURE run-report :
   PUT "***** TOTAL FOR ALL ACCOUNTS " TO 116
     ACCUMULATE TOTAL ar-cashl.amt-paid - ar-cashl.amt-disc
                            format "->,>>>,>>9.99" TO 132.
-   
+
    SESSION:SET-WAIT-STATE("").
-  
+
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 
 end procedure.
@@ -792,11 +802,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -824,23 +834,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

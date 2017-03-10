@@ -358,6 +358,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -391,7 +401,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -507,7 +517,7 @@ DO:
                                   &mail-body="Customer List"
                                   &mail-file=list-name }
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
@@ -551,7 +561,7 @@ DO:
 
   RUN DisplaySelectionDefault.  /* task 04141407 */ 
   RUN DisplaySelectionList2 .
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -680,7 +690,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
-  
+
    IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
        sl_selected:NUM-ITEMS = 0)
    THEN ASSIGN ldummy = sl_selected:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
@@ -688,7 +698,7 @@ DO:
               /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
                .
 
-  
+
 /* for pairs
     DEF VAR cSelectedList AS cha NO-UNDO.
     cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
@@ -731,7 +741,7 @@ DO:
   ASSIGN
     {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}:ENTRY(1)
     .
-    
+
 
 END.
 
@@ -830,7 +840,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    begin_date-3 = begin_date-2 + 7.
   RUN DisplaySelectionList.
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
     DO WITH FRAME {&FRAME-NAME}:
@@ -877,7 +887,7 @@ PROCEDURE DisplaySelectionDefault :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  
+
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
      cListContents = cListContents +                   
@@ -917,7 +927,7 @@ PROCEDURE DisplaySelectionList :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .    
   END.
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 END PROCEDURE.
 
@@ -938,7 +948,7 @@ PROCEDURE DisplaySelectionList2 :
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
-        
+
   EMPTY TEMP-TABLE ttRptList.
 
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
@@ -1013,7 +1023,7 @@ PROCEDURE GetSelectionList :
 
  DO i = 1 TO sl_selected:NUM-ITEMS /* IN FRAME {&FRAME-NAME}*/ :
     FIND FIRST ttRptList WHERE ttRptList.TextList = ENTRY(i,cTmpList) NO-LOCK NO-ERROR.     
-  
+
     CREATE ttRptSelected.
     ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
            ttRptSelected.FieldList = ttRptList.FieldList
@@ -1022,7 +1032,7 @@ PROCEDURE GetSelectionList :
            ttRptSelected.HeadingFromLeft = IF entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
-           
+
  END.
 
 END PROCEDURE.
@@ -1141,7 +1151,7 @@ DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 DEF BUFFER bap-inv FOR ap-inv .
 
 {sys/form/r-top5L3.f} 
-  
+
     cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 def var ws_gross like ap-inv.net no-undo.
 def var b-comp as CHAR format "x(3)" no-undo.
@@ -1178,9 +1188,9 @@ DEF VAR excelheader-2 AS CHAR NO-UNDO.
      "Disc       Gross     Disc       Gross     Disc         Gross     Disc company"
      skip
      fill("_",145) format "x(145)"
-     
+
     with page-top frame b-top stream-io width 145 no-box.
-    
+
 form ap-inv.inv-no
      ap-inv.inv-date format "99/99/99"
      ap-inv.due-date format "99/99/99"
@@ -1195,7 +1205,7 @@ form ap-inv.inv-no
      ws_gross
      ws_disc-avail
      ap-inv.company FORMAT "x(8)"
-     
+
     with stream-io width 150 frame b no-labels down no-box.*/
 
 /*form header
@@ -1204,9 +1214,9 @@ form ap-inv.inv-no
      "Disc       Gross     Disc       Gross     Disc         Gross     Disc"
      skip
      fill("_",137) format "x(137)"
-     
+
     with page-top frame f-top stream-io width 137 no-box.*/
-    
+
 form ap-inv.inv-no
      ap-inv.inv-date format "99/99/99"
      ap-inv.due-date format "99/99/99"
@@ -1220,7 +1230,7 @@ form ap-inv.inv-no
      inv-d[4] format "->>>>.99" 
      ws_gross
      ws_disc-avail
-     
+
     with stream-io width 137 frame a no-labels down no-box.
 
 EMPTY TEMP-TABLE tt-report.
@@ -1228,7 +1238,7 @@ EMPTY TEMP-TABLE tt-report.
 assign
  str-tit2 = c-win:title
  {sys/inc/ctrtext.i str-tit2 112}
- 
+
  b-comp = begin_company
  e-comp = end_company
  d1[1]  = begin_date-1
@@ -1276,7 +1286,7 @@ END.*/
              str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
           excelheader = excelHeader + ttRptSelected.TextList + ","
              . 
-            
+
         IF LOOKUP(ttRptSelected.TextList, "1Gross") <> 0    THEN 
          ASSIGN
          str-tit3 = str-tit3 + string(d1[1]) + "    " 
@@ -1293,8 +1303,8 @@ END.*/
          ASSIGN
              str-tit3 = str-tit3 + FILL(" ",ttRptSelected.FieldLength) + " "
               excelheader-2  = excelheader-2 + " ,"  .
-       
-   
+
+
    /*lCountedDateSelected = IF lCountedDateSelected = NO AND ttRptSelected.FieldList = "v-counted-date" THEN YES ELSE NO.
    */    
  END.
@@ -1305,7 +1315,7 @@ END.*/
                     "$/MSF,Sales Amt,Full Cost,Profit". */
       PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader-2,',','","') '"' skip.
       PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' skip.
-      
+
    END. 
 
 if td-show-parm then run show-param.
@@ -1321,7 +1331,7 @@ SESSION:SET-WAIT-STATE ("general").
         and ap-inv.posted  eq yes
         and ap-inv.due     ne 0
       no-lock,
-      
+
       first vend
       where vend.company eq ap-inv.company 
         and vend.vend-no eq ap-inv.vend-no
@@ -1342,11 +1352,11 @@ SESSION:SET-WAIT-STATE ("general").
 
   for each tt-report,
       first ap-inv where recid(ap-inv) eq tt-report.rec-id no-lock
-      
+
       break by tt-report.key-01
             by tt-report.key-02
             by tt-report.key-03:
-            
+
       {custom/statusMsg.i " 'Processing Invoice#  '  + string(ap-inv.inv-no) "}
 
     find first terms where terms.t-code eq ap-inv.terms no-lock no-error.
@@ -1355,55 +1365,55 @@ SESSION:SET-WAIT-STATE ("general").
         where vend.company eq ap-inv.company
           and vend.vend-no eq ap-inv.vend-no
         no-lock no-error.
-    
+
     /*if first-of (tt-report.key-02) then do:
       put ap-inv.vend-no.
       if avail vend then put vend.name.
       put skip.
     end.*/
-    
+
     assign
      ws_gross      = ap-inv.due
      ws_disc-avail = if ap-inv.net ne 0 then
                        (ap-inv.net * (ap-inv.disc-% / 100) - ap-inv.disc-taken)
                      else 0.
-                     
+
     do i = 1 to 4:
       assign
        inv-t[i] = 0
        inv-d[i] = 0.
     end.
-                     
+
     if ap-inv.due-date gt d1[3] then
       assign
        vend-t[4] = vend-t[4] + ws_gross
        inv-t[4]  = ws_gross.
-       
+
     else
     if ap-inv.due-date gt d1[2] then
       assign
        vend-t[3] = vend-t[3] + ws_gross
        inv-t[3]  = ws_gross.
-    
+
     else
     if ap-inv.due-date gt d1[1] then
       assign
        vend-t[2] = vend-t[2] + ws_gross
        inv-t[2]  = ws_gross.
-    
+
     else
       assign
        vend-t[1] = vend-t[1] + ws_gross
        inv-t[1]  = ws_gross.
-       
+
     v-disc-date = if avail terms then
                     (ap-inv.inv-date + terms.disc-days) else ap-inv.due-date.
-       
+
     if v-disc-date gt d1[3] then
       assign
        vend-d[4] = vend-d[4] + ws_disc-avail
        inv-d[4]  = ws_disc-avail.
-              
+
     else
     if v-disc-date gt d1[2] then
       assign
@@ -1415,7 +1425,7 @@ SESSION:SET-WAIT-STATE ("general").
       assign
        vend-d[2] = vend-d[2] + ws_disc-avail
        inv-d[2]  = ws_disc-avail.
-    
+
     else
       assign
        vend-d[1] = vend-d[1] + ws_disc-avail
@@ -1436,7 +1446,7 @@ SESSION:SET-WAIT-STATE ("general").
             inv-d[4] when inv-d[4] ne 0
             ws_gross
             ws_disc-avail
-           
+
         with frame a.
     down with frame a.
   END. 
@@ -1457,11 +1467,11 @@ SESSION:SET-WAIT-STATE ("general").
             ws_gross
             ws_disc-avail
             ap-inv.company
-            
+
         with frame b.
     down with frame b.
    END.*/
-    
+
     /*IF tb_excel THEN
        PUT STREAM excel UNFORMATTED
           '"' IF first-of(tt-report.key-02) THEN
@@ -1488,7 +1498,7 @@ SESSION:SET-WAIT-STATE ("general").
           '"' IF v-company THEN STRING(ap-inv.company) ELSE ""             '",'
           SKIP.*/
 
-      
+
 
        ASSIGN cDisplay = ""
                cTmpField = ""
@@ -1538,7 +1548,7 @@ SESSION:SET-WAIT-STATE ("general").
                             WHEN "terms" THEN cVarValue = IF AVAIL vend THEN vend.terms ELSE "" . 
                             WHEN "dy-old" THEN cVarValue =  STRING(TODAY - ap-inv.inv-date ,">>>>>>>9") .
                             WHEN "cc-ach" THEN cVarValue = IF AVAIL vend AND vend.spare-int-1 = 1 THEN "Yes" ELSE "No". 
-                            
+
                        END CASE.
                        cExcelVarValue = cVarValue.  
                        cDisplay = cDisplay + cVarValue +
@@ -1565,7 +1575,7 @@ SESSION:SET-WAIT-STATE ("general").
               vend-d[4]  @ inv-d[4]
               vend-t[1] + vend-t[2] + vend-t[3] + vend-t[4] @ ws_gross
               vend-d[1] + vend-d[2] + vend-d[3] + vend-d[4] @ ws_disc-avail
-              
+
           with frame a.
       down 2 with frame a.
         END.
@@ -1581,11 +1591,11 @@ SESSION:SET-WAIT-STATE ("general").
               vend-d[4]  @ inv-d[4]
               vend-t[1] + vend-t[2] + vend-t[3] + vend-t[4] @ ws_gross
               vend-d[1] + vend-d[2] + vend-d[3] + vend-d[4] @ ws_disc-avail
-              
+
           with frame b.
       down 2 with frame b.
       END.*/
-    
+
         ASSIGN cDisplay = ""
                cTmpField = ""
                cVarValue = ""
@@ -1595,7 +1605,7 @@ SESSION:SET-WAIT-STATE ("general").
               BUFFER bap-inv:FIND-BY-ROWID(ROWID(ap-inv), NO-LOCK) .
               DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                   cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
-                  
+
                        CASE cTmpField:                                          
                             WHEN "ap-inv.vend-no" THEN cVarValue =  "*" .
                             WHEN "vend-name" THEN cVarValue =  "" .
@@ -1617,30 +1627,30 @@ SESSION:SET-WAIT-STATE ("general").
                             WHEN "terms" THEN cVarValue =  "" . 
                             WHEN "dy-old" THEN cVarValue = "" . 
                             WHEN "cc-ach" THEN cVarValue = "" . 
-                            
+
                        END CASE.
                        cExcelVarValue = cVarValue.  
                        cDisplay = cDisplay + cVarValue +
                                   FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
                        cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
-                 
+
               END.
               PUT  UNFORMATTED "    *" substring(cDisplay,6,400) SKIP(1).
               IF tb_excel THEN DO:
                     PUT STREAM excel UNFORMATTED  
                           cExcelDisplay SKIP(1).
               END.
-            
+
       do i = 1 to 4:
         assign
          grand-t[i] = grand-t[i] + vend-t[i]
          grand-d[i] = grand-d[i] + vend-d[i]
-         
+
          vend-t[i]  = 0
          vend-d[i]  = 0.
       end.
     end.  /* last-of loop */
-    
+
     if last(tt-report.key-02) then do:
       /*IF NOT v-company THEN DO:
       down 1 with frame a.
@@ -1656,7 +1666,7 @@ SESSION:SET-WAIT-STATE ("general").
               grand-d[4] @ inv-d[4]
               grand-t[1] + grand-t[2] + grand-t[3] + grand-t[4] @ ws_gross
               grand-d[1] + grand-d[2] + grand-d[3] + grand-d[4] @ ws_disc-avail
-          
+
           with frame a.
       END.
       ELSE do:
@@ -1673,7 +1683,7 @@ SESSION:SET-WAIT-STATE ("general").
               grand-d[4] @ inv-d[4]
               grand-t[1] + grand-t[2] + grand-t[3] + grand-t[4] @ ws_gross
               grand-d[1] + grand-d[2] + grand-d[3] + grand-d[4] @ ws_disc-avail
-          
+
           with frame b.
       END.*/
 
@@ -1686,7 +1696,7 @@ SESSION:SET-WAIT-STATE ("general").
               BUFFER bap-inv:FIND-BY-ROWID(ROWID(ap-inv), NO-LOCK) .
               DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                   cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
-                  
+
                        CASE cTmpField:                                          
                             WHEN "ap-inv.vend-no" THEN cVarValue =  "" .
                             WHEN "vend-name" THEN cVarValue =  "" .
@@ -1708,20 +1718,20 @@ SESSION:SET-WAIT-STATE ("general").
                             WHEN "terms" THEN cVarValue =  "" . 
                             WHEN "dy-old" THEN cVarValue = "" . 
                             WHEN "cc-ach" THEN cVarValue =  "" . 
-                            
+
                        END CASE.
                        cExcelVarValue = cVarValue.  
                        cDisplay = cDisplay + cVarValue +
                                   FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
                        cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
-                 
+
               END.
               PUT  UNFORMATTED "    **" substring(cDisplay,7,400) SKIP(1).
               IF tb_excel THEN DO:
                     PUT STREAM excel UNFORMATTED  
                           cExcelDisplay SKIP.
               END.
-     
+
 
 
     end.
@@ -1759,11 +1769,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1791,23 +1801,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -184,13 +184,23 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
                                                                         */
+ASSIGN
+       BtnCancel:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btnOk:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -246,7 +256,7 @@ DO:
     vcStartingPath  = right-trim (fi_OldPath:screen-value, '~/~\')
     vcNewImagePath  = right-trim (fi_NewPath:screen-value, '~/~\')
     viRecordCount   = 0.
-  
+
   /* Go through all matching records. */
   if cbImageType:screen-value = 'CAD' then
   do:
@@ -328,7 +338,7 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN enable_UI.
-  
+
   apply 'value-changed':u to cbImageType.
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -402,7 +412,7 @@ PROCEDURE UpdateImagePath :
                       ' Est #: '     + box-design-hdr.est-no  + 
                       ' Path: ' + box-design-hdr.box-image.
   status default vcStatusDefault.
-  
+
   /* Update the Box Image Path. */
   box-design-hdr.box-image = caps (vcNewImagePath) + substring (box-design-hdr.box-image, length (vcStartingPath) + 1).
 

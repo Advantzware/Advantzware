@@ -244,6 +244,16 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_tag:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -268,7 +278,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -345,12 +355,12 @@ DO:
   END.
 
   v-process  = NO.
-   
+
   MESSAGE "Are you sure you want to" TRIM(c-win:TITLE)
           "within the selected parameters?"       
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
           UPDATE v-process.
-        
+
   IF v-process THEN RUN run-process.
 END.
 
@@ -484,15 +494,15 @@ def var titm        like fitm               init "zzzzzzzzzzzzzzz".
 
 
 session:set-wait-state("General").
-  
+
 assign
  fcus = begin_cust
  tcus = end_cust
  fitm = begin_i-no
  titm = end_i-no.
-  
+
 {util/fgonhnd0.i}
-   
+
 session:set-wait-state("").
 
 message trim(c-win:title) + " Process Is Completed." view-as alert-box.
@@ -500,7 +510,7 @@ message trim(c-win:title) + " Process Is Completed." view-as alert-box.
 apply "close" to this-procedure.
 
 return no-apply.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

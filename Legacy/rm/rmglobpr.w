@@ -238,6 +238,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        amount_chg:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -281,7 +291,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -392,7 +402,7 @@ DO:
   MESSAGE "Are you sure you want to change the Price Matrix(es) within the " +
           "selection parameters?"
       VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
-    
+
   IF v-process THEN RUN run-process.
 END.
 
@@ -477,7 +487,7 @@ END.
 
 /* ***************************  Main Block  *************************** */
 def var v-mat-list as char no-undo.
-    
+
 {sys/inc/f3helpw.i}
 
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
@@ -497,7 +507,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  
+
   RUN enable_UI.
 
   for each mat:
@@ -505,7 +515,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   end.
   if substr(v-mat-list,length(trim(v-mat-list)),1) eq "," then
     substr(v-mat-list,length(trim(v-mat-list)),1) = "".
-  
+
   select-mat:list-items = v-mat-list.
 
   {methods/nowait.i}
@@ -576,11 +586,11 @@ PROCEDURE get-params :
   def var lv-field-hdl as handle no-undo.
   def var lv-field2-hdl as handle no-undo.
 
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
     if not valid-handle(lv-field-hdl) then leave.
 
@@ -634,7 +644,7 @@ DEF VAR li AS INT NO-UNDO.
 DO WITH FRAME {&FRAME-NAME}:
   ASSIGN {&displayed-objects}.
 END.
-  
+
 ASSIGN
  v-i-no[1]    = begin_rm-no
  v-i-no[2]    = end_rm-no
@@ -651,9 +661,9 @@ do with frame {&frame-name}:
 
   if v-mtype ne "" and substr(v-mtype,length(trim(v-mtype)),1) eq "," then
     substr(v-mtype,length(trim(v-mtype)),1) = "".
-    
+
   mat-types = v-mtype.
-  
+
   do i = 1 to length(mat-types):
     if substr(mat-types,i,1) eq "," then substr(mat-types,i,1) = " ".
   end.
@@ -678,7 +688,7 @@ ASSIGN
 RUN get-params (OUTPUT reftable.dscr).
 
 reftable.dscr = TRIM(reftable.dscr) + " " + "Mat Types:" + v-mtype.
-        
+
 DO li = 1 TO LENGTH(v-mtype):
   FOR EACH item
       {sys/look/itemW.i}   
@@ -697,7 +707,7 @@ SESSION:SET-WAIT-STATE("").
 MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
 
 APPLY "close" TO THIS-PROCEDURE.
-  
+
 /* end ---------------------------------- copr. 2002  advanced software, inc. */
 
 END PROCEDURE.

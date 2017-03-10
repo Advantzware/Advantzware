@@ -227,6 +227,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FILL-IN lbl_delete0 IN FRAME FRAME-A
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN lbl_deleteneg IN FRAME FRAME-A
@@ -239,7 +249,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -386,17 +396,17 @@ PROCEDURE run-process :
 /* ------------------------------------------------ util/rm-mkbin.p 06/00 JLF */
 /* Raw Materials bin rebuild program                                          */
 /* -------------------------------------------------------------------------- */
-  
+
 def var fitm        like item.i-no.
 def var titm        like fitm               init "zzzzzzzzzz".
 def var vzer        as   log                init no.
 def var vneg        as   log                init no.
 
 def var x           as   int                no-undo.
-  
-  
+
+
 session:set-wait-state("General").
-  
+
 do with frame {&frame-name}:
   assign
    begin_rm-no
@@ -404,22 +414,22 @@ do with frame {&frame-name}:
    tb_delete0
    tb_deleteneg.
 end.
-  
+
 assign
  fitm = begin_rm-no
  titm = end_rm-no
  vzer = tb_delete0
  vneg = tb_deleteneg.
-   
+
 {util/rm-mkbin.i}
-     
+
 session:set-wait-state("").
 
 message trim(c-win:title) + " Process Complete..." view-as alert-box.
 apply "close" to this-procedure.
 
 return no-apply.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

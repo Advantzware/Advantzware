@@ -229,6 +229,16 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE
 
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME Custom                                                    */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
@@ -261,7 +271,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -322,7 +332,7 @@ DO:
      fi_fr-period:SENSITIVE = YES
      fi_to-year:SENSITIVE   = YES
      fi_to-period:SENSITIVE = YES.
- 
+
   ELSE DO:
     FIND FIRST gltrans NO-LOCK
         WHERE gltrans.company EQ cocode
@@ -454,12 +464,12 @@ DO:
   END.
 
   v-process  = NO.
-   
+
   MESSAGE "Are you sure you want to" TRIM(c-win:TITLE)
           "within the selected parameters?"       
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
           UPDATE v-process.
-        
+
   IF v-process THEN RUN run-process.
 END.
 
@@ -692,9 +702,9 @@ PROCEDURE do-ar-ledger :
   IF ar-ledger.ref-num BEGINS "INV#" THEN
   DO:
      li = INT(SUBSTR(ar-ledger.ref-num,6,20)) NO-ERROR.
-    
+
      IF NOT ERROR-STATUS:ERROR THEN DO:
-    
+
        FIND FIRST ar-inv
            WHERE ar-inv.company EQ ar-ledger.company
              AND ar-inv.inv-no  EQ li
@@ -702,15 +712,15 @@ PROCEDURE do-ar-ledger :
        IF AVAIL ar-inv THEN ar-inv.period = fi_to-period.
      END.
   END.
-  
+
   IF begin_run-no EQ ar-ledger.tr-num THEN ar-ledger.tr-date = new_date.
   ELSE
   IF AVAIL b-period THEN
     IF ar-ledger.tr-date LT b-period.pst THEN ar-ledger.tr-date = b-period.pst.
     ELSE
     IF ar-ledger.tr-date GT b-period.pend THEN ar-ledger.tr-date = b-period.pend.
-  
-  
+
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1021,14 +1031,14 @@ IF AVAIL gl-ctrl THEN DO TRANSACTION:
   IF AVAIL period THEN DO:
     FOR EACH cust WHERE cust.company EQ cocode:
       {util/reopeny1.i 1 lyytd lyr 6}
-    
+
       {util/reopeny1.i 0 ytd ytd 5}
     END.
 
     /* Vend Processing  */
     FOR EACH vend WHERE vend.company EQ cocode:
       {util/reopeny2.i 1 lyytd last-year}
-    
+
       {util/reopeny2.i 0 ytd-msf purch[13]}
     END. /* for each vend */
   END.
@@ -1039,7 +1049,7 @@ SESSION:SET-WAIT-STATE("").
 MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
 
 APPLY "close" TO THIS-PROCEDURE.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

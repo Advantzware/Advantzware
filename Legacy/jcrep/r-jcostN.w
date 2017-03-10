@@ -116,7 +116,7 @@ ASSIGN cTextListToSelect = "JOB#,FG ITEM,ITEM DESCRIPTION,FG CATEGORY,CUSTOMER,C
                            "CONT. STAND,CONT. ACTUAL,%CONT. STAND,%CONT ACTUAL,TOTAL VARIANCE," +      /*5*/ 
                            "QTY INVOICED,BOX SALES,PREP COST,TOTAL COST,LAB ACT COST STD CREW," +      /*5*/
                            "MAT & FARM ACT COST"
-           
+
 
        cFieldListToSelect = "v-job-no,work-item.i-no,v-i-name,v-fgcat,work-item.cust-no,v-custname," + 
                             "v-qty-ord,v-qty-prod,v-act-mAT-cost,v-est-mAT-cost,v-var-mat-cost,v-var%-mat-cost," +
@@ -183,7 +183,7 @@ ASSIGN cTextListToSelect = "JOB#,FG ITEM,ITEM DESCRIPTION,FG CATEGORY,CUSTOMER,C
                     / v-gact-price) * 100.00),">>>,>>>,>>9.99-") '",'.
 
     */
-    
+
        cFieldLength = "9,15,25,11,8,30," + "13,13,13,13,13,13," + "13,13,13,13," + "13,13,13,13," + "13,13,13,13," +
                       "13,13,13,13," + "13,13,13,13," + "13,13,13,13," + "13,13,13,13,13," + "13,13,13,13,21,19"
        cFieldType   = "c,c,c,c,c,c," + "i,i,i,i,i,i," + "i,i,i,i," + "i,i,i,i," + "i,i,i,i," + 
@@ -568,6 +568,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_clsdate:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -688,7 +698,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -825,7 +835,7 @@ DO:
       tgl_SumTot
       exclude-billed-prep
       tb_exclude_prep = exclude-billed-prep.
-       
+
   RUN GetSelectionList.
   RUN run-report. 
 
@@ -836,7 +846,7 @@ DO:
        WHEN 5 THEN
        DO:
           DEFINE VARIABLE lv-tmp AS CHARACTER INITIAL "-0" NO-UNDO.
-          
+
           {custom/asimailr.i &TYPE="Customer"
                              &begin_cust=lv-tmp
                              &END_cust=lv-tmp
@@ -886,7 +896,7 @@ DO:
 
   RUN DisplaySelectionDefault.  /* task 04141411 */ 
   RUN DisplaySelectionList2 .
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1094,7 +1104,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
-  
+
    IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
        sl_selected:NUM-ITEMS = 0)
    THEN ASSIGN ldummy = sl_selected:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
@@ -1102,7 +1112,7 @@ DO:
               /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
                .
 
-  
+
 /* for pairs
     DEF VAR cSelectedList AS cha NO-UNDO.
     cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
@@ -1145,7 +1155,7 @@ DO:
   ASSIGN
     {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}:ENTRY(1)
     .
-    
+
 
 END.
 
@@ -1241,7 +1251,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   RUN DisplaySelectionList.
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -1305,7 +1315,7 @@ DEFINE VARIABLE cListContents AS CHARACTER NO-UNDO.
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .    
   END.
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
 END PROCEDURE.
@@ -1327,7 +1337,7 @@ PROCEDURE DisplaySelectionList2 :
   IF NUM-ENTRIES(cTextListToSelect) NE NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
-        
+
   EMPTY TEMP-TABLE ttRptList.
 
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
@@ -1368,7 +1378,7 @@ PROCEDURE DisplaySelectionDefault :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE cListContents AS CHARACTER NO-UNDO.
   DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
-  
+
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
      cListContents = cListContents +                   
@@ -1513,7 +1523,7 @@ PROCEDURE GetSelectionList :
 
  DO i = 1 TO sl_selected:NUM-ITEMS /* IN FRAME {&FRAME-NAME}*/ :
     FIND FIRST ttRptList NO-LOCK WHERE ttRptList.TextList = ENTRY(i,cTmpList) NO-ERROR.     
-  
+
     CREATE ttRptSelected.
     ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
            ttRptSelected.FieldList = ttRptList.FieldList
@@ -1522,7 +1532,7 @@ PROCEDURE GetSelectionList :
            ttRptSelected.HeadingFromLeft = IF ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
-           
+
  END.
 END PROCEDURE.
 
@@ -1685,7 +1695,7 @@ PROCEDURE output-detail-proc :
 
    IF tb_excel THEN DO:
       PUT STREAM excel UNFORMATTED
-        
+
         '"' v-act-mAT-cost '",'              
         '"' v-est-mAT-cost '",'  
         '"' (v-est-mAT-cost - v-act-mAT-cost) '",'
@@ -1980,7 +1990,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
  /*    DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -1991,9 +2001,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY. */
 
 {custom/out2file.i}
@@ -2027,7 +2037,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -2278,7 +2288,7 @@ FOR EACH tt-report,
             END. /* IF tb_excel */               
             */
 
-        
+
 
         {jc/rep/job-clsm.i}             /*** Get the MATerial Costs ***/
         {jc/rep/job-clsr.i}             /*** Get the Routing Costs  ***/
@@ -2321,8 +2331,8 @@ FOR EACH tt-report,
                            AND itemfg.i-no EQ work-item.i-no NO-ERROR.
 
        {jcrep/r-jcostN1.i}
-       
-       
+
+
       /*  IF NOT tgl_SumTot THEN DO:
            IF NOT tb_sep_board THEN
               RUN output-detail-proc.
@@ -2464,7 +2474,7 @@ if v-est then do:
         NO-LOCK NO-ERROR.
     IF AVAIL oe-boll OR iOrder EQ 0 THEN DO:
         /* get freight from boll's */
-    
+
         FOR EACH oe-boll WHERE oe-boll.company EQ job.company
                            AND oe-boll.ord-no EQ iOrder
                            AND oe-boll.i-no   EQ job-hdr.i-no
@@ -2473,32 +2483,32 @@ if v-est then do:
                     WHERE oe-bolh.company = oe-boll.company 
                       AND oe-bolh.b-no = oe-boll.b-no                      
                     NO-LOCK.
-    
+
                 v-frate = v-frate + oe-boll.freight.
         END.
     END.
     ELSE DO:
         /* Original Code */
         v-wt = itemfg.weight-100 * work-item.qty-prod / 100.
-    
+
         if eb.fr-out-c ne 0 then
           v-frate = v-frate + (eb.fr-out-c * (v-wt / 100)).
-    
+
         else
         if eb.fr-out-m ne 0 then
           v-frate = v-frate + (eb.fr-out-m * (work-item.qty-prod / 1000)).
-    
+
         else do:
           v-rate = 0.
-    
+
           release carr-mtx.
-    
+
           find first carrier
               where carrier.company eq cocode
                 and carrier.loc     eq locode
                 and carrier.carrier eq eb.carrier
               no-lock no-error.
-            
+
           if avail carrier then
           find first carr-mtx
               where carr-mtx.company  eq cocode
@@ -2506,37 +2516,37 @@ if v-est then do:
                 and carr-mtx.carrier  eq carrier.carrier
                 and carr-mtx.del-zone eq eb.dest-code
               no-lock no-error.
-                   
+
           if avail carr-mtx then do:
             if carrier.by-pallet ne ? THEN DO:
               run util/ucarrier.p (recid(carrier)).
               FIND CURRENT carrier NO-LOCK NO-ERROR.
             END.
-    
+
             if carrier.chg-method eq "P" then do:
               v-wt = work-item.qty-prod / (eb.cas-cnt * eb.cas-pal).
-              
+
               {sys/inc/roundup.i v-wt}
             end.
-            
+
             else
             if carrier.chg-method eq "M" then
               v-wt = (if v-corr then (work-item.qty-prod * itemfg.t-sqin * .007)
                                 else (work-item.qty-prod * itemfg.t-sqin / 144)) /
                      1000.
-            
+
             do i = 1 to 10:
               if carr-mtx.weight[i] ge v-wt then do:
                 v-rate = carr-mtx.rate[i].
                 leave.
               end.
             end.
-         
+
             v-rate = v-rate * v-wt / (if carrier.chg-method eq "W" then 100 else 1).
-            
+
             if v-rate lt carr-mtx.min-rate then v-rate = carr-mtx.min-rate.
           end. /* avail carr-mtx */
-          
+
           IF v-rate NE ? THEN v-frate = v-frate + v-rate.
         end. /* eb.fr-out is zero */
     END. /* not avail an oe-boll */
@@ -2550,7 +2560,7 @@ if v-est then do:
   if avail eb then v-com = eb.comm.
   v-comm  = v-sale * (v-com / 100).
 end.
-         
+
 /***  Print Grand Totals and Profit ***/
 assign
 /* v-lab-m = v-labor * v-lab-mrk / 100*/
@@ -2579,11 +2589,11 @@ PROCEDURE show-param :
   DEFINE VARIABLE parm-lbl-list AS CHARACTER NO-UNDO.
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
   DEFINE VARIABLE lv-label AS CHARACTER.
-  
+
   lv-frame-hdl = FRAME {&FRAME-NAME}:HANDLE.
   lv-group-hdl = lv-frame-hdl:FIRST-CHILD.
   lv-field-hdl = lv-group-hdl:FIRST-CHILD .
-  
+
   DO WHILE TRUE:
      IF NOT VALID-HANDLE(lv-field-hdl) THEN LEAVE.
      IF LOOKUP(lv-field-hdl:PRIVATE-DATA,"parm") GT 0
@@ -2615,19 +2625,19 @@ PROCEDURE show-param :
   DO i = 1 TO NUM-ENTRIES(parm-fld-list,","):
     IF ENTRY(i,parm-fld-list) NE "" OR
        ENTRY(i,parm-lbl-list) ne "" THEN DO:
-       
+
       lv-label = FILL(" ",34 - LENGTH(TRIM(ENTRY(i,parm-lbl-list)))) +
                  TRIM(ENTRY(i,parm-lbl-list)) + ":".
-                 
+
       PUT lv-label FORMAT "x(35)" AT 5
           SPACE(1)
           TRIM(ENTRY(i,parm-fld-list)) FORMAT "x(40)"
           SKIP.              
     END.
   END.
- 
+
   PUT FILL("-",80) FORMAT "x(80)" SKIP.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2673,7 +2683,7 @@ FOR EACH oe-ord NO-LOCK WHERE oe-ord.company EQ cocode
     EACH oe-ordl OF oe-ord NO-LOCK,
     EACH oe-boll NO-LOCK WHERE oe-boll.company EQ oe-ordl.company
       AND oe-boll.ord-no EQ oe-ordl.ord-no
-   
+
     BREAK BY oe-boll.bol-no:
     IF FIRST-OF(oe-boll.bol-no) THEN DO:
         ASSIGN v-inv-total    = 0
@@ -2685,7 +2695,7 @@ FOR EACH oe-ord NO-LOCK WHERE oe-ord.company EQ cocode
                v-subtot-prep  = 0.
         FOR EACH inv-head NO-LOCK WHERE inv-head.company EQ oe-boll.company
             AND inv-head.bol-no EQ oe-boll.bol-no :
-            
+
             FOR EACH inv-line NO-LOCK WHERE inv-line.r-no EQ inv-head.r-no
               AND inv-line.job-no EQ ipcJob
               AND inv-line.job-no2 EQ ipcJobNo2:
@@ -2694,7 +2704,7 @@ FOR EACH oe-ord NO-LOCK WHERE oe-ord.company EQ cocode
                 FOR EACH inv-misc NO-LOCK WHERE inv-misc.r-no EQ inv-line.r-no
                   AND inv-misc.LINE EQ inv-line.LINE :
                   v-subtot-prep = v-subtot-prep + misc.cost.
-                  
+
                 END.
             END.
             v-inv-freight = IF inv-head.f-bill THEN inv-head.t-inv-freight ELSE 0.
@@ -2727,12 +2737,12 @@ FOR EACH oe-ord NO-LOCK WHERE oe-ord.company EQ cocode
             ASSIGN v-subtot-lines = v-subtot-lines + ar-invl.amt
                    v-subtot-qty   = v-subtot-qty   + ar-invl.inv-qty
                    v-save-x       = ar-invl.x-no.
-                                             
+
             /* Avoid doing a break by since assiging inv-total each time */
             v-inv-freight = IF NOT(ar-inv.freight EQ 0 OR NOT ar-inv.f-bill) THEN
                           ar-inv.freight 
                        ELSE 0.
-            
+
 
         END.
         ASSIGN v-inv-total = v-subtot-lines  /* + /* 8/5/14 ar-inv.tax-amt + */ v-inv-freight */
@@ -2742,12 +2752,12 @@ FOR EACH oe-ord NO-LOCK WHERE oe-ord.company EQ cocode
           FOR EACH ar-invl NO-LOCK WHERE ar-invl.x-no EQ v-save-x
               AND ar-invl.prep-charge GT "" ,
               FIRST ar-inv NO-LOCK WHERE ar-inv.x-no EQ ar-invl.x-no .
-       
+
                v-subtot-prep  = v-subtot-prep  + ar-invl.amt.                                         
           END.
           ASSIGN v-total-prep = v-total-prep + v-subtot-prep.
         END.
-           
+
         CASE ipcPriceOrQty:
           WHEN "Price" THEN
             dInvTot = dInvTot + v-inv-total.

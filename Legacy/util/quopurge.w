@@ -210,6 +210,16 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -218,7 +228,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -371,7 +381,7 @@ def var tdate like fdate initial today no-undo.
 
 
 session:set-wait-state("General").
-  
+
 do with frame {&frame-name}:
   assign
    begin_quote
@@ -379,9 +389,9 @@ do with frame {&frame-name}:
    begin_date
    end_date.
 end.
-    
+
 session:set-wait-state("").
- 
+
 assign
  fquote    = begin_quote
  tquote    = end_quote
@@ -402,9 +412,9 @@ if v-process then do:
         and quotehd.quo-date  ge fdate
         and quotehd.quo-date  le tdate
       exclusive
-      
+
       transaction:
-  
+
     delete quotehd.
   end.
 
@@ -413,7 +423,7 @@ if v-process then do:
 end.
 
 return no-apply.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

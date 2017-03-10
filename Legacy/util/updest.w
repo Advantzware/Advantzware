@@ -37,7 +37,7 @@ CREATE WIDGET-POOL.
 assign
  cocode = gcompany
  locode = gloc.
- 
+
 def new shared buffer xest for est.
 def new shared buffer xef  for ef.
 def new shared buffer xeb  for eb.
@@ -324,6 +324,16 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_mach:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -346,7 +356,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -425,7 +435,7 @@ DO:
   MESSAGE "Are you sure you want to " + TRIM(c-win:TITLE) +
           " for the selected parameters?"
       VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
-        
+
   IF v-process THEN RUN run-process.
 END.
 
@@ -563,9 +573,9 @@ DEF VAR ld          AS   DEC NO-UNDO.
 
 DEF BUFFER xop FOR est-op.
 
-    
+
 session:set-wait-state("General").
-  
+
 assign
  fest = fill(" ",8 - length(trim(string(begin_est,">>>>>>>>")))) +
         trim(string(begin_est,">>>>>>>>"))
@@ -581,7 +591,7 @@ SESSION:SET-WAIT-STATE("").
 MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
 
 APPLY "close" TO THIS-PROCEDURE.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

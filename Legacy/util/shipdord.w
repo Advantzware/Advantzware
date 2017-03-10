@@ -194,6 +194,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        v-ord-list:RETURN-INSERTED IN FRAME FRAME-A  = TRUE.
 
@@ -205,7 +215,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -261,7 +271,7 @@ DO:
 
   MESSAGE "Are you sure you want to " + TRIM(c-win:TITLE)
         VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll.
-          
+
   IF ll THEN RUN run-process.
 END.
 
@@ -417,7 +427,7 @@ DO li = 1 TO NUM-ENTRIES(v-ord-list):
         WHERE oe-boll.company      EQ cocode
           AND oe-boll.ord-no       EQ lv-old-ord
           AND TRIM(oe-boll.job-no) NE "",
- 
+
         FIRST oe-bolh WHERE oe-bolh.b-no EQ oe-boll.b-no NO-LOCK
 
         TRANSACTION:
@@ -481,9 +491,9 @@ DO li = 1 TO NUM-ENTRIES(v-ord-list):
 END.
 
 SESSION:SET-WAIT-STATE("").
-    
+
 MESSAGE TRIM(c-win:TITLE) + " Process Complete..." VIEW-AS ALERT-BOX.
-    
+
 APPLY "close" TO THIS-PROCEDURE.
 
 END PROCEDURE.

@@ -298,6 +298,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -360,7 +370,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -443,7 +453,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-       
+
   RUN run-report. 
   STATUS DEFAULT "Processing Complete".
 
@@ -785,7 +795,7 @@ PROCEDURE output-to-printer :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/   
-     
+
      RUN custom/prntproc.p (list-name,int(lv-font-no),lv-ornt).
 
 
@@ -866,7 +876,7 @@ header "Quote#     Est# Customer                     Part Description           
 assign
  str-tit2 = "Quote List"
  {sys/inc/ctrtext.i str-tit2 112}
-  
+
  fcust = begin_cust-no
  tcust = end_cust-no
  fsman = begin_slsmn
@@ -877,7 +887,7 @@ assign
  v-cst = tb_cost.
 
 EMPTY TEMP-TABLE tt-report.
-  
+
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i value(lines-per-page)}
@@ -922,9 +932,9 @@ FOR EACH quotehd
       AND quotehd.quo-date GE fdate
       AND quotehd.quo-date LE tdate
     NO-LOCK,
-    
+
     FIRST quoteitm OF quotehd NO-LOCK,
-    
+
     FIRST quoteqty OF quoteitm NO-LOCK:
 
      {custom/statusMsg.i " 'Processing Estimate#:  '  + quotehd.est-no  "}
@@ -947,11 +957,11 @@ for each tt-report where tt-report.term-id eq "",
 
     break by tt-report.key-01
           by tt-report.key-02:
-    
+
      {custom/statusMsg.i " 'Processing Estimate#:  '  + quotehd.est-no  "}
 
   IF FIRST-OF(tt-report.key-02) THEN lv-q-qty[1] = lv-q-qty[1] + 1.
-    
+
   find first sman
       where sman.company eq quotehd.company
         and sman.sman    eq quotehd.sman
@@ -961,12 +971,12 @@ for each tt-report where tt-report.term-id eq "",
   ASSIGN v_sname = IF AVAIL sman THEN sman.sname ELSE "".
 
   for each quoteitm of quotehd  no-lock,
-  
+
       each quoteqty of quoteitm no-lock
-      
+
       break by quoteitm.part-no
             by quoteqty.qty
-      
+
       with frame quote:
 
     IF quoteqty.uom EQ "M" THEN
@@ -989,7 +999,7 @@ for each tt-report where tt-report.term-id eq "",
        v-dscr   = quoteitm.part-dscr1.
 
       if v-dscr eq "" then v-dscr = quoteitm.part-no.
-      
+
       if not first(quoteitm.part-no) then put skip(1).
 
       display quotehd.q-no
@@ -999,13 +1009,13 @@ for each tt-report where tt-report.term-id eq "",
               quotehd.quo-date
               sman.sname when avail sman
               v-ext.
-            
+
       put skip(1)
           "    Qty     Price/M      Cost/M         GP$      GP%"
           space(5)
           v-cst-hdr
           skip.
-            
+
     end.
 
     assign
@@ -1094,9 +1104,9 @@ for each tt-report where tt-report.term-id eq "",
           and quotechg.line eq quoteqty.line
           and quotechg.qty eq quoteqty.qty
         break by quotechg.charge:
-    
+
       if first(quotechg.charge) then put skip(1).
-    
+
       if (quotechg.labf ne 0 or  quotechg.labm ne 0) and
          (quotechg.matf eq 0 and quotechg.matm eq 0) then
         v-misc = "L".
@@ -1110,14 +1120,14 @@ for each tt-report where tt-report.term-id eq "",
         v-misc = "T".
       else
         v-misc = "".
-   
+
       put space(40)
           v-misc
           quotechg.charge
           space(43)
           quotechg.amt
           skip.
-      
+
       /* gdm - 10130805 */
       IF tb_excel THEN DO:
 
@@ -1235,11 +1245,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1267,23 +1277,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

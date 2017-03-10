@@ -142,6 +142,16 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
+ASSIGN
+       BtnCancel:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btnOk:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FILL-IN cStatus IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -150,7 +160,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -207,9 +217,9 @@ DO:
 
 
    DO WITH FRAME {&FRAME-NAME}:
-    
+
       SESSION:SET-WAIT-STATE ("general").
-  
+
       ASSIGN cJobfrom cJobTo.
       /*cEstNo = FILL(" ",8 - LENGTH(TRIM(cEstNo))) + TRIM(cEstNo).*/
 
@@ -229,14 +239,14 @@ DO:
              MESSAGE iCount "Job's machine notes are restored." VIEW-AS ALERT-BOX INFO BUTTONS OK.
 
           END.
-          
-                 
+
+
       END.
 
-           
-      
 
-      
+
+
+
 
       SESSION:SET-WAIT-STATE ("").
    END.
@@ -272,7 +282,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
    RUN enable_UI.
-  
+
    IF NOT THIS-PROCEDURE:PERSISTENT THEN
      WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

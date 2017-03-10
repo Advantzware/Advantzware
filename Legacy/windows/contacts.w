@@ -15,7 +15,7 @@
   Output Parameters : None
 
   Author            : Dennis G. Dizon
-  
+
   Created           : 05/30/2007
 
 ------------------------------------------------------------------------*/
@@ -196,6 +196,16 @@ IF NOT C-Win:LOAD-ICON("adeicon/rbuild%.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
+ASSIGN
+       btnCancel:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btnSelect:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
 /* BROWSE-TAB brContacts RECT-5 DEFAULT-FRAME */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
@@ -217,7 +227,7 @@ OPEN QUERY {&SELF-NAME}
 */  /* BROWSE brContacts */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -312,7 +322,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  
+
   STATUS DEFAULT "For Multi-Select: Press and hold 'CTRL' key before clicking.".
 
   RUN enable_UI.
@@ -388,7 +398,7 @@ PROCEDURE Initialize :
             AND ASI.cust.active    = 'X',
            EACH  NOSWEAT.phone        NO-LOCK
           WHERE  NOSWEAT.phone.TABLE_rec_key = ASI.cust.rec_key:
-    
+
         IF NOT CAN-FIND (FIRST ttContacts 
                          WHERE ttContacts.table_rec_key = icShipRecKey
                            AND ttContacts.attention     = NOSWEAT.phone.attention) 
@@ -408,7 +418,7 @@ PROCEDURE Initialize :
              /*OR  ASI.cust.active    = 'X'*/),
            EACH  NOSWEAT.phone        NO-LOCK
           WHERE  NOSWEAT.phone.TABLE_rec_key = ASI.cust.rec_key:
-    
+
         IF NOT CAN-FIND (FIRST ttContacts 
                          WHERE ttContacts.table_rec_key = icShipRecKey
                            AND ttContacts.attention     = NOSWEAT.phone.attention) 
@@ -420,7 +430,7 @@ PROCEDURE Initialize :
       END.
   END.
   {&OPEN-QUERY-brContacts}
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

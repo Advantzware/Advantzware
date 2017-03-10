@@ -194,6 +194,16 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
+ASSIGN
+       btnCancel:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btnOK:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR BUTTON btnCancel IN FRAME DEFAULT-FRAME
    2                                                                    */
 /* SETTINGS FOR BUTTON btnOK IN FRAME DEFAULT-FRAME
@@ -214,7 +224,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -303,13 +313,13 @@ DO:
     iCount = iCount + 1.
     DELETE report.
   END. /* each report */
-  
+
   IF iCount GT 0 THEN 
       cMessage = "Processed " + STRING(iCount) + " invoices ".
   ELSE
       cMessage = "No invoices available to process ".
   cMessage = cMessage + "for " + cXMLCustomer + " between " + STRING(invStart) + " and " + STRING(invEnd) + ".".
-  
+
   MESSAGE cMessage
         VIEW-AS ALERT-BOX INFO BUTTONS OK.
   ENABLE {&List-1} {&List-2} WITH FRAME {&FRAME-NAME}.
@@ -392,7 +402,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     invEnd = TODAY
     .
   RUN enable_UI.
-  
+
   FIND FIRST sys-ctrl NO-LOCK
        WHERE sys-ctrl.company EQ  cocode
          AND sys-ctrl.name    EQ 'cXMLInvoice' NO-ERROR.

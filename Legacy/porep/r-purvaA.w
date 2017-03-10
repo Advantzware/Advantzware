@@ -386,6 +386,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_job-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -468,7 +478,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -589,7 +599,7 @@ DO:
   STATUS DEFAULT "Processing Complete".
   IF tb_excel AND tb_runExcel THEN
   OS-COMMAND NO-WAIT start excel.exe VALUE(SEARCH(fi_file)).
-  
+
   case rd-dest:
        when 1 then run output-to-printer.
        when 2 then run output-to-screen.
@@ -621,7 +631,7 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
@@ -931,13 +941,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   assign
    begin_po-date = date(1,1,year(today))
    end_po-date   = today.
 
   RUN enable_UI.
-    
+
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     APPLY "entry" TO begin_po-no.
@@ -949,7 +959,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
          lv-ornt:SENSITIVE = NO
          lv-ornt:SCREEN-VALUE = "L".
   END.
-  
+
   {methods/nowait.i}
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -970,7 +980,7 @@ PROCEDURE adder-proc :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEF VAR viIndex AS INT NO-UNDO.
-   
+
    EMPTY TEMP-TABLE temp-adder.
 
    FIND FIRST job WHERE
@@ -989,7 +999,7 @@ PROCEDURE adder-proc :
            xjob-mat.blank-no EQ po-ordl.b-num
            USE-INDEX seq-idx
            NO-LOCK NO-ERROR.
-        
+
    IF AVAIL xjob-mat THEN 
       for each job-mat WHERE
           job-mat.company  eq xjob-mat.company AND
@@ -1004,7 +1014,7 @@ PROCEDURE adder-proc :
                 item.i-no     eq job-mat.i-no AND
                 item.mat-type eq "A"
                 NO-LOCK:
-     
+
           CREATE temp-adder.
           ASSIGN temp-adder.adder = ITEM.i-no
                  viIndex = viIndex + 1
@@ -1073,7 +1083,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
 /*     DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -1084,11 +1094,11 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY. */
-     
+
 {custom/out2file.i}
 
 END PROCEDURE.
@@ -1120,7 +1130,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1247,7 +1257,7 @@ form po-ord.po-no          column-label "PO #" space(2)
     with frame main-b no-box no-attr-space down STREAM-IO width 180.
 
    {ce/msfcalc.i}
- 
+
 assign
  str-tit2 = c-win:title
  {sys/inc/ctrtext.i str-tit2 112}
@@ -1340,12 +1350,12 @@ for each po-ord
                             po-ordl.s-len, po-ordl.s-wid,
                             (if avail item then item.s-dep else 0),
                             po-ordl.ord-qty, output v-tot-msf).
-                               
+
 def var pr-ct as int no-undo.
   ASSIGN
     v-vend-cost = 0
     receiptDate = ?   .
-    
+
   /*IF tb_receipt THEN DO:*/
     IF po-ordl.item-type THEN DO:
       FIND FIRST rm-rcpth NO-LOCK
@@ -1373,7 +1383,7 @@ def var pr-ct as int no-undo.
           IF NOT AVAIL fg-rcpth THEN NEXT .
   END.
  /*END.*/
-    
+
 IF rd_vend-cost BEGINS "Vend" THEN DO:
   EMPTY TEMP-TABLE tt-ei.
   EMPTY TEMP-TABLE tt-eiv.
@@ -1401,7 +1411,7 @@ IF rd_vend-cost BEGINS "Vend" THEN DO:
                   b-qty.CODE    = e-item-vend.i-no AND
               b-qty.code2   = e-item-vend.vend-no
               NO-LOCK NO-ERROR.
-         
+
          IF AVAIL b-qty THEN
          DO:
             FIND FIRST b-cost WHERE
@@ -1410,7 +1420,7 @@ IF rd_vend-cost BEGINS "Vend" THEN DO:
                          b-cost.CODE    = e-item-vend.i-no AND
                  b-cost.code2   = e-item-vend.vend-no
                  NO-LOCK NO-ERROR.
-         
+
             DO pr-ct = 1 TO 10:
                ASSIGN
                   tt-eiv.run-qty[pr-ct + 10] = b-qty.val[pr-ct]
@@ -1442,12 +1452,12 @@ IF rd_vend-cost BEGINS "Vend" THEN DO:
     END.
   END.
   find first tt-eiv no-error.
-                             
+
   if avail tt-eiv then do:
     find first tt-ei no-error.
-  
+
     v-uom-vend = if avail tt-ei then tt-ei.std-uom else "EA".
-                             
+
     if po-ordl.pr-qty-uom eq v-uom-vend then
       v-tot-vend = po-ordl.ord-qty.
     else
@@ -1456,7 +1466,7 @@ IF rd_vend-cost BEGINS "Vend" THEN DO:
                              po-ordl.s-len, po-ordl.s-wid,
                              (if avail item then item.s-dep else 0),
                              po-ordl.ord-qty, output v-tot-vend).
-                             
+
     IF AVAIL tt-eiv THEN DO:
       ld-dim-charge = 0.
       IF AVAIL e-item-vend  THEN
@@ -1492,7 +1502,7 @@ DO:
                                po-ordl.s-len, po-ordl.s-wid,
                                (if avail item then item.s-dep else 0),
                                ap-invl.unit-pr, output v-inv-cost).
-      
+
       IF po-ordl.pr-uom EQ "MSF" THEN
          v-po-cost = po-ordl.cost.
       ELSE
@@ -1501,7 +1511,7 @@ DO:
                                po-ordl.s-len, po-ordl.s-wid,
                                (if avail item then item.s-dep else 0),
                                po-ordl.cost, output v-po-cost).
-     
+
       if po-ordl.pr-qty-uom eq "MSF" then
          v-ord-qty = po-ordl.ord-qty.
       else
@@ -1510,7 +1520,7 @@ DO:
                                po-ordl.s-len, po-ordl.s-wid,
                                (if avail item then item.s-dep else 0),
                                po-ordl.ord-qty, output v-ord-qty).
-     
+
       if ap-invl.cons-uom eq "MSF" then
          v-inv-qty = ap-invl.qty. 
       else
@@ -1519,13 +1529,13 @@ DO:
                                po-ordl.s-len, po-ordl.s-wid,
                                (if avail item then item.s-dep else 0),
                                ap-invl.qty, output v-inv-qty).
-     
+
       ASSIGN
          v-mpv = IF v-po-cost NE 0 THEN (v-inv-cost / v-po-cost) * 100
                  ELSE 0
          v-overs = IF v-ord-qty NE 0 THEN (v-inv-qty / v-ord-qty) * 100
                    ELSE 0.
-     
+
       RELEASE ap-invl.
    END.
    ELSE
@@ -1547,10 +1557,10 @@ assign v-cost = po-ordl.t-cost
        v-grand-vend = v-grand-vend + v-vend-cost
        v-grand-bght = v-grand-bght + v-cost.
 DO WITH FRAME main:
- 
+
   IF NOT v-moa-cols THEN
   DO:
-     
+
     IF tb_repeat THEN DISPLAY po-ord.po-no WITH FRAME main.
     ELSE IF FIRST-OF(po-ord.po-no) THEN DISPLAY po-ord.po-no WITH FRAME main.
     IF tb_repeat THEN DISPLAY po-ord.vend-no WITH FRAME main.
@@ -1568,7 +1578,7 @@ DO WITH FRAME main:
   END.
   ELSE
   DO:
-     
+
       PUT SPACE (1).
     IF tb_repeat THEN DISPLAY po-ord.po-no WITH FRAME main-b.
     ELSE IF FIRST-OF(po-ord.po-no) THEN DISPLAY po-ord.po-no WITH FRAME main-b.
@@ -1606,7 +1616,7 @@ DO WITH FRAME main:
        '"' diff-price '",'
        '"' IF tb_mpv THEN STRING(v-mpv) ELSE "" '",'
        '"' IF tb_overs THEN STRING(v-overs) ELSE "" '",' SKIP.
-       
+
       IF tb_adder THEN
          FOR EACH temp-adder:
              PUT STREAM st-excel UNFORMATTED
@@ -1640,7 +1650,7 @@ do:
     '"' v-sub-vend '",'
     '"' v-sub-bght '",'
     '"' v-sub-diff '"' SKIP(1).
-  
+
   assign v-sub-msf = 0
          v-sub-diff = 0
          v-sub-vend = 0
@@ -1656,7 +1666,7 @@ end.
           v-grand-vend to 91
           v-grand-bght to 105
           v-grand-diff to 120 skip(1).
-  
+
   IF tb_excel AND fi_file NE '' THEN
   PUT STREAM st-excel UNFORMATTED
     SKIP(1)
@@ -1670,12 +1680,12 @@ end.
     '"' v-grand-vend '",'
     '"' v-grand-bght '",'
     '"' v-grand-diff '"' SKIP(1).
-  
+
   assign v-grand-msf = 0
          v-grand-diff = 0
          v-grand-vend = 0
          v-grand-bght = 0.
-     
+
 IF tb_excel AND fi_file NE '' THEN
    OUTPUT STREAM st-excel CLOSE.
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
@@ -1701,11 +1711,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1732,23 +1742,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -40,7 +40,7 @@ ASSIGN
  cocode = gcompany
  locode = gloc.
 
-   
+
 DEF NEW SHARED VAR v-s-vend LIKE vend.vend-no INIT "".
 DEF NEW SHARED VAR v-e-vend LIKE vend.vend-no INIT "zzzzzzzz".
 DEF NEW SHARED VAR v-s-date LIKE po-ord.po-date INIT TODAY FORMAT "99/99/9999".
@@ -448,6 +448,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_cat:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -524,7 +534,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -656,7 +666,7 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
@@ -700,7 +710,7 @@ DO:
 
   RUN DisplaySelectionDefault.  /* task 04141406 */ 
   RUN DisplaySelectionList2 .
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -884,7 +894,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
-  
+
    IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
        sl_selected:NUM-ITEMS = 0)
    THEN ASSIGN ldummy = sl_selected:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
@@ -892,7 +902,7 @@ DO:
               /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
                .
 
-  
+
 /* for pairs
     DEF VAR cSelectedList AS cha NO-UNDO.
     cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
@@ -935,7 +945,7 @@ DO:
   ASSIGN
     {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}:ENTRY(1)
     .
-    
+
 
 END.
 
@@ -1062,22 +1072,22 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-    
+
     assign            
      begin_due-date =  TODAY
      end_due-date   =  date(12,31,9999).
      RUN DisplaySelectionList.
 
   RUN enable_UI.
-  
+
  for each mat:
     v-mat-list = v-mat-list + string(mat.mat,"x(5)") + " " + mat.dscr + ",".
   end.
   if substr(v-mat-list,length(trim(v-mat-list)),1) eq "," then
     substr(v-mat-list,length(trim(v-mat-list)),1) = "".
-  
+
   select-mat:list-items = v-mat-list.
-        
+
   do i = 1 to select-mat:num-items:
     if trim(substr(select-mat:entry(i),1,5)) eq "B" then do:
       select-mat:screen-value = entry(i,v-mat-list).
@@ -1131,7 +1141,7 @@ PROCEDURE DisplaySelectionDefault :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  
+
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
      cListContents = cListContents +                   
@@ -1170,9 +1180,9 @@ PROCEDURE DisplaySelectionList :
     ASSIGN ttRptList.TextList = ENTRY(iCount,cTextListToSelect)
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .    
-    
+
   END.
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
 END PROCEDURE.
@@ -1194,7 +1204,7 @@ PROCEDURE DisplaySelectionList2 :
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
-        
+
   EMPTY TEMP-TABLE ttRptList.
 
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
@@ -1270,7 +1280,7 @@ PROCEDURE GetSelectionList :
 
  DO i = 1 TO sl_selected:NUM-ITEMS /* IN FRAME {&FRAME-NAME}*/ :
     FIND FIRST ttRptList WHERE ttRptList.TextList = ENTRY(i,cTmpList) NO-LOCK NO-ERROR.
-    
+
     IF NOT AVAIL ttRptList THEN
         MESSAGE "no " i ENTRY(i,ctmplist) SKIP
         ctmplist
@@ -1448,13 +1458,13 @@ ASSIGN
  v-s-date   = begin_due-date
  v-e-date   = end_due-date
  v-po-stat  = SUBSTR(rd_show,1,1) .
- 
+
 do with frame {&frame-name}:          
   do i = 1 to select-mat:num-items:
     if select-mat:is-selected(i) then
        v-mattype-list = v-mattype-list + trim(substr(select-mat:entry(i),1,5)) + ",".
   end.
-  
+
   IF length(TRIM(v-mattype-list)) EQ 0 THEN
   DO:
      MESSAGE "No Material Type Selected."
@@ -1465,13 +1475,13 @@ do with frame {&frame-name}:
 
   if substr(v-mattype-list,length(trim(v-mattype-list)),1) eq "," then
      substr(v-mattype-list,length(trim(v-mattype-list)),1) = "".
-    
+
   mat-types = v-mattype-list.
-  
+
   do i = 1 to length(mat-types):
      if substr(mat-types,i,1) eq "," then substr(mat-types,i,1) = " ".
   end.
-  
+
   display mat-types.
 end.
 
@@ -1496,7 +1506,7 @@ DEF VAR cslist AS cha NO-UNDO.
           .        
           cSlist = cSlist + ttRptSelected.FieldList + ",".
   END.
- 
+
  IF tb_excel THEN DO:
    OUTPUT STREAM excel TO VALUE(fi_file).
    PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
@@ -1507,9 +1517,9 @@ IF td-show-parm THEN RUN show-param.
 SESSION:SET-WAIT-STATE ("general").
 
 DISPLAY "" WITH FRAME r-top.
-  
+
   EMPTY TEMP-TABLE tt-sched.
-  
+
   stat-list = IF v-po-stat EQ "A" THEN ""             ELSE
               IF v-po-stat EQ "O" THEN "O,U,P,A,N,H"  ELSE "C,X,F".
 
@@ -1557,12 +1567,12 @@ DISPLAY "" WITH FRAME r-top.
 
     IF po-ordl.item-type THEN DO:
        lv-uom = po-ordl.pr-qty-uom.
-      
+
        FIND FIRST item NO-LOCK
            WHERE item.company EQ po-ordl.company
              AND item.i-no    EQ po-ordl.i-no
            NO-ERROR.
-      
+
        IF AVAIL item THEN DO:
           v-dep = item.s-dep.
           {po/pol-dims.i}
@@ -1571,12 +1581,12 @@ DISPLAY "" WITH FRAME r-top.
 
     ELSE DO:
        lv-uom = "EA".
-      
+
        FIND FIRST itemfg NO-LOCK
            WHERE itemfg.company EQ po-ordl.company
              AND itemfg.i-no    EQ po-ordl.i-no
            NO-ERROR.
-      
+
        IF AVAIL itemfg THEN DO:
           IF v-len EQ 0 THEN v-len = itemfg.t-len.
           IF v-wid EQ 0 THEN v-wid = itemfg.t-wid.
@@ -1593,7 +1603,7 @@ DISPLAY "" WITH FRAME r-top.
        RUN sys/ref/convquom.p(po-ordl.cons-uom, lv-uom,
                               v-bwt, v-len, v-wid, v-dep,
                               v-qty, OUTPUT v-qty).
-                              
+
        RUN sys/ref/convcuom.p(po-ordl.cons-uom, lv-uom,
                               v-bwt, v-len, v-wid, v-dep,
                               v-cost, OUTPUT v-cost).
@@ -1609,12 +1619,12 @@ DISPLAY "" WITH FRAME r-top.
        RUN sys/ref/convquom.p(po-ordl.cons-uom, lv-uom,
                               v-bwt, v-len, v-wid, v-dep,
                               po-ordl.ord-qty, OUTPUT v-ord-qty).
-      
+
     /*IF po-ordl.ord-qty - v-qty GT 0 THEN DO:*/
     IF v-ord-qty - v-qty GT 0 THEN DO:
 
        IF v-cost EQ ? THEN v-cost = 0.
-             
+
        CREATE tt-sched.
        ASSIGN
         v-tot = v-tot + ((po-ordl.ord-qty - v-qty) * v-cost)
@@ -1631,18 +1641,18 @@ DISPLAY "" WITH FRAME r-top.
         tt-sched.due-date  = po-ordl.due-date
         tt-sched.carrier   = po-ord.carrier
         tt-sched.rec_key   = po-ordl.rec_key.
-      
+
        /*IF v-sort EQ "V" THEN DO:*/
           FIND FIRST vend NO-LOCK
               WHERE vend.company EQ po-ord.company
                 AND vend.vend-no EQ po-ord.vend-no
               NO-ERROR.
-         
+
           ASSIGN
              tt-sched.vend-name = IF AVAIL vend THEN vend.name ELSE ""
              v-s-num = po-ordl.s-num
              tt-sched.amt-msf = tt-sched.cons-qty - tt-sched.t-rec-qty.
-          
+
           IF tt-sched.cons-uom NE "MSF" THEN
             RUN sys/ref/convquom.p(tt-sched.cons-uom, "MSF",
                                    v-bwt, v-len, v-wid, v-dep,
@@ -1650,7 +1660,7 @@ DISPLAY "" WITH FRAME r-top.
       /* END.*/
     END.
   END.
-    
+
    FOR EACH tt-sched USE-INDEX job BREAK BY tt-sched.job-no BY tt-sched.job-no2:
 
        {custom/statusMsg.i " 'Processing PO#  '  + string(tt-sched.po-no) "}
@@ -1702,7 +1712,7 @@ DISPLAY "" WITH FRAME r-top.
        IF tb_printNotes THEN RUN printNotes (tt-sched.rec_key).
 
    END.
-  
+
   IF CAN-FIND(FIRST tt-sched) THEN
      PUT SKIP(1) "Total Value:" AT 100 v-tot FORMAT "->>,>>>,>>9.99" SKIP(1).
 
@@ -1715,7 +1725,7 @@ END.
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
 SESSION:SET-WAIT-STATE ("").
-      
+
   /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 
 end procedure.
@@ -1738,12 +1748,12 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha NO-UNDO.
-  
+
   ASSIGN
      lv-frame-hdl = frame {&frame-name}:HANDLE
      lv-group-hdl = lv-frame-hdl:first-child
      lv-field-hdl = lv-group-hdl:first-child.
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1769,23 +1779,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

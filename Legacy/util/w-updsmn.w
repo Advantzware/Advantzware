@@ -203,6 +203,16 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FILL-IN v-status IN FRAME DEFAULT-FRAME
    NO-ENABLE ALIGN-L                                                    */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -211,7 +221,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -403,7 +413,7 @@ DEF VAR ld AS DEC NO-UNDO.
 
 
 SESSION:SET-WAIT-STATE("General").
-  
+
 ASSIGN
  fest = FILL(" ",8 - LENGTH(TRIM(STRING(begin_est,">>>>>>>>")))) +
         TRIM(STRING(begin_est,">>>>>>>>"))
@@ -419,7 +429,7 @@ SESSION:SET-WAIT-STATE("").
 MESSAGE " Process Is Completed." VIEW-AS ALERT-BOX.
 
 APPLY "close" TO THIS-PROCEDURE.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

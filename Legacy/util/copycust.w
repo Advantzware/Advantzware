@@ -207,6 +207,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FILL-IN from_c-name IN FRAME FRAME-A
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN from_c-name2 IN FRAME FRAME-A
@@ -235,7 +245,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -292,7 +302,7 @@ DO:
 
     RUN valid-from_cust-no NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
- 
+
     APPLY "entry" TO to_company.
     RUN valid-company NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -302,7 +312,7 @@ DO:
 
     ASSIGN {&DISPLAYED-OBJECTS}.
   END.
-  
+
   MESSAGE "Are you sure you want to " + TRIM(c-win:TITLE) + " " +
           TRIM(from_cust-no) + " from Company " + TRIM(from_company) + " to " +
           " Company " + TRIM(TO_company) + "?"
@@ -478,7 +488,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  
+
   ASSIGN
    from_company = cocode
    to_company   = cocode.
@@ -556,7 +566,7 @@ PROCEDURE new-company :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     FIND company WHERE company.company BEGINS FOCUS:SCREEN-VALUE NO-LOCK NO-ERROR.
     IF AVAIL company THEN DO:
@@ -607,7 +617,7 @@ DEF BUFFER b-cust        FOR cust.
   DEF BUFFER b-notes       FOR notes.
 
   DEF VAR lv-rec_key LIKE cust.rec_key NO-UNDO.
-  
+
 
   SESSION:SET-WAIT-STATE("general").
 
@@ -622,7 +632,7 @@ DEF BUFFER b-cust        FOR cust.
   ASSIGN
    rec_key.rec_key    = lv-rec_key
    rec_key.table_name = "CUST".
-      
+
   CREATE b-cust.
   BUFFER-COPY cust EXCEPT rec_key TO b-cust
   ASSIGN
@@ -667,7 +677,7 @@ DEF BUFFER b-cust        FOR cust.
      b-shipto.company = b-cust.company
      b-shipto.cust-no = b-cust.cust-no.
   END.
-    
+
   FOR EACH soldto
       WHERE soldto.company EQ cust.company
         AND soldto.cust-no    EQ cust.cust-no
@@ -720,7 +730,7 @@ PROCEDURE valid-company :
       RETURN ERROR.
     END.
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

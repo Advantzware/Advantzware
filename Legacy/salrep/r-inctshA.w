@@ -85,7 +85,7 @@ def TEMP-TABLE w-data NO-UNDO
   field i-no      like ar-invl.i-no column-label "FG Item"
   field inv-no    like ar-invl.inv-no column-label "Invoice!Number"
   field rec-id    as recid.
- 
+
 DEF VAR v-print-fmt AS CHARACTER NO-UNDO.
 DEF VAR is-xprint-form AS LOGICAL NO-UNDO.
 DEF VAR ls-fax-file AS CHAR NO-UNDO.
@@ -404,6 +404,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -498,7 +508,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -657,7 +667,7 @@ DO:
                             &fax-file=list-name }
        END. 
        when 5 then do:
-           
+
            IF is-xprint-form THEN DO:
               {custom/asimail.i &TYPE = "Salesman"
                              &begin_cust= begin_slsmn
@@ -690,7 +700,7 @@ END.
 ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -783,7 +793,7 @@ ON HELP OF fi_file IN FRAME FRAME-A /* If Yes, File Name */
 DO:
    def var ls-filename as cha no-undo.
    def var ll-ok as log no-undo.
-   
+
    system-dialog get-file ls-filename 
                  title "Select File to Save "
                  filters "Excel Files    (*.csv)" "*.csv",
@@ -792,7 +802,7 @@ DO:
                  MUST-EXIST
                  USE-FILENAME
                  UPDATE ll-ok.
-      
+
     IF ll-ok THEN self:screen-value = ls-filename.
 END.
 
@@ -977,13 +987,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "close" TO THIS-PROCEDURE.
     RETURN .
   END.
-   
+
   ASSIGN
    begin_inv-date = DATE(1,1,YEAR(TODAY))
    end_inv-date   = TODAY.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   RUN sys/inc/CustListForm.p ( "HR13",cocode, 
@@ -993,7 +1003,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     APPLY "entry" TO begin_cust-no.
-   
+
     /* skb - 1/3/07 - defauting the values */
 /*     ASSIGN                                            */
 /*         tb_excel:CHECKED     = TRUE                   */
@@ -1022,7 +1032,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO"
         btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
         .
-      
+
    IF ou-log AND ou-cust-int = 0 THEN do:
        ASSIGN 
         tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = YES
@@ -1032,7 +1042,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         .
       RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
    END.
-   
+
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -1099,7 +1109,7 @@ def input parameter ip-key-10 like tt-report.key-10 no-undo.
 
 
 create xreport.
-  
+
 assign
  v-exc           = no
  xreport.term-id = ""
@@ -1147,7 +1157,7 @@ def input parameter ip-key-10 like report.key-10 no-undo.
 do i = 1 to 3:
   v-sman-no = if ar-invl.sman[i] eq "" and i eq 1 then cust.sman
               else ar-invl.sman[i].
-              
+
   if v-sman-no   lt fsman                         or
      v-sman-no   gt tsman                         or
      (i ne 1 and
@@ -1157,7 +1167,7 @@ do i = 1 to 3:
   LEAVE.
 end.
 
- 
+
 
 END PROCEDURE.
 
@@ -1174,7 +1184,7 @@ PROCEDURE CustList :
 
     RUN sys/ref/CustListManager.w(INPUT cocode,
                                   INPUT 'HR13').
-    
+
 
 END PROCEDURE.
 
@@ -1360,7 +1370,7 @@ ASSIGN
  v-freight  = NO
  v-inc-fc   = tb_fin-chg
  lSelected  = tb_cust-list.
- 
+
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i VALUE(lines-per-page)}
@@ -1405,7 +1415,7 @@ END.
       {custom/statusMsg.i " 'Processing Customer#  '  + cust.cust-no "}
    {sa/sa-sls03.i "fdate" "tdate"} 
   end.
- 
+
   for each tt-report
       where tt-report.term-id eq ""
         and tt-report.key-01  eq ""
@@ -1434,42 +1444,42 @@ END.
          v-ship le tship and
          v-shpz ge fshpz and
          v-shpz le tshpz then do:
-         
+
         for each ar-invl
             where ar-invl.x-no    eq ar-inv.x-no
               and ar-invl.i-no    ge fitem
               and ar-invl.i-no    le titem
               and (ar-invl.billable or not ar-invl.misc)
             use-index x-no no-lock:
-            
+
           run create-report1 (recid(ar-invl),
                               if ar-invl.misc then ar-invl.i-name else
                               if ar-invl.i-no ne "" then ar-invl.i-no else
                               "AR SALE",
                               string(ar-inv.inv-no,"999999"), "").
         end.
-         
+
         if v-freight and ar-inv.f-bill then do:
           find first ar-invl where ar-invl.x-no eq ar-inv.x-no
               use-index x-no no-lock no-error.
-              
+
           if avail ar-invl then do:
             v-sman-no = "".
-                      
+
             do i = 1 to 3:
               if ar-invl.sman[i] ne "" then do:
                 v-sman-no = ar-invl.sman[i].
                 leave.
               end.
             end.
-          
+
             if v-sman-no eq "" then v-sman-no = cust.sman.
-          
+
             if "freight" ge fitem                      and
                "freight" le titem                      and
                v-sman-no ge fsman                      and
                v-sman-no le tsman                      then
-               
+
               run create-report (recid(ar-invl), "FREIGHT",
                                  string(ar-inv.inv-no,"999999"), "FREIGHT").
           end.
@@ -1505,7 +1515,7 @@ END.
       ASSIGN
        lv-r-no = 0
        lv-type = "".
-          
+
       IF AVAIL reftable THEN
         ASSIGN
          lv-r-no = reftable.val[1]
@@ -1556,7 +1566,7 @@ END.
           if avail ar-invl then do:
             run create-report1 (recid(ar-cashl), oe-retl.i-no,
                                 tt-report.key-04, "").
-                
+
             delete tt-report.
           end.
         end.
@@ -1605,7 +1615,7 @@ END.
 
       if avail tt-report then do:
         tt-report.key-07 = tt-report.key-03.
-        
+
         if v-exc then delete tt-report.
 
         else
@@ -1638,7 +1648,7 @@ END.
       with frame itemx down
 
       transaction:
-      
+
       {custom/statusMsg.i " 'Processing Customer#  '  + cust.cust-no "}
     create w-data.
     assign
@@ -1669,7 +1679,7 @@ END.
          v-qty[1] = 0
          v-amt[1] = ar-inv.freight
          v-disc   = 0.
-      
+
       else do:
         do i = 1 to 3:
           if ar-invl.sman[i] eq tt-report.key-06 then
@@ -1789,7 +1799,7 @@ END.
      v-month = MONTH(v-date).
 
 
-    
+
     DISPLAY cust.cust-no
             v-year[1]
             v-name
@@ -1895,7 +1905,7 @@ PROCEDURE SetCustRange :
         btnCustList:SENSITIVE = iplChecked
        .
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1919,13 +1929,13 @@ if avail shipto then
   assign
    v-ship = ar-inv.ship-id
    v-shpz = shipto.ship-zip.
-         
+
 else
 if ar-inv.sold-id ne "" then
   assign
    v-ship = ar-inv.sold-id
    v-shpz = ar-inv.sold-zip.
-         
+
 else
   assign
    v-ship = ar-inv.cust-no
@@ -1951,12 +1961,12 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha NO-UNDO.
-  
+
   ASSIGN
   lv-frame-hdl = frame {&frame-name}:HANDLE
   lv-group-hdl = lv-frame-hdl:first-child
   lv-field-hdl = lv-group-hdl:first-child.
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1982,23 +1992,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

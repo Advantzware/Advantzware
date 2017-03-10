@@ -16,7 +16,7 @@
   Author: JLF
 
   Created: 05/23/2002 
-  
+
   Modified By : Aj 06/23/2008  Added  code to generate E-mails for 
                                receipts overrun and under run quantity.
 
@@ -49,7 +49,7 @@ DEF VAR init-dir AS CHA NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/VAR.i new shared}
-    
+
 ASSIGN
    cocode = gcompany
    locode = gloc.
@@ -334,6 +334,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-F
    FRAME-NAME                                                           */
+ASSIGN
+       Btn_Cancel:PRIVATE-DATA IN FRAME FRAME-F     = 
+                "ribbon-button".
+
+
+ASSIGN
+       Btn_OK:PRIVATE-DATA IN FRAME FRAME-F     = 
+                "ribbon-button".
+
+
 ASSIGN 
        fi_file:PRIVATE-DATA IN FRAME FRAME-F     = 
                 "parm".
@@ -356,7 +366,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -413,7 +423,7 @@ DO:
    FOR EACH tt-vend-whse-item:
       DELETE tt-vend-whse-item.
    END.
-   
+
    RUN run-report. 
 
    CASE rd-dest:
@@ -450,7 +460,7 @@ DO:
 /*        END.     */
       WHEN 6 THEN RUN output-to-port.
    END CASE.
-  
+
 
    RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 END.
@@ -672,7 +682,7 @@ END.
 /*       DEF INPUT PARAM mailDialog AS LONG.  */
 /*       DEF OUTPUT PARAM retCode AS LONG.    */
 /* END.                                       */
-  
+
 
 /* ***************************  Main Block  *************************** */    
 DEF VAR choice AS LOG NO-UNDO.
@@ -698,19 +708,19 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
 /*   security check need {methods/prgsecur.i} in definition section */
-  
+
   IF access-close THEN DO:
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-  
+
    DO TRANSACTION:  
       {sys/inc/rmemails.i}
    END.
 
   ASSIGN
    c-win:TITLE = "Usage Post".
-    
+
   RUN enable_UI.
 
 /*   RUN check-date. */
@@ -829,7 +839,7 @@ PROCEDURE output-to-file :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-     
+
 {custom/out2file.i}
 
 END PROCEDURE.
@@ -862,7 +872,7 @@ PROCEDURE output-to-screen :
   Notes:       
 ------------------------------------------------------------------------------*/
  run scr-rpt.w (list-name,c-win:title,int(lv-font-no),lv-ornt). /* open file-name, title */ 
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -914,7 +924,7 @@ ASSIGN
 {sys/inc/ctrtext.i str-tit3 162}
 
 v-head[1] = "".
-                                                                                                                                                
+
 ASSIGN                                                                                                                              
    v-head[2] = "         CUSTOMERS    DESCRIPTION/              SUPPLIERS                  TOT                          SUPPLIERS   CUSTOMERS  COMBINED     NEXT   NEXT PROD     LAST     EAU @     LAST      DATE    CASE  PIAP "
    v-head[3] = "PLANT ID PART NO      DIMENSIONS                PART NO         STYLE  CAL INK      PRICE/M        EAU  INVENTORY   INVENTORY    MTHS    PROD DATE  QUANTITY  PROD DATE LAST PROD SHIP DATE OBSOLETE  QTY   SCAN   "
@@ -956,7 +966,7 @@ END.
 FOR EACH tt-vend-whse-item
   BREAK BY tt-vend-whse-item.vendor-code                                            
         BY tt-vend-whse-item.vendor-plant-code:
-   
+
    ASSIGN 
       v-dimensions   = ""
       v-last-prod-dt = ?
@@ -967,15 +977,15 @@ FOR EACH tt-vend-whse-item
       v-no-of-colors = 0
       v-tot-inv = 0
       v-combined-mths = 0.   
-   
+
    FIND FIRST b-itemfg WHERE b-itemfg.company = tt-vend-whse-item.company
                          AND b-itemfg.i-no    = tt-vend-whse-item.fg-item-no
                          AND b-itemfg.part-no = tt-vend-whse-item.cust-part-no NO-LOCK NO-ERROR.
-   
+
    IF NOT AVAILABLE(b-itemfg) THEN 
       FIND FIRST b-itemfg WHERE b-itemfg.company = tt-vend-whse-item.company
                             AND b-itemfg.i-no    = tt-vend-whse-item.fg-item-no NO-LOCK NO-ERROR.
-   
+
    IF tt-vend-whse-item.cust-part-no = "" THEN
       tt-vend-whse-item.cust-part-no = b-itemfg.part-no.
 
@@ -988,7 +998,7 @@ FOR EACH tt-vend-whse-item
    RUN sys/inc/dec-frac.p (INPUT d-score[50],
                            INPUT 32,
                            OUTPUT v-depth).
-   
+
    ASSIGN
       v-dimensions = TRIM(v-length) + " x " + TRIM(v-width) + " x " + TRIM(v-depth).
 
@@ -1006,7 +1016,7 @@ FOR EACH tt-vend-whse-item
                        BREAK BY b-job.due-date:
       IF FIRST-OF(b-job.due-date) THEN
          v-last-prod-dt = b-job.due-date.
-      
+
       FIND FIRST b-est WHERE b-est.company = b-job-hdr.company
                          AND b-est.est-no  = b-job-hdr.est-no NO-LOCK NO-ERROR.
       FIND FIRST b-ef WHERE b-ef.company = b-est.company
@@ -1014,14 +1024,14 @@ FOR EACH tt-vend-whse-item
       FIND FIRST b-eb WHERE b-eb.company = b-ef.company 
                         AND b-eb.est-no  = b-ef.est-no
                         AND b-eb.form-no = b-ef.form-no NO-LOCK NO-ERROR.  
-      
+
       IF b-job.due-date >= v-last-prod-dt THEN
          ASSIGN
             v-last-prod-dt = b-job.due-date
             v-caliper      = b-ef.cal
             v-no-of-colors = b-eb.i-col.
    END.
-    
+
    FOR EACH b-job-hdr NO-LOCK WHERE b-job-hdr.company = tt-vend-whse-item.company
                                 AND b-job-hdr.i-no    = tt-vend-whse-item.fg-item-no
                                 AND b-job-hdr.opened  = YES
@@ -1036,7 +1046,7 @@ FOR EACH tt-vend-whse-item
       IF FIRST-OF(b-job.due-date) THEN
          v-next-prod-dt = b-job.due-date.
 
-      
+
       IF b-job.due-date >= TODAY AND b-job.due-date <= v-next-prod-dt THEN DO:
          ASSIGN
             v-next-prod-dt = b-job.due-date
@@ -1047,7 +1057,7 @@ FOR EACH tt-vend-whse-item
             v-next-prod-dt = ?
             v-next-prod-qty = 0.
    END.
-   
+
    FOR EACH b-fg-rcpth WHERE b-fg-rcpth.company  = tt-vend-whse-item.company 
                          AND b-fg-rcpth.i-no     = tt-vend-whse-item.fg-item-no 
                          AND b-fg-rcpth.rita-code = "S" NO-LOCK
@@ -1064,7 +1074,7 @@ FOR EACH tt-vend-whse-item
    v-tot-inv = b-itemfg.q-onh + tt-vend-whse-item.plant-tot-oh-qty.
    IF v-tot-inv > 0 AND tt-vend-whse-item.est-annual-usage > 0 THEN
       v-combined-mths = ROUND((v-tot-inv / tt-vend-whse-item.est-annual-usage) * 12, 2).
-    
+
    DISPLAY
       tt-vend-whse-item.vendor-plant-code FORMAT "X(8)"
       SPACE(1)
@@ -1127,7 +1137,7 @@ FOR EACH tt-vend-whse-item
          '"' tt-vend-whse-item.piap-scan                       '",'
          SKIP.
 END.
-    
+
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.
    IF tb_runExcel THEN
@@ -1156,11 +1166,11 @@ PROCEDURE show-param :
    DEF VAR parm-lbl-list   AS CHAR NO-UNDO.
    DEF VAR i               AS INT NO-UNDO.
    DEF VAR lv-label        AS CHAR NO-UNDO.
-  
+
    lv-frame-hdl = FRAME {&FRAME-NAME}:HANDLE.
    lv-group-hdl = lv-frame-hdl:FIRST-CHILD.
    lv-field-hdl = lv-group-hdl:FIRST-CHILD.
-  
+
    DO WHILE TRUE:
       IF NOT VALID-HANDLE(lv-field-hdl) THEN 
          LEAVE.
@@ -1178,7 +1188,7 @@ PROCEDURE show-param :
                   LEAVE. 
                IF lv-field2-hdl:PRIVATE-DATA = lv-field-hdl:NAME THEN
                   parm-lbl-list = parm-lbl-list + lv-field2-hdl:SCREEN-VALUE + ",".
-         
+
                lv-field2-hdl = lv-field2-hdl:NEXT-SIBLING.                 
             END.
          END.
@@ -1190,7 +1200,7 @@ PROCEDURE show-param :
       SPACE(28)
       "< Selection Parameters >"
       SKIP(1).
-  
+
    DO i = 1 TO NUM-ENTRIES(parm-fld-list,","):
       IF ENTRY(i,parm-fld-list) NE "" OR ENTRY(i,parm-lbl-list) NE "" THEN DO:
          lv-label = FILL(" ",34 - LENGTH(TRIM(ENTRY(i,parm-lbl-list)))) + TRIM(ENTRY(i,parm-lbl-list)) + ":".        
@@ -1203,7 +1213,7 @@ PROCEDURE show-param :
    END.
    PUT 
       FILL("-",80) FORMAT "x(80)" SKIP.
-  
+
 END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-param C-Win 

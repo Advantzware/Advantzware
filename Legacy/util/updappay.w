@@ -160,6 +160,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME Custom                                                    */
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-select:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR BUTTON btn-process IN FRAME FRAME-A
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fi_check-date IN FRAME FRAME-A
@@ -173,7 +183,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -210,32 +220,32 @@ END.
 ON CHOOSE OF btn-process IN FRAME FRAME-A /* Update */
 DO:
   DEF VAR v-process AS LOG NO-UNDO.
-      
+
   DO WITH FRAME {&FRAME-NAME}:
      ASSIGN fi_check-date.
-     
+
      FIND FIRST period WHERE
           period.company EQ cocode AND
           period.pst     LE fi_check-date AND
           period.pend    GE fi_check-date
           NO-LOCK NO-ERROR.
-    
+
      IF AVAIL period THEN DO:
         IF NOT period.pstat THEN DO:
            MESSAGE "Period Already Closed..." VIEW-AS ALERT-BOX ERROR.
            LEAVE.
         END.
      END.
-    
+
      ELSE DO:
         MESSAGE "No Defined Period Exists for" fi_check-date
            VIEW-AS ALERT-BOX ERROR.
         LEAVE.
      END.
-    
+
      MESSAGE "Are you sure you want to update check date?"
          VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
-           
+
      IF v-process THEN
      DO:
         FIND FIRST ap-pay WHERE
@@ -243,7 +253,7 @@ DO:
              ap-pay.vend-no = fi_vend-no AND
              ap-pay.check-no = fi_check-no
              EXCLUSIVE-LOCK NO-ERROR.
-     
+
          IF AVAIL ap-pay THEN
          DO:
             ASSIGN
@@ -254,9 +264,9 @@ DO:
                btn-select:SENSITIVE = YES
                fi_vend-no:SENSITIVE = YES
                fi_check-no:SENSITIVE = YES.
-     
+
             RELEASE ap-pay.
-     
+
             MESSAGE "Posted Check Was Updated."
                 VIEW-AS ALERT-BOX INFO BUTTONS OK.
          END.

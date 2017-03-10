@@ -202,6 +202,16 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FILL-IN lbl_manuf IN FRAME FRAME-A
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN lbl_purch IN FRAME FRAME-A
@@ -214,7 +224,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -358,30 +368,30 @@ END PROCEDURE.
 PROCEDURE run-process :
 def var v-pur-man as char format "!" init "B" no-undo.
 
-  
+
 session:set-wait-state("General").
-  
+
 do with frame {&frame-name}:
   assign
    tb_purch
    tb_manuf.
 end.
-  
+
 assign
  v-pur-man = if tb_purch then
                if tb_manuf then "B" else "P"
              else
                if tb_manuf then "M" else "".
-   
+
 session:set-wait-state("").
-  
+
 {util/fgonord0.i}
 
 message trim(c-win:title) + " Process Is Completed." view-as alert-box.
 apply "close" to this-procedure.
 
 return no-apply.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

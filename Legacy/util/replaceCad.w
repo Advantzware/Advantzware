@@ -191,6 +191,16 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -199,7 +209,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -247,13 +257,13 @@ END.
 ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
 DO:
   v-process  = NO.
-   
+
   MESSAGE "Are you sure you want to " + TRIM(c-win:TITLE) SKIP 
           " for the selected parameters?" SKIP
           " From Cad# begins with " fi_from_cad " replace with " (IF fi_to_cad <> "" THEN fi_to_cad ELSE "<SPACE>") SKIP
           " From File# begins with " fi_from_fil " replace with " (IF fi_to_fil <> "" THEN fi_to_fil ELSE "<SPACE>") SKIP
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
-        
+
   IF v-process THEN RUN run-process.
 END.
 
@@ -409,7 +419,7 @@ END.
 SESSION:SET-WAIT-STATE("General").
 
 status default "Processing ...".
-      
+
 ASSIGN i = 0 j = 0.
 IF fi_from_cad <> "" THEN
 FOR EACH reftable WHERE reftable.reftable EQ "PREPCADFILE"

@@ -205,6 +205,16 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME Custom                                                    */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR EDITOR EDITOR-1 IN FRAME FRAME-A
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fi_account-format IN FRAME FRAME-A
@@ -225,7 +235,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -274,8 +284,8 @@ ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
 DO:
     DEFINE VARIABLE lProcess AS LOGICAL     NO-UNDO.
     DEFINE VARIABLE cMessage AS CHARACTER   NO-UNDO.
-    
-    
+
+
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN {&displayed-objects}.
         RUN ValidateCompany(OUTPUT lProcess).
@@ -342,7 +352,7 @@ END.
 ON LEAVE OF fi_level IN FRAME FRAME-A /* Level to Change */
 DO:
     DEFINE VARIABLE lValid AS LOGICAL     NO-UNDO.
-    
+
     IF LASTKEY NE -1 THEN DO:
         ASSIGN {&displayed-objects}.
         RUN ValidateLevel(OUTPUT lValid).
@@ -449,7 +459,7 @@ PROCEDURE CheckHistory :
                 NO-LOCK NO-ERROR.
         oplOK = NOT AVAIL bf-gltrans AND NOT AVAIL bf-glhist.
     END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -526,9 +536,9 @@ PROCEDURE GetSubstringArgs :
                 opiStart = opiStart + gbf-company.acc-dig[iLevCount - 1].
             END.
         END.
-       
+
     END.
-    
+
 
 END PROCEDURE.
 
@@ -575,7 +585,7 @@ IF lProcess THEN DO:
         PUT STREAM log-out "Old Account: " bf-account.actnum FORMAT "x(30)" " Changed to: " cNewAccount FORMAT "x(30)" SKIP. 
 
         bf-account.actnum = cNewAccount.
-     
+
     END.
 END.
 ELSE 

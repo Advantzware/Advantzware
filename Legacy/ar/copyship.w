@@ -202,6 +202,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FILL-IN begin_cname IN FRAME FRAME-A
    NO-ENABLE                                                            */
 ASSIGN 
@@ -230,7 +240,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -333,7 +343,7 @@ DO:
 
   RUN valid-begin_ship NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
- 
+
   RUN valid-cust (end_cust:HANDLE) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -351,7 +361,7 @@ DO:
 
     ASSIGN {&DISPLAYED-OBJECTS}.
   END.
-  
+
   MESSAGE "Are you sure you want to " + TRIM(c-win:TITLE) + " " +
           TRIM(STRING(begin_ship)) + " from Customer " + TRIM(begin_cust) + " to " +
           " Customer " + TRIM(end_cust) + "?"
@@ -709,7 +719,7 @@ PROCEDURE valid-cust :
       RETURN ERROR.
     END.
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

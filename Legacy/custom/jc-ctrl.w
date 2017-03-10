@@ -298,6 +298,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME jc-ctrl
    FRAME-NAME                                                           */
+ASSIGN
+       Btn_Close:PRIVATE-DATA IN FRAME jc-ctrl     = 
+                "ribbon-button".
+
+
+ASSIGN
+       Btn_Update:PRIVATE-DATA IN FRAME jc-ctrl     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR TOGGLE-BOX jc-ctrl.post[10] IN FRAME jc-ctrl
    NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR TOGGLE-BOX jc-ctrl.post[11] IN FRAME jc-ctrl
@@ -354,7 +364,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 

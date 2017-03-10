@@ -38,7 +38,7 @@ DEF VAR v-postable AS LOG NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/VAR.i new shared}
-    
+
 assign
  cocode = gcompany
  locode = gloc.
@@ -236,6 +236,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN lv-font-no IN FRAME FRAME-A
@@ -261,7 +271,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -309,14 +319,14 @@ END.
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   DEF VAR lv-post AS LOG NO-UNDO.
-  
+
   run check-date.
   if v-invalid then return no-apply.
 
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-       
+
   run run-report.
 
   case rd-dest:
@@ -342,12 +352,12 @@ DO:
             UPDATE lv-post.
 
     IF lv-post THEN do:
-      
+
       RUN post-gl.
 
       MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.
 
-      
+
     END.
   END.
 
@@ -445,7 +455,7 @@ END.
 ON LEAVE OF tran-date IN FRAME FRAME-A /* Transaction Date */
 DO:
   assign {&self-name}.
-  
+
   if lastkey ne -1 then do:
     run check-date.
     if v-invalid then return no-apply.
@@ -498,9 +508,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-  
+
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -529,7 +539,7 @@ PROCEDURE check-date :
 ------------------------------------------------------------------------------*/
   DO with frame {&frame-name}:
     v-invalid = no.
-  
+
     find first period                   
         where period.company eq cocode
           and period.pst     le date(tran-date:screen-value)
@@ -599,7 +609,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
      DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -609,9 +619,9 @@ PROCEDURE output-to-file :
          ASK-OVERWRITE
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
 
 
@@ -696,9 +706,9 @@ SESSION:SET-WAIT-STATE("general").
   {sys/inc/outprint.i VALUE(lines-per-page)}
 
   IF td-show-parm THEN RUN show-param.
-  
+
   view frame r-top.
-   
+
   for each ap-sel
       where ap-sel.company   eq cocode
         and ap-sel.vend-no   ne "z9x9"
@@ -706,21 +716,21 @@ SESSION:SET-WAIT-STATE("general").
         NO-LOCK
       break by ap-sel.vend-no
             by ap-sel.inv-no:
-     
+
     find first ap-inv
         where ap-inv.company eq cocode
           and ap-inv.vend-no eq ap-sel.vend-no
           and ap-inv.inv-no  eq ap-sel.inv-no
         no-lock no-error.
-        
+
     if first-of(ap-sel.vend-no) then do:
       find first vend WHERE vend.company = cocode
                       and vend.vend-no eq ap-sel.vend-no
           no-lock no-error.
-          
+
       put vend.vend-no space(1) vend.name.
     end.
-    
+
     put ap-sel.inv-no  at 41 space(1)
         ap-inv.inv-date      space(2)
         ap-inv.due-date      space(2)
@@ -728,12 +738,12 @@ SESSION:SET-WAIT-STATE("general").
         ap-sel.inv-bal       space(2)
         ap-sel.disc-amt      space(2)
         ap-sel.amt-paid      skip.
-        
+
     assign
      v1 = v1 + ap-sel.inv-bal
      v2 = v2 + ap-sel.disc-amt
      v3 = v3 + ap-sel.amt-paid.
-    
+
     if last-of(ap-sel.vend-no) then do:
       put  "** VENDOR TOTALS"   to 83
            v1                   to 99
@@ -741,25 +751,25 @@ SESSION:SET-WAIT-STATE("general").
            v3                   to 127
            " *"
            skip(1).
-           
+
       if v1 lt 0 then do:
         message "Negative Check Calculated - Please adjust invoices".
         create xtemp.
         xtemp.vend-no = ap-sel.vend-no.
       end.
-      
+
       assign
        v-tot-chks = v-tot-chks + 1
-       
+
        t1 = t1 + v1
        t2 = t2 + v2
        t3 = t3 + v3
-       
+
        v1 = 0
        v2 = 0
        v3 = 0.
     end.
-    
+
     if last(ap-sel.vend-no) then do:
       put "** GRAND TOTALS" to 83
           t1                to 99
@@ -767,7 +777,7 @@ SESSION:SET-WAIT-STATE("general").
           t3                to 127
           " **"
           skip(1)
-          
+
           "** TOTAL CHECKS REQUIRED" to 110
           v-tot-chks to 127
           " ***"
@@ -808,11 +818,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -840,25 +850,25 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
 
   PAGE.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

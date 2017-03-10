@@ -362,6 +362,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME Custom                                                    */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -384,7 +394,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -432,7 +442,7 @@ END.
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
 
-  
+
    DO WITH FRAME {&FRAME-NAME}:
       ASSIGN {&displayed-objects}.
    END.
@@ -806,7 +816,7 @@ FOR EACH vend-whse-item WHERE vend-whse-item.vendor-code >= FI-beg-vend-code
    FIND FIRST b-itemfg WHERE b-itemfg.company = vend-whse-item.company
                          AND b-itemfg.i-no    = vend-whse-item.fg-item-no
                          AND b-itemfg.part-no = vend-whse-item.cust-part-no NO-LOCK NO-ERROR.
-   
+
    IF NOT AVAILABLE(b-itemfg) THEN 
       FIND FIRST b-itemfg WHERE b-itemfg.company = vend-whse-item.company
                             AND b-itemfg.i-no    = vend-whse-item.fg-item-no NO-LOCK NO-ERROR.   
@@ -815,7 +825,7 @@ FOR EACH vend-whse-item WHERE vend-whse-item.vendor-code >= FI-beg-vend-code
       v-total-inventory = b-itemfg.q-onh + vend-whse-item.plant-tot-oh-qty
       v-weekly-usage    = vend-whse-item.est-annual-usage / 52
       v-number-of-weeks = ROUND(v-total-inventory / v-weekly-usage, 2).
-   
+
    IF v-number-of-weeks < FI-number-of-weeks THEN DO:  
       FIND FIRST b-est WHERE b-est.company      = b-itemfg.company
                          AND TRIM(b-est.est-no) = TRIM(b-itemfg.est-no) NO-LOCK NO-ERROR.
@@ -846,7 +856,7 @@ FOR EACH vend-whse-item WHERE vend-whse-item.vendor-code >= FI-beg-vend-code
                                    AND b-job-mat.i-no     EQ b-ef.board
                                    AND b-job-mat.rm-i-no  EQ b-ef.board   
                                     USE-INDEX i-no NO-LOCK NO-ERROR.
-            
+
             v-board-cost = b-job-mat.cost.
          END.
 
@@ -966,7 +976,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
  /*    DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -977,9 +987,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
 */
  {custom/out2file.i}
@@ -1013,7 +1023,7 @@ PROCEDURE output-to-printer :
      DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1040,7 +1050,7 @@ PROCEDURE output-to-screen :
 ------------------------------------------------------------------------------*/
   run scr-rpt.w (list-name,c-win:title,INT(lv-font-no),lv-ornt). /* open file-name, title */ 
 
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1070,7 +1080,7 @@ PROCEDURE run-report :
    WITH FRAME f-top WIDTH 285.
 
    v-head[1] = "".
-                                                                                                                                                
+
    ASSIGN                                                                                                                              
       v-head[2] = "                                  EST ANNUAL    ONHAND      PLANT      PRODUCTION            NEEDED         BOARD"
       v-head[3] = "FG ITEM NO      BOARD       CAL     USAGE      QUANTITY   ONHAND QTY    QUANTITY    #UPS     SHEETS          COST"
@@ -1084,7 +1094,7 @@ PROCEDURE run-report :
       ASSIGN v-excelheader = "FG ITEM NO,BOARD,CALIPER,EST ANNUAL USAGE,ONHAND QTY,PLANT ONHAND QTY,PRODUCTION QTY,#UPS,NEEDED SHEETS,BOARD COST".
       PUT STREAM excel UNFORMATTED v-excelheader SKIP.
    END.  
-   
+
    FOR EACH tt-vend-whse-item:
       DISPLAY
          tt-vend-whse-item.fg-item-no        FORMAT "X(15)"
@@ -1103,7 +1113,7 @@ PROCEDURE run-report :
          tt-vend-whse-item.needed-sheets     FORMAT "->,>>>,>>9"
          tt-vend-whse-item.board-cost        FORMAT "->,>>>,>>9.99"
          WITH FRAME a NO-BOX NO-LABELS STREAM-IO DOWN  WIDTH 280.
-      
+
       IF tb_excel THEN
          PUT STREAM excel UNFORMATTED
             '"' REPLACE(tt-vend-whse-item.fg-item-no,'"', "")  '",'
@@ -1118,27 +1128,27 @@ PROCEDURE run-report :
             '"' tt-vend-whse-item.board-cost                   '",'
             SKIP.
    END.
-   
+
    IF TG-print-rq-materials = YES THEN DO:
       HIDE FRAME f-top.
       HIDE FRAME a.
-      
+
       ASSIGN                                                                                                                              
          v-head[2] = "                              SHEET      SHEET  PRODUCTION               NEEDED     COLOR"
          v-head[3] = "FG ITEM NO      BOARD         WIDTH     LENGTH    QUANTITY    #UPS       SHEETS     DESCRIPTION"
          v-head[4] = FILL("-",113).
-      
+
       PAGE.
-      
+
       FORMAT HEADER
          v-head[1] SKIP
          v-head[2] SKIP
          v-head[3] SKIP
          v-head[4]
       WITH FRAME f-top2 WIDTH 285.
-   
+
       DISPLAY "" WITH FRAME f-top2.
-     
+
       IF tb_excel THEN DO:
          ASSIGN v-excelheader = "FG ITEM NO,BOARD,SHEET WIDTH,SHEET LENGTH,PRODUCTION QTY,#UPS,NEEDED SHEETS,COLOR DESCRIPTION".
          PUT STREAM excel UNFORMATTED v-excelheader SKIP.
@@ -1160,7 +1170,7 @@ PROCEDURE run-report :
             SPACE(4)
             tt-materials.colors
             WITH FRAME b NO-BOX NO-LABELS STREAM-IO DOWN  WIDTH 280.
-   
+
       IF tb_excel THEN
          PUT STREAM excel UNFORMATTED
             '"' REPLACE(tt-materials.fg-item-no,'"', "")       '",'
@@ -1177,13 +1187,13 @@ PROCEDURE run-report :
    END.
 
    OUTPUT CLOSE.
-      
+
    IF tb_excel THEN DO:
       OUTPUT STREAM excel CLOSE.
       IF tb_runExcel THEN
          OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
    END.  
-  
+
    RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
 END PROCEDURE.
@@ -1206,11 +1216,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1238,23 +1248,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

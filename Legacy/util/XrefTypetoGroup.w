@@ -39,7 +39,7 @@ CREATE WIDGET-POOL.
  ASSIGN
    cocode = gcompany
    locode = gloc .
-     
+
 DEFINE BUFFER b-prgrms FOR prgrms.
 DEFINE VARIABLE v-prgmname LIKE b-prgrms.prgmname NO-UNDO.
 DEFINE VARIABLE Audit_File AS CHARACTER NO-UNDO.
@@ -189,13 +189,28 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
+ASSIGN
+       Btn_Cancel:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
+ASSIGN
+       Btn_Help:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
+ASSIGN
+       Btn_OK:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -288,9 +303,9 @@ DO:
   def var i as int initial 0 no-undo.
   def var num-imports as int initial 0 no-undo.
   DEF VAR excelheader AS CHAR NO-UNDO.
-  
+
   SESSION:SET-WAIT-STATE("GENERAL").
-  
+
   IF from_cust-no:SCREEN-VALUE = "" THEN DO:
        MESSAGE "Customer Must be Enter " VIEW-AS ALERT-BOX ERROR.
         APPLY "entry" TO from_cust-no .
@@ -305,17 +320,17 @@ DO:
   FOR EACH bf-cust WHERE bf-cust.company = cocode
        AND bf-cust.cust-no GE from_cust-no
        AND bf-cust.cust-no LE to_cust-no NO-LOCK :
-    
+
       FIND FIRST bf-cust-copy WHERE bf-cust-copy.company = cocode
           AND bf-cust-copy.cust-no = bf-cust.cust-no EXCLUSIVE-LOCK NO-ERROR.
-      
+
       IF AVAIL bf-cust-copy THEN DO:
              ASSIGN bf-cust-copy.spare-char-2 = bf-cust.TYPE .
-             
+
       END.
-     
+
    END.
-      
+
  RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
   SESSION:SET-WAIT-STATE("").
 
@@ -393,7 +408,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  
+
   RUN enable_UI.
 
   {methods/nowait.i}
@@ -403,7 +418,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       APPLY "entry" TO from_cust-no.
   END.
 
-   
+
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
    WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -462,7 +477,7 @@ PROCEDURE valid-tit-code :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- 
+
   DO WITH FRAME {&FRAME-NAME}:
    /* IF (tit-code:SCREEN-VALUE) <> "" AND
        NOT CAN-FIND(FIRST titlcode

@@ -12,7 +12,7 @@ DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 {custom/gloc.i}
 {custom/getcmpny.i}
 {custom/getloc.i}
-  
+
 {sys/inc/var.i new shared}
 
 assign
@@ -299,6 +299,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_cust:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -371,7 +381,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -501,7 +511,7 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
@@ -633,12 +643,12 @@ DO:
     ASSIGN lv-font-no = "12"
            lines-per-page = 55
            lv-font-name = "Courier New Size=8 (15CPI)".
-    
+
  ELSE
     ASSIGN lv-font-no = "10"
            lines-per-page = 99
            lv-font-name = "Courier NEW SIZE=6 (20 CPI)".
- 
+
  DISPL lv-font-no lines-per-page lv-font-name WITH FRAME {&FRAME-NAME}.
 END.
 
@@ -748,7 +758,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    to_date    = DATE (12,31,year(TODAY)).
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -917,12 +927,12 @@ assign
                   trim(begin_job-no) + string(int(begin_job-no2),"99")
   v-tjob        = fill(" ",6 - length(trim(end_job-no)))   +
                   trim(end_job-no)   + string(int(end_job-no2),"99")  
-    
+
   v-fcust       = begin_cust
   v-tcust       = END_cust
   v-fdate       = from_date
   v-tdate       = to_date. 
-         
+
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i value(lines-per-page)}
@@ -1005,7 +1015,7 @@ for EACH ASI.job-prep WHERE job-prep.company eq cocode
             ldExtCost / liQty @ ldStdCost
             ldExtCost FORM "->>,>>>,>>9.99"
             with frame det STREAM-IO width 140 no-box no-labels down.
-       
+
        IF tb_excel THEN
          EXPORT STREAM excel DELIMITER ","
            job-hdr.cust-no
@@ -1094,7 +1104,7 @@ ELSE /* prep code */
     IF LAST-OF(job-hdr.job-no) THEN DO:
         FIND cust OF job-hdr NO-LOCK NO-ERROR.
          cCustomerName = IF AVAIL cust THEN cust.NAME ELSE job-hdr.cust-no.
-        
+
          FIND FIRST prep WHERE prep.company EQ cocode
                            AND prep.loc     EQ locode
                            AND prep.code    EQ job-prep.CODE NO-LOCK NO-ERROR.
@@ -1160,8 +1170,8 @@ ELSE /* prep code */
 
 
 
-           
-       
+
+
 END.  /* by prep code */
 
 
@@ -1201,11 +1211,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1233,23 +1243,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

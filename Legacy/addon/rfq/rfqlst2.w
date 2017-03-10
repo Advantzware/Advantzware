@@ -241,6 +241,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -249,7 +259,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -296,7 +306,7 @@ DO:
           otherwise do:
            lv-handle = focus:handle.
            run applhelp.p.
-             
+
            if g_lookup-var <> "" then do:
               lv-handle:screen-value = g_lookup-var.
            end.   /* g_lookup-var <> "" */
@@ -350,7 +360,7 @@ END.
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   assign rd-dest begin_cust-no END_cust-no begin_rfq-no END_rfq-no.
-       
+
   run run-report. 
 
   case rd-dest:
@@ -371,7 +381,7 @@ DO:
           ELSE
              RUN email-custx-proc.
        END.
-        
+
        WHEN 6 THEN run output-to-port.
     END.
 
@@ -525,9 +535,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   find last rfq no-lock no-error.
   if avail rfq then end_rfq-no = rfq.rfq-no.
   end_cust-no = "zzzz".
-               
+
   RUN enable_UI.
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     APPLY "entry" TO begin_rfq-no.
@@ -658,7 +668,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
      DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -669,9 +679,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
 
 
@@ -690,7 +700,7 @@ PROCEDURE output-to-printer :
      DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
      SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -769,7 +779,7 @@ FOR EACH rfq WHERE /* rfq.company */
                    ,
     EACH rfqitem OF rfq no-lock
                    BREAK BY rfq.rfq-no BY rfqitem.seq:
-       
+
     if FIRST-OF(rfq.rfq-no) then do:
        /*find cust where cust.company = rfq.company and
                        cust.cust-no = rfq.cust-no
@@ -787,7 +797,7 @@ FOR EACH rfq WHERE /* rfq.company */
                        no-lock no-error.
        lv-sman-name = if avail sman then sman.sname else "".                                                            
        lv-fob = if rfq.fob-code = "D" then "Destination" else "Origin".
-       
+
        DISPLAY   "Customer:" rfq.ship-name at 12  "   Warehouse Month:" rfq.wh-month       "                 RFQ Date     :" rfq.req-date
                   lv-addr1 at 12 form "x(30)"     "   Freight Charge: " rfq.chg-method form "x(13)" "      Required Date:" rfq.due-date    
                   lv-addr2 at 12 form "x(30)"     "   FOB Point:      " lv-fob    
@@ -810,7 +820,7 @@ FOR EACH rfq WHERE /* rfq.company */
          SKIP
          "-- --------------- --------------- ------------------------------ ---------- ----- -------- -------- -------- -------- --- ----"
          SKIP.
-     
+
     end.              
     find style where style.company = rfq.company and
                       style.style = rfqitem.style
@@ -818,7 +828,7 @@ FOR EACH rfq WHERE /* rfq.company */
 
     if avail style and style.industry = "2" then   ll-is-corr-style = yes.
     else ll-is-corr-style = no.
-    
+
     if ll-is-corr-style AND v-cecscrn-char NE "Decimal" then 
         ASSIGN lv-len = round(trunc(rfqitem.len,0) + ((rfqitem.len - trunc(rfqitem.len,0)) / K_FRAC),2)
                lv-wid = round(trunc(rfqitem.wid,0) + ((rfqitem.wid - trunc(rfqitem.wid,0)) / K_FRAC),2)
@@ -827,7 +837,7 @@ FOR EACH rfq WHERE /* rfq.company */
     else ASSIGN lv-len = rfqitem.len
                 lv-wid = rfqitem.wid
                 lv-dep = rfqitem.dep.
-   
+
     IF LL-IS-CORR-STYLE THEN
       PUT rfqitem.seq /*label "Ln"*/ form ">9"         
           lv-delimiter
@@ -879,7 +889,7 @@ FOR EACH rfq WHERE /* rfq.company */
             rfqitem.i-coat /*label "Coat"*/   FORM ">>>9"
             SKIP
             .
-   
+
 
 /*
     if last-of(rfq.rfq-no) then do:

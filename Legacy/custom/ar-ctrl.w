@@ -287,6 +287,11 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME ar-ctrl
    FRAME-NAME                                                           */
+ASSIGN
+       Btn_Close:PRIVATE-DATA IN FRAME ar-ctrl     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FILL-IN ar-ctrl.cash-act IN FRAME ar-ctrl
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN ar-ctrl.cash-act-dscr IN FRAME ar-ctrl
@@ -389,7 +394,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME ar-ctrl */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -458,7 +463,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     /* VALIDATION */
     DEF VAR v-avail AS LOG NO-UNDO.
-    
+
     {custom/validate/acct.i ar-ctrl.receivables}
     {custom/validate/acct.i ar-ctrl.sales}
     {custom/validate/acct.i ar-ctrl.cash-act}
@@ -676,7 +681,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   FIND FIRST ar-ctrl WHERE ar-ctrl.company EQ gcompany NO-LOCK NO-ERROR.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   APPLY 'ENTRY':U TO Btn_Update IN FRAME {&FRAME-NAME}.

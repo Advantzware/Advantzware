@@ -388,6 +388,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
                                                                         */
+ASSIGN
+       Btn_Cancel:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
+ASSIGN
+       Btn_OK:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FILL-IN F1 IN FRAME DEFAULT-FRAME
    NO-ENABLE ALIGN-L 6                                                  */
 /* SETTINGS FOR FILL-IN m-lookup-db IN FRAME DEFAULT-FRAME
@@ -406,7 +416,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -811,7 +821,7 @@ DO:
     "~{methods/lookup.i}" SKIP.
 
   OUTPUT CLOSE.
-  
+
   MESSAGE "Compile Lookup?" VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
       UPDATE compile-lookup AS LOGICAL.
   IF compile-lookup THEN
@@ -1104,7 +1114,7 @@ PROCEDURE Get_Lookup :
   END.
   ELSE
   m-lookup-prgm = m_lookup_prgm.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

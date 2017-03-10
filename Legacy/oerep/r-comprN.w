@@ -448,6 +448,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -550,7 +560,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -692,7 +702,7 @@ DO:
 
   RUN DisplaySelectionDefault.  /* task 04041406 */ 
   RUN DisplaySelectionList2 .
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -821,19 +831,19 @@ END.
 ON VALUE-CHANGED OF rd_part-fg IN FRAME FRAME-A
 DO:
   assign {&self-name}.
-  
+
   if rd_ptd eq "YTD" then do:
     find first period
         where period.company eq gcompany
           and period.yr      eq v-year
         no-lock no-error.
-      
+
     begin_date = if avail period then period.pst
                                  else date(1,1,year(today)).
-                               
+
     display begin_date WITH FRAME FRAME-A IN WINDOW C-Win.
   end.
-  
+
   run show-period-dates.
 END.
 
@@ -846,19 +856,19 @@ END.
 ON VALUE-CHANGED OF rd_ptd IN FRAME FRAME-A
 DO:
   assign {&self-name}.
-  
+
   if rd_ptd eq "YTD" then do:
     find first period
         where period.company eq gcompany
           and period.yr      eq v-year
         no-lock no-error.
-      
+
     begin_date = if avail period then period.pst
                                  else date(1,1,year(today)).
-                               
+
     display begin_date WITH FRAME FRAME-A IN WINDOW C-Win.
   end.
-  
+
   run show-period-dates.
 END.
 
@@ -883,7 +893,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
-  
+
    IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
        sl_selected:NUM-ITEMS = 0)
    THEN ASSIGN ldummy = sl_selected:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
@@ -891,7 +901,7 @@ DO:
               /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
                .
 
-  
+
 /* for pairs
     DEF VAR cSelectedList AS cha NO-UNDO.
     cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
@@ -934,7 +944,7 @@ DO:
   ASSIGN
     {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}:ENTRY(1)
     .
-    
+
 
 END.
 
@@ -1031,7 +1041,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   ASSIGN
    begin_date = TODAY
    end_date   = TODAY.
-   
+
   find first period
       where period.company eq gcompany
         and period.pst     le today
@@ -1044,17 +1054,17 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      begin_period = period.pnum
      v-year       = period.yr
      begin_date   = period.pst.
-     
+
   else
     assign
      begin_period = month(today)
      v-year       = year(today).
-  
+
   fi_file = "c:\tmp\commprm.csv".
 
   RUN DisplaySelectionList.
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -1062,7 +1072,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {custom/usrprint.i}
     RUN DisplaySelectionList2.
     APPLY "entry" TO rd_ptd.
-        
+
     FIND FIRST period
         WHERE period.company EQ gcompany
           AND period.pst     LE DATE(begin_date:SCREEN-VALUE)
@@ -1122,7 +1132,7 @@ PROCEDURE DisplaySelectionDefault :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  
+
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
      cListContents = cListContents +                   
@@ -1148,7 +1158,7 @@ PROCEDURE DisplaySelectionList :
   DEF VAR iCount AS INT NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
-     
+
      RETURN.
   END.
 
@@ -1161,7 +1171,7 @@ PROCEDURE DisplaySelectionList :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1169,9 +1179,9 @@ PROCEDURE DisplaySelectionList :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 END PROCEDURE.
 
@@ -1192,7 +1202,7 @@ PROCEDURE DisplaySelectionList2 :
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
-        
+
   EMPTY TEMP-TABLE ttRptList.
 
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
@@ -1202,7 +1212,7 @@ PROCEDURE DisplaySelectionList2 :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1210,9 +1220,9 @@ PROCEDURE DisplaySelectionList2 :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
   DO iCount = 1 TO sl_selected:NUM-ITEMS:
@@ -1465,7 +1475,7 @@ FOR EACH tt-report,
          BY tt-report.key-10
          BY tt-report.rec-id
          BY ROWID(tt-report):
-   
+
 /*    IF NOT v-sumdet THEN DO: */
       DISPLAY
          tt-report.key-01  WHEN FIRST-OF(tt-report.key-01) FORMAT "x(3)"
@@ -1515,7 +1525,7 @@ FOR EACH tt-report,
 /*       IF v-gp   = ? THEN v-gp   = 0. */
 
       IF v-sumdet THEN DO:
-     
+
 /*          DISPLAY                                                    */
 /*             p-sman            FORMAT "x(3)"                         */
 /*             SPACE(7)                                                */
@@ -1631,7 +1641,7 @@ FOR EACH tt-report,
 /*                v-comm                                  */
 /*            WITH FRAME detail.                          */
 /*          END.                                          */
-       
+
 
       ASSIGN
          v-frst[1]     = NO
@@ -1665,7 +1675,7 @@ IF NOT v-sumdet THEN DO:
       v-tot-samt[3] = 0
       v-tot-camt[3] = 0
       v-tot-cost[3] = 0.
-  
+
    recap-work:
    FOR EACH w-comm
       BREAK BY w-comm.sman:
@@ -1741,7 +1751,7 @@ PROCEDURE GetSelectionList :
 
  DO i = 1 TO sl_selected:NUM-ITEMS /* IN FRAME {&FRAME-NAME}*/ :
     FIND FIRST ttRptList WHERE ttRptList.TextList = ENTRY(i,cTmpList) NO-LOCK NO-ERROR.     
-  
+
     CREATE ttRptSelected.
     ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
            ttRptSelected.FieldList = ttRptList.FieldList
@@ -1750,7 +1760,7 @@ PROCEDURE GetSelectionList :
            ttRptSelected.HeadingFromLeft = IF entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
-           
+
  END.
 
 END PROCEDURE.
@@ -1801,7 +1811,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
   /*   DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -1812,9 +1822,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
      */
     {custom/out2file.i}
@@ -1848,7 +1858,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1930,7 +1940,7 @@ ASSIGN
 {sys/inc/ctrtext.i str-tit3 132}
 
 v-head[1] = "".
-                                                                                                                                                  
+
    ASSIGN                                                                                                                              
       v-head[2] = fill(" ",36)  +                     "Invoice                  FG                      Invoice      Set Sales     Commission     Total Item     Total Item  Profit         Profit  "
       v-head[3] = "SMAN Customer Name                   Number FG Number       Cat.          QTY          Price          Price           Cost       Resale          Cost     Margin%        Margin$     Comm."
@@ -2051,7 +2061,7 @@ FOR EACH tt-comm-calc,
                     cVarValue = ""
                     cExcelDisplay = ""
                     cExcelVarValue = "".
-            
+
              DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                 cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                      CASE cTmpField:             
@@ -2071,15 +2081,15 @@ FOR EACH tt-comm-calc,
                           WHEN "marg%"         THEN cVarValue = STRING(tt-comm-calc.profit-margin-percent,"->>>9.99").     
                           WHEN "marg$"         THEN cVarValue = STRING(tt-comm-calc.profit-margin,"->>,>>>,>>9.99").
                           WHEN "com"           THEN cVarValue = STRING(tt-comm-calc.commission,"->>>9.99")   .  
-                          
+
                      END CASE.
-                       
+
                      cExcelVarValue = cVarValue.
                      cDisplay = cDisplay + cVarValue +
                                 FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                      cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
              END.
-            
+
              PUT UNFORMATTED cDisplay SKIP.
              IF tb_excel THEN DO:
                   PUT STREAM st-excel UNFORMATTED  
@@ -2116,7 +2126,7 @@ FORMAT HEADER
 ASSIGN
  str-tit2 = TRIM(c-win:TITLE) + " (O-R-6)"
  {sys/inc/ctrtext.i str-tit2 112}
- 
+
  v-per-rpt   = rd_ptd EQ "PTD"
  v-period    = begin_period
  v-date[1]   = begin_date
@@ -2139,11 +2149,11 @@ FOR EACH w-comm:
 END.
 
 FIND FIRST oe-ctrl WHERE oe-ctrl.company = cocode NO-LOCK.
-        
+
 FOR EACH cust WHERE cust.company EQ cocode
                 AND cust.cust-no GE v-cust[1]
                 AND cust.cust-no LE v-cust[2] NO-LOCK:
-   
+
      {custom/statusMsg.i "'Processing Customer # ' + string(cust.cust-no)"} 
 
    FOR EACH ar-inv WHERE ar-inv.company  EQ cocode
@@ -2175,7 +2185,7 @@ FOR EACH cust WHERE cust.company EQ cocode
          DO i = 1 TO 3:
             v-slsm[1] = IF ar-invl.sman[i] EQ "" AND i EQ 1 THEN cust.sman 
                         ELSE ar-invl.sman[i].
-          
+
             IF v-slsm[1] LT v-sman[1] OR
                v-slsm[1] GT v-sman[2] OR
                (i NE 1 AND (v-slsm[1] EQ "" OR ar-invl.s-pct[i] EQ 0)) THEN NEXT.
@@ -2197,7 +2207,7 @@ FOR EACH cust WHERE cust.company EQ cocode
                tt-comm-calc.cost-uom = ar-invl.dscr[1]
                tt-comm-calc.uom      = ar-invl.pr-uom
                tt-comm-calc.commission-cost = ar-invl.cost.
-            
+
          END.
    END.
 
@@ -2236,7 +2246,7 @@ FOR EACH cust WHERE cust.company EQ cocode
             (AVAIL ar-invl       OR
             (NOT AVAIL reftable  AND NOT ar-cashl.dscr MATCHES "*oe return*") OR
              SUBSTR(ar-cashl.dscr,INDEX(ar-cashl.dscr,"oe return") + 12,5) EQ "items") THEN
-            
+
             FOR EACH b-ar-invl WHERE b-ar-invl.company EQ ar-cashl.company
                                  AND b-ar-invl.cust-no EQ cust.cust-no
                                  AND b-ar-invl.inv-no  EQ ar-cashl.inv-no
@@ -2332,7 +2342,7 @@ FOR EACH tt-comm-calc,
 
    IF FIRST(tt-comm-calc.slsm[1])    THEN v-frst[1] = YES.
    IF FIRST-OF(tt-comm-calc.slsm[1]) THEN v-frst[2] = YES.
-   
+
    FIND FIRST sman WHERE sman.company EQ cocode
                      AND sman.sman    EQ tt-comm-calc.slsm[1] NO-LOCK NO-ERROR.
 
@@ -2557,11 +2567,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -2589,23 +2599,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

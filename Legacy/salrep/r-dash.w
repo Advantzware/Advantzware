@@ -125,7 +125,7 @@ assign
 
 /* gdm - 03090905 */
 DEF VAR v-runflg AS LOG INIT NO NO-UNDO.
-                    
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -364,6 +364,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* BROWSE-TAB browse-machine fi_company FRAME-A */
 /* BROWSE-TAB browse-sales-forecast tg_set-comp FRAME-A */
 /* BROWSE-TAB browse-ar browse-sales-forecast FRAME-A */
@@ -414,7 +424,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH company NO-LOCK.
 */  /* BROWSE browse-sales-forecast */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -464,11 +474,11 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
 
    IF v-runflg THEN DO:
-   
+
     SESSION:SET-WAIT-STATE("general").
 
     ASSIGN {&displayed-objects} fi_company tg_round.
-    
+
     EMPTY TEMP-TABLE tt-raw-op.
     EMPTY TEMP-TABLE tt-raw-prod.
     EMPTY TEMP-TABLE work-tmp.
@@ -488,7 +498,7 @@ DO:
           APPLY "ENTRY:U" TO fi_company IN FRAME {&FRAME-NAME}.
           LEAVE.
        END.
-   
+
     IF BROWSE browse-machine:NUM-SELECTED-ROWS GT 99 THEN
     DO:
        MESSAGE "More than 99 Machines are Selected."
@@ -504,7 +514,7 @@ DO:
        APPLY "ENTRY:U" TO BROWSE browse-sales-forecast.
        LEAVE.
     END.
-    
+
     RUN reftable-proc.
 
     /*blank prod cat*/
@@ -609,29 +619,29 @@ DO:
          FIND FIRST company WHERE
               company.company EQ fi_company:SCREEN-VALUE
               NO-LOCK NO-ERROR.
-         
+
          IF AVAIL company THEN
          DO:
             REPOSITION browse-sales-forecast TO ROWID ROWID(company).
             IF browse-sales-forecast:SELECT-FOCUSED-ROW() THEN.
-         
+
             RELEASE company.
          END.
-         
+
          FIND FIRST company NO-LOCK NO-ERROR.
-   
+
          IF AVAIL company THEN
             REPOSITION browse-sales-forecast TO ROWID ROWID(company).
 
          ASSIGN fi_company.
-         
+
          CLOSE QUERY browse-machine.
-         
+
          OPEN QUERY browse-machine FOR EACH mach WHERE
               mach.company = fi_company AND
               mach.loc = locode
               NO-LOCK BY mach.m-code.
-         
+
          FOR EACH reftable WHERE
              reftable.reftable EQ "HM1" AND
              reftable.company EQ USERID("NOSWEAT") AND
@@ -642,11 +652,11 @@ DO:
                    mach.loc = locode AND
                    mach.m-code = reftable.CODE
                    NO-LOCK:
-         
+
              REPOSITION browse-machine TO ROWID ROWID(mach).
              IF browse-machine:SELECT-FOCUSED-ROW() THEN.
          END.
-         
+
          FOR EACH b-mach WHERE
              b-mach.company EQ fi_company:SCREEN-VALUE AND
              b-mach.loc EQ locode
@@ -655,12 +665,12 @@ DO:
 
             LEAVE.
          END.
-          
+
          IF AVAIL b-mach THEN
             REPOSITION browse-machine TO ROWID ROWID(b-mach).
 
          CLOSE QUERY browse-ar.
-         
+
          OPEN QUERY browse-ar FOR EACH account WHERE
               account.company = fi_company no-lock.
          END.
@@ -724,11 +734,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   fi_company = cocode.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
   {custom/usrprint.i}
 
@@ -759,7 +769,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      END.
 
      FIND FIRST company NO-LOCK NO-ERROR.
-   
+
      IF AVAIL company THEN
         REPOSITION browse-sales-forecast TO ROWID ROWID(company).
 
@@ -793,7 +803,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
          LEAVE.
      END.
-          
+
      IF AVAIL b-mach THEN
         REPOSITION browse-machine TO ROWID ROWID(b-mach).
 
@@ -826,7 +836,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      fi_as-of-date:SCREEN-VALUE = STRING(TODAY).
      APPLY "entry" TO fi_as-of-date.
   END.
- 
+
  /* gdm - 03090905 */
   {salrep/SlsMgmt.i}
 
@@ -849,7 +859,7 @@ PROCEDURE ap-ar-proc :
 ------------------------------------------------------------------------------*/
    /*from arrep\r-cashsm.w  include terms discount is yes
      Show only invoices ... 0 days*/
-   
+
    def var v-sman as   CHAR NO-UNDO.
    DEF VAR i AS INT NO-UNDO.
    def var v-amt  like ar-cashl.amt-paid extent 2 NO-UNDO.
@@ -861,12 +871,12 @@ PROCEDURE ap-ar-proc :
    EMPTY TEMP-TABLE tt-report.
 
    CREATE tt-ar-ap.
-   
+
    v-start-of-month = DATE(MONTH(fi_as-of-date),1,YEAR(fi_as-of-date)).
 
    for each cust FIELDS(company cust-no sman) where
        cust.company eq fi_company no-lock:
-    
+
     for each ar-inv FIELDS(x-no inv-date inv-date) 
         where ar-inv.company  eq fi_company
           and ar-inv.posted   eq yes
@@ -878,9 +888,9 @@ PROCEDURE ap-ar-proc :
         each ar-invl FIELDS(sman s-pct inv-no )
         where ar-invl.x-no eq ar-inv.x-no
         no-lock
-        
+
         /*transaction*/ :
-          
+
       do i = 1 to 3:
         v-sman = if ar-invl.sman[i] eq "" and i eq 1 then cust.sman
                  else ar-invl.sman[i].
@@ -920,7 +930,7 @@ PROCEDURE ap-ar-proc :
                (ar-cash.check-date - ar-cashl.inv-date gt v-days and
                 ar-cashl.inv-no ne 0)) */
         no-lock
-      
+
         /*transaction*/ :
 
       if ar-cashl.inv-no ne 0 then
@@ -952,7 +962,7 @@ PROCEDURE ap-ar-proc :
           end.
         end.
       end.
-      
+
       ELSE do:
         v-sman = cust.sman.
 
@@ -963,7 +973,7 @@ PROCEDURE ap-ar-proc :
             no-lock no-error.
         if not avail tt-report then do:
           create tt-report.
-        
+
           assign
            tt-report.key-01  = v-sman
            tt-report.key-02  = string(ar-cashl.inv-no,"9999999999")
@@ -973,33 +983,33 @@ PROCEDURE ap-ar-proc :
       end.
     end.
   end.
-  
+
   for each tt-report
       /*transaction*/ :
-      
+
     release ar-inv.
     release ar-cash.
-    
+
     find ar-cashl where recid(ar-cashl) eq tt-report.rec-id no-lock no-error.    
-        
+
     if avail ar-cashl then do:
       find first ar-cash where ar-cash.c-no eq ar-cashl.c-no no-lock.
-      
+
       assign
        v-dsc[1] = ar-cashl.amt-disc
        v-amt[1] = ar-cashl.amt-paid + v-dsc[1]
        v-amt[2] = v-amt[1].
-                  
+
       if ar-cashl.inv-no ne 0 then
       for each ar-invl FIELDS(x-no inv-no amt sman s-pct)
           where ar-invl.company eq fi_company
             and ar-invl.cust-no eq ar-cash.cust-no
             and ar-invl.inv-no  eq ar-cashl.inv-no
           no-lock,
-          
+
           first ar-inv FIELDS(tax-amt f-bill freight) where
                 ar-inv.x-no eq ar-invl.x-no no-lock
-          
+
           break by ar-invl.inv-no:
 
         if first(ar-invl.inv-no) then
@@ -1007,9 +1017,9 @@ PROCEDURE ap-ar-proc :
            v-amt    = 0
            v-amt[1] = ar-inv.tax-amt +
                       (if ar-inv.f-bill then ar-inv.freight else 0).
-           
+
         v-amt[1] = v-amt[1] + ar-invl.amt.
-        
+
         if ar-invl.sman[1] ne "" then
         do i = 1 to 3:
           if tt-report.key-01 eq ar-invl.sman[i] then do:
@@ -1022,22 +1032,22 @@ PROCEDURE ap-ar-proc :
           assign
            v-amt[2] = v-amt[2] + ar-invl.amt.
       end.
-      
+
       assign
        v-pct    = v-amt[2] / v-amt[1]
        v-amt[1] = (ar-cashl.amt-paid + v-dsc[1]) * v-pct
        v-pct    = v-amt[1] / v-amt[2].
-       
+
       release ar-inv.
     end.
-    
+
     else do:
       find ar-invl where recid(ar-invl) eq tt-report.rec-id no-lock.
-      
+
       assign
        v-amt[1] = ar-invl.amt.
     end.
-    
+
     if v-amt[1] eq ? then v-amt[1] = 0.
 
     IF DATE(tt-report.key-04) EQ fi_as-of-date THEN
@@ -1083,7 +1093,7 @@ PROCEDURE ap-proc :
     NO-LOCK USE-INDEX vend-no,
     EACH ap-payl FIELDS(amt-paid amt-disc inv-no amt-paid amt-disc LINE) 
          WHERE ap-payl.c-no EQ ap-pay.c-no NO-LOCK
-      
+
     BREAK BY ap-pay.check-act
           BY ap-pay.check-no
           BY ap-payl.inv-no
@@ -1091,31 +1101,31 @@ PROCEDURE ap-proc :
           BY ap-payl.amt-paid:
 
     v-gross-amt = v-gross-amt + (ap-payl.amt-paid + ap-payl.amt-disc).
-      
+
     IF FIRST-OF(ap-payl.inv-no) THEN DO:
       CREATE tt-ap-report.
-   
+
       ASSIGN
        tt-ap-report.key-03     = ap-payl.inv-no
        tt-ap-report.check-date = ap-pay.check-date
        tt-ap-report.inv-no     = ap-payl.inv-no
        tt-ap-report.amt-paid   = ap-payl.amt-paid.
     END.
-              
+
     IF LAST-OF(ap-pay.check-no) THEN DO:
       IF NOT FIRST-OF(ap-pay.check-no) OR v-gross-amt EQ 0 THEN DO:
         CREATE tt-ap-report.
-   
+
         ASSIGN
          tt-ap-report.key-03     = FILL("z",100) + "TOTAL"
          tt-ap-report.check-date = ap-pay.check-date
          tt-ap-report.inv-no     = IF v-gross-amt EQ 0 THEN "Void" ELSE ""
          tt-ap-report.amt-paid   = ap-pay.check-amt.
-   
+
         IF tt-ap-report.inv-no EQ "Void" THEN
            tt-ap-report.amt-paid  = tt-ap-report.amt-paid * -1.
       END.
-   
+
       ASSIGN
        v-gross-amt = 0. 
     END.
@@ -1176,7 +1186,7 @@ PROCEDURE backlog-sales-forecast-proc :
              oe-ordl.req-date ge ip-start-month AND
              oe-ordl.req-date LT ip-start-next-month
              no-lock:
-   
+
         IF oe-ordl.ship-qty EQ oe-ordl.t-ship-qty THEN
            li-qty[2] = oe-ordl.ship-qty.
         ELSE
@@ -1208,14 +1218,14 @@ PROCEDURE backlog-sales-forecast-proc :
       where itemfg.company eq tt-sales-forecast.company
         and itemfg.i-no    eq job-hdr.i-no
       no-lock  
-        
+
       break by job-hdr.job
             by job-hdr.job-no
             by job-hdr.job-no2
             by job-hdr.i-no:
 
       v-qty[1] = v-qty[1] + job-hdr.qty.
-         
+
       if last-of(job-hdr.i-no) then do:
         for each fg-act FIELDS(qty)
             where fg-act.company eq tt-sales-forecast.company
@@ -1224,10 +1234,10 @@ PROCEDURE backlog-sales-forecast-proc :
               and fg-act.job-no2 eq job-hdr.job-no2
               and fg-act.i-no    eq job-hdr.i-no
             use-index job-idx no-lock:
-              
+
           v-qty[2] = v-qty[2] + fg-act.qty.  
         end.
-          
+
         if v-qty[2] lt v-qty[1] then do:
           create tt-report.
           assign
@@ -1236,28 +1246,28 @@ PROCEDURE backlog-sales-forecast-proc :
            tt-report.key-05  = job-hdr.cust-no
            tt-report.rec-id  = recid(job).
         end.
-          
+
         v-qty = 0.
       end. /*last-of (job-hdr.i-no) */
     end. /* each job-hdr */
 
     for each tt-report:
-   
+
         {oe/rep/backlog3.i}
-   
+
          FIND FIRST itemfg WHERE
               itemfg.company = tt-sales-forecast.company AND
               itemfg.i-no   = tt-report.key-03
               NO-LOCK NO-ERROR.
-   
+
          ASSIGN
            tt-sales-forecast.backlog-amt = tt-sales-forecast.backlog-amt + w-ord2.t-price
            tt-sales-forecast.backlog-qty = tt-sales-forecast.backlog-qty + w-ord2.qty-due
            tt-sales-forecast.backlog-cost = tt-sales-forecast.backlog-cost + w-ord2.cost.
-   
+
          IF AVAIL itemfg THEN
             tt-sales-forecast.backlog-msf = tt-sales-forecast.backlog-msf + (w-ord2.qty-due * itemfg.t-sqft / 1000).
-          
+
     END. /* each tt-report */
 
   END. /* for each tt-sales-forecast*/
@@ -1302,7 +1312,7 @@ PROCEDURE dso-proc :
    DEF VAR v-raw-sales AS DEC DECIMALS 2 NO-UNDO.    
    DEF VAR cAccountList AS CHAR NO-UNDO.
    DEFINE VARIABLE dOpenBal AS DECIMAL     NO-UNDO.
-   
+
    FIND FIRST period WHERE
         period.company EQ fi_company AND
         period.pst LE fi_as-of-date AND
@@ -1344,7 +1354,7 @@ PROCEDURE dso-proc :
 
           v-raw-sales = v-raw-sales + ROUND(tt-raw-sales.date-amt,2).
       END.
-      
+
       ASSIGN
          v-raw-sales = v-raw-sales / 90.0
          v-dso = IF v-raw-sales NE 0 THEN ROUND(v-total-period-bal / v-raw-sales,1)
@@ -1402,14 +1412,14 @@ PROCEDURE invoiced-sales-forecast-proc :
   DEF VAR v-i-no AS CHAR NO-UNDO.
   DEF VAR v-ord-no AS INT NO-UNDO.
   DEF VAR v-msf AS DEC NO-UNDO.
-  
+
   ip-start-month = DATE(MONTH(fi_as-of-date),1,YEAR(fi_as-of-date)).
 
   IF MONTH(fi_as-of-date) NE 12 THEN
      ip-start-next-month = DATE(MONTH(fi_as-of-date) + 1,1,YEAR(fi_as-of-date)).
   ELSE
      ip-start-next-month = DATE(1,1,YEAR(fi_as-of-date) + 1).
-  
+
   FOR EACH tt-sales-forecast:
 
       EMPTY TEMP-TABLE tt-report.
@@ -1432,14 +1442,14 @@ PROCEDURE invoiced-sales-forecast-proc :
 
              RUN oe/invlcomp.p (ROWID(ar-invl), OUTPUT ll-comp).
              IF ll-comp THEN NEXT.
-            
+
              do i = 1 to 3:
                v-slsm[1] = if ar-invl.sman[i] eq "" and i eq 1 then
                              cust.sman else ar-invl.sman[i].
-               
+
                if (i ne 1 and
                    (v-slsm[1] eq "" or ar-invl.s-pct[i] eq 0)) then next.
-               
+
                create tt-report.
                assign
                 tt-report.key-01  = v-slsm[1]
@@ -1450,10 +1460,10 @@ PROCEDURE invoiced-sales-forecast-proc :
                IF i GT 1 THEN DO:
                    tt-report.is-duplicate = YES.
                END.
-                   
+
              end.
          END. /*each ar-inv*/
-        
+
          FOR EACH ar-cash FIELDS(c-no)
              WHERE ar-cash.company    EQ tt-sales-forecast.company
                AND ar-cash.cust-no    EQ cust.cust-no
@@ -1470,12 +1480,12 @@ PROCEDURE invoiced-sales-forecast-proc :
                               AND account.actnum  EQ ar-cashl.actnum
                               AND account.type    EQ "R")
              NO-LOCK:
-        
+
            RELEASE tt-report.
            RELEASE ar-invl.
-        
+
            RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
-        
+
            if avail oe-retl then 
            find first ar-invl
                where ar-invl.company eq ar-cashl.company
@@ -1484,7 +1494,7 @@ PROCEDURE invoiced-sales-forecast-proc :
                  and ar-invl.i-no    eq oe-retl.i-no
                  and (ar-invl.billable or not ar-invl.misc)
                no-lock no-error.
-        
+
            IF ar-cashl.inv-no NE 0                                                       AND
               (AVAIL ar-invl                             OR
                (NOT AVAIL reftable AND
@@ -1495,7 +1505,7 @@ PROCEDURE invoiced-sales-forecast-proc :
                  AND b-ar-invl.cust-no EQ cust.cust-no
                  AND b-ar-invl.inv-no  EQ ar-cashl.inv-no
                NO-LOCK:
-        
+
              IF NOT ((b-ar-invl.billable OR NOT b-ar-invl.misc)
                 AND (NOT AVAIL ar-invl OR ROWID(b-ar-invl) EQ ROWID(ar-invl))) THEN
                 NEXT.
@@ -1504,14 +1514,14 @@ PROCEDURE invoiced-sales-forecast-proc :
                RUN oe/invlcomp.p (ROWID(b-ar-invl), OUTPUT ll-comp).
                IF ll-comp THEN NEXT.
              END.
-        
+
              DO i = 1 TO 3:
                v-slsm[1] = IF b-ar-invl.sman[i] EQ "" AND i EQ 1 THEN
                              cust.sman ELSE b-ar-invl.sman[i].
-        
+
                IF (i NE 1 AND
                   (v-slsm[1] EQ "" OR b-ar-invl.s-pct[i] EQ 0)) THEN NEXT.
-        
+
                CREATE tt-report.
                ASSIGN
                 tt-report.key-01 = v-slsm[1]
@@ -1525,13 +1535,13 @@ PROCEDURE invoiced-sales-forecast-proc :
 
              END.
            END.
-        
+
            ELSE DO:
-             
+
              create tt-report.
              assign
                 tt-report.key-01 = cust.sman.
-        
+
              if avail tt-report then
                assign
                 tt-report.key-02  = cust.cust-no
@@ -1563,20 +1573,20 @@ PROCEDURE invoiced-sales-forecast-proc :
              find ar-invl where recid(ar-invl) eq tt-report.rec-id no-lock no-error.
 
           if avail ar-invl then do:
-            
+
              RELEASE itemfg.
-            
+
              FIND FIRST itemfg WHERE
                   itemfg.company EQ tt-sales-forecast.company AND
                   itemfg.i-no    EQ ar-invl.i-no
                   NO-LOCK NO-ERROR.
-            
+
              do i = 1 to 3:
                if ar-invl.sman[i] eq tt-report.key-01 or
                   ar-invl.sman[1] eq "" then leave.
                if i eq 3 then next input-work.
              end.
-            
+
              ASSIGN
              v-slsp[1] = if ar-invl.sman[i] eq ""              or
                             (ar-invl.s-pct[i] eq 0 and i eq 1) then 100
@@ -1591,20 +1601,20 @@ PROCEDURE invoiced-sales-forecast-proc :
                           (itemfg.t-sqft * ar-invl.qty / 1000) else 0
              v-amt = ar-invl.amt * v-slsp[1] / 100
              v-cost = ar-invl.t-cost * v-slsp[1] / 100.
-              
+
           end. /*if avail ar-invl*/
          else
          if tt-report.key-10 eq "ar-cashl" then
             find ar-cashl where recid(ar-cashl) eq tt-report.rec-id no-lock no-error.
-         
+
          if avail ar-cashl then do:
            RELEASE oe-retl.
            RELEASE ar-invl.
-         
+
            FIND ar-invl WHERE ROWID(ar-invl) EQ tt-report.row-id NO-LOCK NO-ERROR.
-         
+
            RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
-         
+
            if avail oe-retl and not avail ar-invl then 
            find first ar-invl
                where ar-invl.company eq tt-sales-forecast.company
@@ -1612,21 +1622,21 @@ PROCEDURE invoiced-sales-forecast-proc :
                  and ar-invl.inv-no  eq ar-cashl.inv-no
                  and ar-invl.i-no    eq oe-retl.i-no
                no-lock no-error.
-         
+
            IF AVAIL ar-invl THEN DO:
              DO i = 1 to 3:
                IF ar-invl.sman[i] EQ tt-report.key-01 OR
                   ar-invl.sman[1] EQ ""               THEN LEAVE.
                IF i EQ 3 THEN NEXT input-work.
              END.
-         
+
              RELEASE itemfg.
-         
+
              FIND FIRST itemfg NO-LOCK
                  WHERE itemfg.company EQ tt-sales-forecast.company
                    AND itemfg.i-no    EQ ar-invl.i-no
                  NO-ERROR.
-         
+
              ASSIGN
               v-slsp[1]   = if ar-invl.sman[i] eq ""              or
                              (ar-invl.s-pct[i] eq 0 and i eq 1) then 100
@@ -1635,7 +1645,7 @@ PROCEDURE invoiced-sales-forecast-proc :
                       (v-slsp[1] / 100)
               v-ord-no    = ar-invl.ord-no
               v-i-no      = ar-invl.i-no.
-         
+
              IF AVAIL oe-retl THEN
                ASSIGN
                 v-qty = oe-retl.tot-qty-return * -1
@@ -1644,7 +1654,7 @@ PROCEDURE invoiced-sales-forecast-proc :
                         else 0
                 v-cost = (oe-retl.cost * (oe-retl.tot-qty-return / 1000) *
                                          (v-slsp[1] / 100) * -1).
-         
+
              ELSE DO:
                ld-inv-pct = 0.
                FOR EACH b-ar-invl fields(amt) WHERE b-ar-invl.x-no EQ ar-invl.x-no NO-LOCK:
@@ -1655,9 +1665,9 @@ PROCEDURE invoiced-sales-forecast-proc :
                                (1 / IF (ACCUM TOTAL 1) EQ 0 THEN 1
                                                             ELSE (ACCUM TOTAL 1))
                             ELSE (ar-invl.amt / ld-inv-pct).
-         
+
                IF ld-inv-pct EQ ? THEN ld-inv-pct = 0.
-         
+
                ld-csh-pct = 0.
                FOR EACH b-ar-cashl FIELDS(amt-paid amt-disc)
                    WHERE b-ar-cashl.c-no   EQ ar-cashl.c-no
@@ -1666,9 +1676,9 @@ PROCEDURE invoiced-sales-forecast-proc :
                  ld-csh-pct = ld-csh-pct + (b-ar-cashl.amt-paid - b-ar-cashl.amt-disc).
                END.
                ld-csh-pct = (ar-cashl.amt-paid - ar-cashl.amt-disc) / ld-csh-pct.
-         
+
                IF ld-csh-pct EQ ? THEN ld-csh-pct = 0.
-         
+
                ASSIGN
                 v-amt  = v-amt * ld-inv-pct
                 v-cost = ar-invl.t-cost * (v-slsp[1] / 100) * -1 * ld-csh-pct.
@@ -1707,11 +1717,11 @@ PROCEDURE invoiced-sales-forecast-proc :
 
       END. /*each tt-report */
   END. /* each tt-sales-forecast */
-   
+
   FOR EACH tt-sales-forecast:
       tt-sales-forecast.invoiced-profit = ROUND(tt-sales-forecast.invoiced-amt -
                                                 tt-sales-forecast.invoiced-cost,2).
-        
+
   END.
 END PROCEDURE.
 
@@ -1735,17 +1745,17 @@ PROCEDURE raw-op-proc :
    ASSIGN
       v-start-last-year = DATE(1,1,YEAR(fi_as-of-date) - 1)
       v-end-this-year   = DATE(12,31,YEAR(fi_as-of-date)).
-   
+
    EMPTY TEMP-TABLE tt-raw-op.
-   
+
    DO v-date = DATE(1,1,YEAR(fi_as-of-date) - 1) TO
       DATE(12,31,YEAR(fi_as-of-date)):
-      
+
       CREATE tt-raw-op.
       tt-raw-op.DATE = v-date.
       RELEASE tt-raw-op.
    END.
-   
+
    FOR each oe-ord FIELDS(company ord-no ord-date TYPE) WHERE
        oe-ord.company  eq fi_company AND
        oe-ord.ord-date ge v-start-last-year AND
@@ -1779,7 +1789,7 @@ PROCEDURE raw-op-proc :
         v-oe-gp = IF v-oe-gp EQ ? THEN 0 ELSE v-oe-gp
         tt-raw-op.oe-gp = tt-raw-op.oe-gp 
                         + v-oe-gp.
-       
+
    END.
 
    RUN raw-op-rel-proc.
@@ -1834,11 +1844,11 @@ PROCEDURE raw-op-rel-proc :
           and oe-rel.rel-date  ge v-start-date
           and oe-rel.rel-date  le v-end-date
         use-index ord-item:
-      
+
         RUN oe/rel-stat.p (ROWID(oe-rel), OUTPUT v-type).
-        
+
         if index("AB",v-type) gt 0 then next.
-        
+
         if index(v-types,v-type) gt 0 then do:
           create tt-report.
           assign
@@ -1846,7 +1856,7 @@ PROCEDURE raw-op-rel-proc :
            tt-report.rec-id  = recid(oe-rel).
         end.
       end.
-   
+
       FOR EACH oe-rell FIELDS(r-no company ord-no i-no LINE b-ord-no po-no
           qty rel-no) NO-LOCK
         WHERE oe-rell.company EQ oe-ordl.company
@@ -1863,9 +1873,9 @@ PROCEDURE raw-op-rel-proc :
           AND oe-relh.deleted  EQ NO
           AND oe-relh.rel-date GE v-start-date
           AND oe-relh.rel-date LE v-end-date
-          
+
         USE-INDEX r-no
-      
+
       BREAK BY oe-rell.r-no
             BY oe-rell.ord-no
             BY oe-rell.i-no
@@ -1875,9 +1885,9 @@ PROCEDURE raw-op-rel-proc :
             BY oe-rell.po-no:
 
        IF FIRST-OF(oe-rell.po-no) THEN lv-qty = 0.
-       
+
        lv-qty = lv-qty + oe-rell.qty.
-       
+
        IF LAST-OF(oe-rell.po-no) THEN DO:
          create tt-report.
          assign
@@ -1901,11 +1911,11 @@ PROCEDURE raw-op-rel-proc :
        release oe-relh.
        release oe-ord.
        release oe-ordl.
-      
+
        find first oe-rel 
            where recid(oe-rel) eq tt-report.rec-id 
            no-lock no-error.
-      
+
        if avail oe-rel then do:
          FOR EACH oe-rell FIELDS(company ord-no rel-no b-ord-no i-no LINE
              r-no) NO-LOCK
@@ -1917,14 +1927,14 @@ PROCEDURE raw-op-rel-proc :
                AND oe-rell.line     EQ oe-rel.line
              USE-INDEX ord-no,
              FIRST oe-relh FIELDS(cust-no r-no posted deleted) WHERE oe-relh.r-no EQ oe-rell.r-no NO-LOCK:
-      
+
            IF oe-relh.posted EQ NO AND oe-relh.deleted EQ NO THEN
              tt-report.rec-id = recid(oe-rell).
            ELSE RELEASE oe-relh.
-      
+
            LEAVE.
          END.
-       
+
          find first oe-ordl
              where oe-ordl.company eq fi_company
                and oe-ordl.ord-no  eq oe-rel.ord-no
@@ -1932,17 +1942,17 @@ PROCEDURE raw-op-rel-proc :
                and oe-ordl.line    eq oe-rel.line
              no-lock.
        end.
-      
+
        find oe-rell where recid(oe-rell) eq tt-report.rec-id no-lock no-error.
        if avail oe-rell then do:    
           if index("SLI",tt-report.key-06) gt 0 then
             tt-report.key-06 = if oe-rell.b-ord-no eq 0 then "A" else "B" .
-         
+
           find first oe-relh
               where oe-relh.company eq fi_company
                 and oe-relh.r-no    eq oe-rell.r-no
               use-index r-no no-lock.
-          
+
           find first oe-ordl
               where oe-ordl.company eq fi_company
                 and oe-ordl.ord-no  eq oe-rell.ord-no
@@ -1952,13 +1962,13 @@ PROCEDURE raw-op-rel-proc :
        end.
 
        find first oe-ord of oe-ordl no-lock no-error.
-    
+
        if avail oe-ord then
         find first cust
             where cust.company eq fi_company
               and cust.cust-no eq oe-ord.cust-no
             no-lock no-error.
-       
+
         if avail oe-relh then
           assign
            v-qty     = IF tt-report.qty NE 0 THEN tt-report.qty ELSE oe-rell.qty
@@ -2011,7 +2021,7 @@ PROCEDURE raw-op-rel-proc :
         tt-raw-op.rel-gp = tt-raw-op.rel-gp 
                          + v-rel-gp.
    END.
-   
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2077,7 +2087,7 @@ PROCEDURE raw-prod-cat-proc :
             if avail fgcat then tt-report.key-01 = fgcat.procat.
           end.
         end.
-        
+
         tt-report.key-02 = /*if v-misc and tt-report.key-01 eq "MISC"
                            then ar-invl.actnum else*/ tt-report.key-01.
     end. /*each ar-inv*/
@@ -2124,13 +2134,13 @@ PROCEDURE raw-prod-cat-proc :
 
        tt-report.key-01 = if avail itemfg then itemfg.procat else "MISC".
     end.
-    
+
     tt-report.key-02 = /*if v-misc and tt-report.key-01 eq "MISC"
                        then ar-cashl.actnum else*/ tt-report.key-01.
     END.
-    
+
   end. /*each cust*/
-  
+
   FOR EACH tt-report,
       FIRST tt-sales-prod-cat WHERE
             tt-sales-prod-cat.prod-cat EQ tt-report.key-02
@@ -2167,7 +2177,7 @@ PROCEDURE raw-prod-cat-proc :
          if v-cost eq ? then v-cost = 0.
          if v-sqft eq ? then v-sqft = 0.
          if v-msf eq ? then v-msf = 0.
-        
+
          IF ar-inv.inv-date EQ tt-sales-prod-cat.DATE THEN
             assign
               w-data.w-sqft[1] = w-data.w-sqft[1] + v-sqft
@@ -2183,7 +2193,7 @@ PROCEDURE raw-prod-cat-proc :
                  w-data.w-amt[2]  = w-data.w-amt[2]  + v-amt 
                  w-data.w-cost[2] = w-data.w-cost[2] + v-cost
                  w-data.w-msf[2]  = w-data.w-msf[2]  + v-msf.
-            
+
             assign
               w-data.w-sqft[3] = w-data.w-sqft[3] + v-sqft
               w-data.w-amt[3]  = w-data.w-amt[3]  + v-amt 
@@ -2196,18 +2206,18 @@ PROCEDURE raw-prod-cat-proc :
 
          if avail ar-cashl then do:
            find ar-cash where ar-cash.c-no eq ar-cashl.c-no no-lock.
-        
+
            assign
             v-amt  = ar-cashl.amt-paid - ar-cashl.amt-disc
             v-msf  = 0
             v-cost = 0
             v-sqft = 0.
-        
+
            RELEASE itemfg.
            RELEASE ar-invl.
-        
+
            RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
-        
+
            IF AVAIL oe-retl THEN DO:
 
              IF oe-retl.i-no NE "" THEN
@@ -2215,23 +2225,23 @@ PROCEDURE raw-prod-cat-proc :
                  where itemfg.company eq fi_company
                    and itemfg.i-no    eq oe-retl.i-no
                  no-lock no-error.
-        
+
              ASSIGN
                v-msf = if avail itemfg then
                           oe-retl.tot-qty-return * itemfg.t-sqft / 1000
                         else 0
                v-sqft  = v-msf * 1000.
-        
+
              if v-sqft eq ? then v-sqft = 0.
              if v-msf eq ? then v-msf = 0.
-        
+
              find first ar-invl
                  where ar-invl.company eq fi_company
                    and ar-invl.cust-no eq ar-cash.cust-no
                    and ar-invl.inv-no  eq ar-cashl.inv-no
                    and ar-invl.i-no    eq oe-retl.i-no
                  no-lock no-error.
-        
+
              if avail ar-invl THEN
                RUN salrep/salecost.p (3,
                                       ROWID(ar-invl),
@@ -2240,7 +2250,7 @@ PROCEDURE raw-prod-cat-proc :
                                       oe-retl.tot-qty-return,
                                       OUTPUT v-cost).
            end.
-        
+
            IF ar-cash.check-date EQ tt-sales-prod-cat.DATE THEN
             assign
               w-data.w-sqft[1] = w-data.w-sqft[1] - v-sqft
@@ -2256,7 +2266,7 @@ PROCEDURE raw-prod-cat-proc :
                  w-data.w-amt[2]  = w-data.w-amt[2]  + v-amt 
                  w-data.w-cost[2] = w-data.w-cost[2] - v-cost
                  w-data.w-msf[2]  = w-data.w-msf[2]  - v-msf.
-             
+
               assign
                  w-data.w-sqft[3] = w-data.w-sqft[3] - v-sqft 
                  w-data.w-amt[3]  = w-data.w-amt[3]  + v-amt
@@ -2281,7 +2291,7 @@ PROCEDURE raw-prod-cat-proc :
             tt-sales-prod-cat.ytd-amt = tt-sales-prod-cat.ytd-amt + w-data.w-amt[3]
             tt-sales-prod-cat.ytd-msf = tt-sales-prod-cat.ytd-msf +  w-data.w-msf[3]
             tt-sales-prod-cat.ytd-cost = tt-sales-prod-cat.ytd-cost + w-data.w-cost[3].
-        
+
          DELETE w-data.
       END.
   END.
@@ -2373,7 +2383,7 @@ PROCEDURE raw-prod-proc :
        IF AVAIL job-code THEN
        DO:
            IF job-code.cat eq "RUN" THEN DO:
-              
+
               work-tmp.qty = work-tmp.qty
                            + IF mch-act.qty EQ ? THEN 0 ELSE mch-act.qty.
 
@@ -2394,7 +2404,7 @@ PROCEDURE raw-prod-proc :
                                            + (IF mch-act.qty EQ ? THEN 0 ELSE mch-act.qty)
                        tt-raw-prod.mtd-run-hrs = tt-raw-prod.mtd-run-hrs
                                                + mch-act.hours.
-                 
+
                  ASSIGN
                     tt-raw-prod.ytd-qty = tt-raw-prod.ytd-qty
                                         + (IF mch-act.qty EQ ? THEN 0 ELSE mch-act.qty)
@@ -2418,7 +2428,7 @@ PROCEDURE raw-prod-proc :
                  assign
                     v-on  = 1
                     v-out = 1.
-         
+
                  if avail b-mach and index("APB",b-mach.p-type) le 0 then do:
 
                     IF job-hdr.blank-no eq 0 THEN
@@ -2436,19 +2446,19 @@ PROCEDURE raw-prod-proc :
                             no-lock no-error.
 
                      if avail eb then v-up = eb.num-up.
-                    
+
                      if job-hdr.n-on ne 0 then v-up = job-hdr.n-on.
-                    
+
                      find first ef
                          where ef.company eq job-hdr.company
                            and ef.est-no  EQ job-hdr.est-no
                            and ef.form-no eq job-hdr.frm
                          no-lock no-error.
-                    
+
                      IF AVAIL ef THEN RUN est/ef-#out.p (ROWID(ef), OUTPUT v-out).
-                    
+
                      v-on = v-up * v-out.
-                      
+
                      IF mch-act.blank-no NE 0 THEN
                         find first est-op
                          where est-op.company eq job-hdr.company
@@ -2494,12 +2504,12 @@ PROCEDURE raw-prod-proc :
                               and est-op.line    lt 500
                            no-lock no-error.
                      END.
-                    
+
                      if avail est-op then
                        run sys/inc/numout.p (recid(est-op), output v-out).
-                    
+
                      else v-out = 1.
-                    
+
                      v-on = v-on / v-out.
                  end.
 
@@ -2512,7 +2522,7 @@ PROCEDURE raw-prod-proc :
                     IF MONTH(mch-act.op-date) EQ v-month-as-of-date THEN
                        tt-raw-prod.mtd-qty-msf = tt-raw-prod.mtd-qty-msf
                                                + (mch-act.qty * itemfg.t-sqft * v-on / 1000).
-                    
+
                     tt-raw-prod.ytd-qty-msf = tt-raw-prod.ytd-qty-msf
                                             + (mch-act.qty * itemfg.t-sqft * v-on / 1000).
                  END.
@@ -2530,7 +2540,7 @@ PROCEDURE raw-prod-proc :
                     IF MONTH(mch-act.op-date) EQ v-month-as-of-date THEN
                        tt-raw-prod.mtd-mr-hrs = tt-raw-prod.mtd-mr-hrs
                                               + mch-act.hours.
-                   
+
                     tt-raw-prod.ytd-mr-hrs = tt-raw-prod.ytd-mr-hrs
                                            + mch-act.hours.
                  END.
@@ -2547,8 +2557,8 @@ PROCEDURE raw-prod-proc :
                     IF MONTH(mch-act.op-date) EQ v-month-as-of-date THEN
                        tt-raw-prod.mtd-dt-charge = tt-raw-prod.mtd-dt-charge
                                                  + mch-act.hours.
-                    
-                    
+
+
                     tt-raw-prod.ytd-dt-charge = tt-raw-prod.ytd-dt-charge
                                               + mch-act.hours.
                  END.
@@ -2564,7 +2574,7 @@ PROCEDURE raw-prod-proc :
                  IF MONTH(mch-act.op-date) EQ v-month-as-of-date THEN
                     tt-raw-prod.mtd-dt-nc = tt-raw-prod.mtd-dt-nc
                                           + mch-act.hours.
-                 
+
                  tt-raw-prod.ytd-dt-nc = tt-raw-prod.ytd-dt-nc
                                        + mch-act.hours.
               END.
@@ -2643,7 +2653,7 @@ PROCEDURE raw-prod-proc :
              IF MONTH(job-mch.start-date) EQ v-month-as-of-date THEN
                 tt-raw-prod.mtd-std-hrs = tt-raw-prod.mtd-std-hrs
                                         + std-hrs-var.
-             
+
              tt-raw-prod.ytd-std-hrs = tt-raw-prod.ytd-std-hrs
                                      + std-hrs-var.
           END.
@@ -2676,7 +2686,7 @@ PROCEDURE raw-prod-proc :
                                 tt-raw-prod.date-mr-hrs + tt-raw-prod.date-dt-charge +
                                 tt-raw-prod.date-dt-nc) * 100)
                                 ELSE 0)
-       
+
        tt-raw-prod.mtd-eff = (IF (tt-raw-prod.mtd-run-hrs +
                               tt-raw-prod.mtd-mr-hrs +
                               tt-raw-prod.mtd-dt-charge) NE 0 THEN
@@ -2721,7 +2731,7 @@ PROCEDURE raw-prod-proc :
                                  tt-raw-prod.ytd-dt-nc) * 100)
                                  ELSE 0).
    END.
-   
+
 
 END PROCEDURE.
 
@@ -2766,7 +2776,7 @@ PROCEDURE raw-sales-proc :
            ar-inv.inv-date le to-date AND
            ar-inv.type    ne "FC" 
            no-lock:
-      
+
            create tt-report.
            assign
              tt-report.key-09  = cust.cust-no
@@ -2816,7 +2826,7 @@ PROCEDURE raw-sales-proc :
             where itemfg.company eq fi_company
               and itemfg.i-no    eq ar-invl.i-no
             no-lock no-error.
-        
+
         RUN salrep/salecost.p (3, /*Invoice Cost*/
                                ROWID(ar-invl),
                                ar-invl.job-no,
@@ -2864,12 +2874,12 @@ PROCEDURE raw-sales-proc :
             no-lock no-error.
 
         if avail ar-invl then do:
-         
+
           find first itemfg
               where itemfg.company eq fi_company
                 and itemfg.i-no    eq ar-invl.i-no
               no-lock no-error.
-          
+
           RUN salrep/salecost.p (3, /*Invoice Cost*/
                                  ROWID(ar-invl),
                                  oe-retl.job-no,
@@ -2889,7 +2899,7 @@ PROCEDURE raw-sales-proc :
                                      (oe-retl.tot-qty-return * itemfg.weight-100 / 100)
                                      else 0) / 2000)
            tt-raw-sales.date-cost = tt-raw-sales.date-cost + ld-cost.
-          
+
         end.
       end.
 
@@ -3052,23 +3062,23 @@ PROCEDURE raw-salesmen-proc :
          if v-amt  eq ? then v-amt  = 0.
          if v-cost eq ? then v-cost = 0.
          if v-sqft eq ? then v-sqft = 0.
-        
+
          do i = 1 to 3:
            if ar-invl.sman[i] eq tt-report.key-02 then
              assign
               v-pct = ar-invl.s-pct[i] / 100
               i     = 3.
          end.
-        
+
          if v-pct eq 0 then
          do i = 1 to 3:
            if i eq 1 then j = 0.
            if ar-invl.sman[i] ne "" then j = j + 1.
            if i eq 3 then v-pct = 1 / j.
          end.
-        
+
          if v-pct le 0 or v-pct eq ? then v-pct = 1.
-        
+
          IF ar-inv.inv-date EQ tt-raw-salesmen.DATE THEN
             assign
               w-data.w-sqft[1] = w-data.w-sqft[1] + (v-sqft * v-pct)
@@ -3084,7 +3094,7 @@ PROCEDURE raw-salesmen-proc :
                  w-data.w-amt[2]  = w-data.w-amt[2]  + (v-amt  * v-pct)
                  w-data.w-cost[2] = w-data.w-cost[2] + (v-cost * v-pct).
             END.
-            
+
             assign
               w-data.w-sqft[3] = w-data.w-sqft[3] + (v-sqft * v-pct)
               w-data.w-amt[3]  = w-data.w-amt[3]  + (v-amt  * v-pct)
@@ -3101,13 +3111,13 @@ PROCEDURE raw-salesmen-proc :
 
          if avail ar-cashl then do:
            find ar-cash where ar-cash.c-no eq ar-cashl.c-no no-lock.
-        
+
            assign
             v-amt  = ar-cashl.amt-paid - ar-cashl.amt-disc
             v-cost = 0
             v-sqft = 0
             v-pct  = 1.
-        
+
            RELEASE itemfg.
            RELEASE ar-invl.
            RELEASE oe-retl.
@@ -3122,7 +3132,7 @@ PROCEDURE raw-salesmen-proc :
                  where itemfg.company eq fi_company
                    and itemfg.i-no    eq oe-retl.i-no
                  no-lock no-error.
-        
+
              v-sqft = if avail itemfg then
                         oe-retl.tot-qty-return * itemfg.t-sqft / 1000
                       else 0.
@@ -3147,30 +3157,30 @@ PROCEDURE raw-salesmen-proc :
                               (1 / IF (ACCUM TOTAL 1) EQ 0 THEN 1
                                                            ELSE (ACCUM TOTAL 1))
                            ELSE (ar-invl.amt / ld-inv-pct).
-            
+
               IF ld-inv-pct EQ ? THEN ld-inv-pct = 0.
-            
+
               v-amt = v-amt * ld-inv-pct.
-            
+
               if v-sqft eq ? then v-sqft = 0.
-            
+
               do i = 1 to 3:
                 if ar-invl.sman[i] eq tt-report.key-02 then
                   assign
                    v-pct = ar-invl.s-pct[i] / 100
                    i     = 3.
               end.
-            
+
               if v-pct eq 0 then
               do i = 1 to 3:
                 if i eq 1 then j = 0.
                 if ar-invl.sman[i] ne "" then j = j + 1.
                 if i eq 3 then v-pct = 1 / j.
               end.
-            
+
               if v-pct le 0 or v-pct eq ? then v-pct = 1.
            end.
-           
+
            IF ar-cash.check-date EQ tt-raw-salesmen.DATE THEN
             assign
               w-data.w-sqft[1] = w-data.w-sqft[1] - (v-sqft * v-pct)
@@ -3249,7 +3259,7 @@ PROCEDURE reftable-proc :
 ------------------------------------------------------------------------------*/
    do counter = 1 to BROWSE browse-machine:NUM-SELECTED-ROWS:
       BROWSE browse-machine:FETCH-SELECTED-ROW(counter).
-      
+
       CREATE tt-raw-prod.
       ASSIGN tt-raw-prod.m-code = mach.m-code
              tt-raw-prod.DATE   = fi_as-of-date.
@@ -3258,7 +3268,7 @@ PROCEDURE reftable-proc :
 
    DO counter = 1 to BROWSE browse-sales-forecast:NUM-SELECTED-ROWS:
       BROWSE browse-sales-forecast:FETCH-SELECTED-ROW(counter).
-      
+
       CREATE tt-sales-forecast.
       tt-sales-forecast.company = company.company.
       RELEASE tt-sales-forecast.
@@ -3266,12 +3276,12 @@ PROCEDURE reftable-proc :
 
    do counter = 1 to BROWSE browse-ar:NUM-SELECTED-ROWS:
       BROWSE browse-ar:FETCH-SELECTED-ROW(counter).
-      
+
       CREATE tt-ar-dso.
       tt-ar-dso.actnum = account.actnum.
       RELEASE tt-ar-dso.
    END.
-    
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3285,9 +3295,9 @@ PROCEDURE released-sales-forecast-proc :
   Notes:       
 ------------------------------------------------------------------------------*/
   /*OR12 Invoice*/
-  
+
   DEFINE INPUT PARAMETER ip-start-next-month AS DATE NO-UNDO.
-  
+
   DEF VAR v-type AS CHAR NO-UNDO.
   DEF VAR li AS INT NO-UNDO.
   DEF VAR v-qty like oe-rel.qty NO-UNDO.
@@ -3296,7 +3306,7 @@ PROCEDURE released-sales-forecast-proc :
   DEF VAR v-value-head AS LOG NO-UNDO.
 
   FOR EACH tt-sales-forecast:
-  
+
     EMPTY TEMP-TABLE tt-report.
 
     FOR EACH oe-ordl FIELDS(company ord-no i-no LINE s-man)
@@ -3304,7 +3314,7 @@ PROCEDURE released-sales-forecast-proc :
           AND oe-ordl.opened  EQ YES
           AND NOT CAN-FIND(FIRST b-oe-ordl {sys/inc/ordlcomp.i b-oe-ordl oe-ordl})
         USE-INDEX opened NO-LOCK:
-   
+
         /* RUN oe/cleanrel.p (ROWID(oe-ordl)).*/
 
         for each oe-rel FIELDS(i-no cust-no)
@@ -3337,7 +3347,7 @@ PROCEDURE released-sales-forecast-proc :
 
         release oe-rel.
         release oe-rell.
-        
+
         find first oe-rel WHERE
              recid(oe-rel) eq tt-report.rec-id 
              no-lock no-error.
@@ -3358,7 +3368,7 @@ PROCEDURE released-sales-forecast-proc :
              tt-report.rec-id = RECID(oe-rell).
              LEAVE.
            END.
-                      
+
            find first oe-ordl
                where oe-ordl.company eq tt-sales-forecast.company
                  and oe-ordl.ord-no  eq oe-rel.ord-no
@@ -3394,7 +3404,7 @@ PROCEDURE released-sales-forecast-proc :
               AND b-oe-ordl.line    EQ oe-ordl.set-hdr-line
               AND b-oe-ordl.is-a-component EQ NO
             NO-LOCK NO-ERROR.
-        
+
         RELEASE b-itemfg.
 
         v-value-head = NO.
@@ -3415,14 +3425,14 @@ PROCEDURE released-sales-forecast-proc :
                 WHERE b-itemfg.company EQ b-oe-ordl.company
                   AND b-itemfg.i-no    EQ b-oe-ordl.i-no
                 NO-LOCK NO-ERROR.
-           
+
            RELEASE itemfg.
            IF AVAIL b-itemfg THEN
            FIND FIRST itemfg
                WHERE itemfg.company EQ oe-ordl.company
                  AND itemfg.i-no    EQ oe-ordl.i-no
                NO-LOCK NO-ERROR.
-           
+
            IF AVAIL itemfg THEN DO:
              IF itemfg.std-tot-cost NE 0 THEN
                 ld = (itemfg.std-tot-cost * oe-ordl.qty) /
@@ -3430,14 +3440,14 @@ PROCEDURE released-sales-forecast-proc :
              ELSE
                 ld = (itemfg.weight-100 * oe-ordl.qty) /
                      (b-itemfg.weight-100 * b-oe-ordl.qty).
-           
+
              v-price = b-oe-ordl.t-price * ld / b-oe-ordl.qty.
            END.
            ELSE v-price = oe-ordl.t-price / oe-ordl.qty.
         END.
 
         IF v-price EQ ? THEN v-price = 0.
-        
+
         IF v-value-head EQ NO THEN
            tt-sales-forecast.released-amt = tt-sales-forecast.released-amt + (v-price * v-qty).
         ELSE
@@ -3446,7 +3456,7 @@ PROCEDURE released-sales-forecast-proc :
         ASSIGN
           tt-sales-forecast.released-qty = tt-sales-forecast.released-qty + v-qty
           tt-sales-forecast.released-cost = tt-sales-forecast.released-cost + ((v-qty / 1000) * oe-ordl.cost).
-   
+
         RELEASE itemfg.
 
         FIND FIRST itemfg WHERE
@@ -3456,15 +3466,15 @@ PROCEDURE released-sales-forecast-proc :
 
         IF AVAIL itemfg THEN
            tt-sales-forecast.released-msf = tt-sales-forecast.released-msf + (v-qty * itemfg.t-sqft / 1000).
-        
+
     END. /* each tt-report*/
-    
+
   END. /*each tt-sales-forecast*/
 
   FOR EACH tt-sales-forecast:
       tt-sales-forecast.released-profit = ROUND(tt-sales-forecast.released-amt -
                                                 tt-sales-forecast.released-cost,2).
-      
+
   END.
 END PROCEDURE.
 
@@ -3474,7 +3484,7 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :
 DO WITH FRAME {&FRAME-NAME}:
-   
+
    RUN raw-op-proc. /*Raw OP*/
    RUN raw-prod-proc. /*Raw Production*/
    RUN raw-sales-proc. /*Raw Sales*/
@@ -3505,14 +3515,14 @@ PROCEDURE sales-forecast-proc :
 ------------------------------------------------------------------------------*/
   DEF VAR start-month AS DATE NO-UNDO.
   DEF VAR start-next-month AS DATE NO-UNDO.
-  
+
   start-month = DATE(MONTH(fi_as-of-date),1,YEAR(fi_as-of-date)).
 
   IF MONTH(fi_as-of-date) NE 12 THEN
      start-next-month = DATE(MONTH(fi_as-of-date) + 1,1,YEAR(fi_as-of-date)).
   ELSE
      start-next-month = DATE(1,1,YEAR(fi_as-of-date) + 1).
-  
+
   RUN invoiced-sales-forecast-proc(INPUT start-month, INPUT start-next-month).
   RUN backlog-sales-forecast-proc(INPUT start-month, INPUT start-next-month).
   RUN released-sales-forecast-proc(INPUT start-next-month).
@@ -3531,9 +3541,9 @@ PROCEDURE saveparameters :
    DEF VAR v-user AS CHAR NO-UNDO.
 
    v-user = USERID("NOSWEAT").
-       
+
    DO TRANSACTION:
-   
+
       FOR EACH tt-raw-prod:
 
           IF NOT CAN-FIND(FIRST reftable WHERE
@@ -3557,10 +3567,10 @@ PROCEDURE saveparameters :
           reftable.loc = fi_company AND
           NOT CAN-FIND(FIRST tt-raw-prod WHERE
                        tt-raw-prod.m-code EQ reftable.CODE):
-     
+
           DELETE reftable.
       END.
-     
+
       FOR EACH tt-ar-dso:
 
           IF NOT CAN-FIND(FIRST reftable WHERE
@@ -3574,7 +3584,7 @@ PROCEDURE saveparameters :
                     reftable.company = v-user
                     reftable.loc = fi_company
                     reftable.CODE = tt-ar-dso.actnum.
-             
+
              RELEASE reftable.
           END.
       END.
@@ -3587,7 +3597,7 @@ PROCEDURE saveparameters :
               tt-ar-dso.actnum EQ reftable.CODE):
           DELETE reftable.
       END.
-     
+
       FOR EACH tt-sales-forecast:
 
          IF NOT CAN-FIND(FIRST reftable WHERE
@@ -3599,7 +3609,7 @@ PROCEDURE saveparameters :
                ASSIGN reftable.reftable = "HM1SF"
                       reftable.company = v-user
                       reftable.loc = tt-sales-forecast.company.
-        
+
                RELEASE reftable.
             END.
       END.
@@ -3609,7 +3619,7 @@ PROCEDURE saveparameters :
           reftable.company EQ v-user AND
           NOT CAN-FIND(FIRST tt-sales-forecast WHERE
                        tt-sales-forecast.company EQ reftable.loc):
-          
+
           DELETE reftable.
       END.
    END.

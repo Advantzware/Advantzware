@@ -170,13 +170,23 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -230,10 +240,10 @@ DO:
   MESSAGE "Are you sure you wish to continue?"
           VIEW-AS ALERT-BOX QUESTION BUTTON yes-no
           UPDATE ll-process.
-      
+
   IF ll-process THEN DO:
     SESSION:SET-WAIT-STATE ("general").
-        
+
     RUN run-process.
 
     SESSION:SET-WAIT-STATE("").
@@ -344,35 +354,35 @@ def var v-err as int.
      v-ip-file = fi_file
      v-op-file = "armstr.quo".
   end.
-   
+
   if opsys eq "UNIX" then
     unix silent quoter -c 1-3000 value(search(v-ip-file)) > value(v-op-file).
   else
     dos  silent quoter -c 1-3000 value(search(v-ip-file)) > value(v-op-file).
 
   input from value(v-op-file).
-  
+
   output to value("armstr.err").
 
   repeat:
     assign
      v-file = ""
      v-int  = v-int + 1.
-    
+
     import v-file.
-    
+
     find first cust
         where cust.company eq cocode
           and cust.cust-no eq substr(entry(1,v-file),1,8)
         no-lock no-error.
-        
+
     status default "Processing Customer: " + trim(substr(entry(1,v-file),1,8)).
-        
+
     if avail cust then do:
       v-err = v-err + 1.
       put unformatted v-int " " v-file skip.
     end.
-    
+
     else do:
       create cust.
       assign
@@ -406,7 +416,7 @@ def var v-err as int.
        cust.case-bundle    = "B-25"
        cust.pallet         = "PALLET"
        cust.terms          = IF cust.terms EQ "" THEN "N15" ELSE cust.terms.
-       
+
       create shipto.
       assign
        shipto.company      = cocode
@@ -424,7 +434,7 @@ def var v-err as int.
        shipto.loc          = cust.loc
        shipto.dest-code    = cust.del-zone
        shipto.tax-code     = cust.tax-gr.
-       
+
       create soldto.
       assign
        soldto.company      = cocode
@@ -439,14 +449,14 @@ def var v-err as int.
        soldto.sold-zip     = cust.zip.
     end.
   end.
-  
+
   output close.
   input close.
 
   status default "".
 
   if v-err gt 0 then message "Errors output to armstr.err" VIEW-AS ALERT-BOX.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

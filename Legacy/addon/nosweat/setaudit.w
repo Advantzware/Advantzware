@@ -193,13 +193,23 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
                                                                         */
+ASSIGN
+       Btn_Cancel:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
+ASSIGN
+       Btn_OK:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -426,7 +436,7 @@ PROCEDURE Get_DBs :
   Notes:       
 -------------------------------------------------------------*/
   DEFINE VARIABLE list-items AS CHARACTER NO-UNDO.
-  
+
   RUN Get_Procedure IN Persistent-Handle (INPUT "db_list.",OUTPUT run-proc,no) NO-ERROR.
   IF run-proc NE "" THEN
   RUN VALUE(run-proc) (OUTPUT list-items).
@@ -446,7 +456,7 @@ PROCEDURE Get_Tables :
   Notes:       
 -------------------------------------------------------------*/
   DEFINE VARIABLE list-items AS CHARACTER NO-UNDO.
-  
+
   CREATE ALIAS dictdb FOR DATABASE VALUE(db-names:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
   RUN Get_Procedure IN Persistent-Handle (INPUT "filelist.",OUTPUT run-proc,no) NO-ERROR.
   IF run-proc NE "" THEN

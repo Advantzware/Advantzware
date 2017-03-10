@@ -529,6 +529,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FILL-IN begin_job1 IN FRAME FRAME-A
    1                                                                    */
 ASSIGN 
@@ -692,7 +702,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -731,7 +741,7 @@ END.
 ON RETURN OF FRAME FRAME-A
 ANYWHERE
 DO:
-  
+
    IF SELF:TYPE <> "Button" THEN  do:
       APPLY "tab" TO SELF.
       RETURN NO-APPLY.
@@ -801,14 +811,14 @@ DO WITH FRAME {&FRAME-NAME}:
     IF tb_tray-2:HIDDEN = NO THEN
        ASSIGN tb_tray-2.
   END.  
-  
+
   ASSIGN lv-pdf-file = INIT-dir +  "\Job" + STRING(begin_job1)
          s-prt-mstandard = tb_prt-mch
          s-prt-shipto  = tb_prt-shipto
          s-prt-sellprc = tb_prt-sellprc
          s-run-speed = rd_print-speed = "S"
          s-sample-required = TB_sample_req .
-      
+
 
   hold-title = c-win:TITLE.
 
@@ -857,7 +867,7 @@ DO WITH FRAME {&FRAME-NAME}:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
@@ -884,7 +894,7 @@ DO WITH FRAME {&FRAME-NAME}:
   end case. 
       c-win:TITLE = hold-title.      
   END.
-  
+
   IF rd-dest = 2  THEN DO:
       /* not working well. keep running background
        APPLY "close":U TO this-procedure.
@@ -892,7 +902,7 @@ DO WITH FRAME {&FRAME-NAME}:
       */  
       APPLY "entry" TO btn-cancel.
    END.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -906,7 +916,7 @@ DO:
    DEF VAR char-val AS CHAR NO-UNDO.
    DEF VAR ip-char-val AS CHAR NO-UNDO.
    DEF VAR i-cnt AS INT NO-UNDO.
-   
+
    ASSIGN spec_codes
           ip-char-val = "".
 
@@ -918,7 +928,7 @@ DO:
        CREATE tt-specCd.
        ASSIGN tt-char-val = TRIM(ENTRY(i-cnt,spec_codes)).
    END.
-   
+
    FOR FIRST  tt-specCd NO-LOCK 
        BY tt-specCd.tt-char-val:
 
@@ -1060,7 +1070,7 @@ DO:
    DEF VAR char-val AS CHAR NO-UNDO.
    DEF VAR ip-char-val AS CHAR NO-UNDO.
    DEF VAR i-cnt AS INT NO-UNDO.
-   
+
    ASSIGN spec_codes
           ip-char-val = "".
 
@@ -1072,7 +1082,7 @@ DO:
        CREATE tt-specCd.
        ASSIGN tt-char-val = TRIM(ENTRY(i-cnt,spec_codes)).
    END.
-   
+
    FOR FIRST  tt-specCd NO-LOCK 
        BY tt-specCd.tt-char-val:
 
@@ -1110,7 +1120,7 @@ DO:
 
   DEF VAR v-min-job-no AS CHAR INIT "zzzzzz00" NO-UNDO.
   DEF VAR v-max-job-no AS CHAR NO-UNDO.
-  
+
   assign {&self-name}.
 
   IF tb_app-unprinted EQ YES THEN
@@ -1479,7 +1489,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
              sys-ctrl.char-fld EQ "Foldware"
    tb_corr = AVAIL sys-ctrl AND
              (sys-ctrl.char-fld EQ "Both" OR sys-ctrl.char-fld EQ "Corrware").
-  
+
  /* IF tb_fold THEN DO:
     {sys/inc/jobcard.i "F"}
     lv-format-f = sys-ctrl.char-fld.
@@ -1498,7 +1508,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     lv-int-f    = sys-ctrl.int-fld.
    IF /*index("Interpac,Dayton,FibreFC,Livngstn",lv-format-f) > 0*/
        lookup(lv-format-f,"Interpac,FibreFC,HPB,metro,Dayton,Livngstn,CentBox,Frankstn,Colonial,Unipak,Ottpkg,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,Dee,Carded") > 0 THEN lines-per-page = 55.
-  
+
    {sys/inc/jobcard.i "C"}
    ASSIGN
     lv-format-c = sys-ctrl.char-fld
@@ -1591,7 +1601,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
          tb_app-unprinted:SENSITIVE = NO.
 
   {methods/nowait.i}
-  
+
   FIND FIRST job WHERE job.company = g_company
                    AND job.job-no = ip-job-no
                    AND job.job-no2 = ip-job-no2 NO-LOCK NO-ERROR.
@@ -1617,7 +1627,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
 
   DO WITH FRAME {&frame-name}:
-    
+
  /*   {custom/usrprint.i} */
       IF lv-format-c = "ColonialPL" OR lv-format-f = "Colonial" THEN
       ASSIGN
@@ -1683,7 +1693,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         tb_prt-shipto:SENSITIVE   = YES
         tb_prt-sellprc:SENSITIVE  = YES
         rd_print-speed:SENSITIVE  = YES .            
-            
+
     ELSE do:
         ASSIGN tb_prt-mch = NO
                tb_prt-shipto = NO
@@ -1716,7 +1726,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
          ASSIGN
             tb_approve:HIDDEN    = NO
             tb_approve:SENSITIVE = YES.
-      
+
       ELSE IF lv-format-c EQ "Artios" AND lv-format-f EQ "FibreFC" THEN
          ASSIGN
             tb_app-unprinted:HIDDEN    = NO
@@ -1729,7 +1739,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        TB_sample_req:HIDDEN = FALSE.
     ELSE
        TB_sample_req:HIDDEN = TRUE.
-    
+
     IF TRIM(begin_job1:SCREEN-VALUE) NE ""                          AND
        TRIM(begin_job1:SCREEN-VALUE) EQ TRIM(end_job1:SCREEN-VALUE) AND
        INT(begin_job2:SCREEN-VALUE)  EQ INT(end_job2:SCREEN-VALUE)  THEN DO:
@@ -1757,9 +1767,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                            tb_approve:SCREEN-VALUE = "no"   
                            tb_approve:HIDDEN    =  NO
                            tb_approve:SENSITIVE =  YES .
-               
+
            END.
-      
+
            IF can-find(FIRST b-reftable-freeze WHERE
               b-reftable-freeze.reftable EQ "FREEZENOTE" AND
               b-reftable-freeze.company  EQ cocode AND
@@ -1773,14 +1783,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
               b-reftable-split.loc      EQ TRIM(job-hdr.job-no) AND
               b-reftable-split.code     EQ STRING(job-hdr.job-no2,"9999999999")) THEN
               tb_prompt-ship:SCREEN-VALUE = "YES".
-          
+
        END.  /* avail job-hdr */
     END.
 
     IF lv-format-f EQ "Accord" THEN
        ASSIGN tb_freeze-note:SCREEN-VALUE = "NO"
               tb_freeze-note:SENSITIVE = NO.
-    
+
     IF lv-format-f EQ "Prystup" THEN
         tb_show-rel:HIDDEN IN FRAME FRAME-A = NO.
     ELSE
@@ -1814,7 +1824,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                 AND job.job-no2 EQ job-hdr.job-no2
               NO-ERROR.
           IF AVAIL job THEN tb_reprint:SCREEN-VALUE = STRING(job.pr-printed). 
-        
+
         END.
       END.
     END.    
@@ -1851,7 +1861,7 @@ PROCEDURE CleanUp :
   Parameters: <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   /* Excel Handle */
   def var chExcelApplication  as com-handle no-undo.
   def var chWorkbook          as com-handle no-undo.
@@ -1937,7 +1947,7 @@ PROCEDURE HideDeptBoxes :
   Parameters  : ilHide - yes/no
   Notes       : Task#: 02160708 - dgd 04/04/2007
 ------------------------------------------------------------------------------*/
-  
+
   /* Parameters */
   def input param ilHide  as log no-undo.
 
@@ -1950,7 +1960,7 @@ PROCEDURE HideDeptBoxes :
       tb_GL:hidden  = ilHide
       tb_SW:hidden  = ilHide no-error.
   end.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1974,7 +1984,7 @@ PROCEDURE new-job-no :
         WHERE sys-ctrl.company EQ cocode
           AND sys-ctrl.name    EQ "CEMENU"
         NO-LOCK NO-ERROR.
-  
+
     FIND FIRST job NO-LOCK
          WHERE job.company EQ cocode
          AND job.job-no EQ SUBSTR(fjob-no,1,6) NO-ERROR.
@@ -2022,12 +2032,12 @@ PROCEDURE new-job-no :
           AND job.job-no2                   EQ job-hdr.job-no2
           AND job.stat                      NE "H"
         NO-LOCK,
-        
+
         FIRST est
         WHERE est.company = job.company
           AND est.est-no                    EQ job.est-no
         NO-LOCK
-        
+
         BREAK BY job-hdr.company:
 
       IF FIRST(job-hdr.company) THEN
@@ -2086,7 +2096,7 @@ PROCEDURE new-job-no :
               lv-format-f = sys-ctrl-shipto.char-fld .
           ELSE 
               lv-format-f = lv-default-f .
-  
+
       IF est.est-type LE 4 THEN ll-fold = YES.
                            ELSE ll-corr = YES.
 
@@ -2096,7 +2106,7 @@ PROCEDURE new-job-no :
     ASSIGN
      tb_fold:SCREEN-VALUE = STRING(ll-fold)
      tb_corr:SCREEN-VALUE = STRING(ll-corr).
-    
+
     IF v-freezenotes-log EQ NO THEN
     DO:
        IF lv-format-f NE "Accord" AND AVAIL job-hdr AND
@@ -2127,7 +2137,7 @@ PROCEDURE output-to-fax :
    /*run output-to-fax.*/
    DO WITH FRAME {&FRAME-NAME}:
 
-   
+
            {custom/asifax.i &begin_cust=begin_job1
                             &END_cust=END_job1
                             &fax-subject=c-win:title
@@ -2146,7 +2156,7 @@ PROCEDURE output-to-file :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- 
+
    {custom/out2file.i}
 
 END PROCEDURE.
@@ -2170,7 +2180,7 @@ PROCEDURE output-to-mail :
                              &mail-subject="Factory Ticket"
                              &mail-body="Factory Ticket"
                              &mail-file=lv-pdf-file + ".pdf" }  
-                             
+
   END.
   ELSE DO:
       {custom/asimailr.i &TYPE = ''
@@ -2181,7 +2191,7 @@ PROCEDURE output-to-mail :
                                   &mail-file=list-name }
 
   END.
- 
+
  END.
 END PROCEDURE.
 
@@ -2213,7 +2223,7 @@ PROCEDURE output-to-printer :
 
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
-       
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -2239,7 +2249,7 @@ PROCEDURE output-to-printer :
       END.
       ELSE RUN custom/prntproc.p (list-name, lv-font-no, lv-ornt).
    END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2319,7 +2329,7 @@ IF locode = "" THEN locode = "MAIN".
 {sys/form/r-top.i}
 
 RUN set-job-vars.
-  
+
   ASSIGN 
     print-box               = tb_box
     reprint                 = tb_reprint
@@ -2340,7 +2350,7 @@ RUN set-job-vars.
       ASSIGN revision-no             = string(revsn_no).
   ELSE
       ASSIGN revision-no             = "".
-    
+
   FOR EACH wrk-ink:
       DELETE wrk-ink.
   END.
@@ -2398,11 +2408,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -2430,23 +2440,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2460,7 +2470,7 @@ PROCEDURE split-ship-proc :
   Notes:       
 ------------------------------------------------------------------------------*/
    DO WITH FRAME {&FRAME-NAME}:
-   
+
       FIND FIRST reftable WHERE
            reftable.reftable EQ "SPLITSHIP" AND
            reftable.company  EQ cocode AND
@@ -2468,14 +2478,14 @@ PROCEDURE split-ship-proc :
                                 + begin_job1:SCREEN-VALUE AND
            reftable.CODE     EQ STRING(begin_job2:SCREEN-VALUE,"99")
            NO-LOCK NO-ERROR.
-     
+
       IF AVAIL reftable THEN
       DO:
          tb_prompt-ship:CHECKED = YES.
          RELEASE reftable.
       END.
    END.
-     
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

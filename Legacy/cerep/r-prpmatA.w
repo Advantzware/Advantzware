@@ -362,6 +362,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -464,7 +474,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -954,7 +964,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
  /*    DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -965,11 +975,11 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.  */
-     
+
 {custom/out2file.i}
 
 END PROCEDURE.
@@ -1001,7 +1011,7 @@ PROCEDURE output-to-printer :
  /*    DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1012,7 +1022,7 @@ PROCEDURE output-to-printer :
                             INPUT 3, INPUT 3, INPUT 0, INPUT 0, OUTPUT result).
                                     /* use-dialog(1) and landscape(2) */ */
   RUN custom/prntproc.p (list-name,INT(lv-font-no),lv-ornt).
- 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1057,7 +1067,7 @@ def var v-sman-lab      as   char               init "SalesRep:".
 def var v-sman          like sman.sman.
 def var v-sname         like sman.sname.
 def VAR v-prt-desc       as   log                format "Yes/No"     no-undo.
-        
+
 assign
  str-tit2 = c-win:TITLE
  {sys/inc/ctrtext.i str-tit2 112}
@@ -1105,7 +1115,7 @@ SESSION:SET-WAIT-STATE("general").
     FOR EACH tt-report:
       DELETE tt-report.
     END.
- 
+
     IF tb_excel THEN do:
       OUTPUT STREAM excel TO VALUE(fi_file).
       EXPORT STREAM excel DELIMITER "," 
@@ -1144,7 +1154,7 @@ SESSION:SET-WAIT-STATE("general").
           "Ord Date  "
           "Order#  "
           "Customer Name                 "        
-           
+
           SKIP
 
           "---------------"
@@ -1158,13 +1168,13 @@ SESSION:SET-WAIT-STATE("general").
           "------------------------------"        skip
 
           with no-box page-top STREAM-IO width 132 frame top1.
-    
+
       if v-sort ne "S" then do:
         view frame top1.
         page.
       end.
     end.
-        
+
     else do:
       form header
           v-sman-lab              format "x(9)"
@@ -1201,7 +1211,7 @@ SESSION:SET-WAIT-STATE("general").
           "------------------------------"        skip
 
           with no-box page-top STREAM-IO width 132 frame top2.
-     
+
       if v-sort ne "S" then do:
         view frame top2.
         page.
@@ -1215,7 +1225,7 @@ SESSION:SET-WAIT-STATE("general").
           and eb.die-no                 gt ""
           and eb.die-no                 ge fpre
           and eb.die-no                 le tpre
-         
+
       {sys/ref/preplst2.i die}
     end.
 
@@ -1226,7 +1236,7 @@ SESSION:SET-WAIT-STATE("general").
           and eb.plate-no               gt ""
           and eb.plate-no               ge fpre
           and eb.plate-no               le tpre
-         
+
       {sys/ref/preplst2.i plate}
     end.
 
@@ -1241,7 +1251,7 @@ SESSION:SET-WAIT-STATE("general").
         /*with frame prep no-box no-labels STREAM-IO width 132*/
 
         transaction:
-        
+
          {custom/statusMsg.i " 'Processing Prep Code:  '  + string(tt-report.key-09)  "}
 
       find eb  where recid(eb) eq tt-report.rec-id no-lock.
@@ -1305,11 +1315,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1337,23 +1347,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

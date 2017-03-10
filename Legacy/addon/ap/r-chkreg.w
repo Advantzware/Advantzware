@@ -36,11 +36,11 @@ DEF VAR lv-comp-curr AS cha NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/VAR.i new shared}
-    
+
 assign
  cocode = gcompany
  locode = gloc.
-    
+
 FIND FIRST company WHERE company.company EQ cocode NO-LOCK NO-ERROR.
 IF AVAIL company THEN lv-comp-curr = company.curr-code.
 
@@ -114,7 +114,7 @@ DO TRANSACTION:
         sys-ctrl.company eq cocode AND
         sys-ctrl.name    eq "AUDITDIR"
         no-lock no-error.
-   
+
    if not avail sys-ctrl THEN DO:
       create sys-ctrl.
       assign
@@ -123,12 +123,12 @@ DO TRANSACTION:
          sys-ctrl.descrip = "Audit Trails directory"
          sys-ctrl.char-fld = ".\AUDIT TRAILS".
    end.
-  
+
    lv-audit-dir = sys-ctrl.char-fld.
-  
+
    IF LOOKUP(SUBSTR(lv-audit-dir,LENGTH(lv-audit-dir),1),"/,\") > 0 THEN
       lv-audit-dir = SUBSTR(lv-audit-dir,1,LENGTH(lv-audit-dir) - 1).
-  
+
    RELEASE sys-ctrl.
 END.
 
@@ -367,6 +367,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        fi_CheckFile:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -420,7 +430,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -469,7 +479,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   DEF VAR lv-post AS LOG NO-UNDO.
   DEF VAR lv-bank-file AS cha NO-UNDO.
- 
+
   /* gdm - 05210901 */
   ASSIGN  fi_CheckFile:SCREEN-VALUE = fi_CheckFile.
 
@@ -509,31 +519,31 @@ DO:
         END.
 
       END. /* avail gl-ctrl */
-    
+
       RELEASE gl-ctrl.
 
       FIND FIRST gl-ctrl EXCLUSIVE-LOCK
         WHERE gl-ctrl.company EQ cocode NO-ERROR NO-WAIT.
-     
+
       IF AVAIL gl-ctrl THEN DO:
         ASSIGN v-trnum       = gl-ctrl.trnum + 1 
                gl-ctrl.trnum = v-trnum.
         FIND CURRENT gl-ctrl NO-LOCK.
         LEAVE.
       END. /* IF AVAIL gl-ctrl */
-      
+
     END. /* REPEAT */
     /* gdm - 11050906 */
   END.
-       
+
   run run-report.
-  
+
   case rd-dest:
        when 1 then run output-to-printer.
        when 2 then run output-to-screen.
        when 3 then run output-to-file.
   end case.
-  
+
   find first ap-ctrl where ap-ctrl.company eq cocode no-lock no-error.
   if not avail ap-ctrl then return.
   IF AVAIL ap-ctrl  AND ap-ctrl.payables EQ "" THEN DO:
@@ -558,7 +568,7 @@ DO:
       RUN post-gl.
       RUN copy-report-to-audit-dir.
       MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.
-      
+
     END.
     ELSE RUN undo-trnum.
   END.
@@ -752,7 +762,7 @@ END.
 ON LEAVE OF tran-date IN FRAME FRAME-A /* Post Date */
 DO:
   assign {&self-name}.
-  
+
   if lastkey ne -1 then do:
     run check-date.
     if v-invalid then return no-apply.
@@ -810,7 +820,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
 
   {methods/nowait.i}
-     
+
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
 
@@ -874,7 +884,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      sys-ctrl.log-fld  AND
      TRIM(v-fileFormat) NE ""
     THEN DO:
-      
+
      IF sys-ctrl-shipto.char-fld NE "" THEN DO:
 
        IF SUBSTR(TRIM(sys-ctrl-shipto.char-fld),
@@ -946,7 +956,7 @@ PROCEDURE check-date :
 
   DO WITH FRAME {&FRAME-NAME}:
     v-invalid = NO.
-  
+
     FIND FIRST period NO-LOCK                   
         WHERE period.company EQ cocode
           AND period.pst     LE DATE(tran-date:SCREEN-VALUE)
@@ -1063,7 +1073,7 @@ PROCEDURE copy-report-to-audit-dir :
   DEF VAR dirname1 AS CHAR FORMAT "X(20)" NO-UNDO.
   DEF VAR dirname2 AS CHAR FORMAT "X(20)" NO-UNDO.
   DEF VAR dirname3 AS CHAR FORMAT "X(20)" NO-UNDO.
-  
+
   ASSIGN targetfile = lv-audit-dir + "\AP\VC3\Run#"
                     + STRING(v-trnum) + ".txt"
          dirname1 = lv-audit-dir
@@ -1216,7 +1226,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
      DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -1227,9 +1237,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
 
 
@@ -1248,7 +1258,7 @@ PROCEDURE output-to-printer :
      DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1331,12 +1341,12 @@ PROCEDURE post-gl :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
 DEF BUFFER b-ap-pay FOR ap-pay.  
 
 DEF VAR lv-check-no LIKE ap-chk.check-no NO-UNDO.
 
-  
+
 /** POST TO GENERAL LEDGER ACCOUNTS TRANSACTION FILE **/
 /*DO TRANSACTION:*/
   FOR EACH tt-post WHERE tt-post.actnum NE "",
@@ -1387,7 +1397,7 @@ DEF VAR lv-check-no LIKE ap-chk.check-no NO-UNDO.
       WHERE ap-inv.company EQ ap-sel.company
         AND ap-inv.vend-no EQ ap-sel.vend-no
         AND ap-inv.inv-no  EQ ap-sel.inv-no,
-    
+
       FIRST vend EXCLUSIVE-LOCK
       WHERE vend.company EQ ap-inv.company
         AND vend.vend-no EQ ap-inv.vend-no
@@ -1724,7 +1734,7 @@ IF tb_APcheckFile
    tt-post.curr-bal  = ap-sel.inv-bal
    tt-post.curr-disc = ap-sel.disc-amt
    tt-post.curr-paid = ap-sel.amt-paid.
-    
+
   RELEASE currency.
   IF lv-comp-curr NE "" AND lv-comp-curr NE ap-inv.curr-code[1] THEN
   FIND FIRST currency NO-LOCK
@@ -1791,7 +1801,7 @@ IF tb_APcheckFile
          '"' STRING(tt-post.curr-disc,"->>,>>9.99 ")    '",'
          '"' STRING(tt-post.curr-paid,"->>,>>>,>>9.99") '",'.
   END.
-  
+
   IF ap-sel.man-check THEN
   DO:
      DISPLAY ap-sel.pre-date TO 130 WITH FRAME a.
@@ -1866,7 +1876,7 @@ IF tb_APcheckFile
   ASSIGN
    v-fst-chk = NO
    v-lst-chk = NO.
-  
+
   ACCUM ap-sel.disc-amt (TOTAL).
   ACCUM ap-sel.amt-paid (TOTAL).
 END. /* each ap-sel */
@@ -1913,7 +1923,7 @@ IF tb_prt-acc THEN DO:
        "ACCOUNT                             PO#   DATE   VENDOR#  INVOICE#    "
        "LINE DESCRIPTION              QTY    UNIT PRICE     AMT PAID" SKIP
        FILL("_",132) FORMAT "x(132)"
-  
+
       WITH NO-LABELS NO-BOX NO-UNDERLINE FRAME f-top2 PAGE-TOP WIDTH 132 STREAM-IO.
 
   DISPLAY "" WITH FRAME f-top2.
@@ -1927,14 +1937,14 @@ IF tb_prt-acc THEN DO:
         AND ap-inv.vend-no EQ ap-sel.vend-no
         AND ap-inv.inv-no  EQ ap-sel.inv-no
         AND ap-inv.freight NE 0,
-    
+
       FIRST vend NO-LOCK
       WHERE vend.company EQ ap-inv.company
         AND vend.vend-no EQ ap-inv.vend-no
       USE-INDEX vend
-    
+
       BREAK BY ap-inv.vend-no:
-    
+
     IF FIRST(ap-inv.vend-no) THEN DO:
       FIND FIRST account NO-LOCK
           WHERE account.company EQ ap-inv.company
@@ -1947,7 +1957,7 @@ IF tb_prt-acc THEN DO:
 
     v-frgt-amt = ap-sel.amt-paid *
                  (ap-inv.freight / (ap-inv.net + ap-inv.freight)).
-    
+
     PUT ap-inv.inv-date         AT 41   FORMAT "99/99/99"
         SPACE(1)
         ap-inv.vend-no
@@ -1961,9 +1971,9 @@ IF tb_prt-acc THEN DO:
         ap-inv.freight          TO 118
         v-frgt-amt              TO 131
         SKIP.
-  
+
     ACCUM v-frgt-amt (TOTAL).
-  
+
     IF LAST(ap-inv.vend-no) THEN
       PUT "** TOTAL " TO 114
           (ACCUM TOTAL v-frgt-amt) FORMAT "->>,>>>,>>9.99" TO 128
@@ -1978,33 +1988,33 @@ IF tb_prt-acc THEN DO:
       WHERE ap-inv.company EQ ap-sel.company
         AND ap-inv.vend-no EQ ap-sel.vend-no
         AND ap-inv.inv-no  EQ ap-sel.inv-no,
-    
+
       FIRST vend NO-LOCK
       WHERE vend.company EQ ap-inv.company
         AND vend.vend-no EQ ap-inv.vend-no
       USE-INDEX vend,
-    
+
       EACH ap-invl WHERE ap-invl.i-no EQ ap-inv.i-no USE-INDEX i-no NO-LOCK
-    
+
       BREAK BY ap-invl.actnum
             BY ap-invl.inv-no
             BY ap-invl.line
-          
+
       WITH WIDTH 132 NO-LABELS:
-      
+
     IF FIRST-OF(ap-invl.actnum) THEN DO:
       FIND FIRST account
           WHERE account.company eq ap-inv.company
             AND account.actnum  eq ap-invl.actnum
           NO-LOCK NO-ERROR.
-        
+
       PUT ap-invl.actnum + " - " +
               (IF AVAIL account THEN account.dscr ELSE "Not on file")
                             FORMAT "x(40)" SKIP.
     END.
 
     v-line-amt = ap-sel.amt-paid * (ap-invl.amt / (ap-inv.net + ap-inv.freight)).
-  
+
     PUT ap-invl.po-no         AT 34
         SPACE(1)
         ap-inv.inv-date       FORMAT "99/99/99"
@@ -2024,10 +2034,10 @@ IF tb_prt-acc THEN DO:
         v-line-amt
         SPACE(1)
         SKIP.
-      
+
     ACCUM v-line-amt (TOTAL BY ap-invl.actnum).
     ACCUM v-line-amt (TOTAL).
-  
+
     IF LAST-OF(ap-invl.actnum) THEN
       PUT "** TOTAL " TO 114
           (ACCUM TOTAL BY ap-invl.actnum v-line-amt)
@@ -2043,22 +2053,22 @@ IF tb_prt-acc THEN DO:
       WHERE ap-inv.company EQ ap-sel.company
         AND ap-inv.vend-no EQ ap-sel.vend-no
         AND ap-inv.inv-no  EQ ap-sel.inv-no
-    
+
       BREAK BY tt-post.actnum
-          
+
       WITH WIDTH 132 NO-LABELS:
-      
+
     IF FIRST-OF(tt-post.actnum) THEN DO:
       FIND FIRST account
           WHERE account.company eq ap-sel.company
             AND account.actnum  eq tt-post.actnum
           NO-LOCK NO-ERROR.
-        
+
       PUT tt-post.actnum + " - " +
               (IF AVAIL account THEN account.dscr ELSE "Not on file")
                             FORMAT "x(40)" SKIP.
     END.
-  
+
     PUT ap-inv.inv-date         AT 41   FORMAT "99/99/99"
         SPACE(1)
         ap-inv.vend-no
@@ -2070,10 +2080,10 @@ IF tb_prt-acc THEN DO:
         1.0                             FORMAT "9.9"
         tt-post.curr-paid - ap-sel.amt-paid TO 131
         SKIP.
-      
+
     ACCUM tt-post.curr-paid - ap-sel.amt-paid (TOTAL BY tt-post.actnum).
     ACCUM tt-post.curr-paid - ap-sel.amt-paid (TOTAL).
-  
+
     IF LAST-OF(tt-post.actnum) THEN
       PUT "** TOTAL " TO 114
           (ACCUM TOTAL BY tt-post.actnum tt-post.curr-paid - ap-sel.amt-paid)
@@ -2119,11 +2129,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -2151,23 +2161,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2186,8 +2196,8 @@ DEF VAR lLocked AS LOG NO-UNDO.
 DEF VAR cUsr AS INT NO-UNDO.
 DEF VAR cName AS CHAR NO-UNDO.
 DEF VAR cDevice AS CHAR NO-UNDO.
-    
-        
+
+
 REPEAT:
 
     FIND FIRST gl-ctrl NO-LOCK
@@ -2223,8 +2233,8 @@ REPEAT:
 
 END. /* REPEAT */
   /* gdm - 11050906 */
-        
- 
+
+
 
 
 END PROCEDURE.

@@ -259,6 +259,21 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
+ASSIGN
+       Btn_Cancel:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
+ASSIGN
+       Btn_Help:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
+ASSIGN
+       Btn_OK:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FILL-IN FILL-IN-1 IN FRAME DEFAULT-FRAME
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
@@ -270,7 +285,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -337,7 +352,7 @@ DO:
             IF char-val NE "" THEN 
             ASSIGN end_slmn:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ENTRY(1,char-val).
          END.
-         
+
     end case.
     return no-apply.
 END.
@@ -397,15 +412,15 @@ DO:
   def var i as int initial 0 no-undo.
   def var num-imports as int initial 0 no-undo.
   DEF VAR excelheader AS CHAR NO-UNDO.
-  
+
   fill-in-1:hidden = no.
   SESSION:SET-WAIT-STATE("GENERAL").
-  
+
   ASSIGN num-imports = 0
          fi_temp-shipto
          fi_temp-cust 
          fi_temp-titles .
-  
+
    OUTPUT STREAM excel TO VALUE(fi_file).
      excelheader = "Company,Customer,Ship ID,Sales Rep,First Name,Last Name,Middle Name,Sirname,E-mail Address,Contact Title,Title Code," +
                      "Type,Cust Name,Business Address,Business Street,Business City,Business State,Business Postal Code,Business Country," +
@@ -425,7 +440,7 @@ DO:
                 IF LOOKUP(phone.titlcode, tit-code:screen-value) = 0 THEN NEXT.
              END.
              num-imports = num-imports + 1.
-             
+
              create ttcontact.
              assign ttcontact.company        = cust.company
                     ttcontact.cust-no        = cust.cust-no
@@ -451,7 +466,7 @@ DO:
                     ttcontact.email          = phone.e_mail
                     ttcontact.attention      = phone.attention
                     ttcontact.titlcode       = phone.titlcode   .
-            
+
 
          if cust.contact ne "" then do i = 1 to length(trim(cust.contact)):
             if substring(cust.contact,i,1) ne " " then      next.
@@ -500,7 +515,7 @@ DO:
                      ttcontact.attention      = phone.attention
                      ttcontact.titlcode       = phone.titlcode 
                                                       .
-     
+
                     if shipto.contact ne "" then do i = 1 to length(trim(shipto.contact)):
                        if substring(shipto.contact,i,1) ne " " then      next.
                        else do:
@@ -513,7 +528,7 @@ DO:
          end. /* for each shipto */
     END. /* end of fi_temp-shipto*/
   END. /* end of cust*/
-  
+
       FOR EACH ttcontact NO-LOCK:
             PUT STREAM excel UNFORMATTED
              '"' ttcontact.company               '",'
@@ -542,7 +557,7 @@ DO:
              '"' ttcontact.extension             '",'
              SKIP.
             END.
-         
+
   OUTPUT STREAM excel CLOSE.
 
   IF fi_add-book THEN DO:
@@ -740,7 +755,7 @@ PROCEDURE valid-tit-code :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- 
+
   DO WITH FRAME {&FRAME-NAME}:
     IF (tit-code:SCREEN-VALUE) <> "" AND
        NOT CAN-FIND(FIRST titlcode

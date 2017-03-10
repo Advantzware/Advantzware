@@ -207,6 +207,16 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -223,7 +233,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -287,7 +297,7 @@ DO:
   message "Are you sure you want to delete paid on-account transactions " +
           "posted w/0?"
       view-as alert-box question button yes-no update v-process.
-      
+
   if v-process then run run-process.
 END.
 
@@ -412,11 +422,11 @@ FOR EACH ar-cashl
       AND ar-cashl.amt-disc EQ 0
       AND (ar-cashl.on-account EQ YES OR ar-cashl.inv-no EQ 0)
     USE-INDEX inv-no
-      
+
     TRANSACTION:
-    
+
   DELETE ar-cashl.
-    
+
   IF AVAIL ar-cash AND
      NOT CAN-FIND(FIRST b-ar-cashl WHERE b-ar-cashl.c-no EQ ar-cash.c-no) THEN DO:
     ar-cash.posted = NO.
@@ -432,12 +442,12 @@ FOR EACH ar-cashl
       /*AND ar-cashl.memo        EQ NO*/
       AND (ar-cashl.on-account EQ YES OR ar-cashl.inv-no EQ 0)
     USE-INDEX ar-cashl,
-      
+
     FIRST ar-cash
     WHERE ar-cash.c-no       EQ ar-cashl.c-no
       AND ar-cash.check-date GE begin_date
       AND ar-cash.check-date LE end_date
-      
+
     TRANSACTION:
 
   DELETE ar-cashl.

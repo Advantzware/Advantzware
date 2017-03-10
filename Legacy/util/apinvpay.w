@@ -212,6 +212,16 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -220,7 +230,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -301,12 +311,12 @@ END.
 ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
 DO:
   v-process  = NO.
-   
+
   MESSAGE "Are you sure you want to" TRIM(c-win:TITLE)
           "within the selected parameters?"       
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
           UPDATE v-process.
-        
+
   IF v-process THEN RUN run-process.
 END.
 
@@ -478,7 +488,7 @@ FOR EACH ap-inv
                                     AND ap-pay.c-no    EQ ap-payl.c-no
                                   USE-INDEX c-no)
       USE-INDEX inv-no:
-   
+
     FIND FIRST reftable
         WHERE reftable.reftable EQ "APINVPAY"
           AND reftable.company  EQ cocode
@@ -492,7 +502,7 @@ FOR EACH ap-inv
           WHERE ap-pay.company EQ cocode
             AND ap-pay.c-no    EQ ap-payl.c-no
           USE-INDEX c-no NO-ERROR.
-      
+
       IF AVAIL ap-pay THEN DO:
         FIND FIRST b-ap-payl
             WHERE b-ap-payl.c-no   EQ ap-pay.c-no
@@ -602,7 +612,7 @@ SESSION:SET-WAIT-STATE("").
 MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
 
 APPLY "close" TO THIS-PROCEDURE.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

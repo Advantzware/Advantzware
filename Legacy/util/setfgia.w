@@ -408,6 +408,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_cat:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -515,7 +525,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -613,7 +623,7 @@ DO:
 
   RUN windows/w-message.w PERSISTENT SET hStatus.
   RUN setWindowTitle IN hStatus (INPUT "Searching for Items").
-    
+
 
   run run-report. 
 
@@ -650,7 +660,7 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
@@ -701,7 +711,7 @@ DO:
        IF ll-do-deactivate THEN DO:
           RUN windows/w-message.w PERSISTENT SET hStatus.
           RUN setWindowTitle IN hStatus (INPUT "Deactivating Items").
-    
+
           RUN deactivate-items.
           IF VALID-HANDLE(hStatus) THEN
                DELETE OBJECT hStatus.
@@ -709,7 +719,7 @@ DO:
               VIEW-AS ALERT-BOX INFO BUTTONS OK.
         END.
 
- 
+
     END. /* something was found to delete */
     ELSE 
         MESSAGE "Nothing found to deactivate!"
@@ -717,8 +727,8 @@ DO:
 
      IF VALID-HANDLE(hStatus) THEN
           DELETE OBJECT hStatus.
-    
-       
+
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -983,7 +993,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 APPLY "entry" TO fiCutOffDate .
 
   RUN enable_UI.
-  
+
 SUBSCRIBE TO "CancelIt" ANYWHERE.
 SUBSCRIBE TO "NumDel" ANYWHERE.
   {methods/nowait.i}
@@ -1051,7 +1061,7 @@ FOR EACH tt-inactive-list:
         END. 
         IF llCancel THEN 
             LEAVE.
-        
+
         ASSIGN itemfg.stat = "I".
 /*         FIND FIRST reftable     WHERE reftable.reftable EQ "FGSTATUS" */
 /*           AND reftable.company  EQ cocode                             */
@@ -1069,7 +1079,7 @@ FOR EACH tt-inactive-list:
 /*                                                                       */
 /*         IF AVAIL reftable THEN                                        */
 /*            reftable.code2 = "I".                                      */
-        
+
 
     END. /* avail itemfg */
 
@@ -1154,7 +1164,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
  /*    DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -1165,9 +1175,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
  */
  {CUstom/out2file.i}
@@ -1201,7 +1211,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1270,7 +1280,7 @@ DEF VAR excelheader AS CHAR NO-UNDO.
 
 form header skip(1)
             v-page-break format "x(132)"
-            
+
     with frame r-top-2 STREAM-IO width 140 no-labels no-box no-underline page-top.
 
 form header skip(1)
@@ -1286,7 +1296,7 @@ form header skip(1)
             "           "
             "         TOTAL"
             skip
-           
+
             "ITEM           "
             "DESCRIPTION  "
             "CAT  "
@@ -1300,7 +1310,7 @@ form header skip(1)
             v-label2
             "STAT"
             skip
-            
+
             "---------------"
             "-------------"
             "-----"
@@ -1315,7 +1325,7 @@ form header skip(1)
             "-----"
           skip
     with frame r-top-3 STREAM-IO width 140 no-labels no-box no-underline page-top.
-    
+
 form
     itemfg.i-no                                 
     itemfg.i-name           format "x(13)"          
@@ -1358,7 +1368,7 @@ ASSIGN
 SESSION:SET-WAIT-STATE ("general").
 
   find first fg-ctrl where fg-ctrl.company eq cocode no-lock.
-  
+
   assign
    v-label1[1] = if fg-ctrl.inv-meth eq "A" then
                    "       AVERAGE" else "          LAST"
@@ -1374,7 +1384,7 @@ IF tb_excel THEN DO:
                 "CUSTOMER ORDERS,QTY AVAIL,TOTAL " + TRIM(v-label2).
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
-                   
+
   if not v-sho-cost then v-label1 = "".
 /* For utility, only look at items le 0 */
 v-zero = NO.
@@ -1391,11 +1401,11 @@ main-loop:
         and itemfg.procat  le v-procat[2]
         AND itemfg.q-onh   LE 0  /* Only want to inactivate items with no inventory */
       no-lock
-      
+
       break by (if v-break eq "C" then itemfg.cust-no else
                 if v-break eq "P" then itemfg.procat  else "1")
             by (if v-sort-by then itemfg.i-no else itemfg.i-name)
-            
+
       with frame itemx.
 
 
@@ -1497,7 +1507,7 @@ main-loop:
     if first-of(if v-break eq "C" then itemfg.cust-no else
                 if v-break eq "P" then itemfg.procat  else "1") then
       v-first[2] = yes.
-       
+
 
 
     if v-qty-onh ne 0 or not v-zero then do:
@@ -1510,7 +1520,7 @@ main-loop:
                         if v-break eq "P" then
                           ("Product Category: " + trim(itemfg.procat))
                         else "".  
-        
+
         IF v-first[1] THEN DO:
           v-first[1] = NO.
           DISPLAY WITH frame r-top.
@@ -1520,17 +1530,17 @@ main-loop:
 
         ELSE PAGE.
       end.
-    
+
       if v-prt-cost then do:
         v-cost = itemfg.total-std-cost.
-      
+
         if itemfg.prod-uom ne "EA" then
           run sys/ref/convcuom.p (itemfg.prod-uom, "EA", 0, 0, 0, 0,
                                   v-cost, output v-cost).
-                                
+
         v-price = v-cost * v-qty-onh.  
       end.
-    
+
       else do:
         find first uom
             where uom.uom  eq itemfg.sell-uom
@@ -1538,10 +1548,10 @@ main-loop:
             no-lock no-error.
         v-price = v-qty-onh * itemfg.sell-price /
                   (if avail uom then uom.mult else 1000).
-                 
+
         if itemfg.sell-uom eq "CS" then
           v-price = v-qty-onh / itemfg.case-count * itemfg.sell-price.
-        
+
         else
         /* gdm - 04130901 */
         IF itemfg.sell-uom EQ "L" AND v-qty-onh > 0
@@ -1550,7 +1560,7 @@ main-loop:
           THEN v-price = (v-qty-onh * itemfg.sell-price).
 
       end.
-      
+
       if v-price eq ? then v-price = 0.
       IF llCancel THEN
           LEAVE.
@@ -1585,7 +1595,7 @@ main-loop:
             '"' v-price                                                   '",'
             '"' v-status                                            '",'
             SKIP.
-    
+
       assign
        v-tq-onh[1]   = v-tq-onh[1]   + v-qty-onh
        v-tq-ono[1]   = v-tq-ono[1]   + itemfg.q-ono
@@ -1594,11 +1604,11 @@ main-loop:
                        (v-qty-onh + itemfg.q-ono - itemfg.q-alloc)
        v-tprice[1]   = v-tprice[1]   + v-price.
     end.
-     
+
     if not v-first[2]                                          and
        last-of(if v-break eq "C" then itemfg.cust-no else
                if v-break eq "P" then itemfg.procat  else "1") then do:
-               
+
       if v-break ne "N" then do:
         put skip(1).
 
@@ -1614,27 +1624,27 @@ main-loop:
 
         put skip(1).
       end.
-     
+
       assign
        v-tq-onh[2]   = v-tq-onh[2]   + v-tq-onh[1]
        v-tq-ono[2]   = v-tq-ono[2]   + v-tq-ono[1]
        v-tq-alloc[2] = v-tq-alloc[2] + v-tq-alloc[1]
        v-tq-avail[2] = v-tq-avail[2] + v-tq-avail[1]
        v-tprice[2]   = v-tprice[2]   + v-tprice[1]
-       
+
        v-tq-onh[1]   = 0
        v-tq-ono[1]   = 0
        v-tq-alloc[1] = 0
        v-tq-avail[1] = 0
        v-tprice[1]   = 0.
     end.
-    
+
     if not v-first[1]                                       and
        last(if v-break eq "C" then itemfg.cust-no else
             if v-break eq "P" then itemfg.procat  else "1") then do:
-               
+
       hide frame r-top-2 no-pause.
-  
+
       if v-break ne "N" then page.
       else put skip(2).
 
@@ -1682,11 +1692,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1714,23 +1724,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1772,7 +1782,7 @@ lCanDel = TRUE.
 /*         ASSIGN v-status = reftable.code2.                                  */
 /*     ELSE                                                                   */
 /*         ASSIGN v-status = "".                                              */
-    
+
     /* Make sure last activity for this item is before cutoff date */
     FIND LAST fg-rcpth WHERE fg-rcpth.company EQ bf-itemfg.company
          AND fg-rcpth.i-no  EQ bf-itemfg.i-no
@@ -1803,7 +1813,7 @@ lCanDel = TRUE.
         where fg-bin.company eq cocode
           and fg-bin.i-no    eq bf-itemfg.i-no
         use-index i-no no-lock:
-        
+
       if v-custown or (fg-bin.loc ne "CUST" and fg-bin.cust-no eq "") then
         v-qty-onh = v-qty-onh + fg-bin.qty.
     end. /* each bin */

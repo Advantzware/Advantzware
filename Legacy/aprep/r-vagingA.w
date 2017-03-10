@@ -402,6 +402,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        as_of_date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -510,7 +520,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -916,13 +926,13 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  
+
 /* security check need {methods/prgsecur.i} in definition section */
   IF access-close THEN DO:
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-       
+
   ASSIGN period-days-1 = 30
          period-days-2 = 60
          period-days-3 = 90
@@ -930,9 +940,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
              .
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
-     
+
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     as_of_date:SCREEN-VALUE = STRING(TODAY).
@@ -1126,7 +1136,7 @@ SESSION:SET-WAIT-STATE ("general").
 assign
  str-tit2 = c-win:title
  {sys/inc/ctrtext.i str-tit2 112}
- 
+
  v-s-vend  = begin_vend
  v-e-vend  = end_vend
  v-s-type  = begin_type
@@ -1142,7 +1152,7 @@ assign
 
  str-tit3 = "Company From: " + STRING(begin_comp) + " To: " + STRING(end_comp) + "      " + "As of Date: " + STRING(v-date)
  {sys/inc/ctrtext.i str-tit3 144}.
- 
+
 
 do with frame {&frame-name}:
  EMPTY TEMP-TABLE w-sort.
@@ -1206,7 +1216,7 @@ VIEW FRAME r-top.
           AND ap-inv.posted    EQ YES
           AND (ap-inv.inv-date LE as_of_date OR NOT v-idate)
         USE-INDEX ap-inv NO-LOCK,
-    
+
         FIRST ap-ledger
         WHERE ap-ledger.company  EQ company.company
           AND ap-ledger.vend-no  EQ ap-inv.vend-no
@@ -1230,7 +1240,7 @@ VIEW FRAME r-top.
 
   IF tb_excel THEN DO:
      OUTPUT STREAM excel TO VALUE(fi_file).
-    
+
      IF ll-mult-curr THEN
         excelheader = excelheader + "CURRENCY,".
 
@@ -1262,24 +1272,24 @@ VIEW FRAME r-top.
 
       IF ll-mult-curr OR FIRST(tt-vend.curr-code) THEN PAGE.
     END.
-    
+
     {ap/ap-aged.i}
 
     IF LAST-OF(tt-vend.curr-code) THEN DO:
        IF ll-mult-curr THEN DO:
           PUT SKIP(2).
-         
+
           ASSIGN
            lv-f-bot-hdr = " CURR TOTALS"
            curr-t[6]    = 0.
-         
+
           DO i = 1 TO 5:
             curr-t[6] = curr-t[6] + curr-t[i].
           END.
-         
+
           VIEW FRAME f-bot.
           DOWN.
-         
+
           DISPLAY SPACE(10) lv-f-bot-hdr
                   curr-t[1]
                   curr-t[2]
@@ -1288,27 +1298,27 @@ VIEW FRAME r-top.
                   curr-t[5]
                   curr-t[6]
                   SKIP
-            
+
               WITH FRAME bot1 NO-BOX NO-LABELS NO-ATTR-SPACE STREAM-IO WIDTH 200.
-         
+
           DISPLAY "PERCENTAGE COMPOSITION" SPACE(2)
                   (curr-t[1] / t2) * 100 FORMAT "->>>>>>>>>>9.99%"
                   (curr-t[2] / t2) * 100 FORMAT "->>>>>>>>>>9.99%"
                   (curr-t[3] / t2) * 100 FORMAT "->>>>>>>>>>9.99%"
                   (curr-t[4] / t2) * 100 FORMAT "->>>>>>>>>>9.99%"
                   (curr-t[5] / t2) * 100 FORMAT "->>>>>>>>>>9.99%"
-            
+
               WITH FRAME bot2 STREAM-IO WIDTH 200 NO-LABELS NO-BOX NO-ATTR-SPACE.
-         
+
           IF tb_excel THEN
           DO:
             PUT STREAM excel UNFORMATTED
                 SKIP(1).
-         
+
             IF ll-mult-curr THEN
                PUT STREAM excel UNFORMATTED
                    '"' "" '",'.
-         
+
             PUT STREAM excel UNFORMATTED
                 '"' ""                                  '",'
                 '"' ""                                  '",'
@@ -1326,11 +1336,11 @@ VIEW FRAME r-top.
                 '"' STRING(curr-t[5],"$->>>,>>>,>>9.99") '",'
                 '"' STRING(curr-t[6],"$->>>,>>>,>>9.99") '",'
                 SKIP.
-         
+
             IF ll-mult-curr THEN
                PUT STREAM excel UNFORMATTED
                    '"' "" '",'.
-         
+
             PUT STREAM excel UNFORMATTED
                 '"' ""                                  '",'
                 '"' ""                                  '",'
@@ -1350,7 +1360,7 @@ VIEW FRAME r-top.
                 SKIP(1).
           END.
        END.
-      
+
        DO i = 1 TO 5:
          grand-t[i] = grand-t[i] + curr-t[i].
        END.
@@ -1368,7 +1378,7 @@ VIEW FRAME r-top.
   END.
 
   PUT SKIP(2).
-  
+
   ASSIGN
    lv-f-bot-hdr = "GRAND TOTALS"
    grand-t[6]   = 0.
@@ -1376,7 +1386,7 @@ VIEW FRAME r-top.
   DO i = 1 TO 5:
      grand-t[6] = grand-t[6] + grand-t[i].
   END.
-  
+
   VIEW FRAME f-bot.
   DOWN.
 
@@ -1388,7 +1398,7 @@ VIEW FRAME r-top.
           grand-t[5]
           grand-t[6]
           skip
-          
+
       WITH FRAME bot3 NO-BOX NO-LABELS NO-ATTR-SPACE STREAM-IO WIDTH 200.
 
   display "PERCENTAGE COMPOSITION" space(2)
@@ -1397,7 +1407,7 @@ VIEW FRAME r-top.
           (grand-t[3] / t3) * 100 format "->>>>>>>>>>9.99%"
           (grand-t[4] / t3) * 100 format "->>>>>>>>>>9.99%"
           (grand-t[5] / t3) * 100 format "->>>>>>>>>>9.99%"
-          
+
       with frame b4 stream-io width 200 no-labels no-box no-attr-space.
 
   IF tb_excel THEN
@@ -1486,11 +1496,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1518,25 +1528,25 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
 
   PAGE.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

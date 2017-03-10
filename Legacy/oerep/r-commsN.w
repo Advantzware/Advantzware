@@ -69,7 +69,7 @@ DEF TEMP-TABLE tt-slsrp
     field cost    like ar-invl.amt
     FIELD scat    AS   CHAR
     INDEX i1 sman scat.
-  
+
 
 DEF TEMP-TABLE tt-report NO-UNDO LIKE report
     FIELD row-id AS ROWID.
@@ -90,7 +90,7 @@ ASSIGN cTextListToSelect  = "Rep,Customer,Name,Type,FG Item#,Cust Part#,Order#,I
                             "GP %,Comm Amt,Comm %,Group"  
        cFieldListToSelect = "sman,cust-no,cust-nam,type,i-no,part-no,ord,inv,cat,qty,sel-pric,totl-cst," +
                             "v-gp,v-camt,v-comm,grp"
-                            
+
        cFieldLength = "4,8,19,8,15,15,6,6,8,10,12,12," + "9,9,8,8"
        .
 
@@ -454,6 +454,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -544,7 +554,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -686,7 +696,7 @@ DO:
 
   RUN DisplaySelectionDefault.  /* task 04041406 */ 
   RUN DisplaySelectionList2 .
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -816,19 +826,19 @@ END.
 ON VALUE-CHANGED OF rd_ptd IN FRAME FRAME-A
 DO:
   assign {&self-name}.
-  
+
   if rd_ptd eq "YTD" then do:
     find first period
         where period.company eq gcompany
           and period.yr      eq v-year
         no-lock no-error.
-      
+
     begin_date = if avail period then period.pst
                                  else date(1,1,year(today)).
-                               
+
     display begin_date WITH FRAME FRAME-A IN WINDOW C-Win.
   end.
-  
+
   run show-period-dates.
 END.
 
@@ -840,7 +850,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
-  
+
    IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
        sl_selected:NUM-ITEMS = 0)
    THEN ASSIGN ldummy = sl_selected:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
@@ -848,7 +858,7 @@ DO:
               /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
                .
 
-  
+
 /* for pairs
     DEF VAR cSelectedList AS cha NO-UNDO.
     cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
@@ -891,7 +901,7 @@ DO:
   ASSIGN
     {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}:ENTRY(1)
     .
-    
+
 
 END.
 
@@ -982,11 +992,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   ASSIGN
    begin_date = TODAY
    end_date   = TODAY.
-   
+
   find first period
       where period.company eq gcompany
         and period.pst     le today
@@ -999,17 +1009,17 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      begin_period = period.pnum
      v-year       = period.yr
      begin_date   = period.pst.
-     
+
   else
     assign
      begin_period = month(today)
      v-year       = year(today).
-  
+
   fi_file = "c:\tmp\commrpt.csv".
 
   RUN DisplaySelectionList.
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -1021,7 +1031,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     RUN DisplaySelectionList2.
     APPLY "entry" TO rd_ptd.
-        
+
     FIND FIRST period
         WHERE period.company EQ gcompany
           AND period.pst     LE DATE(begin_date:SCREEN-VALUE)
@@ -1074,7 +1084,7 @@ PROCEDURE DisplaySelectionDefault :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  
+
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
      cListContents = cListContents +                   
@@ -1115,7 +1125,7 @@ PROCEDURE DisplaySelectionList :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .    
   END.
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
 
@@ -1138,7 +1148,7 @@ PROCEDURE DisplaySelectionList2 :
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
-        
+
   EMPTY TEMP-TABLE ttRptList.
 
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
@@ -1148,7 +1158,7 @@ PROCEDURE DisplaySelectionList2 :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1156,9 +1166,9 @@ PROCEDURE DisplaySelectionList2 :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
   DO iCount = 1 TO sl_selected:NUM-ITEMS:
@@ -1414,7 +1424,7 @@ DEF BUFFER bar-inv FOR ar-inv.
 ASSIGN
  str-tit2 = TRIM(c-win:TITLE) + " (O-R-6)"
  {sys/inc/ctrtext.i str-tit2 112}
- 
+
  v-per-rpt   = rd_ptd EQ "PTD"
  v-period    = begin_period
  v-date[1]   = begin_date
@@ -1438,12 +1448,12 @@ IF v-print-cost THEN DO:
 END.
 
 FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
-    
+
     ASSIGN str-tit4 = str-tit4 + 
                ttRptSelected.TextList + FILL(" ",ttRptSelected.FieldLength + 1 - LENGTH(ttRptSelected.TextList))
             str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
             excelheader = excelHeader + ttRptSelected.TextList + ",".        
-    
+
     IF LOOKUP(ttRptSelected.TextList, "Sell Price,Total Cost,GP %,Comm Amt,Comm %") <> 0    THEN
         ASSIGN
         str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
@@ -1503,11 +1513,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1535,23 +1545,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

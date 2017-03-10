@@ -258,6 +258,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_job-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -298,7 +308,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -368,7 +378,7 @@ END.
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   assign rd-dest.
-       
+
   run run-report. 
 
   case rd-dest:
@@ -550,7 +560,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
    DO WITH FRAME {&FRAME-NAME}:
 
@@ -686,7 +696,7 @@ PROCEDURE print-job-tot-excel :
    DEFINE INPUT PARAMETER ip-v-hrs-job AS DEC NO-UNDO.
    DEFINE INPUT PARAMETER ip-v-fg-job AS DEC NO-UNDO.
    DEFINE INPUT PARAMETER ip-v-oth-job AS DEC NO-UNDO.
-   
+
    DEF VAR viCnt AS INT NO-UNDO.
 
    PUT STREAM excel UNFORMATTED SKIP(1).
@@ -695,7 +705,7 @@ PROCEDURE print-job-tot-excel :
       PUT STREAM excel UNFORMATTED
           '"' "" '",'.
    END.
-          
+
    PUT STREAM excel UNFORMATTED
        '"' ("JOB TOTALS - " + STRING(work-edit.job-no) + "-" +
             STRING(work-edit.job-no2))                         '",'
@@ -756,7 +766,7 @@ PROCEDURE print-rep-tot-excel :
    DEFINE INPUT PARAMETER ip-v-hrs-job AS DEC NO-UNDO.
    DEFINE INPUT PARAMETER ip-v-fg-job AS DEC NO-UNDO.
    DEFINE INPUT PARAMETER ip-v-oth-job AS DEC NO-UNDO.
-   
+
    DEF VAR viCnt AS INT NO-UNDO.
 
    PUT STREAM excel UNFORMATTED SKIP(1).
@@ -765,7 +775,7 @@ PROCEDURE print-rep-tot-excel :
       PUT STREAM excel UNFORMATTED
           '"' "" '",'.
    END.
-          
+
    PUT STREAM excel UNFORMATTED
        '"' "REPORT TOTALS - "     '",'
        '"' "BOARD TOTALS:"        '",'
@@ -1003,10 +1013,10 @@ display "" with frame r-top.
       end.
    end.
 
-    
+
     for each work-edit break by work-edit.job-no
                                by work-edit.job-no2:
- 
+
          assign v-brd-job = 0
                 v-mch-job = 0
                 v-fg-job  = 0
@@ -1289,12 +1299,12 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha NO-UNDO.
-  
+
   ASSIGN
   lv-frame-hdl = frame {&frame-name}:HANDLE
   lv-group-hdl = lv-frame-hdl:first-child
   lv-field-hdl = lv-group-hdl:first-child.
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1324,19 +1334,19 @@ PROCEDURE show-param :
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

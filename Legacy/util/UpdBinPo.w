@@ -210,6 +210,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_i-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -224,7 +234,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -278,10 +288,10 @@ DO:
     ASSIGN {&displayed-objects}.
   END.
 
- 
+
   RUN windows/w-message.w PERSISTENT SET hStatus.
   RUN setWindowTitle IN hStatus (INPUT "Searching for Items").
-    
+
 
   run process-items. 
 
@@ -290,16 +300,16 @@ DO:
 
   RUN windows/w-message.w PERSISTENT SET hStatus.
   RUN setWindowTitle IN hStatus (INPUT "Deactivating Items").
-    
+
   IF VALID-HANDLE(hStatus) THEN
      DELETE OBJECT hStatus.
   MESSAGE "Done!"
      VIEW-AS ALERT-BOX INFO BUTTONS OK.
-    
+
   IF VALID-HANDLE(hStatus) THEN
       DELETE OBJECT hStatus.
-    
-       
+
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -350,7 +360,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 APPLY "entry" TO begin_i-no .
 
   RUN enable_UI.
-  
+
 SUBSCRIBE TO "CancelIt" ANYWHERE.
 SUBSCRIBE TO "NumDel" ANYWHERE.
   {methods/nowait.i}
@@ -553,7 +563,7 @@ PROCEDURE process-items :
 
 
        END. /* each fg-rcpth */      
- 
+
 
 END PROCEDURE.
 

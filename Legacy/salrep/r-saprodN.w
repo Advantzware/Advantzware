@@ -78,7 +78,7 @@ ASSIGN cTextListToSelect = "Catgy,Dly Sq Ft/M,Dly Amount,Dly $/MSF,"
        cFieldLength = "5,12,13,13," + "12,13,13,12,13,13" 
        cFieldType = "c,i,i,i," + "i,i,i,i,i,i"
     .
-         
+
 
 
 {sys/inc/ttRptSel.i}
@@ -340,6 +340,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -379,7 +389,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -507,7 +517,7 @@ DO:
 
   RUN DisplaySelectionDefault.  /* task 04041406 */ 
   RUN DisplaySelectionList2 .
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -645,7 +655,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
-  
+
    IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
        sl_selected:NUM-ITEMS = 0)
    THEN ASSIGN ldummy = sl_selected:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
@@ -653,7 +663,7 @@ DO:
               /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
                .
 
-  
+
 /* for pairs
     DEF VAR cSelectedList AS cha NO-UNDO.
     cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
@@ -696,7 +706,7 @@ DO:
   ASSIGN
     {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}:ENTRY(1)
     .
-    
+
 
 END.
 
@@ -787,7 +797,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   RUN DisplaySelectionList.
   RUN enable_UI.
 
@@ -800,7 +810,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     inv-date:SCREEN-VALUE = STRING(TODAY).
     APPLY "entry" TO inv-date.
   END.
- 
+
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -839,7 +849,7 @@ PROCEDURE DisplaySelectionDefault :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  
+
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
      cListContents = cListContents +                   
@@ -865,7 +875,7 @@ PROCEDURE DisplaySelectionList :
   DEF VAR iCount AS INT NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
-     
+
      RETURN.
   END.
 
@@ -878,7 +888,7 @@ PROCEDURE DisplaySelectionList :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -886,9 +896,9 @@ PROCEDURE DisplaySelectionList :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 END PROCEDURE.
 
@@ -909,7 +919,7 @@ PROCEDURE DisplaySelectionList2 :
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
-        
+
   EMPTY TEMP-TABLE ttRptList.
 
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
@@ -919,7 +929,7 @@ PROCEDURE DisplaySelectionList2 :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -927,9 +937,9 @@ PROCEDURE DisplaySelectionList2 :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
   DO iCount = 1 TO sl_selected:NUM-ITEMS:
@@ -990,7 +1000,7 @@ PROCEDURE GetSelectionList :
 
  DO i = 1 TO sl_selected:NUM-ITEMS /* IN FRAME {&FRAME-NAME}*/ :
     FIND FIRST ttRptList WHERE ttRptList.TextList = ENTRY(i,cTmpList) NO-LOCK NO-ERROR.     
-  
+
     CREATE ttRptSelected.
     ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
            ttRptSelected.FieldList = ttRptList.FieldList
@@ -999,7 +1009,7 @@ PROCEDURE GetSelectionList :
            ttRptSelected.HeadingFromLeft = IF entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
-           
+
  END.
 
 END PROCEDURE.
@@ -1191,7 +1201,7 @@ form
   w-ytd-amt
   w-ytd-msf
 
- 
+
   "-----------------Daily------------------"
   "-------------Period to Date-------------"
   v-ytd-hdr 
@@ -1334,7 +1344,7 @@ display "" with frame r-top.
             if avail fgcat then tt-report.key-01 = fgcat.procat.
           end.
         end.
-        
+
         tt-report.key-02 = if v-misc and tt-report.key-01 eq "MISC"
                            then ar-invl.actnum else tt-report.key-01.
       end.
@@ -1384,7 +1394,7 @@ display "" with frame r-top.
 
           tt-report.key-01 = if avail itemfg then itemfg.procat else "MISC".
         end.
-        
+
         tt-report.key-02 = if v-misc and tt-report.key-01 eq "MISC"
                            then ar-cashl.actnum else tt-report.key-01.
       end.
@@ -1467,15 +1477,15 @@ display "" with frame r-top.
                     WHEN "ytd-sf"   THEN cVarValue = STRING(v-gtot-ytd-sqft,"->>>,>>9.999") .
                     WHEN "ytd-amt"  THEN cVarValue = STRING(v-gtot-ytd-amt,"->,>>>,>>9.99") .  
                     WHEN "ytd-msf"  THEN cVarValue = STRING(v-gtot-ytd-msf,"->,>>>,>>9.99") .
-                    
+
                 END CASE.
-                  
+
                 cExcelVarValue = cVarValue.
                 cDisplay = cDisplay + cVarValue +
                            FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                 cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
         END.
-        
+
         PUT UNFORMATTED "  SALES " substring(cDisplay,9,350) SKIP.
         IF tb_excel THEN DO:
             PUT STREAM excel UNFORMATTED  
@@ -1507,7 +1517,7 @@ display "" with frame r-top.
             and tt-report.key-01  eq "MISC"
 
       {sa/sa-sprdN.i m}
-    
+
       if v-misc then do:
        /* underline w-sqft
                   w-amt
@@ -1541,7 +1551,7 @@ display "" with frame r-top.
                 v-mtot-ytd-amt  when v-ytd  @ w-ytd-amt
                 v-mtot-ytd-msf  when v-ytd  @ w-ytd-msf
             with frame itemx.
-          
+
         IF tb_excel THEN
            PUT STREAM excel UNFORMATTED
                SKIP(1)
@@ -1578,15 +1588,15 @@ display "" with frame r-top.
                     WHEN "ytd-sf"   THEN cVarValue = STRING(v-mtot-ytd-sqft,"->>>,>>9.999") .
                     WHEN "ytd-amt"  THEN cVarValue = STRING(v-mtot-ytd-amt,"->,>>>,>>9.99") .  
                     WHEN "ytd-msf"  THEN cVarValue = STRING(v-mtot-ytd-msf,"->,>>>,>>9.99") .
-                    
+
                 END CASE.
-                  
+
                 cExcelVarValue = cVarValue.
                 cDisplay = cDisplay + cVarValue +
                            FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                 cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
         END.
-        
+
         PUT UNFORMATTED "  MISC " substring(cDisplay,8,350) SKIP.
         IF tb_excel THEN DO:
             PUT STREAM excel UNFORMATTED  
@@ -1595,7 +1605,7 @@ display "" with frame r-top.
 
         put skip.
       end.
-      
+
       assign
        v-gtot-sqft     = v-gtot-sqft     + v-mtot-sqft
        v-gtot-amt      = v-gtot-amt      + v-mtot-amt
@@ -1703,15 +1713,15 @@ display "" with frame r-top.
                     WHEN "ytd-sf"   THEN cVarValue = STRING(v-gtot-ytd-sqft,"->>>,>>9.999") .
                     WHEN "ytd-amt"  THEN cVarValue = STRING(v-gtot-ytd-amt,"->,>>>,>>9.99") .  
                     WHEN "ytd-msf"  THEN cVarValue = STRING(v-gtot-ytd-msf,"->,>>>,>>9.99") .
-                    
+
                 END CASE.
-                  
+
                 cExcelVarValue = cVarValue.
                 cDisplay = cDisplay + cVarValue +
                            FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                 cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
         END.
-        
+
         PUT UNFORMATTED "  TOTAL " substring(cDisplay,9,350) SKIP.
         IF tb_excel THEN DO:
             PUT STREAM excel UNFORMATTED  
@@ -1750,12 +1760,12 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha NO-UNDO.
-  
+
   ASSIGN
   lv-frame-hdl = frame {&frame-name}:HANDLE
   lv-group-hdl = lv-frame-hdl:first-child
   lv-field-hdl = lv-group-hdl:first-child.
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1771,7 +1781,7 @@ PROCEDURE show-param :
                   if not valid-handle(lv-field2-hdl) then leave. 
                   if lv-field2-hdl:private-data = lv-field-hdl:name THEN
                      parm-lbl-list = parm-lbl-list + lv-field2-hdl:screen-value + ",".
-                  
+
                   lv-field2-hdl = lv-field2-hdl:next-sibling.                 
               end.       
            end.                 
@@ -1782,23 +1792,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -49,11 +49,11 @@ DEF STREAM sUpload.
 {custom/getloc.i}
 
 {sys/inc/VAR.i new shared}
-    
+
 assign
  cocode = gcompany
  locode = gloc.
-    
+
 DEF TEMP-TABLE tt-act FIELD act-num AS cha
                       FIELD bud AS DEC EXTENT 13.
 
@@ -246,6 +246,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
@@ -261,7 +271,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -309,7 +319,7 @@ END.
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   DEF VAR lv-post AS LOG NO-UNDO.
-  
+
   ASSIGN in-file-name.
 
   IF SEARCH(in-file-name) eq ? THEN
@@ -349,7 +359,7 @@ ON HELP OF in-file-name IN FRAME FRAME-A /* Import From File */
 DO:
    def var ls-filename as cha no-undo.
    def var ll-ok as log no-undo.
-   
+
    system-dialog get-file ls-filename 
                  title "Select File to insert"
                  filters "Excel File (*.xlsx) " "*.xlsx,*.xls",
@@ -359,7 +369,7 @@ DO:
                  MUST-EXIST
                  USE-FILENAME
                  UPDATE ll-ok.
-      
+
     IF ll-ok THEN self:screen-value = ls-filename.
 END.
 
@@ -413,10 +423,10 @@ DEF VAR access-close AS LOG.
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-  
+
   RUN enable_UI.
 
-  
+
   {methods/nowait.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -478,7 +488,7 @@ PROCEDURE processFile :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER pcInFile AS CHAR NO-UNDO.
-  
+
   DEFINE VAR ok-file AS logi INIT YES.
   DEFINE VAR cLogFile AS CHAR NO-UNDO.
   DEFINE VAR cInLine AS CHAR NO-UNDO.
@@ -508,7 +518,7 @@ PROCEDURE processFile :
   DEF VAR vdoz AS INTE.
   DEF VAR fr-ctl AS INTE.
   DEF VAR vCompanyZip LIKE company.zip NO-UNDO.
-  
+
   DEF VAR col-list AS CHAR.
   DEF VAR vcol-label1 AS CHAR.
   DEF VAR vcol-label2 AS CHAR.
@@ -554,7 +564,7 @@ PROCEDURE processFile :
 
   CREATE "Excel.Application" chExcelApplication.
   ASSIGN chExcelApplication:Visible = FALSE.
-  
+
   chExcelApplication:Workbooks:Open(pcInFile,2,TRUE,,,,TRUE).
 
   ASSIGN chWorkbook = chExcelApplication:WorkBooks:Item(1)
@@ -566,7 +576,7 @@ PROCEDURE processFile :
   chExcelApplication:DisplayAlerts = FALSE.
   chWorkbook:Saveas(pcInFile,6,,,,,,,,,,).
   chWorkBook:Close().
-  
+
   /* RELEASE OBJECT chRange NO-ERROR. */
   RELEASE OBJECT chWorkSheet NO-ERROR.
   RELEASE OBJECT chWorkBook NO-ERROR.
@@ -576,7 +586,7 @@ PROCEDURE processFile :
   RELEASE OBJECT chExcelApplication NO-ERROR. 
   IF VALID-HANDLE(v-stat-win) THEN
     RUN Process-Message IN v-stat-win (INPUT "Uploading records..."). 
-  
+
 
   FIND FIRST company WHERE company.company = cocode NO-LOCK NO-ERROR.
   IF AVAIL company THEN DO:
@@ -592,10 +602,10 @@ PROCEDURE processFile :
   REPEAT:
 
     i = i + 1.
-    
+
     IMPORT STREAM sUpload DELIMITER "," vSrcZip vDestZip vDestSt vClass dz_d[1]
                          dz_d[2] dz_d[3] dz_d[4] dz_d[5] dz_d[6] dz_d[7].
-       
+
     IF vSrcZip NE vCompanyZip THEN DO:
       /* end of file reached */
       IF vSrcZip = "" THEN
@@ -614,7 +624,7 @@ PROCEDURE processFile :
     dz_d[5] = ROUND(dz_d[5], 2).
     dz_d[6] = ROUND(dz_d[6], 2).
     dz_d[7] = ROUND(dz_d[7], 2).
-                
+
     line-ctr = line-ctr + 1.
     vrun-count = vrun-count + 1.
 
