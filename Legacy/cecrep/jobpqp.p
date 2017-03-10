@@ -102,7 +102,8 @@ ASSIGN v-local-copies = 1
 DO v-local-loop = 1 TO v-local-copies:
   {cecrep/jobpqp.i}
     BREAK BY job.job-no 
-          BY job.job-no2:
+          BY job.job-no2
+          BY job-hdr.job-no2:
     
     ASSIGN v-break = FIRST-OF(job.job-no2).
     
@@ -444,9 +445,10 @@ DO v-local-loop = 1 TO v-local-copies:
         PUT "<C1><R41.5>".
         RUN cec/desprnt3.p (recid(xef),INPUT-OUTPUT v-lines,RECID(xest)).
      END.
-
-     PAGE.     
-     PUT SKIP(1).
+     IF NOT LAST(job-hdr.job-no2)  THEN DO:
+         PAGE.     
+         PUT SKIP(1).
+     END.
     END.  /* FOR EACH w-ef */
 
     IF s-prt-set-header AND LAST-OF(job.job-no2) AND est.est-type = 6 
