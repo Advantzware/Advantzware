@@ -431,12 +431,27 @@ PROCEDURE winkit-initialize:
  Notes:
 ------------------------------------------------------------------------------*/
 
+    DEFINE VARIABLE hPageSource AS HANDLE NO-UNDO.
+
     RUN dispatch IN THIS-PROCEDURE ("initialize") .
 
     &IF DEFINED (WinKitFormType) NE 0 &THEN
     IF VALID-OBJECT (oForm) THEN
         Consultingwerk.Util.UltraToolbarsHelper:RefreshTools (oForm:ToolbarsManager) .
     &ENDIF
+
+    /* https://github.com/advantzwareWinKit/Advantzware/issues/61 */
+    IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive AND VALID-OBJECT (oFormControl) THEN DO:
+
+        RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, "page-source":U, OUTPUT hPageSource) .
+
+        IF NOT VALID-HANDLE (hPageSource) THEN DO:
+            oFormControl:TabFolderVisible = FALSE .
+
+            ASSIGN FRAME {&frame-name}:WIDTH-PIXELS  = MAXIMUM (FRAME {&frame-name}:WIDTH-PIXELS, {&window-name}:WIDTH-PIXELS)
+                   FRAME {&frame-name}:HEIGHT-PIXELS = MAXIMUM (FRAME {&frame-name}:HEIGHT-PIXELS, {&window-name}:HEIGHT-PIXELS) .
+        END.
+    END.
 
 END PROCEDURE.
 

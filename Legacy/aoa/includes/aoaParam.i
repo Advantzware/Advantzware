@@ -3,10 +3,14 @@
 /* security & set paramStr */
 {aoa/includes/aoaDefs.i}
 
+DEFINE VARIABLE h_aoaParam AS HANDLE NO-UNDO.
+
 &IF "{&aoaParam}" EQ "YES" &THEN
-    IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive EQ TRUE THEN
-    RUN aoa/aoaParam.w PERSISTENT (g_company,g_loc,paramStr) .
-    ELSE 
+    IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive EQ TRUE THEN DO:
+        RUN aoa/aoaParam.w PERSISTENT SET h_aoaParam (g_company,g_loc,paramStr).
+        RUN dispatch IN h_aoaParam ("initialize") .
+    END.
+    ELSE
     RUN aoa/aoaParam.w (g_company,g_loc,paramStr) .
 &ELSE
     /* with no param screen, aoaParamDefs.i, needs this var */
