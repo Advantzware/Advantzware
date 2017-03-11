@@ -118,7 +118,7 @@ DO v-local-loop = 1 TO v-local-copies:
                            v-local-loop, v-local-copies).
 
     FOR EACH w-ef WHERE w-ef.frm EQ job-hdr.frm OR 
-                        est.est-type NE 8:
+                        est.est-type NE 8 BREAK BY w-ef.frm :
      
      RELEASE xef.
      RELEASE xeb.
@@ -445,14 +445,19 @@ DO v-local-loop = 1 TO v-local-copies:
         PUT "<C1><R41.5>".
         RUN cec/desprnt3.p (recid(xef),INPUT-OUTPUT v-lines,RECID(xest)).
      END.
-     IF NOT LAST(job-hdr.job-no2)  THEN DO:
+     IF NOT LAST(w-ef.frm) THEN do:
+         PAGE.     
+         PUT SKIP(1).
+     END.
+     ELSE IF NOT LAST(job-hdr.job-no2) THEN DO:
          PAGE.     
          PUT SKIP(1).
      END.
     END.  /* FOR EACH w-ef */
-
+ 
     IF s-prt-set-header AND LAST-OF(job.job-no2) AND est.est-type = 6 
       THEN DO: /* print set header */
+        
       
       ASSIGN i = 0.
 
@@ -463,7 +468,8 @@ DO v-local-loop = 1 TO v-local-copies:
       END.
 
       IF i > 1 THEN DO:
-
+        PAGE.
+        PUT SKIP(1).
         DEF VAR v-set-qty AS INT NO-UNDO.
            DEF VAR v-ord-qty AS INT NO-UNDO.
            DEF VAR v-over-run AS cha NO-UNDO.
