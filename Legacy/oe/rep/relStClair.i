@@ -373,8 +373,8 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                       NO-LOCK,
                       first fg-rdtlh FIELDS(trans-time) where
                       fg-rdtlh.r-no eq fg-rcpth.r-no AND
-                      fg-rdtlh.loc  eq fg-bin.loc AND
-                      fg-rdtlh.loc-bin eq fg-bin.loc-bin AND
+                      /*fg-rdtlh.loc  eq fg-bin.loc AND
+                      fg-rdtlh.loc-bin eq fg-bin.loc-bin AND*/
                       fg-rdtlh.tag     eq fg-bin.tag AND
                       fg-rdtlh.cust-no EQ fg-bin.cust-no
                       no-lock
