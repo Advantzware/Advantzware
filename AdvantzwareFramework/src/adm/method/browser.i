@@ -1,6 +1,6 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER AB_v9r12
 &ANALYZE-RESUME
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Method-Library 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Method-Library
 /*********************************************************************
 * Copyright (C) 2000 by Progress Software Corporation. All rights    *
 * reserved. Prior versions of this work may contain portions         *
@@ -8,16 +8,16 @@
 *                                                                    *
 *********************************************************************/
 /*-------------------------------------------------------------------------
-    Library     : browser.i  
+    Library     : browser.i
     Purpose     : Base ADM methods for Browser objects
-  
+
     Syntax      : {src/adm/method/browser.i}
 
     Description :
-  
+
     Author(s)   :
     Created     :
-    HISTORY: 
+    HISTORY:
 --------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -26,7 +26,7 @@
 
 &GLOBAL-DEFINE ADM-DISPATCH-QUALIFIER winkit
 
-DEFINE VARIABLE oRenderedBrowseControl AS Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseControl NO-UNDO . 
+DEFINE VARIABLE oRenderedBrowseControl AS Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseControl NO-UNDO .
 DEFINE VARIABLE adm-sts           AS LOGICAL NO-UNDO.
 DEFINE VARIABLE adm-brs-in-update AS LOGICAL NO-UNDO INIT no.
 DEFINE VARIABLE adm-brs-initted   AS LOGICAL NO-UNDO INIT no.
@@ -54,7 +54,7 @@ Layout,Create-On-Add,SortBy-Case
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
+&ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -70,7 +70,7 @@ Layout,Create-On-Add,SortBy-Case
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: Method-Library
-   Allow: 
+   Allow:
    Frames: 0
    Add Fields to: Neither
    Other Settings: INCLUDE-ONLY
@@ -80,7 +80,7 @@ Layout,Create-On-Add,SortBy-Case
 /* *************************  Create Window  ************************** */
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
-/* DESIGN Window definition (used by the UIB) 
+/* DESIGN Window definition (used by the UIB)
   CREATE WINDOW Method-Library ASSIGN
          HEIGHT             = 6.86
          WIDTH              = 66.
@@ -88,7 +88,7 @@ Layout,Create-On-Add,SortBy-Case
                                                                         */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB Method-Library 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB Method-Library
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/smart.i}
@@ -99,17 +99,17 @@ Layout,Create-On-Add,SortBy-Case
 &ANALYZE-RESUME
 
 
- 
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Method-Library 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Method-Library
 
 
 /* ***************************  Main Block  *************************** */
 
 /* Keep newly added entries from being at the top of the viewport. */
   adm-sts = {&BROWSE-NAME}:SET-REPOSITIONED-ROW
-    ({&BROWSE-NAME}:DOWN,"CONDITIONAL":U). 
+    ({&BROWSE-NAME}:DOWN,"CONDITIONAL":U).
 
   /* Initialize attributes for update processing objects. */
   RUN set-attribute-list ('FIELDS-ENABLED=no,ADM-NEW-RECORD=no':U).
@@ -135,25 +135,25 @@ PROCEDURE winkit-initialize:
     /* Mike Fechner, Consultingwerk Ltd. 06.02.2016
        Create WinKit Tabs */
     DEFINE VARIABLE oRenderedBrowseContext AS Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseContext NO-UNDO .
-    DEFINE VARIABLE oForm AS Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWindowForm NO-UNDO . 
+    DEFINE VARIABLE oForm AS Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWindowForm NO-UNDO .
     DEFINE VARIABLE iPage AS INTEGER NO-UNDO .
 
     RUN dispatch IN THIS-PROCEDURE ("initialize") .
 
     // Only execute WinKit initialization when WinKit is active
-    IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive = FALSE THEN 
-        RETURN . 
+    IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive = FALSE THEN
+        RETURN .
 
     RUN get-link-handle IN adm-broker-hdl
            (INPUT THIS-PROCEDURE, INPUT 'CONTAINER-SOURCE':U, OUTPUT char-hdl).
     ASSIGN container-hdl = WIDGET-HANDLE(char-hdl).
-    
+
     &IF DEFINED (dataGrid) EQ 0 &THEN
     IF TRUE THEN RETURN .
     &ENDIF
-    
+
     IF VALID-HANDLE (container-hdl) AND Consultingwerk.Util.ProcedureHelper:HasEntry (container-hdl, "getEmbeddedWindowForm") THEN DO:
-        
+
 
         DEFINE VARIABLE hWidget AS HANDLE  NO-UNDO.
         DEFINE VARIABLE iMinRow AS INTEGER NO-UNDO.
@@ -169,55 +169,59 @@ PROCEDURE winkit-initialize:
 
                 hWidget:SENSITIVE = FALSE .
                 hWidget:HIDDEN = TRUE .
-                
-                IF iMaxRow = ? THEN 
-                    ASSIGN iMaxRow = 0 . 
-                
+
+                IF iMaxRow = ? THEN
+                    ASSIGN iMaxRow = 0 .
+
                 iMaxRow = MAX (iMaxRow, hWidget:ROW + hWidget:HEIGHT-CHARS) .
             END.
 
             hWidget = hWidget:NEXT-SIBLING .
         END.
-        
+
         RUN get-attribute IN container-hdl ("current-page") .
-        
-        ASSIGN iPage = Consultingwerk.Util.DataTypeHelper:ToInteger (RETURN-VALUE) . 
-         
-        oForm = DYNAMIC-FUNCTION ("getEmbeddedWindowForm" IN container-hdl)  .   
-          
+
+        ASSIGN iPage = Consultingwerk.Util.DataTypeHelper:ToInteger (RETURN-VALUE) .
+
+        oForm = DYNAMIC-FUNCTION ("getEmbeddedWindowForm" IN container-hdl)  .
+
         IF VALID-OBJECT (oForm) THEN DO:
 
-            ASSIGN oRenderedBrowseContext = NEW Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseContext () . 
-            
-            IF iPage = 0 THEN 
+            ASSIGN oRenderedBrowseContext = NEW Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseContext () .
+
+            IF iPage = 0 THEN
                 ASSIGN oRenderedBrowseContext:Parent = oForm:ClientArea .
-            ELSE 
-                IF TYPE-OF (oForm, Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWindowTabFolderForm) THEN 
+            ELSE
+                IF TYPE-OF (oForm, Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWindowTabFolderForm) THEN
                     ASSIGN oRenderedBrowseContext:Parent =  CAST (oForm, Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWindowTabFolderForm):GetTabPageControl (iPage) .
-            
+
             ASSIGN
-                oRenderedBrowseContext:Batching            = FALSE 
-                oRenderedBrowseContext:BindingSourceFields = Consultingwerk.WindowIntegrationKit.Controls.BindingSourceFieldsEnum:BrowserFields 
+                oRenderedBrowseContext:Batching            = FALSE
+                oRenderedBrowseContext:BindingSourceFields = Consultingwerk.WindowIntegrationKit.Controls.BindingSourceFieldsEnum:BrowserFields
                 oRenderedBrowseContext:BrowseHandle        = BROWSE {&BROWSE-NAME}:HANDLE
                 oRenderedBrowseContext:EmbeddedWindowForm  = oForm
-                oRenderedBrowseContext:CallBackProcedure   = THIS-PROCEDURE 
+                oRenderedBrowseContext:CallBackProcedure   = THIS-PROCEDURE
                 oRenderedBrowseContext:EnableSearch        = TRUE
-                oRenderedBrowseControl = NEW Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl (oRenderedBrowseContext) 
+                oRenderedBrowseControl = NEW Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl (oRenderedBrowseContext)
                 .
 
-            // Do not hide group-by columns 
+            // Do not hide group-by columns
             oRenderedBrowseControl:DisplayLayout:Override:GroupByColumnsHidden = Infragistics.Win.DefaultableBoolean:False .
 
-            IF iMaxRow > 0 THEN 
-                oRenderedBrowseControl:Height = oRenderedBrowseControl:Height + (iMaxRow - iMinRow) * SESSION:PIXELS-PER-ROW . 
-                
-            IF Consultingwerk.Util.ProcedureHelper:HasEntry (THIS-PROCEDURE, "InitializeGrid") THEN 
+            IF iMaxRow > 0 THEN
+                oRenderedBrowseControl:Height = oRenderedBrowseControl:Height + (iMaxRow - iMinRow) * SESSION:PIXELS-PER-ROW .
+
+            IF Consultingwerk.Util.ProcedureHelper:HasEntry (THIS-PROCEDURE, "InitializeGrid") THEN
                 RUN InitializeGrid IN THIS-PROCEDURE .
+
+            oRenderedBrowseControl:QUERY:GET-FIRST () .
+
+            APPLY "value-changed":U TO BROWSE {&browse-name} .
         END.
-    END.     
+    END.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -227,19 +231,19 @@ END PROCEDURE.
 
 &IF DEFINED(EXCLUDE-set-size) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-size Method-Library 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-size Method-Library
 PROCEDURE set-size :
 /*------------------------------------------------------------------------------
   Purpose:     To allow browsers to resize when placed into a SmartWindow at
                design time
   Parameters:  pd_height AS DECIMAL - The desired height (in rows)
                pd_width  AS DECIMAL - The desired width (in columns)
-               
-  Notes:       
+
+  Notes:
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER pd_height AS DECIMAL NO-UNDO.
   DEFINE INPUT PARAMETER pd_width  AS DECIMAL NO-UNDO.
-  
+
   DEFINE VARIABLE hBrowse     AS HANDLE           NO-UNDO.
   DEFINE VARIABLE hFieldGroup AS HANDLE           NO-UNDO.
   DEFINE VARIABLE hFrame      AS HANDLE           NO-UNDO.
@@ -268,8 +272,8 @@ PROCEDURE set-size :
     END.  /* If we have a potoential sibling */
     htmpWidget = htmpWidget:NEXT-SIBLING.
   END.  /* Repeat while valid handle*/
-  
-  
+
+
   /* If the width is getting smaller, do the browse first else the frame */
   IF pd_width < hBrowse:WIDTH THEN
     ASSIGN hBrowse:WIDTH = pd_width
@@ -277,7 +281,7 @@ PROCEDURE set-size :
   ELSE
     ASSIGN hFrame:WIDTH  = pd_width
            hBrowse:WIDTH = pd_width     NO-ERROR.
-           
+
   /* If the height is getting smaller, do the browse first else the frame */
   IF pd_height < hBrowse:HEIGHT THEN
     ASSIGN hBrowse:HEIGHT = pd_height
