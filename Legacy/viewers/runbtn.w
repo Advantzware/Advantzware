@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win
 /*------------------------------------------------------------------------
 
   File:
@@ -18,9 +18,9 @@
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
 
-/* Create an unnamed pool to store all the widgets created 
+/* Create an unnamed pool to store all the widgets created
      by this procedure. This is a good default which assures
-     that this procedure's triggers and internal procedures 
+     that this procedure's triggers and internal procedures
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
 
@@ -39,11 +39,11 @@ def var lv-recid as recid no-undo.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
+&ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&Scoped-define PROCEDURE-TYPE SmartViewer
+&Scoped-define PROCEDURE-TYPE SmartPanel
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
@@ -51,7 +51,7 @@ def var lv-recid as recid no-undo.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-8 btn_eff btn_cal btn_depth 
+&Scoped-Define ENABLED-OBJECTS RECT-8 btn_eff btn_cal btn_depth
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
@@ -67,7 +67,7 @@ def var lv-recid as recid no-undo.
 THIS-PROCEDURE
 </KEY-OBJECT>
 <FOREIGN-KEYS>
-</FOREIGN-KEYS> 
+</FOREIGN-KEYS>
 <EXECUTING-CODE>
 **************************
 * Set attributes related to FOREIGN KEYS
@@ -76,7 +76,7 @@ RUN set-attribute-list (
     'Keys-Accepted = "",
      Keys-Supplied = ""':U).
 /**************************
-</EXECUTING-CODE> */   
+</EXECUTING-CODE> */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -86,20 +86,20 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn_cal 
-     LABEL "Cali&Per" 
+DEFINE BUTTON btn_cal
+     LABEL "Cali&Per"
      SIZE 12 BY 1.43.
 
-DEFINE BUTTON btn_depth 
-     LABEL "Dept&H" 
+DEFINE BUTTON btn_depth
+     LABEL "Dept&H"
      SIZE 12 BY 1.43.
 
-DEFINE BUTTON btn_eff 
-     LABEL "&Eff/Qty" 
+DEFINE BUTTON btn_eff
+     LABEL "&Eff/Qty"
      SIZE 12 BY 1.43.
 
 DEFINE RECTANGLE RECT-8
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL
      SIZE 14 BY 4.76.
 
 
@@ -110,8 +110,8 @@ DEFINE FRAME F-Main
      btn_cal AT ROW 2.67 COL 2
      btn_depth AT ROW 4.1 COL 2
      RECT-8 AT ROW 1 COL 1
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY
+         SIDE-LABELS NO-UNDERLINE THREE-D
          AT COL 1 ROW 1 SCROLLABLE .
 
 
@@ -139,7 +139,7 @@ END.
 /* *************************  Create Window  ************************** */
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
-/* DESIGN Window definition (used by the UIB) 
+/* DESIGN Window definition (used by the UIB)
   CREATE WINDOW V-table-Win ASSIGN
          HEIGHT             = 6.86
          WIDTH              = 66.
@@ -155,7 +155,7 @@ END.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE Size-to-Fit                                              */
-ASSIGN 
+ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
@@ -175,11 +175,11 @@ ASSIGN
 
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win
 /* ************************* Included-Libraries *********************** */
 
 {Advantzware/WinKit/winkit-panel.i}
-{src/adm/method/viewer.i}
+{src/adm/method/panel.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -194,7 +194,7 @@ ASSIGN
 ON CHOOSE OF btn_cal IN FRAME F-Main /* CaliPer */
 DO:
   /*  {methods/run_link.i "Container" "change-page" "(8)"}  */
-    {methods/run_link.i "State-target" "get-recid" "(output lv-recid)" } 
+    {methods/run_link.i "State-target" "get-recid" "(output lv-recid)" }
      run windows/mstd-cal.w (lv-recid).
 
 
@@ -210,7 +210,7 @@ END.
 ON CHOOSE OF btn_depth IN FRAME F-Main /* DeptH */
 DO:
   /*   {methods/run_link.i "Container" "change-page" "(9)"}*/
-    {methods/run_link.i "State-target" "get-recid" "(output lv-recid)" } 
+    {methods/run_link.i "State-target" "get-recid" "(output lv-recid)" }
     run windows/mstd-dep.w (lv-recid).
 
 
@@ -227,7 +227,7 @@ ON CHOOSE OF btn_eff IN FRAME F-Main /* Eff/Qty */
 DO:
   /*{methods/run_link.i "Container" "change-page" "(7)"}  */
 
-  {methods/run_link.i "State-target" "get-recid" "(output lv-recid)" } 
+  {methods/run_link.i "State-target" "get-recid" "(output lv-recid)" }
   run windows/mstd-eff.w (lv-recid).
   {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
@@ -238,14 +238,14 @@ END.
 
 &UNDEFINE SELF-NAME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win
 
 
 /* ***************************  Main Block  *************************** */
 
-  &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
-    RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
-  &ENDIF         
+  &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN
+    RUN dispatch IN THIS-PROCEDURE ('initialize':U).
+  &ENDIF
 
   /************************ INTERNAL PROCEDURES ********************/
 
@@ -284,7 +284,7 @@ PROCEDURE disable_UI :
   Purpose:     DISABLE the User Interface
   Parameters:  <none>
   Notes:       Here we clean-up the user-interface by deleting
-               dynamic widgets we have created and/or hide 
+               dynamic widgets we have created and/or hide
                frames.  This procedure is usually called when
                we are ready to "clean-up" after running.
 ------------------------------------------------------------------------------*/
@@ -315,12 +315,12 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed V-table-Win
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 -------------------------------------------------------------*/
   DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE    NO-UNDO.
   DEFINE INPUT PARAMETER p-state      AS CHARACTER NO-UNDO.

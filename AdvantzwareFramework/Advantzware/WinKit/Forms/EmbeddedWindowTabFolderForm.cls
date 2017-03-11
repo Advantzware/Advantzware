@@ -947,7 +947,7 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderForm
                     THIS-OBJECT:ToolbarsManager:Ribbon:Tabs[0]:AttachedParentTab .
 
         // Force refresh of all tool labels
-        Consultingwerk.Util.UltraToolbarsHelper:RefreshTools (ultraToolbarsManager1) .
+        Consultingwerk.Util.UltraToolbarsHelper:RefreshTools (ultraToolbarsManager1, FALSE, FALSE) .
 
         {Consultingwerk/foreach.i ToolBase oTool IN ultraToolbarsManager1:Tools}
             ASSIGN hWidget = WIDGET-HANDLE (UNBOX(oTool:Tag)) NO-ERROR .

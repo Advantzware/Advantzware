@@ -437,7 +437,7 @@ PROCEDURE winkit-initialize:
 
     &IF DEFINED (WinKitFormType) NE 0 &THEN
     IF VALID-OBJECT (oForm) THEN
-        Consultingwerk.Util.UltraToolbarsHelper:RefreshTools (oForm:ToolbarsManager) .
+        Consultingwerk.Util.UltraToolbarsHelper:RefreshTools (oForm:ToolbarsManager, FALSE, FALSE) .
     &ENDIF
 
     /* https://github.com/advantzwareWinKit/Advantzware/issues/61 */

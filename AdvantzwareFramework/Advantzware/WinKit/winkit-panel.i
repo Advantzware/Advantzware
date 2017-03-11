@@ -47,7 +47,7 @@ PROCEDURE winkit-enable:
     RUN dispatch IN THIS-PROCEDURE ("enable") .
 
     IF VALID-OBJECT (oForm) THEN
-        Consultingwerk.Util.UltraToolbarsHelper:RefreshTools (oForm:ToolbarsManager) .
+        Consultingwerk.Util.UltraToolbarsHelper:RefreshTools (oForm:ToolbarsManager, FALSE, FALSE) .
 
 
 END PROCEDURE.
@@ -61,7 +61,7 @@ PROCEDURE winkit-view:
     RUN dispatch IN THIS-PROCEDURE ("view") .
 
     IF VALID-OBJECT (oForm) THEN
-        Consultingwerk.Util.UltraToolbarsHelper:RefreshTools (oForm:ToolbarsManager) .
+        Consultingwerk.Util.UltraToolbarsHelper:RefreshTools (oForm:ToolbarsManager, FALSE, FALSE) .
 
 END PROCEDURE.
 
@@ -148,7 +148,12 @@ PROCEDURE winkit-make-ribbon-group:
            cPanelRibbonGroupKey = cKey .
 
     IF VALID-OBJECT (oForm) THEN
-        Consultingwerk.Util.UltraToolbarsHelper:RefreshTools (oForm:ToolbarsManager) .
+        Consultingwerk.Util.UltraToolbarsHelper:RefreshTools (oForm:ToolbarsManager, FALSE, FALSE) .
+
+
+
+    FRAME {&frame-name}:HIDDEN = TRUE .
+    FRAME {&frame-name}:MOVE-TO-BOTTOM () .
 
 END PROCEDURE.
 
@@ -211,7 +216,5 @@ PROCEDURE set-position :
 
     IF VALID-OBJECT (oPanelRibbonTab) THEN
         oPanelRibbonTab:Groups[cPanelRibbonGroupKey]:MergeOrder = p-col .
-
-    RETURN.
 
 END PROCEDURE.

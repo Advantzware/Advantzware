@@ -11,13 +11,13 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : winkit-panel-triggerend.i
-    Purpose     : 
+    Purpose     :
 
     Syntax      :
 
-    Description : 
+    Description :
 
-    Author(s)   : 
+    Author(s)   :
     Created     : Sun Feb 07 21:16:25 CET 2016
     Notes       :
   ----------------------------------------------------------------------*/
@@ -27,25 +27,25 @@
 /* ***************************  Main Block  *************************** */
 
     FINALLY:
-        		
+
         IF VALID-OBJECT (oForm) THEN DO:
-            Consultingwerk.Util.UltraToolbarsHelper:RefreshTools (oForm:ToolbarsManager) .
-    
+            Consultingwerk.Util.UltraToolbarsHelper:RefreshTools (oForm:ToolbarsManager, FALSE, FALSE) .
+
             {Consultingwerk/foreach.i Infragistics.Win.UltraWinToolbars.ToolBase oTool in oForm:ToolbarsManager:Tools}
-            
+
                 hWinKitWidgetHandle = WIDGET-HANDLE (UNBOX (oTool:Tag)) .
-    
+
                 IF VALID-HANDLE (hWinKitWidgetHandle) AND CAN-QUERY (hWinKitWidgetHandle, "LABEL":U) THEN DO:
                     oTool:SharedProps:Caption = hWinKitWidgetHandle:LABEL .
-    
+
                     {Consultingwerk/foreach.i Infragistics.Win.UltraWinToolbars.ToolBase oInstance in oTool:SharedProps:ToolInstances }
-                    
+
                         oInstance:InstanceProps:Caption = hWinKitWidgetHandle:LABEL .
-                    
-                    END.        
+
+                    END.
                 END.
             END.
         END.
-    
+
     END FINALLY.
 
