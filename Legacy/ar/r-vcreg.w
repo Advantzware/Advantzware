@@ -41,12 +41,12 @@ DEF VAR lv-audit-dir AS CHAR NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/VAR.i new shared}
-    
+
 assign
  cocode = gcompany
  locode = gloc.
 def buffer xar-cashl for ar-cashl.    
-    
+
 def new shared var v-trnum as INT NO-UNDO.    
 def var v-postable as log init NO NO-UNDO.
 
@@ -233,6 +233,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
    NO-ENABLE                                                            */
 ASSIGN 
@@ -256,7 +266,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -306,9 +316,9 @@ DO:
   DEF VAR lv-post AS LOG NO-UNDO.
 
   run check-date.
-  
+
   assign rd-dest tran-period tran-date .
-  
+
   if v-invalid then return no-apply.
   assign rd-dest tran-period tran-date .
 
@@ -329,15 +339,15 @@ DO:
   END.
 
   run run-report.
-  
+
   case rd-dest:
        when 1 then run output-to-printer.
        when 2 then run output-to-screen.
        when 3 then run output-to-file.
   end case.
-  
+
   IF v-postable THEN DO:    
-    
+
     MESSAGE "Do you want to post voided cash receipts?"
             VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
             UPDATE lv-post.
@@ -447,7 +457,7 @@ END.
 ON LEAVE OF tran-date IN FRAME FRAME-A /* Post Date */
 DO:
   assign {&self-name}.
-  
+
   if lastkey ne -1 then do:
     run check-date.
     if v-invalid then return no-apply.
@@ -502,7 +512,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   IF ERROR-STATUS:ERROR THEN RETURN.
 
   tran-date = TODAY.
-  
+
   RUN enable_UI.
 
   RUN check-date.
@@ -527,7 +537,7 @@ PROCEDURE check-date :
 ------------------------------------------------------------------------------*/
   DO with frame {&frame-name}:
     v-invalid = no.
-  
+
     find first period                   
         where period.company eq cocode
           and period.pst     le tran-date
@@ -561,7 +571,7 @@ PROCEDURE copy-report-to-audit-dir :
   DEF VAR dirname1 AS CHAR FORMAT "X(20)" NO-UNDO.
   DEF VAR dirname2 AS CHAR FORMAT "X(20)" NO-UNDO.
   DEF VAR dirname3 AS CHAR FORMAT "X(20)" NO-UNDO.
-  
+
   ASSIGN targetfile = lv-audit-dir + "\AR\AC8\Run#"
                     + STRING(v-trnum) + ".txt"
          dirname1 = lv-audit-dir
@@ -646,7 +656,7 @@ PROCEDURE init-proc :
                        and account.actnum  eq xdis-acct
       no-lock no-error.
   if not avail account or account.actnum eq "" then do:
-    
+
     message " Discount Account is blank or is not on file for this Company." VIEW-AS ALERT-BOX ERROR.
     RETURN ERROR.
   end.
@@ -655,7 +665,7 @@ PROCEDURE init-proc :
     sys-ctrl.company eq cocode AND
     sys-ctrl.name    eq "AUDITDIR"
     no-lock no-error.
-  
+
   if not avail sys-ctrl then DO TRANSACTION:
      create sys-ctrl.
      assign
@@ -685,7 +695,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
      DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -696,7 +706,7 @@ PROCEDURE output-to-file :
          SAVE-AS
          USE-FILENAME
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
 
 
@@ -723,9 +733,9 @@ PROCEDURE output-to-printer :
      RUN 'adecomm/_osprint.p' (INPUT ?, INPUT list-name,
                             INPUT lv-font-no, INPUT lv-orint, INPUT 0, INPUT 0, OUTPUT result).
                                     /* use-dialog(1) and landscape(2) */
-                                    
-      
-    
+
+
+
      IF NOT RESULT THEN v-postable = NO.
 
 END PROCEDURE.
@@ -740,7 +750,7 @@ PROCEDURE output-to-screen :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   run scr-rpt.w (list-name,c-win:title,int(lv-font-no),lv-ornt). /* open file-name, title */ 
 
 END PROCEDURE.
@@ -761,7 +771,7 @@ PROCEDURE post-gl :
 
  postit:
  do transaction on error undo, leave:
-   
+
    for each ar-cash EXCLUSIVE-LOCK where
        ar-cash.company = cocode and
        ar-cash.cleared = ? and
@@ -788,7 +798,7 @@ PROCEDURE post-gl :
        END.
 
        EMPTY TEMP-TABLE xcashl.
-       
+
        for each ar-cashl where ar-cashl.c-no = ar-cash.c-no
            EXCLUSIVE-LOCK:
 
@@ -811,7 +821,7 @@ PROCEDURE post-gl :
                  ar-inv.due = ar-inv.due + ar-cashl.amt-paid + ar-cashl.amt-disc.
 
                  RELEASE ar-inv.
-                 
+
               end. /* if avail ar-inv  */
 
            END. /*inv-no ne 0 AND ar-cashl.on-account EQ NO*/
@@ -849,7 +859,7 @@ PROCEDURE post-gl :
               gltrans.tr-amt  = -1 * ar-cashl.amt-disc
               gltrans.period  = tran-period
               gltrans.trnum   = v-trnum.
-            
+
              RELEASE gltrans.
 
              CREATE ar-ledger.
@@ -867,7 +877,7 @@ PROCEDURE post-gl :
              RELEASE ar-ledger.
            END.
        end. /* for each ar-cashl record */
-       
+
        cust.acc-bal = cust.acc-bal + t1.
 
        IF cust.acc-bal GE cust.hibal THEN
@@ -909,11 +919,11 @@ PROCEDURE post-gl :
        for each xcashl,
            first ar-cashl where recid(ar-cashl) eq xcashl.recnum
            no-lock:
-           
+
           find last xar-cashl where xar-cashl.c-no eq ar-cashl.c-no
               use-index c-no no-lock no-error.
           x = if avail xar-cashl then xar-cashl.line else 0.
-          
+
           create xar-cashl.
 
           BUFFER-COPY ar-cashl EXCEPT LINE amt-disc amt-due amt-paid rec_key
@@ -922,7 +932,7 @@ PROCEDURE post-gl :
               xar-cashl.line       = x + 1
               xar-cashl.amt-due    = ar-cashl.amt-due
               xar-cashl.amt-disc   = -(ar-cashl.amt-disc)
-              
+
               xar-cashl.amt-paid   = -(ar-cashl.amt-paid).
 
           CREATE reftable.
@@ -966,7 +976,7 @@ form HEADER
 IF td-show-parm THEN RUN show-param.
 
   SESSION:SET-WAIT-STATE("general").
-    
+
   ASSIGN
    str-tit  = coname + " - " + loname                                    
    str-tit2 = "A/R VOIDED CASH RECEIPT REGISTER " + STRING(v-trnum)
@@ -1003,7 +1013,7 @@ for each ar-cash FIELDS(company cleared posted check-no check-date check-amt
             cust.name when avail cust
             with frame report-lines width 132 no-box NO-LABELS STREAM-IO.
     down with frame report-lines.
-    
+
     v-postable = YES.
 end. /* for each ar-cash record */
 
@@ -1030,11 +1040,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1062,23 +1072,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1091,7 +1101,7 @@ PROCEDURE undo-trnum :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO TRANSACTION:
     /* gdm - 11050906 */
     REPEAT:

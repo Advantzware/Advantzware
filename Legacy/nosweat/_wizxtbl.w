@@ -166,6 +166,16 @@ ASSIGN C-Win = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    UNDERLINE                                                            */
+ASSIGN
+       b_AddXT:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
+ASSIGN
+       b_HelpXT:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
 ASSIGN 
        e_xtbl:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
 
@@ -196,7 +206,7 @@ ASSIGN
 */  /* FRAME DEFAULT-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -234,7 +244,7 @@ END.
 ON CHOOSE OF b_AddXT IN FRAME DEFAULT-FRAME /* Add External Tables */
 DO:
   DEFINE VARIABLE arg AS CHARACTER.
-  
+
   /* Call External Tables dialog */
   RUN adeuib/_uib_dlg.p (INT(proc-recid), "EXTERNAL-TABLES":U, INPUT-OUTPUT arg).
   RUN Check_TblList.
@@ -274,7 +284,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* Get Procedure context (recid of procedure record in the UIB) */
 RUN adeuib/_uibinfo.p(?, "PROCEDURE ?":U, "PROCEDURE":U, OUTPUT proc-recid).
 RUN Check_TblList.
-  
+
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE 

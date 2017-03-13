@@ -84,7 +84,7 @@ def TEMP-TABLE w-data no-undo
   field w-sqft      like v-sqft     extent 3    column-label "Sq Ft/M"
   field w-amt       like v-amt      extent 3    column-label "Amount"
   field w-pmsf      like v-pmsf                 column-label "$/MSF".
-  
+
 def TEMP-TABLE w-data1 NO-UNDO like w-data.
 DEF VAR v-print-fmt AS CHARACTER NO-UNDO.
 DEF VAR is-xprint-form AS LOGICAL NO-UNDO.
@@ -94,8 +94,8 @@ DEF STREAM excel.
 
 head = if called then "SALES ANALYSIS - SALESREP PERFORMANCE tt-report"
                  else "SALES ANALYSIS - SALESREP PRODUCTION tt-report".
-  
- 
+
+
 form w-data1.w-sman-no   column-label "No"
      sman.sname         column-label "Name" format "x(17)"
      w-data1.w-sqft[1]
@@ -347,6 +347,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_slsmn:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -387,7 +397,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -670,12 +680,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   assign
    inv-date = TODAY.
-  
+
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -817,7 +827,7 @@ ASSIGN
  fsman        = begin_slsmn
  tsman        = end_slsmn
  v-inc-fc     = tb_fin-chg.
- 
+
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i value(lines-per-page)}
@@ -955,7 +965,7 @@ SESSION:SET-WAIT-STATE ("general").
         break by tt-report.key-02
 
         transaction:
-        
+
       find first w-data
           where w-data.w-type    eq tt-report.key-01
             and w-data.w-sman-no eq tt-report.key-02
@@ -1087,27 +1097,27 @@ SESSION:SET-WAIT-STATE ("general").
           end.
         end.
       end.
-      
+
       if last-of(tt-report.key-02) then do:
         create w-data1.
         w-data1.w-sman-no = tt-report.key-02.
-        
+
         for each w-data where w-data.w-sman-no eq w-data1.w-sman-no:
           do i = 1 to 3:
             assign
              w-data1.w-sqft[i] = w-data1.w-sqft[i] + w-data.w-sqft[i]
              w-data1.w-amt[i]  = w-data1.w-amt[i]  + w-data.w-amt[i]
-             
+
              v-tot-amt[i]  = v-tot-amt[i]  + w-data.w-amt[i]
              v-tot-sqft[i] = v-tot-sqft[i] + w-data.w-sqft[i].
           end.
         end.
-      
+
         do i = 1 to 3:
           w-data1.w-pmsf[i] = if w-data1.w-sqft[i] eq 0 then 0
                              else (w-data1.w-amt[i] / w-data1.w-sqft[i]).
         end.
-          
+
         put skip(1).
         find first sman
             where sman.company eq cocode
@@ -1145,10 +1155,10 @@ SESSION:SET-WAIT-STATE ("general").
 
         delete w-data1.
       end.
-      
+
       delete tt-report.
     end.
-    
+
     RUN run-report-2.
 
 IF tb_excel THEN DO:
@@ -1391,12 +1401,12 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha NO-UNDO.
-  
+
   ASSIGN
   lv-frame-hdl = frame {&frame-name}:HANDLE
   lv-group-hdl = lv-frame-hdl:first-child
   lv-field-hdl = lv-group-hdl:first-child.
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1411,7 +1421,7 @@ PROCEDURE show-param :
                   if not valid-handle(lv-field2-hdl) then leave. 
                   if lv-field2-hdl:private-data = lv-field-hdl:name THEN
                      parm-lbl-list = parm-lbl-list + lv-field2-hdl:screen-value + ",".
-                  
+
                   lv-field2-hdl = lv-field2-hdl:next-sibling.                 
               end.       
            end.                 
@@ -1422,23 +1432,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

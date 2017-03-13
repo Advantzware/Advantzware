@@ -202,6 +202,16 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR EDITOR EDITOR-1 IN FRAME FRAME-A
    NO-ENABLE                                                            */
 /* SETTINGS FOR FRAME FRAME-B
@@ -212,7 +222,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -410,7 +420,7 @@ IF tb_drive-only THEN DO:
         RETURN NO-APPLY.
     END.
 END.
-    
+
 /*Process attachments*/
 FOR EACH bf-attach EXCLUSIVE-LOCK:
     EXPORT STREAM attach-bak bf-attach.
@@ -476,7 +486,7 @@ IF tb_pattern THEN DO:
     {custom/statusMsg.i "'Processing Pattern # ' + string(bf-strap.code)"}
 
     EXPORT STREAM pattern-bak bf-pattern .
-    
+
     cFilePath = bf-pattern.dscr .
         IF cFilePath <> "" THEN DO: 
             IF tb_drive-only THEN 
@@ -496,7 +506,7 @@ END. /* tb_pattern*/
 IF tb_fgitem THEN DO:
  FOR EACH itemfg EXCLUSIVE-LOCK
     WHERE  itemfg.box-image <> "" :
-     
+
     {custom/statusMsg.i "'Processing FG Item # ' + string(itemfg.i-no)"}
 
     EXPORT STREAM fgitem-bak itemfg .
@@ -517,7 +527,7 @@ IF tb_fgitem THEN DO:
  END. /* for each itemfg*/
 END. /* tb_pattern*/
 
- 
+
 
 OUTPUT STREAM log-out CLOSE.
 OUTPUT STREAM attach-bak CLOSE.
@@ -526,14 +536,14 @@ OUTPUT STREAM pattern-bak CLOSE.
 OUTPUT STREAM fgitem-bak CLOSE.
 
 STATUS DEFAULT "".
-    
+
 SESSION:SET-WAIT-STATE("").
 
 MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
 APPLY "close" TO THIS-PROCEDURE.
 
 RETURN NO-APPLY.
-  
+
 /* end ---------------------------------- copr. 2006  advanced software, inc. */
 
 END PROCEDURE.

@@ -319,6 +319,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_acct-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -383,7 +393,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -454,11 +464,11 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   run check-date.
   if v-invalid then return no-apply.
- 
+
   DO WITH FRAME frame-a:
      ASSIGN {&DISPLAYED-OBJECTS}.
   END.
- 
+
 
   SESSION:SET-WAIT-STATE ("general").
 
@@ -674,7 +684,7 @@ END.
 ON LEAVE OF tran-date IN FRAME FRAME-A /* Transaction Date */
 DO:
   assign {&self-name}.
-  
+
   if lastkey ne -1 then do:
     run check-date.
     if v-invalid then return no-apply.
@@ -738,7 +748,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      RETURN .
   END.
 
-   
+
   tran-date = TODAY.
 
   RUN init-proc.
@@ -769,7 +779,7 @@ PROCEDURE check-date :
 ------------------------------------------------------------------------------*/
  DO with frame {&frame-name}:
     v-invalid = no.
-  
+
     find first period                   
         where period.company eq cocode
           and period.pst     le tran-date
@@ -882,7 +892,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
  /*    DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -893,11 +903,11 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY. */
-     
+
 {custom/out2file.i}
 
 END PROCEDURE.
@@ -928,7 +938,7 @@ PROCEDURE output-to-printer :
      DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1000,7 +1010,7 @@ def var v-comma as char format "x" initial "," no-undo.
  {sys/inc/outprint.i VALUE(lines-per-page)}
 
  IF td-show-parm THEN RUN show-param.
- 
+
  SESSION:SET-WAIT-STATE("general").
 
 IF tb_excel THEN DO:
@@ -1068,7 +1078,7 @@ DO:
       start-lvl = start-lvl + subac-lvl - 1.
     end.
     if start-lvl le 1 then start-lvl = 1.
-    
+
     if v-download /*and v-first*/  then
     do:         
           assign str_buffa = ""
@@ -1093,7 +1103,7 @@ DO:
 
         ptd-value = 0.
         view frame r-top.
-      
+
         run gl/gl-open1.p (recid(account), vyear, tran-date, tran-period,
                            output cyr).
 
@@ -1150,10 +1160,10 @@ IF tb_excel THEN
               PUT STREAM s-temp UNFORMATTED str_buffa SKIP.
            end.
         end.
-      
+
         tcyr = tcyr + cyr.      
     end. /* each account */
-    
+
     put skip(1) "===============" to 61 "===================" to 81 skip
         "TRIAL BALANCE:" AT 10 tot-ptd format "->>>,>>>,>>9.99" to 61
                                   tcyr format "->>>,>>>,>>>,>>9.99" to 81
@@ -1161,13 +1171,13 @@ IF tb_excel THEN
 
     if tcyr eq 0 then message "TRIAL BALANCE IN BALANCE" VIEW-AS ALERT-BOX.
     else              message "TRIAL BALANCE NOT IN BALANCE BY " tcyr VIEW-AS ALERT-BOX.
-  
+
     /*if v-download then  */
        output stream s-temp close.
 
 
  end.
- 
+
   IF tb_excel THEN DO:
      OUTPUT STREAM excel CLOSE.
      IF tb_runExcel THEN
@@ -1196,11 +1206,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1228,23 +1238,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

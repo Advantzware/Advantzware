@@ -173,13 +173,23 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -233,10 +243,10 @@ DO:
   MESSAGE "Are you sure you wish to continue?"
           VIEW-AS ALERT-BOX QUESTION BUTTON yes-no
           UPDATE ll-process.
-      
+
   IF ll-process THEN DO:
     SESSION:SET-WAIT-STATE ("general").
-        
+
     RUN run-process.
 
     SESSION:SET-WAIT-STATE("").
@@ -349,14 +359,14 @@ def var v-ship-id like shipto.ship-id.
      v-ip-file = fi_file
      v-op-file = "arship.quo".
   end.
-   
+
   if opsys eq "UNIX" then
     unix silent quoter -c 1-3000 value(search(v-ip-file)) > value(v-op-file).
   else
     dos  silent quoter -c 1-3000 value(search(v-ip-file)) > value(v-op-file).
 
   input from value(v-op-file).
-  
+
   output to value("arship.err").
 
   status default "Sorting, please wait...".
@@ -365,9 +375,9 @@ def var v-ship-id like shipto.ship-id.
     assign
      v-file = ""
      v-int  = v-int + 1.
-    
+
     import v-file.
-    
+
     find first cust
         where cust.company   eq cocode
           and cust.cust-no   eq substr(entry(1,v-file),1,8)
@@ -377,15 +387,15 @@ def var v-ship-id like shipto.ship-id.
                                 substr(entry(10,v-file),10,4)
           and cust.phone     ne ""
         no-lock no-error.
-        
+
     if avail cust then
     find first w-ship
         where w-ship.cust-no eq cust.cust-no
           and w-ship.w-loc   eq ""
         no-lock no-error.
-        
+
     if avail w-ship then release cust.
-    
+
     create w-ship.
     assign
      w-ship.cust-no      = substr(entry(1,v-file),1,8)
@@ -400,28 +410,28 @@ def var v-ship-id like shipto.ship-id.
      w-ship.country      = substr(entry(8,v-file),1,10)
      w-ship.ship-zip     = substr(entry(9,v-file),1,10).
   end.
-  
+
   output close.
   input close.
-  
+
   for each w-ship
       break by w-ship.cust-no
             by w-ship.w-loc:
-            
+
     assign
      v-err     = v-err + 1
      v-ship-id = if first-of(w-ship.cust-no) then w-ship.cust-no
                                              else w-ship.w-loc.
-                                              
+
     status default "Processing Customer/Ship-to: " +
                    w-ship.cust-no                  + "/" + v-ship-id.
-    
+
     find first shipto
         where shipto.company eq cocode
           and shipto.cust-no eq w-ship.cust-no
           and shipto.ship-id eq v-ship-id
         no-error.
-        
+
     if not avail shipto then do:
       create shipto.
       assign
@@ -430,7 +440,7 @@ def var v-ship-id like shipto.ship-id.
        shipto.ship-id      = v-ship-id
        shipto.bill         = no.
     end.
-     
+
     assign
      shipto.ship-no      = v-err
      shipto.ship-name    = w-ship.ship-name
@@ -440,17 +450,17 @@ def var v-ship-id like shipto.ship-id.
      shipto.ship-state   = w-ship.ship-state
      shipto.country      = w-ship.country
      shipto.ship-zip     = w-ship.ship-zip.
-     
+
     if last-of(w-ship.cust-no) then v-err = 0.
   end.
-  
+
   output close.
   input close.
 
   status default "".
 
   if v-err gt 0 then message "Errors output to arship.err" VIEW-AS ALERT-BOX.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

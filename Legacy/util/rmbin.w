@@ -172,6 +172,16 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
                                                                         */
+ASSIGN
+       BtnCancel:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btnOk:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
@@ -187,7 +197,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME DEFAULT-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -235,12 +245,12 @@ END.
 ON CHOOSE OF btnOk IN FRAME DEFAULT-FRAME /* OK */
 DO:
    DEF VAR v-process AS LOG NO-UNDO.
-   
+
    DO WITH FRAME {&FRAME-NAME}:
 
       ASSIGN fi_loc fi_bin-from fi_bin-to
              cb_whs-type.
-   
+
       IF fi_bin-to GT fi_bin-from THEN
       DO:
          MESSAGE "Invalid R/M Bin Range."
@@ -251,7 +261,7 @@ DO:
 
       message "Are you sure you want to create R/M Bins?"       
          view-as alert-box question button yes-no update v-process.
-        
+
       if v-process then run run-process.
    END.
 
@@ -289,7 +299,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    RUN enable_UI.
 
    apply 'entry':u to fi_loc.
-  
+
    IF NOT THIS-PROCEDURE:PERSISTENT THEN
      WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -352,7 +362,7 @@ PROCEDURE run-process :
    DEF VAR i AS INT NO-UNDO.
 
    DO WITH FRAME {&FRAME-NAME}:
-   
+
      SESSION:SET-WAIT-STATE ("general").
 
      IF NOT CAN-FIND(FIRST loc WHERE

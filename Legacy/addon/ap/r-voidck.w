@@ -51,7 +51,7 @@ DEF VAR init-dir AS CHA NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/VAR.i new shared}
-    
+
 assign
  cocode = gcompany
  locode = gloc.
@@ -228,6 +228,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        tran-date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -249,7 +259,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -300,10 +310,10 @@ DO:
 
 
   assign rd-dest.
-  
+
   run check-date.
   if v-invalid then return no-apply.
-       
+
   run run-report.
 
   case rd-dest:
@@ -311,7 +321,7 @@ DO:
        when 2 then run output-to-screen.
        when 3 then run output-to-file.
   end case.
-  
+
   IF v-postable THEN DO:
     run list-gl.
 
@@ -381,7 +391,7 @@ END.
 ON LEAVE OF tran-date IN FRAME FRAME-A /* Transaction Date */
 DO:
   assign {&self-name}.
-  
+
   if lastkey ne -1 then do:
     run check-date.
     if v-invalid then return no-apply.
@@ -428,7 +438,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-   
+
 ASSIGN
   tran-date   = today.
 
@@ -451,7 +461,7 @@ ASSIGN
    /* gdm - 11050906 */
   END.
 
-  
+
   RUN enable_UI.
 
   {methods/nowait.i}
@@ -474,7 +484,7 @@ PROCEDURE check-date :
 ------------------------------------------------------------------------------*/
   DO with frame {&frame-name}:
     v-invalid = no.
-  
+
     find first period                   
         where period.company eq cocode
           and period.pst     le tran-date
@@ -558,7 +568,7 @@ PROCEDURE exception-rpt :
 {sys/form/r-top3w.f}
 
 FORM HEADER SKIP(1) WITH FRAME r-top.
- 
+
 
   FIND first period                   
       where period.company eq gcompany
@@ -569,7 +579,7 @@ FORM HEADER SKIP(1) WITH FRAME r-top.
   assign
    str-tit2 = "BOL - Insufficient Inventory Report"
    {sys/inc/ctrtext.i str-tit2 112}
- 
+
    str-tit3 = "Period " + STRING(tran-period,"99") + " - " +
               IF AVAIL period THEN
                 (STRING(period.pst) + " to " + STRING(period.pend)) ELSE ""
@@ -578,7 +588,7 @@ FORM HEADER SKIP(1) WITH FRAME r-top.
   {sys/inc/print1.i}
 
   {sys/inc/outprint.i value(lines-per-page)}
-  
+
   display with frame r-top.
 
 END PROCEDURE.
@@ -594,7 +604,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
      DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -605,9 +615,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
 
 
@@ -626,7 +636,7 @@ PROCEDURE output-to-printer :
      DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -688,21 +698,21 @@ view frame voidckreg.
   assign
    str-tit2 = c-win:TITLE
    {sys/inc/ctrtext.i str-tit2 112}
- 
+
    str-tit3 = "Period " + STRING(tran-period,"99") + " - " +
               IF AVAIL period THEN
                 (STRING(period.pst) + " to " + STRING(period.pend)) ELSE ""
    {sys/inc/ctrtext.i str-tit3 132}.
 
 
- 
+
 
   {sys/inc/print1.i}
 
   {sys/inc/outprint.i value(lines-per-page)}
 
   if td-show-parm then run show-param.
-  
+
   display with frame r-top.
 
  for each ap-pay where ap-pay.company = cocode and
@@ -762,7 +772,7 @@ do transaction on error undo, leave:
          ap-ledger.period = uperiod
          ap-ledger.amt = ap-ledger.amt - ap-pay.check-amt
          ap-ledger.actnum = bank.actnum.
-         
+
        for each xpayl:
          delete xpayl.
        end.
@@ -787,9 +797,9 @@ do transaction on error undo, leave:
                  vend.acc-bal = vend.acc-bal + ap-payl.amt-paid +
                                        ap-payl.amt-disc.
            end. /* if avail ap-inv .. */
-           
+
            v-tot-amt-disc = v-tot-amt-disc + ap-payl.amt-disc.
-           
+
            if ap-payl.d-no ne 0 then do:
              create w-disb.
              assign
@@ -798,15 +808,15 @@ do transaction on error undo, leave:
               w-amt-disc = ap-payl.amt-disc.
            end.
        end. /* for each ap-payl record */
-       
+
        for each xpayl,
            first ap-payl where recid(ap-payl) eq xpayl.recnum
            no-lock:
-           
+
           find last xap-payl where xap-payl.c-no eq ap-payl.c-no
               use-index c-no no-lock no-error.
           x = if avail xap-payl then xap-payl.line else 0.
-          
+
           create xap-payl.
 
           assign
@@ -837,7 +847,7 @@ do transaction on error undo, leave:
     gltrans.tr-amt  = v-tot-amt-paid
     gltrans.period  = uperiod
     gltrans.trnum   = v-trans-num.
-   
+
    if v-tot-amt-disc ne 0 then do:
      create gltrans.
      assign
@@ -850,15 +860,15 @@ do transaction on error undo, leave:
       gltrans.period  = uperiod
       gltrans.trnum   = v-trans-num.
    end.
-   
+
    for each w-disb break by w-actnum:
      assign
       v-tot-amt-paid = v-tot-amt-paid - w-amt-paid
       v-tot-amt-disc = v-tot-amt-disc - w-amt-disc.
-      
+
      accumulate w-amt-paid (sub-total by w-actnum).
      accumulate w-amt-disc (sub-total by w-actnum).
-     
+
      if last-of(w-actnum) then do:
        create gltrans.
        assign
@@ -906,11 +916,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -938,23 +948,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -7,7 +7,7 @@
   File: r-ordopn.w
 
   Description: Open Order Report
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -590,6 +590,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME Custom                                                    */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_cad-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -786,7 +796,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -939,7 +949,7 @@ DO:
   ASSIGN
     lv-pdf-file = init-dir + "\OpnOrder"
     is-xprint-form = NO.
-  
+
   IF g_batch THEN tb_batch = YES.
   IF v-prompt-excel AND tb_excel THEN DO:
      DEF VAR v-excel-file2 AS cha NO-UNDO.
@@ -947,7 +957,7 @@ DO:
      v-excel-file = v-excel-file + v-excel-file2 + ".csv".
      IF tb_batch THEN DISPLAY v-excel-file WITH FRAME {&FRAME-NAME}.
   END.
-  
+
   IF tb_batch THEN DO:
      RUN run-batch.
      RETURN NO-APPLY.
@@ -974,7 +984,7 @@ DO:
        END. 
        when 5 then do:
            is-xprint-form = YES.
-           
+
             IF is-xprint-form THEN DO:
                RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
                {custom/asimail2.i &TYPE="CUSTOMER"
@@ -1160,7 +1170,7 @@ DO:
      IF lv-ornt = "p" THEN lines-per-page:SCREEN-VALUE = "60".
      ELSE lines-per-page:SCREEN-VALUE = "45".     
   END.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1419,7 +1429,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   begin_ord-date = TODAY.
   IF g_batch THEN tb_batch = YES.
 
@@ -1433,7 +1443,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      init-dir = "c:\tmp".
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -1441,7 +1451,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {custom/usrprint.i}
     c-win:TITLE = lv-title.
     APPLY "entry" TO begin_cust-no.
-    
+
     IF tb_excel:SCREEN-VALUE = "Yes" THEN
        ASSIGN
          tb_est-count:SENSITIVE = YES
@@ -1480,7 +1490,7 @@ PROCEDURE build-tt :
 
   DEF VAR v-po-no LIKE oe-ord.po-no NO-UNDO.
   DEF VAR dShipQty AS DECIMAL NO-UNDO.
-  
+
   v-po-no = oe-ordl.po-no.
 
   CREATE tt-report.
@@ -1648,7 +1658,7 @@ PROCEDURE calc-qoh :
    vdat     = TODAY
    v-curr   = YES
    v-q-or-v = YES.
-  
+
   FOR EACH itemfg
       WHERE itemfg.company EQ cocode
         AND itemfg.i-no    EQ oe-ordl.i-no
@@ -1838,7 +1848,7 @@ FORMAT HEADER
        SKIP(1)
        "Sales Rep:"
        lv-slsmn
-       
+
     WITH FRAME r-top2 NO-LABELS NO-BOX NO-UNDERLINE PAGE-TOP STREAM-IO WIDTH 200.
 
 FORMAT HEADER
@@ -1872,7 +1882,7 @@ FORMAT HEADER
        "----------"
        "----------"
        "----------"
-       
+
     WITH FRAME r-top3 NO-LABELS NO-BOX NO-UNDERLINE PAGE-TOP STREAM-IO WIDTH 200.
 
 
@@ -1987,11 +1997,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -2019,23 +2029,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2050,10 +2060,10 @@ FUNCTION ReplaceCommas RETURNS CHARACTER
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-   
+
 
   RETURN REPLACE(ipcString,","," ").
-  
+
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */

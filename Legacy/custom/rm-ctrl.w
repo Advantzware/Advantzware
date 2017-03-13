@@ -210,6 +210,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME rm-ctrl
                                                                         */
+ASSIGN
+       Btn_Close:PRIVATE-DATA IN FRAME rm-ctrl     = 
+                "ribbon-button".
+
+
+ASSIGN
+       Btn_Update:PRIVATE-DATA IN FRAME rm-ctrl     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR RADIO-SET rm-ctrl.avg-lst-cst IN FRAME rm-ctrl
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN F1 IN FRAME rm-ctrl
@@ -235,7 +245,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 

@@ -149,6 +149,16 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
+ASSIGN
+       Btn_Close:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
+ASSIGN
+       Btn_OK:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FILL-IN scr-text IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -157,7 +167,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -215,35 +225,35 @@ FIND FIRST users WHERE
 
    cDir =  SESSION:TEMP-DIRECTORY .
 
-  
+
    DO WITH FRAME {&FRAME-NAME}:
 
       ASSIGN del_date file_format .
- 
+
       SESSION:SET-WAIT-STATE("general"). 
 
       INPUT FROM OS-DIR (cDir).
       REPEAT:
           CREATE tt-file.
           IMPORT tt-file.tfile.
-          
+
           FILE-INFO:FILE-NAME = cDir + tt-file.tfile.
-          
+
           ASSIGN 
               tt-file.createDate = FILE-INFO:FILE-CREATE-DATE
               tt-file.createtime = FILE-INFO:FILE-CREATE-TIME 
               tt-file.extfile = SUBSTRING(tt-file.tfile,INDEX(tt-file.tfile,".") + 1)  .
       END.
-     
+
       FOR EACH tt-file NO-LOCK
           WHERE tt-file.createDate LE (del_date - 1) 
                BY tt-file.createDate BY tt-file.createtime:
-         
+
             {custom/statusMsg.i " 'Processing Files#  '  + tt-file.tfile "}
             lCheck = NO .
-           
+
             DO iCount = 1 TO NUM-ENTRIES(file_format):
-                
+
                 IF tt-file.tfile MATCHES ("*" + ENTRY(iCount,file_format) + "*") THEN DO:
                  lCheck = YES .
                 END.
@@ -251,14 +261,14 @@ FIND FIRST users WHERE
 
             IF lCheck EQ NO THEN
                 IF LOOKUP(tt-file.extfile,file_format) EQ 0  THEN NEXT .
-          
+
             IF tt-file.tfile EQ "." THEN NEXT .
             ELSE DO:
                  OS-DELETE VALUE(cDir + tt-file.tfile) .
              END.
              DELETE tt-file .
       END.
-      
+
       MESSAGE "Operation Complete."
           VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
 
@@ -295,19 +305,19 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
     DO WITH FRAME {&FRAME-NAME}:
-        
+
        del_date:SCREEN-VALUE = STRING(TODAY). 
        del_date = TODAY .
-       
+
       scr-text:SCREEN-VALUE = "Temp Directory - " + SESSION:TEMP-DIRECTORY .
       ASSIGN scr-text .
-        
+
     END.
     RUN enable_UI.
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
- 
+
 END.
 
 /* _UIB-CODE-BLOCK-END */

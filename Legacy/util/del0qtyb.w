@@ -200,6 +200,16 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        tb_neg-bin:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -212,7 +222,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -266,10 +276,10 @@ DO:
   MESSAGE "Are you sure you wish to delete selected FG bins?"
           VIEW-AS ALERT-BOX QUESTION BUTTON yes-no
           UPDATE ll-process.
-      
+
   IF ll-process THEN DO:
     SESSION:SET-WAIT-STATE ("general").
-        
+
     RUN run-process.
 
     SESSION:SET-WAIT-STATE("").
@@ -395,9 +405,9 @@ end.
               and fg-bin.i-no    GE begin_i-no
               and fg-bin.i-no    LE end_i-no
               and fg-bin.qty     le 0:
-              
+
           IF fg-bin.qty lt 0 then run fg/cre-pchr.p (ROWID(fg-bin), "C", 0, 0).
-          
+
           delete fg-bin.
         end.
 

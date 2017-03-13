@@ -362,6 +362,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_filename:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -436,7 +446,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -473,14 +483,14 @@ END.
 ON LEAVE OF begin_filename IN FRAME FRAME-A /* Form File */
 DO:
   assign begin_filename.
-  
+
   if begin_filename gt "" and lastkey ne -1 then do:
     if search(begin_filename) eq ? then do:
       message "Form file does not exist"
               view-as alert-box error.
       return no-apply.
     end.
-    
+
     begin_filename = search(begin_filename).
     display begin_filename WITH FRAME FRAME-A IN WINDOW C-Win.
   end.
@@ -495,9 +505,9 @@ END.
 ON LEAVE OF begin_form IN FRAME FRAME-A /* Printer Form# */
 DO:
   assign begin_form.
-  
+
   begin_filename = "barcode" + string(begin_form) + ".frm".
-  
+
   display begin_filename WITH FRAME FRAME-A IN WINDOW C-Win.
 END.
 
@@ -534,11 +544,11 @@ DO:
          begin_form
          begin_labels
          begin_filename.
-       
+
   run run-report NO-ERROR. 
   IF ERROR-STATUS:ERROR THEN RETURN.
 
-  
+
   /*
   case rd-dest:
        when 1 then run output-to-printer.
@@ -641,16 +651,16 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   assign
    v-loadtag = sys-ctrl.char-fld
    v-mult    = sys-ctrl.int-fld.
- 
+
   if v-loadtag eq "TRIAD" then begin_form = 4.
 
   if v-mult le 0 then v-mult = 1.
-  
+
   RUN enable_UI.
-  
+
   if v-loadtag ne "TRIAD" then
     DISABLE begin_form begin_labels begin_filename WITH FRAME FRAME-A.
-  
+
   {methods/nowait.i}
 
   APPLY "entry" TO v-ord-list IN FRAME {&FRAME-NAME}.
@@ -720,7 +730,7 @@ PROCEDURE from-job :
 ------------------------------------------------------------------------------*/
 DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
 
-    
+
     FIND FIRST job
         WHERE ROWID(job) EQ ip-rowid
           AND (v-stat EQ "A"                                 OR
@@ -827,7 +837,7 @@ PROCEDURE from-ord :
 ------------------------------------------------------------------------------*/
 DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
 
-    
+
     FIND FIRST oe-ord
         WHERE ROWID(oe-ord) EQ ip-rowid
           AND (v-stat EQ "A"                                    OR
@@ -860,7 +870,7 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
             AND eb.est-no   EQ oe-ordl.est-no
             AND eb.stock-no EQ oe-ordl.i-no
           NO-LOCK NO-ERROR.
-          
+
       IF NOT by-release OR NOT AVAIL oe-ordl THEN
       DO:
         IF FIRST-OF(oe-ordl.i-no) THEN
@@ -893,7 +903,7 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
             w-ord.mult         = if cust.int-field[1] ne 0 then
                                    cust.int-field[1] else v-mult
             num-rec            = num-rec + 1.
-            
+
           IF AVAIL itemfg THEN
             ASSIGN
              w-ord.upc-no   = itemfg.upc-no
@@ -977,7 +987,7 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
           w-ord.mult         = if cust.int-field[1] ne 0 then
                                  cust.int-field[1] else v-mult
           num-rec            = num-rec + 1.
-          
+
         IF AVAIL itemfg THEN
           ASSIGN
            w-ord.upc-no   = itemfg.upc-no
@@ -996,7 +1006,7 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
           ASSIGN
            w-ord.flute = eb.flute
            w-ord.test  = eb.test.
-          
+
         ASSIGN
           w-ord.pcs        = oe-rel.qty-case
           w-ord.bundle     = oe-rel.cases.
@@ -1020,7 +1030,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
      DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -1031,9 +1041,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
 
 
@@ -1052,7 +1062,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1062,7 +1072,7 @@ PROCEDURE output-to-printer :
      RUN 'adecomm/_osprint.p' (INPUT ?, INPUT list-name,
                             INPUT 3, INPUT 3, INPUT 0, INPUT 0, OUTPUT result).
                                     /* use-dialog(1) and landscape(2) */
-    
+
     RUN custom/prntproc.p (list-name,INT(lv-font-no),lv-ornt).
   */  
 END PROCEDURE.
@@ -1091,7 +1101,7 @@ PROCEDURE run-barone :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEF INPUT PARAM ip-TagText AS cha NO-UNDO.
-   
+
    DEFINE VARIABLE iReturnResult AS INTEGER NO-UNDO.
    DEFINE VARIABLE cProgramName AS CHARACTER  NO-UNDO.
    DEFINE VARIABLE cFileName AS CHARACTER  NO-UNDO.
@@ -1149,7 +1159,7 @@ ASSIGN
  copy_count     = begin_labels
  form_fid       = begin_filename
  v-stat         = rd_order-sts.
-  
+
   FOR EACH w-ord:
     DELETE w-ord.
   END.
@@ -1288,13 +1298,13 @@ ASSIGN
   SESSION:SET-WAIT-STATE ("").
 
   RUN oerep/d-loadtg.w.
-  
+
   choice = NO.
   FIND FIRST w-ord  NO-ERROR.
   IF AVAIL w-ord THEN
      message "Are you Sure you Want to Create Loadtag File? " 
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE choice.
-  
+
   IF NOT choice THEN RETURN ERROR.
 
   SESSION:SET-WAIT-STATE ("general").
@@ -1364,12 +1374,12 @@ v-out = "c:~\ba~\label~\loadtag.txt".
           end.
           input stream s-form close.
         end.
-      
+
         FOR EACH w-ord:
            v-job = w-ord.job-no + "-" + string(w-ord.job-no2,"99").
            IF v-job BEGINS "-" or v-job = ? /* 9901 CAH */
                 THEN v-job = string(W-ORD.ORD-NO).   /* 9812 CAH in case blank */
-         
+
            find first itemfg where itemfg.company = cocode
                     and itemfg.i-no = w-ord.i-no no-lock no-error.
 
@@ -1393,18 +1403,18 @@ v-out = "c:~\ba~\label~\loadtag.txt".
             if char_date = ? then char_date = string(today).
             */
             char_date = string(today,"99/99/9999").
-            
+
             /* 9901 CAH: Only room for 19 chars in the standard 48 pt font */
             if length(w-ord.ship-name) > 19
             then w-ord.ship-name = substring(w-ord.ship-name,1,19).
-            
+
             /* 07/2001 CAH: Add finished goods item number to the label
                 and the n of m label counts */
             def var vcFGItem as char no-undo.
             vcFGItem = 
                 if avail itemfg then itemfg.i-no else w-ord.i-no.
-                    
-                
+
+
            do n = copy_count to 1 by -1:
 
             /* send the variable data to the printer */
@@ -1423,12 +1433,12 @@ v-out = "c:~\ba~\label~\loadtag.txt".
                 stx w-ord.ship-name     cr etx
                 stx vcFGItem            cr etx
                 .
-                
+
             /* issue the print command */    
             put stream s-bar control     
                 stx rs "1" us "1" etb etx.
            end.
-                
+
           end.   /* tag count loop */
         end.  /* non zero */  
 
@@ -1441,7 +1451,7 @@ v-out = "c:~\ba~\label~\loadtag.txt".
     END.    /* TRIAD INTERMEC BARCODE PRINT ROUTINE */
     ELSE
     DO:
-    
+
       OUTPUT TO VALUE(v-out).
       PUT unformatted
           "CUSTOMER,JOBNUMBER,ITEM,CUSTPARTNO,CUSTPONO,PCS,BUNDLE,TOTAL," +
@@ -1464,12 +1474,12 @@ v-out = "c:~\ba~\label~\loadtag.txt".
             where itemfg.company eq cocode
               and itemfg.i-no    eq w-ord.i-no
             no-lock no-error.
-              
+
         if avail itemfg then
           assign
            w-ord.net-wt   = itemfg.weight-100 * w-ord.total-unit / 100.
            w-ord.sheet-wt = itemfg.weight-100 / 100.
-                   
+
         w-ord.gross-wt = w-ord.net-wt + w-ord.tare-wt.
 
         v-job = w-ord.job-no + "-" + string(w-ord.job-no2,"99").
@@ -1555,7 +1565,7 @@ v-out = "c:~\ba~\label~\loadtag.txt".
               "~""  loadtag.tag-no "~"," .
             put skip.
           end.
-          
+
           do v-count = 1 to w-ord.mult:
               /* loadtags generation */
              lv-tag-no = v-count.
@@ -1648,11 +1658,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1680,23 +1690,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1710,7 +1720,7 @@ PROCEDURE temp-create :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
-  
+
   CREATE w-file.
   w-key = ip-rowid.
 

@@ -89,11 +89,11 @@ DEF NEW SHARED VAR str-line AS cha FORM "x(300)" NO-UNDO.
 ASSIGN cTextListToSelect = "CUSTOMER,CUST NAME,CONTACT,SALES REP,TERMS,ADDRESS1,ADDRESS2,CITY,STATE,ZIP,CREDIT LIM,PHONE,FAX,CHECK/MEMO," +
                            "DAYS OLD,TYPE,INV#,INV DATE,AMOUNT,CURRENT,ADTP,TD,"
                          + "PERIOD DAY1,PERIOD DAY2,PERIOD DAY3,CUSTOMER PO#,JOB#,INVOICE NOTE,COLLECTION NOTE"
-                         
+
        cFieldListToSelect = "cust,cust-name,cont,sman,term,add1,add2,city,stat,zip,cre-lim,phone,fax,chk-memo," +
                             "day-old,type,inv,inv-date,amount,current,adtp,td," +
                             "per-1,per-2,per-3,cust-po,job,inv-note,coll-note" 
-                            
+
        cFieldLength = "8,30,15,25,15,25,25,10,5,10,12,13,12,10," + "8,4,8,8,13,13,4,4," + "13,13,13,15,9,30,30" 
        cFieldType = "c,c,c,c,c,c,c,c,c,c,c,c,c,c," + "i,c,i,c,i,i,i,i," + "i,i,i,c,c,c,c," 
     .
@@ -513,6 +513,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        as-of-date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -662,7 +672,7 @@ THEN C-Win:HIDDEN = NO.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -786,9 +796,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
-  
+
     /*{&WINDOW-NAME}:WINDOW-STATE = WINDOW-minIMIZE.*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
@@ -854,7 +864,7 @@ END.
 ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -872,12 +882,12 @@ DO:
 
     ASSIGN cTextSelected = sl_selected:LIST-ITEMS
            cTextListed = sl_avail:LIST-ITEMS.
- 
+
     IF NOT cColumnInit THEN RUN custom/d-rptsel.w (INPUT-OUTPUT cTextListed, INPUT-OUTPUT cTextSelected, INPUT-OUTPUT cTextListToDefault, INPUT-OUTPUT cTextListToSelect).
 
     ASSIGN sl_selected:LIST-ITEMS = cTextSelected
            sl_avail:LIST-ITEMS = cTextListed.
- 
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -987,7 +997,7 @@ DO:
                (gcompany,{&SELF-NAME}:SCREEN-VALUE IN FRAME {&frame-name}, OUTPUT char-val).
            IF char-val <> "" THEN 
               ASSIGN {&SELF-NAME}:SCREEN-VALUE IN FRAME {&frame-name} = ENTRY(1,char-val) .
-           
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1004,7 +1014,7 @@ DO:
                (gcompany,{&SELF-NAME}:SCREEN-VALUE IN FRAME {&frame-name}, OUTPUT char-val).
            IF char-val <> "" THEN 
               ASSIGN {&SELF-NAME}:SCREEN-VALUE IN FRAME {&frame-name} = ENTRY(1,char-val) .
-           
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1112,7 +1122,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
-  
+
    IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
        sl_selected:NUM-ITEMS = 0)
    THEN ASSIGN ldummy = sl_selected:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
@@ -1120,7 +1130,7 @@ DO:
               /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
                .
 
-  
+
 /* for pairs
     DEF VAR cSelectedList AS cha NO-UNDO.
     cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
@@ -1163,7 +1173,7 @@ DO:
   ASSIGN
     {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}:ENTRY(1)
     .
-    
+
 
 END.
 
@@ -1273,7 +1283,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-   
+
 /* security check need {methods/prgsecur.i} in definition section */
   IF access-close THEN DO:
      APPLY "close" TO THIS-PROCEDURE.
@@ -1292,7 +1302,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     .
   RUN DisplaySelectionList.
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   RUN sys/inc/CustListForm.p ( "AR5",cocode, 
@@ -1333,7 +1343,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO"
         btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
         .
-      
+
    IF ou-log AND ou-cust-int = 0 THEN DO:
        ASSIGN 
         tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = YES
@@ -1405,7 +1415,7 @@ PROCEDURE CustList :
 
     RUN sys/ref/CustListManager.w(INPUT cocode,
                                   INPUT 'AR5').
-    
+
 
 END PROCEDURE.
 
@@ -1440,7 +1450,7 @@ PROCEDURE DisplaySelectionDefault :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  
+
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
      cListContents = cListContents +                   
@@ -1466,7 +1476,7 @@ PROCEDURE DisplaySelectionList :
   DEF VAR iCount AS INT NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
-     
+
      RETURN.
   END.
 
@@ -1479,7 +1489,7 @@ PROCEDURE DisplaySelectionList :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1487,9 +1497,9 @@ PROCEDURE DisplaySelectionList :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 END PROCEDURE.
 
@@ -1510,7 +1520,7 @@ PROCEDURE DisplaySelectionList2 :
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
-        
+
   EMPTY TEMP-TABLE ttRptList.
 
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
@@ -1520,7 +1530,7 @@ PROCEDURE DisplaySelectionList2 :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1528,9 +1538,9 @@ PROCEDURE DisplaySelectionList2 :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
   DO iCount = 1 TO sl_selected:NUM-ITEMS:
@@ -1598,7 +1608,7 @@ PROCEDURE GetSelectionList :
 
  DO i = 1 TO sl_selected:NUM-ITEMS /* IN FRAME {&FRAME-NAME}*/ :
     FIND FIRST ttRptList WHERE ttRptList.TextList = ENTRY(i,cTmpList) NO-LOCK NO-ERROR.     
-  
+
     CREATE ttRptSelected.
     ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
            ttRptSelected.FieldList = ttRptList.FieldList
@@ -1607,7 +1617,7 @@ PROCEDURE GetSelectionList :
            ttRptSelected.HeadingFromLeft = IF ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
-           
+
  END.
 
 END PROCEDURE.
@@ -1623,7 +1633,7 @@ PROCEDURE Output-to-File :
   Notes:       
 ------------------------------------------------------------------------------*/
    /*  DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -1634,9 +1644,9 @@ PROCEDURE Output-to-File :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
      */
      {custom/out2file.i}
@@ -1670,7 +1680,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1711,7 +1721,7 @@ PROCEDURE print-cust-add :
             cust.addr[2]                                                SKIP
             TRIM(cust.city) + ", " +
             trim(cust.state) + "  " + trim(cust.zip) FORMAT "x(50)"
-            
+
         WITH NO-LABELS NO-BOX FRAME cust-detail WIDTH 132.
 
 END PROCEDURE.
@@ -1762,7 +1772,7 @@ ELSE
 ASSIGN
  str-tit2 = c-win:TITLE + " - " + v-rpt-type
  {sys/inc/ctrtext.i str-tit2 112}
-   
+
  v-s-cust           = begin_cust-no
  v-e-cust           = end_cust-no
  v-s-sman           = begin_slsmn
@@ -1893,18 +1903,18 @@ DEF VAR cslist AS cha NO-UNDO.
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i value(lines-per-page)}
-    
+
 VIEW FRAME r-top.
-  
+
 ASSIGN grand-t = 0
        grand-t-pri = 0
        grand-t-fc = 0.
 
   IF td-show-parm THEN RUN show-param.
-  
+
   IF tb_excel THEN DO:
     OUTPUT stream s-temp to value(v-exp-name).
-    
+
     IF det-rpt = 1 THEN DO:
       v-hdr = v-hdr + trim(STRING(v-days[1],">,>>>")) + "," +
                       trim(STRING(v-days[2],">,>>>")) + "," +
@@ -1934,30 +1944,30 @@ ASSIGN grand-t = 0
        RUN ar/ar-agng2N.p.
     ELSE
       RUN ar/ar-agng7N.p.
-        
+
   ELSE
   IF v-sort2 BEGINS "InvD" THEN
     IF v-sort EQ "Name" THEN
       RUN ar/ar-agng3N.p.
-        
+
     ELSE
     IF v-sort EQ "#Number" THEN
       RUN ar/ar-agng4N.p.
-        
+
     ELSE
       RUN ar/ar-agng8N.p.
-        
+
   ELSE
     IF v-sort EQ "Name" THEN
       RUN ar/ar-agng5N.p.
-       
+
     ELSE
     IF v-sort EQ "#Number" THEN
       RUN ar/ar-agng6N.p.
-         
+
     ELSE
       RUN ar/ar-agng9N.p.
-       
+
 
   IF tb_excel THEN DO:
     OUTPUT STREAM s-temp CLOSE.
@@ -1968,7 +1978,7 @@ ASSIGN grand-t = 0
   RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
   SESSION:SET-WAIT-STATE ("").
-  
+
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 
 END PROCEDURE.
@@ -2014,7 +2024,7 @@ PROCEDURE show-param :
   DEF VAR parm-lbl-list AS cha NO-UNDO.
   DEF VAR i AS INT NO-UNDO.
   DEF VAR lv-label AS cha.
-  
+
   lv-frame-hdl = FRAME {&frame-name}:handle.
   RUN sys/ref/getParms.p (INPUT lv-frame-hdl, 
                           OUTPUT parm-fld-list, 
@@ -2051,25 +2061,25 @@ PROCEDURE show-param :
   PUT SPACE(28)
       "< Selection Parameters >"
       SKIP(1).
-  
+
   DO i = 1 TO NUM-ENTRIES(parm-fld-list,","):
     IF ENTRY(i,parm-fld-list) NE "" OR
        entry(i,parm-lbl-list) NE "" THEN DO:
-       
+
       lv-label = FILL(" ",34 - length(TRIM(ENTRY(i,parm-lbl-list)))) +
                  trim(ENTRY(i,parm-lbl-list)) + ":".
-                 
+
       PUT lv-label FORMAT "x(35)" AT 5
           SPACE(1)
           TRIM(ENTRY(i,parm-fld-list)) FORMAT "x(40)"
           SKIP.              
     END.
   END.
- 
+
   PUT FILL("-",80) FORMAT "x(80)" SKIP.
 
   PAGE.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

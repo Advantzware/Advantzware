@@ -254,6 +254,16 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_job-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -278,7 +288,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -511,13 +521,13 @@ def var v-i-no      like fg-rcpth.i-no.
 
 
 session:set-wait-state("General").
-  
+
 do with frame {&frame-name}:
   ASSIGN {&displayed-objects}.
 end.
-    
+
 session:set-wait-state("").
- 
+
 assign
  fitm      = begin_i-no
  titm      = end_i-no
@@ -559,7 +569,7 @@ if v-process then do:
       for each fg-rdtlh where fg-rdtlh.r-no eq fg-rcpth.r-no:
         delete fg-rdtlh.
       end.
-            
+
       v-i-no = fg-rcpth.i-no.
 
       delete fg-rcpth.
@@ -595,7 +605,7 @@ if v-process then do:
 end.
 
 return no-apply.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

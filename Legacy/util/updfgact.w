@@ -196,6 +196,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -204,7 +214,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -265,7 +275,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-process C-Win
 ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
 DO:
-  
+
 
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&DISPLAYED-OBJECTS}.
@@ -385,10 +395,10 @@ DEF BUFFER b-reftable FOR reftable.
 message "Are you sure you fix FG Item Active Status?"
     view-as alert-box question button yes-no
     update v-process.
-        
+
 if v-process then do:
   session:set-wait-state("General").
-  
+
   for each itemfg
       where itemfg.company eq cocode
         and itemfg.i-no GE begin_i-no
@@ -396,7 +406,7 @@ if v-process then do:
       no-lock:
 
     STATUS DEFAULT "Processing FG Item#: " + TRIM(itemfg.i-no).
-    
+
     FOR EACH reftable WHERE
         reftable.reftable EQ "FGSTATUS" AND
         reftable.company EQ cocode AND
@@ -423,18 +433,18 @@ if v-process then do:
 
     END.
   end.
-  
+
   STATUS DEFAULT "".
-    
+
   session:set-wait-state("").
-    
+
   message trim(c-win:title) + " Process Complete..." view-as alert-box.
-    
+
   apply "close" to this-procedure.
 end.
 
 return no-apply.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

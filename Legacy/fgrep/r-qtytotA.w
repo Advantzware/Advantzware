@@ -280,6 +280,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_cust:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -322,7 +332,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -383,7 +393,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-  
+
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
   IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
   EMPTY TEMP-TABLE ttCustList.
@@ -429,7 +439,7 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
@@ -445,7 +455,7 @@ END.
 ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -624,7 +634,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-   
+
 /* security check need {methods/prgsecur.i} in definition section */
   IF access-close THEN DO:
      APPLY "close" TO THIS-PROCEDURE.
@@ -632,9 +642,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.           
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
-  
+
   RUN sys/inc/CustListForm.p ( "IL1",cocode, 
                                OUTPUT ou-log,
                                OUTPUT ou-cust-int) .
@@ -665,7 +675,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO"
         btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
         .
-      
+
    IF ou-log AND ou-cust-int = 0 THEN do:
        ASSIGN 
         tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = YES
@@ -737,7 +747,7 @@ PROCEDURE CustList :
 
     RUN sys/ref/CustListManager.w(INPUT cocode,
                                   INPUT 'IL1').
-    
+
 
 END PROCEDURE.
 
@@ -811,14 +821,14 @@ PROCEDURE Output-to-File :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
      OS-COPY VALUE(list-name) VALUE(lv-output).
      IF OS-ERROR = 0 THEN OS-DELETE VALUE(list-name).
      */
-     
+
      {custom/out2file.i}
 
 END PROCEDURE.
@@ -834,7 +844,7 @@ PROCEDURE output-to-port :
   Notes:       
 ------------------------------------------------------------------------------*/
 RUN custom/d-print.w (list-name).
-    
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -850,7 +860,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -943,7 +953,7 @@ assign
  floc      = begin_cust
  tloc      = end_cust
  v-sumdet  = tb_summary.
-  
+
 IF tb_excel THEN DO:
   OUTPUT STREAM excel TO VALUE(fi_file).
 
@@ -965,7 +975,7 @@ END.
 if td-show-parm then run show-param.
 
 SESSION:SET-WAIT-STATE ("general").
-         
+
    if v-sumdet THEN do: 
       FOR EACH ttCustList 
           WHERE ttCustList.log-fld
@@ -986,7 +996,7 @@ SESSION:SET-WAIT-STATE ("general").
      "ITEM #          DESCRIPTION                              PRICE    ON HAND   PROGRESS OPEN ORDER         PTD         YTD     LAST YR"
      fill("-",132) format "x(132)"
     with frame qinv-hdr-sum no-box page-top STREAM-IO width 132.
- 
+
         for each itemfg where itemfg.company = cocode
                            and itemfg.cust-no = cust.cust-no
                no-lock break by itemfg.cust-no
@@ -1019,7 +1029,7 @@ SESSION:SET-WAIT-STATE ("general").
            v-price = itemfg.sell-price
            tot-val = tot-val + ((IF tb_addqty THEN (itemfg.q-onh + itemfg.q-ono) ELSE itemfg.q-onh) 
                                * itemfg.sell-price).
-           
+
           display /* cust.cust-no when v-frst */
                   itemfg.i-no
                   itemfg.i-name
@@ -1181,7 +1191,7 @@ PROCEDURE SetCustRange :
         btnCustList:SENSITIVE = iplChecked
        .
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1202,11 +1212,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1234,23 +1244,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

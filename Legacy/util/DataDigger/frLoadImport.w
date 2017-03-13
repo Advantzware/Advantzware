@@ -165,13 +165,18 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
                                                                         */
+ASSIGN
+       btnLoad:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -250,7 +255,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  
+
   RUN enable_UI.
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -314,7 +319,7 @@ PROCEDURE getFrameHandle_xxx :
   Notes:       
 ------------------------------------------------------------------------------*/
   define output parameter phFrameHandle as handle      no-undo.
-  
+
   phFrameHandle = frame {&frame-name}:handle.
 
 END PROCEDURE.

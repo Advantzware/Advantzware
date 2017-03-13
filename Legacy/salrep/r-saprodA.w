@@ -274,6 +274,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -316,7 +326,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -597,7 +607,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   RUN enable_UI.
 
   {methods/nowait.i}
@@ -607,7 +617,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     inv-date:SCREEN-VALUE = STRING(TODAY).
     APPLY "entry" TO inv-date.
   END.
- 
+
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -914,7 +924,7 @@ display "" with frame r-top.
             if avail fgcat then tt-report.key-01 = fgcat.procat.
           end.
         end.
-        
+
         tt-report.key-02 = if v-misc and tt-report.key-01 eq "MISC"
                            then ar-invl.actnum else tt-report.key-01.
       end.
@@ -964,7 +974,7 @@ display "" with frame r-top.
 
           tt-report.key-01 = if avail itemfg then itemfg.procat else "MISC".
         end.
-        
+
         tt-report.key-02 = if v-misc and tt-report.key-01 eq "MISC"
                            then ar-cashl.actnum else tt-report.key-01.
       end.
@@ -1054,7 +1064,7 @@ display "" with frame r-top.
             and tt-report.key-01  eq "MISC"
 
       {sa/sa-dsr1.i m}
-    
+
       if v-misc then do:
         underline w-sqft
                   w-amt
@@ -1088,7 +1098,7 @@ display "" with frame r-top.
                 v-mtot-ytd-amt  when v-ytd  @ w-ytd-amt
                 v-mtot-ytd-msf  when v-ytd  @ w-ytd-msf
             with frame itemx.
-          
+
         IF tb_excel THEN
            PUT STREAM excel UNFORMATTED
                SKIP(1)
@@ -1109,7 +1119,7 @@ display "" with frame r-top.
 
         put skip.
       end.
-      
+
       assign
        v-gtot-sqft     = v-gtot-sqft     + v-mtot-sqft
        v-gtot-amt      = v-gtot-amt      + v-mtot-amt
@@ -1230,12 +1240,12 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha NO-UNDO.
-  
+
   ASSIGN
   lv-frame-hdl = frame {&frame-name}:HANDLE
   lv-group-hdl = lv-frame-hdl:first-child
   lv-field-hdl = lv-group-hdl:first-child.
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1251,7 +1261,7 @@ PROCEDURE show-param :
                   if not valid-handle(lv-field2-hdl) then leave. 
                   if lv-field2-hdl:private-data = lv-field-hdl:name THEN
                      parm-lbl-list = parm-lbl-list + lv-field2-hdl:screen-value + ",".
-                  
+
                   lv-field2-hdl = lv-field2-hdl:next-sibling.                 
               end.       
            end.                 
@@ -1262,23 +1272,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

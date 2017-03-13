@@ -51,7 +51,7 @@ DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 assign
  cocode = gcompany
  locode = gloc.
- 
+
 def buffer xperiod for period.
 
 def var v-num-per like company.num-per no-undo.
@@ -282,6 +282,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -326,7 +336,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -398,7 +408,7 @@ DO:
   assign rd-dest.
 
   SESSION:SET-WAIT-STATE ("general").
-       
+
   run run-report.
   STATUS DEFAULT "Processing Complete".
   SESSION:SET-WAIT-STATE ("").
@@ -610,9 +620,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   ASSIGN
    begin_date = ?
    end_date   = ?.
-   
+
   RUN enable_UI.
-  
+
   {methods/nowait.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -709,7 +719,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -768,7 +778,7 @@ form  header skip(1)
 assign
  str-tit2 = c-win:title
  {sys/inc/ctrtext.i str-tit2 56}
- 
+
  svend  = begin_vend
  evend  = end_vend
  sdate  = begin_date
@@ -788,7 +798,7 @@ END.
 if td-show-parm then run show-param.
 
 display "" with frame r-top.
- 
+
 
 IF rs-date EQ "Invoice" THEN DO:
    for each vend FIELDS(company vend-no code-1099 NAME tax-id add1
@@ -815,7 +825,7 @@ IF rs-date EQ "Invoice" THEN DO:
        {custom/statusMsg.i " 'Processing Vendor #  '  + string(vend.vend-no) "}
 
        v-vend-tot = v-vend-tot + (ap-payl.amt-paid - ap-payl.amt-disc).
-      
+
        if last-of(vend.vend-no) then 
        do:
           if v-vend-tot ne 0 or v-zero then
@@ -843,12 +853,12 @@ IF rs-date EQ "Invoice" THEN DO:
                   '"' STRING(v-vend-tot,"->>,>>>,>>9.99")   '",'
                SKIP.
           END.
-            
+
          assign
           v-grand-tot = v-grand-tot + v-vend-tot
           v-vend-tot  = 0.
        end.
-    
+
        if last(vend.vend-no) then
        DO:
           put "===============" to 80 skip
@@ -892,11 +902,11 @@ IF rs-date EQ "Invoice" THEN DO:
               ap-payl.memo eq no
               no-lock
          break by vend.vend-no:
-    
+
        {custom/statusMsg.i " 'Processing Vendor #  '  + string(vend.vend-no) "}
 
        v-vend-tot = v-vend-tot + (ap-payl.amt-paid - ap-payl.amt-disc).
-      
+
        if last-of(vend.vend-no) then 
        do:
          if v-vend-tot ne 0 or v-zero then
@@ -924,12 +934,12 @@ IF rs-date EQ "Invoice" THEN DO:
                   '"' STRING(v-vend-tot,"->>,>>>,>>9.99")   '",'
                SKIP.
          END.
-            
+
          assign
           v-grand-tot = v-grand-tot + v-vend-tot
           v-vend-tot  = 0.
        end.
-    
+
        if last(vend.vend-no) then
        DO:
           put "===============" to 80 skip
@@ -979,11 +989,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1011,23 +1021,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

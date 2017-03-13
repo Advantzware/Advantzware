@@ -194,6 +194,16 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -202,7 +212,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -379,7 +389,7 @@ FOR EACH job
           STRING(job.job-no2,"99")                  LE end_job-no
       AND job.due-date LE TODAY - fi_days
       AND job.due-date NE ?,
-    
+
     EACH job-hdr
     WHERE job-hdr.company EQ job.company
       AND job-hdr.job     EQ job.job
@@ -399,14 +409,14 @@ FOR EACH job
 END. /* each job */
 
 STATUS DEFAULT "".
-    
+
 SESSION:SET-WAIT-STATE("").
 
 MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
 APPLY "close" TO THIS-PROCEDURE.
 
 RETURN NO-APPLY.
-  
+
 /* end ---------------------------------- copr. 2006  advanced software, inc. */
 
 END PROCEDURE.

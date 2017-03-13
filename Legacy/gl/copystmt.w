@@ -201,6 +201,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_company:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -229,7 +239,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -332,7 +342,7 @@ DO:
 
   RUN valid-begin_rpt NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
- 
+
   RUN valid-company (end_company:HANDLE) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -350,7 +360,7 @@ DO:
 
     ASSIGN {&DISPLAYED-OBJECTS}.
   END.
-  
+
   MESSAGE "Are you sure you want to " + TRIM(c-win:TITLE) + " " +
           TRIM(STRING(begin_rpt)) + " from Company " + TRIM(begin_company) + " to " +
           " Company " + TRIM(end_company) + "?"
@@ -681,7 +691,7 @@ PROCEDURE valid-company :
       RETURN ERROR.
     END.
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -321,6 +321,16 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME Custom                                                    */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
@@ -335,7 +345,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -420,10 +430,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   FIND ap-ctrl WHERE ap-ctrl.company = gcompany NO-LOCK NO-ERROR.
-  
-  
+
+
   RUN enable_UI.
-  
+
   {methods/nowait.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -505,17 +515,17 @@ DEF VAR viCount AS INT NO-UNDO INIT 0.
 
     /* If not, then abort. */
     IF NOT v-process THEN RETURN.
-                          
-    
+
+
     DO WITH FRAME {&FRAME-NAME}:
-      
-    
+
+
       SESSION:set-wait-state("General").
 
       /* Save the range of customers. */
       ASSIGN v-first-cust = fiBeginCust:SCREEN-VALUE
              v-last-cust  = fiEndCust:SCREEN-VALUE.
-    
+
       DO TRANSACTION ON ERROR UNDO, RETURN:
 
           /* Process each customer in the range. */
@@ -555,7 +565,7 @@ DEF VAR viCount AS INT NO-UNDO INIT 0.
           END. /* for each cust */
 
       END. /* DO TRANSACTION */
-    
+
     END. /*  DO WITH FRAME */
 
   SESSION:set-wait-state("").
@@ -567,7 +577,7 @@ DEF VAR viCount AS INT NO-UNDO INIT 0.
   APPLY "close" TO THIS-PROCEDURE.
 
   RETURN.
-  
+
 
 END PROCEDURE.
 

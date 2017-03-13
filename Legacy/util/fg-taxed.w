@@ -185,6 +185,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -193,7 +203,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -241,12 +251,12 @@ END.
 ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
 DO:
   v-process  = NO.
-   
+
   MESSAGE "Are you sure you want to" TRIM(c-win:TITLE)
           "to" TRIM(STRING(tb_taxable,"YES/NO")) + "?"       
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
           UPDATE v-process.
-        
+
   IF v-process THEN RUN run-process.
 END.
 
@@ -370,7 +380,7 @@ FOR EACH itemfg EXCLUSIVE-LOCK
         play = FILL(".", xyz).
 
     STATUS INPUT " Processing." + play.
-      
+
   FIND FIRST reftable EXCLUSIVE-LOCK
       WHERE reftable.reftable EQ "FGTAXABLE"
         AND reftable.company  EQ itemfg.company
@@ -388,19 +398,19 @@ FOR EACH itemfg EXCLUSIVE-LOCK
   END.
 
   ASSIGN reftable.val[1] = INT(tb_taxable).
-  
+
   /* gdm - 02110911 */
   ASSIGN itemfg.taxable = tb_taxable.
 
   IF xyz EQ 20 THEN xyz = 1.
 END.
-     
+
 session:set-wait-state("").
 
 message trim(c-win:title) + " Process Complete..." view-as alert-box.
-    
+
 apply "close" to this-procedure.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

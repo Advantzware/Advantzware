@@ -324,6 +324,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        from_company:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -356,7 +366,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -437,7 +447,7 @@ DO:
   DO TRANSACTION:
 
     REPEAT:
-    
+
     FIND FIRST ce-ctrl
         WHERE ce-ctrl.company EQ to_company
           AND ce-ctrl.loc     EQ locode
@@ -457,7 +467,7 @@ DO:
   END. /* do for ce-ctrl */
 
   RELEASE ce-ctrl.
-  
+
   MESSAGE "Are you sure you want to copy this estimate?"
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
 
@@ -467,7 +477,7 @@ DO:
   DO TRANSACTION:
 
     REPEAT:
-    
+
     FIND FIRST ce-ctrl
         WHERE ce-ctrl.company EQ to_company
           AND ce-ctrl.loc     EQ locode
@@ -475,7 +485,7 @@ DO:
 
     IF AVAIL ce-ctrl THEN
     DO:
-    
+
     IF ce-ctrl.e-num EQ INT(to_est) THEN ce-ctrl.e-num = ce-ctrl.e-num - 1.
     ASSIGN
      to_est              = ""
@@ -631,7 +641,7 @@ DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-company NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  
+
     ASSIGN {&self-name}.
   END.
 END.
@@ -868,7 +878,7 @@ DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-company NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  
+
     ASSIGN {&self-name}.
   END.
 END.
@@ -930,7 +940,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   do transaction:
     {ce/cecopy.i}
   end.
-  
+
   ASSIGN
    tb_copy      = sys-ctrl.int-fld eq 1
    from_company = cocode
@@ -1016,7 +1026,7 @@ PROCEDURE new-company :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     FIND company WHERE company.company BEGINS FOCUS:SCREEN-VALUE NO-LOCK NO-ERROR.
     IF AVAIL company THEN DO:
@@ -1068,7 +1078,7 @@ PROCEDURE run-process :
   DEF VAR li         AS   INT NO-UNDO.
   DEF VAR lj         AS   INT NO-UNDO.
   DEF VAR lv-part-no LIKE eb.part-no NO-UNDO.
-  
+
 
   SESSION:SET-WAIT-STATE("general").
 
@@ -1113,7 +1123,7 @@ PROCEDURE run-process :
 
     IF eb.form-no EQ 0 THEN lv-part-no = eb.part-no.
                        ELSE li = li + 1.
-    
+
     create keb.
     buffer-copy eb except rec_key die-no plate-no stock-no ord-no to keb
     assign
@@ -1126,7 +1136,7 @@ PROCEDURE run-process :
      keb.part-dscr1 = IF tb_copy-i-name THEN eb.part-dscr1 ELSE keb.part-dscr1
      keb.part-dscr2 = IF tb_copy-dscr-1 THEN eb.part-dscr2 ELSE keb.part-dscr2.
 
-   
+
      IF tb_copy-notes AND tb_i-no AND tcom NE fcom THEN do: /* task 05291502 */
          FIND FIRST b-itemfg WHERE b-itemfg.company = tcom
              AND b-itemfg.i-no = keb.stock-no NO-LOCK NO-ERROR.
@@ -1158,7 +1168,7 @@ PROCEDURE run-process :
              END.
          END.
      END.
-        
+
     IF fi_part NE lv-part-no                  AND
        (eb.est-type LE 2 OR eb.est-type GE 5) AND
        eb.est-type NE 8                       THEN DO:
@@ -1397,7 +1407,7 @@ PROCEDURE run-process :
      knsh.company = kest.company
      knsh.est-no  = kest.est-no.
   end.
-    
+
   for each ef
       where ef.company eq est.company
         and ef.est-no  EQ est.est-no
@@ -1407,9 +1417,9 @@ PROCEDURE run-process :
     assign
      kef.company = kest.company
      kef.est-no  = kest.est-no.
-   
+
     if not fest-mr then kef.op-lock = no.
-        
+
     IF (est.est-type EQ 3 OR
         est.est-type EQ 4 OR
         est.est-type EQ 7 OR
@@ -1432,7 +1442,7 @@ PROCEDURE run-process :
        kref.company = kef.company
        kref.code    = trim(kef.est-no) + string(kef.form-no,"/99").
     end.
-       
+
     for each reftable
         where reftable.reftable eq "EST-MISC"
           and reftable.company  eq ef.company
@@ -1565,14 +1575,14 @@ PROCEDURE run-process :
                      b-attach.est-no  = kest.est-no .
          END.
      END.
-  
+
   RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
   session:set-wait-state("").
 
   message trim(c-win:title) + " Process Is Completed." view-as alert-box.
   apply "close" to this-procedure.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.
@@ -1604,7 +1614,7 @@ PROCEDURE valid-company :
       RETURN ERROR.
     END.
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1769,7 +1779,7 @@ PROCEDURE valid-terms :
 
   cMissingTerms = "".
   DO WITH FRAME {&FRAME-NAME}:
-    
+
    fest = trim(from_est:SCREEN-VALUE).  
    FOR EACH quotehd WHERE quotehd.company EQ FROM_company:SCREEN-VALUE
      AND quotehd.loc EQ locode

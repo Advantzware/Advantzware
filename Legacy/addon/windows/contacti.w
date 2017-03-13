@@ -156,6 +156,21 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
                                                                         */
+ASSIGN
+       Btn_Cancel:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
+ASSIGN
+       Btn_Help:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
+ASSIGN
+       Btn_OK:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FILL-IN lv-contact IN FRAME DEFAULT-FRAME
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
@@ -167,7 +182,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -234,7 +249,7 @@ DO:
   def buffer b-contact for contact.
   def var list-name as cha no-undo.
   def var OKpressed as log no-undo.
-    
+
   lv-contact:hidden = no.
   SESSION:SET-WAIT-STATE("GENERAL").
 
@@ -266,13 +281,13 @@ DO:
          return no-apply.
       end.
   end.
-  
-  
+
+
   input from value(init-dir) no-echo.
   num-imports = 0.
   num-update = 0.
   repeat:
-  
+
     insert tt-contact. 
     find first b-contact where b-contact.company eq gcompany
                          and b-contact.cust-no eq tt-contact.cust-no
@@ -289,48 +304,48 @@ DO:
                 lv-contact:screen-value = b-contact.cust-no.
 
     end.
- 
+
   end.  /* repeat */
 
   if search(session:temp-directory + "\contactx.old" ) <> ? 
      then os-delete value(session:temp-directory + "\contactx.old").
   os-rename value(init-dir) value(session:temp-directory + "\contactx.old") .
-  
+
   SESSION:SET-WAIT-STATE("").
   message num-imports " Contacts Added." skip
           num-update  " Contacts Updated."
           view-as alert-box.
   APPLY "CLOSE" TO THIS-PROCEDURE.
   =======================*/
-  
+
    def var init-dir as cha no-undo.
    def var li-num-of-rec as int no-undo.
    def var li-num-of-notes as int no-undo.
-    
+
    SESSION:SET-WAIT-STATE("GENERAL").
    /* ======= connect to server ========*/
   /* connect -pf lapemp.pf no-error.*/
   /* {system/connect.i}*/
    run system/lapnet.p.
-   
+
    if error-status:error then do:
       message "Not connected".
       return no-apply.
    end. 
-  
+
    /*   output to value(init-dir). */
    if connected("emp_server") then
        run system/contup.p (gcompany, input "", input "zzzzz" , output li-num-of-rec, output li-num-of-notes) .
-      
+
    if connected("emp_server") then disconnect  emp_server.
    if connected("nos_server") then disconnect  nos_server.
-  
+
    SESSION:SET-WAIT-STATE("").
    message "Upload Completed. " li-num-of-rec   " Contact Updated. " skip
            "                  " li-num-of-notes " Note    Updated. "
       view-as alert-box.
    APPLY "CLOSE" TO THIS-PROCEDURE.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */

@@ -49,7 +49,7 @@ CREATE WIDGET-POOL.
 assign
  cocode = gcompany
  locode = gloc.
- 
+
 def var v-process as log no-undo.
 
 /* _UIB-CODE-BLOCK-END */
@@ -207,6 +207,16 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -215,7 +225,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -365,7 +375,7 @@ PROCEDURE run-process :
 /* ------------------------------------------------ util/fg-mkbin.p 05/97 JLF */
 /* finished goods bin rebuild program                                         */
 /* -------------------------------------------------------------------------- */
- 
+
 DEF VAR fcus        LIKE cust.cust-no.
 DEF VAR tcus        LIKE fcus               INIT "zzzzzzzz".
 DEF VAR fitm        LIKE itemfg.i-no.
@@ -379,7 +389,7 @@ DO WITH FRAME {&FRAME-NAME}:
    begin_cust
    end_cust.
 END.
-  
+
 ASSIGN
  fitm = begin_i-no
  titm = end_i-no
@@ -410,9 +420,9 @@ STATUS DEFAULT "".
 SESSION:SET-WAIT-STATE("General").
 
 MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
-           
+
 APPLY "close" TO THIS-PROCEDURE.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

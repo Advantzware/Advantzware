@@ -338,6 +338,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_due-date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -416,7 +426,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -523,7 +533,7 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
@@ -753,13 +763,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-    
+
     assign            
     begin_due-date =  TODAY
     end_due-date   =  date(12,31,year(today)).
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -832,7 +842,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
   /*   DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -843,11 +853,11 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY. */
-     
+
 {custom/out2file.i}
 
 END PROCEDURE.
@@ -879,7 +889,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -994,7 +1004,7 @@ form wk-sh-ord.due-date   FORMAT "99/99/99"      to 8
 assign
  str-tit2 = TRIM(c-win:TITLE) + " (P-R-1)"
  {sys/inc/ctrtext.i str-tit2 112}
- 
+
  v-s-vend         = begin_vend-no
  v-e-vend         = end_vend-no 
  v-s-date         = begin_due-date
@@ -1004,7 +1014,7 @@ assign
  v-subtotal-flag  = tb_date
  v-sortby         = rd_sort
  v-closed         = tb_closed.
-  
+
 IF v-cost THEN DO: 
   IF NOT ll-secure THEN RUN sys/ref/d-passwd.w (3, OUTPUT ll-secure).
   v-cost = ll-secure. 
@@ -1100,7 +1110,7 @@ SESSION:SET-WAIT-STATE ("general").
            LEAVE.
          END.
         END.  /* Task 11071308 */
-        
+
         IF v-sortby = "D" THEN 
             ASSIGN wk-sh-ord.key1 = string(year(po-ordl.due-date),"9999") +  
                                     string(MONTH(po-ordl.due-date),"99") + 
@@ -1122,17 +1132,17 @@ SESSION:SET-WAIT-STATE ("general").
 
   for each wk-sh-ord,
       each po-ordl where recid(po-ordl) eq wk-sh-ord.rec-id no-lock,
-      
+
       FIRST po-ord WHERE
             po-ord.company EQ po-ordl.company and
             po-ord.po-no   EQ po-ordl.po-no
             no-lock,
-      
+
       first item
       where item.company eq cocode
         and item.i-no    eq po-ordl.i-no
       no-lock
-      
+
       break by wk-sh-ord.key1 
             BY wk-sh-ord.due-date:
 
@@ -1148,7 +1158,7 @@ SESSION:SET-WAIT-STATE ("general").
      v-s-num = po-ordl.s-num.
 
     {po/pol-dims.i}
-    
+
     if v-wid eq 0 then v-wid = 12.
     if v-len eq 0 OR lv-uom EQ "ROLL" then v-len = 12.
 
@@ -1231,7 +1241,7 @@ SESSION:SET-WAIT-STATE ("general").
     end.
 
     release oe-ord.
-   
+
     find first job-hdr
         where job-hdr.company eq cocode
           and job-hdr.job-no  eq po-ordl.job-no
@@ -1239,7 +1249,7 @@ SESSION:SET-WAIT-STATE ("general").
         no-lock no-error.
 
     IF wk-sh-ord.machine = "" THEN DO:
-    
+
       v-mch-rowid = ?.
       FOR FIRST job-mch 
           WHERE job-mch.company = cocode
@@ -1268,7 +1278,7 @@ SESSION:SET-WAIT-STATE ("general").
         no-lock no-error.
 
     if avail oe-ord AND v-name eq "C" then v-prt-name = oe-ord.cust-name.
-    
+
     IF v-name eq "C" AND v-prt-name EQ "" THEN DO:
         FIND FIRST cust WHERE cust.company EQ cocode
         AND cust.cust-no EQ po-ordl.cust-no NO-LOCK NO-ERROR.
@@ -1279,16 +1289,16 @@ SESSION:SET-WAIT-STATE ("general").
         IF AVAIL job-hdr THEN do:
             FIND FIRST itemfg WHERE itemfg.company EQ cocode
             AND itemfg.i-no EQ job-hdr.i-no NO-LOCK NO-ERROR.
-            
+
             IF AVAIL itemfg THEN
                 v-prt-name = itemfg.cust-name .
         END.
     END.                                                        /* Task# 10081307 */
-    
-    
+
+
     if v-msf-rem lt 0 then v-msf-rem = 0.
     if v-cst-rem lt 0 then v-cst-rem = 0.
-    
+
     display wk-sh-ord.due-date
             oe-ord.ord-no when avail oe-ord
             ld-oqty @ po-ordl.ord-qty 
@@ -1301,7 +1311,7 @@ SESSION:SET-WAIT-STATE ("general").
             po-ordl.i-no
             v-msf-rem
             v-cst-rem when v-cost
-              
+
         with frame sh-ord.
     down with frame sh-ord.
 
@@ -1336,7 +1346,7 @@ SESSION:SET-WAIT-STATE ("general").
       if v-subtotal-flag then do:
         underline po-ordl.ord-qty po-ordl.t-rec-qty v-msf-rem v-cst-rem
             with frame sh-ord.
-          
+
         display wk-sh-ord.machine WHEN v-sortby = "M" @ wk-sh-ord.due-date
                 wk-sh-ord.due-date WHEN v-sortby = "D" @ wk-sh-ord.due-date
                 v-prt-name FORMAT "x(8)" WHEN v-sortby = "V" @ wk-sh-ord.due-date 
@@ -1368,23 +1378,23 @@ SESSION:SET-WAIT-STATE ("general").
                     ELSE "")                                        '",'
                SKIP.
       end.
-      
+
       assign
        tot-cons-qty[2] = tot-cons-qty[2] + tot-cons-qty[1]
        tot-rec-qty[2]  = tot-rec-qty[2]  + tot-rec-qty[1]
        tot-msf-rem[2]  = tot-msf-rem[2]  + tot-msf-rem[1]
        tot-cst-rem[2]  = tot-cst-rem[2]  + tot-cst-rem[1]
-       
+
        tot-cons-qty[1] = 0
        tot-rec-qty[1]  = 0
        tot-msf-rem[1]  = 0
        tot-cst-rem[1]  = 0.
     end.
-    
+
     if LAST(wk-sh-ord.key1) then do:
       underline po-ordl.ord-qty po-ordl.t-rec-qty v-msf-rem v-cst-rem
           with frame sh-ord.
-          
+
       display "TOTAL"                         @ wk-sh-ord.due-date
               tot-cons-qty[2]               @ po-ordl.ord-qty
               tot-rec-qty[2]                @ po-ordl.t-rec-qty
@@ -1445,11 +1455,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1477,23 +1487,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -176,6 +176,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        v-est-list:RETURN-INSERTED IN FRAME FRAME-A  = TRUE.
 
@@ -187,7 +197,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -236,7 +246,7 @@ ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
 DO:
   DEF VAR ll AS LOG NO-UNDO.
 
-   
+
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
@@ -245,7 +255,7 @@ DO:
           "within the selected parameters?"       
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
           UPDATE ll.
-        
+
   IF ll THEN RUN run-process.
 END.
 
@@ -349,8 +359,8 @@ DEF VAR lv-est-no LIKE est.est-no NO-UNDO.
 
 DEF BUFFER b-est FOR est.
 DEF BUFFER b-eb FOR eb.
-                                  
-                                  
+
+
 SESSION:SET-WAIT-STATE("General").
 
 IF v-est-list NE ""                                         AND
@@ -393,13 +403,13 @@ DO li = 1 TO NUM-ENTRIES(v-est-list):
     END.
   END.
 END.
-    
+
 SESSION:SET-WAIT-STATE("").
 
 MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
 
 APPLY "close" TO THIS-PROCEDURE.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

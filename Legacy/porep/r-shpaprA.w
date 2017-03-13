@@ -5,7 +5,7 @@
 /*------------------------------------------------------------------------
 
   File: porep\r-shpapr.w
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -40,7 +40,7 @@ DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 assign
  cocode = gcompany
  locode = gloc.
- 
+
 def temp-table tt-report NO-UNDO like report
     FIELD mach-vend LIKE vend.vend-no.
 
@@ -320,6 +320,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_due-date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -402,7 +412,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -509,7 +519,7 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case.
@@ -751,13 +761,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   assign
    begin_due-date = date(1,1,year(today))
    end_due-date   = today.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -883,12 +893,12 @@ PROCEDURE print-grand-total :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DEF INPUT PARAM v-char-ord-qty AS CHAR NO-UNDO.
   DEF INPUT PARAM v-msf-rem AS DEC NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
-     
+
     PUT STREAM excel UNFORMATTED
         '"' "Grand Totals"                      '",'.
 
@@ -986,7 +996,7 @@ form header
      "Ship?"                    at 130
      skip
      fill("-",134) format "x(134)"
-     
+
     with frame r-top.
 
 form v-job-no                   at 1     
@@ -1003,7 +1013,7 @@ form v-job-no                   at 1
      v-raw                      at 110 format "x(10)"
      v-msf-rem                  to 128
      lv-under[2]                at 130
-    
+
     with down STREAM-IO WIDTH 200 no-labels no-box no-underline frame sh-ord.
 
 
@@ -1022,7 +1032,7 @@ assign
  v-pmach      = tb_mach-opr OR rd_sort EQ "Machine"
  v-preld      = tb_rel-date
  v-sortby     = rd_sort EQ "Job#".
- 
+
 assign tot-cons-qty = 0
        tot-rec-qty  = 0
        tot-msf-rem  = 0
@@ -1038,7 +1048,7 @@ IF tb_excel THEN DO:
 
   IF rd_break EQ "Vendor#" THEN
      excelheader = "Vendor,".
-  
+
   excelheader = excelheader    
               + "Job#,PO#,Qty Ord,Receivd,Customer Name,"
               + "Due,Units,Sht W,Sht L," + lv-label[2] + ",FGItem#,RMItem#,"
@@ -1067,24 +1077,24 @@ VIEW frame r-top.
           and po-ordl.due-date ge v-s-date
           and po-ordl.due-date le v-e-date
         no-lock:
-        
+
         {custom/statusMsg.i " 'Processing PO#  '  + string(po-ordl.po-no) "}
 
       release job-hdr.
       release oe-ord.
       release oe-ordl.
-        
+
       assign
        v-job-no    = trim(po-ordl.job-no) + "-" + string(po-ordl.job-no2,"99")
        v-raw       = ""
        v-fg        = ""
        v-cust-name = "".
-       
+
       if trim(v-job-no) eq "-00" then v-job-no = "".
 
       if po-ordl.item-type then do:
         v-raw = po-ordl.i-no.
-        
+
         find first job-hdr
             where job-hdr.company eq cocode
               and job-hdr.job-no  eq po-ordl.job-no
@@ -1093,7 +1103,7 @@ VIEW frame r-top.
 
         if avail job-hdr then do:
           v-fg = job-hdr.i-no.
-        
+
           find first oe-ordl
               where oe-ordl.company eq cocode
                 and oe-ordl.ord-no  eq job-hdr.ord-no
@@ -1103,10 +1113,10 @@ VIEW frame r-top.
               no-lock no-error.
         end.
       end.
-      
+
       else do:
         v-fg = po-ordl.i-no.
-        
+
         if po-ordl.ord-no ne 0 then
         find first oe-ordl
             where oe-ordl.company eq cocode
@@ -1114,9 +1124,9 @@ VIEW frame r-top.
               and oe-ordl.i-no    eq v-fg
             no-lock no-error.
       end.
-      
+
       v-rel-date = ?.
-   
+
       if avail oe-ordl then do:
         find first oe-ord
             where oe-ord.company eq cocode
@@ -1135,12 +1145,12 @@ VIEW frame r-top.
               AND oe-relh.deleted EQ NO
             NO-LOCK
             BY oe-relh.rel-date:
-      
+
           LEAVE.
         END.
-  
+
         if avail oe-relh then v-rel-date = oe-relh.rel-date.
-  
+
         else
         for each oe-rel
             where oe-rel.company eq cocode
@@ -1148,9 +1158,9 @@ VIEW frame r-top.
               and oe-rel.i-no    eq oe-ordl.i-no
               and oe-rel.line    eq oe-ordl.line
             no-lock:
-      
+
           {oe/rel-stat.i v-stat}
-    
+
           if index("ILS",v-stat) ne 0                           and
              (oe-rel.rel-date lt v-rel-date or v-rel-date eq ?) then
             v-rel-date = oe-rel.rel-date.
@@ -1158,13 +1168,13 @@ VIEW frame r-top.
       end.
 
       v-mach = "".
-      
+
       for first job
           where job.company eq po-ordl.company
             and job.job-no  eq po-ordl.job-no
             and job.job-no2 eq po-ordl.job-no2
           no-lock,
-    
+
           first job-mch
           where job-mch.company eq job.company
             and job-mch.job     eq job.job
@@ -1172,7 +1182,7 @@ VIEW frame r-top.
             and (job-mch.dept   ne "DM" and
                  job-mch.dept   ne "PM")
           use-index line-idx no-lock:
-    
+
         v-mach = job-mch.m-code.
       end.
 
@@ -1198,7 +1208,7 @@ VIEW frame r-top.
                              IF rd_break EQ "None" THEN po-ord.vend-no ELSE "".
     end.
   end.
-  
+
   if v-name then v-cust-vend = "-------- CUSTOMER --------".
 
   view frame r-top.
@@ -1210,31 +1220,31 @@ VIEW frame r-top.
             po-ord.po-no   EQ po-ordl.po-no no-lock
       break by tt-report.key-01
             by tt-report.key-02:
-            
+
       {custom/statusMsg.i " 'Processing PO#  '  + string(po-ordl.po-no) "}
 
     if rd_break EQ "Vendor#" AND first-of(tt-report.key-01) then do:
       lv-label[1] = TRIM(rd_break) + ": " + tt-report.key-01.
       page.
     end.
-    
+
     release item.
     release itemfg.
-        
+
     if po-ordl.item-type then do:
       find first item
           where item.company eq cocode
             and item.i-no    eq po-ordl.i-no
           no-lock no-error.
     end.
-    
+
     else do:
       find first itemfg
           where itemfg.company eq cocode
             and itemfg.i-no    eq po-ordl.i-no
           no-lock no-error.
     end.
-    
+
     assign
      v-len = po-ordl.s-len
      v-wid = po-ordl.s-wid
@@ -1288,7 +1298,7 @@ VIEW frame r-top.
     run sys/ref/convcuom.p(po-ordl.cons-uom, "MSF",
                            v-bwt, v-len, v-wid, v-dep,
                            po-ordl.cons-cost, output v-cst-rem).
-                           
+
     assign
      tot-cons-qty   = tot-cons-qty + po-ordl.cons-qty
      tot-rec-qty    = tot-rec-qty + t-rec-qty
@@ -1303,13 +1313,13 @@ VIEW frame r-top.
        v-cust-name = tt-report.key-06.
 
       if (v-cust-name eq "") or (v-name eq no) then v-cust-name = fill("_",20).
-      
+
       if po-ordl.ord-qty - trunc(po-ordl.ord-qty,0) ne 0 and
          po-ordl.ord-qty lt 100000                       then
         v-char-ord-qty = string(po-ordl.ord-qty,">>,>>9.9<<<").
       else
         v-char-ord-qty = string(po-ordl.ord-qty,">>>>,>>9").
-                
+
       if po-ordl.t-rec-qty ne 0 then
         if po-ordl.t-rec-qty - trunc(po-ordl.t-rec-qty,0) ne 0 and
            po-ordl.t-rec-qty lt 10000                          then
@@ -1318,7 +1328,7 @@ VIEW frame r-top.
           v-trcv = string(po-ordl.t-rec-qty,">>>,>>9").
       else
         v-trcv = fill("_",7).
-      
+
       display v-job-no                              
               po-ordl.po-no
               v-char-ord-qty                      
@@ -1339,7 +1349,7 @@ VIEW frame r-top.
       down with frame sh-ord.
 
       IF tb_excel THEN DO:
-      
+
         IF rd_break EQ "Vendor#" THEN 
            PUT STREAM excel UNFORMATTED
                '"' (IF first-of(tt-report.key-01) THEN tt-report.key-01
@@ -1425,7 +1435,7 @@ VIEW frame r-top.
       ASSIGN
        tot-msf-rem[2] = tot-msf-rem[2] + tot-msf-rem[1]
        tot-qty-ord[2] = tot-qty-ord[2] + tot-qty-ord[1]
-        
+
        tot-qty-ord[1] = 0
        tot-msf-rem[1] = 0
        ll-sub         = NO.
@@ -1459,7 +1469,7 @@ VIEW frame r-top.
          RUN print-grand-total(v-char-ord-qty,
                                v-msf-rem).
     END.
-    
+
     DELETE tt-report.
   END.
 
@@ -1495,12 +1505,12 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha NO-UNDO.
-  
+
   ASSIGN
   lv-frame-hdl = frame {&frame-name}:HANDLE
   lv-group-hdl = lv-frame-hdl:first-child
   lv-field-hdl = lv-group-hdl:first-child.
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1526,23 +1536,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

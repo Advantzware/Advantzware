@@ -139,6 +139,11 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
                                                                         */
+ASSIGN
+       btnOk:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FILL-IN fi_folder IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -147,7 +152,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -196,7 +201,7 @@ DO:
 
       REPEAT:
          IMPORT cFileStream.
-        
+
          IF LENGTH(cFileStream) GE 4 AND
             SUBSTR(cFileStream,LENGTH(cFileStream) - 3) EQ ".jpg" THEN
          DO:
@@ -204,7 +209,7 @@ DO:
                  itemfg.company EQ cocode AND
                  itemfg.i-no = SUBSTR(cFileStream,1,LENGTH(cFileStream) - 4)
                  EXCLUSIVE-LOCK NO-ERROR.
-        
+
             IF AVAIL itemfg THEN
             DO:
                itemfg.box-image = v-graphic-char + itemfg.i-no + ".jpg".
@@ -250,7 +255,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    fi_folder = v-graphic-char.
 
    RUN enable_UI.
-  
+
    IF NOT THIS-PROCEDURE:PERSISTENT THEN
      WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

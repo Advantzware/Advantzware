@@ -37,11 +37,11 @@ DEF VAR lv-audit-dir AS CHAR NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/VAR.i new shared}
-    
+
 assign
  cocode = gcompany
  locode = gloc.
-    
+
 /*
 if v-return then return.
 */
@@ -296,6 +296,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_cust:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -340,7 +350,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -410,7 +420,7 @@ END.
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   DEF VAR lv-post AS LOG NO-UNDO.
-  
+
   run check-date.
   if v-invalid then return no-apply.
 
@@ -475,11 +485,11 @@ DO:
        END. 
        WHEN 6 THEN RUN OUTPUT-to-port.
   end case.
-  
+
   SESSION:SET-WAIT-STATE("").
-  
+
   IF v-postable THEN DO:
-    
+
     lv-post = NO.
 
     MESSAGE "Post Invoices?"
@@ -623,7 +633,7 @@ END.
 ON LEAVE OF tran-date IN FRAME FRAME-A /* Post Date */
 DO:
   assign {&self-name}.
-  
+
   if lastkey ne -1 then do:
     run check-date.
     if v-invalid then return no-apply.
@@ -719,7 +729,7 @@ PROCEDURE check-date :
 ------------------------------------------------------------------------------*/
   DO with frame {&frame-name}:
     v-invalid = no.
-  
+
     find first period                   
         where period.company eq cocode
           and period.pst     le tran-date
@@ -826,7 +836,7 @@ end.
     sys-ctrl.company eq cocode AND
     sys-ctrl.name    eq "AUDITDIR"
     no-lock no-error.
-  
+
   if not avail sys-ctrl then DO TRANSACTION:
      create sys-ctrl.
      assign
@@ -857,7 +867,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
   /*   DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -868,11 +878,11 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY. */
-     
+
 {custom/out2file.i}.     
 
 
@@ -904,18 +914,18 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
 */
 
   /* Use Progress Print. Always use Font#9 in Registry (set above) */
-  
+
     RUN 'adecomm/_osprint.p' (INPUT ?, INPUT list-name,
                             INPUT 3, INPUT 3, INPUT 0, INPUT 0, OUTPUT result).
                                     /* use-dialog(1) and landscape(2) */
-     
+
      IF NOT RESULT THEN v-postable = NO.
   */
  RUN custom/prntproc.p (list-name,INT(lv-font-no),lv-ornt).   
@@ -932,7 +942,7 @@ PROCEDURE output-to-screen :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- 
+
   run scr-rpt.w (list-name,c-win:title,int(lv-font-no),lv-ornt). /* open file-name, title */ 
 END PROCEDURE.
 
@@ -957,12 +967,12 @@ postit:
         /* gdm - 07130905 end */
           and can-find(first ar-cashl where ar-cashl.c-no eq ar-cash.c-no)
         use-index posted,
-      
+
         first reftable
         where reftable.reftable eq "AR-CASH"
           and reftable.code     eq string(ar-cash.c-no,"9999999999")
         use-index CODE on error undo postit, leave postit:
-      
+
       FIND FIRST b-reftable2 WHERE
            b-reftable2.reftable = "ARCASHHOLD" AND
            b-reftable2.rec_key = ar-cash.rec_key
@@ -1045,7 +1055,7 @@ FORMAT HEADER
 
   DISPLAY "" WITH FRAME r-top.
   DISPLAY "" WITH FRAME f-top.
-    
+
   for each ar-cash
       where ar-cash.company   eq cocode
         and ar-cash.posted    eq no
@@ -1062,7 +1072,7 @@ FORMAT HEADER
                        and reftable.code     eq string(ar-cash.c-no,"9999999999")
                      use-index code)
       use-index posted
-      
+
       break by ar-cash.cust-no
             by ar-cash.check-no
       with frame a1:
@@ -1081,7 +1091,7 @@ FORMAT HEADER
     END.
 
     RELEASE reftable no-error.
-    
+
     IF can-find(FIRST ar-cashl WHERE ar-cashl.company = cocode and
                                ar-cashl.c-no = ar-cash.c-no AND
                                (ar-cashl.amt-paid + ar-cashl.amt-disc) < 0 )
@@ -1114,7 +1124,7 @@ FORMAT HEADER
         USE-INDEX c-no
         BREAK BY ar-cashl.line
         WITH FRAME a2 NO-BOX NO-LABELS WIDTH 132:
-      
+
       v2 = v2 + ar-cashl.amt-paid - ar-cashl.amt-disc.
       PUT ar-cashl.inv-no AT 70 ar-cashl.actnum AT 80 SPACE(1)
           ar-cashl.amt-paid - ar-cashl.amt-disc format "->,>>>,>>9.99" TO 126 SKIP.
@@ -1162,9 +1172,9 @@ FORMAT HEADER
       NO-LOCK
       break by ar-cashl.actnum
             by ar-cashl.check-no
-      
+
       with width 132 no-labels:
-      
+
     FIND ar-cash WHERE ar-cash.company = cocode and
                        ar-cash.c-no = ar-cashl.c-no and         
                  /* gdm - 07130905 */
@@ -1195,7 +1205,7 @@ FORMAT HEADER
            NO-LOCK NO-ERROR.
        IF FIRST-OF(ar-cashl.actnum) THEN
        DO:
-       
+
          FIND FIRST account WHERE account.company = cocode AND
            account.actnum  = ar-cashl.actnum NO-LOCK NO-ERROR.
          IF AVAILABLE account THEN
@@ -1227,7 +1237,7 @@ FORMAT HEADER
   PUT "***** TOTAL FOR ALL ACCOUNTS " TO 116
   ACCUMULATE TOTAL ar-cashl.amt-paid - ar-cashl.amt-disc
                 format "->,>>>,>>9.99" TO 132.
-         
+
 OUTPUT CLOSE.
 
 v-ftp-done = NO.
@@ -1291,11 +1301,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1323,23 +1333,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1352,7 +1362,7 @@ PROCEDURE undo-trnum :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO TRANSACTION: 
     /* gdm - 11050906 */
     REPEAT:
@@ -1386,7 +1396,7 @@ PROCEDURE copy-report-to-audit-dir :
   DEF VAR dirname1 AS CHAR FORMAT "X(20)" NO-UNDO.
   DEF VAR dirname2 AS CHAR FORMAT "X(20)" NO-UNDO.
   DEF VAR dirname3 AS CHAR FORMAT "X(20)" NO-UNDO.
-  
+
   ASSIGN targetfile = lv-audit-dir + "\AR\AW4\Run#"
                     + STRING(xtrnum) + ".txt"
          dirname1 = lv-audit-dir

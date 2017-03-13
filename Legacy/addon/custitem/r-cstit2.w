@@ -358,6 +358,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "save".
@@ -382,7 +392,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -474,7 +484,7 @@ END.
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   ASSIGN {&displayed-objects}.
-     
+
   RUN run-report.
 
   CASE rd-dest:
@@ -895,7 +905,7 @@ PROCEDURE output-to-printer :
   DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
   DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
   DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
   RUN custom/prntproc.p (list-name,INT(lv-font-no), lv-ornt).
 
 END PROCEDURE.
@@ -966,7 +976,7 @@ else ls-selection = "".
 SESSION:SET-WAIT-STATE('general').
 
 {sys/inc/sa-sls01.i}
-   
+
 FIND FIRST users WHERE
      users.user_id EQ USERID("NOSWEAT")
      NO-LOCK NO-ERROR.
@@ -992,7 +1002,7 @@ list-name = init-dir + "\cstitm.rpt".
      fill("=",159)  form "x(159)"   /* 126 for font9 (pitch 10) */
      with frame rpt-ttl width 159 no-box no-label stream-io.
 view frame rpt-ttl.     
-     
+
    assign cocode = gcompany
           v-cust[1] = begin_cust-no
           v-cust[2] = end_cust-no
@@ -1008,7 +1018,7 @@ view frame rpt-ttl.
           v-totrel = if rd-tot-rel = "T" or rd-tot-rel = "A" then yes else no
           v-date = ldt-as-of
           .
-              
+
  if rd-tot-rel = "A" then do:
     for each itemfg
         where itemfg.company    eq cocode
@@ -1023,7 +1033,7 @@ view frame rpt-ttl.
           and ((itemfg.pur-man        and v-pur-man eq "P") or
                (not itemfg.pur-man    and v-pur-man eq "M") or v-pur-man eq "A")
           use-index i-no no-lock:
-    
+
         assign  v-qty-avail = itemfg.q-onh + (if v-inconh then itemfg.q-ono else 0)
                 v-alloc-qty = 0.
 
@@ -1066,7 +1076,7 @@ view frame rpt-ttl.
                  report.key-06  = if t-use-cust-inv then string(v-tot-cust-qty,"-999999999999") else "0"
                  report.key-07  = string(v-tot-annual-cons,"-999999999999")
                  /*report.rec-id  = recid(oe-ordl)*/.
-        
+
         end.
        /* =========== end  of no oe-ordl record======= */  
         else do:                   
@@ -1080,7 +1090,7 @@ view frame rpt-ttl.
                           and oe-rel.line    eq oe-ordl.line no-lock
             by oe-rel.rel-date desc
             by oe-rel.r-no     desc:
-        
+
         if oe-rel.cust-no ge v-cust[1] and
            oe-rel.cust-no le v-cust[2] and
            oe-rel.ship-id ge v-ship[1] and
@@ -1145,7 +1155,7 @@ view frame rpt-ttl.
               by report.key-02
               by report.key-03
         transaction:
-        
+
         assign  v-reord-qty = itemfg.ord-level - int(report.key-05) 
                               - int(report.key-06)
                 v-rec-date  = ?.
@@ -1155,7 +1165,7 @@ view frame rpt-ttl.
             and fg-bin.i-no    eq itemfg.i-no
             and fg-bin.qty     gt 0
           no-lock,
-          
+
           each fg-rcpth
           where fg-rcpth.company   eq cocode
             and fg-rcpth.i-no      eq fg-bin.i-no
@@ -1163,7 +1173,7 @@ view frame rpt-ttl.
             and fg-rcpth.job-no2   eq fg-bin.job-no2
             and fg-rcpth.rita-code eq "R"
           no-lock,
-          
+
           each fg-rdtlh
           where fg-rdtlh.r-no      eq fg-rcpth.r-no
             and fg-rdtlh.rita-code eq fg-rcpth.rita-code
@@ -1171,20 +1181,20 @@ view frame rpt-ttl.
             and fg-rdtlh.loc-bin   eq fg-bin.loc-bin
             and fg-rdtlh.tag       eq fg-bin.tag
           no-lock
-          
+
           by fg-rcpth.trans-date
           by fg-rcpth.r-no:
-          
+
         v-rec-date = fg-rcpth.trans-date.  
-          
+
         leave.  
       end.  /* for each fg-bin */
      =======================*/
-     
+
       v-coverage = ( int(report.key-05) + int(report.key-06) ) / 
                    ( int(report.key-07) / 12 ).  /* monthly , weekly : 52 */
       v-mon-coverage =  ( int(report.key-07) / 12 ).
-                        
+
       if rd-tot-rel = "A" and v-reord-qty < 0 then v-reord-qty = 0. 
          /* display even if v-reord-qty < 0 when rd-tot-rel = "A" */
       ls-key-06 = if int(report.key-06) <> 0 then string(int(report.key-06),"->>>>>>9")  else "________". 
@@ -1251,7 +1261,7 @@ view frame rpt-ttl.
           and ((itemfg.pur-man        and v-pur-man eq "P") or
                (not itemfg.pur-man    and v-pur-man eq "M") or v-pur-man eq "A")
         use-index i-no no-lock:
-   
+
       assign
        v-qty-avail = itemfg.q-onh + (if v-inconh then itemfg.q-ono else 0)
        v-alloc-qty = 0.
@@ -1274,7 +1284,7 @@ view frame rpt-ttl.
 
         v-alloc-qty = v-alloc-qty + oe-rel.qty.
       end.
-      
+
       v-qty-avail = v-qty-avail - v-alloc-qty.
 
       if itemfg.ord-level gt v-qty-avail then
@@ -1282,22 +1292,22 @@ view frame rpt-ttl.
           where oe-ordl.company eq cocode
             and oe-ordl.i-no    eq itemfg.i-no
           no-lock,
-            
+
           each oe-rel
           where oe-rel.company eq cocode
             and oe-rel.ord-no  eq oe-ordl.ord-no
             and oe-rel.i-no    eq oe-ordl.i-no
             and oe-rel.line    eq oe-ordl.line
           no-lock
-          
+
           by oe-rel.rel-date desc
           by oe-rel.r-no     desc:
-        
+
         if oe-rel.cust-no ge v-cust[1] and
            oe-rel.cust-no le v-cust[2] and
            oe-rel.ship-id ge v-ship[1] and
            oe-rel.ship-id le v-ship[2] then do:
-        
+
            /* added logic for customer's inventory */
           assign v-tot-cust-qty = 0
                  v-tot-annual-cons = 0
@@ -1323,12 +1333,12 @@ view frame rpt-ttl.
                  report.key-06  = if t-use-cust-inv then string(v-tot-cust-qty,"-999999999999") else "0"
                  report.key-07  = string(v-tot-annual-cons,"-999999999999")
                  report.rec-id  = recid(oe-rel).
-           
+
           leave. 
         end.   
       end.
     end. /* each itemfg */
-    
+
     IF tb_excel THEN DO:
        EXPORT STREAM excel DELIMITER ","
               "Customer"
@@ -1361,7 +1371,7 @@ view frame rpt-ttl.
               by report.key-02
               by report.key-03
         transaction:
-        
+
         assign  v-reord-qty = itemfg.ord-level - int(report.key-05) 
                               - int(report.key-06)
                 v-rec-date  = ?.
@@ -1371,7 +1381,7 @@ view frame rpt-ttl.
             and fg-bin.i-no    eq itemfg.i-no
             and fg-bin.qty     gt 0
           no-lock,
-          
+
           each fg-rcpth
           where fg-rcpth.company   eq cocode
             and fg-rcpth.i-no      eq fg-bin.i-no
@@ -1379,7 +1389,7 @@ view frame rpt-ttl.
             and fg-rcpth.job-no2   eq fg-bin.job-no2
             and fg-rcpth.rita-code eq "R"
           no-lock,
-          
+
           each fg-rdtlh
           where fg-rdtlh.r-no      eq fg-rcpth.r-no
             and fg-rdtlh.rita-code eq fg-rcpth.rita-code
@@ -1387,16 +1397,16 @@ view frame rpt-ttl.
             and fg-rdtlh.loc-bin   eq fg-bin.loc-bin
             and fg-rdtlh.tag       eq fg-bin.tag
           no-lock
-          
+
           by fg-rcpth.trans-date
           by fg-rcpth.r-no:
-          
+
         v-rec-date = fg-rcpth.trans-date.  
-          
+
         leave.  
       end.  /* for each fg-bin */
       ====================================*/
-      
+
       v-coverage = ( int(report.key-05) + int(report.key-06) ) / 
                    ( int(report.key-07) / 12 ).  /* month  weekly - 52 */
       v-mon-coverage =  ( int(report.key-07) / 12 ).             
@@ -1458,7 +1468,7 @@ view frame rpt-ttl.
               itemfg.ord-min            
               v-new-qty.
       END.
-        
+
       delete report.  
     end.
   end. /* else */  
@@ -1494,11 +1504,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1526,23 +1536,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

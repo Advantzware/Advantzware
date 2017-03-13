@@ -242,6 +242,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_prep:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -263,7 +273,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -324,9 +334,9 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&DISPLAYED-OBJECTS}.
   END.
-  
 
-  
+
+
 
   IF g_batch THEN tb_batch = YES.
   IF tb_batch THEN DO:
@@ -497,11 +507,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   IF g_batch THEN tb_batch = YES.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -569,7 +579,7 @@ PROCEDURE output-to-file :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
 {custom/out2file.i}
 END PROCEDURE.
 
@@ -625,13 +635,13 @@ PROCEDURE run-batch :
   Notes:       
 ------------------------------------------------------------------------------*/
  /* DEF VAR printok AS LOG.
-  
+
   SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
-   
+
   RUN custom/usrprtb.p
       ("oerep\s-booked.r", FRAME {&FRAME-NAME}:HANDLE, SESSION:PRINTER-NAME, SESSION:PRINTER-PORT, CURRENT-WINDOW:TITLE).
   */
-  
+
   {BATCH/runbatch.i "windows\r-booked.r"}
 
 END PROCEDURE.
@@ -658,7 +668,7 @@ assign
  str-tit2 = c-win:title
  {sys/inc/ctrtext.i str-tit2 112}.
 
- 
+
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i value(lines-per-page)}
@@ -669,7 +679,7 @@ display "" with frame r-top.
 
   SESSION:SET-WAIT-STATE ("general").
 
-  
+
  FOR EACH prep WHERE prep.company = g_company
                  AND prep.CODE >= begin_prep
                  AND prep.CODE <= END_prep NO-LOCK BY prep.CODE:
@@ -721,11 +731,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -753,23 +763,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

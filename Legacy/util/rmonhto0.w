@@ -206,6 +206,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-build:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -214,7 +224,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -364,29 +374,29 @@ def var titm        like fitm               init "zzzzzzzzzz".
 
 def var v-recid     as   recid.
 def var x           as   int.
-  
-  
+
+
 session:set-wait-state("General").
-  
+
 do with frame {&frame-name}:
   assign
    begin_rm-no
    end_rm-no.
 end.
-  
+
 assign
  fitm = begin_rm-no
  titm = end_rm-no.
-   
+
 {util/rmonhto0.i}
-     
+
 session:set-wait-state("").
 
 message trim(c-win:title) + " Process Complete..." view-as alert-box.
 apply "close" to this-procedure.
 
 return no-apply.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

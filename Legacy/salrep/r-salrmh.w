@@ -7,7 +7,7 @@
   File: salrep\r-salrmh.w
 
   Description: Sales Rep Highlights
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -196,13 +196,23 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -254,10 +264,10 @@ DO:
     SESSION:SET-WAIT-STATE("general").
 
     ASSIGN {&displayed-objects}.
-    
+
     EMPTY TEMP-TABLE tt-report.
     EMPTY TEMP-TABLE tt-raw-salesmen.
-    
+
     IF NOT CAN-FIND(FIRST company WHERE
        company.company EQ fi_company) THEN
        DO:
@@ -266,7 +276,7 @@ DO:
           APPLY "ENTRY:U" TO fi_company IN FRAME {&FRAME-NAME}.
           LEAVE.
        END.
-   
+
     FOR EACH sman FIELDS(sman sname) WHERE
         sman.company EQ fi_company
         NO-LOCK:
@@ -330,14 +340,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   ASSIGN
     fi_company = cocode
     fi_as-of-date = TODAY.
 
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -418,7 +428,7 @@ PROCEDURE raw-salesmen-proc :
 
   EMPTY TEMP-TABLE tt-report.
   EMPTY TEMP-TABLE w-data.
-  
+
   ASSIGN
      v-start-of-year = DATE(1,1,YEAR(fi_as-of-date))
      v-end-of-year   = DATE(12,31,YEAR(fi_as-of-date))
@@ -540,23 +550,23 @@ PROCEDURE raw-salesmen-proc :
          if v-amt  eq ? then v-amt  = 0.
          if v-cost eq ? then v-cost = 0.
          if v-sqft eq ? then v-sqft = 0.
-        
+
          do i = 1 to 3:
            if ar-invl.sman[i] eq tt-report.key-02 then
              assign
               v-pct = ar-invl.s-pct[i] / 100
               i     = 3.
          end.
-        
+
          if v-pct eq 0 then
          do i = 1 to 3:
            if i eq 1 then j = 0.
            if ar-invl.sman[i] ne "" then j = j + 1.
            if i eq 3 then v-pct = 1 / j.
          end.
-        
+
          if v-pct le 0 or v-pct eq ? then v-pct = 1.
-        
+
          IF ar-inv.inv-date EQ tt-raw-salesmen.DATE THEN
             assign
               w-data.w-sqft[1] = w-data.w-sqft[1] + (v-sqft * v-pct)
@@ -570,7 +580,7 @@ PROCEDURE raw-salesmen-proc :
                  w-data.w-sqft[2] = w-data.w-sqft[2] + (v-sqft * v-pct)
                  w-data.w-amt[2]  = w-data.w-amt[2]  + (v-amt  * v-pct)
                  w-data.w-cost[2] = w-data.w-cost[2] + (v-cost * v-pct).
-            
+
             assign
               w-data.w-sqft[3] = w-data.w-sqft[3] + (v-sqft * v-pct)
               w-data.w-amt[3]  = w-data.w-amt[3]  + (v-amt  * v-pct)
@@ -581,20 +591,20 @@ PROCEDURE raw-salesmen-proc :
             v-index = MONTH(ar-inv.inv-date)
             tt-raw-salesmen.amt[v-index] = tt-raw-salesmen.amt[v-index] + (v-amt * v-pct)
             tt-raw-salesmen.msf[v-index] = tt-raw-salesmen.msf[v-index] + (v-sqft * v-pct).
-         
+
       END.
       ELSE DO:
          find ar-cashl where recid(ar-cashl) eq tt-report.rec-id no-lock no-error.
 
          if avail ar-cashl then do:
            find ar-cash where ar-cash.c-no eq ar-cashl.c-no no-lock.
-        
+
            assign
             v-amt  = ar-cashl.amt-paid - ar-cashl.amt-disc
             v-cost = 0
             v-sqft = 0
             v-pct  = 1.
-        
+
            RELEASE itemfg.
            RELEASE ar-invl.
            RELEASE oe-retl.
@@ -609,7 +619,7 @@ PROCEDURE raw-salesmen-proc :
                  where itemfg.company eq fi_company
                    and itemfg.i-no    eq oe-retl.i-no
                  no-lock no-error.
-        
+
              v-sqft = if avail itemfg then
                         oe-retl.tot-qty-return * itemfg.t-sqft / 1000
                       else 0.
@@ -634,30 +644,30 @@ PROCEDURE raw-salesmen-proc :
                               (1 / IF (ACCUM TOTAL 1) EQ 0 THEN 1
                                                            ELSE (ACCUM TOTAL 1))
                            ELSE (ar-invl.amt / ld-inv-pct).
-            
+
               IF ld-inv-pct EQ ? THEN ld-inv-pct = 0.
-            
+
               v-amt = v-amt * ld-inv-pct.
-            
+
               if v-sqft eq ? then v-sqft = 0.
-            
+
               do i = 1 to 3:
                 if ar-invl.sman[i] eq tt-report.key-02 then
                   assign
                    v-pct = ar-invl.s-pct[i] / 100
                    i     = 3.
               end.
-            
+
               if v-pct eq 0 then
               do i = 1 to 3:
                 if i eq 1 then j = 0.
                 if ar-invl.sman[i] ne "" then j = j + 1.
                 if i eq 3 then v-pct = 1 / j.
               end.
-            
+
               if v-pct le 0 or v-pct eq ? then v-pct = 1.
            end.
-           
+
            IF ar-cash.check-date EQ tt-raw-salesmen.DATE THEN
             assign
               w-data.w-sqft[1] = w-data.w-sqft[1] - (v-sqft * v-pct)
@@ -700,7 +710,7 @@ PROCEDURE raw-salesmen-proc :
             tt-raw-salesmen.ytd-amt = tt-raw-salesmen.ytd-amt + w-data.w-amt[3]
             tt-raw-salesmen.ytd-sf = tt-raw-salesmen.ytd-sf + (w-data.w-sqft[3] * 1000)
             tt-raw-salesmen.ytd-cost = tt-raw-salesmen.ytd-cost + w-data.w-cost[3].
-        
+
          DELETE w-data.
       END.
   END.
@@ -732,13 +742,13 @@ PROCEDURE run-report :
 DO WITH FRAME {&FRAME-NAME}:
 
    RUN raw-salesmen-proc. /*Raw Salesmen*/ 
-   
+
    IF tg_only-sales THEN
       FOR EACH tt-raw-salesmen WHERE
           tt-raw-salesmen.ytd-sf EQ 0 AND
           tt-raw-salesmen.ytd-amt EQ 0 AND
           tt-raw-salesmen.ytd-msf EQ 0:
-     
+
           DELETE tt-raw-salesmen.
       END.
 

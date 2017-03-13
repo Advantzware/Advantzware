@@ -336,6 +336,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME Custom                                                    */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_carr:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -422,7 +432,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -743,7 +753,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   begin_date = today.
 
   RUN enable_UI.
@@ -785,7 +795,7 @@ FOR EACH tt-report:
          truck-run-print.po-no  EQ tt-report.po-no AND
          truck-run-print.rec_key NE tt-report.truck-print-key
          NO-LOCK.
-      
+
      IF tt-report.link-no NE 0 
           AND truck-run-print.link-no NE tt-report.link-no THEN
          NEXT.
@@ -832,7 +842,7 @@ FOR EACH tt-report:
        vcTruckDscr = truck.truck-desc.
        RELEASE truck.
      END.
-     
+
       ASSIGN
        bf-tt-report.truck-code    = vcTruckCode
        bf-tt-report.truck-dscr    = vcTruckDscr
@@ -929,7 +939,7 @@ PROCEDURE assign-tt-report-fields :
            (IF tt-report.LOAD GE "" THEN 
                truck-run-print.LOAD = tt-report.LOAD
                ELSE TRUE)*/
-           
+
            NO-LOCK NO-ERROR.
 
    IF AVAIL truck-run-print THEN
@@ -990,7 +1000,7 @@ PROCEDURE assign-tt-report-fields :
          ASSIGN vcTruckCode = truck.truck-code
                 vcTruckDscr = truck.truck-desc.
    END.
-   
+
    ASSIGN
       tt-report.truck-code    = vcTruckCode
       tt-report.truck-dscr    = vcTruckDscr
@@ -1113,13 +1123,13 @@ PROCEDURE generate-data :
       release oe-rell.
       release oe-relh.
       RELEASE oe-boll.
-      
+
       RUN clear-vars-proc.
-      
+
       find first oe-rel 
           where oe-rel.rec_key eq tt-report.rec_key
           no-lock no-error.
-      
+
       if avail oe-rel then do:
          FOR EACH oe-rell
              WHERE oe-rell.company  EQ cocode
@@ -1137,7 +1147,7 @@ PROCEDURE generate-data :
            tt-report.rec_key = oe-rell.rec_key.
            LEAVE.
          END.
-                    
+
          find first oe-ordl
              where oe-ordl.company eq cocode
                and oe-ordl.ord-no  eq oe-rel.ord-no
@@ -1155,7 +1165,7 @@ PROCEDURE generate-data :
               where itemfg.company eq cocode
                 and itemfg.i-no    eq oe-ordl.i-no
              NO-LOCK NO-ERROR.
- 
+
          FIND FIRST oe-boll WHERE
               oe-boll.company = cocode AND
               oe-boll.ord-no  = oe-ordl.ord-no AND
@@ -1180,7 +1190,7 @@ PROCEDURE generate-data :
          IF AVAIL oe-rel THEN
             tt-report.ship-date = oe-rel.rel-date.
       end.
-      
+
       find first oe-rell
            where oe-rell.rec_key eq tt-report.rec_key
            no-lock no-error.
@@ -1229,7 +1239,7 @@ PROCEDURE generate-data :
                   and oe-ordl.i-no    eq oe-boll.i-no
                   and oe-ordl.line    eq tt-report.line
                 NO-LOCK NO-ERROR.
-           
+
             find first itemfg
                  where itemfg.company eq cocode
                    and itemfg.i-no    eq oe-boll.i-no
@@ -1276,14 +1286,14 @@ PROCEDURE generate-data :
                        oe-boll.rel-no  = oe-rel.rel-no
                        NO-LOCK NO-ERROR.
          END.
-         
+
          IF AVAIL oe-boll THEN
          DO:
 
             v-qty = oe-boll.qty.
-           
+
             FIND FIRST oe-bolh OF oe-boll NO-LOCK NO-ERROR.
-           
+
             IF AVAIL oe-bolh THEN
             DO:
                ASSIGN
@@ -1336,7 +1346,7 @@ PROCEDURE generate-data :
 
             ASSIGN v-no-units = v-decu
                    v-pallets  = v-pallets + v-dec.
-      
+
             RELEASE oe-boll.
          END.
          ELSE
@@ -1413,12 +1423,12 @@ PROCEDURE generate-data :
                v-tot-pallets = v-tot-pallets + v-dec.
            END.
 
-          
+
           assign
             v-qty       = oe-rell.qty
             v-ship-id   = oe-relh.ship-id
             viRelNum    = oe-relh.release#.
-         
+
           IF tt-report.no-units NE 0 THEN
              ASSIGN v-no-units = tt-report.no-units
                     v-weight   = tt-report.weight
@@ -1530,17 +1540,17 @@ PROCEDURE generate-data :
               v-dec = TRUNC(v-dec, 0).
           IF v-decu > 0 AND v-dec = 0 THEN
               v-dec = 1.
-         
+
           ASSIGN v-no-units = v-decu
                  v-pallets  = v-pallets + v-dec.
        END.
-      
+
        find first shipto WHERE
             shipto.company eq cocode AND
             shipto.cust-no eq oe-ordl.cust-no AND
             shipto.ship-id eq v-ship-id
             no-lock no-error.
-       
+
        if avail shipto then
        DO:
          assign
@@ -1550,7 +1560,7 @@ PROCEDURE generate-data :
            v-ship-text = SUBSTRING(shipto.ship-addr[1]
                        + "," + vcCity + " " + vcState + " " + vcZip,1,60)
            v-del-zone  = shipto.dest-code.
-       
+
          IF shipto.dest-code NE "" AND
             NOT(shipto.dest-code GE begin_delv AND
             shipto.dest-code LE END_delv)  THEN
@@ -1577,7 +1587,7 @@ PROCEDURE generate-data :
          IF FIRST-OF(tt-report.bol-no) THEN
             ASSIGN v-cum-no-units = 0
                    v-cum-pallets = 0.
-         
+
          ASSIGN v-cum-no-units = v-cum-no-units + tt-report.no-units
                 v-cum-pallets = v-cum-pallets + tt-report.pallets.
 
@@ -1624,7 +1634,7 @@ PROCEDURE run-report :
 
      EMPTY TEMP-TABLE tt-report.
      EMPTY TEMP-TABLE tt-report-bol.
-     
+
      ASSIGN
      {&displayed-objects}
      v-types  = string(tb_posted,"P/")      + string(tb_actual,"A/")      +
@@ -1649,7 +1659,7 @@ PROCEDURE run-report :
                oe-ord.cust-no GE begin_cust-no AND
                oe-ord.cust-no LE end_cust-no
                NO-LOCK:
-         
+
          FOR EACH oe-rel where
              oe-rel.company   eq cocode AND
              oe-rel.ord-no    eq oe-ordl.ord-no AND
@@ -1662,9 +1672,9 @@ PROCEDURE run-report :
              NO-LOCK:
 
              RUN oe/rel-stat.p (ROWID(oe-rel), OUTPUT v-type).
-             
+
              if index("ABP",v-type) gt 0 then next.
-             
+
              IF INDEX(v-types,v-type) GT 0 THEN
              DO:
                 create tt-report.
@@ -1724,7 +1734,7 @@ PROCEDURE run-report :
                    BY oe-rell.rel-no
                    BY oe-rell.b-ord-no
                    BY oe-rell.po-no:
-             
+
          IF LAST-OF(oe-rell.po-no) THEN
              DO:
                 create tt-report.
@@ -1803,9 +1813,9 @@ PROCEDURE run-report :
      RUN generate-data. 
 
      RUN tot-wgt-proc.
-      
 
-     
+
+
      RUN add-saved-recs.
 
      SESSION:SET-WAIT-STATE ("").
@@ -1834,7 +1844,7 @@ PROCEDURE run-report :
      RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
   END.
 
-  
+
 
 /* end ---------------------------------- copr. 2007 Advanced Software, Inc. */
 
@@ -1864,13 +1874,13 @@ PROCEDURE tot-wgt-proc :
           bf-tt-report.truck-code = tt-report.truck-code AND
           bf-tt-report.load-no = tt-report.load-no AND
           bf-tt-report.ship-date = tt-report.ship-date:
-      
+
           ASSIGN tt-report.tot-msf = tt-report.tot-msf + bf-tt-report.msf
                  tt-report.tot-weight = tt-report.tot-weight + bf-tt-report.weight
                  tt-report.tot-units = tt-report.tot-units + bf-tt-report.pallets.
       END.
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

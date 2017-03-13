@@ -300,6 +300,16 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
    Custom                                                               */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
@@ -334,7 +344,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -389,11 +399,11 @@ DO:
   END.
 
   ll-process  = NO.
-   
+
   MESSAGE "Are you sure you want to " + TRIM(c-win:TITLE) +
           " for the selected parameters?"
       VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-process.
-        
+
   IF ll-process THEN RUN run-process.
 END.
 
@@ -420,7 +430,7 @@ END.
 
 /* ***************************  Main Block  *************************** */
 DEF VAR v-mat-list AS CHAR NO-UNDO.
-    
+
 
 {sys/inc/f3helpw.i}
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
@@ -449,7 +459,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     END.
     IF SUBSTR(v-mat-list,LENGTH(TRIM(v-mat-list)),1) EQ "," THEN
       SUBSTR(v-mat-list,LENGTH(TRIM(v-mat-list)),1) = "".
-  
+
     select-mat:LIST-ITEMS = v-mat-list.
   END.
 
@@ -531,7 +541,7 @@ DO WITH FRAME {&FRAME-NAME}:
       IF select-mat:IS-SELECTED(li) THEN
         lv-mat-type = lv-mat-type + TRIM(SUBSTR(select-mat:ENTRY(li),1,5)) + ",".
     END.
-  
+
     IF SUBSTR(lv-mat-type,LENGTH(TRIM(lv-mat-type)),1) EQ "," THEN
       SUBSTR(lv-mat-type,LENGTH(TRIM(lv-mat-type)),1) = "".
   END.

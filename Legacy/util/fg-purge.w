@@ -221,6 +221,16 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE
 
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 /* SETTINGS FOR FRAME FRAME-H
@@ -231,7 +241,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -284,14 +294,14 @@ DO:
      tb_del-all
      tb_del-inv.
   END.
-   
+
   v-process = NO.
 
   MESSAGE "Are you sure you want to delete " +
           (IF tb_del-all THEN "ALL FG Items"
                          ELSE ("FG Item: " + TRIM(del_number))) + "?"
       VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
-                              
+
   IF v-process THEN RUN run-process.
 END.
 
@@ -537,10 +547,10 @@ FOR EACH itemfg
 END.
 
 SESSION:SET-WAIT-STATE("").
-   
+
 MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
 APPLY "close" TO THIS-PROCEDURE.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

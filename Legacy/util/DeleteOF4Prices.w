@@ -248,6 +248,16 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -256,7 +266,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -310,7 +320,7 @@ DO:
   MESSAGE "Are you sure you want to change the Price Matrix(es) within the " +
           "selection parameters?"
       VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
-          
+
   IF v-process THEN RUN run-process.
 END.
 
@@ -553,7 +563,7 @@ ASSIGN
  end-item-no     = end_i-no
  start-prod-cat  = begin_cat
  end-prod-cat    = end_cat.
- 
+
 FOR EACH oe-prmtx EXCLUSIVE-LOCK
     WHERE oe-prmtx.company    EQ cocode 
       AND oe-prmtx.cust-no    GE start-cust-no
@@ -589,7 +599,7 @@ SESSION:SET-WAIT-STATE("").
 
 MESSAGE trim(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
 APPLY "close" TO THIS-PROCEDURE.
-  
+
 /* end ---------------------------------- copr. 2002  advanced software, inc. */
 
 END PROCEDURE.
@@ -606,10 +616,10 @@ FUNCTION isLatestEffDate RETURNS LOGICAL
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
- 
+
     DEF BUFFER lb-oe-prmtx FOR oe-prmtx.
     DEF BUFFER lb-reftable FOR reftable.
-    
+
     FOR EACH lb-oe-prmtx NO-LOCK
         WHERE lb-oe-prmtx.company    EQ cocode 
             AND lb-oe-prmtx.cust-no    EQ ipb-oe-prmtx.cust-no
@@ -628,7 +638,7 @@ FUNCTION isLatestEffDate RETURNS LOGICAL
           IF lb-oe-prmtx.eff-date > ipb-oe-prmtx.eff-date THEN 
             RETURN NO.
     END. /*each price matrix for same item*/
-    
+
     RETURN YES.   /* Function return value. */
 
 END FUNCTION.

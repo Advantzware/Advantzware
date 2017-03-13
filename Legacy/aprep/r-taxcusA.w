@@ -263,6 +263,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -303,7 +313,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -591,7 +601,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    begin_period = month(today)
    begin_date   = today
    end_date     = today.
-   
+
   find first period
       where period.company eq cocode
         and period.yr      eq begin_year
@@ -605,9 +615,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      begin_period = period.pnum
      begin_year   = period.yr
      begin_date   = period.pst.
-   
+
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -775,7 +785,7 @@ format header
        fill("-",107)                format "x(107)"
 
     with frame r-top.
-    
+
 {sa/sa-sls01.i}
 
 SESSION:SET-WAIT-STATE ("general").
@@ -785,7 +795,7 @@ EMPTY TEMP-TABLE tt-report.
 assign
  str-tit2 = c-win:title
  {sys/inc/ctrtext.i str-tit2 112}
- 
+
  v-period  = begin_period
  v-date[1] = begin_date
  v-date[2] = end_date
@@ -806,7 +816,7 @@ END.
 if td-show-parm then run show-param.
 
     FOR each cust where cust.company eq cocode no-lock:
-      
+
       {custom/statusMsg.i " 'Processing Cust #  '  + string(cust.cust-no) "}
 
       for each ar-inv
@@ -837,49 +847,49 @@ if td-show-parm then run show-param.
           use-index ar-cash no-lock:
 
           v-actnum = "".
-         
+
           for each ar-cashl
               where ar-cashl.c-no   eq ar-cash.c-no
                 and ar-cashl.posted eq yes
                 and ar-cashl.memo   eq yes
               use-index c-no no-lock,
-         
+
               first ar-inv
               where ar-inv.company  eq cocode
                 and ar-inv.inv-no   eq ar-cashl.inv-no
                 and ar-inv.tax-code ne ""
               no-lock:
-         
+
               find first stax
                   {sys/ref/staxW.i}
                     and stax.tax-group  eq stax.tax-code[1]
                     and stax.tax-acc[1] eq ar-cashl.actnum
                   no-lock no-error.
-              
+
               if avail stax then do:
                  v-actnum = stax.tax-acc[1].
                  leave.
               end.
           end.
-         
+
           for each ar-cashl
               where ar-cashl.c-no   eq ar-cash.c-no
                 and ar-cashl.posted eq yes
                 and ar-cashl.memo   eq yes
               use-index c-no no-lock,
-         
+
               first ar-inv
               where ar-inv.company  eq cocode
                 and ar-inv.inv-no   eq ar-cashl.inv-no
                 and ar-inv.tax-code ne ""
               no-lock,
-         
+
               first stax
               {sys/ref/staxW.i}
                 and stax.tax-group eq ar-inv.tax-code
                 and stax.tax-group eq stax.tax-code[1]
               no-lock:
-         
+
               create tt-report.
               assign
                tt-report.term-id = v-term
@@ -895,7 +905,7 @@ if td-show-parm then run show-param.
     end.    
 
     VIEW FRAME r-top.
-    
+
     for each stax
         {sys/ref/staxW.i}
           and stax.tax-group eq stax.tax-code[1]
@@ -916,10 +926,10 @@ if td-show-parm then run show-param.
         release ar-inv.
         release ar-cashl.
         release ar-cash.        
-        
+
         {custom/statusMsg.i " 'Processing Cust #  '  + string(tt-report.key-02) 
                      + 'Tax Authority ' +  STRING(tt-report.key-01)  "}
-        
+
         /* if first-of(tt-report.key-02) then do: gdm - */
         if first-of(tt-report.key-01) then do:         
            assign
@@ -928,7 +938,7 @@ if td-show-parm then run show-param.
             v-frtr   = 0
             v-rate-t = 0
             v-frtr-t = 0.
-          
+
            FIND FIRST b-stax
                WHERE b-stax.company   EQ cocode
                  AND b-stax.tax-group EQ tt-report.key-01
@@ -951,14 +961,14 @@ if td-show-parm then run show-param.
         if v-found then do:
 
            find first ar-inv where recid(ar-inv) eq tt-report.rec-id no-lock no-error.
-          
+
            if avail ar-inv then do:
-            
+
               if ar-inv.net eq ar-inv.gross + ar-inv.freight + ar-inv.tax-amt then
                  ld = ar-inv.net.
               else
                  ld = ar-inv.gross.
-             
+
               assign
                 v-sal-gro[1] = v-sal-gro[1] + (ld - ar-inv.tax-amt).
 
@@ -974,34 +984,34 @@ if td-show-parm then run show-param.
                     ASSIGN 
                        v-inv-tax = 0
                        v-frt-tax = 0.
-             
+
               else
                  assign
                     v-inv-tax    = ar-inv.tax-amt
                     v-frt-tax    = 0.
-             
+
               IF v-inv-tax EQ ? THEN v-inv-tax = 0.
               IF v-frt-tax EQ ? THEN v-frt-tax = 0.
-             
+
               if v-rate-t ne 0 then
                  v-tax-amt[1] = v-tax-amt[1] +
                                (v-inv-tax * (v-rate / v-rate-t)).
-             
+
               if v-frtr-t ne 0 then
                  v-tax-amt[1] = v-tax-amt[1] +
                                (v-frt-tax * (v-frtr / v-frtr-t)).
-             
+
               v-freight[1] = IF ar-inv.f-bill THEN ar-inv.freight ELSE 0.  /* OLD actual code */
 
            end.
-          
+
            else
            if tt-report.key-04 eq stax.tax-acc[1] then do:
               find ar-cashl where recid(ar-cashl) eq tt-report.rec-id no-lock no-error.
               find first ar-cash
                   where ar-cash.c-no eq ar-cashl.c-no
                   no-lock no-error.
-             
+
               if ar-cashl.actnum eq stax.tax-acc[1] then
                /* aj old v-tax-amt[1] = ar-cashl.amt-paid - ar-cashl.amt-disc.  */
                  v-tax-amt[1] = v-tax-amt[1] + 
@@ -1010,9 +1020,9 @@ if td-show-parm then run show-param.
               else
                  v-sal-gro[1] = v-sal-gro[1] + ar-cashl.amt-paid - ar-cashl.amt-disc.
            end.      
-         
+
         END. /* gdm - */
-        
+
         IF /*last-of(tt-report.key-01) AND*/ /* gdm - */
            (v-sal-gro[1] ne 0 or
             v-tax-amt[1] ne 0 or
@@ -1032,10 +1042,10 @@ if td-show-parm then run show-param.
                    v-freight[1]
                    v-sal-gro[1] - /* - v-tax-amt[1] */ v-freight[1]
                                          format "->>,>>>,>>9.99"
-          
+
                with frame detail no-box no-labels stream-io width 132.
            DOWN with frame detail no-box no-labels stream-io width 132.
-          
+
            IF tb_excel THEN
              PUT STREAM excel UNFORMATTED
                '"' (IF FIRST-OF(tt-report.key-02) THEN v-tax-dscr[1]
@@ -1055,13 +1065,13 @@ if td-show-parm then run show-param.
                '"' STRING(v-freight[1],"->>,>>>,>>9.99")                 '",'
                '"' STRING(v-sal-gro[1]  - v-freight[1],"->>,>>>,>>9.99")  '",'
                SKIP.         
-          
+
             ASSIGN 
                v-sal-gro[2] = v-sal-gro[2] + v-sal-gro[1]  
                v-tax-amt[2] = v-tax-amt[2] + v-tax-amt[1]  
                v-freight[2] = v-freight[2] + v-freight[1].
         END.
-            
+
         ASSIGN
          v-sal-gro[1] = 0
          v-tax-amt[1] = 0
@@ -1079,7 +1089,7 @@ if td-show-parm then run show-param.
                                        format "->>,>>>,>>9.99"
 
           with frame totals1 no-box no-labels stream-io width 132.
-      
+
       IF tb_excel THEN
         PUT STREAM excel UNFORMATTED
           '"' ""                                                    '",'
@@ -1155,12 +1165,12 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha NO-UNDO.
-  
+
   ASSIGN
   lv-frame-hdl = frame {&frame-name}:HANDLE
   lv-group-hdl = lv-frame-hdl:first-child
   lv-field-hdl = lv-group-hdl:first-child.
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1186,23 +1196,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

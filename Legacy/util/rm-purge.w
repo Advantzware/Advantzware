@@ -304,6 +304,16 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE
 
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FILL-IN lbl_corr IN FRAME FRAME-A
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN lbl_fold IN FRAME FRAME-A
@@ -322,7 +332,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -387,7 +397,7 @@ DO:
           "within the selected parameters?"       
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
           UPDATE v-process.
-        
+
   IF v-process THEN RUN run-process.
 END.
 
@@ -501,9 +511,9 @@ def var v-b-date as date                                     no-undo.
 def var v-e-date as date                                     no-undo.                        
 def var v-job-no like job.job-no extent 2 initial [" ", " "] no-undo.
 def var v-job-no2 like job.job-no2 extent 2 initial [00, 99] no-undo.
-  
+
 session:set-wait-state("General").
-  
+
 assign
  b-item         = begin_item
  e-item         = end_item
@@ -526,7 +536,7 @@ message trim(c-win:title) + " Process Is Completed." view-as alert-box.
 apply "close" to this-procedure.
 
 return no-apply.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

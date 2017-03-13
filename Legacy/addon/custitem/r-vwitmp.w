@@ -16,7 +16,7 @@
   Author: JLF
 
   Created: 05/23/2002 
-  
+
   Modified By : Aj 06/23/2008  Added  code to generate E-mails for 
                                receipts overrun and under run quantity.
 
@@ -59,7 +59,7 @@ DEF VAR init-dir AS CHA NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/VAR.i new shared}
-    
+
 ASSIGN
    cocode = gcompany
    locode = gloc.
@@ -357,6 +357,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-F
    FRAME-NAME                                                           */
+ASSIGN
+       Btn_Cancel:PRIVATE-DATA IN FRAME FRAME-F     = 
+                "ribbon-button".
+
+
+ASSIGN
+       Btn_OK:PRIVATE-DATA IN FRAME FRAME-F     = 
+                "ribbon-button".
+
+
 ASSIGN 
        fi_file:PRIVATE-DATA IN FRAME FRAME-F     = 
                 "parm".
@@ -391,7 +401,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -448,7 +458,7 @@ DO:
    FOR EACH tt-vend-whse-trans:
       DELETE tt-vend-whse-trans.
    END.
-   
+
    RUN run-report. 
 
    CASE rd-dest:
@@ -485,7 +495,7 @@ DO:
 /*        END.                                                 */
       WHEN 6 THEN RUN output-to-port.
    END CASE.
-  
+
    IF ip-post THEN DO: 
       lv-post = CAN-FIND(FIRST tt-vend-whse-trans WHERE tt-vend-whse-trans.has-rec).
 
@@ -745,7 +755,7 @@ END.
 /*       DEF INPUT PARAM mailDialog AS LONG.  */
 /*       DEF OUTPUT PARAM retCode AS LONG.    */
 /* END.                                       */
-  
+
 
 /* ***************************  Main Block  *************************** */    
 DEF VAR choice AS LOG NO-UNDO.
@@ -771,25 +781,25 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
 /*   security check need {methods/prgsecur.i} in definition section */
-  
+
   IF access-close THEN DO:
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-  
+
    DO TRANSACTION:  
       {sys/inc/rmemails.i}
    END.
 
   ASSIGN
    c-win:TITLE = "Usage Post".
-    
+
   RUN enable_UI.
 
 /*   RUN check-date. */
 
   IF NOT ip-post THEN DISABLE v-post-date WITH FRAME {&FRAME-NAME}.
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
 
@@ -821,7 +831,7 @@ PROCEDURE check-date :
 ------------------------------------------------------------------------------*/
 DO WITH FRAME {&FRAME-NAME}:
    ll-valid = YES.
-  
+
    FIND FIRST period WHERE period.company = cocode
                        AND period.pst     LE v-post-date
                        AND period.pend    GE v-post-date NO-LOCK NO-ERROR.
@@ -1106,7 +1116,7 @@ PROCEDURE output-to-file :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-     
+
 {custom/out2file.i}
 
 END PROCEDURE.
@@ -1139,7 +1149,7 @@ PROCEDURE output-to-screen :
   Notes:       
 ------------------------------------------------------------------------------*/
  run scr-rpt.w (list-name,c-win:title,int(lv-font-no),lv-ornt). /* open file-name, title */ 
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1156,9 +1166,9 @@ transblok:
 FOR EACH tt-vend-whse-trans  
    BREAK BY tt-vend-whse-trans.seq-no
    TRANSACTION:                             
-   
+
    FIND vend-whse-trans EXCLUSIVE-LOCK WHERE ROWID(vend-whse-trans) EQ tt-vend-whse-trans.row-id NO-WAIT NO-ERROR.
-      
+
    IF NOT AVAIL vend-whse-trans THEN NEXT transblok.
 
       CREATE vend-whse-trans-hist.
@@ -1174,7 +1184,7 @@ FOR EACH tt-vend-whse-trans
                 tt-vend-whse-trans.upd-time 
                 tt-vend-whse-trans.upd-userid
 
-         
+
 
          TO vend-whse-trans-hist 
          ASSIGN 
@@ -1202,7 +1212,7 @@ FOR EACH tt-vend-whse-trans
 
 /*    IF can-find(FIRST tt-email) THEN      */
 /*       RUN send-rmemail (v-rmemail-file). */
-   
+
     SESSION:SET-WAIT-STATE ("").
 END.
 END PROCEDURE.
@@ -1233,7 +1243,7 @@ ASSIGN
 {sys/inc/ctrtext.i str-tit3 132}
 
 v-head[1] = "".
-                                                                                                                                                
+
 ASSIGN                                                                                                                              
    v-head[2] = FILL(" ",8)  +                     " Customers      Quantity   Customers    PO Customers    Suppliers       Customers  Customers  Customers  Suppliers  Suppliers   Suppliers Item     Cust. Plant"
    v-head[3] =                             "Seq. #  Usage Date          Used         PO# Line#     Part#      FG Item        A/P Code   Plant ID  Dept Code     Order#       Job#       Sell Price     On Hand Qty"
@@ -1324,7 +1334,7 @@ FOR EACH tt-vend-whse-trans
          '"' tt-vend-whse-trans.plant-tot-oh-qty   '",'
          SKIP.
 END.
-    
+
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.
    IF tb_runExcel THEN
@@ -1353,11 +1363,11 @@ PROCEDURE show-param :
    DEF VAR parm-lbl-list   AS CHAR NO-UNDO.
    DEF VAR i               AS INT NO-UNDO.
    DEF VAR lv-label        AS CHAR NO-UNDO.
-  
+
    lv-frame-hdl = FRAME {&FRAME-NAME}:HANDLE.
    lv-group-hdl = lv-frame-hdl:FIRST-CHILD.
    lv-field-hdl = lv-group-hdl:FIRST-CHILD.
-  
+
    DO WHILE TRUE:
       IF NOT VALID-HANDLE(lv-field-hdl) THEN 
          LEAVE.
@@ -1375,7 +1385,7 @@ PROCEDURE show-param :
                   LEAVE. 
                IF lv-field2-hdl:PRIVATE-DATA = lv-field-hdl:NAME THEN
                   parm-lbl-list = parm-lbl-list + lv-field2-hdl:SCREEN-VALUE + ",".
-         
+
                lv-field2-hdl = lv-field2-hdl:NEXT-SIBLING.                 
             END.
          END.
@@ -1387,7 +1397,7 @@ PROCEDURE show-param :
       SPACE(28)
       "< Selection Parameters >"
       SKIP(1).
-  
+
    DO i = 1 TO NUM-ENTRIES(parm-fld-list,","):
       IF ENTRY(i,parm-fld-list) NE "" OR ENTRY(i,parm-lbl-list) NE "" THEN DO:
          lv-label = FILL(" ",34 - LENGTH(TRIM(ENTRY(i,parm-lbl-list)))) + TRIM(ENTRY(i,parm-lbl-list)) + ":".        
@@ -1400,7 +1410,7 @@ PROCEDURE show-param :
    END.
    PUT 
       FILL("-",80) FORMAT "x(80)" SKIP.
-  
+
 END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-param C-Win 

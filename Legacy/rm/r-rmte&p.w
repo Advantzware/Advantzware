@@ -11,7 +11,7 @@
   Author: JLF
 
   Created: 05/23/2002 
-  
+
   Modified By : Aj 06/23/2008  Added  code to generate E-mails for 
                                receipts overrun and under run quantity.
 
@@ -55,7 +55,7 @@ DEF VAR init-dir AS CHA NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/VAR.i new shared}
-    
+
 ASSIGN
  cocode = gcompany
  locode = gloc.
@@ -465,6 +465,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-F
    FRAME-NAME                                                           */
+ASSIGN
+       Btn_Cancel:PRIVATE-DATA IN FRAME FRAME-F     = 
+                "ribbon-button".
+
+
+ASSIGN
+       Btn_OK:PRIVATE-DATA IN FRAME FRAME-F     = 
+                "ribbon-button".
+
+
 ASSIGN 
        fi_file:PRIVATE-DATA IN FRAME FRAME-F     = 
                 "parm".
@@ -520,7 +530,7 @@ THEN C-Win:HIDDEN = NO.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -574,7 +584,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&DISPLAYED-OBJECTS}.    
   END.
-  
+
   IF ip-post THEN DO:
      FIND FIRST period
          WHERE period.company EQ cocode
@@ -611,7 +621,7 @@ DO:
   FOR EACH work-gl:
     DELETE work-gl.
   END.
-       
+
   RUN run-report (OUTPUT lValidQty). 
   IF NOT lValidQty THEN
     RETURN NO-APPLY.
@@ -650,7 +660,7 @@ DO:
        END. 
       WHEN 6 THEN RUN output-to-port.
   END CASE.
-      
+
   IF ip-post THEN DO: 
     lv-post = CAN-FIND(FIRST tt-rctd WHERE tt-rctd.has-rec).
 
@@ -922,7 +932,7 @@ PROCEDURE mail EXTERNAL "xpMail.dll" :
       DEF INPUT PARAM mailDialog AS LONG.
       DEF OUTPUT PARAM retCode AS LONG.
 END.
-      
+
 /* ***************************  Main Block  *************************** */    
 DEF VAR choice AS LOG NO-UNDO.
 DEF VAR ll-auto AS LOG NO-UNDO.
@@ -996,7 +1006,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   IF ll-auto                 AND
      index(v-types,"R") GT 0 AND
      index(v-types,"I") EQ 0 THEN v-types = TRIM(v-types) + "I".
-   
+
   ASSIGN
    v-post-date = TODAY
    t-receipt   = INDEX(v-types,"R") GT 0
@@ -1006,14 +1016,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    v-types     = ""
    c-win:TITLE = IF ip-post THEN "Raw Material Post"
                             ELSE "Raw Material Edit List".
-    
+
   RUN enable_UI.
 
   IF NOT ip-post THEN
      v-post-date:HIDDEN = YES.
   ELSE
      RUN check-date.
-  
+
   DO WITH FRAME {&FRAME-NAME}:
       {custom/usrprint.i}
     IF NOT lFromSS THEN DO:     /* task 10201406 */
@@ -1037,11 +1047,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
            fiAutoIssue:SENSITIVE = (IF v-autoissue = ? THEN YES ELSE NO).
 
 /*     APPLY "entry" TO v-from-job. */
- 
+
   END.
-  
+
   {methods/nowait.i}
-  
+
   IF v-post-date:HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
   DO:
      IF postdate-log THEN DO:
@@ -1143,7 +1153,7 @@ PROCEDURE check-date :
 ------------------------------------------------------------------------------*/
   DO WITH FRAME {&frame-name}:
     ll-valid = YES.
-  
+
     IF v-post-date:HIDDEN = NO THEN
     DO:
        FIND FIRST period                   
@@ -1152,7 +1162,7 @@ PROCEDURE check-date :
              AND period.pend    GE v-post-date
            NO-LOCK NO-ERROR.
        IF AVAIL period THEN tran-period:SCREEN-VALUE = STRING(period.pnum).
-      
+
        ELSE
        IF ip-post THEN DO:
          MESSAGE "No Defined Period Exists for" v-post-date VIEW-AS ALERT-BOX ERROR.
@@ -1206,10 +1216,10 @@ ASSIGN
         NO-LOCK.
         iTotBin = iTotBin + rm-bin.qty.
       END.
-          
+
       IF iTotalI GT iTotBin THEN DO:
         IF NOT lBadIssuesPrompted THEN DO:
-        
+
         MESSAGE "Quantity Issued is greater than Bins On Hand + Unposted Issues for item " + rm-rctd.i-no 
           + " and Tag " + rm-rctd.tag + "." SKIP
           "Please update Issues to post."
@@ -1297,7 +1307,7 @@ PROCEDURE final-steps :
 
   DEF VAR v-int AS INT NO-UNDO.
   DEF VAR v-qty-received AS DEC NO-UNDO.
-  
+
   IF rm-rctd.rita-code EQ "I" AND TRIM(rm-rctd.tag) NE "" THEN
      FOR EACH rec-rm-rdtlh NO-LOCK
          WHERE rec-rm-rdtlh.company   EQ rm-rctd.company
@@ -1308,14 +1318,14 @@ PROCEDURE final-steps :
          WHERE rec-rm-rcpth.r-no      EQ rec-rm-rdtlh.r-no
            AND rec-rm-rdtlh.rita-code EQ rec-rm-rdtlh.rita-code
          NO-LOCK:
-           
+
        IF rm-rctd.po-no EQ "" THEN rm-rctd.po-no = rec-rm-rcpth.po-no.
-    
+
        IF rm-rctd.job-no EQ "" THEN
          ASSIGN
           rm-rctd.job-no = rec-rm-rcpth.job-no
           rm-rctd.job-no2 = rec-rm-rcpth.job-no2.
-    
+
        LEAVE.
      END.
 
@@ -1326,7 +1336,7 @@ PROCEDURE final-steps :
              wiptag.sts = "On Hand" .
        END.
     END.
-  
+
   {rm/rm-rctd.i rm-rcpth rm-rdtlh rm-rctd} /* Create History Records */
 
   IF rm-rctd.rita-code EQ "R" THEN
@@ -1371,7 +1381,7 @@ PROCEDURE getRecordLock:
 
     DEF INPUT PARAMETER iprRec AS RECID NO-UNDO.
     DEF INPUT PARAMETER ipcTable AS CHARACTER NO-UNDO.
-    
+
     DEF VAR wrecid  AS INT NO-UNDO.
     DEF VAR wtable  AS INT NO-UNDO.
     DEF VAR iTryNum AS INT NO-UNDO.
@@ -1381,7 +1391,7 @@ PROCEDURE getRecordLock:
     FIND asi._file WHERE asi._file._file-name = ipcTable NO-LOCK.
     ASSIGN 
         wtable = asi._file._file-num.
-        
+
 
     REPEAT:
 
@@ -1392,7 +1402,7 @@ PROCEDURE getRecordLock:
                 Find ~{&Filename} where RECID(~{&Filename}) = iprRec ~
                               EXCLUSIVE-LOCK NO-ERROR NO-WAIT.  ~
               IF avail(~{&Filename}) THEN RETURN. end.
-                
+
         CASE ipcTable :
         &SCOP Filename item
             {&lock}
@@ -1401,7 +1411,7 @@ PROCEDURE getRecordLock:
             OTHERWISE 
             RETURN ERROR.
         END CASE.
-    
+
 
 
         IF iTryNum EQ 1 THEN 
@@ -1441,11 +1451,11 @@ PROCEDURE getRecordLock:
 
         IF AVAILABLE(asi._lock) THEN 
         DO:
-        
-       
+
+
             IF AVAIL asi._lock THEN
                 FIND FIRST asi._connect WHERE _connect-usr = asi._lock._lock-usr NO-LOCK NO-ERROR.
-        
+
             IF AVAIL asi._connect AND AVAIL asi._lock THEN
                 MESSAGE "Waiting for " ipcTable " record to be unlocked." SKIP
                     "Currently locked by: " asi._lock._lock-name " user# " asi._lock._lock-usr SKIP
@@ -1456,7 +1466,7 @@ PROCEDURE getRecordLock:
                 MESSAGE "Waiting for " ipcTable " record to be unlocked." SKIP
                     "Click OK to try again."
                     VIEW-AS ALERT-BOX INFO BUTTONS OK.
-      
+
         END.
         iTryNum = 0.
         FIND FIRST asi._lock WHERE FALSE NO-LOCK NO-ERROR.
@@ -1480,11 +1490,11 @@ PROCEDURE gl-from-work :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-run AS INT NO-UNDO.
   DEF INPUT PARAM ip-trnum AS INT NO-UNDO.
-  
+
   DEF VAR credits AS DEC INIT 0 NO-UNDO.
   DEF VAR debits AS DEC INIT 0 NO-UNDO. 
 
-  
+
   FIND FIRST period
       WHERE period.company EQ cocode
         AND period.pst     LE v-post-date
@@ -1495,7 +1505,7 @@ PROCEDURE gl-from-work :
       WHERE (ip-run EQ 1 AND work-gl.job-no NE "")
          OR (ip-run EQ 2 AND work-gl.job-no EQ "")
       BREAK BY work-gl.actnum:
-      
+
     ASSIGN
      debits  = debits  + work-gl.debits
      credits = credits + work-gl.credits.
@@ -1546,7 +1556,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
 /*     DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -1557,11 +1567,11 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.  */
-     
+
      {custom/out2file.i}
 
 
@@ -1580,7 +1590,7 @@ PROCEDURE output-to-printer :
      DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1605,7 +1615,7 @@ PROCEDURE output-to-screen :
   Notes:       
 ------------------------------------------------------------------------------*/
  RUN scr-rpt.w (list-name,c-win:TITLE,int(lv-font-no),lv-ornt). /* open file-name, title */ 
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1660,7 +1670,7 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
               BY tt-rctd.i-no
               BY tt-rctd.r-no
               BY RECID(tt-rctd)
-        
+
         TRANSACTION:
 
         RELEASE rm-rctd.
@@ -1669,18 +1679,18 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
       FIND rm-rctd NO-LOCK WHERE ROWID(rm-rctd) EQ tt-rctd.rm-row-id.
       RUN getRecordLock (RECID(rm-rctd), "rm-rctd").
       FIND rm-rctd EXCLUSIVE-LOCK WHERE ROWID(rm-rctd) EQ tt-rctd.rm-row-id.
-      
+
       FIND FIRST item NO-LOCK
         WHERE item.company EQ rm-rctd.company
         AND item.i-no    EQ rm-rctd.i-no
         USE-INDEX i-no NO-WAIT NO-ERROR.
-        
+
       RUN getRecordLock (RECID(item), "item").
       FIND FIRST item EXCLUSIVE-LOCK
           WHERE item.company EQ rm-rctd.company
             AND item.i-no    EQ rm-rctd.i-no
           USE-INDEX i-no .        
-          
+
       IF rm-rctd.rita-code EQ "I" AND INT(rm-rctd.po-no) NE 0 THEN
       FOR EACH xrm-rctd
           WHERE xrm-rctd.company   EQ cocode
@@ -1689,7 +1699,7 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
             AND xrm-rctd.po-no     EQ rm-rctd.po-no
             AND xrm-rctd.r-no      LT rm-rctd.r-no
           NO-LOCK:
-            
+
         UNDO transblok, NEXT transblok.
       END.
 
@@ -1719,7 +1729,7 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
       END. /* not avail rm-bin */
 
       ld-cvt-qty = rm-rctd.qty.
- 
+
       iPo = INTEGER(rm-rctd.po-no) NO-ERROR.
 
       IF NOT ERROR-STATUS:ERROR AND NOT rm-rctd.rita-code EQ "T" AND NOT (rm-rctd.rita-code EQ "A" AND rm-rctd.qty LT 0) THEN
@@ -1731,7 +1741,7 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
                               (IF item.r-wid EQ 0 THEN item.s-wid ELSE item.r-wid),
                               item.s-dep,
                               ld-cvt-qty, OUTPUT ld-cvt-qty).
-        
+
       IF rm-rctd.rita-code EQ "R" THEN DO:        /** RECEIPTS **/
         {rm/rm-post.i "rm-bin.qty" "rm-bin.cost" "rm-rctd.qty" "rm-rctd.cost"}
 
@@ -1741,7 +1751,7 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
          item.q-onh     = item.q-onh + ld-cvt-qty.
 
         {rm/rm-poupd.i 2}
-          
+
         item.q-avail = item.q-onh + item.q-ono - item.q-comm.
       END. /* R */
 
@@ -1763,15 +1773,15 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
                       b-rh.rita-code EQ b-rd.rita-code AND
                       b-rh.i-no      EQ rm-rctd.i-no
                       NO-LOCK:
-           
+
                 rm-rctd.tag2 = b-rd.tag2.
             END.
 
          IF AVAIL job AND job.job-no NE "" THEN DO:
             RUN rm/mkjobmat.p (RECID(rm-rctd),rm-rctd.company, OUTPUT v-recid).
-              
+
             FIND job-mat WHERE RECID(job-mat) EQ v-recid NO-ERROR.
-              
+
             IF NOT AVAIL job-mat THEN DO:
                BELL.
                MESSAGE " Job Mat Record not found for "
@@ -1780,36 +1790,36 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
                        VIEW-AS ALERT-BOX.
                UNDO transblok, NEXT transblok.
             END.
-           
+
             ASSIGN
              v-bwt = job-mat.basis-w
              v-len = job-mat.len
              v-wid = job-mat.wid
              v-dep = item.s-dep.
-           
+
             IF v-len EQ 0 THEN v-len = item.s-len.
-           
+
             IF v-wid EQ 0 THEN
               v-wid = IF item.r-wid NE 0 THEN item.r-wid ELSE item.s-wid.
-           
+
             IF v-bwt EQ 0 THEN v-bwt = item.basis-w.
-           
+
             IF INDEX("RL",job.stat) NE 0 THEN job.stat = "W".
-              
+
             {rm/rmmatact.i}            /* Create Actual Material */
-              
+
             out-qty = rm-rctd.qty.
             IF rm-rctd.pur-uom NE job-mat.qty-uom AND rm-rctd.pur-uom NE "" THEN
                RUN sys/ref/convquom.p(rm-rctd.pur-uom, job-mat.qty-uom,
                                       v-bwt, v-len, v-wid, v-dep,
                                       rm-rctd.qty, OUTPUT out-qty).
-           
+
             cost = rm-rctd.cost.
             IF rm-rctd.pur-uom NE job-mat.sc-uom AND rm-rctd.pur-uom NE "" THEN
                RUN sys/ref/convcuom.p(rm-rctd.pur-uom, job-mat.sc-uom,
                                       v-bwt, v-len, v-wid, v-dep,
                                       rm-rctd.cost, OUTPUT cost).
-           
+
             ASSIGN
              mat-act.qty-uom = job-mat.qty-uom
              mat-act.cost    = cost
@@ -1817,13 +1827,13 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
              job-mat.qty-iss = job-mat.qty-iss + out-qty
              job-mat.qty-all = job-mat.qty-all - out-qty
              item.q-comm     = item.q-comm     - rm-rctd.qty.
-              
+
             RUN sys/ref/convquom.p(rm-rctd.pur-uom, job-mat.sc-uom,
                                    v-bwt, v-len, v-wid, v-dep,
                                    rm-rctd.qty, OUTPUT out-qty).
-           
+
             mat-act.ext-cost = mat-act.ext-cost + (cost * out-qty).
-           
+
             /* Don't relieve more than were allocated */
             IF job-mat.qty-all LT 0 THEN DO:
               RUN sys/ref/convquom.p(job-mat.qty-uom, rm-rctd.pur-uom,
@@ -1833,13 +1843,13 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
                job-mat.qty-all = 0
                item.q-comm     = item.q-comm - out-qty.
             END.
-           
+
             /*job-mat.all-flg = (job-mat.qty-all gt 0).*/
             IF item.q-comm LT 0 THEN item.q-comm = 0.
-           
+
             IF item.mat-type EQ "B" THEN RUN rm/rm-addcr.p (ROWID(rm-rctd)).
          END.
-           
+
          FIND FIRST rm-bin
              WHERE rm-bin.company EQ rm-rctd.company
                AND rm-bin.loc     EQ rm-rctd.loc
@@ -1847,7 +1857,7 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
                AND rm-bin.loc-bin EQ rm-rctd.loc-bin
                AND rm-bin.tag     EQ rm-rctd.tag
              NO-ERROR.
-           
+
          ASSIGN
           rm-bin.qty     = rm-bin.qty - ld-cvt-qty
           item.q-onh     = item.q-onh - ld-cvt-qty
@@ -1962,7 +1972,7 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
           item.avg-cost = cost / v-i-qty.
 
       END. /* each rm-bin */      
-     
+
       /* gdm - 10280903 - Assign prep code received date */
       RUN assign-prep-info. 
       RUN final-steps.
@@ -1988,7 +1998,7 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
                (rm-rctd.user-id GE begin_userid AND
                 rm-rctd.user-id LE end_userid))
         TRANSACTION:
-        
+
       rm-rctd.rita-code = "I".
     END.     
 
@@ -2013,7 +2023,7 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
     END. /* IF rmpostgl */
     IF CAN-FIND(FIRST tt-email) THEN 
       RUN send-rmemail (v-rmemail-file).
-   
+
     SESSION:SET-WAIT-STATE ("").
 
 END PROCEDURE.
@@ -2075,7 +2085,7 @@ FORM tt-rctd.rct-date                   LABEL "DATE"
      tt-rctd.pur-uom                    LABEL "UOM"    
      tt-rctd.cost FORMAT "->>>>9.99"    LABEL "COST"
      v-ext-cost                         LABEL "TOTAL COST"
-     
+
     WITH FRAME itemx NO-BOX DOWN STREAM-IO WIDTH 132.
 
 FORM v-disp-actnum LABEL "G/L ACCOUNT NUMBER"
@@ -2150,9 +2160,9 @@ FORM v-disp-actnum LABEL "G/L ACCOUNT NUMBER"
             NOT AVAIL po-ordl)      OR
            (item.i-code EQ "R" AND
             NOT v-autoissue)        THEN NEXT auto-issue.
-      
+
       EMPTY TEMP-TABLE tt-mat.
-      
+
       RELEASE job.
       IF tt-rctd.job-no NE "" AND tt-rctd.s-num EQ ? THEN
       FIND FIRST job
@@ -2207,7 +2217,7 @@ FORM v-disp-actnum LABEL "G/L ACCOUNT NUMBER"
 
       IF v-create-issue OR (item.i-code EQ "E" AND tt-rctd.tag EQ "") THEN DO:
         FOR EACH tt-mat:
-        
+
           CREATE b-tt-rctd.
           BUFFER-COPY tt-rctd EXCEPT rec_key TO b-tt-rctd
           ASSIGN
@@ -2277,14 +2287,14 @@ FORM v-disp-actnum LABEL "G/L ACCOUNT NUMBER"
               BY tt-rctd.loc-bin                           
               BY tt-rctd.tag
               BY RECID(tt-rctd)
-              
+
         WITH FRAME itemx:                                                   
 
       IF FIRST-OF(tt-rctd.loc) THEN DO:
         v-whse = tt-rctd.loc.
-                   
+
         IF FIRST(tt-rctd.loc) THEN DISPLAY WITH FRAME r-top1.
-        
+
         ELSE PUT SKIP(3) "WHSE: " v-whse.
       END.
 
@@ -2322,7 +2332,7 @@ FORM v-disp-actnum LABEL "G/L ACCOUNT NUMBER"
           NO-ERROR.
 
       v-ext-cost = tt-rctd.cost * tt-rctd.qty.
-       
+
       IF rmpostgl AND AVAIL costtype AND costtype.inv-asset NE ""  AND
          v-ext-cost NE 0 AND v-ext-cost NE ?                       THEN DO:
 
@@ -2486,7 +2496,7 @@ FORM v-disp-actnum LABEL "G/L ACCOUNT NUMBER"
       IF LAST-OF(tt-rctd.i-no) THEN DO:       
 
         IF v-pr-tots THEN DO:
-        
+
           PUT "---------"                           AT 90
               "---------"                           AT 113 SKIP.
 
@@ -2515,7 +2525,7 @@ FORM v-disp-actnum LABEL "G/L ACCOUNT NUMBER"
          v-itmcnt    = 0.      
       END. 
     END. /* each tt-rctd */
-    
+
     IF v-pr-tots THEN DO:
       PUT "-----------"                               AT 90
           "----------"                                AT 113 SKIP.
@@ -2540,7 +2550,7 @@ FORM v-disp-actnum LABEL "G/L ACCOUNT NUMBER"
           WHERE account.company EQ cocode
             AND account.actnum  EQ work-gl.actnum
           NO-LOCK NO-ERROR.
-        
+
       ASSIGN
        v-dscr        = IF AVAIL account THEN account.dscr
                        ELSE "ACCOUNT NOT FOUND - " + work-gl.actnum
@@ -2598,7 +2608,7 @@ PROCEDURE send-rmemail :
      v-cust-rec-key = cust.rec_key.
      RELEASE cust.
   END.
-  
+
   FOR EACH tt-email:
 
       IF tt-email.total-recvd-qty < tt-email.under-qty THEN
@@ -2641,7 +2651,7 @@ PROCEDURE send-rmemail :
                      + " " + tt-email.cons-uom  + " out of a total receipt quantity of "
                      + trim(STRING(tt-email.total-recvd-qty,"-ZZ,ZZZ,ZZ9.99")) + " " + tt-email.cons-uom
                      + ".".
-      
+
       ELSE IF tt-email.undovr = "U" THEN 
          lv-mailbody = lv-mailbody + CHR(10) + "UNDERRUN WARNING - "  
                      + "Raw Material Receipt From "   
@@ -2655,7 +2665,7 @@ PROCEDURE send-rmemail :
                      + " " + tt-email.cons-uom + " out of a total receipt quantity of "
                      + trim(STRING(tt-email.total-recvd-qty,"-ZZ,ZZZ,ZZ9.99"))
                      + " " + tt-email.cons-uom + ".".
-       
+
       ELSE IF tt-email.undovr = "O" THEN 
          lv-mailbody = lv-mailbody + CHR(10) + "OVERRUN WARNING - "   
                      + "Raw Material Receipt From "     
@@ -2674,12 +2684,12 @@ PROCEDURE send-rmemail :
                      + " " + tt-email.cons-uom + ". "
                      + "QTY IS OVERRUN NOT AUTHORIZED.  "  + " "
                      + "NEGATIVE RECEIPT SHOULD BE ISSUED FOR OVERRUN. ".
-      
+
       IF LAST-OF(tt-email.po-no) THEN DO:
-          
+
           {custom/emailList.i &recKey=vend.rec_key &emailList=ls-to-list}
           {custom/emailList.i &recKey=v-cust-rec-key &emailList=ls-to-cust}      
-          
+
           IF ls-to-list + ls-to-cust NE '' THEN DO:
 
             ASSIGN lv-mailbody = LEFT-TRIM(lv-mailbody)
@@ -2725,12 +2735,12 @@ PROCEDURE show-param :
   DEF VAR parm-lbl-list AS cha NO-UNDO.
   DEF VAR i AS INT NO-UNDO.
   DEF VAR lv-label AS cha.
-  
+
   ASSIGN
   lv-frame-hdl = FRAME {&frame-name}:HANDLE
   lv-group-hdl = lv-frame-hdl:FIRST-CHILD
   lv-field-hdl = lv-group-hdl:FIRST-CHILD.
-  
+
   DO WHILE TRUE:
      IF NOT VALID-HANDLE(lv-field-hdl) THEN LEAVE.
      IF LOOKUP(lv-field-hdl:PRIVATE-DATA,"parm") > 0
@@ -2755,23 +2765,23 @@ PROCEDURE show-param :
   PUT SPACE(28)
       "< Selection Parameters >"
       SKIP(1).
-  
+
   DO i = 1 TO NUM-ENTRIES(parm-fld-list,","):
     IF ENTRY(i,parm-fld-list) NE "" OR
        entry(i,parm-lbl-list) NE "" THEN DO:
-       
+
       lv-label = FILL(" ",34 - length(TRIM(ENTRY(i,parm-lbl-list)))) +
                  trim(ENTRY(i,parm-lbl-list)) + ":".
-                 
+
       PUT lv-label FORMAT "x(35)" AT 5
           SPACE(1)
           TRIM(ENTRY(i,parm-fld-list)) FORMAT "x(40)"
           SKIP.              
     END.
   END.
- 
+
   PUT FILL("-",80) FORMAT "x(80)" SKIP.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

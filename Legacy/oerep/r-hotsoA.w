@@ -516,6 +516,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME Custom                                                    */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FILL-IN begin_cad-no IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
@@ -693,7 +703,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -846,7 +856,7 @@ DO:
   ASSIGN
     lv-pdf-file = init-dir + "\OpnOrder"
     is-xprint-form = NO.
-  
+
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
   IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
   EMPTY TEMP-TABLE ttCustList.
@@ -855,7 +865,7 @@ DO:
                     INPUT begin_cust-no,
                     INPUT end_cust-no).
   END.
-  
+
   IF g_batch THEN tb_batch = YES.
   IF v-prompt-excel AND tb_excel THEN DO:
      DEF VAR v-excel-file2 AS cha NO-UNDO.
@@ -863,7 +873,7 @@ DO:
      v-excel-file = v-excel-file + v-excel-file2 + ".csv".
      IF tb_batch THEN DISPLAY v-excel-file WITH FRAME {&FRAME-NAME}.
   END.
-  
+
   IF tb_batch THEN DO:
      RUN run-batch.
      RETURN NO-APPLY.
@@ -928,7 +938,7 @@ END.
 ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1121,7 +1131,7 @@ DO:
      IF lv-ornt = "p" THEN lines-per-page:SCREEN-VALUE = "60".
      ELSE lines-per-page:SCREEN-VALUE = "45".     
   END.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1199,7 +1209,7 @@ END.
 ON VALUE-CHANGED OF tb_excel IN FRAME FRAME-A /* Output to Excel File? */
 DO:
   assign {&self-name}
-        
+
          .
 END.
 
@@ -1273,7 +1283,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   begin_ord-date = TODAY.
   IF g_batch THEN tb_batch = YES.
 
@@ -1287,7 +1297,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      init-dir = "c:\tmp".
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   RUN sys/inc/CustListForm.p ( "OZ8",cocode, 
@@ -1299,16 +1309,16 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {custom/usrprint.i}
     c-win:TITLE = lv-title.
     APPLY "entry" TO begin_cust-no.
-    
+
 
        /*ASSIGN
          v-excel-file:SENSITIVE = YES
          v-excel-file = REPLACE(v-excel-file:SCREEN-VALUE,"/","\")*/
-         
+
        /*IF SUBSTRING(v-excel-file,LENGTH(v-excel-file),1) <> "\"
           THEN v-excel-file = SUBSTRING(v-excel-file,1,R-INDEX(v-excel-file,"\")).
        v-excel-file:SCREEN-VALUE = v-excel-file.*/
-    
+
   END.
   RUN sys/ref/CustList.p (INPUT cocode,
                           INPUT 'OZ8',
@@ -1371,7 +1381,7 @@ PROCEDURE build-tt :
   DEFINE BUFFER b1-shipto FOR shipto.
 
   DEF VAR v-po-no LIKE oe-ord.po-no NO-UNDO.
-  
+
   v-po-no = oe-ordl.po-no.
 
   CREATE tt-report.
@@ -1492,11 +1502,11 @@ PROCEDURE build-tt :
                     b1-shipto.company EQ oe-ordl.company AND
                     b1-shipto.cust-no EQ b1-in-house-cust.cust-no AND
                     b1-shipto.ship-id EQ "WHSE" NO-ERROR.
-   
+
    END.
 
    tt-report.ship-to = (IF AVAIL b1-shipto THEN b1-shipto.ship-id ELSE if avail oe-rel then oe-rel.ship-id else "").
-    
+
    find first job-hdr where job-hdr.company = oe-ordl.company
                                and job-hdr.job-no = oe-ordl.job-no
                                and job-hdr.job-no2 = oe-ordl.job-no2
@@ -1530,7 +1540,7 @@ PROCEDURE build-tt :
                                               and ef.est-no = job-hdr.est-no
                                               and ef.form-no = job-hdr.frm no-lock no-error.
    if avail ef then tt-report.rm-no = ef.board.
-   
+
    FIND FIRST eb WHERE
           eb.company  EQ oe-ordl.company AND
           eb.est-no   EQ oe-ordl.est-no AND
@@ -1614,7 +1624,7 @@ PROCEDURE build-tt :
                       est-op.line LT 500 AND
                       est-op.s-num EQ tt-fg-set.part-qty
                       NO-LOCK:
-              
+
                       IF est-op.b-num EQ 0 OR
                          est-op.b-num EQ tt-fg-set.part-qty-dec THEN
                          tt-fg-set.routing = tt-fg-set.routing + est-op.m-code + ",".
@@ -1630,7 +1640,7 @@ PROCEDURE build-tt :
 
                if avail ef then
                   tt-fg-set.rm-no = ef.board.
-               
+
                FIND FIRST eb WHERE
                     eb.company EQ job-hdr.company AND
                     eb.est-no  EQ job-hdr.est-no AND
@@ -1722,7 +1732,7 @@ PROCEDURE calc-qoh :
    vdat     = TODAY
    v-curr   = YES
    v-q-or-v = YES.
-  
+
   FOR EACH itemfg
       WHERE itemfg.company EQ cocode
         AND itemfg.i-no    EQ oe-ordl.i-no
@@ -1843,7 +1853,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1929,7 +1939,7 @@ FORMAT HEADER
        SKIP(1)
        "Sales Rep:"
        lv-slsmn
-       
+
     WITH FRAME r-top2 NO-LABELS NO-BOX NO-UNDERLINE PAGE-TOP STREAM-IO WIDTH 200.
 
 FORMAT s-b-line
@@ -1961,7 +1971,7 @@ FORMAT HEADER
        "-------------"
        "----------"
        "----------"
-      
+
     WITH FRAME r-top3 NO-LABELS NO-BOX NO-UNDERLINE PAGE-TOP STREAM-IO WIDTH 200.
 
 
@@ -1982,7 +1992,7 @@ ASSIGN
               trim(begin_job-no) + string(int(begin_job-no2),"99")
  v-job[2]   = fill(" ",6 - length(trim(end_job-no)))   +
               trim(end_job-no)   + string(int(end_job-no2),"99")
- 
+
  v-sort     = substr(rd_sort,1,2).
 
 {sys/inc/print1.i}
@@ -2084,11 +2094,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -2116,23 +2126,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

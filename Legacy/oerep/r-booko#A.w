@@ -340,6 +340,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -410,7 +420,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -756,13 +766,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   assign
    begin_ord-date = today
    end_ord-date   = today.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -835,7 +845,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
   /*   DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -846,9 +856,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
 */
       {custom/out2file.i}
@@ -881,7 +891,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1027,7 +1037,7 @@ DO:
      excelheader = excelheader + "Item/Misc Chg,Description,Quantity,Cost/M,Price,UOM,Ext Price".
 
   OUTPUT STREAM excel TO VALUE(fi_file).
-  
+
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
 
@@ -1072,7 +1082,7 @@ for each oe-ord
         oe-ord.cust-no
         oe-ord.cust-name
       with frame ord.
-    
+
     v-tot-ord[1] = 0.
 
     for each oe-ordl
@@ -1163,7 +1173,7 @@ for each oe-ord
                 v-margin 
               with frame ordl.
             down with frame ordl.
-            
+
             IF tb_excel THEN
             DO:
 
@@ -1263,7 +1273,7 @@ for each oe-ord
                                   THEN "N/C"  
                                   ELSE TRIM(STRING(oe-ordm.amt)).
         END.
-       
+
         if oe-ordm.bill eq "Y" then 
         do:
             v-tot-ord[1] = v-tot-ord[1] + oe-ordm.amt.
@@ -1293,7 +1303,7 @@ for each oe-ord
           ExtList.ord-date  = oe-ord.ord-date
           ExtList.cust-no   = oe-ord.cust-no
           ExtList.cust-name = oe-ord.cust-name.
-        
+
         CASE oe-ord.stat:
             WHEN "H" THEN
               ExtList.i-name  = "** THIS ORDER IS ON CREDIT HOLD **".
@@ -1307,7 +1317,7 @@ for each oe-ord
     put "Total Order" at 75 v-tot-ord[1] to 102 skip(1).
 
     v-tot-ord[2] = v-tot-ord[2] + v-tot-ord[1].
-    
+
     if last(oe-ord.ord-no) then 
     do:
         if v-prt-cont then 
@@ -1361,11 +1371,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1393,23 +1403,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

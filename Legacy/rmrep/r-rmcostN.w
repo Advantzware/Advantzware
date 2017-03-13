@@ -473,6 +473,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_mat:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -530,7 +540,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -692,7 +702,7 @@ DO:
 
   RUN DisplaySelectionDefault.  /* task 04041406 */ 
   RUN DisplaySelectionList2 .
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -871,7 +881,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
-  
+
    IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
        sl_selected:NUM-ITEMS = 0)
    THEN ASSIGN ldummy = sl_selected:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
@@ -879,7 +889,7 @@ DO:
               /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
                .
 
-  
+
 /* for pairs
     DEF VAR cSelectedList AS cha NO-UNDO.
     cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
@@ -922,7 +932,7 @@ DO:
   ASSIGN
     {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}:ENTRY(1)
     .
-    
+
 
 END.
 
@@ -1006,7 +1016,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   RUN DisplaySelectionList.
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -1053,7 +1063,7 @@ PROCEDURE DisplaySelectionDefault :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  
+
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
      cListContents = cListContents +                   
@@ -1079,7 +1089,7 @@ PROCEDURE DisplaySelectionList :
   DEF VAR iCount AS INT NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
-     
+
      RETURN.
   END.
 
@@ -1092,7 +1102,7 @@ PROCEDURE DisplaySelectionList :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1100,9 +1110,9 @@ PROCEDURE DisplaySelectionList :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 END PROCEDURE.
 
@@ -1123,7 +1133,7 @@ PROCEDURE DisplaySelectionList2 :
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
-        
+
   EMPTY TEMP-TABLE ttRptList.
 
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
@@ -1133,7 +1143,7 @@ PROCEDURE DisplaySelectionList2 :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1141,9 +1151,9 @@ PROCEDURE DisplaySelectionList2 :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
   DO iCount = 1 TO sl_selected:NUM-ITEMS:
@@ -1215,12 +1225,12 @@ FOR EACH tt-e-i-v BREAK BY tt-e-i-v.vend-no:
             SPACE(1) tt-e-i-v.std-uom to 49
             SPACE(1) "$" tt-e-i-v.run-cost[1] FORMAT ">>>,>>9.9999"
             SPACE(3). */
-       
+
         IF v-export THEN 
            PUT STREAM s-temp 
                '"' STRING(tt-e-i-v.run-qty[1],">>>>>>9.9<<")     '",'
                '"' "$" STRING(tt-e-i-v.run-cost[1],">>>>>9.9999") '",'.
-       
+
         DO j = 1 to 5:
          /*  IF tt-e-i-v.roll-w[j] NE 0 THEN
               PUT tt-e-i-v.roll-w[j] SPACE(3). */
@@ -1232,25 +1242,25 @@ FOR EACH tt-e-i-v BREAK BY tt-e-i-v.vend-no:
         IF v-export THEN
             PUT SKIP.
      END.
-    
+
      ELSE 
      IF tt-e-i-v.run-qty[i] NE 0 THEN DO:
-    
+
       /*  PUT tt-e-i-v.run-qty[i] FORMAT ">,>>>,>>9.9<<" TO 45
             SPACE(5) "$" tt-e-i-v.run-cost[i] FORMAT ">>>,>>9.9999" " " AT 66. */
-        
+
         IF v-export THEN 
            PUT STREAM s-temp 
                '"' STRING(tt-e-i-v.run-qty[i],">>>>>>9.9<<")     '",'
                '"' "$" STRING(tt-e-i-v.run-cost[i],">>>>>9.9999") '",'.
-        
+
      END.
      ELSE DO:
        /* PUT SPACE(66).*/
         IF v-export THEN 
            PUT STREAM s-temp ",,".
      END.
-     
+
      IF i GT 1 AND i LT 7 THEN
      DO:
         DO j = 1 TO 5:
@@ -1258,7 +1268,7 @@ FOR EACH tt-e-i-v BREAK BY tt-e-i-v.vend-no:
            DO:
              /* IF tt-e-i-v.roll-w[((i - 1) * 5) + j] ne 0 THEN
                  PUT tt-e-i-v.roll-w[((i - 1) * 5) + j] SPACE(3).*/
-             
+
               IF v-export THEN 
                  PUT STREAM s-temp '"' STRING(tt-e-i-v.roll-w[((i - 1) * 5) + j],">>9.9999") '",'.
            END.
@@ -1267,7 +1277,7 @@ FOR EACH tt-e-i-v BREAK BY tt-e-i-v.vend-no:
             PUT SKIP.
      END.
   END.
-  
+
   PUT SKIP.
   DOWN.
 END. 
@@ -1328,7 +1338,7 @@ FOR EACH tt-e-i-v BREAK BY tt-e-i-v.vend-no:
   DOWN.
 END.
 IF v-export THEN PUT STREAM s-temp SKIP.
-            
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1349,7 +1359,7 @@ PROCEDURE GetSelectionList :
 
  DO i = 1 TO sl_selected:NUM-ITEMS /* IN FRAME {&FRAME-NAME}*/ :
     FIND FIRST ttRptList WHERE ttRptList.TextList = ENTRY(i,cTmpList) NO-LOCK NO-ERROR.     
-  
+
     CREATE ttRptSelected.
     ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
            ttRptSelected.FieldList = ttRptList.FieldList
@@ -1358,7 +1368,7 @@ PROCEDURE GetSelectionList :
            ttRptSelected.HeadingFromLeft = IF entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
-           
+
  END.
 
 END PROCEDURE.
@@ -1500,7 +1510,7 @@ IF AVAIL e-item THEN DO:
 	     b-qty.CODE    = e-item-vend.i-no AND
          b-qty.code2   = e-item-vend.vend-no
          NO-LOCK NO-ERROR.
-    
+
     IF AVAIL b-qty THEN
     DO:
        FIND FIRST b-cost WHERE
@@ -1509,7 +1519,7 @@ IF AVAIL e-item THEN DO:
 	        b-cost.CODE    = e-item-vend.i-no AND
             b-cost.code2   = e-item-vend.vend-no
             NO-LOCK NO-ERROR.
-    
+
        DO v-index = 1 TO 10:
           ASSIGN
              tt-e-i-v.run-qty[v-index + 10] = b-qty.val[v-index]
@@ -1535,7 +1545,7 @@ IF AVAIL e-item THEN DO:
           tt-e-i-v.run-qty[v-index] = e-item.run-qty[v-index]
           tt-e-i-v.roll-w[v-index] = e-item.roll-w[v-index].
     END.
-       
+
     FIND FIRST b-blank-vend-qty NO-LOCK WHERE
          b-blank-vend-qty.reftable = "blank-vend-qty" AND
          b-blank-vend-qty.company = e-item.company AND
@@ -1629,7 +1639,7 @@ SESSION:SET-WAIT-STATE ("general").
 ASSIGN 
    str-tit2 = c-win:title + " - Board/Paper List"
    {sys/inc/ctrtext.i str-tit2 112}.
- 
+
 DISPLAY "" WITH FRAME r-top.
 /*      
 IF dor THEN DO:
@@ -1638,7 +1648,7 @@ IF dor THEN DO:
          PUT STREAM s-temp UNFORMATTED
             "CAT,ITEM,DESCRIPTION,CALIPER,WEIGHT,COST,UOM,On Hand,On Order,Allocated,Available"
             SKIP.
-       
+
       FOR EACH ITEM NO-LOCK WHERE 
                item.company = cocode 
            AND item.loc = locode 
@@ -1657,7 +1667,7 @@ IF dor THEN DO:
          v-printed = YES.
 
          FIND FIRST rm-ctrl WHERE rm-ctrl.company = cocode NO-LOCK.
-         
+
          IF rm-ctrl.avg-lst-cst = TRUE THEN  
             rm-cst-amt = item.avg-cost.
          ELSE
@@ -1675,9 +1685,9 @@ IF dor THEN DO:
             item.q-ono
             item.q-comm
             item.q-avail.
-        
+
          DOWN.
-              
+
          IF v-export THEN DO:
             ASSIGN v-procat = IF FIRST-OF(item.procat) THEN item.procat ELSE "".
             PUT STREAM s-temp 
@@ -1695,7 +1705,7 @@ IF dor THEN DO:
                SKIP. 
          END.
       END. /* end for for each */
-     
+
    END. /* non detail ends here */
    ELSE DO:
 
@@ -1856,7 +1866,7 @@ IF dor THEN DO:
                '"' item.dept-name[10]  '",'   
                '"' item.speed%[10 ]    '",'
                 .              
-                
+
          END.
 
          DO WITH FRAME item2:
@@ -1934,7 +1944,7 @@ IF dor THEN DO:
                '"' item.q-avail     '",'
                .
          END. /* end for frame item2 */
-                 
+
          RUN est-board (ROWID(item)).
 
       END. /* end for each */
@@ -1950,7 +1960,7 @@ IF doe THEN DO:
          "DESCRIPTION,"                    
          "CALIPER WEIGHT,"   
          "<               Valid   Roll   Widths               >"
-       
+
          SKIP.
     END.
 
@@ -1976,7 +1986,7 @@ IF doe THEN DO:
          item.cal
          item.basis-w.
       PUT SKIP.
-               
+
       IF v-export THEN DO:
          v-procat = IF first-of(item.procat) THEN item.procat
                  ELSE "".
@@ -1988,9 +1998,9 @@ IF doe THEN DO:
             '"' item.cal      '",'
             '"' item.basis-w  '"'
          SKIP.
-             
+
       END.
-      
+
       RUN est-board (ROWID(item)).
     END.
 END. */
@@ -2043,7 +2053,7 @@ FORM
 HEADER
    "CAT   ITEM       DESCRIPTION                      Lbs/Cas Cas/Pal"
     WITH FRAME iteme NO-BOX NO-LABELS DOWN STREAM-IO WIDTH 119.
-    
+
 
 ASSIGN
    str-tit2 = c-win:title + " - Corrugated Case List"
@@ -2070,9 +2080,9 @@ IF dor THEN DO:
                BY item.mat-type 
                BY item.procat 
                BY item.i-no WITH FRAME itemx:
-         
+
          v-printed = YES.
-         
+
          DISPLAY
             item.procat  WHEN FIRST-OF(item.procat)
             item.i-no
@@ -2087,18 +2097,18 @@ IF dor THEN DO:
             item.q-comm
             item.q-avail.
          DOWN.
-         
+
          IF v-export THEN DO:
             IF FIRST-OF(ITEM.procat) THEN 
                   v-procat = ITEM.procat.
                ELSE
                   v-procat = "".
-      
+
                IF ce-ctrl.r-cost = NO THEN
                   v-last-cost = ITEM.last-cost.
                ELSE
                   v-last-cost = item.avg-cost.
-         
+
                PUT STREAM s-temp UNFORMATTED 
                   '"' v-procat      '",'
                   '"' item.i-no     '",'
@@ -2136,9 +2146,9 @@ IF dor THEN DO:
                BY item.mat-type 
                BY item.procat 
                BY item.i-no WITH FRAME item:
-        
+
          v-printed = yes.
-        
+
          DISPLAY
             item.i-no
             item.i-name
@@ -2217,7 +2227,7 @@ IF dor THEN DO:
                v-loc-descr = loc.dscr.
             ELSE
                v-loc-descr = "".
-            
+
             PUT STREAM s-temp UNFORMATTED 
                '"' item.vend-no     '",'
                '"' item.vend-item   '",'
@@ -2291,7 +2301,7 @@ IF doe THEN DO:
             v-procat = ITEM.procat.
          ELSE
             v-procat = "".
-         
+
          PUT STREAM s-temp UNFORMATTED
             '"' v-procat      '",'
             '"' item.i-no     '",'
@@ -2346,7 +2356,7 @@ header
 ASSIGN
    str-tit2 = c-win:TITLE + " - Film/Leaf List"
    {sys/inc/ctrtext.i str-tit2 112}.
- 
+
 DISPLAY "" WITH FRAME r-top.
       /*
 IF dor THEN DO:
@@ -2373,9 +2383,9 @@ IF dor THEN DO:
                BY item.procat 
                BY item.i-no 
          WITH FRAME itemx:
-      
+
          v-printed = yes.
-      
+
          DISPLAY
             item.procat    WHEN FIRST-OF(item.procat)
             item.i-no
@@ -2395,12 +2405,12 @@ IF dor THEN DO:
                v-procat = ITEM.procat.
             ELSE
                v-procat = "".
-   
+
             IF ce-ctrl.r-cost = NO THEN
                v-last-cost = ITEM.last-cost.
             ELSE
                v-last-cost = item.avg-cost.
-      
+
             PUT STREAM s-temp UNFORMATTED 
                '"' v-procat      '",'
                '"' item.i-no     '",'
@@ -2440,9 +2450,9 @@ IF dor THEN DO:
                BY item.procat 
                BY item.i-no 
          WITH FRAME item:
-      
+
          v-printed = YES.
-         
+
          DISPLAY
             item.i-no
             item.i-name
@@ -2586,7 +2596,7 @@ IF doe THEN DO:
             v-procat = ITEM.procat.
          ELSE
             v-procat = "".
-         
+
          PUT STREAM s-temp UNFORMATTED
             '"' v-procat      '",'
             '"' item.i-no     '",'
@@ -2642,7 +2652,7 @@ HEADER
 ASSIGN
    str-tit2 = c-win:title + " - Adhesives List"
    {sys/inc/ctrtext.i str-tit2 112}.
- 
+
 DISPLAY "" WITH FRAME r-top.
  /*
 IF dor THEN DO:
@@ -2665,9 +2675,9 @@ IF dor THEN DO:
                BY item.mat-type 
                BY item.procat 
                BY item.i-no WITH FRAME itemx:
-         
+
          v-printed = YES.
-            
+
          DISPLAY
             item.procat  WHEN FIRST-OF(item.procat)
             item.i-no
@@ -2688,12 +2698,12 @@ IF dor THEN DO:
                   v-procat = ITEM.procat.
                ELSE
                   v-procat = "".
-      
+
                IF ce-ctrl.r-cost = NO THEN
                   v-last-cost = ITEM.last-cost.
                ELSE
                   v-last-cost = item.avg-cost.
-         
+
                PUT STREAM s-temp UNFORMATTED 
                   '"' v-procat      '",'
                   '"' item.i-no     '",'
@@ -2732,9 +2742,9 @@ IF dor THEN DO:
                BY item.mat-type 
                BY item.procat  
                BY item.i-no WITH FRAME item:
-      
+
          v-printed = YES.
-      
+
          DISPLAY
             item.i-no
             item.i-name
@@ -2746,7 +2756,7 @@ IF dor THEN DO:
             item.procat
             item.sqin-lb      WHEN item.sqin-lb   NE 0
             item.linin-lb     WHEN item.linin-lb  NE 0.
-         
+
          IF v-export THEN DO:
             PUT STREAM s-temp UNFORMATTED 
                '"' item.i-no        '",'
@@ -2798,7 +2808,7 @@ IF dor THEN DO:
                item.q-back       WHEN item.q-back  NE 0
                item.q-avail      WHEN item.q-avail NE 0.
          END.
-         
+
          IF v-export THEN DO:
             IF AVAIL loc THEN 
                v-loc-descr = loc.dscr.
@@ -2880,7 +2890,7 @@ IF doe THEN DO:
             v-procat = ITEM.procat.
          ELSE
             v-procat = "".
-         
+
          PUT STREAM s-temp UNFORMATTED
             '"' v-procat      '",'
             '"' item.i-no     '",'
@@ -2893,7 +2903,7 @@ IF doe THEN DO:
       RUN est-not-board (ROWID(item)).
    END.
 END.*/
- 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2936,7 +2946,7 @@ header
 ASSIGN
    str-tit2 = c-win:title + " - Ink/Coating List"
    {sys/inc/ctrtext.i str-tit2 112}.
- 
+
 DISPLAY "" WITH FRAME r-top.
 /*
 IF dor THEN DO:
@@ -2945,7 +2955,7 @@ IF dor THEN DO:
          PUT STREAM s-temp UNFORMATTED 
             "CAT,ITEM,DESCRIPTION,Min.Lbs,MSI/Lb,COST,UOM,On Hand,On Order,Allocated,Available"                 
          SKIP. 
-      
+
       FOR EACH ITEM NO-LOCK WHERE
                item.company = cocode 
           AND item.loc = locode 
@@ -2959,9 +2969,9 @@ IF dor THEN DO:
                BY item.mat-type 
                BY item.procat 
                BY item.i-no WITH FRAME itemx:
-      
+
          v-printed = yes.
-     
+
          DISPLAY 
             item.procat  WHEN FIRST-OF(item.procat)
             item.i-no
@@ -2976,18 +2986,18 @@ IF dor THEN DO:
             item.q-comm
             item.q-avail.
          DOWN.
-         
+
          IF v-export THEN DO:
             IF FIRST-OF(ITEM.procat) THEN 
                v-procat = ITEM.procat.
             ELSE
                v-procat = "".
-   
+
             IF ce-ctrl.r-cost = NO THEN
                v-last-cost = ITEM.last-cost.
             ELSE
                v-last-cost = item.avg-cost.
-      
+
             PUT STREAM s-temp UNFORMATTED 
                '"' v-procat      '",'
                '"' item.i-no     '",'
@@ -3027,9 +3037,9 @@ IF dor THEN DO:
                BY item.mat-type  
                BY item.procat  
                BY item.i-no WITH FRAME item:
-            
+
          v-printed = yes.
-         
+
          DISPLAY
             item.i-no
             item.i-name
@@ -3098,7 +3108,7 @@ IF dor THEN DO:
                item.q-back       WHEN item.q-back  NE 0
                item.q-avail      WHEN item.q-avail NE 0.
          END.
-         
+
          IF v-export THEN DO:
             IF AVAIL loc THEN 
                v-loc-descr = loc.dscr.
@@ -3146,7 +3156,7 @@ END.
 
 IF doe THEN DO:
    IF v-printed THEN PAGE.
-   
+
    IF v-export THEN
       PUT STREAM s-temp UNFORMATTED
          "CAT,ITEM,DESCRIPTION,Min.Lbs,MSI/Lb"
@@ -3180,7 +3190,7 @@ IF doe THEN DO:
             v-procat = ITEM.procat.
          ELSE
             v-procat = "".
-         
+
          PUT STREAM s-temp UNFORMATTED
             '"' v-procat      '",'
             '"' item.i-no     '",'
@@ -3239,17 +3249,17 @@ HEADER
 ASSIGN
    str-tit2 = c-win:title + " - Miscellaneous List"
    {sys/inc/ctrtext.i str-tit2 112}.
- 
+
 DISPLAY "" WITH FRAME r-top.
     /*  
 IF dor THEN DO:
    IF NOT detail THEN DO:
-            
+
       IF v-export THEN 
          PUT STREAM s-temp UNFORMATTED 
             "CAT,ITEM,DESCRIPTION,COST,UOM,On Hand,On Order,Allocated,Available"                 
          SKIP. 
-      
+
       FOR EACH item NO-LOCK WHERE 
                item.company EQ cocode
            AND item.i-code  EQ "R"
@@ -3260,9 +3270,9 @@ IF dor THEN DO:
                BY item.mat-type
                BY item.procat
                BY item.i-no WITH FRAME itemx:
-                 
+
          v-printed = YES.
-            
+
          DISPLAY
             item.procat  WHEN FIRST-OF(item.procat)
             item.i-no
@@ -3281,12 +3291,12 @@ IF dor THEN DO:
                   v-procat = ITEM.procat.
                ELSE
                   v-procat = "".
-      
+
                IF ce-ctrl.r-cost = NO THEN
                   v-last-cost = ITEM.last-cost.
                ELSE
                   v-last-cost = item.avg-cost.
-         
+
                PUT STREAM s-temp UNFORMATTED 
                   '"' v-procat      '",'
                   '"' item.i-no     '",'
@@ -3321,9 +3331,9 @@ IF dor THEN DO:
                BY item.mat-type
                BY item.procat
                BY item.i-no WITH FRAME item:
-           
+
          v-printed = YES. 
-           
+
          DISPLAY 
             item.i-no
             item.i-name
@@ -3345,12 +3355,12 @@ IF dor THEN DO:
                '"' item.est-dscr    '",'
                '"' item.procat      '",'.
          END.         
-         
+
          DO WITH FRAME item2:
             FIND FIRST loc WHERE 
                        loc.company = cocode 
                AND loc.loc = item.loc NO-LOCK NO-ERROR.
-            
+
             DISPLAY
                item.vend-no
                item.vend-item
@@ -3386,7 +3396,7 @@ IF dor THEN DO:
                item.q-avail      WHEN item.q-avail NE 0 
                SKIP.
          END.
-         
+
          IF v-export THEN DO:
             IF AVAIL loc THEN 
                v-loc-descr = loc.dscr.
@@ -3462,7 +3472,7 @@ IF doe THEN DO:
             v-procat = ITEM.procat.
          ELSE
             v-procat = "".
-         
+
          PUT STREAM s-temp UNFORMATTED
             '"' v-procat      '",'
             '"' item.i-no     '",'
@@ -3619,9 +3629,9 @@ SESSION:SET-WAIT-STATE ("general").
 ASSIGN 
    str-tit2 = c-win:title + " - Board/Paper List"
    {sys/inc/ctrtext.i str-tit2 112}.
- 
+
 DISPLAY "" WITH FRAME r-top.
-      
+
 IF v-export THEN DO:
     OUTPUT STREAM s-temp TO VALUE(fi_file).
     PUT STREAM s-temp UNFORMATTED '"' REPLACE(excelheader,',','","') '"' skip.
@@ -3636,7 +3646,7 @@ ASSIGN str-tit4 = ""
          PUT STREAM s-temp UNFORMATTED
             "CAT,ITEM,DESCRIPTION,CALIPER,WEIGHT,COST,UOM,On Hand,On Order,Allocated,Available"
             SKIP.
-       
+
       FOR EACH ITEM NO-LOCK WHERE 
                item.company = cocode 
            AND item.loc = locode 
@@ -3655,7 +3665,7 @@ ASSIGN str-tit4 = ""
          v-printed = YES.
 
          FIND FIRST rm-ctrl WHERE rm-ctrl.company = cocode NO-LOCK.
-         
+
          IF rm-ctrl.avg-lst-cst = TRUE THEN  
             rm-cst-amt = item.avg-cost.
          ELSE
@@ -3673,9 +3683,9 @@ ASSIGN str-tit4 = ""
             item.q-ono
             item.q-comm
             item.q-avail.
-        
+
          DOWN.
-              
+
          IF v-export THEN DO:
             ASSIGN v-procat = IF FIRST-OF(item.procat) THEN item.procat ELSE "".
             PUT STREAM s-temp 
@@ -3693,7 +3703,7 @@ ASSIGN str-tit4 = ""
                SKIP. 
          END.
       END. /* end for for each */
-     
+
    END. /* non detail ends here */
    ELSE DO: */
 
@@ -3859,7 +3869,7 @@ ASSIGN str-tit4 = ""
                '"' item.dept-name[10]  '",'   
                '"' item.speed%[10 ]    '",'
                 .              
-                
+
          END. 
 
          DO WITH FRAME item2: */
@@ -3937,8 +3947,8 @@ ASSIGN str-tit4 = ""
                '"' item.q-avail     '",'
                .
          END. /* end for frame item2 */ */
-                 
-     
+
+
             ASSIGN cDisplay = ""
            cTmpField = ""
            cVarValue = ""
@@ -4013,9 +4023,9 @@ ASSIGN str-tit4 = ""
                        FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
          END.
-         
+
       END.
-        
+
       IF detail THEN DO:
           PUT UNFORMATTED cDisplay .
           IF tb_excel THEN DO:
@@ -4046,7 +4056,7 @@ ASSIGN str-tit4 = ""
          "DESCRIPTION,"                    
          "CALIPER WEIGHT,"   
          "<               Valid   Roll   Widths               >"
-       
+
          SKIP.
     END.
 
@@ -4063,7 +4073,7 @@ ASSIGN str-tit4 = ""
             BY item.mat-type                                            
             BY item.procat                                              
             BY item.i-no WITH FRAME iteme:                              
-                                                                        
+
       DISPLAY
          "" @ item.procat
          item.procat when first-of(item.procat)
@@ -4072,7 +4082,7 @@ ASSIGN str-tit4 = ""
          item.cal
          item.basis-w.
       PUT SKIP.
-               
+
       IF v-export THEN DO:
          v-procat = IF first-of(item.procat) THEN item.procat
                  ELSE "".
@@ -4084,9 +4094,9 @@ ASSIGN str-tit4 = ""
             '"' item.cal      '",'
             '"' item.basis-w  '"'
          SKIP.
-             
+
       END.
-      
+
       RUN est-board (ROWID(item)).
     END.
 END.*/
@@ -4125,12 +4135,12 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   ASSIGN
   lv-frame-hdl = frame {&frame-name}:HANDLE
   lv-group-hdl = lv-frame-hdl:first-child
   lv-field-hdl = lv-group-hdl:first-child.
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -4157,23 +4167,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -175,6 +175,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME Custom                                                    */
+ASSIGN
+       Btn_Cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       Btn_OK:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_job-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -197,7 +207,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -275,7 +285,7 @@ DO:
     MESSAGE "Are you sure you want to download jobs to CorrLink? " 
         VIEW-AS ALERT-BOX WARNING BUTTON YES-NO UPDATE ll-ans AS LOG.
     IF ll-ans THEN run do-download.
-    
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -386,7 +396,7 @@ PROCEDURE do-download :
        job-hdr.job-no >= SUBSTR(v-job-no[1],1,6) AND
        job-hdr.job-no <= SUBSTR(v-job-no[2],1,6)
        NO-LOCK:
-       
+
        IF NOT(FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no))) +
           TRIM(job-hdr.job-no) + STRING(INT(job-hdr.job-no2),"99") GE v-job-no[1] AND
           FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no)))   +
@@ -395,18 +405,18 @@ PROCEDURE do-download :
                and asi2corr.job-no = job-hdr.job-no
                and asi2corr.job-no2 = job-hdr.job-no2) THEN
           NEXT.
-       
+
        create tt-job-hdr.
        assign tt-job-hdr.jobhdr-rowid = rowid(job-hdr).
        RELEASE tt-job-hdr.
    end.
-   
+
    run jc/exp2corr.p.
    SESSION:SET-WAIT-STATE("").
-   
+
    MESSAGE "Download completed."
      view-as alert-box info.
-     
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

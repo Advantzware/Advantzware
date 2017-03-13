@@ -186,6 +186,16 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -194,7 +204,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -360,7 +370,7 @@ FOR EACH oe-bolh
         AND shipto.cust-no EQ oe-bolh.cust-no
         AND shipto.ship-id EQ oe-bolh.ship-id
       NO-ERROR.
-      
+
   IF AVAIL shipto THEN
   FIND FIRST carrier NO-LOCK
       WHERE carrier.company EQ shipto.company
@@ -371,7 +381,7 @@ FOR EACH oe-bolh
   ASSIGN
    lv-weight  = 0
    lv-freight = 0.
-    
+
   FOR EACH oe-boll
       WHERE oe-boll.company EQ oe-bolh.company
         AND oe-boll.b-no    EQ oe-bolh.b-no:
@@ -400,7 +410,7 @@ FOR EACH oe-bolh
 END. /* each oe-bolh */
 
 STATUS DEFAULT "".
-    
+
 SESSION:SET-WAIT-STATE("").
 
 MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
@@ -408,7 +418,7 @@ MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
 APPLY "close" TO THIS-PROCEDURE.
 
 RETURN NO-APPLY.
-  
+
 /* end ---------------------------------- copr. 2006  advanced software, inc. */
 
 END PROCEDURE.

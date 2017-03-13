@@ -5,7 +5,7 @@
 /*------------------------------------------------------------------------
 
   File: fg\fgpstall.w
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -498,7 +498,17 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
- 
+ASSIGN
+       Btn_Cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       Btn_OK:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+
 ASSIGN 
     v-post-date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -641,7 +651,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -938,7 +948,7 @@ ELSE DELETE WIDGET {&WINDOW-NAME}.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  
+
 /* security check need {methods/prgsecur.i} in definition section */
   IF access-close THEN DO:
      APPLY "close" TO THIS-PROCEDURE.
@@ -952,7 +962,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {sys/inc/fgemails.i}
     {sys/inc/postdate.i}
   END.
-    
+
   ASSIGN
    v-fgpostgl  = fgpostgl
    tb_glnum    = v-fgpostgl NE "None" OR v-adjustgl
@@ -981,7 +991,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       v-post-date:SCREEN-VALUE = "".
       APPLY "entry" TO v-post-date.
     END.
- 
+
     RUN init-values.
 
     {methods/nowait.i}
@@ -1027,7 +1037,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        t-adj     = NO
        t-ret     = NO
        tb_glnum  = NO
-  
+
        t-receipt:HIDDEN   = YES
        t-ship:HIDDEN     = YES
        t-trans:HIDDEN     = YES
@@ -1098,19 +1108,19 @@ PROCEDURE calc-partial :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    
+
     /*find first item finished goods based on the item number*/
     find first itemfg
         where itemfg.company eq cocode
           and itemfg.i-no    eq w-fg-rctd.i-no
         use-index i-no no-lock no-error.
-        
+
     if avail itemfg then do:
       find first uom
           where uom.uom  eq itemfg.sell-uom
             and uom.mult ne 0
           no-lock no-error.
-          
+
       if itemfg.sell-uom begins "L" then
         v-fg-value = 0.
 
@@ -1145,13 +1155,13 @@ PROCEDURE calc-total :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    
+
     /*find first item finished goods based on the item number*/
     find first itemfg
         where itemfg.company eq cocode
           and itemfg.i-no    eq w-fg-rctd.i-no
         use-index i-no no-lock no-error.
-        
+
     if avail itemfg then do:
       find first uom
           where uom.uom  eq itemfg.sell-uom
@@ -1271,7 +1281,7 @@ PROCEDURE create-phy-count-proc :
                            b-fg-bin.std-tot-cost
         b2-fg-rctd.cost     = b2-fg-rctd.ext-cost / b2-fg-rctd.t-qty
         b2-fg-rctd.cost-uom = b-fg-bin.pur-uom.
-  
+
   IF b2-fg-rctd.ext-cost EQ ? THEN b2-fg-rctd.ext-cost = 0.
   IF b2-fg-rctd.cost     EQ ? THEN b2-fg-rctd.cost = 0.
 
@@ -1500,12 +1510,12 @@ PROCEDURE fg-post :
 
     loop1:
     REPEAT:
-   
+
        FIND FIRST itemfg WHERE
             itemfg.company EQ cocode AND
             itemfg.i-no    EQ w-fg-rctd.i-no
             EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
-       
+
        IF AVAIL itemfg THEN
        DO:
           IF fgPostLog THEN RUN fgPostLog ('Start fg/fg-post.i ' + TRIM(itemfg.i-no)).
@@ -1519,12 +1529,12 @@ PROCEDURE fg-post :
           LEAVE loop1.
        END.
     END.
-    
+
     IF fgPostLog THEN RUN fgPostLog ('End fg/fg-post.i - Start fg/fgemails.i').
     IF w-fg-rctd.rita-code = "R" THEN DO:
        {fg/fgemails.i}
     END.
-    
+
     IF fgPostLog THEN RUN fgPostLog ('End fg-bin - Start fg-rctd').
 
     FIND FIRST fg-rctd WHERE ROWID(fg-rctd) EQ w-fg-rctd.row-id NO-ERROR.
@@ -1649,7 +1659,7 @@ PROCEDURE fg-post :
           USE-INDEX opened NO-LOCK
           BREAK BY oe-ordl.ord-no
           TRANSACTION:
-           
+
         DO i = 1 TO 1000:
           FIND b-oe-ordl WHERE ROWID(b-oe-ordl) EQ ROWID(oe-ordl) EXCLUSIVE NO-ERROR NO-WAIT.
           IF AVAIL b-oe-ordl THEN DO:
@@ -1713,7 +1723,7 @@ PROCEDURE fg-post :
        gltrans.tr-date = v-post-date
        gltrans.period  = period.pnum
        gltrans.trnum   = v-trnum.
-    
+
       if work-job.fg then
         assign
          gltrans.tr-amt  = - work-job.amt
@@ -1773,7 +1783,7 @@ PROCEDURE get-matrix :
   def var lv-out-cost as dec no-undo.
 
   if not avail fg-rctd then return.  /* no records */
-   
+
   cocode = fg-rctd.company.
 
  FOR EACH tt-email:
@@ -1794,14 +1804,14 @@ if ip-first-disp  and avail fg-rctd and fg-rctd.i-no <> "" then do: /* for row-d
                        no-lock no-error.
 
   if not avail po-ordl AND fg-rctd.po-no <> "" then return.
-  
+
   lv-out-qty = fg-rctd.t-qty . /* fg-rctd.qty-case. ??? */
   /* convert cost pr-uom*/
   run rm/convcuom.p(fg-rctd.cost-uom, IF AVAIL po-ordl THEN po-ordl.cons-uom ELSE "EA",
                     0,0,0,0,fg-rctd.std-cost, output lv-out-cost).
   ext-cost = lv-out-qty * lv-out-cost.
  /* disp ext-cost with browse {&browse-name}. /*it's displayed automatically */ */
- 
+
  /* message "after calc:" po-ordl.cons-uom fg-rctd.cost-uom lv-out-cost ext-cost.
   */
 end. /* avail fg-rctd */
@@ -1820,7 +1830,7 @@ else if avail fg-rctd and fg-rctd.i-no <> "" then do: /* in update mode - use sc
                        no-lock no-error.
 
   if not avail po-ordl AND fg-rctd.po-no <> "" then return.
-    
+
 /*
   /* convert qty */
   run rm/convquom.p(fg-rctd.pur-uom:screen-value in browse {&browse-name} ,
@@ -1838,7 +1848,7 @@ else if avail fg-rctd and fg-rctd.i-no <> "" then do: /* in update mode - use sc
                                v-wid = po-ordl.s-wid.
   else assign v-len = 0
               v-wid = 0.
-                                                                       
+
   run rm/convcuom.p( fg-rctd.cost-uom,
                      IF AVAIL po-ordl THEN po-ordl.cons-uom ELSE "EA" ,
                              0,v-len,v-wid,0,
@@ -1850,7 +1860,7 @@ else if avail fg-rctd and fg-rctd.i-no <> "" then do: /* in update mode - use sc
          .
 */   
   ext-cost = lv-out-qty * lv-out-cost.
-  
+
 end.
 
 END PROCEDURE.
@@ -1867,11 +1877,11 @@ PROCEDURE gl-from-work :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-run AS INT NO-UNDO.
   DEF INPUT PARAM ip-trnum AS INT NO-UNDO.
-  
+
   def var credits as dec init 0 no-undo.
   def var debits as dec init 0 no-undo. 
 
-  
+
   FIND FIRST period
       WHERE period.company EQ cocode
         AND period.pst     LE v-post-date
@@ -1882,7 +1892,7 @@ PROCEDURE gl-from-work :
       where (ip-run eq 1 and work-gl.job-no ne "")
          or (ip-run eq 2 and work-gl.job-no eq "")
       break by work-gl.actnum:
-      
+
     assign
      debits  = debits  + work-gl.debits
      credits = credits + work-gl.credits.
@@ -1918,7 +1928,7 @@ PROCEDURE init-values :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   /*FOR EACH fg-rctd NO-LOCK
       WHERE fg-rctd.company  EQ gcompany
         AND fg-rctd.rct-date GE TODAY - 15
@@ -1968,19 +1978,19 @@ PROCEDURE orig :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   
+
     /*find first item finished goods based on the item number*/
     find first itemfg
         where itemfg.company eq cocode
           and itemfg.i-no    eq w-fg-rctd.i-no
         use-index i-no no-lock no-error.
-        
+
     if avail itemfg then do:
       find first uom
           where uom.uom  eq itemfg.sell-uom
             and uom.mult ne 0
           no-lock no-error.
-          
+
       if itemfg.sell-uom begins "L" then
         v-fg-value = itemfg.sell-price * IF w-fg-rctd.t-qty LT 0 THEN -1 ELSE 1.
 
@@ -2169,9 +2179,9 @@ PROCEDURE run-report PRIVATE :
 {sys/form/r-top.i}
 
 {sys/inc/ctrtext.i str-tit 112}.
-    
+
 {sys/form/r-top3w1.f "Before"}
-    
+
 {sys/form/r-top3w1.f "After"}
 
 DEF VAR ext-cost AS DEC NO-UNDO.
@@ -2227,12 +2237,12 @@ IF rd-ItmPo EQ 1
               v-Po-lbl   = ""
               v-vend-lbl = ""
               v-desc-dsh = "------------------------------".
-                            
+
   ELSE ASSIGN v-desc-lbl = "DESCRIPTION"
               v-Po-lbl   = "P.O. #"
               v-vend-lbl = "VEND"
               v-desc-dsh = "-------------- --------- --------".
-              
+
 IF rd-UOMJob EQ 1 
   THEN ASSIGN v-uom-lbl = "UOM"
               v-uom-dsh = "----".
@@ -2534,7 +2544,7 @@ else do:
 
     ASSIGN excelheader = excelheader + 
                          "T,Tag No,Units,Count,Total,Bin,".
-          
+
     IF rd-UOMJob EQ 1 
       THEN ASSIGN excelheader = excelheader + "UOM,Total Value".
       ELSE ASSIGN excelheader = excelheader + "Job #,Total Value".
@@ -2549,7 +2559,7 @@ else do:
    {fg/rep/fg-post.i "itemy" "v-fg-value" "itempy" "v-tot-value"}
   END.
 end.
-  
+
 if v-pr-tots then do:
   if v-cost-sell then DO:                   
     PUT STREAM before
@@ -2592,18 +2602,18 @@ if v-pr-tots then do:
 end. /* if v-pr-tots */
 
 HIDE FRAME r-top1.
-  
+
 if tb_glnum THEN DO:
   PAGE STREAM before.
   PAGE STREAM after.
 
   for each work-gl break by work-gl.actnum:
-  
+
     find first account
         where account.company eq cocode
           and account.actnum  eq work-gl.actnum
         no-lock no-error.
-        
+
     assign
      v-dscr        = if avail account then account.dscr
                      else "ACCOUNT NOT FOUND - " + work-gl.actnum
@@ -2620,14 +2630,14 @@ if tb_glnum THEN DO:
           with frame gldetail.
     down STREAM after with frame gldetail.
   end. /* each work-job */
-  
+
   for each work-job break by work-job.actnum:
-  
+
     find first account
         where account.company eq cocode
           and account.actnum  eq work-job.actnum
         no-lock no-error.
-        
+
     assign
      v-dscr        = if avail account then account.dscr
                      else "ACCOUNT NOT FOUND - " + work-job.actnum
@@ -2744,11 +2754,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -2776,23 +2786,23 @@ PROCEDURE show-param :
   PUT STREAM before space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       PUT STREAM before lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   PUT STREAM before fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2841,7 +2851,7 @@ PROCEDURE show-report :
                                      &mail-subject="FRAME {&FRAME-NAME}:TITLE"
                                      &mail-body="FRAME {&FRAME-NAME}:TITLE"
                                      &mail-file=list-name }
-    
+
               END.
           END. 
          WHEN 6 THEN RUN output-to-port.

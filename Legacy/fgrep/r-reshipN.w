@@ -451,6 +451,11 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        as-of-date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -549,7 +554,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -699,7 +704,7 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
@@ -715,7 +720,7 @@ END.
 ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -756,7 +761,7 @@ DO:
 
   RUN DisplaySelectionDefault.  /* task 04041406 */ 
   RUN DisplaySelectionList2 .
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -962,7 +967,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
-  
+
    IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
        sl_selected:NUM-ITEMS = 0)
    THEN ASSIGN ldummy = sl_selected:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
@@ -970,7 +975,7 @@ DO:
               /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
                .
 
-  
+
 /* for pairs
     DEF VAR cSelectedList AS cha NO-UNDO.
     cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
@@ -1013,7 +1018,7 @@ DO:
   ASSIGN
     {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}:ENTRY(1)
     .
-    
+
 
 END.
 
@@ -1102,21 +1107,21 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-   
+
 /* security check need {methods/prgsecur.i} in definition section */
   IF access-close THEN DO:
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-           
+
   RUN DisplaySelectionList.
   RUN enable_UI.
-  
+
   {methods/nowait.i}
   RUN sys/inc/CustListForm.p ( "IL9",cocode, 
                                OUTPUT ou-log,
                                OUTPUT ou-cust-int) .
-                               
+
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     RUN DisplaySelectionList2.
@@ -1144,7 +1149,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO"
         btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
         .
-      
+
    IF ou-log AND ou-cust-int = 0 THEN do:
        ASSIGN 
         tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = YES
@@ -1216,7 +1221,7 @@ PROCEDURE CustList :
 
     RUN sys/ref/CustListManager.w(INPUT cocode,
                                   INPUT 'IL9').
-    
+
 
 END PROCEDURE.
 
@@ -1251,7 +1256,7 @@ PROCEDURE DisplaySelectionDefault :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  
+
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
      cListContents = cListContents +                   
@@ -1277,7 +1282,7 @@ PROCEDURE DisplaySelectionList :
   DEF VAR iCount AS INT NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
-     
+
      RETURN.
   END.
 
@@ -1290,7 +1295,7 @@ PROCEDURE DisplaySelectionList :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1298,9 +1303,9 @@ PROCEDURE DisplaySelectionList :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 END PROCEDURE.
 
@@ -1321,7 +1326,7 @@ PROCEDURE DisplaySelectionList2 :
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
-        
+
   EMPTY TEMP-TABLE ttRptList.
 
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
@@ -1331,7 +1336,7 @@ PROCEDURE DisplaySelectionList2 :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1339,9 +1344,9 @@ PROCEDURE DisplaySelectionList2 :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
   DO iCount = 1 TO sl_selected:NUM-ITEMS:
@@ -1405,7 +1410,7 @@ PROCEDURE GetSelectionList :
 
  DO i = 1 TO sl_selected:NUM-ITEMS /* IN FRAME {&FRAME-NAME}*/ :
     FIND FIRST ttRptList WHERE ttRptList.TextList = ENTRY(i,cTmpList) NO-LOCK NO-ERROR.     
-  
+
     CREATE ttRptSelected.
     ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
            ttRptSelected.FieldList = ttRptList.FieldList
@@ -1414,7 +1419,7 @@ PROCEDURE GetSelectionList :
            ttRptSelected.HeadingFromLeft = IF entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
-           
+
  END.
 
 END PROCEDURE.
@@ -1465,7 +1470,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
 /*     DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -1476,9 +1481,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY. */
 
 {custom/out2file.i}    
@@ -1512,7 +1517,7 @@ PROCEDURE output-to-printer :
  /*    DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1609,7 +1614,7 @@ assign
  v-pur-man    = SUBSTR(rd_pur-man,1,1)
  v-lot-reo    = SUBSTR(rd_lot-reo,1,1)
  lSelected    = tb_cust-list.
- 
+
 
 DEF VAR cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
@@ -1636,7 +1641,7 @@ DEF VAR cslist AS cha NO-UNDO.
  END.
 
 {sys/inc/print1.i}
-    
+
 {sys/inc/outprint.i value(lines-per-page)}
 
 if td-show-parm then run show-param.
@@ -1646,7 +1651,7 @@ DO:
   /*  excelheader = "Customer,Ship-To,Item,Customer PO,Order,Unit Pr,On Hand,"
                 + "On Order,Allocated,Available,Reord Qty,Reord Lev,Min Order,"
                 + "1st Recpt,R/L". */
-  
+
   OUTPUT STREAM excel TO VALUE(fi_file).
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
@@ -1673,7 +1678,7 @@ for each itemfg
   use-index i-no no-lock:
 
         {custom/statusMsg.i " 'Processing FG Item#  '  + string(itemfg.i-no) "}
-        
+
     assign
        v-qty-avail = itemfg.q-onh + (if v-inconh then itemfg.q-ono else 0)
        v-alloc-qty = 0.
@@ -1704,7 +1709,7 @@ for each itemfg
        where oe-ordl.company eq cocode
          and oe-ordl.i-no    eq itemfg.i-no
        no-lock,
-            
+
         each oe-rel
        where oe-rel.company eq cocode
          and oe-rel.ord-no  eq oe-ordl.ord-no
@@ -1751,7 +1756,7 @@ for each report
    break by report.key-01
          by report.key-02
          by report.key-03
-              
+
 transaction:
 
     {custom/statusMsg.i " 'Processing Ship To#  '  + string(oe-rel.ship-id) "}
@@ -1765,7 +1770,7 @@ transaction:
              and fg-bin.i-no    eq itemfg.i-no
              and fg-bin.qty     gt 0
           no-lock,
-          
+
             each fg-rcpth
            where fg-rcpth.company   eq cocode
              and fg-rcpth.i-no      eq fg-bin.i-no
@@ -1773,7 +1778,7 @@ transaction:
              and fg-rcpth.job-no2   eq fg-bin.job-no2
              and fg-rcpth.rita-code eq "R"
            no-lock,
-          
+
             each fg-rdtlh
            where fg-rdtlh.r-no      eq fg-rcpth.r-no
              and fg-rdtlh.rita-code eq fg-rcpth.rita-code
@@ -1781,13 +1786,13 @@ transaction:
              and fg-rdtlh.loc-bin   eq fg-bin.loc-bin
              and fg-rdtlh.tag       eq fg-bin.tag
            no-lock
-          
+
           by fg-rcpth.trans-date
           BY fg-rdtlh.trans-time
           by fg-rcpth.r-no:
-          
+
             v-rec-date = fg-rcpth.trans-date.  
-          
+
             leave.  
     end. /* fg-bin */
 
@@ -1818,7 +1823,7 @@ transaction:
                                         format "99/99/99"
               "N/A" when v-rec-date eq ? @ v-rec-date
               itemfg.ord-policy         column-label "R!L"
-              
+
           with down no-box STREAM-IO width 132. */
 
 
@@ -1858,7 +1863,7 @@ transaction:
                    cVarValue = ""
                    cExcelDisplay = ""
                    cExcelVarValue = "".
-             
+
              DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:    
@@ -1877,7 +1882,7 @@ transaction:
                         WHEN "min-ord"   THEN cVarValue = STRING(itemfg.ord-min,">>>>>>9") .      
                         WHEN "1st-rec"   THEN cVarValue = STRING(chrRecDate).  
                         WHEN "r-l"       THEN cvarValue = STRING(chrPolicy)  .     
-                       
+
                     END CASE.
                     cExcelVarValue = cVarValue.  
                     cDisplay = cDisplay + cVarValue +
@@ -1913,7 +1918,7 @@ transaction:
                    cVarValue = ""
                    cExcelDisplay = ""
                    cExcelVarValue = "".
-             
+
              DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:    
@@ -1932,7 +1937,7 @@ transaction:
                         WHEN "min-ord"   THEN cVarValue = STRING(itemfg.ord-min,">>>>>>9") .      
                         WHEN "1st-rec"   THEN cVarValue = STRING(chrRecDate).  
                         WHEN "r-l"       THEN cvarValue = STRING(chrPolicy)  .     
-                       
+
                     END CASE.
                     cExcelVarValue = cVarValue.  
                     cDisplay = cDisplay + cVarValue +
@@ -2005,7 +2010,7 @@ PROCEDURE SetCustRange :
         btnCustList:SENSITIVE = iplChecked
        .
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2026,11 +2031,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -2058,23 +2063,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

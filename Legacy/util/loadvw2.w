@@ -153,6 +153,16 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -161,7 +171,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -225,21 +235,21 @@ DO:
          PUT UNFORMATTED "Invalid Suppliers A/R Code '" + cust-itm.cust-no + "' for FG Item '" + cust-itm.i-no + "'." SKIP.
          v-ok = FALSE.
       END.
-      
+
       FIND vend-plant WHERE vend-plant.company  = cust-itm.company
                         AND vend-plant.plant-id = cust-itm.loc NO-LOCK NO-ERROR.
       IF NOT AVAILABLE(vend-plant) THEN DO:
          PUT UNFORMATTED "Invalid Customers Plant ID '" + cust-itm.loc + "' for Suppliers A/R Code '"  + cust-itm.cust-no + "' FG Item '" + cust-itm.i-no + "'." SKIP.
          v-ok = FALSE.
       END.
-      
+
       FIND FIRST itemfg WHERE itemfg.company = cust-itm.company
                           AND itemfg.cust-no = cust-itm.cust-no
                           AND itemfg.i-no    = cust-itm.i-no NO-LOCK NO-ERROR.
       IF NOT AVAILABLE(itemfg) THEN
          FIND FIRST itemfg WHERE itemfg.company = cust-itm.company
                              AND itemfg.i-no    = cust-itm.i-no NO-LOCK NO-ERROR.
-         
+
          IF NOT AVAILABLE(itemfg) THEN DO:
             PUT UNFORMATTED "Invalid FG Item '" + cust-itm.i-no + "' for Suppliers A/R Code '" + cust-itm.cust-no + "' Plant ID '" + cust-itm.loc + "'." SKIP.
             v-ok = FALSE.
@@ -276,14 +286,14 @@ DO:
             vend-whse-item.ship-no           = vend-plant.ship-no               
             vend-whse-item.rec_key           = STRING(YEAR(TODAY), "9999") + STRING(MONTH(TODAY), "99") + STRING(DAY(TODAY), "99") + STRING(TIME).
       END.
-      
+
       STATUS DEFAULT "Processing.... " + TRIM(STRING(v-cnt)).
    END.
- 
+
    STATUS DEFAULT "".
 
    SESSION:SET-WAIT-STATE("").
-   
+
    OUTPUT CLOSE.
 
    RUN disconnect-db.
@@ -291,7 +301,7 @@ DO:
    MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
 
    APPLY "close" TO THIS-PROCEDURE.  
-   
+
 
 END.
 

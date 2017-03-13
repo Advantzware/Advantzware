@@ -196,6 +196,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -204,7 +214,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -241,7 +251,7 @@ END.
 ON LEAVE OF begin_vend-no IN FRAME FRAME-A /* Old Vendor # */
 DO:
   assign {&self-name}.
-  
+
   {&self-name}:screen-value = caps({&self-name}).
 END.
 
@@ -271,7 +281,7 @@ DO:
     apply "entry" to begin_vend-no.
     return no-apply.
   end.
-  
+
   IF begin_vend-no EQ end_vend-no THEN
   DO:
     MESSAGE "Old and New Vendor #s are the same.  Cannot Process."
@@ -284,19 +294,19 @@ DO:
               where vend.company eq cocode
                 and vend.vend-no eq end_vend-no) then do:
     v-process = no.
-    
+
     message "The new Vendor # already exists, merge old Vendor # into new Vendor #?"
             view-as alert-box question button yes-no update v-process.
-            
+
     if not v-process then return no-apply.
   end.
 
   v-process  = no.
-   
+
   message "Are you sure you want change vendor number" trim(caps(begin_vend-no))
           "to" trim(caps(end_vend-no)) + "?"       
           view-as alert-box question button yes-no update v-process.
-        
+
   if v-process then run run-process.
 END.
 
@@ -309,7 +319,7 @@ END.
 ON LEAVE OF end_vend-no IN FRAME FRAME-A /* New Vendor # */
 DO:
   assign {&self-name}.
-  
+
   {&self-name}:screen-value = caps({&self-name}).
 END.
 
@@ -430,14 +440,14 @@ assign
  v-new-vend = end_vend-no.
 
 session:set-wait-state("General").
-    
+
 for each ITEM where
     ITEM.company eq cocode AND
     ITEM.vend-no eq v-vend
     EXCLUSIVE-LOCK:
 
     DISPLAY ITEM.i-no WITH DOWN.
-        
+
     ITEM.vend-no = v-new-vend.
 end.
 
@@ -447,7 +457,7 @@ for each ITEM where
     EXCLUSIVE-LOCK:
 
     DISPLAY ITEM.i-no WITH DOWN.
-        
+
     ITEM.vend2-no = v-new-vend.
 end.
 
@@ -457,7 +467,7 @@ for each ef where
     EXCLUSIVE-LOCK:
 
     DISPLAY ef.est-no FORMAT "X(10)" WITH DOWN.
-        
+
     ef.vend-no = v-new-vend.
 end.
 
@@ -531,7 +541,7 @@ FOR EACH ap-inv WHERE
         FOR EACH attach WHERE
             attach.company = ap-inv.company and
             attach.rec_key = old-rec-key EXCLUSIVE-LOCK:
-            
+
            attach.rec_key = bf-vend-new.rec_key .
        END.
     END.
@@ -600,7 +610,7 @@ for each itemfg where
     EXCLUSIVE-LOCK:
 
     DISPLAY itemfg.i-no WITH DOWN.
-        
+
     itemfg.vend-no = v-new-vend.
 end.
 
@@ -610,7 +620,7 @@ for each itemfg where
     EXCLUSIVE-LOCK:
 
     DISPLAY itemfg.i-no WITH DOWN.
-        
+
     itemfg.vend2-no = v-new-vend.
 end.
 
@@ -620,7 +630,7 @@ FOR EACH oe-ordl WHERE
     EXCLUSIVE-LOCK:
 
     DISPLAY "Order # " + STRING(oe-ordl.ord-no) WITH DOWN.
-        
+
     oe-ordl.vend-no = v-new-vend.
 END.
 
@@ -638,7 +648,7 @@ FOR EACH po-ord WHERE
     EXCLUSIVE-LOCK:
 
     DISPLAY "P.O. # " + STRING(po-ord.po-no) WITH DOWN.
-        
+
     IF NOT CAN-FIND(FIRST b-po-ord WHERE
        b-po-ord.company EQ cocode AND
        b-po-ord.vend-no EQ v-new-vend AND
@@ -665,7 +675,7 @@ FOR EACH po-rcpts WHERE
     EXCLUSIVE-LOCK:
 
     DISPLAY "P.O. # " + STRING(po-ord.po-no) WITH DOWN.
-        
+
     po-rcpts.vend-no = v-new-vend.
 END.
 
@@ -676,7 +686,7 @@ FOR EACH e-item-vend WHERE
     EXCLUSIVE-LOCK:
 
     DISPLAY "Vender Cost for Item # " + STRING(e-item-vend.i-no) WITH DOWN.
-        
+
     FIND FIRST b-qty WHERE
          b-qty.reftable = "vend-qty" AND
          b-qty.company = e-item-vend.company AND
@@ -760,7 +770,7 @@ FOR EACH e-itemfg-vend WHERE
     EXCLUSIVE-LOCK:
 
     DISPLAY "Vender Cost for Item # " + STRING(e-itemfg-vend.i-no) WITH DOWN.
-        
+
     e-itemfg-vend.vend-no = v-new-vend.
 END.
 
@@ -878,9 +888,9 @@ find first vend WHERE
 session:set-wait-state("").
 
 message trim(c-win:title) + " Process Complete..." view-as alert-box.
-    
+
 apply "close" to this-procedure.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

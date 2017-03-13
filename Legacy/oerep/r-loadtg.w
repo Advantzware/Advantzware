@@ -717,6 +717,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME Custom                                                    */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FILL-IN begin_date IN FRAME FRAME-A
    2                                                                    */
 ASSIGN 
@@ -896,7 +906,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -971,7 +981,7 @@ DO:
       END.
       ELSE DO:
         ASSIGN lv-po-no = begin_ord-no:SCREEN-VALUE.
-                               
+
         RUN windows/l-poopen.w (cocode, lv-po-no, OUTPUT char-val).
         IF char-val NE "" THEN lv-po-no = ENTRY(1,char-val).
 
@@ -997,7 +1007,7 @@ DO:
       END.
       ELSE DO:
        ASSIGN lv-po-no = end_ord-no:SCREEN-VALUE.
-                               
+
         RUN windows/l-poopen.w (cocode, lv-po-no, OUTPUT char-val).
         IF char-val NE "" THEN lv-po-no = ENTRY(1,char-val).
 
@@ -1041,7 +1051,7 @@ DO:
     OTHERWISE do:
       lv-handle = FOCUS:HANDLE.
       RUN applhelp.p.
-            
+
       IF g_lookup-var NE "" THEN lv-handle:SCREEN-VALUE = g_lookup-var.
     END.  /* otherwise */
   END CASE.
@@ -1061,12 +1071,12 @@ ON HELP OF begin_filename IN FRAME FRAME-A /* Text File Path */
 DO:
    def var ls-filename as cha no-undo.
    def var ll-ok as log no-undo.
-   
+
    system-dialog get-dir ls-filename 
                  title "Select Path to save"
                  initial-dir begin_filename
                  UPDATE ll-ok.
-      
+
     IF ll-ok THEN self:screen-value = ls-filename.
 END.
 
@@ -1078,7 +1088,7 @@ END.
 ON LEAVE OF begin_filename IN FRAME FRAME-A /* Text File Path */
 DO:
   assign begin_filename.
-    
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1090,9 +1100,9 @@ END.
 ON LEAVE OF begin_form IN FRAME FRAME-A /* Printer Form# */
 DO:
   assign begin_form.
-  
+
   begin_filename = "barcode" + string(begin_form) + ".frm".
-  
+
   display begin_filename WITH FRAME FRAME-A IN WINDOW C-Win.
 END.
 
@@ -1134,7 +1144,7 @@ DO:
    FOR EACH tt-word-print:
        DELETE tt-word-print .
    END.
-  
+
   ASSIGN 
       v-auto-print = scr-auto-print
       glOverrideMult = tb_override-mult.
@@ -1181,7 +1191,7 @@ DO:
 
   IF v-auto-print AND LOGICAL(scr-freeze-label:SCREEN-VALUE) EQ NO THEN
   DO:
-    
+
     DEF VAR v-cust-no AS CHAR NO-UNDO.
 
     ASSIGN
@@ -1208,7 +1218,7 @@ DO:
              TRIM(job-hdr.job-no) + STRING(job-hdr.job-no2,"99")  
                             LE (end_job + STRING(end_job2,"99"))
         AND job-hdr.job-no2    EQ INT(begin_job2:SCREEN-VALUE) NO-ERROR.
-    
+
     IF AVAIL job-hdr THEN
        v-cust-no = job-hdr.cust-no.
     ELSE DO:
@@ -1261,7 +1271,7 @@ DO:
                 oe-rel.ord-no  GE INT(begin_ord-no:SCREEN-VALUE) AND
                 oe-rel.ord-no  LE INT(end_ord-no:SCREEN-VALUE)
                 NO-LOCK NO-ERROR.
-           
+
            IF AVAIL oe-rel THEN 
               FIND FIRST shipto NO-LOCK 
                WHERE shipto.company EQ cocode 
@@ -1274,11 +1284,11 @@ DO:
                  AND shipto.cust-no EQ v-cust-no 
                  AND shipto.ship-id EQ v-cust-no
                   USE-INDEX ship-id NO-ERROR.
-           
+
               IF AVAIL shipto THEN DO:
                  IF AVAIL oe-rel THEN
                     v-cust-no = oe-rel.cust-no.
-           
+
                  FIND FIRST sys-ctrl-shipto NO-LOCK
                    WHERE sys-ctrl-shipto.company      EQ cocode 
                      AND sys-ctrl-shipto.NAME         EQ "BARDIR" 
@@ -1367,7 +1377,7 @@ DO:
                    NO-LOCK NO-ERROR.
 
               IF AVAIL shipto THEN DO:
-                 
+
                  FIND FIRST sys-ctrl-shipto WHERE
                       sys-ctrl-shipto.company      EQ cocode AND
                       sys-ctrl-shipto.NAME         EQ "BARDIR" AND
@@ -1497,10 +1507,10 @@ DO:
             WHERE oe-rel.company EQ cocode 
               AND oe-rel.ord-no  GE INT(begin_ord-no:SCREEN-VALUE)
               AND oe-rel.ord-no  LE INT(end_ord-no:SCREEN-VALUE):
-          
+
               v-lcnt = v-lcnt + 1.
               IF v-lcnt GT 1 THEN LEAVE.
-          
+
           END.
           IF v-lcnt GT 1 AND 
               begin_i-no:SCREEN-VALUE EQ "" AND v-barflg 
@@ -1511,30 +1521,30 @@ DO:
               APPLY "ENTRY" TO begin_i-no IN FRAME {&FRAME-NAME}.
               RETURN NO-APPLY.
           END.
-          
+
           FIND FIRST oe-ord NO-LOCK
             WHERE oe-ord.company EQ cocode 
               AND oe-ord.ord-no  GE INT(begin_ord-no:SCREEN-VALUE) 
               AND oe-ord.ord-no  LE INT(end_ord-no:SCREEN-VALUE) NO-ERROR.
-            
+
           IF AVAIL oe-ord THEN
           DO:
              v-cust-no = oe-ord.cust-no.
-            
+
              FIND FIRST reftable NO-LOCK
                WHERE reftable.reftable EQ "cp-lab-p" 
                  AND reftable.company  EQ cocode 
                  AND reftable.loc      EQ begin_i-no:SCREEN-VALUE
                  AND reftable.loc      EQ end_i-no:SCREEN-VALUE
                  AND reftable.CODE     EQ oe-ord.cust-no NO-ERROR.
-             
+
              IF AVAIL reftable AND reftable.code2 NE "" THEN
                 scr-label-file:SCREEN-VALUE = (IF reftable.dscr <> "" THEN reftable.dscr ELSE v-bardir-chr).
              ELSE
              DO:
                 IF begin_i-no:SCREEN-VALUE NE "" AND 
                    end_i-no:SCREEN-VALUE NE "" THEN
-                  
+
                    FIND FIRST oe-rel NO-LOCK 
                      WHERE oe-rel.company EQ cocode 
                        AND oe-rel.i-no    GE begin_i-no:SCREEN-VALUE 
@@ -1548,7 +1558,7 @@ DO:
                        AND oe-rel.ord-no  GE INT(begin_ord-no:SCREEN-VALUE) 
                        AND oe-rel.ord-no  LE INT(end_ord-no:SCREEN-VALUE) 
                      NO-ERROR.
-            
+
                 IF AVAIL oe-rel THEN 
                    FIND FIRST shipto NO-LOCK 
                      WHERE shipto.company EQ cocode 
@@ -1561,12 +1571,12 @@ DO:
                           AND shipto.cust-no EQ v-cust-no 
                           AND shipto.ship-id EQ v-cust-no
                         USE-INDEX ship-id NO-ERROR.
-            
+
                 IF AVAIL shipto THEN DO:
-                   
+
                     IF AVAIL oe-rel THEN
                       v-cust-no = oe-rel.cust-no.
-            
+
                    FIND FIRST sys-ctrl-shipto NO-LOCK
                      WHERE sys-ctrl-shipto.company      EQ cocode 
                        AND sys-ctrl-shipto.NAME         EQ "BARDIR" 
@@ -1574,7 +1584,7 @@ DO:
                        AND sys-ctrl-shipto.cust-vend-no EQ v-cust-no
                        AND sys-ctrl-shipto.ship-id      EQ shipto.ship-id
                        AND sys-ctrl-shipto.char-fld     NE '' NO-ERROR.
-                   
+
                    IF AVAIL sys-ctrl-shipto AND
                       TRIM(sys-ctrl-shipto.char-fld) NE "" THEN 
                       scr-label-file:SCREEN-VALUE = sys-ctrl-shipto.char-fld.
@@ -1585,11 +1595,11 @@ DO:
                         AND sys-ctrl-shipto.cust-vend    EQ YES 
                         AND sys-ctrl-shipto.cust-vend-no EQ v-cust-no 
                         AND sys-ctrl-shipto.char-fld     NE '' NO-ERROR.
-                    
+
                    IF AVAIL sys-ctrl-shipto AND 
                       TRIM(sys-ctrl-shipto.char-fld) NE "" THEN
                       scr-label-file:SCREEN-VALUE = sys-ctrl-shipto.char-fld.
-            
+
                      IF scr-label-file:SCREEN-VALUE EQ "" THEN DO:
 
                         FIND FIRST sys-ctrl-shipto WHERE
@@ -1598,7 +1608,7 @@ DO:
                              sys-ctrl-shipto.cust-vend-no EQ "" AND
                              sys-ctrl-shipto.cust-vend    EQ YES 
                              NO-LOCK NO-ERROR.
-                        
+
                         IF AVAIL sys-ctrl-shipto AND 
                            TRIM(sys-ctrl-shipto.char-fld) NE "" THEN
                            scr-label-file:SCREEN-VALUE = sys-ctrl-shipto.char-fld.
@@ -1607,7 +1617,7 @@ DO:
                            FIND FIRST sys-ctrl NO-LOCK 
                                 WHERE sys-ctrl.company EQ cocode 
                                   AND sys-ctrl.name    EQ "BARDIR" NO-ERROR.
-                           
+
                            IF AVAIL sys-ctrl THEN
                               scr-label-file:SCREEN-VALUE = sys-ctrl.char-fld.
                            ELSE scr-label-file:SCREEN-VALUE = "".
@@ -1616,18 +1626,18 @@ DO:
                 END.
                 else
                 DO:
-                    
+
                    FIND FIRST sys-ctrl-shipto NO-LOCK  
                         WHERE sys-ctrl-shipto.company      EQ cocode 
                           AND sys-ctrl-shipto.NAME         EQ "BARDIR" 
                           AND sys-ctrl-shipto.cust-vend    EQ YES 
                           AND sys-ctrl-shipto.cust-vend-no EQ v-cust-no 
                           AND sys-ctrl-shipto.char-fld     NE '' NO-ERROR.
-                   
+
                    IF AVAIL sys-ctrl-shipto AND 
                       TRIM(sys-ctrl-shipto.char-fld) NE "" THEN
                       scr-label-file:SCREEN-VALUE = sys-ctrl-shipto.char-fld.
-            
+
                    IF scr-label-file:SCREEN-VALUE EQ "" THEN  DO:
                       FIND FIRST sys-ctrl-shipto WHERE
                              sys-ctrl-shipto.company      EQ cocode AND
@@ -1635,7 +1645,7 @@ DO:
                              sys-ctrl-shipto.cust-vend-no EQ "" AND
                              sys-ctrl-shipto.cust-vend    EQ YES 
                              NO-LOCK NO-ERROR.
-                      
+
                         IF AVAIL sys-ctrl-shipto AND 
                            TRIM(sys-ctrl-shipto.char-fld) NE "" THEN
                            scr-label-file:SCREEN-VALUE = sys-ctrl-shipto.char-fld.
@@ -1644,7 +1654,7 @@ DO:
                            FIND FIRST sys-ctrl NO-LOCK 
                                 WHERE sys-ctrl.company EQ cocode 
                                   AND sys-ctrl.name    EQ "BARDIR" NO-ERROR.
-                           
+
                            IF AVAIL sys-ctrl THEN
                               scr-label-file:SCREEN-VALUE = sys-ctrl.char-fld.
                            ELSE scr-label-file:SCREEN-VALUE = "".
@@ -1661,7 +1671,7 @@ DO:
             WHERE bf-po-ord.company EQ cocode 
             AND bf-po-ord.po-no  EQ int(end_ord-no:SCREEN-VALUE) NO-ERROR.
         IF AVAIL bf-po-ord THEN DO:
-            
+
                 FIND FIRST bf-po-ordl NO-LOCK
                     WHERE bf-po-ordl.company EQ bf-po-ord.company
                     AND bf-po-ordl.po-no  EQ bf-po-ord.po-no 
@@ -1672,18 +1682,18 @@ DO:
                     AND bf-po-ordl.po-no  EQ bf-po-ord.po-no  NO-ERROR.
 
                 IF AVAIL bf-po-ordl THEN do:
-               
+
                     ASSIGN begin_i-no:SCREEN-VALUE = bf-po-ordl.i-no
                         end_i-no:SCREEN-VALUE   = bf-po-ordl.i-no
                         v-cust-no = bf-po-ordl.cust-no.
-                    
+
                      FIND FIRST reftable NO-LOCK
                          WHERE reftable.reftable EQ "cp-lab-p" 
                          AND reftable.company  EQ cocode 
                          AND reftable.loc      EQ begin_i-no:SCREEN-VALUE
                          AND reftable.loc      EQ end_i-no:SCREEN-VALUE
                          AND reftable.CODE     EQ v-cust-no NO-ERROR.
-      
+
                      IF AVAIL reftable  THEN
                          scr-label-file:SCREEN-VALUE = (IF reftable.dscr <> "" THEN reftable.dscr ELSE v-bardir-chr).
 
@@ -1742,7 +1752,7 @@ DO:
       RETURN NO-APPLY.
     END.
     ELSE DO:
-      
+
       APPLY 'ENTRY':U TO tb_ret.
       RETURN NO-APPLY.
     END.
@@ -1809,7 +1819,7 @@ DO:
      begin_ship-to:SENSITIVE = YES
      end_ship-to:SENSITIVE   = YES
      tb_xfer-lot:SENSITIVE = YES.
-     
+
     APPLY "entry" TO begin_date.
   END.
   ELSE
@@ -1853,7 +1863,7 @@ DO:
                                 INPUT v-path,
                                 OUTPUT chFile).
 
-  
+
    /* gdm - 11050804 end
 
    DO WITH FRAME {&FRAME-NAME}:
@@ -1868,7 +1878,7 @@ DO:
       IF ll-ok THEN
    */   
       ASSIGN scr-label-file:SCREEN-VALUE = chFile.
-   
+
 
 END.
 
@@ -1889,7 +1899,7 @@ DO:
     ASSIGN cPrevFromItem = begin_i-no:SCREEN-VALUE
            cPrevToItem   = END_i-no:SCREEN-VALUE.  
     RUN windows/l-setcomp.w (INPUT cocode, INPUT begin_i-no:SCREEN-VALUE, OUTPUT cChoice).
-    
+
     IF NUM-ENTRIES(cChoice) GT 0 THEN DO:
        DO i = 1 TO NUM-ENTRIES(cChoice):
          CREATE tt-comps.
@@ -1989,7 +1999,7 @@ END.
 ON VALUE-CHANGED OF tb_reprint-tag IN FRAME FRAME-A /* Reprint Tag? */
 DO:
   ASSIGN {&SELF-NAME}.
-  
+
   IF tb_reprint-tag THEN DO:
     ASSIGN
       fi_cas-lab:HIDDEN    = NO
@@ -2084,7 +2094,7 @@ DO:
     ELSE /*loadtagFunction:SCREEN-VALUE ne "order"*/
        IF NUM-ENTRIES(v-ord-list:SCREEN-VALUE) EQ 1 AND v-bardir THEN
           RUN get-po-info.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2263,7 +2273,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      {sys/inc/sspostfg.i}
      {sys/inc/bardir.i}     
   END.
-  
+
   ASSIGN v-fgpostgl  = fgpostgl.
 
   if v-loadtag eq "TRIAD" then begin_form = 4.
@@ -2314,7 +2324,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      userLabelPath = bardir-desc
      tbPartSelect:SCREEN-VALUE = "NO"
      .
-   
+
     IF bardir-int = 1 THEN DO:
        FIND FIRST users WHERE users.user_id EQ USERID("NOSWEAT") NO-LOCK NO-ERROR.
        IF AVAIL users AND users.user_program[3] NE "" THEN
@@ -2346,12 +2356,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     DISABLE v-ship-id.
     ASSIGN v-ord-list:SCREEN-VALUE = "".
-    
+
     IF v-loadtag EQ "TRIAD" THEN
         begin_form = 4.
     ELSE
        begin_form:VISIBLE = NO.
-    
+
      ASSIGN
        fi_cas-lab:SCREEN-VALUE = "" /*calling from OU1 brings back old wrong value*/
        begin_filename:SCREEN-VALUE = bardir-desc.
@@ -2401,7 +2411,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         end_job:SCREEN-VALUE      = jobNo
         begin_job2:SCREEN-VALUE   = jobNo2
         end_job2:SCREEN-VALUE     = jobNo2.
-  
+
       IF iNo NE '' THEN DO:      
         ASSIGN
           begin_i-no:SCREEN-VALUE   = iNo
@@ -2432,13 +2442,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 /*             RUN get-import-ord (INPUT INTEGER(begin_ord-no:SCREEN-VALUE)).  */
 /*           END.                                                              */
 /*         END.                                                                */
-          
+
       END. /* i-no ne '' */
       ELSE
         loadtagFunction:SCREEN-VALUE = "order".
 
     END.    
-    
+
     IF SEARCH('IU2-loadtag.txt') NE ? THEN DO:
       /* gdm - 06100901 end */
       ASSIGN
@@ -2470,7 +2480,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       loadtagFunction:SCREEN-VALUE = "order".
       /* APPLY 'value-changed' TO tb_reprint-tag. */
     END.        
-    
+
     APPLY 'VALUE-CHANGED':U TO loadtagFunction.
     APPLY 'VALUE-CHANGED':U TO tb_dept-note.
 
@@ -2546,7 +2556,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
-  
+
   END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2568,7 +2578,7 @@ DEF OUTPUT PARAMETER opl-error AS LOG NO-UNDO.
  MESSAGE "The Pallet ID has reached its limit." skip
          "Please reset it for customer " ipc-cust 
      VIEW-AS ALERT-BOX .
-     
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2609,7 +2619,7 @@ RUN win_breakPath (INPUT scr-label-file,
   /* Put the lock file in the label matrix path */
 
   cLockPath = cDrive + cDir + "lm.lock".
-  
+
   lLockWasRemoved = TRUE.
   IF SEARCH(cLockPath) NE ? THEN
     RUN oe/w-lockwait.w (INPUT cLockPath, OUTPUT lLockWasRemoved).
@@ -2649,7 +2659,7 @@ PROCEDURE calc-ext-cost :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   def var v-len like po-ordl.s-len no-undo.
   def var v-wid like po-ordl.s-len no-undo.
   def var v-dep like po-ordl.s-len no-undo. 
@@ -2680,13 +2690,13 @@ ASSIGN
                        and po-ordl.job-no2 = fg-rctd.job-no2
                        and po-ordl.item-type = no
                        no-lock no-error.
-  
+
   IF AVAIL po-ordl THEN DO:
     ASSIGN
      v-len = po-ordl.s-len
      v-wid = po-ordl.s-wid.
   END.
-  
+
   ASSIGN lv-out-qty  = fg-rctd.t-qty
          lv-out-cost = fg-rctd.std-cost.
 
@@ -2700,7 +2710,7 @@ ASSIGN
                        v-bwt, v-len, v-wid, v-dep,
                        lv-out-qty, OUTPUT lv-out-qty).
 ASSIGN fg-rctd.ext-cost = (lv-out-qty * lv-out-cost) + fg-rctd.frt-cost.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2726,10 +2736,10 @@ PROCEDURE cas-lab-label-mat-file :
             oe-rel.ord-no  GE INT(begin_ord-no:SCREEN-VALUE) AND
             oe-rel.ord-no  LE INT(end_ord-no:SCREEN-VALUE)
             NO-LOCK:
-        
+
             v-lcnt = v-lcnt + 1.
             IF v-lcnt GT 1 THEN LEAVE.
-        
+
         END.
         IF v-lcnt GT 1 AND 
            begin_i-no:SCREEN-VALUE EQ "" AND v-barflg THEN
@@ -2740,13 +2750,13 @@ PROCEDURE cas-lab-label-mat-file :
               APPLY "ENTRY" TO begin_i-no IN FRAME {&FRAME-NAME}.
               RETURN NO-APPLY.
            END.
-        
+
         FIND FIRST oe-ord WHERE
              oe-ord.company EQ cocode AND
              oe-ord.ord-no  GE INT(begin_ord-no:SCREEN-VALUE) AND
              oe-ord.ord-no  LE INT(end_ord-no:SCREEN-VALUE)
              NO-LOCK NO-ERROR.
-          
+
         IF AVAIL oe-ord THEN
         DO:
            FIND FIRST reftable WHERE
@@ -2774,7 +2784,7 @@ PROCEDURE cas-lab-label-mat-file :
                       oe-rel.ord-no  GE INT(begin_ord-no:SCREEN-VALUE) AND
                       oe-rel.ord-no  LE INT(end_ord-no:SCREEN-VALUE) 
                       NO-LOCK NO-ERROR.
-          
+
               IF AVAIL oe-rel THEN
                  FIND FIRST shipto WHERE
                       shipto.company EQ cocode AND
@@ -2962,7 +2972,7 @@ IF NOT AVAIL bf-fg-rctd THEN
 
     IF li-max-qty LT bf-fg-rctd.t-qty THEN DO:
       ll = NO.
-      
+
       IF li-max-qty GT 0 AND NOT gvlCreateWithMaxPrompted THEN
       MESSAGE "Create receipt with maximum quantity available?"
               VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll.
@@ -2970,7 +2980,7 @@ IF NOT AVAIL bf-fg-rctd THEN
       /* Only prompt on the first tag */
       gvlCreateWithMaxPrompted = YES.
       IF ll THEN DO:
-      
+
         ASSIGN
          bf-fg-rctd.t-qty  = li-max-qty
          bf-fg-rctd.cases  = 
@@ -2989,7 +2999,7 @@ IF NOT AVAIL bf-fg-rctd THEN
               .
       END. /* if ll */
       IF NOT ll OR li-max-qty EQ 0 THEN DO:   
-       
+
         ASSIGN
           gvcSkippedJob = bf-fg-rctd.job-no + "-" + STRING(bf-fg-rctd.job-no2)
           gvcSkippedItem = itemfg.i-no.
@@ -3013,7 +3023,7 @@ PROCEDURE convert-vend-comp-curr :
 ------------------------------------------------------------------------------*/
    DEFINE INPUT PARAMETER ip-po-no AS INT NO-UNDO.
    DEFINE INPUT-OUTPUT PARAMETER ip-cost AS DEC DECIMALS 4 NO-UNDO.
-   
+
    DEF BUFFER b-po-ord FOR po-ord.
    DEF BUFFER b-company FOR company.
 
@@ -3123,7 +3133,7 @@ PROCEDURE create-loadtag :
         AND SUBSTR(loadtag.tag-no,1,15) EQ w-ord.i-no
       USE-INDEX tag NO-ERROR.
   io-tag-no = (IF AVAIL loadtag THEN INT(SUBSTR(loadtag.tag-no,16,5)) ELSE 0) + 1.
-  
+
   /* rstark - zoho13731 */
   IF CAN-FIND(FIRST sys-ctrl
               WHERE sys-ctrl.company EQ cocode
@@ -3184,11 +3194,11 @@ PROCEDURE create-loadtag :
       IF AVAIL fg-bin THEN
          ASSIGN loadtag.loc     = fg-bin.loc
                 loadtag.loc-bin = fg-bin.loc-bin.
-                
+
   END.
   ELSE RUN fg/autopost.p (ROWID(itemfg), w-ord.job-no, w-ord.job-no2,
                          OUTPUT loadtag.loc , OUTPUT loadtag.loc-bin).
-  
+
   IF RFIDTag-log THEN DO:
 
      RUN nextRfidTag (cocode , OUTPUT cRfidTag).
@@ -3200,7 +3210,7 @@ PROCEDURE create-loadtag :
             rfidtag.rfidtag = cRfidTag /* string(dRFIDTag)*/.
      RELEASE oe-ctrl.
   END.
-  
+
   IF v-fgrecpt AND NOT tb_ret THEN DO:
     IF AVAIL itemfg THEN DO:
       li = 0.
@@ -3263,7 +3273,7 @@ PROCEDURE create-loadtag :
           ASSIGN fg-rctd.job-no = ""
                  fg-rctd.job-no2 = 0.
       END.
-         
+
 
       RELEASE job.
       RELEASE reftable.
@@ -3327,14 +3337,14 @@ PROCEDURE create-loadtag :
                                loadtagFunction EQ 'PO') THEN
       DO:
          fg-rctd.po-no = TRIM(STRING(w-ord.po-no,">>>>>>>>>>")).
-        
+
          FIND FIRST b-po-ordl WHERE
               b-po-ordl.company EQ cocode AND
               b-po-ordl.po-no EQ w-ord.po-no AND
               b-po-ordl.item-type EQ NO AND
               b-po-ordl.i-no EQ loadtag.i-no
               NO-LOCK NO-ERROR.
-        
+
          IF AVAIL b-po-ordl THEN
          DO:
             /* Created task 09261318 to be used by receiving screens in addition */            
@@ -3356,7 +3366,7 @@ PROCEDURE create-loadtag :
                OUTPUT lvCalcExtCost,
                OUTPUT lvCalcFrtCost,
                OUTPUT lvSetupPerCostUom).
-            
+
             ASSIGN
                fg-rctd.cost-uom = lvCalcCostUom
                fg-rctd.std-cost = lvCalcStdCost.
@@ -3378,7 +3388,7 @@ PROCEDURE create-loadtag :
 
     END.  /* avail itemfg */
         /* mdp adds logic to post loadtags 07/24/08 */
-    
+
     /* gdm - */
     IF v-fgrecpt AND w-ord.est-no NE "" AND AVAIL fg-rctd THEN DO:
 /*       FIND FIRST bf-eb                                       */
@@ -3435,7 +3445,7 @@ PROCEDURE create-loadtag :
 
   FIND CURRENT loadtag NO-LOCK NO-ERROR.
   FIND CURRENT fg-rctd NO-LOCK NO-ERROR.
-  
+
 
 END PROCEDURE.
 
@@ -3465,7 +3475,7 @@ PROCEDURE create-text-file :
   DEF BUFFER bf-cust FOR cust.
 
    IF v-loadtag = "TRIAD" THEN DO:
-     
+
         if form_fid > "" then do:   /* download the form file into the printer ~*/
           input stream s-form from value(form_fid) no-echo.
           _form: do while true:
@@ -3498,7 +3508,7 @@ PROCEDURE create-text-file :
             /* 9901 CAH: Only room for 19 chars in the standard 48 pt font */
             if length(w-ord.ship-name) > 19
             then w-ord.ship-name = substring(w-ord.ship-name,1,19).
-            
+
             def var vcFGItem as char no-undo.
             vcFGItem = 
                 if avail itemfg then itemfg.i-no else w-ord.i-no.
@@ -3547,13 +3557,13 @@ PROCEDURE create-text-file :
       PUT UNFORMATTED ",DUEDATEJOBLINE,DUEDATEJOB,LINE#,UnitWt,PalletWt,FGdesc1,FGdesc2,FGdesc3,FG Lot#,"
                        "PalletCode,PalletID,TagCounter,TagCountTotal,"
                        "RN1,RN2,RN3,RN4".
-      
+
       /* rstark - */
       IF lSSCC THEN PUT UNFORMATTED ",SSCC".
-      
+
       PUT SKIP.
       FOR EACH w-ord:
-        
+
         IF tb_16ths THEN
           ASSIGN
            w-ord.box-len = ROUND((w-ord.box-len - TRUNC(w-ord.box-len,0)) / 6.25,2) +
@@ -3695,10 +3705,10 @@ PROCEDURE create-text-file :
              END.
 
              IF CAN-DO("ASI,SSLABEL",v-loadtag) THEN DO:
-                
+
                 FIND FIRST rfidtag OF loadtag NO-LOCK NO-ERROR.
                 cRFIDTag = IF AVAIL rfidtag THEN rfidtag.rfidtag ELSE "".
- 
+
              END.
              cTotalUnit = string(w-ord.total-unit, ">>>>>>>9").
              RUN write-loadtag-line (INPUT cRFIDTag, INPUT cTotalUnit, INPUT iPalletID, INPUT liTagCounter).
@@ -3712,7 +3722,7 @@ PROCEDURE create-text-file :
                    RUN askNextPalletID (INPUT w-ord.cust-no, OUTPUT vError).
                    RETURN.
               END.
-                     
+
 
               iPalletId = iStartPalletID.
               do v-count = 1 to w-ord.mult: /* for partial print */
@@ -3770,7 +3780,7 @@ PROCEDURE create-w-ord :
    DEF VAR lv-rel-date AS DATE NO-UNDO.
    DEF BUFFER b-job FOR job.
    DEF BUFFER b-job-hdr FOR job-hdr.
-   
+
    FIND FIRST company WHERE company.company = loadtag.company NO-LOCK NO-ERROR.
    FIND FIRST itemfg WHERE itemfg.company = loadtag.company
                        AND itemfg.i-no = loadtag.i-no NO-LOCK NO-ERROR.
@@ -3835,7 +3845,7 @@ PROCEDURE create-w-ord :
          w-ord.due-date-jobhdr = IF b-job-hdr.due-date <> ? THEN STRING(b-job-hdr.due-date, "99/99/9999") ELSE "".
       IF AVAIL b-job THEN
          w-ord.due-date-job = IF b-job.due-date <> ? THEN STRING(b-job.due-date, "99/99/9999") ELSE "".
-             
+
       RUN get-rel-info (OUTPUT w-ord.cust-po-no,
                         OUTPUT w-ord.rel-date,
                         OUTPUT w-ord.rel-lot#,
@@ -3922,12 +3932,12 @@ PROCEDURE create-w-ord :
                           NO-LOCK NO-ERROR.
       END.
       IF AVAIL job-hdr THEN DO:
-      
+
          FIND FIRST cust WHERE cust.company eq cocode
                           AND cust.cust-no eq job-hdr.cust-no NO-LOCK NO-ERROR.
          FIND FIRST itemfg WHERE itemfg.company eq cocode
                             AND itemfg.i-no    eq loadtag.i-no NO-LOCK NO-ERROR.
-         
+
          CREATE w-ord.
          ASSIGN
             w-ord.ord-no       = job-hdr.ord-no
@@ -4033,7 +4043,7 @@ PROCEDURE create-w-ord :
                                 AND vend.vend-no EQ po-ord.vend-no NO-ERROR.
          FIND FIRST itemfg NO-LOCK WHERE itemfg.company EQ cocode
                                   AND itemfg.i-no EQ po-ordl.i-no NO-ERROR.
-         
+
          CREATE w-ord.
          ASSIGN
             w-ord.cust-name = IF AVAILABLE cust THEN cust.name ELSE ''
@@ -4067,7 +4077,7 @@ PROCEDURE create-w-ord :
                  style.company EQ cocode AND
                  style.style EQ w-ord.style
                  NO-LOCK NO-ERROR.
-         
+
             IF AVAIL style THEN
             DO:
                w-ord.style-desc = style.dscr.
@@ -4098,7 +4108,7 @@ PROCEDURE create-w-ord :
                     w-ord.ship-city = shipto.ship-city
                     w-ord.ship-state = shipto.ship-state
                     w-ord.ship-zip = shipto.ship-zip.
-      
+
          ASSIGN w-ord.total-tags = 1
             w-ord.ord-qty = loadtag.qty 
             w-ord.pcs = loadtag.qty-case
@@ -4116,7 +4126,7 @@ PROCEDURE create-w-ord :
                               AND vend.vend-no EQ itemfg.vend-no NO-ERROR.
           FIND FIRST cust NO-LOCK WHERE cust.company EQ cocode
                               AND cust.cust-no EQ itemfg.cust-no NO-ERROR.
-          
+
           CREATE w-ord.
           ASSIGN w-ord.i-no = itemfg.i-no
                  w-ord.i-name = itemfg.i-name
@@ -4151,7 +4161,7 @@ PROCEDURE create-w-ord :
                   style.company EQ cocode AND
                   style.style EQ w-ord.style
                   NO-LOCK NO-ERROR.
-          
+
              IF AVAIL style THEN
              DO:
                 w-ord.style-desc = style.dscr.
@@ -4194,7 +4204,7 @@ PROCEDURE CreateWOrdFromItem :
                               AND vend.vend-no EQ itemfg.vend-no NO-ERROR.
     FIND FIRST cust NO-LOCK WHERE cust.company EQ cocode
                               AND cust.cust-no EQ oe-ord.cust-no NO-ERROR.
-     
+
     CREATE w-ord.
     ASSIGN
       w-ord.i-no = itemfg.i-no
@@ -4303,9 +4313,9 @@ DO WITH FRAME {&FRAME-NAME}:
             AND bf-job-hdr-2.job-no  EQ bf-job.job-no
             AND bf-job-hdr-2.job-no2 EQ bf-job.job-no2
            BREAK BY bf-job-hdr-2.i-no:
-      
+
            v-lncnt = v-lncnt + 1.
-          
+
            IF FIRST-OF(bf-job-hdr-2.i-no) THEN
               v-frstitem = bf-job-hdr-2.i-no.
            IF LAST-OF(bf-job-hdr-2.i-no) THEN
@@ -4317,7 +4327,7 @@ DO WITH FRAME {&FRAME-NAME}:
             AND bf-job-hdr-2.job-no  EQ bf-job.job-no
             AND bf-job-hdr-2.job-no2 EQ bf-job.job-no2
            BREAK BY bf-job-hdr-2.ord-no:
-      
+
            IF FIRST-OF(bf-job-hdr-2.ord-no) THEN
               v-first-order = bf-job-hdr-2.ord-no.
            IF LAST-OF(bf-job-hdr-2.ord-no) THEN
@@ -4333,7 +4343,7 @@ DO WITH FRAME {&FRAME-NAME}:
          end_job2:SCREEN-VALUE     = STRING(ipiJobNo2,"99")
          begin_i-no:SCREEN-VALUE = v-frstitem
          end_i-no:SCREEN-VALUE   = v-lastitem.           
-         
+
       APPLY "LEAVE" TO end_i-no.
 
       IF v-lncnt GT 1 THEN
@@ -4442,7 +4452,7 @@ PROCEDURE from-job :
              (v-stat EQ "C" AND NOT job.opened) OR
              (v-stat EQ "O" AND job.opened))
       NO-ERROR.
-  
+
   IF NOT AVAILABLE job THEN RETURN.
   IF (v-ord-list NE '' OR begin_ord-no NE 0 OR end_ord-no NE 0) AND
      NOT CAN-FIND(ttblJob WHERE ttblJob.company EQ job.company
@@ -4457,7 +4467,7 @@ PROCEDURE from-job :
         b-job-hdr-2.i-no    GE v-fitem[1] AND
         b-job-hdr-2.i-no    LE v-fitem[2]
         NO-LOCK:
-    
+
        IF NOT CAN-FIND(FIRST ttblJob WHERE
           ttblJob.company EQ b-job-hdr-2.company AND
           ttblJob.job-no EQ b-job-hdr-2.job-no AND
@@ -4478,7 +4488,7 @@ PROCEDURE from-job :
     IF lv-tt-created THEN
        RETURN.
   END.
-    
+
     IF AVAIL job THEN
     FOR EACH job-hdr
         WHERE job-hdr.company EQ job.company
@@ -4490,7 +4500,7 @@ PROCEDURE from-job :
          /*AND job-hdr.ord-no  EQ 0
         USE-INDEX ord-no*/
         /*ESP - Task 04180703 don't look at order number */
-        
+
         NO-LOCK,
         FIRST cust
         WHERE cust.company eq cocode
@@ -4533,14 +4543,14 @@ PROCEDURE from-job :
             w-ord.due-date-job = IF job.due-date <> ? THEN STRING(job.due-date, "99/99/9999") ELSE "".
             w-ord.due-date-jobhdr = IF job-hdr.due-date <> ? THEN STRING(job-hdr.due-date, "99/99/9999") ELSE "".
 
-      
+
           IF w-ord.style NE "" THEN
           DO:
              FIND FIRST style WHERE
                   style.company EQ cocode AND
                   style.style EQ w-ord.style
                   NO-LOCK NO-ERROR.
-          
+
              IF AVAIL style THEN
              DO:
                 w-ord.style-desc = style.dscr.
@@ -4555,7 +4565,7 @@ PROCEDURE from-job :
                   oe-ordl.ord-no  EQ job-hdr.ord-no AND
                   oe-ordl.i-no    EQ job-hdr.i-no
                   NO-LOCK NO-ERROR.
-            
+
              IF AVAIL oe-ordl THEN
              DO:
                 FIND FIRST oe-ord WHERE
@@ -4641,7 +4651,7 @@ PROCEDURE from-job :
           /* Add .49 to round up and add 1 for extra tag   */
           w-ord.total-tags = ((job-hdr.qty / w-ord.total-unit) + .49) +  IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1.
     END.
-    
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4654,7 +4664,7 @@ PROCEDURE from-ord :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- 
+
 DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
 
   DEF VAR lv-got-shipto AS LOG NO-UNDO.
@@ -4747,7 +4757,7 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
         ELSE FIND FIRST ttblJob WHERE ttblJob.company EQ oe-ordl.company
                              AND ttblJob.ord-no EQ oe-ordl.ord-no
                         NO-LOCK NO-ERROR.
-          
+
         IF AVAIL ttblJob THEN
             ASSIGN lv-job-no  = ttblJob.job-no
                    lv-job-no2 = ttblJob.job-no2.
@@ -4811,7 +4821,7 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
             w-ord.dont-run-set = oe-ordl.is-a-component
             w-ord.ord-desc1    = oe-ordl.part-dscr1
             w-ord.ord-desc2    = oe-ordl.part-dscr2
-            
+
             /* gdm - 08130804*/
             w-ord.linenum      = oe-ordl.e-num
 
@@ -4865,7 +4875,7 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
                   style.company EQ cocode AND
                   style.style EQ w-ord.style
                   NO-LOCK NO-ERROR.
-          
+
              IF AVAIL style THEN
              DO:
                 w-ord.style-desc = style.dscr.
@@ -4895,7 +4905,7 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
                  w-ord.bundle = oe-ordl.cases-unit.
 
           /* get shipto from open oe-rel  */
-          
+
           lv-got-shipto = NO.
           FOR EACH w-shipto:
             DELETE w-shipto.
@@ -5053,7 +5063,7 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
 
           num-rec            = num-rec + 1.
 
-         
+
         FIND FIRST ref-lot-no WHERE
              ref-lot-no.reftable EQ "oe-rel.lot-no" AND
              ref-lot-no.company  EQ STRING(oe-rel.r-no,"9999999999")
@@ -5084,7 +5094,7 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
                 style.company EQ cocode AND
                 style.style EQ w-ord.style
                 NO-LOCK NO-ERROR.
-        
+
            IF AVAIL style THEN
            DO:
               w-ord.style-desc = style.dscr.
@@ -5105,7 +5115,7 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
            w-ord.test   = eb.test
            w-ord.cas-no = eb.cas-no
            w-ord.pallt-no = eb.tr-no. 
-    
+
         RUN oe/custxship.p (oe-rel.company,
                             oe-rel.cust-no,
                             oe-rel.ship-id,
@@ -5123,7 +5133,7 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
            w-ord.ship-zip   = shipto.ship-zip.
 
         IF AVAIL soldto THEN w-ord.sold-ctry = soldto.country.
-          
+
         ASSIGN
           w-ord.pcs        = oe-rel.qty-case
           w-ord.bundle     = oe-rel.cases
@@ -5146,14 +5156,14 @@ PROCEDURE from-po :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    
+
     FOR EACH po-ordl NO-LOCK WHERE po-ordl.company EQ po-ord.company
                              AND po-ordl.po-no EQ po-ord.po-no
                              AND po-ordl.item-type EQ NO
                              AND po-ordl.i-no GE v-fitem[1]
                              AND po-ordl.i-no LE v-fitem[2]
                            USE-INDEX po-no BREAK BY po-ordl.i-no:
-    
+
     IF FIRST-OF(po-ordl.i-no) THEN DO:
       FIND FIRST cust NO-LOCK WHERE cust.company EQ cocode
                                 AND cust.cust-no EQ po-ordl.cust-no NO-ERROR.
@@ -5177,7 +5187,7 @@ PROCEDURE from-po :
         w-ord.uom = 'EA'
         w-ord.vendor = IF AVAILABLE vend THEN vend.name ELSE ''
         num-rec = num-rec + 1.
-     
+
     RUN sys/ref/convquom.p(po-ordl.pr-qty-uom,
                        "EA" ,
                        10 * itemfg.weight-100 / itemfg.t-sqft, /*convert to lb/MSF*/
@@ -5218,7 +5228,7 @@ PROCEDURE from-po :
         w-ord.pcs = itemfg.case-count
         w-ord.bundle = IF itemfg.case-pall NE 0 THEN itemfg.case-pall ELSE 1
         w-ord.style   = itemfg.style.
-      
+
       IF w-ord.style NE "" THEN
       DO:
          FIND FIRST style WHERE
@@ -5261,7 +5271,7 @@ PROCEDURE from-po :
           w-ord.ship-state = shipto.ship-state
           w-ord.ship-ctry  = shipto.country
           w-ord.ship-zip   = shipto.ship-zip.
-      
+
       ASSIGN
         w-ord.total-unit = w-ord.pcs * w-ord.bundle
         /* Add .49 to round up and add 1 for extra tag   */
@@ -5269,7 +5279,7 @@ PROCEDURE from-po :
                            (IF CAN-DO("SSLABEL,CentBox",v-loadtag) THEN 0 ELSE 1).
     END. /* first-of */
   END. /* each po-ordl */
- 
+
 
 END PROCEDURE.
 
@@ -5295,12 +5305,12 @@ PROCEDURE get-freight-cost :
         b-po-ordl-2.job-no2   EQ fg-rctd.job-no2 AND
         b-po-ordl-2.item-type EQ NO
         NO-LOCK NO-ERROR.
-  
+
    IF AVAIL b-po-ordl-2 THEN
       RUN po/getfrtcs.p (ROWID(b-po-ordl-2),
                          fg-rctd.t-qty,
                          OUTPUT op-cost).
-  
+
    RUN convert-vend-comp-curr(INPUT b-po-ordl-2.po-no, INPUT-OUTPUT op-cost).
 
 END PROCEDURE.
@@ -5332,7 +5342,7 @@ DO WITH FRAME {&FRAME-NAME}:
   FIND FIRST bf-oe-ord NO-LOCK 
     WHERE bf-oe-ord.company EQ cocode 
       AND bf-oe-ord.ord-no  EQ v-order NO-ERROR.
-  
+
   IF AVAIL bf-oe-ord THEN DO:
     ASSIGN v-lncnt = 0.
     FOR EACH bf-oe-ordl NO-LOCK
@@ -5344,7 +5354,7 @@ DO WITH FRAME {&FRAME-NAME}:
       IF FIRST-OF(bf-oe-ordl.i-no) THEN ASSIGN v-frstitem = bf-oe-ordl.i-no.
       IF LAST-OF(bf-oe-ordl.i-no)  THEN ASSIGN v-lastitem = bf-oe-ordl.i-no.
     END.
-    
+
     EMPTY TEMP-TABLE tt-ordjobs.
     FOR EACH bf-oe-ordl NO-LOCK
         WHERE bf-oe-ordl.company EQ bf-oe-ord.company
@@ -5367,23 +5377,23 @@ DO WITH FRAME {&FRAME-NAME}:
           v-first-job2 = tt-ordjobs.job-no2.
         v-last-job2 = tt-ordjobs.job-no2.
     END.
-    
+
     ASSIGN begin_ord-no:SCREEN-VALUE = STRING(bf-oe-ord.ord-no) 
            begin_job:SCREEN-VALUE    = v-first-job
            begin_job2:SCREEN-VALUE   = STRING(v-first-job2)
            end_ord-no:SCREEN-VALUE   = STRING(bf-oe-ord.ord-no)  
            end_job:SCREEN-VALUE      = v-last-job
            end_job2:SCREEN-VALUE     = STRING(v-last-job2).
-  
+
     FIND FIRST bf-oe-ordl NO-LOCK                             
      WHERE bf-oe-ordl.company EQ bf-oe-ord.company         
        AND bf-oe-ordl.ord-no  EQ bf-oe-ord.ord-no NO-ERROR.
-       
+
     IF  v-lncnt EQ 1 THEN DO WITH FRAME {&FRAME-NAME}:
       IF AVAIL bf-oe-ordl THEN
         ASSIGN begin_i-no:SCREEN-VALUE = bf-oe-ordl.i-no
                end_i-no:SCREEN-VALUE   = bf-oe-ordl.i-no.           
-      
+
   /*    
       FIND FIRST reftable NO-LOCK
         WHERE reftable.reftable EQ "cp-lab-p" 
@@ -5391,14 +5401,14 @@ DO WITH FRAME {&FRAME-NAME}:
           AND reftable.loc      EQ begin_i-no:SCREEN-VALUE
           AND reftable.loc      EQ end_i-no:SCREEN-VALUE
           AND reftable.CODE     EQ bf-oe-ord.cust-no NO-ERROR.
-  
+
       IF AVAIL reftable 
         THEN ASSIGN scr-label-file:SCREEN-VALUE =  reftable.dscr.
   */
       APPLY "LEAVE" TO END_i-no.
     END.
     ELSE DO:
-  
+
      FOR EACH bf-oe-ordl 
          WHERE bf-oe-ordl.company EQ bf-oe-ord.company
            AND bf-oe-ordl.ord-no  EQ bf-oe-ord.ord-no
@@ -5409,10 +5419,10 @@ DO WITH FRAME {&FRAME-NAME}:
          IF LAST(bf-oe-ordl.i-no) THEN
              v-lastitem = bf-oe-ordl.i-no.
      END.
-     
+
      ASSIGN begin_i-no:SCREEN-VALUE = v-frstitem
             end_i-no:SCREEN-VALUE   = v-lastitem.
-  
+
      EMPTY TEMP-TABLE tt-ordjobs.
      FOR EACH bf-oe-ordl NO-LOCK
          WHERE bf-oe-ordl.company EQ bf-oe-ord.company
@@ -5438,19 +5448,19 @@ DO WITH FRAME {&FRAME-NAME}:
      ASSIGN 
             begin_job:SCREEN-VALUE    = v-first-job
             begin_job2:SCREEN-VALUE   = STRING(v-first-job2)
-            
+
             end_job:SCREEN-VALUE      = v-last-job
             end_job2:SCREEN-VALUE     = STRING(v-last-job2).
-  
+
      APPLY "LEAVE" TO END_i-no.
-  
+
       /* gdm - 09290903 */
         MESSAGE 
             "There are multiple Fg Items in this order." skip
             "     Please select an FG Item."
           VIEW-AS ALERT-BOX INFO BUTTONS OK.
     END. /* if > 1 items */
-  
+
   END. /* avail bf-ord */
 
 END. /* do with frame */
@@ -5527,9 +5537,9 @@ DEF BUFFER bf-job-hdr-2 FOR job-hdr.
             AND bf-job-hdr-2.job-no  EQ bf-job.job-no
             AND bf-job-hdr-2.job-no2 EQ bf-job.job-no2
            BREAK BY bf-job-hdr-2.i-no:
-      
+
            v-lncnt = v-lncnt + 1.
-          
+
            IF FIRST-OF(bf-job-hdr-2.i-no) THEN
               v-frstitem = bf-job-hdr-2.i-no.
            IF LAST-OF(bf-job-hdr-2.i-no) THEN
@@ -5541,7 +5551,7 @@ DEF BUFFER bf-job-hdr-2 FOR job-hdr.
             AND bf-job-hdr-2.job-no  EQ bf-job.job-no
             AND bf-job-hdr-2.job-no2 EQ bf-job.job-no2
            BREAK BY bf-job-hdr-2.ord-no:
-      
+
            IF FIRST-OF(bf-job-hdr-2.ord-no) THEN
               v-first-order = bf-job-hdr-2.ord-no.
            IF LAST-OF(bf-job-hdr-2.ord-no) THEN
@@ -5557,7 +5567,7 @@ DEF BUFFER bf-job-hdr-2 FOR job-hdr.
          end_job2:SCREEN-VALUE     = STRING(v-job2,"99")
          begin_i-no:SCREEN-VALUE = v-frstitem
          end_i-no:SCREEN-VALUE   = v-lastitem.           
-         
+
       APPLY "LEAVE" TO end_i-no.
 
       IF v-lncnt GT 1 THEN
@@ -5586,27 +5596,27 @@ DEF BUFFER bf-job-hdr-2 FOR job-hdr.
            bf-oe-ord.company EQ cocode AND
            bf-oe-ord.ord-no  EQ bf-jobhdr.ord-no
            NO-LOCK NO-ERROR.
-     
+
       IF AVAIL bf-oe-ord THEN DO:
-         
+
          FOR EACH bf-oe-ordl FIELDS(i-no) NO-LOCK
            WHERE bf-oe-ordl.company EQ bf-oe-ord.company
              AND bf-oe-ordl.ord-no  EQ bf-oe-ord.ord-no
             BREAK BY bf-oe-ordl.i-no:
-      
+
             v-lncnt = v-lncnt + 1.
-          
+
             IF FIRST-OF(bf-oe-ordl.i-no) THEN
                ASSIGN v-frstitem = bf-oe-ordl.i-no.
             IF LAST-OF(bf-oe-ordl.i-no) THEN
                ASSIGN v-lastitem = bf-oe-ordl.i-no.
          END.
-     
+
          FIND FIRST bf-oe-ordl 
               WHERE bf-oe-ordl.company EQ bf-oe-ord.company
                 AND bf-oe-ordl.ord-no  EQ bf-oe-ord.ord-no
               NO-LOCK NO-ERROR.
-        
+
          ASSIGN
             begin_ord-no:SCREEN-VALUE = STRING(bf-oe-ordl.ord-no) 
             begin_job:SCREEN-VALUE    = lv-job-no         
@@ -5614,23 +5624,23 @@ DEF BUFFER bf-job-hdr-2 FOR job-hdr.
             end_ord-no:SCREEN-VALUE   = STRING(bf-oe-ordl.ord-no)  
             end_job:SCREEN-VALUE      = lv-job-no     
             end_job2:SCREEN-VALUE     = STRING(v-job2,"99").
-        
+
          IF v-lncnt EQ 1 THEN DO WITH FRAME {&FRAME-NAME}:
             ASSIGN
                begin_i-no:SCREEN-VALUE = bf-oe-ordl.i-no
                end_i-no:SCREEN-VALUE   = bf-oe-ordl.i-no.           
-         
+
             APPLY "LEAVE" TO end_i-no.
          END.
          ELSE DO:
-         
+
             FIND FIRST bf-oe-ordl WHERE                             
                  bf-oe-ordl.company EQ bf-oe-ord.company AND
                  bf-oe-ordl.ord-no  EQ bf-oe-ord.ord-no
                  NO-LOCK NO-ERROR.
 
             v-frstitem = bf-oe-ordl.i-no.
-            
+
             FIND LAST bf-oe-ordl WHERE
                  bf-oe-ordl.company EQ bf-oe-ord.company AND
                  bf-oe-ordl.ord-no  EQ bf-oe-ord.ord-no
@@ -5640,9 +5650,9 @@ DEF BUFFER bf-job-hdr-2 FOR job-hdr.
                v-lastitem = bf-oe-ordl.i-no
                begin_i-no:SCREEN-VALUE = v-frstitem
                end_i-no:SCREEN-VALUE   = v-lastitem.
-           
+
             APPLY "LEAVE" TO end_i-no.
-           
+
             /* gdm - 09290903 */
             MESSAGE "There are multiple FG Items on this order." skip
                     "Please select an FG Item."
@@ -5667,7 +5677,7 @@ DEF BUFFER bf-job-hdr-2 FOR job-hdr.
              BREAK BY bf-job-hdr-2.i-no:
 
              v-lncnt = v-lncnt + 1.
-          
+
             IF FIRST-OF(bf-job-hdr-2.i-no) THEN
                ASSIGN v-frstitem = bf-job-hdr-2.i-no.
             IF LAST-OF(bf-job-hdr-2.i-no) THEN
@@ -5678,7 +5688,7 @@ DEF BUFFER bf-job-hdr-2 FOR job-hdr.
             ASSIGN
                begin_i-no:SCREEN-VALUE = v-frstitem
                end_i-no:SCREEN-VALUE   = v-lastitem.           
-         
+
             APPLY "LEAVE" TO end_i-no.
 
             IF v-lncnt GT 1 THEN
@@ -5751,7 +5761,7 @@ IF AVAIL bf-oe-ord THEN DO:
         v-first-job2 = tt-ordjobs.job-no2.
       v-last-job2 = tt-ordjobs.job-no2.
   END.
-  
+
   ASSIGN begin_ord-no:SCREEN-VALUE = STRING(bf-oe-ord.ord-no) 
          begin_job:SCREEN-VALUE    = v-first-job
          begin_job2:SCREEN-VALUE   = STRING(v-first-job2)
@@ -5819,7 +5829,7 @@ IF AVAIL bf-oe-ord THEN DO:
    ASSIGN 
           begin_job:SCREEN-VALUE    = v-first-job
           begin_job2:SCREEN-VALUE   = STRING(v-first-job2)
-          
+
           end_job:SCREEN-VALUE      = v-last-job
           end_job2:SCREEN-VALUE     = STRING(v-last-job2).
 
@@ -5875,12 +5885,12 @@ IF AVAIL bf-po-ord THEN DO:
   FIND FIRST bf-po-ordl NO-LOCK
       WHERE bf-po-ordl.company EQ bf-po-ord.company
         AND bf-po-ordl.po-no  EQ bf-po-ord.po-no NO-ERROR.
-  
+
   ASSIGN begin_ord-no:SCREEN-VALUE = STRING(bf-po-ordl.po-no) 
          end_ord-no:SCREEN-VALUE   = STRING(bf-po-ordl.po-no).
 
   IF v-lncnt EQ 1 THEN DO WITH FRAME {&FRAME-NAME}:
-   
+
     ASSIGN begin_i-no:SCREEN-VALUE = bf-po-ordl.i-no
            end_i-no:SCREEN-VALUE   = bf-po-ordl.i-no.           
 /*    
@@ -5898,7 +5908,7 @@ IF AVAIL bf-po-ord THEN DO:
 
   END.
   ELSE DO:
-   
+
 /*    FIND FIRST bf-po-ordl NO-LOCK                         */
 /*     WHERE bf-po-ordl.company EQ bf-po-ord.company        */
 /*       AND bf-po-ordl.po-no  EQ bf-po-ord.po-no           */
@@ -5910,7 +5920,7 @@ IF AVAIL bf-po-ord THEN DO:
 /*     WHERE bf-po-ordl.company EQ bf-po-ord.company        */
 /*       AND bf-po-ordl.po-no  EQ bf-po-ord.po-no NO-ERROR. */
 /*    ASSIGN v-lastitem = bf-po-ordl.i-no.                  */
-   
+
    ASSIGN begin_i-no:SCREEN-VALUE = v-frstitem
           end_i-no:SCREEN-VALUE   = v-lastitem.
 
@@ -5944,7 +5954,7 @@ PROCEDURE get-rel-info :
   DEF BUFFER b-job-hdr FOR job-hdr.
   RELEASE oe-rell.
   RELEASE oe-rel.
-  
+
   IF v-po-no-source EQ "R" THEN DO:
     FOR EACH oe-rell NO-LOCK
         WHERE oe-rell.company  EQ oe-ordl.company
@@ -6099,19 +6109,19 @@ PROCEDURE get-set-full-qty :
           FIND b1-fg-rctd WHERE ROWID(b1-fg-rctd) EQ ROWID(b-fg-rctd)
               EXCLUSIVE-LOCK NO-ERROR.
           IF AVAIL b1-fg-rctd THEN DO WITH FRAME {&FRAME-NAME}:
-        
+
             find itemfg where itemfg.company eq cocode
                           and itemfg.i-no  eq b-fg-rctd.i-no
                         use-index i-no no-lock no-error.
-            
+
             ASSIGN
               v-bwt             = 0
               v-dep             = 0.
-            
+
             IF AVAIL itemfg THEN
               ASSIGN v-len       = itemfg.t-len
                      v-wid       = itemfg.t-wid.
-            
+
             /* Always find just to get quantity */
             find first po-ordl where po-ordl.company = cocode
                                  and po-ordl.po-no   = int(b-fg-rctd.po-no)
@@ -6126,8 +6136,8 @@ PROCEDURE get-set-full-qty :
                                      and po-ordl.i-no    = b-fg-rctd.i-no
                                      and po-ordl.item-type = no
                                      no-lock no-error.
-            
-            
+
+
             IF AVAIL po-ordl THEN
               ASSIGN
                 v-len = po-ordl.s-len
@@ -6141,7 +6151,7 @@ PROCEDURE get-set-full-qty :
                RUN rm/convcuom.p(fg-rctd.cost-uom, b-fg-rctd.cost-uom, 
                                  v-bwt, v-len, v-wid, v-dep,
                                  lv-calc-cost, OUTPUT lv-recalc-cost).
-            
+
             b1-fg-rctd.std-cost = lv-recalc-cost.
             ASSIGN
              lv-ext-cost = b1-fg-rctd.t-qty * b1-fg-rctd.std-cost                          
@@ -6150,7 +6160,7 @@ PROCEDURE get-set-full-qty :
 
       END.
   END.
-   
+
   lv-out-qty = lv-out-qty + ipd-current-qty.
 
   op-out-qty = lv-out-qty.
@@ -6270,14 +6280,14 @@ PROCEDURE leave-job-label :
            IF begin_i-no:SCREEN-VALUE EQ "" THEN
              RUN dispJobInfo (INPUT cocode, INPUT v-job-no, INPUT INT(begin_job2:SCREEN-VALUE)).
          END.
-            
+
 
         IF job-hdr.ord-no NE 0 THEN
            FIND FIRST oe-ord WHERE
                 oe-ord.company EQ cocode AND
                 oe-ord.ord-no  EQ job-hdr.ord-no
                 NO-LOCK NO-ERROR.
-       
+
         IF AVAIL oe-ord THEN
            v-cust-no = oe-ord.cust-no.
 
@@ -6299,7 +6309,7 @@ PROCEDURE leave-job-label :
                     oe-rel.i-no    EQ job-hdr.i-no AND
                     oe-rel.ord-no  EQ oe-ord.ord-no 
                     NO-LOCK NO-ERROR.
-         
+
             IF AVAIL oe-rel THEN 
                FIND FIRST shipto WHERE
                     shipto.company EQ cocode AND
@@ -6314,7 +6324,7 @@ PROCEDURE leave-job-label :
                     USE-INDEX ship-id NO-LOCK NO-ERROR.
 
             IF AVAIL shipto THEN DO:
-                
+
                FIND FIRST sys-ctrl-shipto WHERE
                     sys-ctrl-shipto.company EQ cocode AND
                     sys-ctrl-shipto.NAME EQ "BARDIR" AND
@@ -6339,7 +6349,7 @@ PROCEDURE leave-job-label :
                IF AVAIL sys-ctrl-shipto AND 
                   TRIM(sys-ctrl-shipto.char-fld) NE "" THEN
                   scr-label-file:SCREEN-VALUE = sys-ctrl-shipto.char-fld.
-         
+
                IF scr-label-file:SCREEN-VALUE EQ "" THEN
                DO:
                   FIND FIRST sys-ctrl-shipto WHERE
@@ -6401,7 +6411,7 @@ PROCEDURE leave-job-label :
          END.
       END.
    END.
-  
+
    v-job-no = FILL(" ",6 - LENGTH(TRIM(begin_job:SCREEN-VALUE)))
          + TRIM(begin_job:SCREEN-VALUE).
    IF begin_i-no:SCREEN-VALUE EQ "" THEN
@@ -6412,11 +6422,11 @@ PROCEDURE leave-job-label :
             + TRIM(begin_job:SCREEN-VALUE).
    v-job-no-end = FILL(" ",6 - LENGTH(TRIM(end_job:SCREEN-VALUE)))
             + TRIM(end_job:SCREEN-VALUE).
-        
+
    IF INT(end_job2:SCREEN-VALUE) > 0 AND TRIM(v-job-no) > ""  THEN DO:
        FIND FIRST b-job-hdr-2 WHERE b-job-hdr-2.job-no EQ v-job-no
            NO-LOCK NO-ERROR.
-       
+
        FOR EACH b-job-hdr-2  WHERE
         b-job-hdr-2.company EQ cocode AND
         b-job-hdr-2.job-no  GE v-job-no AND
@@ -6472,7 +6482,7 @@ PROCEDURE new-cas-lab :
             AND oe-ord.job-no2 EQ loadtag.job-no2
             AND oe-ord.ord-no GE 0
             NO-ERROR.
-        
+
          IF AVAIL oe-ord THEN do:
             ASSIGN
              begin_ord-no:SCREEN-VALUE = STRING(loadtag.ord-no)
@@ -6492,15 +6502,15 @@ PROCEDURE new-cas-lab :
              end_job2:SCREEN-VALUE     = STRING(loadtag.job-no2)
              begin_i-no:SCREEN-VALUE   = loadtag.i-no
              end_i-no:SCREEN-VALUE     = loadtag.i-no.
-        
-        
+
+
             RUN cas-lab-label-mat-file.
-        
+
             RUN checkReturns.
             IF RETURN-VALUE EQ 'ERROR' THEN RETURN 'ERROR'.
             IF tb_ret:SCREEN-VALUE EQ "NO" THEN
             RUN ok-button.
-         
+
       END.
       ELSE IF tb_reprint-tag THEN DO: /* task# 09200517*/
            FIND FIRST loadtag WHERE loadtag.company     EQ cocode
@@ -6549,7 +6559,7 @@ DEF VAR dRFIDTag AS DECIMAL NO-UNDO.
   dRFIDTag = IF AVAIL oe-ctrl AND oe-ctrl.spare-char-1 <> "" 
                     THEN dec(oe-ctrl.spare-char-1) ELSE 111110000000000000000001. 
   oe-ctrl.spare-char-1 = string(dRFIDTag + 1).
-     
+
   opcRfidTag = string(dRFIDTag).
 
 END PROCEDURE.
@@ -6567,7 +6577,7 @@ PROCEDURE ok-button :
   IF begin_filename:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "" AND
      userLabelPath <> "" THEN        
      begin_filename:SCREEN-VALUE = userLabelPath.
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
@@ -6617,18 +6627,18 @@ PROCEDURE ok-button :
   /*wfk  */
   IF tb_reprint-tag THEN RUN reprint-tag.
   ELSE RUN run-report NO-ERROR. 
-  
+
   IF NOT ERROR-STATUS:ERROR THEN lv-ok-ran = YES.
     IF gvcSkippedItem NE "" THEN 
       MESSAGE "The finished goods receipt was not created " skip
               "for item # " + gvcSkippedItem + ", Job # " + gvcSkippedJob SKIP
               "due to insufficient component inventory."
               VIEW-AS ALERT-BOX INFO BUTTONS OK.
-      
-        
-    
+
+
+
   APPLY "entry" TO fi_cas-lab IN FRAME {&FRAME-NAME}.
-  
+
   IF lv-ok-ran AND NOT tb_reprint-tag AND tb_close THEN
       APPLY "close" TO THIS-PROCEDURE.
   /*
@@ -6637,7 +6647,7 @@ PROCEDURE ok-button :
        when 2 then run output-to-screen.
        when 3 then run output-to-file.
   end case. 
-  
+
  lv-ok-ran = YES.
  */
 
@@ -6654,7 +6664,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
      DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -6665,9 +6675,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
 
 
@@ -6686,7 +6696,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -6696,7 +6706,7 @@ PROCEDURE output-to-printer :
      RUN 'adecomm/_osprint.p' (INPUT ?, INPUT list-name,
                             INPUT 3, INPUT 3, INPUT 0, INPUT 0, OUTPUT result).
                                     /* use-dialog(1) and landscape(2) */
-    
+
     RUN custom/prntproc.p (list-name,INT(lv-font-no),lv-ornt).
   */  
 END PROCEDURE.
@@ -6728,10 +6738,10 @@ DEF BUFFER bf-fg-rctd FOR fg-rctd.
 
 
 FOR EACH  tt-fgrctd-created:
-  
+
   FIND fg-rctd WHERE ROWID(fg-rctd) = tt-fgrctd-created.fg-rctd-rowid
   EXCLUSIVE-LOCK NO-ERROR.
-  
+
   IF NOT AVAIL fg-rctd THEN
   NEXT.
 
@@ -6748,7 +6758,7 @@ FOR EACH  tt-fgrctd-created:
         fg-rctd.post-date = TODAY.
         /** not quite sure what this does
         fg-rctd.tag2      = w-fg-rctd.tag2. **/
-        
+
         FOR EACH fg-rcpts WHERE
           fg-rcpts.company EQ fg-rctd.company AND
           fg-rcpts.r-no    EQ fg-rctd.r-no EXCLUSIVE-LOCK:
@@ -6757,23 +6767,23 @@ FOR EACH  tt-fgrctd-created:
       END.
     END.
   END.
-  
+
   FIND bf-fg-rctd WHERE ROWID(bf-fg-rctd) = tt-fgrctd-created.fg-rctd-rowid
   NO-LOCK NO-ERROR.
-  
+
   IF FGSetRec-Int NE 1 THEN DO:
-    
+
     FOR EACH fg-rcpts WHERE
       fg-rcpts.company EQ bf-fg-rctd.company
       AND  fg-rcpts.linker     = "fg-rctd: " + STRING(bf-fg-rctd.r-no,"9999999999")
       EXCLUSIVE-LOCK:
-      
+
       FIND FIRST fg-rctd WHERE fg-rctd.r-no = fg-rcpts.r-no
       EXCLUSIVE-LOCK NO-ERROR.
-      
+
       IF AVAIL fg-rctd THEN DO:
-        
-        
+
+
         RUN oerep/r-ltpost.p (INPUT ROWID(fg-rctd),NO).
         /*##BL - FGSetAssembly requires the bin to match that of the character*/
         /*##BL of FGSetAssembly N-K.  If it doesn't, abort posting  */
@@ -6783,12 +6793,12 @@ FOR EACH  tt-fgrctd-created:
         /*                     VIEW-AS ALERT-BOX INFO BUTTONS OK.                                                     */
         /*                 RETURN ERROR.                                                                              */
         /*             END.                                                                                           */
-        
+
         FIND FIRST fg-rctd WHERE fg-rctd.r-no = fg-rcpts.r-no
         EXCLUSIVE-LOCK NO-ERROR.
-        
+
         IF AVAIL fg-rctd THEN DO:
-                    
+
           RUN oerep/r-ltpost.p (INPUT ROWID(fg-rctd),NO).
           /*##BL - FGSetAssembly requires the bin to match that of the character*/
           /*##BL of FGSetAssembly N-K.  If it doesn't, abort posting  */
@@ -6798,25 +6808,25 @@ FOR EACH  tt-fgrctd-created:
           /*                     VIEW-AS ALERT-BOX INFO BUTTONS OK.                                                     */
           /*                 RETURN ERROR.                                                                              */
           /*             END.                                                                                           */
-          
+
           /* These negative receipts should be changed to Rita=A per task 08211305 */
           FOR EACH fg-rcpth WHERE fg-rcpth.r-no EQ fg-rctd.r-no EXCLUSIVE-LOCK:
             fg-rcpth.rita-code = "A".
           END.
-          
+
           FOR EACH fg-rdtlh WHERE fg-rdtlh.r-no EQ fg-rctd.r-no EXCLUSIVE-LOCK:
             fg-rdtlh.rita-code = "A".
           END.
-          
+
         END. /* Avail fg-rctd for component */
       END. /* if avail */
     END. /* Each fg-rcpts */
   END. /* If not NoAdjustments */
   FIND fg-rctd WHERE ROWID(fg-rctd) = tt-fgrctd-created.fg-rctd-rowid
   EXCLUSIVE-LOCK NO-ERROR.
-  
+
   RUN oerep/r-ltpost.p (INPUT ROWID(fg-rctd),NO).
-  
+
   DELETE tt-fgrctd-created.
 
 END.
@@ -6864,7 +6874,7 @@ PROCEDURE post-return :
 
 
    RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
-    
+
    FOR EACH w-fg-rctd:
        DELETE w-fg-rctd.
    END.
@@ -6904,7 +6914,7 @@ PROCEDURE post-return :
   /*     bf-fg-rctd.std-cost   = IF AVAIL fg-bin THEN fg-bin.std-tot-cost ELSE itemfg.std-tot-cost */
        bf-fg-rctd.ext-cost   = (bf-fg-rctd.t-qty / 1000) * bf-fg-rctd.std-cost
        bf-fg-rctd.qty-case   = loadtag.qty-case
-       
+
        bf-fg-rctd.partial    = loadtag.partial
        bf-fg-rctd.cases      = TRUNC(bf-fg-rctd.t-qty / bf-fg-rctd.qty-case,0)
        bf-fg-rctd.cases-unit = loadtag.case-bundle
@@ -6941,7 +6951,7 @@ PROCEDURE print-loadtg :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
     {sys/inc/print1.i}
     {sys/inc/outprint.i value(85)}
 
@@ -6970,7 +6980,7 @@ PROCEDURE reprint-tag :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- 
+
   FIND FIRST loadtag WHERE loadtag.company     EQ cocode
                  AND loadtag.item-type   EQ NO
                  AND loadtag.is-case-tag EQ NO
@@ -6994,10 +7004,10 @@ PROCEDURE reprint-tag :
      ELSE v-out = v-out + "/".
      v-out = v-out + "loadtag.txt".
   END.
-  
+
   RUN create-text-file.
-  
-  
+
+
   IF cBarCodeProgram EQ "" THEN    
     RUN AutoPrint.
   ELSE IF cBarCodeProgram EQ "xprint" THEN 
@@ -7021,7 +7031,7 @@ PROCEDURE run-barone :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEF INPUT PARAM ip-TagText AS cha NO-UNDO.
-   
+
    DEFINE VARIABLE iReturnResult AS INTEGER NO-UNDO.
    DEFINE VARIABLE cProgramName AS CHARACTER  NO-UNDO.
    DEFINE VARIABLE cFileName AS CHARACTER  NO-UNDO.
@@ -7053,7 +7063,7 @@ PROCEDURE run-lmw :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEF INPUT PARAM ip-TagText AS cha NO-UNDO.
-   
+
    DEFINE VARIABLE iReturnResult AS INTEGER NO-UNDO.
    DEFINE VARIABLE cProgramName AS CHARACTER  NO-UNDO.
    DEFINE VARIABLE cFileName AS CHARACTER  NO-UNDO.
@@ -7134,11 +7144,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -7166,23 +7176,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -7196,7 +7206,7 @@ PROCEDURE temp-create :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
-  
+
   CREATE w-file.
   w-key = ip-rowid.
 
@@ -7213,7 +7223,7 @@ PROCEDURE temp-job :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-job-no LIKE job.job-no NO-UNDO.
- 
+
   FOR EACH job
       WHERE job.company EQ cocode
         AND job.job-no  EQ SUBSTR(ip-job-no,1,6)
@@ -7222,7 +7232,7 @@ PROCEDURE temp-job :
              (v-stat EQ "C" AND NOT job.opened) OR
              (v-stat EQ "O" AND job.opened))
       NO-LOCK:
-      
+
     RUN temp-create (ROWID(job)).
   END.
 
@@ -7451,7 +7461,7 @@ PROCEDURE write-loadtag-line :
   "~""  removeChars(w-ord.ord-desc2)    "~","
   .
  IF CAN-DO("ASI,SSLABEL",v-loadtag) THEN DO:
-    
+
 /*    FIND FIRST rfidtag OF loadtag NO-LOCK NO-ERROR.
     cRFIDTag = IF AVAIL rfidtag THEN rfidtag.rfidtag ELSE "".  */
 
@@ -7466,7 +7476,7 @@ PROCEDURE write-loadtag-line :
  /* gdm - 07170905 */
     "~"" w-ord.unit-wt  "~","
     "~"" w-ord.pallt-wt  "~","          
- 
+
  /* gdm - 10160905 */
     "~"" removeChars(v-fgdsc1) "~","
     "~"" removeChars(v-fgdsc2) "~","
@@ -7512,7 +7522,7 @@ DO WHILE VALID-HANDLE(hProc):
           lWasFound = YES.
           LEAVE. /* found it. */
     END.
-    
+
     hProc = hProc:NEXT-SIBLING.
 END.
 

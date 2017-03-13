@@ -80,7 +80,7 @@ def var v-mach like mach.m-code.
 def var v-vend like po-ord.vend-no.
 def var v-stat as char. 
 DEF STREAM st-excel.
- 
+
 def temp-table tt-report NO-UNDO like report.
 
 DEF VAR v-print-fmt AS CHARACTER.
@@ -414,6 +414,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_due-date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -470,7 +480,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -578,7 +588,7 @@ STATUS DEFAULT "Processing Complete".
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
@@ -622,7 +632,7 @@ DO:
 
   RUN DisplaySelectionDefault.  /* task 04041406 */ 
   RUN DisplaySelectionList2 .
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -784,7 +794,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
-  
+
    IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
        sl_selected:NUM-ITEMS = 0)
    THEN ASSIGN ldummy = sl_selected:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
@@ -792,7 +802,7 @@ DO:
               /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
                .
 
-  
+
 /* for pairs
     DEF VAR cSelectedList AS cha NO-UNDO.
     cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
@@ -835,7 +845,7 @@ DO:
   ASSIGN
     {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}:ENTRY(1)
     .
-    
+
 
 END.
 
@@ -917,7 +927,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   assign
    begin_due-date = date(1,1,year(today))
    end_due-date   = today.
@@ -925,7 +935,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   fi_file = "c:\tmp\rctcredt.csv".
   RUN DisplaySelectionList.
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -972,7 +982,7 @@ PROCEDURE DisplaySelectionDefault :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  
+
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
      cListContents = cListContents +                   
@@ -998,7 +1008,7 @@ PROCEDURE DisplaySelectionList :
   DEF VAR iCount AS INT NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
-     
+
      RETURN.
   END.
 
@@ -1011,7 +1021,7 @@ PROCEDURE DisplaySelectionList :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1019,9 +1029,9 @@ PROCEDURE DisplaySelectionList :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 END PROCEDURE.
 
@@ -1042,7 +1052,7 @@ PROCEDURE DisplaySelectionList2 :
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
-        
+
   EMPTY TEMP-TABLE ttRptList.
 
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
@@ -1052,7 +1062,7 @@ PROCEDURE DisplaySelectionList2 :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1060,9 +1070,9 @@ PROCEDURE DisplaySelectionList2 :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
   DO iCount = 1 TO sl_selected:NUM-ITEMS:
@@ -1123,7 +1133,7 @@ PROCEDURE GetSelectionList :
 
  DO i = 1 TO sl_selected:NUM-ITEMS /* IN FRAME {&FRAME-NAME}*/ :
     FIND FIRST ttRptList WHERE ttRptList.TextList = ENTRY(i,cTmpList) NO-LOCK NO-ERROR.     
-  
+
     CREATE ttRptSelected.
     ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
            ttRptSelected.FieldList = ttRptList.FieldList
@@ -1132,7 +1142,7 @@ PROCEDURE GetSelectionList :
            ttRptSelected.HeadingFromLeft = IF entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
-           
+
  END.
 
 END PROCEDURE.
@@ -1383,7 +1393,7 @@ assign
  v-s-date     = begin_due-date
  v-e-date     = end_due-date
  v-sortby     = rd_sort EQ "Job#".
- 
+
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i value(lines-per-page)}
@@ -1422,24 +1432,24 @@ DISP WITH frame sh-head.
           and po-ordl.due-date ge v-s-date
           and po-ordl.due-date le v-e-date
         no-lock:
-        
+
         {custom/statusMsg.i " 'Processing PO#  '  + string(po-ordl.po-no) "}
 
       release job-hdr.
       release oe-ord.
       release oe-ordl.
-        
+
       assign
        v-job-no    = trim(po-ordl.job-no) + "-" + string(po-ordl.job-no2,"99")
        v-raw       = ""
        v-fg        = ""
        v-cust-name = "".
-       
+
       if trim(v-job-no) eq "-00" then v-job-no = "".
 
       if po-ordl.item-type then do:
         v-raw = po-ordl.i-no.
-        
+
         find first job-hdr
             where job-hdr.company eq cocode
               and job-hdr.job-no  eq po-ordl.job-no
@@ -1448,7 +1458,7 @@ DISP WITH frame sh-head.
 
         if avail job-hdr then do:
           v-fg = job-hdr.i-no.
-        
+
           find first oe-ordl
               where oe-ordl.company eq cocode
                 and oe-ordl.ord-no  eq job-hdr.ord-no
@@ -1458,10 +1468,10 @@ DISP WITH frame sh-head.
               no-lock no-error.
         end.
       end.
-      
+
       else do:
         v-fg = po-ordl.i-no.
-        
+
         if po-ordl.ord-no ne 0 then
         find first oe-ordl
             where oe-ordl.company eq cocode
@@ -1469,16 +1479,16 @@ DISP WITH frame sh-head.
               and oe-ordl.i-no    eq v-fg
             no-lock no-error.
       end.
-      
+
       v-rel-date = ?.
-   
+
       if avail oe-ordl then do:
         find first oe-ord
             where oe-ord.company eq cocode
               and oe-ord.ord-no  eq oe-ordl.ord-no
             no-lock no-error.
         if avail oe-ord then v-cust-name = oe-ord.cust-name.
-        
+
         for each oe-relh
             where oe-relh.company eq cocode
               and oe-relh.ord-no  eq oe-ordl.ord-no
@@ -1490,12 +1500,12 @@ DISP WITH frame sh-head.
               and oe-relh.posted  eq no
             use-index order no-lock
             by oe-relh.rel-date:
-      
+
           leave.
         end.
-  
+
         if avail oe-relh then v-rel-date = oe-relh.rel-date.
-  
+
         else
         for each oe-rel
             where oe-rel.company eq cocode
@@ -1503,9 +1513,9 @@ DISP WITH frame sh-head.
               and oe-rel.i-no    eq oe-ordl.i-no
               and oe-rel.line    eq oe-ordl.line
             no-lock:
-      
+
           {oe/rel-stat.i v-stat}
-    
+
           if index("ILS",v-stat) ne 0                           and
              (oe-rel.rel-date lt v-rel-date or v-rel-date eq ?) then
             v-rel-date = oe-rel.rel-date.
@@ -1525,7 +1535,7 @@ DISP WITH frame sh-head.
        tt-report.rec-id = recid(po-ordl).
     end.
   end.
-  
+
  /* if v-name then v-cust-vend = "-------- CUSTOMER --------".*/
   view frame r-top.
 
@@ -1537,7 +1547,7 @@ DISP WITH frame sh-head.
             no-lock
       break by tt-report.key-01
             by tt-report.key-02:
-            
+
       {custom/statusMsg.i " 'Processing PO#  '  + string(po-ordl.po-no) "}
 
     if first-of(tt-report.key-01) then do:
@@ -1545,24 +1555,24 @@ DISP WITH frame sh-head.
       IF tb_page THEN
       page.
     end.
-    
+
     release item.
     release itemfg.
-        
+
     if po-ordl.item-type then do:
       find first item
           where item.company eq cocode
             and item.i-no    eq po-ordl.i-no
           no-lock no-error.
     end.
-    
+
     else do:
       find first itemfg
           where itemfg.company eq cocode
             and itemfg.i-no    eq po-ordl.i-no
           no-lock no-error.
     end.
-    
+
     assign
      v-len = po-ordl.s-len
      v-wid = po-ordl.s-wid
@@ -1616,7 +1626,7 @@ DISP WITH frame sh-head.
     run sys/ref/convcuom.p(po-ordl.cons-uom, "MSF",
                            v-bwt, v-len, v-wid, v-dep,
                            po-ordl.cons-cost, output v-cst-rem).
-                           
+
     assign
      tot-cons-qty = tot-cons-qty + po-ordl.cons-qty
      tot-rec-qty  = tot-rec-qty + t-rec-qty
@@ -1630,13 +1640,13 @@ DISP WITH frame sh-head.
        v-cust-name = tt-report.key-06.
 
   /*    if (v-cust-name eq "") or (v-name eq no) then v-cust-name = fill("_",20). */
-      
+
       if po-ordl.ord-qty - trunc(po-ordl.ord-qty,0) ne 0 and
          po-ordl.ord-qty lt 100000                       then
         v-char-ord-qty = po-ordl.ord-qty.
       else
         v-char-ord-qty = po-ordl.ord-qty.
-                
+
       if po-ordl.t-rec-qty ne 0 then
         if po-ordl.t-rec-qty - trunc(po-ordl.t-rec-qty,0) ne 0 and
            po-ordl.t-rec-qty lt 10000                          then
@@ -1647,13 +1657,13 @@ DISP WITH frame sh-head.
         v-trcv = 0.
 
       v-mach = "".
-      
+
       for first job
           where job.company eq po-ordl.company
             and job.job-no  eq po-ordl.job-no
             and job.job-no2 eq po-ordl.job-no2
           no-lock,
-    
+
           first job-mch
           where job-mch.company eq job.company
             and job-mch.job     eq job.job
@@ -1661,7 +1671,7 @@ DISP WITH frame sh-head.
             and (job-mch.dept   ne "DM" and
                  job-mch.dept   ne "PM")
           use-index line-idx no-lock:
-    
+
         v-mach = job-mch.m-code.
       end.
       /*
@@ -1727,13 +1737,13 @@ DISP WITH frame sh-head.
               v-overpcs      format ">>,>>>,>>9.99"   v-comma
               v-over-allow  format ">>,>>>,>>9.99"
               SKIP. */
-          
+
        ASSIGN cDisplay = ""
                cTmpField = ""
                cVarValue = ""
                cExcelDisplay = ""
                cExcelVarValue = "".
-        
+
         DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
            cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                 CASE cTmpField:             
@@ -1752,15 +1762,15 @@ DISP WITH frame sh-head.
                      WHEN "cust-nam"  THEN cVarValue = STRING(v-cust-name).
                      WHEN "pec-ovr"   THEN cVarValue = string(v-overpcs,">>,>>>,>>9.99").
                      WHEN "ovrrn"     THEN cVarValue = STRING(v-over-allow,">>,>>>,>>9.99") .
-                           
+
                 END CASE.
-                  
+
                 cExcelVarValue = cVarValue.
                 cDisplay = cDisplay + cVarValue +
                            FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                 cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
         END.
-        
+
         PUT UNFORMATTED cDisplay SKIP.
         IF tb_excel THEN DO:
              PUT STREAM st-excel UNFORMATTED  
@@ -1768,7 +1778,7 @@ DISP WITH frame sh-head.
         END.
 
     end.
-    
+
     delete tt-report.
   end.
 
@@ -1776,7 +1786,7 @@ DISP WITH frame sh-head.
    tot-msf-rem-str = "".
    tot-msf-rem-str = "Total Remaining MSF: " +
                      trim(string(tot-msf-rem,"->>>,>>>,>>>,>>>,>>9.99")).
-                     
+
   display tot-msf-rem-str with frame grand-total.
   ASSIGN tot-msf-rem-str = ""
          tot-msf-rem = 0.
@@ -1788,7 +1798,7 @@ DISP WITH frame sh-head.
      IF tb_runExcel THEN
         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
   END.
-  
+
   RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
@@ -1813,12 +1823,12 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha NO-UNDO.
-  
+
   ASSIGN
   lv-frame-hdl = frame {&frame-name}:HANDLE
   lv-group-hdl = lv-frame-hdl:first-child
   lv-field-hdl = lv-group-hdl:first-child.
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1844,23 +1854,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

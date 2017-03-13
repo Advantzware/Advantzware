@@ -206,6 +206,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FILL-IN from_c-name IN FRAME FRAME-A
    NO-ENABLE                                                            */
 ASSIGN 
@@ -234,7 +244,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -291,7 +301,7 @@ DO:
 
     RUN valid-from_i-no NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
- 
+
     APPLY "entry" TO to_company.
     RUN valid-company NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -301,7 +311,7 @@ DO:
 
     ASSIGN {&DISPLAYED-OBJECTS}.
   END.
-  
+
   MESSAGE "Are you sure you want to " + TRIM(c-win:TITLE) + " " +
           TRIM(from_i-no) + " from Company " + TRIM(from_company) + " to " +
           " Company " + TRIM(TO_company) + "?"
@@ -477,7 +487,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  
+
   ASSIGN
    from_company = cocode
    to_company   = cocode.
@@ -554,7 +564,7 @@ PROCEDURE new-company :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     FIND company WHERE company.company BEGINS FOCUS:SCREEN-VALUE NO-LOCK NO-ERROR.
     IF AVAIL company THEN DO:
@@ -611,7 +621,7 @@ PROCEDURE run-process :
   DEF BUFFER b-notes         FOR notes.
 
   DEF VAR lv-rec_key LIKE itemfg.rec_key NO-UNDO.
-  
+
 
   SESSION:SET-WAIT-STATE("general").
 
@@ -626,7 +636,7 @@ PROCEDURE run-process :
   ASSIGN
    rec_key.rec_key    = lv-rec_key
    rec_key.table_name = "ITEMFG".
-      
+
   CREATE b-itemfg.
   BUFFER-COPY itemfg EXCEPT rec_key TO b-itemfg
   ASSIGN
@@ -673,7 +683,7 @@ PROCEDURE run-process :
      b-fg-set.company = b-itemfg.company
      b-fg-set.set-no  = b-itemfg.i-no.
   END.
-    
+
   FOR EACH itemfg-ink
       WHERE itemfg-ink.company EQ itemfg.company
         AND itemfg-ink.i-no    EQ itemfg.i-no
@@ -689,14 +699,14 @@ PROCEDURE run-process :
         WHERE reftable.rec_key  EQ itemfg-ink.rec_key
           AND reftable.reftable EQ "itemfg-ink.occurs"
         USE-INDEX rec_key:
-      
+
       CREATE b-ref.
       BUFFER-COPY reftable TO b-ref
       ASSIGN
        b-ref.rec_key = b-itemfg-ink.rec_key.
     END.
   END.
-    
+
   FOR EACH itemfg-bom
       WHERE itemfg-bom.company  EQ itemfg.company
         AND itemfg-bom.parent-i EQ itemfg.i-no
@@ -741,7 +751,7 @@ PROCEDURE run-process :
      b-e-itemfg.company = b-itemfg.company
      b-e-itemfg.i-no    = b-itemfg.i-no.
   END.
-     
+
   FOR EACH e-itemfg-vend
       WHERE e-itemfg-vend.company EQ itemfg.company
         AND e-itemfg-vend.i-no    EQ itemfg.i-no
@@ -752,7 +762,7 @@ PROCEDURE run-process :
      b-e-itemfg-vend.company = b-itemfg.company
      b-e-itemfg-vend.i-no    = b-itemfg.i-no.
   END.
-    
+
   FOR EACH itemfgdtl
       WHERE itemfgdtl.company EQ itemfg.company
         AND itemfgdtl.i-no    EQ itemfg.i-no
@@ -835,7 +845,7 @@ PROCEDURE valid-company :
       RETURN ERROR.
     END.
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
