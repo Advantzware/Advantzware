@@ -80,7 +80,7 @@ cEulaFile = SEARCH("Eula.txt").
   
 IF CONNECTED("ASI") THEN
 DO:
-    CREATE ALIAS NoSweat FOR DATABASE ASI NO-ERROR.
+    CREATE ALIAS NoSweat FOR DATABASE Advantzware NO-ERROR.
     
     lEulaAccepted = NO.
     IF cEulaFile NE ? THEN 
@@ -98,7 +98,7 @@ DO:
     
     RUN system/checkExpiredLicense.p.
             
-    RUN createSingleUserPFs.
+/*    RUN createSingleUserPFs.*/
     {methods/setdevid.i}
     RUN nosweat/persist.p PERSISTENT SET Persistent-Handle.
     RUN lstlogic/persist.p PERSISTENT SET ListLogic-Handle.

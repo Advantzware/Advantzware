@@ -68,8 +68,8 @@ END.
 
 RUN chkdate.p.
 IF CONNECTED("ASI") THEN DO:
-  CREATE ALIAS NoSweat FOR DATABASE ASI NO-ERROR.
-  RUN createSingleUserPFs.
+  CREATE ALIAS NoSweat FOR DATABASE Advantzware NO-ERROR.
+/*  RUN createSingleUserPFs.*/
   {methods/setdevid.i}
   RUN nosweat/persist.p PERSISTENT SET Persistent-Handle.
   RUN lstlogic/persist.p PERSISTENT SET ListLogic-Handle.
