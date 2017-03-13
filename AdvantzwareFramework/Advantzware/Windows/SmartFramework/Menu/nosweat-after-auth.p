@@ -18,7 +18,6 @@ ASSIGN
   ldummy = SESSION:SET-WAIT-STATE("GENERAL")
   g_version = "2.1A-8.2A"
   .
-
 /*m_id = OS-GETENV("opsysid").                          */
 /*                                                      */
 /*IF m_id = ? THEN m_id = "".                           */
@@ -115,12 +114,12 @@ END.
 SESSION:SET-WAIT-STATE("").
 /*QUIT.*/
 
-PROCEDURE createSingleUserPFs:
-  DEFINE VARIABLE i AS INTEGER NO-UNDO.
-
-  DO i = 1 TO NUM-DBS:
-    OUTPUT TO VALUE(LC(LDBNAME(i)) + '-1.pf').
-    PUT UNFORMATTED '-db ' PDBNAME(i) ' -1' SKIP.
-    OUTPUT CLOSE.
-  END. /* do i */
-END PROCEDURE.
+/*PROCEDURE createSingleUserPFs:                   */
+/*  DEFINE VARIABLE i AS INTEGER NO-UNDO.          */
+/*                                                 */
+/*  DO i = 1 TO NUM-DBS:                           */
+/*    OUTPUT TO VALUE(LC(LDBNAME(i)) + '-1.pf').   */
+/*    PUT UNFORMATTED '-db ' PDBNAME(i) ' -1' SKIP.*/
+/*    OUTPUT CLOSE.                                */
+/*  END. /* do i */                                */
+/*END PROCEDURE.                                   */

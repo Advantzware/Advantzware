@@ -17,29 +17,24 @@ DEFINE                   VARIABLE lEulaAccepted   AS LOGICAL   NO-UNDO.
 
 DEFINE NEW GLOBAL SHARED VARIABLE g-sharpshooter  AS LOG       NO-UNDO.  /* no, it's yes only from sharpsh.p */
 
-
-g-sharpshooter = NO.
-
 ASSIGN
-    ldummy    = SESSION:SET-WAIT-STATE("GENERAL")
-    g_version = "2.1A-8.2A".
-
-m_id = OS-GETENV("opsysid").
-
-IF m_id = ? THEN m_id = "".
+    g-sharpshooter = NO
+    ldummy         = SESSION:SET-WAIT-STATE("GENERAL")
+    g_version      = "2.1A-8.2A"
+    m_id           = OS-GETENV("opsysid")
+    .
+IF m_id EQ ? THEN m_id = "".
 
 IF NOT SETUSERID(m_id,"","ASI") OR m_id EQ "" THEN
     RUN nosweat/login.w.
 
-IF USERID("ASI") = "" OR quit_login  THEN
-DO:
+IF USERID("ASI") EQ "" OR quit_login THEN DO:
     ldummy = SESSION:SET-WAIT-STATE("").
     QUIT.
 END.
 
-FIND users WHERE users.user_id = USERID("ASI") NO-LOCK NO-ERROR.
-IF NOT AVAILABLE users THEN
-DO:     
+FIND users NO-LOCK WHERE users.user_id EQ USERID("ASI") NO-ERROR.
+IF NOT AVAILABLE users THEN DO:     
     ldummy = SESSION:SET-WAIT-STATE("").
     MESSAGE "User Login Does Not Exist in Users File" SKIP(1)
         "Contact Systems Manager" VIEW-AS ALERT-BOX ERROR.
@@ -47,47 +42,42 @@ DO:
 END.
 g_track_usage = users.track_usage.
 
-FOR EACH parmfile NO-LOCK:
-
-    IF SEARCH (parmfile.parmfile) > "" THEN 
-        CONNECT -pf VALUE(parmfile.parmfile) NO-ERROR.
-    ELSE 
-        IF SEARCH (REPLACE (parmfile.parmfile, ".~\", "")) > "" THEN   
-            CONNECT -pf VALUE(SEARCH(REPLACE (parmfile.parmfile, ".~\", ""))) NO-ERROR.
-        ELSE 
-        DO:
-            MESSAGE "Cannot find .pf file: " parmfile.parmfile SKIP 
-                REPLACE (parmfile.parmfile, ".~\", "")
-                VIEW-AS ALERT-BOX ERROR .
-          
-            RETURN .     
-        END.
-  
-    IF ERROR-STATUS:ERROR THEN
-    DO i = 1 TO ERROR-STATUS:NUM-MESSAGES:
-        MESSAGE ERROR-STATUS:GET-NUMBER(i) ERROR-STATUS:GET-MESSAGE(i)
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
+/*FOR EACH parmfile NO-LOCK:                                                             */
+/*    IF SEARCH (parmfile.parmfile) > "" THEN                                            */
+/*        CONNECT -pf VALUE(parmfile.parmfile) NO-ERROR.                                 */
+/*    ELSE                                                                               */
+/*        IF SEARCH (REPLACE (parmfile.parmfile, ".~\", "")) > "" THEN                   */
+/*            CONNECT -pf VALUE(SEARCH(REPLACE (parmfile.parmfile, ".~\", ""))) NO-ERROR.*/
+/*        ELSE DO:                                                                       */
+/*            MESSAGE "Cannot find .pf file: " parmfile.parmfile SKIP                    */
+/*                REPLACE (parmfile.parmfile, ".~\", "")                                 */
+/*                VIEW-AS ALERT-BOX ERROR .                                              */
+/*                                                                                       */
+/*            RETURN .                                                                   */
+/*        END.                                                                           */
+/*    IF ERROR-STATUS:ERROR THEN                                                         */
+/*    DO i = 1 TO ERROR-STATUS:NUM-MESSAGES:                                             */
+/*        MESSAGE ERROR-STATUS:GET-NUMBER(i) ERROR-STATUS:GET-MESSAGE(i)                 */
+/*            VIEW-AS ALERT-BOX ERROR.                                                   */
+/*    END.                                                                               */
+/*END.                                                                                   */
 /* ======= 
   Load program & lookup data 
   =========*/
   
-IF CONNECTED("ASI") THEN
-DO:
+IF CONNECTED("ASI") THEN DO:
     CREATE ALIAS NoSweat  FOR DATABASE ASI NO-ERROR.
     CREATE ALIAS EmpTrack FOR DATABASE ASI NO-ERROR.
     CREATE ALIAS Jobs     FOR DATABASE ASI NO-ERROR.
     CREATE ALIAS RFQ      FOR DATABASE ASI NO-ERROR.
     
-    IF USERID("ASI") = "ASI" OR USERID("ASI") = "NOSWEAT" THEN RUN asiload.p.
+    IF USERID("ASI") EQ "ASI" OR USERID("ASI") EQ "NOSWEAT" THEN RUN asiload.p.
 
     RUN chkdate.p.
     cEulaFile = SEARCH("Eula.txt").
 
     lEulaAccepted = NO.
-    IF cEulaFile NE ? THEN 
-    DO:
+    IF cEulaFile NE ? THEN DO:
         RUN system/checkEula.p (INPUT cEulaFile, OUTPUT lEulaAccepted, OUTPUT cEulaVersion).
         IF NOT lEulaAccepted THEN 
             RUN windows/wUserEula.w (INPUT cEulaFile, OUTPUT lEulaAccepted).
@@ -118,8 +108,7 @@ DO:
         RUN Get_Procedure IN Persistent-Handle ("{&execProgram}",OUTPUT run-proc,YES).
     END.
 END.
-ELSE
-DO:
+ELSE DO:
     ldummy = SESSION:SET-WAIT-STATE("").
     MESSAGE "CONNECT to ASI'S Database Failed" SKIP(1)
         "Contact Systems Manager" VIEW-AS ALERT-BOX ERROR.
@@ -128,13 +117,13 @@ END.
 ldummy = SESSION:SET-WAIT-STATE("").
 QUIT.
 
-PROCEDURE createSingleUserPFs:
-    DEFINE VARIABLE i AS INTEGER NO-UNDO.
-
-    DO i = 1 TO NUM-DBS:
-        OUTPUT TO VALUE(LC(LDBNAME(i)) + '-1.pf').
-        PUT UNFORMATTED 
-            '-db ' PDBNAME(i) ' -1' SKIP.
-        OUTPUT CLOSE.
-    END. /* do i */
-END PROCEDURE.
+/*PROCEDURE createSingleUserPFs:                    */
+/*    DEFINE VARIABLE i AS INTEGER NO-UNDO.         */
+/*                                                  */
+/*    DO i = 1 TO NUM-DBS:                          */
+/*        OUTPUT TO VALUE(LC(LDBNAME(i)) + '-1.pf').*/
+/*        PUT UNFORMATTED                           */
+/*            '-db ' PDBNAME(i) ' -1' SKIP.         */
+/*        OUTPUT CLOSE.                             */
+/*    END. /* do i */                               */
+/*END PROCEDURE.                                    */

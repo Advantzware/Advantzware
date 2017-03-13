@@ -15,8 +15,8 @@ DEF NEW GLOBAL SHARED VAR g-sharpshooter AS LOG NO-UNDO.  /* no, it's yes only f
 
 ASSIGN
   g-sharpshooter = NO
-  ldummy = SESSION:SET-WAIT-STATE("GENERAL")
-  g_version = "2.1A-8.2A"
+  ldummy         = SESSION:SET-WAIT-STATE("GENERAL")
+  g_version      = "2.1A-8.2A"
   .
 /*m_id = OS-GETENV("opsysid").                          */
 /*                                                      */
@@ -41,25 +41,25 @@ ASSIGN
 /*END.                                                                */
 /*g_track_usage = users.track_usage.                                  */
 
-FOR EACH parmfile NO-LOCK:
-  IF SEARCH (parmfile.parmfile) > "" THEN 
-    CONNECT -pf VALUE(parmfile.parmfile) NO-ERROR.
-  ELSE 
-      IF SEARCH (REPLACE (parmfile.parmfile, ".~\", "")) > "" THEN   
-        CONNECT -pf VALUE(SEARCH(REPLACE (parmfile.parmfile, ".~\", ""))) NO-ERROR.
-  ELSE DO:
-      MESSAGE "Cannot find .pf file: " parmfile.parmfile SKIP 
-      REPLACE (parmfile.parmfile, ".~\", "")
-          VIEW-AS ALERT-BOX ERROR .          
-      RETURN .     
-  END.
-  
-  IF ERROR-STATUS:ERROR THEN
-  DO i = 1 TO ERROR-STATUS:NUM-MESSAGES:
-    MESSAGE ERROR-STATUS:GET-NUMBER(i) ERROR-STATUS:GET-MESSAGE(i)
-        VIEW-AS ALERT-BOX ERROR.
-  END.
-END.
+/*FOR EACH parmfile NO-LOCK:                                                         */
+/*  IF SEARCH (parmfile.parmfile) > "" THEN                                          */
+/*    CONNECT -pf VALUE(parmfile.parmfile) NO-ERROR.                                 */
+/*  ELSE                                                                             */
+/*      IF SEARCH (REPLACE (parmfile.parmfile, ".~\", "")) > "" THEN                 */
+/*        CONNECT -pf VALUE(SEARCH(REPLACE (parmfile.parmfile, ".~\", ""))) NO-ERROR.*/
+/*  ELSE DO:                                                                         */
+/*      MESSAGE "Cannot find .pf file: " parmfile.parmfile SKIP                      */
+/*      REPLACE (parmfile.parmfile, ".~\", "")                                       */
+/*          VIEW-AS ALERT-BOX ERROR .                                                */
+/*      RETURN .                                                                     */
+/*  END.                                                                             */
+/*                                                                                   */
+/*  IF ERROR-STATUS:ERROR THEN                                                       */
+/*  DO i = 1 TO ERROR-STATUS:NUM-MESSAGES:                                           */
+/*    MESSAGE ERROR-STATUS:GET-NUMBER(i) ERROR-STATUS:GET-MESSAGE(i)                 */
+/*        VIEW-AS ALERT-BOX ERROR.                                                   */
+/*  END.                                                                             */
+/*END.                                                                               */
 /* ======= 
   Load program & lookup data 
   =========*/
@@ -112,12 +112,12 @@ END.
 SESSION:SET-WAIT-STATE("").
 QUIT.
 
-PROCEDURE createSingleUserPFs:
-  DEFINE VARIABLE i AS INTEGER NO-UNDO.
-
-  DO i = 1 TO NUM-DBS:
-    OUTPUT TO VALUE(LC(LDBNAME(i)) + '-1.pf').
-    PUT UNFORMATTED '-db ' PDBNAME(i) ' -1' SKIP.
-    OUTPUT CLOSE.
-  END. /* do i */
-END PROCEDURE.
+/*PROCEDURE createSingleUserPFs:                   */
+/*  DEFINE VARIABLE i AS INTEGER NO-UNDO.          */
+/*                                                 */
+/*  DO i = 1 TO NUM-DBS:                           */
+/*    OUTPUT TO VALUE(LC(LDBNAME(i)) + '-1.pf').   */
+/*    PUT UNFORMATTED '-db ' PDBNAME(i) ' -1' SKIP.*/
+/*    OUTPUT CLOSE.                                */
+/*  END. /* do i */                                */
+/*END PROCEDURE.                                   */
