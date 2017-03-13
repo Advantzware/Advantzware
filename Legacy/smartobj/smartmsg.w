@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS s-object 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS s-object
 /*------------------------------------------------------------------------
 
   File: smartMsg.w
@@ -15,9 +15,9 @@
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
 
-/* Create an unnamed pool to store all the widgets created 
+/* Create an unnamed pool to store all the widgets created
      by this procedure. This is a good default which assures
-     that this procedure's triggers and internal procedures 
+     that this procedure's triggers and internal procedures
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
 
@@ -35,7 +35,7 @@ CREATE WIDGET-POOL.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
+&ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -46,8 +46,8 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnNote btnUDF 
-&Scoped-Define DISPLAYED-OBJECTS mf-message notes-message 
+&Scoped-Define ENABLED-OBJECTS btnNote btnUDF
+&Scoped-Define DISPLAYED-OBJECTS mf-message notes-message
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -62,20 +62,20 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnNote  NO-FOCUS FLAT-BUTTON
-     LABEL "No Note" 
+     LABEL "No Note"
      SIZE 5 BY 1.14.
 
 DEFINE BUTTON btnUDF  NO-FOCUS FLAT-BUTTON
-     LABEL "No UDF" 
+     LABEL "No UDF"
      SIZE 5 BY 1.14.
 
-DEFINE VARIABLE mf-message AS CHARACTER FORMAT "X(256)":U 
-      VIEW-AS TEXT 
+DEFINE VARIABLE mf-message AS CHARACTER FORMAT "X(256)":U
+      VIEW-AS TEXT
      SIZE 22 BY .62
      FGCOLOR 0  NO-UNDO.
 
-DEFINE VARIABLE notes-message AS CHARACTER FORMAT "X(256)":U 
-      VIEW-AS TEXT 
+DEFINE VARIABLE notes-message AS CHARACTER FORMAT "X(256)":U
+      VIEW-AS TEXT
      SIZE 22 BY .62
      FGCOLOR 0  NO-UNDO.
 
@@ -87,9 +87,9 @@ DEFINE FRAME F-Main
      btnUDF AT ROW 1 COL 6 WIDGET-ID 10
      mf-message AT ROW 1 COL 11 NO-LABEL
      notes-message AT ROW 1.52 COL 11 NO-LABEL
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY
+         SIDE-LABELS NO-UNDERLINE THREE-D
+         AT COL 1 ROW 1 SCROLLABLE
          BGCOLOR 15 .
 
 
@@ -117,7 +117,7 @@ END.
 /* *************************  Create Window  ************************** */
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
-/* DESIGN Window definition (used by the UIB) 
+/* DESIGN Window definition (used by the UIB)
   CREATE WINDOW s-object ASSIGN
          HEIGHT             = 1.14
          WIDTH              = 32.6.
@@ -125,7 +125,7 @@ END.
                                                                         */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB s-object 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB s-object
 /* ************************* Included-Libraries *********************** */
 
 {Advantzware/WinKit/winkit-panel.i}
@@ -144,7 +144,7 @@ END.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-ASSIGN 
+ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
@@ -165,7 +165,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -175,7 +175,7 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnNote s-object
 ON CHOOSE OF btnNote IN FRAME F-Main /* No Note */
 DO:
-    {methods/run_link.i "CONTAINER-SOURCE" "Select_Notes"}  
+    {methods/run_link.i "CONTAINER-SOURCE" "Select_Notes"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -186,7 +186,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnUDF s-object
 ON CHOOSE OF btnUDF IN FRAME F-Main /* No UDF */
 DO:
-    {methods/run_link.i "CONTAINER-SOURCE" "UDF"}  
+    {methods/run_link.i "CONTAINER-SOURCE" "UDF"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -217,14 +217,14 @@ END.
 
 &UNDEFINE SELF-NAME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK s-object 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK s-object
 
 
 /* ***************************  Main Block  *************************** */
 
-/* If testing in the UIB, initialize the SmartObject. */  
-&IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
-  RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
+/* If testing in the UIB, initialize the SmartObject. */
+&IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN
+  RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF
 
 /* _UIB-CODE-BLOCK-END */
@@ -239,7 +239,7 @@ PROCEDURE disable_UI :
   Purpose:     DISABLE the User Interface
   Parameters:  <none>
   Notes:       Here we clean-up the user-interface by deleting
-               dynamic widgets we have created and/or hide 
+               dynamic widgets we have created and/or hide
                frames.  This procedure is usually called when
                we are ready to "clean-up" after running.
 ------------------------------------------------------------------------------*/
@@ -251,7 +251,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize s-object 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize s-object
 PROCEDURE local-initialize :
 /*------------------------------------------------------------------------------
  Purpose:
@@ -270,19 +270,19 @@ PROCEDURE local-initialize :
     {methods/setButton.i btnNote "No Note" 16}
     {methods/run_link.i "CONTAINER-SOURCE" "pUDFACtive" "(OUTPUT lUDFActive)"}
     IF lUDFActive EQ NO THEN DO:
-        ASSIGN 
-            btnUDF:HIDDEN = YES 
+        ASSIGN
+            btnUDF:HIDDEN = YES
             btnUDF:LABEL  = ""
             .
         btnUDF:LOAD-IMAGE("").
     END.
-    ELSE 
-        {methods/setButton.i btnUDF "No UDF" 16}     
+    ELSE
+        {methods/setButton.i btnUDF "No UDF" 16}
   END.
-  ELSE 
-  ASSIGN 
-    btnNote:HIDDEN = YES 
-    btnUDF:HIDDEN  = YES 
+  ELSE
+  ASSIGN
+    btnNote:HIDDEN = YES
+    btnUDF:HIDDEN  = YES
     .
 
 END PROCEDURE.
@@ -290,12 +290,12 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE make-insensitive s-object 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE make-insensitive s-object
 PROCEDURE make-insensitive :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
@@ -309,12 +309,12 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE make-sensitive s-object 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE make-sensitive s-object
 PROCEDURE make-sensitive :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
@@ -328,7 +328,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRefreshRibbonButtons s-object 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRefreshRibbonButtons s-object
 PROCEDURE pRefreshRibbonButtons :
 /*------------------------------------------------------------------------------
  Purpose:
@@ -336,14 +336,14 @@ PROCEDURE pRefreshRibbonButtons :
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE hWinKitWidgetHandle AS HANDLE NO-UNDO.
 
-    Consultingwerk.Util.UltraToolbarsHelper:RefreshTools (oForm:ToolbarsManager) .
+    Consultingwerk.Util.UltraToolbarsHelper:RefreshTools (oForm:ToolbarsManager, FALSE, FALSE) .
     {Consultingwerk/foreach.i Infragistics.Win.UltraWinToolbars.ToolBase oTool in oForm:ToolbarsManager:Tools}
         hWinKitWidgetHandle = WIDGET-HANDLE (UNBOX (oTool:Tag)) .
         IF VALID-HANDLE (hWinKitWidgetHandle) AND CAN-QUERY (hWinKitWidgetHandle, "LABEL":U) THEN DO:
                 oTool:SharedProps:Caption = hWinKitWidgetHandle:LABEL .
                 {Consultingwerk/foreach.i Infragistics.Win.UltraWinToolbars.ToolBase oInstance in oTool:SharedProps:ToolInstances }
                 oInstance:InstanceProps:Caption = hWinKitWidgetHandle:LABEL .
-            END.        
+            END.
         END.
     END.
 
@@ -352,15 +352,15 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Show-MF-Message s-object 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Show-MF-Message s-object
 PROCEDURE Show-MF-Message :
 /*------------------------------------------------------------------------------
   Purpose:     Show or Clear Misc Fields Message
   Parameters:  ip-notes
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ip-misc-flds AS LOGICAL NO-UNDO.
-    
+
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
             mf-message:SENSITIVE = YES
@@ -371,9 +371,9 @@ PROCEDURE Show-MF-Message :
         IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive EQ TRUE THEN DO:
              IF ip-misc-flds THEN
              {methods/setButton.i btnUDF "UDF" 16}
-             ELSE 
+             ELSE
              {methods/setButton.i btnUDF "No UDF" 16}
-             RUN pRefreshRibbonButtons.     
+             RUN pRefreshRibbonButtons.
         END.
     END.
 
@@ -382,15 +382,15 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Show-Notes-Message s-object 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Show-Notes-Message s-object
 PROCEDURE Show-Notes-Message :
 /*------------------------------------------------------------------------------
   Purpose:     Show or Clear Notes Message
   Parameters:  ip-notes
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ip-notes AS LOGICAL NO-UNDO.
-  
+
   DO WITH FRAME {&FRAME-NAME}:
      ASSIGN
       notes-message:HIDDEN = NOT ip-notes
@@ -399,9 +399,9 @@ PROCEDURE Show-Notes-Message :
     IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive EQ TRUE THEN DO:
          IF ip-notes THEN
          {methods/setButton.i btnNote "Note" 16}
-         ELSE 
+         ELSE
          {methods/setButton.i btnNote "No Note" 16}
-         RUN pRefreshRibbonButtons.     
+         RUN pRefreshRibbonButtons.
     END.
   END.
 
@@ -410,13 +410,13 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed s-object 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed s-object
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
   Purpose:     Receive and process 'state-changed' methods
                (issued by 'new-state' event).
   Parameters:  <none>
-  Notes:       
+  Notes:
 -------------------------------------------------------------*/
   DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE    NO-UNDO.
   DEFINE INPUT PARAMETER p-state      AS CHARACTER NO-UNDO.
@@ -425,7 +425,7 @@ PROCEDURE state-changed :
       /* Object instance CASEs can go here to replace standard behavior
          or add new cases. */
   END CASE.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
