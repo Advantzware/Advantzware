@@ -33,7 +33,7 @@ CREATE WIDGET-POOL.
 
 &SCOPED-DEFINE yellowColumnsName b-qthd
 &SCOPED-DEFINE localOpenQuery
-&SCOPED-DEFINE SORTBY-PHRASE BY STRING(quotehd.q-no,'>>>>>9') DESCENDING
+&SCOPED-DEFINE SORTBY-PHRASE BY STRING(quotehd.q-no,">>>>>9") DESCENDING
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE browseOnly
 {methods/defines/winReSize.i}
@@ -98,18 +98,18 @@ AND quotehd.q-no GE q-noValue[1] ~
 AND quotehd.q-no LE q-noValue[2] ~
 AND quotehd.cust-no BEGINS fi_cust-no ~
 AND ( (lookup(quotehd.cust-no,custcount) <> 0 AND quotehd.cust-no <> "" ) OR custcount = "") ~
-AND (IF fi_contact BEGINS '*' THEN quotehd.contact MATCHES fi_contact ~
+AND (IF fi_contact BEGINS "*" THEN quotehd.contact MATCHES fi_contact ~
     ELSE quotehd.contact BEGINS fi_contact) ~
 AND (quotehd.quo-date GE fi_quo-date ~
 OR fi_quo-date EQ ?) ~
 AND (quotehd.est-no EQ fi_est-no ~
-OR fi_est-no EQ '') ~
+OR fi_est-no EQ "") ~
 AND quotehd.rfq BEGINS fi_rfq ~
 ~{&useIndexPhrase} NO-LOCK, ~
       EACH quoteitm OF quotehd  ~
-      WHERE (IF fi_part-no BEGINS '*' THEN quoteitm.part-no MATCHES fi_part-no  ~
+      WHERE (IF fi_part-no BEGINS "*" THEN quoteitm.part-no MATCHES fi_part-no  ~
           ELSE quoteitm.part-no BEGINS fi_part-no) ~
-and (IF fi_item-decr BEGINS '*' THEN quoteitm.part-dscr1 MATCHES fi_item-decr  ~
+and (IF fi_item-decr BEGINS "*" THEN quoteitm.part-dscr1 MATCHES fi_item-decr  ~
     ELSE quoteitm.part-dscr1 BEGINS fi_item-decr)  NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH quotehd ~
@@ -119,18 +119,18 @@ AND quotehd.q-no GE q-noValue[1] ~
 AND quotehd.q-no LE q-noValue[2] ~
 AND quotehd.cust-no BEGINS fi_cust-no ~
 AND ( (lookup(quotehd.cust-no,custcount) <> 0 AND quotehd.cust-no <> "" ) OR custcount = "") ~
-AND (IF fi_contact BEGINS '*' THEN quotehd.contact MATCHES fi_contact ~
+AND (IF fi_contact BEGINS "*" THEN quotehd.contact MATCHES fi_contact ~
     ELSE quotehd.contact BEGINS fi_contact) ~
 AND (quotehd.quo-date GE fi_quo-date ~
 OR fi_quo-date EQ ?) ~
 AND (quotehd.est-no EQ fi_est-no ~
-OR fi_est-no EQ '') ~
+OR fi_est-no EQ "") ~
 AND quotehd.rfq BEGINS fi_rfq ~
 ~{&useIndexPhrase} NO-LOCK, ~
       EACH quoteitm OF quotehd  ~
-      WHERE (IF fi_part-no BEGINS '*' THEN quoteitm.part-no MATCHES fi_part-no  ~
+      WHERE (IF fi_part-no BEGINS "*" THEN quoteitm.part-no MATCHES fi_part-no  ~
           ELSE quoteitm.part-no BEGINS fi_part-no) ~
-and (IF fi_item-decr BEGINS '*' THEN quoteitm.part-dscr1 MATCHES fi_item-decr  ~
+and (IF fi_item-decr BEGINS "*" THEN quoteitm.part-dscr1 MATCHES fi_item-decr  ~
     ELSE quoteitm.part-dscr1 BEGINS fi_item-decr)  NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table quotehd quoteitm
@@ -453,15 +453,18 @@ AND quotehd.q-no GE q-noValue[1]
 AND quotehd.q-no LE q-noValue[2]
 AND quotehd.cust-no BEGINS fi_cust-no
 AND ( (lookup(quotehd.cust-no,custcount) <> 0 AND quotehd.cust-no <> "") OR custcount = "") 
-AND quotehd.contact BEGINS fi_contact
+AND (IF fi_contact BEGINS "*" THEN quotehd.contact MATCHES fi_contact
+    ELSE quotehd.contact BEGINS fi_contact)
 AND (quotehd.quo-date GE fi_quo-date
 OR fi_quo-date EQ ?)
 AND (quotehd.est-no EQ fi_est-no
-OR fi_est-no EQ '')
+OR fi_est-no EQ "")
 AND quotehd.rfq BEGINS fi_rfq
 ~{&useIndexPhrase}"
-     _Where[2]         = "quoteitm.part-no BEGINS fi_part-no 
-and quoteitm.part-dscr1 BEGINS fi_item-decr"
+     _Where[2]         = "(IF fi_part-no BEGINS "*" THEN quoteitm.part-no MATCHES fi_part-no
+ELSE quoteitm.part-no BEGINS fi_part-no)
+AND (IF fi_item-decr BEGINS "*" THEN quoteitm.part-dscr1 MATCHES fi_item-decr
+ELSE quoteitm.part-dscr1 BEGINS fi_item-decr)"
      _FldNameList[1]   > ASI.quotehd.q-no
 "quotehd.q-no" "Quote" ">>>>>9" "integer" ? ? ? 14 ? ? no ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.quotehd.quo-date
