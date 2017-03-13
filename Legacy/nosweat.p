@@ -80,7 +80,7 @@ cEulaFile = SEARCH("Eula.txt").
   
 IF CONNECTED("ASI") THEN
 DO:
-    CREATE ALIAS NoSweat FOR DATABASE Advantzware NO-ERROR.
+    CREATE ALIAS NoSweat FOR DATABASE ASI NO-ERROR.
     
     lEulaAccepted = NO.
     IF cEulaFile NE ? THEN 
