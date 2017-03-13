@@ -72,11 +72,6 @@ END.
 /* ======= 
   Load program & lookup data 
   =========*/
-
-IF USERID("ASI") = "ASI" OR USERID("ASI") = "NOSWEAT" THEN RUN asiload.p.
-
-RUN chkdate.p.
-cEulaFile = SEARCH("Eula.txt").
   
 IF CONNECTED("ASI") THEN
 DO:
@@ -85,6 +80,11 @@ DO:
     CREATE ALIAS Jobs     FOR DATABASE ASI NO-ERROR.
     CREATE ALIAS RFQ      FOR DATABASE ASI NO-ERROR.
     
+    IF USERID("ASI") = "ASI" OR USERID("ASI") = "NOSWEAT" THEN RUN asiload.p.
+
+    RUN chkdate.p.
+    cEulaFile = SEARCH("Eula.txt").
+
     lEulaAccepted = NO.
     IF cEulaFile NE ? THEN 
     DO:

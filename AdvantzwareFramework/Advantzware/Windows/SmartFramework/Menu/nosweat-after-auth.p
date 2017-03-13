@@ -66,14 +66,15 @@ g_track_usage = users.track_usage.
   Load program & lookup data 
   =========*/
 
-IF USERID("ASI") EQ "ASI" OR USERID("ASI") EQ "NOSWEAT" THEN RUN asiload.p.
-
-RUN chkdate.p.
 IF CONNECTED("ASI") THEN DO:
   CREATE ALIAS NoSweat  FOR DATABASE ASI NO-ERROR.
   CREATE ALIAS EmpTrack FOR DATABASE ASI NO-ERROR.
   CREATE ALIAS Jobs     FOR DATABASE ASI NO-ERROR.
   CREATE ALIAS RFQ      FOR DATABASE ASI NO-ERROR.
+  
+  IF USERID("ASI") EQ "ASI" OR USERID("ASI") EQ "NOSWEAT" THEN RUN asiload.p.
+
+  RUN chkdate.p.
 /*  RUN createSingleUserPFs.*/
   {methods/setdevid.i}
   RUN nosweat/persist.p PERSISTENT SET Persistent-Handle.
