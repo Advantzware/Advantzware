@@ -15,8 +15,6 @@
 
 /* ***************************  Definitions  ************************** */
 
-BLOCK-LEVEL ON ERROR UNDO, THROW.
-
 DEFINE TEMP-TABLE ttOrdersToDelete
     FIELD riOrder AS ROWID 
     FIELD cPONo   AS CHARACTER 
