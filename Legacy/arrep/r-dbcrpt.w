@@ -969,7 +969,7 @@ v-term-id = v-term.
                   /*(IF is-xprint-form THEN ".xpr" ELSE ".txt").*/
               PUT UNFORMATTED "</PROGRESS><PRINTER?><EXPORT=" Ls-fax-file ",BW>".
         END.
-        WHEN 5 THEN PUT "<PREVIEW><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(60)".
+        WHEN 5 THEN PUT "<PREVIEW><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(180)".
     END CASE.
   END.
 

@@ -559,7 +559,7 @@ CASE rd-dest:
         ELSE
           PUT "<PREVIEW>".  
     END.
-    WHEN 5 THEN PUT "<PRINT=NO><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(100)".
+    WHEN 5 THEN PUT "<PRINT=NO><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
 
 END CASE.
 

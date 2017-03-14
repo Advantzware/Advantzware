@@ -924,7 +924,7 @@ ELSE IF rd-dest eq  4 THEN do:
         ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".
         PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW>".
 END.        
-ELSE IF rd-dest = 5 THEN PUT "<PRINT=NO><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(100)".
+ELSE IF rd-dest = 5 THEN PUT "<PRINT=NO><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
 PUT "</PROGRESS>".
 
 IF tb_excel THEN DO:

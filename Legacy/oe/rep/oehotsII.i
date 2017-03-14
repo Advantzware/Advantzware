@@ -106,7 +106,7 @@
    END.
    ELSE 
       IF rd-dest = 5 THEN 
-         PUT UNFORMATTED "<PRINT=NO><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf></PROGRESS>" FORM "x(120)".
+         PUT UNFORMATTED "<PRINT=NO><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf></PROGRESS>" FORM "x(180)".
 
    /*IF td-show-parm THEN run show-param.*/
 

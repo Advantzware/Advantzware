@@ -2878,7 +2878,7 @@ PROCEDURE print-box-est :
       ASSIGN
          init-dir = v-dir
          lv-pdf-file = v-dir + "Est" + TRIM(est.est-no).
-      PUT "<PREVIEW><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf></PROGRESS><P11>" FORMAT "x(100)".
+      PUT "<PREVIEW><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf></PROGRESS><P11>" FORMAT "x(180)".
   END.
   OUTPUT CLOSE.
 
