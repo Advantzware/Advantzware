@@ -1,6 +1,6 @@
 /* emp_ss.p - Generated 03/30/2000 - 10:32 am by nosweat
 "emp_ss. " ~
-"EMPTRACK " ~
+"ASI " ~
 "employee " ~
 " " ~
 "soc_sec " ~
@@ -18,7 +18,7 @@
 "employee. " ~
 */
 
-&Scoped-define lookup-db EMPTRACK.
+&Scoped-define lookup-db ASI.
 &Scoped-define lookup-file employee
 &Scoped-define where-statement TRUE
 &Scoped-define return-field soc_sec

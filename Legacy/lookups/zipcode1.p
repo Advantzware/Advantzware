@@ -1,6 +1,6 @@
 /* zipcode1.p - Generated 03/11/2002 - 11:36 am by nosweat
 "zipcode1. " ~
-"NOSWEAT " ~
+"ASI " ~
 "zipcode " ~
 " " ~
 "zipcode " ~
@@ -18,7 +18,7 @@
 "zipcode1. " ~
 */
 
-&Scoped-define lookup-db NOSWEAT.
+&Scoped-define lookup-db ASI.
 &Scoped-define lookup-file zipcode
 &Scoped-define where-statement TRUE
 &Scoped-define return-field zipcode

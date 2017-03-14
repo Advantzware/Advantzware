@@ -1,6 +1,6 @@
 /* srchlkup.p - Generated 02/13/1998 -  4:25 pm by Exitt
 "srchlkup. " ~
-"NOSWEAT " ~
+"ASI " ~
 "prgrms " ~
 "INDEX(prgrms.prgmname,'.') NE 0 AND prgrms.dir_group = 'windows' AND SEARCH('searches/' + prgrms.prgmname + 'p') NE ? " ~
 "prgmname " ~
@@ -18,7 +18,7 @@
 " " ~
 */
 
-&Scoped-define lookup-db NOSWEAT.
+&Scoped-define lookup-db ASI.
 &Scoped-define lookup-file prgrms
 &Scoped-define where-statement INDEX(prgrms.prgmname,'.') NE 0 AND prgrms.dir_group = 'windows' AND SEARCH('searches/' + prgrms.prgmname + 'p') NE ?
 &Scoped-define return-field prgmname
