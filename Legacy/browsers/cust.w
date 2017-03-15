@@ -507,7 +507,7 @@ END.
 /*{custom/yellowColumns.i}    */
 
 {src/adm/method/navbrows.i}
-{methods/gridSearch.i}
+{Advantzware/WinKit/dataGridProc.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

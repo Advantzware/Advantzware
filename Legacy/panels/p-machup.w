@@ -179,7 +179,6 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-WIn 
 /* ************************* Included-Libraries *********************** */
-
 {Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/panel.i}
 
@@ -231,6 +230,7 @@ DO:
    add-active = yes.
 
   RUN notify ('add-record':U).
+  {methods/setButton.i Btn-Save "Save"}
 
   {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
@@ -246,6 +246,7 @@ DO:
   DO WITH FRAME Panel-Frame:
       add-active = no.
       RUN notify ('cancel-record':U).
+      {methods/setButton.i Btn-Save "Update"}
    END.
   {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
@@ -261,6 +262,7 @@ DO:
    IF NOT v-can-create THEN RETURN no-apply.
 
    RUN notify ('copy-record':U).
+   {methods/setButton.i Btn-Save "Save"}
   {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
@@ -316,16 +318,19 @@ DO:
         IF Btn-Save:LABEL = '&Update' THEN 
         DO:
            RUN new-state('update-begin':U).
+           {methods/setButton.i Btn-Save "Save"}
            ASSIGN add-active = no.
         END.
         ELSE 
         DO: /* Save */
            RUN notify ('update-record':U).
+           {methods/setButton.i Btn-Save "Update"}
         END.                              
      END.
      ELSE 
      DO: /* Normal 'Save'-style SmartPanel */
         RUN notify ('update-record':U).
+           {methods/setButton.i Btn-Save "Update"}
      END.
   END.
   {Advantzware/WinKit/winkit-panel-triggerend.i}
@@ -361,6 +366,13 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF
+
+  {methods/setButton.i Btn-Save "Update"}
+  {methods/setButton.i Btn-Reset "Reset"}
+  {methods/setButton.i Btn-Add "Add"}
+  {methods/setButton.i Btn-Copy "Copy"}
+  {methods/setButton.i Btn-Delete "Delete"}
+  {methods/setButton.i Btn-Cancel "Cancel"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

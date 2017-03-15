@@ -301,6 +301,8 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -349,7 +351,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-report
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -376,7 +378,7 @@ DO:
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
 
-  
+
   ASSIGN
    lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
    lv-column-nam = lh-column:NAME
@@ -444,7 +446,7 @@ DO:
             END.
         END.
      END.
-    
+
 
     IF AVAIL tt-report THEN tt-sel = YES.
   END.
@@ -668,7 +670,7 @@ FUNCTION display-cw-dim RETURNS CHAR
 ------------------------------------------------------------------------------*/
   def var out-dim as dec DECIMALS 6 no-undo.
   def var k_frac as dec init 6.25 no-undo.
-  
+
   if ip-est-type ge 5 and ip-dim <> 0 AND v-cecscrn-char NE "Decimal" then 
      out-dim = round(trunc(ip-dim,0) + ((ip-dim - trunc(ip-dim,0)) / K_FRAC),2).
   else out-dim = ip-dim.
@@ -681,7 +683,7 @@ FUNCTION display-cw-dim RETURNS CHAR
               IF ip-est-type GE 5 AND v-cecscrn-char EQ "Decimal" THEN
                  STRING(out-dim,">>,>>9.999999")
               ELSE STRING(out-dim,">>,>>9.9<<<<")).
-             
+
 
 END FUNCTION.
 
@@ -695,7 +697,7 @@ FUNCTION display-i-name RETURNS CHARACTER
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-  
+
   find item where recid(item) eq report.rec-id no-lock no-error.
   RETURN (if avail item then item.i-name else "").   /* Function return value. */
 
