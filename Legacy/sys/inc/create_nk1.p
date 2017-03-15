@@ -27,7 +27,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
             + "FGRecptUnit,OeDateWarn,PREPMASTER,POFarmOutScores,OEQtyPerUnitWarn,APMatTypeExceptions," 
             + "OEJobHold,lmLock,CESAMPLE,DefaultDir,JobHoldReason,ASIHelpService,CRMAuthToken,TSAMPMWarn,SSScanVendor," 
             + "OEBOLPrompt,SHTCALCWarn,BOLFMTTran,BOLMaster,SalesBudget,CEMarkupMatrixInterpolate,CEMarkupMatrixLookup,"
-            + "KiwiT,BusinessFormModal"  .
+            + "KiwiT,BusinessFormModal,FGKEEPZEROBIN,RMKEEPZEROBIN"  .
 
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
@@ -277,6 +277,17 @@ CASE ip-nk1-value:
                            INPUT "Set Business Form Preview window to Modal (wait to close)?",
                            INPUT "" /* Char Value */, INPUT 0 /* Int value */,
                            INPUT NO /* Logical value */).
+    WHEN "FGKEEPZEROBIN" THEN 
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+                           INPUT "Keep zero FG bins?",
+                           INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+                           INPUT NO /* Logical value */).
+    WHEN "RMKEEPZEROBIN" THEN 
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+                           INPUT "Keep zero RM bins?",
+                           INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+                           INPUT NO /* Logical value */).
+
 
 END CASE.
 ELSE
