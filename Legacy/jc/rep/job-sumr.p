@@ -761,10 +761,10 @@ for each mch-act where
    END. /* not tb_curr */
    /* #BL# If the job code category is 'run' or 'DT' then add in */
    /* #BL# run-qty, wst-qty, run-hr, run-costs from the machine actual */
-   IF work-mch.m-code = "BMA" AND lDebug THEN
+   IF work-mch.m-code = "BMA" AND lDebug AND AVAIL job-code THEN
    MESSAGE "job-code" job-code.cat "if run, add in hours " mch-act.hours " times rate = " mach.run-rate ld-tot-rate
        VIEW-AS ALERT-BOX INFO BUTTONS OK.
-   if job-code.cat eq "RUN" or job-code.cat eq "DT" then do:
+   IF AVAIL job-code AND job-code.cat eq "RUN" or job-code.cat eq "DT" then do:
       assign
        work-mch.run-qty   = work-mch.run-qty   + mch-act.qty
        work-mch.wst-qty   = work-mch.wst-qty   + mch-act.waste
@@ -783,7 +783,7 @@ for each mch-act where
    end. /* cat = run or dt */
    
    else
-   if job-code.cat eq "MR" THEN DO:
+   IF AVAIL job-code AND job-code.cat eq "MR" THEN DO:
        /* #BL# If the job code category is 'MR' then add in the */
        /* #BL# mr-qty, mr-hr, mr-costs from the machine actual */
        assign
