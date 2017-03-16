@@ -112,7 +112,7 @@
    END.
    ELSE 
       IF rd-dest = 5 THEN 
-         PUT UNFORMATTED "<PRINT=NO><OLANDSCAPE><PDF-LEFT=4mm><PDF-TOP=1mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf></PROGRESS>" FORM "x(120)".
+         PUT UNFORMATTED "<PRINT=NO><OLANDSCAPE><PDF-LEFT=4mm><PDF-TOP=1mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf></PROGRESS>" FORM "x(180)".
 
    /*VIEW FRAME pg-head.*/
 

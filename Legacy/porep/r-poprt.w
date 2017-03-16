@@ -1573,8 +1573,8 @@ PROCEDURE run-report :
           END.
           WHEN 5 THEN DO:
               IF v-print-fmt = "Centbox" OR v-print-fmt = "VALLEY" 
-                THEN PUT "<PREVIEW><FORMAT=LETTER></PROGRESS><PDF-EXCLUDE=MS Mincho><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(120)".
-                ELSE PUT "<PREVIEW><FORMAT=LETTER></PROGRESS><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file  + ".pdf>" FORM "x(120)".
+                THEN PUT "<PREVIEW><FORMAT=LETTER></PROGRESS><PDF-EXCLUDE=MS Mincho><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+                ELSE PUT "<PREVIEW><FORMAT=LETTER></PROGRESS><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file  + ".pdf>" FORM "x(180)".
           END.
 
       END CASE.

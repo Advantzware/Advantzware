@@ -1550,13 +1550,13 @@ IF is-xprint-form THEN DO:
         WHEN 5 THEN DO:
 
             IF v-print-fmt EQ "CentBox" THEN
-               PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=3mm><PDF-TOP=4mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(120)".
+               PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=3mm><PDF-TOP=4mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
             ELSE IF v-print-fmt EQ "Southpak-XL" OR v-print-fmt EQ "PrystupExcel" THEN
-               PUT "<PREVIEW><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(60)".
+               PUT "<PREVIEW><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(180)".
             ELSE IF v-print-fmt EQ "Protagon" OR v-print-fmt = "Protagon2" THEN
-              PUT "<PDF=DIRECT><FORMAT=LETTER><PDF-LEFT=0.5mm><PDF-TOP=-0.5mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(120)".
+              PUT "<PDF=DIRECT><FORMAT=LETTER><PDF-LEFT=0.5mm><PDF-TOP=-0.5mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
             ELSE
-               PUT "<PREVIEW><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(60)".
+               PUT "<PREVIEW><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
         END.
    END CASE.
    PUT "</PROGRESS>".

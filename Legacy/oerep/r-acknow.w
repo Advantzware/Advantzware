@@ -2851,10 +2851,10 @@ IF IS-xprint-form THEN DO:
        WHEN 5 THEN DO:
            IF TG_preview THEN PUT "<PREVIEW>". ELSE PUT "<PRINT=NO>".
             IF LOOKUP(v-print-fmt,"Century,Unipak,Axis,Soule,SouleUOM,APC,Perform,Fibrex,Allwest,Simkins,HOPX,Carded") > 0 THEN
-                PUT "<FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(120)".
+                PUT "<FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
             ELSE IF LOOKUP(v-print-fmt,"Frankstn,3CPack") > 0 THEN /* task 07211402 */
-                 PUT "<PDF-LEFT=2mm><PDF-TOP=5mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(100)".
-            ELSE PUT "<PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(100)".
+                 PUT "<PDF-LEFT=2mm><PDF-TOP=5mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+            ELSE PUT "<PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
        END.
    END CASE.
    PUT "</PROGRESS>".

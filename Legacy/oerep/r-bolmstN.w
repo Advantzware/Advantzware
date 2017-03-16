@@ -827,7 +827,7 @@ PROCEDURE run-report :
                PUT "<PREVIEW>".        
           END.
           WHEN 3 THEN DO:
-               PUT "<PDF-OUTPUT=" + lv-pdf-file + ">" FORM "x(100)".
+               PUT "<PDF-OUTPUT=" + lv-pdf-file + ">" FORM "x(180)".
           END.
       END CASE.
   END.

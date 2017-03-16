@@ -878,7 +878,7 @@ IF IS-xprint-form THEN DO:
               ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".
               PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW>".
         END.
-        WHEN 5 THEN PUT "<PREVIEW><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf><PDF-LEFT=5mm>" FORM "x(100)".
+        WHEN 5 THEN PUT "<PREVIEW><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf><PDF-LEFT=5mm>" FORM "x(180)".
     END CASE.
 END.
 

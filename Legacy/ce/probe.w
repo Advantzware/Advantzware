@@ -3039,7 +3039,7 @@ PROCEDURE printProbe :
         ASSIGN
            init-dir = v-dir
            lv-pdf-file = init-dir + "Est" + TRIM(est.est-no).
-        PUT "<PREVIEW><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf></PROGRESS>" FORM "x(100)".
+        PUT "<PREVIEW><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf></PROGRESS>" FORM "x(180)".
     END.
     OUTPUT CLOSE.
   END.
